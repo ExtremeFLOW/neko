@@ -613,7 +613,7 @@ contains
                this%n1%x_d, &
                this%n2%x_d, &
                this%n3%x_d, &
-               this%mu%x_d, &
+               this%mu_msk%x_d, &
                n_pts)
           ! Overwriting masked s11, s22, s33 as they are no longer needed
           call device_vcross(this%s11msk%x_d, this%s22msk%x_d, &

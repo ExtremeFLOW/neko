@@ -207,7 +207,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = 0.0_rp
     end do
   end subroutine rzero
@@ -218,7 +218,7 @@ contains
     integer, dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = 0
     end do
   end subroutine izero
@@ -229,7 +229,7 @@ contains
     real(kind=rp), intent(inout) :: a(m,n)
     integer :: j
 
-    do j = 1,n
+    do concurrent (j = 1:n)
        a(e,j) = 0.0_rp
     end do
   end subroutine row_zero
@@ -240,7 +240,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = 1.0_rp
     end do
   end subroutine rone
@@ -252,7 +252,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i)
     end do
 
@@ -272,7 +272,7 @@ contains
     integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, n_mask
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(j) = b(j)
     end do
@@ -293,7 +293,7 @@ contains
     integer, dimension(n_mask) :: mask
     integer :: i, j
 
-    do i = 1, n_mask
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(j) = b(j)
     end do
@@ -316,7 +316,7 @@ contains
     integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, n_mask
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(i) = b(j)
     end do
@@ -327,7 +327,7 @@ contains
   !! \f$ a = b(mask) \f$.
   !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! @param mask Mask array of length n_mask.
   !! the length of the mask array.
   !! @param n Size of the array `b`.
   !! @param n_mask Size of the mask array `mask` and `a`.
@@ -339,7 +339,7 @@ contains
     integer, dimension(n_mask) :: mask
     integer :: i, j
 
-    do i = 1, n_mask
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(i) = b(j)
     end do
@@ -362,7 +362,7 @@ contains
     integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, n_mask
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(j) = b(i)
     end do
@@ -385,7 +385,7 @@ contains
     integer, dimension(n_mask) :: mask
     integer :: i, j
 
-    do i = 1, n_mask
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(j) = b(i)
     end do
@@ -401,7 +401,7 @@ contains
     integer, dimension(n_mask), intent(in) :: mask
     integer :: i
 
-    do i = 1, n_mask
+    do concurrent (i = 1:n_mask)
        a(mask(i)) = c
     end do
 
@@ -414,7 +414,7 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c * a(i)
     end do
   end subroutine cmult
@@ -427,7 +427,7 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c * b(i)
     end do
 
@@ -440,7 +440,7 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c / a(i)
     end do
   end subroutine cdiv
@@ -453,7 +453,7 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c / b(i)
     end do
   end subroutine cdiv2
@@ -465,7 +465,7 @@ contains
     real(kind=rp), intent(in) :: s
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) + s
     end do
   end subroutine cadd
@@ -478,7 +478,7 @@ contains
     real(kind=rp), intent(in) :: s
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) + s
     end do
   end subroutine cadd2
@@ -490,7 +490,7 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c
     end do
   end subroutine cfill
@@ -581,7 +581,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = -a(i)
     end do
 
@@ -616,7 +616,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = 1.0_xp / real(a(i), xp)
     end do
 
@@ -629,7 +629,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b, c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = real(b(i), xp) / c(i)
     end do
 
@@ -642,7 +642,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = 1.0_xp / real(b(i), xp)
     end do
 
@@ -657,7 +657,7 @@ contains
     real(kind=rp), dimension(n), intent(out) :: u1, u2, u3
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        u1(i) = v2(i)*w3(i) - v3(i)*w2(i)
        u2(i) = v3(i)*w1(i) - v1(i)*w3(i)
        u3(i) = v1(i)*w2(i) - v2(i)*w1(i)
@@ -673,7 +673,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: v1, v2
     real(kind=rp), dimension(n), intent(out) :: dot
     integer :: i
-    do i = 1, n
+    do concurrent (i = 1:n)
        dot(i) = u1(i)*v1(i) + u2(i)*v2(i)
     end do
 
@@ -688,7 +688,7 @@ contains
     real(kind=rp), dimension(n), intent(out) :: dot
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        dot(i) = u1(i)*v1(i) + u2(i)*v2(i) + u3(i)*v3(i)
     end do
 
@@ -729,7 +729,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) + b(i)
     end do
 
@@ -743,7 +743,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) + c(i)
     end do
 
@@ -758,7 +758,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) + c(i) + d(i)
     end do
 
@@ -771,7 +771,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) - b(i)
     end do
 
@@ -785,7 +785,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) - c(i)
     end do
 
@@ -801,7 +801,7 @@ contains
     real(kind=rp), intent(in) :: c1
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c1 * a(i) + b(i)
     end do
 
@@ -816,7 +816,7 @@ contains
     real(kind=rp), intent(in) :: c1
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) + c1 * b(i)
     end do
 
@@ -830,7 +830,7 @@ contains
     real(kind=rp), intent(in) :: c1
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) + c1 * ( b(i) * b(i) )
     end do
 
@@ -843,7 +843,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = real(a(i), xp) / b(i)
     end do
 
@@ -857,7 +857,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) * b(i)
     end do
 
@@ -871,7 +871,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) * c(i)
     end do
 
@@ -885,7 +885,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) - b(i) * c(i)
     end do
 
@@ -900,7 +900,7 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = c1 * b(i) + c2 * c(i)
     end do
 
@@ -916,7 +916,7 @@ contains
     real(kind=rp), intent(in) :: c1, c2, c3
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = c1 * b(i) + c2 * c(i) + c3 * d(i)
     end do
 
@@ -933,7 +933,7 @@ contains
     real(kind=rp), intent(in) :: c1, c2, c3, c4
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + c1 * b(i) + c2 * c(i) + c3 * d(i) + c4 * e(i)
     end do
 
@@ -948,7 +948,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: d
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) - b(i) * c(i) * d(i)
     end do
 
@@ -962,7 +962,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + b(i) * c(i)
     end do
 
@@ -977,7 +977,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: d
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + b(i) * c(i) * d(i)
     end do
 
@@ -992,7 +992,7 @@ contains
     real(kind=rp), intent(in) :: s
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + s * b(i) * c(i)
     end do
 
@@ -1008,8 +1008,8 @@ contains
     real(kind=rp), dimension(n), intent(in) :: e
     integer :: i
 
-    do i = 1,n
-       a(i) = b(i)*c(i)-d(i)*e(i)
+    do concurrent (i = 1:n)
+       a(i) = b(i)*c(i) - d(i)*e(i)
     end do
 
   end subroutine ascol5
@@ -1023,7 +1023,7 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = b(i) + c1*(a(i)-c2*c(i))
     end do
 
@@ -1038,7 +1038,7 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + c1*b(i)+c2*c(i)
     end do
 

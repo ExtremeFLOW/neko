@@ -206,6 +206,7 @@ contains
 
          if ((p_cur .eq. CG_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
+            !$omp parallel do private(blk_size, j, k, x_plus)
             do i = 0, n, NEKO_BLK_SIZE
                blk_size = min(NEKO_BLK_SIZE, n - i)
                do concurrent (k = 1:blk_size)
@@ -222,6 +223,7 @@ contains
                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                end do
             end do
+            !$omp end parallel do
             p_prev = p_cur
             p_cur = 1
             if (rnorm .lt. this%abs_tol) exit
@@ -245,10 +247,12 @@ contains
     integer :: i, ierr
 
     tmp = 0.0_xp
+    !$omp parallel do reduction(+:tmp)
     do i = 1, n
        r(i) = r(i) - alpha*w(i)
        tmp = tmp + r(i) * r(i) * mult(i)
     end do
+    !$omp end parallel do
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
          MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     rtr = tmp

@@ -1,9 +1,19 @@
 # Changelog
 
 ## Develop
+- Added hdf5 support for probes and added hdf5 I/O helper routines
 
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
+- Added the `field_subsampler` simulation component, allowing sampling of
+  fields at a different polynomial order and with masking by `point_zones`.
+- Basic implementation of an overset interface boundary condition is added
+- Modify field_writer and probes to by default output in 
+  `case.output_directory`
+- Added MOST wall model and added diagnostics for the wall models.
+- Added the `data_streamer` simulation component, allowing data streaming 
+  with ADIOS2.
+- Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
 - Added ALE framework.
 - Added masked I/O capabilities for the field_writer via the optional 
   `point_zone` JSON keyword.

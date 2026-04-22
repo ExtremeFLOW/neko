@@ -219,11 +219,13 @@ contains
       tmp1 = 0.0_rp
       tmp2 = 0.0_rp
       tmp3 = 0.0_rp
+      !$omp parallel do reduction(+:tmp1,tmp2,tmp3)
       do i = 1, n
          tmp1 = tmp1 + r(i) * coef%mult(i,1,1,1) * u(i,u_prev)
          tmp2 = tmp2 + w(i) * coef%mult(i,1,1,1) * u(i,u_prev)
          tmp3 = tmp3 + r(i) * coef%mult(i,1,1,1) * r(i)
       end do
+      !$omp end parallel do
       reduction(1) = tmp1
       reduction(2) = tmp2
       reduction(3) = tmp3
@@ -259,6 +261,7 @@ contains
          tmp1 = 0.0_rp
          tmp2 = 0.0_rp
          tmp3 = 0.0_rp
+         !$omp parallel do private(k) reduction(+:tmp1,tmp2,tmp3)
          do i = 0, n, NEKO_BLK_SIZE
             do k = 1, min(NEKO_BLK_SIZE, n - i)
                z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
@@ -272,12 +275,13 @@ contains
                tmp3 = tmp3 + r(i+k) * coef%mult(i+k,1,1,1) * r(i+k)
             end do
          end do
-
+         !$omp end parallel do
          reduction(1) = tmp1
          reduction(2) = tmp2
          reduction(3) = tmp3
 
          if (p_cur .eq. PIPECG_P_SPACE) then
+            !$omp parallel do private(k, j, p_prev, x_plus)
             do i = 0, n, NEKO_BLK_SIZE
                do k = 1, min(NEKO_BLK_SIZE, n - i)
                   x_plus(k) = 0.0_rp
@@ -295,6 +299,7 @@ contains
                   u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                end do
             end do
+            !$omp end parallel do
             p_prev = p_cur
             u_prev = PIPECG_P_SPACE+1
             alpha(1) = alpha(p_cur)
@@ -308,6 +313,7 @@ contains
       end do
 
       if ( p_cur .ne. 1) then
+         !$omp parallel do private(k, j, p_prev, x_plus)
          do i = 0, n, NEKO_BLK_SIZE
             do k = 1, min(NEKO_BLK_SIZE, n - i)
                x_plus(k) = 0.0_rp
@@ -325,6 +331,7 @@ contains
                u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
             end do
          end do
+         !$omp end parallel do
       end if
       call this%monitor_stop()
       ksp_results%res_final = rnorm
