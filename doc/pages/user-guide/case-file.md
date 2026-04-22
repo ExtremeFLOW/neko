@@ -818,7 +818,7 @@ In the convective regime, the surface shear stress, \f$\tau\f$, and surface heat
 \overline{u'\theta'} &=& \frac{a^2}{R}\, V\, \Delta\theta \, F_h\left(\frac{z}{z_{0h}}, \mathrm{Ri}_b\right).
 \f}
 
-Here, \f$V\f$ is the horizontal wind speed (given that \f$z\f$ is the wall-normal direction); \f$\theta\f$ is the potential temperature; \f$\mathrm{Ri}_b\f$ is the bulk Richardson number; \f$z_0\f$ and \f$z_{0h}\f$ are the roughness lengths for momentum and heat, respectively; \f$F_m\f$ and \f$F_h\f$ are stability functions as defined in Luois 1979; and \f$a\f$ and \f$R\f$ are constants, also as defined in Luois 1979.
+Here, \f$V\f$ is the horizontal wind speed (given that \f$z\f$ is the wall-normal direction); \f$\theta\f$ is the potential temperature; \f$\mathrm{Ri}_b\f$ is the bulk Richardson number; \f$z_0\f$ and \f$z_{0h}\f$ are the roughness lengths for momentum and heat, respectively; \f$F_m\f$ and \f$F_h\f$ are stability functions as defined in Louis 1979; and \f$a\f$ and \f$R\f$ are constants, also as defined in Louis 1979.
 
 In the stable regime, the surface shear stress and surface heat flux are computed based on Mauritsen et al. 2007:
 \f{eqnarray*}{
