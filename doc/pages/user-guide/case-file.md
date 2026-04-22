@@ -706,32 +706,6 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
 </details>
 
 
-#### MOST wall model
-The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law based on the Obukhov length \f$L\f$, according to
-
-\f{eqnarray*}{
-   \frac{\partial{V}}{\partial z} &=& \frac{u_*}{\kappa z}\phi_m\left(\frac{z}{L}\right), \\
-   \frac{\partial{\theta}}{\partial z} &=& \frac{\overline{(w'\theta')}}{u_* \kappa z}\phi_h\left(\frac{z}{L}\right),
- \f}
-
- where \f$V\f$ is the horizontal wind speed (given that \f$z\f$ is the wall-normal direction) and \f$\theta\f$ is the potential temperature.
-
- The formulations of the correction functions \f$\phi_m\f$ and \f$\phi_h\f$ are taken from Dyer 1974 for the convective regime, and from Holstlag and De Bruin 1988 for the stable regime.
-
- The keywords for this model are:
- - `kappa`: The von Kàrmàn constant, defaults to 0.4 (as is the standard in the ABL literature).
-
- - `Pr`: The turbulent Prandtl number, defaults to 1.0.
- - `z0`: The characteristic roughness length for momentum.
- - `z0h`: The characteristic roughness length for heat. If a negative value is given, the roughness length for heat is computed using the formula of Zilitinkevich 1995, with the provided value acting as the constant \f$-A_0\f$ in the Zilitinkevich formula. Defaults to be the same as `z0`.
- - `type_of_temp_bc`: Accepted values are the lowercase strings `neumann` or `dirichlet`. If `neumann`, the provided value of `bottom_bc_flux_or_temp` is used directly as the surface heat flux in the computation of the wall stress. If `dirichlet`, the value of `bottom_bc_flux_or_temp` is interpreted as a surface temperature, which is then used to compute a heat flux using the MOST relationship.
- - `bottom_bc_flux_or_temp`: Value of the surface heat flux if `type_of_temp_bc` is `neumann`, or value of the surface temperature if `type_of_temp_bc` is `dirichlet`.
- - `scalar_field`: The name of the scalar field to be used as the potential temperature in the equations.
- - `time_dependent_temp_bc`: Boolean. If `false` the value of `bottom_bc_flux_or_temp` will be kept constant throughout the simulation. If `true`, the wall model will look for `bc_value` in `neko_const_registry` and assign that value at each time step. The value of `bc_value` can then be updated in the user file, for example in `user_check`.
- <details>
-  <summary><b><u>Example of user file implementation</u></b></summary>
-
-```fortran
    subroutine user_check(time)
       type(time_state_t), intent(in) :: time
       real(kind=rp), pointer :: bc_value
