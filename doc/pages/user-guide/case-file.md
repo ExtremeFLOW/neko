@@ -826,7 +826,7 @@ In the stable regime, the surface shear stress and surface heat flux are compute
 \overline{u'\theta'} &=& \frac{\Delta\theta}{\ln\left(\dfrac{z}{z_{0h}}\right)} \,\frac{f_{\theta}(\mathrm{Ri}_b)}{\left|f_{\theta}(0)\right|} \left(\frac{\ell}{z}\right) \frac{u_*}{\mathrm{Pr}}.
 \f}
 
-Here, \f$V, \theta, \mathrm{Ri}_b, z_0\f$, and \f$z_{0h}\f$ are the same as above; \f$f_{\tau}\f$ and \f$f_{\theta}\f$ are defined in Mauritsen et al. 2007; \f$l\f$ is a lengthscale (we use \f$l = \kappa z\f$, where \f$\kappa=0.4\f$ is the von Kàrmàn constant); \f$u_*\f$ is the friction velocity, and \f$\mathrm{Pr}\f$ is the turbulent Prantdl number.
+Here, \f$V, \theta, \mathrm{Ri}_b, z_0\f$, and \f$z_{0h}\f$ are the same as above; \f$f_{\tau}\f$ and \f$f_{\theta}\f$ are defined in Mauritsen et al. 2007; \f$l\f$ is a lengthscale (we use \f$l = \kappa z\f$, where \f$\kappa=0.4\f$ is the von Kàrmàn constant); \f$u_*\f$ is the friction velocity, and \f$\mathrm{Pr}\f$ is the turbulent Prandtl number.
 
 The keywords for this wall model are the same as for the [MOST model](#most-wall-model), and a time-varying temperature boundary condition can be applied in the same way as described for the MOST model.
 
