@@ -362,7 +362,7 @@ contains
   !! \f$ a = b(mask) \f$.
   !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! @param mask Mask array of length n_mask.
   !! the length of the mask array.
   !! @param n Size of the array `b`.
   !! @param n_mask Size of the mask array `mask` and `a`.

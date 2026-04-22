@@ -140,6 +140,23 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
+  
+  /** Fortran wrapper for masked scatter copy for aligned mask
+   * Copy a vector \f$ a(mask) = b \f$
+   */
+  void hip_masked_scatter_copy_aligned(void *a, void *b, void *mask,
+                               int *n, int *m, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_scatter_copy_aligned_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  }
 
   /** Fortran wrapper for masked atomic reduction
    * update a vector \f$ a += b(mask) \f$ where mask is not unique

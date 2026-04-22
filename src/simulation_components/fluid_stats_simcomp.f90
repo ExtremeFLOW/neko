@@ -46,7 +46,7 @@ module fluid_stats_simcomp
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default, &
-     json_get_or_lookup_or_default
+       json_get_or_lookup_or_default
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none

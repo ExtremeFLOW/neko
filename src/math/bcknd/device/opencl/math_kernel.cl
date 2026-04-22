@@ -151,6 +151,20 @@ __kernel void masked_scatter_copy_kernel(__global real* __restrict__ a,
 }
 
 /**
+ * Device kernel for masked scatter copy with aligned mask
+ */
+__kernel void masked_scatter_copy_aligned_kernel(__global real* __restrict__ a,
+                                         __global real* __restrict__ b,
+                                         __global int* __restrict__ mask,
+                                         const int n, const int n_mask) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n_mask; i += str) { a[mask[i]] = b[i]; }
+}
+
+/**
  * Device kernel for cfill_mask
  */
 __kernel void cfill_mask_kernel(__global real* __restrict__ a,

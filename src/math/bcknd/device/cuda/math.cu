@@ -151,6 +151,20 @@ extern "C" {
       ((real *) a, (real*) b,(int*) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
   }
+  
+  /** Fortran wrapper for masked scatter copy with aligned mask
+   * Copy a vector \f$ a(mask(i)) = b(i) \f$
+   */
+  void cuda_masked_scatter_copy_aligned(void *a, void *b, void *mask,
+                                int *n, int *m, cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_scatter_copy_aligned_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, (real*) b,(int*) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
+  }
 
 
   /** Fortran wrapper for cfill_mask
