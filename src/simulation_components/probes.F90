@@ -816,7 +816,8 @@ contains
                 call ft%write_attribute("NSteps", out_int)
                 ! Write out the data
                 do i = 1, this%n_fields
-                   call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
+                   call copy(this%vec_out%x, this%out_values(:,i), &
+                        this%vec_out%size())
                    this%vec_out%name = trim(this%which_fields(i))
                    call ft%write_dataset(this%vec_out)
                 end do
@@ -845,7 +846,8 @@ contains
                 ! Write out the data
                 call ft%set_active_group(trim(group_name))
                 do i = 1, this%n_fields
-                   call copy(this%vec_out%x, this%out_values(:,i), this%vec_out%size())
+                   call copy(this%vec_out%x, this%out_values(:,i), &
+                        this%vec_out%size())
                    this%vec_out%name = trim(this%which_fields(i))
                    call ft%write_dataset(this%vec_out)
                 end do

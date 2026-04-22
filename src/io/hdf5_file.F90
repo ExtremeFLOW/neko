@@ -35,7 +35,8 @@ module hdf5_file
   use num_types, only : rp, dp, sp
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
-  use utils, only : neko_error, neko_warning, filename_suffix_pos, filename_split
+  use utils, only : neko_error, neko_warning, filename_suffix_pos, &
+       filename_split
   use mesh, only : mesh_t
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
@@ -82,7 +83,8 @@ module hdf5_file
      procedure, pass(this) :: write_vector => hdf5_file_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_write_matrix
      procedure, pass(this) :: write_field => hdf5_file_write_field
-     procedure, pass(this) :: write_int_attribute => hdf5_file_write_int_attribute
+     procedure, pass(this) :: write_int_attribute => &
+          hdf5_file_write_int_attribute
      procedure, pass(this) :: write_rp_attribute => hdf5_file_write_rp_attribute
      procedure, pass(this) :: read_vector => hdf5_file_read_vector
      procedure, pass(this) :: read_matrix => hdf5_file_read_matrix
@@ -193,16 +195,17 @@ contains
     end if
 
     if (associated(msh)) then
-       call h5gcreate_f(file_id, "Mesh", grp_id, ierr, lcpl_id=h5p_default_f, &
-            gcpl_id=h5p_default_f, gapl_id=h5p_default_f)
+       call h5gcreate_f(file_id, "Mesh", grp_id, ierr, &
+            lcpl_id = h5p_default_f, gcpl_id = h5p_default_f, &
+            gapl_id = h5p_default_f)
 
-       call h5acreate_f(grp_id, "Elements", H5T_NATIVE_INTEGER, filespace, attr_id, &
-            ierr, h5p_default_f, h5p_default_f)
+       call h5acreate_f(grp_id, "Elements", H5T_NATIVE_INTEGER, filespace, &
+            attr_id, ierr, h5p_default_f, h5p_default_f)
        call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, msh%glb_nelv, ddim, ierr)
        call h5aclose_f(attr_id, ierr)
 
-       call h5acreate_f(grp_id, "Dimension", H5T_NATIVE_INTEGER, filespace, attr_id, &
-            ierr, h5p_default_f, h5p_default_f)
+       call h5acreate_f(grp_id, "Dimension", H5T_NATIVE_INTEGER, filespace, &
+            attr_id, ierr, h5p_default_f, h5p_default_f)
        call h5awrite_f(attr_id, H5T_NATIVE_INTEGER, msh%gdim, ddim, ierr)
        call h5aclose_f(attr_id, ierr)
 
@@ -216,8 +219,9 @@ contains
     ! Write restart group (tlag, dtlag)
     !
     if (associated(tlag) .and. associated(dtlag)) then
-       call h5gcreate_f(file_id, "Restart", grp_id, ierr, lcpl_id=h5p_default_f, &
-            gcpl_id=h5p_default_f, gapl_id=h5p_default_f)
+       call h5gcreate_f(file_id, "Restart", grp_id, ierr, &
+            lcpl_id = h5p_default_f, gcpl_id = h5p_default_f, &
+            gapl_id = h5p_default_f)
 
        drank = 1
        ddim = size(tlag)
@@ -230,7 +234,7 @@ contains
 
        call h5screate_simple_f(drank, ddim, filespace, ierr)
 
-       call h5dcreate_f(grp_id,'tlag', H5T_NEKO_REAL, &
+       call h5dcreate_f(grp_id, 'tlag', H5T_NEKO_REAL, &
             filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
@@ -239,7 +243,7 @@ contains
             ddim, ierr, xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
 
-       call h5dcreate_f(grp_id,'dtlag', H5T_NEKO_REAL, &
+       call h5dcreate_f(grp_id, 'dtlag', H5T_NEKO_REAL, &
             filespace, dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
@@ -258,8 +262,9 @@ contains
     ! Write fields group
     !
     if (allocated(fp) .or. allocated(fsp)) then
-       call h5gcreate_f(file_id, "Fields", grp_id, ierr, lcpl_id=h5p_default_f, &
-            gcpl_id=h5p_default_f, gapl_id=h5p_default_f)
+       call h5gcreate_f(file_id, "Fields", grp_id, ierr, &
+            lcpl_id = h5p_default_f, gcpl_id = h5p_default_f, &
+            gapl_id = h5p_default_f)
 
        dcount(1) = int(dof%size(), 8)
        doffset(1) = int(msh%offset_el, 8) * int((dof%Xh%lx**3),8)
@@ -359,8 +364,8 @@ contains
     call h5aread_f(attr_id, H5T_NEKO_REAL, t, ddim, ierr)
     call h5aclose_f(attr_id, ierr)
 
-    select type(data)
-    type is(chkp_t)
+    select type (data)
+    type is (chkp_t)
        data%t = t
     end select
 
@@ -368,7 +373,7 @@ contains
     call h5aread_f(attr_id, H5T_NATIVE_INTEGER, lx, ddim, ierr)
     call h5aclose_f(attr_id, ierr)
 
-    call h5gopen_f(file_id, 'Mesh', grp_id, ierr, gapl_id=h5p_default_f)
+    call h5gopen_f(file_id, 'Mesh', grp_id, ierr, gapl_id = h5p_default_f)
 
     call h5aopen_name_f(grp_id, 'Elements', attr_id, ierr)
     call h5aread_f(attr_id, H5T_NATIVE_INTEGER, glb_nelv, ddim, ierr)
@@ -390,12 +395,14 @@ contains
           dcount = 0
        end if
 
-       call h5gopen_f(file_id, 'Restart', grp_id, ierr, gapl_id=h5p_default_f)
+       call h5gopen_f(file_id, 'Restart', grp_id, ierr, &
+            gapl_id = h5p_default_f)
        call h5dopen_f(grp_id, 'tlag', dset_id, ierr)
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dread_f(dset_id, H5T_NEKO_REAL, tlag, ddim, ierr, xfer_prp=plist_id)
+       call h5dread_f(dset_id, H5T_NEKO_REAL, tlag, ddim, ierr, &
+            xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
 
@@ -403,7 +410,8 @@ contains
        call h5dget_space_f(dset_id, filespace, ierr)
        call h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, &
             doffset, dcount, ierr)
-       call h5dread_f(dset_id, H5T_NEKO_REAL, dtlag, ddim, ierr, xfer_prp=plist_id)
+       call h5dread_f(dset_id, H5T_NEKO_REAL, dtlag, ddim, ierr, &
+            xfer_prp = plist_id)
        call h5dclose_f(dset_id, ierr)
        call h5sclose_f(filespace, ierr)
 
@@ -411,7 +419,7 @@ contains
     end if
 
     if (allocated(fp) .or. allocated(fsp)) then
-       call h5gopen_f(file_id, 'Fields', grp_id, ierr, gapl_id=h5p_default_f)
+       call h5gopen_f(file_id, 'Fields', grp_id, ierr, gapl_id = h5p_default_f)
 
        dcount(1) = int(dof%size(), 8)
        doffset(1) = int(msh%offset_el, 8) * int((dof%Xh%lx**3),8)
@@ -436,7 +444,7 @@ contains
              call h5dread_f(dset_id, H5T_NEKO_REAL, &
                   fp(i)%ptr%x(1,1,1,1), &
                   ddim, ierr, file_space_id = filespace, &
-                  mem_space_id = memspace, xfer_prp=plist_id)
+                  mem_space_id = memspace, xfer_prp = plist_id)
              call h5dclose_f(dset_id, ierr)
              call h5sclose_f(filespace, ierr)
           end do
@@ -452,7 +460,7 @@ contains
                 call h5dread_f(dset_id, H5T_NEKO_REAL, &
                      fsp(i)%ptr%lf(j)%x(1,1,1,1), &
                      ddim, ierr, file_space_id = filespace, &
-                     mem_space_id = memspace, xfer_prp=plist_id)
+                     mem_space_id = memspace, xfer_prp = plist_id)
                 call h5dclose_f(dset_id, ierr)
                 call h5sclose_f(filespace, ierr)
              end do
@@ -481,7 +489,7 @@ contains
     integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur, scalar_count, ab_count
     character(len=32) :: scalar_name
 
-    select type(data)
+    select type (data)
     type is (field_t)
        dof => data%dof
        msh => data%msh
@@ -510,7 +518,7 @@ contains
        nullify(dtlag)
        nullify(tlag)
 
-    type is(chkp_t)
+    type is (chkp_t)
 
        if ( .not. associated(data%u) .or. &
             .not. associated(data%v) .or. &
@@ -521,7 +529,8 @@ contains
 
        fp_size = 4
 
-       if (allocated(data%scalar_lags%items) .and. data%scalar_lags%size() > 0) then
+       if (allocated(data%scalar_lags%items) .and. &
+            data%scalar_lags%size() > 0) then
           scalar_count = data%scalar_lags%size()
        else if (associated(data%s)) then
           scalar_count = 1
@@ -650,10 +659,10 @@ contains
   !! the H5T_NATIVE_XYZ types has a value of 0
   subroutine hdf5_file_determine_real(H5T_NEKO_REAL)
     integer(hid_t), intent(inout) :: H5T_NEKO_REAL
-    select case(rp)
-    case(dp)
+    select case (rp)
+    case (dp)
        H5T_NEKO_REAL = H5T_NATIVE_DOUBLE
-    case(sp)
+    case (sp)
        H5T_NEKO_REAL = H5T_NATIVE_REAL
     case default
        call neko_error("Unsupported real type")
@@ -708,7 +717,7 @@ contains
     call this%set_active_group()
 
     write (log_buf, *) "Opened HDF5 file: ", trim(fname), " with counter: ", &
-     counter
+         counter
     call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
 
   end subroutine hdf5_file_open
@@ -731,7 +740,7 @@ contains
     call h5close_f(ierr)
 
     call neko_log%message("Closed HDF5 file: " // trim(this%get_fname()), &
-     lvl = NEKO_LOG_DEBUG)
+         lvl = NEKO_LOG_DEBUG)
 
   end subroutine hdf5_file_close
 
@@ -750,7 +759,8 @@ contains
 
 
     ! Close previous active group if one is open
-    if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. this%file_id) then
+    if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. &
+         this%file_id) then
        call h5gclose_f(this%active_group_id, ierr)
     end if
     this%active_group_id = -1_hid_t
@@ -923,7 +933,9 @@ contains
     ! ===================
     dset_rank = 1 ! rank 1 array, i.e. a vector
     ddims = [int(total_count, hsize_t)] ! global size of the vector
-    chunkdims = [max(int(max_count, hsize_t), 1_hsize_t)] ! Enable chunking to be able to append
+
+    ! Enable chunking to be able to append
+    chunkdims = [max(int(max_count, hsize_t), 1_hsize_t)]
     ddims_max = [H5S_UNLIMITED_F] ! allow unlimited size for appending
     call h5lexists_f(this%active_group_id, trim(vec%name), dset_exists, ierr)
     if (dset_exists) then
@@ -936,7 +948,8 @@ contains
           ! Retrieve the current filespace (shape space)
           call h5dget_space_f(dset_id, filespace, ierr)
           ! Get the current shape
-          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
+               ierr)
           ! Clean up the opened file space
           call h5sclose_f(filespace, ierr)
           ! Overwrite the new full shape
@@ -963,11 +976,14 @@ contains
     ! Set up writing the data set
     ! ===========================
     dcount = [int(counts, hsize_t)] ! local size of the vector
-    doffset = [int(offset, hsize_t) + append_offset] ! offset for this rank in the global vector
+
+    ! offset for this rank in the global vector
+    doffset = [int(offset, hsize_t) + append_offset]
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, &
+         ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
 
@@ -1047,23 +1063,25 @@ contains
     ! Create the data set
     ! ===================
     dset_rank = 2 ! rank 2 array, i.e. a matrix
-    ddims = [int(strides, hsize_t), int(total_count, hsize_t)] ! global size of the matrix
+    ! global size of the matrix
+    ddims = [int(strides, hsize_t), int(total_count, hsize_t)]
     chunkdims = [int(strides, hsize_t), max(int(max_count, hsize_t), 1_hsize_t)]
     ddims_max = [int(strides, hsize_t), H5S_UNLIMITED_F]
     call h5lexists_f(this%active_group_id, trim(mat%name), dset_exists, ierr)
     if (dset_exists) then
        if (this%overwrite) then
+
+          if (pe_rank .eq. 0) then
+             call neko_warning("Dataset " // trim(mat%name) // &
+                  " already exists and wil be overwritten")
+          end if
           ! retrieve the dset id for the existing data set
-          !if (pe_rank .eq. 0) then
-          !   write(*,*) "Dataset ", trim(mat%name), " already exists in file ", &
-          !   trim(file_get_fname(this)), " and will be overwritten."
-          !   write(*,*) "This only works if the global shape is the same"
-          !end if
           call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
        else
           call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
           call h5dget_space_f(dset_id, filespace, ierr)
-          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
+               ierr)
           call h5sclose_f(filespace, ierr)
           ddims(2) = ddims(2) + tempddims(2)
           append_offset = tempddims(2)
@@ -1084,12 +1102,15 @@ contains
     ! ===========================
     ! Set up writing the data set
     ! ===========================
-    dcount = [int(strides, hsize_t), int(counts, hsize_t)] ! local size of the matrix
-    doffset = [0_hsize_t, int(offset, hsize_t) + append_offset] ! offset for this rank in the global matrix
+    ! local size of the matrix
+    dcount = [int(strides, hsize_t), int(counts, hsize_t)]
+    ! offset for this rank in the global matrix
+    doffset = [0_hsize_t, int(offset, hsize_t) + append_offset]
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, &
+         ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
 
@@ -1183,14 +1204,14 @@ contains
        if (this%overwrite) then
           ! retrieve the dset id for the existing data set
           if (pe_rank .eq. 0) then
-             write(*,*) "Overwriting Dataset: ", trim(field%name)
-             write(*,*) "This only works if the global shape is the same"
+             call neko_warning("Overwriting dataset: " // trim(field%name))
           end if
           call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
        else
           call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
           call h5dget_space_f(dset_id, filespace, ierr)
-          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
+               ierr)
           call h5sclose_f(filespace, ierr)
           ddims(4) = ddims(4) + tempddims(4)
           append_offset = tempddims(4)
@@ -1220,7 +1241,8 @@ contains
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank writes
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, &
+         ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
 
@@ -1228,7 +1250,8 @@ contains
     ! Cast and write the data
     ! =======================
     if (this%precision == sp) then
-       allocate(write_buffer_sp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
+       allocate(write_buffer_sp(field%Xh%lx, field%Xh%ly, field%Xh%lz, &
+            field%msh%nelv))
        if (field%msh%nelv > 0) write_buffer_sp = real(field%x, kind=sp)
        ! Write the data
        call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
@@ -1236,7 +1259,8 @@ contains
             xfer_prp = xf_id)
        deallocate(write_buffer_sp)
     else if (this%precision == dp) then
-       allocate(write_buffer_dp(field%Xh%lx, field%Xh%ly, field%Xh%lz, field%msh%nelv))
+       allocate(write_buffer_dp(field%Xh%lx, field%Xh%ly, field%Xh%lz, &
+            field%msh%nelv))
        if (field%msh%nelv > 0) write_buffer_dp = real(field%x, kind=dp)
        ! Write the data
        call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
@@ -1310,7 +1334,8 @@ contains
                " is not a rank 1 vector in file " // trim(file_get_fname(this)))
        end if
        ! Get the current shape and close the filespace
-       call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+       call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
+            ierr)
        call h5sclose_f(filespace, ierr)
     else
        call neko_error("Dataset " // trim(data_name) // &
@@ -1345,7 +1370,8 @@ contains
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank reads
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, &
+         ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
 
@@ -1420,11 +1446,13 @@ contains
                " is not a rank 2 matrix in file " // trim(file_get_fname(this)))
        end if
        ! Get the current shape and close the filespace
-       call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, ierr)
+       call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
+            ierr)
        call h5sclose_f(filespace, ierr)
     else
        call neko_error("Dataset " // trim(data_name) &
-            // " does not exist in current group " // trim(file_get_fname(this)))
+            // " does not exist in current group " // &
+            trim(file_get_fname(this)))
     end if
 
     ! =============================
@@ -1456,7 +1484,8 @@ contains
     ! Get the total file space (shape) of the data set
     call h5dget_space_f(dset_id, filespace, ierr)
     ! Get only the slice where my rank reads
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, ierr)
+    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, &
+         ierr)
     ! Create the corresponding memory space (buffer) for my local data
     call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
 
@@ -1501,7 +1530,8 @@ contains
        ! create file space of this shape
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
        ! create the data set with the given shape
-       call h5acreate_f(this%active_group_id, trim(attr_name), H5T_NATIVE_INTEGER, &
+       call h5acreate_f(this%active_group_id, trim(attr_name), &
+            H5T_NATIVE_INTEGER, &
             filespace, attr_id, ierr, h5p_default_f, h5p_default_f)
        call h5sclose_f(filespace, ierr)
     end if
