@@ -204,7 +204,7 @@ Mandatory fields for this simcomp are:
 - `fields`: a list of fields to probe. Should be a list of field names that
   exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
 - `output_file`: Name of the file in which to output the probed fields. Must be
-  `.csv`. By default, will be written in the `case.output_directory` folder.
+  `.csv` or `.hdf5`. By default, will be written in the `case.output_directory` folder.
 
 Optional arguments:
 - Interpolation parameters can be provided as a JSON sub-dictionary, 
@@ -232,6 +232,9 @@ executed (same behavior as the statistics).
    x_N, y_N, z_N
    ~~~~~~~~~~~~~~~
    The points are assumed to be in the same units as the simulation.
+   It is also possible to read the probes from a `hdf5` file. The probes 
+   need to be in the same format as csv and must be saved in the root directory
+   of the file under the `xyz` keyword.
 - `points`: Reads a list of points from a JSON file. The points are specified
   based in the `coordinates` keyword and should be a list of x,y,z values.
   The file should have the following format:
@@ -293,6 +296,7 @@ executed (same behavior as the statistics).
    "compute_value"    : 1.0,
    "fields": ["w", "s"],
    "output_file":  "output.csv",
+   "append_output" : false,
    "points": [
       {
         "type": "file",
@@ -322,6 +326,43 @@ time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1
 time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
 ~~~~~~~~~~~~~~~
 
+The `append_output` keyword only works for `hdf5` files. 
+It sets the behaviour of the written probes. 
+If `true` they are written in one group and each sample appends its data.
+
+As an example, the file structure for a simulation where we sample "u", "v",
+and "w" is the following when `append_output=false`:
+~~~~~~~~~~~~~~~{.bash}
+/                        Group
+/probes                  Group
+/probes/Step_1           Group
+/probes/Step_1/u         Dataset {200/Inf}
+/probes/Step_1/v         Dataset {200/Inf}
+/probes/Step_1/w         Dataset {200/Inf}
+/probes/Step_2           Group
+/probes/Step_2/u         Dataset {200/Inf}
+/probes/Step_2/v         Dataset {200/Inf}
+/probes/Step_2/w         Dataset {200/Inf}
+/probes/coordinates      Dataset {200/Inf, 3}
+~~~~~~~~~~~~~~~
+
+Note that every sampled field is saved under the `probes/Step_i` group. Where
+`i` is the sample number. In this case, the sampled time is saved as an attribute
+of the `Step_i` group and accessed by the `time` keyword.
+
+The default behaviour is `append_output=true`. This mode behaves as the `.csv`
+output, where each new sample is appended directly under the `probes` group:
+~~~~~~~~~~~~~~~{bash}
+/                        Group
+/probes                  Group
+/probes/coordinates      Dataset {200/Inf, 3}
+/probes/time             Dataset {2/Inf}
+/probes/u                Dataset {400/Inf}
+/probes/v                Dataset {400/Inf}
+/probes/w                Dataset {400/Inf}
+~~~~~~~~~~~~~~~
+
+Note that here the sample time is stored as a dedicated variable.
 ### field_writer {#simcomp_field_writer}
 Outputs registered 3D fields to a file. Requires a list of field names
 in the `fields` keyword. Primarily to be used for outputting new fields defined

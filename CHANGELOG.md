@@ -1,6 +1,7 @@
 # Changelog
 
 ## Develop
+- Added hdf5 support for probes and added hdf5 I/O helper routines
 
 <<<<<<< feature/interfaceBC
 - Basic implementation of an overset interface boundary condition is added
