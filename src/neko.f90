@@ -109,6 +109,7 @@ module neko
        simulation_component_allocator, simulation_component_allocate, &
        register_simulation_component
   use boundary_operation, only : boundary_operation_t
+  use boundary_flux, only : boundary_flux_t
   use probes, only : probes_t
   use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &
