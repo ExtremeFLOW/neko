@@ -54,8 +54,10 @@ module gs_interp_cpu
      real(rp), allocatable, dimension(:, :, :) :: jm_edg
      !> Edge inverse interpolation operator
      real(rp), allocatable, dimension(:, :, :) :: jm_edgi
-     !> Mask to zero children's faces/edges
+     !> Mask to zero children's nonconforming faces/edges
      real(rp), allocatable, dimension(:, :, :, :) :: zero_msk
+     !> Inverse face/edge/vertex global multiplicity for H1 operator
+     real(rp), allocatable, dimension(:, :, :, :) :: mult_h1_inv
      !> Face global multiplicity for J^T operator (after action)
      real(rp), allocatable, dimension(:, :, :) :: mult_fcs_jt
      !> Inverse of face global multiplicity for J^T operator (before action)
@@ -88,23 +90,43 @@ module gs_interp_cpu
      !> Free type
      procedure, pass(this) :: free => gs_interp_cpu_free
      !> Perform face/edge interpolation
-     procedure, pass(this) :: apply_j => gs_interp_cpu_apply_j
+     procedure, pass(this) :: apply_j_fld => gs_interp_cpu_apply_j_fld
+     procedure, pass(this) :: apply_j_r4 => gs_interp_cpu_apply_j_r4
      !> Perform inverse face/edge interpolation
-     procedure, pass(this) :: apply_ji => gs_interp_cpu_apply_ji
+     procedure, pass(this) :: apply_ji_fld => gs_interp_cpu_apply_ji_fld
+     procedure, pass(this) :: apply_ji_r4 => gs_interp_cpu_apply_ji_r4
      !> Perform transposed face/edge interpolation
-     procedure, pass(this) :: apply_jt => gs_interp_cpu_apply_jt
+     procedure, pass(this) :: apply_jt_fld => gs_interp_cpu_apply_jt_fld
+     procedure, pass(this) :: apply_jt_r4 => gs_interp_cpu_apply_jt_r4
      !> Zero children's nonconforming faces/edges
-     procedure, pass(this) :: zero_children => gs_interp_cpu_zero_children
+     procedure, pass(this) :: zero_children_fld => &
+          gs_interp_cpu_zero_children_fld
+     procedure, pass(this) :: zero_children_r4 => &
+          gs_interp_cpu_zero_children_r4
      !> Set children's nonconforming faces/edges
-     procedure, pass(this) :: set_children => gs_interp_cpu_set_children
+     procedure, pass(this) :: set_children_fld => gs_interp_cpu_set_children_fld
+     procedure, pass(this) :: set_children_r4 => gs_interp_cpu_set_children_r4
+     !> Remove multiplicity for H1
+     procedure, pass(this) :: remove_mult_h1_fld => &
+          gs_interp_cpu_remove_mult_h1_fld
+     procedure, pass(this) :: remove_mult_h1_r4 => &
+          gs_interp_cpu_remove_mult_h1_r4
      !> Remove multiplicity for J^T
-     procedure, pass(this) :: remove_mult_jt => gs_interp_cpu_remove_mult_jt
+     procedure, pass(this) :: remove_mult_jt_fld => &
+          gs_interp_cpu_remove_mult_jt_fld
+     procedure, pass(this) :: remove_mult_jt_r4 => &
+          gs_interp_cpu_remove_mult_jt_r4
      !> Remove multiplicity for J^-1
-     procedure, pass(this) :: remove_mult_ji => gs_interp_cpu_remove_mult_ji
+     procedure, pass(this) :: remove_mult_ji_fld => &
+          gs_interp_cpu_remove_mult_ji_fld
+     procedure, pass(this) :: remove_mult_ji_r4 => &
+          gs_interp_cpu_remove_mult_ji_r4
      !> Add multiplicity for J^T
-     procedure, pass(this) :: add_mult_jt => gs_interp_cpu_add_mult_jt
+     procedure, pass(this) :: add_mult_jt_fld => gs_interp_cpu_add_mult_jt_fld
+     procedure, pass(this) :: add_mult_jt_r4 => gs_interp_cpu_add_mult_jt_r4
      !> Add multiplicity for J^-1
-     procedure, pass(this) :: add_mult_ji => gs_interp_cpu_add_mult_ji
+     procedure, pass(this) :: add_mult_ji_fld => gs_interp_cpu_add_mult_ji_fld
+     procedure, pass(this) :: add_mult_ji_r4 => gs_interp_cpu_add_mult_ji_r4
      !> AMR restart
      procedure, pass(this) :: amr_restart => gs_interp_cpu_amr_restart
   end type gs_interp_cpu_t
@@ -239,16 +261,35 @@ contains
   end subroutine gs_interp_cpu_init_operator
 
   !> Initialise multiplicity arrays
-  !! @param[in]  mult_jt  multiplicity array for J^T for the whole mesh
-  !! @param[in]  mult_ji  multiplicity array for J^-1 for the whole mesh
-  subroutine gs_interp_cpu_init_mult(this, mult_jt, mult_ji)
+  !! @param[in]  mult_h1   multiplicity for H1 for the whole mesh
+  !! @param[in]  mult_jt   multiplicity for J^T for the whole mesh
+  !! @param[in]  mult_ji   multiplicity for J^-1 for the whole mesh
+  subroutine gs_interp_cpu_init_mult(this, mult_h1, mult_jt, mult_ji)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:, :, :, :) , intent(in) :: mult_jt, mult_ji
-    integer :: il, jl, kl, lposx, lposy, itmp
+    real(rp), dimension(:, :, :, :) , intent(in) :: mult_h1, mult_jt, mult_ji
+    integer :: il, jl, kl, el, lposx, lposy, itmp
     real(rp), parameter :: one = 1.0_rp
 
     associate(lx => this%lx, nhang_fcs => this%nhang_fcs, &
          nhang_edg => this%nhang_edg)
+
+      ! get inverse of multiplicity of H1 operator; this must be done
+      ! irrespective of hanging element presence
+      allocate(this%mult_h1_inv(this%lx, this%lx, this%lx, this%nel))
+      do concurrent (il = 1: this%lx, jl = 1: this%lx, kl = 1: this%lx, &
+           el = 1: this%nel)
+         this%mult_h1_inv(il, jl, kl, el) = one / mult_h1(il, jl, kl, el)
+      end do
+      if (this%ifhang) then
+         do concurrent (il = 1: this%lx, jl = 1: this%lx, kl = 1: this%lx, &
+              el = 1: this%nhang_el)
+            this%mult_h1_inv(il, jl, kl, this%hang_el(el)) = &
+                 this%mult_h1_inv(il, jl, kl, this%hang_el(el)) * &
+                 this%zero_msk(il, jl, kl, el)
+         end do
+      end if
+
+      ! the rest may be not needed; for now just a test
       if (this%ifhang) then
          ! face operators
          if (nhang_fcs .gt. 0) then
@@ -399,6 +440,7 @@ contains
     if (allocated(this%jm_edg)) deallocate(this%jm_edg)
     if (allocated(this%jm_edgi)) deallocate(this%jm_edgi)
     if (allocated(this%zero_msk)) deallocate(this%zero_msk)
+    if (allocated(this%mult_h1_inv)) deallocate(this%mult_h1_inv)
     if (allocated(this%mult_fcs_jt)) deallocate(this%mult_fcs_jt)
     if (allocated(this%mult_fcs_jt_inv)) deallocate(this%mult_fcs_jt_inv)
     if (allocated(this%mult_fcs_ji)) deallocate(this%mult_fcs_ji)
@@ -417,11 +459,21 @@ contains
 
   end subroutine gs_interp_cpu_free
 
-  !> Perform face/edge interpolation
+  !> Perform face/edge interpolation using field
   !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_apply_j(this, field)
+  subroutine gs_interp_cpu_apply_j_fld(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+
+    call this%apply_j_r4(field%x)
+
+  end subroutine gs_interp_cpu_apply_j_fld
+
+  !> Perform face/edge interpolation using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_apply_j_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -429,7 +481,7 @@ contains
           ! face interpolation
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) call gs_interp_cpu_apply_j_elem_face(this%lx, &
-                  field%x(:, :, :, this%hang_el(il)), itmp, &
+                  vec(:, :, :, this%hang_el(il)), itmp, &
                   this%hang_fcs(this%hang_fcs_off(il) : &
                   this%hang_fcs_off(il + 1) - 1), &
                   this%jm_fcs(:, :, :, this%hang_fcs_off(il) : &
@@ -439,7 +491,7 @@ contains
           ! edge interpolation
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) call gs_interp_cpu_apply_j_elem_edge(this%lx, &
-                  field%x(:, :, :, this%hang_el(il)), itmp, &
+                  vec(:, :, :, this%hang_el(il)), itmp, &
                   this%hang_edg(this%hang_edg_off(il) : &
                   this%hang_edg_off(il + 1) - 1), &
                   this%jm_edg(:, :, this%hang_edg_off(il) : &
@@ -448,7 +500,7 @@ contains
        end do
     end if
 
-  end subroutine gs_interp_cpu_apply_j
+  end subroutine gs_interp_cpu_apply_j_r4
 
   !> Perform face interpolation in a single element for j
   !! @param[in]     lx        number of points in 1D
@@ -521,11 +573,21 @@ contains
 
   end subroutine gs_interp_cpu_apply_j_elem_edge
 
-  !> Perform inverse face/edge interpolation
+  !> Perform inverse face/edge interpolation using field
   !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_apply_ji(this, field)
+  subroutine gs_interp_cpu_apply_ji_fld(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+
+    call this%apply_ji_r4(field%x)
+
+  end subroutine gs_interp_cpu_apply_ji_fld
+
+  !> Perform inverse face/edge interpolation using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_apply_ji_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -533,7 +595,7 @@ contains
           ! face interpolation
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) call gs_interp_cpu_apply_ji_elem_face(this%lx, &
-                  field%x(:, :, :, this%hang_el(il)), itmp, &
+                  vec(:, :, :, this%hang_el(il)), itmp, &
                   this%hang_fcs(this%hang_fcs_off(il) : &
                   this%hang_fcs_off(il + 1) - 1), &
                   this%jm_fcsi(:, :, :, this%hang_fcs_off(il) : &
@@ -544,7 +606,7 @@ contains
           ! edge interpolation
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) call gs_interp_cpu_apply_ji_elem_edge(this%lx, &
-                  field%x(:, :, :, this%hang_el(il)), itmp, &
+                  vec(:, :, :, this%hang_el(il)), itmp, &
                   this%hang_edg(this%hang_edg_off(il) : &
                   this%hang_edg_off(il + 1) - 1), &
                   this%jm_edgi(:, :, this%hang_edg_off(il) : &
@@ -553,7 +615,7 @@ contains
        end do
     end if
 
-  end subroutine gs_interp_cpu_apply_ji
+  end subroutine gs_interp_cpu_apply_ji_r4
 
   !> Perform inverse face interpolation in a single element for j
   !! @param[in]     lx        number of points in 1D
@@ -632,11 +694,21 @@ contains
 
   end subroutine gs_interp_cpu_apply_ji_elem_edge
 
-  !> Perform transposed face/edge interpolation
+  !> Perform transposed face/edge interpolation using field
   !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_apply_jt(this, field)
+  subroutine gs_interp_cpu_apply_jt_fld(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+
+    call this%apply_jt_r4(field%x)
+
+  end subroutine gs_interp_cpu_apply_jt_fld
+
+  !> Perform transposed face/edge interpolation using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_apply_jt_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -644,7 +716,7 @@ contains
           ! face interpolation
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) call gs_interp_cpu_apply_jt_elem_face(this%lx, &
-                  field%x(:, :, :, this%hang_el(il)), itmp, &
+                  vec(:, :, :, this%hang_el(il)), itmp, &
                   this%hang_fcs(this%hang_fcs_off(il) : &
                   this%hang_fcs_off(il + 1) - 1), &
                   this%jm_fcs(:, :, :, this%hang_fcs_off(il) : &
@@ -654,7 +726,7 @@ contains
           ! edge interpolation
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) call gs_interp_cpu_apply_jt_elem_edge(this%lx, &
-                  field%x(:, :, :, this%hang_el(il)), itmp, &
+                  vec(:, :, :, this%hang_el(il)), itmp, &
                   this%hang_edg(this%hang_edg_off(il) : &
                   this%hang_edg_off(il + 1) - 1), &
                   this%jm_edg(:, :, this%hang_edg_off(il) : &
@@ -663,7 +735,7 @@ contains
        end do
     end if
 
-  end subroutine gs_interp_cpu_apply_jt
+  end subroutine gs_interp_cpu_apply_jt_r4
 
   !> Perform face interpolation in a single element for j transposed
   !! @param[in]     lx        number of points in 1D
@@ -740,28 +812,50 @@ contains
 
   end subroutine gs_interp_cpu_apply_jt_elem_edge
 
-  !> Zero children's nonconforming faces/edges
+  !> Zero children's nonconforming faces/edges using field
   !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_zero_children(this, field)
+  subroutine gs_interp_cpu_zero_children_fld(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+
+    call this%zero_children_r4(field%x)
+
+  end subroutine gs_interp_cpu_zero_children_fld
+
+  !> Zero children's nonconforming faces/edges using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_zero_children_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il
 
     if (this%ifhang) then
        do il = 1, this%nhang_el
-          field%x(:, :, :, this%hang_el(il)) = &
-               field%x(:, :, :, this%hang_el(il)) * this%zero_msk(:, :, :, il)
+          vec(:, :, :, this%hang_el(il)) = vec(:, :, :, this%hang_el(il)) * &
+               this%zero_msk(:, :, :, il)
        end do
     end if
 
-  end subroutine gs_interp_cpu_zero_children
+  end subroutine gs_interp_cpu_zero_children_r4
 
-  !> Set children's nonconforming faces/edges
+  !> Set children's nonconforming faces/edges using field
   !! @param[inout]  field    field for face interpolation
-  !! @param[in]     cnst     constatn value
-  subroutine gs_interp_cpu_set_children(this, field, cnst)
+  !! @param[in]     cnst     constant value
+  subroutine gs_interp_cpu_set_children_fld(this, field, cnst)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+    real(rp), intent(in) :: cnst
+
+    call this%set_children_r4(field%x, cnst)
+
+  end subroutine gs_interp_cpu_set_children_fld
+
+  !> Set children's nonconforming faces/edges using vector
+  !! @param[inout]  vec    vector for face interpolation
+  !! @param[in]     cnst   constant value
+  subroutine gs_interp_cpu_set_children_r4(this, vec, cnst)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     real(rp), intent(in) :: cnst
     integer :: il, jl, itmp
 
@@ -773,7 +867,7 @@ contains
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
-                call vector_to_face(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_face(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
              end do
           end if
@@ -782,20 +876,56 @@ contains
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
-                call vector_to_edge(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_edge(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
              end do
           end if
        end do
     end if
 
-  end subroutine gs_interp_cpu_set_children
+  end subroutine gs_interp_cpu_set_children_r4
 
-  !> Remove multiplicity for J^T
+  !> Add multiplicity for H1 using field
   !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_remove_mult_jt(this, field)
+  subroutine gs_interp_cpu_remove_mult_h1_fld(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+
+    call this%remove_mult_h1_r4(field%x)
+
+  end subroutine gs_interp_cpu_remove_mult_h1_fld
+
+  !> Add multiplicity for H1 using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_remove_mult_h1_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    integer :: il, jl, kl, el
+
+    ! this operation if performed independently of hanging elements presence
+    do concurrent (il = 1: this%lx, jl = 1: this%lx, kl = 1: this%lx, &
+         el = 1: this%nel)
+       vec(il, jl, kl, el) =  vec(il, jl, kl, el) * &
+            this%mult_h1_inv(il, jl, kl, el)
+    end do
+
+  end subroutine gs_interp_cpu_remove_mult_h1_r4
+
+  !> Remove multiplicity for J^T using field
+  !! @param[inout]  field    field for face interpolation
+  subroutine gs_interp_cpu_remove_mult_jt_fld(this, field)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    type(field_t), intent(inout) :: field
+
+    call this%remove_mult_jt_r4(field%x)
+
+  end subroutine gs_interp_cpu_remove_mult_jt_fld
+
+  !> Remove multiplicity for J^T using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_remove_mult_jt_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -804,11 +934,11 @@ contains
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
-                call face_to_vector(field%x(:, :, :, this%hang_el(il)), &
+                call face_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
                 this%face_tmp(:, :) = this%face_tmp(:, :) * &
                      this%mult_fcs_jt_inv(:, :, jl)
-                call vector_to_face(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_face(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
              end do
           end if
@@ -817,24 +947,34 @@ contains
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
-                call edge_to_vector(field%x(:, :, :, this%hang_el(il)), &
+                call edge_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
                 this%edge_tmp(:) = this%edge_tmp(:) * &
                      this%mult_edg_jt_inv(:, jl)
-                call vector_to_edge(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_edge(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
              end do
           end if
        end do
     end if
 
-  end subroutine gs_interp_cpu_remove_mult_jt
+  end subroutine gs_interp_cpu_remove_mult_jt_r4
 
-  !> Remove multiplicity for J^-1
+  !> Remove multiplicity for J^-1 using field
   !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_remove_mult_ji(this, field)
+  subroutine gs_interp_cpu_remove_mult_ji_fld(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+
+    call this%remove_mult_ji_r4(field%x)
+
+  end subroutine gs_interp_cpu_remove_mult_ji_fld
+
+  !> Remove multiplicity for J^-1 using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_remove_mult_ji_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -843,11 +983,11 @@ contains
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
-                call face_to_vector(field%x(:, :, :, this%hang_el(il)), &
+                call face_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
                 this%face_tmp(:, :) = this%face_tmp(:, :) * &
                      this%mult_fcs_ji_inv(:, :, jl)
-                call vector_to_face(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_face(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
              end do
           end if
@@ -856,24 +996,34 @@ contains
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
-                call edge_to_vector(field%x(:, :, :, this%hang_el(il)), &
+                call edge_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
                 this%edge_tmp(:) = this%edge_tmp(:) * &
                      this%mult_edg_ji_inv(:, jl)
-                call vector_to_edge(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_edge(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
              end do
           end if
        end do
     end if
 
-  end subroutine gs_interp_cpu_remove_mult_ji
+  end subroutine gs_interp_cpu_remove_mult_ji_r4
 
-  !> Add multiplicity for J^T
+  !> Add multiplicity for J^T using field
   !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_add_mult_jt(this, field)
+  subroutine gs_interp_cpu_add_mult_jt_fld(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+
+    call this%add_mult_jt_r4(field%x)
+
+  end subroutine gs_interp_cpu_add_mult_jt_fld
+
+  !> Add multiplicity for J^T using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_add_mult_jt_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -882,11 +1032,11 @@ contains
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
-                call face_to_vector(field%x(:, :, :, this%hang_el(il)), &
+                call face_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
                 this%face_tmp(:, :) = this%face_tmp(:, :) * &
                      this%mult_fcs_jt(:, :, jl)
-                call vector_to_face(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_face(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
              end do
           end if
@@ -895,24 +1045,34 @@ contains
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
-                call edge_to_vector(field%x(:, :, :, this%hang_el(il)), &
+                call edge_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
                 this%edge_tmp(:) = this%edge_tmp(:) * &
                      this%mult_edg_jt(:, jl)
-                call vector_to_edge(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_edge(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
              end do
           end if
        end do
     end if
 
-  end subroutine gs_interp_cpu_add_mult_jt
+  end subroutine gs_interp_cpu_add_mult_jt_r4
 
-  !> Add multiplicity for J^-1
+  !> Add multiplicity for J^-1 using field
   !! @param[inout]  field    field for face interpolation
-  subroutine gs_interp_cpu_add_mult_ji(this, field)
+  subroutine gs_interp_cpu_add_mult_ji_fld(this, field)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
+
+    call this%add_mult_ji_r4(field%x)
+
+  end subroutine gs_interp_cpu_add_mult_ji_fld
+
+  !> Add multiplicity for J^-1 using vector
+  !! @param[inout]  vec    vector for face interpolation
+  subroutine gs_interp_cpu_add_mult_ji_r4(this, vec)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -921,11 +1081,11 @@ contains
           itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
-                call face_to_vector(field%x(:, :, :, this%hang_el(il)), &
+                call face_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
                 this%face_tmp(:, :) = this%face_tmp(:, :) * &
                      this%mult_fcs_ji(:, :, jl)
-                call vector_to_face(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_face(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
              end do
           end if
@@ -934,18 +1094,18 @@ contains
           itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
           if (itmp .gt. 0) then
              do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
-                call edge_to_vector(field%x(:, :, :, this%hang_el(il)), &
+                call edge_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
                 this%edge_tmp(:) = this%edge_tmp(:) * &
                      this%mult_edg_ji(:, jl)
-                call vector_to_edge(field%x(:, :, :, this%hang_el(il)), &
+                call vector_to_edge(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
              end do
           end if
        end do
     end if
 
-  end subroutine gs_interp_cpu_add_mult_ji
+  end subroutine gs_interp_cpu_add_mult_ji_r4
 
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
@@ -966,6 +1126,7 @@ contains
     if (allocated(this%jm_edg)) deallocate(this%jm_edg)
     if (allocated(this%jm_edgi)) deallocate(this%jm_edgi)
     if (allocated(this%zero_msk)) deallocate(this%zero_msk)
+    if (allocated(this%mult_h1_inv)) deallocate(this%mult_h1_inv)
     if (allocated(this%mult_fcs_jt)) deallocate(this%mult_fcs_jt)
     if (allocated(this%mult_fcs_jt_inv)) deallocate(this%mult_fcs_jt_inv)
     if (allocated(this%mult_fcs_ji)) deallocate(this%mult_fcs_ji)

@@ -357,22 +357,29 @@ contains
   !> Initialise interpolation multiplicity arrays
   subroutine gs_interp_mult_init(gs)
     type(gs_t), intent(inout) :: gs
-    integer :: il
-    type(field_t) :: mult_jt, mult_ji
+    integer :: itmp
+    type(field_t) :: mult_h1, mult_jt, mult_ji
 
     if (allocated(gs%interp)) then
+       call mult_h1%init(gs%dofmap)
+       itmp = mult_h1%size()
+       mult_h1%x(:, :, :, :) = 1.0_rp
+       call gs%interp%zero_children(mult_h1)
+       call gs%gs_op_vector(mult_h1%x, itmp, GS_OP_ADD)
+       
        call mult_jt%init(gs%dofmap)
-       call mult_ji%init(gs%dofmap)
-       il = mult_jt%size()
        mult_jt%x(:, :, :, :) = 1.0_rp
-       
 !       call gs%interp%apply_jt(mult_jt)
+       call gs%gs_op_vector(mult_jt%x, itmp, GS_OP_ADD)
        
-       call gs%gs_op_vector(mult_jt%x, il, GS_OP_ADD)
+       call mult_ji%init(gs%dofmap)
        mult_ji%x(:, :, :, :) = 1.0_rp
        call gs%interp%apply_ji(mult_ji)
-       call gs%gs_op_vector(mult_ji%x, il, GS_OP_ADD)
-       call gs%interp%init_mult(mult_jt%x, mult_ji%x)
+       call gs%gs_op_vector(mult_ji%x, itmp, GS_OP_ADD)
+       
+       call gs%interp%init_mult(mult_h1%x, mult_jt%x, mult_ji%x)
+       call mult_h1%free()
+       
        call mult_jt%free()
        call mult_ji%free()
     end if
@@ -1214,7 +1221,7 @@ contains
        call gs_op_vector(gs, u%x, n, op)
     end if
 
-!    if (allocated(gs%interp)) call gs%interp%apply_jt(u)
+!    if (allocated(gs%interp)) call gs%interp%remove_mult_jt(u)
     
     if (allocated(gs%interp)) call gs%interp%apply_j(u)
     
@@ -1228,6 +1235,8 @@ contains
     type(field_t), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: n, op
+
+    if (allocated(gs%interp)) call gs%interp%remove_mult_h1(u)
 
     n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
     if (present(event)) then

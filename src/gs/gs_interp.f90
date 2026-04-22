@@ -46,6 +46,8 @@ module gs_interp
   type, public, abstract, extends(amr_restart_component_t) :: gs_interp_t
      !> Polynomial order + 1
      integer :: lx
+     !> Number of local elements
+     integer :: nel
      !> Mesh connectivity
      type(mesh_conn_t), pointer :: conn
      !> AMR interpolation arrays
@@ -91,23 +93,45 @@ module gs_interp
      !> Free type
      procedure(gs_interp_free), pass(this), deferred :: free
      !> Perform face/edge interpolation
-     procedure(gs_interp_apply), pass(this), deferred :: apply_j
+     procedure(gs_interp_apply_fld), pass(this), deferred :: apply_j_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: apply_j_r4
+     generic :: apply_j => apply_j_fld, apply_j_r4
      !> Perform inverse face/edge interpolation
-     procedure(gs_interp_apply), pass(this), deferred :: apply_ji
+     procedure(gs_interp_apply_fld), pass(this), deferred :: apply_ji_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: apply_ji_r4
+     generic :: apply_ji => apply_ji_fld, apply_ji_r4
      !> Perform transposed face/edge interpolation
-     procedure(gs_interp_apply), pass(this), deferred :: apply_jt
+     procedure(gs_interp_apply_fld), pass(this), deferred :: apply_jt_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: apply_jt_r4
+     generic :: apply_jt => apply_jt_fld, apply_jt_r4
      !> Zero children's nonconforming faces/edges
-     procedure(gs_interp_apply), pass(this), deferred :: zero_children
+     procedure(gs_interp_apply_fld), pass(this), deferred :: zero_children_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: zero_children_r4
+     generic :: zero_children => zero_children_fld, zero_children_r4
      !> Set children's nonconforming faces/edges
-     procedure(gs_interp_set), pass(this), deferred :: set_children
+     procedure(gs_interp_set_fld), pass(this), deferred :: set_children_fld
+     procedure(gs_interp_set_r4), pass(this), deferred :: set_children_r4
+     generic :: set_children => set_children_fld, set_children_r4
+     !> Remove multiplicity for H1
+     procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_h1_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_h1_r4
+     generic :: remove_mult_h1 => remove_mult_h1_fld, remove_mult_h1_r4
      !> Remove multiplicity for J^T
-     procedure(gs_interp_apply), pass(this), deferred :: remove_mult_jt
+     procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_jt_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_jt_r4
+     generic :: remove_mult_jt => remove_mult_jt_fld, remove_mult_jt_r4
      !> Remove multiplicity for J^-1
-     procedure(gs_interp_apply), pass(this), deferred :: remove_mult_ji
+     procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_ji_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_ji_r4
+     generic :: remove_mult_ji => remove_mult_ji_fld, remove_mult_ji_r4
      !> Add multiplicity for J^T
-     procedure(gs_interp_apply), pass(this), deferred :: add_mult_jt
+     procedure(gs_interp_apply_fld), pass(this), deferred :: add_mult_jt_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: add_mult_jt_r4
+     generic :: add_mult_jt => add_mult_jt_fld, add_mult_jt_r4
      !> Add multiplicity for J^-1
-     procedure(gs_interp_apply), pass(this), deferred :: add_mult_ji
+     procedure(gs_interp_apply_fld), pass(this), deferred :: add_mult_ji_fld
+     procedure(gs_interp_apply_r4), pass(this), deferred :: add_mult_ji_r4
+     generic :: add_mult_ji => add_mult_ji_fld
      !> AMR restart of a base type
      procedure, pass(this) :: amr_restart_base => gs_interp_amr_restart_base
   end type gs_interp_t
@@ -122,10 +146,10 @@ module gs_interp
      end subroutine gs_interp_init
 
      !> Initialise multiplicity arrays
-     subroutine gs_interp_init_mult(this, mult_jt, mult_ji)
+     subroutine gs_interp_init_mult(this, mult_h1, mult_jt, mult_ji)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
-       real(rp), dimension(:, :, :, :) , intent(in) :: mult_jt, mult_ji
+       real(rp), dimension(:, :, :, :) , intent(in) :: mult_h1, mult_jt, mult_ji
      end subroutine gs_interp_init_mult
 
      !> Free GS interpolation data
@@ -135,19 +159,32 @@ module gs_interp
      end subroutine gs_interp_free
 
      !> Children's nonconforming face/edge interpolation/zero
-     subroutine gs_interp_apply(this, field)
+     subroutine gs_interp_apply_fld(this, field)
        import gs_interp_t, field_t
        class(gs_interp_t), intent(inout) :: this
        type(field_t), intent(inout) :: field
-     end subroutine gs_interp_apply
+     end subroutine gs_interp_apply_fld
+
+     subroutine gs_interp_apply_r4(this, vec)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+     end subroutine gs_interp_apply_r4
 
      !> Children's nonconforming face/edge filling
-     subroutine gs_interp_set(this, field, cnst)
+     subroutine gs_interp_set_fld(this, field, cnst)
        import gs_interp_t, field_t, rp
        class(gs_interp_t), intent(inout) :: this
        type(field_t), intent(inout) :: field
        real(rp), intent(in) :: cnst
-     end subroutine gs_interp_set
+     end subroutine gs_interp_set_fld
+
+     subroutine gs_interp_set_r4(this, vec, cnst)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+       real(rp), intent(in) :: cnst
+     end subroutine gs_interp_set_r4
   end interface
 
 contains
@@ -164,6 +201,7 @@ contains
     ! this type depends on the functional space size and connectivity
     ! information
     this%lx = lx
+    this%nel = conn%nel
     this%conn => conn
 
     ! initialise interpolation arrays
@@ -268,6 +306,7 @@ contains
     nullify(this%conn)
 
     this%lx = 0
+    this%nel = 0
 
     call this%interpolate%free()
 
@@ -300,6 +339,8 @@ contains
   subroutine gs_interp_amr_restart_base(this)
     class(gs_interp_t), intent(inout) :: this
 
+    ! update local element number
+    this%nel = this%conn%nel
     ! reinitialise hanging face/edge information
     call gs_interp_free_hang(this)
     call gs_interp_init_hang(this)
