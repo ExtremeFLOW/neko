@@ -191,6 +191,8 @@ neko_fortran_SOURCES = \
 	bc/field_dirichlet.f90\
 	bc/field_neumann.f90\
 	bc/field_dirichlet_vector.f90\
+	bc/overset_interface.f90\
+	bc/overset_interface_vector.f90\
 	bc/facet_normal.f90\
 	bc/symmetry.f90\
 	bc/non_normal.f90\
