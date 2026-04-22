@@ -118,6 +118,7 @@ var namespaces_dup =
     ] ],
     [ "cylinder_point_zone", "d4/ddd/namespacecylinder__point__zone.html", "d4/ddd/namespacecylinder__point__zone" ],
     [ "data_streamer", "da/d5b/namespacedata__streamer.html", "da/d5b/namespacedata__streamer" ],
+    [ "data_streamer_simcomp", "d9/dda/namespacedata__streamer__simcomp.html", "d9/dda/namespacedata__streamer__simcomp" ],
     [ "datadist", "d7/d40/namespacedatadist.html", "d7/d40/namespacedatadist" ],
     [ "deardorff", "d2/dee/namespacedeardorff.html", "d2/dee/namespacedeardorff" ],
     [ "deardorff_cpu", "d1/ded/namespacedeardorff__cpu.html", [
@@ -426,6 +427,9 @@ var namespaces_dup =
     [ "mean_field_output", "d6/d47/namespacemean__field__output.html", "d6/d47/namespacemean__field__output" ],
     [ "mesh", "db/dfc/namespacemesh.html", "db/dfc/namespacemesh" ],
     [ "mesh_field", "da/dc3/namespacemesh__field.html", "da/dc3/namespacemesh__field" ],
+    [ "most", "de/dfa/namespacemost.html", "de/dfa/namespacemost" ],
+    [ "most_cpu", "d6/db7/namespacemost__cpu.html", "d6/db7/namespacemost__cpu" ],
+    [ "most_device", "d3/d02/namespacemost__device.html", "d3/d02/namespacemost__device" ],
     [ "mxm_wrapper", "d1/d15/namespacemxm__wrapper.html", "d1/d15/namespacemxm__wrapper" ],
     [ "neko", "dd/d62/namespaceneko.html", [
       [ "neko_finalize", "dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8", null ],
@@ -666,7 +670,7 @@ var namespaces_dup =
     ] ],
     [ "rough_log_law", "d7/d0f/namespacerough__log__law.html", "d7/d0f/namespacerough__log__law" ],
     [ "rough_log_law_cpu", "dc/d1f/namespacerough__log__law__cpu.html", [
-      [ "rough_log_law_compute_cpu", "dc/d1f/namespacerough__log__law__cpu.html#a6b904f0bafef8f8c6c1efbddcc94d644", null ]
+      [ "rough_log_law_compute_cpu", "dc/d1f/namespacerough__log__law__cpu.html#a5c7db4f1e8e0d2a6f2f9ed15925afdc3", null ]
     ] ],
     [ "rough_log_law_device", "db/d78/namespacerough__log__law__device.html", "db/d78/namespacerough__log__law__device" ],
     [ "runge_kutta_time_scheme", "d3/dc8/namespacerunge__kutta__time__scheme.html", "d3/dc8/namespacerunge__kutta__time__scheme" ],

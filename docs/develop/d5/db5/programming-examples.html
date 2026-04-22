@@ -102,18 +102,18 @@ $(document).ready(function(){initNavTree('d5/db5/programming-examples.html','../
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><ul><li class="level2"><a href="#autotoc_md200">A user file template</a></li>
-<li class="level2"><a href="#autotoc_md201">Runtime interaction with the JSON case file</a></li>
-<li class="level2"><a href="#autotoc_md202">Fields and vectors</a></li>
-<li class="level2"><a href="#autotoc_md203">Using registries</a></li>
-<li class="level2"><a href="#autotoc_md204">Outputting data</a></li>
-<li class="level2"><a href="#autotoc_md205">Adding custom run-time-selectable types</a></li>
+<ul><ul><li class="level2"><a href="#autotoc_md201">A user file template</a></li>
+<li class="level2"><a href="#autotoc_md202">Runtime interaction with the JSON case file</a></li>
+<li class="level2"><a href="#autotoc_md203">Fields and vectors</a></li>
+<li class="level2"><a href="#autotoc_md204">Using registries</a></li>
+<li class="level2"><a href="#autotoc_md205">Outputting data</a></li>
+<li class="level2"><a href="#autotoc_md206">Adding custom run-time-selectable types</a></li>
 </ul>
 </ul>
 </div>
 <div class="textblock"><p>This directory contains tutorial files that demonstrate various aspects of programming with Neko. Each file provides examples and explanations for specific features, concepts, or workflows in Neko, helping users to customize and extend their simulations effectively.</p>
 <p>The files don't necessarily need to be run, but executing <code>prepare.sh</code> will copy over a mesh and case file from the cylinder example, so you can use <code>makeneko</code> on a <code>.f90</code> and run it.</p>
-<h2><a class="anchor" id="autotoc_md200"></a>
+<h2><a class="anchor" id="autotoc_md201"></a>
 A user file template</h2>
 <p>A user file template with stubs for every possible user subroutine.</p>
 <details >
@@ -250,7 +250,7 @@ A user file template</h2>
 <div class="ttc" id="anamespaceuser_html_add0bbc1561124367d2a98f64884f07ae"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#add0bbc1561124367d2a98f64884f07ae">user::finalize</a></div><div class="ttdeci">subroutine finalize(time)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d6f/fields__vectors__math_8f90_source.html#l00125">fields_vectors_math.f90:126</a></div></div>
 </div><!-- fragment --> </details>
 <p><b>Source file:</b> <code><a class="el" href="../../da/dcf/user__file__template_8f90.html">user_file_template.f90</a></code></p>
-<h2><a class="anchor" id="autotoc_md201"></a>
+<h2><a class="anchor" id="autotoc_md202"></a>
 Runtime interaction with the JSON case file</h2>
 <p>Demonstrates how to define user-specific routines and interact with the JSON parameter dictionary used for simulation configuration.</p>
 <details >
@@ -376,7 +376,7 @@ Runtime interaction with the JSON case file</h2>
 <div class="ttc" id="anamespaceuser_html_a33f4028cbc0128b21d8fec50d386719b"><div class="ttname"><a href="../../dc/d44/namespaceuser.html#a33f4028cbc0128b21d8fec50d386719b">user::some_variable</a></div><div class="ttdeci">real(kind=rp) some_variable</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d90/startup__and__json_8f90_source.html#l00035">startup_and_json.f90:35</a></div></div>
 </div><!-- fragment --> </details>
 <p><b>Source file:</b> <code><a class="el" href="../../d2/d90/startup__and__json_8f90.html">startup_and_json.f90</a></code></p>
-<h2><a class="anchor" id="autotoc_md202"></a>
+<h2><a class="anchor" id="autotoc_md203"></a>
 Fields and vectors</h2>
 <p>Explains how to work with the <code>field_t</code> and <code>vector_t</code> types in Neko, including mathematical operations and lifecycle management. </p><details >
 <summary >
@@ -517,7 +517,7 @@ Fields and vectors</h2>
 <div class="line"><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
 </div><!-- fragment --> </details>
 <p><b>Source file:</b> <code><a class="el" href="../../d3/d6f/fields__vectors__math_8f90.html">fields_vectors_math.f90</a></code></p>
-<h2><a class="anchor" id="autotoc_md203"></a>
+<h2><a class="anchor" id="autotoc_md204"></a>
 Using registries</h2>
 <p>Shows how to use registries in Neko to manage fields and temporary data efficiently. </p><details >
 <summary >
@@ -621,7 +621,7 @@ Using registries</h2>
 <div class="line"><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
 </div><!-- fragment --> </details>
 <p><b>Source file:</b> <code><a class="el" href="../../dd/dd5/registries_8f90.html">registries.f90</a></code></p>
-<h2><a class="anchor" id="autotoc_md204"></a>
+<h2><a class="anchor" id="autotoc_md205"></a>
 Outputting data</h2>
 <p>Shows how to output simulation data to .fld and .csv files. </p><details >
 <summary >
@@ -764,7 +764,7 @@ Outputting data</h2>
 <div class="line"><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
 </div><!-- fragment --> </details>
 <p><b>Source file:</b> <code>output.f90</code></p>
-<h2><a class="anchor" id="autotoc_md205"></a>
+<h2><a class="anchor" id="autotoc_md206"></a>
 Adding custom run-time-selectable types</h2>
 <p>Shows how to add a new run-time-selectable type to Neko, using a source term as an example. </p><details >
 <summary >
@@ -929,7 +929,7 @@ Adding custom run-time-selectable types</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Apr 16 2026 04:33:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 22 2026 04:31:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

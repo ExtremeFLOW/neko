@@ -1,0 +1,12 @@
+<map id="most_cpu::corr_h_stable" name="most_cpu::corr_h_stable">
+<area shape="rect" id="Node000001" title=" " alt="" coords="936,13,1116,38"/>
+<area shape="rect" id="Node000002" href="$d6/db7/namespacemost__cpu.html#a4597a74c2155d949b9a3b631058ad118" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="481,5,655,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="922,28,655,28,655,23,922,23"/>
+<area shape="rect" id="Node000005" href="$d6/db7/namespacemost__cpu.html#a9d839436f6f4cc5c92c8c4ac2c20196d" title=" " alt="" coords="703,38,888,63"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="923,39,889,43,888,38,922,34"/>
+<area shape="rect" id="Node000003" href="$d6/db7/namespacemost__cpu.html#a72093303144cd5c6fb35086cb92eb289" title="Main routine to compute the surface stresses based on MOST." alt="" coords="213,13,433,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="468,28,434,28,434,23,468,23"/>
+<area shape="rect" id="Node000004" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="5,13,165,38"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="200,28,165,28,165,23,200,23"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="689,41,655,38,655,32,689,36"/>
+</map>

@@ -109,13 +109,13 @@ $(document).ready(function(){initNavTree('dc/d1f/namespacerough__log__law__cpu.h
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a6b904f0bafef8f8c6c1efbddcc94d644" id="r_a6b904f0bafef8f8c6c1efbddcc94d644"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d1f/namespacerough__log__law__cpu.html#a6b904f0bafef8f8c6c1efbddcc94d644">rough_log_law_compute_cpu</a> (u, v, w, ind_r, ind_s, ind_t, ind_e, n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, kappa, b, z0, tstep)</td></tr>
-<tr class="memdesc:a6b904f0bafef8f8c6c1efbddcc94d644"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the wall shear stress on CPU using the rough log-law model.  <br /></td></tr>
-<tr class="separator:a6b904f0bafef8f8c6c1efbddcc94d644"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c7db4f1e8e0d2a6f2f9ed15925afdc3" id="r_a5c7db4f1e8e0d2a6f2f9ed15925afdc3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d1f/namespacerough__log__law__cpu.html#a5c7db4f1e8e0d2a6f2f9ed15925afdc3">rough_log_law_compute_cpu</a> (u, v, w, ind_r, ind_s, ind_t, ind_e, n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, kappa, rho, b, z0, tstep)</td></tr>
+<tr class="memdesc:a5c7db4f1e8e0d2a6f2f9ed15925afdc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the wall shear stress on CPU using the rough log-law model.  <br /></td></tr>
+<tr class="separator:a5c7db4f1e8e0d2a6f2f9ed15925afdc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a6b904f0bafef8f8c6c1efbddcc94d644" name="a6b904f0bafef8f8c6c1efbddcc94d644"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6b904f0bafef8f8c6c1efbddcc94d644">&#9670;&#160;</a></span>rough_log_law_compute_cpu()</h2>
+<a id="a5c7db4f1e8e0d2a6f2f9ed15925afdc3" name="a5c7db4f1e8e0d2a6f2f9ed15925afdc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c7db4f1e8e0d2a6f2f9ed15925afdc3">&#9670;&#160;</a></span>rough_log_law_compute_cpu()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -232,6 +232,12 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>rho</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>b</em>, </td>
         </tr>
         <tr>
@@ -264,8 +270,8 @@ Functions/Subroutines</h2></td></tr>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dc/d1f/namespacerough__log__law__cpu_a6b904f0bafef8f8c6c1efbddcc94d644_icgraph.png" border="0" usemap="#adc/d1f/namespacerough__log__law__cpu_a6b904f0bafef8f8c6c1efbddcc94d644_icgraph" alt=""/></div>
-<map name="adc/d1f/namespacerough__log__law__cpu_a6b904f0bafef8f8c6c1efbddcc94d644_icgraph" id="adc/d1f/namespacerough__log__law__cpu_a6b904f0bafef8f8c6c1efbddcc94d644_icgraph">
+<div class="center"><img src="../../dc/d1f/namespacerough__log__law__cpu_a5c7db4f1e8e0d2a6f2f9ed15925afdc3_icgraph.png" border="0" usemap="#adc/d1f/namespacerough__log__law__cpu_a5c7db4f1e8e0d2a6f2f9ed15925afdc3_icgraph" alt=""/></div>
+<map name="adc/d1f/namespacerough__log__law__cpu_a5c7db4f1e8e0d2a6f2f9ed15925afdc3_icgraph" id="adc/d1f/namespacerough__log__law__cpu_a5c7db4f1e8e0d2a6f2f9ed15925afdc3_icgraph">
 <area shape="rect" title="Compute the wall shear stress on CPU using the rough log&#45;law model." alt="" coords="213,5,424,45"/>
 <area shape="rect" href="../../d7/d0f/namespacerough__log__law.html#af4bdad1f2c2574505332afd9ccbbfa95" title="Compute the wall shear stress." alt="" coords="5,5,165,45"/>
 <area shape="poly" title=" " alt="" coords="200,28,166,28,166,23,200,23"/>
@@ -280,7 +286,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d1f/namespacerough__log__law__cpu.html">rough_log_law_cpu</a></li>
-    <li class="footer">Generated on Thu Apr 16 2026 04:33:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 22 2026 04:31:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

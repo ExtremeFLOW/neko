@@ -1,0 +1,7 @@
+<map id="most_device::most_compute_device" name="most_device::most_compute_device">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="272,35,483,75"/>
+<area shape="rect" id="Node000002" href="$d7/d87/interfacemost__device_1_1hip__most__compute.html#aa9acbe464062fe37b40cfa7badc0ee50" title=" " alt="" coords="5,5,224,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="258,44,224,40,224,35,259,39"/>
+<area shape="rect" id="Node000003" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="35,70,195,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="259,70,195,77,195,72,258,65"/>
+</map>

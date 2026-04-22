@@ -1,5 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d0/d2d/structregularization_1_1regularization__t.html" title=" " alt="" coords="5,13,228,38"/>
-<area shape="rect" id="Node000001" href="$da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html" title=" " alt="" coords="276,5,425,45"/>
-<area shape="poly" id="edge144_Node000000_Node000001" title=" " alt="" coords="242,23,276,23,276,28,242,28"/>
+<area shape="rect" id="Node000000" href="$d8/da8/structre2_1_1re2v2__t.html" title="NEKTON re2 element data (version 2)" alt="" coords="5,5,105,31"/>
+<area shape="rect" id="Node000001" href="$d9/df1/structre2_1_1re2v2__xyz__t.html" title="NEKTON re2 element data (3d) (version 2)" alt="" coords="153,5,284,31"/>
+<area shape="poly" id="edge143_Node000000_Node000001" title=" " alt="" coords="119,15,153,15,153,21,119,21"/>
 </map>

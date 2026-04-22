@@ -323,13 +323,13 @@ $(document).ready(function(){initNavTree('d6/ddb/pipecg_8f90_source.html','../..
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>      tmp1 = 0.0_rp</div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>      tmp2 = 0.0_rp</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>      tmp3 = 0.0_rp</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>      <span class="comment">!$omp parallel do simd reduction(+:tmp1,tmp2,tmp3)</span></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>      <span class="comment">!$omp parallel do reduction(+:tmp1,tmp2,tmp3)</span></div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>      <span class="keywordflow">do</span> i = 1, n</div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>         tmp1 = tmp1 + r(i) * coef%mult(i,1,1,1) * u(i,u_prev)</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>         tmp2 = tmp2 + w(i) * coef%mult(i,1,1,1) * u(i,u_prev)</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>         tmp3 = tmp3 + r(i) * coef%mult(i,1,1,1) * r(i)</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>      <span class="comment">!$omp end parallel do simd</span></div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>      <span class="comment">!$omp end parallel do</span></div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>      reduction(1) = tmp1</div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>      reduction(2) = tmp2</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>      reduction(3) = tmp3</div>
@@ -517,7 +517,7 @@ $(document).ready(function(){initNavTree('d6/ddb/pipecg_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_902813e86b127dbb0dcb2952584e8a67.html">cpu</a></li><li class="navelem"><a class="el" href="../../d6/ddb/pipecg_8f90.html">pipecg.f90</a></li>
-    <li class="footer">Generated on Thu Apr 16 2026 04:33:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 22 2026 04:31:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
