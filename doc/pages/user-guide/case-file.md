@@ -602,7 +602,7 @@ A more detailed description of each boundary condition is provided below.
   }
   ```
 
-#### MOST wall model
+#### MOST wall model {#most-wall-model}
 The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law according to
 
 \f{eqnarray*}{
@@ -686,84 +686,6 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
     "bottom_bc_flux_or_temp": 0.05,
     "scalar_field": "temperature",
     "time_dependent_temp_bc": "false",
-    "zone_indices": [5],
-    "h_index": 1
-  }
-  ```
-
-  </details>
-
-   <details>
-   <summary><b><u>References</u></b></summary>
-
- Dyer, A. J. (1974). A review of flux-profile relationships. Boundary-Layer Meteorology, 7(3), 363–372. https://doi.org/10.1007/BF00240838
-
-  Holtslag, A. A. M., & De Bruin, H. A. R. (1988). Applied Modeling of the Nighttime Surface Energy Balance over Land. Journal of Applied Meteorology, 27(6), 689–704. https://doi.org/10.1175/1520-0450(1988)027%253C0689:AMOTNS%253E2.0.CO;2
-
-  Monin, A. S., & Obukhov, A. M. (1954). Basic laws of turbulent mixing in the surface layer of the atmosphere. Tr Akad Nauk SSSR Geofiz Inst, 24(151), 163–187.
-
-  Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60.
-</details>
-
-
-   subroutine user_check(time)
-      type(time_state_t), intent(in) :: time
-      real(kind=rp), pointer :: bc_value
-
-      bc_value => neko_const_registry%get_real_scalar("bc_value")
-
-      bc_value = scalar_bc
-
-   end subroutine user_check
-
-  subroutine dirichlet_update(fields, bc, time)
-    type(field_list_t), intent(inout) :: fields
-    type(field_dirichlet_t), intent(in) :: bc
-    type(time_state_t), intent(in) :: time
-    integer i
-
-      if (fields%items(1)%ptr%name .eq. "temperature") then
-
-       associate(s => fields%items(1)%ptr)
-            do i = 1, bc%msk(0)
-               s%x(bc%msk(i), 1, 1, 1) = scalar_bc(time)
-            end do
-            if (neko_bcknd_device .eq. 1) then
-               call device_memcpy(s%x, s%x_d, s%size(), &
-                     host_to_device, sync=.false.)
-            end if
-         end associate
-      end if
-   end subroutine dirichlet_update
-
-   function scalar_bc(time) result(bc)
-      type(time_state_t), intent(in) :: time
-      real(kind=rp) :: bc
-
-      bc = 265.0_rp - 0.25_rp/3600.0_rp*time%t
-
-   end function scalar_bc
-```
-
-</details>
-
- @attention This wall model uses a `neumann` or `dirichlet` value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see [Boundary conditions](#boundary-conditions)).
-
-  <details>
-  <summary><b><u>Example code snippet</u></b></summary>
-
-  ```json
-  {
-    "type": "wall_model",
-    "model": "most",
-    "kappa": 0.4,
-    "Pr": 1.0,
-    "z0": 0.1,
-    "z0h": 0.1,
-    "type_of_temp_bc": "neumann",
-    "bottom_bc_flux_or_temp": 0.05,
-    "scalar_field": "temperature",
-    "time_dependent_temp_bc": false,
     "zone_indices": [5],
     "h_index": 1
   }
