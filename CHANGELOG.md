@@ -4,6 +4,7 @@
 
 - Added the variable NEKO_VARNAME_LEN in `common/utils.f90` to set a fixed
   size for `name` attributes in e.g. `field_t` and `vector_t`.
+- Added MOST wall model and added diagnostics for the wall models.
 - Added the `data_streamer` simulation component, allowing data streaming 
   with ADIOS2.
 - Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
