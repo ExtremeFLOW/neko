@@ -271,7 +271,8 @@ contains
        if (len_trim(filename) .ne. 0) then
           filename_provided = .true.
           call this%output%init(trim(filename), size(fields), &
-               precision = precision, format = format)
+               precision = precision, format = format, &
+               path = this%case%output_directory)
 
           if (present(subdivide)) then
              call this%output%file_%set_subdivide(subdivide)
