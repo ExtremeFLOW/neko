@@ -24,15 +24,15 @@
 ! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
 ! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
 ! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 ! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 ! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements `most_t`.
-module most
+!> Implements `richardson_t`.
+module richardson
   use field, only : field_t
   use num_types, only : rp
   use json_module, only : json_file
@@ -42,8 +42,8 @@ module most
   use registry, only : neko_registry, neko_const_registry
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup, json_get_or_lookup_or_default
-  use most_device, only : most_compute_device
-  use most_cpu, only : most_compute_cpu
+  use richardson_cpu, only : richardson_compute_cpu
+  use richardson_device, only : richardson_compute_device
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error, neko_warning, nonlinear_index
   use logger, only : LOG_SIZE, neko_log
@@ -54,11 +54,10 @@ module most
   implicit none
   private
 
-  !> Wall model based on the Monin-Obukhov Similarity Theory for atmospheric
-  !! boundary layer flows. Automatically switches between stable, unstable and
-  !! neutral layer formulations based on the Richardson number.
-  !!
-  type, public, extends(wall_model_t) :: most_t
+  !> Wall model similar to the Monin-Obukhov Similarity Theory for atmospheric
+  !! boundary layer flows, but which avoids the iterative computation of the Obukhov length,
+  !! computing the Richardson number directly (Mauritsen, 2007)
+  type, public, extends(wall_model_t) :: richardson_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa
      !> The turbulent Prandtl number
@@ -83,20 +82,20 @@ module most
      type(c_ptr) :: h_z_idx_d = C_NULL_PTR
    contains
      !> Constructor from JSON.
-     procedure, pass(this) :: init => most_init
+     procedure, pass(this) :: init => richardson_init
      !> Partial constructor from JSON, meant to work as the first stage of
      !! initialization before the `finalize` call.
-     procedure, pass(this) :: partial_init => most_partial_init
+     procedure, pass(this) :: partial_init => richardson_partial_init
      !> Finalize the construction using the mask and facet arrays of the bc.
-     procedure, pass(this) :: finalize => most_finalize
+     procedure, pass(this) :: finalize => richardson_finalize
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-          most_init_from_components
+          richardson_init_from_components
      !> Destructor.
-     procedure, pass(this) :: free => most_free
+     procedure, pass(this) :: free => richardson_free
      !> Compute the wall shear stress.
-     procedure, pass(this) :: compute => most_compute
-  end type most_t
+     procedure, pass(this) :: compute => richardson_compute
+  end type richardson_t
 
 contains
   !> Constructor from JSON.
@@ -106,9 +105,9 @@ contains
   !! @param facet The boundary facets.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine most_init(this, scheme_name, coef, msk, facet, &
+  subroutine richardson_init(this, scheme_name, coef, msk, facet, &
        h_index, json)
-    class(most_t), intent(inout) :: this
+    class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
@@ -146,21 +145,22 @@ contains
     if (size(g_tmp) == 3) then
        g = g_tmp
     else
-       call neko_error("MOST WM: The gravity vector should have exactly 3 components")
+       call neko_error("Richardson WM: The gravity vector should " &
+       // "have exactly 3 components")
     end if
     deallocate(g_tmp)
 
-    call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
-         kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
+    call this%init_from_components(scheme_name, scalar_name, coef, &
+         msk, facet, h_index, kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
     deallocate(bc_type)
     deallocate(scalar_name)
-  end subroutine most_init
+  end subroutine richardson_init
 
   !> Constructor from JSON.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine most_partial_init(this, coef, json)
-    class(most_t), intent(inout) :: this
+  subroutine richardson_partial_init(this, coef, json)
+    class(richardson_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: g_tmp(:)
@@ -187,12 +187,13 @@ contains
     if (size(g_tmp) == 3) then
        this%g = g_tmp
     else
-       call neko_error("MOST WM: The gravity vector should have exactly 3 components")
+       call neko_error("Richardson WM: The gravity vector should " &
+       // "have exactly 3 components")
     end if
     deallocate(g_tmp)
 
     call neko_log%section('Wall model')
-    write(log_buf, '(A, A)') 'Model : MOST'
+    write(log_buf, '(A, A)') 'Model : Richardson'
     call neko_log%message(log_buf)
     write(log_buf, '(A, A)') 'scalar_name : ', trim(this%scalar_name)
     call neko_log%message(log_buf)
@@ -212,13 +213,13 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-  end subroutine most_partial_init
+  end subroutine richardson_partial_init
 
   !> Finalize the construction using the mask and facet arrays of the bc.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  subroutine most_finalize(this, msk, facet)
-    class(most_t), intent(inout) :: this
+  subroutine richardson_finalize(this, msk, facet)
+    class(richardson_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     integer :: i, fid
@@ -271,19 +272,19 @@ contains
           this%h_y_idx(i) = 0
           this%h_z_idx(i) = - this%h_index
        case default
-          call neko_error("The face index is not correct (most.f90)")
+          call neko_error("The face index is not correct (richardson.f90)")
        end select
-
     end do
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%h_x_idx, this%h_x_idx_d, this%n_nodes, &
             HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%h_y_idx, this%h_y_idx_d, this%n_nodes, &
             HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%h_z_idx, this%h_z_idx_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .true.)
     end if
-  end subroutine most_finalize
+  end subroutine richardson_finalize
 
   !> Constructor from components.
   !! @param scheme_name The name of the scheme for which the wall model is used.
@@ -296,12 +297,12 @@ contains
   !! @param z0 The roughness height.
   !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
-  !! @param scalar_name The name of the scalar field (temperature) for MOST.
+  !! @param scalar_name The name of the scalar field (temperature) for Richardson WM.
   !! @param bc_value The heat flux at the surface boundary condition.
-  subroutine most_init_from_components(this, scheme_name, scalar_name, &
-       coef, msk, facet, h_index, kappa, g, Pr, z0, &
+  subroutine richardson_init_from_components(this, scheme_name, &
+       scalar_name, coef, msk, facet, h_index, kappa, g, Pr, z0, &
        z0h_in, bc_type, bc_value)
-    class(most_t), intent(inout) :: this
+    class(richardson_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     character(len=*), intent(in) :: bc_type
     character(len=*), intent(in) :: scalar_name
@@ -330,7 +331,8 @@ contains
     !> Check magnitude of g
     g_mag = sqrt(sum(g**2))
     if (g_mag < 1.0e-6_rp) then
-       call neko_error("MOST WM: Gravity magnitude is zero. Check your input configuration.")
+       call neko_error("Richardson WM: Gravity magnitude is zero. " &
+       // "Check your input configuration.")
     end if
 
     !> Check alignment across all nodes (handling hills/slopes)
@@ -342,27 +344,31 @@ contains
     end do
     max_ang = max_ang * 180.0_rp / (4.0_rp * atan(1.0_rp))
     if (max_ang > 8.0_rp) then
-       write(log_buf, '(A, F6.2, A)') "MOST WM: Significant gravity-normal misalignment (max ", &
+       write(log_buf, '(A, F6.2, A)') "Richardson WM: Significant " &
+            // "gravity-normal misalignment (max ", &
             max_ang, " deg). Stability corrections will use projected gravity."
        call neko_warning(trim(log_buf))
     end if
 
     !> Check sampling height
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
-       call neko_error("MOST WM: Sampling height h must be greater than roughness z0.")
-    else if ( (this%z0h_in .gt. 0.0_rp) .and. (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
-       call neko_error("MOST WM: Sampling height h must be greater than thermal roughness z0h.")
+       call neko_error("Richardson WM: Sampling height h must be greater " &
+            // "than roughness z0.")
+    else if ( (this%z0h_in .gt. 0.0_rp) .and. &
+      (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
+       call neko_error("Richardson WM: Sampling height h must be greater " &
+            // "than thermal roughness z0h.")
     else if (this%z0 .eq. 0.0_rp) then
-       call neko_error("MOST WM: Roughness z0 must be greater than 0.")
+       call neko_error("Richardson WM: Roughness z0 must be greater than 0.")
     else if (this%z0h_in .eq. 0.0_rp) then
-       call neko_error("MOST WM: Thermal roughness z0h must be greater than 0.")
+       call neko_error("Richardson WM: Thermal roughness z0h must be greater than 0.")
     end if
 
-  end subroutine most_init_from_components
+  end subroutine richardson_init_from_components
 
-  !> Destructor for the most_t (base) class.
-  subroutine most_free(this)
-    class(most_t), intent(inout) :: this
+  !> Destructor for the richardson_t (base) class.
+  subroutine richardson_free(this)
+    class(richardson_t), intent(inout) :: this
 
     if (allocated(this%bc_type)) then
        deallocate(this%bc_type)
@@ -403,13 +409,13 @@ contains
        call device_free(this%h_z_idx_d)
     end if
 
-  end subroutine most_free
+  end subroutine richardson_free
 
   !> Compute the wall shear stress.
   !> @param t The time value.
   !> @param tstep The time iteration.
-  subroutine most_compute(this, t, tstep)
-    class(most_t), intent(inout) :: this
+  subroutine richardson_compute(this, t, tstep)
+    class(richardson_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: u
@@ -429,7 +435,7 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call most_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, &
+       call richardson_compute_device(u%x_d, v%x_d, w%x_d, temp%x_d, &
             this%ind_r_d, this%ind_s_d, this%ind_t_d, &
             this%ind_e_d, this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
@@ -439,7 +445,7 @@ contains
             this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, this%ts%x_d,&
             this%q%x_d, this%h_x_idx_d, this%h_y_idx_d, this%h_z_idx_d)
     else
-       call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
+       call richardson_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
             this%ind_s, this%ind_t, this%ind_e, this%n_x%x, &
             this%n_y%x, this%n_z%x, this%h%x, this%tau_x%x, &
             this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, &
@@ -450,13 +456,13 @@ contains
             this%q%x, this%h_x_idx, this%h_y_idx, this%h_z_idx)
     end if
 
-    call most_log_diagnostics(this%Ri_b, this%L_ob, &
+    call richardson_log_diagnostics(this%Ri_b, this%L_ob, &
          this%utau, this%magu, this%ti, this%ts, this%q, &
          this%n_nodes, this%bc_value)
-  end subroutine most_compute
+  end subroutine richardson_compute
 
-  subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, ts, q, &
-       n_nodes, bc_value)
+  subroutine richardson_log_diagnostics(Ri_b, L_ob, utau, magu, &
+       ti, ts, q, n_nodes, bc_value)
     character(len=LOG_SIZE) :: log_buf
     integer, intent(in) :: n_nodes
     real(kind=rp), intent(in) :: bc_value
@@ -464,49 +470,49 @@ contains
     type(vector_t), intent(in) :: magu, ti, ts, q
 
     call neko_log%section("Wall model diagnostics")
-    write(log_buf, '(A)') '--- sum --- ' !min max ---'
+    write(log_buf, '(A)') '--- sum --- ' ! min max ---'
     call neko_log%message(trim(log_buf))
-    write(log_buf,'(A,3E15.7)') "Ri_b: ",&
+    write(log_buf, '(A, E15.7)') "Ri_b: ", &
          vector_glsum(Ri_b, n_nodes) !, &
     !  vector_glmin(Ri_b, n_nodes), vector_glmax(Ri_b, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "L_ob: ", &
-         vector_glsum(L_ob, n_nodes)!, &
+    write(log_buf, '(A, E15.7)') "L_ob: ", &
+         vector_glsum(L_ob, n_nodes) !, &
     !  vector_glmin(L_ob, n_nodes), vector_glmax(L_ob, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "utau: ", &
-         vector_glsum(utau, n_nodes)!, &
+    write(log_buf, '(A, E15.7)') "utau: ", &
+         vector_glsum(utau, n_nodes) !, &
     !  vector_glmin(utau, n_nodes), vector_glmax(utau, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "magu: ", &
-         vector_glsum(magu, n_nodes)!, &
+    write(log_buf, '(A, E15.7)') "magu: ", &
+         vector_glsum(magu, n_nodes) !, &
     !  vector_glmin(magu, n_nodes), vector_glmax(magu, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "ti: ", &
-         vector_glsum(ti, n_nodes)!, &
+    write(log_buf, '(A, E15.7)') "ti: ", &
+         vector_glsum(ti, n_nodes) !, &
     !  vector_glmin(ti, n_nodes), vector_glmax(ti, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "ts: ", &
-         vector_glsum(ts, n_nodes)!, &
+    write(log_buf, '(A, E15.7)') "ts: ", &
+         vector_glsum(ts, n_nodes) !, &
     !  vector_glmin(ts, n_nodes), vector_glmax(ts, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,3E15.7)') "q: ", &
-         vector_glsum(q, n_nodes)!, &
+    write(log_buf, '(A, E15.7)') "q: ", &
+         vector_glsum(q, n_nodes) !, &
     !  vector_glmin(q, n_nodes), vector_glmax(q, n_nodes)
     call neko_log%message(trim(log_buf))
 
-    write(log_buf,'(A,E15.7)') "bc_value: ", bc_value
+    write(log_buf, '(A, E15.7)') "bc_value: ", bc_value
     call neko_log%message(trim(log_buf))
 
     call neko_log%end_section()
 
-  end subroutine most_log_diagnostics
+  end subroutine richardson_log_diagnostics
 
 
-end module most
+end module richardson
