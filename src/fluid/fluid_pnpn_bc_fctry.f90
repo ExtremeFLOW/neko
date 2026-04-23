@@ -111,15 +111,18 @@ contains
        end select
 
     case ("overset_interface")
+      call json_get_or_default(json, "couple_pressure", temp_logical, .false.)
+      if (temp_logical) then
        allocate(overset_interface_t::object)
        select type (obj => object)
        type is (overset_interface_t)
-          call json_get_or_default(json, "couple_pressure", temp_logical, .false.)
-          if (temp_logical) then
+            write(*,*) "Coupling pressure on overset interface"
             call json%add("field_name", scheme%p%name)
-            obj%morph_interface => user%morph_interface
-          end if
+            obj%morph_interface => user%morph_interface      
        end select
+      else
+         return
+      end if
 
     case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)
