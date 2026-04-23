@@ -3,6 +3,8 @@
 ## Develop
 - Added hdf5 support for probes and added hdf5 I/O helper routines
 
+- Added the variable NEKO_VARNAME_LEN in `common/utils.f90` to set a fixed
+  size for `name` attributes in e.g. `field_t` and `vector_t`.
 - Added the `field_subsampler` simulation component, allowing sampling of
   fields at a different polynomial order and with masking by `point_zones`.
 - Basic implementation of an overset interface boundary condition is added
