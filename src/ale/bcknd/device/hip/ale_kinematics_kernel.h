@@ -67,12 +67,14 @@ __global__ void ale_add_kinematics_kernel(const int n,
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
+  const T one = 1.0;
+  const T tol = 1e-6;
 
   for (int i = idx; i < n; i += str) {
     const T p_val = phi[i];
     T v_tan_x, v_tan_y, v_tan_z;
 
-    if (abs(p_val - 1.0) < 1e-6) {
+    if (fabs(p_val - one) < tol) {
       const T rx = x[i] - kin_params.cx;
       const T ry = y[i] - kin_params.cy;
       const T rz = z[i] - kin_params.cz;
