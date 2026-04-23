@@ -1163,7 +1163,8 @@ contains
 
     end do
 
-    wbf = 0.0_rp
+    wbf%x = 0.0_rp    
+    
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
             HOST_TO_DEVICE, .false.)

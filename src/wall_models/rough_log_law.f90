@@ -41,7 +41,8 @@ module rough_log_law
   use wall_model, only : wall_model_t
   use utils, only : neko_error
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_lookup
+  use json_utils, only : json_get_or_lookup, &
+       json_get_or_lookup_or_default
   use rough_log_law_device, only : rough_log_law_compute_device
   use rough_log_law_cpu, only : rough_log_law_compute_cpu
   use scratch_registry, only : neko_scratch_registry
@@ -97,8 +98,8 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B, z0
 
-    call json_get_or_lookup(json, "kappa", kappa)
-    call json_get_or_lookup(json, "B", B)
+    call json_get_or_lookup_or_default(json, "kappa", kappa, 0.4_rp)
+    call json_get_or_lookup_or_default(json, "B", B, 0.0_rp)
     call json_get_or_lookup(json, "z0", z0)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
@@ -115,8 +116,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call this%partial_init_base(coef, json)
-    call json_get_or_lookup(json, "kappa", this%kappa)
-    call json_get_or_lookup(json, "B", this%B)
+    call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
+    call json_get_or_lookup_or_default(json, "B", this%B, 0.0_rp)
     call json_get_or_lookup(json, "z0", this%z0)
 
     call neko_log%section('Wall model')

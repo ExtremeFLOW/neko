@@ -1,4 +1,3 @@
-! Linnea Huusko 27/2-2025
 module user
   use neko
   implicit none
@@ -14,6 +13,7 @@ contains
     u_geo = 10.0_rp
 
     user%initial_conditions => user_ic
+    user%initialize => user_initialize
   end subroutine user_setup
 
   ! User defined initial condition
@@ -48,7 +48,6 @@ contains
     ! parameters for TKE profile
     ze = 600.0_rp
 
-
     alpha = kx * PI / 1500.0_rp
     beta = ky * PI / 1500.0_rp
     gamma = lx * PI / 1500.0_rp
@@ -57,6 +56,7 @@ contains
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = u_geo
           v%x(i,1,1,1) = 0.0_rp
@@ -73,7 +73,7 @@ contains
                   - eps*(gamma * cos(gamma*x)*sin(delta*y))
           endif
        end do
-    else !scalar
+    else !scalars
        s => fields%get(scheme_name)
        if (scheme_name .eq. 'temperature') then
           do i = 1, s%dof%size()
@@ -98,5 +98,46 @@ contains
        endif
     endif
   end subroutine user_ic
+
+  subroutine user_initialize(t)
+    type(time_state_t), intent(in) :: t
+    type(field_t), pointer :: fringe, u
+    integer :: i
+    real(kind=rp) :: zmin_spng, delta_spng, z
+
+    ! Implement top-mounted sponge l(z) = l*S( (z-z0)/delta )
+    u => neko_registry%get_field("u")
+    call neko_registry%add_field(u%dof,"sponge_fringe")
+    fringe => neko_registry%get_field("sponge_fringe")
+
+    zmin_spng = 1800.0_rp
+    delta_spng = 150.0_rp
+    fringe%x(:,1,1,1) = 0.0_rp
+
+    do i = 1, fringe%size()
+       z = fringe%dof%z(i,1,1,1)
+
+       if (z .gt. zmin_spng) then
+          fringe%x(i,1,1,1) = stp_fun( (z - zmin_spng)/delta_spng )
+       end if
+
+    end do
+
+  end subroutine user_initialize
+
+  ! Smooth step function, 0 if x <= 0, 1 if x >= 1, 1/erp(1/(x-1) + 1/x) between 0 and 1
+  function stp_fun(x) result(y)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: y
+
+    if ( x.le.0._rp ) then
+       y = 0._rp
+    else if ( x.ge.1._rp ) then
+       y = 1._rp
+    else
+       y = 1._rp / (1._rp + exp( 1._rp/(x-1._rp) + 1._rp/x))
+    end if
+
+  end function stp_fun
 
 end module user
