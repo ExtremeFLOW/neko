@@ -89,9 +89,9 @@
             },
             "source_terms": [
                 {
-                    // "dealias": true,
                     "type": "phase_field_sharpening",
                     "scalar_field": "phase",
+                    // "dealias": true,
                     "gamma": 0.001,
                     "u_max": 1.0
                 }
