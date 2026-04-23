@@ -121,6 +121,7 @@ contains
     write(buf,'("scalar_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
   end subroutine bc_factory

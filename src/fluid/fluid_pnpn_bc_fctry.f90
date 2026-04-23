@@ -136,6 +136,7 @@ contains
     write(buf, '("pressure_bc_", I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
     ! All pressure bcs are currently strong, so for all of them we
@@ -232,6 +233,7 @@ contains
     write(buf,'("velocity_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
     ! Some bcs are marked in the pressure factory routine, and we should ignore

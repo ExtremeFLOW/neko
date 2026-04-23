@@ -34,14 +34,23 @@ module test_bc
   end type bc_test_case
 
 contains
+! @test
+! subroutine test_bc_init
+!   use pfunit
+!   use dofmap
+!   use bc
+!   implicit none
+!   type(bc_t) :: b
+!   type(dofmap_t) :: dof
 
   subroutine setUp(this)
     class(bc_test_case), intent(inout) :: this
     integer :: ierr
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_init
-    end if
+!   @assertTrue(associated(b%dof))
+!   @assertTrue(associated(b%msh))
+!   @assertTrue(associated(b%Xh))
+! end subroutine test_bc_init
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()

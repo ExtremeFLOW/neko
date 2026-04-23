@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -92,6 +92,7 @@ contains
     write(buf,'("density_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
   end subroutine density_bc_factory
 
@@ -138,6 +139,7 @@ contains
     write(buf,'("pressure_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
     ! All pressure bcs are currently strong, so for all of them we
@@ -199,6 +201,7 @@ contains
     write(buf,'("velocity_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
   end subroutine velocity_bc_factory
