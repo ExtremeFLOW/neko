@@ -1,0 +1,9 @@
+<map id="device_math::device_masked_scatter_copy_aligned" name="device_math::device_masked_scatter_copy_aligned">
+<area shape="rect" id="Node000001" title="Scatter a masked vector ." alt="" coords="468,30,639,85"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#adb8b35dd7d3344cd6165541c64e01d02" title="Scatter a contiguous vector into an array ." alt="" coords="249,37,420,77"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="454,60,420,60,420,55,454,55"/>
+<area shape="rect" id="Node000003" href="$d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="9,5,197,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="235,46,197,41,198,36,236,41"/>
+<area shape="rect" id="Node000004" href="$d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="5,69,201,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="236,74,202,78,201,73,235,68"/>
+</map>

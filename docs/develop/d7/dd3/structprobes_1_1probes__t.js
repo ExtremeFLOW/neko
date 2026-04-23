@@ -27,6 +27,7 @@ var structprobes_1_1probes__t =
     [ "restart", "d7/dd3/structprobes_1_1probes__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d7/dd3/structprobes_1_1probes__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
     [ "setup_offset", "d7/dd3/structprobes_1_1probes__t.html#af642a5b93fa9ee932a593ffa7e5a4d45", null ],
+    [ "append_out", "d7/dd3/structprobes_1_1probes__t.html#a45f10ca002c4a521e59883224b2d60b3", null ],
     [ "case", "d7/dd3/structprobes_1_1probes__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d7/dd3/structprobes_1_1probes__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "fout", "d7/dd3/structprobes_1_1probes__t.html#abc74e89c59c8f13ed1b904aba7f359fb", null ],
@@ -49,6 +50,7 @@ var structprobes_1_1probes__t =
     [ "sampled_fields", "d7/dd3/structprobes_1_1probes__t.html#ae34d5b5cae4081deea6742dc3db8d188", null ],
     [ "seq_io", "d7/dd3/structprobes_1_1probes__t.html#a5fba59b72e41c46907a1a19e3bed2cf3", null ],
     [ "start_time", "d7/dd3/structprobes_1_1probes__t.html#a67e52402764756546db0fd16543f9a90", null ],
-    [ "which_fields", "d7/dd3/structprobes_1_1probes__t.html#a377e2ea94225c3adeb914c763e86b0d1", null ],
+    [ "vec_out", "d7/dd3/structprobes_1_1probes__t.html#a326f34a17d422685d20195cc92e49d9f", null ],
+    [ "which_fields", "d7/dd3/structprobes_1_1probes__t.html#aefa95da0885faf19dcf5042742d8c7cb", null ],
     [ "xyz", "d7/dd3/structprobes_1_1probes__t.html#a980f9192a9d910dea4b5dc0b3ff9dbcd", null ]
 ];

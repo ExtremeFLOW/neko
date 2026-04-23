@@ -21,6 +21,7 @@ var structvtkhdf__file_1_1vtkhdf__file__t =
     [ "write", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a54e880c8bad3ccf2602ed723d6233639", null ],
     [ "amr_enabled", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a1a5f2251edd26ea5d4beb4ab7d9a3942", null ],
     [ "counter", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a348c38fcfe4de5c515221da1561ce5b3", null ],
+    [ "enable_vds", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#ad68048a4b66539503ee6d0ca6c5c539e", null ],
     [ "fname", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a799a56687f86ad7540b4e5ab92a78230", null ],
     [ "overwrite", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a83d94631b6a99d757b267bb39198d020", null ],
     [ "precision", "d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a9f266012bbb0f645c9ba6b0c27f43939", null ],

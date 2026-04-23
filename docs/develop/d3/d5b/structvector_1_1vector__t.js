@@ -12,7 +12,7 @@ var structvector_1_1vector__t =
     [ "vector_assign_scalar", "d3/d5b/structvector_1_1vector__t.html#a7fd5e902d94a0f8d4703ff717f15aa0b", null ],
     [ "vector_assign_vector", "d3/d5b/structvector_1_1vector__t.html#a4e2dec3da610ed8d2e07c5f5fb7abd0b", null ],
     [ "n", "d3/d5b/structvector_1_1vector__t.html#a3d66899fd4ae261c8810bd214f29a6a9", null ],
-    [ "name", "d3/d5b/structvector_1_1vector__t.html#a8cf19e500b4abc86bf71f686605e48b9", null ],
+    [ "name", "d3/d5b/structvector_1_1vector__t.html#a6dda0c03985a8a98c26fc7e2426afc1b", null ],
     [ "x", "d3/d5b/structvector_1_1vector__t.html#a97f0159d701e9c01409ab9d4bfff5bef", null ],
     [ "x_d", "d3/d5b/structvector_1_1vector__t.html#adb0f80b0197590a81fe3246357da4753", null ]
 ];

@@ -1,5 +1,6 @@
 var namespaceglobal__interpolation =
 [
+    [ "global_interpolation_settings_t", "d3/d6b/structglobal__interpolation_1_1global__interpolation__settings__t.html", "d3/d6b/structglobal__interpolation_1_1global__interpolation__settings__t" ],
     [ "global_interpolation_t", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html", "dc/df3/structglobal__interpolation_1_1global__interpolation__t" ],
     [ "global_interpolation_check_points", "dd/de1/namespaceglobal__interpolation.html#acb054c21c127f811ef4b5e4805ca574f", null ],
     [ "global_interpolation_evaluate", "dd/de1/namespaceglobal__interpolation.html#a4a4d8f68376ef3b08236e1180fccd40e", null ],

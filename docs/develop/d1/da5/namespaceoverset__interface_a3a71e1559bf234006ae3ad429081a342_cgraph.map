@@ -1,0 +1,9 @@
+<map id="overset_interface::gather_interface_dofs_" name="overset_interface::gather_interface_dofs_">
+<area shape="rect" id="Node000001" title="Gather interface dofs." alt="" coords="5,45,176,85"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#a580a0e0a951754438d50c403f0f63217" title="Gather a vector to reduced contigous array ." alt="" coords="224,45,391,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,62,210,62,210,67,177,67"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a94c783d80179255baecfdfdf2fa94828" title="Gather a masked vector ." alt="" coords="457,5,623,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="391,51,442,43,443,49,391,56"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a6db9a4f12c04c0b2c391549243aeee40" title="Gather a masked vector to reduced contigous vector ." alt="" coords="439,84,641,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="391,73,435,80,434,85,391,79"/>
+</map>

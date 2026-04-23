@@ -1,7 +1,25 @@
 var namespacehdf5__file =
 [
     [ "hdf5_file_t", "df/d0b/structhdf5__file_1_1hdf5__file__t.html", "df/d0b/structhdf5__file_1_1hdf5__file__t" ],
+    [ "file_get_fname", "d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313", null ],
+    [ "hdf5_file_close", "d6/dbe/namespacehdf5__file.html#ab2a4dc599cb5d2b4ad76f3d230407974", null ],
+    [ "hdf5_file_open", "d6/dbe/namespacehdf5__file.html#a0340581982a41f8a5fee1b625dd88de4", null ],
     [ "hdf5_file_read", "d6/dbe/namespacehdf5__file.html#a263ffb92b79c656703aed5b1134cfee8", null ],
+    [ "hdf5_file_read_attribute", "d6/dbe/namespacehdf5__file.html#ab101a3e427d05fd02bdaa24a2b733048", null ],
+    [ "hdf5_file_read_dataset", "d6/dbe/namespacehdf5__file.html#a3c92ebff4f85905dc296e4566b61dc9d", null ],
+    [ "hdf5_file_read_int_attribute", "d6/dbe/namespacehdf5__file.html#a65be1c56e4489866b6036709a09e4604", null ],
+    [ "hdf5_file_read_matrix", "d6/dbe/namespacehdf5__file.html#a5a9be693aefb01a343e8eb67a1a2f773", null ],
+    [ "hdf5_file_read_rp_attribute", "d6/dbe/namespacehdf5__file.html#aaa6c3bd0ecc7f010fb72626fe27994c8", null ],
+    [ "hdf5_file_read_vector", "d6/dbe/namespacehdf5__file.html#a3f13b683adcc373abce810d037173702", null ],
+    [ "hdf5_file_set_group", "d6/dbe/namespacehdf5__file.html#abe249d34d3bab47331c8e83d15675b98", null ],
     [ "hdf5_file_set_overwrite", "d6/dbe/namespacehdf5__file.html#af95b2663760787a39cb137b710a4b49c", null ],
-    [ "hdf5_file_write", "d6/dbe/namespacehdf5__file.html#a2ed299e46ededa7466cfbc5c1aa4d666", null ]
+    [ "hdf5_file_set_precision", "d6/dbe/namespacehdf5__file.html#a95bf02a33958bdd43f371b3bc5ff9026", null ],
+    [ "hdf5_file_write", "d6/dbe/namespacehdf5__file.html#a2ed299e46ededa7466cfbc5c1aa4d666", null ],
+    [ "hdf5_file_write_attribute", "d6/dbe/namespacehdf5__file.html#a3daf298da75bdd43bda1c2600afd6402", null ],
+    [ "hdf5_file_write_dataset", "d6/dbe/namespacehdf5__file.html#ae588c36fd8c17bba821a315033f951e8", null ],
+    [ "hdf5_file_write_field", "d6/dbe/namespacehdf5__file.html#a220fc90e3fdf897a1a583a5fe0e4d4e6", null ],
+    [ "hdf5_file_write_int_attribute", "d6/dbe/namespacehdf5__file.html#a3cb436d00cd9b1193d62227c5e77bb64", null ],
+    [ "hdf5_file_write_matrix", "d6/dbe/namespacehdf5__file.html#ac7604b80444ff87b21c3b768baca4331", null ],
+    [ "hdf5_file_write_rp_attribute", "d6/dbe/namespacehdf5__file.html#a72ebc411fc63827935b4bdc279574b7b", null ],
+    [ "hdf5_file_write_vector", "d6/dbe/namespacehdf5__file.html#a3feb0aaee45e27763ccddbb6e5494a52", null ]
 ];

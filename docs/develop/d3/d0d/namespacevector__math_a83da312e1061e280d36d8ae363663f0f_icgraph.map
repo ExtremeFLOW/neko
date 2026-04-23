@@ -1,7 +1,9 @@
 <map id="vector_math::vector_glsum" name="vector_math::vector_glsum">
-<area shape="rect" id="Node000001" title=" " alt="" coords="465,5,619,45"/>
-<area shape="rect" id="Node000002" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="213,13,417,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="451,28,417,28,417,23,451,23"/>
-<area shape="rect" id="Node000003" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="5,13,165,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="200,28,166,28,166,23,200,23"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="465,45,619,85"/>
+<area shape="rect" id="Node000002" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="235,5,395,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="451,55,395,47,396,41,452,49"/>
+<area shape="rect" id="Node000003" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="213,84,417,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="452,80,406,87,405,81,451,75"/>
+<area shape="rect" id="Node000004" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="5,84,165,109"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="200,99,166,99,166,94,200,94"/>
 </map>

@@ -1,0 +1,13 @@
+<map id="vector_math::vector_face_masked_gather_copy_0" name="vector_math::vector_face_masked_gather_copy_0">
+<area shape="rect" id="Node000001" title="Gather a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="5,41,169,96"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#ac6108a5b30639044935c1e74e57ba1ab" title="Gather a face&#45;local SEM field ." alt="" coords="235,5,399,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,53,220,45,221,50,170,58"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a37fb081da0c4262597f4f1bd64574faf" title="Gather values from a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="217,85,416,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,79,204,84,203,90,169,84"/>
+<area shape="rect" id="Node000004" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="464,92,591,117"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="417,102,450,102,450,107,417,107"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="496,93,489,84,492,74,506,68,527,65,554,69,565,78,561,82,552,74,527,71,507,73,496,77,494,83,500,90"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="639,85,803,125"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="591,102,625,102,625,107,591,107"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="684,85,682,75,688,66,701,60,721,58,743,61,756,68,753,73,742,66,721,63,702,65,691,70,687,76,690,84"/>
+</map>

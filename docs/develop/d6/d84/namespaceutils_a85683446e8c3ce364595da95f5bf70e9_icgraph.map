@@ -1,5 +1,9 @@
 <map id="utils::filename_split" name="utils::filename_split">
-<area shape="rect" id="Node000001" title="Extract file name components." alt="" coords="195,13,345,38"/>
-<area shape="rect" id="Node000002" href="$db/d11/namespacevtkhdf__file.html#afb2879798169ca1979ce2a08b4dfbe18" title="Return the file name with the start counter." alt="" coords="5,5,147,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,28,147,28,147,23,181,23"/>
+<area shape="rect" id="Node000001" title="Extract file name components." alt="" coords="385,45,536,70"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313" title="Return the file name with the start counter." alt="" coords="199,5,334,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="371,45,334,39,335,34,372,40"/>
+<area shape="rect" id="Node000004" href="$db/d11/namespacevtkhdf__file.html#afb2879798169ca1979ce2a08b4dfbe18" title="Return the file name with the start counter." alt="" coords="196,69,337,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="372,75,338,80,337,75,371,69"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacehdf5__file.html#a95bf02a33958bdd43f371b3bc5ff9026" title="Set the precision for the output (single or double)" alt="" coords="5,5,148,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,28,149,28,149,23,186,23"/>
 </map>

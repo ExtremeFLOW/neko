@@ -1,9 +1,11 @@
 <map id="device_math::device_glmin" name="device_math::device_glmin">
-<area shape="rect" id="Node000001" title="Min of a vector of length n." alt="" coords="224,55,381,95"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a4834e5276a24cac92bb9169deca61c8b" title="Global minimum of all elements in a field ." alt="" coords="5,5,176,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,54,138,33,139,28,216,49"/>
-<area shape="rect" id="Node000003" href="$dc/d12/namespacematrix__math.html#ab1468fdad7c27872a14742a06390e40a" title="Global minimum of all elements in a matrix ." alt="" coords="12,55,169,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,78,169,78,169,73,210,73"/>
-<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#a138a2e97bdb3da0fe934e14a127b194c" title="Global minimum of all elements in a vector ." alt="" coords="14,119,167,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="223,102,158,122,157,117,222,97"/>
+<area shape="rect" id="Node000001" title="Min of a vector of length n." alt="" coords="432,55,589,95"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a4834e5276a24cac92bb9169deca61c8b" title="Global minimum of all elements in a field ." alt="" coords="213,5,384,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="422,54,346,33,347,28,424,49"/>
+<area shape="rect" id="Node000003" href="$dc/d12/namespacematrix__math.html#ab1468fdad7c27872a14742a06390e40a" title="Global minimum of all elements in a matrix ." alt="" coords="220,55,377,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="418,78,377,78,377,73,418,73"/>
+<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#a138a2e97bdb3da0fe934e14a127b194c" title="Global minimum of all elements in a vector ." alt="" coords="222,119,375,159"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="431,102,366,122,365,117,430,97"/>
+<area shape="rect" id="Node000005" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="5,112,165,167"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="208,142,166,142,166,137,208,137"/>
 </map>

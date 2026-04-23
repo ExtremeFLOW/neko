@@ -10,7 +10,7 @@ var namespacevector__list =
     [ "vector_list_get_by_name", "d3/ddd/namespacevector__list.html#af9610c03e0961f98a04360f657579284", null ],
     [ "vector_list_init", "d3/ddd/namespacevector__list.html#af41c5d37cea9317203aebf8ae4e92309", null ],
     [ "vector_list_item_size", "d3/ddd/namespacevector__list.html#a729a9cfeb3d878ecf3f87e7cf00275b3", null ],
-    [ "vector_list_name", "d3/ddd/namespacevector__list.html#a68c7bbc4b174fe241739cacec2ac01cc", null ],
+    [ "vector_list_name", "d3/ddd/namespacevector__list.html#a3cc2e8f1f81d1616ad64931b56c910b1", null ],
     [ "vector_list_size", "d3/ddd/namespacevector__list.html#aaeeb05ac714ec64956b5c88b5fe34d67", null ],
     [ "vector_list_x", "d3/ddd/namespacevector__list.html#acdeda131e52afd9784fce176b4a30373", null ],
     [ "vector_list_x_d", "d3/ddd/namespacevector__list.html#a0ace401d9c2257853d7ad40c8eb96f37", null ]

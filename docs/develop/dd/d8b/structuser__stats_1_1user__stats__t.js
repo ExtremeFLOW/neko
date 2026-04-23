@@ -26,7 +26,7 @@ var structuser__stats_1_1user__stats__t =
     [ "restart_", "dd/d8b/structuser__stats_1_1user__stats__t.html#aac4301162161299fe4e7e916fa119413", null ],
     [ "case", "dd/d8b/structuser__stats_1_1user__stats__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "dd/d8b/structuser__stats_1_1user__stats__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
-    [ "field_names", "dd/d8b/structuser__stats_1_1user__stats__t.html#a5dd9045fadd99a5e1a2965b6c4eeedd1", null ],
+    [ "field_names", "dd/d8b/structuser__stats_1_1user__stats__t.html#a0ee5c718bd4f3338d899b33088a78bc2", null ],
     [ "mean_fields", "dd/d8b/structuser__stats_1_1user__stats__t.html#a9ec5d74125cbf96d1bf0ea4f6b02d70a", null ],
     [ "n_avg_fields", "dd/d8b/structuser__stats_1_1user__stats__t.html#a31431e7d430d076e4ed467ee868de1f2", null ],
     [ "name", "dd/d8b/structuser__stats_1_1user__stats__t.html#a5bbbafdd10fc5f071a23b4f96383d5e5", null ],

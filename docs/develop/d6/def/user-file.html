@@ -121,7 +121,8 @@ $(document).ready(function(){initNavTree('d6/def/user-file.html','../../'); init
 <li class="level2"><a href="#user-file_ale-base-shapes">Custom Base Shapes</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md200">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a><ul><li class="level3"><a href="#user-file_tips_running-on-gpus-custom-kernels">Custom GPU kernels</a></li>
+<li class="level1"><a href="#autotoc_md200">Additional remarks and tips</a><ul><li class="level2"><a href="#user-file_tips_running-on-gpus">Running on GPUs</a></li>
+<li class="level2"><a href="#user-file_tips_mpmd">Running in multiple program multiple data (MPMD) mode</a><ul><li class="level3"><a href="#user-file_tips_running-on-gpus-custom-kernels">Custom GPU kernels</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#user-file_tips_registries">Registries</a></li>
@@ -726,6 +727,39 @@ Running on GPUs</h2>
 </ul>
 <dl class="section attention"><dt>Attention</dt><dd>Use asynchronous data transfers at your own risk! If you are unsure, use <code>sync = .true.</code> as a starting point.</dd></dl>
 <p>Finally, observe that we use the flag <code>NEKO_BCKND_DEVICE</code> to check if we are indeed running on GPUs. In that case, <code>NEKO_BCKND_DEVICE</code> would be equal to 1.</p>
+<h2><a class="anchor" id="user-file_tips_mpmd"></a>
+Running in multiple program multiple data (MPMD) mode</h2>
+<p>Neko can run along other programs concurrently and communicate data between them through the <code>COMM_WORLD</code> communicator. This works to process data <code>in-situ</code> and for other use-cases such as overset meshes.</p>
+<p>At the moment the important variable to set when executing in this mode is the <code>NEKO_COMM_ID</code> env variable. This can be done in line when executing neko but it is a good idea to have a helper script. It is also a good idea to redirect the log file with <code>NEKO_LOG_FILE</code>. An example <code>run_inner.sh</code> would look like this:</p>
+<div class="fragment"><div class="line">#!/usr/bin/env bash</div>
+<div class="line"> </div>
+<div class="line">export NEKO_LOG_FILE=innerlog.$SLURM_JOBID</div>
+<div class="line">export NEKO_COMM_ID=0</div>
+<div class="line"> </div>
+<div class="line">./neko_inner cylinder_inner.case</div>
+</div><!-- fragment --><p> Setting another helper to run another neko executable with <code>NEKO_COMM_ID</code> equal to <code>1</code>, and called <code>run_outer.sh</code> would allow to run both programs with:</p>
+<div class="fragment"><div class="line">mpirun -np 4 ./run_inner.sh : -np 4 ./run_outer.sh</div>
+</div><!-- fragment --><p>Note that the operator <code>:</code> is the one that indicates that both processes share the same global communicator <b>this is not the same as running with &amp;</b>. The latter generally runs two independent sessions that do not necessarily talk to each other. Check your MPI implementation's way of handling MPMD. If the other program is not neko, then you just need to make sure to split the global communicator with a color that is not the same as the id that you gave to neko.</p>
+<p>On supercomputers, if <code>slurm</code> is used, generally the jobs need to be launched with the <code>--multi-prog</code> flag accompanied by a <code>mpmd.conf</code> file that indicates which rank runs which program. An example for running on a GPU cluster, where GPUs must be selected looks like this:</p>
+<div class="fragment"><div class="line">export MPICH_GPU_SUPPORT_ENABLED=1</div>
+<div class="line">CPU_BIND=&quot;map_cpu:49,57,17,25,1,9,33,41&quot;</div>
+<div class="line"> </div>
+<div class="line">cat &gt; select_gpu &lt;&lt; &#39;EOF&#39;</div>
+<div class="line">#!/bin/bash</div>
+<div class="line">export ROCR_VISIBLE_DEVICES=$SLURM_LOCALID</div>
+<div class="line">exec &quot;$@&quot;</div>
+<div class="line">EOF</div>
+<div class="line">chmod +x ./select_gpu</div>
+<div class="line"> </div>
+<div class="line">cat &gt; mpmd.conf &lt;&lt; &#39;EOF&#39;</div>
+<div class="line">0-7 ./select_gpu ./run_inner.sh</div>
+<div class="line">8-15 ./select_gpu ./run_outer.sh</div>
+<div class="line">EOF</div>
+<div class="line"> </div>
+<div class="line">srun --unbuffered --cpu-bind=${CPU_BIND} --multi-prog mpmd.conf</div>
+<div class="line"> </div>
+<div class="line">rm -f ./select_gpu ./mpmd.conf</div>
+</div><!-- fragment --><p>Note that here, <code>mpmd.conf</code> is generated internally. See that we are running with <code>16</code> ranks and ranks <code>0-7</code> run the inner job while the rest run the outer one.</p>
 <h3><a class="anchor" id="user-file_tips_running-on-gpus-custom-kernels"></a>
 Custom GPU kernels</h3>
 <p>When running on GPUs it is possible to call an own custom kernel. This could be more performant for more complex source terms or boundary conditions.</p>
@@ -794,7 +828,7 @@ User access to solver internals</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Apr 22 2026 04:31:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Apr 23 2026 04:32:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

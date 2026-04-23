@@ -19,5 +19,6 @@ var namespaceutils =
     [ "neko_warning", "d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f", null ],
     [ "nonlinear_index", "d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b", null ],
     [ "split_string", "d6/d84/namespaceutils.html#a2de13cdec1ab133b6f0545f467a5abcc", null ],
-    [ "neko_fname_len", "d6/d84/namespaceutils.html#a76ff64218112fb6d5a8a02d15b2628e7", null ]
+    [ "neko_fname_len", "d6/d84/namespaceutils.html#a76ff64218112fb6d5a8a02d15b2628e7", null ],
+    [ "neko_varname_len", "d6/d84/namespaceutils.html#ac6d1705f20d3a1fce16eb7a745d88eb3", null ]
 ];

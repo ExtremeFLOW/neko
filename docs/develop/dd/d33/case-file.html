@@ -494,7 +494,9 @@ Available conditions</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">user_velocity   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_vector_t</code> user-defined Dirichlet condition for velocity.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.   </td></tr>
+<td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a>   </td><td class="markdownTableBodyNone">A Dirichlet condition that prescribes values from another neko simulation running concurrently.   </td></tr>
 </table>
 <p>A more detailed description of each boundary condition is provided below.</p>
 <ul>
@@ -559,6 +561,15 @@ Available conditions</h3>
 </div><!-- fragment --></li>
 <li><code>user_pressure</code>, a boundary for specified non-uniform pressure profiles, similar in essence to <code>user_velocity</code>. <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;user_pressure&quot;,</div>
+<div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
+<div class="line">}</div>
+</div><!-- fragment --></li>
+<li><p class="startli"><code><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a></code>, a Dirichlet boundary condition that retrieves values from another simulation with an overlapping domain. For this case, it is recommended that all zone indices that need to be considered as an overset interface are included in one boundary. This avoids repeated calls to interpolation routines.</p>
+<p class="startli">As a note, both meshes must be overlapping with at least one element.</p>
+<p class="startli">Since this requires another concurrent simulation, you must execute neko in <a class="el" href="../../d6/def/user-file.html#user-file_tips_mpmd">multiple-program-multiple-data (MPMD)</a> mode. Note that both simulations are otherwise independent, therefore the rest of the user case can be modified as seen fit.</p>
+<p class="startli">The <em>time-step</em> must be the same between the simulations. A variable time-step is not supported at the moment.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;overset_interface&quot;,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
@@ -756,6 +767,8 @@ Brinkman</h3>
 <ol type="1">
 <li><code>boundary_mesh</code>, the indicator function for a boundary mesh is computed in two steps. First, the signed distance function is computed for the boundary mesh. Then, the indicator function is computed using the distance transform function specified in the case file. This is currently not very well optimized, it will scale by <code>O(log(M)*N)</code>, where <code>M</code> is the number of triangles in the boundary mesh and <code>N</code> is the number of grid points in the simulation. To avoid recomputing the distance field for multiple simulations with the same boundary mesh and numerical discretization, the distance field can be cached to a file. This is controlled by the <code>cache</code> keyword. If set to <code>true</code>, the distance field will be saved to a file specified by the <code>cache_file</code> keyword. If the file already exists, it will be loaded instead of recomputing it. The distance field is stored in the Nek5000 <code>.fld</code> file format.</li>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the indicator function is defined as 1 inside the point zone and 0 outside.</li>
+<li><code>field</code>, the indicator function is directly taken from a field in the <code>neko_registry</code>. The field name should be specified in the <code>name</code> keyword.</li>
+<li><code>file</code>, the indicator function is directly taken from a field file. The file name should be specified in the <code>file_name</code> keyword. This requires the user to specify the field name in the file, which should be done by setting the <code>field_name</code> keyword.</li>
 </ol>
 <p>Each object are added to a common indicator field by means of a point-wise max operator. This means that the indicator field will be the union of all the regions defined by the objects.</p>
 <p>To assist correct placement and scaling of objects from external sources, the meshes can be transformed using the <code>mesh_transform</code> object. The object can be used to apply a transformation to the boundary mesh. The following types are currently implemented.</p>
@@ -1711,7 +1724,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Apr 22 2026 04:31:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Apr 23 2026 04:32:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

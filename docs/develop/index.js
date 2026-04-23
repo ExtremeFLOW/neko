@@ -114,7 +114,8 @@ var index =
           [ "Custom Base Shapes", "d6/def/user-file.html#user-file_ale-base-shapes", null ]
         ] ],
         [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md200", [
-          [ "Running on GPUs", "d6/def/user-file.html#user-file_tips_running-on-gpus", [
+          [ "Running on GPUs", "d6/def/user-file.html#user-file_tips_running-on-gpus", null ],
+          [ "Running in multiple program multiple data (MPMD) mode", "d6/def/user-file.html#user-file_tips_mpmd", [
             [ "Custom GPU kernels", "d6/def/user-file.html#user-file_tips_running-on-gpus-custom-kernels", null ]
           ] ],
           [ "Registries", "d6/def/user-file.html#user-file_tips_registries", null ],
@@ -134,6 +135,7 @@ var index =
           [ "gradient", "d3/d84/simcomps.html#simcomp_gradient", null ],
           [ "weak_gradient", "d3/d84/simcomps.html#simcomp_weak_gradient", null ],
           [ "lambda2", "d3/d84/simcomps.html#simcomp_lambda2", null ],
+          [ "boundary_operation", "d3/d84/simcomps.html#simcomp_boundary_operation", null ],
           [ "probes", "d3/d84/simcomps.html#simcomp_probes", [
             [ "Supported types", "d3/d84/simcomps.html#autotoc_md184", null ],
             [ "Example usage", "d3/d84/simcomps.html#autotoc_md185", null ]
@@ -145,7 +147,8 @@ var index =
           [ "les_model", "d3/d84/simcomps.html#simcomp_les_model", null ],
           [ "User statistics", "d3/d84/simcomps.html#user_stats", null ],
           [ "Spectral error indicator", "d3/d84/simcomps.html#simcomp_speri", null ],
-          [ "Data streamer", "d3/d84/simcomps.html#simcomp_data_streamer", null ]
+          [ "Data streamer", "d3/d84/simcomps.html#simcomp_data_streamer", null ],
+          [ "Field subsampler", "d3/d84/simcomps.html#simcomp_field_subsampler", null ]
         ] ]
       ] ],
       [ "Point zones", "da/dd0/point-zones.html", [

@@ -22,7 +22,7 @@ var structdata__streamer__simcomp_1_1data__streamer__simcomp__t =
     [ "case", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "dstream", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#a8eadb644ed115fade5917d42425d061d", null ],
-    [ "field_names", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#a64c26c8f7815f31a0d8b9f3300abc7b5", null ],
+    [ "field_names", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#ae8f72a1d601dafd9585ac05ad4c85210", null ],
     [ "name", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#a5bbbafdd10fc5f071a23b4f96383d5e5", null ],
     [ "order", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#a94c0ad573141501bb354fd8c3f93a830", null ],
     [ "output_controller", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#acc0e9937091f7dbbb6bc1e1c8b0b2c9f", null ],

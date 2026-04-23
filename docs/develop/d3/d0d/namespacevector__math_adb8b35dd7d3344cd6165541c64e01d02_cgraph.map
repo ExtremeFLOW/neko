@@ -1,0 +1,7 @@
+<map id="vector_math::vector_masked_scatter_copy" name="vector_math::vector_masked_scatter_copy">
+<area shape="rect" id="Node000001" title="Scatter a contiguous vector into an array ." alt="" coords="5,45,176,85"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a077d1dc722f77e8f72d784b2397dc5e6" title="Scatter a masked vector ." alt="" coords="241,5,412,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,50,227,43,228,49,177,56"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a330e394dc6220fdd80603e904283424d" title="Scatter a contigous vector to masked positions in a target array ." alt="" coords="224,84,429,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,74,220,80,219,85,176,79"/>
+</map>

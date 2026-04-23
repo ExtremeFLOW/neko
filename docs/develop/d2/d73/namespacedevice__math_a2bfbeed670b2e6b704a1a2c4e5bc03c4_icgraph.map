@@ -14,8 +14,10 @@
 <area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="740,204,696,247,641,289,618,301,616,296,639,284,693,243,737,200"/>
 <area shape="rect" id="Node000004" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="215,55,416,110"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="452,85,416,85,416,80,452,80"/>
-<area shape="rect" id="Node000009" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="213,306,417,331"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="462,321,418,321,418,316,462,316"/>
-<area shape="rect" id="Node000010" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="5,306,165,331"/>
-<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="200,321,166,321,166,316,200,316"/>
+<area shape="rect" id="Node000009" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="235,259,395,314"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="462,309,395,300,396,295,463,304"/>
+<area shape="rect" id="Node000010" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="213,338,417,363"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="463,333,410,341,409,335,462,328"/>
+<area shape="rect" id="Node000011" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="5,338,165,363"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="200,353,166,353,166,348,200,348"/>
 </map>

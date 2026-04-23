@@ -16,12 +16,13 @@ var searchData=
   ['blasius_5fprofile_13',['blasius_profile',['../dd/d19/interfaceflow__profile_1_1blasius__profile.html',1,'flow_profile']]],
   ['blasius_5ft_14',['blasius_t',['../d0/dca/structblasius_1_1blasius__t.html',1,'blasius']]],
   ['body_5fkinematics_5ft_15',['body_kinematics_t',['../de/da9/structale__rigid__kinematics_1_1body__kinematics__t.html',1,'ale_rigid_kinematics']]],
-  ['boussinesq_5fsource_5fterm_5ft_16',['boussinesq_source_term_t',['../d1/d30/structboussinesq__source__term_1_1boussinesq__source__term__t.html',1,'boussinesq_source_term']]],
-  ['box_5fpoint_5fzone_5ft_17',['box_point_zone_t',['../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html',1,'box_point_zone']]],
-  ['bp_5ffile_5ft_18',['bp_file_t',['../db/d38/structbp__file_1_1bp__file__t.html',1,'bp_file']]],
-  ['brinkman_5fsource_5fterm_5ft_19',['brinkman_source_term_t',['../dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html',1,'brinkman_source_term']]],
-  ['buffer_5f1d_5ft_20',['buffer_1d_t',['../d8/db0/structbuffer__1d_1_1buffer__1d__t.html',1,'buffer_1d']]],
-  ['buffer_5f4d_5fnpar_5ft_21',['buffer_4d_npar_t',['../db/db7/structbuffer__4d__npar_1_1buffer__4d__npar__t.html',1,'buffer_4d_npar']]],
-  ['buffer_5f4d_5ft_22',['buffer_4d_t',['../d8/dce/structbuffer__4d_1_1buffer__4d__t.html',1,'buffer_4d']]],
-  ['buffer_5ft_23',['buffer_t',['../d2/d35/structbuffer_1_1buffer__t.html',1,'buffer']]]
+  ['boundary_5foperation_5ft_16',['boundary_operation_t',['../d0/d23/structboundary__operation_1_1boundary__operation__t.html',1,'boundary_operation']]],
+  ['boussinesq_5fsource_5fterm_5ft_17',['boussinesq_source_term_t',['../d1/d30/structboussinesq__source__term_1_1boussinesq__source__term__t.html',1,'boussinesq_source_term']]],
+  ['box_5fpoint_5fzone_5ft_18',['box_point_zone_t',['../d4/d0c/structbox__point__zone_1_1box__point__zone__t.html',1,'box_point_zone']]],
+  ['bp_5ffile_5ft_19',['bp_file_t',['../db/d38/structbp__file_1_1bp__file__t.html',1,'bp_file']]],
+  ['brinkman_5fsource_5fterm_5ft_20',['brinkman_source_term_t',['../dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html',1,'brinkman_source_term']]],
+  ['buffer_5f1d_5ft_21',['buffer_1d_t',['../d8/db0/structbuffer__1d_1_1buffer__1d__t.html',1,'buffer_1d']]],
+  ['buffer_5f4d_5fnpar_5ft_22',['buffer_4d_npar_t',['../db/db7/structbuffer__4d__npar_1_1buffer__4d__npar__t.html',1,'buffer_4d_npar']]],
+  ['buffer_5f4d_5ft_23',['buffer_4d_t',['../d8/dce/structbuffer__4d_1_1buffer__4d__t.html',1,'buffer_4d']]],
+  ['buffer_5ft_24',['buffer_t',['../d2/d35/structbuffer_1_1buffer__t.html',1,'buffer']]]
 ];

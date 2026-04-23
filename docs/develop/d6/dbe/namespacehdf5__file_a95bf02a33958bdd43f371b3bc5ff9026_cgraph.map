@@ -1,0 +1,11 @@
+<map id="hdf5_file::hdf5_file_set_precision" name="hdf5_file::hdf5_file_set_precision">
+<area shape="rect" id="Node000001" title="Set the precision for the output (single or double)" alt="" coords="5,23,148,63"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313" title="Return the file name with the start counter." alt="" coords="196,23,331,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,41,182,41,182,46,148,46"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a85683446e8c3ce364595da95f5bf70e9" title="Extract file name components." alt="" coords="379,31,529,56"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="331,41,365,41,365,46,331,46"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="579,5,767,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="529,32,565,28,565,33,530,37"/>
+<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#ad9815de9718b5cfbff1bc1da8ea997e4" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="577,55,768,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="530,49,564,53,563,58,529,54"/>
+</map>

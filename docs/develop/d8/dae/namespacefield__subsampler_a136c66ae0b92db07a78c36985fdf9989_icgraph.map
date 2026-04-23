@@ -1,0 +1,7 @@
+<map id="field_subsampler::field_subsampler_compute_pz" name="field_subsampler::field_subsampler_compute_pz">
+<area shape="rect" id="Node000001" title="Subsample the fields based only on a point zone, no space&#45;to&#45;space interpolation." alt="" coords="468,5,659,45"/>
+<area shape="rect" id="Node000002" href="$d8/dae/namespacefield__subsampler.html#a74f5c37c6627358a5b2b09eff7eb5053" title="Actual constructor." alt="" coords="223,5,420,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="454,28,420,28,420,23,454,23"/>
+<area shape="rect" id="Node000003" href="$d8/dae/namespacefield__subsampler.html#a9913d556a444ee07ec8520b58918c2fb" title="Constructor." alt="" coords="5,5,175,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="209,28,175,28,175,23,209,23"/>
+</map>

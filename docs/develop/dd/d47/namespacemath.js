@@ -38,6 +38,7 @@ var namespacemath =
     [ "cpwmin3", "dd/d47/namespacemath.html#a6c27a117b2084ec22530a1255401414f", null ],
     [ "dabscmp", "dd/d47/namespacemath.html#a16d5ca46363fc149ebcd66c27ada506a", null ],
     [ "drelcmp", "dd/d47/namespacemath.html#ac2fcdee74563190bd832055d9efe4d51", null ],
+    [ "face_masked_gather_copy_0", "dd/d47/namespacemath.html#a37fb081da0c4262597f4f1bd64574faf", null ],
     [ "flipvdp", "dd/d47/namespacemath.html#a6aa2ed6eaca7993ffc58b78d5558fe66", null ],
     [ "flipvi4", "dd/d47/namespacemath.html#a5cac807e77679b68a1eaa206a9ec4ea8", null ],
     [ "glimax", "dd/d47/namespacemath.html#adf2291fe82a8e395c51038a2c6dce168", null ],

@@ -165,6 +165,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a93ebdef19d8a165651d852f29d2bf5b7" id="r_a93ebdef19d8a165651d852f29d2bf5b7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7">masked_gather_copy_0</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a</a>, b, mask, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_mask</a>)</td></tr>
 <tr class="memdesc:a93ebdef19d8a165651d852f29d2bf5b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather a masked vector to reduced contigous vector \( a = b(mask) \).  <br /></td></tr>
 <tr class="separator:a93ebdef19d8a165651d852f29d2bf5b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37fb081da0c4262597f4f1bd64574faf" id="r_a37fb081da0c4262597f4f1bd64574faf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a37fb081da0c4262597f4f1bd64574faf">face_masked_gather_copy_0</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a</a>, b, mask, facet, lx, ly, lz, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_mask</a>)</td></tr>
+<tr class="memdesc:a37fb081da0c4262597f4f1bd64574faf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather values from a face-local SEM field to a reduced contiguous vector.  <br /></td></tr>
+<tr class="separator:a37fb081da0c4262597f4f1bd64574faf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6db9a4f12c04c0b2c391549243aeee40" id="r_a6db9a4f12c04c0b2c391549243aeee40"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d47/namespacemath.html#a6db9a4f12c04c0b2c391549243aeee40">masked_gather_copy</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">a</a>, b, mask, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_mask</a>)</td></tr>
 <tr class="memdesc:a6db9a4f12c04c0b2c391549243aeee40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather a masked vector to reduced contigous vector \( a = b(mask) \).  <br /></td></tr>
 <tr class="separator:a6db9a4f12c04c0b2c391549243aeee40"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -432,7 +435,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01372">1372</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01407">1407</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -478,7 +481,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00726">726</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00761">761</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -585,7 +588,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00797">797</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00832">832</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -645,7 +648,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00812">812</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00847">847</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -715,7 +718,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00739">739</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00774">774</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -795,7 +798,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00895">895</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00930">930</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -859,7 +862,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00753">753</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00788">788</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -939,7 +942,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00910">910</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00945">945</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1027,7 +1030,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00926">926</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00961">961</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1069,7 +1072,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00958">958</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00993">993</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1237,7 +1240,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00987">987</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01022">1022</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1285,7 +1288,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00972">972</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01007">1007</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1343,7 +1346,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00826">826</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00861">861</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1411,7 +1414,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01002">1002</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01037">1037</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1447,7 +1450,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00462">462</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00497">497</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1519,7 +1522,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00474">474</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00509">509</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1555,7 +1558,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00437">437</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00472">472</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1597,7 +1600,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00449">449</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00484">484</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -1633,7 +1636,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00487">487</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00522">522</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1727,14 +1730,14 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00397">397</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00432">432</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_adcea1b6eb422b5097c9241c0798631ae_icgraph.png" border="0" usemap="#add/d47/namespacemath_adcea1b6eb422b5097c9241c0798631ae_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_adcea1b6eb422b5097c9241c0798631ae_icgraph" id="add/d47/namespacemath_adcea1b6eb422b5097c9241c0798631ae_icgraph">
 <area shape="rect" title="Fill a constant to a masked vector. ." alt="" coords="225,13,356,38"/>
-<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="5,5,177,45"/>
+<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a8423df88b2e8ade7e260c37befae40f8" title="Initializes the source term from a point zone." alt="" coords="5,5,177,45"/>
 <area shape="poly" title=" " alt="" coords="212,28,178,28,178,23,212,23"/>
 </map>
 </div>
@@ -1767,7 +1770,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00579">579</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00614">614</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1817,7 +1820,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00411">411</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00446">446</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1901,7 +1904,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00423">423</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00458">458</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1971,7 +1974,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00854">854</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00889">889</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2157,7 +2160,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00867">867</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00902">902</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2254,91 +2257,95 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00249">249</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00251">251</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_aaa9e139d5611c1df894a7e88d240f602_icgraph.png" border="0" usemap="#add/d47/namespacemath_aaa9e139d5611c1df894a7e88d240f602_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_aaa9e139d5611c1df894a7e88d240f602_icgraph" id="add/d47/namespacemath_aaa9e139d5611c1df894a7e88d240f602_icgraph">
-<area shape="rect" title="Copy a vector ." alt="" coords="1036,1109,1131,1135"/>
+<area shape="rect" title="Copy a vector ." alt="" coords="1036,1159,1131,1184"/>
 <area shape="rect" href="../../d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="764,5,988,31"/>
-<area shape="poly" title=" " alt="" coords="1079,1096,1073,876,1058,541,1045,371,1030,221,1010,106,998,68,986,45,971,33,974,29,990,42,1003,66,1015,105,1035,220,1051,370,1063,541,1078,876,1084,1096"/>
+<area shape="poly" title=" " alt="" coords="1079,1145,1074,917,1059,566,1047,388,1031,230,1011,109,999,69,986,45,971,33,974,29,990,42,1004,67,1016,108,1036,229,1052,387,1065,566,1079,917,1084,1145"/>
 <area shape="rect" href="../../d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="795,55,957,95"/>
-<area shape="poly" title=" " alt="" coords="1079,1096,1071,889,1055,574,1042,415,1027,274,1008,167,997,131,986,109,972,97,956,88,958,83,975,92,990,106,1002,129,1013,166,1032,273,1048,414,1060,574,1077,888,1084,1096"/>
+<area shape="poly" title=" " alt="" coords="1079,1145,1072,929,1056,599,1044,431,1028,283,1009,170,998,132,986,109,972,97,956,88,958,83,975,92,990,106,1003,130,1014,169,1033,282,1049,430,1062,598,1078,928,1084,1145"/>
 <area shape="rect" href="../../dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="806,119,946,159"/>
-<area shape="poly" title=" " alt="" coords="1078,1096,1070,900,1053,606,1040,458,1025,326,1007,227,997,193,986,173,968,158,945,148,947,143,970,153,990,170,1001,191,1012,225,1030,326,1046,457,1058,606,1076,900,1084,1096"/>
+<area shape="poly" title=" " alt="" coords="1079,1145,1071,940,1054,630,1042,474,1026,335,1008,230,997,194,986,173,968,158,945,148,947,143,970,153,990,170,1002,192,1013,228,1032,334,1047,473,1060,630,1076,939,1084,1145"/>
 <area shape="rect" href="../../dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="805,183,947,223"/>
-<area shape="poly" title=" " alt="" coords="1078,1096,1069,912,1051,639,1038,501,1023,379,1005,287,996,256,986,237,968,222,947,213,949,208,971,218,990,234,1001,254,1011,285,1028,378,1043,500,1056,638,1075,912,1084,1096"/>
+<area shape="poly" title=" " alt="" coords="1078,1145,1070,952,1052,663,1040,517,1024,388,1006,290,996,257,986,237,968,222,947,213,949,208,971,218,990,234,1001,255,1012,288,1030,387,1045,516,1058,663,1075,952,1084,1145"/>
 <area shape="rect" href="../../d2/d10/namespacecacg.html#a2b9a6da5ee5dab7e10d72d97392d731c" title="S&#45;step CA PCG solve." alt="" coords="810,248,942,273"/>
-<area shape="poly" title=" " alt="" coords="1078,1096,1069,921,1050,663,1038,533,1023,419,1005,332,996,304,986,286,966,272,941,264,943,259,968,267,990,283,1001,301,1010,331,1028,418,1043,533,1056,663,1074,921,1084,1096"/>
+<area shape="poly" title=" " alt="" coords="1078,1145,1070,961,1052,687,1039,549,1024,428,1006,335,996,305,986,286,966,272,941,264,943,259,968,267,990,283,1001,303,1011,334,1029,427,1045,549,1057,687,1075,961,1084,1145"/>
 <area shape="rect" href="../../d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c" title="Standard PCG solve." alt="" coords="825,297,927,323"/>
-<area shape="poly" title=" " alt="" coords="1078,1096,1068,929,1049,687,1036,566,1021,459,1004,379,995,352,986,336,974,326,959,318,927,311,928,306,961,313,977,321,990,332,1000,350,1009,377,1026,458,1041,565,1054,687,1073,929,1083,1095"/>
+<area shape="poly" title=" " alt="" coords="1078,1145,1069,970,1050,712,1038,583,1023,468,1005,382,996,353,986,336,974,326,959,318,927,311,928,306,961,313,977,321,990,332,1001,351,1010,380,1028,467,1043,582,1056,712,1074,970,1084,1145"/>
 <area shape="rect" href="../../d8/dec/namespacecheby.html#ab40c8151b9adc5d370afba6bc0ef9b65" title=" " alt="" coords="799,347,953,372"/>
-<area shape="poly" title=" " alt="" coords="1080,1096,1079,950,1070,736,1058,626,1041,525,1018,442,1003,410,986,386,971,374,953,366,955,362,974,370,990,383,1007,408,1023,440,1047,524,1064,625,1075,736,1085,949,1085,1096"/>
+<area shape="poly" title=" " alt="" coords="1078,1145,1068,979,1049,738,1036,616,1021,510,1004,429,995,402,986,386,971,374,953,366,955,362,974,370,990,383,1000,400,1009,428,1026,509,1041,616,1054,737,1073,979,1083,1145"/>
 <area shape="rect" href="../../d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="797,397,955,437"/>
-<area shape="poly" title=" " alt="" coords="1079,1096,1077,961,1064,768,1053,668,1036,576,1014,501,1001,472,986,450,972,438,954,429,957,425,975,434,990,447,1006,470,1019,499,1041,575,1058,667,1070,767,1082,961,1085,1096"/>
+<area shape="poly" title=" " alt="" coords="1080,1145,1078,1001,1067,793,1056,685,1039,587,1016,505,1002,474,986,450,972,438,954,429,957,424,975,434,990,447,1007,472,1021,504,1044,585,1061,685,1073,792,1083,1001,1085,1144"/>
 <area shape="rect" href="../../d2/d80/namespacecpr.html#ae689f520261060721e9a32eee074c3d7" title="Generate spectral tranform matrices." alt="" coords="777,461,975,487"/>
-<area shape="poly" title=" " alt="" coords="1079,1095,1076,969,1063,790,1051,698,1035,614,1013,546,1000,519,986,500,972,489,976,485,990,496,1005,517,1018,544,1040,613,1056,697,1068,789,1081,969,1085,1095"/>
+<area shape="poly" title=" " alt="" coords="1080,1145,1077,1010,1066,816,1055,716,1038,625,1015,550,1002,521,986,500,972,489,976,485,990,496,1006,519,1020,548,1043,623,1060,715,1071,815,1083,1010,1085,1145"/>
 <area shape="rect" href="../../dd/dd2/namespacedofmap.html#a971e44364f26c18dcc5aeaa06ab7d50d" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="788,511,964,536"/>
-<area shape="poly" title=" " alt="" coords="1079,1096,1074,978,1060,814,1048,730,1032,653,1011,591,999,567,986,549,963,534,966,529,990,545,1004,564,1016,589,1037,652,1053,729,1065,813,1079,978,1084,1095"/>
+<area shape="poly" title=" " alt="" coords="1079,1145,1076,1018,1063,839,1051,747,1035,663,1013,595,1000,569,986,549,963,533,966,529,990,545,1005,566,1018,593,1040,662,1056,746,1068,838,1081,1018,1085,1145"/>
 <area shape="rect" href="../../dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="505,565,697,591"/>
-<area shape="poly" title=" " alt="" coords="1078,1096,1070,997,1054,863,1042,795,1026,733,1008,684,986,651,973,643,948,635,875,620,697,592,697,587,876,614,950,630,975,638,990,647,1013,681,1031,732,1047,794,1059,862,1075,996,1083,1095"/>
+<area shape="poly" title=" " alt="" coords="1078,1145,1072,1037,1057,888,1045,812,1029,743,1010,688,998,666,986,651,973,643,948,635,875,619,697,592,697,587,876,614,950,630,975,638,990,647,1003,663,1015,685,1034,742,1050,811,1062,887,1078,1036,1084,1145"/>
 <area shape="rect" href="../../d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="793,725,959,751"/>
-<area shape="poly" title=" " alt="" coords="1076,1096,1065,1019,1045,919,1019,824,1003,788,986,764,957,747,960,742,990,760,1008,785,1024,823,1051,918,1070,1018,1081,1095"/>
+<area shape="poly" title=" " alt="" coords="1077,1145,1067,1059,1049,944,1022,834,1005,792,986,764,973,754,958,747,960,742,976,749,990,760,1010,790,1027,833,1054,943,1072,1058,1082,1145"/>
 <area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="803,661,949,701"/>
-<area shape="poly" title=" " alt="" coords="1077,1096,1066,1009,1048,895,1021,785,1004,743,986,714,969,701,949,692,951,687,972,697,990,711,1009,741,1026,784,1053,894,1072,1008,1082,1095"/>
+<area shape="poly" title=" " alt="" coords="1077,1145,1069,1050,1051,920,1039,855,1024,796,1006,747,986,714,969,701,949,692,951,687,972,696,990,711,1011,745,1029,794,1044,854,1056,919,1074,1049,1083,1145"/>
 <area shape="rect" href="../../dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="773,560,979,585"/>
-<area shape="poly" title=" " alt="" coords="1078,1095,1071,989,1055,842,1043,768,1027,700,1008,644,986,606,959,588,962,583,990,603,1013,642,1032,698,1048,767,1060,841,1076,989,1083,1095"/>
+<area shape="poly" title=" " alt="" coords="1079,1145,1073,1029,1058,868,1046,785,1030,710,1010,648,999,624,986,607,959,588,962,583,990,603,1003,622,1015,646,1035,709,1051,784,1063,867,1078,1029,1084,1145"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="796,775,956,829"/>
-<area shape="poly" title=" " alt="" coords="1078,1095,1072,1043,1057,975,1029,904,1010,872,986,843,955,822,958,817,990,839,1014,868,1034,902,1062,973,1077,1042,1083,1095"/>
+<area shape="poly" title=" " alt="" coords="1080,1145,1076,1084,1063,1003,1051,960,1035,918,1014,878,986,843,972,830,955,821,957,817,975,826,990,839,1018,875,1040,915,1056,958,1068,1002,1081,1084,1085,1145"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="796,853,956,908"/>
-<area shape="poly" title=" " alt="" coords="1074,1096,1064,1058,1046,1011,1021,963,986,921,955,902,958,897,990,917,1025,960,1051,1009,1069,1056,1079,1095"/>
+<area shape="poly" title=" " alt="" coords="1077,1145,1069,1097,1053,1037,1026,975,1008,947,986,921,955,901,958,896,990,917,1012,943,1031,973,1058,1036,1074,1096,1082,1144"/>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#aa22c2902ead56b80171cf0a6874732b7" title="Initialize the global interpolation object on a set of coordinates." alt="" coords="796,932,956,987"/>
-<area shape="poly" title=" " alt="" coords="1067,1099,1034,1049,1012,1023,986,1000,955,983,958,978,990,996,1016,1019,1039,1046,1071,1096"/>
+<area shape="poly" title=" " alt="" coords="1072,1146,1060,1113,1042,1074,1017,1034,986,1000,955,981,958,976,990,996,1022,1031,1047,1071,1065,1111,1077,1144"/>
 <area shape="rect" href="../../dc/d48/namespacegmres.html#a3ad50be018611153f4c6184821724c96" title="Standard GMRES solve." alt="" coords="799,1011,953,1036"/>
-<area shape="poly" title=" " alt="" coords="1058,1102,1026,1074,987,1050,953,1038,955,1033,989,1045,1029,1070,1062,1098"/>
+<area shape="poly" title=" " alt="" coords="1068,1148,1036,1097,1013,1071,987,1050,952,1035,954,1030,989,1045,1017,1067,1040,1094,1072,1145"/>
 <area shape="rect" href="../../dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="804,1060,948,1085"/>
-<area shape="poly" title=" " alt="" coords="1023,1108,987,1099,938,1088,940,1083,989,1094,1024,1103"/>
+<area shape="poly" title=" " alt="" coords="1058,1151,1026,1124,987,1099,947,1085,949,1080,989,1094,1029,1119,1062,1147"/>
 <area shape="rect" href="../../dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="804,1109,948,1135"/>
-<area shape="poly" title=" " alt="" coords="1022,1125,948,1125,948,1119,1022,1119"/>
+<area shape="poly" title=" " alt="" coords="1023,1158,987,1149,938,1137,940,1132,989,1143,1024,1153"/>
 <area shape="rect" href="../../d2/d1a/namespaceidentity.html#a32e4a4d8b76faa83b2c07af7c2032615" title="The (default) naive preconditioner ." alt="" coords="799,1159,953,1184"/>
-<area shape="poly" title=" " alt="" coords="1023,1140,989,1149,935,1161,934,1156,987,1143,1022,1135"/>
+<area shape="poly" title=" " alt="" coords="1022,1174,954,1174,954,1169,1022,1169"/>
 <area shape="rect" href="../../d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="779,1208,973,1233"/>
-<area shape="poly" title=" " alt="" coords="1061,1146,1029,1173,989,1198,954,1210,952,1205,987,1193,1025,1169,1058,1142"/>
+<area shape="poly" title=" " alt="" coords="1023,1189,989,1198,935,1211,934,1205,987,1193,1022,1184"/>
 <area shape="rect" href="../../d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="779,1258,973,1298"/>
-<area shape="poly" title=" " alt="" coords="1072,1148,1039,1198,1016,1224,990,1247,965,1260,963,1256,986,1242,1012,1221,1035,1195,1067,1145"/>
+<area shape="poly" title=" " alt="" coords="1060,1196,1028,1222,989,1247,958,1260,956,1255,987,1242,1025,1218,1057,1192"/>
 <area shape="rect" href="../../d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="795,1323,957,1348"/>
-<area shape="poly" title=" " alt="" coords="1079,1149,1068,1186,1051,1230,1025,1275,990,1312,959,1328,956,1324,986,1308,1021,1271,1046,1228,1063,1184,1074,1147"/>
+<area shape="poly" title=" " alt="" coords="1074,1198,1043,1256,1019,1287,989,1312,959,1327,957,1322,987,1308,1015,1283,1038,1253,1070,1195"/>
 <area shape="rect" href="../../dc/d12/namespacematrix__math.html#a20673dc1052c7361ff17585f456e89e6" title="Copy a matrix ." alt="" coords="779,1372,973,1397"/>
-<area shape="poly" title=" " alt="" coords="1082,1149,1074,1195,1058,1253,1031,1311,1012,1338,990,1361,969,1374,967,1370,986,1357,1008,1335,1026,1309,1053,1251,1069,1194,1077,1148"/>
+<area shape="poly" title=" " alt="" coords="1079,1198,1068,1235,1051,1279,1025,1324,990,1361,968,1374,965,1370,986,1357,1021,1321,1046,1277,1063,1233,1074,1197"/>
 <area shape="rect" href="../../d0/d94/namespaceopr__cpu.html#a102777fce325ee827cf3ddbbe20e1eea" title=" " alt="" coords="795,1421,957,1447"/>
-<area shape="poly" title=" " alt="" coords="1084,1149,1079,1204,1065,1275,1053,1312,1037,1348,1016,1381,990,1411,959,1428,956,1424,986,1407,1012,1378,1032,1345,1048,1310,1060,1273,1074,1203,1079,1149"/>
+<area shape="poly" title=" " alt="" coords="1082,1198,1074,1244,1058,1302,1031,1361,1012,1387,990,1411,959,1428,956,1423,986,1407,1008,1384,1026,1358,1053,1300,1069,1243,1077,1197"/>
 <area shape="rect" href="../../df/db5/namespaceopr__sx.html#a4fe2c37228ee80eea0e3cd08b067aaea" title=" " alt="" coords="803,1471,949,1496"/>
-<area shape="poly" title=" " alt="" coords="1086,1149,1084,1212,1072,1296,1060,1340,1043,1384,1020,1424,990,1460,971,1473,951,1481,949,1476,969,1468,986,1456,1015,1421,1038,1382,1055,1339,1067,1295,1078,1211,1080,1148"/>
+<area shape="poly" title=" " alt="" coords="1084,1198,1079,1253,1065,1324,1053,1361,1037,1397,1016,1431,990,1460,971,1472,951,1480,949,1475,969,1468,986,1456,1012,1428,1032,1395,1048,1359,1060,1323,1074,1253,1079,1198"/>
 <area shape="rect" href="../../d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="777,1520,975,1545"/>
-<area shape="poly" title=" " alt="" coords="1082,1149,1071,1231,1052,1339,1025,1442,1009,1482,990,1509,972,1522,969,1518,986,1505,1004,1479,1020,1440,1047,1338,1066,1230,1077,1148"/>
-<area shape="rect" href="../../d1/d38/namespacephmg.html#a18d30ebc1747cd2854802ecc692eb293" title=" " alt="" coords="791,1570,961,1610"/>
-<area shape="poly" title=" " alt="" coords="1082,1149,1073,1240,1055,1362,1027,1480,1010,1526,990,1558,963,1578,960,1573,986,1555,1005,1524,1022,1479,1049,1361,1067,1239,1077,1148"/>
-<area shape="rect" href="../../d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678" title=" " alt="" coords="803,1635,949,1660"/>
-<area shape="poly" title=" " alt="" coords="1083,1149,1076,1252,1060,1395,1048,1467,1032,1533,1013,1587,990,1624,972,1637,951,1646,949,1641,969,1633,986,1620,1008,1584,1027,1531,1043,1466,1055,1394,1071,1252,1078,1148"/>
-<area shape="rect" href="../../de/d49/namespacepipecg.html#a7cf83f02e364f94f5b2738684b52629b" title="Pipelined PCG solve." alt="" coords="797,1684,955,1709"/>
-<area shape="poly" title=" " alt="" coords="1084,1149,1078,1261,1063,1419,1051,1499,1035,1572,1015,1632,1003,1655,990,1673,974,1685,957,1693,954,1689,972,1681,986,1669,999,1652,1010,1630,1030,1570,1046,1498,1058,1418,1073,1261,1079,1148"/>
-<area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#a986698f8eee1fe0a1178677cd9f304ed" title=" " alt="" coords="795,1733,957,1788"/>
-<area shape="poly" title=" " alt="" coords="1084,1149,1078,1270,1064,1440,1052,1528,1036,1609,1016,1676,1003,1702,990,1722,976,1736,959,1746,956,1741,973,1731,986,1719,999,1699,1011,1674,1031,1608,1046,1527,1058,1440,1073,1269,1079,1148"/>
-<area shape="rect" href="../../da/d78/namespacescalar__residual__cpu.html#aa9743866d1914bf81a9f7414d140acc1" title="Compute the residual." alt="" coords="797,1812,955,1867"/>
-<area shape="poly" title=" " alt="" coords="1085,1149,1081,1283,1068,1478,1057,1578,1040,1671,1018,1747,1005,1778,990,1801,975,1815,957,1826,954,1821,972,1811,986,1798,1000,1775,1013,1746,1035,1670,1051,1577,1063,1477,1076,1283,1079,1148"/>
-<area shape="rect" href="../../d9/db6/namespacescalar__residual__sx.html#a80e257b7bac5afedf527bf9bfffc6940" title=" " alt="" coords="801,1891,951,1945"/>
-<area shape="poly" title=" " alt="" coords="1085,1149,1084,1297,1073,1515,1061,1629,1044,1733,1021,1819,1007,1853,990,1880,973,1895,953,1906,951,1901,970,1891,986,1876,1002,1851,1016,1817,1039,1732,1056,1628,1067,1515,1078,1297,1080,1149"/>
-<area shape="rect" href="../../d5/d0d/namespacespace.html#af5f26a3966b9af7712f57271e972a34b" title="Generate spectral tranform matrices." alt="" coords="781,1970,971,2010"/>
-<area shape="poly" title=" " alt="" coords="1083,1149,1074,1324,1054,1580,1042,1709,1027,1823,1010,1910,1000,1940,990,1958,974,1973,970,1969,986,1955,995,1938,1004,1909,1021,1822,1036,1709,1049,1580,1068,1323,1078,1149"/>
-<area shape="rect" href="../../d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="798,2034,954,2074"/>
-<area shape="poly" title=" " alt="" coords="1084,1149,1075,1335,1057,1613,1044,1753,1029,1877,1011,1971,1001,2003,990,2024,974,2038,955,2047,953,2042,971,2033,986,2020,996,2001,1006,1970,1023,1876,1039,1753,1051,1613,1069,1335,1078,1149"/>
-<area shape="rect" href="../../d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="801,2098,951,2138"/>
-<area shape="poly" title=" " alt="" coords="1084,1148,1076,1346,1059,1645,1046,1796,1031,1929,1012,2031,1002,2066,990,2088,973,2102,953,2112,951,2107,970,2098,986,2084,997,2064,1007,2030,1025,1928,1041,1795,1053,1644,1071,1346,1079,1148"/>
-<area shape="rect" href="../../d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef" title="Assignment ." alt="" coords="795,2162,957,2202"/>
-<area shape="poly" title=" " alt="" coords="1084,1149,1077,1359,1060,1677,1048,1839,1032,1982,1013,2091,1002,2128,990,2152,975,2165,958,2174,956,2169,972,2161,986,2148,997,2126,1008,2090,1027,1981,1043,1838,1055,1677,1072,1358,1079,1148"/>
-<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a37ffda7f54dcc1310d9db2032117013e" title="Copy a vector ." alt="" coords="781,2227,971,2252"/>
-<area shape="poly" title=" " alt="" coords="1084,1148,1079,1370,1063,1710,1051,1882,1035,2035,1015,2151,1003,2191,990,2216,973,2229,970,2225,986,2212,998,2189,1010,2150,1030,2034,1046,1882,1058,1709,1073,1370,1079,1148"/>
+<area shape="poly" title=" " alt="" coords="1086,1198,1084,1261,1072,1345,1060,1390,1043,1433,1020,1474,990,1509,972,1522,969,1518,986,1505,1015,1471,1038,1431,1055,1388,1067,1344,1078,1261,1080,1198"/>
+<area shape="rect" href="../../d1/da5/namespaceoverset__interface.html#a9a4e0612c83263ee9e78f83f53e30363" title="Constructor from components." alt="" coords="794,1569,958,1624"/>
+<area shape="poly" title=" " alt="" coords="1081,1198,1070,1280,1050,1387,1024,1490,1008,1530,990,1558,960,1580,957,1576,986,1555,1003,1528,1019,1488,1045,1386,1065,1279,1076,1198"/>
+<area shape="rect" href="../../d6/de1/namespaceoverset__interface__vector.html#a1a311ba5bd7565a4c5f71050421a2124" title="Constructor from components." alt="" coords="780,1648,972,1703"/>
+<area shape="poly" title=" " alt="" coords="1083,1198,1073,1295,1056,1425,1043,1491,1028,1552,1011,1602,990,1637,974,1651,971,1647,986,1634,1006,1600,1023,1550,1038,1490,1050,1424,1068,1294,1077,1198"/>
+<area shape="rect" href="../../d1/d38/namespacephmg.html#a18d30ebc1747cd2854802ecc692eb293" title=" " alt="" coords="791,1727,961,1767"/>
+<area shape="poly" title=" " alt="" coords="1084,1198,1077,1309,1061,1464,1049,1543,1034,1615,1014,1675,990,1716,963,1735,960,1731,986,1712,1009,1672,1029,1614,1044,1542,1056,1463,1072,1309,1078,1198"/>
+<area shape="rect" href="../../d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678" title=" " alt="" coords="803,1792,949,1817"/>
+<area shape="poly" title=" " alt="" coords="1084,1198,1080,1321,1067,1496,1055,1586,1039,1668,1017,1735,1005,1761,990,1781,972,1795,950,1803,948,1798,969,1790,986,1777,1000,1758,1013,1733,1034,1666,1050,1585,1062,1496,1075,1321,1079,1198"/>
+<area shape="rect" href="../../de/d49/namespacepipecg.html#a7cf83f02e364f94f5b2738684b52629b" title="Pipelined PCG solve." alt="" coords="797,1841,955,1867"/>
+<area shape="poly" title=" " alt="" coords="1085,1198,1082,1330,1070,1520,1058,1617,1042,1707,1019,1780,1006,1809,990,1831,975,1843,957,1851,955,1846,972,1838,986,1827,1001,1806,1014,1778,1037,1705,1053,1617,1065,1519,1077,1330,1079,1198"/>
+<area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#a986698f8eee1fe0a1178677cd9f304ed" title=" " alt="" coords="795,1891,957,1945"/>
+<area shape="poly" title=" " alt="" coords="1085,1198,1082,1338,1070,1541,1058,1646,1042,1743,1019,1824,1006,1855,990,1880,976,1893,959,1903,956,1899,972,1889,986,1876,1001,1853,1014,1822,1037,1742,1053,1646,1065,1541,1077,1337,1079,1198"/>
+<area shape="rect" href="../../da/d78/namespacescalar__residual__cpu.html#aa9743866d1914bf81a9f7414d140acc1" title="Compute the residual." alt="" coords="797,1969,955,2024"/>
+<area shape="poly" title=" " alt="" coords="1085,1198,1084,1352,1074,1578,1063,1696,1046,1805,1022,1895,1007,1931,990,1958,975,1973,957,1983,955,1978,972,1968,986,1955,1003,1928,1017,1894,1041,1804,1058,1696,1069,1578,1079,1351,1080,1198"/>
+<area shape="rect" href="../../d9/db6/namespacescalar__residual__sx.html#a80e257b7bac5afedf527bf9bfffc6940" title=" " alt="" coords="801,2048,951,2103"/>
+<area shape="poly" title=" " alt="" coords="1083,1198,1074,1377,1054,1643,1042,1777,1027,1896,1010,1986,1000,2017,990,2037,973,2053,953,2064,950,2059,970,2048,986,2034,995,2015,1004,1985,1021,1895,1036,1777,1049,1643,1068,1377,1078,1198"/>
+<area shape="rect" href="../../d5/d0d/namespacespace.html#af5f26a3966b9af7712f57271e972a34b" title="Generate spectral tranform matrices." alt="" coords="781,2127,971,2167"/>
+<area shape="poly" title=" " alt="" coords="1084,1198,1075,1392,1058,1683,1045,1831,1030,1961,1012,2060,1001,2094,990,2116,973,2130,970,2126,986,2112,996,2092,1006,2059,1024,1960,1040,1830,1052,1683,1070,1392,1078,1198"/>
+<area shape="rect" href="../../d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="798,2191,954,2231"/>
+<area shape="poly" title=" " alt="" coords="1084,1198,1077,1404,1060,1716,1047,1875,1032,2015,1013,2122,1002,2158,990,2181,974,2195,955,2204,953,2200,971,2191,986,2178,997,2156,1008,2120,1027,2014,1042,1874,1055,1716,1071,1404,1079,1198"/>
+<area shape="rect" href="../../d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="801,2255,951,2295"/>
+<area shape="poly" title=" " alt="" coords="1084,1198,1078,1415,1062,1748,1049,1917,1034,2067,1014,2181,1003,2221,990,2245,973,2260,952,2270,950,2265,970,2255,986,2242,998,2219,1009,2180,1028,2066,1044,1917,1056,1748,1072,1415,1079,1197"/>
+<area shape="rect" href="../../d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef" title="Assignment ." alt="" coords="795,2319,957,2359"/>
+<area shape="poly" title=" " alt="" coords="1084,1198,1079,1427,1064,1780,1051,1960,1036,2120,1015,2241,1003,2283,990,2309,975,2322,958,2331,956,2327,972,2318,986,2306,999,2281,1010,2240,1030,2119,1046,1960,1058,1780,1073,1427,1079,1197"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a37ffda7f54dcc1310d9db2032117013e" title="Copy a vector ." alt="" coords="781,2384,971,2409"/>
+<area shape="poly" title=" " alt="" coords="1084,1198,1080,1439,1067,1813,1055,2004,1039,2173,1017,2302,1005,2346,990,2373,973,2387,970,2383,986,2370,1000,2344,1012,2301,1033,2172,1049,2003,1061,1813,1075,1438,1079,1197"/>
 <area shape="rect" href="../../dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="529,173,672,213"/>
 <area shape="poly" title=" " alt="" coords="791,203,672,198,673,193,791,197"/>
 <area shape="rect" href="../../d8/dec/namespacecheby.html#a7cd4306d83190ab13e731079edeeb61d" title="A chebyshev preconditioner." alt="" coords="529,237,672,263"/>
@@ -2374,10 +2381,10 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="759,578,697,579,697,573,759,572"/>
 <area shape="rect" href="../../dd/dd1/namespacehsmg.html#ab830dd9f45e2e8d9c22e36f8639af6ae" title=" " alt="" coords="517,1153,685,1193"/>
 <area shape="poly" title=" " alt="" coords="791,1089,765,1099,751,1109,742,1119,732,1131,717,1142,686,1156,684,1151,715,1137,729,1127,738,1116,748,1105,763,1094,789,1084"/>
-<area shape="rect" href="../../d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="533,1977,668,2003"/>
-<area shape="poly" title=" " alt="" coords="767,1993,668,1993,668,1987,767,1987"/>
-<area shape="rect" href="../../d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="497,2169,705,2195"/>
-<area shape="poly" title=" " alt="" coords="782,2185,705,2185,705,2179,782,2179"/>
+<area shape="rect" href="../../d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="533,2135,668,2160"/>
+<area shape="poly" title=" " alt="" coords="767,2150,668,2150,668,2145,767,2145"/>
+<area shape="rect" href="../../d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="497,2327,705,2352"/>
+<area shape="poly" title=" " alt="" coords="782,2342,705,2342,705,2337,782,2337"/>
 </map>
 </div>
 
@@ -2415,7 +2422,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01409">1409</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01444">1444</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2467,7 +2474,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01421">1421</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01456">1456</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2513,7 +2520,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01458">1458</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01493">1493</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2565,7 +2572,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01470">1470</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01505">1505</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2611,7 +2618,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00134">134</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2665,7 +2672,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00176">176</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00178">178</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2674,6 +2681,111 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title="Return double precision relative comparison ." alt="" coords="224,5,341,31"/>
 <area shape="rect" href="../../d9/d4d/interfacemath_1_1relcmp.html#a254f3e169b6c5fc69b0a3eaf7f19173e" title="Return double precision relative comparison ." alt="" coords="5,5,176,31"/>
 <area shape="poly" title=" " alt="" coords="210,21,176,21,176,15,210,15"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a37fb081da0c4262597f4f1bd64574faf" name="a37fb081da0c4262597f4f1bd64574faf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37fb081da0c4262597f4f1bd64574faf">&#9670;&#160;</a></span>face_masked_gather_copy_0()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> math::face_masked_gather_copy_0 </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_mask</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:, :, :, :), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(0:<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_mask</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>mask</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(0:<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_mask</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>facet</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>ly</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>n_mask</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>Destination array of size <code>n_mask</code>. </td></tr>
+    <tr><td class="paramname">b</td><td>Source face-local array indexed as <code>b(:, :, facet, element)</code>. </td></tr>
+    <tr><td class="paramname">mask</td><td>Mask array of length <code>n_mask + 1</code>, where <code>mask(0) = n_mask</code>. </td></tr>
+    <tr><td class="paramname">facet</td><td>Facet ids associated with the masked points. </td></tr>
+    <tr><td class="paramname">lx</td><td>Number of points in the first SEM direction. </td></tr>
+    <tr><td class="paramname">ly</td><td>Number of points in the second SEM direction. </td></tr>
+    <tr><td class="paramname">lz</td><td>Number of points in the third SEM direction. </td></tr>
+    <tr><td class="paramname">n_mask</td><td>Size of the mask and destination arrays. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00337">337</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d47/namespacemath_a37fb081da0c4262597f4f1bd64574faf_cgraph.png" border="0" usemap="#add/d47/namespacemath_a37fb081da0c4262597f4f1bd64574faf_cgraph" alt=""/></div>
+<map name="add/d47/namespacemath_a37fb081da0c4262597f4f1bd64574faf_cgraph" id="add/d47/namespacemath_a37fb081da0c4262597f4f1bd64574faf_cgraph">
+<area shape="rect" title="Gather values from a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="5,29,204,69"/>
+<area shape="rect" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="252,37,379,62"/>
+<area shape="poly" title=" " alt="" coords="205,47,238,47,238,52,205,52"/>
+<area shape="poly" title=" " alt="" coords="284,38,277,28,280,18,294,12,315,10,342,14,353,22,349,26,340,18,315,15,295,17,284,22,282,28,288,35"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="427,29,591,69"/>
+<area shape="poly" title=" " alt="" coords="379,47,413,47,413,52,379,52"/>
+<area shape="poly" title=" " alt="" coords="472,30,470,20,476,11,489,5,509,3,531,6,544,13,541,17,530,11,509,8,490,10,479,15,475,21,478,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d47/namespacemath_a37fb081da0c4262597f4f1bd64574faf_icgraph.png" border="0" usemap="#add/d47/namespacemath_a37fb081da0c4262597f4f1bd64574faf_icgraph" alt=""/></div>
+<map name="add/d47/namespacemath_a37fb081da0c4262597f4f1bd64574faf_icgraph" id="add/d47/namespacemath_a37fb081da0c4262597f4f1bd64574faf_icgraph">
+<area shape="rect" title="Gather values from a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="425,13,624,53"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a599a173c753f9f87a1c1eb7ea7e30da1" title="Gather a face&#45;local SEM field to a reduced contiguous vector." alt="" coords="213,5,377,60"/>
+<area shape="poly" title=" " alt="" coords="412,35,378,35,378,30,412,30"/>
+<area shape="rect" href="../../df/d21/namespaceboundary__operation.html#ac1862320d9535389b67b9cf95cc2a373" title="Common constructor shared by all public constructors." alt="" coords="5,5,165,60"/>
+<area shape="poly" title=" " alt="" coords="200,35,165,35,165,30,200,30"/>
 </map>
 </div>
 
@@ -2727,7 +2839,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01327">1327</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01362">1362</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -2779,7 +2891,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01350">1350</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01385">1385</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -2809,7 +2921,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00531">531</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00566">566</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2869,7 +2981,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00561">561</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00596">596</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2917,7 +3029,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00516">516</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00551">551</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2932,20 +3044,22 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_aa96bddc7b993fc15b1fa1263b875044d_icgraph.png" border="0" usemap="#add/d47/namespacemath_aa96bddc7b993fc15b1fa1263b875044d_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_aa96bddc7b993fc15b1fa1263b875044d_icgraph" id="add/d47/namespacemath_aa96bddc7b993fc15b1fa1263b875044d_icgraph">
-<area shape="rect" title="Max of a vector of length n." alt="" coords="255,171,360,196"/>
-<area shape="poly" title=" " alt="" coords="343,161,333,153,307,149,286,151,275,156,273,162,279,169,274,172,267,162,271,152,285,146,307,144,335,148,346,157"/>
-<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="5,5,207,60"/>
-<area shape="poly" title=" " alt="" coords="288,161,253,117,230,94,205,74,186,62,189,58,208,69,234,90,257,113,292,158"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#a668616d38a8bc5c5f732edcca70d6be3" title="Global maximum of all elements in a field ." alt="" coords="19,84,193,109"/>
-<area shape="poly" title=" " alt="" coords="277,165,243,144,206,124,168,112,170,107,208,120,246,139,279,161"/>
-<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="33,134,179,174"/>
-<area shape="poly" title=" " alt="" coords="241,176,179,167,180,162,241,171"/>
-<area shape="rect" href="../../d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="25,199,187,224"/>
-<area shape="poly" title=" " alt="" coords="241,195,188,203,187,197,241,190"/>
-<area shape="rect" href="../../dc/d12/namespacematrix__math.html#a0d31fef5fc2197fff35a09c6cc5a8ed0" title="Global maximum of all elements in a matrix ." alt="" coords="27,249,185,289"/>
-<area shape="poly" title=" " alt="" coords="273,205,208,238,173,251,171,246,206,233,271,201"/>
-<area shape="rect" href="../../d3/d0d/namespacevector__math.html#ac65a6beac86fbbb6fdd9620d3ab26bca" title="Global maximum of all elements in a vector ." alt="" coords="29,313,183,353"/>
-<area shape="poly" title=" " alt="" coords="294,209,258,257,235,281,208,303,184,316,181,311,205,298,231,278,254,253,289,206"/>
+<area shape="rect" title="Max of a vector of length n." alt="" coords="463,171,568,196"/>
+<area shape="poly" title=" " alt="" coords="551,161,541,153,515,149,494,151,483,156,481,162,487,169,482,172,475,162,479,152,493,146,515,144,543,148,554,157"/>
+<area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="213,5,415,60"/>
+<area shape="poly" title=" " alt="" coords="496,161,461,117,438,94,413,74,394,62,397,58,416,69,442,90,465,113,500,158"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a668616d38a8bc5c5f732edcca70d6be3" title="Global maximum of all elements in a field ." alt="" coords="227,84,401,109"/>
+<area shape="poly" title=" " alt="" coords="485,165,451,144,414,124,376,112,378,107,416,120,454,139,487,161"/>
+<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="241,134,387,174"/>
+<area shape="poly" title=" " alt="" coords="449,176,387,167,388,162,449,171"/>
+<area shape="rect" href="../../d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="233,199,395,224"/>
+<area shape="poly" title=" " alt="" coords="449,195,396,203,395,197,449,190"/>
+<area shape="rect" href="../../dc/d12/namespacematrix__math.html#a0d31fef5fc2197fff35a09c6cc5a8ed0" title="Global maximum of all elements in a matrix ." alt="" coords="235,249,393,289"/>
+<area shape="poly" title=" " alt="" coords="481,205,416,238,381,251,379,246,414,233,479,201"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#ac65a6beac86fbbb6fdd9620d3ab26bca" title="Global maximum of all elements in a vector ." alt="" coords="237,313,391,353"/>
+<area shape="poly" title=" " alt="" coords="502,209,466,257,443,281,416,303,392,316,389,311,413,298,439,278,462,253,497,206"/>
+<area shape="rect" href="../../df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="5,305,165,360"/>
+<area shape="poly" title=" " alt="" coords="223,335,165,335,165,330,223,330"/>
 </map>
 </div>
 
@@ -2977,7 +3091,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00546">546</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00581">581</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2992,20 +3106,22 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_aee45fd2307691bcc94e2986af286775e_icgraph.png" border="0" usemap="#add/d47/namespacemath_aee45fd2307691bcc94e2986af286775e_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_aee45fd2307691bcc94e2986af286775e_icgraph" id="add/d47/namespacemath_aee45fd2307691bcc94e2986af286775e_icgraph">
-<area shape="rect" title="Min of a vector of length n." alt="" coords="264,149,365,175"/>
-<area shape="poly" title=" " alt="" coords="351,140,341,131,315,128,293,130,282,135,279,140,286,148,281,151,274,141,278,131,292,125,315,123,343,126,354,136"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#a4834e5276a24cac92bb9169deca61c8b" title="Global minimum of all elements in a field ." alt="" coords="25,5,196,31"/>
-<area shape="poly" title=" " alt="" coords="298,139,264,91,241,66,215,46,188,33,190,28,217,41,245,62,268,88,302,136"/>
-<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="37,55,184,95"/>
-<area shape="poly" title=" " alt="" coords="280,144,215,110,183,98,185,93,217,105,283,140"/>
-<area shape="rect" href="../../d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="29,120,192,145"/>
-<area shape="poly" title=" " alt="" coords="250,155,192,147,193,142,250,150"/>
-<area shape="rect" href="../../dc/d12/namespacematrix__math.html#ab1468fdad7c27872a14742a06390e40a" title="Global minimum of all elements in a matrix ." alt="" coords="32,170,189,210"/>
-<area shape="poly" title=" " alt="" coords="250,173,190,182,189,177,250,168"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#ab4547b4cf5a585a529379afe9ec32484" title="Performs a preview of the mesh motion to verify quality/topology." alt="" coords="5,235,216,260"/>
-<area shape="poly" title=" " alt="" coords="286,185,254,206,217,224,179,237,177,232,215,220,251,201,284,181"/>
-<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a138a2e97bdb3da0fe934e14a127b194c" title="Global minimum of all elements in a vector ." alt="" coords="34,285,187,325"/>
-<area shape="poly" title=" " alt="" coords="300,188,265,231,243,254,217,274,189,288,186,283,215,269,239,250,261,228,296,184"/>
+<area shape="rect" title="Min of a vector of length n." alt="" coords="472,149,573,175"/>
+<area shape="poly" title=" " alt="" coords="559,140,549,131,523,128,501,130,490,135,487,140,494,148,489,151,482,141,486,131,500,125,523,123,551,126,562,136"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a4834e5276a24cac92bb9169deca61c8b" title="Global minimum of all elements in a field ." alt="" coords="233,5,404,31"/>
+<area shape="poly" title=" " alt="" coords="506,139,472,91,449,66,423,46,396,33,398,28,425,41,453,62,476,88,510,136"/>
+<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="245,55,392,95"/>
+<area shape="poly" title=" " alt="" coords="488,144,423,110,391,98,393,93,425,105,491,140"/>
+<area shape="rect" href="../../d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="237,120,400,145"/>
+<area shape="poly" title=" " alt="" coords="458,155,400,147,401,142,458,150"/>
+<area shape="rect" href="../../dc/d12/namespacematrix__math.html#ab1468fdad7c27872a14742a06390e40a" title="Global minimum of all elements in a matrix ." alt="" coords="240,170,397,210"/>
+<area shape="poly" title=" " alt="" coords="458,173,398,182,397,177,458,168"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#ab4547b4cf5a585a529379afe9ec32484" title="Performs a preview of the mesh motion to verify quality/topology." alt="" coords="213,235,424,260"/>
+<area shape="poly" title=" " alt="" coords="494,185,462,206,425,224,387,237,385,232,423,220,459,201,492,181"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a138a2e97bdb3da0fe934e14a127b194c" title="Global minimum of all elements in a vector ." alt="" coords="242,285,395,325"/>
+<area shape="poly" title=" " alt="" coords="508,188,473,231,451,254,425,274,397,288,394,283,423,269,447,250,469,228,504,184"/>
+<area shape="rect" href="../../df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="5,277,165,332"/>
+<area shape="poly" title=" " alt="" coords="228,307,166,307,166,302,228,302"/>
 </map>
 </div>
 
@@ -3043,7 +3159,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01048">1048</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01083">1083</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3058,20 +3174,22 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_a662e670921645de8b50d2cdbe93ab1ed_icgraph.png" border="0" usemap="#add/d47/namespacemath_a662e670921645de8b50d2cdbe93ab1ed_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_a662e670921645de8b50d2cdbe93ab1ed_icgraph" id="add/d47/namespacemath_a662e670921645de8b50d2cdbe93ab1ed_icgraph">
-<area shape="rect" title="Weighted inner product ." alt="" coords="224,149,323,174"/>
-<area shape="poly" title=" " alt="" coords="305,138,296,130,273,127,254,129,244,134,242,140,248,147,243,150,237,140,240,131,253,124,273,122,298,126,309,134"/>
-<area shape="rect" href="../../dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b" title="Power method to approximate largest eigenvalue." alt="" coords="10,5,171,45"/>
-<area shape="poly" title=" " alt="" coords="253,139,219,99,174,60,153,48,156,43,178,55,223,95,257,136"/>
-<area shape="rect" href="../../da/d8d/namespacecg__cpld.html#a6620ea1ef9c5e5cdf24655995607434a" title="Coupled PCG solve." alt="" coords="5,70,176,95"/>
-<area shape="poly" title=" " alt="" coords="240,144,175,109,143,98,145,93,177,104,242,139"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#a5cbf579f473ff5d02cbbba9aba8b93b2" title=" " alt="" coords="7,119,175,145"/>
-<area shape="poly" title=" " alt="" coords="210,154,169,147,170,142,211,149"/>
-<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="17,169,164,209"/>
-<area shape="poly" title=" " alt="" coords="211,174,164,181,164,175,210,168"/>
-<area shape="rect" href="../../dc/d12/namespacematrix__math.html#ab3645fb1dae6f08db6168e31896482cb" title="Global inner product of two matrices ." alt="" coords="12,233,169,273"/>
-<area shape="poly" title=" " alt="" coords="244,184,177,224,150,236,148,231,175,219,241,179"/>
-<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a956fad3c60febe102ee6455ad32c80f0" title=" " alt="" coords="14,297,167,337"/>
-<area shape="poly" title=" " alt="" coords="261,187,227,237,204,264,178,287,158,299,155,295,174,283,200,260,223,234,256,184"/>
+<area shape="rect" title="Weighted inner product ." alt="" coords="432,149,531,174"/>
+<area shape="poly" title=" " alt="" coords="513,138,504,130,481,127,462,129,452,134,450,140,456,147,451,150,445,140,448,131,461,124,481,122,506,126,517,134"/>
+<area shape="rect" href="../../dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b" title="Power method to approximate largest eigenvalue." alt="" coords="218,5,379,45"/>
+<area shape="poly" title=" " alt="" coords="461,139,427,99,382,60,361,48,364,43,386,55,431,95,465,136"/>
+<area shape="rect" href="../../da/d8d/namespacecg__cpld.html#a6620ea1ef9c5e5cdf24655995607434a" title="Coupled PCG solve." alt="" coords="213,70,384,95"/>
+<area shape="poly" title=" " alt="" coords="448,144,383,109,351,98,353,93,385,104,450,139"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a5cbf579f473ff5d02cbbba9aba8b93b2" title=" " alt="" coords="215,119,383,145"/>
+<area shape="poly" title=" " alt="" coords="418,154,377,147,378,142,419,149"/>
+<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="225,169,372,209"/>
+<area shape="poly" title=" " alt="" coords="419,174,372,181,372,175,418,168"/>
+<area shape="rect" href="../../dc/d12/namespacematrix__math.html#ab3645fb1dae6f08db6168e31896482cb" title="Global inner product of two matrices ." alt="" coords="220,233,377,273"/>
+<area shape="poly" title=" " alt="" coords="452,184,385,224,358,236,356,231,383,219,449,179"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a956fad3c60febe102ee6455ad32c80f0" title=" " alt="" coords="222,297,375,337"/>
+<area shape="poly" title=" " alt="" coords="469,187,435,237,412,264,386,287,366,299,363,295,382,283,408,260,431,234,464,184"/>
+<area shape="rect" href="../../df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="5,290,165,345"/>
+<area shape="poly" title=" " alt="" coords="208,320,166,320,166,315,208,315"/>
 </map>
 </div>
 
@@ -3115,7 +3233,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01067">1067</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01102">1102</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3217,7 +3335,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01086">1086</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01121">1121</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3271,7 +3389,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01109">1109</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01144">1144</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3325,7 +3443,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00499">499</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00534">534</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3360,10 +3478,12 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="798,277,786,312,766,354,740,395,706,431,685,444,662,452,660,447,683,439,702,427,736,392,762,351,781,310,793,275"/>
 <area shape="rect" href="../../dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="215,5,416,60"/>
 <area shape="poly" title=" " alt="" coords="484,35,416,35,416,30,484,30"/>
-<area shape="rect" href="../../de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="213,448,417,473"/>
-<area shape="poly" title=" " alt="" coords="495,463,418,463,418,458,495,458"/>
-<area shape="rect" href="../../de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="5,448,165,473"/>
-<area shape="poly" title=" " alt="" coords="200,463,166,463,166,458,200,458"/>
+<area shape="rect" href="../../df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="235,401,395,456"/>
+<area shape="poly" title=" " alt="" coords="494,453,395,441,396,435,495,447"/>
+<area shape="rect" href="../../de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="213,480,417,505"/>
+<area shape="poly" title=" " alt="" coords="495,474,418,483,417,478,494,469"/>
+<area shape="rect" href="../../de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="5,480,165,505"/>
+<area shape="poly" title=" " alt="" coords="200,495,166,495,166,490,200,490"/>
 </map>
 </div>
 
@@ -3395,7 +3515,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00614">614</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00649">649</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -3455,7 +3575,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00840">840</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00875">875</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -3527,7 +3647,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00626">626</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00661">661</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -3579,7 +3699,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00639">639</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00674">674</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -3625,7 +3745,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00216">216</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00218">218</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -3683,7 +3803,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00289">289</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00291">291</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -3741,19 +3861,23 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00268">268</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00270">270</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_aeeebe3f7e2c8181d93632e935246e6f6_icgraph.png" border="0" usemap="#add/d47/namespacemath_aeeebe3f7e2c8181d93632e935246e6f6_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_aeeebe3f7e2c8181d93632e935246e6f6_icgraph" id="add/d47/namespacemath_aeeebe3f7e2c8181d93632e935246e6f6_icgraph">
-<area shape="rect" title="Copy a masked vector ." alt="" coords="224,85,392,110"/>
-<area shape="rect" href="../../db/d5b/namespacefield__dirichlet.html#a9eecc52156c37ccc6139b3615a14919c" title="Apply scalar by performing a masked copy." alt="" coords="5,5,176,45"/>
-<area shape="poly" title=" " alt="" coords="255,83,151,48,153,43,257,78"/>
-<area shape="rect" href="../../d0/d1c/namespacefield__dirichlet__vector.html#aa5ad24b67ab62b5603c08480ebb47507" title="Apply the boundary condition to a vector field." alt="" coords="7,70,174,125"/>
-<area shape="poly" title=" " alt="" coords="210,100,174,100,174,95,210,95"/>
-<area shape="rect" href="../../d1/da7/namespaceno__slip.html#a5c140bb4171ee789d8ed3736d2257ed5" title=" " alt="" coords="8,149,173,189"/>
-<area shape="poly" title=" " alt="" coords="257,117,153,152,151,147,255,112"/>
+<area shape="rect" title="Copy a masked vector ." alt="" coords="245,157,413,182"/>
+<area shape="rect" href="../../db/d5b/namespacefield__dirichlet.html#a9eecc52156c37ccc6139b3615a14919c" title="Apply scalar by performing a masked copy." alt="" coords="16,5,187,45"/>
+<area shape="poly" title=" " alt="" coords="305,149,258,104,196,60,171,48,173,43,199,55,261,100,309,145"/>
+<area shape="rect" href="../../d0/d1c/namespacefield__dirichlet__vector.html#aa5ad24b67ab62b5603c08480ebb47507" title="Apply the boundary condition to a vector field." alt="" coords="18,70,185,125"/>
+<area shape="poly" title=" " alt="" coords="274,155,184,126,186,121,276,150"/>
+<area shape="rect" href="../../d1/da7/namespaceno__slip.html#a5c140bb4171ee789d8ed3736d2257ed5" title=" " alt="" coords="19,149,184,189"/>
+<area shape="poly" title=" " alt="" coords="231,172,184,172,184,167,231,167"/>
+<area shape="rect" href="../../d1/da5/namespaceoverset__interface.html#a39a973a542a2b8ba4517e7f515353908" title="Apply scalar." alt="" coords="12,214,191,269"/>
+<area shape="poly" title=" " alt="" coords="276,189,189,217,187,211,274,184"/>
+<area shape="rect" href="../../d6/de1/namespaceoverset__interface__vector.html#ae60a41741d13226ba8014dbb8d4f92bd" title="Apply the boundary condition to a vector field." alt="" coords="5,293,197,347"/>
+<area shape="poly" title=" " alt="" coords="308,194,260,237,199,282,175,295,173,290,196,278,256,233,304,190"/>
 </map>
 </div>
 
@@ -3806,7 +3930,7 @@ Here is the caller graph for this function:</div>
   <table class="params">
     <tr><td class="paramname">a</td><td>Destination array of size <code>n_mask</code>. </td></tr>
     <tr><td class="paramname">b</td><td>Source array of size <code>n</code>. </td></tr>
-    <tr><td class="paramname">mask</td><td>Mask array of length n_mask + 1, where <code>mask(0) = n_mask</code> the length of the mask array. </td></tr>
+    <tr><td class="paramname">mask</td><td>Mask array of length n_mask. the length of the mask array. </td></tr>
     <tr><td class="paramname">n</td><td>Size of the array <code>b</code>. </td></tr>
     <tr><td class="paramname">n_mask</td><td>Size of the mask array <code>mask</code> and <code>a</code>. </td></tr>
   </table>
@@ -3814,21 +3938,25 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Assumes <code>n .ge. n_mask</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00335">335</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00370">370</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_a6db9a4f12c04c0b2c391549243aeee40_icgraph.png" border="0" usemap="#add/d47/namespacemath_a6db9a4f12c04c0b2c391549243aeee40_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_a6db9a4f12c04c0b2c391549243aeee40_icgraph" id="add/d47/namespacemath_a6db9a4f12c04c0b2c391549243aeee40_icgraph">
-<area shape="rect" title="Gather a masked vector to reduced contigous vector ." alt="" coords="447,77,649,102"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a929a67b52e819fcc73a0a4ad6e8e631d" title="Generate/Initialize a new dofmap object based on a mask." alt="" coords="216,5,396,45"/>
-<area shape="poly" title=" " alt="" coords="485,76,382,48,383,43,487,70"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#a50bd16112741cd8862376d6b844db998" title="Gather a field to reduced contiguous array ." alt="" coords="213,69,399,109"/>
-<area shape="poly" title=" " alt="" coords="433,92,399,92,399,87,433,87"/>
-<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a580a0e0a951754438d50c403f0f63217" title="Gather a vector to reduced contigous array ." alt="" coords="223,133,389,173"/>
-<area shape="poly" title=" " alt="" coords="487,108,383,136,382,131,485,103"/>
-<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ae9c17253d0dc29559d194d89a868d56c" title="Evaluate the interpolated value in a masked field." alt="" coords="5,126,165,181"/>
-<area shape="poly" title=" " alt="" coords="209,156,166,156,166,151,209,151"/>
+<area shape="rect" title="Gather a masked vector to reduced contigous vector ." alt="" coords="471,77,673,102"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a929a67b52e819fcc73a0a4ad6e8e631d" title="Generate/Initialize a new dofmap object based on a mask." alt="" coords="240,5,420,45"/>
+<area shape="poly" title=" " alt="" coords="509,76,406,48,407,43,511,70"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a50bd16112741cd8862376d6b844db998" title="Gather a field to reduced contiguous array ." alt="" coords="237,69,423,109"/>
+<area shape="poly" title=" " alt="" coords="457,92,423,92,423,87,457,87"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a580a0e0a951754438d50c403f0f63217" title="Gather a vector to reduced contigous array ." alt="" coords="247,133,413,173"/>
+<area shape="poly" title=" " alt="" coords="511,108,407,136,406,131,509,103"/>
+<area shape="rect" href="../../d1/da5/namespaceoverset__interface.html#a3a71e1559bf234006ae3ad429081a342" title="Gather interface dofs." alt="" coords="12,69,183,109"/>
+<area shape="poly" title=" " alt="" coords="243,132,170,112,171,107,244,127"/>
+<area shape="rect" href="../../d6/de1/namespaceoverset__interface__vector.html#ad555470637dc93b888bd040d43bcc4ba" title="Gather interface dofs." alt="" coords="5,133,189,173"/>
+<area shape="poly" title=" " alt="" coords="233,156,189,156,189,151,233,151"/>
+<area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ae9c17253d0dc29559d194d89a868d56c" title="Evaluate the interpolated value in a masked field." alt="" coords="17,198,177,253"/>
+<area shape="poly" title=" " alt="" coords="252,180,178,203,177,198,251,175"/>
 </map>
 </div>
 
@@ -3889,25 +4017,27 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Assumes <code>n .ge. n_mask</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00312">312</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00314">314</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_a93ebdef19d8a165651d852f29d2bf5b7_icgraph.png" border="0" usemap="#add/d47/namespacemath_a93ebdef19d8a165651d852f29d2bf5b7_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_a93ebdef19d8a165651d852f29d2bf5b7_icgraph" id="add/d47/namespacemath_a93ebdef19d8a165651d852f29d2bf5b7_icgraph">
-<area shape="rect" title="Gather a masked vector to reduced contigous vector ." alt="" coords="239,165,403,205"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#af7251846973bd60c4cd510a41c0939bd" title="Gather a field to reduced contiguous array ." alt="" coords="5,5,191,45"/>
-<area shape="poly" title=" " alt="" coords="293,156,248,107,220,82,189,60,167,48,169,43,192,55,223,78,252,103,297,153"/>
-<area shape="rect" href="../../d6/d93/namespacefield__neumann.html#a04d379b8d53d30e3d9f5ee43bbd6585b" title="Gather field&#45;defined values into compact boundary flux storage." alt="" coords="13,69,183,109"/>
-<area shape="poly" title=" " alt="" coords="269,162,190,124,159,112,161,107,192,119,271,157"/>
-<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="25,133,171,173"/>
-<area shape="poly" title=" " alt="" coords="225,174,171,166,171,161,225,169"/>
-<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#ae9ae027762ffb4b12cc853766cb415bb" title="Common part of constructors." alt="" coords="17,197,179,237"/>
-<area shape="poly" title=" " alt="" coords="226,202,180,208,179,203,225,196"/>
-<area shape="rect" href="../../d5/d90/namespacespalding.html#a8fceccd55236c0ec4100055cd9bacc81" title="Compute the kinematic viscosity vector." alt="" coords="28,261,168,301"/>
-<area shape="poly" title=" " alt="" coords="271,214,192,252,161,264,159,259,190,247,269,209"/>
-<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de" title="Gather a vector to reduced contigous array ." alt="" coords="7,325,189,365"/>
-<area shape="poly" title=" " alt="" coords="297,218,252,268,223,293,192,316,169,328,167,323,189,311,220,289,248,264,293,214"/>
+<area shape="rect" title="Gather a masked vector to reduced contigous vector ." alt="" coords="447,165,611,205"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#af7251846973bd60c4cd510a41c0939bd" title="Gather a field to reduced contiguous array ." alt="" coords="213,5,399,45"/>
+<area shape="poly" title=" " alt="" coords="501,156,456,107,428,82,397,60,375,48,377,43,400,55,431,78,460,103,505,153"/>
+<area shape="rect" href="../../d6/d93/namespacefield__neumann.html#a04d379b8d53d30e3d9f5ee43bbd6585b" title="Gather field&#45;defined values into compact boundary flux storage." alt="" coords="221,69,391,109"/>
+<area shape="poly" title=" " alt="" coords="477,162,398,124,367,112,369,107,400,119,479,157"/>
+<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="233,133,379,173"/>
+<area shape="poly" title=" " alt="" coords="433,174,379,166,379,161,433,169"/>
+<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#ae9ae027762ffb4b12cc853766cb415bb" title="Common part of constructors." alt="" coords="225,197,387,237"/>
+<area shape="poly" title=" " alt="" coords="434,202,388,208,387,203,433,196"/>
+<area shape="rect" href="../../d5/d90/namespacespalding.html#a8fceccd55236c0ec4100055cd9bacc81" title="Compute the kinematic viscosity vector." alt="" coords="236,261,376,301"/>
+<area shape="poly" title=" " alt="" coords="479,214,400,252,369,264,367,259,398,247,477,209"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de" title="Gather a vector to reduced contigous array ." alt="" coords="215,325,397,365"/>
+<area shape="poly" title=" " alt="" coords="505,218,460,268,431,293,400,316,377,328,375,323,397,311,428,289,456,264,501,214"/>
+<area shape="rect" href="../../df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="5,318,165,373"/>
+<area shape="poly" title=" " alt="" coords="201,348,165,348,165,343,201,343"/>
 </map>
 </div>
 
@@ -3968,7 +4098,21 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Assumes <code>n .ge. n_mask</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00381">381</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00416">416</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dd/d47/namespacemath_a330e394dc6220fdd80603e904283424d_icgraph.png" border="0" usemap="#add/d47/namespacemath_a330e394dc6220fdd80603e904283424d_icgraph" alt=""/></div>
+<map name="add/d47/namespacemath_a330e394dc6220fdd80603e904283424d_icgraph" id="add/d47/namespacemath_a330e394dc6220fdd80603e904283424d_icgraph">
+<area shape="rect" title="Scatter a contigous vector to masked positions in a target array ." alt="" coords="468,45,673,70"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#adb8b35dd7d3344cd6165541c64e01d02" title="Scatter a contiguous vector into an array ." alt="" coords="249,37,420,77"/>
+<area shape="poly" title=" " alt="" coords="454,60,420,60,420,55,454,55"/>
+<area shape="rect" href="../../d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="9,5,197,45"/>
+<area shape="poly" title=" " alt="" coords="235,46,197,41,198,36,236,41"/>
+<area shape="rect" href="../../d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="5,69,201,109"/>
+<area shape="poly" title=" " alt="" coords="236,74,202,78,201,73,235,68"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -4027,7 +4171,7 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Assumes <code>n .ge. n_mask</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00358">358</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00393">393</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4036,7 +4180,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title="Scatter a contigous vector to masked positions in a target array ." alt="" coords="239,37,405,77"/>
 <area shape="rect" href="../../d5/de6/namespacefield__math.html#af057757f2838f6f4d061543b9b561094" title="Gather a contiguous array into a field ." alt="" coords="5,5,191,45"/>
 <area shape="poly" title=" " alt="" coords="225,46,190,41,191,36,225,41"/>
-<area shape="rect" href="../../d3/d0d/namespacevector__math.html#ae6a9b6ccf8813a576d35925f2c451e27" title="Gather a contigous array into a vector ." alt="" coords="5,69,191,109"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#ae6a9b6ccf8813a576d35925f2c451e27" title="Scatter a contiguous vector into an array ." alt="" coords="5,69,191,109"/>
 <area shape="poly" title=" " alt="" coords="225,74,191,79,190,73,225,69"/>
 </map>
 </div>
@@ -4059,7 +4203,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01555">1555</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01590">1590</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4093,7 +4237,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01532">1532</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01567">1567</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -4113,7 +4257,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01506">1506</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01541">1541</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4201,7 +4345,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01485">1485</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01520">1520</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4277,7 +4421,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01018">1018</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01053">1053</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4323,19 +4467,21 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01385">1385</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01420">1420</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_a860a0d4194678be13a04d1fe06e7314a_icgraph.png" border="0" usemap="#add/d47/namespacemath_a860a0d4194678be13a04d1fe06e7314a_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_a860a0d4194678be13a04d1fe06e7314a_icgraph" id="add/d47/namespacemath_a860a0d4194678be13a04d1fe06e7314a_icgraph">
-<area shape="rect" title="Point&#45;wise maximum of two vectors ." alt="" coords="464,45,584,70"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#a978fc2b6f0ad5b6c281a17a8db6a3c15" title="Point&#45;wise max operation ." alt="" coords="225,45,416,70"/>
-<area shape="poly" title=" " alt="" coords="450,60,416,60,416,55,450,55"/>
-<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="5,5,177,45"/>
-<area shape="poly" title=" " alt="" coords="215,45,177,40,178,35,216,40"/>
-<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="5,69,177,109"/>
-<area shape="poly" title=" " alt="" coords="216,75,178,80,177,75,215,69"/>
+<area shape="rect" title="Point&#45;wise maximum of two vectors ." alt="" coords="464,77,584,102"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a978fc2b6f0ad5b6c281a17a8db6a3c15" title="Point&#45;wise max operation ." alt="" coords="225,77,416,102"/>
+<area shape="poly" title=" " alt="" coords="450,92,416,92,416,87,450,87"/>
+<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a28d5e8158ec54017a00179b4e19a5ac3" title="Initializes the source term from a boundary mesh." alt="" coords="5,5,177,45"/>
+<area shape="poly" title=" " alt="" coords="260,75,163,48,165,43,262,70"/>
+<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#aee650c8fca67a7168bd548a1ea0e412a" title="Initializes the source term from a file." alt="" coords="5,69,177,109"/>
+<area shape="poly" title=" " alt="" coords="212,92,177,92,177,87,212,87"/>
+<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a8423df88b2e8ade7e260c37befae40f8" title="Initializes the source term from a point zone." alt="" coords="5,133,177,173"/>
+<area shape="poly" title=" " alt="" coords="262,108,165,136,163,131,260,103"/>
 </map>
 </div>
 
@@ -4379,7 +4525,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01397">1397</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01432">1432</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4425,7 +4571,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01434">1434</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01469">1469</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4477,7 +4623,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01446">1446</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01481">1481</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4531,7 +4677,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00147">147</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00149">149</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4585,7 +4731,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00191">191</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00193">193</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4647,7 +4793,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01287">1287</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01322">1322</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -4699,7 +4845,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01307">1307</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01342">1342</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -4729,7 +4875,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00238">238</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00240">240</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -4809,7 +4955,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00227">227</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00229">229</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -4839,135 +4985,141 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00205">205</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/d47/namespacemath_accd3b06fc22b453552cc46d0fbf80677_icgraph.png" border="0" usemap="#add/d47/namespacemath_accd3b06fc22b453552cc46d0fbf80677_icgraph" alt=""/></div>
 <map name="add/d47/namespacemath_accd3b06fc22b453552cc46d0fbf80677_icgraph" id="add/d47/namespacemath_accd3b06fc22b453552cc46d0fbf80677_icgraph">
-<area shape="rect" title="Zero a real vector." alt="" coords="1028,1167,1125,1192"/>
-<area shape="rect" href="../../d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c" title="Advance a single point position (x,y,z) from the point&#39;s velocity using AB time&#45;integration." alt="" coords="779,494,962,534"/>
-<area shape="poly" title=" " alt="" coords="1072,1153,1068,1025,1054,844,1042,750,1026,665,1005,595,992,568,978,548,961,534,964,530,982,544,997,566,1010,593,1031,664,1048,750,1060,843,1073,1025,1078,1152"/>
-<area shape="rect" href="../../dc/df5/namespaceab__time__scheme.html#a0c7ea248befdd7fc4bf7271271642cd3" title="Compute the scheme coefficients." alt="" coords="780,55,961,109"/>
-<area shape="poly" title=" " alt="" coords="1072,1153,1064,938,1047,611,1034,444,1019,297,1000,185,989,147,978,124,960,107,963,103,982,120,994,145,1005,184,1024,296,1040,444,1053,610,1070,937,1077,1153"/>
-<area shape="rect" href="../../dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="801,134,941,174"/>
-<area shape="poly" title=" " alt="" coords="1072,1153,1064,949,1047,642,1034,486,1018,349,999,244,989,209,978,188,961,173,940,164,942,159,964,169,982,184,994,207,1005,243,1023,348,1039,486,1052,642,1069,949,1077,1153"/>
-<area shape="rect" href="../../d4/db4/namespacebdf__time__scheme.html#a572e81f602b6a7aa1f362257dc5c5e4a" title="Compute the scheme coefficients." alt="" coords="780,199,961,253"/>
-<area shape="poly" title=" " alt="" coords="1072,1153,1062,964,1043,683,1030,541,1015,415,997,320,988,287,978,268,960,251,963,247,982,264,993,285,1002,318,1020,414,1035,540,1048,683,1067,964,1077,1153"/>
-<area shape="rect" href="../../dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="801,278,941,318"/>
-<area shape="poly" title=" " alt="" coords="1071,1153,1062,976,1042,715,1029,583,1014,467,997,379,987,349,978,332,961,317,940,308,942,303,964,313,982,328,992,347,1002,378,1019,466,1034,583,1048,714,1067,976,1077,1153"/>
-<area shape="rect" href="../../d2/d10/namespacecacg.html#a2b9a6da5ee5dab7e10d72d97392d731c" title="S&#45;step CA PCG solve." alt="" coords="805,343,937,368"/>
-<area shape="poly" title=" " alt="" coords="1073,1153,1073,998,1064,768,1052,649,1035,540,1011,450,995,415,978,389,959,374,936,364,938,359,962,369,982,386,1000,413,1016,448,1040,539,1058,649,1069,768,1079,997,1079,1153"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a5067723230fde31368ad47fb10c8da77" title="Calculate drag and torque from array of points." alt="" coords="783,558,958,598"/>
-<area shape="poly" title=" " alt="" coords="1072,1153,1066,1038,1051,875,1038,792,1022,716,1002,654,991,630,978,612,957,596,960,591,982,608,995,627,1007,652,1028,715,1044,791,1056,875,1071,1037,1077,1153"/>
-<area shape="rect" href="../../d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c" title="Standard PCG solve." alt="" coords="819,444,922,469"/>
-<area shape="poly" title=" " alt="" coords="1073,1153,1071,1014,1060,812,1048,709,1031,614,1008,536,994,506,978,484,952,467,922,459,923,454,955,462,982,480,999,504,1013,534,1036,613,1053,708,1065,812,1076,1014,1078,1153"/>
-<area shape="rect" href="../../d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="791,801,950,841"/>
-<area shape="poly" title=" " alt="" coords="1073,1153,1070,1092,1056,1012,1045,969,1028,928,1006,889,978,855,949,836,952,831,982,851,1010,886,1033,925,1050,968,1062,1011,1075,1092,1078,1153"/>
-<area shape="rect" href="../../d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="527,751,671,776"/>
-<area shape="poly" title=" " alt="" coords="1070,1154,1060,1070,1042,960,1030,905,1015,855,998,816,978,791,957,779,926,770,845,760,754,758,672,761,671,756,754,753,845,755,927,765,959,774,982,787,1002,813,1020,854,1035,903,1047,958,1066,1069,1076,1153"/>
-<area shape="rect" href="../../d9/de3/namespaceadv__no__dealias.html#acc7206a9cea50114cfc4864cb2385984" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="777,622,965,662"/>
-<area shape="poly" title=" " alt="" coords="1071,1153,1063,1049,1047,906,1034,833,1019,767,1000,713,978,676,963,663,966,659,982,672,1005,710,1024,765,1039,832,1052,905,1069,1049,1077,1153"/>
-<area shape="rect" href="../../d9/de3/namespaceadv__no__dealias.html#ab4cd807b7ab3b310c44c834e3dd0f16a" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="763,686,979,726"/>
-<area shape="poly" title=" " alt="" coords="1070,1153,1060,1062,1041,941,1014,823,997,778,978,746,954,728,958,724,982,743,1002,775,1019,822,1046,940,1065,1062,1075,1152"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a4b33e188d75f2f7f1e723291c1c069fd" title="Calculate drag and torque over a facet." alt="" coords="506,182,693,222"/>
-<area shape="poly" title=" " alt="" coords="1073,1153,1073,1004,1063,788,1051,676,1034,574,1010,490,995,457,978,433,954,412,929,402,904,398,878,399,822,401,792,396,760,382,711,345,668,301,634,258,611,224,615,221,639,255,672,298,714,341,763,377,793,391,823,396,878,394,904,393,930,396,956,408,982,430,1000,455,1015,488,1039,573,1057,675,1068,787,1078,1004,1078,1153"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#aa0aaba6013da47ebecf4ef3c36e0708c" title="Calculate drag and torque from one point." alt="" coords="767,5,974,31"/>
-<area shape="poly" title=" " alt="" coords="1072,1153,1067,923,1052,569,1040,389,1024,230,1003,109,991,68,978,44,965,33,969,29,982,40,996,66,1008,107,1029,229,1045,388,1058,569,1072,923,1078,1153"/>
-<area shape="rect" href="../../dd/d52/namespaceelementwise__filter.html#ad09c2b30e39c1053855b29d95d2cd001" title="Actual Constructor." alt="" coords="783,865,958,920"/>
-<area shape="poly" title=" " alt="" coords="1070,1153,1061,1107,1045,1048,1018,986,1000,958,978,933,957,918,960,913,982,929,1004,955,1023,984,1050,1046,1067,1105,1075,1153"/>
-<area shape="rect" href="../../d2/d75/namespaceext__time__scheme.html#adf75631dc4c73c73b558f4eeb29fe65b" title="Compute the scheme coefficients." alt="" coords="780,944,961,999"/>
-<area shape="poly" title=" " alt="" coords="1065,1154,1034,1084,1009,1045,978,1012,960,1000,963,995,982,1008,1013,1042,1038,1081,1070,1152"/>
-<area shape="rect" href="../../d2/d75/namespaceext__time__scheme.html#a1654d689ca92903729de891e38caf174" title="Compute the modified scheme coefficients." alt="" coords="780,1023,961,1077"/>
-<area shape="poly" title=" " alt="" coords="1053,1158,1020,1124,979,1092,955,1080,957,1075,981,1088,1024,1120,1057,1154"/>
-<area shape="rect" href="../../d3/d4c/namespacefdm.html#a4e4c35e30cb7a09ac9f75e02ca5c6acb" title=" " alt="" coords="544,1467,655,1492"/>
-<area shape="poly" title=" " alt="" coords="1015,1197,981,1206,916,1215,862,1216,838,1218,814,1225,790,1237,763,1257,749,1273,742,1288,736,1320,732,1354,727,1372,716,1392,695,1416,671,1437,625,1469,622,1464,667,1433,691,1412,711,1388,722,1370,727,1353,731,1319,737,1286,745,1270,760,1253,787,1233,812,1220,837,1213,862,1211,915,1209,979,1201,1014,1192"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="787,1167,954,1192"/>
-<area shape="poly" title=" " alt="" coords="1014,1182,954,1182,954,1177,1014,1177"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="767,2116,974,2141"/>
-<area shape="poly" title=" " alt="" coords="1077,1206,1069,1397,1051,1683,1038,1827,1022,1955,1004,2051,993,2084,982,2105,966,2118,963,2114,978,2102,989,2082,999,2050,1017,1954,1033,1827,1045,1682,1063,1397,1072,1206"/>
-<area shape="rect" href="../../dc/d48/namespacegmres.html#a3ad50be018611153f4c6184821724c96" title="Standard GMRES solve." alt="" coords="793,1268,948,1293"/>
-<area shape="poly" title=" " alt="" coords="1052,1203,1020,1228,981,1251,929,1270,927,1265,979,1246,1017,1224,1049,1199"/>
-<area shape="rect" href="../../dc/d12/namespacematrix__math.html#ab3066e0abca1896f3366afebe892206e" title="Zero a real matrix ." alt="" coords="792,1318,949,1358"/>
-<area shape="poly" title=" " alt="" coords="1065,1206,1032,1257,1009,1284,981,1307,951,1323,948,1318,979,1302,1005,1280,1027,1254,1060,1203"/>
-<area shape="rect" href="../../d0/d94/namespaceopr__cpu.html#a102777fce325ee827cf3ddbbe20e1eea" title=" " alt="" coords="789,1383,952,1408"/>
-<area shape="poly" title=" " alt="" coords="1072,1207,1061,1244,1043,1289,1017,1334,982,1372,954,1387,951,1383,978,1368,1013,1331,1039,1286,1056,1242,1067,1205"/>
-<area shape="rect" href="../../df/db5/namespaceopr__sx.html#a4fe2c37228ee80eea0e3cd08b067aaea" title=" " alt="" coords="797,1432,944,1457"/>
-<area shape="poly" title=" " alt="" coords="1075,1206,1067,1252,1051,1311,1024,1370,1005,1398,982,1421,964,1433,945,1440,943,1435,962,1428,978,1417,1000,1394,1019,1368,1046,1309,1062,1251,1070,1205"/>
-<area shape="rect" href="../../d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="771,1481,970,1507"/>
-<area shape="poly" title=" " alt="" coords="1077,1206,1072,1261,1058,1333,1046,1370,1030,1407,1008,1441,982,1471,963,1483,960,1479,978,1467,1004,1438,1025,1404,1041,1368,1053,1331,1067,1260,1072,1205"/>
-<area shape="rect" href="../../d1/d99/namespacemap__2d.html#a27867ff2e8551191a1d1788f7744850d" title=" " alt="" coords="785,1758,957,1798"/>
-<area shape="poly" title=" " alt="" coords="1077,1206,1071,1321,1055,1483,1043,1565,1027,1641,1007,1703,982,1746,958,1764,955,1760,978,1743,1002,1701,1022,1639,1038,1564,1050,1482,1066,1321,1072,1206"/>
-<area shape="rect" href="../../de/d49/namespacepipecg.html#a7cf83f02e364f94f5b2738684b52629b" title="Pipelined PCG solve." alt="" coords="791,1580,950,1605"/>
-<area shape="poly" title=" " alt="" coords="1075,1206,1064,1289,1045,1397,1018,1501,1001,1542,982,1569,968,1580,952,1588,949,1583,965,1576,978,1565,996,1539,1013,1499,1040,1396,1059,1288,1070,1206"/>
-<area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="789,1629,952,1684"/>
-<area shape="poly" title=" " alt="" coords="1075,1206,1065,1298,1046,1420,1019,1539,1002,1586,982,1618,954,1640,951,1635,978,1615,997,1583,1014,1537,1041,1419,1060,1297,1070,1206"/>
-<area shape="rect" href="../../d3/d06/namespaceprojection.html#a4f59953f23c62ff8b9bdcede183b6f00" title=" " alt="" coords="777,1708,965,1733"/>
-<area shape="poly" title=" " alt="" coords="1077,1206,1070,1313,1054,1460,1041,1535,1025,1603,1006,1659,982,1697,965,1710,962,1706,978,1694,1001,1657,1020,1601,1036,1534,1048,1459,1064,1313,1071,1206"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="769,1823,972,1848"/>
-<area shape="poly" title=" " alt="" coords="1078,1206,1074,1334,1061,1515,1049,1609,1032,1694,1010,1764,997,1791,982,1812,965,1825,962,1821,978,1808,992,1788,1005,1762,1027,1692,1044,1608,1056,1515,1069,1334,1072,1206"/>
-<area shape="rect" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="811,1531,931,1556"/>
-<area shape="poly" title=" " alt="" coords="1079,1206,1077,1269,1065,1354,1053,1399,1035,1443,1012,1484,982,1520,958,1535,932,1543,930,1538,956,1530,978,1516,1008,1481,1031,1441,1048,1397,1059,1353,1072,1269,1074,1206"/>
-<area shape="rect" href="../../d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="793,1873,949,1913"/>
-<area shape="poly" title=" " alt="" coords="1078,1206,1075,1342,1063,1538,1051,1639,1034,1732,1011,1809,998,1839,982,1862,967,1875,950,1884,948,1880,964,1871,978,1859,993,1837,1006,1807,1029,1731,1046,1639,1057,1537,1070,1341,1073,1206"/>
-<area shape="rect" href="../../dc/d1a/namespacetree__amg.html#a3c9a91208564df3f43b555b0c1ed6b62" title="Matrix vector product using the TreeAMG hierarchy structure b=Ax done as vec_out = A * vec_in This is..." alt="" coords="761,1937,980,1963"/>
-<area shape="poly" title=" " alt="" coords="1078,1206,1078,1354,1068,1570,1056,1682,1039,1784,1015,1868,1000,1901,982,1926,966,1939,963,1935,978,1923,995,1899,1010,1867,1034,1783,1051,1681,1063,1569,1073,1354,1073,1206"/>
-<area shape="rect" href="../../d5/d1b/namespacetree__amg__multigrid.html#ad8909c9e701623c78bcd446fcc2ef26a" title="multigrid cycle for the TreeAMG solver object" alt="" coords="795,1987,946,2027"/>
-<area shape="poly" title=" " alt="" coords="1079,1206,1079,1361,1069,1592,1058,1712,1041,1823,1016,1914,1000,1950,982,1977,966,1991,947,2000,945,1995,963,1986,978,1974,995,1947,1011,1912,1035,1821,1053,1712,1064,1592,1073,1361,1073,1206"/>
-<area shape="rect" href="../../d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="795,2051,946,2091"/>
-<area shape="poly" title=" " alt="" coords="1077,1206,1067,1386,1048,1650,1035,1784,1020,1901,1002,1991,992,2022,982,2041,966,2055,947,2064,945,2059,963,2050,978,2038,988,2020,997,1990,1014,1900,1030,1783,1043,1650,1062,1385,1071,1206"/>
-<area shape="rect" href="../../d4/d50/namespaceale__routines__device.html#a66f122c51f57f4ff2edf95cb0d091599" title=" " alt="" coords="773,1102,968,1142"/>
-<area shape="poly" title=" " alt="" coords="1016,1165,942,1145,944,1139,1018,1160"/>
-<area shape="rect" href="../../d3/d0d/namespacevector__math.html#ae61cdbb3bb145783d9387cee0ecf1c59" title="Zero a real vector." alt="" coords="794,2166,947,2206"/>
-<area shape="poly" title=" " alt="" coords="1077,1206,1069,1406,1051,1708,1039,1860,1023,1995,1004,2098,994,2134,982,2156,967,2169,949,2179,946,2174,964,2165,978,2152,989,2132,999,2097,1018,1995,1033,1860,1046,1707,1064,1406,1072,1206"/>
-<area shape="rect" href="../../d1/d65/namespaceale__rigid__kinematics.html#a2bf9b37c78f6c41adaeca3d64750eac9" title="Updates the point tracker&#39;s position and velocity history using AB time integration based on the curr..." alt="" coords="511,494,688,534"/>
-<area shape="poly" title=" " alt="" coords="766,517,688,517,688,511,766,511"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aedfb0e2f9dc3f11ae4cc029df909c043" title=" " alt="" coords="523,430,675,470"/>
-<area shape="poly" title=" " alt="" coords="771,493,675,470,676,465,772,488"/>
-<area shape="rect" href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659" title="Updates pivot location." alt="" coords="512,558,687,598"/>
-<area shape="poly" title=" " alt="" coords="772,540,685,561,684,555,771,535"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#af984430ba7e4a8bae68b2ca61d0e9f72" title="Main routine to advance the mesh in time." alt="" coords="218,728,431,753"/>
-<area shape="poly" title=" " alt="" coords="501,605,487,612,441,641,399,673,340,730,336,726,396,669,438,636,484,608,499,601"/>
-<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="527,622,672,662"/>
-<area shape="poly" title=" " alt="" coords="772,604,673,627,672,622,771,599"/>
-<area shape="poly" title=" " alt="" coords="777,804,660,779,661,773,778,799"/>
-<area shape="rect" href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2" title="Recompute and update geometric factors (ALE)" alt="" coords="514,801,685,841"/>
-<area shape="poly" title=" " alt="" coords="778,823,685,823,685,818,778,818"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a06338b4cbb5d4959b061910b60e2bf42" title="Some functions to calculate the lift/drag and torque Calculation can be done on a zone,..." alt="" coords="213,189,437,215"/>
-<area shape="poly" title=" " alt="" coords="492,205,437,205,437,199,492,199"/>
-<area shape="poly" title=" " alt="" coords="776,38,763,44,716,76,675,114,617,183,613,180,671,110,713,72,760,40,774,33"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a282682942febe3c0838883a5a4b6f3a3" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="485,1288,713,1313"/>
-<area shape="poly" title=" " alt="" coords="790,1199,763,1213,748,1229,740,1245,731,1262,715,1278,689,1290,686,1285,712,1273,727,1258,735,1243,744,1226,760,1209,788,1194"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#ab4547b4cf5a585a529379afe9ec32484" title="Performs a preview of the mesh motion to verify quality/topology." alt="" coords="494,965,705,991"/>
-<area shape="poly" title=" " alt="" coords="773,1166,759,1156,744,1137,737,1118,735,1079,733,1041,726,1023,712,1005,693,993,696,989,715,1001,730,1020,738,1040,740,1078,742,1116,749,1134,763,1152,776,1162"/>
-<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a3323d64c81fd680132b725888d8d8d16" title="Get a field from the registry by assigning it to a pointer." alt="" coords="508,1338,691,1378"/>
-<area shape="poly" title=" " alt="" coords="784,1200,763,1213,751,1227,745,1240,740,1268,735,1298,728,1312,715,1327,692,1342,689,1337,712,1323,723,1309,730,1296,735,1268,740,1238,747,1224,760,1209,781,1195"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a715238efb7d913e6d22fbda34469293b" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="500,1015,699,1055"/>
-<area shape="poly" title=" " alt="" coords="773,1164,760,1156,742,1134,735,1112,728,1090,712,1069,693,1058,696,1053,715,1065,733,1087,740,1110,746,1132,763,1152,776,1160"/>
-<area shape="rect" href="../../db/d94/namespacesource__term__handler.html#ab058c78ea07110188c61387fd573a060" title="Add all the source term to the passed right&#45;hand side fields." alt="" coords="516,1080,683,1135"/>
-<area shape="poly" title=" " alt="" coords="799,1166,761,1157,682,1135,684,1130,762,1151,800,1161"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46" title="Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodi..." alt="" coords="519,1159,679,1199"/>
-<area shape="poly" title=" " alt="" coords="774,1182,679,1182,679,1177,774,1177"/>
-<area shape="rect" href="../../db/de8/namespaceuser__source__term.html#aea466d0e93a77f2b33b01006888015d7" title="Computes the source term and adds the result to fields." alt="" coords="512,1223,687,1263"/>
-<area shape="poly" title=" " alt="" coords="803,1198,686,1226,684,1221,802,1193"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a88531fe3b3a4b60001b14f64e84e8be2" title="Generic request procedure." alt="" coords="235,1338,415,1378"/>
-<area shape="poly" title=" " alt="" coords="494,1361,415,1361,415,1355,494,1355"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="503,2116,695,2141"/>
-<area shape="poly" title=" " alt="" coords="753,2131,696,2131,696,2126,753,2126"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,2116,437,2141"/>
-<area shape="poly" title=" " alt="" coords="490,2131,438,2131,438,2126,490,2126"/>
-<area shape="rect" href="../../dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,2116,164,2141"/>
-<area shape="poly" title=" " alt="" coords="198,2131,164,2131,164,2126,198,2126"/>
-<area shape="rect" href="../../d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="502,1708,697,1733"/>
-<area shape="poly" title=" " alt="" coords="770,1760,659,1736,661,1731,771,1754"/>
-<area shape="rect" href="../../d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="502,1758,697,1798"/>
-<area shape="poly" title=" " alt="" coords="771,1781,697,1781,697,1775,771,1775"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#a573d0b3a6c1130423e3e84cd5e4d78eb" title=" " alt="" coords="517,1823,681,1848"/>
-<area shape="poly" title=" " alt="" coords="756,1838,682,1838,682,1833,756,1833"/>
-<area shape="poly" title=" " alt="" coords="801,1530,761,1521,652,1495,654,1489,762,1515,802,1525"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a9398e331d85c2a8e4c4dd348a0e86e85" title=" " alt="" coords="519,882,679,922"/>
-<area shape="poly" title=" " alt="" coords="767,1097,759,1091,746,1073,738,1056,734,1022,730,988,724,972,711,954,691,938,668,925,670,920,694,933,715,951,728,969,735,987,739,1021,743,1055,750,1071,763,1087,770,1093"/>
-<area shape="poly" title=" " alt="" coords="533,879,484,855,402,802,340,756,344,751,405,798,487,850,535,874"/>
+<area shape="rect" title="Zero a real vector." alt="" coords="1028,1223,1125,1249"/>
+<area shape="rect" href="../../d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c" title="Advance a single point position (x,y,z) from the point&#39;s velocity using AB time&#45;integration." alt="" coords="779,37,962,77"/>
+<area shape="poly" title=" " alt="" coords="1072,1210,1066,978,1051,622,1039,440,1023,280,1002,157,991,116,978,91,961,76,964,72,982,88,996,114,1008,156,1028,279,1044,440,1056,622,1072,978,1078,1209"/>
+<area shape="rect" href="../../dc/df5/namespaceab__time__scheme.html#a0c7ea248befdd7fc4bf7271271642cd3" title="Compute the scheme coefficients." alt="" coords="780,102,961,157"/>
+<area shape="poly" title=" " alt="" coords="1072,1210,1065,993,1047,663,1035,495,1019,346,1000,233,989,194,978,171,960,154,963,151,982,168,994,192,1005,232,1024,345,1040,494,1053,663,1070,993,1077,1209"/>
+<area shape="rect" href="../../dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="801,181,941,221"/>
+<area shape="poly" title=" " alt="" coords="1072,1210,1064,1005,1047,694,1034,537,1018,398,1000,292,989,256,978,235,961,221,940,211,942,206,964,216,982,232,994,254,1005,291,1024,397,1039,536,1052,694,1069,1004,1077,1210"/>
+<area shape="rect" href="../../d4/db4/namespacebdf__time__scheme.html#a572e81f602b6a7aa1f362257dc5c5e4a" title="Compute the scheme coefficients." alt="" coords="780,246,961,301"/>
+<area shape="poly" title=" " alt="" coords="1072,1210,1062,1020,1043,735,1030,591,1015,464,997,368,988,335,978,315,960,299,963,295,982,312,993,333,1003,366,1020,464,1036,591,1049,735,1068,1019,1077,1210"/>
+<area shape="rect" href="../../dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="801,325,941,365"/>
+<area shape="poly" title=" " alt="" coords="1071,1209,1062,1030,1042,766,1029,633,1014,516,997,427,988,397,978,379,961,365,940,355,942,350,964,360,982,376,992,395,1002,426,1020,515,1035,633,1048,766,1067,1030,1077,1209"/>
+<area shape="rect" href="../../d2/d10/namespacecacg.html#a2b9a6da5ee5dab7e10d72d97392d731c" title="S&#45;step CA PCG solve." alt="" coords="805,390,937,415"/>
+<area shape="poly" title=" " alt="" coords="1071,1210,1061,1040,1042,792,1029,667,1014,557,997,474,987,446,978,430,959,416,936,408,938,402,962,411,982,426,992,444,1002,473,1019,556,1034,666,1047,791,1067,1040,1077,1209"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a5067723230fde31368ad47fb10c8da77" title="Calculate drag and torque from array of points." alt="" coords="783,555,958,595"/>
+<area shape="poly" title=" " alt="" coords="1072,1210,1067,1085,1053,907,1040,815,1024,732,1004,662,991,636,978,615,956,597,959,593,982,612,996,633,1009,660,1029,730,1046,815,1058,906,1072,1085,1077,1210"/>
+<area shape="rect" href="../../d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c" title="Standard PCG solve." alt="" coords="819,505,922,530"/>
+<area shape="poly" title=" " alt="" coords="1073,1210,1071,1072,1059,871,1048,768,1031,674,1008,596,994,567,978,545,952,527,922,520,923,515,955,523,982,541,998,564,1013,594,1036,673,1053,767,1065,871,1076,1071,1078,1210"/>
+<area shape="rect" href="../../d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="791,797,950,837"/>
+<area shape="poly" title=" " alt="" coords="1069,1210,1057,1130,1038,1025,1011,924,995,885,978,858,949,837,952,833,982,854,1000,882,1016,922,1043,1023,1063,1129,1075,1209"/>
+<area shape="rect" href="../../d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="527,683,671,709"/>
+<area shape="poly" title=" " alt="" coords="1073,1210,1069,1090,1057,922,1045,837,1028,760,1006,699,993,676,978,659,958,645,936,634,889,622,838,620,788,627,738,639,693,655,625,686,623,681,691,650,737,634,787,622,838,615,890,616,938,629,961,640,982,655,997,673,1011,697,1033,759,1050,836,1062,921,1075,1090,1078,1209"/>
+<area shape="rect" href="../../d9/de3/namespaceadv__no__dealias.html#acc7206a9cea50114cfc4864cb2385984" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="777,669,965,709"/>
+<area shape="poly" title=" " alt="" coords="1071,1210,1064,1104,1047,958,1035,884,1019,816,1000,761,978,723,963,711,966,707,982,720,1005,758,1024,815,1040,883,1052,957,1069,1103,1077,1209"/>
+<area shape="rect" href="../../d9/de3/namespaceadv__no__dealias.html#ab4cd807b7ab3b310c44c834e3dd0f16a" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="763,733,979,773"/>
+<area shape="poly" title=" " alt="" coords="1071,1210,1061,1116,1043,989,1031,925,1016,867,998,819,978,787,964,775,967,771,982,784,1003,817,1021,865,1036,924,1048,988,1066,1115,1076,1209"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a4b33e188d75f2f7f1e723291c1c069fd" title="Calculate drag and torque over a facet." alt="" coords="506,912,693,952"/>
+<area shape="poly" title=" " alt="" coords="1069,1210,1058,1137,1039,1043,1012,955,996,923,978,902,939,880,895,868,849,864,802,868,757,876,714,888,644,914,642,909,712,883,756,871,802,862,849,859,896,863,941,875,982,898,1000,920,1017,953,1044,1041,1063,1136,1075,1209"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#aa0aaba6013da47ebecf4ef3c36e0708c" title="Calculate drag and torque from one point." alt="" coords="767,1149,974,1174"/>
+<area shape="poly" title=" " alt="" coords="1042,1219,979,1188,942,1177,943,1172,981,1183,1045,1214"/>
+<area shape="rect" href="../../dd/d52/namespaceelementwise__filter.html#ad09c2b30e39c1053855b29d95d2cd001" title="Actual Constructor." alt="" coords="783,913,958,967"/>
+<area shape="poly" title=" " alt="" coords="1070,1210,1062,1161,1046,1100,1019,1036,1000,1007,978,981,957,965,960,961,982,977,1005,1004,1024,1034,1051,1098,1068,1160,1075,1209"/>
+<area shape="rect" href="../../d2/d75/namespaceext__time__scheme.html#adf75631dc4c73c73b558f4eeb29fe65b" title="Compute the scheme coefficients." alt="" coords="780,991,961,1046"/>
+<area shape="poly" title=" " alt="" coords="1066,1211,1054,1177,1035,1136,1010,1095,978,1059,960,1047,963,1042,982,1055,1015,1092,1040,1134,1059,1175,1071,1209"/>
+<area shape="rect" href="../../d2/d75/namespaceext__time__scheme.html#a1654d689ca92903729de891e38caf174" title="Compute the modified scheme coefficients." alt="" coords="780,1070,961,1125"/>
+<area shape="poly" title=" " alt="" coords="1056,1214,1022,1175,978,1138,958,1127,961,1122,982,1134,1026,1171,1060,1210"/>
+<area shape="rect" href="../../d3/d4c/namespacefdm.html#a4e4c35e30cb7a09ac9f75e02ca5c6acb" title=" " alt="" coords="544,1513,655,1538"/>
+<area shape="poly" title=" " alt="" coords="1074,1263,1061,1332,1042,1418,1015,1498,999,1529,982,1549,938,1573,890,1585,840,1589,790,1585,741,1577,697,1565,628,1541,630,1536,699,1560,743,1572,790,1580,840,1584,889,1580,936,1568,978,1545,995,1526,1010,1496,1036,1417,1056,1331,1069,1262"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="787,1198,954,1223"/>
+<area shape="poly" title=" " alt="" coords="1014,1231,954,1224,954,1218,1015,1226"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="767,1903,974,1929"/>
+<area shape="poly" title=" " alt="" coords="1078,1263,1075,1394,1062,1583,1050,1680,1034,1769,1011,1842,998,1871,982,1893,966,1905,963,1901,978,1889,993,1868,1006,1840,1029,1768,1045,1679,1057,1583,1070,1394,1073,1262"/>
+<area shape="rect" href="../../dc/d48/namespacegmres.html#a3ad50be018611153f4c6184821724c96" title="Standard GMRES solve." alt="" coords="793,1297,948,1322"/>
+<area shape="poly" title=" " alt="" coords="1043,1258,981,1286,938,1299,937,1294,979,1282,1040,1253"/>
+<area shape="rect" href="../../dc/d12/namespacematrix__math.html#ab3066e0abca1896f3366afebe892206e" title="Zero a real matrix ." alt="" coords="792,1347,949,1387"/>
+<area shape="poly" title=" " alt="" coords="1060,1262,1026,1299,981,1336,951,1350,948,1345,979,1331,1022,1296,1056,1258"/>
+<area shape="rect" href="../../d0/d94/namespaceopr__cpu.html#a102777fce325ee827cf3ddbbe20e1eea" title=" " alt="" coords="789,1411,952,1437"/>
+<area shape="poly" title=" " alt="" coords="1070,1263,1058,1295,1039,1332,1014,1369,982,1401,954,1415,951,1411,978,1397,1010,1366,1034,1329,1053,1292,1065,1261"/>
+<area shape="rect" href="../../df/db5/namespaceopr__sx.html#a4fe2c37228ee80eea0e3cd08b067aaea" title=" " alt="" coords="797,1461,944,1486"/>
+<area shape="poly" title=" " alt="" coords="1074,1263,1064,1304,1047,1355,1020,1406,1002,1430,982,1450,964,1461,945,1469,943,1464,962,1456,978,1446,998,1426,1016,1403,1042,1353,1059,1303,1069,1262"/>
+<area shape="rect" href="../../d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="771,1510,970,1535"/>
+<area shape="poly" title=" " alt="" coords="1076,1263,1070,1313,1054,1377,1026,1443,1006,1473,982,1499,962,1512,959,1508,978,1495,1002,1470,1021,1440,1049,1376,1064,1312,1071,1262"/>
+<area shape="rect" href="../../d1/d99/namespacemap__2d.html#a27867ff2e8551191a1d1788f7744850d" title=" " alt="" coords="785,1789,957,1829"/>
+<area shape="poly" title=" " alt="" coords="1077,1263,1070,1373,1054,1527,1041,1606,1026,1677,1006,1737,982,1778,959,1795,956,1791,978,1774,1001,1734,1021,1676,1036,1605,1049,1526,1065,1373,1072,1262"/>
+<area shape="rect" href="../../de/d49/namespacepipecg.html#a7cf83f02e364f94f5b2738684b52629b" title="Pipelined PCG solve." alt="" coords="791,1611,950,1637"/>
+<area shape="poly" title=" " alt="" coords="1079,1262,1077,1329,1065,1417,1053,1465,1036,1511,1013,1555,982,1594,951,1614,949,1609,978,1590,1008,1552,1031,1509,1048,1463,1060,1416,1072,1328,1074,1262"/>
+<area shape="rect" href="../../de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="789,1661,952,1715"/>
+<area shape="poly" title=" " alt="" coords="1075,1263,1064,1350,1045,1465,1017,1575,1001,1619,982,1650,954,1671,951,1667,978,1646,996,1617,1012,1574,1039,1464,1059,1349,1070,1262"/>
+<area shape="rect" href="../../d3/d06/namespaceprojection.html#a4f59953f23c62ff8b9bdcede183b6f00" title=" " alt="" coords="777,1739,965,1765"/>
+<area shape="poly" title=" " alt="" coords="1077,1263,1069,1365,1052,1504,1039,1575,1024,1639,1005,1692,982,1728,965,1741,962,1737,978,1725,1000,1690,1019,1638,1034,1574,1047,1503,1063,1364,1071,1262"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="769,1854,972,1879"/>
+<area shape="poly" title=" " alt="" coords="1078,1263,1073,1385,1059,1559,1047,1649,1031,1730,1009,1797,996,1823,982,1843,965,1856,962,1852,978,1839,992,1820,1004,1795,1026,1729,1042,1648,1054,1559,1068,1385,1072,1262"/>
+<area shape="rect" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="811,1247,931,1273"/>
+<area shape="poly" title=" " alt="" coords="1015,1246,931,1256,931,1250,1014,1241"/>
+<area shape="rect" href="../../d4/def/namespacesigned__distance.html#a0aadae5f88457c621981eef96209853e" title="Signed distance field for a triangular mesh." alt="" coords="779,2196,962,2236"/>
+<area shape="poly" title=" " alt="" coords="1077,1263,1069,1458,1051,1751,1038,1899,1022,2030,1004,2130,993,2164,982,2186,964,2201,961,2197,978,2182,988,2162,999,2129,1017,2029,1032,1899,1045,1751,1063,1458,1072,1263"/>
+<area shape="rect" href="../../d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="793,1953,949,1993"/>
+<area shape="poly" title=" " alt="" coords="1078,1263,1076,1402,1064,1605,1052,1710,1035,1807,1012,1886,998,1918,982,1942,967,1955,950,1964,948,1959,964,1950,978,1938,993,1915,1007,1885,1030,1805,1047,1709,1058,1605,1070,1402,1073,1262"/>
+<area shape="rect" href="../../dc/d1a/namespacetree__amg.html#a3c9a91208564df3f43b555b0c1ed6b62" title="Matrix vector product using the TreeAMG hierarchy structure b=Ax done as vec_out = A * vec_in This is..." alt="" coords="761,2018,980,2043"/>
+<area shape="poly" title=" " alt="" coords="1079,1262,1079,1414,1069,1638,1058,1753,1041,1859,1016,1947,1000,1981,982,2007,966,2020,963,2016,978,2004,995,1978,1011,1945,1035,1858,1053,1753,1064,1637,1073,1414,1073,1262"/>
+<area shape="rect" href="../../d5/d1b/namespacetree__amg__multigrid.html#ad8909c9e701623c78bcd446fcc2ef26a" title="multigrid cycle for the TreeAMG solver object" alt="" coords="795,2068,946,2108"/>
+<area shape="poly" title=" " alt="" coords="1077,1263,1066,1434,1046,1686,1033,1812,1018,1924,1001,2009,992,2038,982,2056,966,2070,947,2080,945,2075,963,2066,978,2053,987,2036,996,2008,1013,1923,1028,1812,1041,1685,1061,1434,1071,1263"/>
+<area shape="rect" href="../../d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="795,2132,946,2172"/>
+<area shape="poly" title=" " alt="" coords="1077,1262,1068,1446,1049,1718,1036,1856,1020,1977,1003,2070,993,2102,982,2122,966,2136,947,2145,945,2140,963,2131,978,2118,988,2100,997,2069,1015,1977,1030,1855,1043,1718,1062,1445,1072,1262"/>
+<area shape="rect" href="../../d4/d50/namespaceale__routines__device.html#a66f122c51f57f4ff2edf95cb0d091599" title=" " alt="" coords="773,440,968,480"/>
+<area shape="poly" title=" " alt="" coords="1073,1210,1072,1063,1061,848,1049,737,1032,635,1009,551,994,518,978,494,965,482,968,478,982,490,999,516,1014,549,1038,634,1055,736,1066,847,1077,1063,1078,1209"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#ae61cdbb3bb145783d9387cee0ecf1c59" title="Zero a real vector." alt="" coords="794,2260,947,2300"/>
+<area shape="poly" title=" " alt="" coords="1077,1262,1070,1469,1052,1782,1040,1942,1024,2082,1005,2190,994,2227,982,2250,967,2263,949,2273,946,2268,964,2259,978,2246,989,2225,1000,2189,1019,2082,1034,1941,1047,1782,1064,1469,1072,1262"/>
+<area shape="rect" href="../../d1/d65/namespaceale__rigid__kinematics.html#a2bf9b37c78f6c41adaeca3d64750eac9" title="Updates the point tracker&#39;s position and velocity history using AB time integration based on the curr..." alt="" coords="511,5,688,45"/>
+<area shape="poly" title=" " alt="" coords="765,48,688,38,689,33,766,42"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aedfb0e2f9dc3f11ae4cc029df909c043" title=" " alt="" coords="523,69,675,109"/>
+<area shape="poly" title=" " alt="" coords="766,72,676,83,675,78,765,67"/>
+<area shape="rect" href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659" title="Updates pivot location." alt="" coords="512,239,687,279"/>
+<area shape="poly" title=" " alt="" coords="774,85,763,92,716,126,675,167,617,240,612,236,671,164,713,122,760,87,772,81"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#af984430ba7e4a8bae68b2ca61d0e9f72" title="Main routine to advance the mesh in time." alt="" coords="218,297,431,322"/>
+<area shape="poly" title=" " alt="" coords="499,280,395,299,394,294,498,275"/>
+<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="527,555,672,595"/>
+<area shape="poly" title=" " alt="" coords="770,577,672,577,672,572,770,572"/>
+<area shape="poly" title=" " alt="" coords="780,795,760,788,681,748,619,711,622,706,683,743,762,783,782,790"/>
+<area shape="rect" href="../../d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2" title="Recompute and update geometric factors (ALE)" alt="" coords="514,797,685,837"/>
+<area shape="poly" title=" " alt="" coords="778,820,685,820,685,815,778,815"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a06338b4cbb5d4959b061910b60e2bf42" title="Some functions to calculate the lift/drag and torque Calculation can be done on a zone,..." alt="" coords="213,919,437,945"/>
+<area shape="poly" title=" " alt="" coords="492,935,437,935,437,929,492,929"/>
+<area shape="poly" title=" " alt="" coords="768,1144,760,1138,746,1123,738,1108,732,1079,727,1048,721,1033,711,1016,676,981,637,954,640,950,679,977,715,1013,726,1030,732,1047,737,1078,743,1107,750,1120,763,1134,771,1140"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a282682942febe3c0838883a5a4b6f3a3" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="485,1091,713,1117"/>
+<area shape="poly" title=" " alt="" coords="775,1195,760,1188,744,1173,735,1158,727,1143,712,1130,688,1119,690,1114,715,1126,731,1140,740,1155,748,1170,763,1183,777,1191"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#ab4547b4cf5a585a529379afe9ec32484" title="Performs a preview of the mesh motion to verify quality/topology." alt="" coords="494,1141,705,1166"/>
+<area shape="poly" title=" " alt="" coords="796,1198,660,1169,661,1163,797,1192"/>
+<area shape="rect" href="../../d7/dda/namespacescratch__registry.html#a3323d64c81fd680132b725888d8d8d16" title="Get a field from the registry by assigning it to a pointer." alt="" coords="508,1027,691,1067"/>
+<area shape="poly" title=" " alt="" coords="773,1197,760,1187,747,1174,740,1160,734,1133,729,1106,723,1093,712,1081,690,1067,693,1062,715,1077,727,1090,734,1104,740,1132,745,1159,752,1171,763,1183,776,1192"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a715238efb7d913e6d22fbda34469293b" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="500,1191,699,1231"/>
+<area shape="poly" title=" " alt="" coords="774,1213,699,1213,699,1208,774,1208"/>
+<area shape="rect" href="../../db/d94/namespacesource__term__handler.html#ab058c78ea07110188c61387fd573a060" title="Add all the source term to the passed right&#45;hand side fields." alt="" coords="516,1255,683,1310"/>
+<area shape="poly" title=" " alt="" coords="796,1229,762,1237,684,1259,682,1254,761,1232,795,1224"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46" title="Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodi..." alt="" coords="519,1335,679,1375"/>
+<area shape="poly" title=" " alt="" coords="776,1229,763,1237,746,1257,740,1278,733,1301,715,1323,681,1342,678,1338,712,1319,728,1299,734,1277,741,1254,760,1233,773,1224"/>
+<area shape="rect" href="../../db/de8/namespaceuser__source__term.html#aea466d0e93a77f2b33b01006888015d7" title="Computes the source term and adds the result to fields." alt="" coords="512,1399,687,1439"/>
+<area shape="poly" title=" " alt="" coords="776,1227,763,1237,749,1254,742,1272,739,1310,738,1349,730,1369,715,1389,688,1406,685,1402,712,1385,726,1367,732,1348,734,1310,736,1271,744,1252,760,1233,773,1223"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a88531fe3b3a4b60001b14f64e84e8be2" title="Generic request procedure." alt="" coords="235,1027,415,1067"/>
+<area shape="poly" title=" " alt="" coords="494,1049,415,1049,415,1044,494,1044"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="503,1903,695,1929"/>
+<area shape="poly" title=" " alt="" coords="753,1919,696,1919,696,1913,753,1913"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,1903,437,1929"/>
+<area shape="poly" title=" " alt="" coords="490,1919,438,1919,438,1913,490,1913"/>
+<area shape="rect" href="../../dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,1903,164,1929"/>
+<area shape="poly" title=" " alt="" coords="198,1919,164,1919,164,1913,198,1913"/>
+<area shape="rect" href="../../d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="502,1801,697,1826"/>
+<area shape="poly" title=" " alt="" coords="771,1813,697,1815,697,1809,771,1808"/>
+<area shape="rect" href="../../d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="502,1736,697,1776"/>
+<area shape="poly" title=" " alt="" coords="771,1792,696,1778,697,1772,772,1787"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#a573d0b3a6c1130423e3e84cd5e4d78eb" title=" " alt="" coords="517,1854,681,1879"/>
+<area shape="poly" title=" " alt="" coords="756,1869,682,1869,682,1864,756,1864"/>
+<area shape="poly" title=" " alt="" coords="798,1267,779,1275,763,1286,747,1305,739,1324,736,1364,735,1406,729,1429,715,1452,697,1473,675,1490,632,1515,630,1510,672,1486,693,1469,711,1449,724,1427,730,1405,731,1364,734,1323,743,1302,760,1282,777,1270,796,1262"/>
+<area shape="rect" href="../../d4/def/namespacesigned__distance.html#aaacd6c5bec83fbff7c2205b5ed63af6a" title="Signed distance field." alt="" coords="510,2196,689,2236"/>
+<area shape="poly" title=" " alt="" coords="766,2219,689,2219,689,2213,766,2213"/>
+<area shape="rect" href="../../d0/d7b/namespacebrinkman__source__term.html#a28d5e8158ec54017a00179b4e19a5ac3" title="Initializes the source term from a boundary mesh." alt="" coords="239,2196,411,2236"/>
+<area shape="poly" title=" " alt="" coords="496,2219,411,2219,411,2213,496,2213"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a9398e331d85c2a8e4c4dd348a0e86e85" title=" " alt="" coords="519,389,679,429"/>
+<area shape="poly" title=" " alt="" coords="759,442,679,427,680,422,760,437"/>
+<area shape="poly" title=" " alt="" coords="529,387,360,325,362,320,531,382"/>
 </map>
 </div>
 
@@ -5005,7 +5157,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5069,7 +5221,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01191">1191</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01226">1226</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -5121,7 +5273,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01133">1133</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01168">1168</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -5165,7 +5317,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00162">162</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5211,7 +5363,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00768">768</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00803">803</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5280,7 +5432,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00781">781</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00816">816</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5342,7 +5494,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00881">881</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00916">916</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5416,7 +5568,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00943">943</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00978">978</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -5468,7 +5620,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01247">1247</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01282">1282</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -5520,7 +5672,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01267">1267</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01302">1302</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -5598,7 +5750,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00653">653</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00688">688</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5662,7 +5814,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00670">670</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00705">705</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -5728,7 +5880,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00684">684</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00719">719</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5778,7 +5930,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00591">591</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00626">626</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5830,7 +5982,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00602">602</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00637">637</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5888,7 +6040,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00712">712</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00747">747</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -5942,7 +6094,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00698">698</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00733">733</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -5996,7 +6148,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01033">1033</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l01068">1068</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -6023,7 +6175,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -6039,7 +6191,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -6055,7 +6207,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/ddb/math_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d6/ddb/math_8f90_source.html">math.f90</a>.</p>
 
 </div>
 </div>
@@ -6065,7 +6217,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/d47/namespacemath.html">math</a></li>
-    <li class="footer">Generated on Wed Apr 22 2026 04:31:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Apr 23 2026 04:32:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
