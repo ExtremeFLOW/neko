@@ -1601,6 +1601,8 @@ contains
        end do
     end if
 
+    ! PLACE TO PERFORM GS OPERATION FOR FIELD AVERAGING
+
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
   end subroutine fluid_pnpn_amr_restart

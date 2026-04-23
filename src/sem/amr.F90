@@ -302,6 +302,12 @@ contains
           ! Reconstruct neko mesh
           call mesh_manager%mesh_construct(mesh, .false.)
 
+          ! NOT SURE IT SHOULD BE CALLED HERE, AS AT THIS POINT
+          ! DOFMAP IS ALREADY GENERATED AND MESH IS REGENERATED
+          ! BASED ON MANAGER INFORMATION
+          ! Run user mesh motion routine
+          !call this%user%mesh_setup(msh, time)
+
           ! Get mapping for vector reconstruction
           call this%reconstruct%map_get()
 
