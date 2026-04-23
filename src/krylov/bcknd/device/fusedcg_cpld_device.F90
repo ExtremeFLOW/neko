@@ -41,7 +41,7 @@ module fusedcg_cpld_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
+  use device_math, only : device_rzero, device_copy, device_glsc2
   use device
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
