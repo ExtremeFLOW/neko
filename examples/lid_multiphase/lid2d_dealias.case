@@ -69,7 +69,6 @@
             "epsilon": 0.1,
             "gamma": 0.001,
             "sigma": 0.01,
-            "dealias_normal": true,
             "initial_condition": {
                 "type": "user"
             },
@@ -83,7 +82,11 @@
             },
             "source_terms": [
                 {
-                    "type": "user"
+                    "type": "phase_field_sharpening",
+                    "scalar_field": "phase",
+                    "gamma": 0.001,
+                    "u_max": 1.0,
+                    "dealias_normal": true
                 }
             ],
             "boundary_conditions": [

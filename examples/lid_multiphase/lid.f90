@@ -9,10 +9,7 @@
 !
 module user
   use neko
-  use interpolation, only: interpolator_t
-  use scratch_registry, only : scratch_registry_t
-  use profiler, only : profiler_start_region, profiler_end_region
-  use space, only: space_t, GL
+  use field_registry, only : neko_field_registry
   implicit none
 
   ! Global user variables
@@ -27,21 +24,6 @@ module user
   real(kind=rp) :: eps
   real(kind=rp) :: gamma, u_max, sigma
 
-  ! Tools for over-integration (dealiasing)
-  logical :: over_integrate
-  !> Function space \f$ X_h_GL \f$
-  type(space_t) :: Xh_GL
-  !> Dofmap associated with \f$ X_h_GL \f$
-  type(dofmap_t) :: dm_Xh_GL
-  !> Gather-scatter associated with \f$ X_h_GL \f$
-  type(gs_t) :: gs_Xh_GL
-  !> Coefficients associated with \f$ X_h_GL \f$
-  type(coef_t) :: coef_GL 
-  !> Interpolator between the original and higher-order spaces
-  type(interpolator_t) :: GLL_to_GL
-  !> Scratch registry on the GL space
-  type(scratch_registry_t) :: scratch_GL
-
 contains
 
   ! Register user-defined functions (see user_intf.f90)
@@ -52,7 +34,6 @@ contains
     user%compute => compute
     user%initialize =>initialize
     user%finalize => finalize
-    user%source_term => source_term
     user%material_properties => material_properties
     user%initial_conditions => initial_conditions
   end subroutine user_setup
@@ -69,8 +50,6 @@ contains
     call json_get(params, "case.scalar.epsilon",eps)
     call json_get(params, "case.scalar.gamma", gamma)
     call json_get(params, "case.scalar.sigma", sigma)
-    call json_get_or_default(params, "case.scalar.dealias_normal", &
-         over_integrate, .false.)
     u_max = 1.0_rp
   end subroutine startup
 
@@ -110,9 +89,6 @@ contains
     type(time_state_t), intent(in) :: time
 
     type(field_t), pointer :: u
-    integer :: lxd, lx
-    type(coef_t), pointer :: coef
-
     ! Initialize the file object and create the output.csv file
     ! in the working directory (overwrite any existing file)
     call output_file%init("ekin.csv", overwrite=.true.)
@@ -131,27 +107,6 @@ contains
 
     ! call usercheck also for tstep=0
     call compute(time)
-
-    if(over_integrate) then
-       coef => neko_user_access%case%fluid%c_Xh
-
-       ! This is pretty hard coded, could be in JSON
-       lx = coef%Xh%lx
-       ! lxd = (3 * (lx + 1)) / 2
-       lxd = 2 * lx
-
-       ! set up GL coef
-       call Xh_GL%init(GL, lxd, lxd, lxd)
-       call dm_Xh_GL%init(coef%msh, Xh_GL)
-       call gs_Xh_GL%init(dm_Xh_GL)
-       call coef_GL%init(gs_Xh_GL)
-
-       ! set up interpolator between GL and GLL
-       call GLL_to_GL%init(Xh_GL, coef%Xh)
-
-       !set up over-integration scratch registry (5 should suffice)
-       call scratch_GL%init(size=5, expansion_size=2, dof=dm_Xh_GL)
-    end if
 
   end subroutine initialize
 
@@ -233,251 +188,6 @@ contains
     call vec_out%free
 
   end subroutine finalize
-
-  ! User-defined source term (forcing function)
-  subroutine source_term(scheme_name, rhs, time)
-    character(len=*), intent(in) :: scheme_name
-    type(field_list_t), intent(inout) :: rhs
-    type(time_state_t), intent(in) :: time
-
-    integer :: i
-    type(field_t), pointer :: rhs_s, s
-
-    type(field_t), pointer :: u, v, w, rhs_u, rhs_v, rhs_w
-    type(field_t), pointer :: temp1, temp2, temp3, temp4, temp5, temp6, temp7
-
-    real(kind=rp) :: absgrad
-    integer :: ind(7), ind_work(4), ind_GL(5), ind_GLL(1)
-    type(field_t), pointer :: work1, work2, work3, work4
-    type(field_t), pointer :: work1_GL, work2_GL, work3_GL, work4_GL, s_GL, work_GLL
-    integer :: n_GL, nel
-    type(coef_t), pointer :: coef
-
-    ! Only apply forcing to the scalar equation (phase)
-    if (scheme_name .eq. 'phase') then
-
-      ! Get the right-hand side field for the scalar
-      rhs_s => rhs%get_by_index(1)  ! scalar field
-      
-      ! Get the scalar field and coefficients
-      s => neko_field_registry%get_field('phase')
-      coef => neko_user_access%case%fluid%c_Xh
-
-      if (over_integrate) then
-        call profiler_start_region("n_dealias", 26)
-        ! Request scratch fields
-        call scratch_GL%request_field(work1_GL, ind_GL(1))
-        call scratch_GL%request_field(work2_GL, ind_GL(2))
-        call scratch_GL%request_field(work3_GL, ind_GL(3))
-        call scratch_GL%request_field(work4_GL, ind_GL(4))
-        call scratch_GL%request_field(s_GL, ind_GL(5))
-        call neko_scratch_registry%request_field(work_GLL, ind_GLL(1))
-
-        n_GL = work1_GL%size()
-        nel = coef%msh%nelv
-
-        ! map s to GL
-        call GLL_to_GL%map(s_GL%x, s%x, nel, Xh_GL)
-
-        ! Compute gradient of scalar field
-        call grad(work1_GL%x, work2_GL%x, work3_GL%x, s_GL%x, coef_GL)
-
-        ! ! Apply gather-scatter and multiplicity
-        ! call gs_Xh_GL%op(work1_GL, GS_OP_ADD)
-        ! call gs_Xh_GL%op(work2_GL, GS_OP_ADD)
-        ! call gs_Xh_GL%op(work3_GL, GS_OP_ADD)
-        ! call col2(work1_GL%x, coef_GL%mult, n_GL)
-        ! call col2(work2_GL%x, coef_GL%mult, n_GL)
-        ! call col2(work3_GL%x, coef_GL%mult, n_GL)
-
-        ! Compute normalized gradient and apply phase field forcing
-        do i = 1, n_GL
-          absgrad = sqrt(work1_GL%x(i,1,1,1)**2+work2_GL%x(i,1,1,1)**2+work3_GL%x(i,1,1,1)**2)
-          if (absgrad == 0.0_rp) then 
-              print *, 'warning, absgrad==', absgrad
-              absgrad = 1e21_rp
-          end if
-              
-          work1_GL%x(i,1,1,1) = - s_GL%x(i,1,1,1)*(1.0_rp-s_GL%x(i,1,1,1))*(work1_GL%x(i,1,1,1)/absgrad)
-          work2_GL%x(i,1,1,1) = - s_GL%x(i,1,1,1)*(1.0_rp-s_GL%x(i,1,1,1))*(work2_GL%x(i,1,1,1)/absgrad)
-          work3_GL%x(i,1,1,1) = - s_GL%x(i,1,1,1)*(1.0_rp-s_GL%x(i,1,1,1))*(work3_GL%x(i,1,1,1)/absgrad)
-        end do
-
-        ! Compute divergence of the normalized gradient
-        call dudxyz(work4_GL%x, work1_GL%x, coef_GL%drdx, coef_GL%dsdx, coef_GL%dtdx, coef_GL)
-        ! Evaluate term on GL and preempt the GLL B premultiplication
-        if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_col2(work4_GL%x_d, coef_GL%B_d, n_GL)
-            call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
-            call device_invcol2(work_GLL%x_d, coef%B_d, work_GLL%size())
-            call device_copy(rhs_s%x_d, work_GLL%x_d, work_GLL%size())
-        else
-            call col2(work4_GL%x, coef_GL%B, n_GL)
-            call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
-            call invcol2(work_GLL%x, coef%B, work_GLL%size())
-            call copy(rhs_s%x, work_GLL%x, work_GLL%size())
-        end if
-        call dudxyz(work4_GL%x, work2_GL%x, coef_GL%drdy, coef_GL%dsdy, coef_GL%dtdy, coef_GL)
-        if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_col2(work4_GL%x_d, coef_GL%B_d, n_GL)
-            call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
-            call device_invcol2(work_GLL%x_d, coef%B_d, work_GLL%size())
-            call device_add2(rhs_s%x_d, work_GLL%x_d, work_GLL%size())
-        else
-            call col2(work4_GL%x, coef_GL%B, n_GL)
-            call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
-            call invcol2(work_GLL%x, coef%B, work_GLL%size())
-            call add2(rhs_s%x, work_GLL%x, work_GLL%size())
-        end if
-        call dudxyz(work4_GL%x, work3_GL%x, coef_GL%drdz, coef_GL%dsdz, coef_GL%dtdz, coef_GL)
-        if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_col2(work4_GL%x_d, coef_GL%B_d, n_GL)
-            call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
-            call device_invcol2(work_GLL%x_d, coef%B_d, work_GLL%size())
-            call device_add2(rhs_s%x_d, work_GLL%x_d, work_GLL%size())
-        else
-            call col2(work4_GL%x, coef_GL%B, n_GL)
-            call GLL_to_GL%map(work_GLL%x, work4_GL%x, nel, coef%Xh)
-            call invcol2(work_GLL%x, coef%B, work_GLL%size())
-            call add2(rhs_s%x, work_GLL%x, work_GLL%size())
-        end if
-
-        ! Scale by gamma * u_max
-        absgrad = gamma * u_max
-        call cmult(rhs_s%x, absgrad, work_GLL%size())
-
-        ! Release scratch fields
-        call scratch_GL%relinquish_field(ind_GL)
-        call neko_scratch_registry%relinquish_field(ind_GLL)
-        call profiler_end_region("n_dealias", 26)
-
-      else
-        call profiler_start_region("n_no_dealias", 26)
-        ! Request scratch fields
-        call neko_scratch_registry%request_field(work1, ind_work(1))
-        call neko_scratch_registry%request_field(work2, ind_work(2))
-        call neko_scratch_registry%request_field(work3, ind_work(3))
-        call neko_scratch_registry%request_field(work4, ind_work(4))
-          
-        ! Compute gradient of scalar field
-        call grad(work1%x, work2%x, work3%x, s%x, coef)
-        
-        ! Apply gather-scatter and multiplicity
-        call coef%gs_h%op(work1, GS_OP_ADD)
-        call coef%gs_h%op(work2, GS_OP_ADD)
-        call coef%gs_h%op(work3, GS_OP_ADD)
-        call col2(work1%x, coef%mult, work4%size())
-        call col2(work2%x, coef%mult, work4%size())
-        call col2(work3%x, coef%mult, work4%size())
-
-        ! Compute normalized gradient and apply phase field forcing
-        do i = 1, work4%size()
-          absgrad = sqrt(work1%x(i,1,1,1)**2+work2%x(i,1,1,1)**2+work3%x(i,1,1,1)**2)
-          if (absgrad == 0.0_rp) then 
-              print *, 'warning, absgrad==', absgrad
-              absgrad = 1e21_rp
-          end if
-              
-          work1%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work1%x(i,1,1,1)/absgrad)
-          work2%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work2%x(i,1,1,1)/absgrad)
-          work3%x(i,1,1,1) = - s%x(i,1,1,1)*(1.0_rp-s%x(i,1,1,1))*(work3%x(i,1,1,1)/absgrad)
-        end do
-
-        ! Compute divergence of the normalized gradient
-        call dudxyz(work4%x, work1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-        call copy(rhs_s%x, work4%x, work4%size())
-        call dudxyz(work4%x, work2%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-        call add2(rhs_s%x, work4%x, work4%size())
-        call dudxyz(work4%x, work3%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-        call add2(rhs_s%x, work4%x, work4%size())
-        
-        ! Scale by gamma * u_max
-        absgrad = gamma * u_max
-        call cmult(rhs_s%x, absgrad, work4%size())
-
-        ! Release scratch fields
-        call neko_scratch_registry%relinquish_field(ind_work)
-
-        call profiler_end_region("n_no_dealias", 26)
-      end if
-
-    ! Only apply forcing to the momentum equation (fluid)
-    else if (scheme_name .eq. 'fluid') then
-
-      ! Get fields
-      s => neko_field_registry%get_field('phase')
-      coef => neko_user_access%case%fluid%c_Xh
-
-      rhs_u => rhs%get_by_index(1)
-      rhs_v => rhs%get_by_index(2)
-      rhs_w => rhs%get_by_index(3)
-
-      ! Request scratch fields
-      call neko_scratch_registry%request_field(temp1, ind(1))
-      call neko_scratch_registry%request_field(temp2, ind(2))
-      call neko_scratch_registry%request_field(temp3, ind(3))
-      call neko_scratch_registry%request_field(temp4, ind(4))
-      call neko_scratch_registry%request_field(temp5, ind(5))
-      call neko_scratch_registry%request_field(temp6, ind(6))
-      call neko_scratch_registry%request_field(temp7, ind(7))
-
-      ! Compute gradient of phase field grad(phi)
-      call grad(temp1%x, temp2%x, temp3%x, s%x, coef)
-
-      ! Apply gather-scatter and multiplicity for continuity
-      call coef%gs_h%op(temp1, GS_OP_ADD)
-      call coef%gs_h%op(temp2, GS_OP_ADD)
-      call coef%gs_h%op(temp3, GS_OP_ADD)
-      call col2(temp1%x, coef%mult, temp4%size())
-      call col2(temp2%x, coef%mult, temp4%size())
-      call col2(temp3%x, coef%mult, temp4%size())
-
-      ! Store grad(phi) for later (we need it at the end)
-      call copy(temp5%x, temp1%x, temp4%size())  ! temp5 = dphi/dx
-      call copy(temp6%x, temp2%x, temp4%size())  ! temp6 = dphi/dy
-      call copy(temp7%x, temp3%x, temp4%size())  ! temp6 = dphi/dz
-
-      ! Compute normalized gradient n = grad(phi)/|grad(phi)|
-      do i = 1, temp4%size()
-        absgrad = sqrt(temp1%x(i,1,1,1)**2 + temp2%x(i,1,1,1)**2 + temp3%x(i,1,1,1)**2)
-        if (absgrad < 1.0e-12_rp) then 
-            ! Avoid division by zero in bulk phases
-            temp1%x(i,1,1,1) = 0.0_rp
-            temp2%x(i,1,1,1) = 0.0_rp
-            temp3%x(i,1,1,1) = 0.0_rp
-        else
-            temp1%x(i,1,1,1) = temp1%x(i,1,1,1) / absgrad  ! nx
-            temp2%x(i,1,1,1) = temp2%x(i,1,1,1) / absgrad  ! ny
-            temp3%x(i,1,1,1) = temp3%x(i,1,1,1) / absgrad  ! nz
-        end if
-      end do
-
-      ! Compute curvature κ = div(n)
-      call div(temp4%x,temp1%x, temp2%x,temp3%x,coef)
-      ! call dudxyz(temp4%x, temp1%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-
-      call copy(temp1%x, temp4%x, temp4%size())
-      ! ! Store it temporarily before we accumulate
-
-      ! Now temp1 contains κ = div(n) (curvature)
-
-      ! Compute surface tension force per unit mass: F_ST = (sigma/rho) * kappa * grad(phi)
-      ! Force per volume is F = sigma * kappa * grad(phi)
-      do i = 1, temp4%size()
-        temp5%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp5%x(i,1,1,1)
-        temp6%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp6%x(i,1,1,1)
-        temp7%x(i,1,1,1) = sigma * temp1%x(i,1,1,1) * temp7%x(i,1,1,1)
-      end do
-
-      ! Add surface tension force to momentum equations
-      call add2(rhs_u%x, temp5%x, temp4%size())
-      call add2(rhs_v%x, temp6%x, temp4%size())
-      call add2(rhs_w%x, temp7%x, temp4%size())
-
-      ! Release scratch fields
-      call neko_scratch_registry%relinquish_field(ind)
-    end if
-  end subroutine source_term
 
   ! User-defined material properties
   subroutine material_properties(scheme_name, properties, time)

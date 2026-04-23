@@ -330,6 +330,8 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/boussinesq_source_term_device.f90\
 	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
+	source_terms/phase_field_sharpening_source_term.f90\
+	source_terms/surface_tension_source_term.f90\
 	filter/mappings.f90\
 	filter/filter.f90\
 	filter/filter_fctry.f90\
