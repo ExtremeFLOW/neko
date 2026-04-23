@@ -298,8 +298,6 @@ contains
     integer :: ind_GL(5), ind_GLL(2), i, n_GL, n_GLL, nel
     real(kind=rp) :: absgrad
 
-    call profiler_start_region("phase_sharpen_dealias", 26)
-
     call this%scratch_GL%request_field(work1_GL, ind_GL(1))
     call this%scratch_GL%request_field(work2_GL, ind_GL(2))
     call this%scratch_GL%request_field(work3_GL, ind_GL(3))
@@ -371,7 +369,6 @@ contains
 
     call this%scratch_GL%relinquish_field(ind_GL)
     call neko_scratch_registry%relinquish_field(ind_GLL)
-    call profiler_end_region("phase_sharpen_dealias", 26)
 
   end subroutine phase_field_sharpening_source_term_compute_dealias
 
