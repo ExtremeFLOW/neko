@@ -227,13 +227,14 @@ contains
     call neko_log%message(" ")
 
     if (NEKO_BCKND_HIP .eq. 1) then
-       call neko_log%message("Initializing ALE Manager " // &
+       call neko_log%message("Initializing ALE " // &
             "with DEVICE backend (HIP).")
     else if (NEKO_BCKND_CUDA .eq. 1) then
-       call neko_log%message("Initializing ALE Manager " // &
+       call neko_log%message("Initializing ALE " // &
             "with DEVICE backend (CUDA).")
     else
-       call neko_log%message("Initializing ALE Manager with CPU backend.")
+       call neko_log%message("Initializing ALE " // &
+            "with CPU backend.")
     end if
 
     tmp_logical = .false.
@@ -1419,6 +1420,7 @@ contains
             "of elements than the checkpoint.")
     end if
 
+    ! Restarting from a different poly order
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
        n = coef%dof%size()
        associate(wm_x => this%wm_x, wm_y => this%wm_y, wm_z => this%wm_z)
@@ -1506,7 +1508,8 @@ contains
 
     ! If polynomial order changes during restart, we use current's mesh mass matrix
     ! for Blag and Blaglag. This will introduce some error, but maybe better than
-    ! not restarting at all.
+    ! not restarting at all. Otherwise we need to save lagged mesh coordinates
+    ! as well in order to be more accurate.
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
         coef%Blag = coef%B
         coef%Blaglag = coef%B
@@ -1580,7 +1583,6 @@ contains
 
     n = n + 1
   end subroutine append_unique_int
-
 
   !> Performs a preview of the mesh motion to verify quality/topology
   subroutine mesh_preview(this, coef, json)
