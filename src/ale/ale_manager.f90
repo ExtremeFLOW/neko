@@ -1162,16 +1162,6 @@ contains
     if (associated(this%user_ale_mesh_vel)) then
        call this%user_ale_mesh_vel(this%wm_x, this%wm_y, this%wm_z, &
             coef, this%x_ref, this%y_ref, this%z_ref, this%base_shapes, time_s)
-
-       ! Sync user modifications to the device
-       ! This probably is better NOT TO BE DONE HERE, and directly in the user function, and directry on device.
-       ! I will leave it here so I won't forget about it, but it needs to be revisited.
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          n = coef%dof%size()
-          call device_memcpy(this%wm_x%x, this%wm_x%x_d, n, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%wm_y%x, this%wm_y%x_d, n, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%wm_z%x, this%wm_z%x_d, n, HOST_TO_DEVICE, .true.)
-       end if
     end if
 
     call profiler_end_region('ALE add mesh velocity')
