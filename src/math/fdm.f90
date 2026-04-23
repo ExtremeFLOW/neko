@@ -494,7 +494,7 @@ contains
 
     fac = 2.0_rp / lm
     a(1,1) = 1.0_rp
-    a(n+1,n+1) = 1.0-rp
+    a(n+1,n+1) = 1.0_rp
 
     do j = i0, i1
        do i = i0, i1
