@@ -42,7 +42,7 @@ module cg_cpld_device
   use bc_list, only : bc_list_t
   use math, only : abscmp
   use device
-  use device_math, only : device_rzero, device_copy, device_glsc3, &
+  use device_math, only : device_rzero, device_copy, &
        device_add2s1, device_vdot3, device_glsc2
   use device_mathops, only : device_opadd2cm
   use utils, only : neko_error
