@@ -149,6 +149,44 @@ void opencl_masked_gather_copy_aligned(void *a, void *b, void *mask, int *n,
 
 }
 
+/** Fortran wrapper for face-masked gather copy
+ * Copy a face-local field \f$ a(i) = b(face(mask(i), facet(i))) \f$
+ */
+void opencl_face_masked_gather_copy(void *a, void *b, void *mask, void *facet,
+                                    int *n1, int *n2, int *lx, int *ly,
+                                    int *lz, int *m,
+                                    cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program,
+    "face_masked_gather_copy_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &facet));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n1));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), n2));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(int), lx));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), ly));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), lz));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), m));
+
+  const int nb = ((*m) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+
+}
+
 /** Fortran wrapper for masked scatter copy
  * Copy a vector \f$ a(mask) = b \f$
  */
@@ -160,6 +198,37 @@ void opencl_masked_scatter_copy(void *a, void *b, void *mask, int *n, int *m,
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "masked_scatter_copy_kernel",
+     &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+
+}
+
+/** Fortran wrapper for masked scatter copy with aligned mask
+ * Copy a vector \f$ a(mask) = b \f$
+ */
+void opencl_masked_scatter_copy_aligned(void *a, void *b, void *mask, int *n, int *m,
+                                cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "masked_scatter_copy_aligned_kernel",
      &err);
   CL_CHECK(err);
 

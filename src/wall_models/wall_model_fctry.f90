@@ -30,18 +30,22 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+
 submodule (wall_model) wall_model_fctry
-  use vreman, only : vreman_t
   use spalding, only : spalding_t
   use rough_log_law, only : rough_log_law_t
+  use most, only : most_t
+  use richardson, only : richardson_t
   use utils, only : neko_type_error
   use utils, only : neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: WALLM_KNOWN_TYPES(2) = [character(len=20) :: &
+  character(len=20) :: WALLM_KNOWN_TYPES(4) = [character(len=20) :: &
        "spalding", &
-       "rough_log_law"]
+       "rough_log_law", &
+       "most", &
+       "richardson"]
 
 contains
 
@@ -93,6 +97,10 @@ contains
        allocate(spalding_t::object)
     case ("rough_log_law")
        allocate(rough_log_law_t::object)
+    case ("most")
+       allocate(most_t::object)
+    case ("richardson")
+       allocate(richardson_t::object)
     case default
        do i = 1, wall_model_registry_size
           if (trim(type_name) .eq. trim(wall_model_registry(i)%type_name)) then

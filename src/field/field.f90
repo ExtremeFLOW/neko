@@ -40,6 +40,7 @@ module field
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
+  use utils, only : NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -52,7 +53,7 @@ module field
      type(dofmap_t), pointer :: dof !< Dofmap
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
-     character(len=80) :: name = "" !< Name of the field
+     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
    contains
      procedure, private, pass(this) :: init_common => field_init_common
