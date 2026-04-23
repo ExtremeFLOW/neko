@@ -45,7 +45,7 @@
 !! - "scalar_field": Name of the phase field, defaults to "phase".
 !! - "gamma": Sharpening coefficient.
 !! - "u_max": Reference velocity scale.
-!! - "dealias_normal": Use over-integration for the normal/divergence term.
+!! - "dealias": Use dealias for the normal/divergence term.
 module phase_field_sharpening_source_term
   use num_types, only : rp
   use field, only : field_t
@@ -77,7 +77,7 @@ module phase_field_sharpening_source_term
   !! - "scalar_field": The name of the phase field, defaults to "phase".
   !! - "gamma": Sharpening coefficient.
   !! - "u_max": Reference velocity scale.
-  !! - "dealias_normal": Use over-integration for the normal/divergence term.
+  !! - "dealias": Use dealias for the normal/divergence term.
   type, public, extends(source_term_t) :: phase_field_sharpening_source_term_t
      !> The phase field.
      type(field_t), pointer :: phi => null()
@@ -85,9 +85,9 @@ module phase_field_sharpening_source_term
      real(kind=rp) :: gamma
      !> Reference velocity scale.
      real(kind=rp) :: u_max
-     !> Use over-integration for the normal/divergence evaluation.
-     logical :: over_integrate = .false.
-     !> Function space used for the over-integrated evaluation.
+     !> Use dealias for the normal/divergence evaluation.
+     logical :: dealias = .false.
+     !> Function space used for the dealias evaluation.
      type(space_t) :: Xh_GL
      !> Dofmap associated with Xh_GL.
      type(dofmap_t) :: dm_Xh_GL
@@ -95,9 +95,9 @@ module phase_field_sharpening_source_term
      type(gs_t) :: gs_Xh_GL
      !> Coefficients associated with Xh_GL.
      type(coef_t) :: coef_GL
-     !> Interpolator between the original and over-integrated spaces.
+     !> Interpolator between the original and dealias spaces.
      type(interpolator_t) :: GLL_to_GL
-     !> Scratch registry on the over-integrated space.
+     !> Scratch registry on the dealias space.
      type(scratch_registry_t) :: scratch_GL
    contains
      !> The common constructor using a JSON object.
@@ -129,18 +129,18 @@ contains
     character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time, gamma, u_max
     character(len=:), allocatable :: scalar_name
-    logical :: over_integrate
+    logical :: dealias
 
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
     call json_get_or_default(json, "scalar_field", scalar_name, "phase")
     call json_get(json, "gamma", gamma)
     call json_get(json, "u_max", u_max)
-    call json_get_or_default(json, "dealias", over_integrate, .false.)
+    call json_get_or_default(json, "dealias", dealias, .false.)
 
     call phase_field_sharpening_source_term_init_from_components(this, fields, &
          scalar_name, gamma, u_max, coef, start_time, end_time, &
-         over_integrate)
+         dealias)
 
   end subroutine phase_field_sharpening_source_term_init_from_json
 
@@ -154,14 +154,14 @@ contains
   !! @param end_time When to stop adding the source term.
   subroutine phase_field_sharpening_source_term_init_from_components(this, &
        fields, scalar_name, gamma, u_max, coef, start_time, end_time, &
-       over_integrate)
+       dealias)
     class(phase_field_sharpening_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(in) :: gamma, u_max
     type(coef_t), intent(in), target :: coef
     real(kind=rp), intent(in) :: start_time, end_time
-    logical, intent(in), optional :: over_integrate
+    logical, intent(in), optional :: dealias
     integer :: lx, lxd
 
     if (.not. fields%size() == 1) then
@@ -178,12 +178,12 @@ contains
 
     this%gamma = gamma
     this%u_max = u_max
-    this%over_integrate = .false.
-    if (present(over_integrate)) then
-       this%over_integrate = over_integrate
+    this%dealias = .false.
+    if (present(dealias)) then
+       this%dealias = dealias
     end if
 
-    if (this%over_integrate) then
+    if (this%dealias) then
        lx = coef%Xh%lx
        lxd = 2 * lx
 
@@ -203,14 +203,14 @@ contains
     class(phase_field_sharpening_source_term_t), intent(inout) :: this
 
     nullify(this%phi)
-    if (this%over_integrate) then
+    if (this%dealias) then
        call this%scratch_GL%free()
        call this%GLL_to_GL%free()
        call this%coef_GL%free()
        call this%gs_Xh_GL%free()
        call this%dm_Xh_GL%free()
        call this%Xh_GL%free()
-       this%over_integrate = .false.
+       this%dealias = .false.
     end if
     call this%free_base()
   end subroutine phase_field_sharpening_source_term_free
@@ -225,7 +225,7 @@ contains
 
     rhs_s => this%fields%get(1)
 
-    if (this%over_integrate) then
+    if (this%dealias) then
        call phase_field_sharpening_source_term_compute_dealias(this, rhs_s)
     else
        call phase_field_sharpening_source_term_compute_gll(this, rhs_s)
@@ -289,7 +289,7 @@ contains
 
   end subroutine phase_field_sharpening_source_term_compute_gll
 
-  !> Computes the source term on an over-integrated GL space.
+  !> Computes the source term on a dealias GL space.
   subroutine phase_field_sharpening_source_term_compute_dealias(this, rhs_s)
     class(phase_field_sharpening_source_term_t), intent(inout) :: this
     type(field_t), pointer, intent(inout) :: rhs_s
