@@ -13,3 +13,4 @@ index 01ee63b87e3..e52b462abeb 100644
 +
      is_done = this%t - this%start_time .ge. this%end_time - this%start_time &
           .and. this%tstep .gt. 0
+ 
