@@ -59,7 +59,7 @@ var searchData=
   ['wall_5fmodel_5ffree_5fbase_56',['wall_model_free_base',['../da/ddd/namespacewall__model.html#a9c87c01ab361ff26b866c0e764a2a525',1,'wall_model']]],
   ['wall_5fmodel_5finit_57',['wall_model_init',['../d5/db1/interfacewall__model_1_1wall__model__init.html',1,'wall_model::wall_model_init'],['../d5/db1/interfacewall__model_1_1wall__model__init.html#a74d48541b9afcdfedf545ff4779acd16',1,'wall_model::wall_model_init::wall_model_init()']]],
   ['wall_5fmodel_5finit_5fbase_58',['wall_model_init_base',['../da/ddd/namespacewall__model.html#a55c82979b1d5c3b6c9e7c0d0da02a1e3',1,'wall_model']]],
-  ['wall_5fmodel_5fkernel_2eh_59',['wall_model_kernel.h',['../de/d25/hip_2wall__model__kernel_8h.html',1,'(Global Namespace)'],['../d1/d0f/cuda_2wall__model__kernel_8h.html',1,'(Global Namespace)']]],
+  ['wall_5fmodel_5fkernel_2eh_59',['wall_model_kernel.h',['../d1/d0f/cuda_2wall__model__kernel_8h.html',1,'(Global Namespace)'],['../de/d25/hip_2wall__model__kernel_8h.html',1,'(Global Namespace)']]],
   ['wall_5fmodel_5fpartial_5finit_60',['wall_model_partial_init',['../d8/df2/interfacewall__model_1_1wall__model__partial__init.html',1,'wall_model::wall_model_partial_init'],['../d8/df2/interfacewall__model_1_1wall__model__partial__init.html#a9583ff7d5e897e6236f0c485f4df69db',1,'wall_model::wall_model_partial_init::wall_model_partial_init()']]],
   ['wall_5fmodel_5fpartial_5finit_5fbase_61',['wall_model_partial_init_base',['../da/ddd/namespacewall__model.html#a5889a9498af89fc7ba69f1bc288d40af',1,'wall_model']]],
   ['wall_5fmodel_5fregistry_62',['wall_model_registry',['../da/ddd/namespacewall__model.html#a8e69f3f1a435ae96b14589e30342e9a4',1,'wall_model']]],

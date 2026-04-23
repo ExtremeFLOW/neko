@@ -24,7 +24,7 @@ var searchData=
   ['mathops_2ecu_21',['mathops.cu',['../dd/db5/mathops_8cu.html',1,'']]],
   ['mathops_2ef90_22',['mathops.f90',['../da/d52/mathops_8f90.html',1,'']]],
   ['mathops_2ehip_23',['mathops.hip',['../d5/d0f/mathops_8hip.html',1,'']]],
-  ['mathops_5fkernel_2eh_24',['mathops_kernel.h',['../d5/d50/cuda_2mathops__kernel_8h.html',1,'(Global Namespace)'],['../d6/d43/hip_2mathops__kernel_8h.html',1,'(Global Namespace)']]],
+  ['mathops_5fkernel_2eh_24',['mathops_kernel.h',['../d6/d43/hip_2mathops__kernel_8h.html',1,'(Global Namespace)'],['../d5/d50/cuda_2mathops__kernel_8h.html',1,'(Global Namespace)']]],
   ['matrix_2ef90_25',['matrix.f90',['../dc/dcb/matrix_8f90.html',1,'']]],
   ['matrix_5fmath_2ef90_26',['matrix_math.f90',['../d5/d20/matrix__math_8f90.html',1,'']]],
   ['mean_5ffield_2ef90_27',['mean_field.f90',['../d0/d09/mean__field_8f90.html',1,'']]],
