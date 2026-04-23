@@ -44,7 +44,7 @@ module derivative_simcomp
   use case, only : case_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use time_based_controller, only : time_based_controller_t
   implicit none
   private
@@ -97,7 +97,7 @@ contains
     character(len=:), allocatable :: direction
     character(len=:), allocatable :: computed_field
     character(len=:), allocatable :: name
-    character(len=20) :: fields(1)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     ! Add fields keyword to the json so that the field_writer_t picks it up.
     ! Will also add fields to the registry.
@@ -182,7 +182,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     fields(1) = trim(computed_field)
 
@@ -233,7 +233,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     fields(1) = trim(computed_field)
 

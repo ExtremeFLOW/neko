@@ -46,6 +46,7 @@ module user_stats
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use time_based_controller, only : time_based_controller_t
+  use utils, only : NEKO_VARNAME_LEN
   implicit none
   private
 
@@ -61,7 +62,7 @@ module user_stats
      !> Number of fields to average.
      integer :: n_avg_fields = 0
      !> The names of the fields to average.
-     character(len=20), allocatable :: field_names(:)
+     character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
      !> Output writer.
      type(mean_field_output_t), private :: output
 
@@ -230,7 +231,8 @@ contains
     allocate(this%mean_fields(this%n_avg_fields))
     do i = 1, this%n_avg_fields
        field_to_avg => neko_registry%get_field(trim(this%field_names(i)))
-       call this%mean_fields(i)%init(field_to_avg, trim(unique_name) // "mean_" // trim(this%field_names(i)))
+       call this%mean_fields(i)%init(field_to_avg, trim(unique_name) // &
+            "mean_" // trim(this%field_names(i)))
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
