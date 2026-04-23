@@ -200,7 +200,7 @@ contains
     end do
     call this%bc%finalize()
 
-    n_pts = this%bc%msk(0)
+    n_pts = this%bc%facet_msk(0)
     if (n_pts .gt. 0) then
        call this%n1%init(n_pts)
        call this%n2%init(n_pts)
@@ -208,7 +208,7 @@ contains
        call this%surface_u%init(n_pts)
        call this%surface_v%init(n_pts)
        call this%surface_w%init(n_pts)
-       call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
+       call setup_normals(this%coef, this%bc%facet_msk, this%bc%facet, &
             this%n1%x, this%n2%x, this%n3%x, n_pts)
        call vector_cmult(this%n1, -1.0_rp, n_pts)
        call vector_cmult(this%n2, -1.0_rp, n_pts)
@@ -240,7 +240,7 @@ contains
     write(log_buf, '(A,*(I0,:,", "))') "Zone indices: ", this%zone_indices
     call neko_log%message(log_buf)
     write(log_buf, '(A,I0)') "Marked boundary quadrature points: ", &
-         this%bc%msk(0)
+         this%bc%facet_msk(0)
     call neko_log%message(log_buf)
     call neko_log%end_section()
   end subroutine boundary_flux_init_common
@@ -375,15 +375,15 @@ contains
     character(len=12) :: step_str
     character(len=:), allocatable :: header_line, value_line
 
-    n_pts = this%bc%msk(0)
+    n_pts = this%bc%facet_msk(0)
     this%flux = 0.0_rp
 
     call vector_masked_gather_copy_0(this%surface_u, this%u%x, &
-         this%bc%msk, this%u%size(), n_pts)
+         this%bc%facet_msk, this%u%size(), n_pts)
     call vector_masked_gather_copy_0(this%surface_v, this%v%x, &
-         this%bc%msk, this%v%size(), n_pts)
+         this%bc%facet_msk, this%v%size(), n_pts)
     call vector_masked_gather_copy_0(this%surface_w, this%w%x, &
-         this%bc%msk, this%w%size(), n_pts)
+         this%bc%facet_msk, this%w%size(), n_pts)
 
     this%flux = vector_glsc2(this%surface_u, this%n1, n_pts) + &
          vector_glsc2(this%surface_v, this%n2, n_pts) + &
