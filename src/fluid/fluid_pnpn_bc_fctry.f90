@@ -86,6 +86,7 @@ contains
     integer, allocatable :: zone_indices(:)
     character(len=:), allocatable :: default_name
     character(len=64) :: buf
+    logical :: temp_logical
 
     if (associated(object)) then
        call object%free()
@@ -113,8 +114,11 @@ contains
        allocate(overset_interface_t::object)
        select type (obj => object)
        type is (overset_interface_t)
-          call json%add("field_name", scheme%p%name)
-          obj%morph_interface => user%morph_interface
+          call json_get_or_default(json, "couple_pressure", temp_logical, .false.)
+          if (temp_logical) then
+            call json%add("field_name", scheme%p%name)
+            obj%morph_interface => user%morph_interface
+          end if
        end select
 
     case default
