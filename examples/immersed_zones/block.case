@@ -20,11 +20,7 @@
             "Re": 2000.0,
             "initial_condition": {
                 "type": "uniform",
-                "value": [
-                    1.0,
-                    0.0,
-                    0.0
-                ]
+                "value": [ 1.0, 0.0, 0.0 ]
             },
             "velocity_solver": {
                 "type": "cg",
@@ -49,7 +45,7 @@
             "boundary_conditions": [
                 {
                     "type": "velocity_value",
-                    "value": [ 1, 0, 0 ],
+                    "value": [ 1.0, 0.0, 0.0 ],
                     "zone_indices": [ 1 ]
                 },
                 {
@@ -64,19 +60,14 @@
             "source_terms": [
                 {
                     "type": "brinkman",
+                    "limits": [ 0.0, 1500.0 ],
+                    "penalty": 1.0,
                     "objects": [
                         {
                             "type": "point_zone",
                             "name": "block"
                         }
-                    ],
-                    "brinkman": {
-                        "limits": [
-                            0.0,
-                            1500.0
-                        ],
-                        "penalty": 1.0
-                    }
+                    ]
                 }
             ]
         },
@@ -84,18 +75,9 @@
             {
                 "name": "block",
                 "geometry": "box",
-                "x_bounds": [
-                    0.90,
-                    1.10
-                ],
-                "y_bounds": [
-                    0.0,
-                    1.0
-                ],
-                "z_bounds": [
-                    0.0,
-                    0.5
-                ]
+                "x_bounds": [ 0.90, 1.10 ],
+                "y_bounds": [ 0.0, 1.0 ],
+                "z_bounds": [ 0.0, 0.5 ]
             }
         ]
     }

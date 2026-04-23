@@ -223,7 +223,7 @@ of the boundary as follows.
 
 | Boundary Condition              | Key |
 | ------------------------------- | --- |
-| no_slip (stationary wall)                        | 1   |
+| no_slip (stationary wall)       | 1   |
 | velocity_value                  | 2   |
 | outflow, normal_outflow (+dong) | 3   |
 | symmetry                        | 4   |
@@ -430,7 +430,7 @@ table below.
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | symmetry            | A symmetry plane. Must be axis-aligned.                                                                                                                |
 | velocity_value      | A Dirichlet condition for velocity.                                                                                                                    |
-| no_slip             | A no-slip wall. It can be stationary or moving.                                                                                                                                         |
+| no_slip             | A no-slip wall. It can be stationary or moving.                                                                                                        |
 | outflow             | A pressure outlet.                                                                                                                                     |
 | normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
 | outflow+user        | Same as `outflow` but with user-specified pressure.                                                                                                    |
@@ -733,13 +733,13 @@ file documentation.
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
-   | Name             | Description                                                                                        | Admissible values            | Default value  |
-   | ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | -------------- |
-   | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -              |
-   | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`        |
-   | `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`    |
-   | `interpolation.tolerance`| Tolerance for the point search.                                                            | Positive real.               | `NEKO_EPS*1e3` |
-   | `interpolation.padding`  | Padding for the point search.                                                              | Positive real.               | `1e-2`         |
+   | Name                      | Description                                                                                        | Admissible values            | Default value  |
+   | ------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | -------------- |
+   | `file_name`               | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -              |
+   | `interpolate`             | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`        |
+   | `mesh_file_name`          | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`    |
+   | `interpolation.tolerance` | Tolerance for the point search.                                                                    | Positive real.               | `NEKO_EPS*1e3` |
+   | `interpolation.padding`   | Padding for the point search.                                                                      | Positive real.               | `1e-2`         |
 
    @attention Interpolating a field from the same mesh but different
    polynomial order is performed implicitly and does not require to enable
@@ -871,6 +871,13 @@ types are currently implemented.
    format.
 2. `point_zone`, the indicator function is defined as 1 inside the point zone
    and 0 outside.
+3. `field`, the indicator function is directly taken from a field in the
+   `neko_registry`. The field name should be specified in the `name`
+   keyword.
+4. `file`, the indicator function is directly taken from a field file. The file
+   name should be specified in the `file_name` keyword. This requires the user
+   to specify the field name in the file, which should be done by setting the
+   `field_name` keyword.
 
 Each object are added to a common indicator field by means of a point-wise max
 operator. This means that the indicator field will be the union of all the
@@ -1299,15 +1306,15 @@ Details regarding the configuration of the mesh stiffness \f$ h(\mathbf{x}) \f$ 
 
 Within the `"solver"` block, the parameters of the linear solver used to solve the Laplace equation are set. This block accepts the following keywords:
 
-| Name | Description | Admissible values | Default value |
-| :--- | :--- | :--- | :--- |
-| `type` | Type of linear solver for the Laplace equation |  `"cg"`, `"gmres"` | `"cg"` |
-| `preconditioner.type` | Type of preconditioner to use |  `"jacobi"`, `"hsmg"`, `"phmg"` | `"jacobi"` |
-| `absolute_tolerance` | Absolute tolerance for solver convergence | Positive real | `1.0e-10` |
-| `max_iterations` | Maximum number of linear solver iterations | Positive integer | `10000` |
-| `monitor` | Monitor residuals in the linear solver | `true` or `false` | `false` |
-| `output_base_shape` | Enables output of the base shape field \f$ \phi \f$ | `true` or `false` | `true` |
-| `output_stiffness` | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false` | `false` |
+| Name                  | Description                                                               | Admissible values              | Default value |
+| :-------------------- | :------------------------------------------------------------------------ | :----------------------------- | :------------ |
+| `type`                | Type of linear solver for the Laplace equation                            | `"cg"`, `"gmres"`              | `"cg"`        |
+| `preconditioner.type` | Type of preconditioner to use                                             | `"jacobi"`, `"hsmg"`, `"phmg"` | `"jacobi"`    |
+| `absolute_tolerance`  | Absolute tolerance for solver convergence                                 | Positive real                  | `1.0e-10`     |
+| `max_iterations`      | Maximum number of linear solver iterations                                | Positive integer               | `10000`       |
+| `monitor`             | Monitor residuals in the linear solver                                    | `true` or `false`              | `false`       |
+| `output_base_shape`   | Enables output of the base shape field \f$ \phi \f$                       | `true` or `false`              | `true`        |
+| `output_stiffness`    | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false`              | `false`       |
 
 ##### Output Files and Diagnostics
 If the output flags are enabled, Neko will generate `.fld` files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:
@@ -1328,13 +1335,13 @@ One of the available features in the Neko ALE module is the Mesh Preview. This a
 
 The `"mesh_preview"` block accepts the following keywords:
 
-| Name | Description | Admissible values | Default value |
-| :--- | :--- | :--- | :--- |
-| `enabled` | Toggles the mesh preview feature on or off | `true` or `false` | `false` |
-| `start_time` | Start time for the mesh preview simulation | Positive real | 0.0 |
-| `end_time` | End time for the mesh preview simulation | Positive real | - |
-| `output_freq` | Number of timesteps between each generated output file | Positive integer | - |
-| `dt` | Constant time step size used for the mesh preview | Positive real | - |
+| Name          | Description                                            | Admissible values | Default value |
+| :------------ | :----------------------------------------------------- | :---------------- | :------------ |
+| `enabled`     | Toggles the mesh preview feature on or off             | `true` or `false` | `false`       |
+| `start_time`  | Start time for the mesh preview simulation             | Positive real     | 0.0           |
+| `end_time`    | End time for the mesh preview simulation               | Positive real     | -             |
+| `output_freq` | Number of timesteps between each generated output file | Positive integer  | -             |
+| `dt`          | Constant time step size used for the mesh preview      | Positive real     | -             |
 
 
 @attention The `"mesh_preview"` feature is strictly a pre-processing step. Once the preview completes, whether successfully or due to a failure, the Neko run will terminate and output a corresponding success or failure message. To proceed with the actual fluid simulation, the user **must** set `"mesh_preview.enabled: false"` in order for the actual simulation to run. Additionally, if the solver detects an inverted mesh element during the preview phase, it will save the exact time step at which the Jacobian becomes negative to assist with debugging.
@@ -1349,14 +1356,14 @@ The `"bodies"` block defines an array of objects, where each object represents a
 
 Each individual body object accepts the following general keywords and base kinematics:
 
-| Name | Description | Admissible values | Default value |
-| :--- | :--- | :--- | :--- |
-| `name` | The name identifier of the body | String | `"body_<body_ID>"`  |
-| `zone_indices` | The physical boundary zones associated with this body | Array of positive integers | -  |
-| `oscillation` | Sub-object defining the translational oscillation kinematics | JSON object | - |
-| `rotation` | Sub-object defining the rotational kinematics applied to the body | JSON object | - |
-| `pivot` | Sub-object defining the center point for rotational kinematics | JSON object | - |
-| `stiff_geom` | Sub-object defining the mesh stiffness region | JSON object | - |
+| Name           | Description                                                       | Admissible values          | Default value      |
+| :------------- | :---------------------------------------------------------------- | :------------------------- | :----------------- |
+| `name`         | The name identifier of the body                                   | String                     | `"body_<body_ID>"` |
+| `zone_indices` | The physical boundary zones associated with this body             | Array of positive integers | -                  |
+| `oscillation`  | Sub-object defining the translational oscillation kinematics      | JSON object                | -                  |
+| `rotation`     | Sub-object defining the rotational kinematics applied to the body | JSON object                | -                  |
+| `pivot`        | Sub-object defining the center point for rotational kinematics    | JSON object                | -                  |
+| `stiff_geom`   | Sub-object defining the mesh stiffness region                     | JSON object                | -                  |
 
 @attention The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
 
@@ -1366,10 +1373,10 @@ Each individual body object accepts the following general keywords and base kine
 
 The `"oscillation"` sub-object defines the harmonic translational motion of the body. It takes the following mandatory keywords:
 
-| Name | Description | Admissible values | Default value |
-| :--- | :--- | :--- | :--- |
-| `oscillation.amplitude` | Amplitude of translational oscillation in \f$ [x, y, z] \f$ | Array of 3 reals | - |
-| `oscillation.frequency` | Frequency of translational oscillation in \f$ [x, y, z] \f$ | Array of 3 reals | - |
+| Name                    | Description                                                 | Admissible values | Default value |
+| :---------------------- | :---------------------------------------------------------- | :---------------- | :------------ |
+| `oscillation.amplitude` | Amplitude of translational oscillation in \f$ [x, y, z] \f$ | Array of 3 reals  | -             |
+| `oscillation.frequency` | Frequency of translational oscillation in \f$ [x, y, z] \f$ | Array of 3 reals  | -             |
 
 @warning If the `"oscillation"` block is included in the case file, both `"amplitude"` and `"frequency"` become **mandatory**.
 
@@ -1387,16 +1394,16 @@ where \f$ A_i \f$ is the `oscillation.amplitude` and \f$ f_i \f$ is the `oscilla
 
 If the body undergoes rotational motion, the `"rotation"` sub-object can be configured. Depending on the `rotation.type`, different parameters become applicable:
 
-| Name | Description | Admissible values | Default value |
-| :--- | :--- | :--- | :--- |
-| `rotation.type` | The type of rotational kinematics applied | `"harmonic"`, `"ramp"`, `"smooth_step"` | - |
-| `rotation.amplitude_deg` | Rotational amplitude in **degrees** <i>(only for </i>`harmonic`<i>)</i> | Array of 3 reals | - |
-| `rotation.frequency` | Rotational frequency <i>(only for </i>`harmonic`<i>)</i> | Array of 3 reals | - |
-| `rotation.ramp_omega0` | Target angular velocity <i>(only for </i>`ramp`<i>)</i> | Array of 3 reals | - |
-| `rotation.ramp_t0` | Time constant for the ramp <i>(only for </i>`ramp`<i>)</i> | Array of 3 reals | - |
-| `rotation.axis` | Axis of rotation <i>(only for </i>`smooth_step`<i>)</i> | `1` (x), `2` (y), `3` (z) | `3` |
-| `rotation.target_angle_deg`| Target rotation angle in **degrees** <i>(only for </i>`smooth_step`<i>)</i> | Real | - |
-| `rotation.step_control_times`| Control times \f$ [t_0, t_1, t_2, t_3] \f$ <i>(only for </i>`smooth_step`<i>)</i>| Array of 4 reals | - |
+| Name                          | Description                                                                       | Admissible values                       | Default value |
+| :---------------------------- | :-------------------------------------------------------------------------------- | :-------------------------------------- | :------------ |
+| `rotation.type`               | The type of rotational kinematics applied                                         | `"harmonic"`, `"ramp"`, `"smooth_step"` | -             |
+| `rotation.amplitude_deg`      | Rotational amplitude in **degrees** <i>(only for </i>`harmonic`<i>)</i>           | Array of 3 reals                        | -             |
+| `rotation.frequency`          | Rotational frequency <i>(only for </i>`harmonic`<i>)</i>                          | Array of 3 reals                        | -             |
+| `rotation.ramp_omega0`        | Target angular velocity <i>(only for </i>`ramp`<i>)</i>                           | Array of 3 reals                        | -             |
+| `rotation.ramp_t0`            | Time constant for the ramp <i>(only for </i>`ramp`<i>)</i>                        | Array of 3 reals                        | -             |
+| `rotation.axis`               | Axis of rotation <i>(only for </i>`smooth_step`<i>)</i>                           | `1` (x), `2` (y), `3` (z)               | `3`           |
+| `rotation.target_angle_deg`   | Target rotation angle in **degrees** <i>(only for </i>`smooth_step`<i>)</i>       | Real                                    | -             |
+| `rotation.step_control_times` | Control times \f$ [t_0, t_1, t_2, t_3] \f$ <i>(only for </i>`smooth_step`<i>)</i> | Array of 4 reals                        | -             |
 
 @warning If the `"rotation"` block is included in the case file, a valid `"pivot"` block to specify the center of rotation must be defined. The `"pivot"` object is explained [here](#case-file_fluid-ale-pivot). Additionally, the specific parameters corresponding to the chosen `rotation.type` become **mandatory**.
 
@@ -1475,10 +1482,10 @@ For bounds where \f$ \tau \ge 1 \f$, \f$ S(\tau) = 1 \f$ and \f$ \text{dstep}(\t
 
 The `"pivot"` sub-object defines the center point around which the body rotates.
 
-| Name | Description | Admissible values | Default value |
-| :--- | :--- | :--- | :--- |
-| `pivot.type` | Type of pivot definition | `"relative"` | `"relative"` |
-| `pivot.value` | The spatial coordinates of the rotation center \f$ [x, y, z] \f$ | Array of 3 reals | - |
+| Name          | Description                                                      | Admissible values | Default value |
+| :------------ | :--------------------------------------------------------------- | :---------------- | :------------ |
+| `pivot.type`  | Type of pivot definition                                         | `"relative"`      | `"relative"`  |
+| `pivot.value` | The spatial coordinates of the rotation center \f$ [x, y, z] \f$ | Array of 3 reals  | -             |
 
 
 @note The rotation center (i.e., the `"pivot"`) moves rigidly with the body. This means that if a body undergoes both translational oscillation and rotation, `"pivot.value"` defines the initial position of the rotation center. Throughout the simulation, the location of the pivot point is numerically updated using the translational velocity of the body, even if a custom rigid motion is applied using a `user_ale_rigid_kinematics` subroutine (see [here](#user-file_ale-rigid_motion) for more information).
@@ -1495,15 +1502,15 @@ The global mesh stiffness field \f$ h(\mathbf{x}) \f$ is constructed by taking a
 
 @attention A valid `"stiff_geom"` definition is **mandatory** for every registered body.
 
-| Name | Description | Admissible values | Default value |
-| :--- | :--- | :--- | :--- |
-| `stiff_geom.type` | The shape of the stiffness region | `"cylinder"`, `"sphere"`, `"cheap_dist"` | -  |
-| `stiff_geom.decay_profile`| How the stiffness decays away from the body | `"gaussian"`, `"tanh"` | -  |
-| `stiff_geom.gain` | The gain multiplier for the stiffness field | Positive real | - |
-| `stiff_geom.cutoff_coef` | Controls the steepness of the spatial decay | Positive real | `9.0` (gaussian), `3.5` (tanh) |
-| `stiff_geom.center` | Center coordinates \f$ [x, y, z] \f$ <i>(only for </i>`cylinder`<i>, </i>`sphere`<i>)</i>| Array of 3 reals | - |
-| `stiff_geom.radius` | Radius of the geometry <i>(only for </i>`cylinder`<i>, </i>`sphere`<i>)</i> | Positive real | - |
-| `stiff_geom.stiff_dist` | Distance to maintain stiffness <i>(only for </i>`cheap_dist`<i>)</i> | Positive real | - |
+| Name                       | Description                                                                               | Admissible values                        | Default value                  |
+| :------------------------- | :---------------------------------------------------------------------------------------- | :--------------------------------------- | :----------------------------- |
+| `stiff_geom.type`          | The shape of the stiffness region                                                         | `"cylinder"`, `"sphere"`, `"cheap_dist"` | -                              |
+| `stiff_geom.decay_profile` | How the stiffness decays away from the body                                               | `"gaussian"`, `"tanh"`                   | -                              |
+| `stiff_geom.gain`          | The gain multiplier for the stiffness field                                               | Positive real                            | -                              |
+| `stiff_geom.cutoff_coef`   | Controls the steepness of the spatial decay                                               | Positive real                            | `9.0` (gaussian), `3.5` (tanh) |
+| `stiff_geom.center`        | Center coordinates \f$ [x, y, z] \f$ <i>(only for </i>`cylinder`<i>, </i>`sphere`<i>)</i> | Array of 3 reals                         | -                              |
+| `stiff_geom.radius`        | Radius of the geometry <i>(only for </i>`cylinder`<i>, </i>`sphere`<i>)</i>               | Positive real                            | -                              |
+| `stiff_geom.stiff_dist`    | Distance to maintain stiffness <i>(only for </i>`cheap_dist`<i>)</i>                      | Positive real                            | -                              |
 
 ###### Local stiffness
 The local stiffness contribution from a body, \f$ \text{Stiffness}_b(\mathbf{x}) \f$, is evaluated based on the chosen `decay_profile`. These profiles depend on a raw distance \f$ r \f$ (detailed in the next section) and a characteristic decay length \f$ d \f$, which is defined as:
