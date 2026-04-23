@@ -34,11 +34,12 @@
 module inflow
   use device_inflow, only : device_inflow_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
   use coefs, only : coef_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup
+  use utils, only : neko_error
   use time_state, only : time_state_t
   implicit none
   private
@@ -53,6 +54,9 @@ module inflow
      procedure, pass(this) :: apply_vector_dev => inflow_apply_vector_dev
      !> Constructor
      procedure, pass(this) :: init => inflow_init
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          inflow_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => inflow_free
      !> Finalize.
@@ -70,10 +74,26 @@ contains
     type(json_file), intent(inout) ::json
     real(kind=rp), allocatable :: x(:)
 
-    call this%init_base(coef)
     call json_get_or_lookup(json, 'value', x)
-    this%x = x
+    if (size(x) .ne. 3) then
+       call neko_error("The inflow boundary condition requires a " // &
+            "3-component value vector.")
+    end if
+    call this%init_from_components(coef, x)
   end subroutine inflow_init
+
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[in] x The vector value to apply at the boundary.
+  subroutine inflow_init_from_components(this, coef, x)
+    class(inflow_t), intent(inout), target :: this
+    type(coef_t), target, intent(in) :: coef
+    real(kind=rp), intent(in) :: x(3)
+
+    call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
+    this%x = x
+  end subroutine inflow_init_from_components
 
   !> No-op scalar apply
   subroutine inflow_apply_scalar(this, x, n, time, strong)
@@ -156,20 +176,11 @@ contains
   end subroutine inflow_free
 
   !> Finalize
-  subroutine inflow_finalize(this, only_facets)
+  subroutine inflow_finalize(this)
     class(inflow_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
     integer :: i
 
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
   end subroutine inflow_finalize
 
 

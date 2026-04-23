@@ -26,6 +26,13 @@ module opencl_prgm_lib
   !> Device Symmetry kernels
   type(c_ptr), public, bind(c) :: symmetry_program = C_NULL_PTR
 
+  !> Device mixed BC constraint kernels
+  type(c_ptr), public, bind(c) :: constrain_mixed_bc_program = C_NULL_PTR
+
+  !> Device coupled vector BC resolver kernels
+  type(c_ptr), public, bind(c) :: coupled_vector_bc_resolver_program = &
+       C_NULL_PTR
+
   !> Device Facet normal kernels
   type(c_ptr), public, bind(c) :: facet_normal_program = C_NULL_PTR
 
@@ -166,6 +173,21 @@ contains
           call neko_error('Failed to release program')
        end if
        symmetry_program = C_NULL_PTR
+    end if
+
+    if (c_associated(constrain_mixed_bc_program)) then
+       if (clReleaseProgram(constrain_mixed_bc_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       constrain_mixed_bc_program = C_NULL_PTR
+    end if
+
+    if (c_associated(coupled_vector_bc_resolver_program)) then
+       if (clReleaseProgram(coupled_vector_bc_resolver_program) .ne. &
+            CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       coupled_vector_bc_resolver_program = C_NULL_PTR
     end if
 
     if (c_associated(facet_normal_program)) then

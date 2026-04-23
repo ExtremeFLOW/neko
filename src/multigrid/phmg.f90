@@ -42,6 +42,7 @@ module phmg
   use mesh, only : mesh_t
   use bc, only : bc_t
   use bc_list, only : bc_list_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use dirichlet, only : dirichlet_t
   use utils, only : neko_error
   use cheby, only : cheby_t
@@ -59,7 +60,7 @@ module phmg
        glb_cmd_event
   use device_math, only : device_rzero, device_copy, device_add2, &
        device_add2s2, device_invcol2, device_glsc2, device_col2, device_add2s1
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -81,7 +82,7 @@ module phmg
      type(jacobi_t) :: jacobi
      type(device_jacobi_t) :: device_jacobi
      type(coef_t), pointer :: coef
-     type(bc_list_t) :: bclst
+     type(scalar_bc_resolver_t) :: bc_resolver
      type(dirichlet_t) :: bc
      type(field_t) :: r, w, z
   end type phmg_lvl_t
@@ -218,8 +219,7 @@ contains
        end if
        call this%phmg_hrchy%lvl(i)%bc%finalize()
        call this%phmg_hrchy%lvl(i)%bc%set_g(0.0_rp)
-       call this%phmg_hrchy%lvl(i)%bclst%init()
-       call this%phmg_hrchy%lvl(i)%bclst%append(this%phmg_hrchy%lvl(i)%bc)
+       call this%phmg_hrchy%lvl(i)%bc_resolver%mark(this%phmg_hrchy%lvl(i)%bc)
 
        !> Initialize Smoothers
        if (trim(cheby_acc) .eq. "schwarz") then
@@ -227,7 +227,7 @@ contains
                this%phmg_hrchy%lvl(i)%Xh, &
                this%phmg_hrchy%lvl(i)%dm_Xh, &
                this%phmg_hrchy%lvl(i)%gs_h, &
-               this%phmg_hrchy%lvl(i)%bclst, &
+               this%phmg_hrchy%lvl(i)%bc_resolver, &
                coef%msh)
        end if
 
@@ -294,13 +294,20 @@ contains
     call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
          this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
          this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, crs_tamg_lvls, &
-         this%phmg_hrchy%lvl(this%nlvls -1)%bclst, &
+         this%phmg_hrchy%lvl(this%nlvls -1)%bc_resolver, &
          crs_tamg_itrs, crs_tamg_cheby_degree)
 
   end subroutine phmg_init_from_components
 
   subroutine phmg_free(this)
     class(phmg_t), intent(inout) :: this
+    integer :: i
+
+    if (allocated(this%phmg_hrchy%lvl)) then
+       do i = 0, size(this%phmg_hrchy%lvl) - 1
+          call this%phmg_hrchy%lvl(i)%bc_resolver%free()
+       end do
+    end if
   end subroutine phmg_free
 
   subroutine phmg_solve(this, z, r, n)
@@ -353,7 +360,7 @@ contains
     integer :: lvl
 
     associate(mg => this%phmg_hrchy%lvl, intrp => this%intrp, &
-        msh => this%msh, Ax => this%Ax)
+         msh => this%msh, Ax => this%Ax)
       do lvl = 0, this%nlvls-2
          write(lvl_name, '(I0)') lvl
          call profiler_start_region( "PHMG_level_" // trim(lvl_name))
@@ -365,13 +372,13 @@ contains
               mg(lvl)%cheby_device%zero_initial_guess = .true.
               ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
                    r%x, mg(lvl)%dm_Xh%size(), &
-                   mg(lvl)%coef, mg(lvl)%bclst, &
+                   mg(lvl)%coef, mg(lvl)%bc_resolver, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            else
               mg(lvl)%cheby%zero_initial_guess = .true.
               ksp_results = mg(lvl)%cheby%solve(Ax, z, &
                    r%x, mg(lvl)%dm_Xh%size(), &
-                   mg(lvl)%coef, mg(lvl)%bclst, &
+                   mg(lvl)%coef, mg(lvl)%bc_resolver, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            end if
 
@@ -379,9 +386,10 @@ contains
            !  Residual  !
            !------------!
            call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-           call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
+           call mg(lvl)%bc_resolver%apply(w%x, mg(lvl)%dm_Xh%size())
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg(lvl)%dm_Xh%size())
@@ -404,7 +412,7 @@ contains
                 GS_OP_ADD, glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
-           call mg(lvl+1)%bclst%apply_scalar( &
+           call mg(lvl+1)%bc_resolver%apply( &
                 mg(lvl+1)%r%x, &
                 mg(lvl+1)%dm_Xh%size())
 
@@ -435,7 +443,8 @@ contains
            !------------!
            call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -459,12 +468,12 @@ contains
            if (NEKO_BCKND_DEVICE .eq. 1) then
               ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
                    r%x, mg(lvl)%dm_Xh%size(), &
-                   mg(lvl)%coef, mg(lvl)%bclst, &
+                   mg(lvl)%coef, mg(lvl)%bc_resolver, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            else
               ksp_results = mg(lvl)%cheby%solve(Ax, z, &
                    r%x, mg(lvl)%dm_Xh%size(), &
-                   mg(lvl)%coef, mg(lvl)%bclst, &
+                   mg(lvl)%coef, mg(lvl)%bc_resolver, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            end if
          end associate
@@ -497,7 +506,7 @@ contains
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
           call mg%gs_h%op(w%x, n, GS_OP_ADD, glb_cmd_event)
           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-          call mg%bclst%apply_scalar(w%x, n)
+          call mg%bc_resolver%apply(w%x, n)
           call device_add2s1(w%x_d, r%x_d, -1.0_rp, n)
 
           call mg%device_jacobi%solve(w%x, w%x, n)
@@ -508,7 +517,7 @@ contains
        do i = 1, ni
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
           call mg%gs_h%op(w%x, n, GS_OP_ADD)
-          call mg%bclst%apply_scalar(w%x, n)
+          call mg%bc_resolver%apply(w%x, n)
           call add2s1(w%x, r%x, -1.0_rp, n)
 
           call mg%jacobi%solve(w%x, w%x, n)
@@ -529,7 +538,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
     call mg%gs_h%op(w%x, mg%dm_Xh%size(), GS_OP_ADD)
-    call mg%bclst%apply_scalar(w%x, mg%dm_Xh%size())
+    call mg%bc_resolver%apply(w%x, mg%dm_Xh%size())
     call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg%dm_Xh%size())
     val = device_glsc2(w%x_d, w%x_d, mg%dm_Xh%size())
     if (typ .eq. 1) then

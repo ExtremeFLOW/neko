@@ -213,8 +213,7 @@ module user_intf
      !> User source term interface.
      procedure(user_source_term_intf), nopass, pointer :: &
           source_term => null()
-     !> User boundary condition for the fluid or the scalar, field interface
-     !! (much more powerful than pointwise in terms of what can be done).
+     !> User boundary condition for the fluid or the scalar, field interface.
      procedure(field_dirichlet_update), nopass, pointer :: &
           dirichlet_conditions => null()
      !> User neumann condition for scalar problems, field interface.

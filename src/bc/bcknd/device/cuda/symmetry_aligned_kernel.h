@@ -32,22 +32,23 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_SYMETRY_KERNEL__
-#define __BC_SYMETRY_KERNEL__
+#ifndef __BC_SYMMETRY_ALIGNED_KERNEL__
+#define __BC_SYMMETRY_ALIGNED_KERNEL__
 
 /**
- * Device kernel for vector apply for a symmetry condition
+ * Device kernel for vector apply for an axis-aligned symmetry condition
  */
 template< typename T >
-__global__ void symmetry_apply_vector_kernel(const int * __restrict__ xmsk,
-					     const int * __restrict__ ymsk,
-					     const int * __restrict__ zmsk,
-					     T * __restrict__ x,
-					     T * __restrict__ y,
-					     T * __restrict__ z,
-					     const int m,
-					     const int n,
-					     const int l) {
+__global__ void symmetry_aligned_apply_vector_kernel(
+    const int * __restrict__ xmsk,
+    const int * __restrict__ ymsk,
+    const int * __restrict__ zmsk,
+    T * __restrict__ x,
+    T * __restrict__ y,
+    T * __restrict__ z,
+    const int m,
+    const int n,
+    const int l) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -66,6 +67,7 @@ __global__ void symmetry_apply_vector_kernel(const int * __restrict__ xmsk,
     const int k = (zmsk[i+1] - 1);
     z[k] = 0.0;
   }
+  
 }
 
-#endif // __BC_SYMETRY_KERNEL__
+#endif // __BC_SYMMETRY_ALIGNED_KERNEL__

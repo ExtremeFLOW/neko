@@ -42,12 +42,14 @@ module bc
   use space, only : space_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
+  use mask, only : mask_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use field, only : field_t
   use gs_ops, only : GS_OP_ADD
-  use math, only : relcmp
-  use utils, only : neko_error, linear_index, split_string
+  use math, only : relcmp, rzero
+  use device_math, only : device_cfill
+  use utils, only : neko_error, neko_warning, linear_index, split_string
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   use json_module, only : json_file
@@ -58,11 +60,25 @@ module bc
   implicit none
   private
 
+  !> Enumeration of supported boundary condition types.
+  !! The values are set in order of precedence for global resolution. Lower
+  !! values take precedence.
+  type, public :: bc_type_t
+     integer :: DIRICHLET = 0
+     integer :: MIXED_CONSTRAINS_NORMAL = 2
+     integer :: MIXED_CONSTRAINS_TANGENT = 3
+     integer :: NEUMANN = 5
+  end type bc_type_t
+
+  type(bc_type_t), public :: BC_TYPES
+
   !> Base type for a boundary condition
   type, public, abstract :: bc_t
-     !> The linear index of each node in each boundary facet
+     !> The linear index of each constrained local degree of freedom
      integer, allocatable :: msk(:)
-     !> A list of facet ids (1 to 6), one for each element in msk
+     !> The linear index of each node on the marked boundary facets
+     integer, allocatable :: facet_msk(:)
+     !> A list of facet ids (1 to 6), one for each entry in facet_msk
      integer, allocatable :: facet(:)
      !> Map of degrees of freedom
      type(dofmap_t), pointer :: dof => null()
@@ -76,13 +92,12 @@ module bc
      type(stack_i4t2_t) :: marked_facet
      !> Device pointer for msk
      type(c_ptr) :: msk_d = C_NULL_PTR
+     !> Device pointer for facet_msk
+     type(c_ptr) :: facet_msk_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
-     !> Wether the bc is strongly enforced. Essentially valid for all Dirichlet
-     !! types of bcs. These need to be masked out for solvers etc, so that
-     !! values are not affected.
-     !! Mixed bcs are, by convention, weak.
-     logical :: strong = .true.
+     !> Type of the boundary condition, from BC_TYPES.
+     integer :: bc_type
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations
      logical :: updated = .false.
@@ -101,6 +116,10 @@ module bc
      procedure, pass(this) :: mark_facets => bc_mark_facets
      !> Mark all facets from a zone
      procedure, pass(this) :: mark_zone => bc_mark_zone
+     !> Mark all facets from a labeled zone
+     procedure, pass(this) :: mark_labeled_zone => bc_mark_labeled_zone
+     !> Mark all facets from a list of labeled zones
+     procedure, pass(this) :: mark_labeled_zones => bc_mark_labeled_zones
      !> Finalize the construction of the bc by populating the msk and facet
      !! arrays
      procedure, pass(this) :: finalize_base => bc_finalize_base
@@ -160,10 +179,9 @@ module bc
 
   abstract interface
      !> Finalize by building the mask and facet arrays.
-     subroutine bc_finalize(this, only_facets)
+     subroutine bc_finalize(this)
        import :: bc_t
        class(bc_t), intent(inout), target :: this
-       logical, optional, intent(in) :: only_facets
      end subroutine bc_finalize
   end interface
 
@@ -280,6 +298,13 @@ contains
           call device_unmap(this%msk, this%msk_d)
        end if
        deallocate(this%msk)
+    end if
+
+    if (allocated(this%facet_msk)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%facet_msk, this%facet_msk_d)
+       end if
+       deallocate(this%facet_msk)
     end if
 
     if (allocated(this%facet)) then
@@ -419,37 +444,70 @@ contains
     end do
   end subroutine bc_mark_zone
 
+  !> Mark all facets from a labeled zone.
+  !! @param zone_index The index of the labeled zone to be marked.
+  subroutine bc_mark_labeled_zone(this, zone_index)
+    class(bc_t), intent(inout) :: this
+    integer, intent(in) :: zone_index
+    integer, allocatable :: tmp(:)
+    integer :: i
+    character(len=LOG_SIZE) :: log_buf
+
+    if (allocated(this%zone_indices)) then
+       do i = 1, size(this%zone_indices)
+          if (this%zone_indices(i) .eq. zone_index) then
+             write(log_buf, '(A,I0,A)') 'Zone index ', zone_index, &
+                  ' already marked for this boundary condition'
+             call neko_warning(log_buf)
+             return
+          end if
+       end do
+
+       allocate(tmp(size(this%zone_indices) + 1))
+       tmp(1:size(this%zone_indices)) = this%zone_indices
+       tmp(size(tmp)) = zone_index
+       call move_alloc(tmp, this%zone_indices)
+    else
+       allocate(this%zone_indices(1))
+       this%zone_indices(1) = zone_index
+    end if
+
+    call this%mark_zone(this%msh%labeled_zones(zone_index))
+  end subroutine bc_mark_labeled_zone
+
+  !> Mark all facets from labeled zones.
+  !! @param zone_indices The indices of the labeled zones to be marked.
+  subroutine bc_mark_labeled_zones(this, zone_indices)
+    class(bc_t), intent(inout) :: this
+    integer, intent(in) :: zone_indices(:)
+    integer :: i
+
+    do i = 1, size(zone_indices)
+       call this%mark_labeled_zone(zone_indices(i))
+    end do
+  end subroutine bc_mark_labeled_zones
+
   !> Finalize the construction of the bc by populting the `msk` and `facet`
   !! arrays.
-  !! @param only_facets, if the bc is only to be applied on facets.
-  !! Relevant for bcs where the normal direction is important
-  !! and where and shared dofs should not be included.
   !! @details This will linearize the marked facet's indicies in the msk array.
   !!
-  subroutine bc_finalize_base(this, only_facets)
+  subroutine bc_finalize_base(this)
     class(bc_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
     type(tuple_i4_t), pointer :: bfp(:)
     type(tuple_i4_t) :: bc_facet
     type(field_t) :: test_field
     integer :: facet_size, facet, el
-    logical :: only_facet = .false.
     integer :: i, j, k, l, msk_c
     integer :: lx, ly, lz, n
     character(len=LOG_SIZE) :: log_buf
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
-    if ( present(only_facets)) then
-       only_facet = only_facets
-    else
-       only_facet = .false.
-    end if
     !>@todo add 2D case
 
     ! Note we assume that lx = ly = lz
     facet_size = lx**2
-    allocate(this%msk(0:facet_size * this%marked_facet%size()))
+    allocate(this%facet_msk(0:facet_size * this%marked_facet%size()))
     allocate(this%facet(0:facet_size * this%marked_facet%size()))
 
     msk_c = 0
@@ -457,7 +515,7 @@ contains
 
     ! Loop through each (facet, element) id tuple
     ! Then loop over all the nodes of the face and compute their linear index
-    ! This index goes into this%msk, whereas the corresponding face id goes into
+    ! This index goes into this%facet_msk, whereas the corresponding face id goes into
     ! this%facet
     do i = 1, this%marked_facet%size()
        bc_facet = bfp(i)
@@ -468,7 +526,7 @@ contains
           do l = 1, lz
              do k = 1, ly
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(1, k, l, el, lx, ly, lz)
+                this%facet_msk(msk_c) = linear_index(1, k, l, el, lx, ly, lz)
                 this%facet(msk_c) = 1
              end do
           end do
@@ -476,7 +534,7 @@ contains
           do l = 1, lz
              do k = 1, ly
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(lx, k, l, el, lx, ly, lz)
+                this%facet_msk(msk_c) = linear_index(lx, k, l, el, lx, ly, lz)
                 this%facet(msk_c) = 2
              end do
           end do
@@ -484,7 +542,7 @@ contains
           do l = 1, lz
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j, 1, l, el, lx, ly, lz)
+                this%facet_msk(msk_c) = linear_index(j, 1, l, el, lx, ly, lz)
                 this%facet(msk_c) = 3
              end do
           end do
@@ -492,7 +550,7 @@ contains
           do l = 1, lz
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j, ly, l, el, lx, ly, lz)
+                this%facet_msk(msk_c) = linear_index(j, ly, l, el, lx, ly, lz)
                 this%facet(msk_c) = 4
              end do
           end do
@@ -500,7 +558,7 @@ contains
           do k = 1, ly
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j, k, 1, el, lx, ly, lz)
+                this%facet_msk(msk_c) = linear_index(j, k, 1, el, lx, ly, lz)
                 this%facet(msk_c) = 5
              end do
           end do
@@ -508,59 +566,61 @@ contains
           do k = 1, ly
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j, k, lz, el, lx, ly, lz)
+                this%facet_msk(msk_c) = linear_index(j, k, lz, el, lx, ly, lz)
                 this%facet(msk_c) = 6
              end do
           end do
        end select
     end do
+    this%facet_msk(0) = msk_c
     this%facet(0) = msk_c
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       !Observe the facet_mask is junk if only_facet is false
        n = msk_c + 1
+       call device_map(this%facet_msk, this%facet_msk_d, n)
+       call device_memcpy(this%facet_msk, this%facet_msk_d, n, &
+            HOST_TO_DEVICE, sync = .true.)
        call device_map(this%facet, this%facet_d, n)
        call device_memcpy(this%facet, this%facet_d, n, &
             HOST_TO_DEVICE, sync = .true.)
     end if
-    if ( .not. only_facet) then
-       !Makes check for points not on facet that should have bc applied
-       call test_field%init(this%dof)
 
-       n = test_field%size()
-       test_field%x = 0.0_rp
-       !Apply this bc once
-       do i = 1, msk_c
-          test_field%x(this%msk(i),1,1,1) = 1.0
-       end do
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(test_field%x, test_field%x_d, n, &
-               HOST_TO_DEVICE, sync = .true.)
-       end if
-       !Check if some point that was not zeroed was zeroed on another element
-       call this%coef%gs_h%op(test_field, GS_OP_ADD)
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(test_field%x, test_field%x_d, n, &
-               DEVICE_TO_HOST, sync = .true.)
-       end if
-       msk_c = 0
-       do i = 1, this%dof%size()
-          if (test_field%x(i,1,1,1) .gt. 0.5) then
-             msk_c = msk_c + 1
-          end if
-       end do
-       !Allocate new mask
-       deallocate(this%msk)
-       allocate(this%msk(0:msk_c))
-       j = 1
-       do i = 1, this%dof%size()
-          if (test_field%x(i,1,1,1) .gt. 0.5) then
-             this%msk(j) = i
-             j = j + 1
-          end if
-       end do
+    !Makes check for points not on facet that should have bc applied
+    call test_field%init(this%dof)
 
-       call test_field%free()
+    n = test_field%size()
+    test_field%x = 0.0_rp
+    !Apply this bc once
+    do i = 1, this%facet_msk(0)
+       test_field%x(this%facet_msk(i),1,1,1) = 1.0
+    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(test_field%x, test_field%x_d, n, &
+            HOST_TO_DEVICE, sync = .true.)
     end if
+    !Check if some point that was not zeroed was zeroed on another element
+    call this%coef%gs_h%op(test_field, GS_OP_ADD)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(test_field%x, test_field%x_d, n, &
+            DEVICE_TO_HOST, sync = .true.)
+    end if
+    msk_c = 0
+    do i = 1, this%dof%size()
+       if (test_field%x(i,1,1,1) .gt. 0.5) then
+          msk_c = msk_c + 1
+       end if
+    end do
+    !Allocate new mask
+    allocate(this%msk(0:msk_c))
+    j = 1
+    do i = 1, this%dof%size()
+       if (test_field%x(i,1,1,1) .gt. 0.5) then
+          this%msk(j) = i
+          j = j + 1
+       end if
+    end do
+
+    call test_field%free()
 
     this%msk(0) = msk_c
 
@@ -607,4 +667,5 @@ contains
     call dump_file%write(bdry_field)
 
   end subroutine bc_debug_mask
+
 end module bc

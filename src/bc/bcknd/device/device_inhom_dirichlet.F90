@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Device backend wrappers for inhomogeneous Dirichlet boundary conditions.
 module device_inhom_dirichlet
   use num_types, only : rp, c_rp
   use utils, only : neko_error
@@ -112,6 +113,16 @@ module device_inhom_dirichlet
 
 contains
 
+  !> Apply an inhomogeneous Dirichlet condition to a vector field on the device.
+  !! @param msk Device pointer to the boundary-condition mask.
+  !! @param x Device pointer to the x component.
+  !! @param y Device pointer to the y component.
+  !! @param z Device pointer to the z component.
+  !! @param bla_x Device pointer to the prescribed x values.
+  !! @param bla_y Device pointer to the prescribed y values.
+  !! @param bla_z Device pointer to the prescribed z values.
+  !! @param m Number of constrained entries in the mask.
+  !! @param strm Device stream or queue handle.
   subroutine device_inhom_dirichlet_apply_vector(msk, x, y, z, &
        bla_x, bla_y, bla_z, m, strm)
     integer, intent(in) :: m
@@ -133,6 +144,12 @@ contains
 
   end subroutine device_inhom_dirichlet_apply_vector
 
+  !> Apply an inhomogeneous Dirichlet condition to a scalar field on the device.
+  !! @param msk Device pointer to the boundary-condition mask.
+  !! @param x Device pointer to the scalar field.
+  !! @param bla_x Device pointer to the prescribed scalar values.
+  !! @param m Number of constrained entries in the mask.
+  !! @param strm Device stream or queue handle.
   subroutine device_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm)
     integer, intent(in) :: m
     type(c_ptr) :: msk, x, bla_x, strm

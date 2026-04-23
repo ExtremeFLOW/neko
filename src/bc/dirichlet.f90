@@ -35,7 +35,7 @@ module dirichlet
   use device_dirichlet, only : device_dirichlet_apply_scalar, &
        device_dirichlet_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use coefs, only : coef_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup
@@ -79,7 +79,7 @@ contains
     call this%init_base(coef)
     call json_get_or_lookup(json , "value", g)
 
-    this%g = g
+    call this%init_from_components(coef, g)
   end subroutine dirichlet_init
 
   !> Constructor from components.
@@ -92,6 +92,7 @@ contains
 
     call this%init_base(coef)
     this%g = g
+    this%bc_type = BC_TYPES%DIRICHLET
   end subroutine dirichlet_init_from_components
 
   !> Boundary condition apply for a generic Dirichlet condition
@@ -218,18 +219,9 @@ contains
   end subroutine dirichlet_free
 
   !> Finalize
-  subroutine dirichlet_finalize(this, only_facets)
+  subroutine dirichlet_finalize(this)
     class(dirichlet_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
   end subroutine dirichlet_finalize
 
 end module dirichlet

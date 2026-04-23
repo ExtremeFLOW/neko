@@ -64,7 +64,11 @@ module neko
   use gather_scatter
   use krylov
   use coefs, only : coef_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
+  use mixed_bc, only : mixed_bc_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use vector_bc_resolver, only : segregated_vector_bc_resolver_t, &
+       coupled_vector_bc_resolver_t
   use zero_dirichlet, only : zero_dirichlet_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
@@ -109,6 +113,7 @@ module neko
        simulation_component_allocator, simulation_component_allocate, &
        register_simulation_component
   use boundary_operation, only : boundary_operation_t
+  use boundary_flux, only : boundary_flux_t
   use probes, only : probes_t
   use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &

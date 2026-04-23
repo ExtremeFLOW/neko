@@ -1,0 +1,319 @@
+module test_coupled_bc_resolver
+  use mpi
+  use pfunit
+  use num_types, only : rp
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init
+  use mesh_fixture, only : single_reference_element_mesh
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t
+  use scratch_registry, only : neko_scratch_registry
+  use dirichlet, only : dirichlet_t
+  use bc_list, only : bc_list_t
+  use bc, only : bc_t, BC_TYPES
+  use vector_bc_resolver, only : coupled_vector_bc_resolver_t
+  implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: test_coupled_bc_resolver_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_coupled_bc_resolver_case
+
+contains
+
+  subroutine setUp(this)
+    class(test_coupled_bc_resolver_case), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_coupled_bc_resolver_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Verify that the parallel test template is wired correctly.
+  @test(npes=[1])
+  subroutine test_single_element(this)
+    class(test_coupled_bc_resolver_case), intent(inout) :: this
+    integer :: ierr, comm_size
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: bcs(6)
+    type(bc_list_t) :: bclst
+    class(bc_t), pointer :: bc_ptr
+    integer :: zone_idx, i, j
+    integer, dimension(9) :: face1_dofs, face1_dofmap
+    integer :: center_idx, top_edge_idx
+    type(coupled_vector_bc_resolver_t) :: bc_resolver
+
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
+
+    ! Mesh and SEM
+    call single_reference_element_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call neko_scratch_registry%init(dof = dof)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    ! DOF indices on face 1 (i = 1) of the 3x3x3 reference hex.
+    face1_dofs = [1, 4, 7, 10, 13, 16, 19, 22, 25]
+    face1_dofmap = 0
+
+    ! Mark each face of the hex with a zone
+    do zone_idx = 1, 6
+       call mesh%mark_labeled_facet(zone_idx, 1, zone_idx)
+       call mesh%labeled_zones(zone_idx)%finalize()
+    end do
+
+    ! Create a bc for each of the 6 zones
+    call bclst%init(6)
+    do zone_idx = 1, 6
+       call bcs(zone_idx)%init_from_components(coef, real(zone_idx, rp))
+       call bcs(zone_idx)%mark_labeled_zone(zone_idx)
+       call bcs(zone_idx)%finalize()
+       call bclst%append(bcs(zone_idx))
+    end do
+
+    ! Verify the setup is correct.
+    @assertEqual(6, bclst%size())
+    do zone_idx = 1, 6
+       @assertEqual(1, mesh%labeled_zones(zone_idx)%size)
+       bc_ptr => bclst%get_by_zone_index(zone_idx)
+       @assertTrue(associated(bc_ptr))
+       @assertEqual(zone_idx, bc_ptr%zone_indices(1))
+    end do
+
+    ! Keep constraints and bc_type aligned. The resolver classifies faces and
+    ! nodes by bc_type, while the mixed BC application uses the local-basis
+    ! constraints stored on the BC object.
+    do zone_idx = 1, 6
+       bc_ptr => bclst%get_by_zone_index(zone_idx)
+       bc_ptr%constraints = .true.
+       bc_ptr%bc_type = BC_TYPES%DIRICHLET
+    end do
+
+    ! Init and mark but not finalize
+    call bc_resolver%init(coef)
+    call bc_resolver%mark(bclst)
+
+    bc_ptr => bclst%get_by_zone_index(1)
+    ! Constrain the normal component on face 1. This should mark it as class 2.
+    ! The rest are class zero as full dirichlet.
+    bc_ptr%constraints(2) = .false.
+    bc_ptr%constraints(3) = .false.
+    bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
+
+    call bc_resolver%finalize()
+
+    ! Find face-1 indices in the resolved mixed-node mask.
+    face1_dofmap = 0
+    do i = 1, size(face1_dofs)
+       do j = 1, bc_resolver%mixed_dof_mask%size()
+          if (bc_resolver%mixed_dof_mask%get(j) .eq. face1_dofs(i)) then
+             face1_dofmap(i) = j
+             exit
+          end if
+       end do
+    end do
+
+    center_idx = face1_dofmap(5)
+    @assertTrue(center_idx > 0)
+    @assertEqual(1, bc_resolver%mixed_dof_mask%size())
+
+    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(2, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(3, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(4, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(5, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(6, 1), tolerance=1e-12)
+
+    ! All nodes are constrained except for the one in the center of the cube.
+    @assertEqual(26, bc_resolver%dirichlet_dof_mask%size() + bc_resolver%mixed_dof_mask%size())
+
+    ! We expect face 1 to have normals [-1 0 0]. These will be
+    ! generated by the first pass of the resolver, and not touched
+    ! by edge and corner treatment because that only runs on mixed
+    ! nodes, and here the nodes will be marked as class 0.
+
+    @assertEqual(-1.0_rp, bc_resolver%n%x(1, center_idx), tolerance=1e-10)
+    @assertEqual(0.0_rp, bc_resolver%n%x(2, center_idx), tolerance=1e-10)
+    @assertEqual(0.0_rp, bc_resolver%n%x(3, center_idx), tolerance=1e-10)
+
+    call bc_resolver%free()
+
+    ! Set class 3 on the top face
+    bc_ptr => bclst%get_by_zone_index(6)
+    bc_ptr%constraints(1) = .false.
+    bc_ptr%constraints(2) = .true.
+    bc_ptr%constraints(3) = .true.
+    bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
+
+    call bc_resolver%init(coef)
+    call bc_resolver%mark(bclst)
+    call bc_resolver%finalize()
+
+    face1_dofmap = 0
+    do i = 1, size(face1_dofs)
+       do j = 1, bc_resolver%mixed_dof_mask%size()
+          if (bc_resolver%mixed_dof_mask%get(j) .eq. face1_dofs(i)) then
+             face1_dofmap(i) = j
+             exit
+          end if
+       end do
+    end do
+
+    center_idx = face1_dofmap(5)
+    top_edge_idx = face1_dofmap(8)
+
+    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(2, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(3, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(4, 1), tolerance=1e-12)
+    @assertEqual(0.0_rp, bc_resolver%face_type(5, 1), tolerance=1e-12)
+    @assertEqual(3.0_rp, bc_resolver%face_type(6, 1), tolerance=1e-12)
+
+    ! Only face-1 nodes that retain class 2 survive in the mixed mask here:
+    ! the face center and the top-edge midpoint shared with face 6.
+    @assertTrue(center_idx > 0)
+    @assertTrue(top_edge_idx > 0)
+    @assertEqual(2, count(face1_dofmap > 0))
+    @assertEqual(-1.0_rp, bc_resolver%n%x(1, center_idx), tolerance=1e-10)
+    @assertEqual(0.0_rp, bc_resolver%n%x(2, center_idx), tolerance=1e-10)
+    @assertEqual(0.0_rp, bc_resolver%n%x(3, center_idx), tolerance=1e-10)
+    @assertEqual(-1.0_rp, bc_resolver%n%x(1, top_edge_idx), tolerance=1e-10)
+    @assertEqual(0.0_rp, bc_resolver%n%x(2, top_edge_idx), tolerance=1e-10)
+    @assertEqual(0.0_rp, bc_resolver%n%x(3, top_edge_idx), tolerance=1e-10)
+
+    call bc_resolver%free()
+
+    ! Set class 2 on all faces.
+    do zone_idx = 1, 6
+       bc_ptr => bclst%get_by_zone_index(zone_idx)
+       bc_ptr%constraints(1) = .true.
+       bc_ptr%constraints(2) = .false.
+       bc_ptr%constraints(3) = .false.
+       bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
+    end do
+
+    call bc_resolver%init(coef)
+    call bc_resolver%mark(bclst)
+    call bc_resolver%finalize()
+
+    face1_dofmap = 0
+    do i = 1, size(face1_dofs)
+       do j = 1, bc_resolver%mixed_dof_mask%size()
+          if (bc_resolver%mixed_dof_mask%get(j) .eq. face1_dofs(i)) then
+             face1_dofmap(i) = j
+             exit
+          end if
+       end do
+       @assertTrue(face1_dofmap(i) > 0)
+    end do
+
+    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=1e-12)
+    @assertEqual(2.0_rp, bc_resolver%face_type(2, 1), tolerance=1e-12)
+    @assertEqual(2.0_rp, bc_resolver%face_type(3, 1), tolerance=1e-12)
+    @assertEqual(2.0_rp, bc_resolver%face_type(4, 1), tolerance=1e-12)
+    @assertEqual(2.0_rp, bc_resolver%face_type(5, 1), tolerance=1e-12)
+    @assertEqual(2.0_rp, bc_resolver%face_type(6, 1), tolerance=1e-12)
+
+    ! With all faces set to class 2, every node on face 1 is mixed
+    ! and is rebuilt by the edge/corner logic:
+    ! - the face-center node only belongs to face 1, so its normal
+    !   is (-1,0,0)
+    ! - edge midpoints on face 1 are shared with exactly one other
+    !   class-2 face, so their normals are the normalized sums of
+    !   two axis-aligned face normals:
+    !   (-1,0,-1), (-1,-1,0), (-1,1,0), (-1,0,1), each divided by
+    !   sqrt(2)
+    ! - corner nodes on face 1 are shared with two additional
+    !   class-2 faces, so their normals are the normalized sums of
+    !   three axis-aligned face normals:
+    !   (-1,-1,-1), (-1,1,-1), (-1,-1,1), (-1,1,1), each divided by
+    !   sqrt(3)
+    do i = 1, size(face1_dofmap)
+       select case (face1_dofs(i))
+       case (1)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       case (4)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       case (7)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       case (10)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       case (13)
+          @assertEqual(-1.0_rp, bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       case (16)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       case (19)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       case (22)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       case (25)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+       end select
+    end do
+
+
+    !do i = 1, bc_resolver%mixed_dof_mask%size()
+    !   write(*,*) bc_resolver%n%x(:, i)
+    !end do
+    !write(*,*) size(bc_resolver%n%x, 1), size(bc_resolver%n%x, 2)
+    !write(*,*) sum(bc_resolver%n%x(1, :))
+    !write(*,*) sum(bc_resolver%n%x(2, :))
+    !write(*,*) sum(bc_resolver%n%x(3, :))
+
+    call bclst%free()
+    do zone_idx = 1, 6
+       call bcs(zone_idx)%free()
+    end do
+    call neko_scratch_registry%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call mesh%free()
+    call bc_resolver%free()
+
+  end subroutine test_single_element
+
+end module test_coupled_bc_resolver

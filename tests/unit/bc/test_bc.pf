@@ -1,21 +1,404 @@
 module test_bc
+  use mpi
+  use pfunit
+  use point, only : point_t
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use dofmap, only : dofmap_t
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t
+  use dirichlet, only : dirichlet_t
+  use facet_zone, only : facet_zone_t
+  use stack, only : stack_i4t2_t
+  use tuple, only : tuple_i4_t
+  use utils, only : linear_index
+  use num_types, only : rp
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_mpi_types, only : neko_mpi_types_init
+  implicit none
+
+  integer, parameter :: lx_test = 3
+
+  @TestCase
+  type, extends(MPITestCase) :: bc_test_case
+     type(mesh_t) :: msh
+     type(space_t) :: Xh
+     type(dofmap_t) :: dof
+     type(gs_t) :: gs
+     type(coef_t) :: coef
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type bc_test_case
+
 contains
 ! @test
 ! subroutine test_bc_init
 !   use pfunit
 !   use dofmap
-!   use bc   
+!   use bc
 !   implicit none
 !   type(bc_t) :: b
 !   type(dofmap_t) :: dof
 
-!   call b%init(dof)
+  subroutine setUp(this)
+    class(bc_test_case), intent(inout) :: this
+    integer :: ierr
 
 !   @assertTrue(associated(b%dof))
 !   @assertTrue(associated(b%msh))
 !   @assertTrue(associated(b%Xh))
 ! end subroutine test_bc_init
 
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call neko_mpi_types_init()
 
+    call build_test_fixture(this%msh, this%Xh, this%dof, this%gs, this%coef)
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(bc_test_case), intent(inout) :: this
+
+    call this%coef%free()
+    call this%gs%free()
+    call this%dof%free()
+    call this%Xh%free()
+    call this%msh%free()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_finalize
+    end if
+  end subroutine tearDown
+
+  @test(npes=[1])
+  subroutine test_bc_init_base(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+
+    call bc%init_from_components(this%coef, 2.5_rp)
+
+    @assertTrue(associated(bc%dof))
+    @assertTrue(associated(bc%coef))
+    @assertTrue(associated(bc%msh))
+    @assertTrue(associated(bc%Xh))
+    @assertEqual(this%dof%size(), bc%dof%size())
+    @assertEqual(0, bc%marked_facet%size())
+  end subroutine test_bc_init_base
+
+  @test(npes=[1])
+  subroutine test_bc_free_base(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+
+    call bc%init_from_components(this%coef, 1.0_rp)
+    call bc%mark_facet(2, 1)
+    call bc%finalize()
+    call bc%free()
+
+    @assertFalse(associated(bc%dof))
+    @assertFalse(associated(bc%coef))
+    @assertFalse(associated(bc%msh))
+    @assertFalse(associated(bc%Xh))
+    @assertFalse(allocated(bc%msk))
+    @assertFalse(allocated(bc%facet))
+    @assertEqual(0, bc%marked_facet%size())
+  end subroutine test_bc_free_base
+
+  @test(npes=[1])
+  subroutine test_bc_mark_facet(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+    type(tuple_i4_t), pointer :: marked(:)
+
+    call bc%init_from_components(this%coef, 1.0_rp)
+    call bc%mark_facet(2, 1)
+
+    @assertEqual(1, bc%marked_facet%size())
+    marked => bc%marked_facet%array()
+    @assertEqual(2, marked(1)%x(1))
+    @assertEqual(1, marked(1)%x(2))
+  end subroutine test_bc_mark_facet
+
+  @test(npes=[1])
+  subroutine test_bc_mark_facets(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+    type(stack_i4t2_t) :: facets
+    type(tuple_i4_t) :: facet_tuple
+    type(tuple_i4_t), pointer :: marked(:)
+
+    call bc%init_from_components(this%coef, 1.0_rp)
+    call facets%init()
+
+    facet_tuple%x = [2, 1]
+    call facets%push(facet_tuple)
+    facet_tuple%x = [4, 2]
+    call facets%push(facet_tuple)
+
+    call bc%mark_facets(facets)
+
+    @assertEqual(2, bc%marked_facet%size())
+    marked => bc%marked_facet%array()
+    @assertEqual(2, marked(1)%x(1))
+    @assertEqual(1, marked(1)%x(2))
+    @assertEqual(4, marked(2)%x(1))
+    @assertEqual(2, marked(2)%x(2))
+
+    call facets%free()
+  end subroutine test_bc_mark_facets
+
+  @test(npes=[1])
+  subroutine test_bc_mark_zone(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+    type(facet_zone_t) :: zone
+    type(tuple_i4_t), pointer :: marked(:)
+
+    call bc%init_from_components(this%coef, 1.0_rp)
+    call zone%init()
+    call zone%add_facet(1, 2)
+    call zone%add_facet(6, 1)
+    call zone%finalize()
+
+    call bc%mark_zone(zone)
+
+    @assertEqual(2, bc%marked_facet%size())
+    marked => bc%marked_facet%array()
+    @assertEqual(1, marked(1)%x(1))
+    @assertEqual(2, marked(1)%x(2))
+    @assertEqual(6, marked(2)%x(1))
+    @assertEqual(1, marked(2)%x(2))
+
+    call zone%free()
+  end subroutine test_bc_mark_zone
+
+  @test(npes=[1])
+  subroutine test_bc_mark_labeled_zone_unique(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+
+    call this%msh%mark_labeled_facet(3, 1, 3)
+    call this%msh%labeled_zones(3)%finalize()
+
+    call bc%init_from_components(this%coef, 1.0_rp)
+
+    call bc%mark_labeled_zone(3)
+    call bc%mark_labeled_zone(3)
+
+    @assertTrue(allocated(bc%zone_indices))
+    @assertEqual(1, size(bc%zone_indices))
+    @assertEqual(3, bc%zone_indices(1))
+    @assertEqual(this%msh%labeled_zones(3)%size, bc%marked_facet%size())
+  end subroutine test_bc_mark_labeled_zone_unique
+
+  @test(npes=[1])
+  subroutine test_bc_mark_labeled_zones_unique(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+    integer :: expected_size
+    integer :: zone_indices(3)
+
+    call this%msh%mark_labeled_facet(3, 1, 3)
+    call this%msh%mark_labeled_facet(5, 2, 4)
+    call this%msh%labeled_zones(3)%finalize()
+    call this%msh%labeled_zones(4)%finalize()
+
+    call bc%init_from_components(this%coef, 1.0_rp)
+
+    zone_indices = [3, 4, 3]
+    call bc%mark_labeled_zones(zone_indices)
+
+    @assertTrue(allocated(bc%zone_indices))
+    @assertEqual(2, size(bc%zone_indices))
+    @assertEqual(3, bc%zone_indices(1))
+    @assertEqual(4, bc%zone_indices(2))
+    expected_size = this%msh%labeled_zones(3)%size + this%msh%labeled_zones(4)%size
+    @assertEqual(expected_size, bc%marked_facet%size())
+  end subroutine test_bc_mark_labeled_zones_unique
+
+  @test(npes=[1])
+  subroutine test_bc_finalize_shared_dofs(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+    integer :: j, k
+    logical :: has_left
+
+    ! Use the internal interface between the two elements. The resolved mask
+    ! must at least contain the marked face nodes themselves.
+    call bc%init_from_components(this%coef, 1.0_rp)
+    call bc%mark_facet(2, 1)
+    call bc%finalize()
+
+    do k = 1, lx_test
+       do j = 1, lx_test
+          has_left = mask_contains(bc%msk, &
+               linear_index(lx_test, j, k, 1, lx_test, lx_test, lx_test))
+          @assertTrue(has_left)
+       end do
+    end do
+  end subroutine test_bc_finalize_shared_dofs
+
+  @test(npes=[1])
+  subroutine test_bc_finalize_keeps_facet_msk(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+    integer :: j, k, idx, expected_idx
+
+    call bc%init_from_components(this%coef, 1.0_rp)
+    call bc%mark_facet(2, 1)
+    call bc%finalize()
+
+    @assertEqual(lx_test**2, bc%facet_msk(0))
+    @assertEqual(lx_test**2, bc%facet(0))
+
+    idx = 0
+    do k = 1, lx_test
+       do j = 1, lx_test
+          idx = idx + 1
+          expected_idx = linear_index(lx_test, j, k, 1, lx_test, lx_test, lx_test)
+          @assertEqual(expected_idx, bc%facet_msk(idx))
+          @assertEqual(2, bc%facet(idx))
+       end do
+    end do
+  end subroutine test_bc_finalize_keeps_facet_msk
+
+  @test(npes=[1])
+  subroutine test_bc_apply_scalar(this)
+    class(bc_test_case), intent(inout) :: this
+    type(dirichlet_t) :: bc
+    real(kind=rp), allocatable :: x(:)
+    integer :: n, i
+
+    call bc%init_from_components(this%coef, 3.5_rp)
+    call bc%mark_facet(2, 1)
+    call bc%finalize()
+
+    n = this%dof%size()
+    allocate(x(n))
+    x = -1.0_rp
+
+    call bc%apply_scalar(x, n)
+
+    do i = 1, bc%msk(0)
+       @assertEqual(3.5_rp, x(bc%msk(i)))
+    end do
+
+    @assertTrue(has_unmasked_value(x, bc%msk, -1.0_rp))
+    deallocate(x)
+  end subroutine test_bc_apply_scalar
+
+  subroutine build_test_fixture(msh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    type(point_t) :: p(12)
+
+    call build_two_hex_mesh(msh, p)
+    call Xh%init(GLL, lx_test, lx_test, lx_test)
+    call dof%init(msh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+  end subroutine build_test_fixture
+
+  subroutine build_two_hex_mesh(msh, p)
+    type(mesh_t), intent(inout) :: msh
+    type(point_t), intent(inout) :: p(12)
+
+    ! Two unit hexes sharing the vertical face at x = 1.
+    !
+    ! z = 1 top:
+    !   p10 ------ p9 ------ p12
+    !    |         |         |
+    !    |   e1    |   e2    |
+    !    |         |         |
+    !    p7 ------ p8 ------ p11
+    !
+    ! z = 0 bottom:
+    !   p3 ------- p4 ------ p6
+    !    |         |         |
+    !    |   e1    |   e2    |
+    !    |         |         |
+    !    p1 ------- p2 ------ p5
+    !
+    ! Shared interface:
+    !   element 1 facet 2 <-> element 2 facet 1
+
+    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call msh%init(3, 2)
+    call msh%add_element(1, 1, p(1), p(2), p(4), p(3), &
+         p(7), p(8), p(9), p(10))
+    call msh%add_element(2, 2, p(2), p(5), p(6), p(4), &
+         p(8), p(11), p(12), p(9))
+    call msh%generate_conn()
+  end subroutine build_two_hex_mesh
+
+  logical function mask_contains(msk, value)
+    integer, intent(in) :: msk(0:)
+    integer, intent(in) :: value
+    integer :: i
+
+    do i = 1, msk(0)
+       if (msk(i) .eq. value) then
+          mask_contains = .true.
+          return
+       end if
+    end do
+
+    mask_contains = .false.
+  end function mask_contains
+
+  logical function has_unmasked_value(x, msk, expected)
+    real(kind=rp), intent(in) :: x(:)
+    integer, intent(in) :: msk(0:)
+    real(kind=rp), intent(in) :: expected
+    logical :: is_masked
+    integer :: i, j
+
+    do i = 1, size(x)
+       is_masked = .false.
+       do j = 1, msk(0)
+          if (msk(j) .eq. i) then
+             is_masked = .true.
+             exit
+          end if
+       end do
+       if (.not. is_masked) then
+          has_unmasked_value = (x(i) .eq. expected)
+          return
+       end if
+    end do
+
+    has_unmasked_value = .false.
+  end function has_unmasked_value
 
 end module test_bc

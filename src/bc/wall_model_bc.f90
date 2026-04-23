@@ -215,18 +215,11 @@ contains
   end subroutine wall_model_bc_free
 
   !> Finalize by building mask arrays and init'ing the wall model.
-  subroutine wall_model_bc_finalize(this, only_facets)
+  subroutine wall_model_bc_finalize(this)
     class(wall_model_bc_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For wall_model_bc_t, only_facets has to be true.")
-       end if
-    end if
-
-    call this%shear_stress_t%finalize(.true.)
-    call this%wall_model%finalize(this%msk, this%facet)
+    call this%shear_stress_t%finalize()
+    call this%wall_model%finalize(this%facet_msk, this%facet)
   end subroutine wall_model_bc_finalize
 
 end module wall_model_bc

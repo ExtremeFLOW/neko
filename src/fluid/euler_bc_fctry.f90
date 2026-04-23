@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,11 +40,12 @@ submodule(fluid_scheme_compressible_euler) euler_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: EULER_KNOWN_BCS(7) = [character(len=25) :: &
+  character(len=25) :: EULER_KNOWN_BCS(8) = [character(len=25) :: &
        "velocity_value", &
        "density_value", &
        "pressure_value", &
        "no_slip", &
+       "slip", &
        "symmetry", &
        "outflow", &
        "normal_outflow"]
@@ -85,7 +86,7 @@ contains
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
-       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_labeled_zone(zone_indices(i))
     end do
 
     write(buf,'("density_bc_",I0)') zone_indices(1)
@@ -132,7 +133,7 @@ contains
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
-       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_labeled_zone(zone_indices(i))
     end do
 
     write(buf,'("pressure_bc_",I0)') zone_indices(1)
@@ -177,6 +178,8 @@ contains
     select case (trim(type))
     case ("symmetry")
        allocate(symmetry_t::object)
+    case ("slip")
+       allocate(symmetry_t::object)
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
     case ("velocity_value")
@@ -192,7 +195,7 @@ contains
     call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i = 1, size(zone_indices)
-       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_labeled_zone(zone_indices(i))
     end do
 
     write(buf,'("velocity_bc_",I0)') zone_indices(1)

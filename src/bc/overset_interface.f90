@@ -40,7 +40,7 @@ module overset_interface
   use global_interpolation, only : global_interpolation_t, &
        global_interpolation_settings_t
   use mask, only : mask_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use field_list, only : field_list_t
   use math, only : masked_copy_0, copy
   use device_math, only : device_masked_copy_0, device_copy
@@ -128,13 +128,15 @@ contains
 
   !> Constructor from components
   !! @param[in] coef The SEM coefficients.
-  subroutine overset_interface_init_from_components(this, coef, field_name, tol, pad)
+  subroutine overset_interface_init_from_components(this, coef, field_name, &
+       tol, pad)
     class(overset_interface_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: field_name
     real(kind=rp), intent(in), optional :: tol, pad
 
     call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
 
     if (present(tol)) then
        if (tol .gt. 0.0_rp) then
@@ -295,21 +297,13 @@ contains
   end subroutine overset_interface_apply_vector_dev
 
   !> Finalize by building the mask arrays and preparing interpolation data.
-  subroutine overset_interface_finalize(this, only_facets)
+  subroutine overset_interface_finalize(this)
     class(overset_interface_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
 
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
 
     call this%bc_s%mark_facets(this%marked_facet)
-    call this%bc_s%finalize(only_facets_)
+    call this%bc_s%finalize()
 
     call this%build_masks_()
 

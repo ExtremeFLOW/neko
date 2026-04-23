@@ -426,27 +426,27 @@ The conditions to apply is specified by `type` keyword inside each of the JSON
 objects. The full list of possible conditions for the fluid is specified in the
 table below.
 
-| Boundary Condition  | Description                                                                                                                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| symmetry            | A symmetry plane. Must be axis-aligned.                                                                                                                |
-| velocity_value      | A Dirichlet condition for velocity.                                                                                                                    |
-| no_slip             | A no-slip wall. It can be stationary or moving.                                                                                                        |
-| outflow             | A pressure outlet.                                                                                                                                     |
-| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
-| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                                                    |
-| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                                             |
-| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                                                     |
-| normal_outflow+dong | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                            |
-| shear_stress        | Prescribed wall shear stress. Must be axis-aligned.                                                                                                    |
-| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                                                |
-| blasius_profile     | A Blasius velocity profile.                                                                                                                            |
-| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                          |
-| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                 |
-| overset_interface   | A Dirichlet condition that prescribes values from another neko simulation running concurrently.                                                        |
+| Boundary Condition  | Description                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------|
+| symmetry            | A symmetry plane. Must be axis-aligned.                                                                                          |
+| velocity_value      | A Dirichlet condition for velocity.                                                                                              |
+| no_slip             | A no-slip wall. Either stationary or moving.                                                                                     |
+| outflow             | A pressure outlet.                                                                                                               |
+| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. |
+| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                              |
+| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                       |
+| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                               |
+| normal_outflow+dong | The `normal_outflow` with the Dong condition applied.                                                                            |
+| shear_stress        | Prescribed wall shear stress.                                                                                                    |
+| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                          |
+| blasius_profile     | A Blasius velocity profile.                                                                                                      |
+| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                    |
+| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                           |
+| overset_interface   | A Dirichlet condition that prescribes values from another Neko simulation running concurrently.                                  |
 
 A more detailed description of each boundary condition is provided below.
 
-* `symmetry`. A symmetry plane that must be axis-aligned. Sets the
+* `symmetry`. A symmetry plane. Sets the
   surface-normal velocity to 0 and applies a homogenous Neumann condition to the
   surface-parallel components. Requires no additional keywords.
   ```json
@@ -485,14 +485,48 @@ A more detailed description of each boundary condition is provided below.
 * `normal_outflow`. The condition lets the flow escape through the boundary by
   setting a homogeneous Neumann condition for the surface-normal velocity
   component, but fixes the values of the surface-parallel components. The latter
-  values are not prescribed in the boundary condition's JSON, but are instead
-  taken from the initial conditions. The boundary must be axis-aligned.
+  values are prescribed in the boundary condition's JSON. There are two
+  alternative ways to do the latter. One is to simply provide a `value` vector.
+  This vector is defined in global Cartesian coordinates and internally
+  projection onto the local basis. Afterwards, the local tangential values are
+  enforced. This works both in the axis-aligned and in the fully general
+  mixed-boundary implementation.
+
   ```json
   {
     "type": "normal_outflow",
+    "value": [1.0, 0.0, 0.0],
     "zone_indices": [1, 2]
   }
   ```
+
+  The second option is to provide the values through a field file using the
+  `file_name` keyword. This is currently supported only by the axis-aligned
+  implementation. The file must contain a three-component vector field in
+  global Cartesian coordinates. Internally, only the tangential components are
+  enforced on the boundary. Optional interpolation settings are the same as for
+  other field-imported data:
+
+  * `interpolate`. Logical flag controlling whether interpolation is used.
+  * `mesh_file_name`. Mesh file used for interpolation when the source field is
+    defined on a different mesh.
+  * `interpolation.tolerance`. Tolerance for the interpolation search.
+  * `interpolation.padding`. Padding used in the interpolation search.
+
+  ```json
+  {
+    "type": "normal_outflow",
+    "file_name": "outlet_velocity.fld",
+    "interpolate": true,
+    "mesh_file_name": "coarse_box.nmsh",
+    "interpolation.tolerance": 1.0e-8,
+    "interpolation.padding": 0.01,
+    "zone_indices": [1, 2]
+  }
+  ```
+
+  Exactly one of `value` or `file_name` must be provided. If `value` is used,
+  it must be an array of three reals.
 * `outflow+user`. Same as `outflow`, but with user-specified
   pressure. The pressure is specified via the same interface as `user_pressure`,
   see the
@@ -501,9 +535,17 @@ A more detailed description of each boundary condition is provided below.
 * `normal_outflow+user`. Same as `normal_outflow`, but with user-specified
   pressure. The pressure profile is specified via the same interface as
   `user_pressure`, see
-  the [relevant section](#user-file_field-dirichlet-update) for more information.
-  Note that, similarly to `normal_outflow`, surface-parallel velocity components
-  are taken from the initial conditions.
+  the [relevant section](#user-file_field-dirichlet-update) for more
+  information. The tangential velocity values are prescribed exactly as for
+  `normal_outflow`, i.e. using either `value` or `file_name`.
+
+  ```json
+  {
+    "type": "normal_outflow+user",
+    "value": [1.0, 0.0, 0.0],
+    "zone_indices": [1, 2]
+  }
+  ```
 
 * `outflow+dong`. Same as `outflow`, but additionally applies the Dong boundary
   condition on the pressure. This is a way to prevent backflow and therefore
@@ -511,8 +553,17 @@ A more detailed description of each boundary condition is provided below.
   outlet.
 
 * `normal_outflow+dong`. Same as `normal_outflow`, but additionally applies the
-  Dong boundary condition for the pressure to prevent backflow. Must be
-  axis-aligned.
+  Dong boundary condition for the pressure to prevent backflow. The tangential
+  velocity values are prescribed exactly as for `normal_outflow`, i.e. using
+  either `value` or `file_name`.
+
+  ```json
+  {
+    "type": "normal_outflow+dong",
+    "value": [1.0, 0.0, 0.0],
+    "zone_indices": [1, 2]
+  }
+  ```
 
 * `shear_stress`. Non-penetration condition combined with a set shear stress
    vector. Only works with axis-aligned boundaries. The stress value is
@@ -579,7 +630,7 @@ A more detailed description of each boundary condition is provided below.
   }
   ```
 * `overset_interface`, a Dirichlet boundary condition that retrieves values
-  from another simulation with an overlapping domain. For this case, it is 
+  from another simulation with an overlapping domain. For this case, it is
   recommended that all zone indices that need to be considered as an overset
   interface are included in one boundary. This avoids repeated calls to
   interpolation routines.

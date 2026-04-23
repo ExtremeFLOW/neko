@@ -135,7 +135,7 @@ contains
     enddo
 
     if (niter .eq. maxiter) then
-       write(log_msg, *) "Newton not converged", error, f, utau, old, guess
+       write(log_msg, *) "Newton not converged", error, utau
        call neko_log%message(log_msg, NEKO_LOG_DEBUG)
     end if
   end function solve_cpu

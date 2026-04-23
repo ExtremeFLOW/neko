@@ -34,11 +34,12 @@
 !! Maintainer: Timofey Mukha.
 module shear_stress
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : BC_TYPES
+  use mixed_bc, only : mixed_bc_t
+  use device_constrain_mixed_bc, only : device_constrain_mixed_bc_zero
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error
+  use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
-  use symmetry, only : symmetry_t
   use neumann, only : neumann_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup
@@ -48,13 +49,7 @@ module shear_stress
   private
 
   !> A shear stress boundary condition.
-  !! @warning Currently strictly for axis-aligned boundaries.
-  type, public, extends(bc_t) :: shear_stress_t
-     ! This bc takes care of setting the wall-normal component to zero.
-     ! It can be passed to associated bc lists, which take care of masking
-     ! changes in residuals and solution increments.
-     type(symmetry_t) :: symmetry
-
+  type, public, extends(mixed_bc_t) :: shear_stress_t
      !> Neumann condition for the x direction.
      type(neumann_t) :: neumann_x
      !> Neumann condition for the y direction.
@@ -111,6 +106,8 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     logical :: strong_
+    integer :: i, m, k
+    real(kind=rp) :: normal(3), u_n
 
     if (present(strong)) then
        strong_ = strong
@@ -119,7 +116,17 @@ contains
     end if
 
     if (strong_) then
-       call this%symmetry%apply_vector(x, y, z, n, strong = .true.)
+       m = this%resolved_msk%size()
+
+       do i = 1, m
+          k = this%resolved_msk%get(i)
+          normal = this%n%x(:,i)
+          u_n = x(k) * normal(1) + y(k) * normal(2) + z(k) * normal(3)
+
+          x(k) = x(k) - u_n * normal(1)
+          y(k) = y(k) - u_n * normal(2)
+          z(k) = z(k) - u_n * normal(3)
+       end do
     else
        call this%neumann_x%apply_scalar(x, n, strong = .false.)
        call this%neumann_y%apply_scalar(y, n, strong = .false.)
@@ -153,6 +160,7 @@ contains
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
     logical :: strong_
+    integer :: m
 
     if (present(strong)) then
        strong_ = strong
@@ -161,8 +169,12 @@ contains
     end if
 
     if (strong_) then
-       call this%symmetry%apply_vector_dev(x_d, y_d, z_d, strong = .true., &
-            strm = strm)
+       m = this%resolved_msk%size()
+       if (m .gt. 0) then
+          call device_constrain_mixed_bc_zero(this%resolved_msk%get_d(), &
+               x_d, y_d, z_d, 1, 0, 0, this%n%x_d, this%t1%x_d, &
+               this%t2%x_d, m, strm)
+       end if
     else
        call this%neumann_x%apply_scalar_dev(x_d, strong = .false., strm = strm)
        call this%neumann_y%apply_scalar_dev(y_d, strong = .false., strm = strm)
@@ -199,10 +211,7 @@ contains
     real(kind=rp), intent(in) :: value(3)
 
     call this%init_base(coef)
-    this%strong = .false.
-
-    call this%symmetry%free()
-    call this%symmetry%init_from_components(this%coef)
+    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
 
     call this%neumann_x%free()
     call this%neumann_y%free()
@@ -214,30 +223,17 @@ contains
 
   end subroutine shear_stress_init_from_components
 
-  subroutine shear_stress_finalize(this, only_facets)
+  subroutine shear_stress_finalize(this)
     class(shear_stress_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
-
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
-
-    call this%symmetry%mark_facets(this%marked_facet)
-    call this%symmetry%finalize()
-
+    call this%finalize_base()
 
     call this%neumann_x%mark_facets(this%marked_facet)
     call this%neumann_y%mark_facets(this%marked_facet)
     call this%neumann_z%mark_facets(this%marked_facet)
 
-    call this%neumann_x%finalize(only_facets_)
-    call this%neumann_y%finalize(only_facets_)
-    call this%neumann_z%finalize(only_facets_)
+    call this%neumann_x%finalize()
+    call this%neumann_y%finalize()
+    call this%neumann_z%finalize()
 
   end subroutine shear_stress_finalize
 
@@ -252,8 +248,6 @@ contains
     call this%neumann_x%set_flux(tau_x, 1)
     call this%neumann_y%set_flux(tau_y, 1)
     call this%neumann_z%set_flux(tau_z, 1)
-
-
   end subroutine shear_stress_set_stress_scalar
 
   !> Set the shear stress components.
@@ -275,8 +269,7 @@ contains
   !> Destructor.
   subroutine shear_stress_free(this)
     class(shear_stress_t), target, intent(inout) :: this
-    call this%free_base
-    call this%symmetry%free
+    call this%free_mixed()
 
     call this%neumann_x%free
     call this%neumann_y%free

@@ -72,6 +72,8 @@ module fluid_scheme_compressible_euler
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
+  use vector_bc_resolver, only : vector_bc_resolver_t, &
+       coupled_vector_bc_resolver_t
   implicit none
   private
 
@@ -88,7 +90,9 @@ module fluid_scheme_compressible_euler
 
      class(regularization_t), allocatable :: regularization
 
-     ! List of boundary conditions for velocity
+     !> Boundary conditions resolver for velocity constraints.
+     class(vector_bc_resolver_t), allocatable :: bcs_vel_resolver
+     !> List of boundary conditions for density.
      type(bc_list_t) :: bcs_density
    contains
      procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
@@ -220,6 +224,11 @@ contains
     ! Initialize the diffusion operator
     call ax_helm_factory(this%Ax, full_formulation = .false.)
 
+    ! Initialize the velocity BC resolver. The coupled resolver builds the
+    ! local bases required by non-axis aligned mixed velocity conditions.
+    allocate(coupled_vector_bc_resolver_t :: this%bcs_vel_resolver)
+    call this%bcs_vel_resolver%init(this%c_Xh)
+
     ! Compute h
     call this%compute_h()
 
@@ -263,6 +272,10 @@ contains
     end if
 
     call this%bcs_density%free()
+    if (allocated(this%bcs_vel_resolver)) then
+       call this%bcs_vel_resolver%free()
+       deallocate(this%bcs_vel_resolver)
+    end if
 
   end subroutine fluid_scheme_compressible_euler_free
 
@@ -438,6 +451,7 @@ contains
 
           ! Add to appropriate lists
           if (associated(bc_i)) then
+             call this%bcs_vel_resolver%mark(bc_i)
              call this%bcs_vel%append(bc_i)
           end if
        end do
@@ -492,6 +506,8 @@ contains
        call this%bcs_density%init()
 
     end if
+
+    call this%bcs_vel_resolver%finalize(rebuild_mask = .true.)
   end subroutine fluid_scheme_compressible_euler_setup_bcs
 
   !> Copied from les_model_compute_delta in les_model.f90

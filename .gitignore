@@ -96,5 +96,5 @@ install
 # Mac
 .DS_Store
 
-# Codex
+.temp
 .codex

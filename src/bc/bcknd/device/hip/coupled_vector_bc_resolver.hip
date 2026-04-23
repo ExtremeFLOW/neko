@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,36 +32,41 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <algorithm>
+#include <hip/hip_runtime.h>
 #include <device/device_config.h>
-#include <device/cuda/check.h>
+#include <device/hip/check.h>
 
-#include "symmetry_kernel.h"
-
+#include "coupled_vector_bc_resolver_kernel.h"
 
 extern "C" {
 
-  /** 
-   * Fortran wrapper for device symmetry apply vector
-   */
-  void cuda_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
-                                  void *x, void *y, void *z,
-                                  int *m, int *n, int *l,
-                                  cudaStream_t strm) {
+  void hip_coupled_vector_bc_resolver_apply(void *mixed_msk, void *x, void *y,
+                                            void *z, void *constraint_n,
+                                            void *constraint_t1,
+                                            void *constraint_t2, void *n,
+                                            void *t1, void *t2, int *m,
+                                            hipStream_t strm) {
 
-    const int max_len = std::max(std::max(*m, *n), *l);
+    if (*m <= 0)
+      return;
+
     const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((max_len) + 1024 - 1)/ 1024, 1, 1);
+    const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
 
-    symmetry_apply_vector_kernel<real>
-      <<<nblcks, nthrds, 0, strm>>>((int *) xmsk,
-                                    (int *) ymsk,
-                                    (int *) zmsk,
-                                    (real *) x,
-                                    (real *) y,
-                                    (real *) z,
-                                    *m, *n, *l);
-    CUDA_CHECK(cudaGetLastError());
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(coupled_vector_bc_resolver_apply_kernel<real>),
+                       nblcks, nthrds, 0, strm,
+                       (const int *) mixed_msk,
+                       (real *) x,
+                       (real *) y,
+                       (real *) z,
+                       (const int *) constraint_n,
+                       (const int *) constraint_t1,
+                       (const int *) constraint_t2,
+                       (const real *) n,
+                       (const real *) t1,
+                       (const real *) t2,
+                       *m);
+    HIP_CHECK(hipGetLastError());
   }
- 
+
 }

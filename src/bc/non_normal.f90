@@ -30,110 +30,214 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Dirichlet condition on axis aligned plane in the non normal direction
+!> Implements `non_normal_t`.
 module non_normal
   use json_module, only : json_file
-  use symmetry, only : symmetry_t
+  use bc, only : BC_TYPES
+  use mixed_bc, only : mixed_bc_t
   use num_types, only : rp
-  use tuple, only : tuple_i4_t
+  use device_constrain_mixed_bc, only : device_constrain_mixed_bc_set_const
   use coefs, only : coef_t
-  use, intrinsic :: iso_c_binding
+  use json_utils, only : json_get_or_lookup
+  use utils, only : neko_error
+  use time_state, only : time_state_t
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
-  !> Dirichlet condition in non normal direction of a plane.
-  !! @warning Only works for axis-aligned plane boundaries.
-  type, public, extends(symmetry_t) :: non_normal_t
+  !> Mixed Dirichlet condition constraining the tangential vector components.
+  !! @details This variant uses resolver-provided local basis vectors on the
+  !! resolved mixed support stored in `mixed_bc_t`. The prescribed value is a
+  !! single global vector whose tangential projection is enforced at every
+  !! resolved mixed node.
+  type, public, extends(mixed_bc_t) :: non_normal_t
+     !> Uniform prescribed value in global coordinates.
+     real(kind=rp) :: value(3) = 0.0_rp
    contains
-     !> Constructor.
+     !> No-op scalar application.
+     procedure, pass(this) :: apply_scalar => non_normal_apply_scalar
+     !> Apply the tangential components of the prescribed vector on the CPU.
+     procedure, pass(this) :: apply_vector => non_normal_apply_vector
+     !> No-op scalar application on the device.
+     procedure, pass(this) :: apply_scalar_dev => non_normal_apply_scalar_dev
+     !> Apply the tangential components of the prescribed vector on the device.
+     procedure, pass(this) :: apply_vector_dev => non_normal_apply_vector_dev
+     !> Construct the boundary condition from JSON.
      procedure, pass(this) :: init => non_normal_init
-     !> Constructor from components
+     !> Construct the boundary condition from a uniform global vector.
      procedure, pass(this) :: init_from_components => &
           non_normal_init_from_components
-     !> Destructor.
+     !> Free the boundary condition and its mixed-bc storage.
      procedure, pass(this) :: free => non_normal_free
-     !> Finalize.
+     !> Finalize the boundary condition.
      procedure, pass(this) :: finalize => non_normal_finalize
   end type non_normal_t
 
 contains
 
-  !> Constructor
+  !> Construct the boundary condition from JSON.
   !! @param[in] coef The SEM coefficients.
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine non_normal_init(this, coef, json)
     class(non_normal_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
+    real(kind=rp), allocatable :: value(:)
+    real(kind=rp) :: value_3(3)
+    logical :: found
+    integer :: var_type
 
-    call this%init_from_components(coef)
+    value_3 = 0.0_rp
+    call json_get_or_lookup(json, "value", value)
+    if (size(value) .ne. 3) then
+       call neko_error("The non_normal boundary condition requires a " // &
+            "3-component value vector.")
+    end if
+    value_3 = value
+    call this%init_from_components(coef, value_3)
   end subroutine non_normal_init
 
-  !> Constructor from components.
+  !> Construct the boundary condition from a uniform global vector.
   !! @param[in] coef The SEM coefficients.
-  subroutine non_normal_init_from_components(this, coef)
+  !! @param[in] value Global vector whose tangential components are enforced.
+  subroutine non_normal_init_from_components(this, coef, value)
     class(non_normal_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
+    real(kind=rp), intent(in) :: value(3)
 
     call this%free()
-    call this%symmetry_t%init_from_components(coef)
-
+    call this%init_base(coef)
+    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
+    this%value = value
   end subroutine non_normal_init_from_components
 
-  !> Finalize
-  subroutine non_normal_finalize(this, only_facets)
-    class(non_normal_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_ = .false.
-    integer :: i, j, k, l
-    type(tuple_i4_t), pointer :: bfp(:)
-    real(kind=rp) :: sx, sy, sz
-    real(kind=rp), parameter :: TOL = 1d-3
-    type(tuple_i4_t) :: bc_facet
-    integer :: facet, el
+  !> No-op scalar application.
+  !! @param x Scalar field values.
+  !! @param n Number of entries in `x`.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  subroutine non_normal_apply_scalar(this, x, n, time, strong)
+    class(non_normal_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: x
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+  end subroutine non_normal_apply_scalar
 
-    if (present(only_facets)) then
-       only_facets_ = only_facets
+  !> Strong application preserving the normal component while enforcing the
+  !! tangential projections of the configured global value.
+  !! @param x x-component of the field.
+  !! @param y y-component of the field.
+  !! @param z z-component of the field.
+  !! @param n Number of entries in each component array.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  subroutine non_normal_apply_vector(this, x, y, z, n, time, strong)
+    class(non_normal_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    logical :: strong_
+    integer :: i, m, k
+    real(kind=rp) :: normal(3), t1(3), t2(3)
+    real(kind=rp) :: u_n, g_t1, g_t2
+
+    if (present(strong)) then
+       strong_ = strong
     else
-       only_facets_ = .false.
+       strong_ = .true.
     end if
 
-    associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
-         nz => this%coef%nz)
-      bfp => this%marked_facet%array()
-      do i = 1, this%marked_facet%size()
-         bc_facet = bfp(i)
-         facet = bc_facet%x(1)
-         el = bc_facet%x(2)
-         call this%get_normal_axis(sx, sy, sz, facet, el)
+    if (.not. strong_) return
 
-         if (sx .lt. TOL) then
-            call this%bc_y%mark_facet(facet, el)
-            call this%bc_z%mark_facet(facet, el)
-         end if
+    m = this%resolved_msk%size()
+    do i = 1, m
+       k = this%resolved_msk%get(i)
+       normal = this%n%x(:, i)
+       t1 = this%t1%x(:, i)
+       t2 = this%t2%x(:, i)
 
-         if (sy .lt. TOL) then
-            call this%bc_x%mark_facet(facet, el)
-            call this%bc_z%mark_facet(facet, el)
-         end if
+       ! Normal component, will be reserved
+       u_n = x(k) * normal(1) + y(k) * normal(2) + z(k) * normal(3)
+       ! Project global input onto local tangential directions
+       g_t1 = this%value(1) * t1(1) + this%value(2) * t1(2) + &
+            this%value(3) * t1(3)
+       g_t2 = this%value(1) * t2(1) + this%value(2) * t2(2) + &
+            this%value(3) * t2(3)
 
-         if (sz .lt. TOL) then
-            call this%bc_y%mark_facet(facet, el)
-            call this%bc_x%mark_facet(facet, el)
-         end if
-      end do
-    end associate
-    call this%bc_x%finalize(only_facets_)
-    call this%bc_y%finalize(only_facets_)
-    call this%bc_z%finalize(only_facets_)
+       ! Reconstruct in global coordinates
+       x(k) = u_n * normal(1) + g_t1 * t1(1) + g_t2 * t2(1)
+       y(k) = u_n * normal(2) + g_t1 * t1(2) + g_t2 * t2(2)
+       z(k) = u_n * normal(3) + g_t1 * t1(3) + g_t2 * t2(3)
+    end do
+  end subroutine non_normal_apply_vector
 
-    call this%finalize_base(only_facets_)
+  !> No-op scalar application on the device.
+  !! @param x_d Device pointer to the scalar field.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  !! @param strm Device stream.
+  subroutine non_normal_apply_scalar_dev(this, x_d, time, strong, strm)
+    class(non_normal_t), intent(inout), target :: this
+    type(c_ptr), intent(inout) :: x_d
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout) :: strm
+  end subroutine non_normal_apply_scalar_dev
+
+  !> Apply the tangential components of the prescribed vector on the device.
+  !! @details Uses the resolved mixed-node mask together with the local basis
+  !! vectors provided by the coupled vector BC resolver.
+  !! @param x_d Device pointer to the x-component.
+  !! @param y_d Device pointer to the y-component.
+  !! @param z_d Device pointer to the z-component.
+  !! @param time Current time state.
+  !! @param strong Whether to apply the strong form.
+  !! @param strm Device stream.
+  subroutine non_normal_apply_vector_dev(this, x_d, y_d, z_d, time, strong, &
+       strm)
+    class(non_normal_t), intent(inout), target :: this
+    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: y_d
+    type(c_ptr), intent(inout) :: z_d
+    type(time_state_t), intent(in), optional :: time
+    logical, intent(in), optional :: strong
+    type(c_ptr), intent(inout) :: strm
+    logical :: strong_
+    integer :: m
+
+    if (present(strong)) then
+       strong_ = strong
+    else
+       strong_ = .true.
+    end if
+
+    if (strong_) then
+       m = this%resolved_msk%size()
+       if (m .gt. 0) then
+          call device_constrain_mixed_bc_set_const( &
+               this%resolved_msk%get_d(), x_d, y_d, z_d, 0, 1, 1, &
+               this%n%x_d, this%t1%x_d, this%t2%x_d, this%value(1), &
+               this%value(2), this%value(3), m, strm)
+       end if
+    end if
+  end subroutine non_normal_apply_vector_dev
+
+  !> Finalize the boundary condition.
+  subroutine non_normal_finalize(this)
+    class(non_normal_t), target, intent(inout) :: this
+
+    call this%finalize_base()
   end subroutine non_normal_finalize
 
-  !> Destructor
+  !> Free the boundary condition and its mixed-bc storage.
   subroutine non_normal_free(this)
     class(non_normal_t), target, intent(inout) :: this
 
-    call this%symmetry_t%free()
+    call this%free_mixed()
+    call this%free_base()
   end subroutine non_normal_free
 end module non_normal

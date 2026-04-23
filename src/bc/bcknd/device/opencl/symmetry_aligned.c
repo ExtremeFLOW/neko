@@ -44,17 +44,17 @@
 #include <device/opencl/prgm_lib.h>
 #include <device/opencl/check.h>
 
-#include "symmetry_kernel.cl.h"
+#include "symmetry_aligned_kernel.cl.h"
 
 #define MAX(a, b) (a > b ? a : b)
 
-/** 
- * Fortran wrapper for device symmetry apply vector
+/**
+ * Fortran wrapper for device axis-aligned symmetry apply vector
  */
-void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
-                                  void *x, void *y, void *z,
-                                  int *m, int *n, int *l,
-                                  cl_command_queue cmd_queue) {
+void opencl_symmetry_aligned_apply_vector(void *xmsk, void *ymsk, void *zmsk,
+                                          void *x, void *y, void *z,
+                                          int *m, int *n, int *l,
+                                          cl_command_queue cmd_queue) {
 
   const int max_len = MAX(MAX(*m, *n), *l);
   if (max_len == 0)
@@ -63,10 +63,11 @@ void opencl_symmetry_apply_vector(void *xmsk, void *ymsk, void *zmsk,
   cl_int err;
    
   if (symmetry_program == NULL)
-    opencl_kernel_jit(symmetry_kernel, (cl_program *) &symmetry_program);
+    opencl_kernel_jit(symmetry_aligned_kernel,
+                      (cl_program *) &symmetry_program);
   
   cl_kernel kernel = clCreateKernel(symmetry_program,
-                                    "symmetry_apply_vector_kernel", &err);
+                                    "symmetry_aligned_apply_vector_kernel", &err);
   CL_CHECK(err);
  
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &xmsk));

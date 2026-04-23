@@ -33,7 +33,7 @@
 !> Defines a Neumann boundary condition.
 module neumann
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
@@ -108,7 +108,6 @@ contains
     logical :: found
 
     call this%init_base(coef)
-    this%strong = .false.
 
     ! Try to read array from json
     call json%get("flux", this%init_flux_, found)
@@ -127,6 +126,7 @@ contains
     end if
 
     allocate(this%flux(size(this%init_flux_)))
+    this%bc_type = BC_TYPES%NEUMANN
   end subroutine neumann_init
 
   !> Constructor from components, using a flux array for vector components.
@@ -145,6 +145,7 @@ contains
             " vector.")
     end if
     allocate(this%flux(size(this%init_flux_)))
+    this%bc_type = BC_TYPES%NEUMANN
   end subroutine neumann_init_from_components_array
 
   !> Constructor from components, using an signle flux.
@@ -159,6 +160,7 @@ contains
     allocate(this%init_flux_(1))
     this%init_flux_(1) = flux
     allocate(this%flux(size(this%init_flux_)))
+    this%bc_type = BC_TYPES%NEUMANN
   end subroutine neumann_init_from_components_single
 
   !> Boundary condition apply for a generic Neumann condition
@@ -180,11 +182,11 @@ contains
        strong_ = .true.
     end if
 
-    m = this%msk(0)
+    m = this%facet_msk(0)
     if (.not. strong_) then
        !$omp parallel do private(k, facet, idx)
-       do i = 1,m
-          k = this%msk(i)
+       do i = 1, m
+          k = this%facet_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
@@ -228,11 +230,11 @@ contains
        strong_ = .true.
     end if
 
-    m = this%msk(0)
+    m = this%facet_msk(0)
     if (.not. strong_) then
        !$omp parallel do private(k, facet, idx)
        do i = 1, m
-          k = this%msk(i)
+          k = this%facet_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
@@ -289,11 +291,11 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
+    if (.not. this%uniform_0 .and. this%facet_msk(0) .gt. 0 .and. &
          .not. strong_) then
-       call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
+       call device_neumann_apply_scalar(this%facet_msk_d, this%facet_d, x_d, &
             this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
-            size(this%msk), strm)
+            size(this%facet_msk), strm)
     end if
   end subroutine neumann_apply_scalar_dev
 
@@ -316,13 +318,13 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
+    if (.not. this%uniform_0 .and. this%facet_msk(0) .gt. 0 .and. &
          .not. strong_) then
-       call device_neumann_apply_vector(this%msk_d, this%facet_d, &
+       call device_neumann_apply_vector(this%facet_msk_d, this%facet_d, &
             x_d, y_d, z_d, &
             this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &
             this%coef%area_d, this%coef%Xh%lx, &
-            size(this%msk), strm)
+            size(this%facet_msk), strm)
     end if
 
   end subroutine neumann_apply_vector_dev
@@ -336,22 +338,15 @@ contains
   end subroutine neumann_free
 
   !> Finalize by setting the flux.
-  subroutine neumann_finalize(this, only_facets)
+  subroutine neumann_finalize(this)
     class(neumann_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    integer :: i, j
+    integer :: i
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For neumann_t, only_facets has to be true.")
-       end if
-    end if
-
-    call this%finalize_base(.true.)
+    call this%finalize_base()
 
     ! Allocate flux vectors and assign to initial constant values
     do i = 1, size(this%init_flux_)
-       call this%flux(i)%init(this%msk(0))
+       call this%flux(i)%init(this%facet_msk(0))
        this%flux(i) = this%init_flux_(i)
     end do
 

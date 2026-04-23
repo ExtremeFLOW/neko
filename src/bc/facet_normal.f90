@@ -39,7 +39,7 @@ module facet_normal
        device_masked_scatter_copy_0
   use vector, only : vector_t
   use coefs, only : coef_t
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_TYPES
   use utils, only : neko_error, nonlinear_index
   use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
@@ -94,6 +94,7 @@ contains
     type(coef_t), target, intent(in) :: coef
 
     call this%init_base(coef)
+    this%bc_type = BC_TYPES%DIRICHLET
   end subroutine facet_normal_init_from_components
 
   !> No-op scalar apply
@@ -223,21 +224,13 @@ contains
   end subroutine facet_normal_free
 
   !> Finalize
-  subroutine facet_normal_finalize(this, only_facets)
+  subroutine facet_normal_finalize(this)
     class(facet_normal_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
     type(htable_i4_t) :: unique_point_idx
     integer :: htable_data, rcode, i, j, idx(4), facet
     real(kind=rp) :: area, normal(3)
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For facet_normal_t, only_facets has to be true.")
-       end if
-    end if
-
-    call this%finalize_base(.true.)
+    call this%finalize_base()
     ! This part is purely needed to ensure that contributions
     ! for all faces a point is on is properly summed up.
     ! If one simply uses the original mask, if a point is on a corner
@@ -245,7 +238,7 @@ contains
     ! one will only get the contribution from one face, not both
     ! We solve this by adding up the normals of both faces for these points
     ! and storing this sum in this%nx, this%ny, this%nz.
-    ! As both contrbutions are added already,
+    ! As both contributions are added already,
     ! we also ensure that we only visit each point once
     ! and create a new mask with only unique points (this%unique_mask).
     if (allocated(this%unique_mask)) then
@@ -255,13 +248,13 @@ contains
        deallocate(this%unique_mask)
     end if
 
-    call unique_point_idx%init(this%msk(0), htable_data)
+    call unique_point_idx%init(this%facet_msk(0), htable_data)
     j = 0
-    do i = 1, this%msk(0)
-       if (unique_point_idx%get(this%msk(i), htable_data) .ne. 0) then
+    do i = 1, this%facet_msk(0)
+       if (unique_point_idx%get(this%facet_msk(i), htable_data) .ne. 0) then
           j = j + 1
           htable_data = j
-          call unique_point_idx%set(this%msk(i), j)
+          call unique_point_idx%set(this%facet_msk(i), j)
        end if
     end do
 
@@ -280,13 +273,14 @@ contains
     end do
 
 
-    do i = 1, this%msk(0)
-       rcode = unique_point_idx%get(this%msk(i), htable_data)
+    do i = 1, this%facet_msk(0)
+       rcode = unique_point_idx%get(this%facet_msk(i), htable_data)
        if (rcode .ne. 0) call neko_error("Facet normal: htable get failed.")
-       this%unique_mask(htable_data) = this%msk(i)
+       this%unique_mask(htable_data) = this%facet_msk(i)
        facet = this%facet(i)
 
-       idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       idx = nonlinear_index(this%facet_msk(i), this%Xh%lx, this%Xh%lx, &
+            this%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
        area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
        normal = normal * area !Scale normal by area

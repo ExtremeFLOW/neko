@@ -75,7 +75,7 @@ module schwarz
        device_event_record, device_event_sync, device_stream_wait_event, &
        device_event_destroy, device_free
   use neko_config, only : NEKO_BCKND_DEVICE
-  use bc_list, only : bc_list_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR, &
        c_associated
   !$ use omp_lib
@@ -94,7 +94,7 @@ module schwarz
      type(dofmap_t) :: dm_schwarz !< needed to init gs
      type(fdm_t) :: fdm
      type(space_t), pointer :: Xh => null()
-     type(bc_list_t), pointer :: bclst => null()
+     type(scalar_bc_resolver_t), pointer :: bc_resolver => null()
      type(dofmap_t), pointer :: dof => null()
      type(gs_t), pointer :: gs_h => null()
      type(mesh_t), pointer :: msh => null()
@@ -109,13 +109,13 @@ module schwarz
 
 contains
 
-  subroutine schwarz_init(this, Xh, dof, gs_h, bclst, msh)
+  subroutine schwarz_init(this, Xh, dof, gs_h, bc_resolver, msh)
     class(schwarz_t), target, intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
-    type(bc_list_t), target, intent(inout) :: bclst
+    type(scalar_bc_resolver_t), target, intent(inout) :: bc_resolver
     integer :: nthrds
 
     call this%free()
@@ -133,7 +133,7 @@ contains
 
     this%msh => msh
     this%Xh => Xh
-    this%bclst => bclst
+    this%bc_resolver => bc_resolver
     this%dof => dof
 
     nthrds = 1
@@ -197,7 +197,7 @@ contains
     call this%fdm%free()
 
     nullify(this%Xh)
-    nullify(this%bclst)
+    nullify(this%bc_resolver)
     nullify(this%dof)
     if (allocated(this%gs_h_local)) then
        call this%gs_h_local%free()
@@ -488,7 +488,7 @@ contains
          this%gs_h%bcknd%gs_stream = aux_cmd_queue
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
 
-         call this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)
+         call this%bc_resolver%apply(e, n, strm = aux_cmd_queue)
          call device_col2(e_d, this%wt_d, n, aux_cmd_queue)
 
          ! switch back to the default stream on the shared gs
@@ -497,7 +497,7 @@ contains
             this%gs_h%bcknd%gs_stream = glb_cmd_queue
          end if
       else
-         call this%bclst%apply_scalar(r, n)
+         call this%bc_resolver%apply(r, n)
          call schwarz_toext3d(work1, r, this%Xh%lx, this%msh%nelv)
 
          !  exchange interior nodes
@@ -522,7 +522,7 @@ contains
 
          ! sum border nodes
          call this%gs_h%op(e, n, GS_OP_ADD)
-         call this%bclst%apply_scalar(e, n)
+         call this%bc_resolver%apply(e, n)
 
          call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
       end if

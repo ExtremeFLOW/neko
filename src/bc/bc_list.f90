@@ -70,8 +70,8 @@ module bc_list
 
      !> Check whether the list is empty
      procedure, pass(this) :: is_empty => bc_list_is_empty
-     !> Return wether a given item is a strong bc
-     procedure, pass(this) :: strong => bc_list_strong
+     !> Return the type of a given item
+     procedure, pass(this) :: bc_type => bc_list_bc_type
      !> Return the number of items in the list.
      procedure :: size => bc_list_size
 
@@ -391,14 +391,14 @@ contains
 
   end subroutine bc_list_apply_vector_field
 
-  !> Return whether the bc is strong or not.
-  pure function bc_list_strong(this, i) result(strong)
+  !> Return type of the item
+  pure function bc_list_bc_type(this, i) result(bc_type)
     class(bc_list_t), intent(in), target :: this
     integer, intent(in) :: i
-    logical :: strong
+    integer :: bc_type
 
-    strong = this%items(i)%ptr%strong
-  end function bc_list_strong
+    bc_type = this%items(i)%ptr%bc_type
+  end function bc_list_bc_type
 
   !> Return whether the list is empty.
   function bc_list_is_empty(this) result(is_empty)

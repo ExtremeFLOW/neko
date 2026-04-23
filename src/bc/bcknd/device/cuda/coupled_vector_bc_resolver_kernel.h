@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,40 +32,51 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_SYMETRY_KERNEL__
-#define __BC_SYMETRY_KERNEL__
+#ifndef __BC_COUPLED_VECTOR_BC_RESOLVER_KERNEL__
+#define __BC_COUPLED_VECTOR_BC_RESOLVER_KERNEL__
 
-/**
- * Device kernel for vector apply for a symmetry condition
- */
-__kernel void symmetry_apply_vector_kernel(__global const int *xmsk,
-                                           __global const int *ymsk,
-                                           __global const int *zmsk,
-                                           __global real *x,
-                                           __global real *y,
-                                           __global real *z,
-                                           const int m,
-                                           const int n,
-                                           const int l) {
+template< typename T >
+__global__ void coupled_vector_bc_resolver_apply_kernel(
+    const int * __restrict__ mixed_msk,
+    T * __restrict__ x,
+    T * __restrict__ y,
+    T * __restrict__ z,
+    const int * __restrict__ constraint_n,
+    const int * __restrict__ constraint_t1,
+    const int * __restrict__ constraint_t2,
+    const T * __restrict__ n,
+    const T * __restrict__ t1,
+    const T * __restrict__ t2,
+    const int m) {
 
-  const int idx = get_global_id(0);
-  const int str = get_global_size(0);
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < m; i += str) {
-    const int k = (xmsk[i+1] - 1);
-    x[k] = 0.0;
-  }
+    const int k = mixed_msk[i];
+    const int off = 3 * i;
 
-  for (int i = idx; i < n; i += str) {
-    const int k = (ymsk[i+1] - 1);
-    y[k] = 0.0;
-  }
+    T u1 = x[k];
+    T u2 = y[k];
+    T u3 = z[k];
 
-  for (int i = idx; i < l; i += str) {
-    const int k = (zmsk[i+1] - 1);
-    z[k] = 0.0;
+    T uloc_n = u1 * n[off] + u2 * n[off + 1] + u3 * n[off + 2];
+    T uloc_t1 = u1 * t1[off] + u2 * t1[off + 1] + u3 * t1[off + 2];
+    T uloc_t2 = u1 * t2[off] + u2 * t2[off + 1] + u3 * t2[off + 2];
+
+    if (constraint_n[i] != 0)
+      uloc_n = 0;
+    if (constraint_t1[i] != 0)
+      uloc_t1 = 0;
+    if (constraint_t2[i] != 0)
+      uloc_t2 = 0;
+
+    x[k] = uloc_n * n[off] + uloc_t1 * t1[off] + uloc_t2 * t2[off];
+    y[k] = uloc_n * n[off + 1] + uloc_t1 * t1[off + 1] +
+           uloc_t2 * t2[off + 1];
+    z[k] = uloc_n * n[off + 2] + uloc_t1 * t1[off + 2] +
+           uloc_t2 * t2[off + 2];
   }
-  
 }
 
-#endif // ___BC_SYMETRY_KERNEL___
+#endif
