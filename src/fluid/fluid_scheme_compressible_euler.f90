@@ -91,7 +91,7 @@ module fluid_scheme_compressible_euler
      class(regularization_t), allocatable :: regularization
 
      !> Boundary conditions resolver for velocity constraints.
-     class(vector_bc_resolver_t), allocatable :: bcs_vel_resolver
+     type(coupled_vector_bc_resolver_t):: bcs_vel_resolver
      !> List of boundary conditions for density.
      type(bc_list_t) :: bcs_density
    contains
@@ -226,7 +226,6 @@ contains
 
     ! Initialize the velocity BC resolver. The coupled resolver builds the
     ! local bases required by non-axis aligned mixed velocity conditions.
-    allocate(coupled_vector_bc_resolver_t :: this%bcs_vel_resolver)
     call this%bcs_vel_resolver%init(this%c_Xh)
 
     ! Compute h
@@ -272,10 +271,7 @@ contains
     end if
 
     call this%bcs_density%free()
-    if (allocated(this%bcs_vel_resolver)) then
-       call this%bcs_vel_resolver%free()
-       deallocate(this%bcs_vel_resolver)
-    end if
+    call this%bcs_vel_resolver%free()
 
   end subroutine fluid_scheme_compressible_euler_free
 
