@@ -592,7 +592,7 @@ contains
       call device_fusedcg_cpld_part1(r1_d, r2_d, r3_d, r1_d, &
            r2_d, r3_d, tmp_d, n)
 
-      rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+      rtr = device_glsc2(tmp_d, coef%mult_d, n)
 
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm

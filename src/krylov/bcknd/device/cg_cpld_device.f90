@@ -358,7 +358,7 @@ contains
       call device_vdot3(tmp_d, r1_d, r2_d, r3_d, r1_d, r2_d, r3_d, n)
 
 
-      rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+      rtr = device_glsc2(tmp_d, coef%mult_d, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -413,7 +413,7 @@ contains
               w1_d, w2_d, w3_d, alphm, n, gdim)
          call device_vdot3(tmp_d, r1_d, r2_d, r3_d, r1_d, r2_d, r3_d, n)
 
-         rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+         rtr = device_glsc2(tmp_d, coef%mult_d, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)

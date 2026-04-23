@@ -254,7 +254,7 @@ contains
          tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
       end do
 
-      rtr = glsc3(tmp, coef%mult, coef%binv, n)
+      rtr = glsc2(tmp, coef%mult, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -319,7 +319,7 @@ contains
             tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
          end do
 
-         rtr = glsc3(tmp, coef%mult, coef%binv, n)
+         rtr = glsc2(tmp, coef%mult, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)
