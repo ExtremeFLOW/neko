@@ -87,6 +87,67 @@ __global__ void masked_gather_copy_aligned_kernel(T * __restrict__ a,
   }
 }
 
+__device__ __forceinline__
+void face_gather_nonlinear_index(int *index, const int idx, const int lx,
+                                 const int ly, const int lz) {
+  const int idx2 = idx - 1;
+  index[3] = idx2 / (lx * ly * lz);
+  index[2] = (idx2 - (lx * ly * lz) * index[3]) / (lx * ly);
+  index[1] = (idx2 - (lx * ly * lz) * index[3] - (lx * ly) * index[2]) / lx;
+  index[0] = (idx2 - (lx * ly * lz) * index[3] - (lx * ly) * index[2]) -
+    lx * index[1];
+  index[0]++;
+  index[1]++;
+  index[2]++;
+  index[3]++;
+}
+
+__device__ __forceinline__
+int face_gather_idx(const int i, const int j, const int k, const int l,
+                    const int n1, const int n2, const int nf) {
+  return ((i) + (n1) * (((j) - 1) + (n2) * (((k) - 1) + (nf) * (((l) - 1))))) - 1;
+}
+
+/**
+ * Device kernel for masked gather copy from a face-local field
+ */
+template< typename T >
+__global__ void face_masked_gather_copy_kernel(T * __restrict__ a,
+                                               const T * __restrict__ b,
+                                               const int * __restrict__ mask,
+                                               const int * __restrict__ facet,
+                                               const int n1,
+                                               const int n2,
+                                               const int lx,
+                                               const int ly,
+                                               const int lz,
+                                               const int n_mask) {
+  int index[4];
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int m = idx; m < n_mask; m += str) {
+    const int f = facet[m + 1];
+    face_gather_nonlinear_index(index, mask[m + 1], lx, ly, lz);
+
+    switch (f) {
+    case 1:
+    case 2:
+      a[m] = b[face_gather_idx(index[1], index[2], f, index[3], n1, n2, 6)];
+      break;
+    case 3:
+    case 4:
+      a[m] = b[face_gather_idx(index[0], index[2], f, index[3], n1, n2, 6)];
+      break;
+    case 5:
+    case 6:
+      a[m] = b[face_gather_idx(index[0], index[1], f, index[3], n1, n2, 6)];
+      break;
+    }
+  }
+}
+
 
 /**
  * Device kernel for masked scatter copy

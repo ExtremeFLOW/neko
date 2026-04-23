@@ -1,0 +1,264 @@
+module test_boundary_operation
+  use mpi
+  use pfunit
+  use boundary_operation, only : boundary_operation_t
+  use fluid_pnpn, only : fluid_pnpn_t
+  use field, only : field_t
+  use mesh, only : mesh_t
+  use point, only : point_t
+  use space, only : space_t, GLL
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t
+  use coefs, only : coef_t
+  use time_state, only : time_state_t
+  use num_types, only : rp
+  use case, only : case_t
+  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use device, only : device_init, device_finalize, HOST_TO_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init
+  use registry, only : neko_registry
+  use vector_math, only : vector_face_masked_gather_copy_0
+  implicit none
+
+  integer, parameter :: lx_test = 3
+
+  @TestCase
+  type, extends(MPITestCase) :: test_boundary_operation_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_boundary_operation_case
+
+contains
+
+  subroutine setUp(this)
+    class(test_boundary_operation_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+
+    call comm_init
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_boundary_operation_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Verify the default logging and CSV flags on a fresh simcomp.
+  @test(npes=[1])
+  subroutine test_defaults(this)
+    class(test_boundary_operation_case), intent(inout) :: this
+    type(boundary_operation_t) :: simcomp
+
+    @assertTrue(simcomp%log)
+    @assertFalse(simcomp%csv_output_enabled)
+  end subroutine test_defaults
+
+  !> Verify computed boundary-operation results are stored on the simcomp.
+  @test(npes=[1])
+  subroutine test_stored_results(this)
+    class(test_boundary_operation_case), intent(inout) :: this
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(field_t) :: fld
+    type(boundary_operation_t) :: simcomp
+    type(time_state_t) :: time
+
+    call build_single_hex_fixture(msh, Xh, dof, gs, coef)
+    call label_x_faces(msh)
+
+    call fld%init(dof, "xcoord")
+    fld%x = dof%x
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call fld%copy_from(HOST_TO_DEVICE, .true.)
+    end if
+
+    call init_boundary_operation_for_compute_test(simcomp, fld, coef)
+
+    call time%init(0.0_rp, 1.0_rp, 0.1_rp)
+    time%tstep = 1
+    time%t = 0.1_rp
+    call simcomp%compute_(time)
+
+    @assertEqual(sqrt(2.0_rp), simcomp%integral, tolerance = 1.0e-6_rp)
+    @assertEqual(0.5_rp, simcomp%average, tolerance = 1.0e-6_rp)
+    @assertEqual(0.0_rp, simcomp%minimum, tolerance = 1.0e-6_rp)
+    @assertEqual(1.0_rp, simcomp%maximum, tolerance = 1.0e-6_rp)
+
+    call simcomp%free()
+    call fld%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call msh%free()
+  end subroutine test_stored_results
+
+  !> Verify the public constructor initializes the simcomp state.
+  @test(npes=[1])
+  subroutine test_init(this)
+    class(test_boundary_operation_case), intent(inout) :: this
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(boundary_operation_t) :: simcomp
+    type(case_t), target :: test_case
+    type(field_t), pointer :: reg_field
+    integer :: zone_indices(2)
+    character(len=16) :: operations(2)
+
+    allocate(fluid_pnpn_t :: test_case%fluid)
+    select type(fluid => test_case%fluid)
+    type is (fluid_pnpn_t)
+       call build_single_hex_fixture(msh, Xh, dof, gs, fluid%c_Xh)
+    end select
+    call label_x_faces(msh)
+
+    call neko_registry%init()
+    call neko_registry%add_field(dof, "u")
+    reg_field => neko_registry%get_field_by_name("u")
+    reg_field%x = dof%x
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call reg_field%copy_from(HOST_TO_DEVICE, .true.)
+    end if
+
+    call test_case%time%init(0.0_rp, 1.0_rp, 0.1_rp)
+
+    zone_indices = [1, 2]
+    operations = [character(len=16) :: "integral", "max"]
+    call simcomp%init_from_components("boundary_operation_test", test_case, 7, &
+         "tsteps", 1.0_rp, "tsteps", 1.0_rp, "tsteps", 1.0_rp, &
+         zone_indices, "u", operations, .false.)
+
+    @assertEqual("boundary_operation_test", simcomp%name)
+    @assertFalse(simcomp%log)
+    @assertEqual(7, simcomp%order)
+    @assertTrue(simcomp%compute_integral)
+    @assertFalse(simcomp%compute_average)
+    @assertFalse(simcomp%compute_min)
+    @assertTrue(simcomp%compute_max)
+    @assertTrue(associated(simcomp%field, reg_field))
+    @assertEqual("u", simcomp%field_name)
+    @assertEqual(2, size(simcomp%zone_indices))
+    @assertEqual(2, size(simcomp%operations))
+    @assertEqual(zone_indices(1), simcomp%zone_indices(1))
+    @assertEqual(zone_indices(2), simcomp%zone_indices(2))
+    @assertEqual("integral", trim(simcomp%operations(1)))
+    @assertEqual("max", trim(simcomp%operations(2)))
+    @assertEqual(simcomp%bc%msk(0), simcomp%areas%size())
+    @assertEqual(simcomp%bc%msk(0), simcomp%surface_values%size())
+
+    call simcomp%free()
+    select type(fluid => test_case%fluid)
+    type is (fluid_pnpn_t)
+       call fluid%c_Xh%free()
+    end select
+    deallocate(test_case%fluid)
+    call neko_registry%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call msh%free()
+  end subroutine test_init
+
+  ! This builds the entire simcomp to test compute, without using a
+  ! constructor.
+  subroutine init_boundary_operation_for_compute_test(simcomp, fld, coef)
+    type(boundary_operation_t), intent(inout) :: simcomp
+    type(field_t), target, intent(inout) :: fld
+    type(coef_t), target, intent(inout) :: coef
+    integer :: i
+    integer :: n_pts
+
+    simcomp%name = "boundary_operation_test"
+    simcomp%field => fld
+    simcomp%coef => coef
+    simcomp%log = .false.
+
+    allocate(simcomp%zone_indices(2))
+    simcomp%zone_indices = [1, 2]
+
+    allocate(character(len=16) :: simcomp%operations(4))
+    simcomp%operations = [character(len=16) :: "max", "integral", &
+         "average", "min"]
+
+    simcomp%compute_max = .true.
+    simcomp%compute_integral = .true.
+    simcomp%compute_average = .true.
+    simcomp%compute_min = .true.
+
+    call simcomp%bc%init_from_components(simcomp%coef, 0.0_rp)
+    simcomp%bc%zone_indices = simcomp%zone_indices
+    do i = 1, size(simcomp%zone_indices)
+       call simcomp%bc%mark_zone(simcomp%bc%msh%labeled_zones( &
+            simcomp%zone_indices(i)))
+    end do
+    call simcomp%bc%finalize()
+
+    n_pts = simcomp%bc%msk(0)
+    if (n_pts .gt. 0) then
+       call simcomp%areas%init(n_pts)
+       call simcomp%surface_values%init(n_pts)
+       call vector_face_masked_gather_copy_0(simcomp%areas, simcomp%coef%area, &
+            simcomp%bc%msk, simcomp%bc%facet, simcomp%coef%Xh%lx, &
+            simcomp%coef%Xh%ly, simcomp%coef%Xh%lz, n_pts)
+    end if
+  end subroutine init_boundary_operation_for_compute_test
+
+  subroutine build_single_hex_fixture(msh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    type(point_t) :: p(8)
+
+    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    call p(5)%init(0d0, 0d0, 1d0)
+    call p(5)%set_id(5)
+    call p(6)%init(1d0, 0d0, 1d0)
+    call p(6)%set_id(6)
+    call p(7)%init(1d0, 1d0, 1d0)
+    call p(7)%set_id(7)
+    call p(8)%init(0d0, 1d0, 1d0)
+    call p(8)%set_id(8)
+
+    call msh%init(3, 1)
+    call msh%add_element(1, 1, p(1), p(2), p(4), p(3), &
+         p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+
+    call Xh%init(GLL, lx_test, lx_test, lx_test)
+    call dof%init(msh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+  end subroutine build_single_hex_fixture
+
+  subroutine label_x_faces(msh)
+    type(mesh_t), intent(inout) :: msh
+
+    call msh%mark_labeled_facet(1, 1, 1)
+    call msh%mark_labeled_facet(2, 1, 2)
+    call msh%labeled_zones(1)%finalize()
+    call msh%labeled_zones(2)%finalize()
+  end subroutine label_x_faces
+
+end module test_boundary_operation

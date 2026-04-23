@@ -104,6 +104,25 @@ extern "C" {
 
   }
 
+  /** Fortran wrapper for face-masked gather copy
+   * Copy a face-local field \f$ a(i) = b(face(mask(i), facet(i))) \f$
+   */
+  void hip_face_masked_gather_copy(void *a, void *b, void *mask,
+                                   void *facet, int *n1, int *n2, int *lx,
+                                   int *ly, int *lz, int *m,
+                                   hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(face_masked_gather_copy_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a, (real *) b,
+                       (int *) mask, (int *) facet, *n1, *n2, *lx, *ly, *lz,
+                       *m);
+    HIP_CHECK(hipGetLastError());
+
+  }
+
 
   /** Fortran wrapper for masked scatter copy
    * Copy a vector \f$ a(mask) = b \f$

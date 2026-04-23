@@ -20,11 +20,7 @@
             "Re": 2000.0,
             "initial_condition": {
                 "type": "uniform",
-                "value": [
-                    1.0,
-                    0.0,
-                    0.0
-                ]
+                "value": [ 1.0, 0.0, 0.0 ]
             },
             "velocity_solver": {
                 "type": "cg",
@@ -64,19 +60,14 @@
             "source_terms": [
                 {
                     "type": "brinkman",
+                    "limits": [ 0.0, 1500.0 ],
+                    "penalty": 1.0,
                     "objects": [
                         {
                             "type": "point_zone",
                             "name": "cylinder"
                         }
-                    ],
-                    "brinkman": {
-                        "limits": [
-                            0.0,
-                            1500.0
-                        ],
-                        "penalty": 1.0
-                    }
+                    ]
                 }
             ]
         },
@@ -84,16 +75,8 @@
             {
                 "name": "cylinder",
                 "geometry": "cylinder",
-                "start": [
-                    1.0,
-                    0.0,
-                    0.5
-                ],
-                "end": [
-                    1.0,
-                    1.0,
-                    0.5
-                ],
+                "start": [ 1.0, 0.0, 0.5 ],
+                "end": [ 1.0, 1.0, 0.5 ],
                 "radius": 0.1
             }
         ]
