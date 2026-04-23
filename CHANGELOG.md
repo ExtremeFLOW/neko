@@ -126,6 +126,7 @@
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
 - Change default parameters for tamg and phmg to be less expensive.
+- Added the `icem2re2` utility in `contrib/`, a converter from ICEM/Fluent `.msh` meshes to Neko `.re2` binary meshes.
 
 ### Deprecated features
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
