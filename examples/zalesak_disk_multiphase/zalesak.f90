@@ -5,8 +5,6 @@
 !
 module user
   use neko
-  use field_registry, only : neko_field_registry
-  use scratch_registry, only : neko_scratch_registry
   implicit none
 
   real(kind=rp) :: eps
