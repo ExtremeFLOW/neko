@@ -36,10 +36,13 @@ module signed_distance
   use field, only : field_t
   use tri, only : tri_t
   use tri_mesh, only : tri_mesh_t
-  use aabb_tree, only : aabb_tree_t
+  use aabb, only : aabb_t
+  use aabb_tree, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
   use device, only : device_memcpy, HOST_TO_DEVICE
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error, neko_warning
+  use math, only : rzero
+  use stack, only : stack_i4_t
 
   implicit none
   private
@@ -102,17 +105,18 @@ contains
     real(kind=dp) :: distance
 
     ! Zero the field
-    field_data%x = 0.0_dp
+    call rzero(field_data%x, field_data%size())
     total_size = field_data%dof%size()
 
     call search_tree%init(mesh%nelv)
     call search_tree%build(mesh%el)
 
     if (search_tree%get_size() .ne. mesh%nelv) then
-       call neko_error("signed_distance_field_tri_mesh: &
-       & Error building the search tree.")
+       call neko_error("signed_distance_field_tri_mesh: " // &
+            "Error building the search tree.")
     end if
 
+    !$omp parallel do private(id, p, distance)
     do id = 1, total_size
        p(1) = field_data%dof%x(id, 1, 1, 1)
        p(2) = field_data%dof%y(id, 1, 1, 1)
@@ -122,6 +126,7 @@ contains
 
        field_data%x(id, 1, 1, 1) = real(distance, kind=rp)
     end do
+    !$omp end parallel do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_warning("signed_distance_field_tri_mesh:&
@@ -143,10 +148,6 @@ contains
   !! @param mesh Boundary mesh
   !! @return Signed distance value
   function tri_mesh_brute_force(mesh, p, max_distance) result(distance)
-    use num_types, only : dp
-
-    implicit none
-
     type(tri_mesh_t), intent(in) :: mesh
     real(kind=dp), intent(in) :: p(3)
     real(kind=dp), intent(in) :: max_distance
@@ -156,7 +157,7 @@ contains
     real(kind=dp) :: cd, cs
     real(kind=dp) :: tol = 1e-6_dp
 
-    distance = 1e10_dp
+    distance = huge(0.0_dp)
     weighted_sign = 0.0_dp
 
     do id = 1, mesh%nelv
@@ -191,11 +192,6 @@ contains
   !! @return Signed distance value
   function tri_mesh_aabb_tree(tree, object_list, p, max_distance) &
        result(distance)
-    use aabb, only : aabb_t
-    use aabb_tree, only : aabb_node_t, AABB_NULL_NODE
-    use stack, only : stack_i4_t
-    implicit none
-
     class(aabb_tree_t), intent(in) :: tree
     class(tri_t), contiguous, dimension(:), intent(in) :: object_list
     real(kind=dp), dimension(3), intent(in) :: p

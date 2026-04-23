@@ -54,6 +54,7 @@ module fld_file
   use math, only : vlmin, vlmax, sabscmp
   use neko_mpi_types, only : MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
+  use device, only : device_sync, HOST_TO_DEVICE
   use mpi_f08
   implicit none
   private
@@ -1601,6 +1602,7 @@ contains
                int(FLD_DATA_SIZE, i8))
        end do
 
+       call device_sync()
        call this%increment_counter()
 
        if (allocated(tmp_dp)) deallocate(tmp_dp)
@@ -1622,7 +1624,7 @@ contains
     integer :: n, ierr, lxyz, i
 
     n = x%size()
-    lxyz = fld_data%lx*fld_data%ly*fld_data%lz
+    lxyz = fld_data%lx * fld_data%ly * fld_data%lz
 
     if (this%dp_precision) then
        call MPI_File_read_at_all(fh, byte_offset, tmp_dp, n, &
@@ -1642,6 +1644,7 @@ contains
        end do
     end if
 
+    call x%copy_from(HOST_TO_DEVICE, sync = .false.)
 
   end subroutine fld_file_read_field
 
@@ -1674,16 +1677,16 @@ contains
        do e = 1, fld_data%nelv
           do j = 1, lxyz
              x%x((e-1)*lxyz+j) = tmp_dp(i)
-             i = i +1
+             i = i + 1
           end do
           do j = 1, lxyz
              y%x((e-1)*lxyz+j) = tmp_dp(i)
-             i = i +1
+             i = i + 1
           end do
           if (fld_data%gdim .eq. 3) then
              do j = 1, lxyz
                 z%x((e-1)*lxyz+j) = tmp_dp(i)
-                i = i +1
+                i = i + 1
              end do
           end if
        end do
@@ -1705,6 +1708,12 @@ contains
              end do
           end if
        end do
+    end if
+
+    call x%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call y%copy_from(HOST_TO_DEVICE, sync = .false.)
+    if (fld_data%gdim .eq. 3) then
+       call z%copy_from(HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine fld_file_read_vector_field
