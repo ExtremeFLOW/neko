@@ -40,7 +40,7 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, glsc2, abscmp
+  use math, only : glsc2, abscmp
   use utils, only : neko_error
   use operators, only : rotate_cyc
   implicit none
