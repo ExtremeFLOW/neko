@@ -149,7 +149,8 @@ module gs_interp
      subroutine gs_interp_init_mult(this, mult_h1, mult_jt, mult_ji)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
-       real(rp), dimension(:, :, :, :) , intent(in) :: mult_h1, mult_jt, mult_ji
+       real(rp), contiguous, dimension(:, :, :, :) , intent(in) :: mult_h1, &
+            mult_jt, mult_ji
      end subroutine gs_interp_init_mult
 
      !> Free GS interpolation data
@@ -168,7 +169,7 @@ module gs_interp
      subroutine gs_interp_apply_r4(this, vec)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
-       real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+       real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
      end subroutine gs_interp_apply_r4
 
      !> Children's nonconforming face/edge filling
@@ -182,7 +183,7 @@ module gs_interp
      subroutine gs_interp_set_r4(this, vec, cnst)
        import gs_interp_t, rp
        class(gs_interp_t), intent(inout) :: this
-       real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+       real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
        real(rp), intent(in) :: cnst
      end subroutine gs_interp_set_r4
   end interface

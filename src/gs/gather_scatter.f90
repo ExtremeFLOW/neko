@@ -98,14 +98,17 @@ module gather_scatter
      procedure, private, pass(gs) :: gs_op_r4
      procedure, private, pass(gs) :: gs_op_r4_h1
      procedure, private, pass(gs) :: gs_op_r4_inv
+     procedure, private, pass(gs) :: gs_op_r1
+     procedure, private, pass(gs) :: gs_op_r1_h1
+     procedure, private, pass(gs) :: gs_op_r1_inv
      ! Operator not performing interpolation
      procedure, pass(gs) :: gs_op_vector
      procedure, pass(gs) :: init => gs_init
      procedure, pass(gs) :: free => gs_free
      ! Operators performing interpolation only
-     generic :: op => gs_op_fld, gs_op_r4
-     generic :: op_h1 => gs_op_fld_h1, gs_op_r4_h1
-     generic :: op_inv => gs_op_fld_inv, gs_op_r4_inv
+     generic :: op => gs_op_fld, gs_op_r4, gs_op_r1
+     generic :: op_h1 => gs_op_fld_h1, gs_op_r4_h1, gs_op_r1_h1
+     generic :: op_inv => gs_op_fld_inv, gs_op_r4_inv, gs_op_r1_inv
      !> AMR restart
      procedure, pass(this) :: amr_restart => gs_amr_restart
   end type gs_t
@@ -1228,11 +1231,15 @@ contains
        call gs_op_vector(gs, u%x, n, op)
     end if
 
-!    if (allocated(gs%interp)) call gs%interp%remove_mult_jt(u)
-    
-    if (allocated(gs%interp)) call gs%interp%apply_j(u)
-    
-!    if (allocated(gs%interp)) call gs%interp%add_mult_jt(u)
+    if (allocated(gs%interp)) then
+       
+!       call gs%interp%remove_mult_jt(u)
+       
+       call gs%interp%apply_j(u)
+       
+!       call gs%interp%add_mult_jt(u)
+       
+    end if
 
   end subroutine gs_op_fld
 
@@ -1272,11 +1279,15 @@ contains
        call gs_op_vector(gs, u%x, n, op)
     end if
 
-!    if (allocated(gs%interp)) call gs%interp%remove_mult_ji(u)
-    
-    if (allocated(gs%interp)) call gs%interp%apply_j(u)
-    
-!    if (allocated(gs%interp)) call gs%interp%add_mult_ji(u)
+    if (allocated(gs%interp)) then
+       
+!       call gs%interp%remove_mult_ji(u)
+       
+       call gs%interp%apply_j(u)
+       
+!       call gs%interp%add_mult_ji(u)
+       
+    end if
 
   end subroutine gs_op_fld_inv
 
@@ -1296,11 +1307,15 @@ contains
        call gs_op_vector(gs, u, n, op)
     end if
 
-!    if (allocated(gs%interp)) call gs%interp%remove_mult_jt(u)
-    
-    if (allocated(gs%interp)) call gs%interp%apply_j(u)
-    
-!    if (allocated(gs%interp)) call gs%interp%add_mult_jt(u)
+    if (allocated(gs%interp)) then
+       
+!       call gs%interp%remove_mult_jt(u)
+       
+       call gs%interp%apply_j(u)
+       
+!       call gs%interp%add_mult_jt(u)
+       
+    end if
 
   end subroutine gs_op_r4
 
@@ -1340,13 +1355,115 @@ contains
        call gs_op_vector(gs, u, n, op)
     end if
 
-    !    if (allocated(gs%interp)) call gs%interp%remove_mult_ji(u)
-    
-    if (allocated(gs%interp)) call gs%interp%apply_j(u)
-    
-!    if (allocated(gs%interp)) call gs%interp%add_mult_ji(u)
+    if (allocated(gs%interp)) then
+       
+!       call gs%interp%remove_mult_ji(u)
+       
+       call gs%interp%apply_j(u)
+       
+!       call gs%interp%add_mult_ji(u)
+       
+    end if
 
   end subroutine gs_op_r4_inv
+
+  !> Gather-scatter operation on a rank 1 array with J^T
+  subroutine gs_op_r1(gs, u, n, op, event)
+    class(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n
+    real(kind=rp), target, dimension(n), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
+    integer :: op
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    if (allocated(gs%interp)) then
+       up(1 : gs%interp%lx, 1 : gs%interp%lx, 1 : gs%interp%lx, &
+            1 : gs%interp%nel) => u(:)
+       call gs%interp%apply_jt(up)
+    end if
+
+    if (present(event)) then
+       call gs_op_vector(gs, u, n, op, event)
+    else
+       call gs_op_vector(gs, u, n, op)
+    end if
+
+    if (allocated(gs%interp)) then
+       up(1 : gs%interp%lx, 1 : gs%interp%lx, 1 : gs%interp%lx, &
+            1 : gs%interp%nel) => u(:)
+       
+!       call gs%interp%remove_mult_jt(up)
+       
+       call gs%interp%apply_j(up)
+       
+!       call gs%interp%add_mult_jt(up)
+       
+    end if
+
+  end subroutine gs_op_r1
+
+  !> Gather-scatter operation on a rank 1 array with H1 projection
+  subroutine gs_op_r1_h1(gs, u, n, op, event)
+    class(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n
+    real(kind=rp), target, dimension(n), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
+    integer :: op
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    if (allocated(gs%interp)) then
+       up(1 : gs%interp%lx, 1 : gs%interp%lx, 1 : gs%interp%lx, &
+            1 : gs%interp%nel) => u(:)
+       call gs%interp%remove_mult_h1(up)
+    end if
+
+    if (present(event)) then
+       call gs_op_vector(gs, u, n, op, event)
+    else
+       call gs_op_vector(gs, u, n, op)
+    end if
+
+    if (allocated(gs%interp)) then
+       up(1 : gs%interp%lx, 1 : gs%interp%lx, 1 : gs%interp%lx, &
+            1 : gs%interp%nel) => u(:)
+       call gs%interp%apply_j(up)
+    end if
+
+  end subroutine gs_op_r1_h1
+
+  !> Gather-scatter operation on a rank 1 array with J^-1
+  subroutine gs_op_r1_inv(gs, u, n, op, event)
+    class(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n
+    real(kind=rp), target, dimension(n), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
+    integer :: op
+    real(kind=rp), dimension(:, :, :, :), pointer :: up
+
+    if (allocated(gs%interp)) then
+       up(1 : gs%interp%lx, 1 : gs%interp%lx, 1 : gs%interp%lx, &
+            1 : gs%interp%nel) => u(:)
+       call gs%interp%apply_ji(up)
+    end if
+
+    if (present(event)) then
+       call gs_op_vector(gs, u, n, op, event)
+    else
+       call gs_op_vector(gs, u, n, op)
+    end if
+
+    if (allocated(gs%interp)) then
+       up(1 : gs%interp%lx, 1 : gs%interp%lx, 1 : gs%interp%lx, &
+            1 : gs%interp%nel) => u(:)
+       
+!       call gs%interp%remove_mult_ji(up)
+       
+       call gs%interp%apply_j(up)
+       
+!       call gs%interp%add_mult_ji(up)
+    end if
+
+  end subroutine gs_op_r1_inv
 
   !> Gather-scatter operation on a vector @a u with op @a op
   subroutine gs_op_vector(gs, u, n, op, event)

@@ -266,7 +266,8 @@ contains
   !! @param[in]  mult_ji   multiplicity for J^-1 for the whole mesh
   subroutine gs_interp_cpu_init_mult(this, mult_h1, mult_jt, mult_ji)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:, :, :, :) , intent(in) :: mult_h1, mult_jt, mult_ji
+    real(rp), contiguous, dimension(:, :, :, :) , intent(in) :: mult_h1, &
+         mult_jt, mult_ji
     integer :: il, jl, kl, el, lposx, lposy, itmp
     real(rp), parameter :: one = 1.0_rp
 
@@ -473,7 +474,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_apply_j_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -587,7 +588,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_apply_ji_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -708,7 +709,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_apply_jt_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, itmp
 
     if (this%ifhang) then
@@ -826,7 +827,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_zero_children_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il
 
     if (this%ifhang) then
@@ -855,7 +856,7 @@ contains
   !! @param[in]     cnst   constant value
   subroutine gs_interp_cpu_set_children_r4(this, vec, cnst)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     real(rp), intent(in) :: cnst
     integer :: il, jl, itmp
 
@@ -899,7 +900,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_remove_mult_h1_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, kl, el
 
     ! this operation if performed independently of hanging elements presence
@@ -925,7 +926,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_remove_mult_jt_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -974,7 +975,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_remove_mult_ji_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -1023,7 +1024,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_add_mult_jt_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -1072,7 +1073,7 @@ contains
   !! @param[inout]  vec    vector for face interpolation
   subroutine gs_interp_cpu_add_mult_ji_r4(this, vec)
     class(gs_interp_cpu_t), intent(inout) :: this
-    real(rp), dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
     integer :: il, jl, itmp
 
     if (this%ifhang) then
