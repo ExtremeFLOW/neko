@@ -198,7 +198,7 @@ contains
          end do
 
          call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD)
          call blst%apply(w, n)
 
          pap = glsc3(w, coef%mult, p(1,p_cur), n)

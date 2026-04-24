@@ -573,7 +573,7 @@ contains
        call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
             this%msh%nelv, this%grids(3)%Xh)
        call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
-       call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), &
+       call this%grids(3)%gs_h%gs_op_vector(z, this%grids(3)%dof%size(), &
             GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call device_col2(z_d, this%grids(3)%coef%mult_d, &
@@ -590,7 +590,8 @@ contains
        !Restrict to middle level
        call this%interp_fine_mid%map(this%w, this%r, &
             this%msh%nelv, this%grids(2)%Xh)
-       call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
+       call this%grids(2)%gs_h%gs_op_vector(this%w, this%grids(2)%dof%size(), &
+            GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
        call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
@@ -599,7 +600,8 @@ contains
             this%msh%nelv, this%grids(1)%Xh)
        !Crs solve
 
-       call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
+       call this%grids(1)%gs_h%gs_op_vector(this%r, this%grids(1)%dof%size(), &
+            GS_OP_ADD)
        call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
 
        call profiler_start_region('HSMG_coarse-solve', 11)
@@ -626,7 +628,8 @@ contains
        call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
             this%msh%nelv, this%grids(3)%Xh)
        call add2(z, this%w, this%grids(3)%dof%size())
-       call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), GS_OP_ADD)
+       call this%grids(3)%gs_h%gs_op_vector(z, this%grids(3)%dof%size(), &
+            GS_OP_ADD)
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
 
     end if

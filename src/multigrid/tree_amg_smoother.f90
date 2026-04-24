@@ -168,7 +168,7 @@ contains
          d(i) = sin(real(i))
       end do
       if (this%lvl .eq. 0) then
-         call gs_h%op(d, n, GS_OP_ADD)!TODO
+         call gs_h%gs_op_vector(d, n, GS_OP_ADD)!TODO
          call blst%apply(d, n)
       end if
       !Power method to get lamba max
@@ -290,7 +290,7 @@ contains
       end do
       call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
       if (this%lvl .eq. 0) then
-         call gs_h%op(d, n, GS_OP_ADD)!TODO
+         call gs_h%gs_op_vector(d, n, GS_OP_ADD)!TODO
          call blst%apply(d, n)
       end if
       do i = 1, this%power_its

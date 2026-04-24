@@ -246,11 +246,11 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work2, this%work2_d, ns, &
               HOST_TO_DEVICE, sync = .false.)
-         call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
+         call this%gs_schwarz%gs_op_vector(work2, ns, GS_OP_ADD)
          call device_memcpy(work2, this%work2_d, ns, &
               DEVICE_TO_HOST, sync = .true.)
       else
-         call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
+         call this%gs_schwarz%gs_op_vector(work2, ns, GS_OP_ADD)
       end if
       call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, &
            msh%nelv)
@@ -266,11 +266,11 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work1, this%work1_d, n, &
               HOST_TO_DEVICE, sync = .false.)
-         call this%gs_h%op(work1, n, GS_OP_ADD)
+         call this%gs_h%gs_op_vector(work1, n, GS_OP_ADD)
          call device_memcpy(work1, this%work1_d, n, &
               DEVICE_TO_HOST, sync = .true.)
       else
-         call this%gs_h%op(work1, n, GS_OP_ADD)
+         call this%gs_h%gs_op_vector(work1, n, GS_OP_ADD)
       end if
 
       k = 1
@@ -474,7 +474,7 @@ contains
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
 
          this%gs_schwarz%bcknd%gs_stream = aux_cmd_queue
-         call this%gs_schwarz%op(work1, ns, GS_OP_ADD, this%event)
+         call this%gs_schwarz%gs_op_vector(work1, ns, GS_OP_ADD, this%event)
          call device_event_sync(this%event)
          call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
@@ -483,7 +483,7 @@ contains
 
          call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
-         call this%gs_schwarz%op(work2, ns, GS_OP_ADD, this%event)
+         call this%gs_schwarz%gs_op_vector(work2, ns, GS_OP_ADD, this%event)
          call device_event_sync(this%event)
 
          call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, &
@@ -494,7 +494,7 @@ contains
               this%msh%nelv, aux_cmd_queue)
 
          this%gs_h%bcknd%gs_stream = aux_cmd_queue
-         call this%gs_h%op(e, n, GS_OP_ADD, this%event)
+         call this%gs_h%gs_op_vector(e, n, GS_OP_ADD, this%event)
 
          call this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)
          call device_col2(e_d, this%wt_d, n, aux_cmd_queue)
@@ -511,7 +511,7 @@ contains
          !  exchange interior nodes
          call schwarz_extrude(work1, 0, zero, work1, 2, one, &
               enx, eny, enz, this%msh%nelv)
-         call this%gs_schwarz%op(work1, ns, GS_OP_ADD)
+         call this%gs_schwarz%gs_op_vector(work1, ns, GS_OP_ADD)
          call schwarz_extrude(work1, 0, one, work1, 2, -one, &
               enx, eny, enz, this%msh%nelv)
 
@@ -520,7 +520,7 @@ contains
          !   Sum overlap region (border excluded)
          call schwarz_extrude(work1, 0, zero, work2, 0, one, &
               enx, eny, enz, this%msh%nelv)
-         call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
+         call this%gs_schwarz%gs_op_vector(work2, ns, GS_OP_ADD)
          call schwarz_extrude(work2, 0, one, work1, 0, -one, &
               enx, eny, enz, this%msh%nelv)
          call schwarz_extrude(work2, 2, one, work2, 0, one, &
@@ -529,7 +529,7 @@ contains
          call schwarz_toreg3d(e, work2, this%Xh%lx, this%msh%nelv)
 
          ! sum border nodes
-         call this%gs_h%op(e, n, GS_OP_ADD)
+         call this%gs_h%gs_op_vector(e, n, GS_OP_ADD)
          call this%bclst%apply_scalar(e, n)
 
          call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)

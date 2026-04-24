@@ -193,7 +193,7 @@ contains
 
     call this%M%solve(this%u, this%r, n)
     call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
-    call gs_h%op(this%w, n, GS_OP_ADD)
+    call gs_h%gs_op_vector(this%w, n, GS_OP_ADD)
     call blst%apply_scalar(this%w, n)
 
     rtr = glsc3(this%r, coef%mult, this%r, n)
@@ -228,7 +228,7 @@ contains
 
        call this%M%solve(this%mi, this%w, n)
        call Ax%compute(this%ni, this%mi, coef, x%msh, x%Xh)
-       call gs_h%op(this%ni, n, GS_OP_ADD)
+       call gs_h%gs_op_vector(this%ni, n, GS_OP_ADD)
        call blst%apply(this%ni, n)
 
        call MPI_Wait(request, status, ierr)

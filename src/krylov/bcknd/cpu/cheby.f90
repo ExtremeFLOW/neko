@@ -148,13 +148,13 @@ contains
          call random_number(rn)
          d(i) = rn + 10.0_rp
       end do
-      call gs_h%op(d, n, GS_OP_ADD)
+      call gs_h%gs_op_vector(d, n, GS_OP_ADD)
       call blst%apply(d, n)
 
       !Power method to get lamba max
       do i = 1, this%power_its
          call ax%compute(w, d, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD)
          call blst%apply(w, n)
          if (associated(this%schwarz)) then
             call this%schwarz%compute(r, w)
@@ -170,7 +170,7 @@ contains
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
-      call gs_h%op(w, n, GS_OP_ADD)
+      call gs_h%gs_op_vector(w, n, GS_OP_ADD)
       call blst%apply(w, n)
       if (associated(this%schwarz)) then
          call this%schwarz%compute(r, w)
@@ -223,7 +223,7 @@ contains
       ! calculate residual
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
-      call gs_h%op(w, n, GS_OP_ADD)
+      call gs_h%gs_op_vector(w, n, GS_OP_ADD)
       call blst%apply(w, n)
       call sub2(r, w, n)
 
@@ -244,7 +244,7 @@ contains
          ! calculate residual
          call copy(r, f, n)
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD)
          call blst%apply(w, n)
          call sub2(r, w, n)
 
@@ -264,7 +264,7 @@ contains
       ! calculate residual
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
-      call gs_h%op(w, n, GS_OP_ADD)
+      call gs_h%gs_op_vector(w, n, GS_OP_ADD)
       call blst%apply(w, n)
       call sub2(r, w, n)
       rtr = glsc3(r, coef%mult, r, n)
@@ -307,7 +307,7 @@ contains
       ! calculate residual
       if (.not.this%zero_initial_guess) then
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD)
          call blst%apply(w, n)
          call sub3(r, f, w, n)
       else
@@ -338,7 +338,7 @@ contains
          rhok = rhokp1
          ! calculate residual
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD)
          call blst%apply(w, n)
          call sub3(r, f, w, n)
 

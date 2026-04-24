@@ -212,7 +212,7 @@ contains
 
          call this%M%solve(p_hat, p, n)
          call Ax%compute(v, p_hat, coef, x%msh, x%Xh)
-         call gs_h%op(v, n, GS_OP_ADD)
+         call gs_h%gs_op_vector(v, n, GS_OP_ADD)
          call blst%apply(v, n)
          alpha = rho_1 / glsc3(f, coef%mult, v, n)
          call copy(s, r, n)
@@ -226,7 +226,7 @@ contains
 
          call this%M%solve(s_hat, s, n)
          call Ax%compute(t, s_hat, coef, x%msh, x%Xh)
-         call gs_h%op(t, n, GS_OP_ADD)
+         call gs_h%gs_op_vector(t, n, GS_OP_ADD)
          call blst%apply(t, n)
          omega = glsc3(t, coef%mult, s, n) &
               / glsc3(t, coef%mult, t, n)

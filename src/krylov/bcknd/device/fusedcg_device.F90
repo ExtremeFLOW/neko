@@ -386,7 +386,7 @@ contains
          call device_fusedcg_update_p(p_d(p_cur), z_d, p_d(p_prev), beta, n)
 
          call Ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
+         call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
          call blst%apply(w, n)
 

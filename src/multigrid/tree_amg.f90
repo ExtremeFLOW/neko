@@ -316,11 +316,11 @@ contains
        !> If on finest level, pass to neko ax_t matvec operator
        n = size(vec_in)
        !> Call local finite element assembly
-       call this%gs_h%op(vec_in, n, GS_OP_ADD)
+       call this%gs_h%gs_op_vector(vec_in, n, GS_OP_ADD)
        call col2( vec_in, this%coef%mult, n)
 
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-       call this%gs_h%op(vec_out, n, GS_OP_ADD)
+       call this%gs_h%gs_op_vector(vec_out, n, GS_OP_ADD)
        call this%blst%apply(vec_out, n)
 
        if (lvl_out .ne. 0) then
@@ -377,7 +377,7 @@ contains
     n = this%lvl(1)%fine_lvl_dofs
     if (lvl .eq. 0) then !> isleaf true
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-       call this%gs_h%op(vec_out, n, GS_OP_ADD)
+       call this%gs_h%gs_op_vector(vec_out, n, GS_OP_ADD)
        call this%blst%apply(vec_out, n)
     else !> pass down through hierarchy
        associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
@@ -388,13 +388,13 @@ contains
          end do
 
          !> Average on overlapping dofs
-         call this%gs_h%op(wrk_in, n, GS_OP_ADD)
+         call this%gs_h%gs_op_vector(wrk_in, n, GS_OP_ADD)
          call col2( wrk_in, this%coef%mult, n)
          call this%blst%apply(wrk_in, n)
 
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
-         call this%gs_h%op(wrk_out, n, GS_OP_ADD)
+         call this%gs_h%gs_op_vector(wrk_out, n, GS_OP_ADD)
          call this%blst%apply(wrk_out, n)
 
          call col2(wrk_out, this%coef%mult, n)
@@ -455,7 +455,8 @@ contains
        end associate
     end do
     if (lvl-1 .eq. 0) then
-       call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
+       call this%gs_h%gs_op_vector(vec_out, this%lvl(lvl)%fine_lvl_dofs, &
+            GS_OP_ADD)
        call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
        call this%blst%apply(vec_out, this%lvl(lvl)%fine_lvl_dofs)
     end if
@@ -475,7 +476,7 @@ contains
     n = this%lvl(1)%fine_lvl_dofs
     if (lvl .eq. 0) then !> isleaf true
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-       call this%gs_h%op(vec_out, n, GS_OP_ADD, glb_cmd_event)
+       call this%gs_h%gs_op_vector(vec_out, n, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
        call this%blst%apply(vec_out, n)
     else !> pass down through hierarchy
@@ -484,14 +485,16 @@ contains
          !> Map input level to finest level
          call device_masked_gather_copy_0(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
          !> Average on overlapping dofs
-         call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
+         call this%gs_h%gs_op_vector(this%lvl(1)%wrk_in, n, GS_OP_ADD, &
+              glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call device_col2( wrk_in_d, this%coef%mult_d, n)
          call this%blst%apply(this%lvl(1)%wrk_in, n)
 
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
-         call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD, glb_cmd_event)
+         call this%gs_h%gs_op_vector(this%lvl(1)%wrk_out, n, GS_OP_ADD, &
+              glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call this%blst%apply(this%lvl(1)%wrk_out, n)
 
@@ -531,7 +534,7 @@ contains
     m = this%lvl(lvl)%fine_lvl_dofs
     call device_masked_gather_copy_0(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
     if (lvl-1 .eq. 0) then
-       call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
+       call this%gs_h%gs_op_vector(vec_out, m, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
        call device_col2( vec_out_d, this%coef%mult_d, m)
        call this%blst%apply( vec_out, m)

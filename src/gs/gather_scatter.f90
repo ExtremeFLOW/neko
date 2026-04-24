@@ -100,9 +100,8 @@ module gather_scatter
      procedure, pass(gs) :: gs_op_vector
      procedure, pass(gs) :: init => gs_init
      procedure, pass(gs) :: free => gs_free
-     !!!!! ONE SHOULD REMOVE GS_OP_VECTOR HERE !!!!!
-     generic :: op => gs_op_fld, gs_op_r4, gs_op_vector
-     !!!!! ONE SHOULD REMOVE GS_OP_VECTOR HERE !!!!!
+     ! Operators performing interpolation only
+     generic :: op => gs_op_fld, gs_op_r4
      generic :: op_h1 => gs_op_fld_h1, gs_op_r4_h1
      !> AMR restart
      procedure, pass(this) :: amr_restart => gs_amr_restart
