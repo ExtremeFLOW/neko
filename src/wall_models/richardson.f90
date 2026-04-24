@@ -299,7 +299,7 @@ contains
 
   !> Extract the values of rho and mu at the boundary.
   subroutine richardson_extract_properties(this)
-    class(most_t), intent(inout) :: this
+    class(richardson_t), intent(inout) :: this
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_masked_gather_copy_0(this%mu_w%x_d, this%mu%x_d, this%msk_d, &

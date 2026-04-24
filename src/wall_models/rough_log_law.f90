@@ -38,6 +38,7 @@ module rough_log_law
   use json_module, only : json_file
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
+  use vector, only : vector_t
   use wall_model, only : wall_model_t
   use utils, only : neko_error
   use registry, only : neko_registry
@@ -154,8 +155,8 @@ contains
   end subroutine rough_log_law_finalize
 
   !> Extract the values of rho at the boundary.
-  subroutine most_extract_properties(this)
-    class(most_t), intent(inout) :: this
+  subroutine rough_log_law_extract_properties(this)
+    class(rough_log_law_t), intent(inout) :: this
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
@@ -164,7 +165,7 @@ contains
        call masked_gather_copy_0(this%rho_w%x, this%rho%x, this%msk, &
             this%rho%size(), this%rho_w%size())
     end if
-  end subroutine most_extract_properties
+  end subroutine rough_log_law_extract_properties
 
   !> Constructor from components.
   !! @param scheme_name The name of the scheme for which the wall model is used.
