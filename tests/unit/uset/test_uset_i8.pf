@@ -1,10 +1,37 @@
 module test_uset_i8
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_uset_i8_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_uset_i8_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_uset_i8_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_uset_i8_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_uset_init_i8
+subroutine test_uset_init_i8(this)
   use pfunit
   use uset
-  implicit none
+  class(test_uset_i8_case), intent(inout) :: this
   type(uset_i8_t) :: s
 
   call s%init()
@@ -13,10 +40,10 @@ subroutine test_uset_init_i8
 end subroutine test_uset_init_i8
 
 @test
-subroutine test_uset_free_i8
+subroutine test_uset_free_i8(this)
   use pfunit
   use uset
-  implicit none
+  class(test_uset_i8_case), intent(inout) :: this
   type(uset_i8_t) :: s
 
   call s%init()
@@ -26,11 +53,11 @@ subroutine test_uset_free_i8
 end subroutine test_uset_free_i8
 
 @test
-subroutine test_uset_size_i8
+subroutine test_uset_size_i8(this)
   use pfunit
   use uset
   use num_types, only : i8
-  implicit none
+  class(test_uset_i8_case), intent(inout) :: this
   type(uset_i8_t) :: s
   integer :: i
   integer(kind=i8) :: data
@@ -58,11 +85,11 @@ subroutine test_uset_size_i8
 end subroutine test_uset_size_i8
 
 @test
-subroutine test_uset_clear_i8
+subroutine test_uset_clear_i8(this)
   use pfunit
   use uset
   use num_types, only : i8
-  implicit none
+  class(test_uset_i8_case), intent(inout) :: this
   type(uset_i8_t) :: s
   integer :: i
   integer(kind=i8) :: data
@@ -84,11 +111,11 @@ subroutine test_uset_clear_i8
 end subroutine test_uset_clear_i8
 
 @test
-subroutine test_uset_element_i8
+subroutine test_uset_element_i8(this)
   use pfunit
   use uset
   use num_types, only : i8
-  implicit none
+  class(test_uset_i8_case), intent(inout) :: this
   type(uset_i8_t) :: s
   integer :: i
   integer(kind=i8) :: data
@@ -122,11 +149,11 @@ subroutine test_uset_element_i8
 end subroutine test_uset_element_i8
 
 @test
-subroutine test_uset_remove_i8
+subroutine test_uset_remove_i8(this)
   use pfunit
   use uset
   use num_types, only : i8
-  implicit none
+  class(test_uset_i8_case), intent(inout) :: this
   type(uset_i8_t) :: s
   integer :: i
   integer(kind=i8) :: data
@@ -172,11 +199,11 @@ subroutine test_uset_remove_i8
 end subroutine test_uset_remove_i8
 
 @test
-subroutine test_uset_iter_i8
+subroutine test_uset_iter_i8(this)
   use pfunit
   use uset
   use num_types, only : i8
-  implicit none
+  class(test_uset_i8_case), intent(inout) :: this
   type(uset_i8_t) :: s
   integer :: i, n_entries
   integer(kind=i8) :: data

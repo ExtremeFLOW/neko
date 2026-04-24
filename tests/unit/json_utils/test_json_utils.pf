@@ -1,19 +1,45 @@
 module test_json_utils
   use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, dp
   use json_utils, only : json_get_or_default, json_get, json_no_defaults
   use json_module, only : json_file
   implicit none
 
+  @TestCase
+  type, extends(TestCase) :: test_json_utils_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_json_utils_case
+
 contains
 
+  subroutine setUp(this)
+    class(test_json_utils_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_json_utils_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+
   @test
-  subroutine test_json_no_defaults_starts_false()
+  subroutine test_json_no_defaults_starts_false(this)
+    class(test_json_utils_case), intent(inout) :: this
     @assertFalse(json_no_defaults)
   end subroutine test_json_no_defaults_starts_false
 
   @test
-  subroutine test_json_get_integer()
+  subroutine test_json_get_integer(this)
+    class(test_json_utils_case), intent(inout) :: this
     type(json_file) :: jf
     integer :: int_value
 
@@ -25,7 +51,8 @@ contains
   end subroutine test_json_get_integer
 
   @test
-  subroutine test_json_get_integer_array_allows_reals()
+  subroutine test_json_get_integer_array_allows_reals(this)
+    class(test_json_utils_case), intent(inout) :: this
     type(json_file) :: jf
     integer, allocatable :: int_value(:)
 

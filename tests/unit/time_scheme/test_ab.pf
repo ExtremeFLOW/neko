@@ -1,11 +1,38 @@
 module test_ab
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_ab_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_ab_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_ab_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_ab_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
  @test
- subroutine test_ab_constant_dt()
+ subroutine test_ab_constant_dt(this)
    use pfunit
    use ab_time_scheme, only: ab_time_scheme_t
    use num_types, only : rp
-   implicit none
+   class(test_ab_case), intent(inout) :: this
    
    type(ab_time_scheme_t) ab
    real(kind=rp) :: dt(10), x, coeffs(4)
@@ -31,11 +58,11 @@ contains
 end subroutine test_ab_constant_dt
 
  @test
- subroutine test_ab_variable_dt()
+ subroutine test_ab_variable_dt(this)
    use pfunit
    use ab_time_scheme, only: ab_time_scheme_t
    use num_types, only : rp
-   implicit none
+   class(test_ab_case), intent(inout) :: this
    
    type(ab_time_scheme_t) ab
    real(kind=rp) :: dt(10), coeffs(4)

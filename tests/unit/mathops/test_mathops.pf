@@ -1,12 +1,39 @@
 module test_mathops
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_mathops_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_mathops_case
+
 contains
 
+  subroutine setUp(this)
+    class(test_mathops_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_mathops_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+
 @test
-subroutine test_mathops_opchsign
+subroutine test_mathops_opchsign(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
+  class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: a1, a2, a3
   integer :: i, gdim
@@ -28,11 +55,11 @@ subroutine test_mathops_opchsign
 end subroutine test_mathops_opchsign
 
 @test
-subroutine test_mathops_opcolv
+subroutine test_mathops_opcolv(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
+  class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp
   real(kind=rp), dimension(n) :: a1, a2, a3
@@ -55,11 +82,11 @@ subroutine test_mathops_opcolv
 end subroutine test_mathops_opcolv
 
 @test
-subroutine test_mathops_opcolv3c
+subroutine test_mathops_opcolv3c(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
+  class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp
   real(kind=rp), parameter :: d = 1/42.0_rp
@@ -88,11 +115,11 @@ subroutine test_mathops_opcolv3c
 end subroutine test_mathops_opcolv3c
 
 @test
-subroutine test_mathops_opadd2cm
+subroutine test_mathops_opadd2cm(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
+  class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c = 42.0_rp
   real(kind=rp), dimension(n) :: a1, a2, a3
@@ -120,11 +147,11 @@ subroutine test_mathops_opadd2cm
 end subroutine test_mathops_opadd2cm
 
 @test
-subroutine test_mathops_opadd2col
+subroutine test_mathops_opadd2col(this)
   use pfunit
   use mathops
   use num_types
-  implicit none 
+  class(test_mathops_case), intent(inout) :: this
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp
   real(kind=rp), dimension(n) :: a1, a2, a3

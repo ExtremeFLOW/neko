@@ -1,12 +1,39 @@
 module test_tri
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_tri_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_tri_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_tri_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_tri_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_tri_init
+subroutine test_tri_init(this)
   use pfunit
   use point
   use tri
   use num_types
-  implicit none
+  class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -39,12 +66,12 @@ subroutine test_tri_init
 end subroutine test_tri_init
 
 @test
-subroutine test_tri_free
+subroutine test_tri_free(this)
   use pfunit
   use point
   use tri
   use num_types
-  implicit none
+  class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -69,12 +96,12 @@ subroutine test_tri_free
 end subroutine test_tri_free
 
 @test
-subroutine test_tri_centroid
+subroutine test_tri_centroid(this)
   use pfunit
   use point
   use tri
   use num_types
-  implicit none
+  class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -99,12 +126,12 @@ subroutine test_tri_centroid
 end subroutine test_tri_centroid
 
 @test
-subroutine test_tri_diameter
+subroutine test_tri_diameter(this)
   use pfunit
   use point
   use tri
   use num_types
-  implicit none
+  class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -124,12 +151,12 @@ subroutine test_tri_diameter
 end subroutine test_tri_diameter
 
 @test
-subroutine test_tri_equal
+subroutine test_tri_equal(this)
   use pfunit
   use point
   use tri
   use num_types
-  implicit none
+  class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p5, p6, p7
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -168,13 +195,13 @@ subroutine test_tri_equal
 end subroutine test_tri_equal
 
 @test
-subroutine test_tri_facet_id
+subroutine test_tri_facet_id(this)
   use pfunit
   use point
   use tri
   use tuple
   use num_types
-  implicit none
+  class(test_tri_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)

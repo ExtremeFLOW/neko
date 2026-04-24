@@ -1,10 +1,37 @@
 module test_tuple
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_tuple_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_tuple_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_tuple_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_tuple_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_tuple_defaults
+subroutine test_tuple_defaults(this)
   use pfunit
   use tuple
-  implicit none
+  class(test_tuple_case), intent(inout) :: this
   type(tuple_i4_t) :: t2i4
   type(tuple3_i4_t) :: t3i4
   type(tuple4_i4_t) :: t4i4
@@ -21,10 +48,10 @@ subroutine test_tuple_defaults
 end subroutine test_tuple_defaults
 
 @test
-subroutine test_tuple_i4
+subroutine test_tuple_i4(this)
   use pfunit
   use tuple    
-  implicit none
+  class(test_tuple_case), intent(inout) :: this
   type(tuple_i4_t) :: t1, t2
   integer :: i
   integer :: x(2) = (/2, 2/)
@@ -53,10 +80,10 @@ subroutine test_tuple_i4
 end subroutine test_tuple_i4
 
 @test
-subroutine test_tuple3_i4
+subroutine test_tuple3_i4(this)
   use pfunit
   use tuple    
-  implicit none
+  class(test_tuple_case), intent(inout) :: this
   type(tuple3_i4_t) :: t1, t2
   integer :: i
   integer :: x(3) = (/2, 2, 2/)
@@ -85,10 +112,10 @@ subroutine test_tuple3_i4
 end subroutine test_tuple3_i4
 
 @test
-subroutine test_tuple4_i4
+subroutine test_tuple4_i4(this)
   use pfunit
   use tuple    
-  implicit none
+  class(test_tuple_case), intent(inout) :: this
   type(tuple4_i4_t) :: t1, t2
   integer :: i
   integer :: x(4) = (/2, 2, 2, 2/)
@@ -117,11 +144,11 @@ subroutine test_tuple4_i4
 end subroutine test_tuple4_i4
 
 @test
-subroutine test_tuple_r8
+subroutine test_tuple_r8(this)
   use pfunit
   use tuple
   use num_types
-  implicit none
+  class(test_tuple_case), intent(inout) :: this
   type(tuple_r8_t) :: t1, t2
   integer :: i
   real(kind=dp) :: x(2) = (/2d0, 2d0/)
@@ -150,11 +177,11 @@ subroutine test_tuple_r8
 end subroutine test_tuple_r8
 
 @test
-subroutine test_tuple_i4r8
+subroutine test_tuple_i4r8(this)
   use pfunit
   use tuple
   use num_types
-  implicit none
+  class(test_tuple_case), intent(inout) :: this
   type(tuple_i4r8_t) :: t1, t2
   integer :: i
   real(kind=dp) :: x(2) = (/2d0, 2d0/)
@@ -183,11 +210,11 @@ subroutine test_tuple_i4r8
 end subroutine test_tuple_i4r8
 
 @test
-subroutine test_tuple_2i4r8
+subroutine test_tuple_2i4r8(this)
   use pfunit
   use tuple
   use num_types
-  implicit none
+  class(test_tuple_case), intent(inout) :: this
   type(tuple_2i4r8_t) :: t1, t2
   integer :: i
   real(kind=dp) :: x(3) = (/2d0, 2d0, 2d0/)
@@ -217,10 +244,10 @@ subroutine test_tuple_2i4r8
 end subroutine test_tuple_2i4r8
 
 @test
-subroutine test_tuple_mixed_type_inequality
+subroutine test_tuple_mixed_type_inequality(this)
   use pfunit
   use tuple
-  implicit none
+  class(test_tuple_case), intent(inout) :: this
   type(tuple_i4_t) :: t2i4
   type(tuple3_i4_t) :: t3i4
   type(tuple4_i4_t) :: t4i4

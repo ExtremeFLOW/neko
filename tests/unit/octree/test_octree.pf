@@ -1,10 +1,37 @@
 module test_octree
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_octree_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_octree_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_octree_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_octree_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_octree_init
+subroutine test_octree_init(this)
   use pfunit
   use octree
-  implicit none
+  class(test_octree_case), intent(inout) :: this
 
   type(octree_t) :: t
 
@@ -15,10 +42,10 @@ subroutine test_octree_init
 end subroutine test_octree_init
 
 @test
-subroutine test_octree_free
+subroutine test_octree_free(this)
   use pfunit
   use octree
-  implicit none
+  class(test_octree_case), intent(inout) :: this
 
   type(octree_t) :: t
 
@@ -31,11 +58,11 @@ subroutine test_octree_free
 end subroutine test_octree_free
 
 @test
-subroutine test_octree_insert
+subroutine test_octree_insert(this)
   use pfunit
   use octree
   use point
-  implicit none
+  class(test_octree_case), intent(inout) :: this
 
   type(octree_t) :: t
   type(point_t) :: p
@@ -52,12 +79,12 @@ subroutine test_octree_insert
 end subroutine test_octree_insert
 
 @test
-subroutine test_octree_find
+subroutine test_octree_find(this)
   use pfunit
   use octree
   use point
   use math
-  implicit none
+  class(test_octree_case), intent(inout) :: this
 
   type(octree_t) :: t
   type(point_t) :: p

@@ -38,6 +38,7 @@ contains
 
   subroutine tearDown(this)
     class(test_glob_interp), intent(inout) :: this
+    call neko_mpi_types_free
     if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_finalize
    end if
