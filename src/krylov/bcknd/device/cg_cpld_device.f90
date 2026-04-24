@@ -334,7 +334,7 @@ contains
     else
        max_iter = this%max_iter
     end if
-    norm_fac = 1.0_rp / coef%volume
+    norm_fac = 1.0_rp / sqrt(coef%volume)
 
     associate (p1_d => this%p1_d, p2_d => this%p2_d, p3_d => this%p3_d, &
          z1_d => this%z1_d, z2_d => this%z2_d, z3_d => this%z3_d, &
