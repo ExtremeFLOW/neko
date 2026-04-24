@@ -49,6 +49,8 @@ module richardson
   use logger, only : LOG_SIZE, neko_log
   use vector, only : vector_t
   use vector_math, only : vector_glsum, vector_glmin, vector_glmax
+  use math, only: masked_gather_copy_0
+  use device_math, only: device_masked_gather_copy_0
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
   implicit none
@@ -68,6 +70,10 @@ module richardson
      real(kind=rp) :: z0h_in
      !> The gravity vector
      real(kind=rp) :: g(3)
+     ! The dynamic viscosity at the boundary
+     type(vector_t) :: mu_w
+     ! The fluid density at the boundary
+     type(vector_t) :: rho_w
      !> The type of temperature boundary condition set in the case file
      character(len=:), allocatable :: bc_type
      !> The heat flux or temperature value set in the case file
@@ -95,6 +101,8 @@ module richardson
      procedure, pass(this) :: free => richardson_free
      !> Compute the wall shear stress.
      procedure, pass(this) :: compute => richardson_compute
+     ! Extract fluid properties at the wall (mu and rho)
+     procedure, pass(this) :: extract_properties => richardson_extract_properties
   end type richardson_t
 
 contains
@@ -146,7 +154,7 @@ contains
        g = g_tmp
     else
        call neko_error("Richardson WM: The gravity vector should " &
-       // "have exactly 3 components")
+            // "have exactly 3 components")
     end if
     deallocate(g_tmp)
 
@@ -188,7 +196,7 @@ contains
        this%g = g_tmp
     else
        call neko_error("Richardson WM: The gravity vector should " &
-       // "have exactly 3 components")
+            // "have exactly 3 components")
     end if
     deallocate(g_tmp)
 
@@ -234,6 +242,9 @@ contains
     call this%ti%init(this%n_nodes)
     call this%ts%init(this%n_nodes)
     call this%q%init(this%n_nodes)
+
+    call this%mu_w%init(this%n_nodes)
+    call this%rho_w%init(this%n_nodes)
 
     allocate(this%h_x_idx(this%n_nodes))
     allocate(this%h_y_idx(this%n_nodes))
@@ -286,6 +297,23 @@ contains
     end if
   end subroutine richardson_finalize
 
+  !> Extract the values of rho and mu at the boundary.
+  subroutine richardson_extract_properties(this)
+    class(most_t), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_masked_gather_copy_0(this%mu_w%x_d, this%mu%x_d, this%msk_d, &
+            this%mu%size(), this%mu_w%size())
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+            this%rho%size(), this%rho_w%size())
+    else
+       call masked_gather_copy_0(this%mu_w%x, this%mu%x, this%msk, &
+            this%mu%size(), this%mu_w%size())
+       call masked_gather_copy_0(this%rho_w%x, this%rho%x, this%msk, &
+            this%rho%size(), this%rho_w%size())
+    end if
+  end subroutine richardson_extract_properties
+
   !> Constructor from components.
   !! @param scheme_name The name of the scheme for which the wall model is used.
   !! @param coef SEM coefficients.
@@ -328,11 +356,14 @@ contains
     this%bc_value = bc_value
     this%scalar_name = scalar_name
 
+    call this%mu_w%init(this%n_nodes)
+    call this%rho_w%init(this%n_nodes)
+
     !> Check magnitude of g
     g_mag = sqrt(sum(g**2))
     if (g_mag < 1.0e-6_rp) then
        call neko_error("Richardson WM: Gravity magnitude is zero. " &
-       // "Check your input configuration.")
+            // "Check your input configuration.")
     end if
 
     !> Check alignment across all nodes (handling hills/slopes)
@@ -355,7 +386,7 @@ contains
        call neko_error("Richardson WM: Sampling height h must be greater " &
             // "than roughness z0.")
     else if ( (this%z0h_in .gt. 0.0_rp) .and. &
-      (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
+         (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
        call neko_error("Richardson WM: Sampling height h must be greater " &
             // "than thermal roughness z0h.")
     else if (this%z0 .eq. 0.0_rp) then
@@ -424,6 +455,9 @@ contains
     type(field_t), pointer :: temp
     real(kind=rp), pointer :: updated_bc_value
 
+    ! Extract boundary values for mu and rho
+    call this%extract_properties()
+
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
@@ -440,7 +474,7 @@ contains
             this%ind_e_d, this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            1.0e-10_rp, 1.0_rp, this%g, this%Pr, this%z0, this%z0h_in, &
+            this%mu_w%x_d, this%rho_w%x_d, this%g, this%Pr, this%z0, this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
             this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, this%ts%x_d,&
             this%q%x_d, this%h_x_idx_d, this%h_y_idx_d, this%h_z_idx_d)
@@ -449,7 +483,7 @@ contains
             this%ind_s, this%ind_t, this%ind_e, this%n_x%x, &
             this%n_y%x, this%n_z%x, this%h%x, this%tau_x%x, &
             this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, &
-            u%msh%nelv, this%kappa, 1.0e-10_rp, 1.0_rp, &
+            u%msh%nelv, this%kappa, this%mu_w%x, this%rho_w%x, &
             this%g, this%Pr, this%z0, this%z0h_in, this%bc_type, &
             this%bc_value, tstep, this%Ri_b%x, this%L_ob%x, &
             this%utau%x, this%magu%x, this%ti%x, this%ts%x, &

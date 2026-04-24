@@ -46,6 +46,8 @@ module rough_log_law
   use rough_log_law_device, only : rough_log_law_compute_device
   use rough_log_law_cpu, only : rough_log_law_compute_cpu
   use scratch_registry, only : neko_scratch_registry
+  use math, only: masked_gather_copy_0
+  use device_math, only: device_masked_gather_copy_0
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
@@ -62,6 +64,8 @@ module rough_log_law
      real(kind=rp) :: B
      !> The roughness height
      real(kind=rp) :: z0
+     ! The fluid density at the boundary
+     type(vector_t) :: rho_w
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
@@ -77,6 +81,8 @@ module rough_log_law
      procedure, pass(this) :: free => rough_log_law_free
      !> Compute the wall shear stress.
      procedure, pass(this) :: compute => rough_log_law_compute
+     ! Extract fluid properties at the wall (rho)
+     procedure, pass(this) :: extract_properties => rough_log_law_extract_properties
   end type rough_log_law_t
 
 contains
@@ -143,7 +149,22 @@ contains
 
     call this%finalize_base(msk, facet)
 
+    call this%rho_w%init(this%n_nodes)
+
   end subroutine rough_log_law_finalize
+
+  !> Extract the values of rho at the boundary.
+  subroutine most_extract_properties(this)
+    class(most_t), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+            this%rho%size(), this%rho_w%size())
+    else
+       call masked_gather_copy_0(this%rho_w%x, this%rho%x, this%msk, &
+            this%rho%size(), this%rho_w%size())
+    end if
+  end subroutine most_extract_properties
 
   !> Constructor from components.
   !! @param scheme_name The name of the scheme for which the wall model is used.
@@ -169,6 +190,8 @@ contains
     this%kappa = kappa
     this%B = B
     this%z0 = z0
+
+    call this%rho_w%init(this%n_nodes)
 
     ! Check that the sampling height is above the roughness length
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
@@ -199,6 +222,9 @@ contains
     type(field_t), pointer :: v
     type(field_t), pointer :: w
 
+    ! Extract boundary values for rho
+    call this%extract_properties()
+
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
@@ -209,13 +235,13 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            1.0_rp, this%B, this%z0, tstep)
+            this%rho_w%x_d, this%B, this%z0, tstep)
     else
        call rough_log_law_compute_cpu(u%x, v%x, w%x, this%ind_r, this%ind_s, &
             this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
             this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
-            1.0_rp, this%B, this%z0, tstep)
+            this%rho_w%x, this%B, this%z0, tstep)
     end if
 
   end subroutine rough_log_law_compute

@@ -13,7 +13,7 @@ module most_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, mu, rho, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep, &
+          kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep, &
           Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
           ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx) &
           bind(c, name = 'hip_most_compute')
@@ -23,7 +23,8 @@ module most_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value, Pr
+       type(c_ptr), value :: mu_w_d, rho_w_d
+       real(c_rp) :: kappa, z0, z0h_in, bc_value, Pr
        real(c_rp) :: g(3)
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        integer(c_int) :: n_nodes, lx, tstep, bc_type_int
@@ -39,7 +40,7 @@ module most_device
           ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
           n_x_d, n_y_d, n_z_d, h_d, &
           tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
-          kappa, mu, rho, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep, &
+          kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type_int, bc_value, tstep, &
           Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
           ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx) &
           bind(c, name = 'cuda_most_compute')
@@ -49,7 +50,8 @@ module most_device
        type(c_ptr), value :: u_d, v_d, w_d, temp_d
        type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
        type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
-       real(c_rp) :: kappa, mu, rho, z0, z0h_in, bc_value, Pr
+       type(c_ptr), value :: mu_w_d, rho_w_d
+       real(c_rp) :: kappa, z0, z0h_in, bc_value, Pr
        real(c_rp) :: g(3)
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        integer(c_int) :: n_nodes, lx, tstep, bc_type_int
@@ -70,7 +72,7 @@ contains
   subroutine most_compute_device(u_d, v_d, w_d, temp_d, &
        ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
        n_x_d, n_y_d, n_z_d, h_d, tau_x_d, tau_y_d, tau_z_d, &
-       n_nodes, lx, kappa, mu, rho, g, Pr, z0, z0h_in, bc_type, &
+       n_nodes, lx, kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type, &
        bc_value, tstep, Ri_b_diagn, L_ob_diagn, utau_diagn, &
        magu_diagn, ti_diagn, ts_diagn, q_diagn, &
        h_x_idx, h_y_idx, h_z_idx)
@@ -79,7 +81,8 @@ contains
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d
-    real(kind=rp), intent(in) :: kappa, mu, rho, z0, z0h_in, bc_value, Pr
+    type(c_ptr), intent(in) :: mu_w_d, rho_w_d
+    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, Pr
     real(kind=rp) :: g(3)
     character(len=*), intent(in) :: bc_type ! passed as a normal Fortran string
     integer :: bc_type_int
@@ -103,7 +106,7 @@ contains
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
-         lx, kappa, mu, rho, g, Pr, z0, z0h_in, &
+         lx, kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, &
          bc_type_int, bc_value, tstep, Ri_b_diagn, &
          L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
          ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx)
@@ -112,7 +115,7 @@ contains
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
          n_x_d, n_y_d, n_z_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
-         lx, kappa, mu, rho, g, Pr, z0, z0h_in, &
+         lx, kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, &
          bc_type_int, bc_value, tstep, Ri_b_diagn, &
          L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
          ts_diagn, q_diagn, h_x_idx, h_y_idx, h_z_idx)
