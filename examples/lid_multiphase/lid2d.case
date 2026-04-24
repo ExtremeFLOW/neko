@@ -8,6 +8,7 @@
         "mesh_file": "10x10.nmsh",
         "output_at_end": true,
         "output_checkpoints": false,
+        "runtime_statistics": { "enabled": true },
         "time": {
             "end_time": 20,
             "variable_timestep": true,
@@ -90,6 +91,7 @@
                 {
                     "type": "phase_field_sharpening",
                     "scalar_field": "phase",
+                    // "dealias": true,
                     "gamma": 0.001,
                     "u_max": 1.0
                 }
