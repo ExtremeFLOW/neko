@@ -124,7 +124,7 @@ __device__ T heat_flux_neutral(T ti, T ts, T h, T z0h, T utau, T kappa)
 }
 
 /*
- * CUDA kernel for the Richardson wall model.
+ * HIP kernel for the Richardson wall model.
  */
 template<typename T, int BC_TYPE>
 __global__ void richardson_compute(
