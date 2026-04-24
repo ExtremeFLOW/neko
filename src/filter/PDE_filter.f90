@@ -61,6 +61,7 @@ module PDE_filter
   use sx_jacobi, only : sx_jacobi_t
   use utils, only : neko_error
   use device_math, only : device_cfill, device_subcol3, device_cmult
+  use json_utils, only : json_get, json_get_or_default
   implicit none
   private
 
