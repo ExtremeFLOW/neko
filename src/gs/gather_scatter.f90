@@ -94,8 +94,10 @@ module gather_scatter
      ! Operators performing interpolation
      procedure, private, pass(gs) :: gs_op_fld
      procedure, private, pass(gs) :: gs_op_fld_h1
+     procedure, private, pass(gs) :: gs_op_fld_inv
      procedure, private, pass(gs) :: gs_op_r4
      procedure, private, pass(gs) :: gs_op_r4_h1
+     procedure, private, pass(gs) :: gs_op_r4_inv
      ! Operator not performing interpolation
      procedure, pass(gs) :: gs_op_vector
      procedure, pass(gs) :: init => gs_init
@@ -103,6 +105,7 @@ module gather_scatter
      ! Operators performing interpolation only
      generic :: op => gs_op_fld, gs_op_r4
      generic :: op_h1 => gs_op_fld_h1, gs_op_r4_h1
+     generic :: op_inv => gs_op_fld_inv, gs_op_r4_inv
      !> AMR restart
      procedure, pass(this) :: amr_restart => gs_amr_restart
   end type gs_t
@@ -1208,7 +1211,7 @@ contains
 
   end subroutine gs_fill_arrays
 
-  !> Gather-scatter operation on a field @a u with op @a op
+  !> Gather-scatter operation on a field @a u with op @a op with J^T
   subroutine gs_op_fld(gs, u, op, event)
     class(gs_t), intent(inout) :: gs
     type(field_t), intent(inout) :: u
@@ -1233,7 +1236,7 @@ contains
 
   end subroutine gs_op_fld
 
-  !> H1 projection with gather-scatter operation on a field @a u with op @a op
+  !> Gather-scatter operation on a field @a u with op @a op with H1 projection
   subroutine gs_op_fld_h1(gs, u, op, event)
     class(gs_t), intent(inout) :: gs
     type(field_t), intent(inout) :: u
@@ -1253,7 +1256,31 @@ contains
 
   end subroutine gs_op_fld_h1
 
-  !> Gather-scatter operation on a rank 4 array
+  !> Gather-scatter operation on a field @a u with op @a op with J^-1
+  subroutine gs_op_fld_inv(gs, u, op, event)
+    class(gs_t), intent(inout) :: gs
+    type(field_t), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
+    integer :: n, op
+
+    if (allocated(gs%interp)) call gs%interp%apply_ji(u)
+
+    n = u%msh%nelv * u%Xh%lx * u%Xh%ly * u%Xh%lz
+    if (present(event)) then
+       call gs_op_vector(gs, u%x, n, op, event)
+    else
+       call gs_op_vector(gs, u%x, n, op)
+    end if
+
+!    if (allocated(gs%interp)) call gs%interp%remove_mult_ji(u)
+    
+    if (allocated(gs%interp)) call gs%interp%apply_j(u)
+    
+!    if (allocated(gs%interp)) call gs%interp%add_mult_ji(u)
+
+  end subroutine gs_op_fld_inv
+
+  !> Gather-scatter operation on a rank 4 array with J^T
   subroutine gs_op_r4(gs, u, n, op, event)
     class(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
@@ -1277,7 +1304,7 @@ contains
 
   end subroutine gs_op_r4
 
-  !> H1 projection with gather-scatter operation on a rank 4 array
+  !> Gather-scatter operation on a rank 4 array with H1 projection
   subroutine gs_op_r4_h1(gs, u, n, op, event)
     class(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
@@ -1296,6 +1323,30 @@ contains
     if (allocated(gs%interp)) call gs%interp%apply_j(u)
 
   end subroutine gs_op_r4_h1
+
+  !> Gather-scatter operation on a rank 4 array with J^-1
+  subroutine gs_op_r4_inv(gs, u, n, op, event)
+    class(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
+    integer :: op
+
+    if (allocated(gs%interp)) call gs%interp%apply_ji(u)
+
+    if (present(event)) then
+       call gs_op_vector(gs, u, n, op, event)
+    else
+       call gs_op_vector(gs, u, n, op)
+    end if
+
+    !    if (allocated(gs%interp)) call gs%interp%remove_mult_ji(u)
+    
+    if (allocated(gs%interp)) call gs%interp%apply_j(u)
+    
+!    if (allocated(gs%interp)) call gs%interp%add_mult_ji(u)
+
+  end subroutine gs_op_r4_inv
 
   !> Gather-scatter operation on a vector @a u with op @a op
   subroutine gs_op_vector(gs, u, n, op, event)
