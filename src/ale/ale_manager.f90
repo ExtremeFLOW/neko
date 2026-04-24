@@ -477,7 +477,6 @@ contains
              call json_get_or_default(body_sub, 'pivot.type', tmp_str, &
                   'relative')
              this%config%bodies(i)%rotation_center_type = tmp_str
-
              call json_get(body_sub, 'pivot.value', tmp_vec, expected_size = 3)
              this%config%bodies(i)%rot_center = tmp_vec
 
@@ -1047,13 +1046,14 @@ contains
           call bcloc%free()
           call bcloc_zeros_only%free()
 
+          ! We let the host to also have the base_shapes so in user_ale_mesh_vel
+          ! it would be easier in general to use it.
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_memcpy(this%base_shapes(body_idx)%x, &
+                  this%base_shapes(body_idx)%x_d, n, DEVICE_TO_HOST, .true.)
+          end if
+
           if (this%config%if_output_phi) then
-
-             if (NEKO_BCKND_DEVICE .eq. 1) then
-                call device_memcpy(this%base_shapes(body_idx)%x, &
-                     this%base_shapes(body_idx)%x_d, n, DEVICE_TO_HOST, .true.)
-             end if
-
              call phi_file%init('phi_' // &
                   trim(this%config%bodies(body_idx)%name) // '.fld')
              call phi_file%write(this%base_shapes(body_idx))
