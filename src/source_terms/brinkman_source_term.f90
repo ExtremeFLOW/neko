@@ -387,45 +387,20 @@ contains
           write(log_msg, '(A)') "Loading Brinkman source term from cache."
           call neko_log%message(log_msg, NEKO_LOG_DEBUG)
 
-          call cache_data%init()
-          call temp_field%init(this%coef%dof)
+          call neko_scratch_registry%request_field(temp_field, temp_idx, .true.)
 
+          call cache_data%init()
           call cache_file%init(cache_filename // "0.fld")
           call cache_file%set_counter(0)
           call cache_file%read(cache_data)
-
-          !
-          ! Check that the data in the fld file matches the current case.
-          ! Note that this is a safeguard and there are corner cases where
-          ! two different meshes have the same dimension and same # of elements
-          ! but this should be enough to cover obvious cases.
-          !
-          if (cache_data%glb_nelv .ne. temp_field%msh%glb_nelv .or. &
-               cache_data%gdim .ne. temp_field%msh%gdim) then
-             call neko_error("The fld file must match the current mesh! " // &
-                  "Use 'interpolate': 'true' to enable interpolation.")
-          end if
-
-          ! Do the space-to-space interpolation
-          call prev_Xh%init(GLL, cache_data%lx, cache_data%ly, cache_data%lz)
-          call space_interp%init(temp_field%Xh, prev_Xh)
-          call space_interp%map_host(temp_field%x, cache_data%p%x, &
-               cache_data%nelv, temp_field%Xh)
-          call space_interp%free()
-          call prev_Xh%free()
-
-          ! Synchronize to device if needed
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_memcpy(temp_field%x, temp_field%x_d, &
-                  temp_field%size(), HOST_TO_DEVICE, sync = .true.)
-          end if
+          call cache_data%import_fields(p = temp_field)
 
           ! Update the global indicator field by max operator
           call field_pwmax2(this%indicator, temp_field)
 
           ! Clean up
+          call neko_scratch_registry%relinquish(temp_idx)
           call cache_data%free()
-          call temp_field%free()
           call cache_file%free()
           return
        end if
