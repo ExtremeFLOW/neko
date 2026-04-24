@@ -669,6 +669,9 @@ var namespaces_dup =
     [ "rhs_maker_cpu", "db/dd7/namespacerhs__maker__cpu.html", "db/dd7/namespacerhs__maker__cpu" ],
     [ "rhs_maker_device", "d1/d29/namespacerhs__maker__device.html", "d1/d29/namespacerhs__maker__device" ],
     [ "rhs_maker_sx", "db/d7a/namespacerhs__maker__sx.html", "db/d7a/namespacerhs__maker__sx" ],
+    [ "richardson", "d3/d22/namespacerichardson.html", "d3/d22/namespacerichardson" ],
+    [ "richardson_cpu", "d4/d09/namespacerichardson__cpu.html", "d4/d09/namespacerichardson__cpu" ],
+    [ "richardson_device", "d5/d35/namespacerichardson__device.html", "d5/d35/namespacerichardson__device" ],
     [ "roctx", "dc/d10/namespaceroctx.html", [
       [ "roctx_max_len", "dc/d10/namespaceroctx.html#a6a9fbd1b36ef3788fe2c8f8a5782e062", null ]
     ] ],

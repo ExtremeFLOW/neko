@@ -12,10 +12,13 @@ var searchData=
   ['rhs_5fmaker_5fcpu_9',['rhs_maker_cpu',['../db/dd7/namespacerhs__maker__cpu.html',1,'']]],
   ['rhs_5fmaker_5fdevice_10',['rhs_maker_device',['../d1/d29/namespacerhs__maker__device.html',1,'']]],
   ['rhs_5fmaker_5fsx_11',['rhs_maker_sx',['../db/d7a/namespacerhs__maker__sx.html',1,'']]],
-  ['roctx_12',['roctx',['../dc/d10/namespaceroctx.html',1,'']]],
-  ['rough_5flog_5flaw_13',['rough_log_law',['../d7/d0f/namespacerough__log__law.html',1,'']]],
-  ['rough_5flog_5flaw_5fcpu_14',['rough_log_law_cpu',['../dc/d1f/namespacerough__log__law__cpu.html',1,'']]],
-  ['rough_5flog_5flaw_5fdevice_15',['rough_log_law_device',['../db/d78/namespacerough__log__law__device.html',1,'']]],
-  ['runge_5fkutta_5ftime_5fscheme_16',['runge_kutta_time_scheme',['../d3/dc8/namespacerunge__kutta__time__scheme.html',1,'']]],
-  ['runtime_5fstats_17',['runtime_stats',['../d6/d78/namespaceruntime__stats.html',1,'']]]
+  ['richardson_12',['richardson',['../d3/d22/namespacerichardson.html',1,'']]],
+  ['richardson_5fcpu_13',['richardson_cpu',['../d4/d09/namespacerichardson__cpu.html',1,'']]],
+  ['richardson_5fdevice_14',['richardson_device',['../d5/d35/namespacerichardson__device.html',1,'']]],
+  ['roctx_15',['roctx',['../dc/d10/namespaceroctx.html',1,'']]],
+  ['rough_5flog_5flaw_16',['rough_log_law',['../d7/d0f/namespacerough__log__law.html',1,'']]],
+  ['rough_5flog_5flaw_5fcpu_17',['rough_log_law_cpu',['../dc/d1f/namespacerough__log__law__cpu.html',1,'']]],
+  ['rough_5flog_5flaw_5fdevice_18',['rough_log_law_device',['../db/d78/namespacerough__log__law__device.html',1,'']]],
+  ['runge_5fkutta_5ftime_5fscheme_19',['runge_kutta_time_scheme',['../d3/dc8/namespacerunge__kutta__time__scheme.html',1,'']]],
+  ['runtime_5fstats_20',['runtime_stats',['../d6/d78/namespaceruntime__stats.html',1,'']]]
 ];

@@ -1,0 +1,10 @@
+<map id="richardson_device::hip_richardson_compute::hip_richardson_compute" name="richardson_device::hip_richardson_compute::hip_richardson_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,195,77"/>
+<area shape="rect" id="Node000002" href="$d5/d35/namespacerichardson__device.html#a2a6bdb8024b806364b0ec2643771bcf9" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="243,29,447,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,47,229,47,229,52,195,52"/>
+<area shape="rect" id="Node000003" href="$d3/ddd/richardson_8cu.html#aac46a9cbec7b8f867af8eaaf15d51443" title=" " alt="" coords="495,37,687,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="447,47,481,47,481,52,447,52"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="735,29,899,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="687,47,721,47,721,52,687,52"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="775,30,772,20,779,10,794,5,817,3,843,6,857,13,855,18,841,11,817,8,795,10,782,15,777,21,780,28"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="richardson_cpu::tau_convective" name="richardson_cpu::tau_convective">
+<area shape="rect" id="Node000001" title="Similarity laws and corrections for the UNSTABLE (convective) regime: Based on Louis 1979." alt="" coords="5,5,155,45"/>
+<area shape="rect" id="Node000002" href="$d4/d09/namespacerichardson__cpu.html#ab4ba78a64b7945c05e5527144d4e2c43" title=" " alt="" coords="203,5,364,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,23,189,23,189,28,155,28"/>
+</map>

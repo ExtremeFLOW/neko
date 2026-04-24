@@ -1307,6 +1307,16 @@ var annotated_dup =
       [ "rhs_maker_oifs_sx_t", "df/d1c/structrhs__maker__sx_1_1rhs__maker__oifs__sx__t.html", "df/d1c/structrhs__maker__sx_1_1rhs__maker__oifs__sx__t" ],
       [ "rhs_maker_sumab_sx_t", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t" ]
     ] ],
+    [ "richardson", "d3/d22/namespacerichardson.html", [
+      [ "richardson_t", "dd/df1/structrichardson_1_1richardson__t.html", "dd/df1/structrichardson_1_1richardson__t" ]
+    ] ],
+    [ "richardson_cpu", "d4/d09/namespacerichardson__cpu.html", [
+      [ "heat_flux_interface", "d4/da1/interfacerichardson__cpu_1_1heat__flux__interface.html", "d4/da1/interfacerichardson__cpu_1_1heat__flux__interface" ],
+      [ "tau_interface", "d0/d9b/interfacerichardson__cpu_1_1tau__interface.html", "d0/d9b/interfacerichardson__cpu_1_1tau__interface" ]
+    ] ],
+    [ "richardson_device", "d5/d35/namespacerichardson__device.html", [
+      [ "hip_richardson_compute", "da/d24/interfacerichardson__device_1_1hip__richardson__compute.html", "da/d24/interfacerichardson__device_1_1hip__richardson__compute" ]
+    ] ],
     [ "rough_log_law", "d7/d0f/namespacerough__log__law.html", [
       [ "rough_log_law_t", "df/d21/structrough__log__law_1_1rough__log__law__t.html", "df/d21/structrough__log__law_1_1rough__log__law__t" ]
     ] ],

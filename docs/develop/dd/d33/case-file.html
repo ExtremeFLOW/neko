@@ -118,47 +118,48 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <li class="level2"><a href="#autotoc_md82">Turbulence modelling</a></li>
 <li class="level2"><a href="#case-file_fluid-boundary-conditions">Boundary conditions</a><ul><li class="level3"><a href="#autotoc_md83">Specifying the boundaries</a></li>
 <li class="level3"><a href="#autotoc_md84">Available conditions</a></li>
-<li class="level3"><a href="#autotoc_md85">MOST wall model</a></li>
+<li class="level3"><a href="#most-wall-model">MOST wall model</a></li>
 </ul>
 </li>
+<li class="level2"><a href="#richardson-wall-model">Richardson wall model</a></li>
 <li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
-<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md86">Brinkman</a></li>
-<li class="level3"><a href="#autotoc_md87">Gradient Jump Penalty</a></li>
-<li class="level3"><a href="#autotoc_md88">Sponge</a></li>
+<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md85">Brinkman</a></li>
+<li class="level3"><a href="#autotoc_md86">Gradient Jump Penalty</a></li>
+<li class="level3"><a href="#autotoc_md87">Sponge</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#case-file_fluid-ale">Arbitrary Lagrangian-Eulerian Framework</a><ul><li class="level3"><a href="#case-file_fluid-ale-solver">Solver</a><ul><li class="level4"><a href="#autotoc_md89">Output Files and Diagnostics</a></li>
+<li class="level2"><a href="#case-file_fluid-ale">Arbitrary Lagrangian-Eulerian Framework</a><ul><li class="level3"><a href="#case-file_fluid-ale-solver">Solver</a><ul><li class="level4"><a href="#autotoc_md88">Output Files and Diagnostics</a></li>
 </ul>
 </li>
-<li class="level3"><a href="#autotoc_md90">Mesh preview</a></li>
-<li class="level3"><a href="#autotoc_md91">Bodies</a><ul><li class="level4"><a href="#autotoc_md92">Oscillation</a></li>
-<li class="level4"><a href="#autotoc_md93">Rotation</a></li>
+<li class="level3"><a href="#autotoc_md89">Mesh preview</a></li>
+<li class="level3"><a href="#autotoc_md90">Bodies</a><ul><li class="level4"><a href="#autotoc_md91">Oscillation</a></li>
+<li class="level4"><a href="#autotoc_md92">Rotation</a></li>
 <li class="level4"><a href="#case-file_fluid-ale-pivot">Pivot</a></li>
 <li class="level4"><a href="#case-file_fluid_ale_stiff_geom">Mesh Stiffness</a></li>
 </ul>
 </li>
-<li class="level3"><a href="#autotoc_md94">Restarting ALE simulations</a></li>
+<li class="level3"><a href="#autotoc_md93">Restarting ALE simulations</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md95">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md96">Multilevel preconditioners</a></li>
-<li class="level2"><a href="#autotoc_md97">Flow rate forcing</a></li>
-<li class="level2"><a href="#autotoc_md98">Full parameter table</a></li>
+<li class="level1"><a href="#autotoc_md94">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md95">Multilevel preconditioners</a></li>
+<li class="level2"><a href="#autotoc_md96">Flow rate forcing</a></li>
+<li class="level2"><a href="#autotoc_md97">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md99">Material properties</a></li>
-<li class="level2"><a href="#autotoc_md100">Turbulence modelling</a></li>
-<li class="level2"><a href="#autotoc_md101">Boundary conditions</a></li>
-<li class="level2"><a href="#autotoc_md102">Initial conditions</a></li>
-<li class="level2"><a href="#autotoc_md103">Source terms</a></li>
-<li class="level2"><a href="#autotoc_md104">Linear solver configuration</a></li>
-<li class="level2"><a href="#autotoc_md105">Full parameter table</a></li>
+<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md98">Material properties</a></li>
+<li class="level2"><a href="#autotoc_md99">Turbulence modelling</a></li>
+<li class="level2"><a href="#autotoc_md100">Boundary conditions</a></li>
+<li class="level2"><a href="#autotoc_md101">Initial conditions</a></li>
+<li class="level2"><a href="#autotoc_md102">Source terms</a></li>
+<li class="level2"><a href="#autotoc_md103">Linear solver configuration</a></li>
+<li class="level2"><a href="#autotoc_md104">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md106">Simulation components</a></li>
-<li class="level1"><a href="#autotoc_md107">Point zones</a></li>
-<li class="level1"><a href="#autotoc_md108">Runtime statistics</a></li>
+<li class="level1"><a href="#autotoc_md105">Simulation components</a></li>
+<li class="level1"><a href="#autotoc_md106">Point zones</a></li>
+<li class="level1"><a href="#autotoc_md107">Runtime statistics</a></li>
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
@@ -541,7 +542,8 @@ Available conditions</h3>
 <li><code><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a></code>. A shear stress condition, where the values is computed by a wall model. Meant to be used for wall-modelled large-eddy simulation. Only works with axis-aligned boundaries. The model is selected using the <code>model</code> keyword. Additional configuration depends on the model selected.<ul>
 <li>The <code>spalding</code>model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants. This model is suitable for smooth walls.</li>
 <li>The <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants, and <code>z0</code>, which is the characteristic roughness height.</li>
-<li><p class="startli">The <code>most</code> model is a version of the <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">below</a></p>
+<li>The <code>most</code> model is a version of the <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given <a class="el" href="../../dd/d33/case-file.html#most-wall-model">below</a>.</li>
+<li><p class="startli">The <code>richardson</code> model is similar to the <code>most</code> model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given <a class="el" href="../../dd/d33/case-file.html#richardson-wall-model">below</a>.</p>
 <p class="startli">For all wall models, the distance to the sampling point has to be specified based on the off-wall index in the wall-normal direction. Thus, the sampling is currently from a GLL node and arbitrary distances are not yet supported. The index is set by the <code>h_index</code> keyword, with 1 being the minimal value, and the polynomial order + 1 being the maximum.</p>
 <p class="startli">A 3D field with the name <code>tau</code> will be registered in the field registry. At the boundary it will store the magnitude of the predicted stress. This can be used to post-process the predictions. Additionally, the sampling points are marked with values -1 in this field, for verification purposes. </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;wall_model&quot;,</div>
@@ -574,7 +576,7 @@ Available conditions</h3>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md85"></a>
+<h3><a class="anchor" id="most-wall-model"></a>
 MOST wall model</h3>
 <p>The <code>most</code> model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law according to</p>
 <p class="formulaDsp">
@@ -669,6 +671,30 @@ MOST wall model</h3>
 <p>Monin, A. S., &amp; Obukhov, A. M. (1954). Basic laws of turbulent mixing in the surface layer of the atmosphere. Tr Akad Nauk SSSR Geofiz Inst, 24(151), 163–187.</p>
 <p>Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60. </p>
 </details>
+<h2><a class="anchor" id="richardson-wall-model"></a>
+Richardson wall model</h2>
+<p>This Richardson-number based wall model is conceptually similar to the more well-known MOST-based wall model, but it computes the effect of the temperature stratification based on the bulk Richardson number instead of the Obukhov length.</p>
+<p>In the convective regime, the surface shear stress, \(\tau\), and surface heat flux, \(\overline{u&#39;\theta&#39;}\) are computed using the formulations of Louis 1979:  </p><p class="formulaDsp">
+\begin{eqnarray*}
+\tau &amp;=&amp; a^2 V^2 F_m\left(\frac{z}{z_0}, \mathrm{Ri}_b\right), \\
+\overline{u&#39;\theta&#39;} &amp;=&amp; \frac{a^2}{R}\, V\, \Delta\theta \, F_h\left(\frac{z}{z_{0h}}, \mathrm{Ri}_b\right).
+\end{eqnarray*}
+</p>
+<p>Here, \(V\) is the horizontal wind speed (given that \(z\) is the wall-normal direction); \(\theta\) is the potential temperature; \(\mathrm{Ri}_b\) is the bulk Richardson number; \(z_0\) and \(z_{0h}\) are the roughness lengths for momentum and heat, respectively; \(F_m\) and \(F_h\) are stability functions as defined in Louis 1979; and \(a\) and \(R\) are constants, also as defined in Louis 1979.</p>
+<p>In the stable regime, the surface shear stress and surface heat flux are computed based on Mauritsen et al. 2007:  </p><p class="formulaDsp">
+\begin{eqnarray*}
+\tau &amp;=&amp; \frac{V^2}{\left[\ln\left(\dfrac{z}{z_0}\right)\right]^2} \,\frac{f_{\tau}(\mathrm{Ri}_b)}{f_{\tau}(0)} \left(\frac{\ell}{z}\right)^2, \\
+\overline{u&#39;\theta&#39;} &amp;=&amp; \frac{\Delta\theta}{\ln\left(\dfrac{z}{z_{0h}}\right)} \,\frac{f_{\theta}(\mathrm{Ri}_b)}{\left|f_{\theta}(0)\right|} \left(\frac{\ell}{z}\right) \frac{u_*}{\mathrm{Pr}}.
+\end{eqnarray*}
+</p>
+<p>Here, \(V, \theta, \mathrm{Ri}_b, z_0\), and \(z_{0h}\) are the same as above; \(f_{\tau}\) and \(f_{\theta}\) are defined in Mauritsen et al. 2007; \(l\) is a lengthscale (we use \(l = \kappa z\), where \(\kappa=0.4\) is the von Kàrmàn constant); \(u_*\) is the friction velocity, and \(\mathrm{Pr}\) is the turbulent Prandtl number.</p>
+<p>The keywords for this wall model are the same as for the <a class="el" href="../../dd/d33/case-file.html#most-wall-model">MOST model</a>, and a time-varying temperature boundary condition can be applied in the same way as described for the MOST model.</p>
+<details >
+<summary >
+<b><u>References</u></b></summary>
+<p>Louis, J.-F. (1979). A parametric model of vertical eddy fluxes in the atmosphere. Boundary-Layer Meteorology, 17(2), 187–202. <a href="https://doi.org/10.1007/BF00117978">https://doi.org/10.1007/BF00117978</a>.</p>
+<p>Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., &amp; Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. <a href="https://doi.org/10.1175/2007JAS2294.1">https://doi.org/10.1175/2007JAS2294.1</a>. </p>
+</details>
 <h2><a class="anchor" id="case-file_fluid-ic"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. Note that this currently pertains to both the fluid, but also scalars. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
@@ -753,7 +779,7 @@ Source terms</h2>
 <li><code>sponge</code>, adds a sponge term based on a reference velocity field, which is applied in a user-specified region of the domain.</li>
 <li><code>field</code>, uses fields in the <code>neko_registry</code> as values of the source term. The fields are selected with the <code>field_names</code> keyword.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md86"></a>
+<h3><a class="anchor" id="autotoc_md85"></a>
 Brinkman</h3>
 <p>The Brinkman source term introduces regions of resistance in the fluid domain. The volume force \( f_i \) applied in the selected regions are proportional to the fluid velocity component \( u_i \).</p>
 <p class="formulaDsp">
@@ -835,7 +861,7 @@ Brinkman</h3>
 <div class="line">      }</div>
 <div class="line">   }</div>
 <div class="line">]</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md87"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md86"></a>
 Gradient Jump Penalty</h3>
 <p>The optional <code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code> object can be used to perform gradient jump penalty as an continuous interior penalty option. The penalty term is performed on the weak form equation of quantity \( T \) (could either be velocity or scalar) as a right hand side term</p>
 <p>\( - &lt; \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}&gt;\),</p>
@@ -851,7 +877,7 @@ Gradient Jump Penalty</h3>
 <li><code>scaling_factor</code>, the scaling parameter \( a \) for \( P &gt; 1 \), default to be <code>0.8</code>.</li>
 <li><code>scaling_exponent</code>, the scaling parameter \( b \) for \( P &gt; 1 \), default to be <code>4.0</code>.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md88"></a>
+<h3><a class="anchor" id="autotoc_md87"></a>
 Sponge</h3>
 <p>The sponge source term adds a term to each of the momentum equations of the form</p>
 <p>\( \mathbf{\lambda} f(\mathbf{x}) ( \mathbf{u}^{bf} - \mathbf{u}) \)</p>
@@ -917,7 +943,7 @@ Sponge</h3>
 <p>The same principle applies for the base flow fields (if <code>"method": "user"</code>). By default, neko will search for the base flow fields in the registry using the prefix <code>"sponge_bf_"</code>, meaning that <code>u</code> will be in <code>sponge_bf_u</code>, etc. This prefix can be changed by setting the parameter <code>bf_registry_prefix</code>.</p>
 <details >
 <summary >
-<b><u>Example using <code>user_init_modules</code></u></b></summary>
+<b><u>Example using <code>initialize</code></u></b></summary>
 <p></p>
 <div class="fragment"><div class="line"><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
 <div class="line">  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d62/namespaceneko.html">neko</a></div>
@@ -994,7 +1020,8 @@ Sponge</h3>
 <div class="line"> </div>
 <div class="line"><span class="keywordflow">    end do</span></div>
 <div class="line"> </div>
-<div class="line">    wbf = 0.0_rp</div>
+<div class="line">    wbf%x = 0.0_rp    </div>
+<div class="line">    </div>
 <div class="line">    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line">       <span class="keyword">call </span>device_memcpy(ubf%x, ubf%x_d, ubf%size(), &amp;</div>
 <div class="line">            host_to_device, .false.)</div>
@@ -1154,7 +1181,7 @@ Solver</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyLeft"><code>output_stiffness</code>   </td><td class="markdownTableBodyLeft">Enables output of the computed mesh stiffness field \( h(\mathbf{x}) \)   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>   </td></tr>
 </table>
-<h4><a class="anchor" id="autotoc_md89"></a>
+<h4><a class="anchor" id="autotoc_md88"></a>
 Output Files and Diagnostics</h4>
 <p>If the output flags are enabled, Neko will generate <code>.fld</code> files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:</p>
 <ul>
@@ -1164,7 +1191,7 @@ Output Files and Diagnostics</h4>
 </ul>
 <dl class="section attention"><dt>Attention</dt><dd>Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \( \phi_{total} \) is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's <code>absolute_tolerance</code> is set appropriately.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>It is also possible to provide a custom base shape \( \phi \) using a <code>user_ale_base_shapes</code> user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting <code>"output_base_shape": true</code> will still write your custom user shapes to <code>.fld</code> files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found <a class="el" href="../../d6/def/user-file.html#user-file_ale-base-shapes">here</a>.</dd></dl>
-<h3><a class="anchor" id="autotoc_md90"></a>
+<h3><a class="anchor" id="autotoc_md89"></a>
 Mesh preview</h3>
 <p>One of the available features in the Neko ALE module is the Mesh Preview. This allows users to investigate mesh quality over time <b>without</b> running an expensive full fluid simulation. The preview applies the exact same prescribed motion configured by the user, ensuring the visualized mesh motion perfectly mirrors what will happen during the actual simulation. Enabling this feature generates <code>.fld</code> files named <code>mesh_preview0.f*****</code>, which contain the deformed mesh and the mass matrix.</p>
 <p>The <code>"mesh_preview"</code> block accepts the following keywords:</p>
@@ -1185,7 +1212,7 @@ Mesh preview</h3>
 <dl class="section attention"><dt>Attention</dt><dd>The <code>"mesh_preview"</code> feature is strictly a pre-processing step. Once the preview completes, whether successfully or due to a failure, the Neko run will terminate and output a corresponding success or failure message. To proceed with the actual fluid simulation, the user <b>must</b> set <code>"mesh_preview.enabled: false"</code> in order for the actual simulation to run. Additionally, if the solver detects an inverted mesh element during the preview phase, it will save the exact time step at which the Jacobian becomes negative to assist with debugging.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The <code>"mesh_preview"</code> feature uses the same time integration order as defined in <code>"case.numerics.time_order"</code>. However, the <code>start_time</code>, <code>end_time</code>, constant <code>dt</code>, and <code>output_freq</code> parameters must be explicitly defined within the <code>"mesh_preview"</code> block itself.</dd></dl>
 <dl class="section attention"><dt>Attention</dt><dd>When the ALE module is <code>enabled</code>, Neko will <b>always</b> save the mesh in the <code>.fld</code> files at every output step.</dd></dl>
-<h3><a class="anchor" id="autotoc_md91"></a>
+<h3><a class="anchor" id="autotoc_md90"></a>
 Bodies</h3>
 <p>The <code>"bodies"</code> block defines an array of objects, where each object represents an individually controlled ALE body. Each body must map to corresponding physical boundary zone using <code>"bodies.zone_indices"</code>.</p>
 <p>Each individual body object accepts the following general keywords and base kinematics:</p>
@@ -1207,7 +1234,7 @@ Bodies</h3>
 </table>
 <dl class="section attention"><dt>Attention</dt><dd>The body_ID for ALE bodies is defined based on the order in which they are added to the <code>"bodies"</code> array, not based on their <code>"zone_indices"</code>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>If multiple moving <code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code> zone IDs are assigned to <code>"zone_indices"</code> of a single ALE body, the code will treat all those boundaries as a unified rigid body.</dd></dl>
-<h4><a class="anchor" id="autotoc_md92"></a>
+<h4><a class="anchor" id="autotoc_md91"></a>
 Oscillation</h4>
 <p>The <code>"oscillation"</code> sub-object defines the harmonic translational motion of the body. It takes the following mandatory keywords:</p>
 <table class="markdownTable">
@@ -1227,7 +1254,7 @@ Oscillation</h4>
 \end{eqnarray*}
 </p>
 <p>where \( A_i \) is the <code>oscillation.amplitude</code> and \( f_i \) is the <code>oscillation.frequency</code> for that specific direction.</p>
-<h4><a class="anchor" id="autotoc_md93"></a>
+<h4><a class="anchor" id="autotoc_md92"></a>
 Rotation</h4>
 <p>If the body undergoes rotational motion, the <code>"rotation"</code> sub-object can be configured. Depending on the <code>rotation.type</code>, different parameters become applicable:</p>
 <table class="markdownTable">
@@ -1399,11 +1426,11 @@ Mesh Stiffness</h4>
 </ul>
 <dl class="section attention"><dt>Attention</dt><dd>Within the region defined by <code>radius</code> (from the center) or <code>stiff_dist</code> (from the boundary), the mesh stiffness is at its highest. If the <code>gain</code> parameter is set large enough, the mesh within this region moves rigidly with the body, preserving its original element quality without deformation. Users are encouraged to check the <code>ocyl_cylinder3D</code>, <code>ocyl_ellipse3D</code>, and <code>Double_ocyl_cylinder</code> examples to get a better idea of how these parameters are configured in practice.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Setting a very large value for <code>gain</code> (e.g., <code>1.0e6</code>) is recommended if the mesh immediately surrounding the body is intended to be fully rigid (i.e., \( \phi_i \approx 1 \)). Conversely, if two moving objects are in close proximity, the <code>gain</code> should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated <code>phi_total0.f00000</code> file, and checking the mesh quality using <code>mesh_preview</code> are highly recommended.</dd></dl>
-<h3><a class="anchor" id="autotoc_md94"></a>
+<h3><a class="anchor" id="autotoc_md93"></a>
 Restarting ALE simulations</h3>
 <p>Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving <code>.chkp</code> files.</p>
 <dl class="section attention"><dt>Attention</dt><dd>A <code>.chkp</code> file generated from a standard static simulation (i.e., <code>"ale.enabled": false</code>) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an <code>initial_condition</code> for a subsequent ALE simulation. In this case, saving the file in <code>double precision</code> is recommended.</dd></dl>
-<h1><a class="anchor" id="autotoc_md95"></a>
+<h1><a class="anchor" id="autotoc_md94"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
 <ul>
@@ -1433,7 +1460,7 @@ Linear solver configuration</h1>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
 <p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated. This can in some situations cause issues if the initial condition is far from a valid solution. Therefore a user can allow an initial stabilization phase by setting the <code>case.fluid.allow_stabilization</code> keyword to <code>true</code>. In this case, the strict convergence will be ignored untill all components of the velocity field converge within the specified tolerance. After this initial stabilization phase, strict convergence will be enforced for the rest of the simulation.</p>
-<h2><a class="anchor" id="autotoc_md96"></a>
+<h2><a class="anchor" id="autotoc_md95"></a>
 Multilevel preconditioners</h2>
 <p>The multilevel preconditioners, <code>hsmg</code> and <code>phmg</code>, come with an additional set of parameters related to the solution of the coarse grid problem. These parameters are specified as a <code>coarse_grid</code> block under <code>preconditioner</code>.</p>
 <p>For <code>hsmg</code>, the following keywords are used:</p>
@@ -1472,7 +1499,7 @@ Multilevel preconditioners</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">4   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md97"></a>
+<h2><a class="anchor" id="autotoc_md96"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
 <ul>
@@ -1481,7 +1508,7 @@ Flow rate forcing</h2>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
 <li><code>log</code>, whether to print the flow-rate forcing log message each time the forcing is adjusted. Defaults to <code>true</code>.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md98"></a>
+<h2><a class="anchor" id="autotoc_md97"></a>
 Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
@@ -1593,11 +1620,11 @@ Full parameter table</h2>
 <h1><a class="anchor" id="case-file_scalar"></a>
 Scalar</h1>
 <p>The scalar object allows to add a scalar transport equation to the solution. The solution variable is called <code>s</code> by default, but can be controlled by the <code>field_name</code> entry in the case file. In the fld files, it is saved as <code>temperature</code>. Some properties of the object are inherited from <code>fluid</code>: the value of the density, and the output control.</p>
-<h2><a class="anchor" id="autotoc_md99"></a>
+<h2><a class="anchor" id="autotoc_md98"></a>
 Material properties</h2>
 <p>The scalar equation requires defining additional material properties: the specific heat capacity and thermal conductivity. These are provided as <code>cp</code> and <code>lambda</code>. Similarly to the fluid, one can provide the Peclet number, <code>Pe</code>, as an alternative. In this case, <code>cp</code> is set to 1 and <code>lambda</code> to the inverse of <code>Pe</code>.</p>
 <p>Different from the setup in the fluid, turbulence modelling is enabled by setting the <code>alphat</code> json entry.</p>
-<h2><a class="anchor" id="autotoc_md100"></a>
+<h2><a class="anchor" id="autotoc_md99"></a>
 Turbulence modelling</h2>
 <p>The user could choose to either relate the eddy diffusivity field to the eddy viscosity field in the Fluid, or model the eddy diffusivity field by some particular SGS models, by setting up the <code>nut_dependency</code> entry. If the eddy diffusivity field is associated to the eddy viscosity field by a coefficient <code>Pr_t</code>, the eddy viscosity values will be divided by it to produce eddy diffusivity. And the corresponding setting could be done by the following:</p>
 <div class="fragment"><div class="line">&quot;alphat&quot;:{</div>
@@ -1610,7 +1637,7 @@ Turbulence modelling</h2>
 <div class="line">    &quot;nut_dependency&quot;: false,</div>
 <div class="line">    &quot;alphat_field&quot;: &quot;temperature_alphat&quot;</div>
 <div class="line">},</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md101"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md100"></a>
 Boundary conditions</h2>
 <p>The boundary conditions for the scalar are specified through the <code>boundary_conditions</code> keyword, which follows the same format as the fluid, for specifying the type of the condition and where it is applied. Four types of conditions are available for the scalar:</p>
 <ul>
@@ -1632,7 +1659,7 @@ Boundary conditions</h2>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md102"></a>
+<h2><a class="anchor" id="autotoc_md101"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
@@ -1641,13 +1668,13 @@ Initial conditions</h2>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><code>field</code>, where the initial condition is retrieved from a field file. Works in the same way as for the fluid. See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid section</a> for detailed explanations.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md103"></a>
+<h2><a class="anchor" id="autotoc_md102"></a>
 Source terms</h2>
 <p>The configuration of source terms is the same as for the fluid. A demonstration of using source terms for the scalar can be found in the <code>scalar_mms</code> example.</p>
-<h2><a class="anchor" id="autotoc_md104"></a>
+<h2><a class="anchor" id="autotoc_md103"></a>
 Linear solver configuration</h2>
 <p>Should be provided as an object under the <code>solver</code> keyword. For available configuration options, see the corresponding documentation for the fliud. A standard choice would be <code>"type": "cg"</code> and <code>"preconditioner": "jacobi"</code>.</p>
-<h2><a class="anchor" id="autotoc_md105"></a>
+<h2><a class="anchor" id="autotoc_md104"></a>
 Full parameter table</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -1697,16 +1724,16 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the scalar equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md106"></a>
+<h1><a class="anchor" id="autotoc_md105"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md107"></a>
+<h1><a class="anchor" id="autotoc_md106"></a>
 Point zones</h1>
 <p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md108"></a>
+<h1><a class="anchor" id="autotoc_md107"></a>
 Runtime statistics</h1>
 <p>This object adds the collection of runtime statistics (timings) for identified profiling regions. A region is defined as all functions between a call to <code>profiler_start_region(name, id)</code> and <code>profiler_end_region(name, id)</code>. Neko currently supports 50 regions, with id 1..25 being reserved for internal use.</p>
 <table class="markdownTable">
@@ -1724,7 +1751,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Apr 23 2026 04:32:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Apr 24 2026 04:34:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

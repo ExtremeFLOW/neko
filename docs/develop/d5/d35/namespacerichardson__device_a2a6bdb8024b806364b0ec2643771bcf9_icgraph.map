@@ -1,0 +1,7 @@
+<map id="richardson_device::richardson_compute_device" name="richardson_device::richardson_compute_device">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="243,49,447,89"/>
+<area shape="rect" id="Node000002" href="$da/d24/interfacerichardson__device_1_1hip__richardson__compute.html#aa510eec9d17dabe7a8d215046f35a4cf" title=" " alt="" coords="5,5,195,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="229,54,194,49,195,44,229,49"/>
+<area shape="rect" id="Node000003" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="17,85,183,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="229,88,184,95,183,90,229,83"/>
+</map>

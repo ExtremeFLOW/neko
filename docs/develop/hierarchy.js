@@ -363,6 +363,7 @@ var hierarchy =
     [ "gather_scatter::gs_t", "dd/db8/structgather__scatter_1_1gs__t.html", null ],
     [ "htable::h_cptr_t", "dc/d02/structhtable_1_1h__cptr__t.html", null ],
     [ "htable::h_tuple_t", "d8/d5b/structhtable_1_1h__tuple__t.html", null ],
+    [ "richardson_cpu::heat_flux_interface", "d4/da1/interfacerichardson__cpu_1_1heat__flux__interface.html", null ],
     [ "hip_math::hip_absval", "d0/d22/interfacehip__math_1_1hip__absval.html", null ],
     [ "hip_math::hip_add2", "d9/dfc/interfacehip__math_1_1hip__add2.html", null ],
     [ "hip_math::hip_add2s1", "de/dd0/interfacehip__math_1_1hip__add2s1.html", null ],
@@ -473,6 +474,7 @@ var hierarchy =
     [ "hip_math::hip_pwmin_vec2", "da/d3a/interfacehip__math_1_1hip__pwmin__vec2.html", null ],
     [ "hip_math::hip_pwmin_vec3", "dd/d3b/interfacehip__math_1_1hip__pwmin__vec3.html", null ],
     [ "hip_math::hip_radd", "d3/d3d/interfacehip__math_1_1hip__radd.html", null ],
+    [ "richardson_device::hip_richardson_compute", "da/d24/interfacerichardson__device_1_1hip__richardson__compute.html", null ],
     [ "opr_device::hip_rotate_cyc", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html", null ],
     [ "rough_log_law_device::hip_rough_log_law_compute", "da/de5/interfacerough__log__law__device_1_1hip__rough__log__law__compute.html", null ],
     [ "hip_math::hip_rzero", "d9/d73/interfacehip__math_1_1hip__rzero.html", null ],
@@ -947,6 +949,7 @@ var hierarchy =
     [ "tree_amg::tamg_node_t", "d5/db1/structtree__amg_1_1tamg__node__t.html", null ],
     [ "tree_amg_multigrid::tamg_solver_t", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html", null ],
     [ "tree_amg_multigrid::tamg_wrk_t", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html", null ],
+    [ "richardson_cpu::tau_interface", "d0/d9b/interfacerichardson__cpu_1_1tau__interface.html", null ],
     [ "tet_mesh::tet_mesh_t", "db/d3a/structtet__mesh_1_1tet__mesh__t.html", null ],
     [ "time_based_controller::time_based_controller_t", "db/de7/structtime__based__controller_1_1time__based__controller__t.html", null ],
     [ "time_interpolator::time_interpolator_t", "d8/d85/structtime__interpolator_1_1time__interpolator__t.html", null ],
@@ -1011,6 +1014,7 @@ var hierarchy =
     [ "wall_model::wall_model_partial_init", "d8/df2/interfacewall__model_1_1wall__model__partial__init.html", null ],
     [ "wall_model::wall_model_t", "d4/d70/structwall__model_1_1wall__model__t.html", [
       [ "most::most_t", "de/d0b/structmost_1_1most__t.html", null ],
+      [ "richardson::richardson_t", "dd/df1/structrichardson_1_1richardson__t.html", null ],
       [ "rough_log_law::rough_log_law_t", "df/d21/structrough__log__law_1_1rough__log__law__t.html", null ],
       [ "spalding::spalding_t", "df/df1/structspalding_1_1spalding__t.html", null ]
     ] ]

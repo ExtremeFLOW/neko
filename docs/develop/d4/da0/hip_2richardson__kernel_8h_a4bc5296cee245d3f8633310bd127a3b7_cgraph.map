@@ -1,0 +1,6 @@
+<map id="tau_convective" name="tau_convective">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,127,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="175,29,339,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,47,161,47,161,52,127,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="221,30,219,20,224,11,237,5,257,3,279,6,291,13,288,17,277,11,257,8,239,10,228,15,224,21,226,28"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="richardson_cpu::set_stability_regime" name="richardson_cpu::set_stability_regime">
+<area shape="rect" id="Node000001" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="464,5,612,45"/>
+<area shape="rect" id="Node000002" href="$d4/d09/namespacerichardson__cpu.html#a72bd6a05a974a10ff22e3956ad5495fc" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
+<area shape="rect" id="Node000003" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+</map>

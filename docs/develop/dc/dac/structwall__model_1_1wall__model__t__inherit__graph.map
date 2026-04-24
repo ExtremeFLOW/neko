@@ -1,9 +1,11 @@
 <map id="wall_model::wall_model_t" name="wall_model::wall_model_t">
-<area shape="rect" id="Node000001" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="122,5,314,31"/>
-<area shape="rect" id="Node000002" href="$de/d0b/structmost_1_1most__t.html" title="Wall model based on the Monin&#45;Obukhov Similarity Theory for atmospheric boundary layer flows...." alt="" coords="5,86,113,111"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,39,84,88,81,84,182,34"/>
-<area shape="rect" id="Node000003" href="$df/d21/structrough__log__law_1_1rough__log__law__t.html" title="Wall model based on the log&#45;law for a rough wall. The formula defining the law is ...." alt="" coords="138,79,298,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="221,44,221,79,215,79,215,44"/>
-<area shape="rect" id="Node000004" href="$df/df1/structspalding_1_1spalding__t.html" title="Wall model based on Spalding&#39;s law of the wall. Reference: http://dx.doi.org/10.1115/1...." alt="" coords="322,86,474,111"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="258,34,373,84,371,88,256,39"/>
+<area shape="rect" id="Node000001" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="5,84,197,109"/>
+<area shape="rect" id="Node000002" href="$de/d0b/structmost_1_1most__t.html" title="Wall model based on the Monin&#45;Obukhov Similarity Theory for atmospheric boundary layer flows...." alt="" coords="281,5,389,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,76,244,39,283,28,284,33,246,45,147,81"/>
+<area shape="rect" id="Node000003" href="$dd/df1/structrichardson_1_1richardson__t.html" title="Wall model similar to the Monin&#45;Obukhov Similarity Theory for atmospheric boundary layer flows,..." alt="" coords="245,55,424,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,80,245,76,245,81,211,86"/>
+<area shape="rect" id="Node000004" href="$df/d21/structrough__log__law_1_1rough__log__law__t.html" title="Wall model based on the log&#45;law for a rough wall. The formula defining the law is ...." alt="" coords="255,105,415,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="211,107,255,112,254,118,211,112"/>
+<area shape="rect" id="Node000005" href="$df/df1/structspalding_1_1spalding__t.html" title="Wall model based on Spalding&#39;s law of the wall. Reference: http://dx.doi.org/10.1115/1...." alt="" coords="259,169,411,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="143,112,246,154,286,167,284,172,244,159,141,117"/>
 </map>
