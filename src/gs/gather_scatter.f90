@@ -91,14 +91,19 @@ module gather_scatter
      class(gs_comm_t), allocatable :: comm !< Comm. method
      class(gs_interp_t), allocatable :: interp !< Face/edge interpolation
    contains
+     ! Operators performing interpolation
      procedure, private, pass(gs) :: gs_op_fld
      procedure, private, pass(gs) :: gs_op_fld_h1
      procedure, private, pass(gs) :: gs_op_r4
+     procedure, private, pass(gs) :: gs_op_r4_h1
+     ! Operator not performing interpolation
      procedure, pass(gs) :: gs_op_vector
      procedure, pass(gs) :: init => gs_init
      procedure, pass(gs) :: free => gs_free
+     !!!!! ONE SHOULD REMOVE GS_OP_VECTOR HERE !!!!!
      generic :: op => gs_op_fld, gs_op_r4, gs_op_vector
-     generic :: op_h1 => gs_op_fld_h1
+     !!!!! ONE SHOULD REMOVE GS_OP_VECTOR HERE !!!!!
+     generic :: op_h1 => gs_op_fld_h1, gs_op_r4_h1
      !> AMR restart
      procedure, pass(this) :: amr_restart => gs_amr_restart
   end type gs_t
@@ -1229,7 +1234,7 @@ contains
 
   end subroutine gs_op_fld
 
-  !> Gather-scatter operation on a field @a u with op @a op
+  !> H1 projection with gather-scatter operation on a field @a u with op @a op
   subroutine gs_op_fld_h1(gs, u, op, event)
     class(gs_t), intent(inout) :: gs
     type(field_t), intent(inout) :: u
@@ -1257,13 +1262,41 @@ contains
     type(c_ptr), optional, intent(inout) :: event
     integer :: op
 
+    if (allocated(gs%interp)) call gs%interp%apply_jt(u)
+
     if (present(event)) then
        call gs_op_vector(gs, u, n, op, event)
     else
        call gs_op_vector(gs, u, n, op)
     end if
 
+!    if (allocated(gs%interp)) call gs%interp%remove_mult_jt(u)
+    
+    if (allocated(gs%interp)) call gs%interp%apply_j(u)
+    
+!    if (allocated(gs%interp)) call gs%interp%add_mult_jt(u)
+
   end subroutine gs_op_r4
+
+  !> H1 projection with gather-scatter operation on a rank 4 array
+  subroutine gs_op_r4_h1(gs, u, n, op, event)
+    class(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: u
+    type(c_ptr), optional, intent(inout) :: event
+    integer :: op
+
+    if (allocated(gs%interp)) call gs%interp%remove_mult_h1(u)
+
+    if (present(event)) then
+       call gs_op_vector(gs, u, n, op, event)
+    else
+       call gs_op_vector(gs, u, n, op)
+    end if
+
+    if (allocated(gs%interp)) call gs%interp%apply_j(u)
+
+  end subroutine gs_op_r4_h1
 
   !> Gather-scatter operation on a vector @a u with op @a op
   subroutine gs_op_vector(gs, u, n, op, event)
