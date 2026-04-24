@@ -72,7 +72,7 @@ extern "C" {
                                           (real *) h_d, (real *) n_x_d, (real *) n_y_d, (real *) n_z_d,
                                           (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d, (int *) ind_e_d,
                                           (real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
-                                          *n_nodes, *lx, *kappa, (real *) mu_w_d, (real *) rho_w_ds, g1, g2, g3,
+                                          *n_nodes, *lx, *kappa, (real *) mu_w_d, (real *) rho_w_d, g1, g2, g3,
                                           *Pr, *z0, *z0h_in, *bc_value, (real *) Ri_b_diagn, (real *) L_ob_diagn,
                                           (real *) utau_diagn, (real *) magu_diagn, (real *) ti_diagn, (real *) ts_diagn,
                                           (real *) q_diagn, (int *) h_x_idx, (int *) h_y_idx, (int *) h_z_idx);
