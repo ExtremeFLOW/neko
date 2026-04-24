@@ -41,10 +41,10 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_end
     real(kind=rp), intent(inout) :: du(Xh%lxyz, e_end-e_start+1)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
-    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(in) :: vx(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(in) :: vy(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
+    real(kind=rp), intent(in) :: vz(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1)
     integer :: e_len
 
     e_len = e_end-e_start+1
@@ -61,10 +61,10 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_len
     real(kind=rp), intent(inout) :: du(Xh%lxyz, e_len)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(in) :: vx(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(in) :: vy(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(in) :: vz(Xh%lx, Xh%ly, Xh%lz, e_len)
 
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
@@ -1251,10 +1251,10 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e
     real(kind=rp), intent(inout) :: du(Xh%lxyz, e_len)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, e_len)
-    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(in) :: vx(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(in) :: vy(Xh%lx, Xh%ly, Xh%lz, e_len)
+    real(kind=rp), intent(in) :: vz(Xh%lx, Xh%ly, Xh%lz, e_len)
 
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
