@@ -252,20 +252,28 @@ contains
     end if
 
     ! Ensure continuity across elements for initial conditions
-    call rotate_cyc(u%x, v%x, w%x, 1, coef)
-    call gs%op(u%x, u%dof%size(), GS_OP_ADD)
-    call gs%op(v%x, v%dof%size(), GS_OP_ADD)
-    call gs%op(w%x, w%dof%size(), GS_OP_ADD)
-    call rotate_cyc(u%x, v%x, w%x, 0, coef)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col2(u%x_d, coef%mult_d, u%dof%size())
-       call device_col2(v%x_d, coef%mult_d, v%dof%size())
-       call device_col2(w%x_d, coef%mult_d, w%dof%size())
+    if (allocated(gs%interp)) then
+       call rotate_cyc(u%x, v%x, w%x, 1, coef)
+       call gs%op_h1(u%x, u%dof%size(), GS_OP_ADD)
+       call gs%op_h1(v%x, v%dof%size(), GS_OP_ADD)
+       call gs%op_h1(w%x, w%dof%size(), GS_OP_ADD)
+       call rotate_cyc(u%x, v%x, w%x, 0, coef)
     else
-       call col2(u%x, coef%mult, u%dof%size())
-       call col2(v%x, coef%mult, v%dof%size())
-       call col2(w%x, coef%mult, w%dof%size())
+       call rotate_cyc(u%x, v%x, w%x, 1, coef)
+       call gs%op(u%x, u%dof%size(), GS_OP_ADD)
+       call gs%op(v%x, v%dof%size(), GS_OP_ADD)
+       call gs%op(w%x, w%dof%size(), GS_OP_ADD)
+       call rotate_cyc(u%x, v%x, w%x, 0, coef)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_col2(u%x_d, coef%mult_d, u%dof%size())
+          call device_col2(v%x_d, coef%mult_d, v%dof%size())
+          call device_col2(w%x_d, coef%mult_d, w%dof%size())
+       else
+          call col2(u%x, coef%mult, u%dof%size())
+          call col2(v%x, coef%mult, v%dof%size())
+          call col2(w%x, coef%mult, w%dof%size())
+       end if
     end if
 
   end subroutine set_flow_ic_common
