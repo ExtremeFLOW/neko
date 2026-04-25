@@ -228,10 +228,10 @@ contains
 
     if (NEKO_BCKND_HIP .eq. 1) then
        call neko_log%message("Initializing ALE " // &
-            "with DEVICE backend (HIP).")
+            "with device backend (HIP).")
     else if (NEKO_BCKND_CUDA .eq. 1) then
        call neko_log%message("Initializing ALE " // &
-            "with DEVICE backend (CUDA).")
+            "with device backend (CUDA).")
     else
        call neko_log%message("Initializing ALE " // &
             "with CPU backend.")
@@ -1401,6 +1401,7 @@ contains
     type(chkp_t), intent(in) :: chkp
     type(gs_t), intent(inout) :: gs_Xh
     integer :: i, j, n
+
     ! Return if ALE is not active.
     if (.not. this%active) return
 
@@ -1410,7 +1411,7 @@ contains
             "of elements than the checkpoint.")
     end if
 
-    ! Restarting from a different poly order
+    ! Restarting from a different polynomial order
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
        n = coef%dof%size()
        associate(wm_x => this%wm_x, wm_y => this%wm_y, wm_z => this%wm_z)
