@@ -1261,7 +1261,7 @@ The parameters for the sponge source term are summarized in the table below:
 ### Arbitrary Lagrangian-Eulerian Framework {#case-file_fluid-ale}
 Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies.
 
-@note Currently, only the CPU backend of the ALE framework is supported. GPU acceleration for ALE computations will be available in future updates.
+@note Currently, the ALE framework supports CPU backend, as well as HIP and CUDA backends for GPU acceleration.
 
 The `"ale"` block in case file is part of the `"fluid"` object, and has the following high-level structure:
 
@@ -1589,9 +1589,14 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
 
 #### Restarting ALE simulations
 
-Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving `.chkp` files.
+Neko supports checkpointing and restarting for ALE simulations from `.chkp` files. No additional parameters need to be set apart from the usual configuration for saving these files.
 
-@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
+**Restart Capabilities:**
+* **Exact Restart:** Restarting from the same mesh and the same polynomial order is an exact restart.
+* **Different Polynomial Order:** Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in `BDF2` and `BDF3` time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.
+* **Different Mesh:** Restarting from a different mesh is not yet supported for ALE simulations.
+
+@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used as `"restart_file"` to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
