@@ -72,7 +72,9 @@ module ale_manager
   use time_state, only : time_state_t
   use fld_file, only : fld_file_t
   use user_intf, only : user_t, user_ale_mesh_velocity_intf, &
-       user_ale_base_shapes_intf, user_ale_rigid_kinematics_intf
+       user_ale_base_shapes_intf, user_ale_rigid_kinematics_intf, &
+       dummy_user_ale_mesh_velocity, dummy_user_ale_rigid_kinematics, &
+       dummy_user_ale_base_shapes
   use math, only : glmin, pi, copy
   use device_math, only : device_glmin
   use field_math, only : field_rzero, field_add2, &
@@ -197,7 +199,7 @@ contains
     logical :: tmp_logical, oifs
     logical :: moving_
     logical :: found_zone
-    logical :: has_user_kin, has_user_mesh
+    logical :: has_user_rigid_kin, has_user_mesh_vel
     logical :: has_builtin_osc, has_builtin_rot, is_rot_active
     logical :: res_monitor
 
@@ -261,8 +263,10 @@ contains
     this%user_ale_rigid_kinematics => user%ale_rigid_kinematics
 
     ! Check user association states
-    has_user_kin = associated(this%user_ale_rigid_kinematics)
-    has_user_mesh = associated(this%user_ale_mesh_vel)
+    has_user_rigid_kin = .not. associated(this%user_ale_rigid_kinematics, &
+         dummy_user_ale_rigid_kinematics)
+    has_user_mesh_vel = .not. associated(this%user_ale_mesh_vel, &
+         dummy_user_ale_mesh_velocity)
 
     ! Enable B history (Blag, Blaglag)
     call coef%enable_B_history()
@@ -338,7 +342,8 @@ contains
           call neko_error("ALE: stiffness_type must be 'built-in'")
        end if
     end if
-    if (.not. associated(this%user_ale_base_shapes)) then
+    if ( associated(this%user_ale_base_shapes, &
+         dummy_user_ale_base_shapes)) then
        call neko_log%message('Solver Type       : (' // &
           trim(ksp_solver) // ', ' // trim(precon_type) // ')')
        write(log_buf, '(A,ES13.6)') 'Abs tol           :', abstol
@@ -455,20 +460,9 @@ contains
                 call json_get(body_sub, 'rotation.target_angle_deg', tmp_val)
                 this%config%bodies(i)%target_rot_angle_deg = tmp_val
 
-                ! This mode can be neglected. It exists just in case!
-                ! user motion can be combined with any other type from above
-                ! using user interfaces.
-             case ('user')
-                if (.not. associated(this%user_ale_mesh_vel) .and. &
-                   .not. associated(this%user_ale_rigid_kinematics)) then
-                   call neko_error("'user' rotation is chosen, but " // &
-                      "neither 'user_ale_rigid_kinematics' nor " // &
-                      "'user_ale_mesh_velocity' is provided.")
-                end if
-
              case default
                 call neko_error("ALE: rotation.type must be 'harmonic', " // &
-                   "'ramp', 'smooth_step', or 'user'.")
+                   "'ramp', or 'smooth_step'")
              end select
           end if
 
@@ -559,7 +553,8 @@ contains
 
           ! Logging Stiff Body
           call neko_log%message(' ')
-          if (.not. associated(this%user_ale_base_shapes)) then
+          if (associated(this%user_ale_base_shapes, &
+               dummy_user_ale_base_shapes)) then
              write(log_buf, '(A,A)') '   Stiff Type    : ', &
                   trim(this%config%bodies(i)%stiff_geom%type)
              call neko_log%message(log_buf)
@@ -588,7 +583,7 @@ contains
           has_builtin_osc = any(abs(this%config%bodies(i)%osc_amp) > 0.0_rp)
 
           if (has_builtin_osc) then
-             if (has_user_kin .or. has_user_mesh) then
+             if (has_user_rigid_kin .or. has_user_mesh_vel) then
                 call neko_log%message('   Oscillation    : ' // &
                    'X(t) = Amp*sin(2*pi*Freq*t) + User')
                 write(log_buf, '(A,3(ES18.11,1X))') '    Amp       :', &
@@ -608,7 +603,7 @@ contains
                 call neko_log%message(log_buf)
              end if
           else
-             if (has_user_kin .or. has_user_mesh) then
+             if (has_user_rigid_kin .or. has_user_mesh_vel) then
                 call neko_log%message('   Oscillation    : User-defined')
              else
                 call neko_log%message('   Oscillation    : None')
@@ -644,7 +639,7 @@ contains
                 ! Harmonic
                 if (trim(this%config%bodies(i)%rotation_type) &
                      == 'harmonic') then
-                   if (has_user_kin .or. has_user_mesh) then
+                   if (has_user_rigid_kin .or. has_user_mesh_vel) then
                       call neko_log%message('   Rotation     : ' // &
                            'Theta(t) = Amp*sin(2*pi*Freq*t) + User')
                    else
@@ -661,7 +656,7 @@ contains
                    ! Ramp
                 elseif (trim(this%config%bodies(i)%rotation_type) &
                      == 'ramp') then
-                   if (has_user_kin .or. has_user_mesh) then
+                   if (has_user_rigid_kin .or. has_user_mesh_vel) then
                       call neko_log%message('   Rotation     : ' // &
                            'Omega(t) = Omega0*(1 - exp(-4.6*t/t0)) + User')
                    else
@@ -678,7 +673,7 @@ contains
                    ! Smooth Step
                 elseif (trim(this%config%bodies(i)%rotation_type) &
                    == 'smooth_step') then
-                   if (has_user_kin .or. has_user_mesh) then
+                   if (has_user_rigid_kin .or. has_user_mesh_vel) then
                       call neko_log%message('   Rotation     : ' // &
                            'Smooth Step Control + User')
                    else
@@ -698,7 +693,7 @@ contains
                    call neko_log%message(log_buf)
                 end if
              else
-                if (has_user_kin .or. has_user_mesh) then
+                if (has_user_rigid_kin .or. has_user_mesh_vel) then
                    call neko_log%message('   Rotation Type: User-defined')
                 else
                    call neko_log%message('   Rotation Type: None')
@@ -885,7 +880,8 @@ contains
 
 
     ! User Defined Base Shapes (Skip Solver).
-    if (associated(this%user_ale_base_shapes)) then
+    if (.not. associated(this%user_ale_base_shapes, &
+         dummy_user_ale_base_shapes)) then
        call neko_log%message("   Using user-defined base shapes " // &
             "(skipping Laplace solve)")
 
@@ -1128,7 +1124,8 @@ contains
             this%config%bodies(i), time_s)
 
        ! User modifier (Superposition or Override)
-       if (associated(this%user_ale_rigid_kinematics)) then
+       if (.not. associated(this%user_ale_rigid_kinematics, &
+            dummy_user_ale_rigid_kinematics)) then
           call this%user_ale_rigid_kinematics(this%config%bodies(i)%id, &
                time_s, &
                kin%vel_trans, &
@@ -1159,7 +1156,8 @@ contains
     ! If user has provided a custom function for mesh velocity.
     ! User mesh velocity will be added to the ale computed mesh velocity.
     ! This routine should not be used for rigid body motions!
-    if (associated(this%user_ale_mesh_vel)) then
+    if (.not. associated(this%user_ale_mesh_vel, &
+         dummy_user_ale_mesh_velocity)) then
        call this%user_ale_mesh_vel(this%wm_x, this%wm_y, this%wm_z, &
             coef, this%x_ref, this%y_ref, this%z_ref, this%base_shapes, time_s)
     end if
@@ -1346,7 +1344,8 @@ contains
             this%config%bodies(i), time_state_dummy)
 
        ! User Modifier (Superposition or Override)
-       if (associated(this%user_ale_rigid_kinematics)) then
+       if (.not. associated(this%user_ale_rigid_kinematics, &
+            dummy_user_ale_rigid_kinematics)) then
           call this%user_ale_rigid_kinematics(this%config%bodies(i)%id, &
                time_state_dummy, &
                kin_restart%vel_trans, &

@@ -245,7 +245,9 @@ module user_intf
        user_material_properties_intf, user_finalize_intf, &
        user_startup_intf, user_source_term_intf, &
        user_ale_mesh_velocity_intf, user_ale_base_shapes_intf, &
-       user_ale_rigid_kinematics_intf
+       user_ale_rigid_kinematics_intf, &
+       dummy_user_ale_mesh_velocity, dummy_user_ale_base_shapes, &
+       dummy_user_ale_rigid_kinematics
 contains
 
   !> Constructor.
@@ -344,19 +346,25 @@ contains
        write(extensions(n), '(A)') '- Material properties'
     end if
 
-    if (associated(this%ale_mesh_velocity)) then
+    if (.not. associated(this%ale_mesh_velocity)) then
+       this%ale_mesh_velocity => dummy_user_ale_mesh_velocity
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE mesh velocity'
     end if
 
-    if (associated(this%ale_rigid_kinematics)) then
+    if (.not. associated(this%ale_rigid_kinematics)) then
+       this%ale_rigid_kinematics => dummy_user_ale_rigid_kinematics
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE kinematics'
     end if
 
-    if (associated(this%ale_base_shapes)) then
+    if (.not. associated(this%ale_base_shapes)) then
+       this%ale_base_shapes => dummy_user_ale_base_shapes
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE base shapes'
@@ -437,5 +445,25 @@ contains
     type(field_list_t), intent(inout) :: properties
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_material_properties
+
+  subroutine dummy_user_ale_mesh_velocity(wm_x, wm_y, wm_z, coef, &
+       x_ref, y_ref, z_ref, base_shapes, time)
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(in) :: x_ref, y_ref, z_ref
+    type(field_t), intent(in) :: base_shapes(:)
+    type(time_state_t), intent(in) :: time
+  end subroutine dummy_user_ale_mesh_velocity
+
+  subroutine dummy_user_ale_base_shapes(base_shapes)
+    type(field_t), intent(inout) :: base_shapes(:)
+  end subroutine dummy_user_ale_base_shapes
+
+  subroutine dummy_user_ale_rigid_kinematics(body_id, time, vel_trans, vel_ang)
+    integer, intent(in) :: body_id
+    type(time_state_t), intent(in) :: time
+    real(kind=rp), intent(inout) :: vel_trans(3)
+    real(kind=rp), intent(inout) :: vel_ang(3)
+  end subroutine dummy_user_ale_rigid_kinematics
 
 end module user_intf
