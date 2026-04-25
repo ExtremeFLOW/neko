@@ -1,6 +1,8 @@
 # Changelog
 
 ## Develop
+
+- Added HIP and CUDA support for ALE.
 - Added hdf5 support for probes and added hdf5 I/O helper routines
 
 - Added the Richardson wall model.
