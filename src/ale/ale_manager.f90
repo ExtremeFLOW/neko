@@ -222,6 +222,14 @@ contains
        if (oifs) then
           call neko_error("ALE not currently supported with OIFS.")
        end if
+       if (json%valid_path('case.checkpoint_format')) then
+          call json_get(json, 'case.checkpoint_format', tmp_str)
+          if (trim(tmp_str) /= 'chkp') then
+             call neko_error("ALE is not supported with the '" // &
+                  trim(tmp_str) // &
+                  "' checkpoint format. Please use 'chkp'.")
+          end if
+       end if
        neko_ale => this
     end if
 
@@ -814,6 +822,8 @@ contains
     if (allocated(zone_indices)) deallocate(zone_indices)
     if (allocated(ksp_solver)) deallocate(ksp_solver)
     if (allocated(precon_type)) deallocate(precon_type)
+    if (allocated(tmp_str)) deallocate(tmp_str)
+    if (allocated(tmp_vec)) deallocate(tmp_vec)
 
     ! Performing mesh_preview.
     call this%mesh_preview(coef, json)
