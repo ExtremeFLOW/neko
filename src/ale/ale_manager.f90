@@ -69,6 +69,7 @@ module ale_manager
   use comm, only : NEKO_COMM
   use registry, only : neko_registry
   use field_series, only : field_series_t
+  use import_field_utils, only : import_fields
   use time_state, only : time_state_t
   use fld_file, only : fld_file_t
   use user_intf, only : user_t, user_ale_mesh_velocity_intf, &
@@ -201,7 +202,7 @@ contains
     logical :: found_zone
     logical :: has_user_rigid_kin, has_user_mesh_vel
     logical :: has_builtin_osc, has_builtin_rot, is_rot_active
-    logical :: res_monitor
+    logical :: res_monitor, import_base_shapes
 
     if (json%valid_path('case.fluid.ale')) then
        call json_get(json, 'case.fluid.ale.enabled', this%active)
@@ -294,7 +295,7 @@ contains
     this%wm_z => neko_registry%get_field('wm_z')
 
     call get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-         precon_params, abstol, ksp_max_iter, res_monitor)
+         precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes)
 
     ! Mark BCs
     call this%bc_moving%init_from_components(coef)
@@ -350,8 +351,9 @@ contains
           call neko_error("ALE: stiffness_type must be 'built-in'")
        end if
     end if
+
     if ( associated(this%user_ale_base_shapes, &
-         dummy_user_ale_base_shapes)) then
+         dummy_user_ale_base_shapes) .and. (.not. import_base_shapes)) then
        call neko_log%message('Solver Type       : (' // &
           trim(ksp_solver) // ', ' // trim(precon_type) // ')')
        write(log_buf, '(A,ES13.6)') 'Abs tol           :', abstol
@@ -532,6 +534,8 @@ contains
                 call neko_error("ALE: Invalid stiff_geom.type: " // &
                      trim(this%config%bodies(i)%stiff_geom%type))
              end select
+          elseif (import_base_shapes) then
+             ! do nothing.
           else
              call neko_error("ALE: Body '" // &
                   trim(this%config%bodies(i)%name) // &
@@ -562,7 +566,8 @@ contains
           ! Logging Stiff Body
           call neko_log%message(' ')
           if (associated(this%user_ale_base_shapes, &
-               dummy_user_ale_base_shapes)) then
+               dummy_user_ale_base_shapes) .and. &
+               (.not. import_base_shapes)) then
              write(log_buf, '(A,A)') '   Stiff Type    : ', &
                   trim(this%config%bodies(i)%stiff_geom%type)
              call neko_log%message(log_buf)
@@ -725,7 +730,7 @@ contains
        call neko_error("ALE: No 'ale bodies' found in case file!")
     end if
 
-    if (this%config%nbodies > 1) then
+    if (this%config%nbodies > 1 .and. (.not. import_base_shapes)) then
        call this%phi_total%init(coef%dof, "phi_total")
        call field_rzero(this%phi_total)
     end if
@@ -796,8 +801,9 @@ contains
     end do
 
     ! Find the smooth blending function for mesh displacement.
-    call this%solve_base_mesh_displacement(coef, abstol, ksp_solver, &
-         ksp_max_iter, precon_type, precon_params, res_monitor)
+    call this%solve_base_mesh_displacement(coef, json, import_base_shapes, &
+         abstol, ksp_solver, ksp_max_iter, &
+         precon_type, precon_params, res_monitor)
 
     ! If we are restarting, we skip this. It will be handled
     ! properly by chkp file.
@@ -838,19 +844,23 @@ contains
   !> It finds a smooth blending function for mesh deformation.
   !> For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.
   !> should be modified for device support (ToDo)
-  subroutine solve_base_mesh_displacement(this, coef, abstol, ksp_solver, &
-       ksp_max_iter, precon_type, precon_params, res_monitor)
-    class(ale_manager_t), intent(inout) :: this
+  subroutine solve_base_mesh_displacement(this, coef, json, &
+       import_base_shapes, abstol, ksp_solver, ksp_max_iter, precon_type, &
+       precon_params, res_monitor)
+    class(ale_manager_t), intent(inout), target :: this
     class(ax_t), allocatable :: Ax
     class(ksp_t), allocatable :: ksp
     class(pc_t), allocatable :: pc
     type(coef_t), intent(inout) :: coef
+    type(json_file), intent(inout) :: json
+    logical, intent(in) :: import_base_shapes
     real(kind=rp), intent(in) :: abstol
     logical, intent(in) :: res_monitor
     character(len=*), intent(in) :: ksp_solver, precon_type
     integer, intent(in) :: ksp_max_iter
     type(json_file), intent(inout) :: precon_params
     type(file_t) :: phi_file
+    type(field_t), pointer :: phi_ptr => null()
     type(field_t) :: rhs_field
     type(field_t) :: corr_field
     type(ksp_monitor_t) :: monitor(1)
@@ -865,11 +875,41 @@ contains
     type(zero_dirichlet_t) :: bc_inactive_body
     type(bc_list_t) :: bcloc
     type(bc_list_t) :: bcloc_zeros_only
+    type(json_file) :: body_sub
+    character(len=256) :: phi_fname
+    character(len=:), allocatable :: tmp_str
 
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
     if (this%config%nbodies == 0) return
+
+    if (import_base_shapes) then
+       call neko_log%message(" ")
+       call neko_log%message("Importing ALE base shapes" // &
+            " (skipping Laplace solve)...")
+
+       do body_idx = 1, this%config%nbodies
+
+          call json_extract_item(json, 'case.fluid.ale.bodies', &
+               body_idx, body_sub)
+
+          call json_get(body_sub, 'base_shape_import_file', tmp_str)
+          phi_fname = tmp_str
+
+          phi_ptr => this%base_shapes(body_idx)
+
+          ! Load the field
+          call import_fields(fname = trim(phi_fname), p = phi_ptr)
+
+          call neko_log%message("   Loaded: " // &
+               trim(phi_fname) // &
+               " for body: " // &
+               trim(this%config%bodies(body_idx)%name))
+       end do
+
+       return
+    end if
 
     call neko_log%message(" ")
     call neko_log%message("Starting base mesh motion solve ...")
@@ -1085,6 +1125,9 @@ contains
 
     call rhs_field%free()
     call corr_field%free()
+    if (this%config%nbodies > 1) then
+       call this%phi_total%free()
+    end if
 
     ! Restore h1/h2 to what they were before
     coef%h1(:,:,:,:) = h1_restore(:,:,:,:)
@@ -1284,9 +1327,7 @@ contains
        end do
        deallocate(this%base_shapes)
     end if
-    if (this%config%nbodies > 1) then
-       call this%phi_total%free()
-    end if
+
     call this%wm_x_lag%free()
     call this%wm_y_lag%free()
     call this%wm_z_lag%free()
@@ -2006,7 +2047,7 @@ contains
   end subroutine ghost_tracker_coord_step
 
   subroutine get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-       precon_params, abstol, ksp_max_iter, res_monitor)
+       precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes)
     class(ale_manager_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     character(len=:), allocatable, intent(inout) :: ksp_solver
@@ -2015,11 +2056,16 @@ contains
     real(kind=rp), intent(out) :: abstol
     integer, intent(out) :: ksp_max_iter
     logical, intent(out) :: res_monitor
+    logical, intent(out) :: import_base_shapes
     logical :: tmp_logical
     character(len=:), allocatable :: tmp_str
 
     if (allocated(ksp_solver)) deallocate(ksp_solver)
     if (allocated(precon_type)) deallocate(precon_type)
+
+    call json_get_or_default(json, &
+         'case.fluid.ale.solver.import_base_shapes', &
+         import_base_shapes, .false.)
 
     call json_get_or_default(json, 'case.fluid.ale.solver.type', &
          ksp_solver, 'cg')
