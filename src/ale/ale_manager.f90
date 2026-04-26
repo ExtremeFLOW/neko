@@ -951,7 +951,8 @@ contains
           ! Individual Bodies
           do body_idx = 1, this%config%nbodies
              call phi_file%init('phi_' // &
-                  trim(this%config%bodies(body_idx)%name) // '.fld')
+                  trim(this%config%bodies(body_idx)%name) // '.fld', &
+                  precision = rp)
              call phi_file%write(this%base_shapes(body_idx))
              call phi_file%free()
              call neko_log%message('   phi_' // &
@@ -961,7 +962,7 @@ contains
           ! Total
           if (this%config%nbodies > 1) then
              call neko_log%message("  phi_total.fld saved.")
-             call phi_file%init('phi_total.fld')
+             call phi_file%init('phi_total.fld', precision = rp)
              call phi_file%write(this%phi_total)
              call phi_file%free()
           end if
@@ -1101,7 +1102,8 @@ contains
 
           if (this%config%if_output_phi) then
              call phi_file%init('phi_' // &
-                  trim(this%config%bodies(body_idx)%name) // '.fld')
+                  trim(this%config%bodies(body_idx)%name) // '.fld', &
+                  precision = rp)
              call phi_file%write(this%base_shapes(body_idx))
              call phi_file%free()
              call neko_log%message('      phi_' // &
@@ -1117,7 +1119,7 @@ contains
           end if
 
           call neko_log%message("   phi_total.fld saved.")
-          call phi_file%init('phi_total.fld')
+          call phi_file%init('phi_total.fld', precision = rp)
           call phi_file%write(this%phi_total)
           call phi_file%free()
        end if
