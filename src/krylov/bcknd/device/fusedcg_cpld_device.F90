@@ -41,7 +41,7 @@ module fusedcg_cpld_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
+  use device_math, only : device_rzero, device_copy, device_glsc2
   use device
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
@@ -592,7 +592,7 @@ contains
       call device_fusedcg_cpld_part1(r1_d, r2_d, r3_d, r1_d, &
            r2_d, r3_d, tmp_d, n)
 
-      rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+      rtr = device_glsc2(tmp_d, coef%mult_d, n)
 
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
