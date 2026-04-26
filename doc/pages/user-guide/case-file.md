@@ -1346,7 +1346,7 @@ Within the `"solver"` block, the parameters of the linear solver used to solve t
 | `monitor`             | Monitor residuals in the linear solver                                    | `true` or `false`              | `false`       |
 | `output_base_shape`   | Enables output of the base shape field \f$ \phi \f$                       | `true` or `false`              | `true`        |
 | `output_stiffness`    | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false`              | `false`       |
-| `import_base_shapes`  | Whether to import \f$ \phi \f$ fields from file                       | `true` or `false`                | `false`       |
+| `import_base_shape`   | Whether to import \f$ \phi \f$ fields from file                       | `true` or `false`                | `false`       |
 
 ##### Output Files and Diagnostics
 If the output flags are enabled, Neko will generate `.fld` files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:

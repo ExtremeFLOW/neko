@@ -2066,7 +2066,7 @@ contains
     if (allocated(precon_type)) deallocate(precon_type)
 
     call json_get_or_default(json, &
-         'case.fluid.ale.solver.import_base_shapes', &
+         'case.fluid.ale.solver.import_base_shape', &
          import_base_shapes, .false.)
 
     call json_get_or_default(json, 'case.fluid.ale.solver.type', &
