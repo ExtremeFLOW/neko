@@ -205,6 +205,8 @@ contains
     integer :: i
     type(field_t), pointer :: f
 
+    if (.not. this%checked) call neko_error("Simcomp not checked!")
+
     if (time%t .ge. this%start_time) then
        do i = 1, size(this%field_names)
 
