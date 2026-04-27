@@ -1,30 +1,28 @@
 <map id="cg_cpld_device::cg_cpld_device_solve" name="cg_cpld_device::cg_cpld_device_solve">
-<area shape="rect" id="Node000001" title="Standard PCG solve." alt="" coords="5,201,153,241"/>
+<area shape="rect" id="Node000001" title="Standard PCG solve." alt="" coords="5,169,153,209"/>
 <area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a0988463460cbd8264e4b0a50c077a295" title=" " alt="" coords="221,5,379,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,200,130,129,162,90,200,55,209,49,211,54,203,59,166,93,134,132,93,202"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,167,136,112,166,81,200,55,210,49,213,54,203,60,169,85,140,115,96,171"/>
 <area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="203,70,397,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="94,199,138,151,168,126,200,104,214,98,216,103,203,109,171,130,142,155,98,203"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="103,167,147,135,200,104,219,97,221,102,202,109,149,139,106,171"/>
 <area shape="rect" id="Node000004" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="201,119,399,145"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="112,199,154,176,200,155,227,146,229,151,202,160,156,181,115,204"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="153,167,201,155,236,146,237,151,202,160,154,173"/>
 <area shape="rect" id="Node000005" href="$d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa" title="Weighted inner product ." alt="" coords="221,169,379,209"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="153,208,207,200,208,205,154,213"/>
-<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#abb89ff66f95f255dc98c0fe714d8ddbf" title="Weighted inner product ." alt="" coords="221,233,379,273"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="154,229,208,237,207,243,153,235"/>
-<area shape="rect" id="Node000007" href="$d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4" title=" " alt="" coords="210,297,390,337"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="116,239,202,283,221,290,219,295,200,288,114,244"/>
-<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="221,361,379,401"/>
-<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="97,240,140,293,170,322,203,347,213,353,211,358,200,352,166,326,136,297,93,243"/>
-<area shape="rect" id="Node000013" href="$d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="221,425,379,465"/>
-<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="90,240,106,277,130,323,162,370,203,411,211,417,207,421,200,415,158,374,125,326,101,279,85,242"/>
-<area shape="rect" id="Node000008" href="$dd/db5/mathops_8cu.html#a62b3651eaaf1b089b51001f3e13f083b" title=" " alt="" coords="637,279,765,305"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="390,309,622,294,623,300,390,314"/>
-<area shape="rect" id="Node000010" href="$d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc" title=" " alt="" coords="447,330,587,355"/>
-<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="391,325,434,330,433,336,390,331"/>
-<area shape="rect" id="Node000009" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="815,323,979,363"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="751,302,806,317,805,322,750,307"/>
-<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="860,323,858,313,864,304,877,298,897,296,920,299,932,306,929,311,918,304,897,301,878,303,867,308,863,314,865,322"/>
-<area shape="poly" id="edge11_Node000010_Node000009" title=" " alt="" coords="587,340,801,340,801,345,587,345"/>
-<area shape="rect" id="Node000011" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="635,381,767,406"/>
-<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="564,353,641,374,640,379,563,358"/>
-<area shape="poly" id="edge13_Node000011_Node000009" title=" " alt="" coords="750,378,805,364,806,369,751,383"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="154,187,208,187,208,192,154,192"/>
+<area shape="rect" id="Node000006" href="$d7/de8/namespacedevice__mathops.html#acef639b59143ad977e3dfb680394e1d4" title=" " alt="" coords="210,233,390,273"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="150,207,218,227,217,232,148,212"/>
+<area shape="rect" id="Node000011" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="221,297,379,337"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="103,208,147,246,203,283,216,290,214,294,200,288,144,250,100,212"/>
+<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="221,361,379,401"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="93,208,135,276,166,314,203,347,211,353,209,357,200,351,162,318,131,280,88,211"/>
+<area shape="rect" id="Node000007" href="$dd/db5/mathops_8cu.html#a62b3651eaaf1b089b51001f3e13f083b" title=" " alt="" coords="637,215,765,241"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="390,245,622,230,623,236,390,250"/>
+<area shape="rect" id="Node000009" href="$d5/d69/mathops_8c.html#abde29084db4e5ac1f3396a03c15575cc" title=" " alt="" coords="447,266,587,291"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="391,261,434,266,433,272,390,267"/>
+<area shape="rect" id="Node000008" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="815,259,979,299"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="751,238,806,253,805,258,750,243"/>
+<area shape="poly" id="edge8_Node000008_Node000008" title=" " alt="" coords="860,259,858,249,864,240,877,234,897,232,920,235,932,242,929,247,918,240,897,237,878,239,867,244,863,250,865,258"/>
+<area shape="poly" id="edge10_Node000009_Node000008" title=" " alt="" coords="587,276,801,276,801,281,587,281"/>
+<area shape="rect" id="Node000010" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="635,317,767,342"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="564,289,641,310,640,315,563,294"/>
+<area shape="poly" id="edge12_Node000010_Node000008" title=" " alt="" coords="750,314,805,300,806,305,751,319"/>
 </map>
