@@ -404,6 +404,8 @@ contains
        deallocate(this%scalar_name)
     end if
 
+    call this%mu_w%free()
+    call this%rho_w%free()
     call this%free_base()
 
     call this%Ri_b%free()

@@ -209,6 +209,7 @@ contains
   subroutine rough_log_law_free(this)
     class(rough_log_law_t), intent(inout) :: this
 
+    call this%rho_w%free()
     call this%free_base()
 
   end subroutine rough_log_law_free

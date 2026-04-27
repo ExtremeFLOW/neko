@@ -202,6 +202,7 @@ contains
   subroutine spalding_free(this)
     class(spalding_t), intent(inout) :: this
 
+    call this%rho_w%free()
     call this%free_base()
 
   end subroutine spalding_free
