@@ -186,6 +186,7 @@ contains
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: kappa, B, z0
 
+    call this%free()
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa

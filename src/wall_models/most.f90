@@ -344,6 +344,7 @@ contains
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value, Pr
     character(len=LOG_SIZE) :: log_buf
 
+    call this%free()
     call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
