@@ -98,12 +98,12 @@ contains
 #if HAVE_HIP
     call hip_spalding_compute(u_d, v_d, w_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
-         n_x_d, n_y_d, n_z_d, nu_d, rho_w_d h_d, &
+         n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, tstep)
 #elif HAVE_CUDA
     call cuda_spalding_compute(u_d, v_d, w_d, &
          ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
-         n_x_d, n_y_d, n_z_d, nu_d, rho_w_d h_d, &
+         n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, tstep)
 #elif HAVE_OPENCL
     call neko_error("OPENCL is not implemented for Spalding's model")
