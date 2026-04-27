@@ -42,7 +42,7 @@ module cg_cpld_device
   use bc_list, only : bc_list_t
   use math, only : abscmp
   use device
-  use device_math, only : device_rzero, device_copy, device_glsc3, &
+  use device_math, only : device_rzero, device_copy, &
        device_add2s1, device_vdot3, device_glsc2
   use device_mathops, only : device_opadd2cm
   use utils, only : neko_error
@@ -358,7 +358,7 @@ contains
       call device_vdot3(tmp_d, r1_d, r2_d, r3_d, r1_d, r2_d, r3_d, n)
 
 
-      rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+      rtr = device_glsc2(tmp_d, coef%mult_d, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -413,7 +413,7 @@ contains
               w1_d, w2_d, w3_d, alphm, n, gdim)
          call device_vdot3(tmp_d, r1_d, r2_d, r3_d, r1_d, r2_d, r3_d, n)
 
-         rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+         rtr = device_glsc2(tmp_d, coef%mult_d, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)

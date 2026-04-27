@@ -40,7 +40,7 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, glsc2, abscmp
+  use math, only : glsc2, abscmp
   use utils, only : neko_error
   use operators, only : rotate_cyc
   implicit none
@@ -254,7 +254,7 @@ contains
          tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
       end do
 
-      rtr = glsc3(tmp, coef%mult, coef%binv, n)
+      rtr = glsc2(tmp, coef%mult, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -319,7 +319,7 @@ contains
             tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
          end do
 
-         rtr = glsc3(tmp, coef%mult, coef%binv, n)
+         rtr = glsc2(tmp, coef%mult, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)
