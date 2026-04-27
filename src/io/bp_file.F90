@@ -85,7 +85,7 @@ contains
   subroutine bp_file_write(this, data, t)
     class(bp_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(array_ptr_t) :: x, y, z, u, v, w, p, tem
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof

@@ -154,7 +154,7 @@ contains
   subroutine vtkhdf_file_write(this, data, t)
     class(vtkhdf_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_list_t) :: fields
@@ -310,7 +310,7 @@ contains
     logical, intent(in) :: amr
     integer, intent(in) :: counter
     logical, intent(in) :: subdivide
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     integer(kind=1) :: VTK_cell_type
     integer :: ierr, i, ii, jj, kk, el, local_idx
@@ -627,7 +627,7 @@ contains
   subroutine vtkhdf_write_steps(vtkhdf_grp, counter, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     integer, intent(in) :: counter
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
 
     integer(hid_t) :: xf_id, H5T_NEKO_DOUBLE
     integer :: ierr
@@ -738,7 +738,7 @@ contains
     integer, intent(in) :: precision
     integer, intent(in) :: counter
     character(len=*), intent(in) :: fname
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     integer(kind=i8) :: time_offset
     integer :: local_points, point_offset, total_points
@@ -1756,7 +1756,7 @@ contains
   subroutine vtkhdf_file_write(this, data, t)
     class(vtkhdf_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine vtkhdf_file_write
 

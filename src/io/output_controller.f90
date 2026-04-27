@@ -39,7 +39,7 @@ module output_controller
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
   use profiler, only : profiler_start_region, profiler_end_region
-  use num_types, only : rp, dp
+  use num_types, only : dp
   use time_based_controller, only : time_based_controller_t
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none

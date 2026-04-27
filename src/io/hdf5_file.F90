@@ -142,13 +142,13 @@ contains
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_ptr_t), allocatable :: fp(:)
     type(field_series_ptr_t), allocatable :: fsp(:)
-    real(kind=rp), pointer :: dtlag(:)
-    real(kind=rp), pointer :: tlag(:)
+    real(kind=dp), pointer :: dtlag(:)
+    real(kind=dp), pointer :: tlag(:)
     integer :: ierr, info, drank, i, j
     integer(hid_t) :: plist_id, file_id, dset_id, grp_id, attr_id
     integer(hid_t) :: filespace, memspace
@@ -336,9 +336,9 @@ contains
     type(dofmap_t), pointer :: dof
     type(field_ptr_t), allocatable :: fp(:)
     type(field_series_ptr_t), allocatable :: fsp(:)
-    real(kind=rp), pointer :: dtlag(:)
-    real(kind=rp), pointer :: tlag(:)
-    real(kind=rp) :: t
+    real(kind=dp), pointer :: dtlag(:)
+    real(kind=dp), pointer :: tlag(:)
+    real(kind=dp) :: t
     character(len=1024) :: fname
 
     fname = trim(this%get_fname())
@@ -484,8 +484,8 @@ contains
     type(dofmap_t), pointer, intent(inout) :: dof
     type(field_ptr_t), allocatable, intent(inout) :: fp(:)
     type(field_series_ptr_t), allocatable, intent(inout) :: fsp(:)
-    real(kind=rp), pointer, intent(inout) :: dtlag(:)
-    real(kind=rp), pointer, intent(inout) :: tlag(:)
+    real(kind=dp), pointer, intent(inout) :: dtlag(:)
+    real(kind=dp), pointer, intent(inout) :: tlag(:)
     integer :: i, j, fp_size, fp_cur, fsp_size, fsp_cur, scalar_count, ab_count
     character(len=32) :: scalar_name
 
@@ -1689,7 +1689,7 @@ contains
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_write
 

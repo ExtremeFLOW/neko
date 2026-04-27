@@ -82,7 +82,7 @@ contains
   subroutine chkp_file_write(this, data, t)
     class(chkp_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     real(kind=dp) :: time
     character(len=5) :: id_str
     character(len=1024) :: fname
@@ -123,7 +123,7 @@ contains
     integer :: i
 
     if (present(t)) then
-       time = real(t, kind = dp)
+       time = t
     else
        time = 0.0_dp
     end if
