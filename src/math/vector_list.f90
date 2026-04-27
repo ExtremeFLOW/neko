@@ -36,7 +36,7 @@ module vector_list
   use vector, only : vector_ptr_t, vector_t
   use iso_c_binding, only : c_ptr
   use num_types, only : rp
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use comm, only : pe_rank
   implicit none
   private
@@ -236,7 +236,7 @@ contains
   function vector_list_name(this, i) result(result)
     class(vector_list_t), target, intent(in) :: this
     integer, intent(in) :: i
-    character(len=80) :: result
+    character(len=NEKO_VARNAME_LEN) :: result
 
     result = this%items(i)%ptr%name
   end function vector_list_name

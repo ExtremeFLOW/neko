@@ -735,7 +735,8 @@ contains
        call add5s4(phi%x, k1%x, k2%x, k3%x, k4%x, c1, c2, c2, c1, n)
     end if
 
-    call neko_scratch_registry%relinquish_field(ind)
+    call neko_scratch_registry%relinquish_field(ind(1:5))
+    call neko_scratch_registry%relinquish_vector(ind(6))
 
   end subroutine runge_kutta
 
