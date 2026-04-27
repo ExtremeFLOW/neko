@@ -6,7 +6,8 @@ module hypre
   use hypre_boomeramg
   use hypre_ij_interface
   use coefs, only : coef_t
-  use comm, only: pe_rank
+  use comm, only: pe_rank, NEKO_COMM
+  use mpi_f08
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -55,6 +56,8 @@ module hypre
      ! or lazyness
      integer, allocatable :: dofs(:)! dof list here to have i4 instead of i8
      type(c_ptr) :: dofs_d = C_NULL_PTR! dof list on device
+     integer :: ilower = 1
+     integer :: iupper = 1
    contains
      procedure, pass(this) :: init => hypre_solver_init
      procedure, pass(this) :: free => hypre_solver_free
@@ -131,7 +134,7 @@ contains
     call hypre_dofs_workaround(this, coef)
 
     ! Asseble the linear system
-    call hypre_matrix_assemble_from_neko(coef, this%A, this%b, this%x, bdry_flg, n)
+    call hypre_matrix_assemble_from_neko(coef, this%A, this%b, this%x, bdry_flg, n, this%ilower)
 
     call hypre_matrix_get_object(this%A, this%parcsr_A)
     call hypre_vector_get_object(this%b, this%par_b)
@@ -151,15 +154,15 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp), dimension(n), intent(in) :: f
     ! Copy to hypre vector
-    ! (copy to x may be unneeded if zero initial guess is always used)
-    call hypre_copy_to_vector(this%x, n, this%dofs, x)
-    call hypre_vector_assemble(this%x)
-    call hypre_copy_to_vector(this%b, n, this%dofs, f)
+    call hypre_copy_to_vector(this%b, n, this%dofs, f, this%ilower)
     call hypre_vector_assemble(this%b)
+    ! (copy to x may be unneeded if zero initial guess is always used)
+    call hypre_copy_to_vector(this%x, n, this%dofs, x, this%ilower)
+    call hypre_vector_assemble(this%x)
     ! Solve
     call boomeramg_solve(this%solver, this%parcsr_A, this%par_b, this%par_x)
     ! Copy from hypre vector
-    call hypre_copy_from_vector(this%x, n, this%dofs, x)
+    call hypre_copy_from_vector(this%x, n, this%dofs, x, this%ilower)
   end subroutine hypre_solve
 
   !> Solve system for right hand side f
@@ -205,9 +208,10 @@ contains
     end if
   end subroutine hypre_dofs_workaround
 
-  subroutine hypre_matrix_assemble_from_neko(coef, A, b, x, bdry_flg, n)
+  subroutine hypre_matrix_assemble_from_neko(coef, A, b, x, bdry_flg, n, my_ilower)
     !DIR$ INLINENEVER hypre_matrix_assemble_from_neko
     integer, intent(in) :: n
+    integer, intent(inout) :: my_ilower
     type(coef_t), intent(in), target :: coef
     type(c_ptr), intent(inout) :: A, b, x
     real(kind=rp), dimension(n), intent(inout) :: bdry_flg
@@ -250,54 +254,51 @@ contains
             do j = 1, lx
                do i = 1, lx
 
-                 ! Hacky if statement to support 2 mpi ranks (more not supported).
-                 ! NOTE: Periodic BC not supported on 2 mpi ranks.
-                 if((pe_rank .eq. 0).or.(.not. coef%dof%shared_dof(i,j,k,e))) then
+                  lin_idx = (i + lx*((j-1) + lx*((k-1) + lx*((e-1)))))
+                  ! Hacky dirichlet boundary check.
+                  if (bdry_flg(lin_idx) .eq. 0.0) then
+                     ! Dirichlet Boundary.
+                     A_vals(idof) = 1.0_rp * coef%mult(i,j,k,e)
+                     A_rows(idof) = coef%dof%dof(i,j,k,e)
+                     A_cols(idof) = coef%dof%dof(i,j,k,e)
+                     idof = idof + 1
+                  else
+                     do s = 1, lx
+                        tmp2 = 0.0_rp
+                        do l = 1, lx
+                           tmp2 = tmp2 + Dt(i,l) * D(l,s)
+                        end do
 
-                    lin_idx = (i + lx*((j-1) + lx*((k-1) + lx*((e-1)))))
-                    if (bdry_flg(lin_idx) .eq. 0.0) then
-                       A_vals(idof) = 1.0_rp * coef%mult(i,j,k,e)
-                       A_rows(idof) = coef%dof%dof(i,j,k,e)
-                       A_cols(idof) = coef%dof%dof(i,j,k,e)
-                       idof = idof + 1
-                    else
-                       do s = 1, lx
-                          tmp2 = 0.0_rp
-                          do l = 1, lx
-                             tmp2 = tmp2 + Dt(i,l) * D(l,s)
-                          end do
+                        A_vals(idof) = tmp2 * G11(s,j,k,e)
+                        A_rows(idof) = coef%dof%dof(i,j,k,e)
+                        A_cols(idof) = coef%dof%dof(s,j,k,e)
+                        idof = idof + 1
+                     end do
 
-                          A_vals(idof) = tmp2 * G11(s,j,k,e)
-                          A_rows(idof) = coef%dof%dof(i,j,k,e)
-                          A_cols(idof) = coef%dof%dof(s,j,k,e)
-                          idof = idof + 1
-                       end do
+                     do s = 1, lx
+                        tmp2 = 0.0_rp
+                        do l = 1, lx
+                           tmp2 = tmp2 + Dt(j,l) * D(l,s)
+                        end do
 
-                       do s = 1, lx
-                          tmp2 = 0.0_rp
-                          do l = 1, lx
-                             tmp2 = tmp2 + Dt(j,l) * D(l,s)
-                          end do
+                        A_vals(idof) = tmp2 * G22(i,s,k,e)
+                        A_rows(idof) = coef%dof%dof(i,j,k,e)
+                        A_cols(idof) = coef%dof%dof(i,s,k,e)
+                        idof = idof + 1
+                     end do
 
-                          A_vals(idof) = tmp2 * G22(i,s,k,e)
-                          A_rows(idof) = coef%dof%dof(i,j,k,e)
-                          A_cols(idof) = coef%dof%dof(i,s,k,e)
-                          idof = idof + 1
-                       end do
+                     do s = 1, lx
+                        tmp2 = 0.0_rp
+                        do l = 1, lx
+                           tmp2 = tmp2 + Dt(k,l) * D(l,s)
+                        end do
 
-                       do s = 1, lx
-                          tmp2 = 0.0_rp
-                          do l = 1, lx
-                             tmp2 = tmp2 + Dt(k,l) * D(l,s)
-                          end do
-
-                          A_vals(idof) = tmp2 * G33(i,j,s,e)
-                          A_rows(idof) = coef%dof%dof(i,j,k,e)
-                          A_cols(idof) = coef%dof%dof(i,j,s,e)
-                          idof = idof + 1
-                       end do
-                    end if
-                 end if
+                        A_vals(idof) = tmp2 * G33(i,j,s,e)
+                        A_rows(idof) = coef%dof%dof(i,j,k,e)
+                        A_cols(idof) = coef%dof%dof(i,j,s,e)
+                        idof = idof + 1
+                     end do
+                  end if
 
                end do
             end do
@@ -312,11 +313,15 @@ contains
     ! (row partition) = (col partition) for square linear systems.
     ilower = minval(A_rows(1:nnz))
     iupper = maxval(A_rows(1:nnz))
-    jlower = ilower
-    jupper = iupper
     ! TODO: For MPI parallelism, duplicated dofs need to be assigned
     !       to a single "owning" rank, which is currently not supported
     !       by the current neko dofmap
+    call simple_assign_dof_to_smallest_rank( &
+         ilower, iupper, A_vals, A_rows, A_cols, nnz)
+    jlower = ilower
+    jupper = iupper
+    my_ilower = ilower
+    !!
     write(*,*) "RANK", pe_rank, "ilower", ilower, "iupper", iupper, "jlower", jlower, "jupper", jupper
 
     ! Initialize matrix
@@ -373,6 +378,35 @@ contains
 
     call hypre_matrix_assemble(A)
   end subroutine hypre_matrix_assemble_from_neko
+
+  subroutine simple_assign_dof_to_smallest_rank( &
+      ilower, iupper, A_vals, A_rows, A_cols, nnz)
+    integer, intent(inout) :: ilower
+    integer, intent(in) :: iupper
+    integer, intent(inout) :: nnz
+    integer, allocatable, intent(inout) :: A_rows(:), A_cols(:)
+    real(kind=rp), allocatable, intent(inout) :: A_vals(:)
+    integer :: ilower_prev
+    integer :: i, idof, ierr
+
+    ilower_prev = 0
+    call MPI_Exscan(iupper, ilower_prev, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
+    ilower = max(ilower, ilower_prev+1)
+
+!!    idof = 0
+!!    do i = 1, nnz
+!!      if (A_rows(i) .ge. ilower) then
+!!        idof = idof + 1
+!!        A_rows(idof) = A_rows(i)
+!!        A_cols(idof) = A_cols(i)
+!!        A_vals(idof) = A_vals(i)
+!!      end if
+!!    end do
+!!
+!!    ! Update nnz
+!!    nnz = idof
+  end subroutine simple_assign_dof_to_smallest_rank
 
   subroutine count_and_fill_rows(A_rows, rows, nrows, nnz)
     !DIR$ INLINENEVER count_and_fill_rows

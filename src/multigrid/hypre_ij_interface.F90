@@ -194,6 +194,16 @@ module hypre_ij_interface
      end function HYPRE_IJVectorGetObject
   end interface
 
+  interface
+     integer (c_int) function HYPRE_IJVectorPrint(vector, filename) &
+          bind(c, name='HYPRE_IJVectorPrint')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: vector
+       type(c_ptr), value :: filename
+     end function HYPRE_IJVectorPrint
+  end interface
+
   public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_update, hypre_matrix_destroy
   public :: hypre_device_matrix_update
   public :: hypre_vector_init, hypre_vector_fill, hypre_vector_assemble, hypre_vector_destroy
@@ -369,17 +379,22 @@ contains
   !! @param nvalues Length of indicies/values.
   !! @param indices Array of global DoFs on rank. Fortran array on host.
   !! @param values Array of values to be set. Fortran array on host.
-  subroutine hypre_copy_to_vector(v, nvalues, indices, values)
+  subroutine hypre_copy_to_vector(v, nvalues, indices, values, ilower)
     !DIR$ INLINENEVER hypre_copy_to_vector
     type(c_ptr), intent(in) :: v
-    integer, intent(in) :: nvalues
+    integer, intent(in) :: nvalues, ilower
     integer, target, intent(in) :: indices(nvalues)
     double precision, target, intent(in) :: values(nvalues)
-    integer :: ierr
+    integer :: ierr, i
     ! re-initialize vector
     ierr = HYPRE_IJVectorInitialize(v)
     ! Set vector values
-    ierr = HYPRE_IJVectorSetValues(v, nvalues, c_loc(indices), c_loc(values))
+    !ierr = HYPRE_IJVectorSetValues(v, nvalues, c_loc(indices), c_loc(values))
+    do i = 1, nvalues
+      if (indices(i) .gt. ilower) then
+        ierr = HYPRE_IJVectorSetValues(v, 1, c_loc(indices(i)), c_loc(values(i)))
+      end if
+    end do
   end subroutine hypre_copy_to_vector
 
   !> Copy vector from neko to hypre.
@@ -408,15 +423,22 @@ contains
   !! @param nvalues Length of indicies/values.
   !! @param indices Array of global DoFs on rank. Fortran array on host.
   !! @param values Array of values to be set. Fortran array on host.
-  subroutine hypre_copy_from_vector(v, nvalues, indices, values)
+  subroutine hypre_copy_from_vector(v, nvalues, indices, values, ilower)
     !DIR$ INLINENEVER hypre_copy_from_vector
     type(c_ptr), intent(in) :: v
-    integer, intent(in) :: nvalues
+    integer, intent(in) :: nvalues, ilower
     integer, target, intent(in) :: indices(nvalues)
     double precision, target, intent(inout) :: values(nvalues)
-    integer :: ierr
+    integer :: ierr, i
     ! Get vector values
-    ierr = HYPRE_IJVectorGetValues(v, nvalues, c_loc(indices), c_loc(values))
+    !ierr = HYPRE_IJVectorGetValues(v, nvalues, c_loc(indices), c_loc(values))
+    do i = 1, nvalues
+      if (indices(i) .ge. ilower) then
+        ierr = HYPRE_IJVectorGetValues(v, 1, c_loc(indices(i)), c_loc(values(i)))
+      else
+        values(i) = 0.0
+      end if
+    end do
   end subroutine hypre_copy_from_vector
 
   !> Copy vector from hypre to neko.
