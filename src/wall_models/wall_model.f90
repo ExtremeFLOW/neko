@@ -33,7 +33,7 @@
 !
 !> Implements `wall_model_t`.
 module wall_model
-  use num_types, only : rp, dp
+  use num_types, only : rp
   use field, only : field_t
   use json_module, only : json_file
   use registry, only : neko_registry
@@ -141,9 +141,9 @@ module wall_model
      !! @param t The time value.
      !! @param tstep The current time-step.
      subroutine wall_model_compute(this, t, tstep)
-       import wall_model_t, dp
+       import wall_model_t, rp
        class(wall_model_t), intent(inout) :: this
-       real(kind=dp), intent(in) :: t
+       real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
      end subroutine wall_model_compute
   end interface
@@ -159,7 +159,7 @@ module wall_model
      !! @param json A dictionary with parameters.
      subroutine wall_model_init(this, scheme_name, coef, msk, facet, &
           h_index, json)
-       import wall_model_t, json_file, dofmap_t, coef_t
+       import wall_model_t, json_file, dofmap_t, coef_t, rp
        class(wall_model_t), intent(inout) :: this
        character(len=*), intent(in) :: scheme_name
        type(coef_t), intent(in) :: coef
@@ -176,7 +176,7 @@ module wall_model
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
      subroutine wall_model_partial_init(this, coef, json)
-       import wall_model_t, json_file, dofmap_t, coef_t
+       import wall_model_t, json_file, dofmap_t, coef_t, rp
        class(wall_model_t), intent(inout) :: this
        type(coef_t), intent(in) :: coef
        type(json_file), intent(inout) :: json
