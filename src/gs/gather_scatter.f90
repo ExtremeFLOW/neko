@@ -921,19 +921,38 @@ contains
     ! block length
     lxl = lx -2
 
-    ! get vertex, edge and face shifts
-    vrt_shift(1) = 0
-    do il = 2, nvrt
-       vrt_shift(il) = vrt_shift(il - 1) + vrt_mult(vrt(il - 1))
-    end do
-    edg_shift(1) = vrt_shift(nvrt) + vrt_mult(vrt(nvrt))
-    do il = 2, nedg
-       edg_shift(il) = edg_shift(il - 1) + edg_mult(edg(il - 1)) * lxl
-    end do
-    fcs_shift(1) = edg_shift(nedg) + edg_mult(edg(nedg)) * lxl
-    do il = 2, nfcs
-       fcs_shift(il) = fcs_shift(il - 1) + fcs_mult(fcs(il - 1)) * lxl * lxl
-    end do
+    ! get shifts
+    ! vertex
+    if (nvrt .gt. 0) then
+       vrt_shift(1) = 0
+       do il = 2, nvrt
+          vrt_shift(il) = vrt_shift(il - 1) + vrt_mult(vrt(il - 1))
+       end do
+    end if
+    ! edge
+    if (nedg .gt. 0) then
+       if (nvrt .gt. 0) then
+          edg_shift(1) = vrt_shift(nvrt) + vrt_mult(vrt(nvrt))
+       else
+          edg_shift(1) = 0
+       end if
+       do il = 2, nedg
+          edg_shift(il) = edg_shift(il - 1) + edg_mult(edg(il - 1)) * lxl
+       end do
+    end if
+    ! face
+    if (nfcs .gt. 0) then
+       if (nedg .gt. 0) then
+          fcs_shift(1) = edg_shift(nedg) + edg_mult(edg(nedg)) * lxl
+       else if (nvrt .gt. 0) then
+          fcs_shift(1) = vrt_shift(nvrt) + vrt_mult(vrt(nvrt))
+       else
+          fcs_shift(1) = 0
+       end if
+       do il = 2, nfcs
+          fcs_shift(il) = fcs_shift(il - 1) + fcs_mult(fcs(il - 1)) * lxl * lxl
+       end do
+    end if
 
     ! get block multiplicity (per dof)
     ! vertex
@@ -1233,7 +1252,6 @@ contains
     type(field_t), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: n, op
-
 
     if (allocated(gs%interp)) call gs%interp%apply_jt(u)
 
