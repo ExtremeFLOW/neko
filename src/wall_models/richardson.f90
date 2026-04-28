@@ -34,7 +34,7 @@
 !> Implements `richardson_t`.
 module richardson
   use field, only : field_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -146,7 +146,7 @@ contains
        g = g_tmp
     else
        call neko_error("Richardson WM: The gravity vector should " &
-       // "have exactly 3 components")
+            // "have exactly 3 components")
     end if
     deallocate(g_tmp)
 
@@ -188,7 +188,7 @@ contains
        this%g = g_tmp
     else
        call neko_error("Richardson WM: The gravity vector should " &
-       // "have exactly 3 components")
+            // "have exactly 3 components")
     end if
     deallocate(g_tmp)
 
@@ -332,7 +332,7 @@ contains
     g_mag = sqrt(sum(g**2))
     if (g_mag < 1.0e-6_rp) then
        call neko_error("Richardson WM: Gravity magnitude is zero. " &
-       // "Check your input configuration.")
+            // "Check your input configuration.")
     end if
 
     !> Check alignment across all nodes (handling hills/slopes)
@@ -355,7 +355,7 @@ contains
        call neko_error("Richardson WM: Sampling height h must be greater " &
             // "than roughness z0.")
     else if ( (this%z0h_in .gt. 0.0_rp) .and. &
-      (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
+         (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
        call neko_error("Richardson WM: Sampling height h must be greater " &
             // "than thermal roughness z0h.")
     else if (this%z0 .eq. 0.0_rp) then
@@ -416,7 +416,7 @@ contains
   !> @param tstep The time iteration.
   subroutine richardson_compute(this, t, tstep)
     class(richardson_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: u
     type(field_t), pointer :: v

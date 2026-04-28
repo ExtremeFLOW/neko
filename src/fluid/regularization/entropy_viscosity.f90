@@ -149,7 +149,7 @@ contains
 
     n = this%dof%size()
 
-    call this%compute_residual(tstep, dt, time%dtlag)
+    call this%compute_residual(tstep, dt, real(time%dtlag, kind=rp))
     call this%compute_viscosity(tstep)
 
   end subroutine entropy_viscosity_compute

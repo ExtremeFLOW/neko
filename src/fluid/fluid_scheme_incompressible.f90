@@ -36,7 +36,7 @@ module fluid_scheme_incompressible
   use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
-  use num_types, only : rp, i8
+  use num_types, only : rp, i8, dp
   use fluid_source_term, only : fluid_source_term_t
   use field, only : field_t
   use space, only : GLL
@@ -578,10 +578,10 @@ contains
   !> Compute CFL
   function fluid_compute_cfl(this, dt) result(c)
     class(fluid_scheme_incompressible_t), intent(in) :: this
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp) :: c
 
-    c = cfl(dt, this%u%x, this%v%x, this%w%x, &
+    c = cfl( real(dt, kind=rp), this%u%x, this%v%x, this%w%x, &
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
 
   end function fluid_compute_cfl

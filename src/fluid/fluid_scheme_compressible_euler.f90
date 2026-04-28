@@ -301,13 +301,13 @@ contains
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
       ! Compute artificial viscosity
-      call this%regularization%compute(time, time%tstep, time%dt)
+      call this%regularization%compute(time, time%tstep, real(time%dt, kind=rp))
 
       ! Execute RHS step with effective viscosity field
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, Ax, &
            c_Xh, gs_Xh, h, this%effective_visc, &
-           rk_scheme, dt)
+           rk_scheme, real(dt, kind=rp))
 
       !> Apply density boundary conditions
       call this%bcs_density%apply(rho, time)

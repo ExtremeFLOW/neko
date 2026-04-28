@@ -34,7 +34,7 @@
 !! equation.
 module time_scheme_controller
   use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
+  use num_types, only : dp, rp
   use bdf_time_scheme, only : bdf_time_scheme_t
   use ext_time_scheme, only : ext_time_scheme_t
   use ab_time_scheme, only : ab_time_scheme_t
@@ -137,11 +137,14 @@ contains
 
   !> Set the time coefficients
   !! @details Implements all necessary logic to handle
-  !! @param t Timestep values, first element is the current timestep.
+  !! @param dt Timestep values, first element is the current timestep. Note
+  !! that `dt` is cast to `rp` when passed down to the time scheme objects,
+  !! meaning that although `dt` is forced to double precision, the computatio
+  !! of the time scheme coefficients is kept in `rp`.
   subroutine time_scheme_controller_set_coeffs(this, dt)
     implicit none
     class(time_scheme_controller_t) :: this
-    real(kind=rp), intent(inout), dimension(10) :: dt
+    real(kind=dp), intent(inout), dimension(10) :: dt
     real(kind=rp), dimension(4) :: adv_coeffs_old
     real(kind=rp), dimension(4) :: diff_coeffs_old
 
@@ -162,38 +165,38 @@ contains
       nadv = nadv + 1
       nadv = min(nadv, this%advection_time_order)
 
-      call this%bdf%compute_coeffs(diff_coeffs%x, dt, ndiff)
+      call this%bdf%compute_coeffs(diff_coeffs%x, real(dt, kind=rp), ndiff)
 
       if (nadv .eq. 1) then
          ! Forward euler
-         call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
+         call this%ext%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
       else if (nadv .eq. 2) then
          if (ndiff .eq. 1) then
             ! 2nd order Adam-Bashforth, currently never used
-            call this%ab%compute_coeffs(adv_coeffs%x, dt, nadv)
+            call this%ab%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
          else
             ! Linear extrapolation
-            call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
+            call this%ext%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
          end if
       else if (nadv .eq. 3) then
          if (ndiff .eq. 1) then
             ! 3rd order Adam-Bashforth, currently never used
-            call this%ab%compute_coeffs(adv_coeffs%x, dt, nadv)
+            call this%ab%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
          else if (ndiff .eq. 2) then
             ! The modified EXT scheme
-            call this%ext%compute_modified_coeffs(adv_coeffs%x, dt)
+            call this%ext%compute_modified_coeffs(adv_coeffs%x, real(dt, kind=rp))
          else
             ! Quadratic extrapolation
-            call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
+            call this%ext%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
          end if
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         if (maxval(abs(adv_coeffs%x - adv_coeffs_old)) .gt. 1e-10_rp) then
+         if (maxval(abs(adv_coeffs%x - adv_coeffs_old)) .gt. 1e-10_dp) then
             call adv_coeffs%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
 
-         if (maxval(abs(diff_coeffs%x - diff_coeffs_old)) .gt. 1e-10_rp) then
+         if (maxval(abs(diff_coeffs%x - diff_coeffs_old)) .gt. 1e-10_dp) then
             call diff_coeffs%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
       end if

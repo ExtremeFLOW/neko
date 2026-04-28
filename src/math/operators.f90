@@ -34,7 +34,7 @@
 module operators
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE, NEKO_BCKND_XSMM, &
        NEKO_DEVICE_MPI
-  use num_types, only : rp, i8
+  use num_types, only : rp, i8, dp
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
        opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
        opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst, &

@@ -34,7 +34,7 @@
 !> Implements `most_t`.
 module most
   use field, only : field_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -410,7 +410,7 @@ contains
   !> @param tstep The time iteration.
   subroutine most_compute(this, t, tstep)
     class(most_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: u
     type(field_t), pointer :: v

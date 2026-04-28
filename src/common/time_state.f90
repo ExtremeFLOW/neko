@@ -32,7 +32,7 @@
 
 !> Module with things related to the simulation time
 module time_state
-  use num_types, only : dp
+  use num_types, only : rp, dp
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
   use checkpoint, only : chkp_t
   use json_module, only : json_file

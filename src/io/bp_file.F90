@@ -765,7 +765,7 @@ contains
   subroutine bp_file_write(this, data, t)
     class(bp_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     call neko_error('Neko needs to be built with ADIOS2 Fortran support')
   end subroutine bp_file_write
 

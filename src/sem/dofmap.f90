@@ -1094,7 +1094,7 @@ contains
     !Build vertex interpolant
 
     ntot = n*n
-    call rzero(v, ntot)
+    call rzero(v(:,1), ntot)
     do jj = 1, n, n-1
        do ii = 1, n, n-1
           do j = 1, n
@@ -1112,7 +1112,7 @@ contains
     end if
 
     !Extend 4 edges
-    call rzero(e, ntot)
+    call rzero(e(:,1), ntot)
 
     !x-edges
 

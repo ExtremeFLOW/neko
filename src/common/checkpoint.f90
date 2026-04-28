@@ -61,8 +61,8 @@ module checkpoint
      type(field_series_t), pointer :: vlag => null()
      type(field_series_t), pointer :: wlag => null()
 
-     real(kind=rp), pointer :: tlag(:) => null()
-     real(kind=rp), pointer :: dtlag(:) => null()
+     real(kind=dp), pointer :: tlag(:) => null()
+     real(kind=dp), pointer :: dtlag(:) => null()
 
      !> for pnpn
      type(field_t), pointer :: abx1 => null()
@@ -334,7 +334,7 @@ contains
             call this%wm_y%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%wm_z%copy_from(HOST_TO_DEVICE, sync = .false.)
             if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) .and. &
-                associated(this%wm_z_lag)) then
+                 associated(this%wm_z_lag)) then
                call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
                     sync = .false.)
                call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, &

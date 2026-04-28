@@ -299,7 +299,7 @@ contains
   !> Write a checkpoint at joblimit
   subroutine simulation_joblimit_chkp(C, t)
     type(case_t), intent(inout) :: C
-    real(kind=rp), intent(inout) :: t
+    real(kind=dp), intent(inout) :: t
     type(file_t) :: chkpf
     character(len=:), allocatable :: chkp_format
     character(len=LOG_SIZE) :: log_buf

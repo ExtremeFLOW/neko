@@ -106,7 +106,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_rzero(a%x_d, size)
     else
-       call rzero(a%x, size)
+       call rzero(a%x(:,1), size)
     end if
   end subroutine matrix_rzero
 

@@ -54,9 +54,9 @@ module user_stats
   type, public, extends(simulation_component_t) :: user_stats_t
 
      !> When to start averaging.
-     real(kind=rp) :: start_time
+     real(kind=dp) :: start_time
      !> Current time. Uses to compute time delta since last run of compute.
-     real(kind=rp) :: time
+     real(kind=dp) :: time
      !> The averaged fields.
      type(mean_field_t), allocatable :: mean_fields(:)
      !> Number of fields to average.
@@ -107,7 +107,7 @@ contains
     !> Get the number of stat fields and their names
     call json%info('fields', n_children = this%n_avg_fields)
     call json_get(json, 'fields', this%field_names)
-    call json_get_or_default(json, 'start_time', this%start_time, 0.0_rp)
+    call json_get_or_default(json, 'start_time', this%start_time, 0.0_dp)
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
     call json_get_or_default(json, 'output_file', filename, 'user_stats')
 
@@ -145,7 +145,7 @@ contains
     type(time_based_controller_t), intent(in) :: preprocess_controller
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     character(len=*), intent(in) :: avg_dir
     type(coef_t), intent(inout) :: coef
     character(len=*), intent(in), optional :: filename
@@ -184,12 +184,12 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: start_time
     character(len=*), intent(in) :: avg_dir
     type(coef_t), intent(inout) :: coef
     character(len=*), intent(in), optional :: filename
@@ -214,7 +214,7 @@ contains
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: filename
     integer, intent(in), optional :: precision
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     character(len=*), intent(in) :: avg_dir
     type(coef_t), intent(inout) :: coef
     integer :: i
@@ -272,7 +272,7 @@ contains
     !> Update the running average of the fields
     if (time%t .ge. this%start_time) then
        do i = 1, this%n_avg_fields
-          call this%mean_fields(i)%update(time%t - this%time)
+          call this%mean_fields(i)%update( real(time%t - this%time, kind=rp) )
        end do
        this%time = time%t
     end if

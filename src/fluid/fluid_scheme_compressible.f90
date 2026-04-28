@@ -38,7 +38,7 @@ module fluid_scheme_compressible
   use registry, only : neko_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use mesh, only : mesh_t
   use scratch_registry, only : neko_scratch_registry
   use space, only : GLL
@@ -330,7 +330,7 @@ contains
   !> @return Computed CFL number
   function fluid_scheme_compressible_compute_cfl(this, dt) result(c)
     class(fluid_scheme_compressible_t), intent(in) :: this
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp) :: c
     integer :: n
 
@@ -342,7 +342,8 @@ contains
       n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
       ! Use the compressible CFL function with precomputed maximum wave speed
-      c = cfl_compressible(dt, max_wave_speed%x, Xh, c_Xh, msh%nelv, msh%gdim)
+      c = cfl_compressible(real(dt, kind=rp), max_wave_speed%x, Xh, c_Xh, &
+      msh%nelv, msh%gdim)
     end associate
 
   end function fluid_scheme_compressible_compute_cfl
