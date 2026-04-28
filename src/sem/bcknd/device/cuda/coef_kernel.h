@@ -1,7 +1,7 @@
 #ifndef __SEM_COEF_KERNEL_H__
 #define __SEM_COEF_KERNEL_H__
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -39,26 +39,26 @@
  */
 template< typename T, const int LX, const int CHUNKS >
 __global__ void coef_generate_geo_kernel(T * __restrict__ G11,
-					 T * __restrict__ G12, 
+					 T * __restrict__ G12,
 					 T * __restrict__ G13,
 					 T * __restrict__ G22,
-					 T * __restrict__ G23, 
+					 T * __restrict__ G23,
 					 T * __restrict__ G33,
-					 const T * __restrict__ drdx, 
-					 const T * __restrict__ drdy, 
+					 const T * __restrict__ drdx,
+					 const T * __restrict__ drdy,
 					 const T * __restrict__ drdz,
-					 const T * __restrict__ dsdx, 
-					 const T * __restrict__ dsdy, 
-					 const T * __restrict__ dsdz, 
+					 const T * __restrict__ dsdx,
+					 const T * __restrict__ dsdy,
+					 const T * __restrict__ dsdz,
 					 const T * __restrict__ dtdx,
-					 const T * __restrict__ dtdy, 
+					 const T * __restrict__ dtdy,
 					 const T * __restrict__ dtdz,
-					 const T * __restrict__ jacinv, 
+					 const T * __restrict__ jacinv,
 					 const T * __restrict__ w3,
 					 const int gdim) {
 
   int i,j,k;
-  
+
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;
@@ -104,24 +104,24 @@ __global__ void coef_generate_geo_kernel(T * __restrict__ G11,
  * Device kernel for coef dxyz
  */
 template< typename T, const int LX, const int CHUNKS >
-__global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr, 
-					  T * __restrict__ dydr, 
-					  T * __restrict__ dzdr, 
-					  T * __restrict__ dxds, 
-					  T * __restrict__ dyds, 
-					  T * __restrict__ dzds, 
-					  T * __restrict__ dxdt, 
-					  T * __restrict__ dydt, 
+__global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
+					  T * __restrict__ dydr,
+					  T * __restrict__ dzdr,
+					  T * __restrict__ dxds,
+					  T * __restrict__ dyds,
+					  T * __restrict__ dzds,
+					  T * __restrict__ dxdt,
+					  T * __restrict__ dydt,
 					  T * __restrict__ dzdt,
-					  const T * __restrict__ dx, 
-					  const T * __restrict__ dy, 
-					  const T * __restrict__ dz, 
-					  const T * __restrict__ x, 
-					  const T * __restrict__ y, 
+					  const T * __restrict__ dx,
+					  const T * __restrict__ dy,
+					  const T * __restrict__ dz,
+					  const T * __restrict__ x,
+					  const T * __restrict__ y,
 					  const T * __restrict__ z) {
 
   int i,j,k;
-  
+
   const int e = blockIdx.x;
   const int iii = threadIdx.x;
   const int nchunks = (LX * LX * LX - 1) / CHUNKS + 1;
@@ -145,7 +145,7 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
   }
 
   __syncthreads();
-   
+
   for (int n = 0; n < nchunks; n++) {
     const int ijk = iii + n * CHUNKS;
     const int jk = ijk / LX;
@@ -156,11 +156,11 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
       T rtmp = 0.0;
       T stmp = 0.0;
       T ttmp = 0.0;
-      for (int l = 0; l < LX; l++) {		
-	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
+      for (int l = 0; l < LX; l++) {
+	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];
 	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
-	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];	
-      } 
+	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];
+      }
       dxdr[ijk + e * LX * LX * LX] = rtmp;
       dxds[ijk + e * LX * LX * LX] = stmp;
       dxdt[ijk + e * LX * LX * LX] = ttmp;
@@ -176,7 +176,7 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
   }
 
   __syncthreads();
-   
+
   for (int n = 0; n < nchunks; n++) {
     const int ijk = iii + n * CHUNKS;
     const int jk = ijk / LX;
@@ -187,11 +187,11 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
       T rtmp = 0.0;
       T stmp = 0.0;
       T ttmp = 0.0;
-      for (int l = 0; l < LX; l++) {		
-	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
+      for (int l = 0; l < LX; l++) {
+	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];
 	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
-	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];	
-      } 
+	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];
+      }
       dydr[ijk + e * LX * LX * LX] = rtmp;
       dyds[ijk + e * LX * LX * LX] = stmp;
       dydt[ijk + e * LX * LX * LX] = ttmp;
@@ -207,7 +207,7 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
   }
 
   __syncthreads();
-   
+
   for (int n = 0; n < nchunks; n++) {
     const int ijk = iii + n * CHUNKS;
     const int jk = ijk / LX;
@@ -218,11 +218,11 @@ __global__ void coef_generate_dxyz_kernel(T * __restrict__ dxdr,
       T rtmp = 0.0;
       T stmp = 0.0;
       T ttmp = 0.0;
-      for (int l = 0; l < LX; l++) {		
-	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];	
+      for (int l = 0; l < LX; l++) {
+	rtmp += shdx[i + l * LX] * shu[l + j * LX + k * LX * LX];
 	stmp += shdy[j + l * LX] * shu[i + l * LX + k * LX * LX];
-	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];	
-      } 
+	ttmp += shdz[k + l * LX] * shu[i + j * LX + l * LX * LX];
+      }
       dzdr[ijk + e * LX * LX * LX] = rtmp;
       dzds[ijk + e * LX * LX * LX] = stmp;
       dzdt[ijk + e * LX * LX * LX] = ttmp;
@@ -245,17 +245,17 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
 					  T * __restrict__ dtdx,
 					  T * __restrict__ dtdy,
 					  T * __restrict__ dtdz,
-					  const T * __restrict__ dxdr, 
-					  const T * __restrict__ dydr, 
-					  const T * __restrict__ dzdr, 
-					  const T * __restrict__ dxds, 
-					  const T * __restrict__ dyds, 
-					  const T * __restrict__ dzds, 
-					  const T * __restrict__ dxdt, 
-					  const T * __restrict__ dydt, 
+					  const T * __restrict__ dxdr,
+					  const T * __restrict__ dydr,
+					  const T * __restrict__ dzdr,
+					  const T * __restrict__ dxds,
+					  const T * __restrict__ dyds,
+					  const T * __restrict__ dzds,
+					  const T * __restrict__ dxdt,
+					  const T * __restrict__ dydt,
 					  const T * __restrict__ dzdt,
 					  const int n) {
-				
+
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   const T one = 1.0;
@@ -267,7 +267,7 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
            - (dxdr[i] * dydt[i] * dzds[i])
            - (dxds[i] * dydr[i] * dzdt[i])
            - (dxdt[i] * dyds[i] * dzdr[i]);
-    jacinv[i] = one / jac[i];    
+    jacinv[i] = one / jac[i];
 
     drdx[i] = dyds[i]*dzdt[i] - dydt[i]*dzds[i];
     drdy[i] = dxdt[i]*dzds[i] - dxds[i]*dzdt[i];
@@ -288,10 +288,10 @@ __global__ void coef_generate_drst_kernel(T * __restrict__ jac,
  */
 template <typename T>
 __global__ void coef_generate_mass_kernel(T * __restrict__ B,
-                T * __restrict__ Binv,
-                const T * __restrict__ jac,
-                const T * __restrict__ w3,
-                int lxyz, int nel) {
+                                          T * __restrict__ Binv,
+                                          const T * __restrict__ jac,
+                                          const T * __restrict__ w3,
+                                          int lxyz, int nel) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int n = lxyz * nel;
@@ -310,25 +310,24 @@ __global__ void coef_generate_mass_kernel(T * __restrict__ B,
  * Device kernel for coef_generate_area_and_normal
  */
 template< typename T, const int LX >
-__global__ void coef_generate_area_and_normal_kernel(
-           T* __restrict__ area,
-           T* __restrict__ nx,
-           T* __restrict__ ny,
-           T* __restrict__ nz,
-           const T* __restrict__ dxdr,
-           const T* __restrict__ dydr,
-           const T* __restrict__ dzdr,
-           const T* __restrict__ dxds,
-           const T* __restrict__ dyds,
-           const T* __restrict__ dzds,
-           const T* __restrict__ dxdt,
-           const T* __restrict__ dydt,
-           const T* __restrict__ dzdt,
-           const T* __restrict__ wx,
-           const T* __restrict__ wy,
-           const T* __restrict__ wz,
-           const T eps) {
-
+__global__
+void coef_generate_area_and_normal_kernel(T * __restrict__ area,
+                                          T * __restrict__ nx,
+                                          T * __restrict__ ny,
+                                          T * __restrict__ nz,
+                                          const T * __restrict__ dxdr,
+                                          const T * __restrict__ dydr,
+                                          const T * __restrict__ dzdr,
+                                          const T * __restrict__ dxds,
+                                          const T * __restrict__ dyds,
+                                          const T * __restrict__ dzds,
+                                          const T * __restrict__ dxdt,
+                                          const T * __restrict__ dydt,
+                                          const T * __restrict__ dzdt,
+                                          const T * __restrict__ wx,
+                                          const T * __restrict__ wy,
+                                          const T * __restrict__ wz,
+                                          const T eps) {
   int i, j, k;
   int f, out_idx;
   const T one = 1.0;

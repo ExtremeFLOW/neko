@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -39,18 +39,18 @@
 #include "coef_kernel.h"
 
 extern "C" {
-  
-  /** 
+
+  /**
    * Fortran wrapper for generating geometric factors
    */
-  void hip_coef_generate_geo(void *G11, void *G12, void *G13, 
-                             void *G22, void *G23, void *G33, 
+  void hip_coef_generate_geo(void *G11, void *G12, void *G13,
+                             void *G22, void *G23, void *G33,
                              void *drdx, void *drdy, void *drdz,
-                             void *dsdx, void *dsdy, void *dsdz, 
-                             void *dtdx, void *dtdy, void *dtdz, 
-                             void *jacinv, void *w3, int *nel, 
+                             void *dsdx, void *dsdy, void *dsdz,
+                             void *dtdx, void *dtdy, void *dtdz,
+                             void *jacinv, void *w3, int *nel,
                              int *lx, int *gdim) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
 
@@ -67,7 +67,7 @@ extern "C" {
                (real *) jacinv, (real *) w3, *gdim);                            \
       HIP_CHECK(hipGetLastError());                                             \
       break
-    
+
     switch(*lx) {
       GEO_CASE(2);
       GEO_CASE(3);
@@ -92,20 +92,20 @@ extern "C" {
     }
   }
 
-  /** 
+  /**
    * Fortran wrapper for generating geometric factors
    */
-  void hip_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz, 
-				  void *dsdx, void *dsdy, void *dsdz, 
-				  void *dtdx, void *dtdy, void *dtdz, 
-				  void *dxdr, void *dydr, void *dzdr, 
-				  void *dxds, void *dyds, void *dzds, 
+  void hip_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
+				  void *dsdx, void *dsdy, void *dsdz,
+				  void *dtdx, void *dtdy, void *dtdz,
+				  void *dxdr, void *dydr, void *dzdr,
+				  void *dxds, void *dyds, void *dzds,
 				  void *dxdt, void *dydt, void *dzdt,
-				  void *dx, void *dy, void *dz, 
+				  void *dx, void *dy, void *dz,
 				  void *x, void *y, void *z,
 				  void *jacinv, void *jac,
 				  int *lx, int *nel)  {
-    
+
     const int n = (*nel) * (*lx) * (*lx) * (*lx);
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks_dxyz((*nel), 1, 1);
@@ -146,24 +146,24 @@ extern "C" {
         exit(1);
       }
     }
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(coef_generate_drst_kernel<real>),
 		       nblcks_drst, nthrds, 0, (hipStream_t) glb_cmd_queue,
-		       (real *) jac, (real *) jacinv, 
+		       (real *) jac, (real *) jacinv,
 		       (real *) drdx, (real *) drdy, (real *) drdz,
 		       (real *) dsdx, (real *) dsdy, (real *) dsdz,
 		       (real *) dtdx, (real *) dtdy, (real *) dtdz,
-		       (real *) dxdr, (real *) dydr, (real *) dzdr, 
-		       (real *) dxds, (real *) dyds, (real *) dzds, 
+		       (real *) dxdr, (real *) dydr, (real *) dzdr,
+		       (real *) dxds, (real *) dyds, (real *) dzds,
 		       (real *) dxdt, (real *) dydt, (real *) dzdt, n);
     HIP_CHECK(hipGetLastError());
 
   }
 
-  /** 
+  /**
    * Fortran wrapper for generating mass matrix
    */
-  void hip_coef_generate_mass(void *B, void *Binv, void *jac, 
+  void hip_coef_generate_mass(void *B, void *Binv, void *jac,
 				  void *w3, int *lxyz, int *nel)  {
 
     int n = (*lxyz) * (*nel);
@@ -174,7 +174,7 @@ extern "C" {
 		     nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
 		     (real *) B, (real *) Binv, (real *) jac, (real *) w3,
 		     *lxyz, *nel);
-           
+
     HIP_CHECK(hipGetLastError());
 
   }
@@ -182,27 +182,28 @@ extern "C" {
   /**
    * Fortran wrapper for generating facet area and surface normals
    */
-  void hip_coef_generate_area_and_normal(void *area, void *nx, void *ny, void *nz,
-       void *dxdr, void *dydr, void *dzdr,
-       void *dxds, void *dyds, void *dzds,
-       void *dxdt, void *dydt, void *dzdt,
-       void *wx, void *wy, void *wz,
-       int *lx, int *nel, real eps) {
-    
+  void hip_coef_generate_area_and_normal(void *area,
+                                         void *nx, void *ny, void *nz,
+                                         void *dxdr, void *dydr, void *dzdr,
+                                         void *dxds, void *dyds, void *dzds,
+                                         void *dxdt, void *dydt, void *dzdt,
+                                         void *wx, void *wy, void *wz,
+                                         int *lx, int *nel, real eps) {
+
     const dim3 nblcks((*nel), 1, 1);
     const dim3 nthrds(1024, 1, 1);
 
-#define AREA_CASE(LX)                                                       \
-    case LX:                                                                \
-      hipLaunchKernelGGL(                                                   \
+#define AREA_CASE(LX)                                                        \
+    case LX:                                                                 \
+      hipLaunchKernelGGL(                                                    \
            HIP_KERNEL_NAME(coef_generate_area_and_normal_kernel<real, LX>),  \
            nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,                   \
            (real *) area, (real *) nx, (real *) ny, (real *) nz,             \
            (real *) dxdr, (real *) dydr, (real *) dzdr,                      \
            (real *) dxds, (real *) dyds, (real *) dzds,                      \
            (real *) dxdt, (real *) dydt, (real *) dzdt,                      \
-           (real *) wx, (real *) wy, (real *) wz, eps);                           \
-      HIP_CHECK(hipGetLastError());                                         \
+           (real *) wx, (real *) wy, (real *) wz, eps);                      \
+      HIP_CHECK(hipGetLastError());                                          \
       break
 
     switch(*lx) {
