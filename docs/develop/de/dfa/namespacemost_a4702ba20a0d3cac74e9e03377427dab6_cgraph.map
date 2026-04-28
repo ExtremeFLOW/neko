@@ -1,8 +1,8 @@
 <map id="most::most_compute" name="most::most_compute">
 <area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,737,165,763"/>
-<area shape="rect" id="Node000002" href="$d6/db7/namespacemost__cpu.html#a72093303144cd5c6fb35086cb92eb289" title="Main routine to compute the surface stresses based on MOST." alt="" coords="213,488,433,513"/>
+<area shape="rect" id="Node000002" href="$d6/db7/namespacemost__cpu.html#a0c969e715e29c6ad533ebe32ef5b07fb" title="Main routine to compute the surface stresses based on MOST." alt="" coords="213,488,433,513"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,735,299,522,302,525,101,739"/>
-<area shape="rect" id="Node000021" href="$d3/d02/namespacemost__device.html#ae38fb45e389dc39512ac41c421e3d24a" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="218,730,429,770"/>
+<area shape="rect" id="Node000021" href="$d3/d02/namespacemost__device.html#a8e3e6e521743b0464cc412aa8351d118" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="218,730,429,770"/>
 <area shape="poly" id="edge24_Node000001_Node000021" title=" " alt="" coords="166,747,204,747,204,753,166,753"/>
 <area shape="rect" id="Node000024" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="221,807,425,832"/>
 <area shape="poly" id="edge28_Node000001_Node000024" title=" " alt="" coords="131,760,266,800,265,805,129,765"/>
@@ -46,7 +46,7 @@
 <area shape="poly" id="edge18_Node000017_Node000012" title=" " alt="" coords="915,523,985,530,984,535,914,528"/>
 <area shape="poly" id="edge20_Node000018_Node000013" title=" " alt="" coords="933,223,967,226,966,232,932,229"/>
 <area shape="poly" id="edge23_Node000020_Node000014" title=" " alt="" coords="917,406,981,400,982,405,917,412"/>
-<area shape="rect" id="Node000022" href="$d9/dbb/most_8cu.html#a4a050ffcc53421165334680aa0f587b6" title=" " alt="" coords="493,737,651,763"/>
+<area shape="rect" id="Node000022" href="$d9/dbb/most_8cu.html#a5a7e308a916973d72848c7d9d337b923" title=" " alt="" coords="493,737,651,763"/>
 <area shape="poly" id="edge25_Node000021_Node000022" title=" " alt="" coords="429,747,479,747,479,753,429,753"/>
 <area shape="rect" id="Node000023" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="739,730,903,770"/>
 <area shape="poly" id="edge26_Node000022_Node000023" title=" " alt="" coords="651,747,726,747,726,753,651,753"/>

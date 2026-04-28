@@ -1,8 +1,8 @@
 <map id="richardson::richardson_compute" name="richardson::richardson_compute">
 <area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,413,172,453"/>
-<area shape="rect" id="Node000002" href="$d4/d09/namespacerichardson__cpu.html#a72bd6a05a974a10ff22e3956ad5495fc" title="Main routine to compute the surface stresses based on richardson." alt="" coords="224,169,420,209"/>
+<area shape="rect" id="Node000002" href="$d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="224,169,420,209"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,411,290,218,294,221,111,415"/>
-<area shape="rect" id="Node000016" href="$d5/d35/namespacerichardson__device.html#a2a6bdb8024b806364b0ec2643771bcf9" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="220,413,424,453"/>
+<area shape="rect" id="Node000016" href="$d5/d35/namespacerichardson__device.html#ae84ddbc8f980d7ed8a1a396ccde9397d" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="220,413,424,453"/>
 <area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="173,431,206,431,206,436,173,436"/>
 <area shape="rect" id="Node000019" href="$d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="239,477,405,517"/>
 <area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="163,451,236,471,235,476,162,456"/>
@@ -32,7 +32,7 @@
 <area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="893,215,941,215,941,220,893,220"/>
 <area shape="rect" id="Node000015" href="$d4/d09/namespacerichardson__cpu.html#a70162ab3de40f999dcfb319aedc50793" title=" " alt="" coords="955,325,1116,365"/>
 <area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="893,343,941,343,941,348,893,348"/>
-<area shape="rect" id="Node000017" href="$d3/ddd/richardson_8cu.html#aac46a9cbec7b8f867af8eaaf15d51443" title=" " alt="" coords="484,421,676,446"/>
+<area shape="rect" id="Node000017" href="$d3/ddd/richardson_8cu.html#a8d70484240e08dfceb6ed3ec3a10113d" title=" " alt="" coords="484,421,676,446"/>
 <area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="424,431,471,431,471,436,424,436"/>
 <area shape="rect" id="Node000018" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="736,413,900,453"/>
 <area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="676,431,722,431,722,436,676,436"/>

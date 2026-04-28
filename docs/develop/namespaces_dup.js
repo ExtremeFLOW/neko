@@ -677,7 +677,7 @@ var namespaces_dup =
     ] ],
     [ "rough_log_law", "d7/d0f/namespacerough__log__law.html", "d7/d0f/namespacerough__log__law" ],
     [ "rough_log_law_cpu", "dc/d1f/namespacerough__log__law__cpu.html", [
-      [ "rough_log_law_compute_cpu", "dc/d1f/namespacerough__log__law__cpu.html#a5c7db4f1e8e0d2a6f2f9ed15925afdc3", null ]
+      [ "rough_log_law_compute_cpu", "dc/d1f/namespacerough__log__law__cpu.html#a04f6464bc0758a74068e58f12d953566", null ]
     ] ],
     [ "rough_log_law_device", "db/d78/namespacerough__log__law__device.html", "db/d78/namespacerough__log__law__device" ],
     [ "runge_kutta_time_scheme", "d3/dc8/namespacerunge__kutta__time__scheme.html", "d3/dc8/namespacerunge__kutta__time__scheme" ],
@@ -738,7 +738,7 @@ var namespaces_dup =
     [ "spalding", "d5/d90/namespacespalding.html", "d5/d90/namespacespalding" ],
     [ "spalding_cpu", "da/d2d/namespacespalding__cpu.html", [
       [ "solve_cpu", "da/d2d/namespacespalding__cpu.html#a7ad0d1c56c5c9ea6633c4b5724472dca", null ],
-      [ "spalding_compute_cpu", "da/d2d/namespacespalding__cpu.html#afd6970b97485675fee90233dc7157276", null ]
+      [ "spalding_compute_cpu", "da/d2d/namespacespalding__cpu.html#a32a37dba89e5039728d993dea147ff2d", null ]
     ] ],
     [ "spalding_device", "d2/d9a/namespacespalding__device.html", "d2/d9a/namespacespalding__device" ],
     [ "speclib", "dd/df0/namespacespeclib.html", [

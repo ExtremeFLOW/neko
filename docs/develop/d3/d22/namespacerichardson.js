@@ -2,6 +2,7 @@ var namespacerichardson =
 [
     [ "richardson_t", "dd/df1/structrichardson_1_1richardson__t.html", "dd/df1/structrichardson_1_1richardson__t" ],
     [ "richardson_compute", "d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d", null ],
+    [ "richardson_extract_properties", "d3/d22/namespacerichardson.html#a11225532966b6a693f70e816b6812778", null ],
     [ "richardson_finalize", "d3/d22/namespacerichardson.html#ab2c9e9b2e1bc2e5fb9292323882dbc7d", null ],
     [ "richardson_free", "d3/d22/namespacerichardson.html#af070d3d3751a8a650ed3178963372854", null ],
     [ "richardson_init", "d3/d22/namespacerichardson.html#ad96250bb730b257423015cb8cf628393", null ],

@@ -11,7 +11,7 @@ var namespacerichardson__cpu =
     [ "heat_flux_convective", "d4/d09/namespacerichardson__cpu.html#ae2a1a18c41380055570461e78f9fc460", null ],
     [ "heat_flux_neutral", "d4/d09/namespacerichardson__cpu.html#aa1d14c0356a07368401dc45fd80ad8f9", null ],
     [ "heat_flux_stable", "d4/d09/namespacerichardson__cpu.html#ac65702a18f549ba9e98986a5c3fa63da", null ],
-    [ "richardson_compute_cpu", "d4/d09/namespacerichardson__cpu.html#a72bd6a05a974a10ff22e3956ad5495fc", null ],
+    [ "richardson_compute_cpu", "d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8", null ],
     [ "set_stability_regime", "d4/d09/namespacerichardson__cpu.html#aaf05f6297c003348e01bd01b9312eb49", null ],
     [ "tau_convective", "d4/d09/namespacerichardson__cpu.html#aad60ac4880c365954c227fef2da1fbf3", null ],
     [ "tau_neutral", "d4/d09/namespacerichardson__cpu.html#ae3de5d9714ed6f02b18489132c52bb3c", null ],

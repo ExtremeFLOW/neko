@@ -115,13 +115,13 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a2a6bdb8024b806364b0ec2643771bcf9" id="r_a2a6bdb8024b806364b0ec2643771bcf9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d35/namespacerichardson__device.html#a2a6bdb8024b806364b0ec2643771bcf9">richardson_compute_device</a> (u_d, v_d, w_d, temp_d, ind_r_d, ind_s_d, ind_t_d, ind_e_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_x_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_y_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_z_d</a>, h_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tau_x_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tau_y_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tau_z_d</a>, n_nodes, lx, kappa, mu, rho, g, pr, z0, z0h_in, bc_type, bc_value, tstep, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ri_b_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">l_ob_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">utau_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">magu_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ti_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ts_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">q_diagn</a>, h_x_idx, h_y_idx, h_z_idx)</td></tr>
-<tr class="memdesc:a2a6bdb8024b806364b0ec2643771bcf9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the wall shear stress on device using the rough log-law model.  <br /></td></tr>
-<tr class="separator:a2a6bdb8024b806364b0ec2643771bcf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae84ddbc8f980d7ed8a1a396ccde9397d" id="r_ae84ddbc8f980d7ed8a1a396ccde9397d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d35/namespacerichardson__device.html#ae84ddbc8f980d7ed8a1a396ccde9397d">richardson_compute_device</a> (u_d, v_d, w_d, temp_d, ind_r_d, ind_s_d, ind_t_d, ind_e_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_x_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_y_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">n_z_d</a>, h_d, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tau_x_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tau_y_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tau_z_d</a>, n_nodes, lx, kappa, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">mu_w_d</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rho_w_d</a>, g, pr, z0, z0h_in, bc_type, bc_value, tstep, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ri_b_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">l_ob_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">utau_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">magu_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ti_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ts_diagn</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">q_diagn</a>, h_x_idx, h_y_idx, h_z_idx)</td></tr>
+<tr class="memdesc:ae84ddbc8f980d7ed8a1a396ccde9397d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the wall shear stress on device using the rough log-law model.  <br /></td></tr>
+<tr class="separator:ae84ddbc8f980d7ed8a1a396ccde9397d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a2a6bdb8024b806364b0ec2643771bcf9" name="a2a6bdb8024b806364b0ec2643771bcf9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a6bdb8024b806364b0ec2643771bcf9">&#9670;&#160;</a></span>richardson_compute_device()</h2>
+<a id="ae84ddbc8f980d7ed8a1a396ccde9397d" name="ae84ddbc8f980d7ed8a1a396ccde9397d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae84ddbc8f980d7ed8a1a396ccde9397d">&#9670;&#160;</a></span>richardson_compute_device()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -237,14 +237,14 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>mu</em>, </td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>mu_w_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>rho</em>, </td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>rho_w_d</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -363,14 +363,14 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d62/richardson__device_8F90_source.html#l00070">70</a> of file <a class="el" href="../../de/d62/richardson__device_8F90_source.html">richardson_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d62/richardson__device_8F90_source.html#l00072">72</a> of file <a class="el" href="../../de/d62/richardson__device_8F90_source.html">richardson_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d35/namespacerichardson__device_a2a6bdb8024b806364b0ec2643771bcf9_cgraph.png" border="0" usemap="#ad5/d35/namespacerichardson__device_a2a6bdb8024b806364b0ec2643771bcf9_cgraph" alt=""/></div>
-<map name="ad5/d35/namespacerichardson__device_a2a6bdb8024b806364b0ec2643771bcf9_cgraph" id="ad5/d35/namespacerichardson__device_a2a6bdb8024b806364b0ec2643771bcf9_cgraph">
+<div class="center"><img src="../../d5/d35/namespacerichardson__device_ae84ddbc8f980d7ed8a1a396ccde9397d_cgraph.png" border="0" usemap="#ad5/d35/namespacerichardson__device_ae84ddbc8f980d7ed8a1a396ccde9397d_cgraph" alt=""/></div>
+<map name="ad5/d35/namespacerichardson__device_ae84ddbc8f980d7ed8a1a396ccde9397d_cgraph" id="ad5/d35/namespacerichardson__device_ae84ddbc8f980d7ed8a1a396ccde9397d_cgraph">
 <area shape="rect" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="5,29,209,69"/>
-<area shape="rect" href="../../d3/ddd/richardson_8cu.html#aac46a9cbec7b8f867af8eaaf15d51443" title=" " alt="" coords="257,37,449,62"/>
+<area shape="rect" href="../../d3/ddd/richardson_8cu.html#a8d70484240e08dfceb6ed3ec3a10113d" title=" " alt="" coords="257,37,449,62"/>
 <area shape="poly" title=" " alt="" coords="209,47,244,47,244,52,209,52"/>
 <area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="497,29,661,69"/>
 <area shape="poly" title=" " alt="" coords="449,47,484,47,484,52,449,52"/>
@@ -380,10 +380,10 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d35/namespacerichardson__device_a2a6bdb8024b806364b0ec2643771bcf9_icgraph.png" border="0" usemap="#ad5/d35/namespacerichardson__device_a2a6bdb8024b806364b0ec2643771bcf9_icgraph" alt=""/></div>
-<map name="ad5/d35/namespacerichardson__device_a2a6bdb8024b806364b0ec2643771bcf9_icgraph" id="ad5/d35/namespacerichardson__device_a2a6bdb8024b806364b0ec2643771bcf9_icgraph">
+<div class="center"><img src="../../d5/d35/namespacerichardson__device_ae84ddbc8f980d7ed8a1a396ccde9397d_icgraph.png" border="0" usemap="#ad5/d35/namespacerichardson__device_ae84ddbc8f980d7ed8a1a396ccde9397d_icgraph" alt=""/></div>
+<map name="ad5/d35/namespacerichardson__device_ae84ddbc8f980d7ed8a1a396ccde9397d_icgraph" id="ad5/d35/namespacerichardson__device_ae84ddbc8f980d7ed8a1a396ccde9397d_icgraph">
 <area shape="rect" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="243,49,447,89"/>
-<area shape="rect" href="../../da/d24/interfacerichardson__device_1_1hip__richardson__compute.html#aa510eec9d17dabe7a8d215046f35a4cf" title=" " alt="" coords="5,5,195,60"/>
+<area shape="rect" href="../../da/d24/interfacerichardson__device_1_1hip__richardson__compute.html#ab4f2c378088fde1e2ec10335cb98a022" title=" " alt="" coords="5,5,195,60"/>
 <area shape="poly" title=" " alt="" coords="229,54,194,49,195,44,229,49"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="17,85,183,125"/>
 <area shape="poly" title=" " alt="" coords="229,88,184,95,183,90,229,83"/>
@@ -398,7 +398,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d5/d35/namespacerichardson__device.html">richardson_device</a></li>
-    <li class="footer">Generated on Mon Apr 27 2026 04:40:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 28 2026 04:43:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

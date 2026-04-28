@@ -125,6 +125,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab2c9e9b2e1bc2e5fb9292323882dbc7d" id="r_ab2c9e9b2e1bc2e5fb9292323882dbc7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d22/namespacerichardson.html#ab2c9e9b2e1bc2e5fb9292323882dbc7d">richardson_finalize</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, msk, facet)</td></tr>
 <tr class="memdesc:ab2c9e9b2e1bc2e5fb9292323882dbc7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the construction using the mask and facet arrays of the bc.  <br /></td></tr>
 <tr class="separator:ab2c9e9b2e1bc2e5fb9292323882dbc7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11225532966b6a693f70e816b6812778" id="r_a11225532966b6a693f70e816b6812778"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d22/namespacerichardson.html#a11225532966b6a693f70e816b6812778">richardson_extract_properties</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a11225532966b6a693f70e816b6812778"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract the values of rho and mu at the boundary.  <br /></td></tr>
+<tr class="separator:a11225532966b6a693f70e816b6812778"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0a38817be6ff9aa5f995e8e7da310556" id="r_a0a38817be6ff9aa5f995e8e7da310556"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d22/namespacerichardson.html#a0a38817be6ff9aa5f995e8e7da310556">richardson_init_from_components</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, scheme_name, scalar_name, coef, msk, facet, h_index, kappa, g, pr, z0, z0h_in, bc_type, bc_value)</td></tr>
 <tr class="memdesc:a0a38817be6ff9aa5f995e8e7da310556"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from components.  <br /></td></tr>
 <tr class="separator:a0a38817be6ff9aa5f995e8e7da310556"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -185,16 +188,16 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00417">417</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00451">451</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d22/namespacerichardson_a37303822979f671c98c36e6719449f4d_cgraph.png" border="0" usemap="#ad3/d22/namespacerichardson_a37303822979f671c98c36e6719449f4d_cgraph" alt=""/></div>
 <map name="ad3/d22/namespacerichardson_a37303822979f671c98c36e6719449f4d_cgraph" id="ad3/d22/namespacerichardson_a37303822979f671c98c36e6719449f4d_cgraph">
 <area shape="rect" title="Compute the wall shear stress." alt="" coords="5,413,172,453"/>
-<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a72bd6a05a974a10ff22e3956ad5495fc" title="Main routine to compute the surface stresses based on richardson." alt="" coords="224,169,420,209"/>
+<area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#aa8b965abb6730303128b9d34eab854a8" title="Main routine to compute the surface stresses based on richardson." alt="" coords="224,169,420,209"/>
 <area shape="poly" title=" " alt="" coords="107,411,290,218,294,221,111,415"/>
-<area shape="rect" href="../../d5/d35/namespacerichardson__device.html#a2a6bdb8024b806364b0ec2643771bcf9" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="220,413,424,453"/>
+<area shape="rect" href="../../d5/d35/namespacerichardson__device.html#ae84ddbc8f980d7ed8a1a396ccde9397d" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="220,413,424,453"/>
 <area shape="poly" title=" " alt="" coords="173,431,206,431,206,436,173,436"/>
 <area shape="rect" href="../../d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="239,477,405,517"/>
 <area shape="poly" title=" " alt="" coords="163,451,236,471,235,476,162,456"/>
@@ -224,7 +227,7 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="893,215,941,215,941,220,893,220"/>
 <area shape="rect" href="../../d4/d09/namespacerichardson__cpu.html#a70162ab3de40f999dcfb319aedc50793" title=" " alt="" coords="955,325,1116,365"/>
 <area shape="poly" title=" " alt="" coords="893,343,941,343,941,348,893,348"/>
-<area shape="rect" href="../../d3/ddd/richardson_8cu.html#aac46a9cbec7b8f867af8eaaf15d51443" title=" " alt="" coords="484,421,676,446"/>
+<area shape="rect" href="../../d3/ddd/richardson_8cu.html#a8d70484240e08dfceb6ed3ec3a10113d" title=" " alt="" coords="484,421,676,446"/>
 <area shape="poly" title=" " alt="" coords="424,431,471,431,471,436,424,436"/>
 <area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="736,413,900,453"/>
 <area shape="poly" title=" " alt="" coords="676,431,722,431,722,436,676,436"/>
@@ -236,6 +239,46 @@ Here is the call graph for this function:</div>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="766,566,870,591"/>
 <area shape="poly" title=" " alt="" coords="640,515,768,559,766,564,639,520"/>
 <area shape="poly" title=" " alt="" coords="783,568,775,558,779,548,794,542,818,539,848,543,860,552,857,556,846,548,818,545,795,547,783,552,780,557,787,564"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a11225532966b6a693f70e816b6812778" name="a11225532966b6a693f70e816b6812778"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11225532966b6a693f70e816b6812778">&#9670;&#160;</a></span>richardson_extract_properties()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> richardson::richardson_extract_properties </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../dd/df1/structrichardson_1_1richardson__t.html">richardson_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00301">301</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d22/namespacerichardson_a11225532966b6a693f70e816b6812778_cgraph.png" border="0" usemap="#ad3/d22/namespacerichardson_a11225532966b6a693f70e816b6812778_cgraph" alt=""/></div>
+<map name="ad3/d22/namespacerichardson_a11225532966b6a693f70e816b6812778_cgraph" id="ad3/d22/namespacerichardson_a11225532966b6a693f70e816b6812778_cgraph">
+<area shape="rect" title="Extract the values of rho and mu at the boundary." alt="" coords="5,37,172,77"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="220,5,403,45"/>
+<area shape="poly" title=" " alt="" coords="172,43,206,38,207,43,173,48"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="229,69,393,109"/>
+<area shape="poly" title=" " alt="" coords="173,67,216,73,215,78,172,72"/>
 </map>
 </div>
 
@@ -288,7 +331,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00221">221</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00229">229</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
 
 </div>
 </div>
@@ -316,7 +359,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00370">370</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00402">402</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -397,7 +440,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00108">108</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00116">116</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
 
 </div>
 </div>
@@ -527,7 +570,7 @@ Here is the call graph for this function:</div>
 <p>Check alignment across all nodes (handling hills/slopes)</p>
 <p>Check sampling height</p>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00302">302</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00330">330</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -617,7 +660,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00464">464</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00501">501</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -693,7 +736,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00162">162</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d0f/richardson_8f90_source.html#l00170">170</a> of file <a class="el" href="../../dc/d0f/richardson_8f90_source.html">richardson.f90</a>.</p>
 
 </div>
 </div>
@@ -703,7 +746,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d22/namespacerichardson.html">richardson</a></li>
-    <li class="footer">Generated on Mon Apr 27 2026 04:40:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Apr 28 2026 04:43:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
