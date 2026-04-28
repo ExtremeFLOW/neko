@@ -222,7 +222,7 @@ contains
           time%tlag(2) = time%t
        end if
 
-       call ext_bdf%set_coeffs(time%dtlag)
+       call ext_bdf%set_coeffs(real(time%dtlag, kind=rp))
     end if
 
     time%tstep = time%tstep + 1
@@ -281,7 +281,7 @@ contains
     ! Restart the time state and BDF coefficients
     call C%time%restart(chkp)
     do i = 1, size(C%time%dtlag)
-       call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
+       call C%fluid%ext_bdf%set_coeffs( real(C%time%dtlag, kind=rp) )
     end do
 
     ! Restart the fluid and scalars

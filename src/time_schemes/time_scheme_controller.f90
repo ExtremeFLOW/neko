@@ -144,7 +144,7 @@ contains
   subroutine time_scheme_controller_set_coeffs(this, dt)
     implicit none
     class(time_scheme_controller_t) :: this
-    real(kind=dp), intent(inout), dimension(10) :: dt
+    real(kind=rp), intent(in), dimension(10) :: dt
     real(kind=rp), dimension(4) :: adv_coeffs_old
     real(kind=rp), dimension(4) :: diff_coeffs_old
 
@@ -165,29 +165,29 @@ contains
       nadv = nadv + 1
       nadv = min(nadv, this%advection_time_order)
 
-      call this%bdf%compute_coeffs(diff_coeffs%x, real(dt, kind=rp), ndiff)
+      call this%bdf%compute_coeffs(diff_coeffs%x, dt, ndiff)
 
       if (nadv .eq. 1) then
          ! Forward euler
-         call this%ext%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
+         call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
       else if (nadv .eq. 2) then
          if (ndiff .eq. 1) then
             ! 2nd order Adam-Bashforth, currently never used
-            call this%ab%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
+            call this%ab%compute_coeffs(adv_coeffs%x, dt, nadv)
          else
             ! Linear extrapolation
-            call this%ext%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
+            call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
          end if
       else if (nadv .eq. 3) then
          if (ndiff .eq. 1) then
             ! 3rd order Adam-Bashforth, currently never used
-            call this%ab%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
+            call this%ab%compute_coeffs(adv_coeffs%x, dt, nadv)
          else if (ndiff .eq. 2) then
             ! The modified EXT scheme
-            call this%ext%compute_modified_coeffs(adv_coeffs%x, real(dt, kind=rp))
+            call this%ext%compute_modified_coeffs(adv_coeffs%x, dt)
          else
             ! Quadratic extrapolation
-            call this%ext%compute_coeffs(adv_coeffs%x, real(dt, kind=rp), nadv)
+            call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
          end if
       end if
 
