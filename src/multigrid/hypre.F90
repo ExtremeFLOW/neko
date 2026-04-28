@@ -39,25 +39,28 @@ module hypre
   type, public :: hypre_solver_t
      private
      ! pointer for HYPRE_Solver
-     type(c_ptr) :: solver = C_NULL_PTR
+     type(c_ptr) :: solver
      ! Matrix A
      ! pointer for HYPRE_IJMatrix
-     type(c_ptr) :: A = C_NULL_PTR
-     type(c_ptr) :: parcsr_A = C_NULL_PTR
+     type(c_ptr) :: A
+     type(c_ptr) :: parcsr_A
      ! Right hand side b
      ! pointer for HYPRE_IJVector
-     type(c_ptr) :: b = C_NULL_PTR
-     type(c_ptr) :: par_b = C_NULL_PTR
+     type(c_ptr) :: b
+     type(c_ptr) :: par_b
      ! Approximated solution x
      ! pointer for HYPRE_IJVector
-     type(c_ptr) :: x = C_NULL_PTR
-     type(c_ptr) :: par_x = C_NULL_PTR
+     type(c_ptr) :: x
+     type(c_ptr) :: par_x
      ! things that should not be here but are stuck here for convenience
      ! or lazyness
      integer, allocatable :: dofs(:)! dof list here to have i4 instead of i8
-     type(c_ptr) :: dofs_d = C_NULL_PTR! dof list on device
+     type(c_ptr) :: dofs_d
      integer :: ilower = 1
      integer :: iupper = 1
+     ! Offrank mult
+     real(kind=rp), public, allocatable :: rnk_mult(:)
+     type(c_ptr), public :: rnk_mult_d
    contains
      procedure, pass(this) :: init => hypre_solver_init
      procedure, pass(this) :: free => hypre_solver_free
@@ -94,6 +97,20 @@ contains
   subroutine hypre_solver_init(this, solver_params)
     class(hypre_solver_t), intent(inout) :: this
     integer, intent(in) :: solver_params ! Replace with some parameter object
+
+    ! Set pointers to null
+    ! (can't be the default initialization as that causes an ICE with gnu)
+    this%solver = C_NULL_PTR
+    this%A = C_NULL_PTR
+    this%parcsr_A = C_NULL_PTR
+    this%b = C_NULL_PTR
+    this%par_b = C_NULL_PTR
+    this%x = C_NULL_PTR
+    this%par_x = C_NULL_PTR
+
+    this%dofs_d = C_NULL_PTR
+    this%rnk_mult_d = C_NULL_PTR
+
     ! Pass and process parameters here.
     call boomeramg_init(this%solver)
   end subroutine hypre_solver_init
@@ -132,6 +149,8 @@ contains
 
     ! workaround to have dofs as i4 instead of i8
     call hypre_dofs_workaround(this, coef)
+
+    call hypre_rank_owned_mult(this, coef)
 
     ! Asseble the linear system
     call hypre_matrix_assemble_from_neko(coef, this%A, this%b, this%x, bdry_flg, n, this%ilower)
@@ -207,6 +226,31 @@ contains
        call device_memcpy(hs%dofs, hs%dofs_d, n, HOST_TO_DEVICE, .true.)
     end if
   end subroutine hypre_dofs_workaround
+
+  subroutine hypre_rank_owned_mult(hs, coef)
+    type(hypre_solver_t), intent(inout) :: hs
+    type(coef_t), intent(in), target :: coef
+    integer :: i, n
+    n = coef%dof%size()
+    allocate(hs%rnk_mult(n))
+    do i = 1, n
+       if (coef%dof%shared_dof(i,1,1,1)) then
+          ! NOTE assuming that half of the shared dofs
+          ! are on rank and the other half are off rank,
+          ! Thus the factor of 2.
+          ! This is not likely to hold for unstructured meshes,
+          ! dofs shared between more than two ranks,
+          ! and "non-flat" interfaces between ranks.
+          hs%rnk_mult(i) = coef%mult(i,1,1,1) * 2
+       else
+          hs%rnk_mult(i) = 1.0_rp
+       end if
+    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(hs%rnk_mult, hs%rnk_mult_d, n)
+       call device_memcpy(hs%rnk_mult, hs%rnk_mult_d, n, HOST_TO_DEVICE, .true.)
+    end if
+  end subroutine hypre_rank_owned_mult
 
   subroutine hypre_matrix_assemble_from_neko(coef, A, b, x, bdry_flg, n, my_ilower)
     !DIR$ INLINENEVER hypre_matrix_assemble_from_neko
