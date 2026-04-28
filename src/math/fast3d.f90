@@ -199,7 +199,7 @@ contains
           dgll(i,j) = w(j + nm) ! Derivative matrix
        end do
     end do
-    call rzero(a(:,1), np*np)
+    call rzero(a, np*np)
     do j = 0,n
        do i = 0,n
           do k = 0,n
