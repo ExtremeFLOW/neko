@@ -45,7 +45,7 @@ module divergence_simcomp
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   implicit none
   private
 
@@ -94,8 +94,8 @@ contains
     class(divergence_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=20) :: fields(1)
-    character(len=20), allocatable :: field_names(:)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
+    character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
     character(len=:), allocatable :: computed_field
     character(len=:), allocatable :: name
 
@@ -166,7 +166,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     fields(1) = trim(computed_field)
 
@@ -215,7 +215,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     fields(1) = trim(computed_field) // "_x"
 

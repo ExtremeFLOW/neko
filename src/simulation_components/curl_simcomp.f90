@@ -48,7 +48,7 @@ module curl_simcomp
   use device, only : glb_cmd_event
   use scratch_registry, only : neko_scratch_registry
   use time_based_controller, only : time_based_controller_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   implicit none
   private
 
@@ -101,8 +101,8 @@ contains
     class(curl_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=20) :: fields(3)
-    character(len=20), allocatable :: field_names(:)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
+    character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
     character(len=:), allocatable :: computed_field
 
 
@@ -177,7 +177,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     this%name = name
 
@@ -231,7 +231,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     this%name = name
 

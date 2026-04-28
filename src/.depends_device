@@ -145,9 +145,10 @@ wall_models/bcknd/device/cuda/wall_models.lo : wall_models/bcknd/device/cuda/wal
 wall_models/bcknd/device/cuda/spalding.lo : wall_models/bcknd/device/cuda/spalding.cu wall_models/bcknd/device/cuda/spalding_kernel.h
 wall_models/bcknd/device/cuda/rough_log_law.lo : wall_models/bcknd/device/cuda/rough_log_law.cu wall_models/bcknd/device/cuda/rough_log_law_kernel.h
 wall_models/bcknd/device/cuda/most.lo : wall_models/bcknd/device/cuda/most.cu wall_models/bcknd/device/cuda/most_kernel.h
+wall_models/bcknd/device/cuda/richardson.lo : wall_models/bcknd/device/cuda/richardson.cu wall_models/bcknd/device/cuda/richardson_kernel.h
 wall_models/bcknd/device/hip/wall_models.lo : wall_models/bcknd/device/hip/wall_models.hip wall_models/bcknd/device/hip/wall_model_kernels.h
 wall_models/bcknd/device/hip/spalding.lo : wall_models/bcknd/device/hip/spalding.hip wall_models/bcknd/device/hip/spalding_kernel.h
 wall_models/bcknd/device/hip/rough_log_law.lo : wall_models/bcknd/device/hip/rough_log_law.hip wall_models/bcknd/device/hip/rough_log_law_kernel.h
 wall_models/bcknd/device/hip/most.lo : wall_models/bcknd/device/hip/most.hip wall_models/bcknd/device/hip/most_kernel.h
+wall_models/bcknd/device/hip/richardson.lo : wall_models/bcknd/device/hip/richardson.hip wall_models/bcknd/device/hip/richardson_kernel.h
 multigrid/bcknd/device/cuda/amg_cheby.lo : multigrid/bcknd/device/cuda/amg_cheby.cu
-krylov/bcknd/device/cuda/cheby_aux.lo : krylov/bcknd/device/cuda/cheby_aux.cu
