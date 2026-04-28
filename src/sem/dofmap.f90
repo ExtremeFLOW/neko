@@ -48,6 +48,7 @@ module dofmap
   use element, only : element_t
   use quad, only : quad_t
   use hex, only : hex_t
+  use interpolation, only : interpolator_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -73,7 +74,9 @@ module dofmap
 
    contains
      !> Constructor.
-     procedure, pass(this) :: init => dofmap_init
+     procedure, pass(this) :: init_from_mesh => dofmap_init
+     procedure, pass(this) :: init_from_dof => dofmap_init_and_map
+     generic :: init => init_from_mesh, init_from_dof
      !> Destructor.
      procedure, pass(this) :: free => dofmap_free
      !> Return the local number of degrees of freedom, lx*ly*lz*nelv
@@ -155,6 +158,37 @@ contains
     end if
 
   end subroutine dofmap_init
+  
+  !> Constructor.
+  !! @param dof The existing dofmap to initialize from.
+  !! @param Xh The SEM function space.
+  subroutine dofmap_init_and_map(this, dof, Xh)
+    class(dofmap_t) :: this
+    type(dofmap_t), target, intent(inout) :: dof
+    type(space_t), target, intent(inout) :: Xh
+    type(interpolator_t) :: interpolator
+
+    ! Initialize as usual
+    call this%init_from_mesh(dof%msh, Xh)
+
+    ! Interpolate if needed
+    if (dof%Xh%lxyz .ne. this%Xh%lxyz) then
+      call interpolator%init(this%Xh, dof%Xh)
+ 
+      call interpolator%map(this%x, &
+            dof%x, &
+            this%msh%nelv, this%Xh)
+      call interpolator%map(this%y, &
+            dof%y, &
+            this%msh%nelv, this%Xh)
+      call interpolator%map(this%z, &
+            dof%z, &
+            this%msh%nelv, this%Xh)
+
+      call interpolator%free()
+    end if
+
+  end subroutine dofmap_init_and_map
 
   !> Destructor.
   subroutine dofmap_free(this)
