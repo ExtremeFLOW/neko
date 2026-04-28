@@ -33,6 +33,7 @@
 !
 !> Defines a factory subroutine for simulation components.
 submodule (simulation_component) simulation_component_fctry
+  use boundary_operation, only : boundary_operation_t
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
@@ -56,7 +57,8 @@ submodule (simulation_component) simulation_component_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(18) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(19) = [character(len=20) :: &
+       "boundary_operation", &
        "lambda2", &
        "probes", &
        "les_model", &
@@ -119,6 +121,8 @@ contains
     end if
 
     select case (trim(type_name))
+    case ("boundary_operation")
+       allocate(boundary_operation_t::object)
     case ("lambda2")
        allocate(lambda2_t::object)
     case ("probes")

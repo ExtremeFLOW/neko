@@ -1,7 +1,7 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "512.nmsh",
+        "mesh_file": "box.nmsh",
         "output_at_end": true,
         "output_checkpoints": false,
         "checkpoint_control": "simulationtime",
@@ -62,6 +62,15 @@
                         0.5e-4
                     ],
                     "geostrophic_wind": "geo_wind"
+                },
+                {
+                    "type": "sponge",
+                    "amplitudes": [0.01, 0.01, 0.01],
+                    "baseflow": 
+                      {
+                        "method": "constant",
+                        "value": "geo_wind"
+                      }
                 }
             ],
             "boundary_conditions": [
@@ -74,10 +83,16 @@
                 },
                 {
                     "type": "wall_model",
-                    "model": "rough_log_law",
+                    "model": "most",
+                    "scalar_field": "temperature",
                     "kappa": 0.4,
+                    "type_of_temp_bc": "neumann",
+                    "bottom_bc_flux_or_temp": 0.05,
+                    "g": "g_vector",
+                    "time_dependent_temp_bc": false,
                     "z0": 0.1,
-                    "B": 0.0,
+                    "z0h": 0.1,
+                    "Pr": 0.74,
                     "zone_indices": [
                         5
                     ],
