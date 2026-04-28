@@ -908,6 +908,9 @@ contains
     integer, dimension(:, :), intent(in) :: vrt_map, edg_map, edg_algn, &
          fcs_map, fcs_algn
     integer, dimension(:), intent(out) :: blk_len, blk_off, mdg, mgd
+    integer, dimension(nvrt) :: vrt_shift
+    integer, dimension(nedg) :: edg_shift
+    integer, dimension(nfcs) :: fcs_shift
     integer :: lxl, il, jl, kl, ll, ml, itmp, mult, iel, ipos, algn, el_off, &
          edg_id, fcs_id, id, lid
     integer :: ix, iy, iz, nx, ny, nz, nxyz
@@ -917,68 +920,76 @@ contains
 
     ! block length
     lxl = lx -2
+
+    ! get vertex, edge and face shifts
+    vrt_shift(1) = 0
+    do il = 2, nvrt
+       vrt_shift(il) = vrt_shift(il - 1) + vrt_mult(vrt(il - 1))
+    end do
+    edg_shift(1) = vrt_shift(nvrt) + vrt_mult(vrt(nvrt))
+    do il = 2, nedg
+       edg_shift(il) = edg_shift(il - 1) + edg_mult(edg(il - 1)) * lxl
+    end do
+    fcs_shift(1) = edg_shift(nedg) + edg_mult(edg(nedg)) * lxl
+    do il = 2, nfcs
+       fcs_shift(il) = fcs_shift(il - 1) + fcs_mult(fcs(il - 1)) * lxl * lxl
+    end do
+
+    ! get block multiplicity (per dof)
     ! vertex
-    do il = 1, nvrt
+    do concurrent (il = 1: nvrt)
        blk_len(il) = vrt_mult(vrt(il))
     end do
-    itmp = nvrt
     ! edge
-    do il = 1, nedg
+    do concurrent (il = 1: nedg)
        mult = edg_mult(edg(il))
-       do jl = 1, lxl
-          itmp = itmp + 1
-          blk_len(itmp) = mult
-       end do
+       itmp = nvrt + (il - 1) * lxl
+       blk_len(itmp + 1: itmp + lxl) = mult
     end do
     ! faces; only those with multiplicity bigger than 2; nonconforming only
-    do il = 1, nfcsn
+    do concurrent (il = 1: nfcsn)
        mult = fcs_mult(fcs(il))
-       do jl = 1, lxl
-          do kl = 1, lxl
-             itmp = itmp + 1
-             blk_len(itmp) = mult
-          end do
-       end do
+       itmp = nvrt + nedg * lxl + (il - 1) * lxl * lxl
+       blk_len(itmp + 1: itmp + lxl * lxl) = mult
     end do
 
-    ! sanity checks
-    if (itmp .ne. nblks) &
-         call neko_error('gs_fill_arrays: inconsistent block number')
-
     ! offset
-    if (itmp .gt. 0) then
+    if (nblks .gt. 0) then
        blk_off(1) = 0
-       do il = 2, itmp
+       do il = 2, nblks
           blk_off(il) = blk_off(il - 1) + blk_len(il - 1)
        end do
 
        ! sanity checks
-       if (blk_off(itmp) + blk_len(itmp) .ne. cfcs_off - 1) &
+       if (blk_off(nblks) + blk_len(nblks) .ne. cfcs_off - 1) &
             call neko_error('gs_fill_arrays: inconsistent facet offset')
     end if
 
     ! mappings
-    itmp = 0
     lxl = lx - 1
     ! vertex
-    do il = 1, nvrt
+    do concurrent (il = 1: nvrt)
        id = il
-       ! offset array
-       do jl = vrt_off(vrt(il)), vrt_off(vrt(il) + 1) - 1
+       ! multiplicity
+       mult = vrt_mult(vrt(il))
+       ! shift
+       itmp = vrt_shift(il)
+       do concurrent (jl = 1: mult)
+          ! position in map array
+          ml = jl + vrt_off(vrt(il)) - 1
           ! local element and vertex position
-          iel = vrt_map(1, jl)
-          ipos = vrt_map(2, jl)
+          iel = vrt_map(1, ml)
+          ipos = vrt_map(2, ml)
           ! position in the element
           ix = mod(ipos - 1, 2) * lxl + 1
           iy = (mod(ipos - 1, 4)/2) * lxl + 1
           iz = ((ipos - 1)/4) * lxl + 1
           ! linear id
           lid = linear_index(ix, iy, iz, iel, lx, lx, lx)
-          itmp = itmp + 1
           ! dof => gs
-          mdg(itmp) = id
+          mdg(itmp + jl) = id
           ! gs => dof
-          mgd(itmp) = lid
+          mgd(itmp + jl) = lid
        end do
     end do
 
@@ -1010,11 +1021,13 @@ contains
     ! such a way, that "id" is always growing withing the element despite of
     ! the alignment. Combining it with the proper object order gives global
     ! unique dof ordering.
-    do il = 1, nedg
+    do concurrent (il = 1: nedg)
        id = nvrt + (il - 1) * (nx - 2)
        ! multiplicity
        mult = edg_mult(edg(il))
-       do jl = 1, mult
+       ! shift
+       itmp = edg_shift(il)
+       do concurrent (jl = 1: mult)
           ! position in map array
           ml = jl + edg_off(edg(il)) - 1
           ! local element and vertex position
@@ -1047,7 +1060,6 @@ contains
              end do
           end select
        end do
-       itmp = itmp + (nx -2) * mult
     end do
 
     ! face
@@ -1077,11 +1089,13 @@ contains
     ! such a way, that "id" is always growing withing the element despite of
     ! the alignment. Combining it with the proper object order gives global
     ! unique dof ordering.
-    do il = 1, nfcs
+    do concurrent (il = 1: nfcs)
        id = nvrt + nedg * (nx - 2) + (il - 1) * (nx - 2) * (nx - 2)
        ! multiplicity
        mult = fcs_mult(fcs(il))
-       do jl = 1, mult
+       ! shift
+       itmp = fcs_shift(il)
+       do concurrent (jl = 1: mult)
           ! position in map array
           ml = jl + fcs_off(fcs(il)) - 1
           ! local element and vertex position
@@ -1209,7 +1223,6 @@ contains
              end do
           end select
        end do
-       itmp = itmp + (nx -2) * (nx -2) * mult
     end do
 
   end subroutine gs_fill_arrays
