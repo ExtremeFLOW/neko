@@ -59,7 +59,7 @@ __global__ void rough_log_law_compute(const T* __restrict__ u_d,
                                       const int n_nodes,
                                       const int lx,
                                       const T kappa,
-                                      const T rho,
+                                      const T * __restrict__ rho_w_d,
                                       const T B,
                                       const T z0) {
 
@@ -75,6 +75,7 @@ __global__ void rough_log_law_compute(const T* __restrict__ u_d,
         T ui = u_d[index];
         T vi = v_d[index];
         T wi = w_d[index];
+        T rho = rho_w_d[i];
 
         // Load normal vectors and wall shear stress values once
         T nx = n_x_d[i];

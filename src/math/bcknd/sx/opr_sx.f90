@@ -48,10 +48,10 @@ module opr_sx
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: nelv
        real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
-       real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, nelv)
-       real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, nelv)
-       real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, nelv)
-       real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, nelv)
+       real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, nelv)
+       real(kind=rp), intent(in) :: vx(Xh%lx, Xh%ly, Xh%lz, nelv)
+       real(kind=rp), intent(in) :: vy(Xh%lx, Xh%ly, Xh%lz, nelv)
+       real(kind=rp), intent(in) :: vz(Xh%lx, Xh%ly, Xh%lz, nelv)
      end subroutine opr_sx_conv1
 
      module subroutine opr_sx_convect_scalar(du, u, cr, cs, ct, Xh_GLL, Xh_GL, &

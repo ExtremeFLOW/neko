@@ -298,10 +298,10 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
 #ifdef HAVE_LIBXSMM
     !   Store the inverse jacobian to speed this operation up
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz) :: dudr, duds, dudt
