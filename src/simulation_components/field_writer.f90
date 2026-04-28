@@ -46,7 +46,7 @@ module field_writer
   use field_output, only : field_output_t
   use json_utils, only : json_get, json_get_or_default
   use time_based_controller, only : time_based_controller_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use logger, only : neko_log
   implicit none
   private
@@ -98,7 +98,7 @@ contains
     character(len=:), allocatable :: precision
     character(len=:), allocatable :: format
     character(len=:), allocatable :: point_zone_name
-    character(len=20), allocatable :: fields(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     integer :: precision_value
     logical :: subdivide
     class(point_zone_t), pointer :: point_zone
@@ -162,7 +162,7 @@ contains
     type(time_based_controller_t), intent(in) :: preprocess_controller
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
-    character(len=20), intent(in) :: fields(:)
+    character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=20), intent(in), optional :: format
@@ -210,7 +210,7 @@ contains
     real(kind=rp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
     real(kind=rp), intent(in) :: output_value
-    character(len=20), intent(in) :: fields(:)
+    character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=*), intent(in), optional :: format
@@ -240,23 +240,20 @@ contains
        format, subdivide, point_zone)
     class(field_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=20), intent(in) :: fields(:)
+    character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     character(len=*), intent(in), optional :: format
     logical, intent(in), optional :: subdivide
     class(point_zone_t), intent(inout), optional :: point_zone
 
-    character(len=20) :: fieldi
     logical :: filename_provided
-    character(len=120) :: message
     integer :: i
 
     this%name = name
     ! Register fields if they don't exist.
     do i = 1, size(fields)
-       fieldi = trim(fields(i))
-       call neko_registry%add_field(this%case%fluid%dm_Xh, fieldi, &
+       call neko_registry%add_field(this%case%fluid%dm_Xh, trim(fields(i)), &
             ignore_existing = .true.)
     end do
 
@@ -282,9 +279,8 @@ contains
           end if
 
           do i = 1, size(fields)
-             fieldi = trim(fields(i))
              call this%output%fields%assign(i, &
-                  neko_registry%get_field(fieldi))
+                  neko_registry%get_field(trim(fields(i))))
           end do
 
           call this%case%output_controller%add(this%output, &
@@ -296,9 +292,8 @@ contains
 
     if (.not. filename_provided) then
        do i = 1, size(fields)
-          fieldi = trim(fields(i))
           call this%case%f_out%fluid%append( &
-               neko_registry%get_field(fieldi))
+               neko_registry%get_field(trim(fields(i))))
        end do
     end if
 
