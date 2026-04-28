@@ -158,7 +158,7 @@ contains
     end if
 
   end subroutine dofmap_init
-  
+
   !> Constructor.
   !! @param dof The existing dofmap to initialize from.
   !! @param Xh The SEM function space.
@@ -173,19 +173,19 @@ contains
 
     ! Interpolate if needed
     if (dof%Xh%lxyz .ne. this%Xh%lxyz) then
-      call interpolator%init(this%Xh, dof%Xh)
- 
-      call interpolator%map(this%x, &
+       call interpolator%init(this%Xh, dof%Xh)
+
+       call interpolator%map(this%x, &
             dof%x, &
             this%msh%nelv, this%Xh)
-      call interpolator%map(this%y, &
+       call interpolator%map(this%y, &
             dof%y, &
             this%msh%nelv, this%Xh)
-      call interpolator%map(this%z, &
+       call interpolator%map(this%z, &
             dof%z, &
             this%msh%nelv, this%Xh)
 
-      call interpolator%free()
+       call interpolator%free()
     end if
 
   end subroutine dofmap_init_and_map
