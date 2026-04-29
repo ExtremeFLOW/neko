@@ -180,7 +180,7 @@ contains
     integer :: nelv, gdim
     real(kind=dp) :: dt
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=dp) :: cfl
     integer :: i, j, k, e
