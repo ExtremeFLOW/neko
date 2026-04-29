@@ -60,6 +60,7 @@ module vector_bc_resolver
   use device_coupled_vector_bc_resolver, only : &
        device_coupled_vector_bc_resolver_apply
   use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use operators, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
   implicit none
   private
@@ -192,6 +193,9 @@ module vector_bc_resolver
      !> Write diagnostic output for the resolved masks and basis.
      procedure, pass(this) :: debug_output => &
           coupled_vector_bc_resolver_debug_output
+     !> Write debug output of normal component on mixed BC nodes.
+     procedure, pass(this) :: debug_output_normal_component => &
+          coupled_vector_bc_resolver_debug_output_normal_component
      !> Clear the resolved mask-side state.
      procedure, pass(this), private :: clear_masks => &
           coupled_vector_bc_resolver_clear_masks
@@ -1101,14 +1105,34 @@ contains
        end do
     end if
 
-    !write(*,*) "Finished reconstructing normals at mixed corners in " // &
-    !     "coupled vector BC resolver."
+    ! We are done element-wise. We now need global consistency at shared nodes.
+    !
+    ! For cyclic meshes, however, periodic counterparts may not be co-planar.
+    ! If we directly gather Cartesian normal components, we mix vectors that are
+    ! expressed in different local frames across the periodic map, which can
+    ! tilt the reconstructed normal.
+    !
+    ! We therefore follow the same cyclic treatment used in other vector
+    ! operators in Neko:
+    ! 1) Rotate cyclic-marked nodes into the cyclic-normal/tangential frame.
+    ! 2) Perform the global GS_OP_ADD while all contributions use that frame.
+    ! 3) Rotate cyclic-marked nodes back to Cartesian.
+    !
+    ! This keeps MPI/shared-node averaging intact while preventing frame-mixing
+    ! on cyclic couplings.
+    if (this%coef%cyclic) then
+       call rotate_cyc(normal_x_field%x, normal_y_field%x, normal_z_field%x, &
+            1, this%coef)
+    end if
 
-    ! We are done element-wise. Now we can just sum the normals across nodes
-    ! shared by multiple elements.
     call this%coef%gs_h%op(normal_x_field, GS_OP_ADD)
     call this%coef%gs_h%op(normal_y_field, GS_OP_ADD)
     call this%coef%gs_h%op(normal_z_field, GS_OP_ADD)
+
+    if (this%coef%cyclic) then
+       call rotate_cyc(normal_x_field%x, normal_y_field%x, normal_z_field%x, &
+            0, this%coef)
+    end if
 
     ! Normalize normals and build tangential directions for all mixed nodes.
     ! Populate this into the basis components in the type.
@@ -1386,5 +1410,139 @@ contains
 
     call neko_scratch_registry%relinquish_field(scratch_idx)
   end subroutine coupled_vector_bc_resolver_debug_output
+
+  !> Write scalar fields with the normal component `u.n` on mixed BC nodes.
+  !! @details The output is zero outside `mixed_dof_mask`. The normal vectors
+  !! come from (1) the resolved basis stored in this resolver and
+  !! (2) the normals stored in `coef_t`. No area scaling is applied.
+  !! @param[in] x x-component of the vector field.
+  !! @param[in] y y-component of the vector field.
+  !! @param[in] z z-component of the vector field.
+  !! @param[in] n Number of entries in x, y, z.
+  !! @param[in] field_name Optional base name for the output file. The `.fld`
+  !! suffix is appended automatically.
+  subroutine coupled_vector_bc_resolver_debug_output_normal_component( &
+       this, x, y, z, n, field_name)
+    class(coupled_vector_bc_resolver_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: x(n)
+    real(kind=rp), intent(in) :: y(n)
+    real(kind=rp), intent(in) :: z(n)
+    character(len=*), intent(in), optional :: field_name
+    type(field_t), pointer :: normal_component_field
+    type(field_t), pointer :: normal_component_coef_field
+    type(field_list_t) :: output_fields
+    type(fld_file_t) :: output_file
+    type(field_t), pointer :: resolver_nx_field, resolver_ny_field, resolver_nz_field
+    type(field_t), pointer :: coef_nx_field, coef_ny_field, coef_nz_field
+    type(field_list_t) :: normals_fields
+    type(fld_file_t) :: normals_file
+    integer :: scratch_idx(8)
+    integer, pointer :: mixed_mask_values(:)
+    integer, allocatable :: mixed_lut(:)
+    integer :: dof_size, mixed_mask_size
+    integer :: i, j, m, k, facet
+    integer :: idx(4)
+    real(kind=rp) :: coef_normal(3)
+    class(bc_t), pointer :: bc
+    character(len=:), allocatable :: field_name_
+
+    if (present(field_name)) then
+      field_name_ = trim(field_name)
+    else
+      field_name_ = 'bc_resolver_normal_component'
+    end if
+
+    call neko_scratch_registry%request_field(normal_component_field, &
+         scratch_idx(1), .true.)
+    call neko_scratch_registry%request_field(normal_component_coef_field, &
+         scratch_idx(2), .true.)
+    call neko_scratch_registry%request_field(resolver_nx_field, &
+         scratch_idx(3), .true.)
+    call neko_scratch_registry%request_field(resolver_ny_field, &
+         scratch_idx(4), .true.)
+    call neko_scratch_registry%request_field(resolver_nz_field, &
+         scratch_idx(5), .true.)
+    call neko_scratch_registry%request_field(coef_nx_field, &
+         scratch_idx(6), .true.)
+    call neko_scratch_registry%request_field(coef_ny_field, &
+         scratch_idx(7), .true.)
+    call neko_scratch_registry%request_field(coef_nz_field, &
+         scratch_idx(8), .true.)
+
+    dof_size = this%dof%size()
+    mixed_mask_size = this%mixed_dof_mask%size()
+    call rzero(normal_component_field%x, dof_size)
+    call rzero(normal_component_coef_field%x, dof_size)
+    call rzero(resolver_nx_field%x, dof_size)
+    call rzero(resolver_ny_field%x, dof_size)
+    call rzero(resolver_nz_field%x, dof_size)
+    call rzero(coef_nx_field%x, dof_size)
+    call rzero(coef_ny_field%x, dof_size)
+    call rzero(coef_nz_field%x, dof_size)
+
+    allocate(mixed_lut(dof_size))
+    mixed_lut = 0
+    if (this%mixed_dof_mask%is_set()) then
+      mixed_mask_values => this%mixed_dof_mask%get()
+      do i = 1, mixed_mask_size
+        mixed_lut(mixed_mask_values(i)) = i
+      end do
+    end if
+
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+       do m = 1, bc%facet_msk(0)
+          k = bc%facet_msk(m)
+          facet = bc%facet(m)
+          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%ly, &
+               this%coef%Xh%lz)
+
+          coef_normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), &
+               facet)
+          coef_nx_field%x(k,1,1,1) = coef_normal(1)
+          coef_ny_field%x(k,1,1,1) = coef_normal(2)
+          coef_nz_field%x(k,1,1,1) = coef_normal(3)
+          normal_component_coef_field%x(k,1,1,1) = &
+               x(k) * coef_normal(1) + y(k) * coef_normal(2) + z(k) * coef_normal(3)
+
+          j = mixed_lut(k)
+          if (j .gt. 0) then
+             resolver_nx_field%x(k,1,1,1) = this%n%x(1,j)
+             resolver_ny_field%x(k,1,1,1) = this%n%x(2,j)
+             resolver_nz_field%x(k,1,1,1) = this%n%x(3,j)
+             normal_component_field%x(k,1,1,1) = &
+                  x(k) * this%n%x(1,j) + y(k) * this%n%x(2,j) + z(k) * this%n%x(3,j)
+          end if
+       end do
+    end do
+
+    deallocate(mixed_lut)
+
+    call output_fields%init(2)
+    call output_fields%assign(1, normal_component_field)
+    call output_fields%assign(2, normal_component_coef_field)
+    call output_file%init(field_name_ // '.fld')
+    call output_file%write(output_fields)
+    call output_fields%free()
+
+    call normals_fields%init(3)
+    call normals_fields%assign(1, resolver_nx_field)
+    call normals_fields%assign(2, resolver_ny_field)
+    call normals_fields%assign(3, resolver_nz_field)
+    call normals_file%init(field_name_ // '_resolver_normals.fld')
+    call normals_file%write(normals_fields)
+    call normals_fields%free()
+
+    call normals_fields%init(3)
+    call normals_fields%assign(1, coef_nx_field)
+    call normals_fields%assign(2, coef_ny_field)
+    call normals_fields%assign(3, coef_nz_field)
+    call normals_file%init(field_name_ // '_coef_normals.fld')
+    call normals_file%write(normals_fields)
+    call normals_fields%free()
+
+    call neko_scratch_registry%relinquish_field(scratch_idx)
+  end subroutine coupled_vector_bc_resolver_debug_output_normal_component
 
 end module vector_bc_resolver
