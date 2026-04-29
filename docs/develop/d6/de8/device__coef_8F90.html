@@ -114,6 +114,10 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html">device_coef::hip_coef_generate_dxyzdrst</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass.html">device_coef::hip_coef_generate_mass</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d07/interfacedevice__coef_1_1hip__coef__generate__area__and__normal.html">device_coef::hip_coef_generate_area_and_normal</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Modules</h2></td></tr>
@@ -126,6 +130,10 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:ad9fe58a53528fa7e72777067712436f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6bf9ddbe771387016c5f4cd71fe51256" id="r_a6bf9ddbe771387016c5f4cd71fe51256"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d80/namespacedevice__coef.html#a6bf9ddbe771387016c5f4cd71fe51256">device_coef::device_coef_generate_dxydrst</a> (drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d, dsdz_d, dtdx_d, dtdy_d, dtdz_d, dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, dx_d, dy_d, dz_d, x_d, y_d, z_d, jacinv_d, jac_d, lx, nel)</td></tr>
 <tr class="separator:a6bf9ddbe771387016c5f4cd71fe51256"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa23d6f5f4a99702535d2f40d2b24c057" id="r_aa23d6f5f4a99702535d2f40d2b24c057"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d80/namespacedevice__coef.html#aa23d6f5f4a99702535d2f40d2b24c057">device_coef::device_coef_generate_mass</a> (b, binv, jac, w3, lxyz, nel)</td></tr>
+<tr class="separator:aa23d6f5f4a99702535d2f40d2b24c057"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a002545a68c445f77f55050c90b6b130c" id="r_a002545a68c445f77f55050c90b6b130c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d80/namespacedevice__coef.html#a002545a68c445f77f55050c90b6b130c">device_coef::device_coef_generate_area_and_normal</a> (area_d, nx_d, ny_d, nz_d, dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, wx_d, wy_d, wz_d, lx, nel, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">eps</a>)</td></tr>
+<tr class="separator:a002545a68c445f77f55050c90b6b130c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -133,7 +141,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../dir_9a4b89d4e4bfe5ccf22bd1919c3f71a0.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_940d0a5242b4ca864d4f3a447ad4ec73.html">device</a></li><li class="navelem"><a class="el" href="../../d6/de8/device__coef_8F90.html">device_coef.F90</a></li>
-    <li class="footer">Generated on Tue Apr 28 2026 04:43:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 29 2026 04:40:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

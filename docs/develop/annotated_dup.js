@@ -341,8 +341,10 @@ var annotated_dup =
       [ "device_unmap", "db/d56/interfacedevice_1_1device__unmap.html", "db/d56/interfacedevice_1_1device__unmap" ]
     ] ],
     [ "device_coef", "df/d80/namespacedevice__coef.html", [
+      [ "hip_coef_generate_area_and_normal", "df/d07/interfacedevice__coef_1_1hip__coef__generate__area__and__normal.html", "df/d07/interfacedevice__coef_1_1hip__coef__generate__area__and__normal" ],
       [ "hip_coef_generate_dxyzdrst", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst" ],
-      [ "hip_coef_generate_geo", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo.html", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo" ]
+      [ "hip_coef_generate_geo", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo.html", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo" ],
+      [ "hip_coef_generate_mass", "d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass.html", "d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass" ]
     ] ],
     [ "device_deardorff_nut", "d4/d66/namespacedevice__deardorff__nut.html", [
       [ "hip_deardorff_nut_compute", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute.html", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute" ]

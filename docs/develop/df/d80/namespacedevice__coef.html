@@ -107,9 +107,13 @@ $(document).ready(function(){initNavTree('df/d80/namespacedevice__coef.html','..
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d07/interfacedevice__coef_1_1hip__coef__generate__area__and__normal.html">hip_coef_generate_area_and_normal</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html">hip_coef_generate_dxyzdrst</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo.html">hip_coef_generate_geo</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass.html">hip_coef_generate_mass</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -118,8 +122,163 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:ad9fe58a53528fa7e72777067712436f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6bf9ddbe771387016c5f4cd71fe51256" id="r_a6bf9ddbe771387016c5f4cd71fe51256"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d80/namespacedevice__coef.html#a6bf9ddbe771387016c5f4cd71fe51256">device_coef_generate_dxydrst</a> (drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d, dsdz_d, dtdx_d, dtdy_d, dtdz_d, dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, dx_d, dy_d, dz_d, x_d, y_d, z_d, jacinv_d, jac_d, lx, nel)</td></tr>
 <tr class="separator:a6bf9ddbe771387016c5f4cd71fe51256"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa23d6f5f4a99702535d2f40d2b24c057" id="r_aa23d6f5f4a99702535d2f40d2b24c057"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d80/namespacedevice__coef.html#aa23d6f5f4a99702535d2f40d2b24c057">device_coef_generate_mass</a> (b, binv, jac, w3, lxyz, nel)</td></tr>
+<tr class="separator:aa23d6f5f4a99702535d2f40d2b24c057"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a002545a68c445f77f55050c90b6b130c" id="r_a002545a68c445f77f55050c90b6b130c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d80/namespacedevice__coef.html#a002545a68c445f77f55050c90b6b130c">device_coef_generate_area_and_normal</a> (area_d, nx_d, ny_d, nz_d, dxdr_d, dydr_d, dzdr_d, dxds_d, dyds_d, dzds_d, dxdt_d, dydt_d, dzdt_d, wx_d, wy_d, wz_d, lx, nel, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">eps</a>)</td></tr>
+<tr class="separator:a002545a68c445f77f55050c90b6b130c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a002545a68c445f77f55050c90b6b130c" name="a002545a68c445f77f55050c90b6b130c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a002545a68c445f77f55050c90b6b130c">&#9670;&#160;</a></span>device_coef_generate_area_and_normal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> device_coef::device_coef_generate_area_and_normal </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>area_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>nx_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>ny_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>nz_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dxdr_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dydr_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dzdr_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dxds_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dyds_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dzds_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dxdt_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dydt_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>dzdt_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>wx_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>wy_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>wz_d</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>lx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>nel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=c_rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">value</a>&#160;</td>
+          <td class="paramname"><em>eps</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/de8/device__coef_8F90_source.html#l00318">318</a> of file <a class="el" href="../../d6/de8/device__coef_8F90_source.html">device_coef.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d80/namespacedevice__coef_a002545a68c445f77f55050c90b6b130c_cgraph.png" border="0" usemap="#adf/d80/namespacedevice__coef_a002545a68c445f77f55050c90b6b130c_cgraph" alt=""/></div>
+<map name="adf/d80/namespacedevice__coef_a002545a68c445f77f55050c90b6b130c_cgraph" id="adf/d80/namespacedevice__coef_a002545a68c445f77f55050c90b6b130c_cgraph">
+<area shape="rect" title=" " alt="" coords="5,27,164,82"/>
+<area shape="rect" href="../../d4/d95/coef_8cu.html#a8276c4946f9a1f78e5c217207a037d3e" title=" " alt="" coords="425,5,579,45"/>
+<area shape="poly" title=" " alt="" coords="164,46,412,29,412,34,165,52"/>
+<area shape="rect" href="../../d6/da9/coef_8c.html#ad414c2650ec561e6690ca2e6a701c365" title=" " alt="" coords="212,63,377,103"/>
+<area shape="poly" title=" " alt="" coords="165,63,199,67,198,72,164,68"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="627,63,791,103"/>
+<area shape="poly" title=" " alt="" coords="575,43,623,56,622,61,574,48"/>
+<area shape="poly" title=" " alt="" coords="670,63,668,53,674,44,688,38,709,36,733,39,746,46,743,51,731,44,709,41,689,43,677,48,673,54,675,62"/>
+<area shape="poly" title=" " alt="" coords="378,80,613,80,613,85,378,85"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="436,121,568,146"/>
+<area shape="poly" title=" " alt="" coords="378,100,437,115,435,120,376,105"/>
+<area shape="poly" title=" " alt="" coords="554,118,613,103,614,109,555,123"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a6bf9ddbe771387016c5f4cd71fe51256" name="a6bf9ddbe771387016c5f4cd71fe51256"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6bf9ddbe771387016c5f4cd71fe51256">&#9670;&#160;</a></span>device_coef_generate_dxydrst()</h2>
 
@@ -302,7 +461,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/de8/device__coef_8F90_source.html#l00179">179</a> of file <a class="el" href="../../d6/de8/device__coef_8F90_source.html">device_coef.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/de8/device__coef_8F90_source.html#l00269">269</a> of file <a class="el" href="../../d6/de8/device__coef_8F90_source.html">device_coef.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -473,7 +632,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/de8/device__coef_8F90_source.html#l00151">151</a> of file <a class="el" href="../../d6/de8/device__coef_8F90_source.html">device_coef.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/de8/device__coef_8F90_source.html#l00241">241</a> of file <a class="el" href="../../d6/de8/device__coef_8F90_source.html">device_coef.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -496,13 +655,86 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
+<a id="aa23d6f5f4a99702535d2f40d2b24c057" name="aa23d6f5f4a99702535d2f40d2b24c057"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa23d6f5f4a99702535d2f40d2b24c057">&#9670;&#160;</a></span>device_coef_generate_mass()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> device_coef::device_coef_generate_mass </td>
+          <td>(</td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>binv</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>jac</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr)&#160;</td>
+          <td class="paramname"><em>w3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>lxyz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td>
+          <td class="paramname"><em>nel</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/de8/device__coef_8F90_source.html#l00303">303</a> of file <a class="el" href="../../d6/de8/device__coef_8F90_source.html">device_coef.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d80/namespacedevice__coef_aa23d6f5f4a99702535d2f40d2b24c057_cgraph.png" border="0" usemap="#adf/d80/namespacedevice__coef_aa23d6f5f4a99702535d2f40d2b24c057_cgraph" alt=""/></div>
+<map name="adf/d80/namespacedevice__coef_aa23d6f5f4a99702535d2f40d2b24c057_cgraph" id="adf/d80/namespacedevice__coef_aa23d6f5f4a99702535d2f40d2b24c057_cgraph">
+<area shape="rect" title=" " alt="" coords="5,23,169,63"/>
+<area shape="rect" href="../../d4/d95/coef_8cu.html#aaa6e57cdcf0240660a75c138fa848c80" title=" " alt="" coords="472,5,667,31"/>
+<area shape="poly" title=" " alt="" coords="169,36,458,21,458,26,170,42"/>
+<area shape="rect" href="../../d6/da9/coef_8c.html#a4ff03fe0760a37f1415b15b0dfa831bc" title=" " alt="" coords="217,56,424,81"/>
+<area shape="poly" title=" " alt="" coords="170,50,204,53,203,59,169,55"/>
+<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="715,49,879,89"/>
+<area shape="poly" title=" " alt="" coords="628,28,702,45,701,50,627,33"/>
+<area shape="poly" title=" " alt="" coords="754,49,752,39,759,30,774,24,797,22,823,25,838,32,835,37,822,30,797,27,775,29,762,34,757,40,759,48"/>
+<area shape="poly" title=" " alt="" coords="424,66,701,66,701,71,424,71"/>
+<area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="503,107,635,132"/>
+<area shape="poly" title=" " alt="" coords="385,79,493,101,492,106,384,84"/>
+<area shape="poly" title=" " alt="" coords="627,104,701,87,702,92,628,109"/>
+</map>
+</div>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../df/d80/namespacedevice__coef.html">device_coef</a></li>
-    <li class="footer">Generated on Tue Apr 28 2026 04:43:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 29 2026 04:40:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

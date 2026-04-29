@@ -148,10 +148,10 @@ $(document).ready(function(){initNavTree('d3/d23/cpu__conv1_8f90_source.html','.
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: e_start, e_end</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: du(xh%lxyz, e_end-e_start+1)</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: u(xh%lx, xh%ly, xh%lz, e_end-e_start+1)</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vx(xh%lx, xh%ly, xh%lz, e_end-e_start+1)</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vy(xh%lx, xh%ly, xh%lz, e_end-e_start+1)</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vz(xh%lx, xh%ly, xh%lz, e_end-e_start+1)</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: u(xh%lx, xh%ly, xh%lz, e_end-e_start+1)</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vx(xh%lx, xh%ly, xh%lz, e_end-e_start+1)</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vy(xh%lx, xh%ly, xh%lz, e_end-e_start+1)</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vz(xh%lx, xh%ly, xh%lz, e_end-e_start+1)</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">integer</span> :: e_len</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    e_len = e_end-e_start+1</div>
@@ -168,10 +168,10 @@ $(document).ready(function(){initNavTree('d3/d23/cpu__conv1_8f90_source.html','.
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: e_start, e_len</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: du(xh%lxyz, e_len)</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: u(xh%lx, xh%ly, xh%lz, e_len)</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vx(xh%lx, xh%ly, xh%lz, e_len)</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vy(xh%lx, xh%ly, xh%lz, e_len)</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vz(xh%lx, xh%ly, xh%lz, e_len)</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: u(xh%lx, xh%ly, xh%lz, e_len)</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vx(xh%lx, xh%ly, xh%lz, e_len)</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vy(xh%lx, xh%ly, xh%lz, e_len)</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vz(xh%lx, xh%ly, xh%lz, e_len)</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    associate(drdx =&gt; coef%drdx, drdy =&gt; coef%drdy, drdz =&gt; coef%drdz, &amp;</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>         dsdx =&gt; coef%dsdx, dsdy =&gt; coef%dsdy, dsdz =&gt; coef%dsdz, &amp;</div>
@@ -1358,10 +1358,10 @@ $(document).ready(function(){initNavTree('d3/d23/cpu__conv1_8f90_source.html','.
 <div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
 <div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: e</div>
 <div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: du(xh%lxyz, e_len)</div>
-<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: u(xh%lx, xh%ly, xh%lz, e_len)</div>
-<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vx(xh%lx, xh%ly, xh%lz, e_len)</div>
-<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vy(xh%lx, xh%ly, xh%lz, e_len)</div>
-<div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: vz(xh%lx, xh%ly, xh%lz, e_len)</div>
+<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: u(xh%lx, xh%ly, xh%lz, e_len)</div>
+<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vx(xh%lx, xh%ly, xh%lz, e_len)</div>
+<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vy(xh%lx, xh%ly, xh%lz, e_len)</div>
+<div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: vz(xh%lx, xh%ly, xh%lz, e_len)</div>
 <div class="line"><a id="l01258" name="l01258"></a><span class="lineno"> 1258</span> </div>
 <div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>    associate(drdx =&gt; coef%drdx, drdy =&gt; coef%drdy, drdz =&gt; coef%drdz, &amp;</div>
 <div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span>         dsdx =&gt; coef%dsdx, dsdy =&gt; coef%dsdy, dsdz =&gt; coef%dsdz, &amp;</div>
@@ -2508,7 +2508,7 @@ $(document).ready(function(){initNavTree('d3/d23/cpu__conv1_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_a1c99f91a79f7bf548f96fca73db34ee.html">cpu</a></li><li class="navelem"><a class="el" href="../../d3/d23/cpu__conv1_8f90.html">cpu_conv1.f90</a></li>
-    <li class="footer">Generated on Tue Apr 28 2026 04:43:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Apr 29 2026 04:40:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

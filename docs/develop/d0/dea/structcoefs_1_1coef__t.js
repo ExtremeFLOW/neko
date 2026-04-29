@@ -21,6 +21,7 @@ var structcoefs_1_1coef__t =
     [ "blag_d", "d0/dea/structcoefs_1_1coef__t.html#a832b82fb28868d744b83fea19bf208e9", null ],
     [ "blaglag", "d0/dea/structcoefs_1_1coef__t.html#a53f13971ce00871e4c512bb65f16171d", null ],
     [ "blaglag_d", "d0/dea/structcoefs_1_1coef__t.html#a33e3f7e777e6b3232be39c5e75c7653a", null ],
+    [ "coef_metrics_initialized", "d0/dea/structcoefs_1_1coef__t.html#afc1ee131813f7839164489b557f8b901", null ],
     [ "cyc_msk", "d0/dea/structcoefs_1_1coef__t.html#af08d14e4382fbcbee994132b63172f05", null ],
     [ "cyc_msk_d", "d0/dea/structcoefs_1_1coef__t.html#acedc4a9d7ae8ee59ede67967a2299d1a", null ],
     [ "cyclic", "d0/dea/structcoefs_1_1coef__t.html#aa72493f906a008714b058b9840e0f5cf", null ],
