@@ -40,9 +40,9 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u, v, w
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
 
     select case (Xh%lx)
     case (14)
@@ -151,16 +151,16 @@ contains
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
        jacinv, nelv, lx) result(cfl)
     integer, intent(in) :: nelv, lx
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -196,16 +196,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 14
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -241,16 +241,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 13
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -286,16 +286,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 12
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -331,16 +331,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 11
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -376,16 +376,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 10
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -421,16 +421,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 9
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -466,16 +466,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 8
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -511,16 +511,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 7
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -556,16 +556,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 6
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -601,16 +601,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 5
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -646,16 +646,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 4
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -691,16 +691,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 3
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
@@ -736,16 +736,16 @@ contains
        jacinv, nelv) result(cfl)
     integer, parameter :: lx = 2
     integer, intent(in) :: nelv
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
-    real(kind=rp) :: cflr, cfls, cflt, cflm
+    real(kind=dp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
 
