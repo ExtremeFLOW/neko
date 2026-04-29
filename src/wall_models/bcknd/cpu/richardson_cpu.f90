@@ -120,20 +120,21 @@ contains
   !! @param tstep The current time-step
   subroutine richardson_compute_cpu(u, v, w, temp, ind_r, ind_s, ind_t, ind_e, &
        n_x, n_y, n_z, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-       kappa, mu, rho, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
+       kappa, mu_w, rho_w, g_vec, Pr, z0, z0h_in, bc_type, bc_value, tstep, &
        Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, ts_diagn,&
        q_diagn, h_x_idx, h_y_idx, h_z_idx)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w, temp
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
-    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, mu, rho, Pr
+    real(kind=rp), intent(in) :: kappa, z0, z0h_in, bc_value, Pr
     real(kind=rp), dimension(3), intent(in) :: g_vec
+    real(kind=rp), dimension(n_nodes), intent(in) :: mu_w, rho_w
     real(kind=rp) :: g_dot_n
     character(len=*), intent(in) :: bc_type
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     integer :: i
-    real(kind=rp) :: ui, vi, wi, hi
+    real(kind=rp) :: ui, vi, wi, hi, rho, mu
     real(kind=rp) :: normu, z0h
     real(kind=rp) :: l
     real(kind=rp), parameter :: tol = 0.001_rp
@@ -156,6 +157,8 @@ contains
        wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        ti = temp(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        hi = h(i)
+       rho = rho_w(i)
+       mu = mu_w(i)
 
        ! Project on horizontal directions
        normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)

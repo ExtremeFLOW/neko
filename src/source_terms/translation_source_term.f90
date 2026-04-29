@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the `coriolis_source_term_t` type.
-!! Maintainer: Timofey Mukha
+!> Implements the `translation_source_term_t` type.
 
 module translation_source_term
   use num_types, only : rp

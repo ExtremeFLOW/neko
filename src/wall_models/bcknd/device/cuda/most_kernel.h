@@ -286,7 +286,7 @@ __device__ T slaw_h_neutral(T z, T z0h)
 }
 
 /*
- * CUDA kernel for the most wall model.
+ * CUDA kernel for the MOST wall model.
  */
 template<typename T, int BC_TYPE>
 __global__ void most_compute(
@@ -308,8 +308,8 @@ __global__ void most_compute(
     int n_nodes,
     int lx,
     T kappa,
-    T mu,
-    T rho,
+    const T * __restrict__ mu_w_d,
+    const T * __restrict__ rho_w_d,
     T g1,
     T g2,
     T g3,
@@ -352,6 +352,8 @@ __global__ void most_compute(
         T wi = w_d[index];
         T ti = temp_d[index];
         T hi = h_d[i];
+        T mu = mu_w_d[i];
+        T rho = rho_w_d[i];
 
         // Extract the local normal vector
         T nx = n_x_d[i];

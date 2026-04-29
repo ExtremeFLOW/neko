@@ -875,6 +875,10 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
     \f$ \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \f$. The keyword to be provided
     in the case file is `domain_velocity`, which expects an array with 3 values.
 
+    Note that in this case, we still solve for the absolute velocity, not the 
+    relative one. It is simply advection that is affected. Useful to perform
+    simulations on domains that are moving on a periodic direction.
+
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
 The volume force \f$ f_i \f$ applied in the selected regions are proportional to the

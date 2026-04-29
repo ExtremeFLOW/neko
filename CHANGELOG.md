@@ -4,6 +4,7 @@
 - Added hdf5 support for probes and added hdf5 I/O helper routines
 
 - Basic implementation of an overset interface boundary condition is added
+- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal` for hip and cuda.
 - Added the Richardson wall model.
 - Added the `data_streamer` simulation component, allowing data streaming
 - Added the variable NEKO_VARNAME_LEN in `common/utils.f90` to set a fixed
