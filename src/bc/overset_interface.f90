@@ -117,7 +117,7 @@ module overset_interface
   end type overset_interface_t
 
   abstract interface
-  
+
      !> User callback for overset-interface morphing and boundary-value updates.
      !!
      !! Implementations may update interface coordinates and/or prescribed
