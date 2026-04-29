@@ -237,7 +237,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
 	simulation_components/boundary_operation.f90\
-	simulation_components/data_streamer_simcomp.f90\
+	simulation_components/data_streamer_simcomp.F90\
 	simulation_components/field_subsampler.f90\
 	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
@@ -361,6 +361,7 @@ neko_fortran_SOURCES = \
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
 	source_terms/user_source_term.f90\
+	source_terms/translation_source_term.f90\
 	source_terms/coriolis_source_term.f90\
 	source_terms/bcknd/cpu/coriolis_source_term_cpu.f90\
 	source_terms/bcknd/device/coriolis_source_term_device.f90\
