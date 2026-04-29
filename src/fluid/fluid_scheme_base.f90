@@ -276,10 +276,10 @@ module fluid_scheme_base
   abstract interface
      function fluid_scheme_base_compute_cfl_intrf(this, dt) result(c)
        import fluid_scheme_base_t
-       import rp, dp
+       import dp
        class(fluid_scheme_base_t), intent(in) :: this
        real(kind=dp), intent(in) :: dt
-       real(kind=rp) :: c
+       real(kind=dp) :: c
      end function fluid_scheme_base_compute_cfl_intrf
   end interface
 

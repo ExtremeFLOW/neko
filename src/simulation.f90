@@ -123,7 +123,7 @@ contains
     type(time_step_controller_t), intent(inout) :: dt_controller
     real(kind=dp), optional, intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     character(len=LOG_SIZE) :: log_buf
 
     ! Setup the time step, and start time

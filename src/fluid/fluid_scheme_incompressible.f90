@@ -579,9 +579,9 @@ contains
   function fluid_compute_cfl(this, dt) result(c)
     class(fluid_scheme_incompressible_t), intent(in) :: this
     real(kind=dp), intent(in) :: dt
-    real(kind=rp) :: c
+    real(kind=dp) :: c
 
-    c = cfl( real(dt, kind=rp), this%u%x, this%v%x, this%w%x, &
+    c = cfl(dt, this%u%x, this%v%x, this%w%x, &
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
 
   end function fluid_compute_cfl

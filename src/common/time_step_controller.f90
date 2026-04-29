@@ -32,7 +32,7 @@
 !
 !> Implements type time_step_controller.
 module time_step_controller
-  use num_types, only : rp
+  use num_types, only : dp
   use logger, only : neko_log, LOG_SIZE
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
@@ -43,17 +43,17 @@ module time_step_controller
   !> Provides a tool to set time step dt
   type, public :: time_step_controller_t
      logical :: is_variable_dt
-     real(kind=rp) :: cfl_trg = 0.0_rp
-     real(kind=rp) :: cfl_avg = 0.0_rp
-     real(kind=rp) :: max_dt = 0.0_rp
-     real(kind=rp) :: min_dt = 0.0_rp
+     real(kind=dp) :: cfl_trg = 0.0_dp
+     real(kind=dp) :: cfl_avg = 0.0_dp
+     real(kind=dp) :: max_dt = 0.0_dp
+     real(kind=dp) :: min_dt = 0.0_dp
      integer :: max_update_frequency = 0
      integer :: min_update_frequency = 0
      integer :: dt_last_change = 0
-     real(kind=rp) :: alpha = 0.0_rp !< coefficient of running average
-     real(kind=rp) :: max_dt_increase_factor = 0.0_rp
-     real(kind=rp) :: min_dt_decrease_factor = 0.0_rp
-     real(kind=rp) :: dev_tol = 0.0_rp
+     real(kind=dp) :: alpha = 0.0_dp !< coefficient of running average
+     real(kind=dp) :: max_dt_increase_factor = 0.0_dp
+     real(kind=dp) :: min_dt_decrease_factor = 0.0_dp
+     real(kind=dp) :: dev_tol = 0.0_dp
    contains
      !> Initialize object.
      procedure, pass(this) :: init => time_step_controller_init
@@ -75,23 +75,23 @@ contains
          this%is_variable_dt, .false.)
     if (this%is_variable_dt) then
        call json_get_or_lookup_or_default(params, 'target_cfl', &
-            this%cfl_trg, 0.4_rp)
+            this%cfl_trg, 0.4_dp)
        call json_get_or_lookup_or_default(params, 'max_timestep', &
-            this%max_dt, huge(0.0_rp))
+            this%max_dt, huge(0.0_dp))
        call json_get_or_lookup_or_default(params, 'min_timestep', &
-            this%min_dt, 0.0_rp)
+            this%min_dt, 0.0_dp)
        call json_get_or_lookup_or_default(params, 'max_update_frequency',&
             this%max_update_frequency, 0)
        call json_get_or_lookup_or_default(params, 'min_update_frequency',&
             this%min_update_frequency, huge(0))
        call json_get_or_lookup_or_default(params, 'cfl_running_avg_coeff', &
-            this%alpha, 0.5_rp)
+            this%alpha, 0.5_dp)
        call json_get_or_lookup_or_default(params, 'max_dt_increase_factor', &
-            this%max_dt_increase_factor, 1.2_rp)
+            this%max_dt_increase_factor, 1.2_dp)
        call json_get_or_lookup_or_default(params, 'min_dt_decrease_factor', &
-            this%min_dt_decrease_factor, 0.5_rp)
+            this%min_dt_decrease_factor, 0.5_dp)
        call json_get_or_lookup_or_default(params, 'cfl_deviation_tolerance', &
-            this%dev_tol, 0.2_rp)
+            this%dev_tol, 0.2_dp)
     end if
 
   end subroutine time_step_controller_init
@@ -106,8 +106,8 @@ contains
   subroutine time_step_controller_set_dt(this, time, cfl)
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
-    real(kind=rp), intent(in) :: cfl
-    real(kind=rp) :: dt_old, scaling_factor
+    real(kind=dp), intent(in) :: cfl
+    real(kind=dp) :: dt_old, scaling_factor
     character(len=LOG_SIZE) :: log_buf
 
     ! Check if variable dt is requested

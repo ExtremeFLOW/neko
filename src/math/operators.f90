@@ -433,9 +433,9 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: u, v, w
-    real(kind=rp) :: cfl
+    real(kind=dp) :: cfl
     integer :: ierr
 
     if (NEKO_BCKND_SX .eq. 1) then
@@ -464,10 +464,10 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: &
          max_wave_speed
-    real(kind=rp) :: cfl_compressible
+    real(kind=dp) :: cfl_compressible
 
     cfl_compressible = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
          Xh, coef, nelv, gdim)

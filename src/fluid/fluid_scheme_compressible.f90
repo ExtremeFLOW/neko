@@ -331,7 +331,7 @@ contains
   function fluid_scheme_compressible_compute_cfl(this, dt) result(c)
     class(fluid_scheme_compressible_t), intent(in) :: this
     real(kind=dp), intent(in) :: dt
-    real(kind=rp) :: c
+    real(kind=dp) :: c
     integer :: n
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -342,7 +342,7 @@ contains
       n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
       ! Use the compressible CFL function with precomputed maximum wave speed
-      c = cfl_compressible(real(dt, kind=rp), max_wave_speed%x, Xh, c_Xh, &
+      c = cfl_compressible(dt, max_wave_speed%x, Xh, c_Xh, &
            msh%nelv, msh%gdim)
     end associate
 
