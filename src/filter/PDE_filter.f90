@@ -118,16 +118,16 @@ contains
     type(coef_t), intent(in) :: coef
 
     ! user parameters
-    call json_get(json, "filter.radius", this%r)
+    call json_get(json, "radius", this%r)
 
-    call json_get_or_default(json, "filter.tolerance", this%abstol_filt, &
+    call json_get_or_default(json, "tolerance", this%abstol_filt, &
          1.0e-10_rp)
 
-    call json_get_or_default(json, "filter.max_iter", this%ksp_max_iter, 200)
+    call json_get_or_default(json, "max_iter", this%ksp_max_iter, 200)
 
-    call json_get_or_default(json, "filter.solver", this%ksp_solver, 'cg')
+    call json_get_or_default(json, "solver", this%ksp_solver, 'cg')
 
-    call json_get_or_default(json, "filter.preconditioner", &
+    call json_get_or_default(json, "preconditioner", &
          this%precon_type_filt, 'jacobi')
 
     call this%init_base(json, coef)

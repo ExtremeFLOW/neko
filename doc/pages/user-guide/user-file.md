@@ -942,6 +942,69 @@ use `sync = .true.` as a starting point.
 Finally, observe that we use the flag `NEKO_BCKND_DEVICE` to check if we are
 indeed running on GPUs. In that case, `NEKO_BCKND_DEVICE` would be equal to 1.
 
+### Running in multiple program multiple data (MPMD) mode {#user-file_tips_mpmd}
+
+Neko can run along other programs concurrently and communicate data between them
+through the `COMM_WORLD` communicator. This works to process data `in-situ` and
+for other use-cases such as overset meshes.
+
+At the moment the important variable to set when executing in this mode is the 
+`NEKO_COMM_ID` env variable. This can be done in line when executing neko but it
+is a good idea to have a helper script. It is also a good idea to redirect
+the log file with `NEKO_LOG_FILE`. An example `run_inner.sh` would look like this:
+
+```bash
+#!/usr/bin/env bash
+
+export NEKO_LOG_FILE=innerlog.$SLURM_JOBID
+export NEKO_COMM_ID=0
+
+./neko_inner cylinder_inner.case
+```
+Setting another helper to run another neko executable with `NEKO_COMM_ID` equal to `1`, 
+and called `run_outer.sh` would allow to run both programs with:
+
+```bash
+mpirun -np 4 ./run_inner.sh : -np 4 ./run_outer.sh
+```
+
+Note that the operator `:` is the one that indicates that both processes
+share the same global communicator **this is not the same as running with &**.
+The latter generally runs two independent sessions that do not necessarily talk
+to each other. Check your MPI implementation's way of handling MPMD. 
+If the other program is not neko, then you just need to make sure
+to split the global communicator with a color that is not the same as the id 
+that you gave to neko.
+
+On supercomputers, if `slurm` is used, generally the jobs need to be launched
+with the `--multi-prog` flag accompanied by a `mpmd.conf` file that indicates 
+which rank runs which program. An example for running on a GPU cluster, where
+GPUs must be selected looks like this:
+
+```bash
+export MPICH_GPU_SUPPORT_ENABLED=1
+CPU_BIND="map_cpu:49,57,17,25,1,9,33,41"
+
+cat > select_gpu << 'EOF'
+#!/bin/bash
+export ROCR_VISIBLE_DEVICES=$SLURM_LOCALID
+exec "$@"
+EOF
+chmod +x ./select_gpu
+
+cat > mpmd.conf << 'EOF'
+0-7 ./select_gpu ./run_inner.sh
+8-15 ./select_gpu ./run_outer.sh
+EOF
+
+srun --unbuffered --cpu-bind=${CPU_BIND} --multi-prog mpmd.conf
+
+rm -f ./select_gpu ./mpmd.conf
+```
+
+Note that here, `mpmd.conf` is generated internally. See that we are running
+with `16` ranks and ranks `0-7` run the inner job while the rest run the outer one.
+
 #### Custom GPU kernels {#user-file_tips_running-on-gpus-custom-kernels}
 
 When running on GPUs it is possible to call an own custom kernel. This

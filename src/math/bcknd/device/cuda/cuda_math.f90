@@ -64,12 +64,27 @@ module cuda_math
        integer(c_int) :: n, n_mask
      end subroutine cuda_masked_gather_copy_aligned
 
+     subroutine cuda_face_masked_gather_copy(a_d, b_d, mask_d, facet_d, n1, &
+          n2, lx, ly, lz, n_mask, strm) &
+          bind(c, name = 'cuda_face_masked_gather_copy')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, mask_d, facet_d, strm
+       integer(c_int) :: n1, n2, lx, ly, lz, n_mask
+     end subroutine cuda_face_masked_gather_copy
+
      subroutine cuda_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask, strm) &
           bind(c, name = 'cuda_masked_scatter_copy')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
      end subroutine cuda_masked_scatter_copy
+
+     subroutine cuda_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'cuda_masked_scatter_copy_aligned')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, mask_d, strm
+       integer(c_int) :: n, n_mask
+     end subroutine cuda_masked_scatter_copy_aligned
 
      subroutine cuda_masked_atomic_reduction(a_d, b_d, mask_d, n, m, strm) &
           bind(c, name = 'cuda_masked_atomic_reduction')
