@@ -90,11 +90,11 @@ contains
     real(kind=rp), allocatable :: transfer(:)
     character(len=:), allocatable :: filter_type
 
-    call json_get_or_default(json, "filter.elementwise_filter_type", &
+    call json_get_or_default(json, "elementwise_filter_type", &
          filter_type, "nonBoyd")
 
-    if (json%valid_path('filter.transfer_function')) then
-       call json_get(json, 'filter.transfer_function', transfer)
+    if (json%valid_path('transfer_function')) then
+       call json_get(json, 'transfer_function', transfer)
     end if
 
     if (allocated(transfer)) then

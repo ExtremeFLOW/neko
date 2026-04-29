@@ -122,16 +122,16 @@ contains
     character(len=:), allocatable :: ksp_solver
     character(len=:), allocatable :: precon_type_filt
 
-    call json_get(json, "filter.radius", r)
+    call json_get(json, "radius", r)
 
-    call json_get_or_default(json, "filter.tolerance", abstol_filt, &
+    call json_get_or_default(json, "tolerance", abstol_filt, &
          1.0e-10_rp)
 
-    call json_get_or_default(json, "filter.max_iter", ksp_max_iter, 200)
+    call json_get_or_default(json, "max_iter", ksp_max_iter, 200)
 
-    call json_get_or_default(json, "filter.solver", ksp_solver, 'cg')
+    call json_get_or_default(json, "solver", ksp_solver, 'cg')
 
-    call json_get_or_default(json, "filter.preconditioner", &
+    call json_get_or_default(json, "preconditioner", &
          precon_type_filt, 'jacobi')
 
     call this%init_from_components(coef, r, abstol_filt, ksp_max_iter, &
