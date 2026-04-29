@@ -135,6 +135,7 @@ contains
     cfl = C%fluid%compute_cfl(C%time%dt)
     call dt_controller%set_dt(C%time, cfl)
     if (dt_controller%is_variable_dt) cfl = C%fluid%compute_cfl(C%time%dt)
+    write (*, '(A,D25.17,A,D25.17)') "GREPME", cfl," ", C%time%dt
 
     ! Advance time step from t to t+dt and print the status
     call simulation_settime(C%time, C%fluid%ext_bdf)
