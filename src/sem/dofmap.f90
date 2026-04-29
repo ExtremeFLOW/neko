@@ -44,10 +44,11 @@ module dofmap
   use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
   use device
   use math, only : add3, copy, rone, rzero, masked_gather_copy
-  use device_math, only : device_masked_gather_copy_aligned
+  use device_math, only : device_masked_gather_copy_aligned, device_copy
   use element, only : element_t
   use quad, only : quad_t
   use hex, only : hex_t
+  use interpolation, only : interpolator_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -73,7 +74,9 @@ module dofmap
 
    contains
      !> Constructor.
-     procedure, pass(this) :: init => dofmap_init
+     procedure, pass(this) :: init_from_mesh => dofmap_init
+     procedure, pass(this) :: init_from_dof => dofmap_init_and_map
+     generic :: init => init_from_mesh, init_from_dof
      !> Destructor.
      procedure, pass(this) :: free => dofmap_free
      !> Return the local number of degrees of freedom, lx*ly*lz*nelv
@@ -155,6 +158,49 @@ contains
     end if
 
   end subroutine dofmap_init
+
+  !> Constructor.
+  !! @param dof The existing dofmap to initialize from.
+  !! @param Xh The SEM function space.
+  subroutine dofmap_init_and_map(this, dof, Xh)
+    class(dofmap_t) :: this
+    type(dofmap_t), target, intent(inout) :: dof
+    type(space_t), target, intent(inout) :: Xh
+    type(interpolator_t) :: interpolator
+
+    ! Initialize as usual
+    call this%init_from_mesh(dof%msh, Xh)
+
+    ! Interpolate if needed
+    if (dof%Xh%lxyz .ne. this%Xh%lxyz) then
+       call interpolator%init(this%Xh, dof%Xh)
+
+       call interpolator%map(this%x, &
+            dof%x, &
+            this%msh%nelv, this%Xh)
+       call interpolator%map(this%y, &
+            dof%y, &
+            this%msh%nelv, this%Xh)
+       call interpolator%map(this%z, &
+            dof%z, &
+            this%msh%nelv, this%Xh)
+
+       call interpolator%free()
+
+    else
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_copy(this%x_d, dof%x_d, this%ntot)
+          call device_copy(this%y_d, dof%y_d, this%ntot)
+          call device_copy(this%z_d, dof%z_d, this%ntot)
+       else
+          call copy(this%x, dof%x, this%ntot)
+          call copy(this%y, dof%y, this%ntot)
+          call copy(this%z, dof%z, this%ntot)
+       end if
+
+    end if
+
+  end subroutine dofmap_init_and_map
 
   !> Destructor.
   subroutine dofmap_free(this)
