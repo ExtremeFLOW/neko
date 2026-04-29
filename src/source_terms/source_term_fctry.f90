@@ -38,6 +38,7 @@ submodule (source_term) source_term_fctry
   use brinkman_source_term, only : brinkman_source_term_t
   use coriolis_source_term, only : coriolis_source_term_t
   use centrifugal_source_term, only : centrifugal_source_term_t
+  use translation_source_term, only : translation_source_term_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   use sponge_source_term, only : sponge_source_term_t
   use field_source_term, only : field_source_term_t
@@ -57,6 +58,7 @@ submodule (source_term) source_term_fctry
        "sponge", &
        "field", &
        "hpfrt" &
+       "translation" &
        ]
 
 contains
@@ -113,6 +115,8 @@ contains
        allocate(sponge_source_term_t::object)
     case ("gradient_jump_penalty")
        allocate(gradient_jump_penalty_t::object)
+    case ("translation")
+       allocate(translation_source_term_t::object)
     case ("field")
        allocate(field_source_term_t::object)
     case ("hpfrt")

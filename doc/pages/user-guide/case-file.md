@@ -884,8 +884,19 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
 ]
 ~~~~~~~~~~~~~~~
 
-The same source-term object can be used for scalars. In this case it is added to
-the scalar `source_terms` array and acts on that scalar field.
+  The same source-term object can be used for scalars. In this case it is added to
+  the scalar `source_terms` array and acts on that scalar field.
+11. `translation` Adds a forcing term corresponding to a domain translating with
+    constant velocity. The term comes from the ALE formulation and is written as
+    \f$ (\mathbf{w}\cdot\nabla)\mathbf{u} \f$,
+    or, for spatially constant mesh velocity \f$ \nabla\cdot\mathbf{w} = 0 \f$,
+    equivalently in conservative form as
+    \f$ \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \f$. The keyword to be provided
+    in the case file is `domain_velocity`, which expects an array with 3 values.
+
+    Note that in this case, we still solve for the absolute velocity, not the
+    relative one. It is simply advection that is affected. Useful to perform
+    simulations on domains that are moving on a periodic direction.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -1212,8 +1223,8 @@ contains
 
     end do
 
-    wbf%x = 0.0_rp    
-    
+    wbf%x = 0.0_rp
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
             HOST_TO_DEVICE, .false.)
