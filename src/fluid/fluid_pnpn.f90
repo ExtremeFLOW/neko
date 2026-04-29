@@ -922,6 +922,12 @@ contains
            this%full_stress_formulation, this%strict_convergence, &
            this%allow_stabilization)
 
+!      select type (bc_resolver => this%bcs_vel_resolver)
+!      type is (coupled_vector_bc_resolver_t)
+!         call bc_resolver%debug_output_normal_component( &
+!              u%x, v%x, w%x, dm_Xh%size(), 'bc_resolver_un')
+!      end select
+
     end associate
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
