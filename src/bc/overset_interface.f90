@@ -54,6 +54,7 @@ module overset_interface
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use field, only : field_t
+  use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
   implicit none
@@ -116,6 +117,21 @@ module overset_interface
   end type overset_interface_t
 
   abstract interface
+  
+     !> User callback for overset-interface morphing and boundary-value updates.
+     !!
+     !! Implementations may update interface coordinates and/or prescribed
+     !! interface field values before interpolation is evaluated.
+     !!
+     !! @param[inout] interface_dof Interface coordinates as a vector list
+     !!               (x, y, z). To be updated in the routine
+     !! @param[inout] interface_field Interface boundary field values
+     !! @param[in] interface_mask Mask describing active interface degrees of
+     !!                freedom.
+     !! @param[in] time Current simulation time state.
+     !! @param[in] bc_name Name of the boundary condition invoking the callback.
+     !! @param[inout] find_interface Set to .true. when interpolation points must
+     !!                              be rediscovered after coordinate changes.
      subroutine morph_overset_interface(interface_dof, interface_field, &
           interface_mask, time, bc_name, &
           find_interface)
@@ -158,6 +174,7 @@ contains
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: field_name
     real(kind=rp), intent(in), optional :: tol, pad
+    character(len=LOG_SIZE) :: log_buf
 
     call this%init_base(coef)
 
@@ -174,6 +191,8 @@ contains
     end if
 
     this%field_name = field_name
+    write (log_buf, '(A,A)') "Coupling overset interface for: ", trim(this%field_name)
+    call neko_log%message(log_buf)
 
     call this%bc_s%init_from_components(coef, this%field_name)
     call this%field_list%init(1)

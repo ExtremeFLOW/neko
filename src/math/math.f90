@@ -530,12 +530,14 @@ contains
     end do
   end subroutine cfill
 
-  !> Wrap value around a range (min, max]
+  !> Wrap value around a range [min, max)
   subroutine cwrap(a, min_val, max_val, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: min_val, max_val
     integer :: i
+
+    if (n .lt. 1 .or. max_val .le. min_val) return
 
     do concurrent (i = 1:n)
        a(i) = modulo(a(i) - min_val, max_val - min_val) + min_val

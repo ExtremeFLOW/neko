@@ -198,7 +198,7 @@ contains
     end if
   end subroutine vector_cadd
 
-  !> Add a scalar to vector \f$ a_i = \sum b_i + s \f$
+  !> Add a scalar to vector \f$ a_i =  b_i + s \f$
   subroutine vector_cadd2(a, b, s, n)
     integer, intent(in), optional :: n
     type(vector_t), intent(inout) :: a
@@ -921,7 +921,7 @@ contains
 
   end subroutine vector_masked_scatter_copy
 
-  !> Wrap vector elements into the range [min_value, max_value]
+  !> Wrap vector elements into the range [min_value, max_value)
   subroutine vector_cwrap(a, min_value, max_value, n)
     integer, intent(in), optional :: n
     type(vector_t), intent(inout) :: a

@@ -595,10 +595,14 @@ A more detailed description of each boundary condition is provided below.
   The *time-step* must be the same between the simulations. A variable time-step is not
   supported at the moment.
 
+  The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
+  the coupled simulation. This should, for the time being, be left as `false`.
+
   ```json
   {
     "type": "overset_interface",
-    "zone_indices": [1, 2]
+    "zone_indices": [1, 2],
+    "couple_pressure" : false
   }
   ```
 

@@ -530,7 +530,7 @@ contains
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
-    if (n .lt. 1) return
+    if (n .lt. 1 .or. max_val .le. min_val) return
 
     if (present(strm)) then
        strm_ = strm

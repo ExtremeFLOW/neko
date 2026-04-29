@@ -116,7 +116,6 @@ contains
           allocate(overset_interface_t::object)
           select type (obj => object)
           type is (overset_interface_t)
-             write(*,*) "Coupling pressure on overset interface"
              call json%add("field_name", scheme%p%name)
              obj%morph_interface => user%morph_interface
           end select
