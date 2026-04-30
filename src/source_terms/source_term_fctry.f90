@@ -57,7 +57,7 @@ submodule (source_term) source_term_fctry
        "brinkman", &
        "sponge", &
        "field", &
-       "hpfrt" &
+       "hpfrt", &
        "translation" &
        ]
 
