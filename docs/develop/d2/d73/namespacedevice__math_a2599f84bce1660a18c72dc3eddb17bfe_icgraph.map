@@ -1,56 +1,59 @@
 <map id="device_math::device_add2" name="device_math::device_add2">
-<area shape="rect" id="Node000001" title="Vector addition ." alt="" coords="789,375,985,400"/>
-<area shape="rect" id="Node000002" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="517,5,741,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="880,362,869,297,844,211,826,165,803,121,774,80,740,45,720,33,723,29,743,41,778,77,807,118,831,163,849,209,874,296,886,361"/>
-<area shape="rect" id="Node000003" href="$d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="549,55,710,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="877,362,862,309,834,240,794,170,769,137,740,109,709,92,712,87,743,105,773,134,799,167,839,238,867,307,883,360"/>
-<area shape="rect" id="Node000004" href="$d6/d36/namespacecentrifugal__source__term__device.html#a0ede37d4bfa65edfd3239e3396e21d84" title="Computes the centrifugal source term on the device." alt="" coords="517,120,741,175"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="872,363,851,325,822,279,784,231,740,189,720,177,723,173,743,185,788,227,826,275,856,322,876,361"/>
-<area shape="rect" id="Node000006" href="$d4/dc5/namespacecheby__device.html#aafa86a9d038f04af6c23cdf634e9a1bb" title=" " alt="" coords="550,199,709,239"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="865,366,813,309,778,279,740,254,708,239,710,234,743,249,781,275,816,306,869,362"/>
-<area shape="rect" id="Node000008" href="$d4/dc5/namespacecheby__device.html#a56dd0099614626d018abbb680f4d21ce" title=" " alt="" coords="550,263,709,303"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="850,370,799,344,740,318,706,306,708,301,742,313,801,339,853,366"/>
-<area shape="rect" id="Node000009" href="$dc/d73/namespacecoriolis__source__term__device.html#ab9ae1a837613e57e5a41a0e4e6705f2f" title="Computes the Coriolis source term on the device." alt="" coords="541,328,718,383"/>
-<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="775,376,718,369,719,364,776,371"/>
-<area shape="rect" id="Node000011" href="$dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681" title="Compute the divergence of a vector field." alt="" coords="573,407,685,432"/>
-<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="776,404,686,415,685,410,776,398"/>
-<area shape="rect" id="Node000019" href="$d5/de6/namespacefield__math.html#a8ab404025f5d8cd75e11241fbb8735e3" title="Vector addition ." alt="" coords="546,456,713,481"/>
-<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="845,408,742,446,694,458,693,453,741,441,843,403"/>
-<area shape="rect" id="Node000024" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="556,506,703,546"/>
-<area shape="poly" id="edge24_Node000001_Node000024" title=" " alt="" coords="863,411,810,453,743,495,704,511,702,506,740,490,807,449,860,407"/>
-<area shape="rect" id="Node000025" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="557,571,701,596"/>
-<area shape="poly" id="edge25_Node000001_Node000025" title=" " alt="" coords="875,413,853,447,823,487,786,527,743,560,703,577,701,572,740,556,783,523,819,483,849,444,870,410"/>
-<area shape="rect" id="Node000026" href="$dc/d12/namespacematrix__math.html#a30b0cebe559d60667e303926de45e865" title="Vector addition ." alt="" coords="531,620,727,645"/>
-<area shape="poly" id="edge26_Node000001_Node000026" title=" " alt="" coords="879,414,860,457,831,510,792,564,769,589,743,610,718,622,716,618,740,605,765,585,788,561,827,507,856,455,874,412"/>
-<area shape="rect" id="Node000027" href="$d3/d0d/namespacevector__math.html#a2ca83e4227ff57fef1ae01d8c4d3e963" title="Vector addition ." alt="" coords="533,669,725,695"/>
-<area shape="poly" id="edge27_Node000001_Node000027" title=" " alt="" coords="882,414,866,467,839,533,798,601,772,632,743,659,720,672,718,667,740,655,769,628,794,598,834,531,861,465,877,413"/>
-<area shape="rect" id="Node000005" href="$d5/d7a/namespacecentrifugal__source__term.html#afcb36f41c5d339ad0f9bea50689ab2e6" title="Computes the source term and adds the result to fields." alt="" coords="270,40,458,95"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="524,118,454,97,456,92,525,113"/>
-<area shape="rect" id="Node000007" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="285,119,443,159"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="547,198,517,189,430,162,431,157,518,183,549,193"/>
-<area shape="poly" id="edge8_Node000008_Node000007" title=" " alt="" coords="535,265,516,253,498,233,491,212,484,192,468,173,442,159,445,154,471,169,488,190,496,211,503,230,519,249,538,261"/>
-<area shape="rect" id="Node000010" href="$d3/df3/namespacecoriolis__source__term.html#a0cd413f45f11dc22e38d87256ac9e68e" title="Computes the source term and adds the result to fields." alt="" coords="281,184,447,239"/>
-<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="527,325,516,317,500,301,491,285,483,269,468,253,445,240,448,235,471,249,487,266,496,282,504,298,519,313,530,320"/>
-<area shape="rect" id="Node000012" href="$d9/de3/namespaceadv__no__dealias.html#a74213a43ca17bdb638b479c06df7dac0" title=" " alt="" coords="265,263,463,303"/>
-<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="559,415,537,408,516,396,498,377,490,356,483,336,468,317,449,306,452,301,471,313,488,334,496,354,503,374,519,392,539,403,561,410"/>
-<area shape="rect" id="Node000013" href="$d8/dec/namespacedivergence__simcomp.html#afd972ea52ff980dd011d6f144b62b137" title="Compute the divergence field." alt="" coords="281,327,447,367"/>
-<area shape="poly" id="edge13_Node000011_Node000013" title=" " alt="" coords="559,407,517,397,430,370,431,365,518,391,561,402"/>
-<area shape="rect" id="Node000014" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="263,392,465,447"/>
-<area shape="poly" id="edge14_Node000011_Node000014" title=" " alt="" coords="559,422,465,422,465,417,559,417"/>
-<area shape="rect" id="Node000015" href="$d1/d20/namespaceeuler__res__cpu.html#a35fa0f8d83814c2e8b72fdcaf50b1372" title="Evaluates the right&#45;hand side of the Euler equations Computes fluxes, divergence terms,..." alt="" coords="275,471,453,511"/>
-<area shape="poly" id="edge15_Node000011_Node000015" title=" " alt="" coords="560,436,518,446,429,474,427,469,517,441,559,430"/>
-<area shape="rect" id="Node000017" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="265,535,463,575"/>
-<area shape="poly" id="edge17_Node000011_Node000017" title=" " alt="" coords="561,428,539,435,519,445,502,464,495,484,488,505,471,525,452,537,449,533,468,521,484,502,490,482,498,461,516,441,537,430,559,422"/>
-<area shape="rect" id="Node000016" href="$d1/d20/namespaceeuler__res__cpu.html#a815d182617a1dd3c49c49b82b22fff44" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="15,471,201,511"/>
-<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="261,494,201,494,201,489,261,489"/>
-<area shape="rect" id="Node000018" href="$d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7" title=" " alt="" coords="5,535,211,575"/>
-<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="252,558,211,558,211,553,252,553"/>
-<area shape="rect" id="Node000020" href="$d4/d48/namespacefield__source__term.html#a16a30889f70bb1c9163d85ca18216fd9" title="Computes the source term and adds the result to fields." alt="" coords="263,599,465,639"/>
-<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="535,486,519,496,508,507,502,517,496,541,489,565,471,589,453,601,450,597,468,585,484,563,490,539,497,515,504,503,516,492,532,482"/>
-<area shape="rect" id="Node000021" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="259,664,469,719"/>
-<area shape="poly" id="edge21_Node000019_Node000021" title=" " alt="" coords="535,485,519,496,504,514,497,533,495,571,493,612,486,632,471,653,456,666,453,662,467,650,481,630,488,611,489,571,492,531,500,512,516,492,532,481"/>
-<area shape="rect" id="Node000022" href="$dd/db4/namespaceale__manager.html#a715238efb7d913e6d22fbda34469293b" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="265,743,463,783"/>
-<area shape="poly" id="edge22_Node000019_Node000022" title=" " alt="" coords="535,484,519,496,499,524,491,552,491,581,495,610,499,640,499,671,491,701,471,732,455,745,452,741,467,728,486,699,494,670,494,641,489,611,485,581,486,552,494,522,515,492,532,480"/>
-<area shape="rect" id="Node000023" href="$db/de8/namespaceuser__source__term.html#aea466d0e93a77f2b33b01006888015d7" title="Computes the source term and adds the result to fields." alt="" coords="277,807,451,847"/>
-<area shape="poly" id="edge23_Node000019_Node000023" title=" " alt="" coords="535,483,519,496,505,514,495,532,486,569,488,606,495,643,502,681,504,719,496,758,486,778,471,797,453,812,450,808,467,793,481,775,491,756,499,719,497,681,489,644,482,606,481,568,490,530,500,511,515,492,532,479"/>
+<area shape="rect" id="Node000001" title="Vector addition ." alt="" coords="789,412,985,437"/>
+<area shape="rect" id="Node000002" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="517,43,741,68"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="880,399,869,334,844,248,826,203,803,159,774,118,740,83,720,70,723,66,743,79,778,114,807,156,831,200,849,246,874,333,886,398"/>
+<area shape="rect" id="Node000003" href="$d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="549,93,710,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="877,399,862,346,834,278,794,207,769,175,740,147,709,129,712,125,743,143,773,171,799,204,839,275,867,344,883,398"/>
+<area shape="rect" id="Node000004" href="$d6/d36/namespacecentrifugal__source__term__device.html#a0ede37d4bfa65edfd3239e3396e21d84" title="Computes the centrifugal source term on the device." alt="" coords="517,157,741,212"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="872,401,851,362,822,316,784,268,740,227,720,214,723,210,743,223,788,265,826,313,856,360,876,398"/>
+<area shape="rect" id="Node000006" href="$d4/dc5/namespacecheby__device.html#aafa86a9d038f04af6c23cdf634e9a1bb" title=" " alt="" coords="550,237,709,277"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="865,403,813,347,778,317,740,291,708,277,710,272,743,286,781,312,816,343,869,399"/>
+<area shape="rect" id="Node000008" href="$d4/dc5/namespacecheby__device.html#a56dd0099614626d018abbb680f4d21ce" title=" " alt="" coords="550,301,709,341"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="850,408,799,381,740,355,706,343,708,338,742,350,801,376,853,403"/>
+<area shape="rect" id="Node000009" href="$dc/d73/namespacecoriolis__source__term__device.html#ab9ae1a837613e57e5a41a0e4e6705f2f" title="Computes the Coriolis source term on the device." alt="" coords="541,365,718,420"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="775,413,718,406,719,401,776,408"/>
+<area shape="rect" id="Node000011" href="$dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681" title="Compute the divergence of a vector field." alt="" coords="573,444,685,469"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="776,441,686,452,685,447,776,436"/>
+<area shape="rect" id="Node000020" href="$d5/de6/namespacefield__math.html#a8ab404025f5d8cd75e11241fbb8735e3" title="Vector addition ." alt="" coords="546,536,713,561"/>
+<area shape="poly" id="edge20_Node000001_Node000020" title=" " alt="" coords="848,446,658,538,656,534,846,441"/>
+<area shape="rect" id="Node000025" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="556,586,703,626"/>
+<area shape="poly" id="edge26_Node000001_Node000025" title=" " alt="" coords="871,450,819,512,783,546,743,575,704,592,702,587,740,570,779,542,815,508,867,446"/>
+<area shape="rect" id="Node000026" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="557,651,701,676"/>
+<area shape="poly" id="edge27_Node000001_Node000026" title=" " alt="" coords="879,451,859,493,830,544,791,596,768,620,743,640,703,658,701,653,740,636,765,616,787,593,826,542,855,491,874,449"/>
+<area shape="rect" id="Node000027" href="$dc/d12/namespacematrix__math.html#a30b0cebe559d60667e303926de45e865" title="Vector addition ." alt="" coords="531,700,727,725"/>
+<area shape="poly" id="edge28_Node000001_Node000027" title=" " alt="" coords="882,451,866,502,838,567,797,633,772,664,743,690,720,702,718,698,740,685,768,660,793,630,833,565,861,500,877,450"/>
+<area shape="rect" id="Node000028" href="$d3/d0d/namespacevector__math.html#a2ca83e4227ff57fef1ae01d8c4d3e963" title="Vector addition ." alt="" coords="533,749,725,775"/>
+<area shape="poly" id="edge29_Node000001_Node000028" title=" " alt="" coords="884,452,871,512,845,589,826,630,803,670,776,707,743,739,722,751,719,747,740,735,772,703,799,667,821,628,840,587,866,510,879,451"/>
+<area shape="rect" id="Node000005" href="$d5/d7a/namespacecentrifugal__source__term.html#afcb36f41c5d339ad0f9bea50689ab2e6" title="Computes the source term and adds the result to fields." alt="" coords="270,5,458,60"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="523,152,516,147,499,128,491,110,483,92,468,75,449,62,452,58,471,71,487,89,496,108,504,125,519,143,526,148"/>
+<area shape="rect" id="Node000007" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="285,85,443,125"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="536,238,516,225,498,203,491,181,484,159,468,139,442,124,445,119,471,135,489,157,496,179,503,201,519,221,539,234"/>
+<area shape="poly" id="edge8_Node000008_Node000007" title=" " alt="" coords="535,305,515,291,500,271,493,252,491,213,488,175,481,157,468,139,442,122,445,117,471,135,486,154,494,174,496,213,498,250,505,269,519,287,539,301"/>
+<area shape="rect" id="Node000010" href="$d3/df3/namespacecoriolis__source__term.html#a0cd413f45f11dc22e38d87256ac9e68e" title="Computes the source term and adds the result to fields." alt="" coords="281,149,447,204"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="527,364,515,355,502,337,494,319,491,285,487,252,480,235,467,219,445,202,449,198,471,215,485,233,492,250,496,285,500,318,506,334,519,351,531,360"/>
+<area shape="rect" id="Node000012" href="$d9/de3/namespaceadv__no__dealias.html#a74213a43ca17bdb638b479c06df7dac0" title=" " alt="" coords="265,229,463,269"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="559,455,536,447,516,433,500,415,492,395,490,357,488,319,481,301,467,283,452,271,456,267,471,279,486,298,493,318,495,357,498,394,505,412,519,429,538,442,561,450"/>
+<area shape="rect" id="Node000013" href="$d8/dec/namespacedivergence__simcomp.html#afd972ea52ff980dd011d6f144b62b137" title="Compute the divergence field." alt="" coords="281,293,447,333"/>
+<area shape="poly" id="edge13_Node000011_Node000013" title=" " alt="" coords="559,453,536,445,516,433,497,412,490,389,484,367,468,347,446,333,449,329,471,343,489,365,496,388,502,409,519,429,539,440,561,448"/>
+<area shape="rect" id="Node000014" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="263,357,465,412"/>
+<area shape="poly" id="edge14_Node000011_Node000014" title=" " alt="" coords="559,444,517,434,450,415,451,409,518,429,561,439"/>
+<area shape="rect" id="Node000015" href="$d1/d20/namespaceeuler__res__cpu.html#a35fa0f8d83814c2e8b72fdcaf50b1372" title="Evaluates the right&#45;hand side of the Euler equations Computes fluxes, divergence terms,..." alt="" coords="275,437,453,477"/>
+<area shape="poly" id="edge15_Node000011_Node000015" title=" " alt="" coords="559,459,453,459,453,454,559,454"/>
+<area shape="rect" id="Node000017" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="265,501,463,541"/>
+<area shape="poly" id="edge17_Node000011_Node000017" title=" " alt="" coords="563,475,448,503,447,498,562,470"/>
+<area shape="rect" id="Node000019" href="$df/dbf/namespacetranslation__source__term.html#ae513e3f99bf53a9afe2b658854a0bc85" title="Computes the source term and adds the result to fields." alt="" coords="270,565,458,620"/>
+<area shape="poly" id="edge19_Node000011_Node000019" title=" " alt="" coords="596,479,519,526,471,555,443,568,440,563,468,550,516,521,593,474"/>
+<area shape="rect" id="Node000016" href="$d1/d20/namespaceeuler__res__cpu.html#a815d182617a1dd3c49c49b82b22fff44" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="15,437,201,477"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="261,459,201,459,201,454,261,454"/>
+<area shape="rect" id="Node000018" href="$d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7" title=" " alt="" coords="5,501,211,541"/>
+<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="252,523,211,523,211,518,252,518"/>
+<area shape="poly" id="edge24_Node000020_Node000019" title=" " alt="" coords="539,566,459,580,458,574,539,561"/>
+<area shape="rect" id="Node000021" href="$d4/d48/namespacefield__source__term.html#a16a30889f70bb1c9163d85ca18216fd9" title="Computes the source term and adds the result to fields." alt="" coords="263,645,465,685"/>
+<area shape="poly" id="edge21_Node000020_Node000021" title=" " alt="" coords="534,568,519,576,504,589,495,604,487,619,471,633,446,647,444,642,468,629,482,615,491,601,500,586,516,572,532,564"/>
+<area shape="rect" id="Node000022" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="259,709,469,764"/>
+<area shape="poly" id="edge22_Node000020_Node000022" title=" " alt="" coords="535,565,519,576,506,590,500,604,495,635,491,666,484,682,471,699,455,711,452,707,467,695,479,680,486,665,490,634,494,603,502,587,516,572,532,561"/>
+<area shape="rect" id="Node000023" href="$dd/db4/namespaceale__manager.html#a715238efb7d913e6d22fbda34469293b" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="265,789,463,829"/>
+<area shape="poly" id="edge23_Node000020_Node000023" title=" " alt="" coords="535,564,519,576,501,600,494,624,493,648,495,673,497,699,497,725,489,751,471,777,455,791,451,786,467,774,484,749,491,724,492,699,490,674,487,648,488,623,497,597,515,572,532,560"/>
+<area shape="rect" id="Node000024" href="$db/de8/namespaceuser__source__term.html#aea466d0e93a77f2b33b01006888015d7" title="Computes the source term and adds the result to fields." alt="" coords="277,853,451,893"/>
+<area shape="poly" id="edge25_Node000020_Node000024" title=" " alt="" coords="535,564,519,576,497,608,489,640,489,673,495,706,500,739,501,773,493,808,471,842,453,857,450,853,467,839,488,806,496,773,495,740,489,707,484,673,483,639,492,606,515,572,532,559"/>
 </map>

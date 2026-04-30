@@ -778,6 +778,9 @@ Source terms</h2>
 <li><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>, perform gradient_jump_penalisation.</li>
 <li><code>sponge</code>, adds a sponge term based on a reference velocity field, which is applied in a user-specified region of the domain.</li>
 <li><code>field</code>, uses fields in the <code>neko_registry</code> as values of the source term. The fields are selected with the <code>field_names</code> keyword.</li>
+<li><p class="startli"><code>translation</code> Adds a forcing term corresponding to a domain translating with constant velocity. The term comes from the ALE formulation and is written as \( (\mathbf{w}\cdot\nabla)\mathbf{u} \), or, for spatially constant mesh velocity \( \nabla\cdot\mathbf{w} = 0 \), equivalently in conservative form as \( \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \). The keyword to be provided in the case file is <code>domain_velocity</code>, which expects an array with 3 values.</p>
+<p class="startli">Note that in this case, we still solve for the absolute velocity, not the relative one. It is simply advection that is affected. Useful to perform simulations on domains that are moving on a periodic direction.</p>
+</li>
 </ol>
 <h3><a class="anchor" id="autotoc_md85"></a>
 Brinkman</h3>
@@ -1751,7 +1754,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Apr 29 2026 04:40:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Apr 30 2026 04:42:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

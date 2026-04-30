@@ -847,6 +847,7 @@ var namespaces_dup =
     [ "time_scheme_controller", "dc/dfb/namespacetime__scheme__controller.html", "dc/dfb/namespacetime__scheme__controller" ],
     [ "time_state", "d8/d92/namespacetime__state.html", "d8/d92/namespacetime__state" ],
     [ "time_step_controller", "d3/dda/namespacetime__step__controller.html", "d3/dda/namespacetime__step__controller" ],
+    [ "translation_source_term", "df/dbf/namespacetranslation__source__term.html", "df/dbf/namespacetranslation__source__term" ],
     [ "tree_amg", "dc/d1a/namespacetree__amg.html", "dc/d1a/namespacetree__amg" ],
     [ "tree_amg_aggregate", "da/d77/namespacetree__amg__aggregate.html", "da/d77/namespacetree__amg__aggregate" ],
     [ "tree_amg_multigrid", "d5/d1b/namespacetree__amg__multigrid.html", "d5/d1b/namespacetree__amg__multigrid" ],

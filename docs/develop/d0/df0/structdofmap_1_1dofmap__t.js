@@ -2,7 +2,10 @@ var structdofmap_1_1dofmap__t =
 [
     [ "free", "d0/df0/structdofmap_1_1dofmap__t.html#a1a5983b81cc37e027ee3ad7a13018ea8", null ],
     [ "global_size", "d0/df0/structdofmap_1_1dofmap__t.html#a6d8c672b0cf6471d7a36e6d88ea9661f", null ],
-    [ "init", "d0/df0/structdofmap_1_1dofmap__t.html#a10486e2061b0f8ff737fd2cfcfa1d565", null ],
+    [ "init", "d0/df0/structdofmap_1_1dofmap__t.html#a691f377091d0d879036a692170f82511", null ],
+    [ "init", "d0/df0/structdofmap_1_1dofmap__t.html#a198a8a131a62ac083f0127b738484788", null ],
+    [ "init_from_dof", "d0/df0/structdofmap_1_1dofmap__t.html#a7224e8b42826c3b2baf0c9643dff027d", null ],
+    [ "init_from_mesh", "d0/df0/structdofmap_1_1dofmap__t.html#ad8e3af9fa52ecdfa5dc138fff970644a", null ],
     [ "size", "d0/df0/structdofmap_1_1dofmap__t.html#a70dd87c61f74d058287318f9b294f891", null ],
     [ "subset_by_mask", "d0/df0/structdofmap_1_1dofmap__t.html#a057447a8615e4e11d94b9443cde982b5", null ],
     [ "dof", "d0/df0/structdofmap_1_1dofmap__t.html#aab9632c80bb5d01a7ed210589ba6812f", null ],

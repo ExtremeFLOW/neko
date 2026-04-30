@@ -910,6 +910,7 @@ var hierarchy =
       [ "field_source_term::field_source_term_t", "d5/d82/structfield__source__term_1_1field__source__term__t.html", null ],
       [ "gradient_jump_penalty::gradient_jump_penalty_t", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html", null ],
       [ "sponge_source_term::sponge_source_term_t", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html", null ],
+      [ "translation_source_term::translation_source_term_t", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html", null ],
       [ "user_source_term::user_source_term_t", "db/da2/structuser__source__term_1_1user__source__term__t.html", null ]
     ] ],
     [ "source_term::source_term_wrapper_t", "d9/d5a/structsource__term_1_1source__term__wrapper__t.html", null ],

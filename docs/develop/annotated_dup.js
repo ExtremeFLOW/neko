@@ -1532,6 +1532,9 @@ var annotated_dup =
     [ "time_step_controller", "d3/dda/namespacetime__step__controller.html", [
       [ "time_step_controller_t", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html", "d5/dab/structtime__step__controller_1_1time__step__controller__t" ]
     ] ],
+    [ "translation_source_term", "df/dbf/namespacetranslation__source__term.html", [
+      [ "translation_source_term_t", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html", "df/dd9/structtranslation__source__term_1_1translation__source__term__t" ]
+    ] ],
     [ "tree_amg", "dc/d1a/namespacetree__amg.html", [
       [ "tamg_hierarchy_t", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t" ],
       [ "tamg_lvl_t", "d8/d61/structtree__amg_1_1tamg__lvl__t.html", "d8/d61/structtree__amg_1_1tamg__lvl__t" ],
