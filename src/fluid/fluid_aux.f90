@@ -77,10 +77,10 @@ contains
     end if
 
     if (present(iteration)) then
-      if (iteration .gt. 1) then
-         write(log_buf, '(A,I3)') 'Schwarz-like iteration ', iteration - 1
-         call neko_log%message(log_buf)
-      end if
+       if (iteration .gt. 1) then
+          write(log_buf, '(A,I3)') 'Schwarz-like iteration ', iteration - 1
+          call neko_log%message(log_buf)
+       end if
     end if
 
     ! Do the printing

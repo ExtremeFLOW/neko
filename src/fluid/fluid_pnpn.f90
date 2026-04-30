@@ -807,20 +807,20 @@ contains
       call this%update_material_properties(time)
 
       do iter = 1, 1 + this%schwarz_iterations
-         
+
          call this%bc_apply_vel(time, strong = .true.)
          call this%bc_apply_prs(time)
 
          ! Compute pressure residual.
          call profiler_start_region('Pressure_residual', 18)
          call prs_res%compute(p, p_res,&
-            u, v, w, &
-            u_e, v_e, w_e, &
-            f_x, f_y, f_z, &
-            c_Xh, gs_Xh, &
-            this%bc_prs_surface, this%bc_sym_surface,&
-            Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
-            mu_tot, rho, event)
+              u, v, w, &
+              u_e, v_e, w_e, &
+              f_x, f_y, f_z, &
+              c_Xh, gs_Xh, &
+              this%bc_prs_surface, this%bc_sym_surface,&
+              Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
+              mu_tot, rho, event)
 
 
          ! De-mean the pressure residual when no strong pressure boundaries present
@@ -840,8 +840,8 @@ contains
          call profiler_end_region('Pressure_residual', 18)
 
          call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-            Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
-            string = 'Pressure')
+              Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
+              string = 'Pressure')
 
          call this%pc_prs%update()
 
@@ -849,15 +849,15 @@ contains
 
          ! Solve for the pressure increment.
          ksp_results(1) = &
-            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-            this%bclst_dp, gs_Xh)
+              this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+              this%bclst_dp, gs_Xh)
          ksp_results(1)%name = 'Pressure'
 
 
          call profiler_end_region('Pressure_solve', 3)
 
          call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-            this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+              this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
          ! Update the pressure with the increment. Demean if necessary.
          call field_add2(p, dp, n)
@@ -870,12 +870,12 @@ contains
          ! Compute velocity residual.
          call profiler_start_region('Velocity_residual', 19)
          call vel_res%compute(Ax_vel, u, v, w, &
-            u_res, v_res, w_res, &
-            p, &
-            f_x, f_y, f_z, &
-            c_Xh, msh, Xh, &
-            mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
-            dt, dm_Xh%size())
+              u_res, v_res, w_res, &
+              p, &
+              f_x, f_y, f_z, &
+              c_Xh, msh, Xh, &
+              mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
+              dt, dm_Xh%size())
 
          call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
          call gs_Xh%op(u_res, GS_OP_ADD, event)
@@ -893,15 +893,15 @@ contains
          call profiler_end_region('Velocity_residual', 19)
 
          call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
-            tstep, c_Xh, n, dt_controller, 'Velocity')
+              tstep, c_Xh, n, dt_controller, 'Velocity')
 
          call this%pc_vel%update()
 
          call profiler_start_region("Velocity_solve", 4)
          ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
-            u_res%x, v_res%x, w_res%x, n, c_Xh, &
-            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
-            this%ksp_vel%max_iter)
+              u_res%x, v_res%x, w_res%x, n, c_Xh, &
+              this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
+              this%ksp_vel%max_iter)
          call profiler_end_region("Velocity_solve", 4)
          if (this%full_stress_formulation) then
             ksp_results(2)%name = 'Momentum'
@@ -912,37 +912,37 @@ contains
          end if
 
          call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
-            dt_controller)
+              this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
+              dt_controller)
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
-               du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
+                 du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
          else
             call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
          end if
 
          call fluid_step_info(time, ksp_results, &
-            this%full_stress_formulation, this%strict_convergence, &
-            this%allow_stabilization, iter)
-      
+              this%full_stress_formulation, this%strict_convergence, &
+              this%allow_stabilization, iter)
+
       end do
 
       if (this%forced_flow_rate) then
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-            c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
-            dt, time, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-            this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
-            this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
-            this%ksp_vel%max_iter)
+              c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
+              dt, time, this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
+              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
+              this%ksp_vel%max_iter)
       end if
-      
+
       ! Update mesh velocities for ALE
       ! We update them here (end of step) for the next step.
       ! Returns if .not. ale.
       call this%ale%update_mesh_velocity(c_Xh, time)
-         
+
     end associate
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
