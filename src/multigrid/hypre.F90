@@ -67,8 +67,6 @@ module hypre
      procedure, pass(this) :: setup => hypre_solver_setup
      procedure, pass(this) :: solve => hypre_solve
      procedure, pass(this) :: device_solve => hypre_device_solve
-     procedure, pass(this) :: set_matrix
-     procedure, pass(this) :: set_vector
   end type hypre_solver_t
 
   public :: hypre_init, hypre_fin
@@ -120,24 +118,13 @@ contains
     class(hypre_solver_t), intent(inout) :: this
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_free(this%dofs_d)
+      call device_free(this%rnk_mult_d)
     end if
     deallocate(this%dofs)
+    deallocate(this%rnk_mult)
     ! destroy the hypre solver object
     call boomeramg_destroy(this%solver)
   end subroutine hypre_solver_free
-
-  subroutine set_matrix(this, A)
-    class(hypre_solver_t), intent(inout) :: this
-    type(c_ptr), intent(in) :: A
-    this%A = A
-  end subroutine set_matrix
-
-  subroutine set_vector(this, x, b)
-    class(hypre_solver_t), intent(inout) :: this
-    type(c_ptr), intent(in) :: x, b
-    this%b = b
-    this%x = x
-  end subroutine set_vector
 
   !> Setup the hypre solver object
   subroutine hypre_solver_setup(this, coef, bdry_flg, n)
@@ -404,6 +391,9 @@ contains
 
        call hypre_device_matrix_update(A, nrows, ncols_d, rows_d, cols_d, vals_d)
     else
+       ! AddToValues does not behave the same on cpu and gpu.
+       ! On cpu it does not seem to correctly handle duplicated entries when passed as an array.
+       ! On cpu we instead do each entry individually.
        !call hypre_matrix_update(A, nrows, ncols, rows, cols, vals)
        do i = 1, nnz
           ncol(1) = 1
@@ -438,18 +428,21 @@ contains
 
     ilower = max(ilower, ilower_prev+1)
 
-!!    idof = 0
-!!    do i = 1, nnz
-!!      if (A_rows(i) .ge. ilower) then
-!!        idof = idof + 1
-!!        A_rows(idof) = A_rows(i)
-!!        A_cols(idof) = A_cols(i)
-!!        A_vals(idof) = A_vals(i)
-!!      end if
-!!    end do
-!!
-!!    ! Update nnz
-!!    nnz = idof
+    !!!!!! If we only want the owned row values, can use the following.
+    !!!!!! In general we do not want this as we need to sum the
+    !!!!!! contribution from adjacent elements for assembly
+    !!!!!idof = 0
+    !!!!!do i = 1, nnz
+    !!!!!  if (A_rows(i) .ge. ilower) then
+    !!!!!    idof = idof + 1
+    !!!!!    A_rows(idof) = A_rows(i)
+    !!!!!    A_cols(idof) = A_cols(i)
+    !!!!!    A_vals(idof) = A_vals(i)
+    !!!!!  end if
+    !!!!!end do
+
+    !!!!!! Update nnz
+    !!!!!nnz = idof
   end subroutine simple_assign_dof_to_smallest_rank
 
   subroutine count_and_fill_rows(A_rows, rows, nrows, nnz)

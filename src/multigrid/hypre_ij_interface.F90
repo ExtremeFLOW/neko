@@ -391,7 +391,7 @@ contains
     ! Set vector values
     !ierr = HYPRE_IJVectorSetValues(v, nvalues, c_loc(indices), c_loc(values))
     do i = 1, nvalues
-      if (indices(i) .gt. ilower) then
+      if (indices(i) .ge. ilower) then
         ierr = HYPRE_IJVectorSetValues(v, 1, c_loc(indices(i)), c_loc(values(i)))
       end if
     end do
