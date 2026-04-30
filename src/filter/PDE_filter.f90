@@ -115,7 +115,7 @@ contains
   subroutine PDE_filter_init_from_json(this, json, coef)
     class(PDE_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     real(kind=rp) :: r, tol
     integer :: max_iter
     character(len=:), allocatable :: ksp_solver, precon_type
@@ -127,7 +127,6 @@ contains
     call json_get_or_default(json, "solver", ksp_solver, "cg")
     call json_get_or_default(json, "preconditioner", precon_type, "jacobi")
 
-    call this%init_base(json, coef)
     call this%init_from_components(coef, r, tol, max_iter, ksp_solver, &
          precon_type)
 
@@ -137,11 +136,13 @@ contains
   subroutine PDE_filter_init_from_components(this, coef, r, tol, max_iter, &
        ksp_solver, precon_type)
     class(PDE_filter_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     real(kind=rp), intent(in) :: r, tol
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: ksp_solver, precon_type
     integer :: n
+
+    call this%init_base(coef)
 
     this%r = r
     this%abstol_filt = tol
