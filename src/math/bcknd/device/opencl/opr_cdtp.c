@@ -98,6 +98,7 @@ void opencl_cdtp(void *dtx, void *x,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                 \
                                       kernel, 1, NULL, &global_item_size,       \
                                       &local_item_size, 0, NULL, EVENT));       \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }
 
 
@@ -120,6 +121,7 @@ void opencl_cdtp(void *dtx, void *x,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) QUEUE,                 \
                                       kernel, 2, NULL, global_kstep,            \
                                       local_kstep, 0, NULL, EVENT));            \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }
 
 

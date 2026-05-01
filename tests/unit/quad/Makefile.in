@@ -1,7 +1,7 @@
 ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
 include @PFUNIT_DIR@/include/PFUNIT.mk
 endif
-FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
 FC = @FC@
 
 %.o : %.F90
@@ -11,9 +11,10 @@ FC = @FC@
 check: quad_test
 
 
-quad_test_TESTS := quad.pf
+quad_test_TESTS := test_quad.pf
 quad_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,quad_test))
+quad_test.inc: Makefile
 
 distclean:
 clean:

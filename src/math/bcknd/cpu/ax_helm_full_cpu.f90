@@ -1,4 +1,4 @@
-! Copyright (c) 2023-2024, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,6 @@ module ax_helm_full_cpu
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
-  use math, only : addcol4
-  use utils, only : neko_error
   implicit none
   private
 
@@ -61,7 +59,7 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
+  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh, &
                                          Xh)
     class(ax_helm_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
@@ -73,7 +71,9 @@ contains
     real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    integer :: i
 
+    !$omp parallel
     select case (Xh%lx)
     case (14)
        call ax_helm_stress_lx14(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
@@ -162,10 +162,19 @@ contains
     end select
 
     if (coef%ifh2) then
-       call addcol4 (au, coef%h2, coef%B, u, coef%dof%size())
-       call addcol4 (av, coef%h2, coef%B, v, coef%dof%size())
-       call addcol4 (aw, coef%h2, coef%B, w, coef%dof%size())
+       !$omp do private(i)
+       do i = 1, coef%dof%size()
+          au(i,1,1,1) = au(i,1,1,1) + &
+               coef%h2(i,1,1,1) * coef%B(i,1,1,1) * u(i,1,1,1)
+          av(i,1,1,1) = av(i,1,1,1) + &
+               coef%h2(i,1,1,1) * coef%B(i,1,1,1) * v(i,1,1,1)
+          aw(i,1,1,1) = aw(i,1,1,1) + &
+               coef%h2(i,1,1,1) * coef%B(i,1,1,1) * w(i,1,1,1)
+       end do
+       !$omp end do
+
     end if
+    !$omp end parallel
 
   end subroutine ax_helm_full_compute_vector
 
@@ -212,9 +221,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj, t1, t2, t3
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do private(e,i,j,k,l)
     do e = 1, n
 
        do j = 1, lx * lx
@@ -292,26 +302,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -364,10 +371,11 @@ contains
           end do
        end do
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx
 
-  subroutine ax_helm_stress_lx14(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx14(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 14
@@ -410,9 +418,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -590,26 +599,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -769,7 +775,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx14
 
   subroutine ax_helm_stress_lx13(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -815,9 +821,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -986,26 +993,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -1155,7 +1159,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx13
 
   subroutine ax_helm_stress_lx12(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -1201,9 +1205,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -1363,26 +1368,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -1523,10 +1525,11 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx12
 
-  subroutine ax_helm_stress_lx11(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx11(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 11
@@ -1569,9 +1572,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -1721,26 +1725,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -1872,10 +1873,11 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx11
 
-  subroutine ax_helm_stress_lx10(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx10(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 10
@@ -1918,9 +1920,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2061,26 +2064,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -2203,7 +2203,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx10
 
   subroutine ax_helm_stress_lx9(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -2249,9 +2249,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2383,26 +2384,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -2516,7 +2514,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx9
 
   subroutine ax_helm_stress_lx8(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -2562,9 +2560,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2687,26 +2686,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -2812,7 +2808,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx8
 
   subroutine ax_helm_stress_lx7(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -2858,9 +2854,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2975,26 +2972,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -3091,7 +3085,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx7
 
   subroutine ax_helm_stress_lx6(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3137,9 +3131,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3244,26 +3239,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -3350,7 +3342,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx6
 
   subroutine ax_helm_stress_lx5(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3396,9 +3388,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3494,26 +3487,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -3592,7 +3582,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx5
 
   subroutine ax_helm_stress_lx4(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3638,9 +3628,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3727,26 +3718,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -3815,7 +3803,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx4
 
   subroutine ax_helm_stress_lx3(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3861,9 +3849,10 @@ contains
 
     integer :: e, i, j, k, l
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3941,26 +3930,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -4020,7 +4006,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx3
 
   subroutine ax_helm_stress_lx2(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -4066,9 +4052,10 @@ contains
 
     integer :: e, i, j, k
     real(kind=rp) :: dj
-    real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -4137,26 +4124,23 @@ contains
 
           dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
+          s22 = dj*(v2 + v2)
+          s33 = dj*(w3 + w3)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
-          s21 = dj*(v1 + u2)
-          s22 = dj*(v2 + v2)
           s23 = dj*(v3 + w2)
-          s31 = dj*(w1 + u3)
-          s32 = dj*(w2 + v3)
-          s33 = dj*(w3 + w3)
 
           wur(i,1,1) = drdx(i,1,1,e)*s11 + drdy(i,1,1,e)*s12 + drdz(i,1,1,e)*s13
           wus(i,1,1) = dsdx(i,1,1,e)*s11 + dsdy(i,1,1,e)*s12 + dsdz(i,1,1,e)*s13
           wut(i,1,1) = dtdx(i,1,1,e)*s11 + dtdy(i,1,1,e)*s12 + dtdz(i,1,1,e)*s13
 
-          wvr(i,1,1) = drdx(i,1,1,e)*s21 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
-          wvs(i,1,1) = dsdx(i,1,1,e)*s21 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
-          wvt(i,1,1) = dtdx(i,1,1,e)*s21 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
+          wvr(i,1,1) = drdx(i,1,1,e)*s12 + drdy(i,1,1,e)*s22 + drdz(i,1,1,e)*s23
+          wvs(i,1,1) = dsdx(i,1,1,e)*s12 + dsdy(i,1,1,e)*s22 + dsdz(i,1,1,e)*s23
+          wvt(i,1,1) = dtdx(i,1,1,e)*s12 + dtdy(i,1,1,e)*s22 + dtdz(i,1,1,e)*s23
 
-          wwr(i,1,1) = drdx(i,1,1,e)*s31 + drdy(i,1,1,e)*s32 + drdz(i,1,1,e)*s33
-          wws(i,1,1) = dsdx(i,1,1,e)*s31 + dsdy(i,1,1,e)*s32 + dsdz(i,1,1,e)*s33
-          wwt(i,1,1) = dtdx(i,1,1,e)*s31 + dtdy(i,1,1,e)*s32 + dtdz(i,1,1,e)*s33
+          wwr(i,1,1) = drdx(i,1,1,e)*s13 + drdy(i,1,1,e)*s23 + drdz(i,1,1,e)*s33
+          wws(i,1,1) = dsdx(i,1,1,e)*s13 + dsdy(i,1,1,e)*s23 + dsdz(i,1,1,e)*s33
+          wwt(i,1,1) = dtdx(i,1,1,e)*s13 + dtdy(i,1,1,e)*s23 + dtdz(i,1,1,e)*s33
        end do
 
        do j = 1, lx*lx
@@ -4207,7 +4191,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx2
 
 end module ax_helm_full_cpu

@@ -32,12 +32,16 @@
 !
 !> Implements an unordered set ADT
 !! @details A unordered set storing a fixed data-type @a data
+!! Public types:
+!!   uset_i4_t  | unordered set of 32-bit integers
+!!   uset_i8_t  | unordered set of 64-bit integers
+!!   uset_r8_t  | unordered set of 64-bit real values
 module uset
   use utils, only : neko_error
   use num_types, only : i8, dp
   use htable, only : htable_i4_t, htable_iter_i4_t, &
-                     htable_i8_t, htable_iter_i8_t, &
-                     htable_r8_t, htable_iter_r8_t
+       htable_i8_t, htable_iter_i8_t, &
+       htable_r8_t, htable_iter_r8_t
   implicit none
   private
 
@@ -54,7 +58,7 @@ module uset
   end type uset_t
 
   !> Integer based unordered set
-  type, extends(uset_t), public :: uset_i4_t
+  type, public, extends(uset_t) :: uset_i4_t
      type(htable_i4_t) :: t
      type(htable_iter_i4_t) :: it
    contains
@@ -71,7 +75,7 @@ module uset
   end type uset_i4_t
 
   !> Integer*8 based unordered set
-  type, extends(uset_t), public :: uset_i8_t
+  type, public, extends(uset_t) :: uset_i8_t
      type(htable_i8_t) :: t
      type(htable_iter_i8_t) :: it
    contains
@@ -88,7 +92,7 @@ module uset
   end type uset_i8_t
 
   !> Double precision unordered set
-  type, extends(uset_t), public :: uset_r8_t
+  type, public, extends(uset_t) :: uset_r8_t
      type(htable_r8_t) :: t
      type(htable_iter_r8_t) :: it
    contains
@@ -212,7 +216,7 @@ contains
     integer :: data
     logical :: res
 
-    select type(key)
+    select type (key)
     type is (integer)
        res = (this%t%get(key, data) .eq. 0)
     class default
@@ -226,7 +230,7 @@ contains
     class(*), intent(inout) :: key
     integer :: data
 
-    select type(key)
+    select type (key)
     type is (integer)
        data = key
        call this%t%set(key, data)
@@ -240,7 +244,7 @@ contains
     class(uset_i4_t), intent(inout) :: this
     class(*), intent(inout) :: key
 
-    select type(key)
+    select type (key)
     type is (integer)
        call this%t%remove(key)
     class default
@@ -312,7 +316,7 @@ contains
     integer(kind=i8) :: data
     logical :: res
 
-    select type(key)
+    select type (key)
     type is (integer(i8))
        res = (this%t%get(key, data) .eq. 0)
     class default
@@ -326,7 +330,7 @@ contains
     class(*), intent(inout) :: key
     integer(kind=i8) :: data
 
-    select type(key)
+    select type (key)
     type is (integer(i8))
        data = key
        call this%t%set(key, data)
@@ -340,7 +344,7 @@ contains
     class(uset_i8_t), intent(inout) :: this
     class(*), intent(inout) :: key
 
-    select type(key)
+    select type (key)
     type is (integer(i8))
        call this%t%remove(key)
     class default
@@ -369,7 +373,7 @@ contains
     ! We should not need this extra select block, and it works great
     ! without it for GNU, Intel and NEC, but breaks horribly on Cray
     ! (>11.0.x) when using high opt. levels.
-    select type(hp => this)
+    select type (hp => this)
     type is (uset_i8_t)
        value => hp%it%value()
     class default
@@ -398,7 +402,7 @@ contains
   end subroutine uset_r8_free
 
   !> Return the cardinality of a double precision based unordered set
-  pure function uset_r8_size(this)  result(entries)
+  pure function uset_r8_size(this) result(entries)
     class(uset_r8_t), intent(in) :: this
     integer :: entries
 
@@ -420,7 +424,7 @@ contains
     logical :: res
     real(kind=dp) :: data
 
-    select type(key)
+    select type (key)
     type is (double precision)
        res = (this%t%get(key, data) .eq. 0)
     class default
@@ -435,7 +439,7 @@ contains
     class(*), intent(inout) :: key
     real(kind=dp) :: data
 
-    select type(key)
+    select type (key)
     type is (double precision)
        data = key
        call this%t%set(key, data)
@@ -449,7 +453,7 @@ contains
     class(uset_r8_t), intent(inout) :: this
     class(*), intent(inout) :: key
 
-    select type(key)
+    select type (key)
     type is (double precision)
        call this%t%remove(key)
     class default

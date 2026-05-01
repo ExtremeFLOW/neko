@@ -105,7 +105,7 @@ contains
        strong_ = .true.
     end if
 
-    if (present(time) .eqv. .false.) then
+    if (.not. present(time)) then
        call neko_error("wall_model_bc_apply_vector: time is required.")
     end if
 
@@ -159,7 +159,7 @@ contains
        strong_ = .true.
     end if
 
-    if (present(time) .eqv. .false.) then
+    if (.not. present(time)) then
        call neko_error("wall_model_bc_apply_vector_dev: time is required.")
     end if
 
@@ -208,6 +208,10 @@ contains
     call this%shear_stress_t%free()
     call this%wall_model%free()
 
+    if (allocated(this%wall_model)) then
+       deallocate(this%wall_model)
+    end if
+
   end subroutine wall_model_bc_free
 
   !> Finalize by building mask arrays and init'ing the wall model.
@@ -216,7 +220,7 @@ contains
     logical, optional, intent(in) :: only_facets
 
     if (present(only_facets)) then
-       if (only_facets .eqv. .false.) then
+       if (.not. only_facets) then
           call neko_error("For wall_model_bc_t, only_facets has to be true.")
        end if
     end if

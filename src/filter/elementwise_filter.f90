@@ -34,7 +34,7 @@
 !> Implements `elementwise_filter_t`.
 module elementwise_filter
   use num_types, only : rp
-  use filter, only: filter_t
+  use filter, only : filter_t
   use math, only : rzero, rone, copy
   use field, only : field_t
   use coefs, only : coef_t
@@ -86,39 +86,54 @@ contains
   subroutine elementwise_filter_init_from_json(this, json, coef)
     class(elementwise_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), allocatable :: transfer(:)
     character(len=:), allocatable :: filter_type
 
-    ! Filter assumes lx = ly = lz
-    call this%init_base(json, coef)
+    call json_get_or_default(json, "elementwise_filter_type", &
+         filter_type, "nonBoyd")
 
-    call this%init_from_components(coef%dof%xh%lx)
+    if (json%valid_path('transfer_function')) then
+       call json_get(json, 'transfer_function', transfer)
+    end if
 
-    call json_get_or_default(json, "filter.elementwise_filter_type", &
-         this%filter_type, "nonBoyd")
+    if (allocated(transfer)) then
+       call this%init_from_components(coef, filter_type, transfer)
+    else
+       call this%init_from_components(coef, filter_type)
+    end if
 
-    if (json%valid_path('filter.transfer_function')) then
-       call json_get(json, 'filter.transfer_function', transfer)
-       if (size(transfer) .eq. coef%dof%xh%lx) then
-          this%transfer = transfer
-       else
-          call neko_error("The transfer function of the elementwise " // &
-               "filter must correspond the order of the polynomial")
-       end if
-       call this%build_1d()
+
+    if (allocated(transfer)) then
+       deallocate(transfer)
+    end if
+
+    if (allocated(filter_type)) then
+       deallocate(filter_type)
     end if
 
   end subroutine elementwise_filter_init_from_json
 
   !> Actual Constructor.
-  !! @param nx number of points in an elements in one direction.
-  subroutine elementwise_filter_init_from_components(this, nx)
+  !! @param coef SEM coefficients.
+  !! @param filter_type Type of modal basis used by the filter.
+  !! @param transfer Optional transfer function.
+  subroutine elementwise_filter_init_from_components(this, coef, filter_type, &
+       transfer)
     class(elementwise_filter_t), intent(inout) :: this
+    type(coef_t), intent(in), target :: coef
+    character(len=*), intent(in) :: filter_type
+    real(kind=rp), intent(in), optional :: transfer(:)
     integer :: nx
 
+    call this%free()
+
+    ! Filter assumes lx = ly = lz
+    call this%init_base(coef)
+    nx = coef%dof%xh%lx
     this%nx = nx
     this%nt = nx ! initialize as if nothing is filtered yet
+    this%filter_type = filter_type
 
     allocate(this%fh(nx, nx))
     allocate(this%fht(nx, nx))
@@ -128,6 +143,15 @@ contains
     call rzero(this%fht, nx*nx)
     call rone(this%transfer, nx) ! initialize as if nothing is filtered yet
 
+    if (present(transfer)) then
+       if (size(transfer) .eq. nx) then
+          this%transfer = transfer
+       else
+          call neko_error("The transfer function of the elementwise " // &
+               "filter must correspond the order of the polynomial")
+       end if
+    end if
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%fh, this%fh_d, this%nx * this%nx)
        call device_map(this%fht, this%fht_d, this%nx * this%nx)
@@ -135,11 +159,17 @@ contains
        call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
     end if
 
+    call this%build_1d()
+
   end subroutine elementwise_filter_init_from_components
 
   !> Destructor.
   subroutine elementwise_filter_free(this)
     class(elementwise_filter_t), intent(inout) :: this
+
+    if (allocated(this%filter_type)) then
+       deallocate(this%filter_type)
+    end if
 
     if (allocated(this%fh)) then
        deallocate(this%fh)
@@ -191,8 +221,8 @@ contains
     type(field_t), intent(in) :: F_in
 
     ! F_out = fh x fh x fh x F_in
-    call tnsr3d(F_out%x, this%nx, F_in%x, this%nx, this%fh, this%fht, this%fht, &
-         this%coef%msh%nelv)
+    call tnsr3d(F_out%x, this%nx, F_in%x, this%nx, this%fh, this%fht, &
+         this%fht, this%coef%msh%nelv)
 
   end subroutine elementwise_field_filter_3d
 
@@ -223,13 +253,13 @@ contains
        z = zpts(j)
        call legendre_poly(Lj, z, n)
        select case (filter_type)
-       case("Boyd")
+       case ("Boyd")
           pht%x(1,j) = Lj(1)
           pht%x(2,j) = Lj(2)
-          do k=3,nx
-             pht%x(k,j) = Lj(k)-Lj(k-2)
+          do k = 3, nx
+             pht%x(k, j) = Lj(k) - Lj(k - 2)
           end do
-       case("nonBoyd")
+       case ("nonBoyd")
           pht%x(:,j) = Lj
        end select
     end do
@@ -241,8 +271,8 @@ contains
 
     diag = 0.0_rp
 
-    do i=1,nx
-       diag(i,i) = transfer(i)
+    do i = 1, nx
+       diag(i, i) = transfer(i)
     end do
 
     call mxm (diag, nx, pht%x, nx, fh, nx) !          -1

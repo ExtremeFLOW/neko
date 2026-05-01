@@ -32,13 +32,13 @@
 !
 !> Defines inflow dirichlet conditions
 module inflow
-  use device_inflow
+  use device_inflow, only : device_inflow_apply_vector
   use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
   use coefs, only : coef_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get_or_lookup
   use time_state, only : time_state_t
   implicit none
   private
@@ -71,7 +71,7 @@ contains
     real(kind=rp), allocatable :: x(:)
 
     call this%init_base(coef)
-    call json_get(json, 'value', x)
+    call json_get_or_lookup(json, 'value', x)
     this%x = x
   end subroutine inflow_init
 
@@ -114,7 +114,7 @@ contains
     m = this%msk(0)
 
     if (strong_) then
-       do i = 1, m
+       do concurrent (i = 1:m)
           k = this%msk(i)
           x(k) = this%x(1)
           y(k) = this%x(2)

@@ -43,6 +43,9 @@ module stats
   !> Pointer to an arbitrary quantitiy
   type, private :: quantp_t
      class(stats_quant_t), pointer :: quantp
+   contains
+     !> Destructor.
+     procedure, pass(this) :: free => quantp_free
   end type quantp_t
 
   !> Statistics backend
@@ -61,6 +64,12 @@ module stats
   end type stats_t
 
 contains
+  !> Destructor for quantp_t.
+  subroutine quantp_free(this)
+    class(quantp_t), intent(inout) :: this
+
+    nullify(this%quantp)
+  end subroutine quantp_free
 
   !> Initialize statistics, computed after @a T_begin
   subroutine stats_init(this, T_begin, samp_interval, size)
@@ -95,8 +104,13 @@ contains
   !> Deallocate
   subroutine stats_free(this)
     class(stats_t), intent(inout) :: this
+    integer :: i
 
     if (allocated(this%quant_list)) then
+       do i = 1, size(this%quant_list)
+          call this%quant_list(i)%free()
+       end do
+
        deallocate(this%quant_list)
     end if
 
@@ -137,7 +151,7 @@ contains
        ! There is technically an issue here for the last sample if we
        ! reset the stats If the reset is not on a multiple of
        ! samp_interval the weight of the last sample is wrong.
-       if (mod(tstep,this%samp_interval) .eq. 0) then
+       if (mod(tstep, this%samp_interval) .eq. 0) then
           call neko_log%section('Statistics')
           call MPI_Barrier(NEKO_COMM, ierr)
           sample_start_time = MPI_WTIME()
@@ -148,7 +162,7 @@ contains
           call MPI_Barrier(NEKO_COMM, ierr)
           sample_end_time = MPI_WTIME()
           sample_time = sample_end_time - sample_start_time
-          write(log_buf,'(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
+          write(log_buf, '(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
                ' Sampling time (s): ', sample_time
           call neko_log%message(log_buf)
           call neko_log%end_section()

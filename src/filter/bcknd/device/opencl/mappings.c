@@ -75,6 +75,7 @@ void opencl_smooth_step(void* x, real* edge0, real* edge1, int* n) {
     CL_CHECK(clEnqueueNDRangeKernel(
         (cl_command_queue)glb_cmd_queue, kernel, 1, NULL, &global_item_size,
         &local_item_size, 0, NULL, NULL));
+    CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for step function
@@ -113,6 +114,7 @@ void opencl_step_function(
     CL_CHECK(clEnqueueNDRangeKernel(
         (cl_command_queue)glb_cmd_queue, kernel, 1, NULL, &global_item_size,
         &local_item_size, 0, NULL, NULL));
+    CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for the permeability mapping
@@ -146,4 +148,5 @@ void opencl_permeability(void* x, real* k_0, real* k_1, real* q, int* n) {
     CL_CHECK(clEnqueueNDRangeKernel(
         (cl_command_queue)glb_cmd_queue, kernel, 1, NULL, &global_item_size,
         &local_item_size, 0, NULL, NULL));
+    CL_CHECK(clReleaseKernel(kernel));
 }

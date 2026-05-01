@@ -1,0 +1,290 @@
+
+stages:
+  - build
+  - check
+  - test
+
+build-cpu:
+  stage: build
+  tags:
+      - cpu
+  before_script:
+      - ml openmpi/5.0.7-gcc-15.1.0-qhsadvh
+      - ml json-fortran/8.3.0-gcc-15.1.0-6yo3zb5
+      - ml openblas/0.3.29-gcc-15.1.0-zznztil
+      - ml parmetis/4.0.3-gcc-15.1.0-plk36ai
+      - ml metis/5.1.0-gcc-15.1.0-ezmekya
+      - ml pfunit/4.15.0-gcc-15.1.0-rdzsfri
+  script:
+    - ./regen.sh
+    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --prefix=${CI_BUILDS_DIR}/pkg
+    - make -j 128 install
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cpu"
+    untracked: true
+
+check-cpu:
+  stage: check
+  tags:
+    - cpu
+  before_script:
+      - ml openmpi/5.0.7-gcc-15.1.0-qhsadvh
+      - ml json-fortran/8.3.0-gcc-15.1.0-6yo3zb5
+      - ml openblas/0.3.29-gcc-15.1.0-zznztil
+      - ml parmetis/4.0.3-gcc-15.1.0-plk36ai
+      - ml metis/5.1.0-gcc-15.1.0-ezmekya
+      - ml pfunit/4.15.0-gcc-15.1.0-rdzsfri
+  script:
+    - make -j 128 check
+  needs:
+    - build-cpu
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cpu"
+    untracked: true
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - tests/unit/test-suite.log
+
+test-cpu:
+  stage: test
+  tags:
+    - cpu
+  before_script:
+      - ml openmpi/5.0.7-gcc-15.1.0-qhsadvh
+      - ml json-fortran/8.3.0-gcc-15.1.0-6yo3zb5
+      - ml openblas/0.3.29-gcc-15.1.0-zznztil
+      - ml parmetis/4.0.3-gcc-15.1.0-plk36ai
+      - ml metis/5.1.0-gcc-15.1.0-ezmekya
+      - ml pfunit/4.15.0-gcc-15.1.0-rdzsfri
+      - ml py-numpy/2.3.5-gcc-15.1.0-5pnviny
+      - ml py-json5/0.12.1-none-none-quj4i7l
+      - ml py-pytest/9.0.0-none-none-cfustsz
+  script:
+    - export PATH=${CI_BUILDS_DIR}/pkg/bin:${PATH}
+    - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib/pkgconfig:${PKG_CONFIG_PATH}
+    - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib64/pkgconfig:${PKG_CONFIG_PATH}
+    - cd tests/integration
+    - pytest --max_nprocs=2 --real_precision=dp
+  needs:
+    - build-cpu
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cpu"
+    untracked: true
+
+build-cuda:
+  stage: build
+  tags:
+      - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+  script:
+    - ./regen.sh
+    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-cuda=/usr/local/cuda --enable-device-mpi --prefix=${CI_BUILDS_DIR}/pkg
+    - make -j 128 install
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cuda"
+    untracked: true
+
+check-cuda:
+  stage: check
+  tags:
+    - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+  script:
+    - make -j 128 check
+  needs:
+    - build-cuda
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cuda"
+    untracked: true
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - tests/unit/test-suite.log
+
+test-cuda:
+  stage: test
+  tags:
+    - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+      - ml py-numpy/2.3.5-gcc-14.3.0-bf4inqx
+      - ml py-json5/0.12.1-none-none-llimmsb
+      - ml py-pytest/9.0.0-none-none-ghl4yrn
+  script:
+    - export PATH=${CI_BUILDS_DIR}/pkg/bin:${PATH}
+    - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib/pkgconfig:${PKG_CONFIG_PATH}
+    - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib64/pkgconfig:${PKG_CONFIG_PATH}
+    - cd tests/integration
+    - pytest --max_nprocs=2 --backend=cuda --real_precision=dp
+  needs:
+    - build-cuda
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+cuda"
+    untracked: true
+
+build-opencl:
+  stage: build
+  tags:
+      - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+  script:
+    - ./regen.sh
+    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-opencl=/usr/local/cuda
+    - make -j 128
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+opencl"
+    untracked: true
+
+check-opencl:
+  stage: check
+  tags:
+    - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+  script:
+    - make -j 128 check
+  needs:
+    - build-opencl
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+opencl"
+    untracked: true
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - tests/unit/test-suite.log
+
+test-opencl:
+  stage: test
+  tags:
+    - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+      - ml py-numpy/2.3.5-gcc-14.3.0-bf4inqx
+      - ml py-json5/0.12.1-none-none-llimmsb
+      - ml py-pytest/9.0.0-none-none-ghl4yrn
+  script:
+    - export PATH=${CI_BUILDS_DIR}/pkg/bin:${PATH}
+    - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib/pkgconfig:${PKG_CONFIG_PATH}
+    - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib64/pkgconfig:${PKG_CONFIG_PATH}
+    - cd tests/integration
+    - pytest --max_nprocs=2 --backend=opencl --real_precision=dp
+  needs:
+    - build-opencl
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+opencl"
+    untracked: true
+
+build-hip:
+  stage: build
+  when: manual
+  tags:
+      - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+  script:
+    - export PATH=/opt/rocm/bin:${PATH}
+    - export LD_LIBRARY_PATH=/opt/rocm/lib:${LD_LIBRARY_PATH}
+    - ./regen.sh
+    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-hip=/opt/rocm/
+    - make -j 128
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+hip"
+    untracked: true
+
+check-hip:
+  stage: check
+  when: manual
+  tags:
+    - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+  script:
+    - export PATH=/opt/rocm/bin:${PATH}
+    - export LD_LIBRARY_PATH=/opt/rocm/lib:${LD_LIBRARY_PATH}
+    - make -j 128 check
+  needs:
+    - build-hip
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+hip"
+    untracked: true
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - tests/unit/test-suite.log
+
+test-hip:
+  stage: test
+  when: manual
+  tags:
+    - gpu
+  before_script:
+      - ml openmpi/5.0.9-gcc-14.3.0-55azq7t
+      - ml json-fortran/8.3.0-gcc-14.3.0-cd2wubx
+      - ml openblas/0.3.30-gcc-14.3.0-fbx4e7m
+      - ml parmetis/4.0.3-gcc-14.3.0-735rsvf
+      - ml metis/5.1.0-gcc-14.3.0-rchynit
+      - ml pfunit/4.15.0-gcc-14.3.0-oai37od
+      - ml py-numpy/2.3.5-gcc-14.3.0-bf4inqx
+      - ml py-json5/0.12.1-none-none-llimmsb
+      - ml py-pytest/9.0.0-none-none-ghl4yrn
+  script:
+    - export PATH=/opt/rocm/bin:${PATH}
+    - export LD_LIBRARY_PATH=/opt/rocm/lib:${LD_LIBRARY_PATH}
+    - export PATH=${CI_BUILDS_DIR}/pkg/bin:${PATH}
+    - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib/pkgconfig:${PKG_CONFIG_PATH}
+    - export PKG_CONFIG_PATH=${CI_BUILDS_DIR}/pkg/lib64/pkgconfig:${PKG_CONFIG_PATH}
+    - cd tests/integration
+    - pytest --max_nprocs=2 --backend=hip --real_precision=dp
+  needs:
+    - build-hip
+  cache:
+    key: "$CI_COMMIT_REF_SLUG+hip"
+    untracked: true

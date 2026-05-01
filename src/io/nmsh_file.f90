@@ -32,24 +32,24 @@
 !
 !> Neko binary mesh data
 module nmsh_file
-  use generic_file, only: generic_file_t
-  use comm, only: NEKO_COMM, pe_rank, pe_size
-  use num_types, only: rp, dp, i4, i8
-  use mesh, only: mesh_t, NEKO_MSH_MAX_ZLBLS
-  use utils, only: neko_error
-  use point, only: point_t
-  use tuple, only: tuple4_i4_t
-  use nmsh, only: nmsh_hex_t, nmsh_quad_t, nmsh_zone_t, nmsh_curve_el_t
-  use element, only: element_t
-  use datadist, only: linear_dist_t
-  use neko_mpi_types, only: MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
+  use generic_file, only : generic_file_t
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use num_types, only : rp, dp, i4, i8
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use utils, only : neko_error
+  use point, only : point_t
+  use tuple, only : tuple4_i4_t
+  use nmsh, only : nmsh_hex_t, nmsh_quad_t, nmsh_zone_t, nmsh_curve_el_t
+  use element, only : element_t
+  use datadist, only : linear_dist_t
+  use neko_mpi_types, only : MPI_NMSH_HEX, MPI_NMSH_QUAD, MPI_NMSH_ZONE, &
        MPI_NMSH_CURVE, MPI_INTEGER_SIZE
-  use mpi_f08, only: MPI_Wtime, MPI_Status, MPI_File, MPI_OFFSET_KIND, &
+  use mpi_f08, only : MPI_Wtime, MPI_Status, MPI_File, MPI_OFFSET_KIND, &
        MPI_MODE_WRONLY, MPI_MODE_CREATE, MPI_MODE_RDONLY, MPI_INFO_NULL, &
        MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
        MPI_File_write_at_all, MPI_File_read_at_all, MPI_INTEGER, MPI_SUM, &
        MPI_Exscan, MPI_Barrier, MPI_Type_size, MPI_Allreduce, MPI_File_sync
-  use logger, only: neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE
   implicit none
 
   private
@@ -472,7 +472,8 @@ contains
     call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
     call MPI_Type_size(MPI_NMSH_CURVE, nmsh_curve_size, ierr)
 
-    call neko_log%message('Writing data as a binary Neko file ' // this%get_fname())
+    call neko_log%message('Writing data as a binary Neko file ' // &
+         this%get_fname())
 
     call MPI_File_open(NEKO_COMM, trim(this%get_fname()), &
          MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
@@ -632,12 +633,11 @@ contains
        el_idx_glb = msh%elements(msh%periodic%facet_el(i)%x(2))%e%id()
        if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
           call msh%apply_periodic_facet(msh%periodic%facet_el(i)%x(1), el_idx, &
-               msh%periodic%p_facet_el(i)%x(1), msh%periodic%p_facet_el(i)%x(2), &
-               msh%periodic%p_ids(i)%x)
+               msh%periodic%p_facet_el(i)%x(1), &
+               msh%periodic%p_facet_el(i)%x(2), msh%periodic%p_ids(i)%x)
        end if
     end do
 
   end subroutine nmsh_file_write
 
 end module nmsh_file
-

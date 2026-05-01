@@ -214,7 +214,7 @@ contains
                 src = this%recv_pe(i)
                 sp => this%recv_dof(src)%array()
                 !Do operation with data in buffer on dof specified by recv_dof
-                select case(op)
+                select case (op)
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%recv_dof(src)%size())

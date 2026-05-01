@@ -118,13 +118,13 @@ contains
        call device_map(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx)
        call device_map(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx)
        call device_memcpy(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx, &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx, &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.true.)
     end if
 
   end subroutine interpolator_init
@@ -157,6 +157,9 @@ contains
        call device_free(this%Xh_YhT_d)
     end if
 
+    nullify(this%Xh)
+    nullify(this%Yh)
+
   end subroutine interpolator_free
 
   !> Interpolates an array to one of Xh or Yh.
@@ -172,12 +175,12 @@ contains
     real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d(y, this%Yh%lx, x, &
-                   this%Xh%lx,this%Yh_to_XhT, &
-                   this%Yh_to_Xh, this%Yh_to_Xh, nel)
+            this%Xh%lx,this%Yh_to_XhT, &
+            this%Yh_to_Xh, this%Yh_to_Xh, nel)
     else if (to_space .eq. this%Xh) then
        call tnsr3d(y, this%Xh%lx, x, &
-                   this%Yh%lx,this%Yh_to_Xh, &
-                   this%Yh_to_XhT, this%Yh_to_XhT, nel)
+            this%Yh%lx,this%Yh_to_Xh, &
+            this%Yh_to_XhT, this%Yh_to_XhT, nel)
     else
        call neko_error('Invalid interpolation')
     end if
@@ -198,12 +201,12 @@ contains
     real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d_cpu(y, this%Yh%lx, x, &
-                   this%Xh%lx,this%Yh_to_XhT, &
-                   this%Yh_to_Xh, this%Yh_to_Xh, nel)
+            this%Xh%lx,this%Yh_to_XhT, &
+            this%Yh_to_Xh, this%Yh_to_Xh, nel)
     else if (to_space .eq. this%Xh) then
        call tnsr3d_cpu(y, this%Xh%lx, x, &
-                   this%Yh%lx,this%Yh_to_Xh, &
-                   this%Yh_to_XhT, this%Yh_to_XhT, nel)
+            this%Yh%lx,this%Yh_to_Xh, &
+            this%Yh_to_XhT, this%Yh_to_XhT, nel)
     else
        call neko_error('Invalid interpolation')
     end if

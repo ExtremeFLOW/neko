@@ -4,8 +4,9 @@
         "mesh_file": "box.nmsh",
         "output_at_end": true,
         "output_boundary": true,
+        "output_checkpoints": false,
         "time": {
-            "end_time": 100,
+            "end_time": 100.0,
             "timestep": 0.01
         },
         "numerics": {
@@ -15,7 +16,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Ra": 1750,
+            "Ra": 1750.0,
             "source_terms": [
                 {
                     "type": "user"
@@ -72,12 +73,12 @@
             "boundary_conditions": [
                 {
                     "type": "dirichlet",
-                    "value": 1,
+                    "value": 1.0,
                     "zone_indices": [ 5 ]
                 },
                 {
                     "type": "dirichlet",
-                    "value": 0,
+                    "value": 0.0,
                     "zone_indices": [ 6 ]
                 }
             ],

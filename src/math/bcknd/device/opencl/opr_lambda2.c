@@ -93,7 +93,7 @@ void opencl_lambda2(void *lambda2, void *u, void *v, void *w,
      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,          \
                                      kernel, 1, NULL, &global_item_size,        \
                                      &local_item_size, 0, NULL, NULL));         \
-                                                                                \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }                                                                           \
     break
 

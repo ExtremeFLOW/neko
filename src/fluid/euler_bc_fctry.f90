@@ -36,6 +36,7 @@ submodule(fluid_scheme_compressible_euler) euler_bc_fctry
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
   use symmetry, only : symmetry_t
+  use json_utils, only : json_get_or_lookup
   implicit none
 
   ! List of all possible types created by the boundary condition factories
@@ -64,6 +65,8 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     call json_get(json, "type", type)
 
@@ -78,12 +81,17 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("density_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
   end subroutine density_bc_factory
 
@@ -102,6 +110,8 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     call json_get(json, "type", type)
 
@@ -118,12 +128,17 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("pressure_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
     ! All pressure bcs are currently strong, so for all of them we
@@ -154,6 +169,8 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     call json_get(json, "type", type)
 
@@ -172,11 +189,16 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("velocity_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
   end subroutine velocity_bc_factory

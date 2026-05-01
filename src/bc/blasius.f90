@@ -36,13 +36,15 @@ module blasius
   use coefs, only : coef_t
   use utils, only : nonlinear_index
   use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_alloc
-  use device_inhom_dirichlet
-  use flow_profile
+  use device_inhom_dirichlet, only : device_inhom_dirichlet_apply_vector
+  use flow_profile, only : blasius_profile, blasius_linear, blasius_quadratic, &
+       blasius_cubic, blasius_quartic, blasius_sin, blasius_tanh
+  use utils, only : neko_error
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   use bc, only : bc_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_lookup
   use time_state, only : time_state_t
   implicit none
   private
@@ -89,9 +91,9 @@ contains
 
     call this%init_base(coef)
 
-    call json_get(json, 'delta', delta)
+    call json_get_or_lookup(json, 'delta', delta)
     call json_get(json, 'approximation', approximation)
-    call json_get(json, 'freestream_velocity', uinf)
+    call json_get_or_lookup(json, 'freestream_velocity', uinf)
 
     if (size(uinf) .ne. 3) then
        call neko_error("The uinf keyword for the blasius profile should be an &
@@ -199,6 +201,7 @@ contains
          nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
       if (strong_) then
+         !$omp parallel do private(k, facet, idx)
          do i = 1, m
             k = this%msk(i)
             facet = this%facet(i)
@@ -221,6 +224,7 @@ contains
                     this%delta, this%uinf(3))
             end select
          end do
+         !$omp end parallel do
       end if
     end associate
   end subroutine blasius_apply_vector
@@ -255,7 +259,7 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(blax_d) .and. strong_ .and. this%msk(0) .gt. 0) then
+      if (.not. c_associated(blax_d) .and. strong_ .and. m .gt. 0) then
          allocate(bla_x(m), bla_y(m), bla_z(m)) ! Temp arrays
 
          if (rp .eq. REAL32) then
@@ -267,7 +271,7 @@ contains
          call device_alloc(blax_d, s)
          call device_alloc(blay_d, s)
          call device_alloc(blaz_d, s)
-
+         !$omp parallel do private(k, facet, idx)
          do i = 1, m
             k = this%msk(i)
             facet = this%facet(i)
@@ -290,6 +294,7 @@ contains
                     this%delta, this%uinf(3))
             end select
          end do
+         !$omp end parallel do
 
          call device_memcpy(bla_x, blax_d, m, HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(bla_y, blay_d, m, HOST_TO_DEVICE, sync = .false.)

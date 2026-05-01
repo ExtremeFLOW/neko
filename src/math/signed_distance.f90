@@ -32,14 +32,17 @@
 !
 !> @brief Module containing Signed Distance Functions.
 module signed_distance
-  use num_types, only: dp, rp
-  use field, only: field_t
-  use tri, only: tri_t
-  use tri_mesh, only: tri_mesh_t
-  use aabb_tree, only: aabb_tree_t
-  use device, only: device_memcpy, HOST_TO_DEVICE
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use utils, only: neko_error, neko_warning
+  use num_types, only : dp, rp
+  use field, only : field_t
+  use tri, only : tri_t
+  use tri_mesh, only : tri_mesh_t
+  use aabb, only : aabb_t
+  use aabb_tree, only : aabb_tree_t, aabb_node_t, AABB_NULL_NODE
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use utils, only : neko_error, neko_warning
+  use math, only : rzero
+  use stack, only : stack_i4_t
 
   implicit none
   private
@@ -70,11 +73,11 @@ contains
        max_dist = huge(0.0_dp)
     end if
 
-    select type(object)
-      type is (tri_mesh_t)
+    select type (object)
+    type is (tri_mesh_t)
        call signed_distance_field_tri_mesh(field_data, object, max_dist)
 
-      class default
+    class default
        call neko_error("signed_distance_field: Object type not supported.")
     end select
 
@@ -102,17 +105,18 @@ contains
     real(kind=dp) :: distance
 
     ! Zero the field
-    field_data%x = 0.0_dp
+    call rzero(field_data%x, field_data%size())
     total_size = field_data%dof%size()
 
     call search_tree%init(mesh%nelv)
     call search_tree%build(mesh%el)
 
     if (search_tree%get_size() .ne. mesh%nelv) then
-       call neko_error("signed_distance_field_tri_mesh: &
-            & Error building the search tree.")
+       call neko_error("signed_distance_field_tri_mesh: " // &
+            "Error building the search tree.")
     end if
 
+    !$omp parallel do private(id, p, distance)
     do id = 1, total_size
        p(1) = field_data%dof%x(id, 1, 1, 1)
        p(2) = field_data%dof%y(id, 1, 1, 1)
@@ -122,10 +126,11 @@ contains
 
        field_data%x(id, 1, 1, 1) = real(distance, kind=rp)
     end do
+    !$omp end parallel do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_warning("signed_distance_field_tri_mesh:&
-            & Device version not implemented.")
+       & Device version not implemented.")
        call device_memcpy(field_data%x, field_data%x_d, field_data%size(), &
             HOST_TO_DEVICE, sync = .false.)
     end if
@@ -143,12 +148,6 @@ contains
   !! @param mesh Boundary mesh
   !! @return Signed distance value
   function tri_mesh_brute_force(mesh, p, max_distance) result(distance)
-    use tri, only: tri_t
-    use point, only: point_t
-    use num_types, only: dp
-
-    implicit none
-
     type(tri_mesh_t), intent(in) :: mesh
     real(kind=dp), intent(in) :: p(3)
     real(kind=dp), intent(in) :: max_distance
@@ -158,7 +157,7 @@ contains
     real(kind=dp) :: cd, cs
     real(kind=dp) :: tol = 1e-6_dp
 
-    distance = 1e10_dp
+    distance = huge(0.0_dp)
     weighted_sign = 0.0_dp
 
     do id = 1, mesh%nelv
@@ -191,14 +190,10 @@ contains
   !! @param p Point
   !! @param max_distance Maximum distance outside the mesh
   !! @return Signed distance value
-  function tri_mesh_aabb_tree(tree, object_list, p, max_distance) result(distance)
-    use aabb, only: aabb_t
-    use aabb_tree, only: aabb_node_t, AABB_NULL_NODE
-    use stack, only: stack_i4_t
-    implicit none
-
+  function tri_mesh_aabb_tree(tree, object_list, p, max_distance) &
+       result(distance)
     class(aabb_tree_t), intent(in) :: tree
-    class(tri_t), dimension(:), intent(in) :: object_list
+    class(tri_t), contiguous, dimension(:), intent(in) :: object_list
     real(kind=dp), dimension(3), intent(in) :: p
     real(kind=dp), intent(in) :: max_distance
 
@@ -243,7 +238,8 @@ contains
     ! Grab a random object and compute the distance to it
     call random_number(random_value)
     current_object_index = floor(random_value * size(object_list) + 1)
-    call element_distance(object_list(current_object_index), p, distance, weighted_sign)
+    call element_distance(object_list(current_object_index), p, distance, &
+         weighted_sign)
     distance = distance + object_list(current_object_index)%diameter()
 
     ! Update the search box to the new distance and push the root node
@@ -264,7 +260,8 @@ contains
           end if
 
           current_object_index = current_node%get_object_index()
-          call element_distance(object_list(current_object_index), p, current_distance, current_sign)
+          call element_distance(object_list(current_object_index), p, &
+               current_distance, current_sign)
 
           ! Update the weighted sign, if the relative difference is small
           if (abs(current_distance - distance) / distance .lt. tol) then
@@ -317,11 +314,11 @@ contains
     real(kind=dp), intent(out) :: distance
     real(kind=dp), intent(out), optional :: weighted_sign
 
-    select type(element)
-      type is (tri_t)
+    select type (element)
+    type is (tri_t)
        call element_distance_triangle(element, p, distance, weighted_sign)
 
-      class default
+    class default
        print *, "Error: Element type not supported."
        stop
     end select

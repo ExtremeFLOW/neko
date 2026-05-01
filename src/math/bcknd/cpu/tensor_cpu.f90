@@ -11,7 +11,7 @@ contains
   subroutine tnsr2d_el_cpu(v, nv, u, nu, A, Bt)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv), u(nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv)
     real(kind=rp) :: work(0:nu**2*nv)
 
     call mxm(A, nv, u, nu, work, nu)
@@ -22,7 +22,7 @@ contains
   subroutine tnsr3d_el_cpu(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu),Bt(nu, nv),Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
 
     if (nv .eq. nu) then
        select case (nv)
@@ -76,10 +76,11 @@ contains
 
   end subroutine tnsr3d_el_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_nvnu_cpu(v, nv, u, nu, A, Bt, Ct)
     integer, intent(in) :: nv, nu
     real(kind=rp), intent(inout) :: v(nv*nv*nv), u(nu*nu*nu)
-    real(kind=rp), intent(inout) :: A(nv,nu),Bt(nu, nv),Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     real(kind=rp) :: tmp
     integer :: i, j, k, l, nunu, nvnu, nvnv
@@ -127,14 +128,16 @@ contains
 
   end subroutine tnsr3d_el_nvnu_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_1_nu_cpu(v, u, nu, A, Bt, Ct)
     integer, intent(in) :: nu
-    real(kind=rp), intent(inout) :: v(1), u(nu*nu*nu)
-    real(kind=rp), intent(inout) :: A(1,nu),Bt(nu, 1),Ct(nu,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(nu*nu*nu)
+    real(kind=rp), intent(in) :: A(1, nu), Bt(nu, 1), Ct(nu, 1)
     real(kind=rp) :: work(nu**2), work2(nu)
     real(kind=rp) :: tmp
-    integer :: i, j, k, l, nunu
-    integer :: ii, jj
+    integer :: i, j, k, nunu
+    integer :: jj
     nunu = nu * nu
 
     do j = 1, nunu
@@ -162,14 +165,15 @@ contains
 
   end subroutine tnsr3d_el_1_nu_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_1_4_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 4
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -192,14 +196,15 @@ contains
 
   end subroutine tnsr3d_el_1_4_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_1_6_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 6
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -228,14 +233,15 @@ contains
 
   end subroutine tnsr3d_el_1_6_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_1_8_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 8
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -271,15 +277,15 @@ contains
 
   end subroutine tnsr3d_el_1_8_cpu
 
-
+  !OCL SERIAL
   subroutine tnsr3d_el_1_10_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 10
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -320,15 +326,15 @@ contains
 
   end subroutine tnsr3d_el_1_10_cpu
 
-
+  !OCL SERIAL
   subroutine tnsr3d_el_1_12_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 12
     integer, parameter :: nn = n**2
-    real(kind=rp), intent(inout) :: v(1), u(n*n*n)
-    real(kind=rp), intent(inout) :: A(1,n), Bt(n,1), Ct(n,1)
+    real(kind=rp), intent(inout) :: v(1)
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: A(1,n), Bt(n,1), Ct(n,1)
     real(kind=rp) :: work(n**2), work2(n)
-    integer :: i, j, l
-    integer :: ii, jj
+    integer :: i, j
 
     do j = 1, nn
        work(j) = A(1,1) * u(1 + n * (j - 1)) &
@@ -375,8 +381,7 @@ contains
 
   end subroutine tnsr3d_el_1_12_cpu
 
-
-
+  !OCL SERIAL
   subroutine tnsr3d_el_n_cpu(v, u, A, Bt, Ct, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: v(n*n*n), u(n*n*n)
@@ -424,6 +429,7 @@ contains
 
   end subroutine tnsr3d_el_n_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n14_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 14
     integer, parameter :: nn = n**2
@@ -497,6 +503,7 @@ contains
 
   end subroutine tnsr3d_el_n14_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n13_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 13
     integer, parameter :: nn = n**2
@@ -567,6 +574,7 @@ contains
 
   end subroutine tnsr3d_el_n13_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n12_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 12
     integer, parameter :: nn = n**2
@@ -634,6 +642,7 @@ contains
 
   end subroutine tnsr3d_el_n12_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n11_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 11
     integer, parameter :: nn = n**2
@@ -698,6 +707,7 @@ contains
 
   end subroutine tnsr3d_el_n11_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n10_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 10
     integer, parameter :: nn = n**2
@@ -759,6 +769,7 @@ contains
 
   end subroutine tnsr3d_el_n10_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n9_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 9
     integer, parameter :: nn = n**2
@@ -817,6 +828,7 @@ contains
 
   end subroutine tnsr3d_el_n9_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n8_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 8
     integer, parameter :: nn = n**2
@@ -872,6 +884,7 @@ contains
 
   end subroutine tnsr3d_el_n8_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n7_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 7
     integer, parameter :: nn = n**2
@@ -924,6 +937,7 @@ contains
 
   end subroutine tnsr3d_el_n7_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n6_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 6
     integer, parameter :: nn = n**2
@@ -973,6 +987,7 @@ contains
 
   end subroutine tnsr3d_el_n6_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n5_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 5
     integer, parameter :: nn = n**2
@@ -1019,6 +1034,7 @@ contains
 
   end subroutine tnsr3d_el_n5_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n4_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 4
     integer, parameter :: nn = n**2
@@ -1062,6 +1078,7 @@ contains
 
   end subroutine tnsr3d_el_n4_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n3_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 3
     integer, parameter :: nn = n**2
@@ -1102,6 +1119,7 @@ contains
 
   end subroutine tnsr3d_el_n3_cpu
 
+  !OCL SERIAL
   subroutine tnsr3d_el_n2_cpu(v, u, A, Bt, Ct)
     integer, parameter :: n = 2
     integer, parameter :: nn = n**2
@@ -1141,9 +1159,9 @@ contains
 
   subroutine tnsr3d_cpu(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
 
     if (nu .eq. 2 .and. nv .eq. 4) then
        call tnsr3d_nu2nv4_cpu(v, u, A, Bt, Ct, nelv)
@@ -1157,9 +1175,9 @@ contains
 
   subroutine tnsr3d_nvnu_cpu(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
     integer :: nunu, nvnu, nvnv
@@ -1168,7 +1186,8 @@ contains
     nunu = nu * nu
     nvnv = nv * nv
 
-    do ie = 1,nelv
+    !$omp parallel do private(ie, i, j, k, l, ii, jj, tmp, work, work2)
+    do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
              ii = i + nv * (j - 1)
@@ -1206,6 +1225,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine tnsr3d_nvnu_cpu
 
@@ -1216,13 +1236,14 @@ contains
     integer, parameter :: nvnu = 8
     integer, parameter :: nvnv = 16
     integer, intent(in) :: nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
 
-    do ie = 1,nelv
+    !$omp parallel do private(ie, i, j, k, l, ii, jj, tmp, work, work2)
+    do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
              ii = i + nv * (j - 1)
@@ -1253,6 +1274,7 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine tnsr3d_nu2nv4_cpu
 
@@ -1260,9 +1282,9 @@ contains
     integer, parameter :: nu = 4
     integer, parameter :: nunu = 16
     integer, intent(in) :: nv, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
-    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv, nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu, nelv)
+    real(kind=rp), intent(in) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
     integer :: nvnu, nvnv
@@ -1270,7 +1292,8 @@ contains
     nvnu = nv * nu
     nvnv = nv * nv
 
-    do ie = 1,nelv
+    !$omp parallel do private(ie, i, j, k, l, ii, tmp, work, work2)
+    do ie = 1, nelv
        do j = 1, nunu
           do i = 1, nv
              ii = i + nv * (j - 1)
@@ -1305,13 +1328,14 @@ contains
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine tnsr3d_nu4_cpu
 
   subroutine tnsr1_3d_cpu(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
 
     if (nu .eq. 4 .and. nv .eq. 2) then
        call tnsr1_3d_nu4nv2_cpu(v, A, Bt, Ct, nelv)
@@ -1324,7 +1348,7 @@ contains
   subroutine tnsr1_3d_nvnu_cpu(v, nv, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     integer :: e, e0, ee, es, iu, iv, nu3, nv3
     integer :: i, j, k, l, ii, jj, kk
@@ -1339,16 +1363,17 @@ contains
     es = 1
     ee = nelv
 
-    if (nv.gt.nu) then
+    if (nv .gt. nu) then
        e0 = nelv
        es = -1
        ee = 1
-    endif
+    end if
 
     nu3 = nu**3
     nv3 = nv**3
 
-    do e = e0,ee,es
+    !$omp parallel do private(e,iu,iv,i,j,k,l,ii,jj,kk,work,work2,tmp)
+    do e = e0, ee, es
        iu = (e-1)*nu3
        iv = (e-1)*nv3
 
@@ -1390,7 +1415,7 @@ contains
           end do
        end do
     end do
-
+    !$omp end parallel do
   end subroutine tnsr1_3d_nvnu_cpu
 
   subroutine tnsr1_3d_nu4nv2_cpu(v, A, Bt, Ct, nelv)
@@ -1403,13 +1428,14 @@ contains
     integer, parameter :: nvnvnv = 8
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv*nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(inout) :: A(nv, nu), Bt(nu, nv), Ct(nu, nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2)
     integer :: e, iu, iv
     integer :: i, j, k, l, ii, jj
     real(kind=rp) :: tmp
 
-    do e = 1,nelv
+    !$omp parallel do private(e,iu,iv,i,j,k,l,ii,jj, work, work2, tmp)
+    do e = 1, nelv
        iu = (e-1)*nununu
        iv = (e-1)*nvnvnv
 
@@ -1448,7 +1474,7 @@ contains
           end do
        end do
     end do
-
+    !$omp end parallel do
   end subroutine tnsr1_3d_nu4nv2_cpu
 
 end module tensor_cpu

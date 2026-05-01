@@ -68,12 +68,12 @@ contains
     fv => fields%get_by_index(2)
     fw => fields%get_by_index(3)
 
-    call neko_scratch_registry%request_field(tmp_rx, tmp_index(1))
-    call neko_scratch_registry%request_field(tmp_ry, tmp_index(2))
-    call neko_scratch_registry%request_field(tmp_rz, tmp_index(3))
-    call neko_scratch_registry%request_field(tmp_cx, tmp_index(4))
-    call neko_scratch_registry%request_field(tmp_cy, tmp_index(5))
-    call neko_scratch_registry%request_field(tmp_cz, tmp_index(6))
+    call neko_scratch_registry%request_field(tmp_rx, tmp_index(1), .false.)
+    call neko_scratch_registry%request_field(tmp_ry, tmp_index(2), .false.)
+    call neko_scratch_registry%request_field(tmp_rz, tmp_index(3), .false.)
+    call neko_scratch_registry%request_field(tmp_cx, tmp_index(4), .false.)
+    call neko_scratch_registry%request_field(tmp_cy, tmp_index(5), .false.)
+    call neko_scratch_registry%request_field(tmp_cz, tmp_index(6), .false.)
 
     ! displacement with respect to reference point
     call device_cadd2(tmp_rx%x_d, dof%x_d, -ref_point(1), n)

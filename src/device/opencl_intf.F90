@@ -416,7 +416,7 @@ contains
     integer :: i
 
     if (clGetPlatformIDs(1, c_loc(platform_id), &
-                         num_platforms) .ne. CL_SUCCESS) then
+         num_platforms) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a platform id')
     end if
 

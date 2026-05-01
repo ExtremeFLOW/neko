@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,16 +36,18 @@ module fluid_stats_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use time_state, only : time_state_t
   use field, only : field_t
-  use fluid_stats, only: fluid_stats_t
+  use fluid_stats, only : fluid_stats_t
   use fluid_stats_output, only : fluid_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use utils, only: NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
+       NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup_or_default
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
@@ -97,40 +99,44 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
-    character(len=20), allocatable :: fields(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: stat_set
+    character(len=:), allocatable :: name
     real(kind=rp) :: start_time
     type(field_t), pointer :: u, v, w, p
     type(coef_t), pointer :: coef
 
+    call json_get_or_default(json, "name", name, "fluid_stats")
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
-    call json_get_or_default(json, 'start_time', &
+    call json_get_or_lookup_or_default(json, 'start_time', &
          start_time, 0.0_rp)
     call json_get_or_default(json, 'set_of_stats', &
          stat_set, 'full')
 
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
-    p => neko_field_registry%get_field("p")
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
+    p => neko_registry%get_field("p")
     coef => case%fluid%c_Xh
+    this%name = name
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set,filename)
+       call fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
+            coef, start_time, hom_dir, stat_set, filename)
     else
-       call fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
-            start_time, hom_dir, stat_set)
+       call fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
+            coef, start_time, hom_dir, stat_set)
     end if
 
   end subroutine fluid_stats_simcomp_init_from_json
 
   !> Actual constructor.
+  !! @param name Unique name of the simcomp.
   !! @param u x-velocity
   !! @param v x-velocity
   !! @param w x-velocity
@@ -138,9 +144,11 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
-  subroutine fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
-       start_time, hom_dir, stat_set, fname)
+  !! @param fname name of the output file
+  subroutine fluid_stats_simcomp_init_from_components(this, name, u, v, w, p, &
+       coef, start_time, hom_dir, stat_set, fname)
     class(fluid_stats_simcomp_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
@@ -159,9 +167,9 @@ contains
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
 
+    call this%stats%init(coef, u, v, w, p, stat_set, name)
 
-    call this%stats%init(coef, u, v, w, p, stat_set)
-
+    this%name = name
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then
@@ -173,7 +181,7 @@ contains
     end if
 
     call this%stats_output%init(this%stats, this%start_time, &
-         hom_dir = hom_dir,name = stats_fname, &
+         hom_dir = hom_dir, name = stats_fname, &
          path = this%case%output_directory)
 
     call this%case%output_controller%add(this%stats_output, &
@@ -189,13 +197,14 @@ contains
     class(fluid_stats_simcomp_t), intent(inout) :: this
     call this%free_base()
     call this%stats%free()
+    call this%stats_output%free()
   end subroutine fluid_stats_simcomp_free
 
   subroutine fluid_stats_simcomp_restart(this, time)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
-    character(len=5) :: prefix,suffix
+    character(len=5) :: prefix, suffix
     integer :: last_slash_pos
     real(kind=rp) :: t
     t = time%t
@@ -203,7 +212,7 @@ contains
     if (this%default_fname) then
        fname = this%stats_output%file_%get_base_fname()
        write (prefix, '(I5)') this%stats_output%file_%get_counter()
-       call filename_suffix(fname,suffix)
+       call filename_suffix(fname, suffix)
        last_slash_pos = &
             filename_tslash_pos(fname)
        if (last_slash_pos .ne. 0) then
@@ -219,8 +228,7 @@ contains
   end subroutine fluid_stats_simcomp_restart
 
   !> fluid_stats, called depending on compute_control and compute_value
-  !! @param t The time value.
-  !! @param tstep The current time-step
+  !! @param time The current time info
   subroutine fluid_stats_simcomp_compute(this, time)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time

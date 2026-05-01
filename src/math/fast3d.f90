@@ -59,8 +59,8 @@
 !
 !> Fast diagonalization methods from NEKTON
 module fast3d
-  use num_types, only : rp
-  use speclib
+  use num_types, only : rp, xp
+  use speclib, only : zwgll, zwgl
   use math, only : rzero
   implicit none
   private
@@ -172,7 +172,7 @@ contains
     real(kind=rp), intent(inout) :: c(0:n,0:n)
     real(kind=rp), intent(inout) :: d(0:n,0:n)
     real(kind=rp), intent(inout) :: z(0:n)
-    real(kind=rp), intent(inout) :: dgll(0:n,1:n-1),jgll(0:n,1:n-1)
+    real(kind=rp), intent(inout) :: dgll(0:n,1:n-1), jgll(0:n,1:n-1)
     real(kind=rp), intent(inout) :: bgl(1:n-1)
     real(kind=rp), intent(inout) :: zgl(1:n-1)
     real(kind=rp), intent(inout) :: dgl(1:n-1,0:n)
@@ -190,11 +190,11 @@ contains
        end do
     end do
 
-    if (n.eq.1) return !  No interpolation for n=1
+    if (n .eq. 1) return ! No interpolation for n = 1
 
     do i = 0,n
        call fd_weights_full(z(i), z(1), n2, 1, w(1))
-       do j = 1,nm
+       do j = 1, nm
           jgll(i,j) = w(j) ! Interpolation matrix
           dgll(i,j) = w(j + nm) ! Derivative matrix
        end do

@@ -54,10 +54,10 @@ EXTRA_DIST = \
 	examples/lid/lid2d.nmsh\
 	examples/lid/lid.nmsh\
 	examples/lid/README.md\
-	examples/lid/lid2d.box\
 	examples/lid/lid2d.case\
 	examples/lid/lid.case\
-	examples/lid/lid.box\
+	examples/lid/elem_dist.csv\
+	examples/lid/plot_stat.py\
 	examples/poisson/ax_poisson.f90\
 	examples/poisson/setup.f90\
 	examples/poisson/Makefile\
@@ -128,10 +128,22 @@ EXTRA_DIST = \
 	tests/integration/tests/test_examples/test_examples.py\
 	tests/integration/tests/test_cylinder/test_cylinder.py\
 	tests/integration/tests/test_cylinder/cylinder_part1.case\
-	tests/integration/tests/test_cylinder/reflog1_dp.csv\
-	tests/integration/tests/test_cylinder/reflog1_sp.csv\
-	tests/integration/tests/test_cylinder/reflog2_dp.csv\
-	tests/integration/tests/test_cylinder/reflog2_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cpu_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cpu_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cpu_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cpu_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cuda_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_cuda_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cuda_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_cuda_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_hip_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_hip_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_hip_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_hip_sp.csv\
+	tests/integration/tests/test_cylinder/reflog1_opencl_dp.csv\
+	tests/integration/tests/test_cylinder/reflog1_opencl_sp.csv\
+	tests/integration/tests/test_cylinder/reflog2_opencl_dp.csv\
+	tests/integration/tests/test_cylinder/reflog2_opencl_sp.csv\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 
@@ -141,4 +153,14 @@ lint:
 
 check-local: lint
 
+endif
+
+if ENABLE_PFUNIT
+.PHONY: refresh-unit-test-makefiles
+refresh-unit-test-makefiles:
+	$(MAKE) -C tests/unit refresh-unit-test-makefiles-local
+else
+.PHONY: refresh-unit-test-makefiles
+refresh-unit-test-makefiles:
+	@echo "pFUnit support is disabled: no unit-test Makefiles to refresh."
 endif

@@ -39,8 +39,8 @@ module spalding
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
-  use field_registry, only : neko_field_registry
-  use json_utils, only : json_get_or_default
+  use registry, only : neko_registry
+  use json_utils, only : json_get_or_default, json_get_or_lookup
   use spalding_cpu, only : spalding_compute_cpu
   use spalding_device, only : spalding_compute_device
   use field_math, only: field_invcol3
@@ -48,6 +48,7 @@ module spalding
   use math, only: masked_gather_copy_0
   use device_math, only: device_masked_gather_copy_0
   use scratch_registry, only : neko_scratch_registry
+  use logger, only : LOG_SIZE, neko_log
 
   implicit none
   private
@@ -61,6 +62,8 @@ module spalding
      real(kind=rp) :: B = 5.2_rp
      !> The kinematic viscosity.
      type(vector_t) :: nu
+     ! The fluid density at the boundary
+     type(vector_t) :: rho_w
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => spalding_init
@@ -98,8 +101,8 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B
 
-    call json_get_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get_or_default(json, "B", B, 5.2_rp)
+    call json_get_or_lookup(json, "kappa", kappa)
+    call json_get_or_lookup(json, "B", B)
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, B)
@@ -112,10 +115,20 @@ contains
     class(spalding_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
+    character(len=LOG_SIZE) :: log_buf
 
     call this%partial_init_base(coef, json)
-    call json_get_or_default(json, "kappa", this%kappa, 0.41_rp)
-    call json_get_or_default(json, "B", this%B, 5.2_rp)
+    call json_get_or_lookup(json, "kappa", this%kappa)
+    call json_get_or_lookup(json, "B", this%B)
+
+    call neko_log%section('Wall model')
+    write(log_buf, '(A)') 'Model : Spalding'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'B : ', this%B
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
   end subroutine spalding_partial_init
 
@@ -129,6 +142,7 @@ contains
 
     call this%finalize_base(msk, facet)
     call this%nu%init(this%n_nodes)
+    call this%rho_w%init(this%n_nodes)
   end subroutine spalding_finalize
 
   !> Constructor from components.
@@ -157,6 +171,7 @@ contains
     this%B = B
 
     call this%nu%init(this%n_nodes)
+    call this%rho_w%init(this%n_nodes)
   end subroutine spalding_init_from_components
 
   !> Compute the kinematic viscosity vector.
@@ -165,15 +180,19 @@ contains
     type(field_t), pointer :: temp
     integer :: idx
 
-    call neko_scratch_registry%request_field(temp, idx)
+    call neko_scratch_registry%request_field(temp, idx, .false.)
     call field_invcol3(temp, this%mu, this%rho)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_masked_gather_copy_0(this%nu%x_d, temp%x_d, this%msk_d, &
             temp%size(), this%nu%size())
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+            this%rho%size(), this%rho_w%size())
     else
        call masked_gather_copy_0(this%nu%x, temp%x, this%msk, temp%size(), &
             this%nu%size())
+       call masked_gather_copy_0(this%rho_w%x, this%rho%x, this%msk, &
+            this%rho%size(), this%rho_w%size())
     end if
 
     call neko_scratch_registry%relinquish_field(idx)
@@ -183,6 +202,7 @@ contains
   subroutine spalding_free(this)
     class(spalding_t), intent(inout) :: this
 
+    call this%rho_w%free()
     call this%free_base()
 
   end subroutine spalding_free
@@ -202,15 +222,15 @@ contains
 
     call this%compute_nu()
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call spalding_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
             this%ind_s_d, this%ind_t_d, this%ind_e_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-            this%nu%x_d, this%h%x_d, &
+            this%nu%x_d, this%rho_w%x_d, this%h%x_d, &
             this%tau_x%x_d, this%tau_y%x_d, this%tau_z%x_d, &
             this%n_nodes, u%Xh%lx, &
             this%kappa, this%B, tstep)
@@ -218,7 +238,7 @@ contains
        call spalding_compute_cpu(u%x, v%x, w%x, &
             this%ind_r, this%ind_s, this%ind_t, this%ind_e, &
             this%n_x%x, this%n_y%x, this%n_z%x, &
-            this%nu%x, this%h%x, &
+            this%nu%x, this%rho_w%x, this%h%x, &
             this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, &
             this%kappa, this%B, tstep)

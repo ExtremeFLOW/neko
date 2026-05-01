@@ -33,13 +33,13 @@
 !
 !> Implements the `scalar_source_term_t` type.
 module scalar_source_term
-  use user_source_term, only: user_source_term_t
-  use source_term, only: source_term_t
-  use source_term_handler, only: source_term_handler_t
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use coefs, only: coef_t
-  use user_intf, only: user_t
+  use user_source_term, only : user_source_term_t
+  use source_term, only : source_term_t
+  use source_term_handler, only : source_term_handler_t
+  use field, only : field_t
+  use field_list, only : field_list_t
+  use coefs, only : coef_t
+  use user_intf, only : user_t
   implicit none
   private
 

@@ -1,3 +1,5 @@
+module test_ext
+contains
 @test
 subroutine test_ext_constant_dt()
   use pfunit
@@ -77,3 +79,5 @@ subroutine test_ext_modified()
   @assertRelativelyEqual(coeffs(3), 2.0_rp/3.0_rp, tolerance=1e-3_rp)
 
 end subroutine test_ext_modified
+
+end module test_ext

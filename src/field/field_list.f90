@@ -1,5 +1,5 @@
 module field_list
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use field, only : field_ptr_t, field_t
   use iso_c_binding, only : c_ptr
   use num_types, only : rp
@@ -27,10 +27,13 @@ module field_list
      !> Get an item pointer by field name
      procedure, pass(this) :: get_by_name => field_list_get_by_name
      !> Point item at given index.
-     generic :: assign => assign_to_ptr, assign_to_field_ptr
+     generic :: assign => assign_to_ptr, assign_to_field_ptr, &
+          assign_to_list
      procedure, pass(this) :: assign_to_ptr => field_list_assign_to_ptr
-     procedure, pass(this) :: assign_to_field_ptr => field_list_assign_to_field_ptr
+     procedure, pass(this) :: assign_to_field_ptr => &
+          field_list_assign_to_field_ptr
      procedure, pass(this) :: assign_to_field => field_list_assign_to_field
+     procedure, pass(this) :: assign_to_list => field_list_assign_to_field_list
 
      !> Get device pointer for a given index.
      procedure, pass(this) :: x_d => field_list_x_d
@@ -50,6 +53,8 @@ module field_list
      procedure, pass(this) :: internal_dofmap => field_list_internal_dofmap
      !> Get the name for an item in the list.
      procedure, pass(this) :: name => field_list_name
+     !> Copy all fields to or from the design.
+     procedure, pass(this) :: copy_from => field_list_copy_from
   end type field_list_t
 
 contains
@@ -60,15 +65,21 @@ contains
     integer, intent(in) :: size
 
     call this%free()
-
     allocate(this%items(size))
+
   end subroutine field_list_init
 
   !> Get number of items in the list.
   pure function field_list_size(this) result(n)
     class(field_list_t), intent(in) :: this
     integer :: n
-    n = size(this%items)
+
+    if (allocated(this%items)) then
+       n = size(this%items)
+    else
+       n = 0
+    end if
+
   end function field_list_size
 
   !> Get an item pointer by array index
@@ -90,7 +101,7 @@ contains
 
     nullify(f)
 
-    do i=1, this%size()
+    do i = 1, this%size()
        if (this%name(i) .eq. trim(name)) then
           f => this%items(i)%ptr
           return
@@ -100,7 +111,7 @@ contains
     if (pe_rank .eq. 0) then
        write(error_unit,*) "Current field list contents:"
 
-       do i=1, this%size()
+       do i = 1, this%size()
           write(error_unit,*) "- ", this%name(i)
        end do
     end if
@@ -116,12 +127,18 @@ contains
     type(field_ptr_t), allocatable :: tmp(:)
     integer :: len
 
+    if (.not. allocated(this%items)) then
+       allocate(this%items(1))
+       call this%items(1)%init(f)
+       return
+    end if
+
     len = size(this%items)
 
     allocate(tmp(len+1))
     tmp(1:len) = this%items
     call move_alloc(tmp, this%items)
-    this%items(len+1)%ptr => f
+    call this%items(len+1)%init(f)
 
   end subroutine field_list_append
 
@@ -132,11 +149,8 @@ contains
 
     if (allocated(this%items)) then
        n_fields = this%size()
-       do i=1, n_fields
-          if (associated(this%items(i)%ptr)) then
-             call this%items(i)%ptr%free()
-          end if
-          nullify(this%items(i)%ptr)
+       do i = 1, n_fields
+          call this%items(i)%free()
        end do
        deallocate(this%items)
     end if
@@ -155,7 +169,7 @@ contains
 
   function field_list_x(this, i) result(x)
     class(field_list_t), target, intent(in) :: this
-    real(kind=rp), pointer :: x(:,:,:,:)
+    real(kind=rp), pointer, contiguous :: x(:,:,:,:)
     integer, intent(in) :: i
     x => this%items(i)%ptr%x
   end function field_list_x
@@ -179,7 +193,8 @@ contains
     integer, intent(in) :: i
     type(field_t), pointer, intent(in) :: ptr
 
-    this%items(i)%ptr => ptr
+    call this%items(i)%init(ptr)
+
   end subroutine field_list_assign_to_ptr
 
   !> Point item at a given index.
@@ -190,7 +205,7 @@ contains
     integer, intent(in) :: i
     type(field_ptr_t), target, intent(in) :: ptr
 
-    this%items(i)%ptr => ptr%ptr
+    call this%items(i)%init(ptr%ptr)
   end subroutine field_list_assign_to_field_ptr
 
   !> Point item at a given index.
@@ -201,8 +216,23 @@ contains
     integer, intent(in) :: i
     type(field_t), target, intent(in) :: fld
 
-    this%items(i)%ptr => fld
+    call this%items(i)%init(fld)
   end subroutine field_list_assign_to_field
+
+  !> Point item at a given index.
+  !! @param i The index of the item.
+  !! @param field A field to point the item to.
+  subroutine field_list_assign_to_field_list(this, other)
+    class(field_list_t), intent(inout) :: this
+    type(field_list_t), intent(in) :: other
+    integer :: i
+
+    call this%free()
+    call this%init(other%size())
+    do i = 1, other%size()
+       call this%assign(i, other%items(i)%ptr)
+    end do
+  end subroutine field_list_assign_to_field_list
 
   !> Get the the dofmap for item `i`.
   !! @param i The index of the item.
@@ -254,5 +284,25 @@ contains
     result = this%items(i)%ptr%name
   end function field_list_name
 
+  !> Copy all fields to or from device.
+  !! @details Call the memory copy for each field in the list. If `sync` is
+  !! true, synchronize on the last copy.
+  !! @param memdir The direction of the copy.
+  !! @param sync Whether to synchronize after the copy.
+  subroutine field_list_copy_from(this, memdir, sync)
+    class(field_list_t), intent(inout) :: this
+    integer, intent(in) :: memdir
+    logical, intent(in) :: sync
+    integer :: i, n
+
+    n = this%size()
+    if (n .eq. 0) return
+
+    do i = 1, n - 1
+       call this%items(i)%ptr%copy_from(memdir, .false.)
+    end do
+    call this%items(n)%ptr%copy_from(memdir, sync)
+
+  end subroutine field_list_copy_from
 
 end module field_list

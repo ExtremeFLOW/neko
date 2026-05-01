@@ -31,11 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module generic_file
-  use num_types, only: rp
-  use utils, only: neko_warning, neko_error, &
+  use num_types, only : rp
+  use utils, only : neko_warning, neko_error, &
        filename_suffix_pos, filename_suffix
-  use comm, only: pe_rank, NEKO_COMM
-  use mpi_f08, only: MPI_Bcast, MPI_LOGICAL
+  use comm, only : pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_Bcast, MPI_LOGICAL
   implicit none
 
   !> A generic file handler.

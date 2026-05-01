@@ -26,14 +26,19 @@ SUBDIRS = tuple\
 	  octree\
 	  vector\
 	  matrix\
+	  case_file_utils\
+	  registry\
 	  scratch_registry\
-	  field_registry\
 	  fast3d\
 	  time_scheme\
 	  time_scheme_controller\
-		runge_kutta_scheme\
+	  runge_kutta_scheme\
 	  time_based_controller\
-	  point_interpolation
+	  json_utils\
+	  point_interpolation\
+	  templates/parallel\
+	  boundary_operation\
+	  templates/serial
 
 TESTS = device/device_test\
 	tuple/tuple_test\
@@ -63,58 +68,63 @@ TESTS = device/device_test\
 	octree/octree_test\
 	vector/vector_test\
 	matrix/matrix_test\
+	case_file_utils/case_file_utils_test\
+	registry/registry_test\
 	scratch_registry/scratch_registry_test\
-	field_registry/field_registry_test\
 	fast3d/fast3d_test\
 	time_scheme/time_scheme_test\
 	time_scheme_controller/time_scheme_controller_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
 	time_based_controller/time_based_controller_test\
-	point_interpolation/point_interpolation_test
+	json_utils/json_utils_test\
+	point_interpolation/point_interpolation_test\
+	templates/parallel/parallel_test\
+	boundary_operation/boundary_operation_test\
+	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
 EXTRA_DIST = \
-	mesh/mesh_parallel.pf\
-	quad/quad.pf\
-	gather_scatter/gather_scatter_parallel.pf\
-	krylov/krylov.pf\
-	hex/hex.pf\
-	tet/tet.pf\
-	tri/tri.pf\
-	bc/bc.pf\
-	tuple/tuple.pf\
-	point/point.pf\
-	signal/signal.pf\
-	space/space.pf\
-	jobctrl/jobctrl_parallel.pf\
-	dofmap/dofmap_parallel.pf\
-	field/field_parallel.pf\
-	global_interpolation/glob_interp_par.pf\
-	mean_field/mean_field_parallel.pf\
-	device/device.pf\
-	uset/uset_i4.pf\
-	uset/uset_r8.pf\
-	uset/uset_i8.pf\
-	math/math_parallel.pf\
-	stack/stack_r8.pf\
-	stack/stack_i4t4.pf\
-	stack/stack_i4.pf\
-	stack/stack_i4t2.pf\
-	stack/stack_i4r8t2.pf\
-	stack/stack_2i4r8t3.pf\
-	stack/stack_i8.pf\
-	stack/stack_nq.pf\
-	stack/stack_nh.pf\
-	stack/stack_pt.pf\
-	htable/htable_i4t2.pf\
-	htable/htable_i8.pf\
-	htable/htable_pt.pf\
-	htable/htable_r8.pf\
-	htable/htable_i4.pf\
-	htable/htable_i4t4.pf\
-	mathops/mathops.pf\
-	device_mathops/device_mathops.pf\
-	device_math/device_math_parallel.pf\
+	mesh/test_mesh_parallel.pf\
+	quad/test_quad.pf\
+	gather_scatter/test_gather_scatter_parallel.pf\
+	krylov/test_krylov.pf\
+	hex/test_hex.pf\
+	tet/test_tet.pf\
+	tri/test_tri.pf\
+	bc/test_bc.pf\
+	tuple/test_tuple.pf\
+	point/test_point.pf\
+	signal/test_signal.pf\
+	space/test_space_test.pf\
+	jobctrl/test_jobctrl_parallel.pf\
+	dofmap/test_dofmap_parallel.pf\
+	field/test_field_parallel.pf\
+	global_interpolation/test_glob_interp_par.pf\
+	mean_field/test_mean_field_parallel.pf\
+	device/test_device.pf\
+	uset/test_uset_i4.pf\
+	uset/test_uset_r8.pf\
+	uset/test_uset_i8.pf\
+	math/test_math_parallel.pf\
+	stack/test_stack_r8.pf\
+	stack/test_stack_i4t4.pf\
+	stack/test_stack_i4.pf\
+	stack/test_stack_i4t2.pf\
+	stack/test_stack_i4r8t2.pf\
+	stack/test_stack_2i4r8t3.pf\
+	stack/test_stack_i8.pf\
+	stack/test_stack_nq.pf\
+	stack/test_stack_nh.pf\
+	stack/test_stack_pt.pf\
+	htable/test_htable_i4t2.pf\
+	htable/test_htable_i8.pf\
+	htable/test_htable_pt.pf\
+	htable/test_htable_r8.pf\
+	htable/test_htable_i4.pf\
+	htable/test_htable_i4t4.pf\
+	mathops/test_mathops.pf\
+	device_mathops/test_device_mathops.pf\
+	device_math/test_device_math_parallel.pf\
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
@@ -124,11 +134,18 @@ EXTRA_DIST = \
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	device_math/device_math_test\
-	octree/octree.pf\
-	vector/vector_parallel.pf\
-	matrix/matrix_parallel.pf\
+	octree/test_octree.pf\
+	vector/test_vector_parallel.pf\
+	matrix/test_matrix_parallel.pf\
+	case_file_utils/test_case_file_utils.pf\
+	registry/test_registry.pf\
+	registry/test_field_registry.pf\
+	registry/test_vector_registry.pf\
+	registry/test_matrix_registry.pf\
 	scratch_registry/test_scratch_registry.pf\
-	field_registry/test_field_registry.pf\
+	scratch_registry/test_field_scratch_registry.pf\
+	scratch_registry/test_vector_scratch_registry.pf\
+	scratch_registry/test_matrix_scratch_registry.pf\
 	fast3d/test_fd_weights_full.pf\
 	fast3d/test_setup_intp.pf\
 	time_scheme/test_bdf.pf\
@@ -136,6 +153,23 @@ EXTRA_DIST = \
 	time_scheme/test_ab.pf\
 	time_scheme_controller/test_time_scheme_controller.pf\
 	runge_kutta_scheme/test_runge_kutta_scheme.pf\
+	json_utils/test_json_utils.pf\
 	time_based_controller/test_time_based_controller.pf\
-	point_interpolation/point_interpolation_parallel.pf\
-	point_interpolation/point_interpolation_test
+	point_interpolation/test_point_interpolation_parallel.pf\
+	point_interpolation/point_interpolation_test\
+	boundary_operation/test_boundary_operation.pf\
+	templates/parallel/test_parallel.pf\
+	templates/parallel/parallel_test\
+	templates/serial/test_serial.pf
+
+if ENABLE_HDF5
+SUBDIRS += vtkhdf
+TESTS += vtkhdf/vtkhdf_test
+EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf
+endif
+
+UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)
+
+.PHONY: refresh-unit-test-makefiles-local
+refresh-unit-test-makefiles-local:
+	cd $(top_builddir) && $(SHELL) ./config.status $(addprefix $(subdir)/,$(UNIT_TEST_MAKEFILES))

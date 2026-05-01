@@ -57,13 +57,20 @@ the user would first need to run a simulation with the standard provided files u
 state is reached. Thereafter, the `insitu` files can be executed.
 
 The files related to insitu execution are:
-- `insitu_turb_pipe.f90` is a new user file that includes the data streaming in the user module.
-- `turb_pipe.case` includes a parameter `istream` that controls the data-stream frequency.
+- `insitu_turb_pipe_source.case` includes the `data_streamer` simulation 
+  component that takes care of streaming the velocity fields.
 - `insitu_task.py` is the python script that performs the insitu POD.
 
-There are some dependecies for this to work:
-- Neko must be installed with `Adios2` support such that data can be transferred to python.
+There are some dependencies for this to work:
+- Neko must be installed with `Adios2` support (`--with-adios2=DIR`) such 
+  that data can be transferred to python.
+  @note pySEMTools provides installation wrappers for `adios2` and `mpi4py` 
+  as third party libraries. 
 - PySEMTools must be installed, as the python script relies heavily on it.
+- `numpy`, `matplotlib`
+
+Every time the POD is updated, the singular values are plotted and dumped
+to `singular_values.png`.
 
 ### Executing neko in mpmd
 The insitu run can be performed by executing neko and python in multiple program multiple data (mpmd) mode.

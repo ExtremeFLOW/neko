@@ -83,4 +83,85 @@ __global__ void compute_entropy_kernel(T * __restrict__ S,
 
 }
 
+/**
+ * Device kernel for update u,v,w
+ */
+template< typename T>
+__global__ void update_uvw_kernel(T* __restrict__ u,
+                                  T* __restrict__ v,
+                                  T* __restrict__ w,
+                                  const T* __restrict__ m_x,
+                                  const T* __restrict__ m_y,
+                                  const T* __restrict__ m_z,
+                                  const T* __restrict__ rho,
+                                  const int n) {
+
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    u[i] = m_x[i] / rho[i];
+    v[i] = m_y[i] / rho[i];
+    w[i] = m_z[i] / rho[i];
+  }
+
+}
+
+
+/**
+ * Device kernel for update m_x, m_y, m_z, ruvw
+ */
+template< typename T>
+__global__ void update_mxyz_p_ruvw_kernel(T* __restrict__ m_x,
+                                          T* __restrict__ m_y,
+                                          T* __restrict__ m_z,
+                                          T* __restrict__ p,
+                                          T* __restrict__ ruvw,
+                                          const T* __restrict__ u,
+                                          const T* __restrict__ v,
+                                          const T* __restrict__ w,
+                                          const T* __restrict__ E,
+                                          const T* __restrict__ rho,
+                                          const T gamma,
+                                          const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    m_x[i] = u[i] * rho[i];
+    m_y[i] = v[i] * rho[i];
+    m_z[i] = w[i] * rho[i];
+
+    /* Update p = (gamma - 1) * (E - 0.5 * rho * (u^2 + v^2 + w^2)) */
+    const real tmp = 0.5 * rho[i] * (u[i]*u[i] + v[i]*v[i] + w[i]*w[i]);
+    p[i] = (gamma - 1.0) * (E[i] - tmp);
+    ruvw[i] = tmp;
+  }
+}
+
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
+/**
+ * Device kernel for update E
+ */
+template< typename T>
+__global__ void update_e_kernel(T* __restrict__ E,
+                                T* __restrict__ p,
+                                const T* __restrict__ ruvw,
+                                const T gamma,
+                                const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  
+  for (int i = idx; i < n; i += str) {
+    /* Ensure pressure is positive */
+    p[i] = MAX(p[i], 1e-12);
+    /* E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2) */
+    E[i] = p[i] * (1.0 / (gamma - 1.0)) + ruvw[i];
+  }
+}
+
 #endif // __FLUID_COMPRESSIBLE_OPS_KERNEL_H__

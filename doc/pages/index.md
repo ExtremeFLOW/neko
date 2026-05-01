@@ -19,6 +19,8 @@ information that is not directly related to the usage of the code.
 - \subpage user-guide
   - [Installation](@ref installation) explains how to download and compile Neko
     on your platform.
+  - [Meshing](@ref meshing) discusses the requirements on the mesh and how to
+    generate one for Neko.
   - [Case File](@ref case-file) discusses the various parameters and options 
     for your case setup such as boundary conditions, output control, etc.
   - [User File](@ref user-file) explains all the user functions and how they can
@@ -34,6 +36,14 @@ information that is not directly related to the usage of the code.
     using the Neko framework.
   - [Extending Neko](@ref extending) explains how to extend Neko with additional
     types to provide new capabilities.
+  - [Neko API](@ref api) explains how to use the C-based API of Neko.
+  - [Performance guidelines](@ref performance) Best practices guideline
+    on how to achieve good performance with Neko
+  - [Global interpolation](@ref global-interpolation) Gives an overview of 
+    interpolation/point searching capabilities in Neko and how to use them.
+  - [Filters](@ref filter) Explains how to use PDE and element-wise filtering 
+    tools.
+  - [Programming examples](@ref programming-examples) Demonstrates various aspects of programming with Neko.
 - \subpage developer-guide
   - [Contributing](@ref contributing) presents basic instructions to add
     your contributions to Neko.

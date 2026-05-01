@@ -1,4 +1,4 @@
-! Copyright (c) 2023-2024, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,20 +39,29 @@ submodule (source_term) source_term_fctry
   use brinkman_source_term, only : brinkman_source_term_t
   use centrifugal_source_term, only : centrifugal_source_term_t
   use idw_source_term, only : idw_source_term_t
+  use translation_source_term, only : translation_source_term_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
+  use sponge_source_term, only : sponge_source_term_t
+  use field_source_term, only : field_source_term_t
+  use hpfrt_source_term, only : hpfrt_source_term_t
   use json_utils, only : json_get
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SOURCE_KNOWN_TYPES(7) = [character(len=20) :: &
+  character(len=25) :: SOURCE_KNOWN_TYPES(11) = [character(len=25) :: &
        "constant", &
        "boussinesq", &
        "coriolis", &
        "centrifugal", &
        "gradient_jump_penalty", &
        "brinkman", &
-       "idw"]
+       "sponge", &
+       "field", &
+       "hpfrt", &
+       "translation", &
+       "idw" &
+       ]
 
 contains
 
@@ -88,6 +97,11 @@ contains
     character(len=:), allocatable, intent(in) :: type_name
     integer :: i
 
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
+
     select case (trim(type_name))
     case ("constant")
        allocate(const_source_term_t::object)
@@ -99,10 +113,18 @@ contains
        allocate(centrifugal_source_term_t::object)
     case ("brinkman")
        allocate(brinkman_source_term_t::object)
+    case ("sponge")
+       allocate(sponge_source_term_t::object)
     case ("gradient_jump_penalty")
        allocate(gradient_jump_penalty_t::object)
+    case ("translation")
+       allocate(translation_source_term_t::object)
+    case ("field")
+       allocate(field_source_term_t::object)
+    case ("hpfrt")
+       allocate(hpfrt_source_term_t::object)
     case ("idw")
-       allocate(idw_source_term_t::object)
+       allocate(idw_source_term_t::object)       
     case default
        do i = 1, source_term_registry_size
           if (trim(type_name) .eq. trim(source_term_registry(i)%type_name)) then

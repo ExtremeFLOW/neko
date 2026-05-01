@@ -35,7 +35,7 @@ module const_source_term
   use num_types, only : rp
   use field_list, only : field_list_t
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get_or_default, json_get_or_lookup
   use source_term, only : source_term_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -80,7 +80,7 @@ contains
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time
 
-    call json_get(json, "values", values)
+    call json_get_or_lookup(json, "values", values)
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
@@ -120,6 +120,10 @@ contains
     class(const_source_term_t), intent(inout) :: this
 
     call this%free_base()
+
+    if (allocated(this%values)) then
+       deallocate(this%values)
+    end if
   end subroutine const_source_term_free
 
   !> Computes the source term and adds the result to `fields`.

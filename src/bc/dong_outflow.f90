@@ -32,9 +32,9 @@
 !
 !> Defines a dong outflow condition
 module dong_outflow
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use dirichlet, only : dirichlet_t
-  use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE
+  use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE, device_free
   use num_types, only : rp, c_rp
   use bc, only : bc_t
   use field, only : field_t
@@ -42,8 +42,9 @@ module dong_outflow
   use coefs, only : coef_t
   use utils, only : nonlinear_index
   use device_dong_outflow, only : device_dong_outflow_apply_scalar
-  use field_registry, only : neko_field_registry
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof, c_null_ptr
+  use registry, only : neko_registry
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof, c_null_ptr, &
+       c_associated
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use utils, only : neko_error
@@ -115,6 +116,7 @@ contains
     !Im actually not sure what to do if one has two dong that share a corner.
     if (strong_) then
        m = this%msk(0)
+       !$omp parallel do private(k, facet, ux, uy, uz, idx, normal_xyz, vn, S0)
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
@@ -129,6 +131,7 @@ contains
 
           x(k) = -0.5*(ux*ux+uy*uy+uz*uz)*S0
        end do
+       !$omp end parallel do
     end if
   end subroutine dong_outflow_apply_scalar
 
@@ -193,6 +196,24 @@ contains
     class(dong_outflow_t), target, intent(inout) :: this
 
     call this%free_base
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+
+    if (c_associated(this%normal_x_d)) then
+       call device_free(this%normal_x_d)
+       this%normal_x_d = c_null_ptr
+    end if
+
+    if (c_associated(this%normal_y_d)) then
+       call device_free(this%normal_y_d)
+       this%normal_y_d = c_null_ptr
+    end if
+
+    if (c_associated(this%normal_z_d)) then
+       call device_free(this%normal_z_d)
+       this%normal_z_d = c_null_ptr
+    end if
 
   end subroutine dong_outflow_free
 
@@ -208,16 +229,16 @@ contains
     real(kind=rp) :: normal_xyz(3)
 
     if (present(only_facets)) then
-       if (only_facets .eqv. .false.) then
+       if (.not. only_facets) then
           call neko_error("For dong_outflow_t, only_facets has to be true.")
        end if
     end if
 
     call this%finalize_base(.true.)
 
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
+    this%w => neko_registry%get_field("w")
     if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
        call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%msk(0))
        call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%msk(0))
@@ -226,6 +247,7 @@ contains
        allocate(temp_x(m))
        allocate(temp_y(m))
        allocate(temp_z(m))
+       !$omp parallel do private(k, facet, idx, normal_xyz)
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
@@ -236,6 +258,7 @@ contains
           temp_y(i) = normal_xyz(2)
           temp_z(i) = normal_xyz(3)
        end do
+       !$omp end parallel do
        call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE, &
             sync = .false.)
        call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE, &

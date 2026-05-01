@@ -39,6 +39,7 @@ module glb_intrp_comm
   use, intrinsic :: iso_c_binding
   use mpi_f08, only : MPI_Test, MPI_STATUS_IGNORE, MPI_Status, &
        MPI_Request, MPI_Isend, MPI_IRecv, MPI_Comm
+  !$ use omp_lib
   implicit none
   private
 
@@ -239,7 +240,6 @@ contains
     integer, intent(in) :: n_send, n_recv
     real(kind=rp), dimension(n_send), intent(inout) :: send
     real(kind=rp), dimension(n_recv), intent(inout) :: recv
-    type(c_ptr) :: null_ptr = c_null_ptr
     integer :: i, j, ierr, src, dst, thrdid
     integer, pointer :: sp(:)
     integer :: nreqs
@@ -332,8 +332,7 @@ contains
   !> Wait for non-blocking operations
   subroutine glb_intrp_comm_nbwait_no_op(this)
     class(glb_intrp_comm_t), intent(inout) :: this
-    integer :: i, j, src, ierr
-    integer , pointer :: sp(:)
+    integer :: i, ierr
     integer :: nreqs
 
     nreqs = size(this%recv_pe)

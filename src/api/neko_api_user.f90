@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,11 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Neko API user callbacks
-submodule(neko_api) neko_api_user
+module neko_api_user
+  use neko
+  use, intrinsic :: iso_c_binding
   implicit none
+  private
 
   !> Abstract interface for initial condition callbacks
   abstract interface
@@ -93,11 +96,19 @@ submodule(neko_api) neko_api_user
      procedure(api_ft_callback), nopass, pointer :: source
   end type api_user_cb
 
+  interface neko_api_user_cb_get_field
+     module procedure neko_api_user_cb_get_field_by_name, &
+          neko_api_user_cb_get_field_by_index
+  end interface neko_api_user_cb_get_field
+
   !> Registered callbacks in the API
   type(api_user_cb), allocatable :: neko_api_user_cb
 
   !> Pointer to an active field_list_t in a callback
   type(field_list_t), pointer :: neko_api_cb_field_list => null()
+
+
+  public :: neko_api_user_cb_get_field, neko_api_user_cb_register
 
 contains
 
@@ -109,7 +120,7 @@ contains
   !! @param dirichlet_cb User boundary condition callback
   !! @param material_cb Material properties callback
   !! @param source_cb Source term callback
-  module subroutine neko_api_user_cb_register(user, initial_cb, preprocess_cb, &
+  subroutine neko_api_user_cb_register(user, initial_cb, preprocess_cb, &
        compute_cb, dirichlet_cb, material_cb, source_cb)
     type(user_t), intent(inout) :: user
     type(c_funptr), value :: initial_cb, preprocess_cb, compute_cb
@@ -301,7 +312,7 @@ contains
 
   !> Retrive a pointer to a field for the currently active callback
   !! @param field_name Field list entry
-  module function neko_api_user_cb_get_field_by_name(field_name) result(f)
+  function neko_api_user_cb_get_field_by_name(field_name) result(f)
     character(len=*), intent(in) :: field_name
     type(field_t), pointer :: f
 
@@ -315,7 +326,7 @@ contains
 
   !> Retrive a pointer to a field for the currently active callback
   !! @param field_idx Field index in the field list
-  module function neko_api_user_cb_get_field_by_index(field_idx) result(f)
+  function neko_api_user_cb_get_field_by_index(field_idx) result(f)
     integer, intent(in) :: field_idx
     type(field_t), pointer :: f
 
@@ -327,4 +338,4 @@ contains
 
   end function neko_api_user_cb_get_field_by_index
 
-end submodule neko_api_user
+end module neko_api_user

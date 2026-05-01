@@ -33,11 +33,12 @@
 !> Utilities
 !! @details Various utility functions
 module utils
-  use, intrinsic :: iso_fortran_env, only: error_unit, output_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
   implicit none
   private
 
   integer, parameter :: NEKO_FNAME_LEN = 1024
+  integer, parameter :: NEKO_VARNAME_LEN = 256
 
   interface neko_error
      module procedure neko_error_plain, neko_error_msg
@@ -45,10 +46,10 @@ module utils
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_path, filename_name, filename_suffix, &
-       filename_suffix_pos, filename_tslash_pos, &
+       filename_suffix_pos, filename_tslash_pos, filename_split, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
-       neko_type_registration_error
+       neko_type_registration_error, NEKO_VARNAME_LEN
 
 
 contains
@@ -299,7 +300,7 @@ contains
   !! @param error_msg The error message to report.
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
-    write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
+    write(error_unit, *) '*** ERROR: ', trim(error_msg), ' ***'
     error stop
   end subroutine neko_error_msg
 
@@ -326,7 +327,7 @@ contains
 
   subroutine neko_type_registration_error(base_type, wrong_type, known)
     character(len=*), intent(in) :: base_type
-    character(len=*),intent(in) :: wrong_type
+    character(len=*), intent(in) :: wrong_type
     logical, intent(in) :: known
 
     write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
@@ -344,7 +345,7 @@ contains
   !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)
     character(len=*) :: warning_msg
-    write(output_unit, *) '*** WARNING: ', warning_msg, ' ***'
+    write(output_unit, *) '*** WARNING: ', trim(warning_msg), ' ***'
   end subroutine neko_warning
 
   !> Concatenate an array of strings into one string with array items
@@ -364,7 +365,7 @@ contains
        result = result // sep // trim(array(i))
     end do
 
-    if (prepend .eqv. .true.) then
+    if (prepend) then
        result = sep // result
     end if
 

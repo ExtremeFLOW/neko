@@ -28,7 +28,7 @@ jobs:
     - name: Doxygen
       run: |
         ./regen.sh
-        ./configure FC=${FC}
+        ./configure FC=${FC} --enable-python
         make html
 
     # Deploy the HTML documentation to GitHub Pages

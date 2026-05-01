@@ -89,6 +89,7 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel,
                                       1, NULL, &global_item_size,
                                       &local_item_size, 0, NULL, NULL));
+      CL_CHECK(clReleaseKernel(kernel));
     }
     break;
   case GS_OP_MUL:
@@ -111,6 +112,7 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel,
                                       1, NULL, &global_item_size,
                                       &local_item_size, 0, NULL, NULL));
+      CL_CHECK(clReleaseKernel(kernel));
     }
     break;
   case GS_OP_MIN:
@@ -133,6 +135,7 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel,
                                       1, NULL, &global_item_size,
                                       &local_item_size, 0, NULL, NULL));
+      CL_CHECK(clReleaseKernel(kernel));
     }
     break;
   case GS_OP_MAX:
@@ -155,6 +158,7 @@ void opencl_gather_kernel(void *v, int *m, int *o, void *dg,
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel,
                                       1, NULL, &global_item_size,
                                       &local_item_size, 0, NULL, NULL));
+      CL_CHECK(clReleaseKernel(kernel));
     }
     break;
   }
@@ -191,4 +195,5 @@ void opencl_scatter_kernel(void *v, int *m, void *dg,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }

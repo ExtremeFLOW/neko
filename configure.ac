@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.1])
+AC_INIT([neko],[1.99.3])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -25,7 +25,7 @@ AC_ARG_ENABLE(real,
 
 AC_ARG_ENABLE(blk_size,
               AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
-              [blk_size=${enableval}], [blk_size="10000"])
+              [blk_size=${enableval}], [blk_size="1024"])
 
 AC_ARG_ENABLE(device-mpi,
           AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
@@ -331,7 +331,7 @@ fi
 
 
 # JSON-Fortran
-PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
+PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
 NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $JSON_Fortran_CFLAGS"
 
@@ -343,6 +343,7 @@ AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
+AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
@@ -376,6 +377,7 @@ FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
 AC_CONFIG_FILES([Makefile\
         src/Makefile\
+        src/python/Makefile\
         tests/unit/Makefile\
         src/comm/comm.F90\
         src/config/neko_config.f90\
@@ -409,6 +411,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/bc/Makefile\
         tests/unit/signal/Makefile\
         tests/unit/jobctrl/Makefile\
+        tests/unit/vtkhdf/Makefile\
         tests/unit/device/Makefile\
         tests/unit/device_math/Makefile\
         tests/unit/mathops/Makefile\
@@ -416,14 +419,19 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/octree/Makefile\
         tests/unit/vector/Makefile\
         tests/unit/matrix/Makefile\
+        tests/unit/case_file_utils/Makefile\
         tests/unit/scratch_registry/Makefile\
-        tests/unit/field_registry/Makefile\
+        tests/unit/registry/Makefile\
         tests/unit/fast3d/Makefile\
         tests/unit/time_scheme/Makefile\
         tests/unit/time_scheme_controller/Makefile\
         tests/unit/runge_kutta_scheme/Makefile\
         tests/unit/time_based_controller/Makefile\
-        tests/unit/point_interpolation/Makefile])
+        tests/unit/json_utils/Makefile\
+        tests/unit/point_interpolation/Makefile\
+        tests/unit/templates/parallel/Makefile\
+        tests/unit/boundary_operation/Makefile\
+        tests/unit/templates/serial/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
@@ -443,4 +451,3 @@ fi
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
 
 AC_OUTPUT
-

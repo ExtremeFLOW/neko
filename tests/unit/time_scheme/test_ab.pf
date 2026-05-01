@@ -1,3 +1,5 @@
+module test_ab
+contains
  @test
  subroutine test_ab_constant_dt()
    use pfunit
@@ -56,3 +58,5 @@ end subroutine test_ab_constant_dt
    ! order 3 not done now. Perhaps use fd_weights_full later
    
 end subroutine test_ab_variable_dt
+
+end module test_ab

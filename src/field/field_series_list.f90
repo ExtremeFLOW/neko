@@ -61,6 +61,8 @@ contains
     class(field_series_list_t), intent(inout) :: this
     integer, intent(in) :: capacity
 
+    call this%free()
+
     if (capacity <= 0) then
        call neko_error('Field series list capacity must be positive')
     end if
@@ -73,8 +75,14 @@ contains
   !> Free the field series list
   subroutine field_series_list_free(this)
     class(field_series_list_t), intent(inout) :: this
+    integer :: i
 
     if (allocated(this%items)) then
+       do i = 1, size(this%items)
+          if (associated(this%items(i)%ptr)) then
+             nullify(this%items(i)%ptr)
+          end if
+       end do
        deallocate(this%items)
     end if
     this%n_items = 0

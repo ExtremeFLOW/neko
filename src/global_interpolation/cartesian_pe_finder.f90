@@ -40,13 +40,12 @@ module cartesian_pe_finder
   use pe_finder, only: pe_finder_t
   use stack, only: stack_i4_t, stack_i8_t
   use utils, only: neko_error, neko_warning, linear_index
-  use tuple, only: tuple_i4_t
   use htable, only: htable_i8_t
   use point, only: point_t
   use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use mpi_f08, only: MPI_MAX, MPI_Allreduce, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_INTEGER8, &
-       MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, MPI_Wait, &
+       MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, &
        MPI_Exscan, MPI_Request, MPI_Status, &
        MPI_Alltoall, MPI_IN_PLACE, MPI_Barrier
   implicit none
@@ -66,8 +65,9 @@ module cartesian_pe_finder
      !> Buffer with data to send/recieve
      real(kind=dp), allocatable :: data(:)
      integer :: size = 0
+   contains
+     procedure, pass(this) :: free => i8_mpi_free
   end type i8_mpi_t
-
 
 
   !> Implements global interpolation for arbitrary points in the domain.
@@ -101,6 +101,16 @@ module cartesian_pe_finder
 
 contains
 
+  !> Destructor for i8_mpi_t.
+  subroutine i8_mpi_free(this)
+    class(i8_mpi_t), intent(inout) :: this
+
+    if (allocated(this%data)) then
+       deallocate(this%data)
+    end if
+
+  end subroutine i8_mpi_free
+
   !> Initialize the global interpolation object on a set of coordinates.
   !! @param x x-coordinates.
   !! @param y y-coordinates.
@@ -129,7 +139,7 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     type(stack_i8_t), allocatable :: glob_ids(:), recv_ids(:)
     integer(i8), pointer :: glb_ids(:)
-    integer(kind=i8) :: htable_data, temp ! We just use it as a set
+    integer(kind=i8) :: htable_data! We just use it as a set
     integer, allocatable :: n_recv(:), n_send(:)
     type(htable_i8_t) :: marked_box
     real(kind=rp) :: min_bb_x, max_bb_x
@@ -144,15 +154,16 @@ contains
     call MPI_Comm_rank(this%comm, this%pe_rank, ierr)
     call MPI_Comm_size(this%comm, this%pe_size, ierr)
 
-    this%glob_n_boxes = int(n_boxes,i8)**3
+    this%glob_n_boxes = int(n_boxes, i8)**3
     this%n_boxes = n_boxes
     this%nelv = nelv
-    this%n_boxes_per_pe = (this%glob_n_boxes+int(this%pe_size-1,i8))/int(this%pe_size,i8)
+    this%n_boxes_per_pe = (this%glob_n_boxes + int(this%pe_size - 1, i8))/ &
+         int(this%pe_size, i8)
 
-    allocate(this%send_buf(0:this%pe_size-1))
-    allocate(this%recv_buf(0:this%pe_size-1))
-    allocate(this%pe_map(0:this%n_boxes_per_pe-1))
-    do i = 0, this%n_boxes_per_pe-1
+    allocate(this%send_buf(0:this%pe_size - 1))
+    allocate(this%recv_buf(0:this%pe_size - 1))
+    allocate(this%pe_map(0:this%n_boxes_per_pe - 1))
+    do i = 0, this%n_boxes_per_pe - 1
        call this%pe_map(i)%init()
     end do
     call MPI_Exscan(this%nelv, this%offset_el, 1, &
@@ -399,11 +410,6 @@ contains
     class(cartesian_pe_finder_t), intent(in) :: this
     real(kind=rp), intent(in) :: x, y, z
     integer(kind=i8) :: global_box_id(3)
-    integer(kind=i8) :: pe_size, n_boxes
-
-    pe_size = this%pe_size
-    n_boxes = this%n_boxes
-
 
     global_box_id(1) = int((x - this%min_x_global) / this%res_x, i8)
     global_box_id(2) = int((y - this%min_y_global) / this%res_y, i8)
@@ -426,17 +432,13 @@ contains
 
     if (allocated(this%send_buf)) then
        do i = 0, this%pe_size-1
-          if (allocated(this%send_buf(i)%data)) then
-             deallocate(this%send_buf(i)%data)
-          end if
+          call this%send_buf(i)%free()
        end do
        deallocate(this%send_buf)
     end if
     if (allocated(this%recv_buf)) then
        do i = 0, this%pe_size-1
-          if (allocated(this%recv_buf(i)%data)) then
-             deallocate(this%recv_buf(i)%data)
-          end if
+          call this%recv_buf(i)%free()
        end do
        deallocate(this%recv_buf)
     end if

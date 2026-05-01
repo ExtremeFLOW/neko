@@ -6,7 +6,7 @@
         "output_boundary": true,
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
-        "checkpoint_value": 50,
+        "checkpoint_value": 50.0,
         "time": {
             "end_time": 2000.0,
             "variable_timestep": true,
@@ -20,7 +20,7 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 2800,
+            "Re": 2800.0,
             "initial_condition": {
                 "type": "user"
             },
@@ -73,20 +73,20 @@
                 "compute_value": 10,
                 "zone_id": 3,
                 "zone_name": "Bottom wall",
-                "center": [ 0, 0, 0 ]
+                "center": [ 0.0, 0.0, 0.0 ]
             },
             {
                 "type": "force_torque",
                 "compute_control": "tsteps",
-                "compute_value": 10,
+                "compute_value": 10.0,
                 "zone_id": 4,
                 "zone_name": "Top wall",
-                "center": [ 0, 0, 0 ]
+                "center": [ 0.0, 0.0, 0.0 ]
             },
             {
                 "type": "fluid_stats",
                 "output_control": "simulationtime",
-                "output_value": 5, // For example purposes we output relatively often, usually we do larger batches.
+                "output_value": 5.0, // For example purposes we output relatively often, usually we do larger batches.
                 "start_time": 0.0,
                 "compute_control": "tsteps",
                 "compute_value": 50,

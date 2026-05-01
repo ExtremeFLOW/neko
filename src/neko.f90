@@ -54,6 +54,7 @@ module neko
   use point, only : point_t
   use mesh_field, only : mesh_fld_t
   use map
+  use import_field_utils, only : import_fields
   use mxm_wrapper, only : mxm
   use global_interpolation
   use file
@@ -70,7 +71,7 @@ module neko
   use ax_product, only : ax_t, ax_helm_factory
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
-  use case, only : case_t, case_init, case_free
+  use case, only : case_t
   use output_controller, only : output_controller_t
   use output, only : output_t
   use simulation, only : simulation_step, simulation_init, simulation_finalize
@@ -91,8 +92,8 @@ module neko
        device_subcol3, device_sub2, device_sub3, device_addcol3, &
        device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-       device_masked_copy_0, device_cfill_mask, device_add3, device_cadd2, &
-       device_absval
+       device_glmax, device_glmin, device_masked_copy_0, device_cfill_mask, &
+       device_add3, device_cadd2, device_absval
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use cpr, only : cpr_t, cpr_init, cpr_free
@@ -100,30 +101,33 @@ module neko
   use field_list, only : field_list_t
   use user_source_term, only : user_source_term_t
   use vector, only : vector_t, vector_ptr_t
+  use vector_list, only : vector_list_t
   use matrix, only : matrix_t
   use tensor
   use simulation_component, only : simulation_component_t, &
        simulation_component_wrapper_t, simulation_component_factory, &
        simulation_component_allocator, simulation_component_allocate, &
        register_simulation_component
+  use boundary_operation, only : boundary_operation_t
   use probes, only : probes_t
   use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
-  use field_registry, only : neko_field_registry
-  use scratch_registry, only : neko_scratch_registry
+  use registry, only : neko_registry, neko_const_registry, registry_t
+  use scratch_registry, only : neko_scratch_registry, scratch_registry_t
   use simcomp_executor, only : neko_simcomps
   use data_streamer, only : data_streamer_t
   use time_interpolator, only : time_interpolator_t
   use point_interpolator, only : point_interpolator_t
-  use point_zone, only: point_zone_t
-  use box_point_zone, only: box_point_zone_t
-  use sphere_point_zone, only: sphere_point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
+  use point_zone, only : point_zone_t
+  use box_point_zone, only : box_point_zone_t
+  use sphere_point_zone, only : sphere_point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use field_neumann, only : field_neumann_t
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
@@ -143,6 +147,7 @@ module neko
   use source_term, only : source_term_t, source_term_allocate, &
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
+  use ale_manager, only : neko_ale
   use, intrinsic :: iso_fortran_env
   use mpi_f08
   !$ use omp_lib
@@ -151,8 +156,9 @@ module neko
 contains
 
   !> Initialise Neko
-  subroutine neko_init(C)
+  subroutine neko_init(C, filename)
     type(case_t), target, intent(inout), optional :: C
+    character(len=*), intent(in), optional :: filename
     character(len=NEKO_FNAME_LEN) :: case_file, args
     character(len=LOG_SIZE) :: log_buf
     character(len=10) :: suffix
@@ -168,23 +174,29 @@ contains
     call device_init
 
     call neko_log%init()
-    call neko_field_registry%init()
+    call neko_registry%init()
+    call neko_const_registry%init()
+    call neko_scratch_registry%init()
 
     call neko_log%header(NEKO_VERSION, NEKO_BUILD_INFO)
 
     if (present(C)) then
 
-       !
-       ! Command line arguments
-       !
-       argc = command_argument_count()
+       if (present(filename)) then
+          case_file = filename
+       else
+          !
+          ! Command line arguments
+          !
+          argc = command_argument_count()
 
-       if (argc .lt. 1) then
-          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
-          stop
+          if (argc .lt. 1) then
+             if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
+             stop
+          end if
+
+          call get_command_argument(1, case_file)
        end if
-
-       call get_command_argument(1, case_file)
 
        call filename_suffix(case_file, suffix)
 
@@ -209,7 +221,7 @@ contains
        !
        ! Create case
        !
-       call case_init(C, case_file)
+       call C%init(case_file)
 
        !
        ! Setup runtime statistics
@@ -261,11 +273,15 @@ contains
     call neko_scratch_registry%free()
 
     if (present(C)) then
-       call case_free(C)
+       call C%free()
     end if
 
-    call neko_field_registry%free()
+    call neko_simcomps%free()
+
+    call neko_registry%free()
     call neko_user_access%free()
+    call neko_log%free()
+
     call device_finalize
     call neko_mpi_types_free
     call comm_free

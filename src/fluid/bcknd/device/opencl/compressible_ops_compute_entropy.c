@@ -53,10 +53,12 @@ void opencl_compute_entropy(void *S_d,
   cl_int err;
   
   if (compressible_ops_compute_entropy_program == NULL)
-    opencl_kernel_jit(compressible_ops_compute_entropy_kernel, (cl_program *) &compressible_ops_compute_entropy_program);
+    opencl_kernel_jit(compressible_ops_compute_entropy_kernel,
+                      (cl_program *) &compressible_ops_compute_entropy_program);
 
-  cl_kernel kernel = clCreateKernel((cl_program) compressible_ops_compute_entropy_program, 
-                                    "compute_entropy_kernel", &err);
+  cl_kernel kernel =
+    clCreateKernel((cl_program) compressible_ops_compute_entropy_program, 
+                   "compute_entropy_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &S_d));

@@ -50,13 +50,16 @@ contains
   module subroutine filter_factory(object, type_name, json, coef)
     class(filter_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
-    type(coef_t), intent(in) :: coef
+    type(coef_t), intent(in), target :: coef
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_string
 
     if (allocated(object)) then
+       call object%free()
        deallocate(object)
-    else if (trim(type_name) .eq. 'elementwise') then
+    end if
+
+    if (trim(type_name) .eq. 'elementwise') then
        allocate(elementwise_filter_t::object)
     else if (trim(type_name) .eq. 'PDE') then
        allocate(pde_filter_t::object)

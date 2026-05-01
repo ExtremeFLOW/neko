@@ -80,6 +80,7 @@ extern void *euler_res_program;
 /** Device compressible ops kernels */
 extern void *compressible_ops_compute_max_wave_speed_program;
 extern void *compressible_ops_compute_entropy_program;
+extern void *compressible_ops_update_program;
 
 /** Device fdm kernels */
 extern void *fdm_program;
@@ -110,5 +111,8 @@ extern void *mapping_program;
 
 /** Device find rst kernel */
 extern void *find_rst_legendre_program;
+
+/** Device entropy viscosity kernels */
+extern void *entropy_viscosity_program;
 
 #endif

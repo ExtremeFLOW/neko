@@ -38,15 +38,14 @@ template< typename T >
 __global__ void euler_res_part_visc_kernel(T * __restrict__ rhs,
                                      const T * __restrict__ Binv,
                                      const T * __restrict__ lap_sol,
-                                     const T * __restrict__ h,
-                                     const T c_avisc,
+                                     const T * __restrict__ effective_visc,
                                      const int n) {
   
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   
   for (int i = idx; i < n; i += str) {
-    rhs[i] =  -rhs[i] - c_avisc * h[i] * Binv[i] * lap_sol[i];
+    rhs[i] =  -rhs[i] - effective_visc[i] * Binv[i] * lap_sol[i];
   }
 }
 

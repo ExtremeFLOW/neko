@@ -64,22 +64,27 @@ contains
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
 
+    ! @todo don't assume lx = ly = lz
     associate( D => Xh%dx, Dt => Xh%dxt, &
          G11 => coef%G11, G22 => coef%G22, G33 => coef%G33, &
          G12 => coef%G12, G13 => coef%G13, G23 => coef%G23, &
          n => msh%nelv, lx => Xh%lx)
 
+      ! Loop over mesh elements
       do e = 1, n
+         ! Compute the action of the derivative operator (D u)
+         ! (D_xi u)
          do j = 1, lx * lx
             do i = 1, lx
                tmp = 0.0_rp
-               do k = 1, lx
-                  tmp = tmp + D(i,k) * u(k,j,1,e)
+               do l = 1, lx
+                  tmp = tmp + D(i,l) * u(l,j,1,e)
                end do
                wur(i,j,1) = tmp
             end do
          end do
 
+         ! (D_eta u)
          do k = 1, lx
             do j = 1, lx
                do i = 1, lx
@@ -92,6 +97,7 @@ contains
             end do
          end do
 
+         ! (D_gamma u)
          do k = 1, lx
             do i = 1, lx*lx
                tmp = 0.0_rp
@@ -102,6 +108,7 @@ contains
             end do
          end do
 
+         ! Compute the geometric mapping information and apply it (G (D u))
          do i = 1, lx*lx*lx
             ur(i,1,1) = ( G11(i,1,1,e) * wur(i,1,1) &
                         + G12(i,1,1,e) * wus(i,1,1) &
@@ -114,16 +121,19 @@ contains
                         + G33(i,1,1,e) * wut(i,1,1) )
          end do
 
+         ! Compute the action of the derivative transpose operator (D^T (G (D u)))
+         ! (D^T_xi u)
          do j = 1, lx*lx
             do i = 1, lx
                tmp = 0.0_rp
-               do k = 1, lx
-                  tmp = tmp + Dt(i,k) * ur(k,j,1)
+               do l = 1, lx
+                  tmp = tmp + Dt(i,l) * ur(l,j,1)
                end do
                w(i,j,1,e) = tmp
             end do
          end do
 
+         ! (D^T_eta u)
          do k = 1, lx
             do j = 1, lx
                do i = 1, lx
@@ -136,6 +146,7 @@ contains
             end do
          end do
 
+         ! (D^T_gamma u)
          do k = 1, lx
             do i = 1, lx*lx
                tmp = 0.0_rp

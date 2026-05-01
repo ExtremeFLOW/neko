@@ -5,7 +5,10 @@ on:
   push:
     branches:
       - develop
+      - release/*
+      - master
 
+  workflow_dispatch:
   workflow_call:
     inputs:
       json-fortran-version:
@@ -36,6 +39,7 @@ jobs:
               python3 -m venv myenv
               source myenv/bin/activate
               pip install pytest json5
+              pip install git+https://github.com/ExtremeFLOW/pySEMTools.git
               INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
               export PATH=$INTEL_PATH:${PATH}
               printenv >> $GITHUB_ENV

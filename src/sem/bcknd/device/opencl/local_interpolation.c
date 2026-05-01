@@ -97,7 +97,7 @@ void opencl_find_rst_legendre(void *rst,
      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
                                      kernel, 2, NULL, global_kstep,            \
                                      local_kstep, 0, NULL, NULL));             \
-                                                                               \
+      CL_CHECK(clReleaseKernel(kernel));                                       \
     }                                                                          \
     break
 

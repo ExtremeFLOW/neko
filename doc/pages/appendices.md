@@ -7,6 +7,8 @@ of the code. But can be useful for users and developers alike.
 
 - [Environmental variable reference](@ref appendices_env-var)
 - \subpage governing-equations
+- \subpage nmsh-format
+- \subpage fld-format
 - \subpage publications
 
 ## Environmental variable reference {#appendices_env-var}
@@ -28,6 +30,7 @@ A number of logging levels are supported.
 - `NEKO_LOG_LEVEL=0`   : Quiet mode, minimal logging during execution.
 - `NEKO_LOG_LEVEL=1`   : Default information mode, adding step informations.
 - `NEKO_LOG_LEVEL=2`   : Verbose mode, logging extra details.
+- `NEKO_LOG_LEVEL=5`   : Deprecations trigger errors stopping execution.
 - `NEKO_LOG_LEVEL=10`  : Debug mode.
 
 ### Gather-scatter communication backend details

@@ -84,7 +84,7 @@ contains
     real(kind=rp) :: t
     type(field_t), pointer :: u
 
-    u => neko_field_registry%get_field('u')
+    u => neko_registry%get_field('u')
 
     ! initialize work arrays for postprocessing
     call w1%init(u%dof, 'work1')
@@ -107,13 +107,13 @@ contains
     if (mod(time%tstep, 50) .ne. 0) return
 
     coef => neko_user_access%case%fluid%c_Xh
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
+    u => neko_registry%get_field('u')
+    v => neko_registry%get_field('v')
+    w => neko_registry%get_field('w')
 
-    omega_x => neko_field_registry%get_field("omega_x")
-    omega_y => neko_field_registry%get_field("omega_y")
-    omega_z => neko_field_registry%get_field("omega_z")
+    omega_x => neko_registry%get_field("omega_x")
+    omega_y => neko_registry%get_field("omega_y")
+    omega_z => neko_registry%get_field("omega_z")
 
 !    Option 1:
 !    sum_e1 = 0._rp
