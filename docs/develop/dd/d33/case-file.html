@@ -778,6 +778,16 @@ Source terms</h2>
 <li><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>, perform gradient_jump_penalisation.</li>
 <li><code>sponge</code>, adds a sponge term based on a reference velocity field, which is applied in a user-specified region of the domain.</li>
 <li><code>field</code>, uses fields in the <code>neko_registry</code> as values of the source term. The fields are selected with the <code>field_names</code> keyword.</li>
+<li><code>hpfrt</code>, adds a high-pass filter relaxation term to the momentum equation. This source term damps the highest elementwise Legendre modes of the velocity field. It is configured with <code>filter_weight</code>, the damping strength, and <code>filter_modes</code>, the number of highest modes affected by the filter. See <a class="el" href="../../df/d4a/filter.html#filter_hpfrt">High-pass filter relaxation source term</a> for the definition of the filter and the source term.</li>
+</ol>
+<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
+<div class="line">   {</div>
+<div class="line">      &quot;type&quot;: &quot;hpfrt&quot;,</div>
+<div class="line">      &quot;filter_weight&quot;: 5.0,</div>
+<div class="line">      &quot;filter_modes&quot;: 2</div>
+<div class="line">   }</div>
+<div class="line">]</div>
+</div><!-- fragment --><p>The same source-term object can be used for scalars. In this case it is added to the scalar <code>source_terms</code> array and acts on that scalar field.</p><ol type="1">
 <li><p class="startli"><code>translation</code> Adds a forcing term corresponding to a domain translating with constant velocity. The term comes from the ALE formulation and is written as \( (\mathbf{w}\cdot\nabla)\mathbf{u} \), or, for spatially constant mesh velocity \( \nabla\cdot\mathbf{w} = 0 \), equivalently in conservative form as \( \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \). The keyword to be provided in the case file is <code>domain_velocity</code>, which expects an array with 3 values.</p>
 <p class="startli">Note that in this case, we still solve for the absolute velocity, not the relative one. It is simply advection that is affected. Useful to perform simulations on domains that are moving on a periodic direction.</p>
 </li>
@@ -1023,8 +1033,8 @@ Sponge</h3>
 <div class="line"> </div>
 <div class="line"><span class="keywordflow">    end do</span></div>
 <div class="line"> </div>
-<div class="line">    wbf%x = 0.0_rp    </div>
-<div class="line">    </div>
+<div class="line">    wbf%x = 0.0_rp</div>
+<div class="line"> </div>
 <div class="line">    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line">       <span class="keyword">call </span>device_memcpy(ubf%x, ubf%x_d, ubf%size(), &amp;</div>
 <div class="line">            host_to_device, .false.)</div>
@@ -1754,7 +1764,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Apr 30 2026 04:42:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri May 1 2026 04:48:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

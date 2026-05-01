@@ -8,6 +8,7 @@ var dir_5333ab263fff069c320f5b66c5911c96 =
     [ "coriolis_source_term.f90", "da/df9/coriolis__source__term_8f90.html", "da/df9/coriolis__source__term_8f90" ],
     [ "field_source_term.f90", "d2/d8e/field__source__term_8f90.html", "d2/d8e/field__source__term_8f90" ],
     [ "gradient_jump_penalty.f90", "db/da5/gradient__jump__penalty_8f90.html", "db/da5/gradient__jump__penalty_8f90" ],
+    [ "hpfrt_source_term.f90", "d0/d3d/hpfrt__source__term_8f90.html", "d0/d3d/hpfrt__source__term_8f90" ],
     [ "source_term.f90", "df/d69/source__term_8f90.html", "df/d69/source__term_8f90" ],
     [ "source_term_fctry.f90", "d5/d3e/source__term__fctry_8f90.html", null ],
     [ "source_term_handler.f90", "d2/dc4/source__term__handler_8f90.html", "d2/dc4/source__term__handler_8f90" ],

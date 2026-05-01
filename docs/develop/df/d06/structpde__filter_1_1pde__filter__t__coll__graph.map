@@ -1,5 +1,5 @@
 <map id="pde_filter::pde_filter_t" name="pde_filter::pde_filter_t">
-<area shape="rect" id="Node000001" title="A PDE based filter mapping $\rho \mapsto \tilde{\rho}$, see Lazarov &amp; O. Sigmund 2010,..." alt="" coords="2708,414,2872,439"/>
+<area shape="rect" id="Node000001" title="A PDE based filter mapping , see Lazarov &amp; O. Sigmund 2010, by solving an equation of the form ." alt="" coords="2708,414,2872,439"/>
 <area shape="rect" id="Node000002" href="$de/da7/structfilter_1_1filter__t.html" title="Base abstract class for filter." alt="" coords="2449,365,2551,390"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2565,384,2684,404,2724,411,2723,417,2684,409,2564,390"/>
 <area shape="rect" id="Node000003" href="$d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2232,365,2337,390"/>

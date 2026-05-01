@@ -153,7 +153,7 @@ $(document).ready(function(){initNavTree('db/dc2/filter__fctry_8f90_source.html'
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keyword">module</span> subroutine filter_factory(object, type_name, json, coef)</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">class</span>(filter_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: coef</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: type_string</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
@@ -182,14 +182,14 @@ $(document).ready(function(){initNavTree('db/dc2/filter__fctry_8f90_source.html'
 <div class="ttc" id="anamespaceutils_html_a1118aac17fca960a9444986355db28ad"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">utils::concat_string_array</a></div><div class="ttdeci">character(:) function, allocatable, public concat_string_array(array, sep, prepend)</div><div class="ttdoc">Concatenate an array of strings into one string with array items separated by spaces.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00356">utils.f90:357</a></div></div>
 <div class="ttc" id="anamespaceutils_html_ac2aece3826d2efe73113379fc55ae05b"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">utils::neko_type_error</a></div><div class="ttdeci">subroutine, public neko_type_error(base_type, wrong_type, known_types)</div><div class="ttdoc">Reports an error allocating a type for a particular base pointer class.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00313">utils.f90:314</a></div></div>
 <div class="ttc" id="astructelementwise__filter_1_1elementwise__filter__t_html"><div class="ttname"><a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter::elementwise_filter_t</a></div><div class="ttdoc">Implements the elementwise filter for SEM.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d9a/elementwise__filter_8f90_source.html#l00056">elementwise_filter.f90:56</a></div></div>
-<div class="ttc" id="astructpde__filter_1_1pde__filter__t_html"><div class="ttname"><a href="../../dc/d26/structpde__filter_1_1pde__filter__t.html">pde_filter::pde_filter_t</a></div><div class="ttdoc">A PDE based filter mapping $\rho \mapsto \tilde{\rho}$, see Lazarov &amp; O. Sigmund 2010,...</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00072">PDE_filter.f90:72</a></div></div>
+<div class="ttc" id="astructpde__filter_1_1pde__filter__t_html"><div class="ttname"><a href="../../dc/d26/structpde__filter_1_1pde__filter__t.html">pde_filter::pde_filter_t</a></div><div class="ttdoc">A PDE based filter mapping , see Lazarov &amp; O. Sigmund 2010, by solving an equation of the form .</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00072">PDE_filter.f90:72</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_8681a82a265081a91d191144ff606af9.html">filter</a></li><li class="navelem"><a class="el" href="../../db/dc2/filter__fctry_8f90.html">filter_fctry.f90</a></li>
-    <li class="footer">Generated on Thu Apr 30 2026 04:42:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri May 1 2026 04:48:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

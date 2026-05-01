@@ -343,6 +343,7 @@ var namespaces_dup =
     [ "hip_intf", "d0/d4e/namespacehip__intf.html", "d0/d4e/namespacehip__intf" ],
     [ "hip_mappings", "d8/d04/namespacehip__mappings.html", "d8/d04/namespacehip__mappings" ],
     [ "hip_math", "d7/de1/namespacehip__math.html", "d7/de1/namespacehip__math" ],
+    [ "hpfrt_source_term", "d7/d3f/namespacehpfrt__source__term.html", "d7/d3f/namespacehpfrt__source__term" ],
     [ "hsmg", "dd/dd1/namespacehsmg.html", "dd/dd1/namespacehsmg" ],
     [ "htable", "dc/df5/namespacehtable.html", "dc/df5/namespacehtable" ],
     [ "identity", "d2/d1a/namespaceidentity.html", "d2/d1a/namespaceidentity" ],

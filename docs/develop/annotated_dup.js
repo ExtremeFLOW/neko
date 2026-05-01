@@ -835,6 +835,9 @@ var annotated_dup =
       [ "hip_vdot3", "d0/dd4/interfacehip__math_1_1hip__vdot3.html", "d0/dd4/interfacehip__math_1_1hip__vdot3" ],
       [ "hip_vlsc3", "dd/d4e/interfacehip__math_1_1hip__vlsc3.html", "dd/d4e/interfacehip__math_1_1hip__vlsc3" ]
     ] ],
+    [ "hpfrt_source_term", "d7/d3f/namespacehpfrt__source__term.html", [
+      [ "hpfrt_source_term_t", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t" ]
+    ] ],
     [ "hsmg", "dd/dd1/namespacehsmg.html", [
       [ "hsmg_t", "dd/d81/structhsmg_1_1hsmg__t.html", "dd/d81/structhsmg_1_1hsmg__t" ],
       [ "multigrid_t", "dd/d1b/structhsmg_1_1multigrid__t.html", "dd/d1b/structhsmg_1_1multigrid__t" ]
