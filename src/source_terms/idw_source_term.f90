@@ -41,7 +41,7 @@ module idw_source_term
   use field, only : field_t
   use utils, only : neko_error
   use tri_mesh, only : tri_mesh_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use field, only : field_t
   use file, only : file_t
   use comm, only : MPI_REAL_PRECISION, NEKO_COMM
@@ -499,9 +499,9 @@ contains
 
     n = this%fields%item_size(1)
 
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
+    u => neko_registry%get_field('u')
+    v => neko_registry%get_field('v')
+    w => neko_registry%get_field('w')
 
     fu => this%fields%get(1)
     fv => this%fields%get(2)
