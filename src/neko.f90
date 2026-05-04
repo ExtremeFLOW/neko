@@ -179,7 +179,11 @@ contains
     call neko_const_registry%init()
     call neko_scratch_registry%init()
 
+    !
+    ! Job information
+    !
     call neko_log%header(NEKO_VERSION, NEKO_BUILD_INFO)
+    call neko_job_info(date, time)
 
     if (present(C)) then
 
@@ -213,11 +217,6 @@ contains
              call neko_log%message(args, NEKO_LOG_QUIET)
           end do
        end if
-
-       !
-       ! Job information
-       !
-       call neko_job_info(date, time)
 
        !
        ! Create case
