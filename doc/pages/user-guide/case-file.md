@@ -386,7 +386,7 @@ This feature is enabled by setting the `schwarz_iterations` keyword inside
 the `fluid` group to an integer larger than zero. In this case, each fluid
 timestep solves for velocity and pressure multiple times.
 
-The total number of passes is `1 + n_schwarz_iterations`. This feature is often
+The total number of passes is `1 + schwarz_iterations`. This feature is often
 needed to increase the stability of solutions when using `overset_interface`
 boundary conditions, i.e., when there are multiple coupled simulations running
 in tandem.

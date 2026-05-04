@@ -3,10 +3,6 @@
 ## Develop
 - Added hdf5 support for probes and added hdf5 I/O helper routines
 - Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal` for hip and cuda.
-- Added hdf5 support for probes and added hdf5 I/O helper routines.
-
-- Added hdf5 support for probes and added hdf5 I/O helper routines
-- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal` for hip and cuda.
 - Added the `hpfrt` source term for high-pass filter-based stabilization.
 - Added the `data_streamer` simulation component, allowing data streaming
 - Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`
