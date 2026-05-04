@@ -165,7 +165,7 @@ contains
        end if
     end if
 
-    ! If running in mpmd, the new dt is the minimun across simulations
+    ! If running in mpmd, the new dt is the minimum across simulations
     if (pe_size .ne. global_pe_size) then
        call MPI_Allreduce(MPI_IN_PLACE, time%dt, 1, MPI_REAL_PRECISION, &
             MPI_MIN, NEKO_GLOBAL_COMM, ierr)
