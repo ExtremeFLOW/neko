@@ -73,7 +73,6 @@ module fluid_scheme_compressible_euler
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
-  use facet_normal, only : facet_normal_t
   implicit none
   private
 
@@ -93,8 +92,6 @@ module fluid_scheme_compressible_euler
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_density
 
-     !> Surface BC for removing cdtp boundary artifacts (PnPn-style)
-     type(facet_normal_t) :: bc_visc_surface
    contains
      procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
      procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
@@ -178,9 +175,6 @@ contains
     integer :: rk_order
     integer :: viscous_flux_type
     character(len=:), allocatable :: viscous_flux_string
-    type(json_core) :: json_core_inst
-    type(json_value), pointer :: json_val
-    logical :: found
 
     call this%free()
 
@@ -214,7 +208,6 @@ contains
        associate(p => this%p, rho => this%rho, &
             u => this%u, v => this%v, w => this%w, &
             m_x => this%m_x, m_y => this%m_y, m_z => this%m_z, &
-            effective_visc => this%effective_visc, &
             artificial_visc => this%artificial_visc)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
@@ -232,8 +225,6 @@ contains
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
-         call device_memcpy(effective_visc%x, effective_visc%x_d, &
-              effective_visc%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(artificial_visc%x, artificial_visc%x_d, &
               artificial_visc%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
@@ -285,7 +276,6 @@ contains
     end if
 
     call this%bcs_density%free()
-    call this%bc_visc_surface%free()
 
   end subroutine fluid_scheme_compressible_euler_free
 
@@ -296,7 +286,6 @@ contains
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
     use entropy_viscosity, only : entropy_viscosity_t
-    use viscous_flux, only : VISCOUS_FLUX_NAVIER_STOKES
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -327,11 +316,11 @@ contains
       ! Compute artificial viscosity
       call this%regularization%compute(time, time%tstep, time%dt)
 
-    ! Execute RHS step with artificial viscosity field
-    call euler_rhs%step(rho, m_x, m_y, m_z, E, &
-         p, u, v, w, this%Ax, &
-         c_Xh, gs_Xh, h, this%artificial_visc, this%mu, this%kappa, &
-         this%bc_visc_surface, rk_scheme, dt)
+      ! Execute RHS step with artificial viscosity field
+      call euler_rhs%step(rho, m_x, m_y, m_z, E, &
+           p, u, v, w, this%Ax, &
+           c_Xh, gs_Xh, h, this%artificial_visc, this%mu, this%kappa, &
+           rk_scheme, dt)
 
       !> Apply density boundary conditions
       call this%bcs_density%apply(rho, time)
@@ -445,9 +434,6 @@ contains
        !
        call this%bcs_vel%init(n_bcs)
 
-       ! Initialise surface BC for removing cdtp boundary artifacts
-       call this%bc_visc_surface%init_from_components(this%c_Xh)
-
        do i = 1, n_bcs
           ! Extract BC configuration
           call json_extract_item(core, bc_object, i, bc_subdict)
@@ -472,13 +458,9 @@ contains
 
           ! Add to appropriate lists
           if (associated(bc_i)) then
-             call this%bc_visc_surface%mark_facets(bc_i%marked_facet)
              call this%bcs_vel%append(bc_i)
           end if
        end do
-
-       ! Finalize the viscous surface BC (builds mask, normals)
-       call this%bc_visc_surface%finalize()
 
        !
        ! Pressure bcs
@@ -528,8 +510,6 @@ contains
        call this%bcs_prs%init()
        call this%bcs_vel%init()
        call this%bcs_density%init()
-       call this%bc_visc_surface%init_from_components(this%c_Xh)
-       call this%bc_visc_surface%finalize()
 
     end if
   end subroutine fluid_scheme_compressible_euler_setup_bcs

@@ -271,7 +271,7 @@ The compressible solver requires the following parameters:
 | Name    | Description                              | Admissible values | Default value |
 | ------- | ---------------------------------------- | ----------------- | ------------- |
 | `gamma` | Ratio of specific heats for ideal gas    | Positive reals    | `1.4`         |
-| `viscous_flux` | Type of viscous flux for Navier-Stokes | `monolithic`, `navier-stokes` | `monolithic` |
+| `viscous_flux` | Type of Laplacian diffusion for the compressible solver | `monolithic`, `navier-stokes` | `monolithic` |
 
 Additional numerics parameters specific to compressible flows:
 
@@ -285,17 +285,18 @@ number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
 control object.
 
 Physical viscosity can be specified via the `material_properties` user interface
-in the user file. The effective viscosity used for stabilization is computed as
-`max(physical_viscosity, artificial_viscosity)`, where the artificial viscosity
-is the minimum of entropy-based and low-order viscosities. See the user file
-documentation for details on implementing `material_properties`.
+in the user file. Stabilization uses the existing Laplacian artificial
+viscosity, computed as the minimum of entropy-based and low-order viscosities.
+Physical viscosity and thermal conductivity are applied separately from the
+artificial viscosity when requested. See the user file documentation for details
+on implementing `material_properties`.
 
 The `viscous_flux` parameter controls the type of viscous flux computation:
-- `monolithic`: Uses a single effective viscosity for all equations (default).
-  This combines physical and artificial viscosity for stability.
-- `navier-stokes`: Uses separate physical viscosity (mu) for momentum equations
-  and thermal conductivity (kappa) for the energy equation. This requires
-  setting `fluid_mu` and `fluid_kappa` in the `material_properties` function.
+- `monolithic`: Uses Laplacian artificial viscosity for all equations (default).
+- `navier-stokes`: Uses the same Laplacian artificial viscosity for
+  stabilization, and additionally applies physical viscosity (`fluid_mu`) to the
+  velocity field in the momentum equations and thermal conductivity
+  (`fluid_kappa`) to the temperature field in the energy equation.
 
 Example configuration:
 ~~~~~~~~~~~~~~~{.json}

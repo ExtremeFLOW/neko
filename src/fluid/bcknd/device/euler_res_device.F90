@@ -46,8 +46,8 @@ module euler_res_device
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
   use device_math, only : device_copy, device_rone, device_col2, &
-       device_cmult, device_sub2, device_pwmax3, device_vdot3, device_rzero
-  use facet_normal, only : facet_normal_t
+       device_cmult, device_sub2, device_vdot3, device_rzero, device_add2, &
+       device_invcol3
 
   type, public, extends(euler_rhs_t) :: euler_res_device_t
    contains
@@ -322,14 +322,12 @@ module euler_res_device
 contains
   subroutine advance_primitive_variables_device(rho_field, &
        m_x, m_y, m_z, E, p, u, v, w, Ax, &
-       coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface, &
-       rk_scheme, dt)
+       coef, gs, h, artificial_visc, mu, kappa, rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
-    type(facet_normal_t), intent(in) :: bc_visc_surface
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
     integer :: n, s, i, j, k
@@ -432,7 +430,7 @@ contains
             k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, k_E%items(i)%ptr, &
             temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
             p, u, v, w, Ax, &
-            coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface)
+            coef, gs, h, artificial_visc, mu, kappa)
     end do
 
     ! Update the solution
@@ -464,12 +462,11 @@ contains
   subroutine evaluate_rhs_device(rhs_rho_field, rhs_m_x, rhs_m_y, &
        rhs_m_z, rhs_E, rho_field, &
        m_x, m_y, m_z, E, p, u, v, w, Ax, &
-       coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface)
+       coef, gs, h, artificial_visc, mu, kappa)
     type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax
-    type(facet_normal_t), intent(in) :: bc_visc_surface
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
     integer :: n, i
@@ -575,23 +572,38 @@ contains
     call neko_scratch_registry%request_field(visc_m_z, temp_indices(7), .false.)
     call neko_scratch_registry%request_field(visc_E, temp_indices(8), .false.)
 
-    ! Compute effective viscosity = max(artificial, physical) for each equation
-    ! TODO: Port the cdtp-based Navier-Stokes viscous flux from the CPU
-    ! backend (euler_res_cpu). For now the device backend always uses the
-    ! monolithic path regardless of the viscous_flux_type setting.
-
-    ! For all conserved variables (density, momentum): use max(artificial, mu)
+    ! Density is stabilized only by artificial viscosity.
     call device_copy(coef%h1_d, artificial_visc%x_d, n)
-    call device_pwmax3(coef%h1_d, mu%x_d, coef%h1_d, n)
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
+
+    ! Momentum uses the same artificial viscosity as monolithic mode.
+    call device_copy(coef%h1_d, artificial_visc%x_d, n)
     call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
 
-    ! For energy: use max(artificial, kappa)
+    ! Energy uses the same artificial viscosity as monolithic mode.
     call device_copy(coef%h1_d, artificial_visc%x_d, n)
-    call device_pwmax3(coef%h1_d, kappa%x_d, coef%h1_d, n)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
+
+    if (euler_res_device_viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES) then
+       call device_copy(coef%h1_d, mu%x_d, n)
+       call Ax%compute(f_x%x, u%x, coef, p%msh, p%Xh)
+       call device_add2(visc_m_x%x_d, f_x%x_d, n)
+       call Ax%compute(f_x%x, v%x, coef, p%msh, p%Xh)
+       call device_add2(visc_m_y%x_d, f_x%x_d, n)
+       call Ax%compute(f_x%x, w%x, coef, p%msh, p%Xh)
+       call device_add2(visc_m_z%x_d, f_x%x_d, n)
+
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+       call device_invcol3(f_y%x_d, p%x_d, rho_field%x_d, n)
+       call device_cmult(f_y%x_d, &
+            1.0_rp / (euler_res_device_gamma - 1.0_rp), n)
+       call device_copy(coef%h1_d, kappa%x_d, n)
+       call Ax%compute(f_x%x, f_y%x, coef, p%msh, p%Xh)
+       call device_add2(visc_E%x_d, f_x%x_d, n)
+#endif
+    end if
 
     ! Reset h1 coefficient back to 1.0 for other operations
     call device_rone(coef%h1_d, n)

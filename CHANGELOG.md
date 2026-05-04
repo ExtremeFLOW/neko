@@ -1,12 +1,11 @@
 # Changelog
 
 ## Develop
-- Replaced the Navier-Stokes viscous flux with the Guermond-Popov (GP) viscous
-  flux for the compressible solver. The `viscous_flux` case-file parameter
-  selects between the existing monolithic diffusion (`monolithic`, default) and
-  the GP formulation (`navier-stokes`) that combines Ax-based diffusion for
-  density and internal energy with cdtp-based symmetric gradient terms for
-  momentum and energy stress work.
+- Added optional physical viscosity and thermal conductivity support for the
+  compressible solver while keeping stabilization Laplacian-based. The
+  `viscous_flux` case-file parameter selects between artificial-only diffusion
+  (`monolithic`, default) and a `navier-stokes` mode that adds separate
+  physical `mu` and `kappa` Laplacian terms for velocity and temperature.
 - Updated field types with a wrapper and ensure lifetime management of field
   data in field lists and arrays.
 - Updated Developer Patterns documentation with new information on how to manage

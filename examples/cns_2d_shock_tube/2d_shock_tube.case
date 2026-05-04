@@ -40,7 +40,7 @@
         "simulation_components": [
             {
                 "type": "field_writer",
-                "fields": ["fluid_rho", "S", "effective_visc"],
+                "fields": ["fluid_rho", "S", "artificial_visc"],
                 "output_control": "nsamples",
                 "output_value": 300
             }

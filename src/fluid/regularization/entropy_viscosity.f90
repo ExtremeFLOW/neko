@@ -56,13 +56,11 @@ module entropy_viscosity
        entropy_viscosity_compute_viscosity_cpu, &
        entropy_viscosity_apply_element_max_cpu, &
        entropy_viscosity_clamp_to_low_order_cpu, &
-       entropy_viscosity_apply_physical_visc_cpu, &
        entropy_viscosity_smooth_divide_cpu
   use entropy_viscosity_device, only : entropy_viscosity_compute_residual_device, &
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
-       entropy_viscosity_apply_physical_visc_device, &
        entropy_viscosity_smooth_divide_device
   implicit none
   private
@@ -287,7 +285,7 @@ contains
             this%h%x, this%c_avisc_entropy, n_S, n)
     end if
 
-    ! effective viscosity = min(entropy viscosity, low-order viscosity)
+    ! artificial viscosity = min(entropy viscosity, low-order viscosity)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call entropy_viscosity_clamp_to_low_order_device( &
             this%reg_coeff%x_d, this%h%x_d, this%max_wave_speed%x_d, &
