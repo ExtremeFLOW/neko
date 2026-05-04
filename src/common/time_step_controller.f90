@@ -37,6 +37,8 @@ module time_step_controller
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
+  use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_MIN, MPI_IN_PLACE
   implicit none
   private
 
@@ -109,6 +111,7 @@ contains
     real(kind=rp), intent(in) :: cfl
     real(kind=rp) :: dt_old, scaling_factor
     character(len=LOG_SIZE) :: log_buf
+    integer :: ierr
 
     ! Check if variable dt is requested
     if (.not. this%is_variable_dt) return
@@ -160,6 +163,12 @@ contains
        else
           this%dt_last_change = this%dt_last_change + 1
        end if
+    end if
+
+    ! If running in mpmd, the new dt is the minimun across simulations
+    if (pe_size .ne. global_pe_size) then
+       call MPI_Allreduce(MPI_IN_PLACE, time%dt, 1, MPI_REAL_PRECISION, &
+            MPI_MIN, NEKO_GLOBAL_COMM, ierr)
     end if
 
   end subroutine time_step_controller_set_dt
