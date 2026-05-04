@@ -94,8 +94,8 @@ module fluid_pnpn
 
   type, public, extends(fluid_scheme_incompressible_t) :: fluid_pnpn_t
 
-     !> Number of schwarz-like iterations to perform each time step. 
-   ! Set to 0 for no iterations.
+     !> Number of schwarz-like iterations to perform each time step.
+     ! Set to 0 for no iterations.
      integer :: schwarz_iterations = 0
 
      !> The right-hand sides in the linear solves.
