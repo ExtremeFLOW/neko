@@ -160,6 +160,17 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_cadd2
 
+     subroutine cuda_cwrap(a_d, min_val, max_val, n, strm) &
+          bind(c, name = 'cuda_cwrap')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: min_val
+       real(c_rp) :: max_val
+       integer(c_int) :: n
+     end subroutine cuda_cwrap
+
      subroutine cuda_cfill(a_d, c, n, strm) &
           bind(c, name = 'cuda_cfill')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr

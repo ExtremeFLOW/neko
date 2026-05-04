@@ -161,6 +161,17 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_cadd2
 
+     subroutine hip_cwrap(a_d, min_val, max_val, n, strm) &
+          bind(c, name = 'hip_cwrap')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: min_val
+       real(c_rp) :: max_val
+       integer(c_int) :: n
+     end subroutine hip_cwrap
+
      subroutine hip_cfill(a_d, c, n, strm) &
           bind(c, name = 'hip_cfill')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
