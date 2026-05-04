@@ -36,6 +36,7 @@ module neko
   use comm
   use utils
   use logger
+  use mask
   use math, only : abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, &
        cfill, glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, &
        invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
