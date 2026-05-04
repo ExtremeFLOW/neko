@@ -109,7 +109,7 @@ contains
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
     real(kind=rp), intent(in) :: cfl
-    real(kind=rp) :: dt_old, scaling_factor
+    real(kind=rp) :: dt_old, scaling_factor, global_min_dt
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
 
@@ -167,8 +167,15 @@ contains
 
     ! If running in mpmd, the new dt is the minimum across simulations
     if (pe_size .ne. global_pe_size) then
-       call MPI_Allreduce(MPI_IN_PLACE, time%dt, 1, MPI_REAL_PRECISION, &
+           global_min_dt = time%dt
+       call MPI_Allreduce(MPI_IN_PLACE, global_min_dt, 1, MPI_REAL_PRECISION, &
             MPI_MIN, NEKO_GLOBAL_COMM, ierr)
+
+           ! If my dt is larger that the global min, mark a change
+           if (time%dt .gt. global_min_dt) then
+                time%dt = global_min_dt
+                this%dt_last_change = 0
+           end if
     end if
 
   end subroutine time_step_controller_set_dt
