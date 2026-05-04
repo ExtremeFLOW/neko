@@ -73,6 +73,7 @@ module fluid_scheme_compressible_euler
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
+  use facet_normal, only : facet_normal_t
   implicit none
   private
 
@@ -84,7 +85,6 @@ module fluid_scheme_compressible_euler
      real(kind=rp) :: c_avisc_low
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
-     class(ax_t), allocatable :: Ax_navier_stokes
      class(euler_rhs_t), allocatable :: euler_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
@@ -92,6 +92,9 @@ module fluid_scheme_compressible_euler
 
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_density
+
+     !> Surface BC for removing cdtp boundary artifacts (PnPn-style)
+     type(facet_normal_t) :: bc_visc_surface
    contains
      procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
      procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
@@ -238,9 +241,6 @@ contains
 
     ! Initialize the diffusion operator
     call ax_helm_factory(this%Ax, full_formulation = .false.)
-    ! Initialize a separate operator for Navier-Stokes viscous stress
-    ! Uses ax_helm_full to compute weak form of div(h1 * (grad(u) + grad(u)^T))
-    call ax_helm_factory(this%Ax_navier_stokes, full_formulation = .true.)
 
     ! Compute h
     call this%compute_h()
@@ -285,6 +285,7 @@ contains
     end if
 
     call this%bcs_density%free()
+    call this%bc_visc_surface%free()
 
   end subroutine fluid_scheme_compressible_euler_free
 
@@ -327,11 +328,10 @@ contains
       call this%regularization%compute(time, time%tstep, time%dt)
 
     ! Execute RHS step with artificial viscosity field
-    ! Execute RHS step with artificial viscosity field
     call euler_rhs%step(rho, m_x, m_y, m_z, E, &
-         p, u, v, w, this%Ax, this%Ax_navier_stokes, &
+         p, u, v, w, this%Ax, &
          c_Xh, gs_Xh, h, this%artificial_visc, this%mu, this%kappa, &
-         rk_scheme, dt)
+         this%bc_visc_surface, rk_scheme, dt)
 
       !> Apply density boundary conditions
       call this%bcs_density%apply(rho, time)
@@ -378,16 +378,18 @@ contains
               (rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
       end do
 
-      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
-      call this%compute_entropy()
-
-      !> Update entropy lag series for entropy viscosity
+      !> Update entropy lag series BEFORE computing new entropy,
+      !> so that S_lag(1) holds the previous step's S (not the current).
+      !> This ensures BDF3 has 4 distinct time levels.
       if (allocated(this%regularization)) then
          select type (reg => this%regularization)
          type is (entropy_viscosity_t)
             call reg%update_lag()
          end select
       end if
+
+      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+      call this%compute_entropy()
 
       !> Update maximum wave speed for CFL computation
       call this%compute_max_wave_speed()
@@ -443,6 +445,9 @@ contains
        !
        call this%bcs_vel%init(n_bcs)
 
+       ! Initialise surface BC for removing cdtp boundary artifacts
+       call this%bc_visc_surface%init_from_components(this%c_Xh)
+
        do i = 1, n_bcs
           ! Extract BC configuration
           call json_extract_item(core, bc_object, i, bc_subdict)
@@ -467,9 +472,13 @@ contains
 
           ! Add to appropriate lists
           if (associated(bc_i)) then
+             call this%bc_visc_surface%mark_facets(bc_i%marked_facet)
              call this%bcs_vel%append(bc_i)
           end if
        end do
+
+       ! Finalize the viscous surface BC (builds mask, normals)
+       call this%bc_visc_surface%finalize()
 
        !
        ! Pressure bcs
@@ -519,6 +528,8 @@ contains
        call this%bcs_prs%init()
        call this%bcs_vel%init()
        call this%bcs_density%init()
+       call this%bc_visc_surface%init_from_components(this%c_Xh)
+       call this%bc_visc_surface%finalize()
 
     end if
   end subroutine fluid_scheme_compressible_euler_setup_bcs

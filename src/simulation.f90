@@ -209,14 +209,16 @@ contains
     type(time_scheme_controller_t), intent(inout), allocatable :: ext_bdf
     integer :: i
 
-    if (allocated(ext_bdf)) then
-       do i = 10, 2, -1
-          time%tlag(i) = time%tlag(i-1)
-          time%dtlag(i) = time%dtlag(i-1)
-       end do
+    ! Always shift the time lag arrays (needed by entropy viscosity etc.)
+    do i = 10, 2, -1
+       time%tlag(i) = time%tlag(i-1)
+       time%dtlag(i) = time%dtlag(i-1)
+    end do
 
-       time%dtlag(1) = time%dt
-       time%tlag(1) = time%t
+    time%dtlag(1) = time%dt
+    time%tlag(1) = time%t
+
+    if (allocated(ext_bdf)) then
        if (ext_bdf%ndiff .eq. 0) then
           time%dtlag(2) = time%dt
           time%tlag(2) = time%t

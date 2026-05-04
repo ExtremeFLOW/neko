@@ -41,12 +41,13 @@ module euler_res_cpu
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
   use num_types, only : rp
-  use operators, only : div, rotate_cyc, opgrad, cdtp
+  use operators, only : div, rotate_cyc, cdtp, dudxyz
   use math, only : vdot3, cmult, copy, col2, add2
   use gs_ops, only : GS_OP_ADD
   use scratch_registry, only : neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
+  use facet_normal, only : facet_normal_t
   implicit none
   private
 
@@ -59,6 +60,7 @@ module euler_res_cpu
   !> Module variables to store viscous flux parameters (set by factory)
   integer, public :: euler_res_cpu_viscous_flux_type = VISCOUS_FLUX_MONOLITHIC
   real(kind=rp), public :: euler_res_cpu_gamma = 1.4_rp
+
 
 contains
   !> Advances the primitive variables (density, momentum, energy)
@@ -78,14 +80,15 @@ contains
   !> @param rk_scheme Runge-Kutta time integration scheme
   !> @param dt Time step size
   subroutine advance_primitive_variables_cpu(rho_field, m_x, m_y, m_z, &
-       E, p, u, v, w, Ax, Ax_navier_stokes, &
-       coef, gs, h, artificial_visc, mu, kappa, rk_scheme, dt)
+       E, p, u, v, w, Ax, &
+       coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface, &
+       rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax
-    class(Ax_t), intent(inout) :: Ax_navier_stokes
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
+    type(facet_normal_t), intent(in) :: bc_visc_surface
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
     integer :: n, s, i, j, k
@@ -190,8 +193,8 @@ contains
             k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, &
             k_E%items(i)%ptr, &
             temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
-            p, u, v, w, Ax, Ax_navier_stokes, &
-            coef, gs, h, artificial_visc, mu, kappa)
+            p, u, v, w, Ax, &
+            coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface)
     end do
 
     ! Update the solution
@@ -243,30 +246,25 @@ contains
   !> @param mu Dynamic viscosity field (physical viscosity for momentum)
   !> @param kappa Thermal conductivity field (for energy diffusion)
   subroutine evaluate_rhs_cpu(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
-       rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, Ax_navier_stokes, &
-       coef, gs, h, artificial_visc, mu, kappa)
+       rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
+       coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface)
     type(field_t), intent(inout) :: rhs_rho_field, &
          rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax
-    class(Ax_t), intent(inout) :: Ax_navier_stokes
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
+    type(facet_normal_t), intent(in) :: bc_visc_surface
     integer :: i, n, n_tmp
     ! Scratch fields for flux components (shared by both paths)
     type(field_t), pointer :: f_x, f_y, f_z
-    ! Scratch fields for velocity gradients (NS path only)
-    type(field_t), pointer :: s_dudx, s_dudy, s_dudz, &
-         s_dvdx, s_dvdy, s_dvdz, s_dwdx, s_dwdy, s_dwdz
     ! Scratch fields for viscous diffusion (both paths)
     type(field_t), pointer :: visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
-    ! Scratch field for cdtp accumulation (NS path only)
-    type(field_t), pointer :: cdtp_tmp
-    integer :: tmp_indices(18)
-    real(kind=rp) :: mu_eff, kappa_eff
-    real(kind=rp) :: txx, txy, txz, tyy, tyz, tzz
-    real(kind=rp) :: u_local, v_local, w_local
+    ! Scratch fields for GP path: density gradients, cdtp workspace
+    type(field_t), pointer :: drhodx, drhody, drhodz, cdtp_tmp
+    integer :: tmp_indices(12)
+    real(kind=rp) :: mu_eff, kappa_eff, half_mu
 
     n = coef%dof%size()
 
@@ -278,12 +276,17 @@ contains
 
     if (euler_res_cpu_viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES) then
        ! ================================================================
-       ! NAVIER-STOKES PATH (mixed formulation)
+       ! GUERMOND-POPOV VISCOUS FLUX PATH
        ! Phase 1: Inviscid fluxes via div (strong form) + gs + mult
        !          (same formulation as monolithic, known stable).
-       ! Phase 2: Viscous fluxes (stress tensor, thermal diffusion,
-       !          density diffusion) via cdtp (weak form) + gs + Binv.
-       !          No Ax operator is used for the viscous part.
+       ! Phase 2: GP viscous regularization with two coefficients:
+       !   μ_eff = max(art_visc, μ_physical)
+       !   κ_eff = max(art_visc, κ_physical)
+       !
+       ! GP viscous flux (Guermond & Popov, CMAME 2014):
+       !   Density:  κ_eff ∇²ρ
+       !   Momentum: μ_eff ∇²m_i + (κ_eff - μ_eff) Σ_j ∂(u_j ∂ρ/∂x_i)/∂x_j
+       !   Energy:   κ_eff ∇²E + (μ_eff - κ_eff)(ρ/2) Σ_j ∂(∂|u|²/∂x_j)/∂x_j
        ! ================================================================
 
        ! --- Phase 1: Inviscid fluxes (strong form, same as monolithic) ---
@@ -324,14 +327,16 @@ contains
        end do
        call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
 
-       ! Energy: div([(E+p)*m/rho])
+       ! Energy: div([(E+p)*u, (E+p)*v, (E+p)*w])
+       ! Use BC-enforced velocity (u,v,w) to ensure zero energy flux
+       ! at no-slip walls, matching the monolithic path.
        do concurrent (i = 1:n)
           f_x%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) &
-               * m_x%x(i,1,1,1) / rho_field%x(i,1,1,1)
+               * u%x(i,1,1,1)
           f_y%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) &
-               * m_y%x(i,1,1,1) / rho_field%x(i,1,1,1)
+               * v%x(i,1,1,1)
           f_z%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) &
-               * m_z%x(i,1,1,1) / rho_field%x(i,1,1,1)
+               * w%x(i,1,1,1)
        end do
        call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
 
@@ -353,164 +358,416 @@ contains
        end do
 
        ! ================================================================
-       ! Phase 2+3: Artificial viscosity (Ax) + Physical NS flux (cdtp)
-       !
-       ! Strategy:
-       !   - Ax on ALL conserved variables with h1 = artificial_visc
-       !     (shock-capturing, operates on conserved variables)
-       !   - cdtp of stress tensor (physical NS, operates on velocity)
-       !     added to momentum visc accumulators
-       !   - cdtp of (tau.u + kappa*grad_E) added to energy visc
-       !   - Single gs + Binv pass on combined result
+       ! Phase 2: GP viscous terms
        ! ================================================================
 
-       ! Scratch: vel gradients (9) + visc accumulators (5) + cdtp temp (1)
-       call neko_scratch_registry%request_field(s_dudx, tmp_indices(4), .false.)
-       call neko_scratch_registry%request_field(s_dudy, tmp_indices(5), .false.)
-       call neko_scratch_registry%request_field(s_dudz, tmp_indices(6), .false.)
-       call neko_scratch_registry%request_field(s_dvdx, tmp_indices(7), .false.)
-       call neko_scratch_registry%request_field(s_dvdy, tmp_indices(8), .false.)
-       call neko_scratch_registry%request_field(s_dvdz, tmp_indices(9), .false.)
-       call neko_scratch_registry%request_field(s_dwdx, tmp_indices(10), .false.)
-       call neko_scratch_registry%request_field(s_dwdy, tmp_indices(11), .false.)
-       call neko_scratch_registry%request_field(s_dwdz, tmp_indices(12), .false.)
-       call neko_scratch_registry%request_field(visc_rho, tmp_indices(13), &
+       ! --- Allocate scratch fields ---
+       call neko_scratch_registry%request_field(visc_rho, tmp_indices(4), &
             .false.)
-       call neko_scratch_registry%request_field(visc_m_x, tmp_indices(14), &
+       call neko_scratch_registry%request_field(visc_m_x, tmp_indices(5), &
             .false.)
-       call neko_scratch_registry%request_field(visc_m_y, tmp_indices(15), &
+       call neko_scratch_registry%request_field(visc_m_y, tmp_indices(6), &
             .false.)
-       call neko_scratch_registry%request_field(visc_m_z, tmp_indices(16), &
+       call neko_scratch_registry%request_field(visc_m_z, tmp_indices(7), &
             .false.)
-       call neko_scratch_registry%request_field(visc_E, tmp_indices(17), &
+       call neko_scratch_registry%request_field(visc_E, tmp_indices(8), &
             .false.)
-       call neko_scratch_registry%request_field(cdtp_tmp, tmp_indices(18), &
+       call neko_scratch_registry%request_field(cdtp_tmp, tmp_indices(9), &
             .false.)
-       n_tmp = 18
+       call neko_scratch_registry%request_field(drhodx, tmp_indices(10), &
+            .false.)
+       call neko_scratch_registry%request_field(drhody, tmp_indices(11), &
+            .false.)
+       call neko_scratch_registry%request_field(drhodz, tmp_indices(12), &
+            .false.)
+       n_tmp = 12
 
-       ! Compute substage velocity u_sub = m/rho
-       do concurrent (i = 1:n)
-          f_x%x(i,1,1,1) = m_x%x(i,1,1,1) / rho_field%x(i,1,1,1)
-          f_y%x(i,1,1,1) = m_y%x(i,1,1,1) / rho_field%x(i,1,1,1)
-          f_z%x(i,1,1,1) = m_z%x(i,1,1,1) / rho_field%x(i,1,1,1)
-       end do
-       call opgrad(s_dudx%x, s_dudy%x, s_dudz%x, f_x%x, coef)
-       call opgrad(s_dvdx%x, s_dvdy%x, s_dvdz%x, f_y%x, coef)
-       call opgrad(s_dwdx%x, s_dwdy%x, s_dwdz%x, f_z%x, coef)
+       ! --- Compute density gradients ---
+       call dudxyz(drhodx%x, rho_field%x, coef%drdx, coef%dsdx, &
+            coef%dtdx, coef)
+       call dudxyz(drhody%x, rho_field%x, coef%drdy, coef%dsdy, &
+            coef%dtdy, coef)
+       call dudxyz(drhodz%x, rho_field%x, coef%drdz, coef%dsdz, &
+            coef%dtdz, coef)
 
-       ! --- Ax on all conserved variables (artificial viscosity) ---
+       coef%ifh2 = .false.
+
+       ! ---------------------------------------------------------------
+       ! GP density: Ax(κ_eff, ρ)
+       ! ---------------------------------------------------------------
        do concurrent (i = 1:n)
-          coef%h1(i,1,1,1) = artificial_visc%x(i,1,1,1)
+          coef%h1(i,1,1,1) = max(artificial_visc%x(i,1,1,1), &
+               kappa%x(i,1,1,1))
        end do
        call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
+
+       ! ---------------------------------------------------------------
+       ! GP momentum: Ax(μ_eff, m_i)
+       ! ---------------------------------------------------------------
+       do concurrent (i = 1:n)
+          coef%h1(i,1,1,1) = max(artificial_visc%x(i,1,1,1), &
+               mu%x(i,1,1,1))
+       end do
        call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
        call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
        call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
+
+       ! ---------------------------------------------------------------
+       ! GP momentum corrections (symmetric gradient formulation).
+       !
+       ! The full GP momentum flux is:
+       !   F_{ij} = μ ρ S_{ij} + κ (∂_i ρ) u_j
+       ! where S_{ij} = (∂_j u_i + ∂_i u_j) / 2.
+       !
+       ! After subtracting the Ax part (μ ∂_j m_i), the cdtp
+       ! correction for component i, direction j is:
+       !   corr_{ij} = (μ/2)(∂_i m_j - ∂_j m_i)
+       !            - (μ/2) u_i ∂_j ρ
+       !            + (κ - μ/2) u_j ∂_i ρ
+       !
+       ! For j = i (diagonal), this simplifies to (κ - μ) u_i ∂_i ρ.
+       ! For j ≠ i (off-diagonal), momentum gradients are needed.
+       ! When κ_eff == μ_eff, all corrections vanish.
+       ! ---------------------------------------------------------------
+
+       ! ============== x-momentum corrections ==============
+
+       ! j=x (diagonal): (κ - μ) u ∂ρ/∂x
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_x%x(i,1,1,1) = (kappa_eff - mu_eff) &
+               * u%x(i,1,1,1) * drhodx%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_x%x, coef%drdx, coef%dsdx, &
+            coef%dtdx, coef)
+       call add2(visc_m_x%x, cdtp_tmp%x, n)
+
+       ! j=y: (μ/2)(∂m_y/∂x - ∂m_x/∂y) - (μ/2) u ∂ρ/∂y
+       !     + (κ - μ/2) v ∂ρ/∂x
+       call dudxyz(f_y%x, m_y%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call dudxyz(cdtp_tmp%x, m_x%x, coef%drdy, coef%dsdy, &
+            coef%dtdy, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          half_mu = 0.5_rp * mu_eff
+          f_y%x(i,1,1,1) = half_mu &
+               * (f_y%x(i,1,1,1) - cdtp_tmp%x(i,1,1,1)) &
+               - half_mu * u%x(i,1,1,1) * drhody%x(i,1,1,1) &
+               + (kappa_eff - half_mu) &
+               * v%x(i,1,1,1) * drhodx%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_y%x, coef%drdy, coef%dsdy, &
+            coef%dtdy, coef)
+       call add2(visc_m_x%x, cdtp_tmp%x, n)
+
+       ! j=z: (μ/2)(∂m_z/∂x - ∂m_x/∂z) - (μ/2) u ∂ρ/∂z
+       !     + (κ - μ/2) w ∂ρ/∂x
+       call dudxyz(f_z%x, m_z%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call dudxyz(cdtp_tmp%x, m_x%x, coef%drdz, coef%dsdz, &
+            coef%dtdz, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          half_mu = 0.5_rp * mu_eff
+          f_z%x(i,1,1,1) = half_mu &
+               * (f_z%x(i,1,1,1) - cdtp_tmp%x(i,1,1,1)) &
+               - half_mu * u%x(i,1,1,1) * drhodz%x(i,1,1,1) &
+               + (kappa_eff - half_mu) &
+               * w%x(i,1,1,1) * drhodx%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_z%x, coef%drdz, coef%dsdz, &
+            coef%dtdz, coef)
+       call add2(visc_m_x%x, cdtp_tmp%x, n)
+
+       ! ============== y-momentum corrections ==============
+
+       ! j=x: (μ/2)(∂m_x/∂y - ∂m_y/∂x) - (μ/2) v ∂ρ/∂x
+       !     + (κ - μ/2) u ∂ρ/∂y
+       call dudxyz(f_x%x, m_x%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call dudxyz(cdtp_tmp%x, m_y%x, coef%drdx, coef%dsdx, &
+            coef%dtdx, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          half_mu = 0.5_rp * mu_eff
+          f_x%x(i,1,1,1) = half_mu &
+               * (f_x%x(i,1,1,1) - cdtp_tmp%x(i,1,1,1)) &
+               - half_mu * v%x(i,1,1,1) * drhodx%x(i,1,1,1) &
+               + (kappa_eff - half_mu) &
+               * u%x(i,1,1,1) * drhody%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_x%x, coef%drdx, coef%dsdx, &
+            coef%dtdx, coef)
+       call add2(visc_m_y%x, cdtp_tmp%x, n)
+
+       ! j=y (diagonal): (κ - μ) v ∂ρ/∂y
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_y%x(i,1,1,1) = (kappa_eff - mu_eff) &
+               * v%x(i,1,1,1) * drhody%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_y%x, coef%drdy, coef%dsdy, &
+            coef%dtdy, coef)
+       call add2(visc_m_y%x, cdtp_tmp%x, n)
+
+       ! j=z: (μ/2)(∂m_z/∂y - ∂m_y/∂z) - (μ/2) v ∂ρ/∂z
+       !     + (κ - μ/2) w ∂ρ/∂y
+       call dudxyz(f_z%x, m_z%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call dudxyz(cdtp_tmp%x, m_y%x, coef%drdz, coef%dsdz, &
+            coef%dtdz, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          half_mu = 0.5_rp * mu_eff
+          f_z%x(i,1,1,1) = half_mu &
+               * (f_z%x(i,1,1,1) - cdtp_tmp%x(i,1,1,1)) &
+               - half_mu * v%x(i,1,1,1) * drhodz%x(i,1,1,1) &
+               + (kappa_eff - half_mu) &
+               * w%x(i,1,1,1) * drhody%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_z%x, coef%drdz, coef%dsdz, &
+            coef%dtdz, coef)
+       call add2(visc_m_y%x, cdtp_tmp%x, n)
+
+       ! ============== z-momentum corrections ==============
+
+       ! j=x: (μ/2)(∂m_x/∂z - ∂m_z/∂x) - (μ/2) w ∂ρ/∂x
+       !     + (κ - μ/2) u ∂ρ/∂z
+       call dudxyz(f_x%x, m_x%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call dudxyz(cdtp_tmp%x, m_z%x, coef%drdx, coef%dsdx, &
+            coef%dtdx, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          half_mu = 0.5_rp * mu_eff
+          f_x%x(i,1,1,1) = half_mu &
+               * (f_x%x(i,1,1,1) - cdtp_tmp%x(i,1,1,1)) &
+               - half_mu * w%x(i,1,1,1) * drhodx%x(i,1,1,1) &
+               + (kappa_eff - half_mu) &
+               * u%x(i,1,1,1) * drhodz%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_x%x, coef%drdx, coef%dsdx, &
+            coef%dtdx, coef)
+       call add2(visc_m_z%x, cdtp_tmp%x, n)
+
+       ! j=y: (μ/2)(∂m_y/∂z - ∂m_z/∂y) - (μ/2) w ∂ρ/∂y
+       !     + (κ - μ/2) v ∂ρ/∂z
+       call dudxyz(f_y%x, m_y%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call dudxyz(cdtp_tmp%x, m_z%x, coef%drdy, coef%dsdy, &
+            coef%dtdy, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          half_mu = 0.5_rp * mu_eff
+          f_y%x(i,1,1,1) = half_mu &
+               * (f_y%x(i,1,1,1) - cdtp_tmp%x(i,1,1,1)) &
+               - half_mu * w%x(i,1,1,1) * drhody%x(i,1,1,1) &
+               + (kappa_eff - half_mu) &
+               * v%x(i,1,1,1) * drhodz%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_y%x, coef%drdy, coef%dsdy, &
+            coef%dtdy, coef)
+       call add2(visc_m_z%x, cdtp_tmp%x, n)
+
+       ! j=z (diagonal): (κ - μ) w ∂ρ/∂z
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_z%x(i,1,1,1) = (kappa_eff - mu_eff) &
+               * w%x(i,1,1,1) * drhodz%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_z%x, coef%drdz, coef%dsdz, &
+            coef%dtdz, coef)
+       call add2(visc_m_z%x, cdtp_tmp%x, n)
+
+       ! ---------------------------------------------------------------
+       ! GP energy: Ax(κ_eff, E)
+       ! ---------------------------------------------------------------
+       do concurrent (i = 1:n)
+          coef%h1(i,1,1,1) = max(artificial_visc%x(i,1,1,1), &
+               kappa%x(i,1,1,1))
+       end do
        call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
+
+       ! ---------------------------------------------------------------
+       ! GP energy correction (symmetric gradient formulation).
+       !
+       ! The GP energy flux is:
+       !   F_j^E = κ ∂_j(ρe) + (|u|²/2) κ ∂_j ρ + μ ρ Σ_k S_{jk} u_k
+       !         = κ ∂_j E + (μ/2 - κ) ρ Σ_k u_k ∂_j u_k
+       !                   + (μ/2) ρ Σ_k u_k ∂_k u_j
+       !
+       ! After subtracting Ax(κ, E), the cdtp correction is:
+       !   f_j = (μ/2 - κ) ρ Σ_k u_k ∂_j u_k + (μ/2) ρ Σ_k u_k ∂_k u_j
+       !
+       ! Combined coefficient per gradient for each j:
+       !   ∂_j u_j × u_j: (μ - κ)     [both terms contribute]
+       !   ∂_j u_k × u_k: (μ/2 - κ)   [Term 1 only, k≠j]
+       !   ∂_k u_j × u_k: μ/2         [Term 2 only, k≠j]
+       !
+       ! When μ_eff == κ_eff, all corrections vanish.
+       ! ---------------------------------------------------------------
+
+       ! --- j = x direction ---
+       ! ∂u/∂x: coefficient (μ - κ) × u [shared by both terms]
+       call dudxyz(cdtp_tmp%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_x%x(i,1,1,1) = (mu_eff - kappa_eff) &
+               * u%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂v/∂x: coefficient (μ/2 - κ) × v [Term 1 only]
+       call dudxyz(cdtp_tmp%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_x%x(i,1,1,1) = f_x%x(i,1,1,1) &
+               + (0.5_rp * mu_eff - kappa_eff) &
+               * v%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂w/∂x: coefficient (μ/2 - κ) × w [Term 1 only]
+       call dudxyz(cdtp_tmp%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_x%x(i,1,1,1) = f_x%x(i,1,1,1) &
+               + (0.5_rp * mu_eff - kappa_eff) &
+               * w%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂u/∂y: coefficient (μ/2) × v [Term 2 only]
+       call dudxyz(cdtp_tmp%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          f_x%x(i,1,1,1) = f_x%x(i,1,1,1) &
+               + 0.5_rp * mu_eff &
+               * v%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂u/∂z: coefficient (μ/2) × w [Term 2 only]
+       call dudxyz(cdtp_tmp%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          f_x%x(i,1,1,1) = f_x%x(i,1,1,1) &
+               + 0.5_rp * mu_eff &
+               * w%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! Multiply accumulated sum by ρ
+       do concurrent (i = 1:n)
+          f_x%x(i,1,1,1) = rho_field%x(i,1,1,1) * f_x%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_x%x, coef%drdx, coef%dsdx, &
+            coef%dtdx, coef)
+       call add2(visc_E%x, cdtp_tmp%x, n)
+
+       ! --- j = y direction ---
+       ! ∂u/∂y: coefficient (μ/2 - κ) × u [Term 1 only]
+       call dudxyz(cdtp_tmp%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_y%x(i,1,1,1) = (0.5_rp * mu_eff - kappa_eff) &
+               * u%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂v/∂y: coefficient (μ - κ) × v [both terms]
+       call dudxyz(cdtp_tmp%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_y%x(i,1,1,1) = f_y%x(i,1,1,1) &
+               + (mu_eff - kappa_eff) &
+               * v%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂w/∂y: coefficient (μ/2 - κ) × w [Term 1 only]
+       call dudxyz(cdtp_tmp%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_y%x(i,1,1,1) = f_y%x(i,1,1,1) &
+               + (0.5_rp * mu_eff - kappa_eff) &
+               * w%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂v/∂x: coefficient (μ/2) × u [Term 2 only]
+       call dudxyz(cdtp_tmp%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          f_y%x(i,1,1,1) = f_y%x(i,1,1,1) &
+               + 0.5_rp * mu_eff &
+               * u%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂v/∂z: coefficient (μ/2) × w [Term 2 only]
+       call dudxyz(cdtp_tmp%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          f_y%x(i,1,1,1) = f_y%x(i,1,1,1) &
+               + 0.5_rp * mu_eff &
+               * w%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! Multiply accumulated sum by ρ
+       do concurrent (i = 1:n)
+          f_y%x(i,1,1,1) = rho_field%x(i,1,1,1) * f_y%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_y%x, coef%drdy, coef%dsdy, &
+            coef%dtdy, coef)
+       call add2(visc_E%x, cdtp_tmp%x, n)
+
+       ! --- j = z direction ---
+       ! ∂u/∂z: coefficient (μ/2 - κ) × u [Term 1 only]
+       call dudxyz(cdtp_tmp%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_z%x(i,1,1,1) = (0.5_rp * mu_eff - kappa_eff) &
+               * u%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂v/∂z: coefficient (μ/2 - κ) × v [Term 1 only]
+       call dudxyz(cdtp_tmp%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_z%x(i,1,1,1) = f_z%x(i,1,1,1) &
+               + (0.5_rp * mu_eff - kappa_eff) &
+               * v%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂w/∂z: coefficient (μ - κ) × w [both terms]
+       call dudxyz(cdtp_tmp%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          kappa_eff = max(artificial_visc%x(i,1,1,1), kappa%x(i,1,1,1))
+          f_z%x(i,1,1,1) = f_z%x(i,1,1,1) &
+               + (mu_eff - kappa_eff) &
+               * w%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂w/∂x: coefficient (μ/2) × u [Term 2 only]
+       call dudxyz(cdtp_tmp%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          f_z%x(i,1,1,1) = f_z%x(i,1,1,1) &
+               + 0.5_rp * mu_eff &
+               * u%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! ∂w/∂y: coefficient (μ/2) × v [Term 2 only]
+       call dudxyz(cdtp_tmp%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       do concurrent (i = 1:n)
+          mu_eff = max(artificial_visc%x(i,1,1,1), mu%x(i,1,1,1))
+          f_z%x(i,1,1,1) = f_z%x(i,1,1,1) &
+               + 0.5_rp * mu_eff &
+               * v%x(i,1,1,1) * cdtp_tmp%x(i,1,1,1)
+       end do
+       ! Multiply accumulated sum by ρ
+       do concurrent (i = 1:n)
+          f_z%x(i,1,1,1) = rho_field%x(i,1,1,1) * f_z%x(i,1,1,1)
+       end do
+       call cdtp(cdtp_tmp%x, f_z%x, coef%drdz, coef%dsdz, &
+            coef%dtdz, coef)
+       call add2(visc_E%x, cdtp_tmp%x, n)
+
+       ! Reset h1 coefficient back to 1.0
        do concurrent (i = 1:n)
           coef%h1(i,1,1,1) = 1.0_rp
        end do
-
-       ! --- Physical NS: x-momentum, tau_x = mu*[2*du/dx, du/dy+dv/dx, du/dz+dw/dx] ---
-       do concurrent (i = 1:n)
-          f_x%x(i,1,1,1) = mu%x(i,1,1,1) * 2.0_rp * s_dudx%x(i,1,1,1)
-          f_y%x(i,1,1,1) = mu%x(i,1,1,1) * (s_dudy%x(i,1,1,1) &
-               + s_dvdx%x(i,1,1,1))
-          f_z%x(i,1,1,1) = mu%x(i,1,1,1) * (s_dudz%x(i,1,1,1) &
-               + s_dwdx%x(i,1,1,1))
-       end do
-       call cdtp(cdtp_tmp%x, f_x%x, coef%drdx, coef%dsdx, &
-            coef%dtdx, coef)
-       call add2(visc_m_x%x, cdtp_tmp%x, n)
-       call cdtp(cdtp_tmp%x, f_y%x, coef%drdy, coef%dsdy, &
-            coef%dtdy, coef)
-       call add2(visc_m_x%x, cdtp_tmp%x, n)
-       call cdtp(cdtp_tmp%x, f_z%x, coef%drdz, coef%dsdz, &
-            coef%dtdz, coef)
-       call add2(visc_m_x%x, cdtp_tmp%x, n)
-
-       ! --- Physical NS: y-momentum, tau_y = mu*[du/dy+dv/dx, 2*dv/dy, dv/dz+dw/dy] ---
-       do concurrent (i = 1:n)
-          f_x%x(i,1,1,1) = mu%x(i,1,1,1) * (s_dudy%x(i,1,1,1) &
-               + s_dvdx%x(i,1,1,1))
-          f_y%x(i,1,1,1) = mu%x(i,1,1,1) * 2.0_rp * s_dvdy%x(i,1,1,1)
-          f_z%x(i,1,1,1) = mu%x(i,1,1,1) * (s_dvdz%x(i,1,1,1) &
-               + s_dwdy%x(i,1,1,1))
-       end do
-       call cdtp(cdtp_tmp%x, f_x%x, coef%drdx, coef%dsdx, &
-            coef%dtdx, coef)
-       call add2(visc_m_y%x, cdtp_tmp%x, n)
-       call cdtp(cdtp_tmp%x, f_y%x, coef%drdy, coef%dsdy, &
-            coef%dtdy, coef)
-       call add2(visc_m_y%x, cdtp_tmp%x, n)
-       call cdtp(cdtp_tmp%x, f_z%x, coef%drdz, coef%dsdz, &
-            coef%dtdz, coef)
-       call add2(visc_m_y%x, cdtp_tmp%x, n)
-
-       ! --- Physical NS: z-momentum, tau_z = mu*[du/dz+dw/dx, dv/dz+dw/dy, 2*dw/dz] ---
-       do concurrent (i = 1:n)
-          f_x%x(i,1,1,1) = mu%x(i,1,1,1) * (s_dudz%x(i,1,1,1) &
-               + s_dwdx%x(i,1,1,1))
-          f_y%x(i,1,1,1) = mu%x(i,1,1,1) * (s_dvdz%x(i,1,1,1) &
-               + s_dwdy%x(i,1,1,1))
-          f_z%x(i,1,1,1) = mu%x(i,1,1,1) * 2.0_rp * s_dwdz%x(i,1,1,1)
-       end do
-       call cdtp(cdtp_tmp%x, f_x%x, coef%drdx, coef%dsdx, &
-            coef%dtdx, coef)
-       call add2(visc_m_z%x, cdtp_tmp%x, n)
-       call cdtp(cdtp_tmp%x, f_y%x, coef%drdy, coef%dsdy, &
-            coef%dtdy, coef)
-       call add2(visc_m_z%x, cdtp_tmp%x, n)
-       call cdtp(cdtp_tmp%x, f_z%x, coef%drdz, coef%dsdz, &
-            coef%dtdz, coef)
-       call add2(visc_m_z%x, cdtp_tmp%x, n)
-
-       ! --- Physical NS: energy viscous flux ---
-       ! F_E_visc = tau.u + kappa*grad(T) (POSITIVE, for rhs -= Binv*cdtp)
-       ! where T = p / (rho * (gamma - 1))
-       ! Step 1: Compute tau.u (needs all velocity gradients)
-       do concurrent (i = 1:n)
-          txx = mu%x(i,1,1,1) * 2.0_rp * s_dudx%x(i,1,1,1)
-          txy = mu%x(i,1,1,1) * (s_dudy%x(i,1,1,1) + s_dvdx%x(i,1,1,1))
-          txz = mu%x(i,1,1,1) * (s_dudz%x(i,1,1,1) + s_dwdx%x(i,1,1,1))
-          tyy = mu%x(i,1,1,1) * 2.0_rp * s_dvdy%x(i,1,1,1)
-          tyz = mu%x(i,1,1,1) * (s_dvdz%x(i,1,1,1) + s_dwdy%x(i,1,1,1))
-          tzz = mu%x(i,1,1,1) * 2.0_rp * s_dwdz%x(i,1,1,1)
-          u_local = m_x%x(i,1,1,1) / rho_field%x(i,1,1,1)
-          v_local = m_y%x(i,1,1,1) / rho_field%x(i,1,1,1)
-          w_local = m_z%x(i,1,1,1) / rho_field%x(i,1,1,1)
-          f_x%x(i,1,1,1) = txx * u_local + txy * v_local &
-               + txz * w_local
-          f_y%x(i,1,1,1) = txy * u_local + tyy * v_local &
-               + tyz * w_local
-          f_z%x(i,1,1,1) = txz * u_local + tyz * v_local &
-               + tzz * w_local
-       end do
-       ! Step 2: Add kappa*grad(T) where T = p/(rho*(gamma-1))
-       ! Compute T locally into s_dvdx (free at this point)
-       do concurrent (i = 1:n)
-          s_dvdx%x(i,1,1,1) = p%x(i,1,1,1) / &
-               (rho_field%x(i,1,1,1) * (euler_res_cpu_gamma - 1.0_rp))
-       end do
-       call opgrad(s_dudx%x, s_dudy%x, s_dudz%x, s_dvdx%x, coef)
-       do concurrent (i = 1:n)
-          f_x%x(i,1,1,1) = f_x%x(i,1,1,1) &
-               + kappa%x(i,1,1,1) * s_dudx%x(i,1,1,1)
-          f_y%x(i,1,1,1) = f_y%x(i,1,1,1) &
-               + kappa%x(i,1,1,1) * s_dudy%x(i,1,1,1)
-          f_z%x(i,1,1,1) = f_z%x(i,1,1,1) &
-               + kappa%x(i,1,1,1) * s_dudz%x(i,1,1,1)
-       end do
-       ! cdtp of energy viscous flux, add to visc_E
-       call cdtp(cdtp_tmp%x, f_x%x, coef%drdx, coef%dsdx, &
-            coef%dtdx, coef)
-       call add2(visc_E%x, cdtp_tmp%x, n)
-       call cdtp(cdtp_tmp%x, f_y%x, coef%drdy, coef%dsdy, &
-            coef%dtdy, coef)
-       call add2(visc_E%x, cdtp_tmp%x, n)
-       call cdtp(cdtp_tmp%x, f_z%x, coef%drdz, coef%dsdz, &
-            coef%dtdz, coef)
-       call add2(visc_E%x, cdtp_tmp%x, n)
 
        ! --- Gather-scatter and apply Binv to combined viscous terms ---
        call gs%op(visc_rho, GS_OP_ADD)

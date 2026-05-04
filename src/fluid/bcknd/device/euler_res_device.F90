@@ -47,6 +47,7 @@ module euler_res_device
   use field_list, only : field_list_t
   use device_math, only : device_copy, device_rone, device_col2, &
        device_cmult, device_sub2, device_pwmax3, device_vdot3, device_rzero
+  use facet_normal, only : facet_normal_t
 
   type, public, extends(euler_rhs_t) :: euler_res_device_t
    contains
@@ -320,14 +321,15 @@ module euler_res_device
 
 contains
   subroutine advance_primitive_variables_device(rho_field, &
-       m_x, m_y, m_z, E, p, u, v, w, Ax, Ax_navier_stokes, &
-       coef, gs, h, artificial_visc, mu, kappa, rk_scheme, dt)
+       m_x, m_y, m_z, E, p, u, v, w, Ax, &
+       coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface, &
+       rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax
-    class(Ax_t), intent(inout) :: Ax_navier_stokes
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
+    type(facet_normal_t), intent(in) :: bc_visc_surface
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
     integer :: n, s, i, j, k
@@ -429,8 +431,8 @@ contains
        call evaluate_rhs_device(k_rho%items(i)%ptr, k_m_x%items(i)%ptr, &
             k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, k_E%items(i)%ptr, &
             temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
-            p, u, v, w, Ax, Ax_navier_stokes, &
-            coef, gs, h, artificial_visc, mu, kappa)
+            p, u, v, w, Ax, &
+            coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface)
     end do
 
     ! Update the solution
@@ -461,22 +463,19 @@ contains
 
   subroutine evaluate_rhs_device(rhs_rho_field, rhs_m_x, rhs_m_y, &
        rhs_m_z, rhs_E, rho_field, &
-       m_x, m_y, m_z, E, p, u, v, w, Ax, Ax_navier_stokes, &
-       coef, gs, h, artificial_visc, mu, kappa)
+       m_x, m_y, m_z, E, p, u, v, w, Ax, &
+       coef, gs, h, artificial_visc, mu, kappa, bc_visc_surface)
     type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax
-    class(Ax_t), intent(inout) :: Ax_navier_stokes
+    type(facet_normal_t), intent(in) :: bc_visc_surface
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
     integer :: n, i
-    real(kind=rp) :: visc_coeff
     type(field_t), pointer :: temp, f_x, f_y, f_z, &
-         visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E, &
-         q_x, q_y, q_z
-    integer :: temp_indices(11)
-    real(kind=rp) :: mu_eff
+         visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
+    integer :: temp_indices(8)
 
     n = coef%dof%size()
     call neko_scratch_registry%request_field(f_x, temp_indices(1), .false.)
@@ -575,58 +574,24 @@ contains
     call neko_scratch_registry%request_field(visc_m_y, temp_indices(6), .false.)
     call neko_scratch_registry%request_field(visc_m_z, temp_indices(7), .false.)
     call neko_scratch_registry%request_field(visc_E, temp_indices(8), .false.)
-    ! Always request scratch fields 9-11 so relinquish_field works
-    call neko_scratch_registry%request_field(q_x, temp_indices(9), .false.)
-    call neko_scratch_registry%request_field(q_y, temp_indices(10), .false.)
-    call neko_scratch_registry%request_field(q_z, temp_indices(11), .false.)
 
     ! Compute effective viscosity = max(artificial, physical) for each equation
-    if (euler_res_device_viscous_flux_type == VISCOUS_FLUX_MONOLITHIC) then
-       ! For all conserved variables (density, momentum): use max(artificial, mu)
-       call device_copy(coef%h1_d, artificial_visc%x_d, n)
-       call device_pwmax3(coef%h1_d, mu%x_d, coef%h1_d, n)
-       call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
-       call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
-       call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
-       call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
+    ! TODO: Port the cdtp-based Navier-Stokes viscous flux from the CPU
+    ! backend (euler_res_cpu). For now the device backend always uses the
+    ! monolithic path regardless of the viscous_flux_type setting.
 
-       ! For energy: use max(artificial, kappa)
-       call device_copy(coef%h1_d, artificial_visc%x_d, n)
-       call device_pwmax3(coef%h1_d, kappa%x_d, coef%h1_d, n)
-       call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
-    else
-       ! Navier-Stokes:
-       ! - Density: scalar Ax with h1 = max(art, mu)
-       ! - Momentum: physical stress tensor on velocity (h1=mu) +
-       !   artificial Ax on conserved momentum (h1=art)
-       ! - Energy: Ax(E, h1=max(art,kappa)) for diffusion
+    ! For all conserved variables (density, momentum): use max(artificial, mu)
+    call device_copy(coef%h1_d, artificial_visc%x_d, n)
+    call device_pwmax3(coef%h1_d, mu%x_d, coef%h1_d, n)
+    call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
+    call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
+    call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
+    call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
 
-       ! Density: h1 = max(art, mu)
-       call device_copy(coef%h1_d, artificial_visc%x_d, n)
-       call device_pwmax3(coef%h1_d, mu%x_d, coef%h1_d, n)
-       call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
-
-       ! Momentum: base diffusion from Ax on conserved momentum
-       ! (same as monolithic, provides shock capturing at all discontinuities)
-       call device_copy(coef%h1_d, artificial_visc%x_d, n)
-       call device_pwmax3(coef%h1_d, mu%x_d, coef%h1_d, n)
-       call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
-       call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
-       call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
-
-       ! Momentum: add physical stress tensor correction on velocity
-       call device_copy(coef%h1_d, mu%x_d, n)
-       call Ax_navier_stokes%compute_vector(q_x%x, q_y%x, &
-            q_z%x, u%x, v%x, w%x, coef, p%msh, p%Xh)
-       call device_add2(visc_m_x%x_d, q_x%x_d, n)
-       call device_add2(visc_m_y%x_d, q_y%x_d, n)
-       call device_add2(visc_m_z%x_d, q_z%x_d, n)
-
-       ! Energy: diffusion on E via scalar Ax
-       call device_copy(coef%h1_d, artificial_visc%x_d, n)
-       call device_pwmax3(coef%h1_d, kappa%x_d, coef%h1_d, n)
-       call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
-    end if
+    ! For energy: use max(artificial, kappa)
+    call device_copy(coef%h1_d, artificial_visc%x_d, n)
+    call device_pwmax3(coef%h1_d, kappa%x_d, coef%h1_d, n)
+    call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     ! Reset h1 coefficient back to 1.0 for other operations
     call device_rone(coef%h1_d, n)

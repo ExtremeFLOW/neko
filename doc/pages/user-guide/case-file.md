@@ -262,9 +262,9 @@ by the user by setting `full_stress_formulation` to true.
 
 Neko supports compressible flow simulations via the compressible solver.
 To enable compressible flow, set `"scheme": "compressible"` in the fluid
-configuration. This solver integrates the compressible Euler equations (full
-Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time
-integration scheme with artificial viscosity for stability.
+configuration. This solver integrates the compressible Navier-Stokes equations
+using a Runge-Kutta time integration scheme with artificial viscosity for
+stability.
 
 The compressible solver requires the following parameters:
 
