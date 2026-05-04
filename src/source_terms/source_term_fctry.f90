@@ -42,12 +42,13 @@ submodule (source_term) source_term_fctry
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   use sponge_source_term, only : sponge_source_term_t
   use field_source_term, only : field_source_term_t
+  use hpfrt_source_term, only : hpfrt_source_term_t
   use json_utils, only : json_get
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=25) :: SOURCE_KNOWN_TYPES(9) = [character(len=25) :: &
+  character(len=25) :: SOURCE_KNOWN_TYPES(10) = [character(len=25) :: &
        "constant", &
        "boussinesq", &
        "coriolis", &
@@ -56,6 +57,7 @@ submodule (source_term) source_term_fctry
        "brinkman", &
        "sponge", &
        "field", &
+       "hpfrt", &
        "translation" &
        ]
 
@@ -117,6 +119,8 @@ contains
        allocate(translation_source_term_t::object)
     case ("field")
        allocate(field_source_term_t::object)
+    case ("hpfrt")
+       allocate(hpfrt_source_term_t::object)
     case default
        do i = 1, source_term_registry_size
           if (trim(type_name) .eq. trim(source_term_registry(i)%type_name)) then

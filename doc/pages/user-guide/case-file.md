@@ -871,7 +871,26 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
    applied in a user-specified region of the domain.
 9. `field`, uses fields in the `neko_registry` as values of the source term. The
    fields are selected with the `field_names` keyword.
-10. `translation` Adds a forcing term corresponding to a domain translating with
+10. `hpfrt`, adds a high-pass filter relaxation term to the momentum equation.
+    This source term damps the highest elementwise Legendre modes of the
+    velocity field. It is configured with `filter_weight`, the damping strength,
+    and `filter_modes`, the number of highest modes affected by the filter.
+    See [High-pass filter relaxation source term](@ref filter_hpfrt) for the
+    definition of the filter and the source term.
+
+~~~~~~~~~~~~~~~{.json}
+"source_terms": [
+   {
+      "type": "hpfrt",
+      "filter_weight": 5.0,
+      "filter_modes": 2
+   }
+]
+~~~~~~~~~~~~~~~
+
+  The same source-term object can be used for scalars. In this case it is added to
+  the scalar `source_terms` array and acts on that scalar field.
+11. `translation` Adds a forcing term corresponding to a domain translating with
     constant velocity. The term comes from the ALE formulation and is written as
     \f$ (\mathbf{w}\cdot\nabla)\mathbf{u} \f$,
     or, for spatially constant mesh velocity \f$ \nabla\cdot\mathbf{w} = 0 \f$,
@@ -879,7 +898,7 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
     \f$ \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \f$. The keyword to be provided
     in the case file is `domain_velocity`, which expects an array with 3 values.
 
-    Note that in this case, we still solve for the absolute velocity, not the 
+    Note that in this case, we still solve for the absolute velocity, not the
     relative one. It is simply advection that is affected. Useful to perform
     simulations on domains that are moving on a periodic direction.
 
@@ -1208,8 +1227,8 @@ contains
 
     end do
 
-    wbf%x = 0.0_rp    
-    
+    wbf%x = 0.0_rp
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
             HOST_TO_DEVICE, .false.)
