@@ -299,6 +299,98 @@
       ],
       "additionalProperties": true
     },
+    "lesDeltaType": {
+      "type": "string",
+      "enum": [
+        "pointwise",
+        "elementwise_average",
+        "elementwise_max"
+      ]
+    },
+    "lesModelCommon": {
+      "type": "object",
+      "required": [
+        "type",
+        "model"
+      ],
+      "properties": {
+        "type": {
+          "const": "les_model"
+        },
+        "model": {
+          "type": "string",
+          "enum": [
+            "smagorinsky",
+            "dynamic_smagorinsky",
+            "vreman",
+            "sigma",
+            "wale",
+            "deardorff"
+          ]
+        },
+        "nut_field": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "delta_type": {
+          "$ref": "#/$defs/lesDeltaType"
+        },
+        "extrapolation": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "lesModelTestFilter": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "elementwise"
+            },
+            "elementwise_filter_type": {
+              "type": "string",
+              "enum": [
+                "Boyd",
+                "nonBoyd"
+              ]
+            },
+            "transfer_function": {
+              "$ref": "#/$defs/numberArray"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "filter"
+          ],
+          "properties": {
+            "filter": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "elementwise"
+                },
+                "elementwise_filter_type": {
+                  "type": "string",
+                  "enum": [
+                    "Boyd",
+                    "nonBoyd"
+                  ]
+                },
+                "transfer_function": {
+                  "$ref": "#/$defs/numberArray"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
     "simulationComponent": {
       "oneOf": [
         {
@@ -626,85 +718,152 @@
               "$ref": "#/$defs/simcompFieldWriterOptions"
             },
             {
-              "type": "object",
-              "required": [
-                "model"
-              ],
-              "properties": {
-                "type": {
-                  "const": "les_model"
+              "allOf": [
+                {
+                  "$ref": "#/$defs/lesModelCommon"
                 },
-                "model": {
-                  "type": "string",
-                  "enum": [
-                    "smagorinsky",
-                    "dynamic_smagorinsky",
-                    "vreman",
-                    "sigma",
-                    "wale",
-                    "deardorff"
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "const": "smagorinsky"
+                        },
+                        "c_s": {
+                          "$ref": "#/$defs/numberOrRef"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "test_filter"
+                      ],
+                      "properties": {
+                        "model": {
+                          "const": "dynamic_smagorinsky"
+                        },
+                        "test_filter": {
+                          "$ref": "#/$defs/lesModelTestFilter"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "const": "vreman"
+                        },
+                        "c": {
+                          "$ref": "#/$defs/numberOrRef"
+                        },
+                        "buoyancy_correction": {
+                          "type": "boolean"
+                        },
+                        "scalar_field": {
+                          "$ref": "#/$defs/nonEmptyString"
+                        },
+                        "Ri_c": {
+                          "$ref": "#/$defs/numberOrRef"
+                        },
+                        "reference_temperature": {
+                          "$ref": "#/$defs/numberOrRef"
+                        },
+                        "g": {
+                          "$ref": "#/$defs/vector3OrRef"
+                        }
+                      },
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "buoyancy_correction": {
+                                "const": true
+                              }
+                            },
+                            "required": [
+                              "buoyancy_correction"
+                            ]
+                          },
+                          "then": {
+                            "required": [
+                              "scalar_field",
+                              "Ri_c",
+                              "reference_temperature",
+                              "g"
+                            ]
+                          }
+                        }
+                      ],
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "const": "sigma"
+                        },
+                        "c": {
+                          "$ref": "#/$defs/numberOrRef"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "const": "wale"
+                        },
+                        "c_w": {
+                          "$ref": "#/$defs/numberOrRef"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "T0",
+                        "g"
+                      ],
+                      "properties": {
+                        "model": {
+                          "const": "deardorff"
+                        },
+                        "c_k": {
+                          "$ref": "#/$defs/numberOrRef"
+                        },
+                        "T0": {
+                          "$ref": "#/$defs/numberOrRef"
+                        },
+                        "g": {
+                          "$ref": "#/$defs/vector3OrRef"
+                        },
+                        "temperature_field": {
+                          "$ref": "#/$defs/nonEmptyString"
+                        },
+                        "TKE_field": {
+                          "$ref": "#/$defs/nonEmptyString"
+                        },
+                        "temperature_alphat_field": {
+                          "$ref": "#/$defs/nonEmptyString"
+                        },
+                        "TKE_alphat_field": {
+                          "$ref": "#/$defs/nonEmptyString"
+                        },
+                        "TKE_source_field": {
+                          "$ref": "#/$defs/nonEmptyString"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
                   ]
-                },
-                "nut_field": {
-                  "$ref": "#/$defs/nonEmptyString"
-                },
-                "delta_type": {
-                  "$ref": "#/$defs/nonEmptyString"
-                },
-                "extrapolation": {
-                  "type": "boolean"
-                },
-                "c_s": {
-                  "$ref": "#/$defs/numberOrRef"
-                },
-                "c": {
-                  "$ref": "#/$defs/numberOrRef"
-                },
-                "c_w": {
-                  "$ref": "#/$defs/numberOrRef"
-                },
-                "c_k": {
-                  "$ref": "#/$defs/numberOrRef"
-                },
-                "T0": {
-                  "$ref": "#/$defs/numberOrRef"
-                },
-                "g": {
-                  "$ref": "#/$defs/vector3OrRef"
-                },
-                "scalar_field": {
-                  "$ref": "#/$defs/nonEmptyString"
-                },
-                "Ri_c": {
-                  "$ref": "#/$defs/numberOrRef"
-                },
-                "reference_temperature": {
-                  "$ref": "#/$defs/numberOrRef"
-                },
-                "temperature_field": {
-                  "$ref": "#/$defs/nonEmptyString"
-                },
-                "TKE_field": {
-                  "$ref": "#/$defs/nonEmptyString"
-                },
-                "temperature_alphat_field": {
-                  "$ref": "#/$defs/nonEmptyString"
-                },
-                "TKE_alphat_field": {
-                  "$ref": "#/$defs/nonEmptyString"
-                },
-                "TKE_source_field": {
-                  "$ref": "#/$defs/nonEmptyString"
-                },
-                "buoyancy_correction": {
-                  "type": "boolean"
-                },
-                "test_filter": {
-                  "type": "object",
-                  "additionalProperties": true
                 }
-              },
-              "additionalProperties": true
+              ]
             }
           ]
         },
