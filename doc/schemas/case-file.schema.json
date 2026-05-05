@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://neko.cfd/schemas/case-file.schema.json",
+  "title": "Neko case file",
+  "type": "object",
+  "required": [
+    "version",
+    "case"
+  ],
+  "properties": {
+    "version": {
+      "type": "number"
+    },
+    "case": {
+      "$ref": "#/$defs/case"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "constantEntry": {
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "common.schema.json#/$defs/numberArray"
+            }
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "case": {
+      "type": "object",
+      "required": [
+        "mesh_file",
+        "time",
+        "numerics",
+        "fluid"
+      ],
+      "properties": {
+        "no_defaults": {
+          "type": "boolean"
+        },
+        "mesh_file": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "output_boundary": {
+          "type": "boolean"
+        },
+        "output_directory": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "output_format": {
+          "type": "string",
+          "enum": [
+            "nek5000",
+            "adios2",
+            "vtkhdf"
+          ]
+        },
+        "output_precision": {
+          "type": "string",
+          "enum": [
+            "single",
+            "double"
+          ]
+        },
+        "output_layout": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "load_balancing": {
+          "type": "boolean"
+        },
+        "load_balance": {
+          "type": "boolean"
+        },
+        "output_partitions": {
+          "type": "boolean"
+        },
+        "output_checkpoints": {
+          "type": "boolean"
+        },
+        "checkpoint_control": {
+          "$ref": "common.schema.json#/$defs/frequencyControl"
+        },
+        "checkpoint_value": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "checkpoint_filename": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "checkpoint_format": {
+          "type": "string",
+          "enum": [
+            "chkp",
+            "hdf5"
+          ]
+        },
+        "restart_file": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "restart_mesh_file": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "mesh2mesh_tolerance": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "job_timelimit": {
+          "type": "string",
+          "pattern": "^\\d{2}:\\d{2}:\\d{2}$"
+        },
+        "output_at_end": {
+          "type": "boolean"
+        },
+        "constants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/constantEntry"
+          }
+        },
+        "time": {
+          "$ref": "time.schema.json#/$defs/time"
+        },
+        "numerics": {
+          "$ref": "numerics.schema.json#/$defs/numerics"
+        },
+        "fluid": {
+          "$ref": "fluid.schema.json#/$defs/fluid"
+        },
+        "scalar": {
+          "$ref": "scalar.schema.json#/$defs/scalarField"
+        },
+        "scalars": {
+          "type": "array",
+          "items": {
+            "$ref": "scalar.schema.json#/$defs/scalarField"
+          }
+        },
+        "simulation_components": {
+          "type": "array",
+          "items": {
+            "$ref": "simulation-components.schema.json#/$defs/simulationComponent"
+          }
+        },
+        "point_zones": {
+          "type": "array",
+          "items": {
+            "$ref": "point-zones.schema.json#/$defs/pointZone"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

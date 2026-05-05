@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://neko.cfd/schemas/point-zones.schema.json",
+  "$defs": {
+    "pointZone": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "geometry",
+            "x_bounds",
+            "y_bounds",
+            "z_bounds"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "geometry": {
+              "const": "box"
+            },
+            "x_bounds": {
+              "$ref": "common.schema.json#/$defs/numberArray"
+            },
+            "y_bounds": {
+              "$ref": "common.schema.json#/$defs/numberArray"
+            },
+            "z_bounds": {
+              "$ref": "common.schema.json#/$defs/numberArray"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "geometry",
+            "center",
+            "radius"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "geometry": {
+              "const": "sphere"
+            },
+            "center": {
+              "$ref": "common.schema.json#/$defs/vector3"
+            },
+            "radius": {
+              "$ref": "common.schema.json#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "geometry"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "geometry": {
+              "const": "cylinder"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

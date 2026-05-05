@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://neko.cfd/schemas/common.schema.json",
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "constRef": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "numberOrRef": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "integerOrRef": {
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "numberArray": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 1
+    },
+    "integerArray": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1
+    },
+    "numberArrayOrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/numberArray"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "integerArrayOrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/integerArray"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "vector3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "vector3OrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/vector3"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "frequencyControl": {
+      "type": "string",
+      "enum": [
+        "simulationtime",
+        "tsteps",
+        "nsamples",
+        "never"
+      ]
+    },
+    "preconditioner": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "linearSolver": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "preconditioner": {
+          "$ref": "#/$defs/preconditioner"
+        },
+        "projection_space_size": {
+          "$ref": "#/$defs/integerOrRef"
+        },
+        "projection_reorthogonalize_basis": {
+          "type": "boolean"
+        },
+        "absolute_tolerance": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "relative_tolerance": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "max_iterations": {
+          "$ref": "#/$defs/integerOrRef"
+        },
+        "monitor": {
+          "type": "boolean"
+        },
+        "output_base_shape": {
+          "type": "boolean"
+        },
+        "output_stiffness": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

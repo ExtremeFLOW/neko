@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://neko.cfd/schemas/numerics.schema.json",
+  "$defs": {
+    "numerics": {
+      "type": "object",
+      "required": [
+        "time_order",
+        "polynomial_order"
+      ],
+      "properties": {
+        "time_order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "polynomial_order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "dealias": {
+          "type": "boolean"
+        },
+        "dealiased_polynomial_order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "oifs": {
+          "type": "boolean"
+        },
+        "oifs_target_cfl": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "c_avisc_low": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "c_avisc_entropy": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

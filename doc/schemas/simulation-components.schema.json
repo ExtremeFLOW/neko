@@ -1,0 +1,925 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://neko.cfd/schemas/simulation-components.schema.json",
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "constRef": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "numberOrRef": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "integerOrRef": {
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "numberArray": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 1
+    },
+    "integerArray": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1
+    },
+    "integerArrayOrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/integerArray"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "vector3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "vector3OrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/vector3"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "simcompComputeControl": {
+      "type": "string",
+      "enum": [
+        "simulationtime",
+        "tsteps",
+        "nsamples",
+        "never",
+        "fluid_output"
+      ]
+    },
+    "simcompOutputControl": {
+      "type": "string",
+      "enum": [
+        "simulationtime",
+        "tsteps",
+        "nsamples",
+        "never",
+        "global"
+      ]
+    },
+    "simcompAvgDirection": {
+      "type": "string",
+      "enum": [
+        "none",
+        "x",
+        "y",
+        "z",
+        "xy",
+        "xz",
+        "yz"
+      ]
+    },
+    "simcompStatsSet": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "full"
+      ]
+    },
+    "simcompBase": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "order": {
+          "$ref": "#/$defs/integerOrRef"
+        },
+        "preprocess_control": {
+          "$ref": "#/$defs/simcompComputeControl"
+        },
+        "preprocess_value": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "compute_control": {
+          "$ref": "#/$defs/simcompComputeControl"
+        },
+        "compute_value": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "output_control": {
+          "$ref": "#/$defs/simcompOutputControl"
+        },
+        "output_value": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "comment": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "is_user": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "simcompFields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      },
+      "minItems": 1
+    },
+    "simcompFields3": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "simcompFieldWriterOptions": {
+      "type": "object",
+      "properties": {
+        "output_filename": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "output_precision": {
+          "type": "string",
+          "enum": [
+            "single",
+            "double"
+          ]
+        },
+        "output_format": {
+          "type": "string",
+          "enum": [
+            "nek5000",
+            "vtkhdf",
+            "adios2"
+          ]
+        },
+        "output_subdivide": {
+          "type": "boolean"
+        },
+        "point_zone": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "simcompProbesPoint": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "file",
+            "points",
+            "line",
+            "plane",
+            "circle",
+            "point_zone"
+          ]
+        },
+        "file_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "coordinates": {
+          "$ref": "#/$defs/numberArray"
+        },
+        "start": {
+          "$ref": "#/$defs/vector3"
+        },
+        "end": {
+          "$ref": "#/$defs/vector3"
+        },
+        "amount": {
+          "$ref": "#/$defs/integerOrRef"
+        },
+        "center": {
+          "$ref": "#/$defs/vector3"
+        },
+        "radius": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "normal": {
+          "$ref": "#/$defs/vector3"
+        },
+        "axis": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "simcompAlphat": {
+      "type": "object",
+      "required": [
+        "nut_dependency"
+      ],
+      "properties": {
+        "nut_dependency": {
+          "type": "boolean"
+        },
+        "Pr_t": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "nut_field": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "alphat_field": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "nut_dependency": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "Pr_t",
+              "nut_field"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "nut_dependency": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "alphat_field"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "simulationComponent": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "is_user"
+          ],
+          "properties": {
+            "is_user": {
+              "const": true
+            },
+            "type": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "enum": [
+                    "lambda2",
+                    "spectral_error"
+                  ]
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "$ref": "#/$defs/simcompFieldWriterOptions"
+            },
+            {
+              "type": "object",
+              "required": [
+                "fields"
+              ],
+              "properties": {
+                "type": {
+                  "const": "field_writer"
+                },
+                "fields": {
+                  "$ref": "#/$defs/simcompFields"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "$ref": "#/$defs/simcompFieldWriterOptions"
+            },
+            {
+              "type": "object",
+              "required": [
+                "fields"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "curl",
+                    "div"
+                  ]
+                },
+                "fields": {
+                  "$ref": "#/$defs/simcompFields3"
+                },
+                "computed_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "$ref": "#/$defs/simcompFieldWriterOptions"
+            },
+            {
+              "type": "object",
+              "required": [
+                "field"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "grad",
+                    "weak_grad"
+                  ]
+                },
+                "field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "computed_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "$ref": "#/$defs/simcompFieldWriterOptions"
+            },
+            {
+              "type": "object",
+              "required": [
+                "field",
+                "direction"
+              ],
+              "properties": {
+                "type": {
+                  "const": "derivative"
+                },
+                "field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "direction": {
+                  "type": "string",
+                  "enum": [
+                    "x",
+                    "y",
+                    "z"
+                  ]
+                },
+                "computed_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "zone_indices",
+                "field_name",
+                "operations"
+              ],
+              "properties": {
+                "type": {
+                  "const": "boundary_operation"
+                },
+                "zone_indices": {
+                  "$ref": "#/$defs/integerArrayOrRef"
+                },
+                "field_name": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "operations": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "integral",
+                      "average",
+                      "min",
+                      "max"
+                    ]
+                  },
+                  "minItems": 1
+                },
+                "log": {
+                  "type": "boolean"
+                },
+                "output_filename": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "fields",
+                "output_file"
+              ],
+              "properties": {
+                "type": {
+                  "const": "probes"
+                },
+                "fields": {
+                  "$ref": "#/$defs/simcompFields"
+                },
+                "output_file": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "points_file": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/simcompProbesPoint"
+                  },
+                  "minItems": 1
+                },
+                "append_output": {
+                  "type": "boolean"
+                },
+                "interpolation": {
+                  "type": "object",
+                  "properties": {
+                    "tolerance": {
+                      "$ref": "#/$defs/numberOrRef"
+                    },
+                    "padding": {
+                      "$ref": "#/$defs/numberOrRef"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                "start_time": {
+                  "$ref": "#/$defs/numberOrRef"
+                }
+              },
+              "oneOf": [
+                {
+                  "required": [
+                    "points_file"
+                  ]
+                },
+                {
+                  "required": [
+                    "points"
+                  ]
+                }
+              ],
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "zone_id",
+                "center"
+              ],
+              "properties": {
+                "type": {
+                  "const": "force_torque"
+                },
+                "fluid_name": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "zone_id": {
+                  "$ref": "#/$defs/integerOrRef"
+                },
+                "zone_name": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "center": {
+                  "$ref": "#/$defs/vector3OrRef"
+                },
+                "center_type": {
+                  "type": "string",
+                  "enum": [
+                    "fixed",
+                    "pivot",
+                    "body_attached"
+                  ]
+                },
+                "scale": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "long_print": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "$ref": "#/$defs/simcompFieldWriterOptions"
+            },
+            {
+              "type": "object",
+              "required": [
+                "model"
+              ],
+              "properties": {
+                "type": {
+                  "const": "les_model"
+                },
+                "model": {
+                  "type": "string",
+                  "enum": [
+                    "smagorinsky",
+                    "dynamic_smagorinsky",
+                    "vreman",
+                    "sigma",
+                    "wale",
+                    "deardorff"
+                  ]
+                },
+                "nut_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "delta_type": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "extrapolation": {
+                  "type": "boolean"
+                },
+                "c_s": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "c": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "c_w": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "c_k": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "T0": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "g": {
+                  "$ref": "#/$defs/vector3OrRef"
+                },
+                "scalar_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "Ri_c": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "reference_temperature": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "temperature_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "TKE_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "temperature_alphat_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "TKE_alphat_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "TKE_source_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "buoyancy_correction": {
+                  "type": "boolean"
+                },
+                "test_filter": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "fluid_stats"
+                },
+                "start_time": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "avg_direction": {
+                  "$ref": "#/$defs/simcompAvgDirection"
+                },
+                "set_of_stats": {
+                  "$ref": "#/$defs/simcompStatsSet"
+                },
+                "output_filename": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "scalar_stats"
+                },
+                "field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "start_time": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "avg_direction": {
+                  "$ref": "#/$defs/simcompAvgDirection"
+                },
+                "set_of_stats": {
+                  "$ref": "#/$defs/simcompStatsSet"
+                },
+                "output_filename": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "fluid_sgs_stats"
+                },
+                "nut_field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "start_time": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "avg_direction": {
+                  "$ref": "#/$defs/simcompAvgDirection"
+                },
+                "output_filename": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "alphat"
+              ],
+              "properties": {
+                "type": {
+                  "const": "scalar_sgs_stats"
+                },
+                "field": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "start_time": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "avg_direction": {
+                  "$ref": "#/$defs/simcompAvgDirection"
+                },
+                "output_filename": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "alphat": {
+                  "$ref": "#/$defs/simcompAlphat"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "fields"
+              ],
+              "properties": {
+                "type": {
+                  "const": "user_stats"
+                },
+                "fields": {
+                  "$ref": "#/$defs/simcompFields"
+                },
+                "start_time": {
+                  "$ref": "#/$defs/numberOrRef"
+                },
+                "avg_direction": {
+                  "$ref": "#/$defs/simcompAvgDirection"
+                },
+                "output_file": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "fields"
+              ],
+              "properties": {
+                "type": {
+                  "const": "data_streamer"
+                },
+                "fields": {
+                  "$ref": "#/$defs/simcompFields"
+                },
+                "stream_mesh": {
+                  "type": "boolean"
+                },
+                "start_time": {
+                  "$ref": "#/$defs/numberOrRef"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/simcompBase"
+            },
+            {
+              "$ref": "#/$defs/simcompFieldWriterOptions"
+            },
+            {
+              "type": "object",
+              "required": [
+                "source_fields"
+              ],
+              "properties": {
+                "type": {
+                  "const": "field_subsampler"
+                },
+                "source_fields": {
+                  "$ref": "#/$defs/simcompFields"
+                },
+                "point_zone": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "polynomial_order": {
+                  "$ref": "#/$defs/integerOrRef"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

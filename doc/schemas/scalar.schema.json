@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://neko.cfd/schemas/scalar.schema.json",
+  "$defs": {
+    "alphat": {
+      "type": "object",
+      "properties": {
+        "nut_dependency": {
+          "type": "boolean"
+        },
+        "alphat_field": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "scalarInitialCondition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "user"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "uniform"
+            },
+            "value": {
+              "$ref": "common.schema.json#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "name"
+          ],
+          "properties": {
+            "type": {
+              "const": "point_zone"
+            },
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "base_value": {
+              "$ref": "common.schema.json#/$defs/numberOrRef"
+            },
+            "zone_value": {
+              "$ref": "common.schema.json#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "file_name"
+          ],
+          "properties": {
+            "type": {
+              "const": "field"
+            },
+            "file_name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "interpolate": {
+              "type": "boolean"
+            },
+            "mesh_file_name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "interpolation": {
+              "type": "object",
+              "properties": {
+                "tolerance": {
+                  "$ref": "common.schema.json#/$defs/numberOrRef"
+                },
+                "padding": {
+                  "$ref": "common.schema.json#/$defs/numberOrRef"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "scalarBoundaryCondition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "dirichlet"
+            },
+            "zone_indices": {
+              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "common.schema.json#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "const": "user_dirichlet"
+            },
+            "zone_indices": {
+              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "common.schema.json#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "const": "neumann"
+            },
+            "zone_indices": {
+              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "flux": {
+              "$ref": "common.schema.json#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "const": "user_neumann"
+            },
+            "zone_indices": {
+              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            },
+            "flux": {
+              "$ref": "common.schema.json#/$defs/numberOrRef"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "const": "overset_interface"
+            },
+            "zone_indices": {
+              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "common.schema.json#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "scalarField": {
+      "type": "object",
+      "required": [
+        "initial_condition",
+        "solver"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "common.schema.json#/$defs/nonEmptyString"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "cp": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "lambda": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "Pr": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "initial_condition": {
+          "$ref": "#/$defs/scalarInitialCondition"
+        },
+        "boundary_conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scalarBoundaryCondition"
+          }
+        },
+        "alphat": {
+          "$ref": "#/$defs/alphat"
+        },
+        "solver": {
+          "$ref": "common.schema.json#/$defs/linearSolver"
+        },
+        "source_terms": {
+          "type": "array",
+          "items": {
+            "$ref": "fluid.schema.json#/$defs/sourceTerm"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

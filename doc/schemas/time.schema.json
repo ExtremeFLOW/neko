@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://neko.cfd/schemas/time.schema.json",
+  "$defs": {
+    "time": {
+      "type": "object",
+      "required": [
+        "end_time"
+      ],
+      "properties": {
+        "start_time": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "end_time": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "timestep": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "variable_timestep": {
+          "type": "boolean"
+        },
+        "max_timestep": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "min_timestep": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "target_cfl": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "max_update_frequency": {
+          "$ref": "common.schema.json#/$defs/integerOrRef"
+        },
+        "min_update_frequency": {
+          "$ref": "common.schema.json#/$defs/integerOrRef"
+        },
+        "running_avg_coeff": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "max_dt_increase_factor": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "min_dt_decrease_factor": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "cfl_deviation_tolerance": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        },
+        "cfl_max_update_frequency": {
+          "$ref": "common.schema.json#/$defs/integerOrRef"
+        },
+        "cfl_running_avg_coeff": {
+          "$ref": "common.schema.json#/$defs/numberOrRef"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
