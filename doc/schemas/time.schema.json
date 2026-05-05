@@ -9,49 +9,49 @@
       ],
       "properties": {
         "start_time": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
         },
         "end_time": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "timestep": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "variable_timestep": {
           "type": "boolean"
         },
         "max_timestep": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "min_timestep": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
         },
         "target_cfl": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "max_update_frequency": {
-          "$ref": "common.schema.json#/$defs/integerOrRef"
+          "$ref": "common.schema.json#/$defs/nonNegativeIntegerOrRef"
         },
         "min_update_frequency": {
-          "$ref": "common.schema.json#/$defs/integerOrRef"
+          "$ref": "common.schema.json#/$defs/nonNegativeIntegerOrRef"
         },
         "running_avg_coeff": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/unitIntervalExclusiveOrRef"
         },
         "max_dt_increase_factor": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/greaterThanOneOrRef"
         },
         "min_dt_decrease_factor": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/unitIntervalExclusiveOrRef"
         },
         "cfl_deviation_tolerance": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/unitIntervalExclusiveOrRef"
         },
         "cfl_max_update_frequency": {
-          "$ref": "common.schema.json#/$defs/integerOrRef"
+          "$ref": "common.schema.json#/$defs/nonNegativeIntegerOrRef"
         },
         "cfl_running_avg_coeff": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/unitIntervalExclusiveOrRef"
         }
       },
       "additionalProperties": true

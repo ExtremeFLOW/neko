@@ -11,7 +11,8 @@
       "properties": {
         "time_order": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 4
         },
         "polynomial_order": {
           "type": "integer",
@@ -28,13 +29,13 @@
           "type": "boolean"
         },
         "oifs_target_cfl": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "c_avisc_low": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "c_avisc_entropy": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         }
       },
       "additionalProperties": true

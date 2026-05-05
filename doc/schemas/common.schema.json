@@ -19,10 +19,66 @@
         }
       ]
     },
+    "positiveNumberOrRef": {
+      "oneOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "nonNegativeNumberOrRef": {
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
     "integerOrRef": {
       "oneOf": [
         {
           "type": "integer"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "nonNegativeIntegerOrRef": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "unitIntervalExclusiveOrRef": {
+      "oneOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "greaterThanOneOrRef": {
+      "oneOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 1
         },
         {
           "$ref": "#/$defs/constRef"
