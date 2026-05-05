@@ -177,7 +177,9 @@ Under the hood, Neko stores the constants in an object called
 ### Time control
 The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
-to the variable time-stepping algorithm.
+to the variable time-stepping algorithm. For the variable timestep, one can
+specify a `timestep`, such that the first timestep will be assigned to the
+smallest of `timestep` and the value calculated from the target CFL number.
 
 | Name                       | Description                                                                                 | Admissible values                 | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
