@@ -21,10 +21,6 @@
             "initial_condition": {
                 "type": "user",
             },
-            "outflow_condition": {
-                "delta": 0.01,
-                "velocity_scale": 1.0
-            },
             "velocity_solver": {
                 "type": "cg",
                 "preconditioner": {
