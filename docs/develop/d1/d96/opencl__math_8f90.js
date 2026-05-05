@@ -15,6 +15,7 @@ var opencl__math_8f90 =
     [ "opencl_math::opencl_radd", "df/dc7/interfaceopencl__math_1_1opencl__radd.html", "df/dc7/interfaceopencl__math_1_1opencl__radd" ],
     [ "opencl_math::opencl_iadd", "dc/de6/interfaceopencl__math_1_1opencl__iadd.html", "dc/de6/interfaceopencl__math_1_1opencl__iadd" ],
     [ "opencl_math::opencl_cadd2", "d5/dc0/interfaceopencl__math_1_1opencl__cadd2.html", "d5/dc0/interfaceopencl__math_1_1opencl__cadd2" ],
+    [ "opencl_math::opencl_cwrap", "d5/d75/interfaceopencl__math_1_1opencl__cwrap.html", "d5/d75/interfaceopencl__math_1_1opencl__cwrap" ],
     [ "opencl_math::opencl_cfill", "d3/d21/interfaceopencl__math_1_1opencl__cfill.html", "d3/d21/interfaceopencl__math_1_1opencl__cfill" ],
     [ "opencl_math::opencl_rzero", "d0/d46/interfaceopencl__math_1_1opencl__rzero.html", "d0/d46/interfaceopencl__math_1_1opencl__rzero" ],
     [ "opencl_math::opencl_rone", "de/d53/interfaceopencl__math_1_1opencl__rone.html", "de/d53/interfaceopencl__math_1_1opencl__rone" ],

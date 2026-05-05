@@ -267,6 +267,7 @@ var annotated_dup =
       [ "cuda_col2", "d6/d1d/interfacecuda__math_1_1cuda__col2.html", "d6/d1d/interfacecuda__math_1_1cuda__col2" ],
       [ "cuda_col3", "d5/d51/interfacecuda__math_1_1cuda__col3.html", "d5/d51/interfacecuda__math_1_1cuda__col3" ],
       [ "cuda_copy", "d6/d40/interfacecuda__math_1_1cuda__copy.html", "d6/d40/interfacecuda__math_1_1cuda__copy" ],
+      [ "cuda_cwrap", "d0/d3e/interfacecuda__math_1_1cuda__cwrap.html", "d0/d3e/interfacecuda__math_1_1cuda__cwrap" ],
       [ "cuda_face_masked_gather_copy", "d5/d67/interfacecuda__math_1_1cuda__face__masked__gather__copy.html", "d5/d67/interfacecuda__math_1_1cuda__face__masked__gather__copy" ],
       [ "cuda_glmax", "d0/dd9/interfacecuda__math_1_1cuda__glmax.html", "d0/dd9/interfacecuda__math_1_1cuda__glmax" ],
       [ "cuda_glmin", "dd/d91/interfacecuda__math_1_1cuda__glmin.html", "dd/d91/interfacecuda__math_1_1cuda__glmin" ],
@@ -800,6 +801,7 @@ var annotated_dup =
       [ "hip_col2", "d1/d74/interfacehip__math_1_1hip__col2.html", "d1/d74/interfacehip__math_1_1hip__col2" ],
       [ "hip_col3", "d5/de1/interfacehip__math_1_1hip__col3.html", "d5/de1/interfacehip__math_1_1hip__col3" ],
       [ "hip_copy", "dc/d2b/interfacehip__math_1_1hip__copy.html", "dc/d2b/interfacehip__math_1_1hip__copy" ],
+      [ "hip_cwrap", "db/da5/interfacehip__math_1_1hip__cwrap.html", "db/da5/interfacehip__math_1_1hip__cwrap" ],
       [ "hip_face_masked_gather_copy", "d6/d57/interfacehip__math_1_1hip__face__masked__gather__copy.html", "d6/d57/interfacehip__math_1_1hip__face__masked__gather__copy" ],
       [ "hip_glmax", "d2/d0b/interfacehip__math_1_1hip__glmax.html", "d2/d0b/interfacehip__math_1_1hip__glmax" ],
       [ "hip_glmin", "d5/d4d/interfacehip__math_1_1hip__glmin.html", "d5/d4d/interfacehip__math_1_1hip__glmin" ],
@@ -1071,6 +1073,7 @@ var annotated_dup =
       [ "opencl_col2", "db/d7d/interfaceopencl__math_1_1opencl__col2.html", "db/d7d/interfaceopencl__math_1_1opencl__col2" ],
       [ "opencl_col3", "de/d46/interfaceopencl__math_1_1opencl__col3.html", "de/d46/interfaceopencl__math_1_1opencl__col3" ],
       [ "opencl_copy", "d6/d58/interfaceopencl__math_1_1opencl__copy.html", "d6/d58/interfaceopencl__math_1_1opencl__copy" ],
+      [ "opencl_cwrap", "d5/d75/interfaceopencl__math_1_1opencl__cwrap.html", "d5/d75/interfaceopencl__math_1_1opencl__cwrap" ],
       [ "opencl_face_masked_gather_copy", "d6/d92/interfaceopencl__math_1_1opencl__face__masked__gather__copy.html", "d6/d92/interfaceopencl__math_1_1opencl__face__masked__gather__copy" ],
       [ "opencl_glmax", "d8/d4d/interfaceopencl__math_1_1opencl__glmax.html", "d8/d4d/interfaceopencl__math_1_1opencl__glmax" ],
       [ "opencl_glmin", "d8/d32/interfaceopencl__math_1_1opencl__glmin.html", "d8/d32/interfaceopencl__math_1_1opencl__glmin" ],
@@ -1128,6 +1131,7 @@ var annotated_dup =
       [ "output_controller_t", "d4/d3d/structoutput__controller_1_1output__controller__t.html", "d4/d3d/structoutput__controller_1_1output__controller__t" ]
     ] ],
     [ "overset_interface", "d1/da5/namespaceoverset__interface.html", [
+      [ "morph_overset_interface", "dc/d33/interfaceoverset__interface_1_1morph__overset__interface.html", "dc/d33/interfaceoverset__interface_1_1morph__overset__interface" ],
       [ "overset_interface_t", "d9/db1/structoverset__interface_1_1overset__interface__t.html", "d9/db1/structoverset__interface_1_1overset__interface__t" ]
     ] ],
     [ "overset_interface_vector", "d6/de1/namespaceoverset__interface__vector.html", [

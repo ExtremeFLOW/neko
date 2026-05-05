@@ -24,6 +24,7 @@ var math_8hip =
     [ "hip_col2", "de/d9b/math_8hip.html#a853445d1c5227c1881b44471c1804b55", null ],
     [ "hip_col3", "de/d9b/math_8hip.html#a052ea3a4039f5f1967963692996116ce", null ],
     [ "hip_copy", "de/d9b/math_8hip.html#aadb201cc1c606453fbf5e94eccd75aaa", null ],
+    [ "hip_cwrap", "de/d9b/math_8hip.html#a08fc4d3900c926c404a68f3c55c97d87", null ],
     [ "hip_face_masked_gather_copy", "de/d9b/math_8hip.html#ad982b9516dbad5a7547c94b7f11731fd", null ],
     [ "hip_glmax", "de/d9b/math_8hip.html#a10a0295dde2f468e56b2b4340a946ec8", null ],
     [ "hip_glmin", "de/d9b/math_8hip.html#a85996a20535a20a44f75f8ff8cef144c", null ],

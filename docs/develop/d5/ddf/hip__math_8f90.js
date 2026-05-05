@@ -15,6 +15,7 @@ var hip__math_8f90 =
     [ "hip_math::hip_cdiv2", "d6/d53/interfacehip__math_1_1hip__cdiv2.html", "d6/d53/interfacehip__math_1_1hip__cdiv2" ],
     [ "hip_math::hip_radd", "d3/d3d/interfacehip__math_1_1hip__radd.html", "d3/d3d/interfacehip__math_1_1hip__radd" ],
     [ "hip_math::hip_cadd2", "d3/da8/interfacehip__math_1_1hip__cadd2.html", "d3/da8/interfacehip__math_1_1hip__cadd2" ],
+    [ "hip_math::hip_cwrap", "db/da5/interfacehip__math_1_1hip__cwrap.html", "db/da5/interfacehip__math_1_1hip__cwrap" ],
     [ "hip_math::hip_cfill", "d5/dab/interfacehip__math_1_1hip__cfill.html", "d5/dab/interfacehip__math_1_1hip__cfill" ],
     [ "hip_math::hip_rzero", "d9/d73/interfacehip__math_1_1hip__rzero.html", "d9/d73/interfacehip__math_1_1hip__rzero" ],
     [ "hip_math::hip_add2", "d9/dfc/interfacehip__math_1_1hip__add2.html", "d9/dfc/interfacehip__math_1_1hip__add2" ],

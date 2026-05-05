@@ -15,6 +15,7 @@ var cuda__math_8f90 =
     [ "cuda_math::cuda_cdiv2", "dc/d8a/interfacecuda__math_1_1cuda__cdiv2.html", "dc/d8a/interfacecuda__math_1_1cuda__cdiv2" ],
     [ "cuda_math::cuda_radd", "d1/da2/interfacecuda__math_1_1cuda__radd.html", "d1/da2/interfacecuda__math_1_1cuda__radd" ],
     [ "cuda_math::cuda_cadd2", "d5/d64/interfacecuda__math_1_1cuda__cadd2.html", "d5/d64/interfacecuda__math_1_1cuda__cadd2" ],
+    [ "cuda_math::cuda_cwrap", "d0/d3e/interfacecuda__math_1_1cuda__cwrap.html", "d0/d3e/interfacecuda__math_1_1cuda__cwrap" ],
     [ "cuda_math::cuda_cfill", "d4/dc4/interfacecuda__math_1_1cuda__cfill.html", "d4/dc4/interfacecuda__math_1_1cuda__cfill" ],
     [ "cuda_math::cuda_rzero", "d4/d40/interfacecuda__math_1_1cuda__rzero.html", "d4/d40/interfacecuda__math_1_1cuda__rzero" ],
     [ "cuda_math::cuda_add2", "d7/d19/interfacecuda__math_1_1cuda__add2.html", "d7/d19/interfacecuda__math_1_1cuda__add2" ],

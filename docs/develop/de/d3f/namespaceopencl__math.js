@@ -24,6 +24,7 @@ var namespaceopencl__math =
     [ "opencl_col2", "db/d7d/interfaceopencl__math_1_1opencl__col2.html", "db/d7d/interfaceopencl__math_1_1opencl__col2" ],
     [ "opencl_col3", "de/d46/interfaceopencl__math_1_1opencl__col3.html", "de/d46/interfaceopencl__math_1_1opencl__col3" ],
     [ "opencl_copy", "d6/d58/interfaceopencl__math_1_1opencl__copy.html", "d6/d58/interfaceopencl__math_1_1opencl__copy" ],
+    [ "opencl_cwrap", "d5/d75/interfaceopencl__math_1_1opencl__cwrap.html", "d5/d75/interfaceopencl__math_1_1opencl__cwrap" ],
     [ "opencl_face_masked_gather_copy", "d6/d92/interfaceopencl__math_1_1opencl__face__masked__gather__copy.html", "d6/d92/interfaceopencl__math_1_1opencl__face__masked__gather__copy" ],
     [ "opencl_glmax", "d8/d4d/interfaceopencl__math_1_1opencl__glmax.html", "d8/d4d/interfaceopencl__math_1_1opencl__glmax" ],
     [ "opencl_glmin", "d8/d32/interfaceopencl__math_1_1opencl__glmin.html", "d8/d32/interfaceopencl__math_1_1opencl__glmin" ],

@@ -24,6 +24,7 @@ var namespacecuda__math =
     [ "cuda_col2", "d6/d1d/interfacecuda__math_1_1cuda__col2.html", "d6/d1d/interfacecuda__math_1_1cuda__col2" ],
     [ "cuda_col3", "d5/d51/interfacecuda__math_1_1cuda__col3.html", "d5/d51/interfacecuda__math_1_1cuda__col3" ],
     [ "cuda_copy", "d6/d40/interfacecuda__math_1_1cuda__copy.html", "d6/d40/interfacecuda__math_1_1cuda__copy" ],
+    [ "cuda_cwrap", "d0/d3e/interfacecuda__math_1_1cuda__cwrap.html", "d0/d3e/interfacecuda__math_1_1cuda__cwrap" ],
     [ "cuda_face_masked_gather_copy", "d5/d67/interfacecuda__math_1_1cuda__face__masked__gather__copy.html", "d5/d67/interfacecuda__math_1_1cuda__face__masked__gather__copy" ],
     [ "cuda_glmax", "d0/dd9/interfacecuda__math_1_1cuda__glmax.html", "d0/dd9/interfacecuda__math_1_1cuda__glmax" ],
     [ "cuda_glmin", "dd/d91/interfacecuda__math_1_1cuda__glmin.html", "dd/d91/interfacecuda__math_1_1cuda__glmin" ],

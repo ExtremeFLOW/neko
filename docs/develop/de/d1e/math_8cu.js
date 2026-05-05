@@ -24,6 +24,7 @@ var math_8cu =
     [ "cuda_col2", "de/d1e/math_8cu.html#a5556ffa1bad0f42daae83fea3629fc31", null ],
     [ "cuda_col3", "de/d1e/math_8cu.html#a314dbb9393c449903dc3fcfbf0a6164a", null ],
     [ "cuda_copy", "de/d1e/math_8cu.html#a3e05534da6e72cf9677f7f08be748b38", null ],
+    [ "cuda_cwrap", "de/d1e/math_8cu.html#aa9837b11bdca1787035258d84e2cdcbe", null ],
     [ "cuda_face_masked_gather_copy", "de/d1e/math_8cu.html#a140d50684859429091cd448364b35982", null ],
     [ "cuda_glmax", "de/d1e/math_8cu.html#af64a158bac10b01ca74f3c5f84112173", null ],
     [ "cuda_glmin", "de/d1e/math_8cu.html#a2e74d9e1a6ccf5c295800cf3756eff54", null ],

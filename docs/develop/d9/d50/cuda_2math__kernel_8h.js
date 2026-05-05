@@ -24,6 +24,7 @@ var cuda_2math__kernel_8h =
     [ "cmult_kernel", "d9/d50/cuda_2math__kernel_8h.html#a6d7111b5670b9651b385bf199aec75c6", null ],
     [ "col2_kernel", "d9/d50/cuda_2math__kernel_8h.html#a80153239ddaac2326bd0fec1e2145710", null ],
     [ "col3_kernel", "d9/d50/cuda_2math__kernel_8h.html#a89850aebe80756ae01a349ad7b78295c", null ],
+    [ "cwrap_kernel", "d9/d50/cuda_2math__kernel_8h.html#a076500c53a2239b91dd13fe65f423d9a", null ],
     [ "face_gather_idx", "d9/d50/cuda_2math__kernel_8h.html#a4f999997eeae7272be23d9c07cac9c88", null ],
     [ "face_gather_nonlinear_index", "d9/d50/cuda_2math__kernel_8h.html#a2bcab113056673f4a32bf2d79cd3adc9", null ],
     [ "face_masked_gather_copy_kernel", "d9/d50/cuda_2math__kernel_8h.html#a21a2346368659893c78cfcb9f81d6bd3", null ],

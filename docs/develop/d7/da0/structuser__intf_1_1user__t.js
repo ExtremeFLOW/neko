@@ -11,6 +11,7 @@ var structuser__intf_1_1user__t =
     [ "initialize", "d7/da0/structuser__intf_1_1user__t.html#a1f4a0734bde48ea423f3b1bcb0f0a035", null ],
     [ "material_properties", "d7/da0/structuser__intf_1_1user__t.html#aedb0810ed2c1cf18cc433d830831d3a5", null ],
     [ "mesh_setup", "d7/da0/structuser__intf_1_1user__t.html#a89db9c5075b1eb026e454b877526444f", null ],
+    [ "morph_interface", "d7/da0/structuser__intf_1_1user__t.html#ae68e1f5ea3f8f7705d883056ed7fa9c4", null ],
     [ "neumann_conditions", "d7/da0/structuser__intf_1_1user__t.html#ae6b35a92488b65a4934d6dc942f354b1", null ],
     [ "preprocess", "d7/da0/structuser__intf_1_1user__t.html#a61cc61ba502a9afb50766cf68e5405ad", null ],
     [ "source_term", "d7/da0/structuser__intf_1_1user__t.html#ae7c65492321446cb36b109bdd45ad913", null ],
