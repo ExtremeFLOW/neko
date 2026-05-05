@@ -52,3 +52,5 @@ The list of criteria to check are:
   contain any logic to set the type components, but should just read the values
   from the JSON file, validate them, and then call the other constructor with
   the values read from the JSON file.
+- If the new code modifies the case file structure, make sure that the existing
+  json schema files under `doc/schemas` are updated accordingly.
