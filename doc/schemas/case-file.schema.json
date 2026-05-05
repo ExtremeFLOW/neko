@@ -38,7 +38,7 @@
           ]
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "case": {
       "type": "object",

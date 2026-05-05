@@ -54,7 +54,7 @@
           "$ref": "common.schema.json#/$defs/unitIntervalExclusiveOrRef"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     }
   }
 }

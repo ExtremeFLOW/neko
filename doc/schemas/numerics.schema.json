@@ -38,7 +38,7 @@
           "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     }
   }
 }

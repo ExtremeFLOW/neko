@@ -20,7 +20,7 @@
           "type": "boolean"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "fluidInitialCondition": {
       "oneOf": [
@@ -34,7 +34,7 @@
               "const": "user"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -50,7 +50,7 @@
               "$ref": "common.schema.json#/$defs/vector3OrRef"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -65,10 +65,10 @@
               "const": "blasius"
             },
             "delta": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
+              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
             },
             "freestream_velocity": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
+              "$ref": "common.schema.json#/$defs/vector3OrRef"
             },
             "approximation": {
               "type": "string",
@@ -82,7 +82,7 @@
               ]
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -104,7 +104,7 @@
               "$ref": "common.schema.json#/$defs/vector3OrRef"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -129,275 +129,16 @@
               "type": "object",
               "properties": {
                 "tolerance": {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
+                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
                 },
                 "padding": {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
+                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
                 }
               },
-              "additionalProperties": true
+              "additionalProperties": false
             }
           },
-          "additionalProperties": true
-        }
-      ]
-    },
-    "fluidBoundaryCondition": {
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices"
-          ],
-          "properties": {
-            "type": {
-              "enum": [
-                "symmetry",
-                "outflow",
-                "outflow+dong",
-                "outflow+user",
-                "overset_interface"
-              ]
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "couple_pressure": {
-              "type": "boolean"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices"
-          ],
-          "properties": {
-            "type": {
-              "enum": [
-                "normal_outflow",
-                "normal_outflow+dong",
-                "normal_outflow+user"
-              ]
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "const": "velocity_value"
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "enum": [
-                "density_value",
-                "pressure_value"
-              ]
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "value": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices"
-          ],
-          "properties": {
-            "type": {
-              "const": "no_slip"
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "moving": {
-              "type": "boolean"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices",
-            "model",
-            "h_index"
-          ],
-          "properties": {
-            "type": {
-              "const": "wall_model"
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "model": {
-              "type": "string",
-              "enum": [
-                "spalding",
-                "rough_log_law",
-                "most",
-                "richardson"
-              ]
-            },
-            "h_index": {
-              "$ref": "common.schema.json#/$defs/integerOrRef"
-            },
-            "kappa": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "B": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "z0": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "z0h": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "Pr": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "g": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            },
-            "scalar_field": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "type_of_temp_bc": {
-              "type": "string",
-              "enum": [
-                "neumann",
-                "dirichlet"
-              ]
-            },
-            "bottom_bc_flux_or_temp": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "time_dependent_temp_bc": {
-              "type": "boolean"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices"
-          ],
-          "properties": {
-            "type": {
-              "enum": [
-                "user_velocity",
-                "user_pressure"
-              ]
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices"
-          ],
-          "properties": {
-            "type": {
-              "const": "shear_stress"
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "zone_indices"
-          ],
-          "properties": {
-            "type": {
-              "const": "blasius_profile"
-            },
-            "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
-            },
-            "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            }
-          },
-          "additionalProperties": true
+          "additionalProperties": false
         }
       ]
     },
@@ -496,7 +237,7 @@
               "$ref": "common.schema.json#/$defs/vector3OrRef"
             },
             "beta": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
+              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
             },
             "start_time": {
               "$ref": "common.schema.json#/$defs/numberOrRef"
@@ -825,43 +566,19 @@
           ]
         },
         "Re": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "rho": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "mu": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "gamma": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
-        },
-        "Ra": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
         },
         "freeze": {
           "type": "boolean"
-        },
-        "ipostproc": {
-          "oneOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "integer"
-            }
-          ]
-        },
-        "outflow_condition": {
-          "oneOf": [
-            {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            {
-              "type": "object",
-              "additionalProperties": true
-            }
-          ]
         },
         "variable_material_properties": {
           "type": "boolean"
@@ -887,7 +604,8 @@
         "boundary_conditions": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/fluidBoundaryCondition"
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "source_terms": {
@@ -907,6 +625,49 @@
         }
       },
       "allOf": [
+        {
+          "if": {
+            "properties": {
+              "scheme": {
+                "const": "pnpn"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "velocity_solver",
+              "pressure_solver"
+            ],
+            "properties": {
+              "boundary_conditions": {
+                "type": "array",
+                "items": {
+                  "$ref": "fluid-pnpn-boundary-conditions.schema.json#/$defs/fluidPnpnBoundaryCondition"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scheme": {
+                "const": "compressible"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "boundary_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
         {
           "if": {
             "properties": {

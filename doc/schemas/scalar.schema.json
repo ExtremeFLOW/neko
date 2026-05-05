@@ -26,7 +26,7 @@
               "const": "user"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -42,7 +42,7 @@
               "$ref": "common.schema.json#/$defs/numberOrRef"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -64,7 +64,7 @@
               "$ref": "common.schema.json#/$defs/numberOrRef"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -89,16 +89,16 @@
               "type": "object",
               "properties": {
                 "tolerance": {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
+                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
                 },
                 "padding": {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
+                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
                 }
               },
-              "additionalProperties": true
+              "additionalProperties": false
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         }
       ]
     },
@@ -125,7 +125,7 @@
               "$ref": "common.schema.json#/$defs/numberOrRef"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -147,7 +147,7 @@
               "$ref": "common.schema.json#/$defs/numberOrRef"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -169,7 +169,7 @@
               "$ref": "common.schema.json#/$defs/numberOrRef"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -191,7 +191,7 @@
               "$ref": "common.schema.json#/$defs/numberOrRef"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -210,7 +210,7 @@
               "$ref": "common.schema.json#/$defs/nonEmptyString"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         }
       ]
     },

@@ -28,9 +28,15 @@
             },
             "z_bounds": {
               "$ref": "common.schema.json#/$defs/numberArray"
+            },
+            "invert": {
+              "type": "boolean"
+            },
+            "full_elements": {
+              "type": "boolean"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -51,16 +57,25 @@
               "$ref": "common.schema.json#/$defs/vector3"
             },
             "radius": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
+              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+            },
+            "invert": {
+              "type": "boolean"
+            },
+            "full_elements": {
+              "type": "boolean"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         {
           "type": "object",
           "required": [
             "name",
-            "geometry"
+            "geometry",
+            "start",
+            "end",
+            "radius"
           ],
           "properties": {
             "name": {
@@ -68,9 +83,24 @@
             },
             "geometry": {
               "const": "cylinder"
+            },
+            "start": {
+              "$ref": "common.schema.json#/$defs/vector3"
+            },
+            "end": {
+              "$ref": "common.schema.json#/$defs/vector3"
+            },
+            "radius": {
+              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+            },
+            "invert": {
+              "type": "boolean"
+            },
+            "full_elements": {
+              "type": "boolean"
             }
           },
-          "additionalProperties": true
+          "additionalProperties": false
         }
       ]
     }
