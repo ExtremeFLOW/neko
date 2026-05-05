@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://neko.cfd/schemas/fluid-pnpn-boundary-conditions.schema.json",
+  "$id": "urn:neko:schema:fluid-pnpn-boundary-conditions",
   "$defs": {
     "wallModelBase": {
       "type": "object",
@@ -15,13 +15,13 @@
           "const": "wall_model"
         },
         "zone_indices": {
-          "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
         },
         "name": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "h_index": {
-          "$ref": "common.schema.json#/$defs/integerOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/integerOrRef"
         }
       },
       "additionalProperties": true
@@ -39,10 +39,10 @@
               "const": "symmetry"
             },
             "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             }
           },
           "additionalProperties": false
@@ -65,13 +65,13 @@
               ]
             },
             "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             }
           },
           "additionalProperties": false
@@ -87,10 +87,10 @@
               "const": "overset_interface"
             },
             "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "couple_pressure": {
               "type": "boolean"
@@ -110,13 +110,13 @@
               "const": "velocity_value"
             },
             "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             }
           },
           "additionalProperties": false
@@ -132,10 +132,10 @@
               "const": "no_slip"
             },
             "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "moving": {
               "type": "boolean"
@@ -159,10 +159,10 @@
                   "const": "spalding"
                 },
                 "kappa": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "B": {
-                  "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
                 }
               },
               "additionalProperties": true
@@ -184,13 +184,13 @@
                   "const": "rough_log_law"
                 },
                 "kappa": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "B": {
-                  "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
                 },
                 "z0": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 }
               },
               "additionalProperties": true
@@ -216,22 +216,22 @@
                   "const": "most"
                 },
                 "kappa": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "Pr": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "z0": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "z0h": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "g": {
-                  "$ref": "common.schema.json#/$defs/vector3OrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
                 },
                 "scalar_field": {
-                  "$ref": "common.schema.json#/$defs/nonEmptyString"
+                  "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
                 },
                 "type_of_temp_bc": {
                   "type": "string",
@@ -241,7 +241,7 @@
                   ]
                 },
                 "bottom_bc_flux_or_temp": {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
                 },
                 "time_dependent_temp_bc": {
                   "type": "boolean"
@@ -270,22 +270,22 @@
                   "const": "richardson"
                 },
                 "kappa": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "Pr": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "z0": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "z0h": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "g": {
-                  "$ref": "common.schema.json#/$defs/vector3OrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
                 },
                 "scalar_field": {
-                  "$ref": "common.schema.json#/$defs/nonEmptyString"
+                  "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
                 },
                 "type_of_temp_bc": {
                   "type": "string",
@@ -295,7 +295,7 @@
                   ]
                 },
                 "bottom_bc_flux_or_temp": {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
                 },
                 "time_dependent_temp_bc": {
                   "type": "boolean"
@@ -319,10 +319,10 @@
               ]
             },
             "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             }
           },
           "additionalProperties": false
@@ -338,13 +338,13 @@
               "const": "shear_stress"
             },
             "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             }
           },
           "additionalProperties": false
@@ -363,16 +363,16 @@
               "const": "blasius_profile"
             },
             "zone_indices": {
-              "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "delta": {
-              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
             },
             "freestream_velocity": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             },
             "approximation": {
               "type": "string",

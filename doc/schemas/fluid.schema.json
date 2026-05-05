@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://neko.cfd/schemas/fluid.schema.json",
+  "$id": "urn:neko:schema:fluid",
   "$defs": {
     "flowRateForce": {
       "type": "object",
@@ -14,7 +14,7 @@
           "minimum": 1
         },
         "value": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
         },
         "use_averaged_flow": {
           "type": "boolean"
@@ -47,7 +47,7 @@
               "const": "uniform"
             },
             "value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             }
           },
           "additionalProperties": false
@@ -65,10 +65,10 @@
               "const": "blasius"
             },
             "delta": {
-              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
             },
             "freestream_velocity": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             },
             "approximation": {
               "type": "string",
@@ -95,13 +95,13 @@
               "const": "point_zone"
             },
             "name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "base_value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             },
             "zone_value": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
             }
           },
           "additionalProperties": false
@@ -117,429 +117,25 @@
               "const": "field"
             },
             "file_name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "interpolate": {
               "type": "boolean"
             },
             "mesh_file_name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "interpolation": {
               "type": "object",
               "properties": {
                 "tolerance": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 },
                 "padding": {
-                  "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
                 }
               },
               "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-    "sourceObject": {
-      "type": "object",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
-        },
-        "name": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
-        },
-        "distance_transform": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "value": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        "filter": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            }
-          },
-          "additionalProperties": true
-        },
-        "cache": {
-          "type": "boolean"
-        },
-        "cache_file": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
-        }
-      },
-      "additionalProperties": true
-    },
-    "sourceTerm": {
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "values"
-          ],
-          "properties": {
-            "type": {
-              "const": "constant"
-            },
-            "values": {
-              "anyOf": [
-                {
-                  "$ref": "common.schema.json#/$defs/vector3OrRef"
-                },
-                {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
-                },
-                {
-                  "$ref": "common.schema.json#/$defs/numberArrayOrRef"
-                }
-              ]
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "const": "boussinesq"
-            },
-            "scalar_field": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "reference_value": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "g": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            },
-            "beta": {
-              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "const": "coriolis"
-            },
-            "rotation_vector": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            },
-            "omega": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "phi": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "f": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "geostrophic_wind": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "objects"
-          ],
-          "properties": {
-            "type": {
-              "const": "brinkman"
-            },
-            "limits": {
-              "$ref": "common.schema.json#/$defs/numberArrayOrRef"
-            },
-            "penalty": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "brinkman": {
-              "type": "object",
-              "properties": {
-                "limits": {
-                  "$ref": "common.schema.json#/$defs/numberArrayOrRef"
-                },
-                "penalty": {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
-                }
-              },
-              "additionalProperties": true
-            },
-            "objects": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/sourceObject"
-              },
-              "minItems": 1
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "amplitudes",
-            "baseflow"
-          ],
-          "properties": {
-            "type": {
-              "const": "sponge"
-            },
-            "amplitudes": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            },
-            "baseflow": {
-              "type": "object",
-              "required": [
-                "method"
-              ],
-              "properties": {
-                "method": {
-                  "type": "string",
-                  "enum": [
-                    "constant",
-                    "field",
-                    "user"
-                  ]
-                },
-                "value": {
-                  "$ref": "common.schema.json#/$defs/vector3OrRef"
-                },
-                "file_name": {
-                  "$ref": "common.schema.json#/$defs/nonEmptyString"
-                },
-                "mesh_file_name": {
-                  "$ref": "common.schema.json#/$defs/nonEmptyString"
-                },
-                "interpolate": {
-                  "type": "boolean"
-                },
-                "tolerance": {
-                  "$ref": "common.schema.json#/$defs/numberOrRef"
-                }
-              },
-              "additionalProperties": true
-            },
-            "fringe_registry_name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "baseflow_registry_prefix": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "dump_fields": {
-              "type": "boolean"
-            },
-            "dump_file_name": {
-              "$ref": "common.schema.json#/$defs/nonEmptyString"
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": true
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "field_names"
-          ],
-          "properties": {
-            "type": {
-              "const": "field"
-            },
-            "field_names": {
-              "type": "array",
-              "items": {
-                "$ref": "common.schema.json#/$defs/nonEmptyString"
-              },
-              "minItems": 1
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "const": "user"
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "rotation_vector",
-            "reference_point"
-          ],
-          "properties": {
-            "type": {
-              "const": "centrifugal"
-            },
-            "rotation_vector": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            },
-            "reference_point": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "const": "gradient_jump_penalty"
-            },
-            "tau": {
-              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
-            },
-            "scaling_factor": {
-              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
-            },
-            "scaling_exponent": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "filter_weight",
-            "filter_modes"
-          ],
-          "properties": {
-            "type": {
-              "const": "hpfrt"
-            },
-            "filter_weight": {
-              "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
-            },
-            "filter_modes": {
-              "oneOf": [
-                {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                {
-                  "$ref": "common.schema.json#/$defs/constRef"
-                }
-              ]
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "const": "translation"
-            },
-            "domain_velocity": {
-              "$ref": "common.schema.json#/$defs/vector3OrRef"
-            },
-            "start_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
-            },
-            "end_time": {
-              "$ref": "common.schema.json#/$defs/nonNegativeNumberOrRef"
             }
           },
           "additionalProperties": false
@@ -556,7 +152,7 @@
           "type": "boolean"
         },
         "solver": {
-          "$ref": "common.schema.json#/$defs/linearSolver"
+          "$ref": "urn:neko:schema:common#/$defs/linearSolver"
         },
         "mesh_preview": {
           "type": "object",
@@ -565,16 +161,16 @@
               "type": "boolean"
             },
             "start_time": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
             },
             "end_time": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
             },
             "output_freq": {
-              "$ref": "common.schema.json#/$defs/integerOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/integerOrRef"
             },
             "dt": {
-              "$ref": "common.schema.json#/$defs/numberOrRef"
+              "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
             }
           },
           "additionalProperties": true
@@ -589,19 +185,19 @@
             ],
             "properties": {
               "name": {
-                "$ref": "common.schema.json#/$defs/nonEmptyString"
+                "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
               },
               "zone_indices": {
-                "$ref": "common.schema.json#/$defs/integerArrayOrRef"
+                "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
               },
               "oscillation": {
                 "type": "object",
                 "properties": {
                   "amplitude": {
-                    "$ref": "common.schema.json#/$defs/vector3OrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
                   },
                   "frequency": {
-                    "$ref": "common.schema.json#/$defs/vector3OrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
                   }
                 },
                 "additionalProperties": true
@@ -610,10 +206,10 @@
                 "type": "object",
                 "properties": {
                   "amplitude": {
-                    "$ref": "common.schema.json#/$defs/vector3OrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
                   },
                   "frequency": {
-                    "$ref": "common.schema.json#/$defs/vector3OrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
                   }
                 },
                 "additionalProperties": true
@@ -622,7 +218,7 @@
                 "type": "object",
                 "properties": {
                   "value": {
-                    "$ref": "common.schema.json#/$defs/vector3OrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
                   }
                 },
                 "additionalProperties": true
@@ -631,16 +227,16 @@
                 "type": "object",
                 "properties": {
                   "type": {
-                    "$ref": "common.schema.json#/$defs/nonEmptyString"
+                    "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
                   },
                   "stiff_dist": {
-                    "$ref": "common.schema.json#/$defs/numberOrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
                   },
                   "decay_profile": {
-                    "$ref": "common.schema.json#/$defs/nonEmptyString"
+                    "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
                   },
                   "gain": {
-                    "$ref": "common.schema.json#/$defs/numberOrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
                   }
                 },
                 "additionalProperties": true
@@ -669,16 +265,16 @@
           ]
         },
         "Re": {
-          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
         "rho": {
-          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
         "mu": {
-          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
         "gamma": {
-          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
         "freeze": {
           "type": "boolean"
@@ -690,16 +286,16 @@
           "type": "boolean"
         },
         "nut_field": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "initial_condition": {
           "$ref": "#/$defs/fluidInitialCondition"
         },
         "velocity_solver": {
-          "$ref": "common.schema.json#/$defs/linearSolver"
+          "$ref": "urn:neko:schema:common#/$defs/linearSolver"
         },
         "pressure_solver": {
-          "$ref": "common.schema.json#/$defs/linearSolver"
+          "$ref": "urn:neko:schema:common#/$defs/linearSolver"
         },
         "flow_rate_force": {
           "$ref": "#/$defs/flowRateForce"
@@ -714,14 +310,14 @@
         "source_terms": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/sourceTerm"
+            "$ref": "urn:neko:schema:source-terms#/$defs/fluidSourceTerm"
           }
         },
         "output_control": {
-          "$ref": "common.schema.json#/$defs/frequencyControl"
+          "$ref": "urn:neko:schema:common#/$defs/frequencyControl"
         },
         "output_value": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
         },
         "ale": {
           "$ref": "#/$defs/ale"
@@ -745,7 +341,7 @@
               "boundary_conditions": {
                 "type": "array",
                 "items": {
-                  "$ref": "fluid-pnpn-boundary-conditions.schema.json#/$defs/fluidPnpnBoundaryCondition"
+                  "$ref": "urn:neko:schema:fluid-pnpn-boundary-conditions#/$defs/fluidPnpnBoundaryCondition"
                 }
               }
             }

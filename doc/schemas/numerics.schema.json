@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://neko.cfd/schemas/numerics.schema.json",
+  "$id": "urn:neko:schema:numerics",
   "$defs": {
     "numerics": {
       "type": "object",
@@ -29,13 +29,13 @@
           "type": "boolean"
         },
         "oifs_target_cfl": {
-          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
         "c_avisc_low": {
-          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
         "c_avisc_entropy": {
-          "$ref": "common.schema.json#/$defs/positiveNumberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         }
       },
       "additionalProperties": false

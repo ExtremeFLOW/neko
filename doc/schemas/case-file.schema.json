@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://neko.cfd/schemas/case-file.schema.json",
+  "$id": "urn:neko:schema:case-file",
   "title": "Neko case file",
   "type": "object",
   "required": [
@@ -25,7 +25,7 @@
       ],
       "properties": {
         "name": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "value": {
           "oneOf": [
@@ -33,7 +33,7 @@
               "type": "number"
             },
             {
-              "$ref": "common.schema.json#/$defs/numberArray"
+              "$ref": "urn:neko:schema:common#/$defs/numberArray"
             }
           ]
         }
@@ -53,13 +53,13 @@
           "type": "boolean"
         },
         "mesh_file": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "output_boundary": {
           "type": "boolean"
         },
         "output_directory": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "output_format": {
           "type": "string",
@@ -93,13 +93,13 @@
           "type": "boolean"
         },
         "checkpoint_control": {
-          "$ref": "common.schema.json#/$defs/frequencyControl"
+          "$ref": "urn:neko:schema:common#/$defs/frequencyControl"
         },
         "checkpoint_value": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
         },
         "checkpoint_filename": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "checkpoint_format": {
           "type": "string",
@@ -109,13 +109,13 @@
           ]
         },
         "restart_file": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "restart_mesh_file": {
-          "$ref": "common.schema.json#/$defs/nonEmptyString"
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "mesh2mesh_tolerance": {
-          "$ref": "common.schema.json#/$defs/numberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
         },
         "job_timelimit": {
           "type": "string",
@@ -131,33 +131,33 @@
           }
         },
         "time": {
-          "$ref": "time.schema.json#/$defs/time"
+          "$ref": "urn:neko:schema:time#/$defs/time"
         },
         "numerics": {
-          "$ref": "numerics.schema.json#/$defs/numerics"
+          "$ref": "urn:neko:schema:numerics#/$defs/numerics"
         },
         "fluid": {
-          "$ref": "fluid.schema.json#/$defs/fluid"
+          "$ref": "urn:neko:schema:fluid#/$defs/fluid"
         },
         "scalar": {
-          "$ref": "scalar.schema.json#/$defs/scalarField"
+          "$ref": "urn:neko:schema:scalar#/$defs/scalarField"
         },
         "scalars": {
           "type": "array",
           "items": {
-            "$ref": "scalar.schema.json#/$defs/scalarField"
+          "$ref": "urn:neko:schema:scalar#/$defs/scalarField"
           }
         },
         "simulation_components": {
           "type": "array",
           "items": {
-            "$ref": "simulation-components.schema.json#/$defs/simulationComponent"
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simulationComponent"
           }
         },
         "point_zones": {
           "type": "array",
           "items": {
-            "$ref": "point-zones.schema.json#/$defs/pointZone"
+          "$ref": "urn:neko:schema:point-zones#/$defs/pointZone"
           }
         }
       },
