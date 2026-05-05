@@ -47,6 +47,7 @@ module time_step_controller
      logical :: is_variable_dt
      real(kind=rp) :: cfl_trg = 0.0_rp
      real(kind=rp) :: cfl_avg = 0.0_rp
+     real(kind=rp) :: init_dt = huge(0.0_rp)
      real(kind=rp) :: max_dt = 0.0_rp
      real(kind=rp) :: min_dt = 0.0_rp
      integer :: max_update_frequency = 0
@@ -78,6 +79,8 @@ contains
     if (this%is_variable_dt) then
        call json_get_or_lookup_or_default(params, 'target_cfl', &
             this%cfl_trg, 0.4_rp)
+       call json_get_or_lookup_or_default(params, 'timestep', &
+            this%init_dt, huge(0.0_rp))
        call json_get_or_lookup_or_default(params, 'max_timestep', &
             this%max_dt, huge(0.0_rp))
        call json_get_or_lookup_or_default(params, 'min_timestep', &
@@ -123,9 +126,10 @@ contains
 
     if (this%dt_last_change .eq. -1) then
 
-       ! set the first dt for desired cfl
-       time%dt = max(min(this%cfl_trg / cfl * time%dt, &
-            this%max_dt), this%min_dt)
+       ! Set the first dt for desired cfl, or use the provided initial dt if it
+       ! is smaller. Then clamp between max and min dt if provided.
+       time%dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
+       time%dt = max(min(time%dt, this%max_dt), this%min_dt)
        this%dt_last_change = 0
        this%cfl_avg = cfl
 
