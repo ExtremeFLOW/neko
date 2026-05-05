@@ -15,6 +15,18 @@ idea of how a case file looks.
 The table below provides a complete reference for all possible configuration
 choices.
 
+An initial JSON Schema for the case file is available in
+`doc/schemas/case-file.schema.json`.
+The schema is split logically by case-object substructure, with dedicated files
+for `time`, `numerics`, `fluid`, `scalar`, `source_terms`, `point_zones`, and
+`simulation_components`, plus a shared `doc/schemas/common.schema.json` for
+reusable definitions.
+The helper `contrib/validate_case_schema.py` can be used to validate case
+files against that schema.
+Since some shipped example files use `//` comments and trailing commas, the
+helper parses the input using a JSON5-compatible frontend before applying the
+schema.
+
 ## High-level structure
 The current high-level structure of the case file is shown below.
 
@@ -183,20 +195,20 @@ smallest of `timestep` and the value calculated from the target CFL number.
 
 | Name                       | Description                                                                                 | Admissible values                 | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
-| `start_time`               | Start time at which the simulation is initiated.                                            | Positive reals                    | `0.0`         |
+| `start_time`               | Start time at which the simulation is initiated.                                            | Non-negative reals                | `0.0`         |
 | `end_time`                 | Final time after which the simulation is stopped.                                           | Positive reals                    | -             |
 | `timestep`                 | Time-step size                                                                              | Positive reals                    | -             |
 | `variable_timestep`        | Whether to use variable dt                                                                  | `true` or `false`                 | `false`       |
 | `max_timestep`             | Maximum time-step size when variable time step is activated                                 | Positive reals                    | `huge`        |
-| `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Positive reals                    | `0.0`         |
+| `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Non-negative reals                | `0.0`         |
 | `target_cfl`               | The desired CFL number                                                                      | Positive real                     | `0.4`         |
-| `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Integer                           | `0`           |
-| `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Integer                           | `huge`        |
+| `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
+| `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `huge`        |
 | `running_avg_coeff`        | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 | `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                            | Positive real greater than `1`    | `1.2`         |
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
-| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps            | Integer                           | `0`           |
+| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 
 ### Restarts and joblimit
@@ -1926,8 +1938,8 @@ A more detailed description as well as a  full list of available components and
 
 ## Point zones
 Point zones enable the user to select GLL points in the computational domain
-according to some geometric criterion. Two predefined geometric shapes are
-selectable from the case file, boxes and spheres.
+according to some geometric criterion. Three predefined geometric shapes are
+selectable from the case file: boxes, spheres, and cylinders.
 
 A point zone object defined in the case file can be retrieved from the point
 zone registry, `neko_point_zone_registry`, and can be used to perform any
