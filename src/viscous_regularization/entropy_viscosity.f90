@@ -32,7 +32,7 @@
 !
 module entropy_viscosity
   use num_types, only : rp
-  use regularization, only : regularization_t
+  use viscous_regularization, only : viscous_regularization_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
   use field, only : field_t
@@ -66,7 +66,7 @@ module entropy_viscosity
   implicit none
   private
 
-  type, public, extends(regularization_t) :: entropy_viscosity_t
+  type, public, extends(viscous_regularization_t) :: entropy_viscosity_t
      real(kind=rp) :: c_avisc_entropy
      real(kind=rp) :: c_avisc_low
      type(field_t) :: entropy_residual

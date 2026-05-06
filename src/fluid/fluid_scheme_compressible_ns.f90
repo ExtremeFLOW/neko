@@ -72,7 +72,8 @@ module fluid_scheme_compressible_ns
        compressible_ops_device_update_temperature
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
-  use regularization, only : regularization_t, regularization_factory
+  use viscous_regularization, only : viscous_regularization_t, &
+       viscous_regularization_factory
   use vector_bc_projector, only : vector_bc_projector_t, &
        coupled_vector_bc_projector_t
   implicit none
@@ -90,8 +91,8 @@ module fluid_scheme_compressible_ns
      class(compressible_rhs_t), allocatable :: compressible_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
-     class(regularization_t), allocatable :: regularization
-     logical :: if_regularization
+     class(viscous_regularization_t), allocatable :: viscous_regularization
+     logical :: if_viscous_regularization
 
      !> Boundary conditions projector for velocity constraints.
      type(coupled_vector_bc_projector_t):: bcs_vel_projector
@@ -107,7 +108,7 @@ module fluid_scheme_compressible_ns
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_ns_setup_bcs
      procedure, pass(this) :: compute_h
-     procedure, pass(this), private :: setup_regularization
+     procedure, pass(this), private :: setup_viscous_regularization
   end type fluid_scheme_compressible_ns_t
 
   interface
@@ -236,8 +237,8 @@ contains
     ! Compute h
     call this%compute_h()
 
-    ! Initialize regularization
-    call this%setup_regularization(params)
+    ! Initialize viscous regularization
+    call this%setup_viscous_regularization(params)
 
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
@@ -278,9 +279,9 @@ contains
     call this%dE%free()
     call this%h%free()
 
-    if (allocated(this%regularization)) then
-       call this%regularization%free()
-       deallocate(this%regularization)
+    if (allocated(this%viscous_regularization)) then
+       call this%viscous_regularization%free()
+       deallocate(this%viscous_regularization)
     end if
 
     do i = 1, this%bcs_density%size()
@@ -329,9 +330,9 @@ contains
          t => time%t, tstep => time%tstep, dt => time%dt, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
-      if (this%if_regularization) then
+      if (this%if_viscous_regularization) then
          ! Compute artificial viscosity
-         call this%regularization%compute(time)
+         call this%viscous_regularization%compute(time)
       end if
 
       ! Refresh user-specified physical viscosity/conductivity before RHS.
@@ -402,8 +403,8 @@ contains
       !> Update entropy lag series BEFORE computing new entropy,
       !> so that S_lag(1) holds the previous step's S (not the current).
       !> This ensures BDF3 has 4 distinct time levels.
-      if (allocated(this%regularization)) then
-         select type (reg => this%regularization)
+      if (allocated(this%viscous_regularization)) then
+         select type (reg => this%viscous_regularization)
          type is (entropy_viscosity_t)
             call reg%update_lag()
          end select
@@ -629,46 +630,48 @@ contains
     type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_ns_restart
 
-  subroutine setup_regularization(this, params)
+  subroutine setup_viscous_regularization(this, params)
     use entropy_viscosity, only : entropy_viscosity_t, &
          entropy_viscosity_set_fields
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(json_file) :: reg_json
     logical :: found
-    character(len=:), allocatable :: regularization_type
+    character(len=:), allocatable :: viscous_regularization_type
     ! List of all possible types created by the factory routine
-    character(len=20) :: REGULARIZATION_NS_KNOWN_TYPES(2) =&
+    character(len=20) :: VISCOUS_REGULARIZATION_NS_KNOWN_TYPES(2) =&
        [character(len=20) :: &
        "entropy", &
        "entropy_viscosity"]
 
     found = .false.
-    if (this%params%valid_path('case.fluid.regularization')) then
-       call json_get(params, 'case.fluid.regularization', &
+    if (this%params%valid_path('case.fluid.viscous_regularization')) then
+       call json_get(params, 'case.fluid.viscous_regularization', &
             reg_json)
        found = .true.
     end if
 
     if (.not. found) then
-       ! No regularization specified, so we skip setup
-       this%if_regularization = .false.
+       ! No viscous_regularization specified, so we skip setup
+       this%if_viscous_regularization = .false.
        return
     else
-       this%if_regularization = .true.
+       this%if_viscous_regularization = .true.
     end if
 
-    call json_get(reg_json, 'type', regularization_type)
-    if (trim(regularization_type) == 'entropy' .or. &
-        trim(regularization_type) == 'entropy_viscosity') then
-       call regularization_factory(this%regularization, regularization_type, &
-            reg_json, this%c_Xh, this%dm_Xh, this%artificial_visc)
+    call json_get(reg_json, 'type', viscous_regularization_type)
+    if (trim(viscous_regularization_type) == 'entropy' .or. &
+        trim(viscous_regularization_type) == 'entropy_viscosity') then
+       call viscous_regularization_factory(this%viscous_regularization, &
+            viscous_regularization_type, reg_json, this%c_Xh, this%dm_Xh, &
+            this%artificial_visc)
     else
-       call neko_type_error("Regularization for compressible Navier-Stokes", &
-            regularization_type, REGULARIZATION_NS_KNOWN_TYPES)
+       call neko_type_error("viscous_regularization for compressible " // &
+            "Navier-Stokes", viscous_regularization_type, &
+            VISCOUS_REGULARIZATION_NS_KNOWN_TYPES)
     end if
 
-    select type (reg => this%regularization)
+    select type (reg => this%viscous_regularization)
     type is (entropy_viscosity_t)
        call entropy_viscosity_set_fields(reg, this%S, this%u, this%v, this%w, &
             this%h, this%max_wave_speed, this%msh, this%Xh, this%gs_Xh)
@@ -676,6 +679,6 @@ contains
 
     call reg_json%destroy()
 
-  end subroutine setup_regularization
+  end subroutine setup_viscous_regularization
 
 end module fluid_scheme_compressible_ns
