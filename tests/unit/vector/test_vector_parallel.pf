@@ -264,7 +264,7 @@ contains
     type(vector_t) :: v
 
     call v%init(n)
-    v = 1.0_rp
+    v%x = 1.0_rp
     v%x(1) = -3.0_rp
     v%x(n) = 7.0_rp
 
