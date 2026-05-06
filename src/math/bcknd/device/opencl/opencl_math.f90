@@ -163,6 +163,17 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_cadd2
 
+     subroutine opencl_cwrap(a_d, min_val, max_val, n, strm) &
+          bind(c, name = 'opencl_cwrap')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: min_val
+       real(c_rp) :: max_val
+       integer(c_int) :: n
+     end subroutine opencl_cwrap
+
      subroutine opencl_cfill(a_d, c, n, strm) &
           bind(c, name = 'opencl_cfill')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
