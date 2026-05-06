@@ -91,6 +91,7 @@ module fluid_scheme_compressible_ns
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
      class(regularization_t), allocatable :: regularization
+     logical :: if_regularization
 
      !> Boundary conditions projector for velocity constraints.
      type(coupled_vector_bc_projector_t):: bcs_vel_projector
@@ -328,8 +329,10 @@ contains
          t => time%t, tstep => time%tstep, dt => time%dt, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
-      ! Compute artificial viscosity
-      call this%regularization%compute(time)
+      if (this%if_regularization) then
+         ! Compute artificial viscosity
+         call this%regularization%compute(time)
+      end if
 
       ! Refresh user-specified physical viscosity/conductivity before RHS.
       call this%update_material_properties(time)
@@ -632,31 +635,38 @@ contains
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(json_file) :: reg_json
-    type(json_core) :: json_core_inst
-    type(json_value), pointer :: reg_params
-    character(len=:), allocatable :: buffer
-    real(kind=rp) :: c_avisc_entropy_val
+    logical :: found
     character(len=:), allocatable :: regularization_type
+    ! List of all possible types created by the factory routine
+    character(len=20) :: REGULARIZATION_NS_KNOWN_TYPES(2) =&
+       [character(len=20) :: &
+       "entropy", &
+       "entropy_viscosity"]
 
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
-         this%c_avisc_low, 0.5_rp)
-    call json_get_or_default(params, 'case.numerics.c_avisc_entropy', &
-         c_avisc_entropy_val, 1.0_rp)
+    found = .false.
+    if (this%params%valid_path('case.fluid.regularization')) then
+       call json_get(params, 'case.fluid.regularization', &
+            reg_json)
+       found = .true.
+    end if
 
-    call json_core_inst%initialize()
-    call json_core_inst%create_object(reg_params, '')
-    call json_core_inst%add(reg_params, 'c_avisc_entropy', c_avisc_entropy_val)
-    call json_core_inst%add(reg_params, 'c_avisc_low', this%c_avisc_low)
-    call json_core_inst%print_to_string(reg_params, buffer)
-    call json_core_inst%destroy(reg_params)
+    if (.not. found) then
+       ! No regularization specified, so we skip setup
+       this%if_regularization = .false.
+       return
+    else
+       this%if_regularization = .true.
+    end if
 
-    call reg_json%initialize()
-    call reg_json%load_from_string(buffer)
-
-    regularization_type = 'entropy_viscosity'
-
-    call regularization_factory(this%regularization, regularization_type, &
-         reg_json, this%c_Xh, this%dm_Xh, this%artificial_visc)
+    call json_get(reg_json, 'type', regularization_type)
+    if (trim(regularization_type) == 'entropy' .or. &
+        trim(regularization_type) == 'entropy_viscosity') then
+       call regularization_factory(this%regularization, regularization_type, &
+            reg_json, this%c_Xh, this%dm_Xh, this%artificial_visc)
+    else
+       call neko_type_error("Regularization for compressible Navier-Stokes", &
+            regularization_type, REGULARIZATION_NS_KNOWN_TYPES)
+    end if
 
     select type (reg => this%regularization)
     type is (entropy_viscosity_t)

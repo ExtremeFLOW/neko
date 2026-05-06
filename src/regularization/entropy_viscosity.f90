@@ -108,6 +108,7 @@ contains
     type(dofmap_t), intent(in), target :: dof
     type(field_t), intent(in), target :: reg_coeff
 
+    call this%free()
     call this%init_base(json, coef, dof, reg_coeff)
 
     call json_get_or_default(json, 'c_avisc_low', this%c_avisc_low, 1.0_rp)
@@ -115,16 +116,6 @@ contains
          this%c_avisc_entropy, 1.0_rp)
 
     call this%entropy_residual%init(dof, 'entropy_residual')
-
-    nullify(this%S)
-    nullify(this%u)
-    nullify(this%v)
-    nullify(this%w)
-    nullify(this%h)
-    nullify(this%max_wave_speed)
-    nullify(this%msh)
-    nullify(this%Xh)
-    nullify(this%gs)
 
   end subroutine entropy_viscosity_init
 
