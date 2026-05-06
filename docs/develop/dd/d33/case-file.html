@@ -273,7 +273,7 @@ Constants</h2>
 <p>Under the hood, Neko stores the constants in an object called <code>neko_const_registry</code>, which is of the type <code>registry_t</code> (same as <code>neko_registry</code>). The object is accessible in the <a class="el" href="../../d6/def/user-file.html">user file</a>.</p>
 <h2><a class="anchor" id="autotoc_md75"></a>
 Time control</h2>
-<p>The <code>time</code> object is used to define the time-stepping of the simulation, including the time-step size, the start and end time, and the variables related to the variable time-stepping algorithm.</p>
+<p>The <code>time</code> object is used to define the time-stepping of the simulation, including the time-step size, the start and end time, and the variables related to the variable time-stepping algorithm. For the variable timestep, one can specify a <code>timestep</code>, such that the first timestep will be assigned to the smallest of <code>timestep</code> and the value calculated from the target CFL number.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
@@ -1766,7 +1766,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue May 5 2026 04:34:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed May 6 2026 04:42:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

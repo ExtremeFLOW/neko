@@ -1,5 +1,7 @@
 var NAVTREEINDEX96 =
 {
+"dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8520f100dad699d7a112b4042ab695e4":[2,0,271,6,36],
+"dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8a83986e0d5b15db5d390dd3c0d68b55":[1,0,317,6,8],
 "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8a83986e0d5b15db5d390dd3c0d68b55":[2,0,271,6,8],
 "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8c84513b624e230d446a679e43e87c2b":[1,0,317,6,3],
 "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a8c84513b624e230d446a679e43e87c2b":[2,0,271,6,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX96 =
 "de/d03/fluid__stats__output_8f90.html#ac046dcbeec2351f5a75b01d316364cc6":[3,0,3,13,14,3],
 "de/d03/fluid__stats__output_8f90.html#aff6d8ee6f957da6b0d6cfb1a719e10f0":[3,0,3,13,14,2],
 "de/d03/fluid__stats__output_8f90_source.html":[3,0,3,13,14],
-"de/d03/sx__set__convect__rst_8f90.html":[3,0,3,16,0,2,10],
-"de/d03/sx__set__convect__rst_8f90_source.html":[3,0,3,16,0,2,10],
-"de/d06/accelerators.html":[0,2,4]
+"de/d03/sx__set__convect__rst_8f90.html":[3,0,3,16,0,2,10]
 };

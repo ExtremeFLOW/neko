@@ -1,5 +1,7 @@
 var NAVTREEINDEX90 =
 {
+"dd/d47/namespacemath.html#a53095ab0beb34895f90c0e0fef2c8901":[1,0,227,48],
+"dd/d47/namespacemath.html#a549502b1671fc81d68d8c1e6007becda":[1,0,227,23],
 "dd/d47/namespacemath.html#a5988dbdbc49591fc69aa4e3f1fcc15de":[1,0,227,63],
 "dd/d47/namespacemath.html#a5c7a47c70c8eeca9fe9c7b221847d58f":[1,0,227,86],
 "dd/d47/namespacemath.html#a5cac807e77679b68a1eaa206a9ec4ea8":[1,0,227,41],
@@ -247,7 +249,5 @@ var NAVTREEINDEX90 =
 "dd/d69/structcurve_1_1curve__t.html#a929f280cfa6505d9d48dd2c6ad27d25b":[2,0,62,0,7],
 "dd/d69/structcurve_1_1curve__t.html#a929f280cfa6505d9d48dd2c6ad27d25b":[1,0,74,0,7],
 "dd/d69/structcurve_1_1curve__t.html#a96c58ac357fc33f8c1c1f14ed23dcdbf":[1,0,74,0,0],
-"dd/d69/structcurve_1_1curve__t.html#a96c58ac357fc33f8c1c1f14ed23dcdbf":[2,0,62,0,0],
-"dd/d69/structcurve_1_1curve__t.html#aa1cd1067aae57b5745530400daf0767b":[2,0,62,0,3],
-"dd/d69/structcurve_1_1curve__t.html#aa1cd1067aae57b5745530400daf0767b":[1,0,74,0,3]
+"dd/d69/structcurve_1_1curve__t.html#a96c58ac357fc33f8c1c1f14ed23dcdbf":[2,0,62,0,0]
 };

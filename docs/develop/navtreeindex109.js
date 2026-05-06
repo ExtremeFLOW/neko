@@ -1,5 +1,7 @@
 var NAVTREEINDEX109 =
 {
+"df/dbf/namespacebuffer.html":[1,0,35],
+"df/dbf/namespacebuffer.html#a66fb05959c98edfe4e9d5fe922e0912a":[1,0,35,2],
 "df/dbf/namespacebuffer.html#a6970e20c16010a39232b9827c660b44a":[1,0,35,1],
 "df/dbf/namespacebuffer.html#a6f632e257929ed8bd257c05e36acab2e":[1,0,35,3],
 "df/dbf/namespacebuffer.html#ad58a0f4709f772e04dba6560adf5cfc2":[1,0,35,4],
@@ -247,7 +249,5 @@ var NAVTREEINDEX109 =
 "df/dd9/structdirichlet_1_1dirichlet__t.html#acec6ac3a12e639a12be6344c9b4e3208":[2,0,95,0,36],
 "df/dd9/structdirichlet_1_1dirichlet__t.html#acf7d3374ded3bdc6dc0bb9c438edbfd9":[2,0,95,0,0],
 "df/dd9/structdirichlet_1_1dirichlet__t.html#acf7d3374ded3bdc6dc0bb9c438edbfd9":[1,0,110,0,0],
-"df/dd9/structtranslation__source__term_1_1translation__source__term__t.html":[2,0,316,0],
-"df/dd9/structtranslation__source__term_1_1translation__source__term__t.html":[1,0,372,0],
-"df/dd9/structtranslation__source__term_1_1translation__source__term__t.html#a09a69aae607fc8ac1f617a73743b19db":[2,0,316,0,0]
+"df/dd9/structtranslation__source__term_1_1translation__source__term__t.html":[2,0,316,0]
 };
