@@ -72,12 +72,12 @@ def load_schema(path: Path) -> jsonschema.protocols.Validator:
     with path.open(encoding="utf-8") as handle:
         schema = json.load(handle)
 
-    # Build a local schema registry from every JSON schema file next to the root
-    # schema. Each file is registered under its declared `$id`, so cross-file
-    # references like `common.schema.json#/$defs/...` can be resolved without
-    # fetching anything externally.
+    # Build a local schema registry from every JSON schema file under the schema
+    # root directory, including nested folders such as `simcomps/`. Each file is
+    # registered under its declared `$id`, so cross-file references resolve
+    # locally without fetching anything externally.
     registry = Registry()
-    for schema_file in path.parent.glob("*.json"):
+    for schema_file in path.parent.rglob("*.json"):
         with schema_file.open(encoding="utf-8") as handle:
             candidate = json.load(handle)
         schema_id = candidate.get("$id")

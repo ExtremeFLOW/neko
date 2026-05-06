@@ -16,11 +16,12 @@ The table below provides a complete reference for all possible configuration
 choices.
 
 An initial JSON Schema for the case file is available in
-`doc/schemas/case-file.schema.json`.
-The schema is split logically by case-object substructure, with dedicated files
+`doc/schemas/`.
+The schema is split logically by case-object substructure (see below), with dedicated files
 for `time`, `numerics`, `fluid`, `scalar`, `source_terms`, `point_zones`, and
 `simulation_components`, plus a shared `doc/schemas/common.schema.json` for
-reusable definitions.
+reusable definitions. The simulation-component schema is further split into
+per-component files under `doc/schemas/simcomps/`.
 The helper `contrib/validate_case_schema.py` can be used to validate case
 files against that schema.
 Since some shipped example files use `//` comments and trailing commas, the
