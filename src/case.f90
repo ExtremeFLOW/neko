@@ -454,7 +454,7 @@ contains
        if (this%output_directory(output_dir_len:output_dir_len) .ne. "/") then
           this%output_directory = trim(this%output_directory)//"/"
           if (pe_rank .eq. 0) then
-             call execute_command_line('mkdir -p '//this%output_directory)
+            call mkdir(trim(this%output_directory))
           end if
        end if
     end if
