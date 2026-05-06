@@ -392,7 +392,7 @@ contains
       !call device_copy(u_d(u_prev), r_d, n)
       call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
-      call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+      call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call device_event_sync(this%gs_event)
       call blst%apply_scalar(w, n)
 
@@ -424,7 +424,7 @@ contains
 
          call this%M%solve(mi, w, n)
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
-         call gs_h%gs_op_vector(ni, n, GS_OP_ADD, this%gs_event)
+         call gs_h%op(ni, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
          call blst%apply(ni, n)
 

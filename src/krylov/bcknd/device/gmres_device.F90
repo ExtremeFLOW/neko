@@ -380,7 +380,7 @@ contains
          else
             call device_copy(r_d, f_d, n)
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-            call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+            call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
             call blst%apply_scalar(w, n)
             call device_sub2(r_d, w_d, n)
@@ -402,7 +402,7 @@ contains
             call this%M%solve(z(1,j), v(1,j), n)
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-            call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+            call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
             call blst%apply_scalar(w, n)
 

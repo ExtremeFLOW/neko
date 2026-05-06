@@ -212,7 +212,7 @@ contains
          else
             call copy(r, f, n)
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
-            call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+            call gs_h%op(w, n, GS_OP_ADD)
             call blst%apply(w, n)
             call sub2(r, w, n)
          end if
@@ -233,7 +233,7 @@ contains
             call this%M%solve(z(1,j), v(1,j), n)
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
-            call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+            call gs_h%op(w, n, GS_OP_ADD)
             call blst%apply(w, n)
 
             do l = 1, j

@@ -218,7 +218,7 @@ contains
        call device_add2s1(this%p_d, this%z_d, beta, n)
 
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
-       call gs_h%gs_op_vector(this%w, n, GS_OP_ADD, this%gs_event)
+       call gs_h%op(this%w, n, GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call blst%apply(this%w, n)
 

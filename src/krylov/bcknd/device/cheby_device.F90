@@ -266,13 +266,13 @@ contains
       end do
       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
 
-      call gs_h%gs_op_vector(d, n, GS_OP_ADD, this%gs_event)
+      call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
       call blst%apply(d, n)
 
       !Power method to get lamba max
       do i = 1, this%power_its
          call ax%compute(w, d, coef, x%msh, x%Xh)
-         call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call blst%apply(w, n)
          if (associated(this%schwarz)) then
             call this%schwarz%compute(this%r, w)
@@ -288,7 +288,7 @@ contains
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
-      call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+      call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call blst%apply(w, n)
       if (associated(this%schwarz)) then
          call this%schwarz%compute(this%r, w)
@@ -345,7 +345,7 @@ contains
       ! calculate residual
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
-      call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+      call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call blst%apply(w, n)
       call device_sub2(r_d, w_d, n)
 
@@ -366,7 +366,7 @@ contains
          ! calculate residual
          call device_copy(r_d, f_d, n)
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call blst%apply(w, n)
          call device_sub2(r_d, w_d, n)
 
@@ -386,7 +386,7 @@ contains
       ! calculate residual
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
-      call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+      call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call blst%apply(w, n)
       call device_sub2(r_d, w_d, n)
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
@@ -435,7 +435,7 @@ contains
       ! calculate residual
       if (.not.this%zero_initial_guess) then
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call blst%apply(w, n)
          call device_sub3(r_d, f_d, w_d, n)
       else
@@ -464,7 +464,7 @@ contains
          rhok = rhokp1
          ! calculate residual
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%gs_op_vector(w, n, GS_OP_ADD, this%gs_event)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call blst%apply(w, n)
          call device_sub3(r_d, f_d, w_d, n)
 

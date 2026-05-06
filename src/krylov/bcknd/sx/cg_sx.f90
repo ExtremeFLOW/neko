@@ -185,7 +185,7 @@ contains
        call add2s1(this%p, this%z, beta, n)
 
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
-       call gs_h%gs_op_vector(this%w, n, GS_OP_ADD)
+       call gs_h%op(this%w, n, GS_OP_ADD)
        call blst%apply_scalar(this%w, n)
 
        pap = glsc3(this%w, coef%mult, this%p, n)
