@@ -226,10 +226,13 @@ module user_intf
      !> Routine to set material properties.
      procedure(user_material_properties_intf), nopass, pointer :: &
           material_properties => null()
+     !> User routine to modify ALE mesh velocity arrays.
      procedure(user_ale_mesh_velocity_intf), nopass, pointer :: &
           ale_mesh_velocity => null()
+     !> User routine to set ALE rigid body kinematics.
      procedure(user_ale_rigid_kinematics_intf), nopass, pointer :: &
           ale_rigid_kinematics => null()
+     !> User routine to set ALE base shapes (smooth blending functions).
      procedure(user_ale_base_shapes_intf), nopass, pointer :: &
           ale_base_shapes => null()
      !> User routine to morph the overset interface
