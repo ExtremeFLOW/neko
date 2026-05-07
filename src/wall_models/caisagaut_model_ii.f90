@@ -32,7 +32,7 @@
 !
 !> Implements [caisagaut_model_ii_t](#caisagaut_model_ii::caisagaut_model_ii_t).
 module caisagaut_model_ii
-  use field, only: field_t
+  use field, only : field_t
   use num_types, only : rp
   use json_module, only : json_file
   use coefs, only : coef_t
@@ -42,10 +42,10 @@ module caisagaut_model_ii
   use json_utils, only : json_get_or_lookup, json_get_or_lookup_or_default
   use caisagaut_model_ii_cpu, only : caisagaut_model_ii_compute_cpu
   use caisagaut_model_ii_device, only : caisagaut_model_ii_compute_device
-  use field_math, only: field_invcol3
+  use field_math, only : field_invcol3
   use vector, only : vector_t
-  use math, only: masked_gather_copy_0
-  use device_math, only: device_masked_gather_copy_0
+  use math, only : masked_gather_copy_0
+  use device_math, only : device_masked_gather_copy_0
   use scratch_registry, only : neko_scratch_registry
 
   implicit none
@@ -80,7 +80,7 @@ module caisagaut_model_ii
      procedure, pass(this) :: free => caisagaut_model_ii_free
      !> Compute wall-node viscosity and density samples.
      procedure, pass(this) :: compute_nu_and_rho => &
-         caisagaut_model_ii_compute_nu_and_rho
+          caisagaut_model_ii_compute_nu_and_rho
      !> Evaluate wall shear stresses.
      procedure, pass(this) :: compute => caisagaut_model_ii_compute
   end type caisagaut_model_ii_t
