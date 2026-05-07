@@ -33,7 +33,7 @@
 !> Defines a fused Conjugate Gradient method for accelerators
 module fusedcg_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use field, only : field_t
@@ -42,10 +42,12 @@ module fusedcg_device
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3
-  use device
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_get_ptr, &
+       device_free, device_map, device_alloc, device_event_create, &
+       device_event_sync, device_event_destroy
   use utils, only : neko_error
-  use comm, only : NEKO_COMM, MPI_Allreduce, MPI_IN_PLACE, &
-       MPI_REAL_PRECISION, MPI_SUM, pe_size
+  use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
@@ -311,6 +313,10 @@ contains
        end do
     end if
 
+    if (c_associated(this%p_d_d)) then
+       call device_free(this%p_d_d)
+    end if
+
     nullify(this%M)
 
     if (c_associated(this%gs_event)) then
@@ -332,7 +338,7 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, ierr, i, p_cur, p_prev
-    real(kind=rp) :: rnorm, rtr, norm_fac,  rtz1, rtz2
+    real(kind=rp) :: rnorm, rtr, norm_fac, rtz1, rtz2
     real(kind=rp) :: pap, beta
     type(c_ptr) :: f_d
     f_d = device_get_ptr(f)
@@ -361,7 +367,10 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) return
+      if(abscmp(rnorm, 0.0_rp)) then
+         ksp_results%converged = .true.
+         return
+      end if
 
       call this%monitor_start('FusedCG')
       do iter = 1, max_iter
@@ -424,9 +433,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function fusedcg_device_solve_coupled
 

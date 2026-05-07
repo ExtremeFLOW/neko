@@ -538,36 +538,36 @@ contains
        end do
     end do
 
-end subroutine sx_set_convect_rst_lx6
+  end subroutine sx_set_convect_rst_lx6
 
-subroutine sx_set_convect_rst_lx5(cr, cs, ct, cx, cy, cz, &
+  subroutine sx_set_convect_rst_lx5(cr, cs, ct, cx, cy, cz, &
      drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
-  integer, parameter :: lx = 5
-  integer, intent(in) :: n
-  real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: cr, cs, ct
-  real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: cx, cy, cz
-  real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
-  real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
-  real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
-  real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
-  integer :: e, i
+    integer, parameter :: lx = 5
+    integer, intent(in) :: n
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: cr, cs, ct
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: cx, cy, cz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    integer :: e, i
 
-  do i = 1, lx * lx * lx
-     do e = 1, n
-        cr(i,1,1,e) = w3(i,1,1) &
+    do i = 1, lx * lx * lx
+       do e = 1, n
+          cr(i,1,1,e) = w3(i,1,1) &
                     * ( cx(i,1,1,e) * drdx(i,1,1,e) &
                       + cy(i,1,1,e) * drdy(i,1,1,e) &
                       + cz(i,1,1,e) * drdz(i,1,1,e) )
-        cs(i,1,1,e) = w3(i,1,1) &
+          cs(i,1,1,e) = w3(i,1,1) &
                     * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
                       + cy(i,1,1,e) * dsdy(i,1,1,e) &
                       + cz(i,1,1,e) * dsdz(i,1,1,e))
-        ct(i,1,1,e) = w3(i,1,1) &
+          ct(i,1,1,e) = w3(i,1,1) &
                     * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
                       + cy(i,1,1,e) * dtdy(i,1,1,e) &
                       + cz(i,1,1,e) * dtdz(i,1,1,e))
-     end do
-  end do
+       end do
+    end do
 
   end subroutine sx_set_convect_rst_lx5
 

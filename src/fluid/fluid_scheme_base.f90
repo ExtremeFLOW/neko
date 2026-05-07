@@ -31,9 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_base
-  use bc, only : bc_t
-  use checkpoint, only : chkp_t
-  use coefs, only: coef_t
+  use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use dofmap, only : dofmap_t
   use field, only : field_t
@@ -44,14 +42,14 @@ module fluid_scheme_base
   use num_types, only : rp
   use checkpoint, only : chkp_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
-  use space, only : space_t, GLL
+  use space, only : space_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use time_step_controller, only : time_step_controller_t
-  use user_intf, only : user_t
-  use usr_inflow, only : usr_inflow_eval
+  use user_intf, only : user_t, user_material_properties_intf
   use utils, only : neko_error
   use bc_list, only : bc_list_t
+  use field_list, only : field_list_t
+  use time_state, only : time_state_t
   implicit none
   private
   public :: fluid_scheme_base_t, fluid_scheme_base_factory
@@ -78,10 +76,6 @@ module fluid_scheme_base
      !> Checkpoint
      type(chkp_t), pointer :: chkp => null()
 
-     !> Density
-     real(kind=rp) :: rho
-     type(field_t) :: rho_field
-
      !> X-component of the right-hand side.
      type(field_t), pointer :: f_x => null()
      !> Y-component of the right-hand side.
@@ -101,16 +95,21 @@ module fluid_scheme_base
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
 
-     !> Dynamic viscosity
-     real(kind=rp) :: mu
+     !> Density field
+     type(field_t), pointer :: rho => null()
 
-     !> The variable mu field
-     type(field_t) :: mu_field
+     !> The dynamic viscosity
+     type(field_t), pointer :: mu => null()
 
-     !> Is mu varying in time? Currently only due to LES models.
-     logical :: variable_material_properties = .false.
+     !> A helper that packs material properties to pass to the user routine.
+     type(field_list_t) :: material_properties
+
      !> Is the fluid frozen at the moment
      logical :: freeze = .false.
+
+     !> User material properties routine
+     procedure(user_material_properties_intf), nopass, pointer :: &
+          user_material_properties => null()
 
    contains
      !> Constructor
@@ -127,9 +126,11 @@ module fluid_scheme_base
      !> Set the user inflow
      procedure(validate_intrf), pass(this), deferred :: validate
      !> Compute the CFL number
-     procedure(fluid_scheme_base_compute_cfl_intrf), pass(this), deferred :: compute_cfl
+     procedure(fluid_scheme_base_compute_cfl_intrf), pass(this), deferred :: &
+          compute_cfl
      !> Set rho and mu
-     procedure(update_material_properties), pass(this), deferred:: update_material_properties
+     procedure(update_material_properties), pass(this), deferred :: &
+          update_material_properties
   end type fluid_scheme_base_t
 
   !> Initialize all fields
@@ -224,17 +225,12 @@ module fluid_scheme_base
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_base_step_intrf(this, t, tstep, dt, ext_bdf, &
-          dt_controller)
+     subroutine fluid_scheme_base_step_intrf(this, time, dt_controller)
+       import time_state_t
        import fluid_scheme_base_t
-       import time_scheme_controller_t
        import time_step_controller_t
-       import rp
        class(fluid_scheme_base_t), target, intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-       real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(in) :: ext_bdf
+       type(time_state_t), intent(in) :: time
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_base_step_intrf
   end interface
@@ -243,7 +239,6 @@ module fluid_scheme_base
   abstract interface
      subroutine fluid_scheme_base_restart_intrf(this, chkp)
        import fluid_scheme_base_t
-       import rp
        import chkp_t
        class(fluid_scheme_base_t), target, intent(inout) :: this
        type(chkp_t), intent(inout) :: chkp
@@ -254,7 +249,7 @@ module fluid_scheme_base
   abstract interface
      subroutine fluid_scheme_setup_bcs_intrf(this, user, params)
        import fluid_scheme_base_t, user_t, json_file
-       class(fluid_scheme_base_t), intent(inout) :: this
+       class(fluid_scheme_base_t), target, intent(inout) :: this
        type(user_t), target, intent(in) :: user
        type(json_file), intent(inout) :: params
      end subroutine fluid_scheme_setup_bcs_intrf
@@ -270,11 +265,10 @@ module fluid_scheme_base
 
   !> Abstract interface to sets rho and mu
   abstract interface
-     subroutine update_material_properties(this)
-       import fluid_scheme_base_t
-       import json_file
-       import user_t
+     subroutine update_material_properties(this, time)
+       import fluid_scheme_base_t, time_state_t
        class(fluid_scheme_base_t), intent(inout) :: this
+       type(time_state_t), intent(in) :: time
      end subroutine update_material_properties
   end interface
 

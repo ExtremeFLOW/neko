@@ -32,7 +32,6 @@
 !
 !> Gradient kernels
 submodule (opr_cpu) cpu_set_convect_rst
-  use num_types, only : rp
   implicit none
 
 contains
@@ -41,13 +40,13 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-                   intent(inout) :: cr, cs, ct
+         intent(inout) :: cr, cs, ct
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-                   intent(in) :: cx, cy, cz
+         intent(in) :: cx, cy, cz
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
-      dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
-      dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
-      nelv => coef%msh%nelv, lx => Xh%lx, w3 => Xh%w3)
+         dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
+         dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
+         nelv => coef%msh%nelv, lx => Xh%lx, w3 => Xh%w3)
 
       select case (lx)
       case (18)
@@ -123,17 +122,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -154,17 +153,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -185,17 +184,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -216,17 +215,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -247,17 +246,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -278,17 +277,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -309,17 +308,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -340,17 +339,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -371,17 +370,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -402,17 +401,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -433,17 +432,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -464,17 +463,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -495,17 +494,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -526,17 +525,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -557,17 +556,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -588,17 +587,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -619,17 +618,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 
@@ -650,17 +649,17 @@ contains
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * drdx(i,1,1,e) &
-                        + cy(i,1,1,e) * drdy(i,1,1,e) &
-                        + cz(i,1,1,e) * drdz(i,1,1,e) )
+               * ( cx(i,1,1,e) * drdx(i,1,1,e) &
+               + cy(i,1,1,e) * drdy(i,1,1,e) &
+               + cz(i,1,1,e) * drdz(i,1,1,e) )
           cs(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dsdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dsdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dsdx(i,1,1,e) &
+               + cy(i,1,1,e) * dsdy(i,1,1,e) &
+               + cz(i,1,1,e) * dsdz(i,1,1,e))
           ct(i,1,1,e) = w3(i,1,1) &
-                      * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
-                        + cy(i,1,1,e) * dtdy(i,1,1,e) &
-                        + cz(i,1,1,e) * dtdz(i,1,1,e))
+               * ( cx(i,1,1,e) * dtdx(i,1,1,e) &
+               + cy(i,1,1,e) * dtdy(i,1,1,e) &
+               + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
 

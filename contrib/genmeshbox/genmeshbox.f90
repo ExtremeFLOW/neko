@@ -43,7 +43,7 @@ program genmeshbox
           '1 and with 8 elements in each spatial direction and periodic ', &
           'boundaries in x-y.'
      write(*,*) 'BCs for face 5,6 (z zones) can then be set by setting ', &
-          'bc_labels(5), bc_labels(6) in the parameter file'
+          'boundary_conditions in the parameter file'
      write(*,*) 'If you want a specific distribution of vertices in the ', &
           'directions, give the filename where it is stored'
      write(*,*) 'Example command: ./genmeshbox 0 1 0 1 0 1 8 8 8 ', &
@@ -143,7 +143,7 @@ program genmeshbox
   if (trim(dist_x_fname) .eq. 'uniform') then
      el_len_x(:) = (x1 - x0)/nelx
   else
-     dist_x_file = file_t(trim(dist_x_fname))
+     call dist_x_file%init(trim(dist_x_fname))
      call dist_x%init(nelx+1)
      call dist_x_file%read(dist_x)
      do i = 1, nelx
@@ -156,7 +156,7 @@ program genmeshbox
   if (trim(dist_y_fname) .eq. 'uniform') then
      el_len_y(:) = (y1 - y0)/nely
   else
-     dist_y_file = file_t(trim(dist_y_fname))
+     call dist_y_file%init(trim(dist_y_fname))
      call dist_y%init(nely+1)
      call dist_y_file%read(dist_y)
      do i = 1, nely
@@ -169,7 +169,7 @@ program genmeshbox
   if (trim(dist_z_fname) .eq. 'uniform') then
      el_len_z(:) = (z1 - z0)/nelz
   else
-     dist_z_file = file_t(trim(dist_z_fname))
+     call dist_z_file%init(trim(dist_z_fname))
      call dist_z%init(nelz+1)
      call dist_z_file%read(dist_z)
      do i = 1, nelz
@@ -206,7 +206,7 @@ program genmeshbox
                     coord(3) = cumm_z(e_z + 1 + iz)
                     pt_idx = 1 + (ix + e_x) + (iy + e_y)*(nelx + 1) + &
                          (iz + e_z)*(nelx + 1)*(nely + 1)
-                    p(ix+1, iy+1, iz+1) = point_t(coord, pt_idx)
+                    call p(ix+1, iy+1, iz+1)%init(coord, pt_idx)
                  end do
               end do
            end do
@@ -348,7 +348,7 @@ program genmeshbox
   call msh%finalize()
 
 
-  nmsh_file = file_t(fname)
+  call nmsh_file%init(fname)
 
   call nmsh_file%write(msh)
 

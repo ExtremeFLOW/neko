@@ -32,11 +32,11 @@
 !
 !> Implements `adv_dummy_t`
 module adv_dummy
-  use advection, only: advection_t
-  use num_types, only: rp
-  use space, only: space_t
-  use field, only: field_t
-  use coefs, only: coef_t
+  use advection, only : advection_t
+  use num_types, only : rp
+  use space, only : space_t
+  use field, only : field_t
+  use coefs, only : coef_t
   implicit none
   private
 
@@ -53,7 +53,12 @@ module adv_dummy
      !> Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to
      !! the RHS.
      procedure, pass(this) :: compute_scalar => &
-       compute_scalar_adv_dummy
+          compute_scalar_adv_dummy
+     !> Add the advection term for ALE, i.e. \f$(u - w_m) \cdot \nabla s \f$, to
+     !! the RHS.
+     procedure, pass(this) :: compute_ale => compute_ale_adv_dummy
+     !> Update any metrics needed for the advection computation in ALE.
+     procedure, pass(this) :: recompute_metrics => recompute_metrics_dummy_noop
   end type adv_dummy_t
 
 contains
@@ -86,7 +91,7 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   subroutine compute_adv_dummy(this, vx, vy, vz, fx, fy, fz, Xh, &
-                                          coef, n, dt)
+       coef, n, dt)
     class(adv_dummy_t), intent(inout) :: this
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
@@ -111,7 +116,7 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   subroutine compute_scalar_adv_dummy(this, vx, vy, vz, s, fs, Xh, &
-                                                 coef, n, dt)
+       coef, n, dt)
     class(adv_dummy_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
@@ -123,4 +128,23 @@ contains
 
   end subroutine compute_scalar_adv_dummy
 
+  subroutine recompute_metrics_dummy_noop(this, coef, moving_boundary)
+    class(adv_dummy_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    logical, intent(in) :: moving_boundary
+    ! no-op
+  end subroutine recompute_metrics_dummy_noop
+
+  subroutine compute_ale_adv_dummy(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+                                           fx, fy, fz, Xh, coef, n, dt)
+    class(adv_dummy_t), intent(inout) :: this
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(field_t), intent(inout) :: fx, fy, fz
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
+    ! no-op
+  end subroutine compute_ale_adv_dummy
 end module adv_dummy

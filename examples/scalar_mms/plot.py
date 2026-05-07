@@ -59,4 +59,6 @@ ax2.set_xlabel(r"$x$")
 ax2.set_ylabel(r"absolute error")
 
 plt.tight_layout()
+
+print(f"Absolute error, Linf norm: {np.max(ic - temp)}")
 plt.savefig(join(DATA_PATH, "results.png"), dpi=300)

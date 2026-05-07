@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
@@ -33,18 +32,11 @@
 !
 !
 submodule(fluid_scheme_compressible_euler) euler_bc_fctry
-  use user_intf, only : user_t
-  use utils, only : neko_type_error
-  use field_dirichlet, only : field_dirichlet_t
   use dirichlet, only : dirichlet_t
   use inflow, only : inflow_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
-  use blasius, only : blasius_t
-  use dirichlet, only : dirichlet_t
-  use dong_outflow, only : dong_outflow_t
+  use zero_dirichlet, only : zero_dirichlet_t
   use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
-  use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use json_utils, only : json_get_or_lookup
   implicit none
 
   ! List of all possible types created by the boundary condition factories
@@ -73,6 +65,8 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     call json_get(json, "type", type)
 
@@ -87,12 +81,17 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("density_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
   end subroutine density_bc_factory
 
@@ -104,13 +103,15 @@ contains
   !! @param user The user interface.
   module subroutine pressure_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+    type(fluid_scheme_compressible_euler_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     call json_get(json, "type", type)
 
@@ -127,12 +128,17 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("pressure_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
     ! All pressure bcs are currently strong, so for all of them we
@@ -163,6 +169,8 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     call json_get(json, "type", type)
 
@@ -181,11 +189,16 @@ contains
             EULER_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("velocity_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
   end subroutine velocity_bc_factory

@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,25 +38,38 @@ module field_writer
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use time_state, only : time_state_t
-  use field_registry, only : neko_field_registry
+  use registry, only : neko_registry
   use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
-  use json_utils, only : json_get
+  use point_zone_registry, only : neko_point_zone_registry
+  use fld_file, only : fld_file_t
+  use point_zone, only : point_zone_t
+  use field_output, only : field_output_t
+  use json_utils, only : json_get, json_get_or_default
   use time_based_controller, only : time_based_controller_t
+  use utils, only : neko_error, NEKO_VARNAME_LEN
+  use logger, only : neko_log
   implicit none
   private
 
   !> A simulation component that writes a 3d field to a file.
   type, public, extends(simulation_component_t) :: field_writer_t
      !> Output writer.
-     type(fld_file_output_t), private :: output
+     type(field_output_t), private :: output
+
+     ! Default values for optional parameters in the constructor.
+     character(len=20), private :: default_name = "field_writer"
+     character(len=20), private :: default_precision = "single"
+     character(len=20), private :: default_filename = ""
+     character(len=20), private :: default_format = "nek5000"
+     logical, private :: default_subdivide = .false.
 
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => field_writer_init_from_json
-     !> Constructor from components, passing time_based_controllers.
+     !> Generic for constructing from components.
      generic :: init_from_components => &
           init_from_controllers, init_from_controllers_properties
+     !> Constructor from components, passing time_based_controllers.
      procedure, pass(this) :: init_from_controllers => &
           field_writer_init_from_controllers
      !> Constructor from components, passing the properties of
@@ -77,34 +90,54 @@ contains
   !> @param json JSON object with the parameters.
   !! @param case The case object.
   subroutine field_writer_init_from_json(this, json, case)
-    class(field_writer_t), intent(inout) :: this
+    class(field_writer_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
+    character(len=:), allocatable :: name
     character(len=:), allocatable :: precision
-    character(len=20), allocatable :: fields(:)
+    character(len=:), allocatable :: format
+    character(len=:), allocatable :: point_zone_name
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
+    integer :: precision_value
+    logical :: subdivide
+    class(point_zone_t), pointer :: point_zone
 
     call this%init_base(json, case)
     call json_get(json, "fields", fields)
+    call json_get_or_default(json, "name", name, this%default_name)
+    call json_get_or_default(json, "output_filename", filename, &
+         this%default_filename)
+    call json_get_or_default(json, "output_precision", precision, &
+         this%default_precision)
+    call json_get_or_default(json, "output_format", format, this%default_format)
 
-    if (json%valid_path("output_filename")) then
-       call json_get(json, "output_filename", filename)
-       if (json%valid_path("output_precision")) then
-          call json_get(json, "output_precision", precision)
-          if (precision == "double") then
-             call this%init_common(fields, filename, dp)
-          else
-             call this%init_common(fields, filename, sp)
-          end if
-       else
-          call this%init_common(fields, filename)
-       end if
+    if (precision .eq. "single") then
+       precision_value = sp
+    else if (precision .eq. "double") then
+       precision_value = dp
     else
-       call this%init_common(fields)
+       call neko_error("Invalid precision specified for field_writer: " &
+            // trim(precision))
     end if
+
+    call json_get_or_default(json, "output_subdivide", subdivide, &
+         this%default_subdivide)
+
+    if (json%valid_path('point_zone')) then
+       call json_get(json, 'point_zone', point_zone_name)
+       point_zone => neko_point_zone_registry%get_point_zone(point_zone_name)
+       call this%init_common(name, fields, filename, precision_value, format, &
+            subdivide, point_zone)
+    else
+       call this%init_common(name, fields, filename, precision_value, format, &
+            subdivide)
+    end if
+
   end subroutine field_writer_init_from_json
 
   !> Constructor from components, passing controllers.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller The controller for running preprocessing.
@@ -115,27 +148,37 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_from_controllers(this, case, order, &
+  !! @param format The output format of the data. Optional, defaults to
+  !! "nek5000".
+  !! @param subdivide Whether to subdivide spectral elements into linear
+  !! sub-cells. Optional, defaults to `.false.`.
+  subroutine field_writer_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       fields, filename, precision)
+       fields, filename, precision, format, subdivide, point_zone)
     class(field_writer_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     type(time_based_controller_t), intent(in) :: preprocess_controller
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
-    character(len=20), intent(in) :: fields(:)
+    character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
+    character(len=20), intent(in), optional :: format
+    logical, intent(in), optional :: subdivide
+    class(point_zone_t), intent(inout), optional :: point_zone
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%init_common(fields, filename, precision)
+    call this%init_common(name, fields, filename, precision, format, &
+         subdivide, point_zone)
 
   end subroutine field_writer_init_from_controllers
 
   !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller Control mode for preprocessing.
@@ -149,10 +192,16 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_from_controllers_properties(this, &
+  !! @param format The output format of the data. Optional, defaults to
+  !! "nek5000".
+  !! @param subdivide Whether to subdivide spectral elements into linear
+  !! sub-cells. Optional, defaults to `.false.`.
+  subroutine field_writer_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
-       compute_value, output_control, output_value, fields, filename, precision)
+       compute_value, output_control, output_value, fields, filename, &
+       precision, format, subdivide, point_zone)
     class(field_writer_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
@@ -161,59 +210,104 @@ contains
     real(kind=rp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
     real(kind=rp), intent(in) :: output_value
-    character(len=20), intent(in) :: fields(:)
+    character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
+    character(len=*), intent(in), optional :: format
+    logical, intent(in), optional :: subdivide
+    class(point_zone_t), intent(inout), optional :: point_zone
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%init_common(fields, filename, precision)
+    call this%init_common(name, fields, filename, precision, format, &
+         subdivide, point_zone)
 
   end subroutine field_writer_init_from_controllers_properties
 
   !> Common part of both constructors.
+  !! @param name The unique name of the simcomp.
   !! @param fields Array of field names to be sampled.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_common(this, fields, filename, precision)
+  !! @param format The output format of the data. Optional, defaults to
+  !! "nek5000".
+  !! @param subdivide Whether to subdivide spectral elements into linear
+  !! sub-cells. Optional, defaults to `.false.`.
+  subroutine field_writer_init_common(this, name, fields, filename, precision, &
+       format, subdivide, point_zone)
     class(field_writer_t), intent(inout) :: this
-    character(len=20), intent(in) :: fields(:)
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
-    character(len=20) :: fieldi
+    character(len=*), intent(in), optional :: format
+    logical, intent(in), optional :: subdivide
+    class(point_zone_t), intent(inout), optional :: point_zone
+
+    logical :: filename_provided
     integer :: i
 
-    ! Regsiter fields if they don't exist.
+    this%name = name
+    ! Register fields if they don't exist.
     do i = 1, size(fields)
-       fieldi = trim(fields(i))
-       call neko_field_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
+       call neko_registry%add_field(this%case%fluid%dm_Xh, trim(fields(i)), &
             ignore_existing = .true.)
     end do
 
-    if (present(filename)) then
-       if (present(precision)) then
-          call this%output%init(precision, filename, size(fields))
-       else
-          call this%output%init(sp, filename, size(fields))
-       end if
-       do i = 1, size(fields)
-          fieldi = trim(fields(i))
-          call this%output%fields%assign(i, &
-               neko_field_registry%get_field(fieldi))
-       end do
+    ! Throw an error if no output filename is provided to avoid dumping masked
+    ! fields in the default fluid output.
+    if (present(point_zone) .and. &
+         (.not. present(filename) .or. len_trim(filename) .eq. 0 ) ) then
+       call neko_error("Please provide a filename for the " // &
+            "field_writer when using a point_zone with the key " // &
+            "'output_filename'.")
+    end if
 
-       call this%case%output_controller%add(this%output, &
-            this%output_controller%control_value, &
-            this%output_controller%control_mode)
-    else
+    filename_provided = .false.
+    if (present(filename)) then
+       if (len_trim(filename) .ne. 0) then
+          filename_provided = .true.
+          call this%output%init(trim(filename), size(fields), &
+               precision = precision, format = format, &
+               path = this%case%output_directory)
+
+          if (present(subdivide)) then
+             call this%output%file_%set_subdivide(subdivide)
+          end if
+
+          do i = 1, size(fields)
+             call this%output%fields%assign(i, &
+                  neko_registry%get_field(trim(fields(i))))
+          end do
+
+          call this%case%output_controller%add(this%output, &
+               this%output_controller%control_value, &
+               this%output_controller%control_mode)
+
+       end if
+    end if
+
+    if (.not. filename_provided) then
        do i = 1, size(fields)
-          fieldi = trim(fields(i))
           call this%case%f_out%fluid%append( &
-               neko_field_registry%get_field(fieldi))
+               neko_registry%get_field(trim(fields(i))))
        end do
+    end if
+
+    !
+    ! Set the mask for subsampling is a point zone is provided. Only supported
+    ! for fld/nek5000 files
+    !
+    if (present(point_zone)) then
+       select type (ft => this%output%file_%file_type)
+       class is (fld_file_t)
+          call ft%set_mask(point_zone%mask)
+       class default
+          call neko_error("point_zone can only be used with nek5000/fld files")
+       end select
     end if
 
   end subroutine field_writer_init_common
@@ -222,6 +316,7 @@ contains
   subroutine field_writer_free(this)
     class(field_writer_t), intent(inout) :: this
     call this%free_base()
+    call this%output%free()
   end subroutine field_writer_free
 
   !> Here to comply with the interface, does nothing.

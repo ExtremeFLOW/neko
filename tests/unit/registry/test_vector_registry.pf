@@ -1,0 +1,162 @@
+module test_vector_registry
+  use pfunit
+  use vector, only : vector_t
+  use registry, only : registry_t
+  use comm, only : pe_rank, pe_size
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : DEVICE_TO_HOST, device_init, device_finalize
+  use vector_math, only : vector_cfill
+  use num_types, only : rp
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_field_reg
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_field_reg
+
+contains
+
+  subroutine setUp(this)
+    class(test_field_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_field_reg), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  @test
+  subroutine test_registry_init(this)
+    class(test_field_reg), intent(inout) :: this
+    type(registry_t) :: registry
+
+    call registry%init()
+    @assertEqual(25, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_vectors())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(5, registry%get_expansion_size())
+
+    ! Test freeing the registry
+    call registry%free()
+    @assertEqual(0, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_vectors())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(5, registry%get_expansion_size())
+  end subroutine test_registry_init
+
+  @test
+  subroutine test_registry_init_custom(this)
+    class(test_field_reg), intent(inout) :: this
+    type(registry_t) :: registry
+
+    ! Test custom initialization and reinitialization
+    call registry%init(5, 10)
+    @assertEqual(5, registry%get_size())
+    @assertEqual(0, registry%n_entries())
+    @assertEqual(0, registry%n_vectors())
+    @assertEqual(0, registry%n_aliases())
+    @assertEqual(10, registry%get_expansion_size())
+
+    call registry%free()
+  end subroutine test_registry_init_custom
+
+  @test
+  subroutine test_registry_add_vector(this)
+    class(test_field_reg), intent(inout) :: this
+    type(registry_t) :: registry
+    type(vector_t), pointer :: vector
+
+    call registry%init()
+
+    call registry%add_vector(42, 'test_vector')
+
+    @assertEqual(1, registry%n_vectors())
+    @assertEqual(.true., registry%vector_exists('test_vector'))
+
+    vector => registry%get_vector('test_vector')
+
+    @assertEqual(42, vector%size())
+
+    call registry%add_vector(42, 'test_vector', ignore_existing=.true.)
+    @assertEqual(1, registry%n_vectors())
+
+    call registry%free()
+  end subroutine test_registry_add_vector
+
+  @test
+  subroutine test_registry_add_alias(this)
+    class(test_field_reg), intent(inout) :: this
+    type(registry_t) :: registry
+    type(vector_t), pointer :: vector, alias_ptr
+
+    call registry%init()
+
+    call registry%add_vector(42, 'test_vector')
+    call registry%add_alias('test_alias', 'test_vector')
+    call registry%add_alias('test_alias2', 'test_vector')
+
+    @assertEqual(1, registry%n_vectors())
+    @assertEqual(2, registry%n_aliases())
+    @assertEqual(.true., registry%vector_exists('test_vector'))
+    @assertEqual(.true., registry%vector_exists('test_alias'))
+    @assertEqual(.true., registry%vector_exists('test_alias2'))
+
+    vector => registry%get_vector('test_alias')
+    @assertEqual(42, vector%size())
+
+    vector => registry%get_vector('test_alias2')
+    @assertEqual(42, vector%size())
+
+    vector => registry%get_vector('test_vector')
+    alias_ptr => registry%get_vector('test_alias')
+    @assertAssociated(vector, alias_ptr)
+
+    call registry%free()
+  end subroutine test_registry_add_alias
+
+  @test
+  subroutine test_registry_expand(this)
+    class(test_field_reg), intent(inout) :: this
+    type(registry_t) :: registry
+    type(vector_t), pointer :: vector1, vector1_post, vector2
+
+    call registry%init(1, 1)
+
+    call registry%add_vector(42, 'test_vector1')
+    vector1 => registry%get_vector('test_vector1')
+    call vector_cfill(vector1, 42.0_rp)
+
+    call registry%add_vector(42, 'test_vector2')
+    vector2 => registry%get_vector('test_vector2')
+    call vector_cfill(vector2, 84.0_rp)
+
+    @assertEqual(2, registry%n_entries())
+    @assertEqual(2, registry%n_vectors())
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call vector1%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call vector2%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    ! Check values post-expansion
+    @assertEqual(vector1%x(1), 42.0_rp)
+    @assertEqual(vector2%x(1), 84.0_rp)
+
+    ! Check that we did indeed retain the objects
+    vector1_post => registry%get_vector('test_vector1')
+    @assertAssociated(vector1, vector1_post)
+    @assertEqual(vector1_post%x(1), 42.0_rp)
+
+    call registry%free()
+  end subroutine test_registry_expand
+
+end module test_vector_registry

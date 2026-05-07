@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -137,23 +137,48 @@ extern "C" {
       }                                                                         \
       break
 
+#define CASE_LARGE(LX)                                                          \
+    case LX:                                                                    \
+      CASE_KSTEP(LX);                                                           \
+      break
 
-    switch(*lx) {
-      CASE(2);
-      CASE(3);
-      CASE(4);
-      CASE(5);
-      CASE(6);
-      CASE(7);
-      CASE_PADDED(8);
-      CASE(9);
-      CASE(10);
-      CASE(11);
-      CASE(12);
-    default:
-      {
-        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
-        exit(1);
+#define CASE_LARGE_PADDED(LX)                                                   \
+    case LX:                                                                    \
+      CASE_KSTEP_PADDED(LX);                                                    \
+      break
+
+    if ((*lx) < 13) {
+      switch(*lx) {
+        CASE(2);
+        CASE(3);
+        CASE(4);
+        CASE(5);
+        CASE(6);
+        CASE(7);
+        CASE_PADDED(8);
+        CASE(9);
+        CASE(10);
+        CASE(11);
+        CASE(12);
+      default:
+        {
+          fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+          exit(1);
+        }
+      }
+    }
+    else {
+      switch(*lx) {
+        CASE_LARGE(12);
+        CASE_LARGE(13);
+        CASE_LARGE(14);
+        CASE_LARGE(15);
+        CASE_LARGE_PADDED(16);
+      default:
+        {
+          fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+          exit(1);
+        }
       }
     }
   }
@@ -260,6 +285,7 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   const dim3 nblcks_1d((*nelv), 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks_kstep((*nelv), 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
   char *env_value = NULL;
   char neko_log_buf[80];
@@ -291,23 +317,28 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
-  HIP_CHECK(hipEventRecord(start,0));
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  HIP_CHECK(hipEventRecord(start, stream));
 
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
 
-  HIP_CHECK(hipEventRecord(stop,0));
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time1, start, stop));
 
-  HIP_CHECK(hipEventRecord(start,0));
+  HIP_CHECK(hipEventRecord(start, stream));
 
   for(int i = 0; i < 100; i++) {
      CASE_KSTEP(LX);
    }
 
-  HIP_CHECK(hipEventRecord(stop,0));
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time2, start, stop));
 
@@ -337,6 +368,7 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   const dim3 nblcks_1d((*nelv), 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks_kstep((*nelv), 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
   char *env_value = NULL;
   char neko_log_buf[80];
@@ -368,23 +400,28 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
-  HIP_CHECK(hipEventRecord(start,0));
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  HIP_CHECK(hipEventRecord(start, stream));
 
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
 
-  HIP_CHECK(hipEventRecord(stop, 0));
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time1, start, stop));
 
-  HIP_CHECK(hipEventRecord(start, 0));
+  HIP_CHECK(hipEventRecord(start, stream));
 
   for(int i = 0; i < 100; i++) {
     CASE_KSTEP_PADDED(LX);
   }
 
-  HIP_CHECK(hipEventRecord(stop, 0));
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time2, start, stop));
 

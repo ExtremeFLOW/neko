@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2022, The Neko Authors
+! Copyright (c) 2019-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,17 +33,17 @@
 !> Legacy VTK file format
 !! @details This module defines interface to read/write legacy VTK file
 module vtk_file
-  use num_types
-  use generic_file
-  use utils
-  use mesh
-  use field
-  use dofmap
-  use mesh_field
-  use tet_mesh
-  use tri_mesh
-  use logger
-  use comm
+  use num_types, only : rp, dp
+  use generic_file, only : generic_file_t
+  use utils, only : neko_error, filename_suffix_pos
+  use mesh, only : mesh_t
+  use field, only : field_t
+  use dofmap, only : dofmap_t
+  use mesh_field, only : mesh_fld_t
+  use tet_mesh, only : tet_mesh_t
+  use tri_mesh, only : tri_mesh_t
+  use logger, only : neko_log
+  use comm, only : pe_size, pe_rank
   implicit none
   private
 
@@ -68,15 +68,16 @@ contains
     type(tet_mesh_t), pointer :: tet_msh => null()
     type(tri_mesh_t), pointer :: tri_msh => null()
     character(len=10) :: id_str
-    integer:: suffix_pos
+    integer:: suffix_pos, file_unit
+    character(len=1024) :: fname
 
-    select type(data)
+    select type (data)
     type is (mesh_t)
        msh => data
-    type is(field_t)
+    type is (field_t)
        msh => data%msh
        fld => data
-    type is(mesh_fld_t)
+    type is (mesh_fld_t)
        msh => data%msh
        mfld => data
     type is (dofmap_t)
@@ -89,21 +90,23 @@ contains
        call neko_log%error('Invalid data')
     end select
 
+    fname = trim(this%get_base_fname())
     if (pe_size .gt. 1) then
-       write(id_str,'(i10.10)') pe_rank
-       suffix_pos = filename_suffix_pos(this%fname)
-       open(unit=9, file=trim(this%fname(1:suffix_pos-1))//id_str//'.vtk')
+       write(id_str, '(i10.10)') pe_rank
+       suffix_pos = filename_suffix_pos(fname)
+       open(newunit = file_unit, &
+            file = trim(fname(1:suffix_pos-1))//id_str//'.vtk')
     else
-       open(unit=9, file=trim(this%fname))
+       open(newunit = file_unit, file = trim(fname))
     end if
 
     ! Write legacy header
-    write(9, fmt='(A)') '# vtk DataFile Version 2.0'
-    write(9, fmt='(A)') 'Neko'
-    write(9, fmt='(A)') 'ASCII'
+    write(file_unit, fmt = '(A)') '# vtk DataFile Version 2.0'
+    write(file_unit, fmt = '(A)') 'Neko'
+    write(file_unit, fmt = '(A)') 'ASCII'
 
     if (associated(msh)) then
-       write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
+       write(file_unit, fmt = '(A)') 'DATASET UNSTRUCTURED_GRID'
 
        call vtk_file_write_mesh(9, msh)
 
@@ -113,22 +116,22 @@ contains
           call vtk_file_write_point_data(9, fld)
        end if
     else if (associated(dm)) then
-       write(9, fmt='(A)') 'DATASET POLYDATA'
+       write(file_unit, fmt = '(A)') 'DATASET POLYDATA'
 
        call vtk_file_write_dofmap_coordinates(9, dm)
 
        call vtk_file_write_dofmap_data(9, dm)
     else if (associated(tet_msh)) then
-       write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
+       write(file_unit, fmt = '(A)') 'DATASET UNSTRUCTURED_GRID'
        call vtk_file_write_tet_mesh(9, tet_msh)
     else if (associated(tri_msh)) then
-       write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
+       write(file_unit, fmt = '(A)') 'DATASET UNSTRUCTURED_GRID'
        call vtk_file_write_tri_mesh(9, tri_msh)
     else
        call neko_error('Invalid data')
     end if
 
-    close(9)
+    close(file_unit)
   end subroutine vtk_file_write
 
   subroutine vtk_file_read(this, data)
@@ -143,29 +146,29 @@ contains
     integer :: unit
     type(mesh_t), intent(inout) :: msh
     integer :: i, j, vtk_type
-    integer,  dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, &
-                                                         5, 6, 8, 7/)
+    integer, dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, &
+         5, 6, 8, 7]
     ! Dump coordinates
-    write(unit, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
+    write(unit, fmt = '(A,I8,A)') 'POINTS', msh%mpts, ' double'
     do i = 1, msh%mpts
-       write(unit, fmt='(F15.8,F15.8,F15.8)') real(msh%points(i)%x,dp)
+       write(unit, fmt = '(F15.8,F15.8,F15.8)') real(msh%points(i)%x, dp)
     end do
 
     ! Dump cells
-    write(unit, fmt='(A,I8,I8)')  'CELLS', msh%nelv, msh%nelv*(msh%npts+1)
+    write(unit, fmt = '(A,I8,I8)') 'CELLS', msh%nelv, msh%nelv*(msh%npts+1)
     j = 0
     do i = 1, msh%nelv
-       write(unit, fmt='(I8,8I8)') msh%npts, &
+       write(unit, fmt = '(I8,8I8)') msh%npts, &
             (msh%get_local(msh%elements(i)%e%pts(vcyc_to_sym(j))%p) - 1, &
-            j=1, msh%npts)
+            j = 1, msh%npts)
     end do
 
     ! Dump cell type for each element
-    write(unit, fmt='(A,I8)') 'CELL_TYPES', msh%nelv
+    write(unit, fmt = '(A,I8)') 'CELL_TYPES', msh%nelv
     vtk_type = 9
     if (msh%gdim .eq. 3) vtk_type = 12
     do i = 1, msh%nelv
-       write(unit, fmt='(I2)') vtk_type
+       write(unit, fmt = '(I2)') vtk_type
     end do
 
   end subroutine vtk_file_write_mesh
@@ -176,12 +179,12 @@ contains
     type(mesh_fld_t), intent(in) :: mfld
     integer :: i
 
-    write(unit, fmt='(A,I8)') 'CELL_DATA', mfld%msh%nelv
-    write(unit, fmt='(A,A,A,I8)') 'SCALARS ', trim(mfld%name), ' int', 1
-    write(unit, fmt='(A)') 'LOOKUP_TABLE default'
+    write(unit, fmt = '(A,I8)') 'CELL_DATA', mfld%msh%nelv
+    write(unit, fmt = '(A,A,A,I8)') 'SCALARS ', trim(mfld%name), ' int', 1
+    write(unit, fmt = '(A)') 'LOOKUP_TABLE default'
 
     do i = 1, mfld%msh%nelv
-       write(unit, fmt='(I8)') mfld%data(i)
+       write(unit, fmt = '(I8)') mfld%data(i)
     end do
 
   end subroutine vtk_file_write_cell_data
@@ -198,12 +201,13 @@ contains
     if ( (fld%Xh%lx - 1 .gt. 1) .or. &
          (fld%Xh%ly - 1 .gt. 1) .or. &
          (fld%Xh%lz - 1 .gt. 1)) then
-       call neko_log%warning("Interpolate high-order data onto a low-order mesh")
+       call neko_log%warning("Interpolate high-order data onto a " // &
+            "low-order mesh")
     end if
 
-    write(unit, fmt='(A,I8)') 'POINT_DATA', fld%msh%mpts
-    write(unit, fmt='(A,A,A,I8)') 'SCALARS ', trim(fld%name), ' double', 1
-    write(unit, fmt='(A)') 'LOOKUP_TABLE default'
+    write(unit, fmt = '(A,I8)') 'POINT_DATA', fld%msh%mpts
+    write(unit, fmt = '(A,A,A,I8)') 'SCALARS ', trim(fld%name), ' double', 1
+    write(unit, fmt = '(A)') 'LOOKUP_TABLE default'
 
     lx = fld%Xh%lx
     ly = fld%Xh%ly
@@ -215,16 +219,16 @@ contains
           id(j) = fld%msh%get_local(fld%msh%elements(i)%e%pts(j)%p)
        end do
 
-       point_data(id(1)) = real(fld%x(1,1,1,i),dp)
-       point_data(id(2)) = real(fld%x(lx,1,1,i),dp)
-       point_data(id(3)) = real(fld%x(1,ly,1,i),dp)
-       point_data(id(4)) = real(fld%x(lx,ly,1,i),dp)
+       point_data(id(1)) = real(fld%x(1, 1, 1, i), dp)
+       point_data(id(2)) = real(fld%x(lx, 1, 1, i), dp)
+       point_data(id(3)) = real(fld%x(1, ly, 1, i), dp)
+       point_data(id(4)) = real(fld%x(lx, ly, 1, i), dp)
 
        if (fld%msh%gdim .eq. 3) then
-          point_data(id(5)) = real(fld%x(1,1,lz,i),dp)
-          point_data(id(6)) = real(fld%x(lx,1,lz,i),dp)
-          point_data(id(7)) = real(fld%x(1,ly,lz,i),dp)
-          point_data(id(8)) = real(fld%x(lx,ly,lz,i),dp)
+          point_data(id(5)) = real(fld%x(1, 1, lz, i), dp)
+          point_data(id(6)) = real(fld%x(lx, 1, lz, i), dp)
+          point_data(id(7)) = real(fld%x(1, ly, lz, i), dp)
+          point_data(id(8)) = real(fld%x(lx, ly, lz, i), dp)
        end if
 
     end do
@@ -239,26 +243,26 @@ contains
   subroutine vtk_file_write_dofmap_coordinates(unit, dm)
     integer :: unit
     type(dofmap_t), intent(inout) :: dm
-    integer :: i,j,k,l
+    integer :: i, j, k, l
 
-    write(unit, fmt='(A,I8,A)') 'POINTS', size(dm%x),' double'
+    write(unit, fmt = '(A,I8,A)') 'POINTS', size(dm%x), ' double'
 
     do i = 1, dm%msh%nelv
        do l = 1, dm%Xh%lz
           do k = 1, dm%Xh%ly
              do j = 1, dm%Xh%lx
-                write(unit, fmt='(F15.8,F15.8,F15.8)') &
-                     real(dm%x(j,k,l,i),dp),&
-                     real(dm%y(j,k,l,i),dp),&
-                     real(dm%z(j,k,l,i),dp)
+                write(unit, fmt = '(F15.8,F15.8,F15.8)') &
+                     real(dm%x(j,k,l,i), dp), &
+                     real(dm%y(j,k,l,i), dp), &
+                     real(dm%z(j,k,l,i), dp)
              end do
           end do
        end do
     end do
 
-    write(unit, fmt='(A,I8,I8)') 'VERTICES', size(dm%x), 2*size(dm%x)
+    write(unit, fmt = '(A,I8,I8)') 'VERTICES', size(dm%x), 2*size(dm%x)
     do i = 1, size(dm%x)
-       write(unit, fmt='(I8,I8)') 1,i-1
+       write(unit, fmt = '(I8,I8)') 1, i-1
     end do
 
 
@@ -270,31 +274,31 @@ contains
     type(dofmap_t), intent(inout) :: dm
     integer :: i, j, k, l
 
-    write(unit, fmt='(A,I8)') 'POINT_DATA', size(dm%dof)
-    write(unit, fmt='(A,A,A,I8)') 'SCALARS ', 'dof_id', ' integer', 1
-    write(unit, fmt='(A)') 'LOOKUP_TABLE default'
+    write(unit, fmt = '(A,I8)') 'POINT_DATA', size(dm%dof)
+    write(unit, fmt = '(A,A,A,I8)') 'SCALARS ', 'dof_id', ' integer', 1
+    write(unit, fmt = '(A)') 'LOOKUP_TABLE default'
 
     do i = 1, dm%msh%nelv
        do l = 1, dm%Xh%lz
           do k = 1, dm%Xh%ly
              do j = 1, dm%Xh%lx
-                write(unit, fmt='(I8)') real(dm%dof(j,k,l,i),dp)
+                write(unit, fmt = '(I8)') real(dm%dof(j,k,l,i), dp)
              end do
           end do
        end do
     end do
 
-    write(unit, fmt='(A,A,A,I8)') 'SCALARS ', 'shared_dof', ' integer', 1
-    write(unit, fmt='(A)') 'LOOKUP_TABLE default'
+    write(unit, fmt = '(A,A,A,I8)') 'SCALARS ', 'shared_dof', ' integer', 1
+    write(unit, fmt = '(A)') 'LOOKUP_TABLE default'
 
     do i = 1, dm%msh%nelv
        do l = 1, dm%Xh%lz
           do k = 1, dm%Xh%ly
              do j = 1, dm%Xh%lx
                 if (dm%shared_dof(j,k,l,i)) then
-                   write(unit, fmt='(I8)') 1
+                   write(unit, fmt = '(I8)') 1
                 else
-                   write(unit, fmt='(I8)') 0
+                   write(unit, fmt = '(I8)') 0
                 end if
              end do
           end do
@@ -311,25 +315,26 @@ contains
     integer :: i, j, vtk_type
 
     ! Dump coordinates
-    write(unit, fmt='(A,I8,A)') 'POINTS', tet_msh%msh%mpts,' double'
+    write(unit, fmt = '(A,I8,A)') 'POINTS', tet_msh%msh%mpts, ' double'
     do i = 1, tet_msh%msh%mpts
-       write(unit, fmt='(F15.8,F15.8,F15.8)') real(tet_msh%msh%points(i)%x,dp)
+       write(unit, fmt = '(F15.8,F15.8,F15.8)') &
+            real(tet_msh%msh%points(i)%x, dp)
     end do
 
     ! Dump cells
-    write(unit, fmt='(A,I8,I8)')  'CELLS', tet_msh%nelv, tet_msh%nelv*(npts+1)
+    write(unit, fmt = '(A,I8,I8)') 'CELLS', tet_msh%nelv, tet_msh%nelv*(npts+1)
     j = 0
     do i = 1, tet_msh%nelv
-       write(unit, fmt='(I8,8I8)') npts, &
+       write(unit, fmt = '(I8,8I8)') npts, &
             (tet_msh%msh%get_local(tet_msh%el(i)%pts(j)%p) - 1, &
-            j=1, npts)
+            j = 1, npts)
     end do
 
     ! Dump cell type for each element
-    write(unit, fmt='(A,I8)') 'CELL_TYPES', tet_msh%nelv
+    write(unit, fmt = '(A,I8)') 'CELL_TYPES', tet_msh%nelv
     vtk_type = 10
     do i = 1, tet_msh%nelv
-       write(unit, fmt='(I2)') vtk_type
+       write(unit, fmt = '(I2)') vtk_type
     end do
 
   end subroutine vtk_file_write_tet_mesh
@@ -342,24 +347,24 @@ contains
     integer :: i, j, vtk_type
 
     ! Dump coordinates
-    write(unit, fmt='(A,I8,A)') 'POINTS', tri_msh%mpts,' double'
+    write(unit, fmt = '(A,I8,A)') 'POINTS', tri_msh%mpts, ' double'
     do i = 1, tri_msh%mpts
-       write(unit, fmt='(F15.8,F15.8,F15.8)') real(tri_msh%points(i)%x,dp)
+       write(unit, fmt = '(F15.8,F15.8,F15.8)') real(tri_msh%points(i)%x, dp)
     end do
 
     ! Dump cells
-    write(unit, fmt='(A,I8,I8)')  'CELLS', tri_msh%nelv, tri_msh%nelv*(npts+1)
+    write(unit, fmt = '(A,I8,I8)') 'CELLS', tri_msh%nelv, tri_msh%nelv*(npts+1)
     j = 0
     do i = 1, tri_msh%nelv
-       write(unit, fmt='(I8,8I8)') npts, &
-            (tri_msh%el(i)%pts(j)%p%id() - 1, j=1, npts)
+       write(unit, fmt = '(I8,8I8)') npts, &
+            (tri_msh%el(i)%pts(j)%p%id() - 1, j = 1, npts)
     end do
 
     ! Dump cell type for each element
-    write(unit, fmt='(A,I8)') 'CELL_TYPES', tri_msh%nelv
+    write(unit, fmt = '(A,I8)') 'CELL_TYPES', tri_msh%nelv
     vtk_type = 5
     do i = 1, tri_msh%nelv
-       write(unit, fmt='(I2)') vtk_type
+       write(unit, fmt = '(I2)') vtk_type
     end do
 
   end subroutine vtk_file_write_tri_mesh

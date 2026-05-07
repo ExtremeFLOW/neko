@@ -34,11 +34,12 @@
 module point_zone
   use stack, only: stack_i4_t
   use num_types, only: rp
-  use utils, only: neko_error, nonlinear_index
+  use utils, only: neko_error, nonlinear_index, linear_index
   use dofmap, only: dofmap_t
   use json_module, only: json_file
   use neko_config, only: NEKO_BCKND_DEVICE
-  use device
+  use mask, only: mask_t
+  use device, only: device_map, device_memcpy, device_free
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
   implicit none
   private
@@ -46,9 +47,7 @@ module point_zone
   !> Base abstract type for point zones.
   type, public, abstract :: point_zone_t
      !> List of linear indices of the GLL points in the zone.
-     integer, allocatable :: mask(:)
-     !> List of linear indices of the GLL points in the zone on the device.
-     type(c_ptr) :: mask_d = c_null_ptr
+     type(mask_t) :: mask
      !> Scratch stack of integers to build the list mask.
      type(stack_i4_t), private :: scratch
      !> Size of the point zone mask.
@@ -60,6 +59,9 @@ module point_zone
      character(len=80) :: name
      !> If we select the inverse of the criterion or not
      logical :: invert = .false.
+     !> If we select to mark all points in the element containing points that
+     !! satisfy the criterion
+     logical :: full_elements = .false.
    contains
      !> Constructor for the point_zone_t base type.
      procedure, pass(this) :: init_base => point_zone_init_base
@@ -150,7 +152,53 @@ module point_zone
      end subroutine point_zone_factory
   end interface
 
-  public :: point_zone_factory
+  interface
+     !> Point zone allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the type to allocate.
+     module subroutine point_zone_allocator(object, type_name)
+       class(point_zone_t), allocatable, intent(inout) :: object
+       character(len=:), allocatable, intent(in) :: type_name
+     end subroutine point_zone_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine point_zone_allocate(obj)
+       import point_zone_t
+       class(point_zone_t), allocatable, intent(inout) :: obj
+     end subroutine point_zone_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_point_zone(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(point_zone_allocate), pointer, intent(in) :: allocator
+     end subroutine register_point_zone
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(point_zone_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  !> Registry of point zone allocators for user-defined types
+  type(allocator_entry), allocatable :: point_zone_registry(:)
+
+  !> The size of the `point_zone_registry`
+  integer :: point_zone_registry_size = 0
+
+  public :: point_zone_factory, point_zone_allocator, register_point_zone, &
+       point_zone_allocate
 
 contains
 
@@ -159,11 +207,14 @@ contains
   !! @param name Name of the point zone.
   !! @param invert Flag to indicate wether or not to invert the selection
   !! of points.
-  subroutine point_zone_init_base(this, size, name, invert)
+  !! @param full_elements Whether to mark all points in the element containing
+  !! points that satisfy the criterion.
+  subroutine point_zone_init_base(this, size, name, invert, full_elements)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
     logical, intent(in) :: invert
+    logical, intent(in) :: full_elements
 
     call point_zone_free_base(this)
 
@@ -175,24 +226,19 @@ contains
 
     this%name = trim(name)
     this%invert = invert
+    this%full_elements = full_elements
 
   end subroutine point_zone_init_base
 
   !> Destructor for the point_zone_t base type.
   subroutine point_zone_free_base(this)
     class(point_zone_t), intent(inout) :: this
-    if (allocated(this%mask)) then
-       deallocate(this%mask)
-    end if
 
     this%finalized = .false.
     this%size = 0
 
     call this%scratch%free()
-
-    if (c_associated(this%mask_d)) then
-       call device_free(this%mask_d)
-    end if
+    call this%mask%free()
 
   end subroutine point_zone_free_base
 
@@ -200,32 +246,22 @@ contains
   subroutine point_zone_finalize(this)
     class(point_zone_t), intent(inout) :: this
     integer, pointer :: tp(:)
-    integer :: i
 
     if (.not. this%finalized) then
 
        if (this%scratch%size() .ne. 0) then
 
-          allocate(this%mask(this%scratch%size()))
-
           tp => this%scratch%array()
-          do i = 1, this%scratch%size()
-             this%mask(i) = tp(i)
-          end do
-
           this%size = this%scratch%size()
+          call this%mask%init(tp, this%size)
 
           call this%scratch%clear()
-
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_map(this%mask, this%mask_d, this%size)
-             call device_memcpy(this%mask, this%mask_d, this%size, &
-                  HOST_TO_DEVICE, sync = .false.)
-          end if
-
        else
 
           this%size = 0
+          tp => this%scratch%array()
+          call this%mask%init(tp, this%size)
+
           call this%scratch%clear()
 
        end if
@@ -264,7 +300,8 @@ contains
 
     lx = dof%Xh%lx
 
-    do i = 1, dof%size()
+    i = 1
+    do while (i <= dof%size())
        nlindex = nonlinear_index(i, lx, lx, lx)
        x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
        y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
@@ -275,8 +312,25 @@ contains
        ie = nlindex(4)
 
        if (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
-          idx = i
-          call this%add(idx)
+
+          if (.not. this%full_elements) then
+             idx = i
+             call this%add(idx)
+             i = i + 1
+          else
+             do iz = 1, lx
+                do iy = 1, lx
+                   do ix = 1, lx
+                      idx = linear_index(ix, iy, iz, ie, lx, lx, lx)
+                      call this%add(idx)
+                   end do
+                end do
+             end do
+             i = idx + 1
+          end if
+       else
+          i = i + 1
+
        end if
     end do
 

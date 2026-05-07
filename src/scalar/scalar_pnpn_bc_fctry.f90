@@ -35,19 +35,20 @@
 submodule(scalar_pnpn) scalar_pnpn_bc_fctry
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
-  use usr_scalar, only : usr_scalar_t
   use user_intf, only : user_t
-  use usr_scalar, only : usr_scalar_t
   use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
+  use field_neumann, only : field_neumann_t
+  use overset_interface, only : overset_interface_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: SCALAR_PNPN_KNOWN_BCS(4) = [character(len=25) :: &
+  character(len=25) :: SCALAR_PNPN_KNOWN_BCS(5) = [character(len=25) :: &
        "dirichlet", &
-       "user_pointwise", &
-       "user", &
-       "neumann"]
+       "user_dirichlet", &
+       "user_neumann", &
+       "neumann", &
+       "overset_interface"]
 
 contains
 
@@ -67,29 +68,45 @@ contains
     character(len=:), allocatable :: type
     integer :: i
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
+
+    if (associated(object)) then
+       call object%free()
+       nullify(object)
+    end if
 
     call json_get(json, "type", type)
 
     select case (trim(type))
-    case ("user_pointwise")
-       allocate(usr_scalar_t::object)
-       select type (obj => object)
-       type is (usr_scalar_t)
-          call obj%set_eval(user%scalar_user_bc)
-       end select
-    case ("user")
+    case ("user_dirichlet")
        allocate(field_dirichlet_t::object)
        select type (obj => object)
        type is (field_dirichlet_t)
-          obj%update => user%user_dirichlet_update
+          obj%update => user%dirichlet_conditions
           ! Add the name of the dummy field in the bc, matching the scalar
           ! solved for.
           call json%add("field_name", scheme%s%name)
        end select
     case ("dirichlet")
        allocate(dirichlet_t::object)
+    case ("user_neumann")
+       allocate(field_neumann_t::object)
+       select type (obj => object)
+       type is (field_neumann_t)
+          obj%update => user%neumann_conditions
+          ! Add the name of the dummy field in the bc, matching the scalar
+          ! solved for.
+          call json%add("field_name", scheme%s%name)
+       end select
     case ("neumann")
        allocate(neumann_t::object)
+    case ("overset_interface")
+       allocate(overset_interface_t::object)
+       select type (obj => object)
+       type is (overset_interface_t)
+          call json%add("field_name", scheme%s%name)
+       end select
     case default
        call neko_type_error("scalar_pnpn boundary conditions", type, &
             SCALAR_PNPN_KNOWN_BCS)
@@ -100,6 +117,11 @@ contains
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("scalar_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
   end subroutine bc_factory

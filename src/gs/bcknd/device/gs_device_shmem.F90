@@ -34,25 +34,26 @@
 module gs_device_shmem
   use num_types, only : rp, c_rp
   use gs_comm, only : gs_comm_t
-  use gs_ops
   use stack, only : stack_i4_t
   use htable, only : htable_i4_t
   use device
-  use comm
+  use comm, only : pe_size, pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, &
+       MPI_MAX, MPI_Sendrecv, MPI_STATUS_IGNORE
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
   private
 
-   !> Buffers for non-blocking communication and packing/unpacking
+  !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_shmem_buf_t
-     integer, allocatable :: ndofs(:)           !< Number of dofs
-     integer, allocatable :: offset(:)          !< Offset into buf
-     integer, allocatable :: remote_offset(:)   !< Offset into buf for remote rank
-     integer :: total                           !< Total number of dofs
-     type(c_ptr) :: buf_d = C_NULL_PTR          !< Device buffer
-     type(c_ptr) :: dof_d = C_NULL_PTR          !< Dof mapping for pack/unpack
+     integer, allocatable :: ndofs(:) !< Number of dofs
+     integer, allocatable :: offset(:) !< Offset into buf
+     integer, allocatable :: remote_offset(:) !< Offset into buf for remote rank
+     integer :: total !< Total number of dofs
+     type(c_ptr) :: buf_d = C_NULL_PTR !< Device buffer
+     type(c_ptr) :: dof_d = C_NULL_PTR !< Dof mapping for pack/unpack
    contains
      procedure, pass(this) :: init => gs_device_shmem_buf_init
      procedure, pass(this) :: free => gs_device_shmem_buf_free
@@ -81,7 +82,7 @@ module gs_device_shmem
 
   interface
      subroutine cudamalloc_nvshmem(ptr, size) &
-          bind(c, name='cudamalloc_nvshmem')
+          bind(c, name = 'cudamalloc_nvshmem')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: ptr
@@ -91,7 +92,7 @@ module gs_device_shmem
 
   interface
      subroutine cudafree_nvshmem(ptr) &
-          bind(c, name='cudafree_nvshmem')
+          bind(c, name = 'cudafree_nvshmem')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: ptr
@@ -100,22 +101,23 @@ module gs_device_shmem
 
   interface
      subroutine cuda_gs_pack_and_push(u_d, buf_d, dof_d, offset, n, stream, &
-                                      srank, rbuf_d, roffset, remote_offset, &
-                                      rrank, nvshmem_counter, notifyDone, &
-                                      notifyReady, iter) &
-          bind(c, name='cuda_gs_pack_and_push')
+          srank, rbuf_d, roffset, remote_offset, &
+          rrank, nvshmem_counter, notifyDone, &
+          notifyReady, iter) &
+          bind(c, name = 'cuda_gs_pack_and_push')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: n, offset, srank, roffset, rrank, iter
        integer(c_int), value :: nvshmem_counter
-       type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, notifyReady
-       integer(c_int),dimension(*) ::  remote_offset
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, &
+            notifyReady
+       integer(c_int), dimension(*) :: remote_offset
      end subroutine cuda_gs_pack_and_push
   end interface
 
   interface
-     subroutine cuda_gs_pack_and_push_wait(stream, nvshmem_counter, notifyDone) &
-          bind(c, name='cuda_gs_pack_and_push_wait')
+     subroutine cuda_gs_pack_and_push_wait(stream, nvshmem_counter, &
+          notifyDone) bind(c, name = 'cuda_gs_pack_and_push_wait')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: nvshmem_counter
@@ -125,7 +127,7 @@ module gs_device_shmem
 
   interface
      subroutine cuda_gs_unpack(u_d, op, buf_d, dof_d, offset, n, stream) &
-          bind(c, name='cuda_gs_unpack')
+          bind(c, name = 'cuda_gs_unpack')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: op, offset, n
@@ -154,7 +156,7 @@ contains
     allocate(this%remote_offset(size(pe_order)))
 
     do i = 1, size(pe_order)
-       this%remote_offset(i)=-1
+       this%remote_offset(i) = -1
     end do
 
     total = 0
@@ -185,28 +187,28 @@ contains
        ! %array() breaks on cray
        select type (arr => dof_stack(pe_order(i))%data)
        type is (integer)
-         do j = 1, this%ndofs(i)
-            k = this%offset(i) + j
-            if (mark_dupes) then
-               if (doftable%get(arr(j), dupe) .eq. 0) then
-                  if (dofs(dupe) .gt. 0) then
-                     dofs(dupe) = -dofs(dupe)
-                     marked = marked + 1
-                  end if
-                  dofs(k) = -arr(j)
-                  marked = marked + 1
-               else
-                  call doftable%set(arr(j), k)
-                  dofs(k) = arr(j)
-               end if
-            else
-               dofs(k) = arr(j)
-            end if
-         end do
+          do j = 1, this%ndofs(i)
+             k = this%offset(i) + j
+             if (mark_dupes) then
+                if (doftable%get(arr(j), dupe) .eq. 0) then
+                   if (dofs(dupe) .gt. 0) then
+                      dofs(dupe) = -dofs(dupe)
+                      marked = marked + 1
+                   end if
+                   dofs(k) = -arr(j)
+                   marked = marked + 1
+                else
+                   call doftable%set(arr(j), k)
+                   dofs(k) = arr(j)
+                end if
+             else
+                dofs(k) = arr(j)
+             end if
+          end do
        end select
     end do
 
-    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(dofs, this%dof_d, total, HOST_TO_DEVICE, sync = .true.)
 
     deallocate(dofs)
     call doftable%free()
@@ -243,7 +245,8 @@ contains
     ! Create a set of non-blocking streams
     allocate(this%stream(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call device_stream_create_with_priority(this%stream(i), 1, STRM_HIGH_PRIO)
+       call device_stream_create_with_priority(this%stream(i), 1, &
+            STRM_HIGH_PRIO)
     end do
 
     allocate(this%event(size(this%recv_pe)))
@@ -292,7 +295,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
-    integer ::  i
+    integer :: i
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
@@ -329,7 +332,7 @@ contains
     u_d = device_get_ptr(u)
 #ifdef HAVE_NVSHMEM
     do i = 1, size(this%send_pe)
-      if (this%recv_buf%remote_offset(i) .eq. -1) then
+       if (this%recv_buf%remote_offset(i) .eq. -1) then
           call MPI_Sendrecv(this%recv_buf%offset(i), 1, MPI_INTEGER, &
                this%recv_pe(i), 0, &
                this%recv_buf%remote_offset(i), 1, MPI_INTEGER, &
@@ -376,6 +379,6 @@ contains
             this%event(done_req), 0)
     end do
 #endif
-end subroutine gs_device_shmem_nbwait
+  end subroutine gs_device_shmem_nbwait
 
 end module gs_device_shmem

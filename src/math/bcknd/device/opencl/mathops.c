@@ -69,6 +69,7 @@ void opencl_opchsign(void *a1, void *a2, void *a3, int *gdim, int *n) {
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
 				  NULL, &global_item_size, &local_item_size,
 				  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for opcolv \f$ a = a * c \f$ */
@@ -95,6 +96,7 @@ void opencl_opcolv(void *a1, void *a2, void *a3, void *c, int *gdim, int *n) {
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
 				  NULL, &global_item_size, &local_item_size,
 				  0, NULL, NULL));   
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for opcolv3c \f$ a(i) = b(i) * c(i) * d \f$ */
@@ -127,6 +129,7 @@ void opencl_opcolv3c(void *a1, void *a2, void *a3,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
 				  NULL, &global_item_size, &local_item_size,
 				  0, NULL, NULL));   
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for opadd2cm \f$ a(i) = a + b(i) * c \f$ */
@@ -158,6 +161,7 @@ void opencl_opadd2cm(void *a1, void *a2, void *a3,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
 				  NULL, &global_item_size, &local_item_size,
 				  0, NULL, NULL));  
+  CL_CHECK(clReleaseKernel(kernel));
 }
 
 /** Fortran wrapper for opadd2col \f$ a(i) = a + b(i) * c(i) \f$ */
@@ -189,4 +193,5 @@ void opencl_opadd2col(void *a1, void *a2, void *a3,
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
 				  NULL, &global_item_size, &local_item_size,
 				  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
 }

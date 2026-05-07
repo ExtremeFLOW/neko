@@ -1,6 +1,6 @@
 !> NEKTON re2 format
 module re2
-  use num_types
+  use num_types, only : sp, dp
   implicit none
 
   !> NEKTON re2 header size

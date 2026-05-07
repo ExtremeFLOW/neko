@@ -33,20 +33,23 @@
 !> Utilities
 !! @details Various utility functions
 module utils
-  use, intrinsic :: iso_fortran_env, only: error_unit, output_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
   implicit none
   private
 
   integer, parameter :: NEKO_FNAME_LEN = 1024
+  integer, parameter :: NEKO_VARNAME_LEN = 256
 
   interface neko_error
      module procedure neko_error_plain, neko_error_msg
   end interface neko_error
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
-       filename_suffix, filename_suffix_pos, filename_tslash_pos, &
+       filename_path, filename_name, filename_suffix, &
+       filename_suffix_pos, filename_tslash_pos, filename_split, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
-       concat_string_array, extract_fld_file_index, neko_type_error
+       concat_string_array, extract_fld_file_index, neko_type_error, &
+       neko_type_registration_error, NEKO_VARNAME_LEN
 
 
 contains
@@ -65,12 +68,73 @@ contains
     tslash_pos = scan(trim(fname), '/', back = .true.)
   end function filename_tslash_pos
 
+  !> Extract the path to a file
+  subroutine filename_path(fname, path)
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(out) :: path
+    integer :: tslash_pos
+
+    tslash_pos = filename_tslash_pos(fname)
+    if (tslash_pos .gt. 0) then
+       path = trim(fname(1:tslash_pos))
+    else
+       path = './'
+    end if
+
+  end subroutine filename_path
+
+  !> Extract the base name of a file (without path and suffix)
+  subroutine filename_name(fname, name)
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(out) :: name
+    integer :: tslash_pos, suffix_pos, start, end
+
+    tslash_pos = filename_tslash_pos(fname)
+    suffix_pos = filename_suffix_pos(fname)
+    if (tslash_pos .eq. 0) then
+       start = 1
+    else
+       start = tslash_pos + 1
+    end if
+    if (suffix_pos .eq. 0) then
+       end = len_trim(fname)
+    else
+       end = suffix_pos - 1
+    end if
+    name = trim(fname(start:end))
+  end subroutine filename_name
+
   !> Extract a filename's suffix
   subroutine filename_suffix(fname, suffix)
     character(len=*) :: fname
     character(len=*) :: suffix
     suffix = trim(fname(filename_suffix_pos(fname) + 1:len_trim(fname)))
   end subroutine filename_suffix
+
+  !> Extract file name components
+  subroutine filename_split(fname, path, name, suffix)
+    character(len=*), intent(in) :: fname
+    character(len=*), intent(out) :: path, name, suffix
+    integer :: tslash_pos, suffix_pos
+
+    tslash_pos = filename_tslash_pos(fname)
+    suffix_pos = filename_suffix_pos(fname)
+
+    if (tslash_pos .gt. 0) then
+       path = trim(fname(1:tslash_pos))
+    else
+       path = './'
+    end if
+
+    if (suffix_pos .gt. 0) then
+       name = trim(fname(tslash_pos + 1:suffix_pos - 1))
+       suffix = trim(fname(suffix_pos:len_trim(fname)))
+    else
+       name = trim(fname(tslash_pos + 1:len_trim(fname)))
+       suffix = ''
+    end if
+
+  end subroutine filename_split
 
   !> Change a filename's suffix
   subroutine filename_chsuffix(fname, new_fname, new_suffix)
@@ -201,17 +265,17 @@ contains
 
     is_on = .false.
     select case (facet)
-      case (1)
+    case (1)
        if (i .eq. 1) is_on = .true.
-      case (2)
+    case (2)
        if (i .eq. lx) is_on = .true.
-      case (3)
+    case (3)
        if (j .eq. 1) is_on = .true.
-      case (4)
+    case (4)
        if (j .eq. ly) is_on = .true.
-      case (5)
+    case (5)
        if (k .eq. 1) is_on = .true.
-      case (6)
+    case (6)
        if (k .eq. lz) is_on = .true.
     end select
 
@@ -236,20 +300,20 @@ contains
   !! @param error_msg The error message to report.
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
-    write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
+    write(error_unit, *) '*** ERROR: ', trim(error_msg), ' ***'
     error stop
   end subroutine neko_error_msg
 
   !> Reports an error allocating a type for a particular base pointer class.
   !! @details Should be used in factories.
-  !! @param base_type The base type of the object, which the factory tried to 
+  !! @param base_type The base type of the object, which the factory tried to
   !! construct.
   !! @param wrong_type The type that was attempted to construct.
   !! @param known_types A list of the types that are known.
   subroutine neko_type_error(base_type, wrong_type, known_types)
-    character(len=*) :: base_type 
-    character(len=*) :: wrong_type 
-    character(len=*) :: known_types(:)
+    character(len=*), intent(in) :: base_type
+    character(len=*), intent(in) :: wrong_type
+    character(len=*), intent(in) :: known_types(:)
     integer :: i
 
     write(error_unit, *) '*** ERROR WHEN SELECTING TYPE ***'
@@ -261,10 +325,27 @@ contains
     error stop
   end subroutine neko_type_error
 
+  subroutine neko_type_registration_error(base_type, wrong_type, known)
+    character(len=*), intent(in) :: base_type
+    character(len=*), intent(in) :: wrong_type
+    logical, intent(in) :: known
+
+    write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
+    write(error_unit, *) 'Type name ', wrong_type, &
+         ' conflicts with and already existing ', base_type, " type"
+    if (known) then
+       write(error_unit, *) 'Please rename your custom type.'
+    else
+       write(error_unit, *) 'The already existing type is also custom.' // &
+            ' Make all custom type names unique!'
+    end if
+    error stop
+  end subroutine neko_type_registration_error
+
   !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)
     character(len=*) :: warning_msg
-    write(output_unit, *) '*** WARNING: ', warning_msg, ' ***'
+    write(output_unit, *) '*** WARNING: ', trim(warning_msg), ' ***'
   end subroutine neko_warning
 
   !> Concatenate an array of strings into one string with array items
@@ -284,7 +365,7 @@ contains
        result = result // sep // trim(array(i))
     end do
 
-    if (prepend .eqv. .true.) then
+    if (prepend) then
        result = sep // result
     end if
 

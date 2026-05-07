@@ -39,7 +39,7 @@ module point_zone_registry
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use utils, only : neko_error
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_lookup
   use json_module, only : json_file, json_core, json_value
   implicit none
   private
@@ -117,7 +117,7 @@ contains
     type(dofmap_t) :: dof
 
 
-    call json_get(json, 'case.numerics.polynomial_order', order)
+    call json_get_or_lookup(json, 'case.numerics.polynomial_order', order)
     order = order + 1 ! add 1 to get poly order
 
     if (msh%gdim .eq. 2) then
@@ -184,6 +184,9 @@ contains
        end do
 
     end if
+
+    call Xh%free()
+    call dof%free()
 
   end subroutine point_zone_registry_init
 
@@ -277,7 +280,7 @@ contains
     ! Check if point zone exists with the input name
     if (this%point_zone_exists(trim(str_read))) then
        call neko_error("Field with name " // trim(str_read) // &
-                       " is already registered")
+            " is already registered")
     end if
 
     !
@@ -365,7 +368,7 @@ contains
 
     if (.not. found) then
        call neko_error("Point zone " // trim(name) // &
-                       " could not be found in the registry")
+            " could not be found in the registry")
     end if
   end function get_point_zone_by_name
 

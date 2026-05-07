@@ -50,9 +50,9 @@ contains
   !! @param g The gravity vector.
   !! @param beta The thermal expansion coefficient.
   subroutine boussinesq_source_term_compute_device(fields, s, ref_value, g,&
-                                                   beta)
+       beta)
     type(field_list_t), intent(inout) :: fields
-    type(field_t), intent(inout) :: s
+    type(field_t), intent(in) :: s
     real(kind=rp), intent(in) :: ref_value
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp), intent(in) :: beta
@@ -62,8 +62,8 @@ contains
     n = fields%item_size(1)
 
     do i=1, n_fields
-       call device_add2s2(fields%x_d(i), s%x_d, g(i)*beta, n)
-       call device_cadd(fields%x_d(i), -g(i)*beta*ref_value, n)
+       call device_add2s2(fields%x_d(i), s%x_d, -g(i)*beta, n)
+       call device_cadd(fields%x_d(i), g(i)*beta*ref_value, n)
     end do
   end subroutine boussinesq_source_term_compute_device
 

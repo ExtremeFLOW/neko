@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,20 +35,28 @@ module mesh
   use num_types, only : rp, dp, i8
   use point, only : point_t
   use element, only : element_t
-  use hex
-  use quad
-  use utils, only : neko_error, neko_warning
+  use hex, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_NFCS, &
+       NEKO_HEX_NPTS
+  use quad, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_NPTS
+  use utils, only : neko_error, neko_warning, nonlinear_index
+  use mask, only : mask_t
   use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
   use tuple, only : tuple_i4_t, tuple4_i4_t
-  use htable
-  use datadist
-  use distdata
-  use comm
+  use htable, only : htable_t, htable_i8_t, htable_i4_t, htable_i4t4_t,&
+       htable_i4t2_t, htable_iter_i4t2_t, htable_iter_i4t4_t
+  use datadist, only : linear_dist_t
+  use distdata, only : distdata_t
+  use comm, only : pe_size, pe_rank, NEKO_COMM
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
-  use math
+  use math, only : abscmp
+  use mpi_f08, only : MPI_INTEGER, MPI_MAX, MPI_SUM, MPI_IN_PLACE, &
+       MPI_Allreduce, MPI_Exscan, MPI_Request, MPI_Status, MPI_Wait, &
+       MPI_Isend, MPI_Irecv, MPI_STATUS_IGNORE, MPI_Integer8, &
+       MPI_Get_count, MPI_Sendrecv
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE
+  use, intrinsic :: iso_fortran_env, only: error_unit
   implicit none
   private
 
@@ -110,6 +118,8 @@ module mesh
      logical :: lnumr = .false. !< valid numbering
      logical :: lgenc = .true. !< generate connectivity
 
+     logical :: is_submesh = .false. !< is this mesh a subset of another mesh?
+
      !> enables user to specify a deformation
      !! that is applied to all x,y,z coordinates generated with this mesh
      procedure(mesh_deform), pass(msh), pointer :: apply_deform => null()
@@ -141,6 +151,11 @@ module mesh
      procedure, pass(this) :: create_periodic_ids => mesh_create_periodic_ids
      procedure, pass(this) :: generate_conn => mesh_generate_conn
      procedure, pass(this) :: have_point_glb_idx => mesh_have_point_glb_idx
+     procedure, pass(this) :: subset_by_mask => mesh_subset_by_mask
+
+     !> Check the correct orientation of the rst coordindates.
+     procedure, pass(this) :: check_right_handedness => &
+          mesh_check_right_handedness
      !> Initialise a mesh
      generic :: init => init_nelv, init_dist
      !> Add an element to the mesh
@@ -167,7 +182,8 @@ module mesh
      end subroutine mesh_deform
   end interface
 
-  public :: mesh_deform
+  public :: mesh_deform, parallelepiped_signed_volume
+
 
 contains
 
@@ -275,6 +291,10 @@ contains
     !> @todo resize onces final size is known
     !! Only init if we generate connectivity
     if (this%lgenc) then
+       ! Temporary workaround to avoid long vacations with Cray Fortran
+       if (allocated(this%point_neigh)) then
+          deallocate(this%point_neigh)
+       end if
        allocate(this%point_neigh(this%gdim*this%npts*this%nelv))
        do i = 1, this%gdim*this%npts*this%nelv
           call this%point_neigh(i)%init()
@@ -296,7 +316,7 @@ contains
 
     call this%curve%init(this%nelv)
 
-    call distdata_init(this%ddata)
+    call this%ddata%init()
 
     allocate(this%neigh(0:pe_size-1))
     this%neigh = .false.
@@ -316,7 +336,7 @@ contains
     call this%htf%free()
     call this%hte%free()
     call this%htel%free()
-    call distdata_free(this%ddata)
+    call this%ddata%free()
     call this%curve%free()
 
     if (allocated(this%dfrmd_el)) then
@@ -349,7 +369,8 @@ contains
        do i = 1, this%gdim * this%npts * this%nelv
           call this%point_neigh(i)%free()
        end do
-       deallocate(this%point_neigh)
+       ! This causes Cray Fortran to take a long vacation
+       !deallocate(this%point_neigh)
     end if
 
     if (allocated(this%facet_type)) then
@@ -394,6 +415,9 @@ contains
        call this%labeled_zones(i)%finalize()
     end do
     call this%curve%finalize()
+
+    ! Due to a bug, right handedness check disabled for the time being.
+    !call this%check_right_handedness()
 
   end subroutine mesh_finalize
 
@@ -749,10 +773,10 @@ contains
                    !  Update facet map
                    call fmp%set(edge, facet_data)
 
-                   call distdata_set_shared_el_facet(this%ddata, element, facet)
+                   call this%ddata%set_shared_el_facet(element, facet)
 
                    if (this%hte%get(edge, facet) .eq. 0) then
-                      call distdata_set_shared_facet(this%ddata, facet)
+                      call this%ddata%set_shared_facet(facet)
                    else
                       call neko_error("Invalid shared edge")
                    end if
@@ -788,10 +812,10 @@ contains
                    ! Update facet map
                    call fmp%set(face, facet_data)
 
-                   call distdata_set_shared_el_facet(this%ddata, element, facet)
+                   call this%ddata%set_shared_el_facet(element, facet)
 
                    if (this%htf%get(face, facet) .eq. 0) then
-                      call distdata_set_shared_facet(this%ddata, facet)
+                      call this%ddata%set_shared_facet(facet)
                    else
                       call neko_error("Invalid shared face")
                    end if
@@ -869,7 +893,7 @@ contains
              do k = 1, num_neigh
                 neigh_el = -recv_buffer(j + 1 + k)
                 call this%point_neigh(pt_loc_idx)%push(neigh_el)
-                call distdata_set_shared_point(this%ddata, pt_loc_idx)
+                call this%ddata%set_shared_point(pt_loc_idx)
              end do
           end if
           j = j + (2 + num_neigh)
@@ -945,7 +969,7 @@ contains
           do j = 1, this%point_neigh(l)%size()
              if ((p1(i) .eq. p2(j)) .and. &
                   (p1(i) .lt. 0) .and. (p2(j) .lt. 0)) then
-                call distdata_set_shared_edge(this%ddata, id)
+                call this%ddata%set_shared_edge(id)
                 shared_edge = .true.
              end if
           end do
@@ -975,7 +999,7 @@ contains
     ! Construct global numbering of locally owned edges
     ns_id => non_shared_edges%array()
     do i = 1, non_shared_edges%size()
-       call distdata_set_local_to_global_edge(this%ddata, ns_id(i), edge_offset)
+       call this%ddata%set_local_to_global_edge(ns_id(i), edge_offset)
        edge_offset = edge_offset + 1
     end do
     nullify(ns_id)
@@ -1045,7 +1069,7 @@ contains
     do while (owner%iter_next())
        glb_ptr => owner%iter_value()
        if (glb_to_loc%get(glb_ptr, id) .eq. 0) then
-          call distdata_set_local_to_global_edge(this%ddata, id, shared_offset)
+          call this%ddata%set_local_to_global_edge(id, shared_offset)
 
           ! Add new number to send data as [old_glb_id new_glb_id] for each edge
           call send_buff%push(glb_ptr) ! Old glb_id integer*8
@@ -1104,8 +1128,7 @@ contains
              if (ghost%element(recv_buff(j))) then
                 if (glb_to_loc%get(recv_buff(j), id) .eq. 0) then
                    n_glb_id = int(recv_buff(j + 1 ), 4)
-                   call distdata_set_local_to_global_edge(this%ddata, id, &
-                        n_glb_id)
+                   call this%ddata%set_local_to_global_edge(id, n_glb_id)
                 else
                    call neko_error('Invalid edge id')
                 end if
@@ -1179,8 +1202,7 @@ contains
           call edge_it%data(id)
           edge => edge_it%key()
           if (.not. this%ddata%shared_facet%element(id)) then
-             call distdata_set_local_to_global_facet(this%ddata, &
-                  id, facet_offset)
+             call this%ddata%set_local_to_global_facet(id, facet_offset)
              facet_offset = facet_offset + 1
           else
              select type(fmp => this%facet_map)
@@ -1206,8 +1228,7 @@ contains
           call face_it%data(id)
           face => face_it%key()
           if (.not. this%ddata%shared_facet%element(id)) then
-             call distdata_set_local_to_global_facet(this%ddata, &
-                  id, facet_offset)
+             call this%ddata%set_local_to_global_facet(id, facet_offset)
              facet_offset = facet_offset + 1
           else
              select type(fmp => this%facet_map)
@@ -1250,8 +1271,7 @@ contains
        ed => edge_owner%array()
        do i = 1, edge_owner%size()
           if (this%hte%get(ed(i), id) .eq. 0) then
-             call distdata_set_local_to_global_facet(this%ddata, id, &
-                  shared_offset)
+             call this%ddata%set_local_to_global_facet(id, shared_offset)
 
              ! Add new number to send buffer
              ! [edge id1 ... edge idn new_glb_id]
@@ -1275,8 +1295,7 @@ contains
        fd => face_owner%array()
        do i = 1, face_owner%size()
           if (this%htf%get(fd(i), id) .eq. 0) then
-             call distdata_set_local_to_global_facet(this%ddata, id, &
-                  shared_offset)
+             call this%ddata%set_local_to_global_facet(id, shared_offset)
 
              ! Add new number to send buffer
              ! [face id1 ... face idn new_glb_id]
@@ -1333,8 +1352,7 @@ contains
 
                 ! Check if the PE has the shared edge
                 if (edge_ghost%get(recv_edge, id) .eq. 0) then
-                   call distdata_set_local_to_global_facet(this%ddata, &
-                        id, recv_buff(j+2))
+                   call this%ddata%set_local_to_global_facet(id, recv_buff(j+2))
                 end if
              end do
           else
@@ -1345,8 +1363,7 @@ contains
 
                 ! Check if the PE has the shared face
                 if (face_ghost%get(recv_face, id) .eq. 0) then
-                   call distdata_set_local_to_global_facet(this%ddata, &
-                        id, recv_buff(j+4))
+                   call this%ddata%set_local_to_global_facet(id, recv_buff(j+4))
                 end if
              end do
           end if
@@ -1867,5 +1884,215 @@ contains
     shared = this%ddata%shared_facet%element(local_index)
 
   end function mesh_is_shared_facet
+
+  !> Check the correct orientation of the rst coordindates.
+  !! @note Similar algorithm as in Nek5000 `verify` routine.
+  subroutine mesh_check_right_handedness(this)
+    class(mesh_t), intent(inout) :: this
+    integer :: i
+    real(kind=rp) :: v(8)
+    type(point_t) :: centroid
+    logical :: fail
+
+    fail = .false.
+
+    if (this%gdim .eq. 3) then
+       do i = 1, this%nelv
+          v(1) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(1)%p%x &
+               )
+
+          v(2) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(2)%p%x &
+               )
+
+          v(3) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(3)%p%x &
+               )
+
+          v(4) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(4)%p%x &
+               )
+
+          v(5) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(5)%p%x &
+               )
+
+          v(6) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(6)%p%x &
+               )
+
+          v(7) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(7)%p%x &
+               )
+
+          v(8) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(8)%p%x &
+               )
+
+          if (v(1) .le. 0.0_rp .or. &
+               v(2) .le. 0.0_rp .or. &
+               v(3) .le. 0.0_rp .or. &
+               v(4) .le. 0.0_rp .or. &
+               v(5) .le. 0.0_rp .or. &
+               v(6) .le. 0.0_rp .or. &
+               v(7) .le. 0.0_rp .or. &
+               v(8) .le. 0.0_rp ) then
+
+             centroid = this%elements(i)%e%centroid()
+
+             write(error_unit, '(A, A, I0, A, 3G12.5)') "*** ERROR ***: ", &
+                  "Wrong orientation of mesh element ", i, &
+                  " with centroid ", centroid%x
+
+             fail = .true.
+          end if
+       end do
+    end if
+
+    if (fail) then
+       call neko_error("Some mesh elements are not right-handed")
+    end if
+  end subroutine mesh_check_right_handedness
+
+  !> Compute a signed volume of a parallelepiped formed by three vectors, in
+  !! turn defined via three points, `p1`, `p2`, and `p3` and an `origin`.
+  !! @param p1 The first point.
+  !! @param p2 The second point.
+  !! @param p3 The third point.
+  !! @param origin The point defining the origin.
+  !! @note Used to check right-handness of the elements: the volumes should be
+  !! positive.
+  function parallelepiped_signed_volume(p1, p2, p3, origin) result(v)
+    real(kind=dp), dimension(3), intent(in) :: p1, p2, p3, origin
+    real(kind=dp) :: v
+    real(kind=dp) :: vp1(3), vp2(3), vp3(3), cross(3)
+
+    vp1 = p1 - origin
+    vp2 = p2 - origin
+    vp3 = p3 - origin
+
+    cross(1) = vp1(2)*vp2(3) - vp2(3)*vp1(2)
+    cross(2) = vp1(3)*vp2(1) - vp1(1)*vp2(3)
+    cross(3) = vp1(1)*vp2(2) - vp1(2)*vp2(1)
+
+    v = cross(1)*vp3(1) + cross(2)*vp3(2) + cross(3)*vp3(3)
+
+  end function parallelepiped_signed_volume
+
+  !> Create a subset of the mesh @a this in @a other based on the provided
+  !! mask.
+  !! @param this The original mesh.
+  !! @param other The subset mesh to be created.
+  !! @param mask The mask defining the subset.
+  !! @param lx the quadrature degree in x direction.
+  !! @param ly the quadrature degree in y direction.
+  !! @param lz the quadrature degree in z direction.
+  !! @note Partially lifted from nmsh_file.f90.
+  subroutine mesh_subset_by_mask(this, other, mask, lx, ly, lz)
+    class(mesh_t), intent(in) :: this
+    class(mesh_t), intent(inout) :: other
+    type(mask_t), intent(in) :: mask
+    integer, intent(in) :: lx, ly, lz
+    integer :: i, j, k, nelv, lxyz, gdim, e_m, nidx(4), nelv_c, el_c, el, i_m
+    type(point_t) :: p(8)
+    integer :: p_id = 1
+
+    call other%free()
+    lxyz = lx * ly * lz
+
+    ! Initialize
+    nelv = mask%size()/lxyz
+    call other%init(this%gdim, nelv)
+
+    ! Assign the elements
+    if (other%gdim .eq. 2) then
+       call neko_error("Subset mesh not implemented for 2d")
+    else if (other%gdim .eq. 3) then
+       do el = 1, nelv
+          i_m = 1 + lxyz * (el - 1)
+          nidx = nonlinear_index(mask%get(i_m), lx, ly, lz)
+          e_m = nidx(4) ! Actual element from the original mesh
+          ! Retrieve the points form the other mesh.
+          ! No need to shift points, since original
+          ! mesh has done it.
+          ! Had to use a new point id to avoid issues at
+          ! periodic boundaries
+          ! But this means that all points might be incorrectly
+          ! marked as unique.
+          do j = 1, 8
+             call p(j)%init(this%elements(e_m)%e%pts(j)%p%x, p_id)
+             p_id = p_id + 1
+          end do
+
+          call other%add_element(el, el + other%offset_el, &
+               p(1), p(2), p(3), p(4), &
+               p(5), p(6), p(7), p(8))
+       end do
+    else
+       if (pe_rank .eq. 0) call neko_error('Invalid dimension of mesh')
+    end if
+
+    ! Skip searching for boundaries.
+
+    ! Update the curvature
+    nelv_c = this%curve%size
+    if (nelv_c .gt. 0) then
+       el_c = 1
+       el = 1
+       ! 2 pointer scan
+       do while (el .le. nelv .and. el_c .le. nelv_c)
+
+          i_m = 1 + lxyz * (el - 1)
+          nidx = nonlinear_index(mask%get(i_m), lx, ly, lz)
+          e_m = nidx(4)
+
+          if (e_m .lt. this%curve%curve_el(el_c)%el_idx) then
+             el = el + 1
+
+          else if (e_m .gt. this%curve%curve_el(el_c)%el_idx) then
+             el_c = el_c + 1
+
+          else
+             call other%mark_curve_element(el, &
+                  this%curve%curve_el(el_c)%curve_data, &
+                  this%curve%curve_el(el_c)%curve_type)
+             el = el + 1
+             el_c = el_c + 1
+          end if
+
+       end do
+    end if
+
+    ! Finalize
+    call other%finalize()
+
+    other%is_submesh = .true.
+
+  end subroutine mesh_subset_by_mask
 
 end module mesh

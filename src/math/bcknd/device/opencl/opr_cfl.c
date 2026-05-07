@@ -48,7 +48,7 @@
 
 #include "cfl_kernel.cl.h"
 
-/** 
+/**
  * Fortran wrapper for device OpenCL convective terms
  */
 real opencl_cfl(real *dt, void *u, void *v, void *w,
@@ -62,7 +62,7 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
   int i;
   if (cfl_program == NULL)
     opencl_kernel_jit(cfl_kernel, (cl_program *) &cfl_program);
-  
+
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
@@ -70,13 +70,13 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
   cl_mem cfl_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
                                 (*nel) * sizeof(real), NULL, &err);
   CL_CHECK(err);
+  cl_kernel kernel;
 
 #define STR(X) #X
 #define CASE(LX)                                                                \
   case LX:                                                                      \
     {                                                                           \
-      cl_kernel kernel = clCreateKernel(cfl_program,                            \
-                                        STR(cfl_kernel_lx##LX), &err);          \
+      kernel = clCreateKernel(cfl_program, STR(cfl_kernel_lx##LX), &err);       \
       CL_CHECK(err);                                                            \
                                                                                 \
       CL_CHECK(clSetKernelArg(kernel, 0, sizeof(real), dt));                    \
@@ -103,7 +103,7 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
                                       &local_item_size, 0, NULL, &kern_wait));  \
     }                                                                           \
     break
-    
+
   switch(*lx) {
     CASE(2);
     CASE(3);
@@ -116,12 +116,17 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
     CASE(10);
     CASE(11);
     CASE(12);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    }
   }
 
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,
 			       cfl_d, CL_TRUE, 0, (*nel) * sizeof(real),
 			       cfl, 1, &kern_wait, NULL));
-    
+
   real cfl_max = 0.0;
   for (i = 0; i < (*nel); i++) {
     cfl_max = fmax(cfl_max, cfl[i]);
@@ -129,7 +134,8 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
 
   free(cfl);
   CL_CHECK(clReleaseMemObject(cfl_d));
+  CL_CHECK(clReleaseKernel(kernel));
 
   return cfl_max;
 
-} 
+}

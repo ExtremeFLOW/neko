@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -95,6 +95,17 @@ module cuda_intf
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function cudaMemcpyAsync
+  end interface
+
+  interface
+     integer(c_int) function cudaMemsetAsync(ptr, v, s, stream) &
+          bind(c, name = 'cudaMemsetAsync')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr, stream
+       integer(c_int), value :: v
+       integer(c_size_t), value :: s
+     end function cudaMemsetAsync
   end interface
 
   interface
@@ -320,7 +331,7 @@ contains
   subroutine cuda_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
-    
+
     if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying main stream')
     end if

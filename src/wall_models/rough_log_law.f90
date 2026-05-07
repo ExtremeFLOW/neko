@@ -36,13 +36,20 @@ module rough_log_law
   use field, only: field_t
   use num_types, only : rp
   use json_module, only : json_file
-  use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
+  use vector, only : vector_t
   use wall_model, only : wall_model_t
-  use field_registry, only : neko_field_registry
-  use json_utils, only : json_get_or_default, json_get
   use utils, only : neko_error
+  use registry, only : neko_registry
+  use json_utils, only : json_get_or_lookup, &
+       json_get_or_lookup_or_default
+  use rough_log_law_device, only : rough_log_law_compute_device
+  use rough_log_law_cpu, only : rough_log_law_compute_cpu
+  use scratch_registry, only : neko_scratch_registry
+  use math, only: masked_gather_copy_0
+  use device_math, only: device_masked_gather_copy_0
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -53,14 +60,21 @@ module rough_log_law
   type, public, extends(wall_model_t) :: rough_log_law_t
 
      !> The von Karman coefficient.
-     real(kind=rp) :: kappa = 0.41_rp
+     real(kind=rp) :: kappa
      !> The log-law intercept
-     real(kind=rp) :: B = 0.0_rp
+     real(kind=rp) :: B
      !> The roughness height
-     real(kind=rp) :: z0 = 0.0_rp
+     real(kind=rp) :: z0
+     ! The fluid density at the boundary
+     type(vector_t) :: rho_w
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
+     !> Partial constructor from JSON, meant to work as the first stage of
+     !! initialization before the `finalize` call.
+     procedure, pass(this) :: partial_init => rough_log_law_partial_init
+     !> Finalize the construction using the mask and facet arrays of the bc.
+     procedure, pass(this) :: finalize => rough_log_law_finalize
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
           rough_log_law_init_from_components
@@ -68,63 +82,126 @@ module rough_log_law
      procedure, pass(this) :: free => rough_log_law_free
      !> Compute the wall shear stress.
      procedure, pass(this) :: compute => rough_log_law_compute
+     ! Extract fluid properties at the wall (rho)
+     procedure, pass(this) :: extract_properties => rough_log_law_extract_properties
   end type rough_log_law_t
 
 contains
   !> Constructor from JSON.
+  !! @param scheme_name The name of the scheme for which the wall model is used.
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param nu The molecular kinematic viscosity.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine rough_log_law_init(this, coef, msk, facet, nu, h_index, json)
+  subroutine rough_log_law_init(this, scheme_name, coef, msk, facet, &
+       h_index, json)
     class(rough_log_law_t), intent(inout) :: this
+    character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    real(kind=rp), intent(in) :: nu
     integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B, z0
 
-    call json_get_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get(json, "B", B)
-    call json_get(json, "z0", z0)
+    call json_get_or_lookup_or_default(json, "kappa", kappa, 0.4_rp)
+    call json_get_or_lookup_or_default(json, "B", B, 0.0_rp)
+    call json_get_or_lookup(json, "z0", z0)
 
-    call this%init_from_components(coef, msk, facet, nu, h_index, kappa, B, z0)
+    call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
+         kappa, B, z0)
   end subroutine rough_log_law_init
 
+  !> Constructor from JSON.
+  !! @param coef SEM coefficients.
+  !! @param json A dictionary with parameters.
+  subroutine rough_log_law_partial_init(this, coef, json)
+    class(rough_log_law_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
+    character(len=LOG_SIZE) :: log_buf
+
+    call this%partial_init_base(coef, json)
+    call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
+    call json_get_or_lookup_or_default(json, "B", this%B, 0.0_rp)
+    call json_get_or_lookup(json, "z0", this%z0)
+
+    call neko_log%section('Wall model')
+    write(log_buf, '(A)') 'Model : Rough log law'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'kappa : ', this%kappa
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'B : ', this%B
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'z0 : ', this%z0
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
+  end subroutine rough_log_law_partial_init
+
+  !> Finalize the construction using the mask and facet arrays of the bc.
+  !! @param msk The boundary mask.
+  !! @param facet The boundary facets.
+  subroutine rough_log_law_finalize(this, msk, facet)
+    class(rough_log_law_t), intent(inout) :: this
+    integer, intent(in) :: msk(:)
+    integer, intent(in) :: facet(:)
+
+    call this%finalize_base(msk, facet)
+
+    call this%rho_w%init(this%n_nodes)
+
+  end subroutine rough_log_law_finalize
+
+  !> Extract the values of rho at the boundary.
+  subroutine rough_log_law_extract_properties(this)
+    class(rough_log_law_t), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+            this%rho%size(), this%rho_w%size())
+    else
+       call masked_gather_copy_0(this%rho_w%x, this%rho%x, this%msk, &
+            this%rho%size(), this%rho_w%size())
+    end if
+  end subroutine rough_log_law_extract_properties
+
   !> Constructor from components.
+  !! @param scheme_name The name of the scheme for which the wall model is used.
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param nu The molecular kinematic viscosity.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param kappa The von Karman coefficient.
   !! @param B The log-law intercept.
   !! @param z0 The roughness height.
-  subroutine rough_log_law_init_from_components(this, coef, msk, facet,&
-       nu, h_index, kappa, B, z0)
+  subroutine rough_log_law_init_from_components(this, scheme_name, coef, msk, &
+       facet, h_index, kappa, B, z0)
     class(rough_log_law_t), intent(inout) :: this
+    character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    real(kind=rp), intent(in) :: nu
     integer, intent(in) :: h_index
-    real(kind=rp), intent(in) :: kappa
-    real(kind=rp), intent(in) :: B
-    real(kind=rp), intent(in) :: z0
+    real(kind=rp), intent(in) :: kappa, B, z0
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("The rough loglaw is only available on the CPU backend.")
-    end if
-
-    call this%init_base(coef, msk, facet, nu, h_index)
+    call this%free()
+    call this%init_base(scheme_name, coef, msk, facet, h_index)
 
     this%kappa = kappa
     this%B = B
     this%z0 = z0
+
+    call this%rho_w%init(this%n_nodes)
+
+    ! Check that the sampling height is above the roughness length
+    if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
+       call neko_error("Roughlog WM: Sampling height h must be greater than roughness z0. " // &
+            "Increase h_index or decrease z0.")
+    else if (this%z0 .eq. 0.0_rp) then
+       call neko_error("Roughlog WM: Roughness z0 must be greater than 0.")
+    end if
 
   end subroutine rough_log_law_init_from_components
 
@@ -132,6 +209,7 @@ contains
   subroutine rough_log_law_free(this)
     class(rough_log_law_t), intent(inout) :: this
 
+    call this%rho_w%free()
     call this%free_base()
 
   end subroutine rough_log_law_free
@@ -146,36 +224,28 @@ contains
     type(field_t), pointer :: u
     type(field_t), pointer :: v
     type(field_t), pointer :: w
-    integer :: i
-    real(kind=rp) :: ui, vi, wi, magu, utau, normu
 
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
+    ! Extract boundary values for rho
+    call this%extract_properties()
 
-    do i = 1, this%n_nodes
-       ! Sample the velocity
-       ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-       vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-       wi = w%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+    u => neko_registry%get_field("u")
+    v => neko_registry%get_field("v")
+    w => neko_registry%get_field("w")
 
-       ! Project on tangential direction
-       normu = ui * this%n_x%x(i) + vi * this%n_y%x(i) + wi * this%n_z%x(i)
-
-       ui = ui - normu * this%n_x%x(i)
-       vi = vi - normu * this%n_y%x(i)
-       wi = wi - normu * this%n_z%x(i)
-
-       magu = sqrt(ui**2 + vi**2 + wi**2)
-
-       ! Compute the stress
-       utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
-
-       ! Distribute according to the velocity vector
-       this%tau_x%x(i) = -utau**2 * ui / magu
-       this%tau_y%x(i) = -utau**2 * vi / magu
-       this%tau_z%x(i) = -utau**2 * wi / magu
-    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call rough_log_law_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
+            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
+            this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
+            this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
+            this%rho_w%x_d, this%B, this%z0, tstep)
+    else
+       call rough_log_law_compute_cpu(u%x, v%x, w%x, this%ind_r, this%ind_s, &
+            this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
+            this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+            this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
+            this%rho_w%x, this%B, this%z0, tstep)
+    end if
 
   end subroutine rough_log_law_compute
 

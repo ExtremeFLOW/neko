@@ -1,0 +1,10 @@
+rm logs/*
+rm *0.f0*
+rm *.csv
+rm *.log
+rm *.nmsh
+rm *.mod
+rm *.smod
+rm *.nek5000
+rm neko
+rm *.chkp

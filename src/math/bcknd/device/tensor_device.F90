@@ -40,8 +40,9 @@ module tensor_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
-          bind(c, name='hip_tnsr3d_el_list')
+     subroutine hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, &
+          elements, n_points) &
+          bind(c, name = 'hip_tnsr3d_el_list')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
        integer(c_int) :: nu, nv, n_points
@@ -49,7 +50,7 @@ module tensor_device
   end interface
   interface
      subroutine hip_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
-          bind(c, name='hip_tnsr3d')
+          bind(c, name = 'hip_tnsr3d')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d
        integer(c_int) :: nu, nv, nelv
@@ -57,8 +58,9 @@ module tensor_device
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
-          bind(c, name='cuda_tnsr3d_el_list')
+     subroutine cuda_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, &
+          elements, n_points) &
+          bind(c, name = 'cuda_tnsr3d_el_list')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
        integer(c_int) :: nu, nv, n_points
@@ -66,7 +68,7 @@ module tensor_device
   end interface
   interface
      subroutine cuda_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
-          bind(c, name='cuda_tnsr3d')
+          bind(c, name = 'cuda_tnsr3d')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d
        integer(c_int) :: nu, nv, nelv
@@ -74,8 +76,9 @@ module tensor_device
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points) &
-          bind(c, name='opencl_tnsr3d_el_list')
+     subroutine opencl_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, &
+          elements, n_points) &
+          bind(c, name = 'opencl_tnsr3d_el_list')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d, elements
        integer(c_int) :: nu, nv, n_points
@@ -83,7 +86,7 @@ module tensor_device
   end interface
   interface
      subroutine opencl_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv) &
-          bind(c, name='opencl_tnsr3d')
+          bind(c, name = 'opencl_tnsr3d')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: v_d, u_d, A_d, Bt_d, Ct_d
        integer(c_int) :: nu, nv, nelv
@@ -106,15 +109,19 @@ contains
 #endif
   end subroutine tnsr3d_device
 
-  subroutine tnsr3d_el_list_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
+  subroutine tnsr3d_el_list_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, &
+       elements, n_points)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, elements
     integer(c_int) :: nu, nv, n_points
 #ifdef HAVE_HIP
-    call hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
+    call hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, &
+         n_points)
 #elif HAVE_CUDA
-    call cuda_tnsr3d_el_list( v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
+    call cuda_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, &
+         n_points)
 #elif HAVE_OPENCL
-    call opencl_tnsr3d_el_list( v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, n_points)
+    call opencl_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, &
+         n_points)
 #else
     call neko_error('No device backend configured')
 #endif

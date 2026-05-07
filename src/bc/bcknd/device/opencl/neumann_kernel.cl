@@ -35,7 +35,28 @@
 #ifndef __BC_NEUMANN_KERNEL__
 #define __BC_NEUMANN_KERNEL__
 
-#include "bc_utils.h"
+/**
+ * Computes the linear index for area and normal arrays
+ * @note Fortran indexing input, C indexing output
+ */
+#define coef_normal_area_idx(i, j, k, l, lx, nf) \
+  (((i) + (lx) * (((j) - 1) + (lx) * (((k) - 1) + (nf) * (((l) - 1))))) - 1)
+
+/**
+ * Device function to compute i,j,k,e indices from a linear index
+ * @note Assumes idx is a Fortran index
+ */
+void nonlinear_index(const int idx, const int lx, int *index) {
+  const int idx2 = idx -1;
+  index[3] = idx2/(lx * lx * lx) ;
+  index[2] = (idx2 - (lx*lx*lx)*index[3])/(lx * lx);
+  index[1] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) / lx;
+  index[0] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) - lx*index[1];
+  index[0]++;
+  index[1]++;
+  index[2]++;
+  index[3]++;
+}
 
 /**
  * Device kernel for neumann scalar boundary condition
@@ -86,4 +107,63 @@ void neumann_apply_scalar_kernel(__global const int *msk,
   }
 }
 
-#endif 
+/**
+ * Device kernel for neumann vector boundary condition
+ */
+__kernel
+void neumann_apply_vector_kernel(__global const int *msk,
+                                 __global const int *facet,
+                                 __global real *x,
+                                 __global real *y,
+                                 __global real *z,
+                                 __global const real *flux_x,
+                                 __global const real *flux_y,
+                                 __global const real *flux_z,
+                                 __global const real *area,
+                                 const int lx,
+                                 const int m) {
+  int index[4];
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = (idx + 1); i < m; i += str) {
+    const int k = msk[i] - 1;
+    const int f = facet[i];
+    nonlinear_index(msk[i], lx, index);
+
+    switch(f) {
+    case 1:
+    case 2:
+      {
+        const int na_idx = coef_normal_area_idx(index[1], index[2],
+                                              f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    case 3:
+    case 4:
+      {
+        const int na_idx = coef_normal_area_idx(index[0], index[2],
+                                              f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    case 5:
+    case 6:
+      {
+        const int na_idx = coef_normal_area_idx(index[0], index[1],
+                                              f, index[3], lx, 6);
+        x[k] += flux_x[i-1] * area[na_idx];
+        y[k] += flux_y[i-1] * area[na_idx];
+        z[k] += flux_z[i-1] * area[na_idx];
+        break;
+      }
+    }
+  }
+}
+
+#endif

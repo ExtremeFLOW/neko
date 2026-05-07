@@ -24,27 +24,185 @@ convenience.
 
 It should be noted, that the `.re2` format allows to store boundary conditions.
 This is relevant for users that have old Nek5000 cases, who wish to convert them
-to Neko. Boundary conditions are converted and used by Neko, and for these
-boundaries one does not need to provide information in the `boundary_types`
-keyword in the case file. This is why in some of the examples, `boundary_types`
-is only filled for some of the boundaries. However, since this feature
-complicates the code and leads to somewhat confusing case setups, it is planned
-to deprecate it at some point. Note that periodic boundaries are also directly
-encoded into the mesh file, and this will remain so in the future.
+to Neko. Boundary conditions are not converted by Neko as such, but the faces
+where they were applied are saved into regular boundary zones. The relevant
+conditions should then be prescribed in the case file as usual. Note also that
+periodic boundaries are directly encoded into the mesh file, and this will
+remain so in the future.
 
 ## Three-dimensional field output
-Neko stores the 3D fields with results in the `.fld` format, which is the same
+Neko stores the 3D fields with results in the `.f#####` format, which is the same
 as in Nek5000. The advantage of adopting this format, is that there is a reader
 in Paraview and VisIt, which can be used to visualize them. Note that the latest
-version of Paraview actually has two reader for `.fld`. For now, Neko has only
-been tested with the older reader, which uses VisIt under the hood.  A file with
+version of Paraview actually has two readers for `.f#####`. For now, Neko has
+been thoroughly tested with the older reader, which uses VisIt under the hood.
+However, the new reader was used for the smaller cases as well. A file with
 the `.nek5000` extension is used as the entry point for the readers and stores
-some metadata. Users may also find the Python package `pymech` useful for
-working with `.fld`s. Note that only the first output `.fld` file stores the
-mesh.
+some metadata. Users may also find the Python package
+[`pysemtools`](https://github.com/ExtremeFLOW/pySEMTools) useful for
+working with `.f#####`s. Note that only the first output `.f#####` file stores the
+mesh. Detailded description of the file format can be found in
+[Nek5000 documentation](https://nek5000.github.io/NekDoc/problem_setup/case_files.html#restart-output-files-f).
+Notice, for brievity in this manual we often call `.f#####` file format an `.fld` one
+and in some cases Neko even outputs files with `.fld` extension. However, in all cases
+we refer to the binary `.f#####` format and not to the Nek5000 text file format with
+the same extension.
+
+### Compression of field output
+Neko supports compression of the 3D field data when writing through the ADIOS2.
+If the ADIOS2 dependency was compiled with compression library support like
+BigWhoop, SZ, or ZFP the field output can be compressed using one of these lossy
+compressors (and other lossless compression techniques.) Using algorithms based
+on image compression, such as BigWhoop and ZFP, the local structure from higher
+order elements needs to be regarded. Setting `output\_layout=2` uses the
+implicit neighbourhood relations of DoFs in x,y,z in a 4D layout. The first
+three dimensions represent the DoFs and the fourth dimension refers to the
+number of elements in numeric order. This layout can be used for BigWhoop and
+ZFP. Additionally, benefits in compression efficiency can be observed for
+BigWhoop when packing and compressing field parameters together, effectively
+adding a fifth dimension for the number of field parameters. This layout is
+enabled when `output\_format=3`. (The default `output_layout=1` creates a
+contiguous 1D array access pattern equivalent to the data layout in the nek5000
+files.)
+
+The compression algorithms are controlled by an additional file `adios2.xml`.
+Please refer to the documentation of ADIOS2 (and the specific compression
+library) to configure the data "operators" of the parallel I/O library.
+
+The tool `adios2_to_nek5000` can be used to decompress the field data for
+postprocessing and visualisation with the conventional nek5000 format.
+Additionally, the data can be compressed using this tool as a postprocessing
+step using the `adios2.xml` configuration and a given uncompressed data set as
+input.
+```
+adios2_to_nek5000 input.bp/fld output.fld/bp .false. 1
+```
+The bool parameter specifies whether output is written using double precision.
+The parsed integer specifies the data layout in the case of an ADIOS2 `.bp`
+output file.
+
+The tool `psnr` can be used to analyze the Peak-Signal-to-Noise Ratio (PSNR),
+quantifying the compression efficiency, namely, the relation between compression
+ratio and the lost accuracy due to lossy data compression.
+```
+psnr compressed_fields.bp uncompressed_fields.fld/bp .false.
+```
+(The bool parameter specifies whether output should be double precision.) Test
+data sets can be generated during preprocessing and in an initial case setup
+workflow to compare and find an optimal compression rate with an acceptable
+accuracy loss. The value of the PSNR decreases with increasing accuracy loss.
+Tune the compression by increasing the compression ratio until a desired lower
+limiting value for the PSNR is reached. As a rule of thumb, target values of 60
+or 40 can be used as lower limit for accurate postprocessing or visualisation,
+respectively.  Separately, it is recommended to check for compression errors
+from lossy compressors in the specific quantities of interest in postprocessing
+and visualisation.
 
 ## Checkpoint files
-Simulations cannot be restarted from `.fld` files. Instead, separate checkpoint
-files can be output for the purpose of restarts. These contain additional
-information allowing a clean restart, with, e.g., the correct time integration
-order. A separate file format, `.chkp` is adopted for the checkpoint files.
+Simulations cannot be restarted from `.fld` files (although you can use an `fld`
+to provide initial conditions). Instead, separate checkpoint files can be output
+for the purpose of restarts. These contain additional information allowing a
+clean restart, with, e.g., the correct time integration order. A separate file
+format, `.chkp` is adopted for the checkpoint files.
+
+## VTKHDF output {#vtkhdf-output}
+
+Neko supports output in the
+[VTKHDF](https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#vtkhdf-file-format)
+file format, which stores field data in HDF5 files following the VTKHDF
+UnstructuredGrid specification (version 2.6). The resulting `.vtkhdf` files can
+be opened directly in ParaView (version 5.12 or later) without any additional
+metadata files.
+
+@attention The VTKHDF output format is still experimental and may change in
+future releases.
+
+### Prerequisites {#vtkhdf-prerequisites}
+
+VTKHDF output requires that Neko is built with HDF5 support. If HDF5 is not
+available, attempting to use the VTKHDF format will result in an error. The
+HDF5 library must be compiled with MPI (parallel) support, since all I/O is
+performed collectively.
+
+### Enabling VTKHDF output {#vtkhdf-enabling}
+
+To use VTKHDF as the output format, set `output_format` to `vtkhdf` in the
+`case` object of the case file:
+
+```json
+{
+  "case": {
+    "output_format": "vtkhdf",
+    "output_precision": "single"
+  }
+}
+```
+
+The `output_precision` setting controls whether field data is written in
+single or double precision, defaulting to current working precision.
+
+### File structure {#vtkhdf-file-structure}
+
+The file contains a top-level `VTKHDF` group with the following structure:
+
+- **Mesh datasets**: `NumberOfPoints`, `NumberOfCells`,
+  `NumberOfConnectivityIds`, `Points`, `Connectivity`, `Offsets`, and `Types`.
+  For static meshes, these are written once on the first output call.
+- **PointData group**: Contains field datasets. The velocity components `u`,
+  `v`, `w` are automatically grouped into a three-component `Velocity` vector
+  dataset. The pressure field `p` is stored as `Pressure`. All other fields are
+  written as scalar datasets under their original names.
+- **Steps group**: Stores temporal metadata including time values, the number
+  of steps written, and offset arrays that allow ParaView to locate each time
+  step's data within the concatenated datasets.
+
+### Cell representation {#vtkhdf-cell-representation}
+
+By default, each spectral element is written as a single high-order VTK
+Lagrange cell (`VTK_LAGRANGE_HEXAHEDRON` in 3D, `VTK_LAGRANGE_QUADRILATERAL`
+in 2D). This preserves the polynomial basis of the spectral element and
+produces compact output files.
+
+Alternatively, spectral elements can be subdivided into linear sub-cells
+(`VTK_HEXAHEDRON` in 3D, `VTK_QUAD` in 2D), writing one degree of freedom per
+sub-cell vertex. This results in larger files but may offer broader
+compatibility with visualisation tools that have limited support for high-order
+Lagrange cells. This subdivision mimics more closely how tools like ParaView
+read the Nek5000 fld files, and may be necessary for visualising the output.
+Subdivision is enabled by setting `output_subdivide` to `true` in the `case`
+object of the case file:
+
+```json
+{
+  "case": {
+    "fluid": {
+      "output_format": "vtkhdf",
+      "output_subdivide": true
+    }
+  }
+}
+```
+
+### Temporal vs non-temporal output {#vtkhdf-temporal-vs-non-temporal}
+
+The VTKHDF system in Neko can write both temporal and non-temporal data.
+Non-temporal data (called in code without time) is written to a single VTKHDF
+file, following all the standards defined above. Temporal data (called in code
+with time) is split into a main VTKHDF file containing the mesh and metadata,
+and separate HDF5 files containing any field data for each timestep. Each
+timestep is saved under `filename.data/###.h5`, while the main VTKHDF file
+`filename.vtkhdf` loads these files seamlessly when opened in ParaView. This
+approach allows for efficient storage and access of large temporal datasets
+while maintaining compatibility with the VTKHDF specification. Please note that
+the data must be stored as specified above to function.
+
+Please see the HDF5 documentation for Virtual Datasets if needed:
+https://support.hdfgroup.org/documentation/hdf5/latest/_v_d_s_t_n.html
+
+### Limitations {#vtkhdf-limitations}
+
+- High order Lagrange cells are not supported by all visualisation tools. If you
+  encounter issues visualising the output, try enabling subdivision into linear
+  sub-cells as described above.
+- Reading `.vtkhdf` files back into Neko is not currently supported.
+- Adaptive mesh refinement (AMR) output is not yet implemented.

@@ -41,6 +41,12 @@ extern void *cdtp_program;
 /** Device convective kernels */
 extern void *conv1_program;
 
+/** Device convect_scalar kernels */
+extern void *convect_scalar_program;
+
+/** Device set_convect_rst kernels */
+extern void *set_convect_rst_program;
+
 /** Device CFL kernels */
 extern void *cfl_program;
 
@@ -53,6 +59,9 @@ extern void *gs_program;
 /** Device Ax helm kernels */
 extern void *ax_helm_program;
 
+/** Device Ax helm full kernels */
+extern void *ax_helm_full_program;
+
 /** Device jacobi kernels */
 extern void *jacobi_program;
 
@@ -62,8 +71,16 @@ extern void *rhs_maker_program;
 /** Device pnpn residual kernels */
 extern void *pnpn_res_program;
 
+/** Device pnpn residual kernels (stress formulation) */
+extern void *pnpn_stress_res_program;
+
 /** Device euler residual kernels */
 extern void *euler_res_program;
+
+/** Device compressible ops kernels */
+extern void *compressible_ops_compute_max_wave_speed_program;
+extern void *compressible_ops_compute_entropy_program;
+extern void *compressible_ops_update_program;
 
 /** Device fdm kernels */
 extern void *fdm_program;
@@ -86,8 +103,16 @@ extern void *scalar_residual_program;
 /** Device lambda2 kernel */
 extern void *lambda2_program;
 
-/** Device filter kernel */
-extern void *filter_program;
+/** Device compute_max_wave_speed kernel */
+extern void *compute_max_wave_speed_program;
 
+/** Device filter kernel */
+extern void *mapping_program;
+
+/** Device find rst kernel */
+extern void *find_rst_legendre_program;
+
+/** Device entropy viscosity kernels */
+extern void *entropy_viscosity_program;
 
 #endif

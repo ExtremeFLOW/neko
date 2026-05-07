@@ -46,18 +46,19 @@
 
 #include "neumann_kernel.cl.h"
 
-/** 
+/**
  * Fortran wrapper for device neumann apply scalar
  */
 void opencl_neumann_apply_scalar(void *msk, void *facet,
                                  void *x, void *flux,
-                                 void *area, int *lx, int *m) {
+                                 void *area, int *lx, int *m,
+                                 cl_command_queue cmd_queue) {
 
   cl_int err;
-  
+
   if (neumann_program == NULL)
     opencl_kernel_jit(neumann_kernel, (cl_program *) &neumann_program);
-  
+
   cl_kernel kernel = clCreateKernel(neumann_program,
                                   "neumann_apply_scalar_kernel", &err);
   CL_CHECK(err);
@@ -69,12 +70,53 @@ void opencl_neumann_apply_scalar(void *msk, void *facet,
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &area));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), lx));
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(int), m));
-  
+
   const int nb = ((*m) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
-                                NULL, &global_item_size, &local_item_size,
-                                0, NULL, NULL));
-} 
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/**
+ * Fortran wrapper for device neumann apply vector
+ */
+void opencl_neumann_apply_vector(void *msk, void *facet,
+                                 void *x, void *y, void *z,
+                                 void *flux_x, void *flux_y, void *flux_z,
+                                 void *area, int *lx, int *m,
+                                 cl_command_queue cmd_queue) {
+
+  cl_int err;
+
+  if (neumann_program == NULL)
+    opencl_kernel_jit(neumann_kernel, (cl_program *) &neumann_program);
+
+  cl_kernel kernel = clCreateKernel(neumann_program,
+                                  "neumann_apply_vector_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &facet));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &x));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &y));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &z));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &flux_x));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &flux_y));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &flux_z));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &area));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), lx));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(int), m));
+
+  const int nb = ((*m) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}

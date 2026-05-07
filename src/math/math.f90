@@ -59,9 +59,10 @@
 !
 module math
   use num_types, only : rp, dp, sp, qp, i4, xp
-  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
-  use mpi_f08, only: MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
+  use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_Allreduce
+  use utils, only : nonlinear_index
   implicit none
   private
 
@@ -98,52 +99,64 @@ module math
      module procedure srelcmp, drelcmp, qrelcmp
   end interface relcmp
 
-  interface pwmax
-     module procedure pwmax_vec2, pwmax_vec3, pwmax_scal2, pwmax_scal3
-  end interface pwmax
-
-  interface pwmin
-     module procedure pwmin_vec2, pwmin_vec3, pwmin_sca2, pwmin_sca3
-  end interface pwmin
-
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
        glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
-       add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
-       masked_scatter_copy
+       add3s2, add4s3, add5s4, subcol4, addcol3, addcol4, addcol3s2, ascol5, &
+       p_update, x_update, glsc2, glsc3, glsc4, sort, masked_copy_0, &
+       cfill_mask, relcmp, glimax, glimin, swap, reord, flipv, cadd2, &
+       masked_gather_copy_0, face_masked_gather_copy_0, absval, matinv3, &
+       matinv39, &
+       pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
+       masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
+       masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp, &
+       math_dstepf, math_stepf
 
 contains
 
   !> Return single precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function sabscmp(x, y)
+  pure function sabscmp(x, y, tol)
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
+    real(kind=sp), intent(in), optional :: tol
     logical :: sabscmp
 
-    sabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       sabscmp = abs(x - y) .lt. tol
+    else
+       sabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function sabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function dabscmp(x, y)
+  pure function dabscmp(x, y, tol)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
+    real(kind=dp), intent(in), optional :: tol
     logical :: dabscmp
 
-    dabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       dabscmp = abs(x - y) .lt. tol
+    else
+       dabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function dabscmp
 
   !> Return double precision absolute comparison \f$ | x - y | < \epsilon \f$
-  pure function qabscmp(x, y)
+  pure function qabscmp(x, y, tol)
     real(kind=qp), intent(in) :: x
     real(kind=qp), intent(in) :: y
+    real(kind=qp), intent(in), optional :: tol
     logical :: qabscmp
 
-    qabscmp = abs(x - y) .lt. NEKO_EPS
+    if (present(tol)) then
+       qabscmp = abs(x - y) .lt. tol
+    else
+       qabscmp = abs(x - y) .lt. NEKO_EPS
+    end if
 
   end function qabscmp
 
@@ -196,7 +209,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = 0.0_rp
     end do
   end subroutine rzero
@@ -207,7 +220,7 @@ contains
     integer, dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = 0
     end do
   end subroutine izero
@@ -218,7 +231,7 @@ contains
     real(kind=rp), intent(inout) :: a(m,n)
     integer :: j
 
-    do j = 1,n
+    do concurrent (j = 1:n)
        a(e,j) = 0.0_rp
     end do
   end subroutine row_zero
@@ -229,7 +242,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = 1.0_rp
     end do
   end subroutine rone
@@ -241,7 +254,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i)
     end do
 
@@ -250,18 +263,39 @@ contains
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
   !! @param a Destination array of size `n`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
   !! @param n Size of the arrays `a` and `b`.
-  !! @param m Size of the mask array `mask`.
-  subroutine masked_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
+  !! @param n_mask Size of the mask array `mask`.
+  subroutine masked_copy_0(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do concurrent (i = 1:n_mask)
+       j = mask(i)
+       a(j) = b(j)
+    end do
+
+  end subroutine masked_copy_0
+
+  !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! the length of the mask array.
+  !! @param n Size of the arrays `a` and `b`.
+  !! @param n_mask Size of the mask array `mask`.
+  subroutine masked_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(n_mask) :: mask
+    integer :: i, j
+
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(j) = b(j)
     end do
@@ -270,43 +304,123 @@ contains
 
   !> Gather a masked vector to reduced contigous vector
   !! \f$ a = b(mask) \f$.
-  !! @param a Destination array of size `m`.
+  !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
   !! @param n Size of the array `b`.
-  !! @param m Size of the mask array `mask` and `a`.
-  subroutine masked_gather_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_gather_copy_0(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(m), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do concurrent (i = 1:n_mask)
+       j = mask(i)
+       a(i) = b(j)
+    end do
+
+  end subroutine masked_gather_copy_0
+
+  !> Gather values from a face-local SEM field to a reduced contiguous vector.
+  !! @param a Destination array of size `n_mask`.
+  !! @param b Source face-local array indexed as `b(:, :, facet, element)`.
+  !! @param mask Mask array of length `n_mask + 1`, where `mask(0) = n_mask`.
+  !! @param facet Facet ids associated with the masked points.
+  !! @param lx Number of points in the first SEM direction.
+  !! @param ly Number of points in the second SEM direction.
+  !! @param lz Number of points in the third SEM direction.
+  !! @param n_mask Size of the mask and destination arrays.
+  subroutine face_masked_gather_copy_0(a, b, mask, facet, lx, ly, lz, n_mask)
+    integer, intent(in) :: lx, ly, lz, n_mask
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    real(kind=rp), dimension(:, :, :, :), intent(in) :: b
+    integer, dimension(0:n_mask), intent(in) :: mask
+    integer, dimension(0:n_mask), intent(in) :: facet
+    integer :: l
+    integer :: idx(4)
+
+    do l = 1, n_mask
+       idx = nonlinear_index(mask(l), lx, ly, lz)
+
+       select case (facet(l))
+       case (1, 2)
+          a(l) = b(idx(2), idx(3), facet(l), idx(4))
+       case (3, 4)
+          a(l) = b(idx(1), idx(3), facet(l), idx(4))
+       case (5, 6)
+          a(l) = b(idx(1), idx(2), facet(l), idx(4))
+       end select
+    end do
+
+  end subroutine face_masked_gather_copy_0
+
+  !> Gather a masked vector to reduced contigous vector
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `n_mask`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length n_mask.
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_gather_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    integer, dimension(n_mask) :: mask
+    integer :: i, j
+
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(i) = b(j)
     end do
 
   end subroutine masked_gather_copy
 
+  !> Scatter a contigous vector to masked positions in a target array
+  !! \f$ a(mask) = b \f$.
+  !! @param a Destination array of size `n`.
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask + 1`
+  !! the length of the mask array.
+  !! @param n Size of the array `mask`and array `b`.
+  !! @param m Size of the mask array `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_scatter_copy_0(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
+    integer :: i, j
+
+    do concurrent (i = 1:n_mask)
+       j = mask(i)
+       a(j) = b(i)
+    end do
+
+  end subroutine masked_scatter_copy_0
 
   !> Scatter a contigous vector to masked positions in a target array
   !! \f$ a(mask) = b \f$.
   !! @param a Destination array of size `n`.
-  !! @param b Source array of size `m`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask + 1`
   !! the length of the mask array.
-  !! @param n Size of the array `b`.
-  !! @param m Size of the mask array `mask` and `a`.
-  subroutine masked_scatter_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(m), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+  !! @param n Size of the array `mask`and array `b`.
+  !! @param m Size of the mask array `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_scatter_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do concurrent (i = 1:n_mask)
        j = mask(i)
        a(j) = b(i)
     end do
@@ -315,14 +429,14 @@ contains
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
-  subroutine cfill_mask(a, c, size, mask, mask_size)
-    integer, intent(in) :: size, mask_size
-    real(kind=rp), dimension(size), intent(inout) :: a
+  subroutine cfill_mask(a, c, n, mask, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: c
-    integer, dimension(mask_size), intent(in) :: mask
+    integer, dimension(n_mask), intent(in) :: mask
     integer :: i
 
-    do i = 1, mask_size
+    do concurrent (i = 1:n_mask)
        a(mask(i)) = c
     end do
 
@@ -335,10 +449,49 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c * a(i)
     end do
   end subroutine cmult
+
+  !> Multiplication by constant c \f$ a = c \cdot b \f$
+  subroutine cmult2(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do concurrent (i = 1:n)
+       a(i) = c * b(i)
+    end do
+
+  end subroutine cmult2
+
+  !> Division of constant c by elements of a \f$ a = c / a \f$
+  subroutine cdiv(a, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do concurrent (i = 1:n)
+       a(i) = c / a(i)
+    end do
+  end subroutine cdiv
+
+  !> Division of constant c by elements of a \f$ a = c / b \f$
+  subroutine cdiv2(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do concurrent (i = 1:n)
+       a(i) = c / b(i)
+    end do
+  end subroutine cdiv2
 
   !> Add a scalar to vector \f$ a_i = a_i + s \f$
   subroutine cadd(a, s, n)
@@ -347,7 +500,7 @@ contains
     real(kind=rp), intent(in) :: s
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) + s
     end do
   end subroutine cadd
@@ -360,7 +513,7 @@ contains
     real(kind=rp), intent(in) :: s
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) + s
     end do
   end subroutine cadd2
@@ -372,7 +525,7 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c
     end do
   end subroutine cfill
@@ -463,7 +616,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = -a(i)
     end do
 
@@ -498,8 +651,8 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
-    do i = 1, n
-       a(i) = 1.0_xp / real(a(i),xp)
+    do concurrent (i = 1:n)
+       a(i) = 1.0_xp / real(a(i), xp)
     end do
 
   end subroutine invcol1
@@ -508,11 +661,11 @@ contains
   subroutine invcol3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b,c
+    real(kind=rp), dimension(n), intent(in) :: b, c
     integer :: i
 
-    do i = 1, n
-       a(i) = real(b(i),xp) / c(i)
+    do concurrent (i = 1:n)
+       a(i) = real(b(i), xp) / c(i)
     end do
 
   end subroutine invcol3
@@ -524,8 +677,8 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
-       a(i) = 1.0_xp / real(b(i),xp)
+    do concurrent (i = 1:n)
+       a(i) = 1.0_xp / real(b(i), xp)
     end do
 
   end subroutine invers2
@@ -539,7 +692,7 @@ contains
     real(kind=rp), dimension(n), intent(out) :: u1, u2, u3
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        u1(i) = v2(i)*w3(i) - v3(i)*w2(i)
        u2(i) = v3(i)*w1(i) - v1(i)*w3(i)
        u3(i) = v1(i)*w2(i) - v2(i)*w1(i)
@@ -555,7 +708,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: v1, v2
     real(kind=rp), dimension(n), intent(out) :: dot
     integer :: i
-    do i = 1, n
+    do concurrent (i = 1:n)
        dot(i) = u1(i)*v1(i) + u2(i)*v2(i)
     end do
 
@@ -570,7 +723,7 @@ contains
     real(kind=rp), dimension(n), intent(out) :: dot
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        dot(i) = u1(i)*v1(i) + u2(i)*v2(i) + u3(i)*v3(i)
     end do
 
@@ -611,7 +764,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) + b(i)
     end do
 
@@ -625,7 +778,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) + c(i)
     end do
 
@@ -640,7 +793,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) + c(i) + d(i)
     end do
 
@@ -650,10 +803,10 @@ contains
   subroutine sub2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) - b(i)
     end do
 
@@ -667,7 +820,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) - c(i)
     end do
 
@@ -679,11 +832,11 @@ contains
   subroutine add2s1(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = c1 * a(i) + b(i)
     end do
 
@@ -694,11 +847,11 @@ contains
   subroutine add2s2(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(inout) :: b
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) + c1 * b(i)
     end do
 
@@ -712,25 +865,11 @@ contains
     real(kind=rp), intent(in) :: c1
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + c1 * ( b(i) * b(i) )
     end do
 
   end subroutine addsqr2s2
-
-  !> Multiplication by constant c \f$ a = c \cdot b \f$
-  subroutine cmult2(a, b, c, n)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), intent(in) :: c
-    integer :: i
-
-    do i = 1, n
-       a(i) = c * b(i)
-    end do
-
-  end subroutine cmult2
 
   !> Vector division \f$ a = a / b \f$
   subroutine invcol2(a, b, n)
@@ -739,8 +878,8 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
-       a(i) = real(a(i),xp) /b(i)
+    do concurrent (i = 1:n)
+       a(i) = real(a(i), xp) / b(i)
     end do
 
   end subroutine invcol2
@@ -753,7 +892,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = a(i) * b(i)
     end do
 
@@ -767,7 +906,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        a(i) = b(i) * c(i)
     end do
 
@@ -781,7 +920,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) - b(i) * c(i)
     end do
 
@@ -796,12 +935,44 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = c1 * b(i) + c2 * c(i)
     end do
 
   end subroutine add3s2
 
+  !> Returns \f$ a = c1 * b + c2 * c + c3 * d \f$
+  subroutine add4s3(a, b, c, d, c1, c2, c3, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: d
+    real(kind=rp), intent(in) :: c1, c2, c3
+    integer :: i
+
+    do concurrent (i = 1:n)
+       a(i) = c1 * b(i) + c2 * c(i) + c3 * d(i)
+    end do
+
+  end subroutine add4s3
+
+  !> Returns \f$ a = a + c1 * b + c2 * c + c3 * d + c4 * e\f$
+  subroutine add5s4(a, b, c, d, e, c1, c2, c3, c4, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: d
+    real(kind=rp), dimension(n), intent(in) :: e
+    real(kind=rp), intent(in) :: c1, c2, c3, c4
+    integer :: i
+
+    do concurrent (i = 1:n)
+       a(i) = a(i) + c1 * b(i) + c2 * c(i) + c3 * d(i) + c4 * e(i)
+    end do
+
+  end subroutine add5s4
 
   !> Returns \f$ a = a - b*c*d \f$
   subroutine subcol4(a, b, c, d, n)
@@ -812,7 +983,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: d
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) - b(i) * c(i) * d(i)
     end do
 
@@ -826,7 +997,7 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + b(i) * c(i)
     end do
 
@@ -841,11 +1012,26 @@ contains
     real(kind=rp), dimension(n), intent(in) :: d
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + b(i) * c(i) * d(i)
     end do
 
   end subroutine addcol4
+
+  !> Returns \f$ a = a + s(b*c) \f$
+  subroutine addcol3s2(a, b, c, s, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), intent(in) :: s
+    integer :: i
+
+    do concurrent (i = 1:n)
+       a(i) = a(i) + s * b(i) * c(i)
+    end do
+
+  end subroutine addcol3s2
 
   !> Returns \f$ a = b \dot c - d \cdot e \f$
   subroutine ascol5(a, b, c, d, e, n)
@@ -857,8 +1043,8 @@ contains
     real(kind=rp), dimension(n), intent(in) :: e
     integer :: i
 
-    do i = 1,n
-       a(i) = b(i)*c(i)-d(i)*e(i)
+    do concurrent (i = 1:n)
+       a(i) = b(i)*c(i) - d(i)*e(i)
     end do
 
   end subroutine ascol5
@@ -872,7 +1058,7 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = b(i) + c1*(a(i)-c2*c(i))
     end do
 
@@ -887,7 +1073,7 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    do concurrent (i = 1:n)
        a(i) = a(i) + c1*b(i)+c2*c(i)
     end do
 
@@ -952,6 +1138,27 @@ contains
     glsc4 = tmp
 
   end function glsc4
+
+  !> Returns the norm of the difference of two vectors
+  !! \f$ \sqrt{(a-b)^T (a-b)} \f$
+  function glsubnorm(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp) :: glsubnorm
+    real(kind=xp) :: tmp
+    integer :: i, ierr
+
+    tmp = 0.0_xp
+    do i = 1, n
+       tmp = tmp + (a(i) - b(i))**2
+    end do
+
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsubnorm = sqrt(tmp)
+
+  end function glsubnorm
 
   !> Heap Sort for double precision arrays
   !! @details Following p 231 Num. Rec., 1st Ed.
@@ -1210,7 +1417,7 @@ contains
   ! Point-wise operations
 
   !> Point-wise maximum of two vectors \f$ a = \max(a, b) \f$
-  subroutine pwmax_vec2(a, b, n)
+  subroutine pwmax2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -1219,10 +1426,10 @@ contains
     do i = 1, n
        a(i) = max(a(i), b(i))
     end do
-  end subroutine pwmax_vec2
+  end subroutine pwmax2
 
   !> Point-wise maximum of two vectors \f$ a = \max(b, c) \f$
-  subroutine pwmax_vec3(a, b, c, n)
+  subroutine pwmax3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b, c
@@ -1231,10 +1438,10 @@ contains
     do i = 1, n
        a(i) = max(b(i), c(i))
     end do
-  end subroutine pwmax_vec3
+  end subroutine pwmax3
 
   !> Point-wise maximum of scalar and vector \f$ a = \max(a, b) \f$
-  subroutine pwmax_scal2(a, b, n)
+  subroutine cpwmax2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: b
@@ -1243,10 +1450,10 @@ contains
     do i = 1, n
        a(i) = max(a(i), b)
     end do
-  end subroutine pwmax_scal2
+  end subroutine cpwmax2
 
   !> Point-wise maximum of scalar and vector \f$ a = \max(b, c) \f$
-  subroutine pwmax_scal3(a, b, c, n)
+  subroutine cpwmax3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -1256,10 +1463,10 @@ contains
     do i = 1, n
        a(i) = max(b(i), c)
     end do
-  end subroutine pwmax_scal3
+  end subroutine cpwmax3
 
   !> Point-wise minimum of two vectors \f$ a = \min(a, b) \f$
-  subroutine pwmin_vec2(a, b, n)
+  subroutine pwmin2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -1268,10 +1475,10 @@ contains
     do i = 1, n
        a(i) = min(a(i), b(i))
     end do
-  end subroutine pwmin_vec2
+  end subroutine pwmin2
 
   !> Point-wise minimum of two vectors \f$ a = \min(b, c) \f$
-  subroutine pwmin_vec3(a, b, c, n)
+  subroutine pwmin3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b, c
@@ -1280,10 +1487,10 @@ contains
     do i = 1, n
        a(i) = min(b(i), c(i))
     end do
-  end subroutine pwmin_vec3
+  end subroutine pwmin3
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(a, b) \f$
-  subroutine pwmin_sca2(a, b, n)
+  subroutine cpwmin2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: b
@@ -1292,10 +1499,10 @@ contains
     do i = 1, n
        a(i) = min(a(i), b)
     end do
-  end subroutine pwmin_sca2
+  end subroutine cpwmin2
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(b, c) \f$
-  subroutine pwmin_sca3(a, b, c, n)
+  subroutine cpwmin3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -1305,6 +1512,105 @@ contains
     do i = 1, n
        a(i) = min(b(i), c)
     end do
-  end subroutine pwmin_sca3
+  end subroutine cpwmin3
+
+  ! M33INV and M44INV by David G. Simpson pure function version from
+  ! https://fortranwiki.org/fortran/show/Matrix+inversion
+  ! Invert 3x3 matrix
+  function matinv39(a11, a12, a13, a21, a22, a23, a31, a32, a33) &
+       result(B)
+    real(kind=rp), intent(in) :: a11, a12, a13, a21, a22, a23, a31, a32, a33
+    real(xp) :: A(3,3) !! Matrix
+    real(rp) :: B(3,3) !! Inverse matrix
+    A(1,1) = a11
+    A(1,2) = a12
+    A(1,3) = a13
+    A(2,1) = a21
+    A(2,2) = a22
+    A(2,3) = a23
+    A(3,1) = a31
+    A(3,2) = a32
+    A(3,3) = a33
+    B = matinv3(A)
+  end function matinv39
+
+  !> Performs a direct calculation of the inverse of a 3×3 matrix.
+  !! M33INV and M44INV by David G. Simpson pure function version from
+  !! https://fortranwiki.org/fortran/show/Matrix+inversion
+  !! Invert 3x3 matrix
+  function matinv3(A) result(B)
+    !! Performs a direct calculation of the inverse of a 3×3 matrix.
+    real(kind=xp), intent(in) :: A(3,3) !! Matrix
+    real(kind=xp) :: B(3,3) !! Inverse matrix
+    real(kind=xp) :: detinv
+
+    ! Calculate the inverse determinant of the matrix
+    ! first index x,y,z, second r, s, t
+    detinv = 1.0_xp / real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2) &
+         - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
+         + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1), xp)
+    ! Calculate the inverse of the matrix
+    ! first index r, s, t, second x, y, z
+    B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))
+    B(2,1) = -detinv * (A(2,1)*A(3,3) - A(2,3)*A(3,1))
+    B(3,1) = +detinv * (A(2,1)*A(3,2) - A(2,2)*A(3,1))
+    B(1,2) = -detinv * (A(1,2)*A(3,3) - A(1,3)*A(3,2))
+    B(2,2) = +detinv * (A(1,1)*A(3,3) - A(1,3)*A(3,1))
+    B(3,2) = -detinv * (A(1,1)*A(3,2) - A(1,2)*A(3,1))
+    B(1,3) = +detinv * (A(1,2)*A(2,3) - A(1,3)*A(2,2))
+    B(2,3) = -detinv * (A(1,1)*A(2,3) - A(1,3)*A(2,1))
+    B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
+  end function matinv3
+
+  !> Smooth step function S(x)
+  !> Returns 0 for x <= 0, 1 for x >= 1, and smooth transition in between.
+  function math_stepf(x) result(val)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: val
+    real(kind=rp), parameter :: xdmin = 0.0001_rp
+    real(kind=rp), parameter :: xdmax = 0.9999_rp
+    real(kind=rp) :: g
+
+    if (x <= xdmin) then
+       ! Below the lower bound, the function is 0
+       val = 0.0_rp
+    else if (x >= xdmax) then
+       ! Above the upper bound, the function is 1
+       val = 1.0_rp
+    else
+       ! g(x) = 1/(x-1) + 1/x
+       g = (1.0_rp / (x - 1.0_rp)) + (1.0_rp / x)
+
+       ! The sigmoid: S(x) = 1 / (1 + exp(g))
+       val = 1.0_rp / (1.0_rp + exp(g))
+    end if
+  end function math_stepf
+
+  !> Derivative of math_stepf with respect to x: d(stepf)/dx
+  function math_dstepf(x) result(val)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: val
+    real(kind=rp), parameter :: xdmin = 0.0001_rp
+    real(kind=rp), parameter :: xdmax = 0.9999_rp
+    real(kind=rp) :: arg, g, dg, s_val
+
+    if (x <= xdmin .or. x >= xdmax) then
+       val = 0.0_rp
+    else
+       ! The step function is S(x) = 1 / (1 + exp(g(x)))
+       ! where g(x) = 1/(x-1) + 1/x
+       ! S'(x) = -S(x) * (1 - S(x)) * g'(x)
+
+       g = (1.0_rp / (x - 1.0_rp)) + (1.0_rp / x)
+
+       ! Derivative of g(x)
+       dg = -(1.0_rp / ((x - 1.0_rp)**2)) - (1.0_rp / (x**2))
+
+       ! Recompute S(x) locally
+       s_val = 1.0_rp / (1.0_rp + exp(g))
+
+       val = -s_val * (1.0_rp - s_val) * dg
+    end if
+  end function math_dstepf
 
 end module math

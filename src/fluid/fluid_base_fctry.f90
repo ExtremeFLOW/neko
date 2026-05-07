@@ -46,7 +46,11 @@ contains
   module subroutine fluid_scheme_base_factory(object, type_name)
     class(fluid_scheme_base_t), intent(inout), allocatable :: object
     character(len=*) :: type_name
-    character(len=:), allocatable :: type_string
+
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
 
     select case (trim(type_name))
     case ('pnpn')

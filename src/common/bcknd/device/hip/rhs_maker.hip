@@ -39,6 +39,7 @@
 #include "sumab_kernel.h"
 #include "makeext_kernel.h"
 #include "makebdf_kernel.h"
+#include "makeoifs_kernel.h"
 
 extern "C" {
   void rhs_maker_sumab_hip(void *u, void *v, void *w,
@@ -61,41 +62,41 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void rhs_maker_ext_hip(void *abx1, void *aby1, void *abz1, 
+  void rhs_maker_ext_hip(void *abx1, void *aby1, void *abz1,
                          void *abx2, void *aby2, void *abz2,
                          void *bfx, void *bfy, void *bfz,
                          real *rho, real *ab1, real *ab2, real *ab3, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME( makeext_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) abx1, (real *) aby1, (real *) abz1, 
+                       (real *) abx1, (real *) aby1, (real *) abz1,
                        (real *) abx2, (real *) aby2, (real *) abz2,
                        (real *) bfx, (real *) bfy, (real *) bfz,
-                       *rho, *ab1, *ab2, *ab3, *n);      
+                       *rho, *ab1, *ab2, *ab3, *n);
     HIP_CHECK(hipGetLastError());
   }
 
-  void scalar_rhs_maker_ext_hip(void *fs_lag, void *fs_laglag, void *fs, 
+  void scalar_rhs_maker_ext_hip(void *fs_lag, void *fs_laglag, void *fs,
                                 real *rho, real *ext1, real *ext2, real *ext3,
                                 int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_makeext_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) fs_lag, (real *) fs_laglag, (real *) fs, 
-                       *rho, *ext1, *ext2, *ext3, *n);      
+                       (real *) fs_lag, (real *) fs_laglag, (real *) fs,
+                       *rho, *ext1, *ext2, *ext3, *n);
     HIP_CHECK(hipGetLastError());
   }
-  
+
   void rhs_maker_bdf_hip(void *ulag1, void *ulag2, void *vlag1,
-                         void *vlag2, void *wlag1, void *wlag2, 
+                         void *vlag2, void *wlag1, void *wlag2,
                          void *bfx, void *bfy, void *bfz,
-                         void *u, void *v, void *w, void *B, 
+                         void *u, void *v, void *w, void *B,
                          real *rho, real *dt, real *bd2,
                          real *bd3, real *bd4, int *nbd, int *n) {
 
@@ -105,9 +106,9 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME( makebdf_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) ulag1, (real *) ulag2, (real *) vlag1,
-                       (real *) vlag2, (real *) wlag1, (real *) wlag2, 
+                       (real *) vlag2, (real *) wlag1, (real *) wlag2,
                        (real *) bfx, (real *) bfy, (real *) bfz,
-                       (real *) u, (real *) v, (real *) w, (real *) B, 
+                       (real *) u, (real *) v, (real *) w, (real *) B,
                        *rho, *dt, *bd2, *bd3, *bd4, *nbd,  *n);
     HIP_CHECK(hipGetLastError());
   }
@@ -125,6 +126,34 @@ extern "C" {
                        (real *) s_lag, (real *) s_laglag, (real *) fs,
                        (real *) s, (real *) B, *rho, *dt, *bd2, *bd3,
                        *bd4, *nbd,  *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void rhs_maker_oifs_hip(void *phi_x, void *phi_y, void *phi_z,
+                         void *bf_x, void *bf_y, void *bf_z,
+                         real *rho, real *dt, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( makeoifs_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) phi_x, (real *) phi_y, (real *) phi_z,
+                       (real *) bf_x, (real *) bf_y, (real *) bf_z,
+                       *rho, *dt, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void scalar_rhs_maker_oifs_hip(void *phi_s, void *bf_s,
+                                 real *rho, real *dt, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( scalar_makeoifs_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) phi_s, (real *) bf_s,
+                       *rho, *dt, *n);
     HIP_CHECK(hipGetLastError());
   }
 }

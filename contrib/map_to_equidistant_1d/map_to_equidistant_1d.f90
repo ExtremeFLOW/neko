@@ -48,7 +48,7 @@ program map_to_equidistant_1d
      file_precision = sp
   end if
 
-  field_file = file_t(trim(field_fname),precision=file_precision)
+  call field_file%init(trim(field_fname),precision=file_precision)
 
   if (trim(hom_dir) .ne. 'x' .and. trim(hom_dir) .ne. 'y' .and. trim(hom_dir) .ne. 'z') then
      call neko_error('The homogenous direction should be "x", "y" or "z"')
@@ -68,19 +68,19 @@ program map_to_equidistant_1d
   allocate(ident(lx,lx))
   ident = 0.0_rp
   do i = 1, lx
-    x_equid = -1.0_rp + (i-1) * 2.0_rp/(lx-1)
-    call fd_weights_full(x_equid, Xh%zg(:,1), lx-1, 0, wtt(:,i))
-    wt(i,:) = wtt(:,i)
-    ident(i,i) = 1.0_rp
+     x_equid = -1.0_rp + (i-1) * 2.0_rp/(lx-1)
+     call fd_weights_full(x_equid, Xh%zg(:,1), lx-1, 0, wtt(:,i))
+     wt(i,:) = wtt(:,i)
+     ident(i,i) = 1.0_rp
   end do
 
   ! redistribute the coordinates to be equidistant within elements
   if (trim(hom_dir) .eq. 'x') then
-    call tnsr1_3d(field_data%x%x, lx, lx, wt, ident, ident, field_data%nelv)
+     call tnsr1_3d(field_data%x%x, lx, lx, wt, ident, ident, field_data%nelv)
   else if (trim(hom_dir) .eq. 'y') then
-    call tnsr1_3d(field_data%y%x, lx, lx, ident, wtt, ident, field_data%nelv)
+     call tnsr1_3d(field_data%y%x, lx, lx, ident, wtt, ident, field_data%nelv)
   else if (trim(hom_dir) .eq. 'z') then
-    call tnsr1_3d(field_data%z%x, lx, lx, ident, ident, wtt, field_data%nelv)
+     call tnsr1_3d(field_data%z%x, lx, lx, ident, ident, wtt, field_data%nelv)
   end if
 
   ! interpolate the field at t=0
@@ -97,7 +97,7 @@ program map_to_equidistant_1d
   end do
 
   ! output at t=0
-  output_file = file_t(trim(output_fname),precision=file_precision)
+  call output_file%init(trim(output_fname),precision=file_precision)
   call output_file%write(field_data, field_data%time)
 
   ! interpolate field for t>0

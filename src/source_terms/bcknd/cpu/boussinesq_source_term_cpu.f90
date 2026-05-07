@@ -51,7 +51,7 @@ contains
   !! @param beta The thermal expansion coefficient.
   subroutine boussinesq_source_term_compute_cpu(fields, s, ref_value, g, beta)
     type(field_list_t), intent(inout) :: fields
-    type(field_t), intent(inout) :: s
+    type(field_t), intent(in) :: s
     real(kind=rp), intent(in) :: ref_value
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp), intent(in) :: beta
@@ -61,8 +61,8 @@ contains
     n = fields%item_size(1)
 
     do i=1, n_fields
-       call add2s2(fields%items(i)%ptr%x, s%x, g(i)*beta, n)
-       call cadd(fields%items(i)%ptr%x, -g(i)*beta*ref_value, n)
+       call add2s2(fields%items(i)%ptr%x, s%x, -g(i)*beta, n)
+       call cadd(fields%items(i)%ptr%x, g(i)*beta*ref_value, n)
     end do
   end subroutine boussinesq_source_term_compute_cpu
 

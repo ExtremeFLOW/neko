@@ -22,8 +22,7 @@ program prepart
   call get_command_argument(2, nprtschr)
   read(nprtschr, *) nprts
 
-  nmsh_file = file_t(fname)
-
+  call nmsh_file%init(fname)
   call nmsh_file%read(msh)
 
   ! Reset possible periodic ids
@@ -122,7 +121,7 @@ program prepart
   output_ = trim(fname(1:scan(trim(fname), '.', back = .true.) - 1)) // &
        '_' // trim(nprtschr) // '.nmsh'
 
-  new_msh_file = file_t(output_)
+  call new_msh_file%init(output_)
   call new_msh_file%write(new_msh)
   call new_msh%free()
 

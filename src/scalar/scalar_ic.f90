@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,26 +36,29 @@ module scalar_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device_math, only : device_col2
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, filename_suffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use user_intf, only : useric_scalar
+  use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
-  use point_zone, only: point_zone_t
-  use point_zone_registry, only: neko_point_zone_registry
-  use field_registry, only: neko_field_registry
-  use logger, only: neko_log, LOG_SIZE
-  use fld_file_data, only: fld_file_data_t
-  use fld_file, only: fld_file_t
-  use checkpoint, only: chkp_t
-  use file, only: file_t
-  use global_interpolation, only: global_interpolation_t
-  use interpolation, only: interpolator_t
-  use space, only: space_t, GLL
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup, json_get_or_lookup_or_default, &
+       json_get_subdict_or_empty
+  use point_zone, only : point_zone_t
+  use point_zone_registry, only : neko_point_zone_registry
+  use logger, only : neko_log, LOG_SIZE
+  use fld_file_data, only : fld_file_data_t
+  use fld_file, only : fld_file_t
+  use checkpoint, only : chkp_t
+  use file, only : file_t
+  use global_interpolation, only : global_interpolation_t
+  use interpolation, only : interpolator_t
+  use space, only : space_t, GLL
+  use field_list, only : field_list_t
+  use import_field_utils, only : import_fields
   implicit none
   private
 
@@ -78,45 +81,62 @@ contains
   !! @param gs Gather-Scatter object.
   !! @param type Type of initial condition.
   !! @param params JSON parameters.
-  subroutine set_scalar_ic_int(s, coef, gs, type, params)
+  !! @param i Index of the scalar field.
+  subroutine set_scalar_ic_int(s, coef, gs, type, params, i)
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     character(len=*) :: type
     type(json_file), intent(inout) :: params
+    integer, intent(in) :: i
 
     ! Variables for retrieving JSON parameters
     real(kind=rp) :: ic_value
     character(len=:), allocatable :: read_str
-    character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
-    real(kind=rp) :: zone_value, tol
-    logical :: interpolate
+    real(kind=rp) :: zone_value
 
     if (trim(type) .eq. 'uniform') then
 
-       call json_get(params, 'value', ic_value)
+       call json_get_or_lookup(params, 'value', ic_value)
        call set_scalar_ic_uniform(s, ic_value)
 
     else if (trim(type) .eq. 'point_zone') then
 
-       call json_get(params, 'base_value', ic_value)
+       call json_get_or_lookup(params, 'base_value', ic_value)
        call json_get(params, 'zone_name', read_str)
-       call json_get(params, 'zone_value', zone_value)
+       call json_get_or_lookup(params, 'zone_value', zone_value)
 
        call set_scalar_ic_point_zone(s, ic_value, read_str, zone_value)
 
     else if (trim(type) .eq. 'field') then
 
-       call json_get(params, 'file_name', read_str)
-       fname = trim(read_str)
-       call json_get_or_default(params, 'interpolate', interpolate, &
-            .false.)
-       call json_get_or_default(params, 'tolerance', tol, 0.000001_rp)
-       call json_get_or_default(params, 'mesh_file_name', read_str, &
-            "none")
-       mesh_fname = trim(read_str)
+       block
+         character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
+         logical :: interpolate
+         type(json_file) :: interp_subdict
+         integer :: tgt_scal_idx
 
-       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname)
+         call json_get(params, 'file_name', read_str)
+         fname = trim(read_str)
+
+         call json_get_or_default(params, 'interpolate', interpolate, &
+              .false.)
+
+         call json_get_or_default(params, 'mesh_file_name', read_str, &
+              "none")
+         mesh_fname = trim(read_str)
+
+         ! Give the user the option to select which scalar they want to import
+         ! the values from, in the fld file. 0 corresponds to temperature.
+         call json_get_or_default(params, 'target_index', tgt_scal_idx, i)
+
+         call json_get_subdict_or_empty(params, "interpolation", &
+              interp_subdict)
+
+         call set_scalar_ic_fld(s, fname, interpolate, mesh_fname, i, &
+              tgt_scal_idx, interp_subdict)
+
+       end block
 
     else
        call neko_error('Invalid initial condition')
@@ -128,21 +148,25 @@ contains
 
   !> Set scalar intial condition (user defined)
   !! @details Set scalar initial condition using a user defined function.
+  !! @param scheme_name Name of the scheme calling the user routine.
   !! @param s Scalar field.
   !! @param coef Coefficient.
   !! @param gs Gather-Scatter object.
-  !! @param usr_ic User defined initial condition function.
-  !! @param params JSON parameters.
-  subroutine set_scalar_ic_usr(s, coef, gs, usr_ic, params)
-    type(field_t), intent(inout) :: s
+  !! @param user_proc User defined initial condition function.
+  subroutine set_scalar_ic_usr(scheme_name, s, coef, gs, user_proc)
+    character(len=*), intent(in) :: scheme_name
+    type(field_t), target, intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
-    procedure(useric_scalar) :: usr_ic
-    type(json_file), intent(inout) :: params
+    procedure(user_initial_conditions_intf) :: user_proc
+    type(field_list_t) :: fields
 
     call neko_log%message("Type: user")
-    call usr_ic(s, params)
 
+    call fields%init(1)
+    call fields%assign_to_field(1, s)
+
+    call user_proc(scheme_name, fields)
     call set_scalar_ic_common(s, coef, gs)
 
   end subroutine set_scalar_ic_usr
@@ -161,8 +185,7 @@ contains
 
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%x, s%x_d, n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -227,7 +250,7 @@ contains
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
 
     call set_scalar_ic_uniform(s, base_value)
-    call cfill_mask(s%x, zone_value, size, zone%mask, zone%size)
+    call cfill_mask(s%x, zone_value, size, zone%mask%get(), zone%size)
 
   end subroutine set_scalar_ic_point_zone
 
@@ -237,148 +260,54 @@ contains
   !! another file in the `fld` field series.
   !! @param s The scalar field.
   !! @param file_name The name of the "fld" file series.
-  !! @param sample_idx index of the field file .f000* to read, default is
-  !! -1.
   !! @param interpolate Flag to indicate wether or not to interpolate the
   !! values onto the current mesh.
-  !! @param tolerance If interpolation is enabled, tolerance for finding the
-  !! points in the mesh.
-  !! @param sample_mesh_idx If interpolation is enabled, index of the field
-  !! file where the mesh coordinates are located.
+  !! @param mesh_file_name If interpolation is enabled, name of the field
+  !! file series where the mesh coordinates are located.
+  !! @param i Index of the scalar field. 0 corresponds to temperature.
+  !! @param target_idx The index of the scalar field to import from the
+  !! fld file. 0 corresponds to temperature.
+  !! @param global_interp_subdict If interpolation is enabled, subdict
+  !! containing the interpolation parameters to use.
   subroutine set_scalar_ic_fld(s, file_name, &
-       interpolate, tolerance, mesh_file_name)
-    type(field_t), intent(inout) :: s
+       interpolate, mesh_file_name, i, target_idx, global_interp_subdict)
+    type(field_t), target, intent(inout) :: s
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
-    real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    integer, intent(in) :: i
+    integer, intent(in) :: target_idx
+    type(json_file), intent(inout) :: global_interp_subdict
 
     character(len=LOG_SIZE) :: log_buf
-    integer :: sample_idx, sample_mesh_idx
-    integer :: last_index
-    type(fld_file_data_t) :: fld_data
-    type(file_t) :: f
-    logical :: mesh_mismatch
+    type(field_t), pointer :: ss
+    type(field_list_t) :: s_tgt_list
 
-    ! ---- For the mesh to mesh interpolation
-    type(global_interpolation_t) :: global_interp
-    ! -----
-
-    ! ---- For space to space interpolation
-    type(space_t) :: prev_Xh
-    type(interpolator_t) :: space_interp
-    ! ----
-
-    call neko_log%message("Type          : field")
-    call neko_log%message("File name     : " // trim(file_name))
-    write (log_buf, '(A,L1)') "Interpolation : ", interpolate
-    call neko_log%message(log_buf)
-
-    ! Extract sample index from the file name
-    sample_idx = extract_fld_file_index(file_name, -1)
-
-    if (sample_idx .eq. -1) then
-       call neko_error("Invalid file name for the initial condition. The " // &
-            "file format must be e.g. 'mean0.f00001'")
+    if (i .ne. target_idx) then
+       write (log_buf, '(A,I0,A,I0)') "Loading scalar #", target_idx, &
+            " into scalar #", i
+       call neko_log%message(log_buf)
     end if
 
-    ! Change from "field0.f000*" to "field0.fld" for the fld reader
-    call filename_chsuffix(file_name, file_name, 'fld')
+    ! use a pointer since import_fields needs a pointer as input
+    ss => s
 
-    call fld_data%init
-    f = file_t(trim(file_name))
+    ! Put ss in a field list of 1 element
+    call s_tgt_list%init(1)
+    call s_tgt_list%assign(1, ss)
 
-    if (interpolate) then
+    call import_fields(file_name, global_interp_subdict, mesh_file_name, &
+         s_target_list = s_tgt_list, & ! The target field
+         s_index_list = [target_idx], & ! Take values from target scalar
+         interpolate = interpolate)
 
-       ! If no mesh file is specified, use the default file name
-       if (mesh_file_name .eq. "none") then
-          mesh_file_name = trim(file_name)
-          sample_mesh_idx = sample_idx
-       else
+    call s_tgt_list%free()
 
-          ! Extract sample index from the mesh file name
-          sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
+    nullify(ss)
 
-          if (sample_mesh_idx .eq. -1) then
-             call neko_error("Invalid file name for the initial condition." // &
-                  " The file format must be e.g. 'mean0.f00001'")
-          end if
-
-          write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
-          call neko_log%message(log_buf)
-          write (log_buf, '(A,A)') "Mesh file     : ", &
-               trim(mesh_file_name)
-          call neko_log%message(log_buf)
-
-       end if ! if mesh_file_name .eq. none
-
-       ! Read the mesh coordinates if they are not in our fld file
-       if (sample_mesh_idx .ne. sample_idx) then
-          call f%set_counter(sample_mesh_idx)
-          call f%read(fld_data)
-       end if
-
-    end if
-
-    ! Read the field file containing (u,v,w,p)
-    call f%set_counter(sample_idx)
-    call f%read(fld_data)
-
-    !
-    ! Check that the data in the fld file matches the current case.
-    ! Note that this is a safeguard and there are corner cases where
-    ! two different meshes have the same dimension and same # of elements
-    ! but this should be enough to cover obvious cases.
-    !
-    mesh_mismatch = (fld_data%glb_nelv .ne. s%msh%glb_nelv .or. &
-         fld_data%gdim .ne. s%msh%gdim)
-
-    if (mesh_mismatch .and. .not. interpolate) then
-       call neko_error("The fld file must match the current mesh! " // &
-            "Use 'interpolate': 'true' to enable interpolation.")
-    else if (.not. mesh_mismatch .and. interpolate) then
-       call neko_log%warning("You have activated interpolation but you " // &
-            "might still be using the same mesh.")
-    end if
-
-
-    ! Mesh interpolation if specified
-    if (interpolate) then
-       ! Issue a warning if the mesh is in single precision
-       select type (ft => f%file_type)
-       type is (fld_file_t)
-          if (.not. ft%dp_precision) then
-             call neko_warning("The coordinates read from the field file " // &
-                  "are in single precision.")
-             call neko_log%message("It is recommended to use a mesh in " // &
-                  "double precision for better interpolation results.")
-             call neko_log%message("If the interpolation does not work, " // &
-                  "you can try to increase the tolerance.")
-          end if
-       class default
-       end select
-
-       ! Generates an interpolator object and performs the point search
-       global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
-
-       ! Evaluate scalar
-       call global_interp%evaluate(s%x, fld_data%t%x)
-       call global_interp%free
-
-    else ! No interpolation, just potentially from different spaces
-
-       ! Build a space_t object from the data in the fld file
-       call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
-       call space_interp%init(s%Xh, prev_Xh)
-
-       ! Do the space-to-space interpolation
-       call space_interp%map_host(s%x, fld_data%t%x, fld_data%nelv, s%Xh)
-
-       call space_interp%free
-
-    end if
-
-    call fld_data%free
+    ! If we are on GPU we need to move s back to the host
+    ! since set_scalar_ic_common copies it again to the device.
+    call s%copy_from(device_to_host, .true.)
 
   end subroutine set_scalar_ic_fld
 

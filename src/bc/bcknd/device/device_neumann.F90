@@ -38,55 +38,109 @@ module device_neumann
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_neumann_apply_scalar(msk, facet, x, flux, area, lx, m) &
+     subroutine hip_neumann_apply_scalar(msk, facet, x, flux, area, &
+          lx, m, strm) &
           bind(c, name='hip_neumann_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value :: msk, facet, x, flux, area
+       type(c_ptr), value :: msk, facet, x, flux, area, strm
      end subroutine hip_neumann_apply_scalar
+
+     subroutine hip_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y,&
+          flux_z, area, lx, m, strm) &
+          bind(c, name='hip_neumann_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value :: msk, facet, x, y, z, flux_x, flux_y, flux_z, &
+            area, strm
+     end subroutine hip_neumann_apply_vector
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m) &
+     subroutine cuda_neumann_apply_scalar(msk, facet, x, flux, area, &
+          lx, m, strm) &
           bind(c, name='cuda_neumann_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value :: msk, facet, x, flux, area
+       type(c_ptr), value :: msk, facet, x, flux, area, strm
      end subroutine cuda_neumann_apply_scalar
+
+     subroutine cuda_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y, &
+          flux_z, area, lx, m, strm) &
+          bind(c, name='cuda_neumann_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value :: msk, facet, x, y, z, flux_x, flux_y, flux_z, &
+            area, strm
+     end subroutine cuda_neumann_apply_vector
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_neumann_apply_scalar(msk, facet, x, flux, area, lx, m) &
+     subroutine opencl_neumann_apply_scalar(msk, facet, x, flux, area, &
+          lx, m, strm) &
           bind(c, name='opencl_neumann_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value :: msk, facet, x, flux, area
+       type(c_ptr), value :: msk, facet, x, flux, area, strm
      end subroutine opencl_neumann_apply_scalar
+
+     subroutine opencl_neumann_apply_vector(msk, facet, x, y, z, flux_x, &
+          flux_y, flux_z, area, lx, m, strm) &
+          bind(c, name='opencl_neumann_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value :: msk, facet, x, y, z, flux_x, flux_y, flux_z, &
+            area, strm
+     end subroutine opencl_neumann_apply_vector
   end interface
 #endif
 
-  public :: device_neumann_apply_scalar
+  public :: device_neumann_apply_scalar, device_neumann_apply_vector
 
 contains
 
-  subroutine device_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
+  subroutine device_neumann_apply_scalar(msk, facet, x, flux, area, lx, m, strm)
     integer, intent(in) :: m, lx
-    type(c_ptr) :: msk, facet, x, flux, area
+    type(c_ptr) :: msk, facet, x, flux, area, strm
 
     if (m .lt. 1) return
 #ifdef HAVE_HIP
-    call hip_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
+    call hip_neumann_apply_scalar(msk, facet, x, flux, area, lx, m, strm)
 #elif HAVE_CUDA
-    call cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
+    call cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m, strm)
 #elif HAVE_OPENCL
-    call opencl_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
+    call opencl_neumann_apply_scalar(msk, facet, x, flux, area, lx, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
 
   end subroutine device_neumann_apply_scalar
+
+  subroutine device_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y, &
+       flux_z, area, lx, m, strm)
+    integer, intent(in) :: m, lx
+    type(c_ptr) :: msk, facet, x, y, z, flux_x, flux_y, flux_z, area, strm
+
+    if (m .lt. 1) return
+#ifdef HAVE_HIP
+    call hip_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y, flux_z, &
+         area, lx, m, strm)
+#elif HAVE_CUDA
+    call cuda_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y, &
+         flux_z, area, lx, m, strm)
+#elif HAVE_OPENCL
+    call opencl_neumann_apply_vector(msk, facet, x, y, z, flux_x, flux_y, &
+         flux_z, area, lx, m, strm)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_neumann_apply_vector
 
 end module device_neumann

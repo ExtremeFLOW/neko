@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,13 @@
 module time_interpolator
   use num_types, only : rp
   use field, only : field_t
+  use field_series, only : field_series_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_add3s2
-  use math, only : add3s2, rzero
+  use device_math, only : device_add3s2, device_add4s3
+  use math, only : add3s2, add4s3
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
-  use fast3d, only: fd_weights_full
+  use fast3d, only : fd_weights_full
   implicit none
   private
 
@@ -90,7 +91,7 @@ contains
   !! @param t_future time in future for interpolation
   !! @param f_future time in future for interpolation
   subroutine time_interpolator_interpolate(this, t, f, t_past, f_past, &
-                                           t_future, f_future)
+       t_future, f_future)
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t, t_past, t_future
     type(field_t), intent(inout) :: f, f_past, f_future
@@ -100,19 +101,19 @@ contains
     if (this%order .eq. 2) then
 
        n = f%dof%size()
-       w_past   = ( t_future - t ) / ( t_future - t_past )
+       w_past = ( t_future - t ) / ( t_future - t_past )
        w_future = ( t - t_past ) / ( t_future - t_past )
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_add3s2(f%x_d, f_past%x_d, f_future%x_d, &
-        w_past, w_future, n)
+               w_past, w_future, n)
        else
           call add3s2(f%x, f_past%x, f_future%x, w_past, w_future, n)
        end if
 
     else
        call neko_error("Time interpolation of required order &
-                       &is not implemented")
+       &is not implemented")
     end if
 
   end subroutine time_interpolator_interpolate
@@ -120,38 +121,32 @@ contains
   !> Interpolate a scalar field at time t from known scalar fields at different time steps.
   !! @param t time to get interpolated field
   !! @param f_interpolated the interpolated field
-  !! @param f_n an array of known fields
-  !! @param tlag an array of the time steps corresponding to f_n.
+  !! @param f_n the field_series containing three known fields
+  !! @param tlag an array of the time steps corresponding to f_n
   !! @param n size of the array
   !! @note This subroutine is similar to the int_vel subroutine of NEK5000
   subroutine time_interpolator_scalar(this, t, f_interpolated, f_n, tlag, n)
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: n
-    real(kind=rp), dimension(n, 0:this%order - 1), intent(in) :: f_n
-    real(kind=rp), dimension(n), intent(inout) :: f_interpolated
+    type(field_series_t), intent(inout) :: f_n
+    type(field_t), intent(inout) :: f_interpolated
     real(kind=rp), dimension(0:this%order), intent(in) :: tlag
-    integer :: no, i, l
+    type(c_ptr) :: f_interpolated_d
+    integer :: i, l
 
-
-    integer, parameter :: lwtmax = 10
-    real(kind=rp) :: wt(0:lwtmax)
+    real(kind=rp), dimension(0:this%order - 1) :: wt
     wt = 0
 
-    if (this%order .gt. lwtmax) then
-      call neko_error("lwtmax is smaller than the number &
-                      &of stored convecting fields")
+    call fd_weights_full(t, tlag, this%order - 1, 0, wt) ! interpolation weights
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add4s3(f_interpolated%x_d, f_n%f%x_d, f_n%lf(1)%x_d, &
+                        f_n%lf(2)%x_d, wt(0), wt(1), wt(2), n)
+    else
+       call add4s3(f_interpolated%x, f_n%f%x, f_n%lf(1)%x, f_n%lf(2)%x, &
+                  wt(0), wt(1), wt(2), n)
     end if
-
-    no = this%order - 1
-    call fd_weights_full(t, tlag, no, 0, wt) ! interpolation weights
-    call rzero(f_interpolated, n)
-
-    do concurrent (i = 1:n)
-       do l = 0, no
-        f_interpolated(i) = f_interpolated(i) + wt(l) * f_n(i,l)
-      end do
-    end do
 
   end subroutine time_interpolator_scalar
 

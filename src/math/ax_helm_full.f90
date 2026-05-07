@@ -64,8 +64,11 @@ contains
     real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    call neko_error("The full Helmholtz operators cannot be applied to a &
-      &single field")
+    call neko_error("The full Helmholtz operators cannot be applied to a " // &
+         "single field. This error is common when turbulence modelling " // &
+         "or variable material properties are on, but a velocity solver " // &
+         "not supporting a coupled solve is selected. Fixed by setting " // &
+         "the solver type to e.g. coupledcg.")
   end subroutine ax_helm_full_compute
 
 end module ax_helm_full

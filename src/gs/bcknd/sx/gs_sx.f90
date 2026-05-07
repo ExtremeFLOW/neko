@@ -90,7 +90,7 @@ contains
   end subroutine gs_sx_free
 
   !> Gather kernel
-  subroutine gs_gather_sx(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
+  subroutine gs_gather_sx(this, v, m, o, dg, u, n, gd, nb, b, bo, op, shrd)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -100,6 +100,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: bo
     integer, intent(in) :: o
     integer, intent(in) :: op
     logical, intent(in) :: shrd
@@ -165,7 +166,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = u(gd(i)) + u(gd(i+1))
+          tmp = u(gd(i)) + u(gd(i+1))
           v(dg(i)) = tmp
        end do
     end if
@@ -202,7 +203,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = u(gd(i)) * u(gd(i+1))
+          tmp = u(gd(i)) * u(gd(i+1))
           v(dg(i)) = tmp
        end do
     end if
@@ -239,7 +240,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = min(u(gd(i)), u(gd(i+1)))
+          tmp = min(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
        end do
     end if
@@ -276,7 +277,7 @@ contains
        end do
     else
        do i = o, m, 2
-          tmp  = max(u(gd(i)), u(gd(i+1)))
+          tmp = max(u(gd(i)), u(gd(i+1)))
           v(dg(i)) = tmp
        end do
     end if
@@ -284,7 +285,7 @@ contains
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter_sx(this, v, m, dg, u, n, gd, nb, b, shrd, event)
+  subroutine gs_scatter_sx(this, v, m, dg, u, n, gd, nb, b, bo, shrd, event)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -294,6 +295,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
+    integer, dimension(nb), intent(inout) :: bo
     logical, intent(in) :: shrd
     type(c_ptr) :: event
 

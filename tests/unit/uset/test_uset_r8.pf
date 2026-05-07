@@ -1,0 +1,206 @@
+module test_uset_r8
+contains
+@test
+subroutine test_uset_init_r8
+  use pfunit
+  use uset
+  implicit none
+  type(uset_r8_t) :: s
+
+  call s%init()
+  @assertEqual(s%size(), 0)
+    
+end subroutine test_uset_init_r8
+
+@test
+subroutine test_uset_free_r8
+  use pfunit
+  use uset
+  implicit none
+  type(uset_r8_t) :: s
+
+  call s%init()
+  call s%free()
+  @assertEqual(s%size(), 0)
+    
+end subroutine test_uset_free_r8
+
+@test
+subroutine test_uset_size_r8
+  use pfunit
+  use uset
+  use num_types
+  implicit none
+  type(uset_r8_t) :: s
+  integer :: i
+  real(kind=dp) :: data
+
+  call s%init()
+  do i = 1, 64
+     data = dble(i)
+     call s%add(data)
+  end do
+  @assertEqual(s%size(), 64)
+
+  do i = 1, 2
+     data = dble(i + 64)
+     call s%add(data)
+  end do
+  @assertEqual(s%size(), 66)
+
+  do i = 1, 10
+     data = dble(i)
+     call s%add(data)
+  end do
+  ! Re-adding existing members must not increase the cardinality.
+  @assertEqual(s%size(), 66)
+    
+end subroutine test_uset_size_r8
+
+@test
+subroutine test_uset_clear_r8
+  use pfunit
+  use uset
+  use num_types
+  implicit none
+  type(uset_r8_t) :: s
+  integer :: i
+  real(kind=dp) :: data
+
+  call s%init()
+  do i = 1, 64
+     data = dble(i)
+     call s%add(data)
+  end do
+  call s%clear()
+  @assertEqual(s%size(), 0)
+
+  do i = 1, 42
+     data = dble(i)
+     call s%add(data)
+  end do
+  @assertEqual(s%size(), 42)
+    
+end subroutine test_uset_clear_r8
+
+@test
+subroutine test_uset_element_r8
+  use pfunit
+  use uset
+  use num_types
+  implicit none
+  type(uset_r8_t) :: s
+  integer :: i
+  real(kind=dp) :: data
+
+  call s%init()
+  do i = 1, 64
+     data = dble(i)
+     call s%add(data)
+  end do
+  
+  do i = 1, 64
+     data = dble(i)
+     @assertTrue(s%element(data))
+  end do
+
+  do i = 1, 2
+     data = dble(i + 64)
+     call s%add(data)
+  end do
+  
+  do i = 1, 66
+     data = dble(i)
+     @assertTrue(s%element(data))
+  end do
+
+  ! A value never inserted into the set must not be reported as present.
+  data = -1d0
+  @assertFalse(s%element(data))
+
+    
+end subroutine test_uset_element_r8
+
+@test
+subroutine test_uset_remove_r8
+  use pfunit
+  use uset
+  use num_types
+  implicit none
+  type(uset_r8_t) :: s
+  integer :: i
+  real(kind=dp) :: data
+
+  call s%init()
+  do i = 1, 64
+     data = dble(i)
+     call s%add(data)
+  end do
+  
+  do i = 1, 64
+     data = dble(i)
+     @assertTrue(s%element(data))
+  end do
+
+  do i = 64, 1, -1
+     data = dble(i)
+     @assertTrue(s%element(data))
+  end do
+
+  do i = 1, 64, 2
+     data = dble(i)
+     call s%remove(data)
+  end do
+  @assertEqual(s%size(), 32)
+  
+  do i = 1, 64, 2
+     data = dble(i)
+     @assertFalse(s%element(data))
+  end do
+  
+  do i = 2, 64, 2
+     data = dble(i)
+     @assertTrue(s%element(data))
+  end do
+
+  ! Removing a missing value should be a no-op for both size and membership.
+  data = 101d0
+  call s%remove(data)
+  @assertEqual(s%size(), 32)
+  @assertFalse(s%element(data))
+  
+end subroutine test_uset_remove_r8
+
+@test
+subroutine test_uset_iter_r8
+  use pfunit
+  use uset
+  use num_types
+  implicit none
+  type(uset_r8_t) :: s
+  integer :: i, n_entries
+  real(kind=dp) :: data
+
+  call s%init()
+  do i = 1, 64
+     data = dble(i)
+     call s%add(data)
+  end do
+
+  call s%iter_init()
+  n_entries = 0
+  do while(s%iter_next())
+     n_entries = n_entries + 1
+     data = s%iter_value()
+     @assertTrue(s%element(data))
+  end do
+  @assertEqual(n_entries, 64)
+
+  ! After clearing, a freshly initialised iterator must terminate immediately.
+  call s%clear()
+  call s%iter_init()
+  @assertFalse(s%iter_next())
+  
+end subroutine test_uset_iter_r8
+
+end module test_uset_r8

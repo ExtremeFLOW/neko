@@ -137,7 +137,7 @@ extern "C" {
                              void *fsabss12, void *fsabss13, void *fsabss23,
                              void *num, void *den, void *c_dyn, void *delta,
                              void *s_abs, void *nut,
-                             real * alpha, void *mult, int * n){
+                             real * alpha, int * n){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -152,7 +152,7 @@ extern "C" {
                                     (real *) fsabss12, (real *) fsabss13, (real *) fsabss23,
                                     (real *) num, (real *) den, (real *) c_dyn,
                                     (real *) delta, (real *) s_abs, (real *) nut,
-                                    * alpha, (real *) mult, * n);
+                                    * alpha, * n);
     CUDA_CHECK(cudaGetLastError());
   }
 }

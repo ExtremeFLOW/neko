@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -107,6 +107,15 @@ module hip_intf
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function hipMemcpyAsync
+
+     integer(c_int) function hipMemsetAsync(ptr, v, s, stream) &
+          bind(c, name = 'hipMemsetAsync')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr, stream
+       integer(c_int), value :: v
+       integer(c_size_t), value :: s
+     end function hipMemsetAsync
 
      integer(c_int) function hipDeviceSynchronize() &
           bind(c, name = 'hipDeviceSynchronize')
@@ -248,7 +257,7 @@ contains
   subroutine hip_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
-    
+
     if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying main stream')
     end if

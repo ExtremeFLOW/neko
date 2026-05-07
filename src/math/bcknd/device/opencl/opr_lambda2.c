@@ -38,6 +38,7 @@
 #include <CL/cl.h>
 #endif
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <device/device_config.h>
 #include <device/opencl/jit.h>
@@ -92,7 +93,7 @@ void opencl_lambda2(void *lambda2, void *u, void *v, void *w,
      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,          \
                                      kernel, 1, NULL, &global_item_size,        \
                                      &local_item_size, 0, NULL, NULL));         \
-                                                                                \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
     }                                                                           \
     break
 
@@ -108,6 +109,11 @@ void opencl_lambda2(void *lambda2, void *u, void *v, void *w,
     CASE(10);
     CASE(11);
     CASE(12);
+  default:
+    {
+      fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+      exit(1);
+    } 
   }
 }
 

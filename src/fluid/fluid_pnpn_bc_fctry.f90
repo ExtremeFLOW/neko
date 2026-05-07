@@ -38,30 +38,34 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
   use inflow, only : inflow_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use blasius, only : blasius_t
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
+  use no_slip, only : no_slip_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use overset_interface, only : overset_interface_t
+  use overset_interface_vector, only : overset_interface_vector_t
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(13) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
        "outflow", &
        "normal_outflow", &
+       "outflow+user", &
+       "normal_outflow+user", &
        "outflow+dong", &
        "normal_outflow+dong", &
        "shear_stress", &
        "user_velocity", &
        "user_pressure", &
        "blasius_profile", &
-       "user_velocity_pointwise", &
-       "wall_model"]
+       "wall_model", &
+       "overset_interface"]
 
 contains
 
@@ -75,11 +79,18 @@ contains
     class(bc_t), pointer, intent(inout) :: object
     type(fluid_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
+
+    if (associated(object)) then
+       call object%free()
+       nullify(object)
+    end if
 
     call json_get(json, "type", type)
 
@@ -90,11 +101,18 @@ contains
     case ("outflow+dong", "normal_outflow+dong")
        allocate(dong_outflow_t::object)
 
-    case ("user_pressure")
+    case ("user_pressure", "outflow+user", "normal_outflow+user")
        allocate(field_dirichlet_t::object)
        select type (obj => object)
        type is (field_dirichlet_t)
-          obj%update => user%user_dirichlet_update
+          obj%update => user%dirichlet_conditions
+          call json%add("field_name", scheme%p%name)
+       end select
+
+    case ("overset_interface")
+       allocate(overset_interface_t::object)
+       select type (obj => object)
+       type is (overset_interface_t)
           call json%add("field_name", scheme%p%name)
        end select
 
@@ -106,12 +124,17 @@ contains
             FLUID_PNPN_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf, '("pressure_bc_", I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
     ! All pressure bcs are currently strong, so for all of them we
@@ -125,6 +148,14 @@ contains
           end do
        end do
     end do
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
+    end if
   end subroutine pressure_bc_factory
 
   !> Factory routine for velocity boundary conditions.
@@ -135,13 +166,15 @@ contains
   !! @param user The user interface.
   module subroutine velocity_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_pnpn_t), intent(in) :: scheme
+    type(fluid_pnpn_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     call json_get(json, "type", type)
 
@@ -151,8 +184,8 @@ contains
     case ("velocity_value")
        allocate(inflow_t::object)
     case ("no_slip")
-       allocate(zero_dirichlet_t::object)
-    case ("normal_outflow", "normal_outflow+dong")
+       allocate(no_slip_t::object)
+    case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
        allocate(non_normal_t::object)
     case ("blasius_profile")
        allocate(blasius_t::object)
@@ -160,24 +193,18 @@ contains
        allocate(shear_stress_t::object)
     case ("wall_model")
        allocate(wall_model_bc_t::object)
-       ! Kind of hack, but maybe OK? The thing is, we need the nu for
-       ! initing the wall model, and forcing the user duplicate that there
-       ! would be a nightmare.
-       call json%add("nu", scheme%mu / scheme%rho)
+       ! Kind of hack, but  OK for now
+       call json%add("scheme_name", scheme%name)
 
     case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)
        select type (obj => object)
        type is (field_dirichlet_vector_t)
-          obj%update => user%user_dirichlet_update
+          obj%update => user%dirichlet_conditions
        end select
 
-    case ("user_velocity_pointwise")
-       allocate(usr_inflow_t::object)
-       select type (obj => object)
-       type is (usr_inflow_t)
-          call obj%set_eval(user%fluid_user_if)
-       end select
+    case ("overset_interface")
+       allocate(overset_interface_vector_t::object)
 
     case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)
@@ -187,11 +214,16 @@ contains
             FLUID_PNPN_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indices", zone_indices)
+    call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("velocity_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
     ! Exclude these two because they are bcs for the residual, not velocity
@@ -206,6 +238,14 @@ contains
              end do
           end do
        end do
+    end if
+
+    if (allocated(type)) then
+       deallocate(type)
+    end if
+
+    if (allocated(zone_indices)) then
+       deallocate(zone_indices)
     end if
   end subroutine velocity_bc_factory
 

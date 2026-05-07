@@ -1,23 +1,25 @@
 !> Interface to NVTX
 !! Based on https://github.com/maxcuda/NVTX_example
 module nvtx
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_int16_t, c_int32_t, c_int64_t, &
+       c_int, c_ptr, c_char, c_loc, C_NULL_CHAR
   implicit none
   private
 
   integer, parameter :: NVTX_MAX_LEN = 256
-  integer, parameter :: color(24) = [int(Z'00A6CEE3'), int(Z'001F78B4'), &
-                                     int(Z'00B2DF8A'), int(Z'0033A02C'), &
-                                     int(Z'00FB9A99'), int(Z'00E31A1C'), &
-                                     int(Z'00FDBF6F'), int(Z'00FF7F00'), &
-                                     int(Z'00CAB2D6'), int(Z'006A3D9A'), &
-                                     int(Z'00FFFF99'), int(Z'00B15928'), &
-                                     int(Z'008DD3C7'), int(Z'00FFFFB3'), &
-                                     int(Z'00BEBADA'), int(Z'00FB8072'), &
-                                     int(Z'0080B1D3'), int(Z'00FDB462'), &
-                                     int(Z'00B3DE69'), int(Z'00FCCDE5'), &
-                                     int(Z'00D9D9D9'), int(Z'00BC89BD'), &
-                                     int(Z'00CCEBC5'), int(Z'00FFED6F')]
+  integer, parameter :: color(24) = &
+       [int(Z'00A6CEE3'), int(Z'001F78B4'), &
+       int(Z'00B2DF8A'), int(Z'0033A02C'), &
+       int(Z'00FB9A99'), int(Z'00E31A1C'), &
+       int(Z'00FDBF6F'), int(Z'00FF7F00'), &
+       int(Z'00CAB2D6'), int(Z'006A3D9A'), &
+       int(Z'00FFFF99'), int(Z'00B15928'), &
+       int(Z'008DD3C7'), int(Z'00FFFFB3'), &
+       int(Z'00BEBADA'), int(Z'00FB8072'), &
+       int(Z'0080B1D3'), int(Z'00FDB462'), &
+       int(Z'00B3DE69'), int(Z'00FCCDE5'), &
+       int(Z'00D9D9D9'), int(Z'00BC89BD'), &
+       int(Z'00CCEBC5'), int(Z'00FFED6F')]
 
 #ifdef HAVE_NVTX
 
@@ -35,22 +37,22 @@ module nvtx
   end type nvtxEventAttributes
 
   interface nvtxRangePushA
-     subroutine nvtxRangePushA(name) bind(C, name='nvtxRangePushA')
-       use iso_c_binding
+     subroutine nvtxRangePushA(name) bind(C, name = 'nvtxRangePushA')
+       use, intrinsic :: iso_c_binding
        character(kind=c_char) :: name(256)
      end subroutine nvtxRangePushA
   end interface nvtxRangePushA
 
   interface nvtxRangePushEx
-     subroutine nvtxRangePushEx(event) bind(C, name='nvtxRangePushEx')
-       use iso_c_binding
+     subroutine nvtxRangePushEx(event) bind(C, name = 'nvtxRangePushEx')
+       use, intrinsic :: iso_c_binding
        import :: nvtxEventAttributes
        type(nvtxEventAttributes) :: event
      end subroutine nvtxRangePushEx
   end interface nvtxRangePushEx
 
   interface nvtxRangePop
-     subroutine nvtxRangePop() bind(C, name='nvtxRangePop')
+     subroutine nvtxRangePop() bind(C, name = 'nvtxRangePop')
      end subroutine nvtxRangePop
   end interface nvtxRangePop
 
@@ -59,7 +61,7 @@ module nvtx
 contains
 
   subroutine nvtxStartRange(name, region_id)
-    character(kind=c_char,len=*) :: name
+    character(kind=c_char, len=*) :: name
     integer, optional :: region_id
     type(nvtxEventAttributes) :: event
     character, target :: c_name(NVTX_MAX_LEN)
