@@ -133,6 +133,9 @@ neko_fortran_SOURCES = \
 	math/matrix.f90\
 	math/matrix_math.f90\
 	math/signed_distance.f90\
+	multigrid/hypre_ij_interface.F90\
+ 	multigrid/hypre_boomeramg.F90\
+ 	multigrid/hypre.F90\
 	multigrid/tree_amg.f90\
 	multigrid/tree_amg_utils.f90\
 	multigrid/tree_amg_aggregate.f90\
@@ -459,6 +462,9 @@ libneko_la_SOURCES = \
 if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
+
+# TODO: add "if ENABLE_HYPRE" statement
+libneko_la_SOURCES += multigrid/hypre_ij_interface_wrapper.c
 
 if ENABLE_HIP
 libneko_la_SOURCES += \

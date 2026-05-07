@@ -257,13 +257,13 @@ contains
      type(c_ptr), intent(inout) :: solver
      integer :: ierr
      ierr = HYPRE_BoomerAMGCreate(solver)
-     ierr = HYPRE_BoomerAMGSetPrintLevel(solver, 3)
-     ierr = HYPRE_BoomerAMGSetCoarsenType(solver, 8)
-     ierr = HYPRE_BoomerAMGSetRelaxType(solver, 7)
-     ierr = HYPRE_BoomerAMGSetRelaxOrder(solver, 0)
-     ierr = HYPRE_BoomerAMGSetNumSweeps(solver, 2)
-     ierr = HYPRE_BoomerAMGSetMaxLevels(solver, 20)
-     ierr = HYPRE_BoomerAMGSetKeepTranspose(solver, 1)
+     !ierr = HYPRE_BoomerAMGSetPrintLevel(solver, 3)
+     !ierr = HYPRE_BoomerAMGSetCoarsenType(solver, 8)
+     !ierr = HYPRE_BoomerAMGSetRelaxType(solver, 7)
+     !ierr = HYPRE_BoomerAMGSetRelaxOrder(solver, 0)
+     !ierr = HYPRE_BoomerAMGSetNumSweeps(solver, 2)
+     !ierr = HYPRE_BoomerAMGSetMaxLevels(solver, 20)
+     !ierr = HYPRE_BoomerAMGSetKeepTranspose(solver, 1)
      ierr = HYPRE_BoomerAMGSetMaxIter(solver, 1)
      ierr = HYPRE_BoomerAMGSetTol(solver, 0.0d0)
   end subroutine boomeramg_init
@@ -285,15 +285,15 @@ contains
 
      ierr = HYPRE_BoomerAMGSolve(solver, parcsr_A, par_b, par_x)
 
-     ierr = HYPRE_BoomerAMGGetNumIterations(solver, num_iterations)
-     ierr = HYPRE_BoomerAMGGetFinalRelativeResidualNorm(solver, final_res_norm)
-     myid = 0
-     if ( myid .eq. 0 ) then
-        print *
-        print '(A,I2)', " Iterations = ", num_iterations
-        print '(A,ES16.8)', " Final Relative Residual Norm = ", final_res_norm
-        print *
-     endif
+     !ierr = HYPRE_BoomerAMGGetNumIterations(solver, num_iterations)
+     !ierr = HYPRE_BoomerAMGGetFinalRelativeResidualNorm(solver, final_res_norm)
+     !myid = 0
+     !if ( myid .eq. 0 ) then
+     !   print *
+     !   print '(A,I2)', " Iterations = ", num_iterations
+     !   print '(A,ES16.8)', " Final Relative Residual Norm = ", final_res_norm
+     !   print *
+     !endif
   end subroutine boomeramg_solve
 
   subroutine boomeramg_destroy(solver)
