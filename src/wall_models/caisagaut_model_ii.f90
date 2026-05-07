@@ -52,6 +52,7 @@ module caisagaut_model_ii
   private
 
   !> Explicit wall model based on Model-II from Cai and Sagaut (2021).
+  !! @details Reference: https://doi.org/10.1063/5.0048563
   type, public, extends(wall_model_t) :: caisagaut_model_ii_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa = 0.41_rp
