@@ -26,7 +26,7 @@ def which_command(command):
 
 def get_genmeshbox():
     """
-    Returns the path to the /bin directory where all executables are located
+    Returns the path to genmeshbox
     """
     if os.getenv("GENMESHBOX_EXEC"):
         return os.getenv("GENMESHBOX_EXEC")
