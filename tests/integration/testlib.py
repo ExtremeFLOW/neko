@@ -6,7 +6,35 @@ from os.path import join
 import subprocess
 from conftest import logger, MAX_NPROCS
 
+def which_command(command):
+    """
+    Mimics the behavior of the bash command "which [cmd]".
+    Returns the absolute path of the executable, based on the PATH env.
+    variable. If not found, returns None
+    """
 
+    path_env = os.getenv("PATH")
+    if not path_env:
+        return None
+
+    for path in path_env.split(":"):
+        test_path = os.path.join(path, command)
+        if os.path.isfile(test_path):
+            return test_path
+
+    return None
+
+def get_genmeshbox():
+    """
+    Returns the path to the /bin directory where all executables are located
+    """
+    if os.getenv("GENMESHBOX_EXEC"):
+        return os.getenv("GENMESHBOX_EXEC")
+    else:
+        cmd = which_command("genmeshbox")
+        if cmd is None:
+            raise FileNotFoundError("The genmeshbox executable could not be found")
+        return cmd
 
 def get_neko():
     """
@@ -17,13 +45,19 @@ def get_neko():
     if os.getenv("NEKO_EXEC"):
         return os.getenv("NEKO_EXEC")
     else:
-        return "neko"
+        cmd = which_command("neko")
+        if cmd is None:
+            raise FileNotFoundError("The neko executable could not be found")
+        return cmd
 
 def get_makeneko():
     if os.getenv("MAKENEKO_EXEC"):
         return os.getenv("MAKENEKO_EXEC")
     else:
-        return "makeneko"
+        cmd = which_command("makeneko")
+        if cmd is None:
+            raise FileNotFoundError("The makeneko executable could not be found")
+        return cmd
 
 def get_neko_dir():
     """Returns the root of the neko dirctory structure relative to the directory
