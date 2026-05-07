@@ -211,6 +211,8 @@ module fluid_pnpn
           fluid_pnpn_write_boundary_conditions
      !> AMR restart
      procedure, pass(this) :: amr_restart => fluid_pnpn_amr_restart
+     !> Boundary condition restart
+     procedure, pass(this) :: restart_bcs => fluid_pnpn_restart_bcs
   end type fluid_pnpn_t
 
   interface
@@ -1249,8 +1251,7 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
-    class(bc_t), pointer :: bci
-    integer :: il, jl, kl, ml, nbc, ntot
+    integer :: il, ntot
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
@@ -1263,7 +1264,6 @@ contains
        log_buf = 'Fluid PnPn'
     end if
     call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
-
 
     ! THIS IS CRITICAL; THE CURRENT STRUCTURE IS NOT THE BEST AS OLD MASS
     ! MATRIX WILL NOT ALWAYS BE KEPT FOR ALL THE POSSIBLE SOLVERS
@@ -1289,43 +1289,129 @@ contains
        end do
     end if
 
-    ! reconstruct dofmap
-    call this%dm_Xh%amr_restart(reconstruct, counter, tstep)
+    ! Restart base
+    call this%amr_restart_base(reconstruct, counter, tstep)
 
-    ! reconstruct gs
-    call this%gs_Xh%amr_restart(reconstruct, counter, tstep)
+    ! reconstruct and make continuous pressure
+    if (associated(this%p)) then
+       call this%p%amr_restart(reconstruct, counter, tstep)
+       call this%gs_Xh%op_h1(this%p, GS_OP_ADD)
+    end if
 
-    ! reconstruct coef
-    call this%c_Xh%amr_restart(reconstruct, counter, tstep)
+    ! Cyclic bc flag in c_Xh is set at initialisation step, so cyclic restart
+    ! is performed at c_Xh reconstruction step
 
-    ! reconstruct simulation variables
-    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, tstep)
-    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, tstep)
-    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, tstep)
-    if (associated(this%p)) call this%p%amr_restart(reconstruct, counter, tstep)
-
-    ! Reconstruct lag arrays
-    call this%ulag%amr_restart(reconstruct, counter, tstep)
-    call this%vlag%amr_restart(reconstruct, counter, tstep)
-    call this%wlag%amr_restart(reconstruct, counter, tstep)
+    ! Helmholtz operator (Ax_***), residuals (pnpn_***_res_t), rhs
+    ! contributions (rhs_marker_***_t) do not require restart
 
     ! Reallocate right hand side
-    if (associated(this%f_x)) call this%f_x%amr_reallocate(reconstruct, &
-         counter, tstep)
-    if (associated(this%f_y)) call this%f_y%amr_reallocate(reconstruct, &
-         counter, tstep)
-    if (associated(this%f_z)) call this%f_z%amr_reallocate(reconstruct, &
-         counter, tstep)
+    call this%p_res%amr_reallocate(reconstruct, counter, tstep)
+    call this%u_res%amr_reallocate(reconstruct, counter, tstep)
+    call this%v_res%amr_reallocate(reconstruct, counter, tstep)
+    call this%w_res%amr_reallocate(reconstruct, counter, tstep)
 
-    ! Reconstruct material properties
-    if (associated(this%rho)) call this%rho%amr_restart(reconstruct, counter, &
-         tstep)
-    if (associated(this%mu)) call this%mu%amr_restart(reconstruct, counter, &
-         tstep)
-    call this%material_properties%amr_restart(reconstruct, counter, tstep)
+    ! Reallocate updates
+    call this%du%amr_reallocate(reconstruct, counter, tstep)
+    call this%dv%amr_reallocate(reconstruct, counter, tstep)
+    call this%dw%amr_reallocate(reconstruct, counter, tstep)
+    call this%dp%amr_reallocate(reconstruct, counter, tstep)
+
+    ! Reconstruct time variables
+    call this%abx1%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%abx1, GS_OP_ADD)
+    call this%aby1%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%aby1, GS_OP_ADD)
+    call this%abz1%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%abz1, GS_OP_ADD)
+    call this%abx2%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%abx2, GS_OP_ADD)
+    call this%aby2%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%aby2, GS_OP_ADD)
+    call this%abz2%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%abz2, GS_OP_ADD)
+
+    ! Reconstruct advection terms
+    call this%advx%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%advx, GS_OP_ADD)
+    call this%advy%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%advy, GS_OP_ADD)
+    call this%advz%amr_restart(reconstruct, counter, tstep)
+    call this%gs_Xh%op_h1(this%advz, GS_OP_ADD)
 
     ! boundary conditions
-    ! start with all the boundary lists
+    call this%restart_bcs(reconstruct, counter, tstep)
+
+    ! Krylov solvers
+    call this%ksp_vel%amr_restart(reconstruct, counter, tstep)
+    call this%ksp_prs%amr_restart(reconstruct, counter, tstep)
+
+    ! Preconditioners
+    call this%pc_vel%amr_restart(reconstruct, counter, tstep)
+    call this%pc_prs%amr_restart(reconstruct, counter, tstep)
+
+    ! Projection space
+    if (this%vel_projection_dim .gt. 0) then
+       ! activation step updated in the type only
+       call this%proj_vel%amr_restart(reconstruct, counter, tstep)
+    end if
+    if (this%pr_projection_dim .gt. 0) then
+       ! activation step updated in the type only
+       call this%proj_prs%amr_restart(reconstruct, counter, tstep)
+    end if
+
+    ! Volume flow
+    if (this%forced_flow_rate) &
+         call this%vol_flow%amr_restart(reconstruct, counter, tstep)
+
+    ! Advection
+    call this%adv%amr_restart(reconstruct, counter, tstep)
+
+    ! statistics
+    ! LEFT FOR FUTURE !!!!!!!
+
+    ! Reconstruct checkpoint
+    ! LEFT FOR FUTURE !!!!!!!
+
+!    call this%write_boundary_conditions()
+
+    ! Add new mass matrix to the fields that require it. Removing it was
+    ! important to properly interpolate them
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('fluid reconstruction; nothing done for device; 2')
+    else
+       ntot = this%dm_Xh%size()
+       do concurrent (il = 1: ntot)
+          this%abx1%x(il, 1, 1, 1) = this%abx1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby1%x(il, 1, 1, 1) = this%aby1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz1%x(il, 1, 1, 1) = this%abz1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abx2%x(il, 1, 1, 1) = this%abx2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby2%x(il, 1, 1, 1) = this%aby2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz2%x(il, 1, 1, 1) = this%abz2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+       end do
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine fluid_pnpn_amr_restart
+
+  !> Boundary condition restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine fluid_pnpn_restart_bcs(this, reconstruct, counter, tstep)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    class(bc_t), pointer :: bci
+    integer :: il, jl, kl, ml, nbc
+
+        ! start with all the boundary lists
     ! Notice that not all bc are built based on mesh zones. The ones with
     ! defined zone indices will be reconstructed. The ones without just
     ! deallocated. There is no problem with simply calling all lists, as
@@ -1498,113 +1584,6 @@ contains
        call neko_error('dp bc; already finalised')
     end if
 
-    ! fluid source term
-    call this%source_term%amr_restart(reconstruct, counter, tstep)
-
-    ! Krylov solvers
-    call this%ksp_vel%amr_restart(reconstruct, counter, tstep)
-    call this%ksp_prs%amr_restart(reconstruct, counter, tstep)
-
-    ! Preconditioners
-    call this%pc_vel%amr_restart(reconstruct, counter, tstep)
-    call this%pc_prs%amr_restart(reconstruct, counter, tstep)
-
-    ! Projection space
-    if (this%vel_projection_dim .gt. 0) then
-       ! activation step updated in the type only
-       call this%proj_vel%amr_restart(reconstruct, counter, tstep)
-    end if
-    if (this%pr_projection_dim .gt. 0) then
-       ! activation step updated in the type only
-       call this%proj_prs%amr_restart(reconstruct, counter, tstep)
-    end if
-
-    ! Reallocate extrapolation velocity
-    if (associated(this%u_e)) call this%u_e%amr_reallocate(reconstruct, &
-         counter, tstep)
-    if (associated(this%v_e)) call this%v_e%amr_reallocate(reconstruct, &
-         counter, tstep)
-    if (associated(this%w_e)) call this%w_e%amr_reallocate(reconstruct, &
-         counter, tstep)
-
-    ! Reconstruct total viscosity; not necessarily updated every step
-    if (associated(this%mu_tot)) &
-         call this%mu_tot%amr_restart(reconstruct, counter, tstep)
-
-    ! global number of points
-    this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
-    this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
-
-    ! Reallocate right hand side
-!    call this%p_res%amr_restart(reconstruct, counter, tstep)
-    call this%p_res%amr_reallocate(reconstruct, counter, tstep)
-    call this%u_res%amr_reallocate(reconstruct, counter, tstep)
-    call this%v_res%amr_reallocate(reconstruct, counter, tstep)
-    call this%w_res%amr_reallocate(reconstruct, counter, tstep)
-
-    ! Reallocate updates
-    call this%dp%amr_reallocate(reconstruct, counter, tstep)
-    call this%du%amr_reallocate(reconstruct, counter, tstep)
-    call this%dv%amr_reallocate(reconstruct, counter, tstep)
-    call this%dw%amr_reallocate(reconstruct, counter, tstep)
-
-    ! Helmholtz operator (Ax_***), residuals (pnpn_***_res_t), rhs
-    ! contributions (rhs_marker_***_t) do not require restart
-
-    ! Reconstruct time variables
-    call this%abx1%amr_restart(reconstruct, counter, tstep)
-    call this%aby1%amr_restart(reconstruct, counter, tstep)
-    call this%abz1%amr_restart(reconstruct, counter, tstep)
-    call this%abx2%amr_restart(reconstruct, counter, tstep)
-    call this%aby2%amr_restart(reconstruct, counter, tstep)
-    call this%abz2%amr_restart(reconstruct, counter, tstep)
-
-    ! Reconstruct advection terms
-    call this%advx%amr_restart(reconstruct, counter, tstep)
-    call this%advy%amr_restart(reconstruct, counter, tstep)
-    call this%advz%amr_restart(reconstruct, counter, tstep)
-
-    ! Advection
-    call this%adv%amr_restart(reconstruct, counter, tstep)
-
-    ! Volume flow
-    if (this%forced_flow_rate) &
-         call this%vol_flow%amr_restart(reconstruct, counter, tstep)
-
-    ! statistics
-    ! LEFT FOR FUTURE !!!!!!!
-
-    ! Reconstruct checkpoint
-    ! LEFT FOR FUTURE !!!!!!!
-
-!    call this%write_boundary_conditions()
-
-    ! Add new mass matrix to the fields that require it. Removing it was
-    ! important to properly interpolate them
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error('fluid reconstruction; nothing done for device; 2')
-    else
-       ntot = this%dm_Xh%size()
-       do concurrent (il = 1: ntot)
-          this%abx1%x(il, 1, 1, 1) = this%abx1%x(il, 1, 1, 1) * &
-               this%c_Xh%B(il, 1, 1, 1)
-          this%aby1%x(il, 1, 1, 1) = this%aby1%x(il, 1, 1, 1) * &
-               this%c_Xh%B(il, 1, 1, 1)
-          this%abz1%x(il, 1, 1, 1) = this%abz1%x(il, 1, 1, 1) * &
-               this%c_Xh%B(il, 1, 1, 1)
-          this%abx2%x(il, 1, 1, 1) = this%abx2%x(il, 1, 1, 1) * &
-               this%c_Xh%B(il, 1, 1, 1)
-          this%aby2%x(il, 1, 1, 1) = this%aby2%x(il, 1, 1, 1) * &
-               this%c_Xh%B(il, 1, 1, 1)
-          this%abz2%x(il, 1, 1, 1) = this%abz2%x(il, 1, 1, 1) * &
-               this%c_Xh%B(il, 1, 1, 1)
-       end do
-    end if
-
-    ! PLACE TO PERFORM GS OPERATION FOR FIELD AVERAGING
-
-    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
-
-  end subroutine fluid_pnpn_amr_restart
+  end subroutine fluid_pnpn_restart_bcs
 
 end module fluid_pnpn
