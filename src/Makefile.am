@@ -399,6 +399,7 @@ neko_fortran_SOURCES = \
 	simulation_components/derivative_simcomp.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
+	simulation_components/avm_simcomp.f90\
 	source_terms/source_term.f90\
 	source_terms/user_source_term.f90\
 	source_terms/translation_source_term.f90\
