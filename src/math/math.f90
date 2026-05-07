@@ -205,8 +205,8 @@ contains
 
   !> Approximate the principal real branch of the Lambert W function for
   !! positive real x.
-  !! @details The reference is Iacano and Boyd, DOI: 10.1007/s10444-017-9530-3
-  !! The itereative algorithm converges very fast, and 1 iteration is typically
+  !! @details The reference is Iacono and Boyd, DOI: 10.1007/s10444-017-9530-3
+  !! The iterative algorithm converges very fast, and 1 iteration is typically
   !! sufficient.
   pure function lambert_w0(x, niter) result(w)
     real(kind=rp), intent(in) :: x
