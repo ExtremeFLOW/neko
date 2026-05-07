@@ -32,7 +32,8 @@
 !
 module entropy_viscosity
   use num_types, only : rp
-  use viscous_regularization, only : viscous_regularization_t
+  use case, only : case_t
+  use avm_model, only : avm_model_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
   use field, only : field_t
@@ -66,7 +67,7 @@ module entropy_viscosity
   implicit none
   private
 
-  type, public, extends(viscous_regularization_t) :: entropy_viscosity_t
+  type, public, extends(avm_model_t) :: entropy_viscosity_t
      real(kind=rp) :: c_avisc_entropy
      real(kind=rp) :: c_avisc_low
      type(field_t) :: entropy_residual
@@ -83,8 +84,8 @@ module entropy_viscosity
    contains
      procedure, pass(this) :: init => entropy_viscosity_init
      procedure, pass(this) :: free => entropy_viscosity_free
-     procedure, pass(this) :: compute => entropy_viscosity_compute
-     procedure, pass(this) :: update_lag => entropy_viscosity_update_lag
+     procedure, pass(this) :: preprocess => entropy_viscosity_preprocess
+     procedure, pass(this) :: compute => entropy_viscosity_update_lag
      procedure, pass(this), private :: compute_residual => &
           entropy_viscosity_compute_residual
      procedure, pass(this), private :: compute_viscosity => &
@@ -101,21 +102,22 @@ module entropy_viscosity
 
 contains
 
-  subroutine entropy_viscosity_init(this, json, coef, dof, reg_coeff)
+  subroutine entropy_viscosity_init(this, case, json)
     class(entropy_viscosity_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(in), target :: coef
-    type(dofmap_t), intent(in), target :: dof
-    type(field_t), intent(in), target :: reg_coeff
+    class(case_t), intent(inout), target :: case
+    character(len=:), allocatable :: reg_coeff_name
 
     call this%free()
-    call this%init_base(json, coef, dof, reg_coeff)
+    call json_get_or_default(json, 'field_name', &
+         reg_coeff_name, "entropy_viscosity")
+    call this%init_base(case, trim(reg_coeff_name))
 
     call json_get_or_default(json, 'c_avisc_low', this%c_avisc_low, 1.0_rp)
     call json_get_or_default(json, 'c_avisc_entropy', &
          this%c_avisc_entropy, 1.0_rp)
 
-    call this%entropy_residual%init(dof, 'entropy_residual')
+    call this%entropy_residual%init(this%dof, 'entropy_residual')
 
   end subroutine entropy_viscosity_init
 
@@ -138,7 +140,7 @@ contains
 
   end subroutine entropy_viscosity_free
 
-  subroutine entropy_viscosity_compute(this, time)
+  subroutine entropy_viscosity_preprocess(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
@@ -148,7 +150,7 @@ contains
 
     call this%compute_viscosity(time%tstep)
 
-  end subroutine entropy_viscosity_compute
+  end subroutine entropy_viscosity_preprocess
 
   subroutine entropy_viscosity_compute_residual(this, tstep, dt, dt_lag)
     class(entropy_viscosity_t), intent(inout) :: this
@@ -363,8 +365,9 @@ contains
 
   end subroutine entropy_viscosity_set_fields
 
-  subroutine entropy_viscosity_update_lag(this)
+  subroutine entropy_viscosity_update_lag(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
 
     call this%S_lag%update()
 
