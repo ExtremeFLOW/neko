@@ -70,12 +70,13 @@ extern "C" {
                                       void *n_x_d, void *n_y_d, void *n_z_d,
                                       void *nu_d, void *rho_w_d, void *h_d,
                                       void *tau_x_d, void *tau_y_d,
-                                      void *tau_z_d, int n_nodes, int lx,
-                                      real kappa, real B, real p, real s) {
+                                      void *tau_z_d, int *n_nodes, int *lx,
+                                      real *kappa, real *B, real *p,
+                                      real *s) {
     const dim3 nthrds(256, 1, 1);
-    const dim3 nblcks((n_nodes + 256 - 1) / 256, 1, 1);
+    const dim3 nblcks(((*n_nodes) + 256 - 1) / 256, 1, 1);
 
-    if (n_nodes > 0) {
+    if (*n_nodes > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(caisagaut_model_ii_compute<real>),
                          nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                          (real *) u_d, (real *) v_d, (real *) w_d,
@@ -83,7 +84,8 @@ extern "C" {
                          (int *) ind_e_d, (real *) n_x_d, (real *) n_y_d,
                          (real *) n_z_d, (real *) nu_d, (real *) rho_w_d,
                          (real *) h_d, (real *) tau_x_d, (real *) tau_y_d,
-                         (real *) tau_z_d, n_nodes, lx, kappa, B, p, s);
+                         (real *) tau_z_d, *n_nodes, *lx, *kappa, *B, *p,
+                         *s);
       HIP_CHECK(hipGetLastError());
     }
   }

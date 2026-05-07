@@ -35,9 +35,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <cfloat>
 #include <algorithm>
 #include <cmath>
-#include <limits>
 
 /**
  * HIP kernel for the Caisagaut Model-II wall model.
@@ -90,7 +90,9 @@ __global__ void caisagaut_model_ii_compute(const T * __restrict__ u_d,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   const T one = static_cast<T>(1.0);
-  const T eps = std::numeric_limits<T>::epsilon();
+  const T eps = (sizeof(T) == sizeof(float)) ?
+    static_cast<T>(FLT_EPSILON) :
+    static_cast<T>(DBL_EPSILON);
 
   for (int i = idx; i < n_nodes; i += str) {
     const int index = (ind_e_d[i] - 1) * lx * lx * lx +
