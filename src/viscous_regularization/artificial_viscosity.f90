@@ -42,6 +42,7 @@ module artificial_viscosity
   use coefs, only : coef_t
   use field_math, only : field_copy, field_add2
   use dofmap, only : dofmap_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -65,9 +66,9 @@ contains
 
     call json_get(json, "reg_coeff_name", &
          this%reg_coeff_name)
-    if (neko_registry%field_exists(this%reg_coeff_name)) then
-      this%reg_coeff => neko_registry%get_field(this%reg_coeff_name)
-    end if
+
+    call neko_registry%add_field(dof, this%reg_coeff_name)
+    this%reg_coeff => neko_registry%get_field(this%reg_coeff_name)
 
   end subroutine artificial_viscosity_init_from_json
 

@@ -33,6 +33,7 @@
 submodule (avm_model) avm_model_fctry
   use case, only : case_t
   use entropy_viscosity, only : entropy_viscosity_t
+  use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine

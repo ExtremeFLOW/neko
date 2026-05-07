@@ -78,7 +78,7 @@ module entropy_viscosity
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
      type(field_t), pointer :: w => null()
-     type(field_t), pointer :: h
+     type(field_t) :: h
      type(field_t), pointer :: max_wave_speed => null()
      type(mesh_t), pointer :: msh => null()
      type(space_t), pointer :: Xh => null()
