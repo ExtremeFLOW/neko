@@ -42,6 +42,7 @@ module viscous_regularization
 
   type, abstract, public :: viscous_regularization_t
      type(field_t), pointer :: reg_coeff => null()
+     character(len=:), allocatable :: reg_coeff_name
      type(coef_t), pointer :: coef => null()
      type(dofmap_t), pointer :: dof => null()
    contains
@@ -49,17 +50,16 @@ module viscous_regularization
      procedure, pass(this) :: free_base => viscous_regularization_free_base
      procedure(reg_init), pass(this), deferred :: init
      procedure(reg_free), pass(this), deferred :: free
-     procedure(reg_compute), pass(this), deferred :: compute
+     procedure(reg_update), pass(this), deferred :: update
   end type viscous_regularization_t
 
   abstract interface
-     subroutine reg_init(this, json, coef, dof, reg_coeff)
+     subroutine reg_init(this, json, coef, dof)
        import viscous_regularization_t, json_file, coef_t, dofmap_t, field_t
        class(viscous_regularization_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
        type(coef_t), intent(in), target :: coef
        type(dofmap_t), intent(in), target :: dof
-       type(field_t), intent(in), target :: reg_coeff
      end subroutine reg_init
   end interface
 
@@ -71,22 +71,22 @@ module viscous_regularization
   end interface
 
   abstract interface
-     subroutine reg_compute(this, time)
-       import viscous_regularization_t, time_state_t
+     subroutine reg_update(this, effective_visc, mu)
+       import viscous_regularization_t, field_t
        class(viscous_regularization_t), intent(inout) :: this
-       type(time_state_t), intent(in) :: time
-     end subroutine reg_compute
+       type(field_t), intent(inout) :: effective_visc
+       type(field_t), intent(in), optional :: mu
+     end subroutine reg_update
   end interface
 
   interface
      module subroutine viscous_regularization_factory(object, type_name, json, &
-          coef, dof, reg_coeff)
+          coef, dof)
        class(viscous_regularization_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
        type(json_file), intent(inout) :: json
        type(coef_t), intent(in), target :: coef
        type(dofmap_t), intent(in), target :: dof
-       type(field_t), intent(in), target :: reg_coeff
      end subroutine viscous_regularization_factory
   end interface
 
@@ -94,16 +94,14 @@ module viscous_regularization
 
 contains
 
-  subroutine viscous_regularization_init_base(this, json, coef, dof, reg_coeff)
+  subroutine viscous_regularization_init_base(this, json, coef, dof)
     class(viscous_regularization_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in), target :: coef
     type(dofmap_t), intent(in), target :: dof
-    type(field_t), intent(in), target :: reg_coeff
 
     this%coef => coef
     this%dof => dof
-    this%reg_coeff => reg_coeff
 
   end subroutine viscous_regularization_init_base
 
@@ -112,7 +110,6 @@ contains
 
     nullify(this%coef)
     nullify(this%dof)
-    nullify(this%reg_coeff)
 
   end subroutine viscous_regularization_free_base
 
