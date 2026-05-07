@@ -39,7 +39,7 @@ module caisagaut_model_ii
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
-  use json_utils, only : json_get_or_lookup_or_default
+  use json_utils, only : json_get_or_lookup, json_get_or_lookup_or_default
   use caisagaut_model_ii_cpu, only : caisagaut_model_ii_compute_cpu
   use caisagaut_model_ii_device, only : caisagaut_model_ii_compute_device
   use field_math, only: field_invcol3
@@ -103,8 +103,8 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B, p, s
 
-    call json_get_or_lookup_or_default(json, "kappa", kappa, 0.41_rp)
-    call json_get_or_lookup_or_default(json, "B", B, 5.2_rp)
+    call json_get_or_lookup(json, "kappa", kappa)
+    call json_get_or_lookup(json, "B", B)
     call json_get_or_lookup_or_default(json, "p", p, 1.138_rp)
     call json_get_or_lookup_or_default(json, "s", s, 217.8_rp)
 
@@ -120,8 +120,8 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
     call this%partial_init_base(coef, json)
-    call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.41_rp)
-    call json_get_or_lookup_or_default(json, "B", this%B, 5.2_rp)
+    call json_get_or_lookup(json, "kappa", this%kappa)
+    call json_get_or_lookup(json, "B", this%B)
     call json_get_or_lookup_or_default(json, "p", this%p, 1.138_rp)
     call json_get_or_lookup_or_default(json, "s", this%s, 217.8_rp)
   end subroutine caisagaut_model_ii_partial_init
