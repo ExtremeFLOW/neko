@@ -177,7 +177,9 @@ Under the hood, Neko stores the constants in an object called
 ### Time control
 The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
-to the variable time-stepping algorithm.
+to the variable time-stepping algorithm. For the variable timestep, one can
+specify a `timestep`, such that the first timestep will be assigned to the
+smallest of `timestep` and the value calculated from the target CFL number.
 
 | Name                       | Description                                                                                 | Admissible values                 | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
@@ -646,10 +648,14 @@ A more detailed description of each boundary condition is provided below.
   The *time-step* must be the same between the simulations. A variable time-step is not
   supported at the moment.
 
+  The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
+  the coupled simulation. This should, for the time being, be left as `false`.
+
   ```json
   {
     "type": "overset_interface",
-    "zone_indices": [1, 2]
+    "zone_indices": [1, 2],
+    "couple_pressure" : false
   }
   ```
 
@@ -918,6 +924,36 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
    applied in a user-specified region of the domain.
 9. `field`, uses fields in the `neko_registry` as values of the source term. The
    fields are selected with the `field_names` keyword.
+10. `hpfrt`, adds a high-pass filter relaxation term to the momentum equation.
+    This source term damps the highest elementwise Legendre modes of the
+    velocity field. It is configured with `filter_weight`, the damping strength,
+    and `filter_modes`, the number of highest modes affected by the filter.
+    See [High-pass filter relaxation source term](@ref filter_hpfrt) for the
+    definition of the filter and the source term.
+
+~~~~~~~~~~~~~~~{.json}
+"source_terms": [
+   {
+      "type": "hpfrt",
+      "filter_weight": 5.0,
+      "filter_modes": 2
+   }
+]
+~~~~~~~~~~~~~~~
+
+  The same source-term object can be used for scalars. In this case it is added to
+  the scalar `source_terms` array and acts on that scalar field.
+11. `translation` Adds a forcing term corresponding to a domain translating with
+    constant velocity. The term comes from the ALE formulation and is written as
+    \f$ (\mathbf{w}\cdot\nabla)\mathbf{u} \f$,
+    or, for spatially constant mesh velocity \f$ \nabla\cdot\mathbf{w} = 0 \f$,
+    equivalently in conservative form as
+    \f$ \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \f$. The keyword to be provided
+    in the case file is `domain_velocity`, which expects an array with 3 values.
+
+    Note that in this case, we still solve for the absolute velocity, not the
+    relative one. It is simply advection that is affected. Useful to perform
+    simulations on domains that are moving on a periodic direction.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -1244,8 +1280,8 @@ contains
 
     end do
 
-    wbf%x = 0.0_rp    
-    
+    wbf%x = 0.0_rp
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
             HOST_TO_DEVICE, .false.)

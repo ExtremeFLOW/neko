@@ -88,6 +88,7 @@ contains
     integer, allocatable :: zone_indices(:)
     character(len=:), allocatable :: default_name
     character(len=64) :: buf
+    logical :: temp_logical
 
     if (associated(object)) then
        call object%free()
@@ -112,11 +113,17 @@ contains
        end select
 
     case ("overset_interface")
-       allocate(overset_interface_t::object)
-       select type (obj => object)
-       type is (overset_interface_t)
-          call json%add("field_name", scheme%p%name)
-       end select
+       call json_get_or_default(json, "couple_pressure", temp_logical, .false.)
+       if (temp_logical) then
+          allocate(overset_interface_t::object)
+          select type (obj => object)
+          type is (overset_interface_t)
+             call json%add("field_name", scheme%p%name)
+             obj%morph_interface => user%morph_interface
+          end select
+       else
+          return
+       end if
 
     case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)
@@ -215,6 +222,10 @@ contains
 
     case ("overset_interface")
        allocate(overset_interface_vector_t::object)
+       select type (obj => object)
+       type is (overset_interface_vector_t)
+          obj%morph_interface => user%morph_interface
+       end select
 
     case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)

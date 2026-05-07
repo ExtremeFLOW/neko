@@ -45,6 +45,7 @@ module overset_interface
   use math, only : masked_copy_0, copy
   use device_math, only : device_masked_copy_0, device_copy
   use vector, only : vector_t
+  use vector_list, only : vector_list_t
   use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy
   use device, only : DEVICE_TO_HOST
   use field_dirichlet, only : field_dirichlet_t
@@ -53,6 +54,7 @@ module overset_interface
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use field, only : field_t
+  use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
   implicit none
@@ -76,8 +78,16 @@ module overset_interface
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      !> Interpolated scalar values on the interface.
      type(vector_t) :: s_interface
+     type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
+     logical :: find_interface = .false.
+     logical :: setup = .false.
+
+     !> Function pointer to the user routine performing the update of the values
+     !! of the boundary fields.
+     procedure(morph_overset_interface), nopass, pointer :: morph_interface => null()
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => overset_interface_init
@@ -105,6 +115,37 @@ module overset_interface
      !> Set up the interpolator.
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
   end type overset_interface_t
+
+  abstract interface
+
+     !> User callback for overset-interface morphing and boundary-value updates.
+     !!
+     !! Implementations may update interface coordinates and/or prescribed
+     !! interface field values before interpolation is evaluated.
+     !!
+     !! @param[inout] interface_dof Interface coordinates as a vector list
+     !!               (x, y, z). To be updated in the routine
+     !! @param[inout] interface_field Interface boundary field values
+     !! @param[in] interface_mask Mask describing active interface degrees of
+     !!                freedom.
+     !! @param[in] time Current simulation time state.
+     !! @param[in] bc_name Name of the boundary condition invoking the callback.
+     !! @param[inout] find_interface Set to .true. when interpolation points must
+     !!                              be rediscovered after coordinate changes.
+     subroutine morph_overset_interface(interface_dof, interface_field, &
+          interface_mask, time, bc_name, &
+          find_interface)
+       import vector_list_t, mask_t, time_state_t
+       type(vector_list_t), intent(inout) :: interface_dof
+       type(vector_list_t), intent(inout) :: interface_field
+       type(mask_t), intent(in) :: interface_mask
+       type(time_state_t), intent(in) :: time
+       character(len=*), intent(in) :: bc_name
+       logical, intent(inout) :: find_interface
+     end subroutine morph_overset_interface
+  end interface
+
+  public :: morph_overset_interface
 
 contains
 
@@ -134,6 +175,7 @@ contains
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: field_name
     real(kind=rp), intent(in), optional :: tol, pad
+    character(len=LOG_SIZE) :: log_buf
 
     call this%init_base(coef)
     this%bc_type = BC_TYPES%DIRICHLET
@@ -151,6 +193,8 @@ contains
     end if
 
     this%field_name = field_name
+    write (log_buf, '(A,A)') "Coupling overset interface for: ", trim(this%field_name)
+    call neko_log%message(log_buf)
 
     call this%bc_s%init_from_components(coef, this%field_name)
     call this%field_list%init(1)
@@ -182,6 +226,8 @@ contains
 
     call this%bc_s%free()
     call this%field_list%free()
+    call this%interface_dof%free()
+    call this%interface_field%free()
 
     call this%x_dof%free()
     call this%y_dof%free()
@@ -316,6 +362,14 @@ contains
 
     call this%s_interface%init(this%interface_dof_mask%size(), 's_interface')
 
+    call this%interface_dof%init(3)
+    call this%interface_dof%assign_to_vector(1, this%x_interface_dof)
+    call this%interface_dof%assign_to_vector(2, this%y_interface_dof)
+    call this%interface_dof%assign_to_vector(3, this%z_interface_dof)
+
+    call this%interface_field%init(1)
+    call this%interface_field%assign_to_vector(1, this%s_interface)
+
   end subroutine overset_interface_finalize
 
   !> Update values at the overset interface.
@@ -323,6 +377,26 @@ contains
     class(overset_interface_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: s
+
+    !> Change the coordinates of the interface if set up by the user
+    call this%morph_interface(this%interface_dof, this%interface_field, &
+         this%interface_dof_mask, time, this%name, &
+         this%find_interface)
+
+    !> Find points if needed - later make sure only in first substep
+    if (this%find_interface) then
+
+       ! sync
+       call this%x_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%y_interface_dof%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%z_interface_dof%copy_from(DEVICE_TO_HOST, sync = .true.)
+
+       call this%interface_interpolator%find_points(this%x_interface_dof%x, &
+            this%y_interface_dof%x, this%z_interface_dof%x, &
+            this%x_interface_dof%size())
+       this%find_interface = .false.
+
+    end if
 
     s => neko_registry%get_field(trim(this%field_name))
 

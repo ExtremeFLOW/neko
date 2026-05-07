@@ -40,13 +40,15 @@ module data_streamer_simcomp
   use simulation_component, only : simulation_component_t
   use field, only : field_t
   use case, only : case_t
+  use comm, only : pe_rank
   use time_state, only : time_state_t
   use data_streamer, only : data_streamer_t
   use logger, only : neko_log, NEKO_LOG_DEBUG
   use time_based_controller, only : time_based_controller_t
   use registry, only : neko_registry
   use device
-  use utils, only : NEKO_VARNAME_LEN
+  use utils, only : NEKO_VARNAME_LEN, neko_error
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -61,6 +63,9 @@ module data_streamer_simcomp
      !> Data streamer instance
      type(data_streamer_t) :: dstream
 
+     !> Whether this simcomp has been checked
+     logical :: checked = .false.
+
    contains
      !> Constructor from json.
      procedure, pass(this) :: init => data_streamer_simcomp_init_from_json
@@ -71,9 +76,49 @@ module data_streamer_simcomp
      procedure, pass(this) :: free => data_streamer_simcomp_free
      !> Compute the data_streamer_simcomp field
      procedure, pass(this) :: compute_ => data_streamer_simcomp_compute
+     !> Check the simcomp
+     procedure, pass(this) :: check => data_streamer_simcomp_check
   end type data_streamer_simcomp_t
 
 contains
+
+  !> Checks the validity of the simcomp. Currently, makes sure that:
+  !!   - All fields have the same number of elements
+  !!   - All fields have the same size (dof%size())
+  !!   - ADIOS2 has been installed properly
+  subroutine data_streamer_simcomp_check(this)
+    class(data_streamer_simcomp_t), intent(inout) :: this
+
+    type(field_t), pointer :: f
+    integer :: i, num_elements
+    integer :: dof_size
+
+    if (size(this%field_names) .eq. 0) call neko_error("Empty list of fields")
+
+    f => neko_registry%get_field_by_name(this%field_names(1))
+    num_elements = f%msh%nelv
+    dof_size = f%size()
+
+    ! Loop through all fields and make sure they are "the same".
+    do i = 2, size(this%field_names)
+       f => neko_registry%get_field_by_name(this%field_names(i))
+
+       if (f%msh%nelv .ne. num_elements .or. f%size() .ne. dof_size) then
+          call neko_error("Invalid field :" // trim(f%name) // &
+               "! All streamed fields must have the same size.")
+       end if
+
+    end do
+
+#ifdef HAVE_ADIOS2
+#else
+    call neko_error('Neko has not been configured with ADIOS2 support! ' // &
+         'Use --with-adios2=your/adios2/installation')
+#endif
+
+    this%checked = .true.
+
+  end subroutine data_streamer_simcomp_check
 
   !> Constructor from json.
   subroutine data_streamer_simcomp_init_from_json(this, json, case)
@@ -115,13 +160,14 @@ contains
     this%field_names = which_fields
     this%start_time = start_time
 
-    call this%dstream%init(this%case%fluid%c_Xh)
+    call this%check()
+
+    ! Use the mesh/element information in the first field to initialize the
+    ! streamer. We assume that all fields share the same mesh.
+    f => neko_registry%get_field(which_fields(1))
+    call this%dstream%init(f%msh, f%xh)
 
     if (stream_mesh) then
-       ! Stream the mesh coordinates of the first field in which_fields. We
-       ! assume that all fields share the same mesh. We don't use the dofmap
-       ! in case%fluid in case the fields we are streaming are masked.
-       f => neko_registry%get_field_by_name(which_fields(1))
        call neko_log%message("Using field " // trim(f%name) // &
             " for streaming mesh", lvl = NEKO_LOG_DEBUG)
        call neko_log%message("Streaming mesh: x-coordinates", &
@@ -134,6 +180,8 @@ contains
             lvl = NEKO_LOG_DEBUG)
        call this%dstream%stream(f%dof%z)
     end if
+
+    nullify(f)
 
   end subroutine data_streamer_simcomp_init_from_components
 
@@ -156,6 +204,8 @@ contains
 
     integer :: i
     type(field_t), pointer :: f
+
+    if (.not. this%checked) call neko_error("Simcomp not checked!")
 
     if (time%t .ge. this%start_time) then
        do i = 1, size(this%field_names)

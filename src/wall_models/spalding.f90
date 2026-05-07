@@ -62,6 +62,8 @@ module spalding
      real(kind=rp) :: B = 5.2_rp
      !> The kinematic viscosity.
      type(vector_t) :: nu
+     ! The fluid density at the boundary
+     type(vector_t) :: rho_w
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => spalding_init
@@ -140,6 +142,7 @@ contains
 
     call this%finalize_base(msk, facet)
     call this%nu%init(this%n_nodes)
+    call this%rho_w%init(this%n_nodes)
   end subroutine spalding_finalize
 
   !> Constructor from components.
@@ -168,6 +171,7 @@ contains
     this%B = B
 
     call this%nu%init(this%n_nodes)
+    call this%rho_w%init(this%n_nodes)
   end subroutine spalding_init_from_components
 
   !> Compute the kinematic viscosity vector.
@@ -182,9 +186,13 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_masked_gather_copy_0(this%nu%x_d, temp%x_d, this%msk_d, &
             temp%size(), this%nu%size())
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+            this%rho%size(), this%rho_w%size())
     else
        call masked_gather_copy_0(this%nu%x, temp%x, this%msk, temp%size(), &
             this%nu%size())
+       call masked_gather_copy_0(this%rho_w%x, this%rho%x, this%msk, &
+            this%rho%size(), this%rho_w%size())
     end if
 
     call neko_scratch_registry%relinquish_field(idx)
@@ -194,6 +202,7 @@ contains
   subroutine spalding_free(this)
     class(spalding_t), intent(inout) :: this
 
+    call this%rho_w%free()
     call this%free_base()
 
   end subroutine spalding_free
@@ -221,7 +230,7 @@ contains
        call spalding_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
             this%ind_s_d, this%ind_t_d, this%ind_e_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-            this%nu%x_d, this%h%x_d, &
+            this%nu%x_d, this%rho_w%x_d, this%h%x_d, &
             this%tau_x%x_d, this%tau_y%x_d, this%tau_z%x_d, &
             this%n_nodes, u%Xh%lx, &
             this%kappa, this%B, tstep)
@@ -229,7 +238,7 @@ contains
        call spalding_compute_cpu(u%x, v%x, w%x, &
             this%ind_r, this%ind_s, this%ind_t, this%ind_e, &
             this%n_x%x, this%n_y%x, this%n_z%x, &
-            this%nu%x, this%h%x, &
+            this%nu%x, this%rho_w%x, this%h%x, &
             this%tau_x%x, this%tau_y%x, this%tau_z%x, &
             this%n_nodes, u%Xh%lx, u%msh%nelv, &
             this%kappa, this%B, tstep)
