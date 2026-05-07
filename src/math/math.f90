@@ -111,7 +111,7 @@ module math
        pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
        masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp, &
-       math_dstepf, math_stepf, cwrap
+       math_dstepf, math_stepf, cwrap, lambert_w0
 
 contains
 
@@ -202,6 +202,26 @@ contains
     end if
 
   end function qrelcmp
+
+  !> Approximate the principal real branch of the Lambert W function for
+  !! positive real x.
+  !! @details The reference is Iacano and Boyd, DOI: 10.1007/s10444-017-9530-3
+  !! The itereative algorithm converges very fast, and 1 iteration is typically
+  !! sufficient.
+  pure function lambert_w0(x, niter) result(w)
+    real(kind=rp), intent(in) :: x
+    integer, intent(in) :: niter
+    real(kind=rp) :: w
+    real(kind=rp) :: a
+    integer :: k
+
+    a = 1.0_rp / (1.0_rp + 0.5_rp * log(1.0_rp + x))
+    w = log(1.0_rp + a * x)
+
+    do k = 1, max(niter, 0)
+       w = w / (1.0_rp + w) * (1.0_rp + log(x / w))
+    end do
+  end function lambert_w0
 
   !> Zero a real vector
   subroutine rzero(a, n)
