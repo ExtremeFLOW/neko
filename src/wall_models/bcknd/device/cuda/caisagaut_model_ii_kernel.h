@@ -93,6 +93,7 @@ __global__ void caisagaut_model_ii_compute(const T * __restrict__ u_d,
   const T eps = (sizeof(T) == sizeof(float)) ?
     static_cast<T>(FLT_EPSILON) :
     static_cast<T>(DBL_EPSILON);
+  const T e_const = exp(kappa * B);
 
   for (int i = idx; i < n_nodes; i += str) {
     const int index = (ind_e_d[i] - 1) * lx * lx * lx +
@@ -122,7 +123,6 @@ __global__ void caisagaut_model_ii_compute(const T * __restrict__ u_d,
       continue;
     }
 
-    const T e_const = exp(kappa * B);
     const T rey = magu * h_d[i] / nu_d[i];
     const T blend = exp(-pow(rey / s, p));
     const T warg = kappa * e_const * rey;

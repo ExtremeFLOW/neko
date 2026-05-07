@@ -86,7 +86,9 @@ __kernel void caisagaut_model_ii_compute_kernel(
   const int str = get_global_size(0);
   const real one = (real) 1.0;
   const real half = (real) 0.5;
-  const real eps = (real) 2.2204460492503131e-16;
+  const real eps = (sizeof(real) == sizeof(float)) ?
+    (real) FLT_EPSILON : (real) DBL_EPSILON;
+  const real e_const = exp(kappa * B);
 
   for (int i = idx; i < n_nodes; i += str) {
     const int index = (ind_e_d[i] - 1) * lx * lx * lx +
@@ -116,7 +118,6 @@ __kernel void caisagaut_model_ii_compute_kernel(
       continue;
     }
 
-    const real e_const = exp(kappa * B);
     const real rey = magu * h_d[i] / nu_d[i];
     const real blend = exp(-pow(rey / s, p));
     const real warg = kappa * e_const * rey;
