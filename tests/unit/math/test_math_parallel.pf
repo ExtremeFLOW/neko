@@ -61,18 +61,20 @@ contains
   subroutine test_math_lambert_w0
     real(kind=rp), parameter :: xvals(8) = [0.0_rp, 1.0e-6_rp, 1.0e-3_rp, &
          1.0e-1_rp, 1.0_rp, exp(1.0_rp), 10.0_rp, 1.0e3_rp]
-    real(kind=rp) :: w_appendix, w_halley, relerr
+    real(kind=rp) :: w_appendix, w_halley, relerr, tol
     integer :: i
 
+    tol = 1.0e-6_rp
+
     do i = 1, size(xvals)
-       w_appendix = lambert_w0(xvals(i), 1)
+       w_appendix = lambert_w0(xvals(i), 3)
        w_halley = lambert_w0_halley(xvals(i))
 
        if (w_halley == 0.0_rp) then
           @assertEqual(w_halley, w_appendix)
        else
           relerr = abs(w_appendix - w_halley) / abs(w_halley)
-          @assertTrue(relerr < 3.0e-4_rp)
+          @assertTrue(relerr < tol)
        end if
     end do
   end subroutine test_math_lambert_w0
