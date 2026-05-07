@@ -485,9 +485,10 @@ neko_fortran_SOURCES = \
 	wall_models/wall_model_fctry.f90\
 	viscous_regularization/viscous_regularization.f90\
 	viscous_regularization/viscous_regularization_fctry.f90\
+	viscous_regularization/artificial_viscosity.f90\
 	viscous_regularization/avm_model.f90\
 	viscous_regularization/avm_model_fctry.f90\
-    viscous_regularization/entropy_viscosity.f90\
+	viscous_regularization/entropy_viscosity.f90\
 	viscous_regularization/bcknd/cpu/entropy_viscosity_cpu.f90\
 	viscous_regularization/bcknd/device/entropy_viscosity_device.F90\
 	neko.f90

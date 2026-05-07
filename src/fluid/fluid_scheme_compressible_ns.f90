@@ -83,7 +83,6 @@ module fluid_scheme_compressible_ns
        :: fluid_scheme_compressible_ns_t
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
-     type(field_t) :: h
      real(kind=rp) :: c_avisc_low
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
@@ -196,7 +195,6 @@ contains
       call this%dm_y%init(dm_Xh, 'dm_y')
       call this%dm_z%init(dm_Xh, 'dm_z')
       call this%dE%init(dm_Xh, 'dE')
-      call this%h%init(dm_Xh, 'h')
 
     end associate
 
@@ -233,9 +231,6 @@ contains
     ! Initialize the velocity BC projector. The coupled projector builds the
     ! local bases required by non-axis aligned mixed velocity conditions.
     call this%bcs_vel_projector%init(this%c_Xh)
-
-    ! Compute h
-    call this%compute_h()
 
     ! Initialize viscous regularization
     call this%setup_viscous_regularization(params)
@@ -277,7 +272,6 @@ contains
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
-    call this%h%free()
 
     if (allocated(this%viscous_regularization)) then
        call this%viscous_regularization%free()
@@ -302,7 +296,6 @@ contains
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_ns_step(this, time, dt_controller)
-    use entropy_viscosity, only : entropy_viscosity_t
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -322,7 +315,7 @@ contains
          m_x=> this%m_x, m_y => this%m_y, m_z => this%m_z, &
          Xh => this%Xh, msh => this%msh, Ax => this%Ax, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
-         E => this%E, rho => this%rho, mu => this%mu, &
+         E => this%E, rho => this%rho, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
          dm_z => this%dm_z, dE => this%dE, &
@@ -330,9 +323,9 @@ contains
          t => time%t, tstep => time%tstep, dt => time%dt, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
-      if (this%if_viscous_regularization) then
-         ! Compute artificial viscosity
-         call this%viscous_regularization%compute(time)
+      !> Update artificial viscosity
+      if (allocated(this%viscous_regularization)) then
+         call this%viscous_regularization%update(this%artificial_visc)
       end if
 
       ! Refresh user-specified physical viscosity/conductivity before RHS.
@@ -398,16 +391,6 @@ contains
                  (rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
          end do
          !$omp end parallel do simd
-      end if
-
-      !> Update entropy lag series BEFORE computing new entropy,
-      !> so that S_lag(1) holds the previous step's S (not the current).
-      !> This ensures BDF3 has 4 distinct time levels.
-      if (allocated(this%viscous_regularization)) then
-         select type (reg => this%viscous_regularization)
-         type is (entropy_viscosity_t)
-            call reg%update_lag()
-         end select
       end if
 
       !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
@@ -631,18 +614,11 @@ contains
   end subroutine fluid_scheme_compressible_ns_restart
 
   subroutine setup_viscous_regularization(this, params)
-    use entropy_viscosity, only : entropy_viscosity_t, &
-         entropy_viscosity_set_fields
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(json_file) :: reg_json
     logical :: found
     character(len=:), allocatable :: viscous_regularization_type
-    ! List of all possible types created by the factory routine
-    character(len=20) :: VISCOUS_REGULARIZATION_NS_KNOWN_TYPES(2) =&
-       [character(len=20) :: &
-       "entropy", &
-       "entropy_viscosity"]
 
     found = .false.
     if (this%params%valid_path('case.fluid.viscous_regularization')) then
@@ -660,22 +636,9 @@ contains
     end if
 
     call json_get(reg_json, 'type', viscous_regularization_type)
-    if (trim(viscous_regularization_type) == 'entropy' .or. &
-        trim(viscous_regularization_type) == 'entropy_viscosity') then
-       call viscous_regularization_factory(this%viscous_regularization, &
-            viscous_regularization_type, reg_json, this%c_Xh, this%dm_Xh, &
-            this%artificial_visc)
-    else
-       call neko_type_error("viscous_regularization for compressible " // &
-            "Navier-Stokes", viscous_regularization_type, &
-            VISCOUS_REGULARIZATION_NS_KNOWN_TYPES)
-    end if
-
-    select type (reg => this%viscous_regularization)
-    type is (entropy_viscosity_t)
-       call entropy_viscosity_set_fields(reg, this%S, this%u, this%v, this%w, &
-            this%h, this%max_wave_speed, this%msh, this%Xh, this%gs_Xh)
-    end select
+    call viscous_regularization_factory(this%viscous_regularization, &
+         viscous_regularization_type, &
+         reg_json, this%c_Xh, this%dm_Xh)
 
     call reg_json%destroy()
 
