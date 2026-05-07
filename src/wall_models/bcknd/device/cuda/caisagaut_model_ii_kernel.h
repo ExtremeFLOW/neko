@@ -24,7 +24,7 @@
  * @param tau_y_d The y-component of the wall shear stress.
  * @param tau_z_d The z-component of the wall shear stress.
  * @param n_nodes The number of wall points.
- * @param lx The one-dimensional polynomial order.
+ * @param lx The number of GLL points per direction.
  * @param kappa The von Karman coefficient.
  * @param B The log-law intercept.
  * @param p The blending exponent.
@@ -80,6 +80,14 @@ __global__ void caisagaut_model_ii_compute(const T * __restrict__ u_d,
     wi -= normu * nz;
 
     const T magu = sqrt(ui * ui + vi * vi + wi * wi);
+
+    if (magu < eps) {
+      tau_x_d[i] = static_cast<T>(0.0);
+      tau_y_d[i] = static_cast<T>(0.0);
+      tau_z_d[i] = static_cast<T>(0.0);
+      continue;
+    }
+
     const T e_const = exp(kappa * B);
     const T rey = magu * h_d[i] / nu_d[i];
     const T blend = exp(-pow(rey / s, p));

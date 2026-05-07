@@ -204,7 +204,7 @@ contains
   end function qrelcmp
 
   !> Approximate the principal real branch of the Lambert W function for
-  !! positive real x.
+  !! non-negative real x.
   !! @details The reference is Iacono and Boyd, DOI: 10.1007/s10444-017-9530-3
   !! The iterative algorithm converges very fast, and 1 iteration is typically
   !! sufficient.
@@ -214,6 +214,11 @@ contains
     real(kind=rp) :: w
     real(kind=rp) :: a
     integer :: k
+
+    if (x == 0.0_rp) then
+       w = 0.0_rp
+       return
+    end if
 
     a = 1.0_rp / (1.0_rp + 0.5_rp * log(1.0_rp + x))
     w = log(1.0_rp + a * x)

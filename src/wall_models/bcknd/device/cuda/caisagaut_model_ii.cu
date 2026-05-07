@@ -57,7 +57,7 @@ extern "C" {
    * @param tau_y_d The y-component of the wall shear stress.
    * @param tau_z_d The z-component of the wall shear stress.
    * @param n_nodes The number of wall points.
-   * @param lx The one-dimensional polynomial order.
+   * @param lx The number of GLL points per direction.
    * @param kappa The von Karman coefficient.
    * @param B The log-law intercept.
    * @param p The blending exponent.

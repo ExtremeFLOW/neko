@@ -58,7 +58,7 @@ contains
   !! @param tau_y The y-component of the wall shear stress.
   !! @param tau_z The z-component of the wall shear stress.
   !! @param n_nodes The number of wall points.
-  !! @param lx The one-dimensional polynomial order.
+  !! @param lx The number of GLL points per direction.
   !! @param nelv The number of velocity elements.
   !! @param kappa The von Karman coefficient.
   !! @param B The log-law intercept.
@@ -72,11 +72,13 @@ contains
     real(kind=rp), dimension(n_nodes), intent(in) :: rho_w
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h, nu
-    real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
+    real(kind=rp), dimension(n_nodes), intent(out) :: tau_x, tau_y, tau_z
     real(kind=rp), intent(in) :: kappa, B, p, s
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, rho
     real(kind=rp) :: rey, e_const, blend, up, warg
+
+    e_const = exp(kappa * B)
 
     do i = 1, n_nodes
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
@@ -92,7 +94,13 @@ contains
 
        magu = sqrt(ui**2 + vi**2 + wi**2)
 
-       e_const = exp(kappa * B)
+       if (magu < NEKO_EPS) then
+          tau_x(i) = 0.0_rp
+          tau_y(i) = 0.0_rp
+          tau_z(i) = 0.0_rp
+          cycle
+       end if
+
        rey = magu * h(i) / nu(i)
        blend = exp(-((rey / s) ** p))
        warg = kappa * e_const * rey

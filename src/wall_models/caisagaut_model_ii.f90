@@ -78,7 +78,8 @@ module caisagaut_model_ii
      !> Destructor.
      procedure, pass(this) :: free => caisagaut_model_ii_free
      !> Compute wall-node viscosity and density samples.
-     procedure, pass(this) :: compute_nu => caisagaut_model_ii_compute_nu
+     procedure, pass(this) :: compute_nu_and_rho => &
+         caisagaut_model_ii_compute_nu_and_rho
      !> Evaluate wall shear stresses.
      procedure, pass(this) :: compute => caisagaut_model_ii_compute
   end type caisagaut_model_ii_t
@@ -171,7 +172,7 @@ contains
   end subroutine caisagaut_model_ii_init_from_components
 
   !> Gather viscosity and density values at the wall-model points.
-  subroutine caisagaut_model_ii_compute_nu(this)
+  subroutine caisagaut_model_ii_compute_nu_and_rho(this)
     class(caisagaut_model_ii_t), intent(inout) :: this
     type(field_t), pointer :: temp
     integer :: idx
@@ -192,7 +193,7 @@ contains
     end if
 
     call neko_scratch_registry%relinquish_field(idx)
-  end subroutine caisagaut_model_ii_compute_nu
+  end subroutine caisagaut_model_ii_compute_nu_and_rho
 
   !> Destructor.
   subroutine caisagaut_model_ii_free(this)
@@ -214,7 +215,7 @@ contains
     type(field_t), pointer :: v
     type(field_t), pointer :: w
 
-    call this%compute_nu()
+    call this%compute_nu_and_rho()
 
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
