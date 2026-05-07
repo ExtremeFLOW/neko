@@ -111,6 +111,8 @@ $(document).ready(function(){initNavTree('d6/d84/namespaceutils.html','../../');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/daa/interfaceutils_1_1c__mkdir.html">c_mkdir</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -137,6 +139,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a94a1b10b4fd0d52a2bbd0bdfbac01692" id="r_a94a1b10b4fd0d52a2bbd0bdfbac01692"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692">filename_chsuffix</a> (fname, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">new_fname</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">new_suffix</a>)</td></tr>
 <tr class="memdesc:a94a1b10b4fd0d52a2bbd0bdfbac01692"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change a filename's suffix.  <br /></td></tr>
 <tr class="separator:a94a1b10b4fd0d52a2bbd0bdfbac01692"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac672259ace5aad4a319f09625537d4b8" id="r_ac672259ace5aad4a319f09625537d4b8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">recursive</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#ac672259ace5aad4a319f09625537d4b8">mkdir</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">path</a>, mode)</td></tr>
+<tr class="memdesc:ac672259ace5aad4a319f09625537d4b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recursively create a directory and all parent directories if they do not exist. This should be safer than the &lsquo;execute_command_line('mkdir -p &rsquo; // path)<code>approach, which can be used to execute arbitrary code if</code>path` is not properly sanitized.  <br /></td></tr>
+<tr class="separator:ac672259ace5aad4a319f09625537d4b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0962746ef1c8f4a3a6e83aae5ef2d7a0" id="r_a0962746ef1c8f4a3a6e83aae5ef2d7a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0">extract_fld_file_index</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">fld_filename</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">default_index</a>)</td></tr>
 <tr class="memdesc:a0962746ef1c8f4a3a6e83aae5ef2d7a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the index of a field file. For example, "myfield.f00045" will return <code>45</code>. If the suffix of the file name is invalid, returns a default index value.  <br /></td></tr>
 <tr class="separator:a0962746ef1c8f4a3a6e83aae5ef2d7a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -219,7 +224,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00356">356</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00401">401</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -256,7 +261,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00157">157</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00202">202</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -314,7 +319,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00140">140</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00149">149</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -372,7 +377,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00087">87</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00096">96</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -430,7 +435,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00072">72</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00081">81</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -496,7 +501,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00115">115</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00124">124</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -552,7 +557,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00108">108</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00117">117</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -618,7 +623,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00058">58</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00067">67</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -710,7 +715,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00065">65</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00074">74</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -812,7 +817,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00262">262</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00307">307</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -872,7 +877,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00237">237</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00282">282</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -917,6 +922,70 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="ac672259ace5aad4a319f09625537d4b8" name="ac672259ace5aad4a319f09625537d4b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac672259ace5aad4a319f09625537d4b8">&#9670;&#160;</a></span>mkdir()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">recursive</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> utils::mkdir </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>mode</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>The path of the directory to create. </td></tr>
+    <tr><td class="paramname">mode</td><td>The octal mode to create the directory with, will adjust by umask. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00167">167</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d6/d84/namespaceutils_ac672259ace5aad4a319f09625537d4b8_cgraph.png" border="0" usemap="#ad6/d84/namespaceutils_ac672259ace5aad4a319f09625537d4b8_cgraph" alt=""/></div>
+<map name="ad6/d84/namespaceutils_ac672259ace5aad4a319f09625537d4b8_cgraph" id="ad6/d84/namespaceutils_ac672259ace5aad4a319f09625537d4b8_cgraph">
+<area shape="rect" title="Recursively create a directory and all parent directories if they do not exist. This should be safer ..." alt="" coords="5,29,101,55"/>
+<area shape="poly" title=" " alt="" coords="36,30,33,21,35,12,42,5,53,3,67,6,73,15,69,18,64,11,53,8,44,10,39,14,38,20,41,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d6/d84/namespaceutils_ac672259ace5aad4a319f09625537d4b8_icgraph.png" border="0" usemap="#ad6/d84/namespaceutils_ac672259ace5aad4a319f09625537d4b8_icgraph" alt=""/></div>
+<map name="ad6/d84/namespaceutils_ac672259ace5aad4a319f09625537d4b8_icgraph" id="ad6/d84/namespaceutils_ac672259ace5aad4a319f09625537d4b8_icgraph">
+<area shape="rect" title="Recursively create a directory and all parent directories if they do not exist. This should be safer ..." alt="" coords="653,31,749,56"/>
+<area shape="poly" title=" " alt="" coords="734,20,725,12,701,9,682,11,671,16,669,22,675,29,670,32,664,22,667,12,680,6,701,4,727,8,738,16"/>
+<area shape="rect" href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68" title="Initialize a case from its (loaded) params object." alt="" coords="423,31,605,56"/>
+<area shape="poly" title=" " alt="" coords="640,46,605,46,605,41,640,41"/>
+<area shape="rect" href="../../dd/da8/namespacecase.html#a43da3102124b9a70209d9f4cea65676a" title="Initialize a case from an input file case_file." alt="" coords="188,5,371,31"/>
+<area shape="poly" title=" " alt="" coords="408,35,370,30,371,25,409,29"/>
+<area shape="rect" href="../../dd/da8/namespacecase.html#ac5da808aa4acd3a1c5d03c5c7f785e92" title="Initialize a case from a JSON object describing a case." alt="" coords="184,55,375,80"/>
+<area shape="poly" title=" " alt="" coords="409,57,375,60,375,55,408,51"/>
+<area shape="rect" href="../../db/d7a/structcase_1_1case__t.html#a79a12a60ab85399c0d5059d72aaf0e0a" title="Initialize a case from an input file case_file." alt="" coords="5,31,136,56"/>
+<area shape="poly" title=" " alt="" coords="175,33,137,38,136,33,174,28"/>
+<area shape="poly" title=" " alt="" coords="170,57,136,54,137,48,170,52"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a3cf7bfb68277b54cd02ef0130346db4e" name="a3cf7bfb68277b54cd02ef0130346db4e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3cf7bfb68277b54cd02ef0130346db4e">&#9670;&#160;</a></span>neko_error_msg()</h2>
 
@@ -947,7 +1016,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00301">301</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00346">346</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -981,7 +1050,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00286">286</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00331">331</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -1025,7 +1094,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00313">313</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00358">358</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -1061,7 +1130,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00328">328</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00373">373</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -1081,7 +1150,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00346">346</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00391">391</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1189,7 +1258,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00246">246</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00291">291</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1229,7 +1298,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00199">199</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00244">244</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -1246,7 +1315,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00040">40</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00041">41</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -1262,7 +1331,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00041">41</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00042">42</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -1272,7 +1341,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d84/namespaceutils.html">utils</a></li>
-    <li class="footer">Generated on Wed May 6 2026 04:42:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu May 7 2026 04:43:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

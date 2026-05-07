@@ -113,6 +113,8 @@ $(document).ready(function(){initNavTree('df/d80/utils_8f90.html','../../'); ini
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/daa/interfaceutils_1_1c__mkdir.html">utils::c_mkdir</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Modules</h2></td></tr>
@@ -143,6 +145,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a94a1b10b4fd0d52a2bbd0bdfbac01692" id="r_a94a1b10b4fd0d52a2bbd0bdfbac01692"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692">utils::filename_chsuffix</a> (fname, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">new_fname</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">new_suffix</a>)</td></tr>
 <tr class="memdesc:a94a1b10b4fd0d52a2bbd0bdfbac01692"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change a filename's suffix.  <br /></td></tr>
 <tr class="separator:a94a1b10b4fd0d52a2bbd0bdfbac01692"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac672259ace5aad4a319f09625537d4b8" id="r_ac672259ace5aad4a319f09625537d4b8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">recursive</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#ac672259ace5aad4a319f09625537d4b8">utils::mkdir</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">path</a>, mode)</td></tr>
+<tr class="memdesc:ac672259ace5aad4a319f09625537d4b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recursively create a directory and all parent directories if they do not exist. This should be safer than the &lsquo;execute_command_line('mkdir -p &rsquo; // path)<code>approach, which can be used to execute arbitrary code if</code>path` is not properly sanitized.  <br /></td></tr>
+<tr class="separator:ac672259ace5aad4a319f09625537d4b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0962746ef1c8f4a3a6e83aae5ef2d7a0" id="r_a0962746ef1c8f4a3a6e83aae5ef2d7a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0">utils::extract_fld_file_index</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">fld_filename</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">default_index</a>)</td></tr>
 <tr class="memdesc:a0962746ef1c8f4a3a6e83aae5ef2d7a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the index of a field file. For example, "myfield.f00045" will return <code>45</code>. If the suffix of the file name is invalid, returns a default index value.  <br /></td></tr>
 <tr class="separator:a0962746ef1c8f4a3a6e83aae5ef2d7a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -188,7 +193,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../df/d80/utils_8f90.html">utils.f90</a></li>
-    <li class="footer">Generated on Wed May 6 2026 04:42:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu May 7 2026 04:43:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

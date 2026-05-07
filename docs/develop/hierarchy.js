@@ -82,6 +82,7 @@ var hierarchy =
       [ "buffer_4d::buffer_4d_t", "d8/dce/structbuffer__4d_1_1buffer__4d__t.html", null ],
       [ "buffer_4d_npar::buffer_4d_npar_t", "db/db7/structbuffer__4d__npar_1_1buffer__4d__npar__t.html", null ]
     ] ],
+    [ "utils::c_mkdir", "d2/daa/interfaceutils_1_1c__mkdir.html", null ],
     [ "case::case_t", "db/d7a/structcase_1_1case__t.html", null ],
     [ "checkpoint::chkp_t", "d9/d88/structcheckpoint_1_1chkp__t.html", null ],
     [ "opencl_intf::clcreatebuffer", "de/dd5/interfaceopencl__intf_1_1clcreatebuffer.html", null ],

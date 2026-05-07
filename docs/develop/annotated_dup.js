@@ -1613,6 +1613,7 @@ var annotated_dup =
       [ "uset_t", "d8/d9e/structuset_1_1uset__t.html", "d8/d9e/structuset_1_1uset__t" ]
     ] ],
     [ "utils", "d6/d84/namespaceutils.html", [
+      [ "c_mkdir", "d2/daa/interfaceutils_1_1c__mkdir.html", "d2/daa/interfaceutils_1_1c__mkdir" ],
       [ "neko_error", "d7/d83/interfaceutils_1_1neko__error.html", "d7/d83/interfaceutils_1_1neko__error" ]
     ] ],
     [ "vector", "d7/d34/namespacevector.html", [
