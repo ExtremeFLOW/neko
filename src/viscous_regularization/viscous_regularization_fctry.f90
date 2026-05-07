@@ -51,14 +51,14 @@ contains
        deallocate(object)
     end if
 
-    select case (trim(type_name))
-    case ('entropy', 'entropy_viscosity')
-       allocate(entropy_viscosity_t::object)
-    case default
-       call neko_error('Unknown viscous_regularization type: ' // trim(type_name))
-    end select
+   !  select case (trim(type_name))
+   !  case ('entropy', 'entropy_viscosity')
+   !     allocate(entropy_viscosity_t::object)
+   !  case default
+   !     call neko_error('Unknown viscous_regularization type: ' // trim(type_name))
+   !  end select
 
-    call object%init(json, coef, dof, reg_coeff)
+   !  call object%init(json, coef, dof, reg_coeff)
 
   end subroutine viscous_regularization_factory
 
