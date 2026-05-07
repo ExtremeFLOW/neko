@@ -26,7 +26,9 @@ def which_command(command):
 
 def get_genmeshbox():
     """
-    Returns the path to genmeshbox
+    Returns the path to the genmeshbox executable, via the environmental 
+    variable GENMESHBOX_EXEC, or returns the path to the first genmeshbox
+    executable in the PATH environment variable.
     """
     if os.getenv("GENMESHBOX_EXEC"):
         return os.getenv("GENMESHBOX_EXEC")
@@ -39,9 +41,9 @@ def get_genmeshbox():
 def get_neko():
     """
     Returns the path to the turboneko executable via the environmental variable
-    NEKO_EXEC, or just returns "neko", assuming it is in the PATH.
+    NEKO_EXEC, or just returns the path to the first "neko" executable in the 
+    PATH environmental variable.
     """
-
     if os.getenv("NEKO_EXEC"):
         return os.getenv("NEKO_EXEC")
     else:
@@ -51,6 +53,11 @@ def get_neko():
         return cmd
 
 def get_makeneko():
+    """
+    Returns the path to the makeneko executable via the environmental variable
+    NEKO_EXEC, or just returns the path to the first "makeneko" executable in the 
+    PATH environmental variable.
+    """
     if os.getenv("MAKENEKO_EXEC"):
         return os.getenv("MAKENEKO_EXEC")
     else:
@@ -60,7 +67,7 @@ def get_makeneko():
         return cmd
 
 def get_neko_dir():
-    """Returns the root of the neko dirctory structure relative to the directory
+    """Returns the root of the neko directory structure relative to the directory
     with the integration tests
 
     """
