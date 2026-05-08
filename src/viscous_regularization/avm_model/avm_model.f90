@@ -203,6 +203,7 @@ contains
 
     nullify(this%reg_coeff)
     nullify(this%coef)
+    nullify(this%dof)
 
   end subroutine avm_model_free_base
 
