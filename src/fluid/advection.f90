@@ -158,7 +158,7 @@ module advection
      !! @param n Typically the size of the mesh.
      !! @param dt Current time step used in OIFS method.
      subroutine compute_ale_adv(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+          fx, fy, fz, Xh, coef, n, dt)
        import :: advection_t
        import :: coef_t
        import :: space_t
