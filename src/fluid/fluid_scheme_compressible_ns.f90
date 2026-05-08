@@ -642,6 +642,9 @@ contains
 
     call reg_json%destroy()
 
+    if (allocated(viscous_regularization_type)) &
+         deallocate(viscous_regularization_type)
+
   end subroutine setup_viscous_regularization
 
 end module fluid_scheme_compressible_ns
