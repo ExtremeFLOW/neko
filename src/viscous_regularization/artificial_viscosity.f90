@@ -62,6 +62,7 @@ contains
     type(coef_t), intent(in), target :: coef
     type(dofmap_t), intent(in), target :: dof
 
+    call this%free()
     call this%init_base(json, coef, dof)
 
     call json_get(json, "reg_coeff_name", &
