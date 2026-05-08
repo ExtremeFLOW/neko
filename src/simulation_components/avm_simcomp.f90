@@ -75,30 +75,28 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: name
     character(len=:), allocatable :: model_name
-    character(len=:), allocatable :: reg_coeff
     character(len=NEKO_VARNAME_LEN) :: fields(1)
 
     call this%free()
 
-    ! Add fields keyword to the json so that the field_writer picks it up.
-    ! Will also add fields to the registry if missing.
     call json_get_or_default(json, "name", name, "avm_model")
-    call json_get_or_default(json, "reg_coeff", reg_coeff, "reg_coeff")
-    fields(1) = reg_coeff
-
-    call json%add("fields", fields)
-
-    call this%init_base(json, case)
-    call this%writer%init(json, case)
-
     call json_get(json, "model", model_name)
     this%name = name
 
+    call this%init_base(json, case)
+
+    ! Create the AVM model first so we can get the field name it uses
     call avm_model_factory(this%avm_model, model_name, case, json)
+
+    ! Get the field name from the model's reg_coeff field and add it to the
+    ! field_writer output list
+    fields(1) = this%avm_model%reg_coeff%name
+    call json%add("fields", fields)
+
+    call this%writer%init(json, case)
 
     if (allocated(name)) deallocate(name)
     if (allocated(model_name)) deallocate(model_name)
-    if (allocated(reg_coeff)) deallocate(reg_coeff)
   end subroutine avm_simcomp_init_from_json
 
   !> Destructor.
