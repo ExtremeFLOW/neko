@@ -34,10 +34,12 @@
 module data_streamer
   use num_types, only: rp, c_rp
   use field, only: field_t
+  use mesh, only: mesh_t
+  use space, only: space_t
   use coefs, only: coef_t
   use utils, only: neko_warning
-  use comm, only : NEKO_COMM, NEKO_GLOBAL_COMM
-  use mpi_f08, only : MPI_COMM
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_COMM, MPI_COMM_WORLD
   use logger, only : neko_log, NEKO_LOG_DEBUG
   use, intrinsic :: iso_c_binding
   implicit none
@@ -105,8 +107,8 @@ contains
 
 #ifdef HAVE_ADIOS2
     call neko_log%message("Initializing ADIOS2", lvl = NEKO_LOG_DEBUG)
-    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, &
-         NEKO_COMM, NEKO_GLOBAL_COMM, timeout)
+    call fortran_adios2_initialize(npts, nelv, offset_el, glb_nelv, gdim, &
+         NEKO_COMM, MPI_COMM_WORLD, timeout)
     call neko_log%message("Done initializing ADIOS2", lvl = NEKO_LOG_DEBUG)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')

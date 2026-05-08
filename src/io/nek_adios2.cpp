@@ -39,7 +39,12 @@ extern "C" void adios2_initialize_(
     io_stream = adios.DeclareIO("streamIO");
     io_stream.SetEngine("SST");
     io_stream.SetParameters(
-        {{"OpenTimeoutSecs", std::to_string(timeout_seconds)}}
+        {
+	  {"OpenTimeoutSecs", std::to_string(timeout_seconds)}, 
+	  {"RendezvousReaderCount", "1"},
+	  {"QueueLimit", "1"},
+	  {"QueueFullPolicy", "Block"}
+	}
     );
 
     // Number of elements in my rank.
@@ -59,19 +64,18 @@ extern "C" void adios2_initialize_(
     // If the process is asynchronous, define the relevant variables for writer_st
     f2py_field = io_stream.DefineVariable<double>("f2py_field", {gn}, {start}, {n});
 
-    MPI_Barrier(sync_comm);
-    init_wait();
-
+    //MPI_Barrier(sync_comm);
+    //init_wait();
     writer_st = io_stream.Open("globalArray_f2py", adios2::Mode::Write);
-    init_wait();
+    //init_wait();
 
-    MPI_Barrier(sync_comm);
-    init_wait();
+    //MPI_Barrier(sync_comm);
+    //init_wait();
     reader_st = io_stream.Open("globalArray_py2f", adios2::Mode::Read);
-    init_wait();
+    //init_wait();
 
-    MPI_Barrier(sync_comm);
-    init_wait();
+    //MPI_Barrier(sync_comm);
+    //init_wait();
 
     // Put necesary information in a header stream
     writer_st.BeginStep();
@@ -88,11 +92,11 @@ extern "C" void adios2_initialize_(
        writer_st.Put(hdr_gdim,  static_cast<int> (*gdim));
     }
     writer_st.EndStep();
-    init_wait();
+    //init_wait();
 
-    MPI_Barrier(sync_comm);
-    init_wait();
-    MPI_Barrier(sync_comm);
+    //MPI_Barrier(sync_comm);
+    //init_wait();
+    //MPI_Barrier(sync_comm);
 }
 
 extern "C" void adios2_finalize_(){
