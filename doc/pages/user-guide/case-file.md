@@ -2020,7 +2020,6 @@ concisely directly in the table.
 | `shear_stress.value`                               | The shear stress vector value for `sh` boundaries                                                 | Vector of 3 reals                                           | `[0, 0, 0]`   |
 | `wall_modelling.type`                              | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`                                 | -             |
 | `source_terms`                                     | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                              | -             |
-| `gradient_jump_penalty`                            | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                     | -             |
 | `boundary_types`                                   | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
 | `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
 | `velocity_solver.preconditioner.type`              | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
@@ -2237,3 +2236,19 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 | ---------------- | ----------------------------------------------------------- | ----------------- | ------------- |
 | `enabled`        | Whether to enable gathering of runtime statistics           | `true` or `false` | `false`       |
 | `output_profile` | Whether to output all gathered profiling data as a CSV file | `true` or `false` | `false`       |
+
+## Viscous regularization
+
+Users can use the viscous regularization object to enhance the smoothness or 
+the numerical stability of the solution via a diffusion term. For example, 
+artificial viscosity could be set up by this object to perform shock capturing.
+Note that some regularization techniques do not have a diffusive mathemetical 
+form, for example gradient jump penalty and  high-pass filter relaxation term,
+and they are included in the source terms instead. The viscous regularization
+could be set up by the following options
+
+* `type`, viscous regularization type.
+  - `artificial_viscosity`, the standard second order diffusion term, 
+    $\frac{\partial}{\partial x}\left(\mu_\mathrm{artificial}\
+    \frac{\partial u}{\partial x}\right)$.
+* `reg_coeff_name`, name of the $\mu_\mathrm{artificial}$ field.
