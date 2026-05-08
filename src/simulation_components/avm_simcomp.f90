@@ -95,6 +95,10 @@ contains
     this%name = name
 
     call avm_model_factory(this%avm_model, model_name, case, json)
+
+    if (allocated(name)) deallocate(name)
+    if (allocated(model_name)) deallocate(model_name)
+    if (allocated(reg_coeff)) deallocate(reg_coeff)
   end subroutine avm_simcomp_init_from_json
 
   !> Destructor.
