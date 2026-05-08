@@ -78,6 +78,9 @@ contains
     integer :: color = 0
     integer :: envvar_len
     character(len=255) :: color_str
+#ifdef HAVE_OPENSHMEM
+    integer :: shmem_ierr
+#endif
 
     pe_rank = -1
     pe_size = 0
@@ -158,15 +161,15 @@ contains
     call neko_comm_nccl_init()
 #endif
 
-#ifdef HAVE_OPENSHMEMX
-    ! Setup OpenSHMEMX (if requested)
+#ifdef HAVE_OPENSHMEM
+    ! Setup OpenSHMEM (if requested)
     if (nthrds .gt. 1) then
-       call shmem_init_thread(SHMEM_THREAD_MULTIPLE, provided)
+       shmem_ierr = shmem_init_thread(SHMEM_THREAD_MULTIPLE, provided)
        if (provided .ne. SHMEM_THREAD_MULTIPLE) then
           if (NEKO_BCKND_DEVICE .eq. 1) then
              call neko_error('Invalid thread support provided by SHMEM')
           else
-             call shmem_init_thread(SHMEM_THREAD_SERIALIZED, provided)
+             shmem_ierr = shmem_init_thread(SHMEM_THREAD_SERIALIZED, provided)
              if (provided .ne. SHMEM_THREAD_SERIALIZED) then
                 call neko_error('Invalid thread support provided by SHMEM')
              end if
@@ -195,7 +198,7 @@ contains
     call neko_comm_nvshmem_finalize()
 #endif
 
-#ifdef HAVE_OPENSHMEMX
+#ifdef HAVE_OPENSHMEM
     call shmem_finalize()
 #endif
 

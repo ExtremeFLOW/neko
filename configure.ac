@@ -329,7 +329,7 @@ else
    AX_HDF5
 fi
 
-# Checks for OpenSHMEMX
+# Checks for OpenSHMEM
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_OPENSHMEMX
 fi

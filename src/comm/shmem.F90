@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ module shmem
   use, intrinsic :: iso_c_binding
   implicit none
 
-#ifdef HAVE_OPENSHMEMX
+#ifdef HAVE_OPENSHMEM
 
   enum, bind(c)
      enumerator :: SHMEM_MAX_NAME_LEN = 256
@@ -347,6 +347,44 @@ module shmem
        integer(c_size_t), value :: nelems
        integer(c_int), value :: pe
      end subroutine shmem_ctx_getmem_nbi
+  end interface
+
+  !
+  ! Signaling Operations (OpenSHMEM 1.5)
+  !
+
+  interface
+     subroutine shmem_putmem_signal_nbi(dest, source, nelems, sig_addr, &
+          signal, sig_op, pe) bind(c, name='shmem_putmem_signal_nbi')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: dest
+       type(c_ptr), value :: source
+       integer(c_size_t), value :: nelems
+       type(c_ptr), value :: sig_addr
+       integer(c_int64_t), value :: signal
+       integer(c_int), value :: sig_op
+       integer(c_int), value :: pe
+     end subroutine shmem_putmem_signal_nbi
+  end interface
+
+  interface
+     integer(c_int64_t) function shmem_signal_wait_until(sig_addr, cmp, &
+          cmp_value) bind(c, name='shmem_signal_wait_until')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: sig_addr
+       integer(c_int), value :: cmp
+       integer(c_int64_t), value :: cmp_value
+     end function shmem_signal_wait_until
+  end interface
+
+  interface
+     subroutine shmem_uint64_atomic_set(dest, val, pe) &
+          bind(c, name='shmem_uint64_atomic_set')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: dest
+       integer(c_int64_t), value :: val
+       integer(c_int), value :: pe
+     end subroutine shmem_uint64_atomic_set
   end interface
 
   !
