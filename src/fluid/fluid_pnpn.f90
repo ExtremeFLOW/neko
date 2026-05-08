@@ -422,7 +422,7 @@ contains
     call json_get(params, 'case.numerics', numerics_params)
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          this%ulag, this%vlag, this%wlag, &
-         real(chkp%dtlag, kind=rp), real(chkp%tlag, kind=rp), this%ext_bdf, &
+         chkp%dtlag, chkp%tlag, this%ext_bdf, &
          .not. advection)
     ! Should be in init_base maybe?
     this%chkp => chkp

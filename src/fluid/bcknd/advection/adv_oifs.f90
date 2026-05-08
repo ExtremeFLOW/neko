@@ -33,7 +33,7 @@
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module adv_oifs
   use advection, only : advection_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use space, only : space_t, GL
   use field, only : field_t
   use coefs, only : coef_t
@@ -75,9 +75,9 @@ module adv_oifs
      !> The lagged velocity and scalar fields
      type(field_series_t), pointer :: ulag, vlag, wlag, slag => null()
      !> The times corresponding to the lagged fields
-     real(kind=rp), pointer :: ctlag(:) => null()
+     real(kind=dp), pointer :: ctlag(:) => null()
      !> The time-steps corresponding to the lagged fields
-     real(kind=rp), pointer :: dctlag(:) => null()
+     real(kind=dp), pointer :: dctlag(:) => null()
      !> The time scheme controller for the oifs scheme
      type(time_scheme_controller_t), pointer :: oifs_scheme => null()
      !> The current convecting field in GL space and rst format
@@ -136,8 +136,8 @@ contains
     type(coef_t), target :: coef
     real(kind=rp), intent(in) :: ctarget
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
-    real(kind=rp), target, intent(in) :: dtlag(10)
-    real(kind=rp), target, intent(in) :: tlag(10)
+    real(kind=dp), target, intent(in) :: dtlag(10)
+    real(kind=dp), target, intent(in) :: tlag(10)
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     type(field_series_t), target, optional :: slag
     integer :: nel, n_GL, n, idx, idy, idz
