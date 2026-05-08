@@ -2251,4 +2251,14 @@ could be set up by the following options
   - `artificial_viscosity`, the standard second order diffusion term, 
     $\frac{\partial}{\partial x}\left(\mu_\mathrm{artificial}\
     \frac{\partial u}{\partial x}\right)$.
-* `reg_coeff_name`, name of the $\mu_\mathrm{artificial}$ field.
+* `reg_coeff_name`, name of the $\mu_\mathrm{artificial}$ field, usually 
+computed by a simulation components.
+
+This object can perform regularization on scalar or fluid equation by setting
+the following example in the solver configuration.
+```json
+"viscous_regularization":{
+    "type": "artificial_viscosity",
+    "reg_coeff_name": "entropy_viscosity"
+}
+```
