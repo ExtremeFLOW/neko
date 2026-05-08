@@ -65,6 +65,8 @@ in Neko. The list will be updated as new simcomps are added.
 - Streaming of data for in-situ field manipulation \ref simcomp_data_streamer
 - Sub-sampling of fields by changing polynomial order and masking by point
   zones \ref simcomp_field_subsampler
+- Computation of the viscous coefficient in artificial viscosity method (AVM)
+  via a particular model \ref simcomp_avm
 
 ## Controlling execution and file output
 Each simulation component is, by default, executed once per time step to perform
@@ -764,15 +766,15 @@ keywords:
     the maximum spacing of the GLL nodes within the element. The `les_delta`
   field is added to the registry and written to the .fld files.
 - `nut_field`: The name of the SGS eddy viscosity field added to the registry.
-  Defaults to `nut`. This allows to have two different SGS models active, saved
-  to different fields. For example, one for the scalar and one to the fluid.
-- `extrapolation`: Whether or not extrapolate the velocity to
+  Defaults to `nut`. This allows two different SGS models to be active and saved
+  to different fields, for example one for the scalar and one for the fluid.
+- `extrapolation`: Whether or not to extrapolate the velocity to
   compute the eddy viscosity.
-  - `true`: extrapolate the velocity as the same order as
+  - `true`: extrapolate the velocity to the same order as
   the time scheme.
-  - `false`: the default option, disable the extrapolation.
+  - `false`: the default option, disables extrapolation.
   In this case, the estimation of the eddy viscosity is of first order, while
-  circumvent the risk of unstable extrapolation.
+  circumventing the risk of unstable extrapolation.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -931,5 +933,35 @@ keywords used by the latter can also be specified, with the exception of
    "polynomial_order": 3,
    "compute_control": "tsteps",
    "compute_value": 10
+ }
+ ~~~~~~~~~~~~~~~
+
+### artificial_viscosity_model {#simcomp_avm}
+Computes an artificial viscosity field using a particular model. **Note:** The simcomp
+*only* computes the artificial viscosity field. You have to select the 
+corresponding `reg_coeff_name` in the `viscous_regularization` JSON object in the
+fluid and/or scalar JSON object to actually enable artificial viscosity, see
+the corresponding documentation. The simcomp is controlled by the following
+keywords:
+
+- `model`: Selects the artificial viscosity model. Currently available models are:
+  - `entropy_viscosity`: An entropy-based viscosity aimed at shock capturing;
+    see Guermond et al. (https://doi.org/10.1016/j.jcp.2010.11.043).
+    - `c_avisc_low`: Coefficient for low-order artificial viscosity, defaults
+    to 0.5
+    - `c_avisc_entropy`: Coefficient for entropy-based artificial viscosity,
+    defaults to 1.0
+
+- `field_name`: The name of the artificial viscosity field added to the registry.
+  Defaults to the model name.
+  This allows two different artificial viscosity models to be active and saved
+  to different fields, for example one for the scalar and one for the fluid.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "artificial_viscosity_model",
+   "name": "artificial_viscosity_model",
+   "model": "entropy_viscosity",
+   "field_name": "entropy_viscosity"
  }
  ~~~~~~~~~~~~~~~

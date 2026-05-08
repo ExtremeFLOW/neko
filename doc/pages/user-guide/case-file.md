@@ -373,13 +373,6 @@ The compressible solver accepts the following parameters:
 | `mu`    | Constant physical dynamic viscosity              | Non-negative real | `0.0`         |
 | `kappa` | Constant physical thermal conductivity           | Non-negative real | `0.0`         |
 
-Additional numerics parameters specific to compressible flows:
-
-| Name              | Description                                        | Admissible values | Default value |
-| ----------------- | -------------------------------------------------- | ----------------- | ------------- |
-| `c_avisc_low`     | Coefficient for low-order artificial viscosity     | Positive reals    | `0.5`         |
-| `c_avisc_entropy` | Coefficient for entropy-based artificial viscosity | Positive reals    | `1.0`         |
-
 The compressible solver uses variable time-stepping controlled by the CFL
 number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
 control object.
@@ -403,6 +396,10 @@ Example configuration:
   "fluid": {
     "scheme": "compressible",
     "gamma": 1.4,
+    "viscous_regularization":{
+        "type": "artificial_viscosity",
+        "reg_coeff_name": "entropy_viscosity"
+    },
     "initial_condition": {
       "type": "user"
     },
@@ -425,12 +422,6 @@ Example configuration:
     ],
     "output_control": "nsamples",
     "output_value": 20
-  },
-  "numerics": {
-    "time_order": 3,
-    "polynomial_order": 5,
-    "c_avisc_low": 0.5,
-    "c_avisc_entropy": 0.5
   }
 }
 ~~~~~~~~~~~~~~~
