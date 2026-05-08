@@ -185,6 +185,8 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=*), intent(in) :: reg_coeff_name
 
+    call this%free_base()
+
     associate(dofmap => case%fluid%dm_Xh, &
          coef => case%fluid%c_Xh)
 
