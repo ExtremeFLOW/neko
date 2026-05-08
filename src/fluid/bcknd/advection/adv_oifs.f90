@@ -508,15 +508,24 @@ contains
          do itau = 1, ntaubd
             th = tau + dtau/2.
             tau1 = tau + dtau
-            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(th, cr_k23, convr_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(th, cs_k23, convs_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(th, ct_k23, convt_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, &
+                 real(ctlag, kind=rp), n_GL)
             call runge_kutta(fx, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
                  coef, coef_GL, GLL_to_GL, tau, dtau, &
                  n, nel, n_GL)
@@ -613,15 +622,24 @@ contains
          do itau = 1, ntaubd
             th = tau + dtau/2.
             tau1 = tau + dtau
-            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(th, cr_k23, convr_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(th, cs_k23, convs_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(th, ct_k23, convt_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, ctlag, n_GL)
-            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, ctlag, n_GL)
+            call dtime%interpolate_scalar(tau, cr_k1, convr_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau, cs_k1, convs_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau, ct_k1, convt_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(th, cr_k23, convr_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(th, cs_k23, convs_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(th, ct_k23, convt_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau1, cr_k4, convr_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau1, cs_k4, convs_GL, &
+                 real(ctlag, kind=rp), n_GL)
+            call dtime%interpolate_scalar(tau1, ct_k4, convt_GL, &
+                 real(ctlag, kind=rp), n_GL)
             call runge_kutta(fs, conv_k1, conv_k23, conv_k4, Xh, Xh_GL, &
                  coef, coef_GL, GLL_to_GL, tau, dtau, &
                  n, nel, n_GL)
@@ -641,7 +659,7 @@ contains
 
 
   subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+       fx, fy, fz, Xh, coef, n, dt)
     class(adv_oifs_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z
