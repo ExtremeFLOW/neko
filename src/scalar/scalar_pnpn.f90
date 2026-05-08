@@ -257,8 +257,8 @@ contains
     call json_get_or_default(params, 'advection', advection, .true.)
 
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
-         ulag, vlag, wlag, real(this%chkp%dtlag, kind=rp), &
-         real(this%chkp%tlag, kind=rp), time_scheme, .not. advection, &
+         ulag, vlag, wlag, this%chkp%dtlag, &
+         this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
   end subroutine scalar_pnpn_init
 
