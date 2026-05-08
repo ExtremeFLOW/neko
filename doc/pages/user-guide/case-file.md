@@ -2239,9 +2239,8 @@ and they are included in the source terms instead. The viscous regularization
 could be set up by the following options
 
 * `type`, viscous regularization type.
-  - `artificial_viscosity`, the standard second order diffusion term, 
-    $\frac{\partial}{\partial x}\left(\mu_\mathrm{artificial}\
-    \frac{\partial u}{\partial x}\right)$.
+  - `artificial_viscosity`, the standard second order diffusion term,
+    $\frac{\partial}{\partial x}\left(\mu_\mathrm{artificial}\frac{\partial u}{\partial x}\right)$.
 * `reg_coeff_name`, name of the $\mu_\mathrm{artificial}$ field, usually 
 computed by a simulation components.
 
