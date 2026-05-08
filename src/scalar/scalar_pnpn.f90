@@ -278,10 +278,13 @@ contains
     n = this%s%dof%size()
 
     ! Lag fields are restored through the checkpoint's fsp mechanism
+    ! H1 operation includes weighting
+    if (.not. allocated(this%gs_Xh%interp)) then
+       call col2(this%s%x, this%c_Xh%mult, n)
+       call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
+       call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
+    end if
 
-    call col2(this%s%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
             n, HOST_TO_DEVICE, sync = .false.)
@@ -297,9 +300,15 @@ contains
             n, HOST_TO_DEVICE, sync = .false.)
     end if
 
-    call this%gs_Xh%op(this%s, GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    if (allocated(this%gs_Xh%interp)) then
+       call this%gs_Xh%op_h1(this%s, GS_OP_ADD)
+       call this%gs_Xh%op_h1(this%slag%lf(1), GS_OP_ADD)
+       call this%gs_Xh%op_h1(this%slag%lf(2), GS_OP_ADD)
+    else
+       call this%gs_Xh%op(this%s, GS_OP_ADD)
+       call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
+       call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    end if
 
   end subroutine scalar_pnpn_restart
 

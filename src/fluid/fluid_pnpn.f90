@@ -460,22 +460,25 @@ contains
        associate(u => this%u, v => this%v, w => this%w, p => this%p, &
             c_Xh => this%c_Xh, ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag)
-         do concurrent (j = 1:n)
-            u%x(j,1,1,1) = u%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
-            v%x(j,1,1,1) = v%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
-            w%x(j,1,1,1) = w%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
-            p%x(j,1,1,1) = p%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
-         end do
-         do i = 1, this%ulag%size()
+         ! H1 operation includes weighting
+         if (.not. allocated(this%gs_Xh%interp)) then
             do concurrent (j = 1:n)
-               ulag%lf(i)%x(j,1,1,1) = ulag%lf(i)%x(j,1,1,1) &
-                    * c_Xh%mult(j,1,1,1)
-               vlag%lf(i)%x(j,1,1,1) = vlag%lf(i)%x(j,1,1,1) &
-                    * c_Xh%mult(j,1,1,1)
-               wlag%lf(i)%x(j,1,1,1) = wlag%lf(i)%x(j,1,1,1) &
-                    * c_Xh%mult(j,1,1,1)
+               u%x(j,1,1,1) = u%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+               v%x(j,1,1,1) = v%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+               w%x(j,1,1,1) = w%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+               p%x(j,1,1,1) = p%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
             end do
-         end do
+            do i = 1, this%ulag%size()
+               do concurrent (j = 1:n)
+                  ulag%lf(i)%x(j,1,1,1) = ulag%lf(i)%x(j,1,1,1) &
+                       * c_Xh%mult(j,1,1,1)
+                  vlag%lf(i)%x(j,1,1,1) = vlag%lf(i)%x(j,1,1,1) &
+                       * c_Xh%mult(j,1,1,1)
+                  wlag%lf(i)%x(j,1,1,1) = wlag%lf(i)%x(j,1,1,1) &
+                       * c_Xh%mult(j,1,1,1)
+               end do
+            end do
+         end if
        end associate
     end if
 
@@ -533,18 +536,31 @@ contains
          .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
 
        call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
-       call this%gs_Xh%op(this%u, GS_OP_ADD)
-       call this%gs_Xh%op(this%v, GS_OP_ADD)
-       call this%gs_Xh%op(this%w, GS_OP_ADD)
-       call this%gs_Xh%op(this%p, GS_OP_ADD)
+       if (allocated(this%gs_Xh%interp)) then
+          call this%gs_Xh%op_h1(this%u, GS_OP_ADD)
+          call this%gs_Xh%op_h1(this%v, GS_OP_ADD)
+          call this%gs_Xh%op_h1(this%w, GS_OP_ADD)
+          call this%gs_Xh%op_h1(this%p, GS_OP_ADD)
+       else
+          call this%gs_Xh%op(this%u, GS_OP_ADD)
+          call this%gs_Xh%op(this%v, GS_OP_ADD)
+          call this%gs_Xh%op(this%w, GS_OP_ADD)
+          call this%gs_Xh%op(this%p, GS_OP_ADD)
+       end if
        call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
        do i = 1, this%ulag%size()
           call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
                this%wlag%lf(i)%x, 1, this%c_Xh)
-          call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
-          call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
-          call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
+          if (allocated(this%gs_Xh%interp)) then
+             call this%gs_Xh%op_h1(this%ulag%lf(i), GS_OP_ADD)
+             call this%gs_Xh%op_h1(this%vlag%lf(i), GS_OP_ADD)
+             call this%gs_Xh%op_h1(this%wlag%lf(i), GS_OP_ADD)
+          else
+             call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
+             call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
+             call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
+          end if
           call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
                this%wlag%lf(i)%x, 0, this%c_Xh)
        end do
