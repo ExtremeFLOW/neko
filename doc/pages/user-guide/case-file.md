@@ -2233,7 +2233,7 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 Users can use the viscous regularization object to enhance the smoothness or 
 the numerical stability of the solution via a diffusion term. For example, 
 artificial viscosity could be set up by this object to perform shock capturing.
-Note that some regularization techniques do not have a diffusive mathemetical 
+Note that some regularization techniques do not have a diffusive mathematical 
 form, for example gradient jump penalty and  high-pass filter relaxation term,
 and they are included in the source terms instead. The viscous regularization
 could be set up by the following options
