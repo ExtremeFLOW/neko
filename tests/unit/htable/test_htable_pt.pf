@@ -1,13 +1,40 @@
 module test_htable_pt
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_htable_pt_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_htable_pt_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_htable_pt_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_htable_pt_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_htable_init_pt
+subroutine test_htable_init_pt(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
-  implicit none
+  class(test_htable_pt_case), intent(inout) :: this
   type(htable_pt_t) :: h
   integer :: data_i4
   integer(kind=i8) :: data_i8
@@ -37,13 +64,13 @@ subroutine test_htable_init_pt
 end subroutine test_htable_init_pt
 
 @test
-subroutine test_htable_add_pt
+subroutine test_htable_add_pt(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
-  implicit none
+  class(test_htable_pt_case), intent(inout) :: this
   type(htable_pt_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -112,11 +139,11 @@ subroutine test_htable_add_pt
 end subroutine test_htable_add_pt
 
 @test
-subroutine test_htable_contract_pt
+subroutine test_htable_contract_pt(this)
   use pfunit
   use htable
   use point
-  implicit none
+  class(test_htable_pt_case), intent(inout) :: this
   type(htable_pt_t) :: h
   type(htable_iter_pt_t) :: it
   type(point_t) :: key, key_expected, data_pt, copy_pt
@@ -164,11 +191,11 @@ subroutine test_htable_contract_pt
 end subroutine test_htable_contract_pt
 
 @test
-subroutine test_htable_clear_pt
+subroutine test_htable_clear_pt(this)
   use pfunit
   use htable
   use point
-  implicit none
+  class(test_htable_pt_case), intent(inout) :: this
   type(htable_pt_t) :: h
   integer :: i
   type(point_t) :: key, data
@@ -187,11 +214,11 @@ subroutine test_htable_clear_pt
 end subroutine test_htable_clear_pt
 
 @test
-subroutine test_htable_free_pt
+subroutine test_htable_free_pt(this)
   use pfunit
   use htable
   use point
-  implicit none
+  class(test_htable_pt_case), intent(inout) :: this
   type(htable_pt_t) :: h
   integer :: i
   type(point_t) :: key, data
@@ -211,13 +238,13 @@ end subroutine test_htable_free_pt
 
 
 @test
-subroutine test_htable_get_pt
+subroutine test_htable_get_pt(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
-  implicit none
+  class(test_htable_pt_case), intent(inout) :: this
   type(htable_pt_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -318,13 +345,13 @@ end subroutine test_htable_get_pt
 
 
 @test
-subroutine test_htable_remove_pt
+subroutine test_htable_remove_pt(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
-  implicit none
+  class(test_htable_pt_case), intent(inout) :: this
   type(htable_pt_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -409,11 +436,11 @@ subroutine test_htable_remove_pt
 end subroutine test_htable_remove_pt
 
 @test
-subroutine test_htable_iter_pt
+subroutine test_htable_iter_pt(this)
   use pfunit
   use htable
   use point
-  implicit none
+  class(test_htable_pt_case), intent(inout) :: this
   type(htable_pt_t) :: h
   type(htable_iter_pt_t) :: it
   integer :: i, rcode

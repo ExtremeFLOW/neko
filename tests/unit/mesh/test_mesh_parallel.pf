@@ -1,6 +1,10 @@
 module test_mesh_parallel
   use mpi
   use pfunit
+
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use datadist
   use mesh
   use num_types
@@ -11,15 +15,41 @@ module test_mesh_parallel
   use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
+
+  @TestCase
+  type, extends(MPITestCase) :: test_mesh_parallel_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_mesh_parallel_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_mesh_parallel_case), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_mesh_parallel_case), intent(inout) :: this
+    call neko_mpi_types_free()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
 
   @test(npes=[1,2])
   subroutine test_mesh_init_nelv(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_mesh_parallel_case), intent(inout) :: this
     type(mesh_t) :: m
     integer :: ierr, gdim, nelv, expected
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     do gdim = 2, 3
        nelv = 42
@@ -42,12 +72,10 @@ contains
 
   @test(npes=[1,2])
   subroutine test_mesh_init_dist(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_mesh_parallel_case), intent(inout) :: this
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
     integer :: ierr, gdim
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     dist = linear_dist_t(42, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -70,18 +98,13 @@ contains
 
   @test(npes=[1,2])
   subroutine test_mesh_add_element_quad(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_mesh_parallel_case), intent(inout) :: this
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
     type(point_t) :: p(6)
     type(tuple_i4_t) :: t
     integer :: ierr, i
     integer, parameter :: gdim = 2
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -160,15 +183,13 @@ contains
 
   @test(npes=[1,2])
   subroutine test_mesh_add_element_hex(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_mesh_parallel_case), intent(inout) :: this
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
     type(point_t) :: p(12)
     type(tuple4_i4_t) :: t
     integer :: ierr, i
     integer, parameter :: gdim = 3
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -280,18 +301,13 @@ contains
 
   @test(npes=[1,2])
   subroutine test_mesh_quad_conn(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_mesh_parallel_case), intent(inout) :: this
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
     type(point_t) :: p(6)
     type(tuple_i4_t) :: t
     integer :: ierr, i, p_local_idx
     integer, parameter :: gdim = 2
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -399,18 +415,13 @@ contains
 
   @test(npes=[1,2])
   subroutine test_mesh_hex_conn(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_mesh_parallel_case), intent(inout) :: this
     type(mesh_t) :: m
     type(linear_dist_t) :: dist
     type(point_t) :: p(12)
     type(tuple4_i4_t) :: t
     integer :: ierr, i, p_local_idx
     integer, parameter :: gdim = 3
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -609,7 +620,8 @@ contains
   end subroutine test_mesh_hex_conn
 
   @test
-  subroutine test_paralleliped_signed_volume
+  subroutine test_paralleliped_signed_volume(this)
+    class(test_mesh_parallel_case), intent(inout) :: this
     real(kind=dp),dimension(3) :: p1, p2, p3, origin
     real(kind=dp) :: v
 

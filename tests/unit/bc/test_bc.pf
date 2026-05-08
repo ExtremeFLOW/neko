@@ -1,5 +1,32 @@
 module test_bc
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_bc_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_bc_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_bc_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_bc_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 ! @test
 ! subroutine test_bc_init
 !   use pfunit

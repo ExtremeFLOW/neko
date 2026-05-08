@@ -1,13 +1,40 @@
 module test_htable_r8
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_htable_r8_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_htable_r8_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_htable_r8_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_htable_r8_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_htable_init_r8
+subroutine test_htable_init_r8(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
-  implicit none
+  class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   integer :: data_i4
   integer(kind=i8) :: data_i8
@@ -37,13 +64,13 @@ subroutine test_htable_init_r8
 end subroutine test_htable_init_r8
 
 @test
-subroutine test_htable_add_r8
+subroutine test_htable_add_r8(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
-  implicit none
+  class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -112,11 +139,11 @@ subroutine test_htable_add_r8
 end subroutine test_htable_add_r8
 
 @test
-subroutine test_htable_contract_r8
+subroutine test_htable_contract_r8(this)
   use pfunit
   use htable
   use num_types, only : dp
-  implicit none
+  class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   type(htable_iter_r8_t) :: it
   real(kind=dp) :: key, key_expected, data_r8, copy_r8
@@ -162,11 +189,11 @@ subroutine test_htable_contract_r8
 end subroutine test_htable_contract_r8
 
 @test
-subroutine test_htable_clear_r8
+subroutine test_htable_clear_r8(this)
   use pfunit
   use htable
   use num_types
-  implicit none
+  class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   integer :: i
   real(kind=dp) :: key, data
@@ -185,11 +212,11 @@ subroutine test_htable_clear_r8
 end subroutine test_htable_clear_r8
 
 @test
-subroutine test_htable_free_r8
+subroutine test_htable_free_r8(this)
   use pfunit
   use htable
   use num_types
-  implicit none
+  class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   integer :: i
   real(kind=dp) :: key, data
@@ -209,13 +236,13 @@ end subroutine test_htable_free_r8
 
 
 @test
-subroutine test_htable_get_r8
+subroutine test_htable_get_r8(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
-  implicit none
+  class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -316,13 +343,13 @@ end subroutine test_htable_get_r8
 
 
 @test
-subroutine test_htable_remove_r8
+subroutine test_htable_remove_r8(this)
   use pfunit
   use htable
   use num_types
   use point
   use tuple
-  implicit none
+  class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h1, h2, h3, h4, h5, h6
   integer :: i
   integer :: data_i4
@@ -407,11 +434,11 @@ subroutine test_htable_remove_r8
 end subroutine test_htable_remove_r8
 
 @test
-subroutine test_htable_iter_r8
+subroutine test_htable_iter_r8(this)
   use pfunit
   use htable
   use num_types
-  implicit none
+  class(test_htable_r8_case), intent(inout) :: this
   type(htable_r8_t) :: h
   type(htable_iter_r8_t) :: it
   integer :: i, rcode

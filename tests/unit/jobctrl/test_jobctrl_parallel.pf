@@ -1,24 +1,51 @@
 module test_jobctrl_parallel
   use mpi
   use pfunit
+
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use mesh
   use jobctrl
   use signal
   use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
+
+  @TestCase
+  type, extends(MPITestCase) :: test_jobctrl_parallel_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_jobctrl_parallel_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_jobctrl_parallel_case), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_jobctrl_parallel_case), intent(inout) :: this
+    call neko_mpi_types_free()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
 
   @test(npes=[1])
   subroutine test_jobctrl_set_time_limit(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_jobctrl_parallel_case), intent(inout) :: this
     type(mesh_t) :: m ! Dummy type to avoid link issues
     integer :: ierr
-
-     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-     pe_rank = this%getProcessRank()
-     pe_size = this%getNumProcesses()
 
      call jobctrl_init()
      call jobctrl_set_time_limit(3)

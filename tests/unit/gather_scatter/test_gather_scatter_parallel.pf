@@ -1,6 +1,7 @@
 module test_gather_scatter_parallel
   use mpi
   use pfunit
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use dofmap
   use space
   use mesh
@@ -16,10 +17,38 @@ module test_gather_scatter_parallel
   use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
 
+
+  @TestCase
+  type, extends(MPITestCase) :: test_gather_scatter_parallel_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_gather_scatter_parallel_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
+    integer :: ierr
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
+    call neko_mpi_types_free()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
   @test(npes=[1])
   subroutine test_dofmap_face12(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(field_t) :: x
@@ -30,14 +59,6 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -151,15 +172,12 @@ contains
           @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
        end do
     end do
-
-    call device_finalize
-
   end subroutine test_dofmap_face12
 
 
   @test(npes=[1])
   subroutine test_dofmap_face15(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(field_t) :: x
@@ -170,14 +188,6 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -286,14 +296,11 @@ contains
           @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
        end do
     end do
-
-    call device_finalize
-
   end subroutine test_dofmap_face15
 
   @test(npes=[1])
   subroutine test_dofmap_face11(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(field_t) :: x
@@ -304,14 +311,6 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -420,14 +419,11 @@ contains
           @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
        end do
     end do
-
-    call device_finalize
-
   end subroutine test_dofmap_face11
 
   @test(npes=[1])
   subroutine test_dofmap_face11rot(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(field_t) :: x
@@ -438,14 +434,6 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -554,14 +542,11 @@ contains
           @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
        end do
     end do
-
-    call device_finalize
-
   end subroutine test_dofmap_face11rot
 
   @test(npes=[1])
   subroutine test_dofmap_face16(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(field_t) :: x
@@ -572,14 +557,6 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -688,14 +665,11 @@ contains
           @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
        end do
     end do
-
-    call device_finalize
-
   end subroutine test_dofmap_face16
 
   @test(npes=[1])
   subroutine test_dofmap_face13(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(field_t) :: x
@@ -706,14 +680,6 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -822,14 +788,11 @@ contains
           @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
        end do
     end do
-
-    call device_finalize
-
   end subroutine test_dofmap_face13
 
   @test(npes=[1])
   subroutine test_dofmap_face14(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class(test_gather_scatter_parallel_case), intent(inout) :: this
     type(dofmap_t) :: d
     type(mesh_t) :: m
     type(field_t) :: x
@@ -840,14 +803,6 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-
-    call device_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
 
@@ -956,9 +911,6 @@ contains
           @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
        end do
     end do
-
-    call device_finalize
-
   end subroutine test_dofmap_face14
 
 end module test_gather_scatter_parallel

@@ -1,12 +1,39 @@
 module test_quad
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_quad_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_quad_case
+
 contains
+
+  subroutine setUp(this)
+    class(test_quad_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_quad_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
 @test
-subroutine test_quad_init
+subroutine test_quad_init(this)
   use pfunit
   use point
   use quad
   use num_types
-  implicit none
+  class(test_quad_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -43,12 +70,12 @@ subroutine test_quad_init
 end subroutine test_quad_init
 
 @test
-subroutine test_quad_free
+subroutine test_quad_free(this)
   use pfunit
   use point
   use quad
   use num_types
-  implicit none
+  class(test_quad_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -77,12 +104,12 @@ subroutine test_quad_free
 end subroutine test_quad_free
 
 @test
-subroutine test_quad_centroid
+subroutine test_quad_centroid(this)
   use pfunit
   use point
   use quad
   use num_types
-  implicit none
+  class(test_quad_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -109,12 +136,12 @@ subroutine test_quad_centroid
 end subroutine test_quad_centroid
 
 @test
-subroutine test_quad_diameter
+subroutine test_quad_diameter(this)
   use pfunit
   use point
   use quad
   use num_types
-  implicit none
+  class(test_quad_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -138,12 +165,12 @@ subroutine test_quad_diameter
 end subroutine test_quad_diameter
 
 @test
-subroutine test_quad_equal
+subroutine test_quad_equal(this)
   use pfunit
   use point
   use quad
   use num_types
-  implicit none
+  class(test_quad_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4, p5, p6, p7, p8
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
@@ -187,13 +214,13 @@ subroutine test_quad_equal
 end subroutine test_quad_equal
 
 @test
-subroutine test_quad_facet_id
+subroutine test_quad_facet_id(this)
   use pfunit
   use point
   use quad
   use tuple
   use num_types
-  implicit none
+  class(test_quad_case), intent(inout) :: this
   type(point_t) :: p1, p2, p3, p4
   integer :: point_id
   real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
