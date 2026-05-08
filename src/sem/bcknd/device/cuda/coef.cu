@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -38,21 +38,21 @@
 #include <device/cuda/check.h>
 
 extern "C" {
-  
-  /** 
+
+  /**
    * Fortran wrapper for generating geometric factors
    */
-  void cuda_coef_generate_geo(void *G11, void *G12, void *G13, 
-                              void *G22, void *G23, void *G33, 
+  void cuda_coef_generate_geo(void *G11, void *G12, void *G13,
+                              void *G22, void *G23, void *G33,
                               void *drdx, void *drdy, void *drdz,
-                              void *dsdx, void *dsdy, void *dsdz, 
-                              void *dtdx, void *dtdy, void *dtdz, 
-                              void *jacinv, void *w3, int *nel, 
+                              void *dsdx, void *dsdy, void *dsdz,
+                              void *dtdx, void *dtdy, void *dtdz,
+                              void *jacinv, void *w3, int *nel,
                               int *lx, int *gdim) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define GEO_CASE(LX)                                                            \
     case LX:                                                                    \
@@ -66,7 +66,7 @@ extern "C" {
          (real *) jacinv, (real *) w3, *gdim);                                  \
       CUDA_CHECK(cudaGetLastError());                                           \
       break
-    
+
     switch(*lx) {
       GEO_CASE(2);
       GEO_CASE(3);
@@ -91,16 +91,16 @@ extern "C" {
     }
   }
 
-  /** 
+  /**
    * Fortran wrapper for generating geometric factors
    */
-  void cuda_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz, 
-				   void *dsdx, void *dsdy, void *dsdz, 
-				   void *dtdx, void *dtdy, void *dtdz, 
-				   void *dxdr, void *dydr, void *dzdr, 
-				   void *dxds, void *dyds, void *dzds, 
+  void cuda_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
+				   void *dsdx, void *dsdy, void *dsdz,
+				   void *dtdx, void *dtdy, void *dtdz,
+				   void *dxdr, void *dydr, void *dzdr,
+				   void *dxds, void *dyds, void *dzds,
 				   void *dxdt, void *dydt, void *dzdt,
-				   void *dx, void *dy, void *dz, 
+				   void *dx, void *dy, void *dz,
 				   void *x, void *y, void *z,
 				   void *jacinv, void *jac,
 				   int *lx, int *nel)  {
@@ -109,7 +109,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks_dxyz((*nel), 1, 1);
     const dim3 nblcks_drst((n + 1024 - 1)/ 1024, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define DXYZDRST_CASE(LX)					               \
     case LX:								       \
@@ -148,18 +148,86 @@ extern "C" {
 
     coef_generate_drst_kernel<real>
       <<<nblcks_drst, nthrds, 0, stream>>>
-      ((real *) jac, (real *) jacinv, 
+      ((real *) jac, (real *) jacinv,
        (real *) drdx, (real *) drdy, (real *) drdz,
        (real *) dsdx, (real *) dsdy, (real *) dsdz,
        (real *) dtdx, (real *) dtdy, (real *) dtdz,
-       (real *) dxdr, (real *) dydr, (real *) dzdr, 
-       (real *) dxds, (real *) dyds, (real *) dzds, 
+       (real *) dxdr, (real *) dydr, (real *) dzdr,
+       (real *) dxds, (real *) dyds, (real *) dzds,
        (real *) dxdt, (real *) dydt, (real *) dzdt, n);
     CUDA_CHECK(cudaGetLastError());
 
   }
+
+  /**
+   * Fortran wrapper for generating mass matrix
+   */
+  void cuda_coef_generate_mass(void *B, void *Binv, void *jac,
+                               void *w3, int *lxyz, int *nel)  {
+
+    int n = (*lxyz) * (*nel);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks((n + 1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    coef_generate_mass_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>
+      ((real *) B, (real *) Binv, (real *) jac, (real *) w3,
+       *lxyz, *nel);
+
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /**
+   * Fortran wrapper for generating facet area and surface normals
+   */
+  void cuda_coef_generate_area_and_normal(void *area,
+                                          void *nx, void *ny, void *nz,
+                                          void *dxdr, void *dydr, void *dzdr,
+                                          void *dxds, void *dyds, void *dzds,
+                                          void *dxdt, void *dydt, void *dzdt,
+                                          void *wx, void *wy, void *wz,
+                                          int *lx, int *nel, real eps) {
+
+    const dim3 nblcks((*nel), 1, 1);
+    const dim3 nthrds(1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+#define AREA_CASE(LX)                                                           \
+    case LX:                                                                    \
+      coef_generate_area_and_normal_kernel<real, LX>                            \
+          <<<nblcks, nthrds, 0, stream>>>                                       \
+          ((real *) area, (real *) nx, (real *) ny, (real *) nz,                \
+           (real *) dxdr, (real *) dydr, (real *) dzdr,                         \
+           (real *) dxds, (real *) dyds, (real *) dzds,                         \
+           (real *) dxdt, (real *) dydt, (real *) dzdt,                         \
+           (real *) wx, (real *) wy, (real *) wz, eps);                         \
+      CUDA_CHECK(cudaGetLastError());                                           \
+      break
+
+    switch(*lx) {
+      AREA_CASE(2);
+      AREA_CASE(3);
+      AREA_CASE(4);
+      AREA_CASE(5);
+      AREA_CASE(6);
+      AREA_CASE(7);
+      AREA_CASE(8);
+      AREA_CASE(9);
+      AREA_CASE(10);
+      AREA_CASE(11);
+      AREA_CASE(12);
+      AREA_CASE(13);
+      AREA_CASE(14);
+      AREA_CASE(15);
+      AREA_CASE(16);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
+        exit(1);
+      }
+    }
+  }
+
 }
-
-
-
-

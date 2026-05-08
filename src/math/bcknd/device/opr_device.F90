@@ -596,10 +596,10 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
+    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
     type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
 
     du_d = device_get_ptr(du)

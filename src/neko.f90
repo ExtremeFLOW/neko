@@ -36,6 +36,7 @@ module neko
   use comm
   use utils
   use logger
+  use mask
   use math, only : abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, &
        cfill, glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, &
        invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
@@ -108,6 +109,7 @@ module neko
        simulation_component_wrapper_t, simulation_component_factory, &
        simulation_component_allocator, simulation_component_allocate, &
        register_simulation_component
+  use boundary_operation, only : boundary_operation_t
   use probes, only : probes_t
   use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &

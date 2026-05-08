@@ -58,6 +58,7 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
                                  const T * __restrict__ n_y_d,
                                  const T * __restrict__ n_z_d,
                                  const T * __restrict__ nu_d,
+                                 const T * __restrict__ rho_w_d,
                                  const T * __restrict__ h_d,
                                  T * __restrict__ tau_x_d,
                                  T * __restrict__ tau_y_d,
@@ -80,6 +81,7 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
         T ui = u_d[index];
         T vi = v_d[index];
         T wi = w_d[index];
+        T rho = rho_w_d[i];
 
         // Load normal vectors and wall shear stress values once
         T nx = n_x_d[i];
@@ -111,9 +113,9 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
         T utau = solve(magu, h, guess, nu_d[i], kappa, B);
 
         // Distribute according to the velocity vector
-        tau_x_d[i] = -utau * utau * ui / magu;
-        tau_y_d[i] = -utau * utau * vi / magu;
-        tau_z_d[i] = -utau * utau * wi / magu;
+        tau_x_d[i] = -rho * utau * utau * ui / magu;
+        tau_y_d[i] = -rho * utau * utau * vi / magu;
+        tau_z_d[i] = -rho * utau * utau * wi / magu;
     }
 }
 

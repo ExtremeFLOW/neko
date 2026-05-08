@@ -49,17 +49,15 @@ extern "C" void adios2_initialize_(
     start *= static_cast<unsigned int>(*lxyz);
     // n is count, i.e number of entries in the array in my rank
     unsigned int n = static_cast<unsigned int> (*lxyz) * nel;
-    // gn is the total size of the arrays, not per io rank 
+    // gn is the total size of the arrays, not per io rank
     unsigned int gn = static_cast<unsigned int>((*glb_nelv)*(*lxyz));
- 
+
     // Assign to global variables
     reader_start = start;
     reader_count = n;
 
     // If the process is asynchronous, define the relevant variables for writer_st
-    f2py_field = io_stream.DefineVariable<double>(
-        "f2py_field", {gn}, {start}, {n}
-    );
+    f2py_field = io_stream.DefineVariable<double>("f2py_field", {gn}, {start}, {n});
 
     MPI_Barrier(sync_comm);
     init_wait();
