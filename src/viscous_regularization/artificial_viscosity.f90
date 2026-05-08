@@ -48,10 +48,10 @@ module artificial_viscosity
 
   !> The handler for the artificial viscosity.
   type, public, extends(viscous_regularization_t) :: artificial_viscosity_t
-  contains
-    procedure, pass(this) :: init => artificial_viscosity_init_from_json
-    procedure, pass(this) :: free => artificial_viscosity_free
-    procedure, pass(this) :: update => artificial_viscosity_update
+   contains
+     procedure, pass(this) :: init => artificial_viscosity_init_from_json
+     procedure, pass(this) :: free => artificial_viscosity_free
+     procedure, pass(this) :: update => artificial_viscosity_update
   end type artificial_viscosity_t
 
 contains
@@ -61,7 +61,7 @@ contains
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in), target :: coef
     type(dofmap_t), intent(in), target :: dof
-    
+
     call this%init_base(json, coef, dof)
 
     call json_get(json, "reg_coeff_name", &

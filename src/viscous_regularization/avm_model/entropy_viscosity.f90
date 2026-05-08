@@ -126,7 +126,7 @@ contains
        call this%set_fields(fluid%S, fluid%u, fluid%v, &
             fluid%w, fluid%max_wave_speed, fluid%msh, fluid%Xh, fluid%gs_Xh)
     end select
-    
+
     call this%h%init(this%dof, 'h')
     call this%compute_h()
 
@@ -429,7 +429,7 @@ contains
 
   end function entropy_viscosity_low_order
 
-  
+
   !> Copied from les_model_compute_delta in les_model.f90
   !> TODO: move to a separate module
   !> Compute characteristic mesh size h

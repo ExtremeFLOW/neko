@@ -109,7 +109,7 @@ module avm_model
      end subroutine avm_model_free
   end interface
 
-    interface
+  interface
      !> AVM model allocator.
      !! @param object The object to be allocated.
      !! @param type_name The name of the AVM model.
