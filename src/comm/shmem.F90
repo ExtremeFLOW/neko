@@ -387,6 +387,16 @@ module shmem
      end subroutine shmem_uint64_atomic_set
   end interface
 
+  interface
+     subroutine shmem_uint64_wait_until(ivar, cmp, cmp_value) &
+          bind(c, name='shmem_uint64_wait_until')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: ivar
+       integer(c_int), value :: cmp
+       integer(c_int64_t), value :: cmp_value
+     end subroutine shmem_uint64_wait_until
+  end interface
+
   !
   ! Collective Operations
   !

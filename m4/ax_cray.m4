@@ -248,7 +248,7 @@ AC_DEFUN([AX_CRAY_HDF5_PARALLEL],[
         fi
 ])
 
-AC_DEFUN([AX_CRAY_OPENSHMEMX],[
+AC_DEFUN([AX_CRAY_SHMEM],[
         AC_ARG_WITH([openshmem],[],
         [
         ], [with_openshmem=no])
@@ -256,13 +256,23 @@ AC_DEFUN([AX_CRAY_OPENSHMEMX],[
         AC_MSG_CHECKING([Cray OpenSHMEMX])
         if test "${CRAY_OPENSHMEMX_VERSION}"; then
            AC_MSG_RESULT([yes])
-           have_cray_openshmemx="yes"
+           have_cray_shmem="yes"
            AC_DEFINE(HAVE_OPENSHMEMX,1,[Define if you have OPENSHMEMX.])
-           AC_DEFINE(HAVE_OPENSHMEM,1,[Define if you have OPENSHMEMX.])
+           AC_DEFINE(HAVE_OPENSHMEM,1,[Define if you have OPENSHMEM.])
         else
            AC_MSG_RESULT([no])
-           have_cray_openshmemx="no"
+           AC_MSG_CHECKING([Cray SHMEM])
+           if test "${CRAY_SHMEM_VERSION}"; then
+              AC_MSG_RESULT([yes])
+              have_cray_shmem="yes"
+              AC_DEFINE(HAVE_CRAYSHMEM,1,[Define if you have CRAYSHMEM.])
+              AC_DEFINE(HAVE_OPENSHMEM,1,[Define if you have OPENfg
+              SHMEM.])
+           else
+              AC_MSG_RESULT([no])
+              have_cray_shmem="no"
+           fi
        fi
-       AC_SUBST(have_cray_openshmemx)
+       AC_SUBST(have_cray_shmem)
        fi
 ])       

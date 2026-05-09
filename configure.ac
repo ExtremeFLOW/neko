@@ -331,7 +331,7 @@ fi
 
 # Checks for OpenSHMEM
 if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
-   AX_CRAY_OPENSHMEMX
+   AX_CRAY_SHMEM
 fi
 
 

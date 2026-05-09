@@ -36,15 +36,14 @@ module gs_shmem
   use gs_comm, only : gs_comm_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
-  use comm, only : NEKO_COMM
-  use mpi_f08, only : MPI_Allreduce, MPI_Sendrecv, MPI_INTEGER, MPI_MAX, &
-       MPI_STATUS_IGNORE
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use mpi_f08, only : MPI_Allreduce, MPI_Alltoall, MPI_INTEGER, MPI_MAX
   use utils, only : neko_error
 #ifdef HAVE_OPENSHMEM
   use shmem, only : shmem_malloc, shmem_calloc, shmem_free, &
        shmem_putmem_signal_nbi, shmem_signal_wait_until, &
-       shmem_uint64_atomic_set, shmem_barrier_all, &
-       SHMEM_SIGNAL_SET, SHMEM_CMP_GE
+       shmem_uint64_atomic_set, shmem_uint64_wait_until, &
+       shmem_barrier_all, SHMEM_SIGNAL_SET, SHMEM_CMP_GE
 #endif
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
        c_f_pointer, c_associated, c_sizeof, c_size_t, c_int64_t
@@ -58,17 +57,8 @@ module gs_shmem
      !> Local offset in this buffer for each neighbor
      integer, allocatable :: offset(:)
      !> For send_buf: offset in the remote PE's recv buffer where our
-     !! data should land (= remote PE's recv-side offset for our data).
-     !! Unused for recv_buf.
+     !! data should land. Unused for recv_buf.
      integer, allocatable :: remote_offset(:)
-     !> Slot index on the remote PE for our signal puts.
-     !! For send_buf(i), this is the index in send_pe(i)'s data_signals
-     !! array that we should set when delivering data to send_pe(i)
-     !! (= send_pe(i)'s recv index for us).
-     !! For recv_buf(i), this is the index in recv_pe(i)'s ack_signals
-     !! array that we should set when acking recv_pe(i) (= recv_pe(i)'s
-     !! send index for us). Both populated by MPI_Sendrecv during init.
-     integer, allocatable :: remote_signal_idx(:)
      !> Total number of dofs in this buffer on this PE
      integer :: total = 0
      !> Maximum total across all PEs (size of the symmetric allocation)
@@ -81,37 +71,38 @@ module gs_shmem
   end type gs_shmem_buf_t
 
   !> Gather-scatter communication using OpenSHMEM one-sided puts with
-  !! per-neighbor signaling for completion (OpenSHMEM 1.5).
+  !! per-rank signaling for completion (OpenSHMEM 1.5).
   !!
   !! Each PE allocates symmetric send and recv buffers sized to the
   !! global maximum number of dofs (so puts can target a well-defined
   !! offset on the remote PE's recv buffer) plus two symmetric uint64
-  !! signal arrays sized to the global maximum number of neighbors:
-  !! data_signals (incoming "data has arrived" notifications) and
-  !! ack_signals (incoming "buffer consumed, you may overwrite"
-  !! notifications). The sender waits on ack_signals before each put so
-  !! a fast sender can never overwrite a buffer the receiver hasn't
-  !! consumed yet.
+  !! arrays of size pe_size, indexed by the remote PE's rank:
+  !! data_signals[r] holds an "iter" value written by PE r when it has
+  !! put data into our recv buffer (via shmem_putmem_signal_nbi);
+  !! ack_signals[r] holds an "iter" value written by PE r after it has
+  !! consumed our most recent put (via shmem_uint64_atomic_set). The
+  !! sender waits on its own ack_signals[dst] before each put so a fast
+  !! sender cannot overwrite a buffer the receiver hasn't consumed.
+  !!
+  !! Per-rank slot indexing avoids the slot-exchange handshake that a
+  !! neighbor-list-position scheme would require, which is fragile
+  !! because send_pe and recv_pe are pushed independently in
+  !! gs_schedule and may differ in size and ordering.
   type, public, extends(gs_comm_t) :: gs_shmem_t
      type(gs_shmem_buf_t) :: send_buf
      type(gs_shmem_buf_t) :: recv_buf
-     !> Symmetric data-arrival signals; data_signals[i] is set to `iter`
-     !! by recv_pe(i) when it has put data into our recv buffer.
-     !! Sized to n_signals (global max neighbors) on every PE.
+     !> Symmetric data-arrival signals; data_signals[r] is set to `iter`
+     !! by PE r via shmem_putmem_signal_nbi when it has put data into
+     !! our recv buffer. Sized to pe_size on every PE.
      type(c_ptr) :: data_signals_ptr = C_NULL_PTR
-     !> Symmetric ack signals; ack_signals[i] is set to `iter` by
-     !! send_pe(i) after it has consumed our most recent put. The sender
-     !! on this PE waits on its own ack_signals[i] before issuing the
-     !! next put to send_pe(i), preventing a buffer-overwrite race.
-     !! Sized to n_signals (global max neighbors) on every PE.
+     !> Symmetric ack signals; ack_signals[r] is set to `iter` by PE r
+     !! via shmem_uint64_atomic_set after it has consumed our most
+     !! recent put. Sized to pe_size on every PE.
      type(c_ptr) :: ack_signals_ptr = C_NULL_PTR
-     !> Global maximum of max(size(send_pe), size(recv_pe)) across all
-     !! PEs; this is the size of the symmetric signal allocations.
-     integer :: n_signals = 0
      !> Monotonically increasing iteration counter; sender writes this
      !! value into the receiver's data signal slot via SHMEM_SIGNAL_SET,
-     !! and the receiver waits for it. Receiver writes the same value
-     !! into the sender's ack slot after consumption.
+     !! and the receiver writes the same value into the sender's ack
+     !! slot after consumption.
      integer(kind=8) :: iter = 0
    contains
      procedure, pass(this) :: init => gs_shmem_init
@@ -143,11 +134,9 @@ contains
     allocate(this%ndofs(n))
     allocate(this%offset(n))
     allocate(this%remote_offset(n))
-    allocate(this%remote_signal_idx(n))
 
     do i = 1, n
        this%remote_offset(i) = -1
-       this%remote_signal_idx(i) = -1
     end do
 
     this%total = 0
@@ -157,6 +146,8 @@ contains
        this%total = this%total + this%ndofs(i)
     end do
 
+    ! OpenSHMEM symmetric memory must be allocated with the same size on
+    ! every PE.
     call MPI_Allreduce(this%total, this%max_total, 1, MPI_INTEGER, MPI_MAX, &
          NEKO_COMM, ierr)
 
@@ -175,10 +166,11 @@ contains
     if (allocated(this%ndofs)) deallocate(this%ndofs)
     if (allocated(this%offset)) deallocate(this%offset)
     if (allocated(this%remote_offset)) deallocate(this%remote_offset)
-    if (allocated(this%remote_signal_idx)) deallocate(this%remote_signal_idx)
 
 #ifdef HAVE_OPENSHMEM
     if (c_associated(this%buf_ptr)) then
+       ! shmem_free is collective; gs_shmem_free issues a barrier before
+       ! tearing down buffers.
        call shmem_free(this%buf_ptr)
     end if
 #endif
@@ -193,9 +185,10 @@ contains
     class(gs_shmem_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
-    integer :: i, ierr, n_local, slot, n_alloc
+    integer :: i, ierr
     integer(c_size_t) :: i64_size
     integer(c_int64_t) :: i64_dummy
+    integer, allocatable :: local_offsets(:), remote_offsets(:)
 #ifndef HAVE_OPENSHMEM
     call neko_error('Neko was not built with OpenSHMEM support')
 #else
@@ -205,70 +198,37 @@ contains
     call this%send_buf%init(this%send_pe, this%send_dof)
     call this%recv_buf%init(this%recv_pe, this%recv_dof)
 
-    ! Slot-exchange variant: signal arrays are sized to the global
-    ! maximum of max(n_send, n_recv) so they scale with neighbor count
-    ! rather than total PE count. Each PE tells its peers which slot
-    ! to target via two MPI_Sendrecv exchanges (data slots on tag 1,
-    ! ack slots on tag 2). The (recv_pe(i), send_pe(i)) pair in those
-    ! Sendrecvs is generally a pair of *different* PEs because
-    ! gs_schedule pushes send_pe and recv_pe in shifted-modulo order;
-    ! MPI matches by source/dest + tag, so this still works.
-    n_local = max(size(this%send_pe), size(this%recv_pe))
-    call MPI_Allreduce(n_local, this%n_signals, 1, MPI_INTEGER, MPI_MAX, &
-         NEKO_COMM, ierr)
-    n_alloc = max(this%n_signals, 1)
+    ! Allocate the per-rank symmetric signal arrays. Size pe_size on
+    ! every PE -> no Allreduce needed and no slot handshake required;
+    ! every PE writes/reads at offset = remote PE's rank.
     i64_size = c_sizeof(i64_dummy)
-    this%data_signals_ptr = shmem_calloc(int(n_alloc, c_size_t), i64_size)
+    this%data_signals_ptr = shmem_calloc(int(pe_size, c_size_t), i64_size)
     if (.not. c_associated(this%data_signals_ptr)) then
        call neko_error('shmem_calloc failed for gs_shmem data signals')
     end if
-    this%ack_signals_ptr = shmem_calloc(int(n_alloc, c_size_t), i64_size)
+    this%ack_signals_ptr = shmem_calloc(int(pe_size, c_size_t), i64_size)
     if (.not. c_associated(this%ack_signals_ptr)) then
        call neko_error('shmem_calloc failed for gs_shmem ack signals')
     end if
 
-    ! Exchange recv-buffer offsets (existing): tell recv_pe(i) where in
-    ! our recv buffer their data should land; learn from send_pe(i)
-    ! where in their recv buffer our data should land.
-    do i = 1, max(size(this%send_pe), size(this%recv_pe))
-       if (i .le. size(this%send_pe) .and. i .le. size(this%recv_pe)) then
-          call MPI_Sendrecv( &
-               this%recv_buf%offset(i), 1, MPI_INTEGER, this%recv_pe(i), 0, &
-               this%send_buf%remote_offset(i), 1, MPI_INTEGER, &
-               this%send_pe(i), 0, &
-               NEKO_COMM, MPI_STATUS_IGNORE, ierr)
-       end if
+    ! Offset exchange via Alltoall. send_pe and recv_pe are built in
+    ! gs_schedule with a shifted-modulo neighbor pattern; pairwise
+    ! Isend/Irecv keyed by neighbor rank turned out to deadlock at
+    ! certain PE counts. Alltoall is a single collective call that
+    ! cannot mismatch, and the payload is just pe_size ints per PE.
+    allocate(local_offsets(0:pe_size - 1))
+    allocate(remote_offsets(0:pe_size - 1))
+    local_offsets = -1
+    do i = 1, size(this%recv_pe)
+       local_offsets(this%recv_pe(i)) = this%recv_buf%offset(i)
     end do
-
-    ! Exchange data-signal slots (tag 1): tell recv_pe(i) "my recv slot
-    ! for incoming from you = i" so they target my data_signals[i]
-    ! when sending; learn from send_pe(i) where to target their
-    ! data_signals when we send to them -> send_buf%remote_signal_idx(i).
-    do i = 1, max(size(this%send_pe), size(this%recv_pe))
-       if (i .le. size(this%send_pe) .and. i .le. size(this%recv_pe)) then
-          slot = i
-          call MPI_Sendrecv( &
-               slot, 1, MPI_INTEGER, this%recv_pe(i), 1, &
-               this%send_buf%remote_signal_idx(i), 1, MPI_INTEGER, &
-               this%send_pe(i), 1, &
-               NEKO_COMM, MPI_STATUS_IGNORE, ierr)
-       end if
+    call MPI_Alltoall(local_offsets, 1, MPI_INTEGER, &
+         remote_offsets, 1, MPI_INTEGER, NEKO_COMM, ierr)
+    do i = 1, size(this%send_pe)
+       this%send_buf%remote_offset(i) = remote_offsets(this%send_pe(i))
     end do
-
-    ! Exchange ack-signal slots (tag 2): tell send_pe(i) "my send slot
-    ! for you = i" so they target my ack_signals[i] when acking; learn
-    ! from recv_pe(i) where to target their ack_signals when we ack
-    ! them -> recv_buf%remote_signal_idx(i).
-    do i = 1, max(size(this%send_pe), size(this%recv_pe))
-       if (i .le. size(this%send_pe) .and. i .le. size(this%recv_pe)) then
-          slot = i
-          call MPI_Sendrecv( &
-               slot, 1, MPI_INTEGER, this%send_pe(i), 2, &
-               this%recv_buf%remote_signal_idx(i), 1, MPI_INTEGER, &
-               this%recv_pe(i), 2, &
-               NEKO_COMM, MPI_STATUS_IGNORE, ierr)
-       end if
-    end do
+    deallocate(local_offsets)
+    deallocate(remote_offsets)
 
     this%iter = 0
 
@@ -295,7 +255,6 @@ contains
     end if
     this%data_signals_ptr = C_NULL_PTR
     this%ack_signals_ptr = C_NULL_PTR
-    this%n_signals = 0
     this%iter = 0
 #endif
 
@@ -323,7 +282,6 @@ contains
     integer , pointer :: sp(:)
     real(kind=rp), pointer :: send_data(:), recv_data(:)
     integer(c_int64_t), pointer :: data_signals(:), ack_signals(:)
-    integer(c_int64_t) :: dummy
     real(c_rp) :: rp_dummy
 #ifdef HAVE_OPENSHMEM
 
@@ -335,34 +293,32 @@ contains
          [max(this%send_buf%max_total, 1)])
     call c_f_pointer(this%recv_buf%buf_ptr, recv_data, &
          [max(this%recv_buf%max_total, 1)])
-    call c_f_pointer(this%data_signals_ptr, data_signals, &
-         [max(this%n_signals, 1)])
-    call c_f_pointer(this%ack_signals_ptr, ack_signals, &
-         [max(this%n_signals, 1)])
+    call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
+    call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
     do i = 1, size(this%send_pe)
        dst = this%send_pe(i)
 
-       ! Wait for the receiver to have consumed our previous round's
-       ! data before we overwrite their recv buffer. ack_signals is
-       ! calloc'd to 0 and the receiver writes the iter value after
+       ! Wait for dst to have consumed our previous round's data before
+       ! we overwrite their recv buffer. ack_signals[dst] is calloc'd
+       ! to 0 and dst writes the iter value (via atomic_set) after
        ! consumption, so for iter == 1 the wait succeeds immediately.
-       ! Local index i corresponds to send_pe(i) by construction.
-       dummy = shmem_signal_wait_until(c_loc(ack_signals(i)), &
+       call shmem_uint64_wait_until(c_loc(ack_signals(dst + 1)), &
             SHMEM_CMP_GE, this%iter - 1_8)
 
        sp => this%send_dof(dst)%array()
        base = this%send_buf%offset(i)
-        do concurrent (j = 1:this%send_dof(dst)%size())
+       do concurrent (j = 1:this%send_dof(dst)%size())
           send_data(base + j) = u(sp(j))
        end do
 
        nbytes = int(this%send_buf%ndofs(i), c_size_t) * c_sizeof(rp_dummy)
+       ! Put data + signal dst's data_signals[my_rank].
        call shmem_putmem_signal_nbi( &
             c_loc(recv_data(this%send_buf%remote_offset(i) + 1)), &
             c_loc(send_data(base + 1)), &
             nbytes, &
-            c_loc(data_signals(this%send_buf%remote_signal_idx(i))), &
+            c_loc(data_signals(pe_rank + 1)), &
             this%iter, SHMEM_SIGNAL_SET, dst)
     end do
 #endif
@@ -392,16 +348,14 @@ contains
 
     call c_f_pointer(this%recv_buf%buf_ptr, recv_data, &
          [max(this%recv_buf%max_total, 1)])
-    call c_f_pointer(this%data_signals_ptr, data_signals, &
-         [max(this%n_signals, 1)])
-    call c_f_pointer(this%ack_signals_ptr, ack_signals, &
-         [max(this%n_signals, 1)])
+    call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
+    call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
 
-       ! Local index i corresponds to recv_pe(i) by construction.
-       dummy = shmem_signal_wait_until(c_loc(data_signals(i)), &
+       ! Wait for data from src; data_signals[src] is set by src's put.
+       dummy = shmem_signal_wait_until(c_loc(data_signals(src + 1)), &
             SHMEM_CMP_GE, this%iter)
 
        sp => this%recv_dof(src)%array()
@@ -431,10 +385,11 @@ contains
           call neko_error("Unknown operation in gs_nbwait_shmem")
        end select
 
-       ! Tell the sender we are done with this round's buffer so they
-       ! may overwrite it on the next round.
+       ! Tell src we are done with this round's buffer so they may
+       ! overwrite it on the next round. We set our own rank's slot
+       ! in src's ack_signals; src waits there on the next nbsend.
        call shmem_uint64_atomic_set( &
-            c_loc(ack_signals(this%recv_buf%remote_signal_idx(i))), &
+            c_loc(ack_signals(pe_rank + 1)), &
             this%iter, src)
     end do
 #endif
