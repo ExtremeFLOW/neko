@@ -291,7 +291,7 @@ contains
           end if
        end do
        deallocate(in_neigh)
-    end if   ! atomic & event modes: no per-instance state to allocate
+    end if ! atomic & event modes: no per-instance state to allocate
 
     ! Ensure recv_buf is allocated and (atomic mode) baselines are stable
     ! on every image before any signaling activity begins.
