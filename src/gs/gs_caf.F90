@@ -72,21 +72,31 @@ module gs_caf
   !! -- no overlapping nbsend/nbwait rounds across instances. The buffer
   !! is grown on demand to fit the largest gs ever initialised; it is
   !! never shrunk and is retained for the program lifetime.
-  real(kind=rp), allocatable, save :: gs_caf_recv_buf(:)[:]
-  integer, save :: gs_caf_buf_size = 0
+  real(kind=rp), allocatable :: gs_caf_recv_buf(:)[:]
+  integer :: gs_caf_buf_size = 0
 
   !> Active signaling mode; bound on the first gs_caf_t init from the
   !! NEKO_GS_CAF_SIGNALING environment variable. Subsequent instances
   !! must use the same mode (the env var is read once).
-  integer, save :: gs_caf_mode = 0
+  integer :: gs_caf_mode = 0
 
   !> Atomic-mode signaling counters, indexed by remote rank.
   !! gs_caf_data_ready(s_rank) on image r counts rounds image s has put
   !! into r so far. gs_caf_buf_ready(r_rank) on image s counts rounds
   !! image r has finished unpacking from s so far. Allocated only in
   !! atomic mode and shared by all instances.
-  integer(kind=atomic_int_kind), allocatable, save :: gs_caf_data_ready(:)[:]
-  integer(kind=atomic_int_kind), allocatable, save :: gs_caf_buf_ready(:)[:]
+  integer(kind=atomic_int_kind), allocatable :: gs_caf_data_ready(:)[:]
+  integer(kind=atomic_int_kind), allocatable :: gs_caf_buf_ready(:)[:]
+
+  !> Local caches of "rounds we have sent to / received from each remote
+  !! rank" -- size pe_size per image, indexed by remote rank. Updated
+  !! locally on every atomic_define / wait completion in nbsend / nbwait.
+  !! Reading these to baseline a new gs_caf_t avoids any remote
+  !! atomic_ref during init, which Cray CCE has historically deadlocked
+  !! on. The values match the remote atomic counters at quiescent
+  !! points (i.e. between gs ops) for symmetric, lockstep gs traffic.
+  integer, allocatable :: gs_caf_send_count(:)
+  integer, allocatable :: gs_caf_recv_count(:)
 
 #ifdef HAVE_COARRAY_EVENTS
   !> Event-mode signaling. The data_ready event accumulates one post per
@@ -94,9 +104,15 @@ module gs_caf
   !! sender. Events are scalar coarrays whose count cannot distinguish
   !! posts coming from different gs_caf_t instances, so event mode is
   !! restricted to a single live instance at a time.
-  type(event_type), save :: gs_caf_data_ready_ev[*]
-  type(event_type), save :: gs_caf_buf_ready_ev[*]
-  logical, save :: gs_caf_event_in_use = .false.
+  !!
+  !! The events are allocatable rather than static module-scope coarrays
+  !! because Cray CCE has historically had layout issues with mixing
+  !! module-scope static coarrays of derived type with allocatable
+  !! coarrays on the symmetric heap; an explicit allocate side-steps
+  !! that.
+  type(event_type), allocatable :: gs_caf_data_ready_ev[:]
+  type(event_type), allocatable :: gs_caf_buf_ready_ev[:]
+  logical :: gs_caf_event_in_use = .false.
 #endif
 #endif
 
@@ -120,11 +136,6 @@ module gs_caf
      !! used for the pairwise sync images that bracket the put. Unallocated
      !! in atomic mode.
      integer, allocatable :: sync_img(:)
-     !> atomic-mode only: per-peer round counters, baselined from the
-     !! current value of the shared atomic counters at init so multiple
-     !! instances can share gs_caf_data_ready / gs_caf_buf_ready safely.
-     !! Unallocated in sync mode.
-     integer, allocatable :: send_round(:), recv_round(:)
      !> event-mode only: false on the very first nbsend so the buf_ready
      !! wait is skipped (there are no credits posted yet).
      logical :: send_started = .false.
@@ -154,7 +165,6 @@ contains
     logical, allocatable :: in_neigh(:)
     integer :: i, nsend, nrecv, send_total, recv_total, max_total, n_neigh
     integer :: me, env_len
-    integer(kind=atomic_int_kind) :: flag
     character(len=64) :: env_val
 
     ! Bind the signaling mode on the first init.
@@ -164,6 +174,10 @@ contains
           gs_caf_mode = GS_CAF_SIGNAL_ATOMIC
           allocate(gs_caf_data_ready(0:pe_size - 1)[*])
           allocate(gs_caf_buf_ready(0:pe_size - 1)[*])
+          allocate(gs_caf_send_count(0:pe_size - 1))
+          allocate(gs_caf_recv_count(0:pe_size - 1))
+          gs_caf_send_count = 0
+          gs_caf_recv_count = 0
           ! F2008 forbids mixing atomic and non-atomic accesses on the
           ! same variable, so initialise via atomic_define rather than
           ! a regular array assignment.
@@ -184,14 +198,15 @@ contains
     end if
 
 #ifdef HAVE_COARRAY_EVENTS
-    ! Event mode supports only one live gs_caf_t at a time because the
-    ! shared event counter cannot tell instances apart.
+    ! Allocate the shared event coarrays once, lazily, on the first
+    ! event-mode init. The in-use guard against overlapping gs ops is
+    ! enforced in nbsend/nbwait, not here -- multiple gs_caf_t instances
+    ! may be initialised back-to-back.
     if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
-       if (gs_caf_event_in_use) then
-          call neko_error("Event-mode coarray gather-scatter only " // &
-               "supports one active instance at a time")
+       if (.not. allocated(gs_caf_data_ready_ev)) then
+          allocate(gs_caf_data_ready_ev[*])
+          allocate(gs_caf_buf_ready_ev[*])
        end if
-       gs_caf_event_in_use = .true.
     end if
 #endif
 
@@ -276,21 +291,7 @@ contains
           end if
        end do
        deallocate(in_neigh)
-    else if (gs_caf_mode .eq. GS_CAF_SIGNAL_ATOMIC) then
-       ! Baseline this instance's per-peer round counters from the
-       ! current shared-counter values so the (per-pair, shared) atomic
-       ! counters can be reused across instances.
-       allocate(this%send_round(nsend), this%recv_round(nrecv))
-       do i = 1, nsend
-          call atomic_ref(flag, &
-               gs_caf_data_ready(me - 1)[this%send_img(i)])
-          this%send_round(i) = int(flag)
-       end do
-       do i = 1, nrecv
-          call atomic_ref(flag, gs_caf_data_ready(this%recv_pe(i)))
-          this%recv_round(i) = int(flag)
-       end do
-    end if   ! event mode: no per-instance state beyond send_started
+    end if   ! atomic & event modes: no per-instance state to allocate
 
     ! Ensure recv_buf is allocated and (atomic mode) baselines are stable
     ! on every image before any signaling activity begins.
@@ -316,14 +317,6 @@ contains
     if (allocated(this%send_img)) deallocate(this%send_img)
     if (allocated(this%recv_img)) deallocate(this%recv_img)
     if (allocated(this%sync_img)) deallocate(this%sync_img)
-    if (allocated(this%send_round)) deallocate(this%send_round)
-    if (allocated(this%recv_round)) deallocate(this%recv_round)
-
-#ifdef HAVE_COARRAY_EVENTS
-    if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
-       gs_caf_event_in_use = .false.
-    end if
-#endif
 
     call this%free_order()
     call this%free_dofs()
@@ -365,6 +358,15 @@ contains
        end do
 #ifdef HAVE_COARRAY_EVENTS
     else if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
+       ! Event mode shares one set of module-level event coarrays among
+       ! all instances and cannot disambiguate posts from concurrent gs
+       ! ops, so we must guarantee non-overlapping nbsend/nbwait windows.
+       if (gs_caf_event_in_use) then
+          call neko_error("Event-mode coarray gather-scatter does not " // &
+               "support overlapping gs ops on different instances")
+       end if
+       gs_caf_event_in_use = .true.
+
        ! Wait for all receivers to have credited their buffers (skipped
        ! on the first nbsend; there are no credits posted yet).
        if (this%send_started) then
@@ -387,9 +389,13 @@ contains
           end do
           gs_caf_recv_buf(half_off + doff + 1 : half_off + doff + ndst)[dimg] &
                = this%send_buf(off + 1 : off + ndst)
-          ! event post is itself an image-control statement that
-          ! establishes segment ordering with the matching event wait,
-          ! so the put above is guaranteed visible to the receiver.
+          ! event post is meant to act as an image-control statement
+          ! that establishes segment ordering with the matching event
+          ! wait, but real-world coarray runtimes can let a small event
+          ! message race past a still-in-flight RDMA put -- the
+          ! receiver's wait then completes before the data has landed.
+          ! sync memory forces the put to commit locally before the post.
+          sync memory
           event post(gs_caf_data_ready_ev[dimg])
        end do
 #endif
@@ -403,15 +409,17 @@ contains
           doff = this%dest_offset(i)
 
           ! Back-pressure: wait for the receiver to have unpacked the
-          ! previous round on this pair. send_round(i) holds the count
-          ! of rounds we have already completed. The sync memory inside
-          ! the spin is needed on runtimes (notably Fujitsu CAF on A64FX)
-          ! where a bare atomic_ref does not drive the progress engine
-          ! and remote atomic_define writes never become locally visible.
+          ! previous round on this pair. gs_caf_send_count(rank) holds
+          ! the count of rounds we have already completed with that
+          ! peer (across all gs_caf_t instances). The sync memory inside
+          ! the spin is needed on runtimes (notably Fujitsu CAF on
+          ! A64FX) where a bare atomic_ref does not drive the progress
+          ! engine and remote atomic_define writes never become locally
+          ! visible.
           do
              sync memory
              call atomic_ref(flag, gs_caf_buf_ready(this%send_pe(i)))
-             if (int(flag) .ge. this%send_round(i)) exit
+             if (int(flag) .ge. gs_caf_send_count(this%send_pe(i))) exit
           end do
 
           sp => this%send_dof(dst)%array()
@@ -426,9 +434,10 @@ contains
           ! runtimes have historically had bugs here.
           sync memory
 
-          this%send_round(i) = this%send_round(i) + 1
+          gs_caf_send_count(this%send_pe(i)) = &
+               gs_caf_send_count(this%send_pe(i)) + 1
           call atomic_define(gs_caf_data_ready(me_rank)[dimg], &
-               int(this%send_round(i), atomic_int_kind))
+               int(gs_caf_send_count(this%send_pe(i)), atomic_int_kind))
        end do
     end if
 #else
@@ -478,11 +487,12 @@ contains
        ! the network progress engine on runtimes that need it (notably
        ! Fujitsu CAF on A64FX).
        do i = 1, size(this%recv_pe)
-          this%recv_round(i) = this%recv_round(i) + 1
+          gs_caf_recv_count(this%recv_pe(i)) = &
+               gs_caf_recv_count(this%recv_pe(i)) + 1
           do
              sync memory
              call atomic_ref(flag, gs_caf_data_ready(this%recv_pe(i)))
-             if (int(flag) .ge. this%recv_round(i)) exit
+             if (int(flag) .ge. gs_caf_recv_count(this%recv_pe(i))) exit
           end do
        end do
     end if
@@ -524,13 +534,14 @@ contains
        me_rank = this_image() - 1
        do i = 1, size(this%recv_pe)
           call atomic_define(gs_caf_buf_ready(me_rank)[this%recv_img(i)], &
-               int(this%recv_round(i), atomic_int_kind))
+               int(gs_caf_recv_count(this%recv_pe(i)), atomic_int_kind))
        end do
 #ifdef HAVE_COARRAY_EVENTS
     else if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
        do i = 1, size(this%recv_pe)
           event post(gs_caf_buf_ready_ev[this%recv_img(i)])
        end do
+       gs_caf_event_in_use = .false.
 #endif
     end if
 
