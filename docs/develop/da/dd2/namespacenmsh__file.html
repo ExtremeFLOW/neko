@@ -123,6 +123,18 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab673df5350f29af1e48f356c8d001c1c" id="r_ab673df5350f29af1e48f356c8d001c1c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c">nmsh_file_read_2d</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, msh)</td></tr>
 <tr class="memdesc:ab673df5350f29af1e48f356c8d001c1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a mesh from a binary Neko nmsh file.  <br /></td></tr>
 <tr class="separator:ab673df5350f29af1e48f356c8d001c1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5c5a80ca8071fe608fd63d07e3b04fb" id="r_ad5c5a80ca8071fe608fd63d07e3b04fb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd2/namespacenmsh__file.html#ad5c5a80ca8071fe608fd63d07e3b04fb">nmsh_file_read_zones</a> (fh, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">base_offset</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nzones</a>, msh)</td></tr>
+<tr class="memdesc:ad5c5a80ca8071fe608fd63d07e3b04fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read zone data in chunks and ring-pass between ranks, avoiding storage of the full zone list on every rank. Uses two ring traversals: first marks all matching facets on every rank, then applies periodic facets (apply must follow mark globally since apply mutates point ids that mark reads via get_facet_ids).  <br /></td></tr>
+<tr class="separator:ad5c5a80ca8071fe608fd63d07e3b04fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a147eb31a60f5d8a4226a76a49d3b753d" id="r_a147eb31a60f5d8a4226a76a49d3b753d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd2/namespacenmsh__file.html#a147eb31a60f5d8a4226a76a49d3b753d">nmsh_file_extrude_periodic_ids</a> (f, glb_pt_ids, glb_nelv, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ids</a>)</td></tr>
+<tr class="memdesc:a147eb31a60f5d8a4226a76a49d3b753d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the extruded periodic point ids for the 2D thin-slab path. Pure function of the zone fields; safe to invoke independently from the mark and apply ring passes.  <br /></td></tr>
+<tr class="separator:a147eb31a60f5d8a4226a76a49d3b753d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf328213f6a6b2ec1af91348c50f8086" id="r_adf328213f6a6b2ec1af91348c50f8086"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd2/namespacenmsh__file.html#adf328213f6a6b2ec1af91348c50f8086">nmsh_file_read_zones_2d</a> (fh, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">base_offset</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">nzones</a>, msh)</td></tr>
+<tr class="memdesc:adf328213f6a6b2ec1af91348c50f8086"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read zone data in chunks and ring-pass between ranks for the 2D thin-slab path. Two ring traversals as in nmsh_file_read_zones, but periodic entries also need their glb_pt_ids reordered to account for the extruded layer.  <br /></td></tr>
+<tr class="separator:adf328213f6a6b2ec1af91348c50f8086"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fe1cf661ee2e9908ca960741e2358e7" id="r_a6fe1cf661ee2e9908ca960741e2358e7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd2/namespacenmsh__file.html#a6fe1cf661ee2e9908ca960741e2358e7">nmsh_file_read_curves</a> (fh, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">base_offset</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ncurves</a>, msh)</td></tr>
+<tr class="memdesc:a6fe1cf661ee2e9908ca960741e2358e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read curve element data in chunks and ring-pass between ranks, avoiding storage of the full curve list on every rank.  <br /></td></tr>
+<tr class="separator:a6fe1cf661ee2e9908ca960741e2358e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b190d85a2c1992d524e6f5d57b1c21a" id="r_a3b190d85a2c1992d524e6f5d57b1c21a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd2/namespacenmsh__file.html#a3b190d85a2c1992d524e6f5d57b1c21a">nmsh_file_write</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, data, t)</td></tr>
 <tr class="memdesc:a3b190d85a2c1992d524e6f5d57b1c21a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a mesh from to a binary Neko nmsh file.  <br /></td></tr>
 <tr class="separator:a3b190d85a2c1992d524e6f5d57b1c21a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,6 +146,70 @@ Variables</h2></td></tr>
 <tr class="separator:a77ab82a90bce7c8d4881e5efc366e410"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a147eb31a60f5d8a4226a76a49d3b753d" name="a147eb31a60f5d8a4226a76a49d3b753d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a147eb31a60f5d8a4226a76a49d3b753d">&#9670;&#160;</a></span>nmsh_file_extrude_periodic_ids()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pure</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> nmsh_file::nmsh_file_extrude_periodic_ids </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>f</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(4), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>glb_pt_ids</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>glb_nelv</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(4), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">out</a>)&#160;</td>
+          <td class="paramname"><em>ids</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00434">434</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd2/namespacenmsh__file_a147eb31a60f5d8a4226a76a49d3b753d_icgraph.png" border="0" usemap="#ada/dd2/namespacenmsh__file_a147eb31a60f5d8a4226a76a49d3b753d_icgraph" alt=""/></div>
+<map name="ada/dd2/namespacenmsh__file_a147eb31a60f5d8a4226a76a49d3b753d_icgraph" id="ada/dd2/namespacenmsh__file_a147eb31a60f5d8a4226a76a49d3b753d_icgraph">
+<area shape="rect" title="Compute the extruded periodic point ids for the 2D thin&#45;slab path. Pure function of the zone fields; ..." alt="" coords="653,5,817,45"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#adf328213f6a6b2ec1af91348c50f8086" title="Read zone data in chunks and ring&#45;pass between ranks for the 2D thin&#45;slab path. Two ring traversals a..." alt="" coords="449,5,605,45"/>
+<area shape="poly" title=" " alt="" coords="639,28,606,28,606,23,639,23"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,5,401,45"/>
+<area shape="poly" title=" " alt="" coords="436,28,401,28,401,23,436,23"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a57b84eb8737b8753bc695fa4da897b6d" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,13,197,38"/>
+<area shape="poly" title=" " alt="" coords="232,28,197,28,197,23,232,23"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a57b84eb8737b8753bc695fa4da897b6d" name="a57b84eb8737b8753bc695fa4da897b6d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a57b84eb8737b8753bc695fa4da897b6d">&#9670;&#160;</a></span>nmsh_file_read()</h2>
 
@@ -159,17 +235,25 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000019">Todo:</a></b></dt><dd>Fix the parallel reading in this part, let each rank read a piece and pass the pieces around, filtering out matching zones in the local mesh. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/dd2/namespacenmsh__file_a57b84eb8737b8753bc695fa4da897b6d_cgraph.png" border="0" usemap="#ada/dd2/namespacenmsh__file_a57b84eb8737b8753bc695fa4da897b6d_cgraph" alt=""/></div>
 <map name="ada/dd2/namespacenmsh__file_a57b84eb8737b8753bc695fa4da897b6d_cgraph" id="ada/dd2/namespacenmsh__file_a57b84eb8737b8753bc695fa4da897b6d_cgraph">
-<area shape="rect" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,13,197,38"/>
-<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,5,401,45"/>
-<area shape="poly" title=" " alt="" coords="198,23,232,23,232,28,198,28"/>
+<area shape="rect" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,70,197,95"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,63,401,103"/>
+<area shape="poly" title=" " alt="" coords="198,80,232,80,232,85,198,85"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a6fe1cf661ee2e9908ca960741e2358e7" title="Read curve element data in chunks and ring&#45;pass between ranks, avoiding storage of the full curve lis..." alt="" coords="449,5,605,45"/>
+<area shape="poly" title=" " alt="" coords="151,67,245,48,343,36,435,28,435,33,344,41,246,53,152,73"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#ad5c5a80ca8071fe608fd63d07e3b04fb" title="Read zone data in chunks and ring&#45;pass between ranks, avoiding storage of the full zone list on every..." alt="" coords="245,127,401,167"/>
+<area shape="poly" title=" " alt="" coords="147,93,241,120,240,125,146,98"/>
+<area shape="poly" title=" " alt="" coords="394,60,442,47,443,52,396,65"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#adf328213f6a6b2ec1af91348c50f8086" title="Read zone data in chunks and ring&#45;pass between ranks for the 2D thin&#45;slab path. Two ring traversals a..." alt="" coords="449,69,605,109"/>
+<area shape="poly" title=" " alt="" coords="401,83,436,84,436,89,401,88"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a147eb31a60f5d8a4226a76a49d3b753d" title="Compute the extruded periodic point ids for the 2D thin&#45;slab path. Pure function of the zone fields; ..." alt="" coords="653,69,817,109"/>
+<area shape="poly" title=" " alt="" coords="606,87,639,87,639,92,606,92"/>
 </map>
 </div>
 
@@ -208,15 +292,223 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000020">Todo:</a></b></dt><dd>Fix the parallel reading in this part, let each rank read a piece and pass the pieces around, filtering out matching zones in the local mesh. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00263">263</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00210">210</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd2/namespacenmsh__file_ab673df5350f29af1e48f356c8d001c1c_cgraph.png" border="0" usemap="#ada/dd2/namespacenmsh__file_ab673df5350f29af1e48f356c8d001c1c_cgraph" alt=""/></div>
+<map name="ada/dd2/namespacenmsh__file_ab673df5350f29af1e48f356c8d001c1c_cgraph" id="ada/dd2/namespacenmsh__file_ab673df5350f29af1e48f356c8d001c1c_cgraph">
+<area shape="rect" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,37,161,77"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a6fe1cf661ee2e9908ca960741e2358e7" title="Read curve element data in chunks and ring&#45;pass between ranks, avoiding storage of the full curve lis..." alt="" coords="209,5,365,45"/>
+<area shape="poly" title=" " alt="" coords="161,43,195,37,196,42,162,48"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#adf328213f6a6b2ec1af91348c50f8086" title="Read zone data in chunks and ring&#45;pass between ranks for the 2D thin&#45;slab path. Two ring traversals a..." alt="" coords="209,69,365,109"/>
+<area shape="poly" title=" " alt="" coords="162,67,196,72,195,78,161,72"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a147eb31a60f5d8a4226a76a49d3b753d" title="Compute the extruded periodic point ids for the 2D thin&#45;slab path. Pure function of the zone fields; ..." alt="" coords="413,69,577,109"/>
+<area shape="poly" title=" " alt="" coords="366,87,399,87,399,92,366,92"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/dd2/namespacenmsh__file_ab673df5350f29af1e48f356c8d001c1c_icgraph.png" border="0" usemap="#ada/dd2/namespacenmsh__file_ab673df5350f29af1e48f356c8d001c1c_icgraph" alt=""/></div>
 <map name="ada/dd2/namespacenmsh__file_ab673df5350f29af1e48f356c8d001c1c_icgraph" id="ada/dd2/namespacenmsh__file_ab673df5350f29af1e48f356c8d001c1c_icgraph">
 <area shape="rect" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,5,401,45"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a57b84eb8737b8753bc695fa4da897b6d" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,13,197,38"/>
+<area shape="poly" title=" " alt="" coords="232,28,197,28,197,23,232,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a6fe1cf661ee2e9908ca960741e2358e7" name="a6fe1cf661ee2e9908ca960741e2358e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6fe1cf661ee2e9908ca960741e2358e7">&#9670;&#160;</a></span>nmsh_file_read_curves()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> nmsh_file::nmsh_file_read_curves </td>
+          <td>(</td>
+          <td class="paramtype">type(mpi_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>fh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=mpi_offset_kind), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>base_offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>ncurves</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>msh</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00577">577</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd2/namespacenmsh__file_a6fe1cf661ee2e9908ca960741e2358e7_icgraph.png" border="0" usemap="#ada/dd2/namespacenmsh__file_a6fe1cf661ee2e9908ca960741e2358e7_icgraph" alt=""/></div>
+<map name="ada/dd2/namespacenmsh__file_a6fe1cf661ee2e9908ca960741e2358e7_icgraph" id="ada/dd2/namespacenmsh__file_a6fe1cf661ee2e9908ca960741e2358e7_icgraph">
+<area shape="rect" title="Read curve element data in chunks and ring&#45;pass between ranks, avoiding storage of the full curve lis..." alt="" coords="449,5,605,45"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a57b84eb8737b8753bc695fa4da897b6d" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,13,197,38"/>
+<area shape="poly" title=" " alt="" coords="435,25,401,24,245,24,197,25,197,20,245,19,401,19,436,19"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,33,401,73"/>
+<area shape="poly" title=" " alt="" coords="436,41,402,45,401,40,436,35"/>
+<area shape="poly" title=" " alt="" coords="232,44,197,40,198,35,232,39"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ad5c5a80ca8071fe608fd63d07e3b04fb" name="ad5c5a80ca8071fe608fd63d07e3b04fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5c5a80ca8071fe608fd63d07e3b04fb">&#9670;&#160;</a></span>nmsh_file_read_zones()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> nmsh_file::nmsh_file_read_zones </td>
+          <td>(</td>
+          <td class="paramtype">type(mpi_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>fh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=mpi_offset_kind), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>base_offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>nzones</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>msh</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00326">326</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd2/namespacenmsh__file_ad5c5a80ca8071fe608fd63d07e3b04fb_icgraph.png" border="0" usemap="#ada/dd2/namespacenmsh__file_ad5c5a80ca8071fe608fd63d07e3b04fb_icgraph" alt=""/></div>
+<map name="ada/dd2/namespacenmsh__file_ad5c5a80ca8071fe608fd63d07e3b04fb_icgraph" id="ada/dd2/namespacenmsh__file_ad5c5a80ca8071fe608fd63d07e3b04fb_icgraph">
+<area shape="rect" title="Read zone data in chunks and ring&#45;pass between ranks, avoiding storage of the full zone list on every..." alt="" coords="245,5,401,45"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a57b84eb8737b8753bc695fa4da897b6d" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,13,197,38"/>
+<area shape="poly" title=" " alt="" coords="232,28,197,28,197,23,232,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="adf328213f6a6b2ec1af91348c50f8086" name="adf328213f6a6b2ec1af91348c50f8086"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf328213f6a6b2ec1af91348c50f8086">&#9670;&#160;</a></span>nmsh_file_read_zones_2d()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> nmsh_file::nmsh_file_read_zones_2d </td>
+          <td>(</td>
+          <td class="paramtype">type(mpi_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>fh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=mpi_offset_kind), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>base_offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>nzones</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramname"><em>msh</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00463">463</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd2/namespacenmsh__file_adf328213f6a6b2ec1af91348c50f8086_cgraph.png" border="0" usemap="#ada/dd2/namespacenmsh__file_adf328213f6a6b2ec1af91348c50f8086_cgraph" alt=""/></div>
+<map name="ada/dd2/namespacenmsh__file_adf328213f6a6b2ec1af91348c50f8086_cgraph" id="ada/dd2/namespacenmsh__file_adf328213f6a6b2ec1af91348c50f8086_cgraph">
+<area shape="rect" title="Read zone data in chunks and ring&#45;pass between ranks for the 2D thin&#45;slab path. Two ring traversals a..." alt="" coords="5,5,161,45"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a147eb31a60f5d8a4226a76a49d3b753d" title="Compute the extruded periodic point ids for the 2D thin&#45;slab path. Pure function of the zone fields; ..." alt="" coords="209,5,373,45"/>
+<area shape="poly" title=" " alt="" coords="162,23,195,23,195,28,162,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/dd2/namespacenmsh__file_adf328213f6a6b2ec1af91348c50f8086_icgraph.png" border="0" usemap="#ada/dd2/namespacenmsh__file_adf328213f6a6b2ec1af91348c50f8086_icgraph" alt=""/></div>
+<map name="ada/dd2/namespacenmsh__file_adf328213f6a6b2ec1af91348c50f8086_icgraph" id="ada/dd2/namespacenmsh__file_adf328213f6a6b2ec1af91348c50f8086_icgraph">
+<area shape="rect" title="Read zone data in chunks and ring&#45;pass between ranks for the 2D thin&#45;slab path. Two ring traversals a..." alt="" coords="449,5,605,45"/>
+<area shape="rect" href="../../da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,5,401,45"/>
+<area shape="poly" title=" " alt="" coords="436,28,401,28,401,23,436,23"/>
 <area shape="rect" href="../../da/dd2/namespacenmsh__file.html#a57b84eb8737b8753bc695fa4da897b6d" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,13,197,38"/>
 <area shape="poly" title=" " alt="" coords="232,28,197,28,197,23,232,23"/>
 </map>
@@ -264,7 +556,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00442">442</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00636">636</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
 
 </div>
 </div>
@@ -289,7 +581,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d8/d33/nmsh__file_8f90_source.html">nmsh_file.f90</a>.</p>
 
 </div>
 </div>
@@ -299,7 +591,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/dd2/namespacenmsh__file.html">nmsh_file</a></li>
-    <li class="footer">Generated on Fri May 8 2026 04:34:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat May 9 2026 04:37:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
