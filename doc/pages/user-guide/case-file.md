@@ -588,6 +588,13 @@ A more detailed description of each boundary condition is provided below.
    * The `spalding`model requires specifying `kappa` and `B`, which are the
      log-law constants. This model is suitable for smooth walls.
 
+   * The `caisagaut_model_ii` model is a smooth-wall explicit algebraic wall
+     model defined as Model-II of Cai and Sagaut (DOI: `10.1063/5.0048563`). It
+     uses the same `kappa` and `B` parameters as `spalding`, and also accepts
+     optional blending parameters `p` and `s`, which default to the paper
+     calibration values `1.138` and `217.8`. The main advantage of this model
+     is that it is explicit.
+
    * The `rough_log_law` model requires specifying `kappa` and `B`, which are
      the log-law constants, and `z0`, which is the characteristic roughness
      height.
@@ -609,7 +616,7 @@ A more detailed description of each boundary condition is provided below.
   ```json
   {
     "type": "wall_model",
-    "model": "spalding",
+    "model": "caisagaut_model_ii",
     "kappa": 0.41,
     "B": 5.2,
     "zone_indices": [1, 2],

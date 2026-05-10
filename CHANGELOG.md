@@ -5,8 +5,12 @@
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
 - Added the Richardson wall model.
+- Added the `caisagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL
+  backends. This model is based on the work of [Cai and Sagaut (PoF,
+  2021)](https://doi.org/10.1063/5.0048563).
 - Added hdf5 support for probes and added hdf5 I/O helper routines
-- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal` for hip and cuda.
+- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`
+  for hip and cuda.
 - Added the `hpfrt` source term for high-pass filter-based stabilization.
 - Added the `data_streamer` simulation component, allowing data streaming
 - Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`

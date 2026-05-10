@@ -106,6 +106,9 @@ module opencl_prgm_lib
   !> Device dong kernels
   type(c_ptr), public, bind(c) :: dong_program = C_NULL_PTR
 
+  !> Device caisagaut Model-II kernels
+  type(c_ptr), public, bind(c) :: caisagaut_model_ii_program = C_NULL_PTR
+
   !> Device coef kernels
   type(c_ptr), public, bind(c) :: coef_program = C_NULL_PTR
 
@@ -347,6 +350,13 @@ contains
        dong_program = C_NULL_PTR
     end if
 
+    if (c_associated(caisagaut_model_ii_program)) then
+       if (clReleaseProgram(caisagaut_model_ii_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       caisagaut_model_ii_program = C_NULL_PTR
+    end if
+
     if (c_associated(coef_program)) then
        if (clReleaseProgram(coef_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -369,7 +379,8 @@ contains
     end if
 
     if (c_associated(compute_max_wave_speed_program)) then
-       if (clReleaseProgram(compute_max_wave_speed_program) .ne. CL_SUCCESS) then
+       if (clReleaseProgram(compute_max_wave_speed_program) .ne. &
+            CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
        compute_max_wave_speed_program = C_NULL_PTR
