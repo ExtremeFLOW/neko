@@ -128,7 +128,6 @@ module gs_caf
      !> 0-based offset into send_buf / recv_buf for each peer.
      integer, allocatable :: send_offset(:), recv_offset(:)
      !> 0-based offset in the remote peer's recv_buf where our slab is placed.
-     !! Negotiated once during init via MPI.
      integer, allocatable :: dest_offset(:)
      !> 1-based image numbers for the send and recv peer arrays.
      integer, allocatable :: send_img(:), recv_img(:)
