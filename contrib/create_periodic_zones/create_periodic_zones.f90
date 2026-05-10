@@ -66,7 +66,8 @@ program create_periodic_zones
   integer, allocatable :: old_pids(:,:), old_org_ids(:,:)
   integer, allocatable :: old_label_counts(:)
   integer, allocatable :: old_labels_f(:,:), old_labels_e(:,:)
-  integer :: label, j
+  integer :: label, j, next_arg
+  integer :: ios
   real(kind=rp) :: tol
   logical :: tol_set
   character(len=512) :: err_msg
@@ -82,16 +83,35 @@ program create_periodic_zones
 
   pair_spec = ''
   tol_set = .false.
-  do i = 3, argc
+  i = 3
+  do while (i <= argc)
      call get_command_argument(i, arg)
      if (index(trim(arg), '--tol=') == 1) then
-        read(arg(7:), *) tol
+        read(arg(7:), *, iostat = ios) tol
+        if (ios /= 0) then
+           call neko_error('Invalid value passed to --tol=')
+        end if
         tol_set = .true.
+     else if (trim(arg) == '--tol') then
+        next_arg = i + 1
+        if (next_arg > argc) then
+           call neko_error('Missing value after --tol')
+        end if
+        call get_command_argument(next_arg, arg)
+        read(arg, *, iostat = ios) tol
+        if (ios /= 0) then
+           call neko_error('Invalid value passed after --tol')
+        end if
+        tol_set = .true.
+        i = next_arg
+     else if (index(trim(arg), '--') == 1) then
+        call neko_error('Unknown option: ' // trim(arg))
      else
         ! Allow a pair specification split across several shell tokens.
         if (len_trim(pair_spec) > 0) pair_spec = trim(pair_spec) // ' '
         pair_spec = trim(pair_spec) // trim(arg)
      end if
+     i = i + 1
   end do
 
   if (len_trim(pair_spec) == 0) then
@@ -414,6 +434,8 @@ contains
        write(*,'(A,I0,A,I0,A,3(1X,ES12.4))') 'Periodic zones ', &
             label_a, ' <-> ', label_b, ', offset:', offset
     end if
+
+    deallocate(facets_a, facets_b, match_ab, match_ba)
   end subroutine build_periodic_pair
 
   !> Collect the geometry and ids associated with one facet.
