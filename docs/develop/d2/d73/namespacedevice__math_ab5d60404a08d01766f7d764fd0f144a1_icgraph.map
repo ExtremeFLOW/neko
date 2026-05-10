@@ -1,23 +1,25 @@
 <map id="device_math::device_masked_gather_copy_0" name="device_math::device_masked_gather_copy_0">
-<area shape="rect" id="Node000001" title="Gather a masked vector ." alt="" coords="467,261,649,301"/>
-<area shape="rect" id="Node000002" href="$d4/d86/namespacefacet__normal.html#a93d2f3b5fd10d1a5338fc2b2712a4149" title="Apply in facet normal direction (vector valued, device version)" alt="" coords="214,5,418,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="543,250,524,207,497,155,461,104,417,59,398,48,401,43,420,55,465,100,502,153,529,204,548,248"/>
-<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#af7251846973bd60c4cd510a41c0939bd" title="Gather a field to reduced contiguous array ." alt="" coords="223,69,409,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="535,251,486,186,454,153,417,124,395,112,397,107,420,119,457,149,490,183,539,248"/>
-<area shape="rect" id="Node000004" href="$d6/d93/namespacefield__neumann.html#a04d379b8d53d30e3d9f5ee43bbd6585b" title="Gather field&#45;defined values into compact boundary flux storage." alt="" coords="231,133,401,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="520,255,473,220,417,188,389,176,391,171,420,183,476,216,523,251"/>
-<area shape="rect" id="Node000005" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="243,197,389,237"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="468,260,388,239,390,234,469,255"/>
-<area shape="rect" id="Node000006" href="$de/dfa/namespacemost.html#ab9b4dad5251232eee5e8b4c29fa8ef7c" title="Extract the values of rho and mu at the boundary." alt="" coords="241,261,391,301"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="453,284,391,284,391,279,453,279"/>
-<area shape="rect" id="Node000007" href="$d3/d22/namespacerichardson.html#a11225532966b6a693f70e816b6812778" title="Extract the values of rho and mu at the boundary." alt="" coords="233,325,399,365"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="469,307,393,328,391,323,468,302"/>
-<area shape="rect" id="Node000008" href="$d7/d0f/namespacerough__log__law.html#a522625c464feed41d1b2551b54280b12" title="Extract the values of rho at the boundary." alt="" coords="213,389,419,429"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="523,312,476,347,420,380,391,392,389,387,417,375,473,342,520,308"/>
-<area shape="rect" id="Node000009" href="$d5/d90/namespacespalding.html#a8fceccd55236c0ec4100055cd9bacc81" title="Compute the kinematic viscosity vector." alt="" coords="246,453,386,493"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="539,315,490,380,457,414,420,444,387,460,385,455,417,439,454,410,486,376,535,311"/>
-<area shape="rect" id="Node000010" href="$d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de" title="Gather a vector to reduced contigous array ." alt="" coords="225,517,407,557"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="548,315,529,358,502,410,465,462,420,507,401,519,398,515,417,503,461,459,497,407,524,356,543,313"/>
-<area shape="rect" id="Node000011" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="5,510,165,565"/>
-<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="211,540,165,540,165,535,211,535"/>
+<area shape="rect" id="Node000001" title="Gather a masked vector ." alt="" coords="467,309,649,349"/>
+<area shape="rect" id="Node000002" href="$d6/d2b/namespacecaisagaut__model__ii.html#a990fd957c1d16c5283399b5be28bd27d" title="Gather viscosity and density values at the wall&#45;model points." alt="" coords="232,5,400,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="545,296,527,248,500,189,464,128,442,100,417,75,399,62,402,57,420,71,446,96,468,125,505,186,532,246,550,295"/>
+<area shape="rect" id="Node000003" href="$d4/d86/namespacefacet__normal.html#a93d2f3b5fd10d1a5338fc2b2712a4149" title="Apply in facet normal direction (vector valued, device version)" alt="" coords="214,85,418,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="539,298,519,261,492,218,458,175,417,139,397,127,400,123,420,135,461,172,496,215,524,258,544,295"/>
+<area shape="rect" id="Node000004" href="$d5/de6/namespacefield__math.html#af7251846973bd60c4cd510a41c0939bd" title="Gather a field to reduced contiguous array ." alt="" coords="223,149,409,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="529,300,480,250,450,225,417,203,392,191,395,186,420,198,453,221,484,246,533,296"/>
+<area shape="rect" id="Node000005" href="$d6/d93/namespacefield__neumann.html#a04d379b8d53d30e3d9f5ee43bbd6585b" title="Gather field&#45;defined values into compact boundary flux storage." alt="" coords="231,213,401,253"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="504,305,418,267,384,255,386,250,420,262,506,300"/>
+<area shape="rect" id="Node000006" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="243,277,389,317"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="453,317,388,309,389,304,453,312"/>
+<area shape="rect" id="Node000007" href="$de/dfa/namespacemost.html#ab9b4dad5251232eee5e8b4c29fa8ef7c" title="Extract the values of rho and mu at the boundary." alt="" coords="241,341,391,381"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="453,345,391,353,391,348,453,340"/>
+<area shape="rect" id="Node000008" href="$d3/d22/namespacerichardson.html#a11225532966b6a693f70e816b6812778" title="Extract the values of rho and mu at the boundary." alt="" coords="233,405,399,445"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="506,357,420,395,386,407,384,402,418,390,504,352"/>
+<area shape="rect" id="Node000009" href="$d7/d0f/namespacerough__log__law.html#a522625c464feed41d1b2551b54280b12" title="Extract the values of rho at the boundary." alt="" coords="213,469,419,509"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="533,361,484,411,453,437,420,459,395,471,392,466,417,454,450,432,480,407,529,357"/>
+<area shape="rect" id="Node000010" href="$d5/d90/namespacespalding.html#a8fceccd55236c0ec4100055cd9bacc81" title="Compute the kinematic viscosity vector." alt="" coords="246,533,386,573"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="544,362,524,399,496,442,461,486,420,523,387,540,385,535,417,518,458,482,492,439,519,397,539,360"/>
+<area shape="rect" id="Node000011" href="$d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de" title="Gather a vector to reduced contigous array ." alt="" coords="225,597,407,637"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="550,363,533,412,507,473,469,534,446,562,420,587,402,599,399,594,417,583,442,558,465,531,502,470,528,410,545,361"/>
+<area shape="rect" id="Node000012" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="5,589,165,644"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="211,619,165,619,165,614,211,614"/>
 </map>

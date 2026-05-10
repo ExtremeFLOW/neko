@@ -1,0 +1,20 @@
+<map id="caisagaut_model_ii::caisagaut_model_ii_compute" name="caisagaut_model_ii::caisagaut_model_ii_compute">
+<area shape="rect" id="Node000001" title="Evaluate wall shear stresses with the Cai&#45;Sagaut Model&#45;II closure." alt="" coords="5,45,161,100"/>
+<area shape="rect" id="Node000002" href="$d9/d6e/namespacecaisagaut__model__ii__cpu.html#a8f89c34a7c1f84c0a4d70e803da2bcac" title="Evaluate wall shear stresses with the CPU Model&#45;II kernel." alt="" coords="219,5,390,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,56,205,48,206,53,162,61"/>
+<area shape="rect" id="Node000004" href="$d4/d78/namespacecaisagaut__model__ii__device.html#a48a05598fcd7291516ffe8f4edb84a8c" title="Evaluate the device wall&#45;model kernel for Model&#45;II." alt="" coords="209,84,400,139"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="162,84,196,90,195,95,161,89"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#af0b558159bd3227f2024a7836785e195" title="Approximate the principal real branch of the Lambert W function for non&#45;negative real x." alt="" coords="469,20,610,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,30,455,30,455,35,390,35"/>
+<area shape="rect" id="Node000005" href="$d3/d55/caisagaut__model__ii_8cu.html#ab2239b7bbaf41009488fd7783b3d551f" title=" " alt="" coords="679,77,849,117"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="400,106,664,97,665,102,400,111"/>
+<area shape="rect" id="Node000007" href="$df/de6/caisagaut__model__ii_8c.html#a5ad1d8768997771ec77e8c7c8e40da72" title=" " alt="" coords="448,134,631,174"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="401,126,435,132,434,138,400,131"/>
+<area shape="rect" id="Node000006" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="897,134,1061,174"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="840,114,891,128,890,133,839,119"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="939,134,937,124,943,115,958,109,979,107,1004,110,1018,118,1015,122,1003,115,979,113,959,115,947,119,942,125,944,133"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="631,151,884,151,884,157,631,157"/>
+<area shape="rect" id="Node000008" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="698,192,830,217"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="629,171,694,186,693,192,628,177"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="818,189,883,174,885,179,820,194"/>
+</map>

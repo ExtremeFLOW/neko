@@ -137,6 +137,12 @@ var annotated_dup =
     [ "cacg", "d2/d10/namespacecacg.html", [
       [ "cacg_t", "de/d56/structcacg_1_1cacg__t.html", "de/d56/structcacg_1_1cacg__t" ]
     ] ],
+    [ "caisagaut_model_ii", "d6/d2b/namespacecaisagaut__model__ii.html", [
+      [ "caisagaut_model_ii_t", "d2/db9/structcaisagaut__model__ii_1_1caisagaut__model__ii__t.html", "d2/db9/structcaisagaut__model__ii_1_1caisagaut__model__ii__t" ]
+    ] ],
+    [ "caisagaut_model_ii_device", "d4/d78/namespacecaisagaut__model__ii__device.html", [
+      [ "hip_caisagaut_model_ii_compute", "d6/d7c/interfacecaisagaut__model__ii__device_1_1hip__caisagaut__model__ii__compute.html", "d6/d7c/interfacecaisagaut__model__ii__device_1_1hip__caisagaut__model__ii__compute" ]
+    ] ],
     [ "cartesian_el_finder", "d6/d46/namespacecartesian__el__finder.html", [
       [ "cartesian_el_finder_t", "dd/d18/structcartesian__el__finder_1_1cartesian__el__finder__t.html", "dd/d18/structcartesian__el__finder_1_1cartesian__el__finder__t" ]
     ] ],

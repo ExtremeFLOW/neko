@@ -1,0 +1,5 @@
+<map id="caisagaut_model_ii_cpu::caisagaut_model_ii_compute_cpu" name="caisagaut_model_ii_cpu::caisagaut_model_ii_compute_cpu">
+<area shape="rect" id="Node000001" title="Evaluate wall shear stresses with the CPU Model&#45;II kernel." alt="" coords="5,5,176,60"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#af0b558159bd3227f2024a7836785e195" title="Approximate the principal real branch of the Lambert W function for non&#45;negative real x." alt="" coords="224,20,365,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,30,210,30,210,35,176,35"/>
+</map>

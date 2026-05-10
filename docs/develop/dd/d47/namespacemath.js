@@ -56,6 +56,7 @@ var namespacemath =
     [ "invcol3", "dd/d47/namespacemath.html#a7ffea33ac18dcd5fa6f1ef5ba601a1a8", null ],
     [ "invers2", "dd/d47/namespacemath.html#a3789b839284889e98200fa663a5e040f", null ],
     [ "izero", "dd/d47/namespacemath.html#aa584d6c1a4c5f9fcf376e5c5b487092e", null ],
+    [ "lambert_w0", "dd/d47/namespacemath.html#af0b558159bd3227f2024a7836785e195", null ],
     [ "masked_copy", "dd/d47/namespacemath.html#a43f58d19fab2bdf634426d8f97e216cb", null ],
     [ "masked_copy_0", "dd/d47/namespacemath.html#aeeebe3f7e2c8181d93632e935246e6f6", null ],
     [ "masked_gather_copy", "dd/d47/namespacemath.html#a6db9a4f12c04c0b2c391549243aeee40", null ],

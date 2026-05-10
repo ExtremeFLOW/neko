@@ -541,13 +541,14 @@ Available conditions</h3>
 </div><!-- fragment --></li>
 <li><code><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a></code>. A shear stress condition, where the values is computed by a wall model. Meant to be used for wall-modelled large-eddy simulation. Only works with axis-aligned boundaries. The model is selected using the <code>model</code> keyword. Additional configuration depends on the model selected.<ul>
 <li>The <code>spalding</code>model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants. This model is suitable for smooth walls.</li>
+<li>The <code><a class="el" href="../../d6/d2b/namespacecaisagaut__model__ii.html" title="Implements caisagaut_model_ii_t.">caisagaut_model_ii</a></code> model is a smooth-wall explicit algebraic wall model defined as Model-II of Cai and Sagaut (DOI: <code>10.1063/5.0048563</code>). It uses the same <code>kappa</code> and <code>B</code> parameters as <code>spalding</code>, and also accepts optional blending parameters <code>p</code> and <code>s</code>, which default to the paper calibration values <code>1.138</code> and <code>217.8</code>. The main advantage of this model is that it is explicit.</li>
 <li>The <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants, and <code>z0</code>, which is the characteristic roughness height.</li>
 <li>The <code>most</code> model is a version of the <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given <a class="el" href="../../dd/d33/case-file.html#most-wall-model">below</a>.</li>
 <li><p class="startli">The <code>richardson</code> model is similar to the <code>most</code> model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given <a class="el" href="../../dd/d33/case-file.html#richardson-wall-model">below</a>.</p>
 <p class="startli">For all wall models, the distance to the sampling point has to be specified based on the off-wall index in the wall-normal direction. Thus, the sampling is currently from a GLL node and arbitrary distances are not yet supported. The index is set by the <code>h_index</code> keyword, with 1 being the minimal value, and the polynomial order + 1 being the maximum.</p>
 <p class="startli">A 3D field with the name <code>tau</code> will be registered in the field registry. At the boundary it will store the magnitude of the predicted stress. This can be used to post-process the predictions. Additionally, the sampling points are marked with values -1 in this field, for verification purposes. </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;wall_model&quot;,</div>
-<div class="line">  &quot;model&quot;: &quot;spalding&quot;,</div>
+<div class="line">  &quot;model&quot;: &quot;caisagaut_model_ii&quot;,</div>
 <div class="line">  &quot;kappa&quot;: 0.41,</div>
 <div class="line">  &quot;B&quot;: 5.2,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2],</div>
@@ -1766,7 +1767,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sat May 9 2026 04:37:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun May 10 2026 04:47:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
