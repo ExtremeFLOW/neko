@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-submodule (avm_model) avm_model_fctry
+submodule (artificial_viscosity_model) artificial_viscosity_model_fctry
   use case, only : case_t
   use entropy_viscosity, only : entropy_viscosity_t
   use utils, only : neko_type_error, neko_type_registration_error
@@ -46,22 +46,22 @@ contains
   !! @param type_name The name of the avm model.
   !! @param case The case_t object.
   !! @param json A dictionary with parameters.
-  module subroutine avm_model_factory(object, type_name, case, json)
-    class(avm_model_t), allocatable, intent(inout) :: object
+  module subroutine avm_factory(object, type_name, case, json)
+    class(avm_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
     class(case_t), intent(inout), target :: case
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_string
 
-    call avm_model_allocator(object, type_name)
+    call avm_allocator(object, type_name)
     call object%init(case, json)
-  end subroutine avm_model_factory
+  end subroutine avm_factory
 
   !> avm model allocator.
   !! @param object The object to be allocated.
   !! @param type_name The name of the avm model.
-  module subroutine avm_model_allocator(object, type_name)
-    class(avm_model_t), allocatable, intent(inout) :: object
+  module subroutine avm_allocator(object, type_name)
+    class(avm_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
     integer :: i
 
@@ -74,9 +74,9 @@ contains
     case ('entropy_viscosity')
        allocate(entropy_viscosity_t::object)
     case default
-       do i = 1, avm_model_registry_size
-          if (trim(type_name) == trim(avm_model_registry(i)%type_name)) then
-             call avm_model_registry(i)%allocator(object)
+       do i = 1, avm_registry_size
+          if (trim(type_name) == trim(avm_registry(i)%type_name)) then
+             call avm_registry(i)%allocator(object)
              return
           end if
        end do
@@ -84,16 +84,16 @@ contains
        call neko_type_error("avm model", type_name, AVM_KNOWN_TYPES)
     end select
 
-  end subroutine avm_model_allocator
+  end subroutine avm_allocator
 
   !> Register a custom avm model allocator.
   !! Called in custom user moduavm inside the `module_name_register_types`
   !! routine to add a custom type allocator to the registry.
   !! @param type_name The name of the type to allocate.
   !! @param allocator The allocator for the custom user type.
-  module subroutine register_avm_model(type_name, allocator)
+  module subroutine register_avm(type_name, allocator)
     character(len=*), intent(in) :: type_name
-    procedure(avm_model_allocate), pointer, intent(in) :: allocator
+    procedure(avm_allocate), pointer, intent(in) :: allocator
     type(allocator_entry), allocatable :: temp(:)
     integer :: i
 
@@ -103,24 +103,24 @@ contains
        end if
     end do
 
-    do i = 1, avm_model_registry_size
-       if (trim(type_name) .eq. trim(avm_model_registry(i)%type_name)) then
+    do i = 1, avm_registry_size
+       if (trim(type_name) .eq. trim(avm_registry(i)%type_name)) then
           call neko_type_registration_error("avm model", type_name, .false.)
        end if
     end do
 
     ! Expand registry
-    if (avm_model_registry_size == 0) then
-       allocate(avm_model_registry(1))
+    if (avm_registry_size == 0) then
+       allocate(avm_registry(1))
     else
-       allocate(temp(avm_model_registry_size + 1))
-       temp(1:avm_model_registry_size) = avm_model_registry
-       call move_alloc(temp, avm_model_registry)
+       allocate(temp(avm_registry_size + 1))
+       temp(1:avm_registry_size) = avm_registry
+       call move_alloc(temp, avm_registry)
     end if
 
-    avm_model_registry_size = avm_model_registry_size + 1
-    avm_model_registry(avm_model_registry_size)%type_name = type_name
-    avm_model_registry(avm_model_registry_size)%allocator => allocator
-  end subroutine register_avm_model
+    avm_registry_size = avm_registry_size + 1
+    avm_registry(avm_registry_size)%type_name = type_name
+    avm_registry(avm_registry_size)%allocator => allocator
+  end subroutine register_avm
 
-end submodule avm_model_fctry
+end submodule artificial_viscosity_model_fctry

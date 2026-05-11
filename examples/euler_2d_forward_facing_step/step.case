@@ -57,7 +57,7 @@
 
         "simulation_components": [
             {
-                "type": "avm_model",
+                "type": "artificial_viscosity_model",
                 "model": "entropy_viscosity"
             },
             {

@@ -39,7 +39,7 @@ module avm_simcomp
   use simulation_component, only : simulation_component_t
   use case, only : case_t
   use time_state, only : time_state_t
-  use avm_model, only : avm_model_t, avm_model_factory
+  use artificial_viscosity_model, only : avm_t, avm_factory
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use utils, only : neko_error, NEKO_VARNAME_LEN
@@ -50,7 +50,7 @@ module avm_simcomp
   !! viscosity method.
   type, public, extends(simulation_component_t) :: avm_simcomp_t
      !> The avm model.
-     class(avm_model_t), allocatable :: avm_model
+     class(avm_t), allocatable :: avm
      !> Output writer.
      type(field_writer_t) :: writer
    contains
@@ -79,18 +79,18 @@ contains
 
     call this%free()
 
-    call json_get_or_default(json, "name", name, "avm_model")
+    call json_get_or_default(json, "name", name, "artificial_viscosity_model")
     call json_get(json, "model", model_name)
     this%name = name
 
     call this%init_base(json, case)
 
     ! Create the AVM model first so we can get the field name it uses
-    call avm_model_factory(this%avm_model, model_name, case, json)
+    call avm_factory(this%avm, model_name, case, json)
 
     ! Get the field name from the model's reg_coeff field and add it to the
     ! field_writer output list
-    fields(1) = this%avm_model%reg_coeff%name
+    fields(1) = this%avm%reg_coeff%name
     call json%add("fields", fields)
 
     call this%writer%init(json, case)
@@ -105,9 +105,9 @@ contains
     call this%free_base()
     call this%writer%free()
 
-    if (allocated(this%avm_model)) then
-       call this%avm_model%free()
-       deallocate(this%avm_model)
+    if (allocated(this%avm)) then
+       call this%avm%free()
+       deallocate(this%avm)
     end if
   end subroutine avm_simcomp_free
 
@@ -117,7 +117,7 @@ contains
     class(avm_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call this%avm_model%preprocess(time)
+    call this%avm%preprocess(time)
   end subroutine avm_simcomp_preprocess
 
   !> Compute the avm_simcomp field.
@@ -126,7 +126,7 @@ contains
     class(avm_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call this%avm_model%compute(time)
+    call this%avm%compute(time)
   end subroutine avm_simcomp_compute
 
   !> Compute the avm_simcomp field when restart.
@@ -135,7 +135,7 @@ contains
     class(avm_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call this%avm_model%compute(time)
+    call this%avm%compute(time)
   end subroutine avm_simcomp_restart
 
 end module avm_simcomp

@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements `avm_model_t`.
-module avm_model
+!> Implements `avm_t`.
+module artificial_viscosity_model
   use num_types, only : rp
   use case, only : case_t
   use field, only : field_t
@@ -44,8 +44,8 @@ module avm_model
   implicit none
   private
 
-  !> Base abstract type for avm models based on the Boussinesq approximation.
-  type, abstract, public :: avm_model_t
+  !> Base abstract type for artificial viscosity models.
+  type, abstract, public :: avm_t
      !> Artificial viscosity.
      type(field_t), pointer :: reg_coeff => null()
      !> SEM coefficients.
@@ -55,68 +55,68 @@ module avm_model
      !> The size of the `les_model_registry`
      integer :: les_model_registry_size = 0
    contains
-     !> Constructor for the avm_model_t (base) class.
-     procedure, pass(this) :: init_base => avm_model_init_base
-     !> Destructor for the avm_model_t (base) class.
-     procedure, pass(this) :: free_base => avm_model_free_base
+     !> Constructor for the avm_t (base) class.
+     procedure, pass(this) :: init_base => avm_init_base
+     !> Destructor for the avm_t (base) class.
+     procedure, pass(this) :: free_base => avm_free_base
      !> The common constructor.
-     procedure(avm_model_init), pass(this), deferred :: init
+     procedure(avm_init), pass(this), deferred :: init
      !> Destructor.
-     procedure(avm_model_free), pass(this), deferred :: free
+     procedure(avm_free), pass(this), deferred :: free
      !> Perform artificial viscosity related computations before the time step.
-     procedure(avm_model_preprocess), pass(this), deferred :: preprocess
+     procedure(avm_preprocess), pass(this), deferred :: preprocess
      !> Perform artificial viscosity related computations after the time step.
-     procedure(avm_model_compute), pass(this), deferred :: compute
-  end type avm_model_t
+     procedure(avm_compute), pass(this), deferred :: compute
+  end type avm_t
 
   abstract interface
      !> Perform artificial viscosity related computations before the time step.
      !! @param time The time state.
-     subroutine avm_model_preprocess(this, time)
-       import avm_model_t, time_state_t
-       class(avm_model_t), intent(inout) :: this
+     subroutine avm_preprocess(this, time)
+       import avm_t, time_state_t
+       class(avm_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
-     end subroutine avm_model_preprocess
+     end subroutine avm_preprocess
   end interface
 
   abstract interface
      !> Perform artificial viscosity related computations after the time step.
      !! @param time The time state.
-     subroutine avm_model_compute(this, time)
-       import avm_model_t, time_state_t
-       class(avm_model_t), intent(inout) :: this
+     subroutine avm_compute(this, time)
+       import avm_t, time_state_t
+       class(avm_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
-     end subroutine avm_model_compute
+     end subroutine avm_compute
   end interface
 
   abstract interface
      !> Common constructor.
      !! @param case The case_t object.
      !! @param json A dictionary with parameters.
-     subroutine avm_model_init(this, case, json)
-       import avm_model_t, json_file, case_t
-       class(avm_model_t), intent(inout) :: this
+     subroutine avm_init(this, case, json)
+       import avm_t, json_file, case_t
+       class(avm_t), intent(inout) :: this
        class(case_t), intent(inout), target :: case
        type(json_file), intent(inout) :: json
-     end subroutine avm_model_init
+     end subroutine avm_init
   end interface
 
   abstract interface
      !> Destructor.
-     subroutine avm_model_free(this)
-       import avm_model_t
-       class(avm_model_t), intent(inout) :: this
-     end subroutine avm_model_free
+     subroutine avm_free(this)
+       import avm_t
+       class(avm_t), intent(inout) :: this
+     end subroutine avm_free
   end interface
 
   interface
      !> AVM model allocator.
      !! @param object The object to be allocated.
      !! @param type_name The name of the AVM model.
-     module subroutine avm_model_allocator(object, type_name)
-       class(avm_model_t), allocatable, intent(inout) :: object
+     module subroutine avm_allocator(object, type_name)
+       class(avm_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
-     end subroutine avm_model_allocator
+     end subroutine avm_allocator
   end interface
 
   !
@@ -127,32 +127,32 @@ module avm_model
   !! Implemented in the user modules, should allocate the `obj` to the custom
   !! user type.
   abstract interface
-     subroutine avm_model_allocate(obj)
-       import avm_model_t
-       class(avm_model_t), allocatable, intent(inout) :: obj
-     end subroutine avm_model_allocate
+     subroutine avm_allocate(obj)
+       import avm_t
+       class(avm_t), allocatable, intent(inout) :: obj
+     end subroutine avm_allocate
   end interface
 
   interface
      !> Called in user modules to add an allocator for custom types.
-     module subroutine register_avm_model(type_name, allocator)
+     module subroutine register_avm(type_name, allocator)
        character(len=*), intent(in) :: type_name
-       procedure(avm_model_allocate), pointer, intent(in) :: allocator
-     end subroutine register_avm_model
+       procedure(avm_allocate), pointer, intent(in) :: allocator
+     end subroutine register_avm
   end interface
 
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type allocator_entry
      character(len=20) :: type_name
-     procedure(avm_model_allocate), pointer, nopass :: allocator
+     procedure(avm_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
   !> Registry of artificial viscosity model allocators for user-defined types
-  type(allocator_entry), allocatable :: avm_model_registry(:)
+  type(allocator_entry), allocatable :: avm_registry(:)
 
-  !> The size of the `avm_model_registry`
-  integer :: avm_model_registry_size = 0
+  !> The size of the `avm_registry`
+  integer :: avm_registry_size = 0
 
 
 
@@ -164,25 +164,25 @@ module avm_model
      !! @param dofmap SEM map of degrees of freedom.
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
-     module subroutine avm_model_factory(object, type_name, case, json)
-       class(avm_model_t), allocatable, intent(inout) :: object
+     module subroutine avm_factory(object, type_name, case, json)
+       class(avm_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
        class(case_t), intent(inout), target :: case
        type(json_file), intent(inout) :: json
-     end subroutine avm_model_factory
+     end subroutine avm_factory
   end interface
 
-  public :: avm_model_factory, avm_model_allocator, register_avm_model, &
-       avm_model_allocate
+  public :: avm_factory, avm_allocator, register_avm, &
+       avm_allocate
 
 
 contains
-  !> Constructor for the avm_model_t (base) class.
+  !> Constructor for the avm_t (base) class.
   !! @param dof Map of degrees of freedom.
   !! @param coef The SEM coefficients.
   !! @param reg_coeff_name The name of the artificial viscosity field.
-  subroutine avm_model_init_base(this, dof, coef, reg_coeff_name)
-    class(avm_model_t), intent(inout) :: this
+  subroutine avm_init_base(this, dof, coef, reg_coeff_name)
+    class(avm_t), intent(inout) :: this
     class(dofmap_t), intent(in), target :: dof
     class(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: reg_coeff_name
@@ -195,16 +195,16 @@ contains
     this%coef => coef
     this%dof => dof
 
-  end subroutine avm_model_init_base
+  end subroutine avm_init_base
 
-  !> Destructor for the avm_model_t (base) class.
-  subroutine avm_model_free_base(this)
-    class(avm_model_t), intent(inout) :: this
+  !> Destructor for the avm_t (base) class.
+  subroutine avm_free_base(this)
+    class(avm_t), intent(inout) :: this
 
     nullify(this%reg_coeff)
     nullify(this%coef)
     nullify(this%dof)
 
-  end subroutine avm_model_free_base
+  end subroutine avm_free_base
 
-end module avm_model
+end module artificial_viscosity_model
