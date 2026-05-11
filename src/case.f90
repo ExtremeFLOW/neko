@@ -63,7 +63,7 @@ module case
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
-  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
+  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER, MPI_LOGICAL
   use registry, only : neko_registry, neko_const_registry
   use vector, only : vector_t
 
