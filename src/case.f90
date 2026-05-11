@@ -252,7 +252,7 @@ contains
             "_lb_", pe_size, '.nmsh'
 
        if (pe_rank .eq. 0) then
-          inquire(file = trim(string_val), exist = found)
+          inquire(file = trim(lb_file), exist = found)
        end if
        call MPI_Bcast(found, 1, MPI_LOGICAL, 0, NEKO_COMM)
 
