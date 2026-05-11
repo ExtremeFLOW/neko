@@ -3,6 +3,7 @@ module hypre_boomeramg
   implicit none
   private
 
+#if HAVE_HYPRE
   ! Common parameter constants
   integer(c_int), parameter :: HYPRE_AMG_COARSEN_FALGOUT = 6
   integer(c_int), parameter :: HYPRE_AMG_COARSEN_PMIS = 8
@@ -248,11 +249,13 @@ module hypre_boomeramg
        integer(c_int), value :: order
      end function HYPRE_BoomerAMGSetChebyOrder
   end interface
+#endif
 
   public :: boomeramg_init, boomeramg_setup, boomeramg_solve, boomeramg_destroy
 
 contains
 
+#if HAVE_HYPRE
   subroutine boomeramg_init(solver)
      type(c_ptr), intent(inout) :: solver
      integer :: ierr
@@ -301,5 +304,23 @@ contains
      integer :: ierr
      ierr = HYPRE_BoomerAMGDestroy(solver)
   end subroutine boomeramg_destroy
+
+#else
+  subroutine boomeramg_init(solver)
+     type(c_ptr), intent(inout) :: solver
+  end subroutine boomeramg_init
+
+  subroutine boomeramg_setup(solver, parcsr_A, par_b, par_x)
+     type(c_ptr), intent(inout) :: solver, parcsr_A, par_b, par_x
+  end subroutine boomeramg_setup
+
+  subroutine boomeramg_solve(solver, parcsr_A, par_b, par_x)
+     type(c_ptr), intent(inout) :: solver, parcsr_A, par_b, par_x
+  end subroutine boomeramg_solve
+
+  subroutine boomeramg_destroy(solver)
+     type(c_ptr), intent(inout) :: solver
+  end subroutine boomeramg_destroy
+#endif
 
 end module hypre_boomeramg

@@ -6,12 +6,14 @@ module hypre
   use hypre_boomeramg
   use hypre_ij_interface
   use coefs, only : coef_t
-  use comm, only: pe_rank, NEKO_COMM
+  use comm, only : pe_rank, NEKO_COMM
+  use utils, only : neko_error
   use mpi_f08
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
+#if HAVE_HYPRE
   interface
       integer (c_int) function HYPRE_Initialize() &
            bind(c, name='HYPRE_Initialize')
@@ -35,6 +37,7 @@ module hypre
         implicit none
       end function HYPRE_init_wrapper
   end interface
+#endif
 
   type, public :: hypre_solver_t
      private
@@ -74,21 +77,24 @@ module hypre
 contains
 
   subroutine hypre_init()
-     integer :: ierr
-     ! Initialize hypre
-     ierr = HYPRE_Initialize()
-     ! Set other hypre config parameters
-     !call HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE, ierr)
-     !call HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE, ierr)
-     !call HYPRE_SetSpGemmUseVendor(0, ierr)
-     if (NEKO_BCKND_DEVICE .eq. 1) then
+    integer :: ierr
+#if HAVE_HYPRE
+    ! Initialize hypre
+    ierr = HYPRE_Initialize()
+    ! Set other hypre config parameters
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        ierr = HYPRE_init_wrapper()
-     end if
+    end if
+#else
+    call neko_error('Hypre solver not configured')
+#endif
   end subroutine hypre_init
 
   subroutine hypre_fin()
      integer :: ierr
+#if HAVE_HYPRE
      ierr = HYPRE_Finalize()
+#endif
   end subroutine hypre_fin
 
   !> Initialize a hypre solver object (BoomerAMG)

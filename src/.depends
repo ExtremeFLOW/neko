@@ -132,7 +132,7 @@ math/matrix_math.lo : math/matrix_math.f90 math/bcknd/device/device_math.lo math
 math/signed_distance.lo : math/signed_distance.f90 adt/stack.lo math/math.lo common/utils.lo config/neko_config.lo device/device.lo mesh/aabb_tree.lo mesh/search_tree/aabb.lo mesh/tri_mesh.lo mesh/tri.lo field/field.lo config/num_types.lo 
 multigrid/hypre_ij_interface.lo : multigrid/hypre_ij_interface.F90 
 multigrid/hypre_boomeramg.lo : multigrid/hypre_boomeramg.F90 
-multigrid/hypre.lo : multigrid/hypre.F90 comm/comm.lo sem/coef.lo multigrid/hypre_ij_interface.lo multigrid/hypre_boomeramg.lo common/profiler.lo device/device.lo config/neko_config.lo config/num_types.lo 
+multigrid/hypre.lo : multigrid/hypre.F90 common/utils.lo comm/comm.lo sem/coef.lo multigrid/hypre_ij_interface.lo multigrid/hypre_boomeramg.lo common/profiler.lo device/device.lo config/neko_config.lo config/num_types.lo 
 multigrid/tree_amg.lo : multigrid/tree_amg.f90 config/neko_config.lo device/device.lo gs/gather_scatter.lo bc/bc_list.lo math/ax.lo sem/space.lo mesh/mesh.lo sem/coef.lo math/bcknd/device/device_math.lo math/math.lo common/utils.lo config/num_types.lo 
 multigrid/tree_amg_utils.lo : multigrid/tree_amg_utils.f90 gs/gather_scatter.lo multigrid/tree_amg.lo config/num_types.lo 
 multigrid/tree_amg_aggregate.lo : multigrid/tree_amg_aggregate.f90 common/log.lo mesh/mesh.lo comm/comm.lo config/num_types.lo common/utils.lo multigrid/tree_amg.lo 

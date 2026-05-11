@@ -3,6 +3,7 @@ module hypre_ij_interface
   implicit none
   private
 
+#if HAVE_HYPRE
   ! HYPRE types
   integer(c_int), parameter :: HYPRE_PARCSR = 5555
 
@@ -203,6 +204,7 @@ module hypre_ij_interface
        type(c_ptr), value :: filename
      end function HYPRE_IJVectorPrint
   end interface
+#endif
 
   public :: hypre_matrix_init, hypre_matrix_fill, hypre_matrix_assemble, hypre_matrix_update, hypre_matrix_destroy
   public :: hypre_device_matrix_update
@@ -212,6 +214,7 @@ module hypre_ij_interface
   public :: hypre_matrix_get_object, hypre_vector_get_object
 
 contains
+#if HAVE_HYPRE
   !-----------------------------------------------------------------------------
   ! Matrix
   !-----------------------------------------------------------------------------
@@ -464,5 +467,109 @@ contains
      integer :: ierr
      ierr = HYPRE_IJVectorDestroy(v)
   end subroutine hypre_vector_destroy
+
+#else
+  !-----------------------------------------------------------------------------
+  ! Matrix
+  !-----------------------------------------------------------------------------
+
+  subroutine hypre_matrix_init(mpi_comm, ilower, iupper, jlower, jupper, A)
+     integer, intent(in) :: mpi_comm, ilower, iupper, jlower, jupper
+     type(c_ptr), intent(inout) :: A
+  end subroutine hypre_matrix_init
+
+  subroutine hypre_matrix_fill(A, nrows, ncols, rows, cols, values)
+     type(c_ptr), intent(in) :: A
+     integer, target, intent(in) :: nrows, ncols(:)
+     integer, target, intent(in) :: rows(:), cols(:)
+     double precision, target, intent(in) :: values(:)
+  end subroutine hypre_matrix_fill
+
+  subroutine hypre_matrix_update(A, nrows, ncols, rows, cols, values)
+     type(c_ptr), intent(in) :: A
+     integer, intent(in) :: nrows
+     integer, target, intent(in) :: ncols(:)
+     integer, target, intent(in) :: rows(:)
+     integer, target, intent(in) :: cols(:)
+     double precision, target, intent(in) :: values(:)
+  end subroutine hypre_matrix_update
+
+  subroutine hypre_device_matrix_update(A, nrows, ncols, rows, cols, values)
+     type(c_ptr), intent(in) :: A
+     integer, intent(in) :: nrows
+     type(c_ptr), intent(in) :: ncols, rows, cols
+     type(c_ptr), intent(in) :: values
+  end subroutine hypre_device_matrix_update
+
+  subroutine hypre_matrix_assemble(A)
+     type(c_ptr), intent(in) :: A
+  end subroutine hypre_matrix_assemble
+
+  subroutine hypre_matrix_get_object(A, parcsr_A)
+     type(c_ptr), intent(in) :: A
+     type(c_ptr), intent(inout) :: parcsr_A
+  end subroutine hypre_matrix_get_object
+
+  subroutine hypre_matrix_destroy(A)
+     type(c_ptr), intent(inout) :: A
+  end subroutine hypre_matrix_destroy
+
+  !-----------------------------------------------------------------------------
+  ! Vector
+  !-----------------------------------------------------------------------------
+
+  subroutine hypre_vector_init(mpi_comm, jlower, jupper, v)
+    integer, intent(in) :: mpi_comm, jlower, jupper
+    type(c_ptr), intent(inout) :: v
+  end subroutine hypre_vector_init
+
+  subroutine hypre_vector_fill(v, nvalues, indices, values)
+    type(c_ptr), intent(in) :: v
+    integer, intent(in) :: nvalues
+    integer, target, intent(in) :: indices(:)
+    double precision, target, intent(in) :: values(:)
+  end subroutine hypre_vector_fill
+
+  subroutine hypre_vector_assemble(v)
+    type(c_ptr), intent(in) :: v
+  end subroutine hypre_vector_assemble
+
+  subroutine hypre_vector_get_object(v, par_v)
+    type(c_ptr), intent(in) :: v
+    type(c_ptr), intent(inout) :: par_v
+  end subroutine hypre_vector_get_object
+
+  subroutine hypre_copy_to_vector(v, nvalues, indices, values, ilower)
+    type(c_ptr), intent(in) :: v
+    integer, intent(in) :: nvalues, ilower
+    integer, target, intent(in) :: indices(nvalues)
+    double precision, target, intent(in) :: values(nvalues)
+  end subroutine hypre_copy_to_vector
+
+  subroutine hypre_device_copy_to_vector(v, nvalues, indices, values)
+    type(c_ptr), intent(in) :: v
+    integer, intent(in) :: nvalues
+    type(c_ptr), intent(in) :: indices
+    type(c_ptr), intent(in) :: values
+  end subroutine hypre_device_copy_to_vector
+
+  subroutine hypre_copy_from_vector(v, nvalues, indices, values, ilower)
+    type(c_ptr), intent(in) :: v
+    integer, intent(in) :: nvalues, ilower
+    integer, target, intent(in) :: indices(nvalues)
+    double precision, target, intent(inout) :: values(nvalues)
+  end subroutine hypre_copy_from_vector
+
+  subroutine hypre_device_copy_from_vector(v, nvalues, indices, values)
+    type(c_ptr), intent(in) :: v
+    integer, intent(in) :: nvalues
+    type(c_ptr), intent(in) :: indices
+    type(c_ptr), intent(in) :: values
+  end subroutine hypre_device_copy_from_vector
+
+  subroutine hypre_vector_destroy(v)
+     type(c_ptr), intent(inout) :: v
+  end subroutine hypre_vector_destroy
+#endif
 
 end module hypre_ij_interface
