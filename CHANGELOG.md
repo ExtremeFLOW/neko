@@ -153,6 +153,9 @@
 - Added `host_array_t` and `device_array_t` temporary array types and support
   for requesting these through `scratch_registry_t`.
 - Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
+- Modularized `entropy_viscosity` into two steps: 1. Calculate the
+  artificial viscosity field in a simcomp; 2. Apply the artificial 
+  viscosity though a viscous regularization object.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
   backends. This model is based on the work of [Cai and Sagaut (PoF,
