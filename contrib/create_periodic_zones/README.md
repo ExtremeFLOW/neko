@@ -1,3 +1,5 @@
+## `create_periodic_zones`
+
 `create_periodic_zones` reads a Neko `.nmsh` file, converts selected pairs of
 labeled boundary zones into periodic zones, and writes a new `.nmsh`.
 

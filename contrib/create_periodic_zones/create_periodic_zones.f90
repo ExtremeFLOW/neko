@@ -196,6 +196,13 @@ program create_periodic_zones
   call output_file%init(trim(output_fname))
   call output_file%write(msh)
 
+  deallocate(zone_a, zone_b)
+  deallocate(old_periodic_f, old_periodic_e)
+  deallocate(old_partner_f, old_partner_e)
+  deallocate(old_pids, old_org_ids)
+  deallocate(old_label_counts)
+  deallocate(old_labels_f, old_labels_e)
+
   call msh%free()
   call neko_finalize
 
@@ -465,6 +472,7 @@ contains
     type(mesh_t), intent(in) :: msh
     integer, intent(in) :: facet, el_local
     real(kind=rp), intent(out) :: xyz(3, 4), center(3)
+    integer :: i
     integer, parameter :: face_nodes(4, 6) = reshape([ &
          1, 5, 7, 3, &
          2, 6, 8, 4, &
@@ -472,7 +480,6 @@ contains
          3, 4, 8, 7, &
          1, 2, 4, 3, &
          5, 6, 8, 7], [4, 6])
-    integer :: i
 
     center = 0.0_rp
     select type (el => msh%elements(el_local)%e)
@@ -506,7 +513,7 @@ contains
     do i = 1, size(candidates)
        ! Use the centroid difference as a cheap pre-filter, then confirm the
        ! match by checking the translated facet corners.
-       if (norm2(candidates(i)%center - facet%center - offset) <= tol .and. &
+       if (norm2(candidates(i)%center - facet%center - offset) .le. tol .and. &
             facets_match_under_translation(facet, candidates(i), offset, &
             tol)) then
           nmatch = nmatch + 1
@@ -538,7 +545,7 @@ contains
        nmatch = 0
        do j = 1, 4
           if (used(j)) cycle
-          if (norm2(rhs%xyz(:, j) - lhs%xyz(:, i) - offset) <= tol) then
+          if (norm2(rhs%xyz(:, j) - lhs%xyz(:, i) - offset) .le. tol) then
              used(j) = .true.
              nmatch = nmatch + 1
           end if
