@@ -463,8 +463,9 @@ if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
-# TODO: add "if ENABLE_HYPRE" statement
+if ENABLE_HYPRE
 libneko_la_SOURCES += multigrid/hypre_ij_interface_wrapper.c
+endif
 
 if ENABLE_HIP
 libneko_la_SOURCES += \

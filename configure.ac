@@ -330,6 +330,16 @@ else
    AX_HDF5
 fi
 
+# Checks for HYPRE
+AC_LANG_PUSH([C])
+AX_HYPRE
+AC_LANG_POP([C])
+if (test "x$have_hypre" = xyes); then
+    LIBS="${HYPRE_LIBS} ${LIBS}"
+    LDFLAGS="${HYPRE_LDFLAGS} ${LDFLAGS}"
+    CFLAGS="${CFLAGS} ${HYPRE_CPPFLAGS}"
+    NEKO_PKG_FCFLAGS="${NEKO_PKG_FCFLAGS} ${HYPRE_CPPFLAGS}"
+fi
 
 # JSON-Fortran
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
@@ -345,6 +355,7 @@ AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
 AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
+AM_CONDITIONAL([ENABLE_HYPRE], [test "x${have_hypre}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
