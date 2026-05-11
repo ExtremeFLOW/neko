@@ -5,6 +5,7 @@ module fluid_plan1
        fluid_scheme_solver_factory, fluid_scheme_precon_factory, &
        space_t, dofmap_t, gs_t, coef_t, gs_init, gs_free, space_free, &
        mesh_t, rp, time_step_controller_t, time_scheme_controller_t
+  use krylov, only : KSP_REL_TOL
   implicit none
 
   type, extends(fluid_scheme_incompressible_t) :: fluid_plan1_t
@@ -51,7 +52,7 @@ contains
     call this%c_Yh%init(this%gs_Yh)
 
     call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), &
-         param%ksp_prs, param%abstol_prs)
+         param%ksp_prs, param%abstol_prs, reltol = KSP_REL_TOL)
     call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
          this%c_Yh, this%dm_Yh, this%gs_Yh, this%bclst_prs, param%pc_prs)
 

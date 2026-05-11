@@ -84,7 +84,8 @@ module hsmg
   use mesh, only : mesh_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, KSP_ABS_TOL, &
+       KSP_REL_TOL, &
        krylov_solver_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
@@ -354,7 +355,8 @@ contains
 
        call krylov_solver_factory(this%crs_solver, &
             this%dm_crs%size(), trim(crs_solver), KSP_MAX_ITER, &
-            M = this%pc_crs, monitor = crs_monitor)
+            KSP_ABS_TOL, M = this%pc_crs, monitor = crs_monitor, &
+            reltol = KSP_REL_TOL)
     end if
 
     call neko_log%end_section()

@@ -72,8 +72,8 @@ contains
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
-    real(kind=rp), optional, intent(in) :: rel_tol
-    real(kind=rp), optional, intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
+    real(kind=rp), intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -87,22 +87,10 @@ contains
     if (present(M)) then
        this%M => M
     end if
-    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+    if (present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
-    else if (present(monitor) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
-    else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol = rel_tol)
-    else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol)
-    else if (present(monitor)) then
-       call this%ksp_init(max_iter, monitor = monitor)
     else
-       call this%ksp_init(max_iter)
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
     end if
 
   end subroutine cg_init

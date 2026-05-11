@@ -38,7 +38,7 @@ module fluid_pnpn
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE
   use num_types, only : rp
-  use krylov, only : ksp_monitor_t
+  use krylov, only : ksp_monitor_t, KSP_REL_TOL
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
        pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
@@ -411,7 +411,8 @@ contains
     call neko_log%message(log_buf)
 
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_type, solver_maxiter, abs_tol, monitor)
+         solver_type, solver_maxiter, abs_tol, monitor, &
+         reltol = KSP_REL_TOL)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
          precon_type, precon_params)

@@ -38,7 +38,8 @@ module ale_manager
   use field, only : field_t
   use coefs, only : coef_t
   use ax_product, only : ax_t, ax_helm_factory
-  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_REL_TOL, &
+       krylov_solver_factory
   use precon, only : pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
@@ -840,7 +841,7 @@ contains
 
     call ax_helm_factory(Ax, full_formulation = .false.)
     call krylov_solver_factory(ksp, n, ksp_solver, &
-         ksp_max_iter, abstol, monitor = res_monitor)
+         ksp_max_iter, abstol, monitor = res_monitor, reltol = KSP_REL_TOL)
     call ale_precon_factory(pc, ksp, coef, coef%dof, &
          coef%gs_h, this%bc_list, precon_type, precon_params)
 

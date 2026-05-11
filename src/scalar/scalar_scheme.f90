@@ -40,7 +40,8 @@ module scalar_scheme
   use field_list, only : field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, &
+       KSP_REL_TOL, ksp_monitor_t
   use coefs, only : coef_t
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
@@ -442,7 +443,8 @@ contains
          'solver.monitor', &
          logical_val, .false.)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, integer_val, solver_abstol, logical_val)
+         solver_type, integer_val, solver_abstol, logical_val, &
+         reltol = KSP_REL_TOL)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, &
          solver_precon, precon_params)
@@ -532,25 +534,28 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, &
-       abstol, monitor, residual_weight_type, residual_normalization_type)
+       abstol, monitor, residual_weight_type, residual_normalization_type, &
+       reltol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
-    real(kind=rp) :: abstol
+    real(kind=rp), intent(in) :: abstol
     logical, intent(in) :: monitor
     character(len=*), optional, intent(in) :: residual_weight_type
     character(len=*), optional, intent(in) :: residual_normalization_type
+    real(kind=rp), intent(in) :: reltol
 
     if (present(residual_weight_type) .and. &
          present(residual_normalization_type)) then
        call krylov_solver_factory(ksp, n, solver, max_iter, &
             abstol, monitor = monitor, &
             residual_weight_type = residual_weight_type, &
-            residual_normalization_type = residual_normalization_type)
+            residual_normalization_type = residual_normalization_type, &
+            reltol = reltol)
     else
        call krylov_solver_factory(ksp, n, solver, max_iter, &
-            abstol, monitor = monitor)
+            abstol, monitor = monitor, reltol = reltol)
     end if
 
   end subroutine scalar_scheme_solver_factory

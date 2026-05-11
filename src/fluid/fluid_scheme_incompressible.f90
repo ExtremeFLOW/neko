@@ -41,7 +41,7 @@ module fluid_scheme_incompressible
   use field, only : field_t
   use space, only : GLL
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, KSP_REL_TOL
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use jacobi, only : jacobi_t
@@ -301,7 +301,8 @@ contains
        write(log_buf, '(A,ES13.6)') 'Abs tol    :', real_val
        call neko_log%message(log_buf)
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, integer_val, real_val, logical_val)
+            string_val1, integer_val, real_val, logical_val, &
+            reltol = KSP_REL_TOL)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, &
             string_val2, json_subdict)
@@ -531,11 +532,12 @@ contains
   !! @note Currently only supporting Krylov solvers
   subroutine fluid_scheme_solver_factory(ksp, n, solver, &
        max_iter, abstol, monitor, residual_weight_type, &
-       residual_normalization_type)
+       residual_normalization_type, reltol)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
     integer, intent(in) :: max_iter
+    real(kind=rp), intent(in) :: reltol
     real(kind=rp), intent(in) :: abstol
     logical, intent(in) :: monitor
     character(len=*), optional, intent(in) :: residual_weight_type
@@ -544,11 +546,13 @@ contains
     if (present(residual_weight_type) .and. &
          present(residual_normalization_type)) then
        call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
-            monitor = monitor, residual_weight_type = residual_weight_type, &
-            residual_normalization_type = residual_normalization_type)
+            monitor = monitor, &
+            residual_weight_type = residual_weight_type, &
+            residual_normalization_type = residual_normalization_type, &
+            reltol = reltol)
     else
        call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
-            monitor = monitor)
+            monitor = monitor, reltol = reltol)
     end if
 
   end subroutine fluid_scheme_solver_factory

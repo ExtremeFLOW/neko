@@ -40,7 +40,8 @@ module PDE_filter
   use field, only : field_t
   use coefs, only : coef_t
   use ax_product, only : ax_t, ax_helm_factory
-  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_REL_TOL, &
+       krylov_solver_factory
   use precon, only : pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
   use neumann, only : neumann_t
@@ -161,7 +162,7 @@ contains
 
     ! set up krylov solver
     call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, &
-         this%ksp_max_iter, this%abstol_filt)
+         this%ksp_max_iter, this%abstol_filt, reltol = KSP_REL_TOL)
 
     ! set up preconditioner
     call filter_precon_factory(this%pc_filt, this%ksp_filt, &
