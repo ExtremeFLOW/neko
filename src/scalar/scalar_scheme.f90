@@ -370,9 +370,9 @@ contains
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
     call json_get(params, 'solver.preconditioner', precon_params)
-    call json_get_or_default(params, 'solver.weight', residual_weight_type, &
-         'coef_mult')
-    call json_get_or_default(params, 'solver.normalization', &
+    call json_get_or_default(params, 'solver.residual_weight', &
+         residual_weight_type, 'none')
+    call json_get_or_default(params, 'solver.residual_normalization', &
          residual_normalization_type, 'volume')
     has_abs_tol = params%valid_path('solver.absolute_tolerance')
     has_rel_tol = params%valid_path('solver.relative_tolerance')

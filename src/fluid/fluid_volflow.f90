@@ -233,7 +233,7 @@ contains
       call bclst_dp%apply_scalar(p_res%x, n)
       call pc_prs%update()
       ksp_results(1) = ksp_prs%solve(Ax_prs, p_vol, p_res%x, n, &
-           c_Xh, bclst_dp, gs_Xh, prs_max_iter)
+           c_Xh, bclst_dp, gs_Xh, prs_max_iter, ref = p_vol)
 
       !   Compute velocity
 
@@ -295,7 +295,7 @@ contains
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, &
            bclst_du, bclst_dv, bclst_dw, &
-           gs_Xh, vel_max_iter)
+           gs_Xh, vel_max_iter, refx = u_vol, refy = v_vol, refz = w_vol)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then

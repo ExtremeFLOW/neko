@@ -147,7 +147,8 @@ contains
   end subroutine pipecg_free
 
   !> Pipelined PCG solve
-  function pipecg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function pipecg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
+       result(ksp_results)
     class(pipecg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -158,6 +159,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: ref
     integer :: iter, max_iter, i, j, k, ierr, p_cur, p_prev, u_prev
     real(kind=rp) :: rnorm, rtr, reduction(3), norm_fac
     real(kind=rp) :: alpha(PIPECG_P_SPACE), beta(PIPECG_P_SPACE)
@@ -330,7 +332,8 @@ contains
 
   !> Pipelined PCG coupled solve
   function pipecg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(pipecg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -347,10 +350,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function pipecg_solve_coupled
 

@@ -41,6 +41,8 @@ module gmres_device
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy
   use device_identity, only : device_ident_t
   use math, only : rone, rzero, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, &
@@ -306,7 +308,7 @@ contains
   end subroutine gmres_device_free
 
   !> Standard GMRES solve
-  function gmres_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function gmres_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
        result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -318,11 +320,13 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter
+    type(field_t), optional, intent(in) :: ref
+    integer :: iter, max_iter, weight_idx, ref_idx
     integer :: i, j, k
-    real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_fac
+    real(kind=rp) :: rnorm, alpha, temp, lr, alpha2, norm_scale
     logical :: conv
     type(c_ptr) :: f_d
+    type(field_t), pointer :: weight, ref_
 
     f_d = device_get_ptr(f)
 
@@ -335,6 +339,14 @@ contains
     else
        max_iter = this%max_iter
     end if
+    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+    call neko_scratch_registry%request_field(ref_, ref_idx, .false.)
+    call this%residual%compute_weight(weight, coef, n)
+    if (present(ref)) then
+       call field_copy(ref_, ref, n)
+    else
+       call field_copy(ref_, x, n)
+    end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
          v => this%v, s => this%s, gam => this%gam, v_d => this%v_d, &
@@ -342,7 +354,8 @@ contains
          v_d_d => this%v_d_d, x_d => x%x_d, z_d_d => this%z_d_d, &
          c_d => this%c_d)
 
-      norm_fac = 1.0_rp / sqrt(coef%volume)
+      norm_scale = this%residual%compute_normalization(Ax, ref_, f, coef, gs_h, &
+           blst, weight, n)
       call rzero(gam, this%m_restart + 1)
       call rone(s, this%m_restart)
       call rone(c, this%m_restart)
@@ -371,9 +384,9 @@ contains
             call device_sub2(r_d, w_d, n)
          end if
 
-         gam(1) = sqrt(device_glsc3(r_d, r_d, coef%mult_d, n))
+         gam(1) = sqrt(device_glsc3(r_d, r_d, weight%x_d, n))
          if (iter .eq. 0) then
-            ksp_results%res_start = gam(1) * norm_fac
+            ksp_results%res_start = gam(1) / norm_scale
          end if
 
          if (abscmp(gam(1), 0.0_rp)) exit
@@ -393,20 +406,20 @@ contains
 
             if (NEKO_BCKND_OPENCL .eq. 1) then
                do i = 1, j
-                  h(i,j) = device_glsc3(w_d, v_d(i), coef%mult_d, n)
+                  h(i,j) = device_glsc3(w_d, v_d(i), weight%x_d, n)
 
                   call device_add2s2(w_d, v_d(i), -h(i,j), n)
 
-                  alpha2 = device_glsc3(w_d, w_d, coef%mult_d, n)
+                  alpha2 = device_glsc3(w_d, w_d, weight%x_d, n)
                end do
             else
-               call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n)
+               call device_glsc3_many(h(1,j), w_d, v_d_d, weight%x_d, j, n)
 
                call device_memcpy(h(:,j), h_d(j), j, &
                     HOST_TO_DEVICE, sync = .false.)
 
                alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), &
-                    coef%mult_d, j, n)
+                    weight%x_d, j, n)
 
             end if
 
@@ -433,7 +446,7 @@ contains
             gam(j+1) = -s(j) * gam(j)
             gam(j) = c(j) * gam(j)
 
-            rnorm = abs(gam(j+1)) * norm_fac
+            rnorm = abs(gam(j+1)) / norm_scale
             call this%monitor_iter(iter, rnorm)
             if (rnorm .lt. this%abs_tol) then
                conv = .true.
@@ -469,6 +482,8 @@ contains
       end do
 
     end associate
+    call neko_scratch_registry%relinquish_field(ref_idx)
+    call neko_scratch_registry%relinquish_field(weight_idx)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
@@ -478,7 +493,8 @@ contains
 
   !> Standard GMRES coupled solve
   function gmres_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -495,10 +511,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function gmres_device_solve_coupled
 

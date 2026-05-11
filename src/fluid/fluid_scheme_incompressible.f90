@@ -291,10 +291,11 @@ contains
              string_val2)
         call json_get(params, &
              'case.fluid.velocity_solver.preconditioner', json_subdict)
-        call json_get_or_default(params, 'case.fluid.velocity_solver.weight', &
-             residual_weight_type, 'coef_mult')
+         call json_get_or_default(params, &
+             'case.fluid.velocity_solver.residual_weight', &
+             residual_weight_type, 'none')
         call json_get_or_default(params, &
-             'case.fluid.velocity_solver.normalization', &
+             'case.fluid.velocity_solver.residual_normalization', &
              residual_normalization_type, 'volume')
         has_abs_tol = params%valid_path( &
              'case.fluid.velocity_solver.absolute_tolerance')

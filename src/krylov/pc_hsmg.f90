@@ -159,9 +159,10 @@ contains
     ! Common parameters for the coarse grid
     call json_get_or_default(hsmg_params, 'coarse_grid.solver', &
          crs_solver, "cg")
-    call json_get_or_default(hsmg_params, 'coarse_grid.weight', &
-         crs_residual_weight_type, 'coef_mult')
-    call json_get_or_default(hsmg_params, 'coarse_grid.normalization', &
+    call json_get_or_default(hsmg_params, 'coarse_grid.residual_weight', &
+         crs_residual_weight_type, 'none')
+    call json_get_or_default(hsmg_params, &
+         'coarse_grid.residual_normalization', &
          crs_residual_normalization_type, 'volume')
 
     !

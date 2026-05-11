@@ -181,7 +181,7 @@ contains
        call object%residual%init(residual_weight_type, &
             residual_normalization_type)
     else
-       call object%residual%init('coef_mult', 'volume')
+       call object%residual%init('none', 'volume')
     end if
 
   end subroutine krylov_solver_factory

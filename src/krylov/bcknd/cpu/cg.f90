@@ -42,6 +42,7 @@ module cg
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy
   use math, only : glsc3, rzero, copy, abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -126,7 +127,8 @@ contains
   end subroutine cg_free
 
   !> Standard PCG solve
-  function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
+       result(ksp_results)
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -137,32 +139,39 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: ref
     integer :: iter, max_iter, i, j, k, p_cur, p_prev, blk_size
-    integer :: weight_idx
+    integer :: weight_idx, ref_idx
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: raw_res, raw_res0, rel_limit
     real(kind=rp) :: beta, pap, norm_scale
     logical :: converged
-    type(field_t), pointer :: weight
+    type(field_t), pointer :: weight, ref_
 
     if (present(niter)) then
        max_iter = niter
     else
        max_iter = this%max_iter
-    end if
-    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
-    call this%residual%compute_weight(weight, coef, n)
-    converged = .false.
+     end if
+     call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+     call neko_scratch_registry%request_field(ref_, ref_idx, .false.)
+     call this%residual%compute_weight(weight, coef, n)
+     if (present(ref)) then
+        call field_copy(ref_, ref, n)
+     else
+        call field_copy(ref_, x, n)
+     end if
+     converged = .false.
 
     associate(w => this%w, r => this%r, p => this%p, &
          z => this%z, alpha => this%alpha)
 
-      rtz1 = 1.0_rp
-      call rzero(x%x, n)
-      call rzero(p(1,CG_P_SPACE), n)
-      call copy(r, f, n)
-      norm_scale = this%residual%compute_normalization(Ax, x, f, coef, gs_h, &
-           blst, weight, n)
+       rtz1 = 1.0_rp
+       call rzero(x%x, n)
+       call rzero(p(1,CG_P_SPACE), n)
+       call copy(r, f, n)
+       norm_scale = this%residual%compute_normalization(Ax, ref_, f, coef, gs_h, &
+            blst, weight, n)
 
       rtr = glsc3(r, weight%x, r, n)
       raw_res0 = sqrt(rtr)
@@ -172,11 +181,12 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
-         ksp_results%converged = .true.
-         call neko_scratch_registry%relinquish_field(weight_idx)
-         return
-      end if
+       if(abscmp(rnorm, 0.0_rp)) then
+          ksp_results%converged = .true.
+          call neko_scratch_registry%relinquish_field(ref_idx)
+          call neko_scratch_registry%relinquish_field(weight_idx)
+          return
+       end if
 
       p_prev = CG_P_SPACE
       p_cur = 1
@@ -234,6 +244,7 @@ contains
          end if
       end do
     end associate
+    call neko_scratch_registry%relinquish_field(ref_idx)
     call neko_scratch_registry%relinquish_field(weight_idx)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
@@ -263,7 +274,8 @@ contains
 
   !> Standard PCG coupled solve
   function cg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -280,10 +292,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function cg_solve_coupled
 

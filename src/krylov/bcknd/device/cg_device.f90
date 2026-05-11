@@ -41,6 +41,7 @@ module cg_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy
   use math, only : abscmp
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
@@ -150,7 +151,8 @@ contains
   end subroutine cg_device_free
 
   !> Standard PCG solve
-  function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
+       result(ksp_results)
     class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -161,13 +163,14 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: ref
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
-    integer :: iter, max_iter, weight_idx
+    integer :: iter, max_iter, weight_idx, ref_idx
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, alphm, norm_scale
     type(c_ptr) :: f_d
-    type(field_t), pointer :: weight
+    type(field_t), pointer :: weight, ref_
 
     f_d = device_get_ptr(f)
 
@@ -175,13 +178,19 @@ contains
        max_iter = niter
     else
        max_iter = this%max_iter
-    end if
-    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
-    call this%residual%compute_weight(weight, coef, n)
-    norm_scale = this%residual%compute_normalization(Ax, x, f, coef, gs_h, &
-         blst, weight, n)
+     end if
+     call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+     call neko_scratch_registry%request_field(ref_, ref_idx, .false.)
+     call this%residual%compute_weight(weight, coef, n)
+     if (present(ref)) then
+        call field_copy(ref_, ref, n)
+     else
+        call field_copy(ref_, x, n)
+     end if
+     norm_scale = this%residual%compute_normalization(Ax, ref_, f, coef, gs_h, &
+          blst, weight, n)
 
-    rtz1 = one
+     rtz1 = one
     call device_rzero(x%x_d, n)
     call device_rzero(this%p_d, n)
     call device_copy(this%r_d, f_d, n)
@@ -191,11 +200,12 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(abscmp(rnorm, zero)) then
-       ksp_results%converged = .true.
-       call neko_scratch_registry%relinquish_field(weight_idx)
-       return
-    end if
+     if(abscmp(rnorm, zero)) then
+        ksp_results%converged = .true.
+        call neko_scratch_registry%relinquish_field(ref_idx)
+        call neko_scratch_registry%relinquish_field(weight_idx)
+        return
+     end if
     call this%monitor_start('CG')
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
@@ -224,8 +234,9 @@ contains
        if (rnorm .lt. this%abs_tol) then
           exit
        end if
-    end do
-    call neko_scratch_registry%relinquish_field(weight_idx)
+     end do
+     call neko_scratch_registry%relinquish_field(ref_idx)
+     call neko_scratch_registry%relinquish_field(weight_idx)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
@@ -235,7 +246,8 @@ contains
 
   !> Standard PCG coupled solve
   function cg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -252,10 +264,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function cg_device_solve_coupled
 

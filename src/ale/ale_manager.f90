@@ -990,11 +990,11 @@ contains
           call bcloc%apply_scalar(rhs_field%x, n)
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
-          ! Solve
-          call field_rzero(corr_field)
-          call pc%update()
-          monitor(1) = ksp%solve(Ax, corr_field, &
-               rhs_field%x, n, coef, bcloc, coef%gs_h)
+           ! Solve
+           call field_rzero(corr_field)
+           call pc%update()
+           monitor(1) = ksp%solve(Ax, corr_field, &
+                rhs_field%x, n, coef, bcloc, coef%gs_h)
 
           ! phi = phi_lifted + phi_corr
           call field_add2(this%base_shapes(body_idx), corr_field, n)
@@ -1840,9 +1840,10 @@ contains
 
     call json_get_or_default(json, &
          'case.fluid.ale.solver.preconditioner.type', precon_type, 'jacobi')
-    call json_get_or_default(json, 'case.fluid.ale.solver.weight', &
-         residual_weight_type, 'coef_mult')
-    call json_get_or_default(json, 'case.fluid.ale.solver.normalization', &
+    call json_get_or_default(json, 'case.fluid.ale.solver.residual_weight', &
+         residual_weight_type, 'none')
+    call json_get_or_default(json, &
+         'case.fluid.ale.solver.residual_normalization', &
          residual_normalization_type, 'volume')
 
     if (json%valid_path('case.fluid.ale.solver.preconditioner')) then

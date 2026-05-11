@@ -134,11 +134,12 @@ module krylov
   !! @param blst list of  boundary conditions
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
+  !! @param ref optional reference field for residual normalization
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) &
-          result(ksp_results)
-       import :: bc_list_t
-       import :: field_t
+      function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
+           result(ksp_results)
+        import :: bc_list_t
+        import :: field_t
        import :: ksp_t
        import :: coef_t
        import :: gs_t
@@ -151,13 +152,14 @@ module krylov
        type(field_t), intent(inout) :: x
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
-       type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(inout) :: blst
-       type(gs_t), intent(inout) :: gs_h
-       integer, optional, intent(in) :: niter
-       type(ksp_monitor_t) :: ksp_results
-     end function ksp_method
-  end interface
+        type(coef_t), intent(inout) :: coef
+        type(bc_list_t), intent(inout) :: blst
+        type(gs_t), intent(inout) :: gs_h
+        integer, optional, intent(in) :: niter
+        type(field_t), optional, intent(in) :: ref
+        type(ksp_monitor_t) :: ksp_results
+      end function ksp_method
+   end interface
 
   !> Abstract interface for a Krylov method's coupled solve routine
   !!
@@ -172,12 +174,16 @@ module krylov
   !! @param blst list of boundary conditions
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
+  !! @param refx optional reference field for x normalization
+  !! @param refy optional reference field for y normalization
+  !! @param refz optional reference field for z normalization
   abstract interface
-     function ksp_method_coupled(this, Ax, x, y, z, fx, fy, fz, &
-          n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
-       import :: bc_list_t
-       import :: field_t
-       import :: ksp_t
+      function ksp_method_coupled(this, Ax, x, y, z, fx, fy, fz, &
+           n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+           result(ksp_results)
+        import :: bc_list_t
+        import :: field_t
+        import :: ksp_t
        import :: coef_t
        import :: gs_t
        import :: ax_t
@@ -196,12 +202,15 @@ module krylov
        type(coef_t), intent(inout) :: coef
        type(bc_list_t), intent(inout) :: blstx
        type(bc_list_t), intent(inout) :: blsty
-       type(bc_list_t), intent(inout) :: blstz
-       type(gs_t), intent(inout) :: gs_h
-       integer, optional, intent(in) :: niter
-       type(ksp_monitor_t), dimension(3) :: ksp_results
-     end function ksp_method_coupled
-  end interface
+        type(bc_list_t), intent(inout) :: blstz
+        type(gs_t), intent(inout) :: gs_h
+        integer, optional, intent(in) :: niter
+        type(field_t), optional, intent(in) :: refx
+        type(field_t), optional, intent(in) :: refy
+        type(field_t), optional, intent(in) :: refz
+        type(ksp_monitor_t), dimension(3) :: ksp_results
+      end function ksp_method_coupled
+   end interface
 
   !> Abstract interface for deallocating a Krylov method
   abstract interface

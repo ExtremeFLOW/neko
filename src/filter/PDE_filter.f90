@@ -129,9 +129,9 @@ contains
     call json_get_or_default(json, "max_iter", max_iter, 200)
     call json_get_or_default(json, "solver", ksp_solver, "cg")
     call json_get_or_default(json, "preconditioner", precon_type, "jacobi")
-    call json_get_or_default(json, "weight", residual_weight_type, &
-         "coef_mult")
-    call json_get_or_default(json, "normalization", &
+    call json_get_or_default(json, "residual_weight", residual_weight_type, &
+         "none")
+    call json_get_or_default(json, "residual_normalization", &
          residual_normalization_type, "volume")
 
     call this%init_from_components(coef, r, tol, max_iter, ksp_solver, &
@@ -287,7 +287,7 @@ contains
     call profiler_start_region("filter solve")
     this%ksp_results(1) = &
          this%ksp_filt%solve(this%Ax, d_F_out, RHS%x, n, this%coef, &
-         this%bclst_filt, this%coef%gs_h)
+         this%bclst_filt, this%coef%gs_h, ref = F_in)
 
     call profiler_end_region
 

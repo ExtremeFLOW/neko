@@ -119,7 +119,8 @@ contains
   end subroutine cacg_free
 
   !> S-step CA PCG solve
-  function cacg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cacg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
+       result(ksp_results)
     class(cacg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -130,6 +131,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: ref
     integer :: i, j, k, l, iter, max_iter, s, ierr, it
     real(kind=rp) :: rnorm, rtr, rtz1, tmp
     real(kind=rp) :: beta(this%s+1), alpha(this%s+1), alpha1, alpha2, norm_fac
@@ -337,7 +339,8 @@ contains
 
   !> S-step CA PCG coupled solve
   function cacg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(cacg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -354,10 +357,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function cacg_solve_coupled
 

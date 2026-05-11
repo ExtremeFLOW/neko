@@ -40,6 +40,8 @@ module fusedcg_cpld_device
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc2
   use device
@@ -517,7 +519,8 @@ contains
 
   !> Pipelined PCG solve coupled solve
   function fusedcg_cpld_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -534,12 +537,17 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
     integer :: iter, max_iter, ierr, i, p_cur, p_prev
-    real(kind=rp) :: rnorm, rtr, norm_fac, rtz1, rtz2
+    integer :: weight_idx, refx_idx, refy_idx, refz_idx
+    real(kind=rp) :: rnorm, rtr, norm_scale, rtz1, rtz2
     real(kind=rp) :: pap, beta
     type(c_ptr) :: fx_d
     type(c_ptr) :: fy_d
     type(c_ptr) :: fz_d
+    type(field_t), pointer :: weight, refx_, refy_, refz_
 
     fx_d = device_get_ptr(fx)
     fy_d = device_get_ptr(fy)
@@ -550,7 +558,40 @@ contains
     else
        max_iter = KSP_MAX_ITER
     end if
-    norm_fac = 1.0_rp / sqrt(coef%volume)
+    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+    call neko_scratch_registry%request_field(refx_, refx_idx, .false.)
+    call neko_scratch_registry%request_field(refy_, refy_idx, .false.)
+    call neko_scratch_registry%request_field(refz_, refz_idx, .false.)
+    call this%residual%compute_weight(weight, coef, n)
+    if (present(refx)) then
+       call field_copy(refx_, refx, n)
+    else
+       call field_copy(refx_, x, n)
+    end if
+    if (present(refy)) then
+       call field_copy(refy_, refy, n)
+    else
+       call field_copy(refy_, y, n)
+    end if
+    if (present(refz)) then
+       call field_copy(refz_, refz, n)
+    else
+       call field_copy(refz_, z, n)
+    end if
+    select case (trim(this%residual%normalization_type))
+    case ('none')
+       norm_scale = 1.0_rp
+    case ('volume')
+       norm_scale = sqrt(coef%volume)
+    case default
+       norm_scale = sqrt( &
+            this%residual%compute_normalization(Ax, refx_, fx, coef, gs_h, &
+            blstx, weight, n)**2 + &
+            this%residual%compute_normalization(Ax, refy_, fy, coef, gs_h, &
+            blsty, weight, n)**2 + &
+            this%residual%compute_normalization(Ax, refz_, fz, coef, gs_h, &
+            blstz, weight, n)**2)
+    end select
 
     associate(w1 => this%w1, w2 => this%w2, w3 => this%w3, r1 => this%r1, &
          r2 => this%r2, r3 => this%r3, p1 => this%p1, p2 => this%p2, &
@@ -580,15 +621,19 @@ contains
       call device_fusedcg_cpld_part1(r1_d, r2_d, r3_d, r1_d, &
            r2_d, r3_d, tmp_d, n)
 
-      rtr = device_glsc2(tmp_d, coef%mult_d, n)
+      rtr = device_glsc2(tmp_d, weight%x_d, n)
 
-      rnorm = sqrt(rtr)*norm_fac
+      rnorm = sqrt(rtr) / norm_scale
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results(1)%iter = 0
       ksp_results(2:3)%iter = -1
       if(abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
+         call neko_scratch_registry%relinquish_field(refz_idx)
+         call neko_scratch_registry%relinquish_field(refy_idx)
+         call neko_scratch_registry%relinquish_field(refx_idx)
+         call neko_scratch_registry%relinquish_field(weight_idx)
          return
       end if
       call this%monitor_start('fcpldCG')
@@ -599,7 +644,7 @@ contains
          rtz2 = rtz1
          call device_fusedcg_cpld_part1(z1_d, z2_d, z3_d, &
               r1_d, r2_d, r3_d, tmp_d, n)
-         rtz1 = device_glsc2(tmp_d, coef%mult_d, n)
+         rtz1 = device_glsc2(tmp_d, weight%x_d, n)
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
@@ -625,12 +670,12 @@ contains
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &
               p2_d(p_cur), p3_d(p_cur), tmp_d, n)
 
-         pap = device_glsc2(tmp_d, coef%mult_d, n)
+         pap = device_glsc2(tmp_d, weight%x_d, n)
 
          alpha(p_cur) = rtz1 / pap
-         rtr = device_fusedcg_cpld_part2(r1_d, r2_d, r3_d, coef%mult_d, &
+         rtr = device_fusedcg_cpld_part2(r1_d, r2_d, r3_d, weight%x_d, &
               w1_d, w2_d, w3_d, alpha_d, alpha(p_cur), p_cur, n)
-         rnorm = sqrt(rtr)*norm_fac
+         rnorm = sqrt(rtr) / norm_scale
          call this%monitor_iter(iter, rnorm)
          if ((p_cur .eq. DEVICE_FUSEDCG_CPLD_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
@@ -644,6 +689,10 @@ contains
             p_cur = p_cur + 1
          end if
       end do
+      call neko_scratch_registry%relinquish_field(refz_idx)
+      call neko_scratch_registry%relinquish_field(refy_idx)
+      call neko_scratch_registry%relinquish_field(refx_idx)
+      call neko_scratch_registry%relinquish_field(weight_idx)
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
@@ -655,7 +704,7 @@ contains
 
   !> Pipelined PCG solve
   function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, blst, &
-       gs_h, niter) result(ksp_results)
+       gs_h, niter, ref) result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -666,6 +715,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: ref
 
     ! Throw and error
     call neko_error('The cpldcg solver is only defined for coupled solves')

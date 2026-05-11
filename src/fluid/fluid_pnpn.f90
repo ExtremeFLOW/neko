@@ -402,10 +402,11 @@ contains
          precon_type)
     call json_get(params, &
          'case.fluid.pressure_solver.preconditioner', precon_params)
-    call json_get_or_default(params, 'case.fluid.pressure_solver.weight', &
-         residual_weight_type, 'coef_mult')
     call json_get_or_default(params, &
-         'case.fluid.pressure_solver.normalization', &
+         'case.fluid.pressure_solver.residual_weight', &
+         residual_weight_type, 'none')
+    call json_get_or_default(params, &
+         'case.fluid.pressure_solver.residual_normalization', &
          residual_normalization_type, 'volume')
     has_abs_tol = params%valid_path( &
          'case.fluid.pressure_solver.absolute_tolerance')
@@ -869,10 +870,10 @@ contains
 
       call profiler_start_region('Pressure_solve', 3)
 
-      ! Solve for the pressure increment.
-      ksp_results(1) = &
-           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-           this%bclst_dp, gs_Xh)
+       ! Solve for the pressure increment.
+       ksp_results(1) = &
+            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+            this%bclst_dp, gs_Xh, ref = p)
       ksp_results(1)%name = 'Pressure'
 
 
@@ -919,11 +920,11 @@ contains
 
       call this%pc_vel%update()
 
-      call profiler_start_region("Velocity_solve", 4)
-      ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
-           u_res%x, v_res%x, w_res%x, n, c_Xh, &
-           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
-           this%ksp_vel%max_iter)
+       call profiler_start_region("Velocity_solve", 4)
+       ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
+            u_res%x, v_res%x, w_res%x, n, c_Xh, &
+            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
+            this%ksp_vel%max_iter, refx = u, refy = v, refz = w)
       call profiler_end_region("Velocity_solve", 4)
       if (this%full_stress_formulation) then
          ksp_results(2)%name = 'Momentum'
