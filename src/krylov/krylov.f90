@@ -36,6 +36,7 @@ module krylov
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use precon, only : pc_t
+  use ksp_residual, only : ksp_residual_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
@@ -72,6 +73,7 @@ module krylov
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
+     type(ksp_residual_t) :: residual !< Residual weighting/normalization
      real(kind=rp) :: rel_tol !< Relative tolerance
      real(kind=rp) :: abs_tol !< Absolute tolerance
      integer :: max_iter !< Maximum number of iterations
@@ -218,8 +220,12 @@ module krylov
      !! @param abstol The absolute tolerance, optional.
      !! @param M The preconditioner, optional.
      !! @param monitor Enable/disable monitoring, optional.
+     !! @param residual_weight_type Residual norm weight selection, optional.
+     !! @param residual_normalization_type Residual normalization selection,
+     !! optional.
      module subroutine krylov_solver_factory(object, n, type_name, &
-          max_iter, abstol, M, monitor)
+          max_iter, abstol, M, monitor, residual_weight_type, &
+          residual_normalization_type)
        class(ksp_t), allocatable, intent(inout) :: object
        integer, intent(in), value :: n
        character(len=*), intent(in) :: type_name
@@ -227,6 +233,8 @@ module krylov
        real(kind=rp), optional :: abstol
        class(pc_t), optional, intent(in), target :: M
        logical, optional, intent(in) :: monitor
+       character(len=*), optional, intent(in) :: residual_weight_type
+       character(len=*), optional, intent(in) :: residual_normalization_type
      end subroutine krylov_solver_factory
 
   end interface
@@ -287,6 +295,8 @@ contains
   !> Deallocate a Krylov solver
   subroutine krylov_free(this)
     class(ksp_t), intent(inout) :: this
+
+    call this%residual%free()
 
     !> @todo add calls to destroy precon. if necessary
 

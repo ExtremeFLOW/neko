@@ -199,6 +199,7 @@ neko_fortran_SOURCES = \
 	bc/blasius.f90\
 	bc/wall_model_bc.f90\
 	krylov/precon.f90\
+	krylov/ksp_residual.f90\
 	krylov/krylov.f90\
 	krylov/pc_identity.f90\
 	krylov/precon_fctry.f90\

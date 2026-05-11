@@ -41,6 +41,7 @@ module cg
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
   use math, only : glsc3, rzero, copy, abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -149,15 +150,22 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, i, j, k, p_cur, p_prev, blk_size
+    integer :: weight_idx
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
-    real(kind=rp) :: beta, pap, norm_fac
+    real(kind=rp) :: raw_res, raw_res0, rel_limit
+    real(kind=rp) :: beta, pap, norm_scale
+    logical :: converged
+    type(field_t), pointer :: weight
 
     if (present(niter)) then
        max_iter = niter
     else
        max_iter = this%max_iter
     end if
-    norm_fac = 1.0_rp / sqrt(coef%volume)
+    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+    call this%residual%compute_weight(weight, coef, n)
+    norm_scale = this%residual%compute_normalization(coef)
+    converged = .false.
 
     associate(w => this%w, r => this%r, p => this%p, &
          z => this%z, alpha => this%alpha)
@@ -167,13 +175,17 @@ contains
       call rzero(p(1,CG_P_SPACE), n)
       call copy(r, f, n)
 
-      rtr = glsc3(r, coef%mult, r, n)
-      rnorm = sqrt(rtr) * norm_fac
+      rtr = glsc3(r, weight%x, r, n)
+      raw_res0 = sqrt(rtr)
+      raw_res = raw_res0
+      rel_limit = this%rel_tol * raw_res0
+      rnorm = raw_res / norm_scale
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       if(abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
+         call neko_scratch_registry%relinquish_field(weight_idx)
          return
       end if
 
@@ -183,7 +195,7 @@ contains
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          rtz2 = rtz1
-         rtz1 = glsc3(r, coef%mult, z, n)
+         rtz1 = glsc3(r, weight%x, z, n)
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
@@ -195,15 +207,17 @@ contains
          call gs_h%op(w, n, GS_OP_ADD)
          call blst%apply(w, n)
 
-         pap = glsc3(w, coef%mult, p(1,p_cur), n)
+         pap = glsc3(w, weight%x, p(1,p_cur), n)
 
          alpha(p_cur) = rtz1 / pap
-         call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
-         rnorm = sqrt(rtr) * norm_fac
+         call second_cg_part(rtr, r, weight%x, w, alpha(p_cur), n)
+         raw_res = sqrt(rtr)
+         rnorm = raw_res / norm_scale
+         converged = (rnorm .lt. this%abs_tol) .or. (raw_res .lt. rel_limit)
          call this%monitor_iter(iter, rnorm)
 
          if ((p_cur .eq. CG_P_SPACE) .or. &
-              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
+              converged .or. iter .eq. max_iter) then
             !$omp parallel do private(blk_size, j, k, x_plus)
             do i = 0, n, NEKO_BLK_SIZE
                blk_size = min(NEKO_BLK_SIZE, n - i)
@@ -224,17 +238,18 @@ contains
             !$omp end parallel do
             p_prev = p_cur
             p_cur = 1
-            if (rnorm .lt. this%abs_tol) exit
+            if (converged) exit
          else
             p_prev = p_cur
             p_cur = p_cur + 1
          end if
       end do
     end associate
+    call neko_scratch_registry%relinquish_field(weight_idx)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
-    ksp_results%converged = this%is_converged(iter, rnorm)
+    ksp_results%converged = converged
   end function cg_solve
 
   subroutine second_cg_part(rtr, r, mult, w, alpha, n)

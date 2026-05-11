@@ -532,16 +532,26 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, &
-       abstol, monitor)
+       abstol, monitor, residual_weight_type, residual_normalization_type)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
     logical, intent(in) :: monitor
+    character(len=*), optional, intent(in) :: residual_weight_type
+    character(len=*), optional, intent(in) :: residual_normalization_type
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, &
-         abstol, monitor = monitor)
+    if (present(residual_weight_type) .and. &
+         present(residual_normalization_type)) then
+       call krylov_solver_factory(ksp, n, solver, max_iter, &
+            abstol, monitor = monitor, &
+            residual_weight_type = residual_weight_type, &
+            residual_normalization_type = residual_normalization_type)
+    else
+       call krylov_solver_factory(ksp, n, solver, max_iter, &
+            abstol, monitor = monitor)
+    end if
 
   end subroutine scalar_scheme_solver_factory
 

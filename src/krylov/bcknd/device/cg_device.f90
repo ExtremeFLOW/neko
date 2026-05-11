@@ -40,6 +40,7 @@ module cg_device
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
   use math, only : abscmp
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
@@ -174,10 +175,11 @@ contains
     integer, optional, intent(in) :: niter
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp), parameter :: zero = 0.0
-    integer :: iter, max_iter
+    integer :: iter, max_iter, weight_idx
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
+    real(kind=rp) :: beta, pap, alpha, alphm, norm_scale
     type(c_ptr) :: f_d
+    type(field_t), pointer :: weight
 
     f_d = device_get_ptr(f)
 
@@ -186,27 +188,30 @@ contains
     else
        max_iter = this%max_iter
     end if
-    norm_fac = one/sqrt(coef%volume)
+    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+    call this%residual%compute_weight(weight, coef, n)
+    norm_scale = this%residual%compute_normalization(coef)
 
     rtz1 = one
     call device_rzero(x%x_d, n)
     call device_rzero(this%p_d, n)
     call device_copy(this%r_d, f_d, n)
 
-    rtr = device_glsc3(this%r_d, coef%mult_d, this%r_d, n)
-    rnorm = sqrt(rtr)*norm_fac
+    rtr = device_glsc3(this%r_d, weight%x_d, this%r_d, n)
+    rnorm = sqrt(rtr) / norm_scale
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
     if(abscmp(rnorm, zero)) then
        ksp_results%converged = .true.
+       call neko_scratch_registry%relinquish_field(weight_idx)
        return
     end if
     call this%monitor_start('CG')
     do iter = 1, max_iter
        call this%M%solve(this%z, this%r, n)
        rtz2 = rtz1
-       rtz1 = device_glsc3(this%r_d, coef%mult_d, this%z_d, n)
+       rtz1 = device_glsc3(this%r_d, weight%x_d, this%z_d, n)
        beta = rtz1 / rtz2
        if (iter .eq. 1) beta = zero
        call device_add2s1(this%p_d, this%z_d, beta, n)
@@ -216,21 +221,22 @@ contains
        call device_event_sync(this%gs_event)
        call blst%apply(this%w, n)
 
-       pap = device_glsc3(this%w_d, coef%mult_d, this%p_d, n)
+        pap = device_glsc3(this%w_d, weight%x_d, this%p_d, n)
 
        alpha = rtz1 / pap
        alphm = -alpha
        call device_add2s2(x%x_d, this%p_d, alpha, n)
        call device_add2s2(this%r_d, this%w_d, alphm, n)
 
-       rtr = device_glsc3(this%r_d, coef%mult_d, this%r_d, n)
+       rtr = device_glsc3(this%r_d, weight%x_d, this%r_d, n)
        if (iter .eq. 1) rtr0 = rtr
-       rnorm = sqrt(rtr)*norm_fac
+       rnorm = sqrt(rtr) / norm_scale
        call this%monitor_iter(iter, rnorm)
        if (rnorm .lt. this%abs_tol) then
           exit
        end if
     end do
+    call neko_scratch_registry%relinquish_field(weight_idx)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter

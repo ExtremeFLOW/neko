@@ -530,16 +530,26 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine fluid_scheme_solver_factory(ksp, n, solver, &
-       max_iter, abstol, monitor)
+       max_iter, abstol, monitor, residual_weight_type, &
+       residual_normalization_type)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
     integer, intent(in) :: max_iter
     real(kind=rp), intent(in) :: abstol
     logical, intent(in) :: monitor
+    character(len=*), optional, intent(in) :: residual_weight_type
+    character(len=*), optional, intent(in) :: residual_normalization_type
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
-         monitor = monitor)
+    if (present(residual_weight_type) .and. &
+         present(residual_normalization_type)) then
+       call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
+            monitor = monitor, residual_weight_type = residual_weight_type, &
+            residual_normalization_type = residual_normalization_type)
+    else
+       call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
+            monitor = monitor)
+    end if
 
   end subroutine fluid_scheme_solver_factory
 
