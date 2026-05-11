@@ -49,7 +49,7 @@ module avm_simcomp
   !> A simulation component that drives the computation of the artificial
   !! viscosity method.
   type, public, extends(simulation_component_t) :: avm_simcomp_t
-     !> The avm model.
+     !> The artificial viscosity model.
      class(avm_t), allocatable :: avm
      !> Output writer.
      type(field_writer_t) :: writer
@@ -85,7 +85,7 @@ contains
 
     call this%init_base(json, case)
 
-    ! Create the AVM model first so we can get the field name it uses
+    ! Create the AVM first so we can get the field name it uses
     call avm_factory(this%avm, model_name, case, json)
 
     ! Get the field name from the model's reg_coeff field and add it to the
