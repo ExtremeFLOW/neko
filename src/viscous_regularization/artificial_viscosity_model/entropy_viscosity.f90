@@ -33,7 +33,7 @@
 module entropy_viscosity
   use num_types, only : rp
   use case, only : case_t
-  use avm_model, only : avm_model_t
+  use artificial_viscosity_model, only : avm_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
   use field, only : field_t
@@ -69,7 +69,7 @@ module entropy_viscosity
   implicit none
   private
 
-  type, public, extends(avm_model_t) :: entropy_viscosity_t
+  type, public, extends(avm_t) :: entropy_viscosity_t
      real(kind=rp) :: c_avisc_entropy
      real(kind=rp) :: c_avisc_low
      type(field_t) :: entropy_residual
