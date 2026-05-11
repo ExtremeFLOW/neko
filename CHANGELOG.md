@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Removed restart limitations on load balancing. We now cache the the balanced
+  mesh and read the cache if available. Load balance name pattern updated to
+  include partition number.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
 - Added the `caisagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL
