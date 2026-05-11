@@ -157,7 +157,7 @@ module artificial_viscosity_model
 
 
   interface
-     !> Artificial viscosity model factory. Both allocates and initializes 
+     !> Artificial viscosity model factory. Both allocates and initializes
      !! the object.
      !! @param object The object to be allocated.
      !! @param type_name The name of the artificial viscosity model.
