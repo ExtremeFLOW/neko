@@ -148,13 +148,13 @@ contains
     logical :: scalar = .false.
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
-    logical :: found, logical_val
+    logical :: found, logical_val, load_balance
     logical :: temperature_found = .false.
     integer :: integer_val, var_type
     real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vals(:)
     type(vector_t), pointer :: vec
-    character(len = :), allocatable :: string_val, name, file_format
+    character(len = :), allocatable :: string_val, name, file_format, lb_file
     integer :: output_dir_len
     integer :: precision, layout
     type(json_file) :: scalar_params, numerics_params
@@ -212,33 +212,66 @@ contains
     end if
 
     !
-    ! Load mesh
+    ! Load mesh and perform load balancing if requested
     !
     call json_get_or_default(this%params, 'case.mesh_file', string_val, &
          'no mesh')
+    call json_get_or_default(this%params, 'case.load_balancing', load_balance, &
+         .false.)
+
     if (trim(string_val) .eq. 'no mesh') then
        call neko_error('The mesh_file keyword could not be found in the .' // &
             'case file. Often caused by incorrectly formatted json.')
     end if
-    call msh_file%init(string_val)
-    call msh_file%read(this%msh)
 
-    !
-    ! Load Balancing
-    !
-    call json_get_or_default(this%params, 'case.load_balancing', logical_val,&
-         .false.)
+    if (pe_rank .eq. 0) then
+       inquire(file = trim(string_val), exist = found)
+       if (.not. found) then
+          call neko_error('The mesh file ' // trim(string_val) // &
+               ' does not exist.')
+       end if
+    end if
 
-    if (pe_size .gt. 1 .and. logical_val) then
-       call neko_log%section('Load Balancing')
-       call parmetis_partmeshkway(this%msh, parts)
-       call redist_mesh(this%msh, parts)
+    if (.not. load_balance) then
 
-       ! store the balanced mesh (for e.g. restarts)
-       string_val = trim(string_val(1:scan(trim(string_val), &
-            '.', back = .true.) - 1)) // '_lb.nmsh'
        call msh_file%init(string_val)
-       call msh_file%write(this%msh)
+       call msh_file%read(this%msh)
+
+    else if (load_balance .and. pe_size .eq. 1) then
+       call neko_log%message('Load balancing requested but only one ' // &
+            'MPI rank found, ignoring.')
+
+       call msh_file%init(string_val)
+       call msh_file%read(this%msh)
+
+    else if (load_balance) then
+       call neko_log%section('Load Balancing')
+
+       write(lb_file, '(A,A,I0,A)') &
+            trim(string_val(1:scan(trim(string_val), '.', back = .true.) - 1)),&
+            "_lb_", pe_size, '.nmsh'
+
+       if (pe_rank .eq. 0) then
+          inquire(file = trim(string_val), exist = found)
+       end if
+       call MPI_Bcast(found, 1, MPI_LOGICAL, 0, NEKO_COMM)
+
+       if (found) then
+          call neko_log%message('Reading balanced mesh')
+          call msh_file%init(lb_file)
+          call msh_file%read(this%msh)
+       else
+          call msh_file%init(string_val)
+          call msh_file%read(this%msh)
+
+          call neko_log%message('Performing load balancing with ParMETIS')
+          call parmetis_partmeshkway(this%msh, parts)
+          call redist_mesh(this%msh, parts)
+
+          ! store the balanced mesh (for e.g. restarts)
+          call msh_file%init(lb_file)
+          call msh_file%write(this%msh)
+       end if
 
        call neko_log%end_section()
     end if
