@@ -162,6 +162,8 @@ contains
     integer :: integer_val, ierr
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
+    character(len=:), allocatable :: residual_weight_type
+    character(len=:), allocatable :: residual_normalization_type
     type(json_file) :: json_subdict
 
     !
@@ -285,12 +287,17 @@ contains
             'case.fluid.velocity_solver.max_iterations', &
             integer_val, KSP_MAX_ITER)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
-       call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
-            string_val2)
-       call json_get(params, &
-            'case.fluid.velocity_solver.preconditioner', json_subdict)
-       has_abs_tol = params%valid_path( &
-            'case.fluid.velocity_solver.absolute_tolerance')
+        call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
+             string_val2)
+        call json_get(params, &
+             'case.fluid.velocity_solver.preconditioner', json_subdict)
+        call json_get_or_default(params, 'case.fluid.velocity_solver.weight', &
+             residual_weight_type, 'coef_mult')
+        call json_get_or_default(params, &
+             'case.fluid.velocity_solver.normalization', &
+             residual_normalization_type, 'volume')
+        has_abs_tol = params%valid_path( &
+             'case.fluid.velocity_solver.absolute_tolerance')
        has_rel_tol = params%valid_path( &
             'case.fluid.velocity_solver.relative_tolerance')
        if (.not. has_abs_tol .and. .not. has_rel_tol) then
@@ -318,10 +325,17 @@ contains
 
        write(log_buf, '(A,ES13.6)') 'Abs tol    :', abs_tol
        call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'Rel tol    :', rel_tol
-       call neko_log%message(log_buf)
-       call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, integer_val, abs_tol, rel_tol, monitor = logical_val)
+        write(log_buf, '(A,ES13.6)') 'Rel tol    :', rel_tol
+        call neko_log%message(log_buf)
+        write(log_buf, '(A, A)') 'Weight     :', trim(residual_weight_type)
+        call neko_log%message(log_buf)
+        write(log_buf, '(A, A)') 'Normalization:', &
+             trim(residual_normalization_type)
+        call neko_log%message(log_buf)
+        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+             string_val1, integer_val, abs_tol, rel_tol, monitor = logical_val, &
+             residual_weight_type = residual_weight_type, &
+             residual_normalization_type = residual_normalization_type)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, &
             string_val2, json_subdict)

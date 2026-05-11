@@ -152,7 +152,6 @@ contains
     end if
     call neko_scratch_registry%request_field(weight, weight_idx, .false.)
     call this%residual%compute_weight(weight, coef, n)
-    norm_scale = this%residual%compute_normalization(coef)
     converged = .false.
 
     associate(w => this%w, r => this%r, p => this%p, &
@@ -162,6 +161,8 @@ contains
       call rzero(x%x, n)
       call rzero(p(1,CG_P_SPACE), n)
       call copy(r, f, n)
+      norm_scale = this%residual%compute_normalization(Ax, x, f, coef, gs_h, &
+           blst, weight, n)
 
       rtr = glsc3(r, weight%x, r, n)
       raw_res0 = sqrt(rtr)

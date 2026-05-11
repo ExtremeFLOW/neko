@@ -221,7 +221,7 @@ module krylov
      !! @param reltol The relative tolerance.
      !! @param M The preconditioner, optional.
      !! @param monitor Enable/disable monitoring, optional.
-     !! @param residual_weight_type Residual norm weight selection, optional.
+     !! @param residual_weight_type Residual weight selection, optional.
      !! @param residual_normalization_type Residual normalization selection,
      !! optional.
      module subroutine krylov_solver_factory(object, n, type_name, &
@@ -246,8 +246,8 @@ contains
 
   !> Constructor for the base type.
   !! @param max_iter Maximum number of iterations.
-  !! @param abs_tol Absolute tolarance for converence.
-  !! @param rel_tol Relative tolarance for converence.
+  !! @param abs_tol Absolute tolerance for convergence.
+  !! @param rel_tol Relative tolerance for convergence.
   !! @param M The preconditioner.
   subroutine krylov_init(this, max_iter, abs_tol, rel_tol, M, monitor)
     class(ksp_t), target, intent(inout) :: this

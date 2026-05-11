@@ -35,14 +35,20 @@ module ksp_residual
   use num_types, only : rp
   use field, only : field_t
   use coefs, only : coef_t
+  use ax_product, only : ax_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
+  use math, only : cfill, copy, glsc3, glsum
   use utils, only : neko_error, neko_type_error
   implicit none
   private
 
   character(len=16), parameter :: KSP_RESIDUAL_WEIGHT_TYPES(2) = &
        [character(len=16) :: 'unit', 'coef_mult']
-  character(len=16), parameter :: KSP_RESIDUAL_NORMALIZATION_TYPES(4) = &
-       [character(len=16) :: 'none', 'volume', 'initial', 'rhs']
+  character(len=16), parameter :: KSP_RESIDUAL_NORMALIZATION_TYPES(5) = &
+       [character(len=16) :: 'none', 'volume', 'initial', 'rhs_scale', &
+       'equation_scale']
 
   !> KSP residual policy.
   !!
@@ -72,14 +78,24 @@ module ksp_residual
        integer, intent(in) :: n
      end subroutine ksp_residual_weight_intrf
 
-     !> Compute a scalar residual normalization factor.
-     function ksp_residual_normalization_intrf(coef, reference_norm) &
-          result(scale)
+     !> Compute a scalar residual normalization factor from the solver state.
+     function ksp_residual_normalization_intrf(Ax, x, rhs, coef, gs_h, blst, &
+          weight, n) result(scale)
+       import ax_t
+       import field_t
        import coef_t
+       import gs_t
+       import bc_list_t
        import rp
        implicit none
+       class(ax_t), intent(in) :: Ax
+       type(field_t), intent(in) :: x
+       integer, intent(in) :: n
+       real(kind=rp), intent(in) :: rhs(n)
        type(coef_t), intent(in) :: coef
-       real(kind=rp), optional, intent(in) :: reference_norm
+       type(gs_t), intent(inout) :: gs_h
+       type(bc_list_t), intent(inout) :: blst
+       type(field_t), intent(in) :: weight
        real(kind=rp) :: scale
      end function ksp_residual_normalization_intrf
   end interface
@@ -110,9 +126,11 @@ contains
     case ('volume')
        this%compute_normalization => ksp_residual_normalization_volume
     case ('initial')
-       this%compute_normalization => ksp_residual_normalization_reference
-    case ('rhs')
-       this%compute_normalization => ksp_residual_normalization_reference
+       this%compute_normalization => ksp_residual_normalization_initial
+    case ('rhs_scale')
+       this%compute_normalization => ksp_residual_normalization_rhs_scale
+    case ('equation_scale')
+       this%compute_normalization => ksp_residual_normalization_equation_scale
     case default
        call neko_type_error('KSP residual normalization', &
             normalization_type, KSP_RESIDUAL_NORMALIZATION_TYPES)
@@ -164,14 +182,21 @@ contains
       call neko_error('KSP residual weight field is not allocated')
     end if
 
-    weight%x = coef%mult
+    call copy(weight%x, coef%mult, n)
 
   end subroutine ksp_residual_weight_coef_mult
 
   !> No normalization.
-  function ksp_residual_normalization_none(coef, reference_norm) result(scale)
+  function ksp_residual_normalization_none(Ax, x, rhs, coef, gs_h, blst, &
+       weight, n) result(scale)
+    class(ax_t), intent(in) :: Ax
+    type(field_t), intent(in) :: x
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rhs(n)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), optional, intent(in) :: reference_norm
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    type(field_t), intent(in) :: weight
     real(kind=rp) :: scale
 
     scale = 1.0_rp
@@ -179,30 +204,126 @@ contains
   end function ksp_residual_normalization_none
 
   !> Volume-based normalization, e.g. sqrt(r^TWr / V).
-  function ksp_residual_normalization_volume(coef, reference_norm) &
+  function ksp_residual_normalization_volume(Ax, x, rhs, coef, gs_h, blst, &
+       weight, n) &
        result(scale)
+    class(ax_t), intent(in) :: Ax
+    type(field_t), intent(in) :: x
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rhs(n)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), optional, intent(in) :: reference_norm
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    type(field_t), intent(in) :: weight
     real(kind=rp) :: scale
 
     scale = sqrt(coef%volume)
 
   end function ksp_residual_normalization_volume
 
-  !> Reference-based normalization using an externally supplied scalar.
-  function ksp_residual_normalization_reference(coef, reference_norm) &
+  !> Normalize by the weighted norm of the current right-hand side.
+  function ksp_residual_normalization_rhs_scale(Ax, x, rhs, coef, gs_h, blst, &
+       weight, n) &
        result(scale)
+    class(ax_t), intent(in) :: Ax
+    type(field_t), intent(in) :: x
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rhs(n)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), optional, intent(in) :: reference_norm
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    type(field_t), intent(in) :: weight
     real(kind=rp) :: scale
 
-    if (.not. present(reference_norm)) then
-       call neko_error('KSP residual reference normalization requires a ' // &
-            'reference norm')
-    end if
+    scale = sqrt(glsc3(rhs, rhs, weight%x, n))
+    scale = max(scale, tiny(1.0_rp))
 
-    scale = max(reference_norm, tiny(1.0_rp))
+  end function ksp_residual_normalization_rhs_scale
 
-  end function ksp_residual_normalization_reference
+  !> Normalize using an OpenFOAM-inspired equation-scale weighted L2 scaling.
+  !!
+  !! The reference state follows OpenFOAM's mean-field correction, but the
+  !! resulting scale uses the same weighted discrete L2 measure as the solver
+  !! residual itself.
+  function ksp_residual_normalization_equation_scale(Ax, x, rhs, coef, gs_h, &
+       blst, &
+       weight, n) result(scale)
+    class(ax_t), intent(in) :: Ax
+    type(field_t), intent(in) :: x
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rhs(n)
+    type(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    type(field_t), intent(in) :: weight
+    real(kind=rp) :: scale
+    real(kind=rp) :: mean_x
+    integer :: ax_idx, ref_idx, const_idx, i
+    type(field_t), pointer :: ax_x, ax_ref, x_const
+
+    call neko_scratch_registry%request_field(ax_x, ax_idx, .false.)
+    call neko_scratch_registry%request_field(ax_ref, ref_idx, .false.)
+    call neko_scratch_registry%request_field(x_const, const_idx, .false.)
+
+    mean_x = glsum(x%x, n) / real(n, rp)
+
+    call Ax%compute(ax_x%x, x%x, coef, x%msh, x%Xh)
+    call gs_h%op(ax_x%x, n, GS_OP_ADD)
+    call blst%apply(ax_x)
+
+    call cfill(x_const%x, mean_x, n)
+    call Ax%compute(ax_ref%x, x_const%x, coef, x%msh, x%Xh)
+    call gs_h%op(ax_ref%x, n, GS_OP_ADD)
+    call blst%apply(ax_ref)
+
+    do i = 1, n
+       ax_x%x(i, 1, 1, 1) = ax_x%x(i, 1, 1, 1) - ax_ref%x(i, 1, 1, 1)
+       ax_ref%x(i, 1, 1, 1) = rhs(i) - ax_ref%x(i, 1, 1, 1)
+    end do
+
+    scale = sqrt(glsc3(ax_x%x, ax_x%x, weight%x, n) + &
+         glsc3(ax_ref%x, ax_ref%x, weight%x, n))
+    scale = max(scale, tiny(1.0_rp))
+
+    call neko_scratch_registry%relinquish_field(const_idx)
+    call neko_scratch_registry%relinquish_field(ref_idx)
+    call neko_scratch_registry%relinquish_field(ax_idx)
+
+  end function ksp_residual_normalization_equation_scale
+
+  !> Normalize by the weighted norm of the current residual.
+  !!
+  !! This is intended to be called once at solve entry when the solver wants to
+  !! capture the initial residual scale.
+  function ksp_residual_normalization_initial(Ax, x, rhs, coef, gs_h, blst, &
+       weight, n) result(scale)
+    class(ax_t), intent(in) :: Ax
+    type(field_t), intent(in) :: x
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rhs(n)
+    type(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+    type(field_t), intent(in) :: weight
+    real(kind=rp) :: scale
+    integer :: work_idx, i
+    type(field_t), pointer :: work
+
+    call neko_scratch_registry%request_field(work, work_idx, .false.)
+
+    call Ax%compute(work%x, x%x, coef, x%msh, x%Xh)
+    call gs_h%op(work%x, n, GS_OP_ADD)
+    call blst%apply(work)
+
+    do i = 1, n
+       work%x(i, 1, 1, 1) = rhs(i) - work%x(i, 1, 1, 1)
+    end do
+
+    scale = sqrt(glsc3(work%x, work%x, weight%x, n))
+    scale = max(scale, tiny(1.0_rp))
+
+    call neko_scratch_registry%relinquish_field(work_idx)
+
+  end function ksp_residual_normalization_initial
 
 end module ksp_residual

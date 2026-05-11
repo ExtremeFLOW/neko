@@ -77,7 +77,7 @@ contains
   !! @param reltol The relative tolerance.
   !! @param M The preconditioner, optional.
   !! @param monitor Enable/disable residual history, optional.
-  !! @param residual_weight_type Residual norm weight selection, optional.
+  !! @param residual_weight_type Residual weight selection, optional.
   !! @param residual_normalization_type Residual normalization selection,
   !! optional.
   module subroutine krylov_solver_factory(object, n, type_name, &

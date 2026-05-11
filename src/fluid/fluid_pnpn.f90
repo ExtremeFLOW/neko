@@ -261,6 +261,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr, integer_val, solver_maxiter
     character(len=:), allocatable :: solver_type, precon_type
+    character(len=:), allocatable :: residual_weight_type
+    character(len=:), allocatable :: residual_normalization_type
     logical :: monitor, found, has_abs_tol, has_rel_tol
     logical :: advection
     type(json_file) :: numerics_params, precon_params
@@ -400,6 +402,11 @@ contains
          precon_type)
     call json_get(params, &
          'case.fluid.pressure_solver.preconditioner', precon_params)
+    call json_get_or_default(params, 'case.fluid.pressure_solver.weight', &
+         residual_weight_type, 'coef_mult')
+    call json_get_or_default(params, &
+         'case.fluid.pressure_solver.normalization', &
+         residual_normalization_type, 'volume')
     has_abs_tol = params%valid_path( &
          'case.fluid.pressure_solver.absolute_tolerance')
     has_rel_tol = params%valid_path( &
@@ -428,9 +435,15 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A,ES13.6)') 'Rel tol    :', rel_tol
     call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Weight     :', trim(residual_weight_type)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Normalization:', trim(residual_normalization_type)
+    call neko_log%message(log_buf)
 
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_type, solver_maxiter, abs_tol, rel_tol, monitor = monitor)
+         solver_type, solver_maxiter, abs_tol, rel_tol, monitor = monitor, &
+         residual_weight_type = residual_weight_type, &
+         residual_normalization_type = residual_normalization_type)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
          precon_type, precon_params)

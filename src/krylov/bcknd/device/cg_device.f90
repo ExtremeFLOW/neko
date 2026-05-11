@@ -178,7 +178,8 @@ contains
     end if
     call neko_scratch_registry%request_field(weight, weight_idx, .false.)
     call this%residual%compute_weight(weight, coef, n)
-    norm_scale = this%residual%compute_normalization(coef)
+    norm_scale = this%residual%compute_normalization(Ax, x, f, coef, gs_h, &
+         blst, weight, n)
 
     rtz1 = one
     call device_rzero(x%x_d, n)

@@ -38,6 +38,7 @@ module gmres
   use num_types, only: rp, xp
   use field, only : field_t
   use coefs, only : coef_t
+  use scratch_registry, only : neko_scratch_registry
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, sub2, cmult2, abscmp
@@ -160,29 +161,34 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter
+    integer :: iter, max_iter, weight_idx
     integer :: i, j, k, l, ierr, blk_size
     real(kind=xp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
-    real(kind=xp) :: alpha, lr, alpha2, norm_fac
+    real(kind=xp) :: alpha, lr, alpha2
     real(kind=xp) :: hl_priv(this%lgmres)
-    real(kind=rp) :: temp, rnorm
+    real(kind=rp) :: temp, rnorm, norm_scale, raw_res0, rel_limit
     logical :: conv
+    type(field_t), pointer :: weight
 
     conv = .false.
     iter = 0
     rnorm = 0.0_rp
+    raw_res0 = 0.0_rp
+    rel_limit = 0.0_rp
 
     if (present(niter)) then
        max_iter = niter
     else
        max_iter = this%max_iter
     end if
-
+    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+    call this%residual%compute_weight(weight, coef, n)
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
          v => this%v, s => this%s, gam => this%gam)
 
-      norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
+      norm_scale = this%residual%compute_normalization(Ax, x, f, coef, gs_h, &
+           blst, weight, n)
       gam = 0.0_xp
       s = 1.0_xp
       c = 1.0_xp
@@ -200,12 +206,17 @@ contains
             call sub2(r, w, n)
          end if
 
-         gam(1) = sqrt(glsc3(r, r, coef%mult, n))
+         gam(1) = sqrt(glsc3(r, r, weight%x, n))
          if (iter .eq. 0) then
-            ksp_results%res_start = gam(1) * norm_fac
+            raw_res0 = gam(1)
+            rel_limit = this%rel_tol * raw_res0
+            ksp_results%res_start = raw_res0 / norm_scale
          end if
 
-         if (abscmp(gam(1), 0.0_xp)) exit
+         if (abscmp(gam(1), 0.0_xp)) then
+            conv = .true.
+            exit
+         end if
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)
@@ -233,7 +244,7 @@ contains
                do l = 1, j
                   do concurrent (k = 1:blk_size)
                      hl_priv(l) = hl_priv(l) + &
-                          w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+                          w(i+k) * v(i+k,l) * weight%x(i+k,1,1,1)
                   end do
                end do
             end do
@@ -262,7 +273,7 @@ contains
                end do
                do k = 1, blk_size
                   w(i+k) = w(i+k) + w_plus(k)
-                  alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
+                  alpha2 = alpha2 + w(i+k)**2 * weight%x(i+k,1,1,1)
                end do
             end do
             !$omp end parallel do
@@ -288,9 +299,9 @@ contains
             h(j,j) = lr
             gam(j+1) = -s(j) * gam(j)
             gam(j) = c(j) * gam(j)
-            rnorm = abs(gam(j+1)) * norm_fac
+            rnorm = abs(gam(j+1)) / norm_scale
             call this%monitor_iter(iter, rnorm)
-            if (rnorm .lt. this%abs_tol) then
+            if (rnorm .lt. this%abs_tol .or. abs(gam(j+1)) .lt. rel_limit) then
                conv = .true.
                exit
             end if
@@ -332,10 +343,11 @@ contains
       end do
 
     end associate
+    call neko_scratch_registry%relinquish_field(weight_idx)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
-    ksp_results%converged = this%is_converged(iter, rnorm)
+    ksp_results%converged = conv
 
   end function gmres_solve
 
