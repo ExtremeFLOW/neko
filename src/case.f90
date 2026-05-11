@@ -45,7 +45,7 @@ module case
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
   use file, only : file_t
-  use utils, only : neko_error
+  use utils, only : neko_error, mkdir
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
@@ -453,9 +453,9 @@ contains
     if (output_dir_len .gt. 0) then
        if (this%output_directory(output_dir_len:output_dir_len) .ne. "/") then
           this%output_directory = trim(this%output_directory)//"/"
-          if (pe_rank .eq. 0) then
-             call execute_command_line('mkdir -p '//this%output_directory)
-          end if
+       end if
+       if (pe_rank .eq. 0) then
+          call mkdir(trim(this%output_directory))
        end if
     end if
 

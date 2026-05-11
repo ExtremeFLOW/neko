@@ -39,6 +39,7 @@ module profiler
   use craypat
   use runtime_stats, only : neko_rt_stats
   use, intrinsic :: iso_c_binding
+  !$ use omp_lib
   implicit none
   private
 
@@ -77,6 +78,7 @@ contains
   subroutine profiler_start_region(name, region_id)
     character(kind=c_char,len=*) :: name
     integer, optional :: region_id
+    logical :: in_parallel
 
 #ifdef HAVE_NVTX
     if (present(region_id)) then
@@ -98,7 +100,14 @@ contains
     end if
 #endif
 
-    call neko_rt_stats%start_region(name, region_id)
+    ! Skip runtime stats inside OMP parallel regions: neko_rt_stats uses a
+    ! single shared LIFO stack that is not thread-safe. Concurrent pushes from
+    ! different threads corrupt the stack order and cause region mismatches.
+    in_parallel = .false.
+    !$ in_parallel = omp_in_parallel()
+    if (.not. in_parallel) then
+       call neko_rt_stats%start_region(name, region_id)
+    end if
 
   end subroutine profiler_start_region
 
@@ -106,6 +115,7 @@ contains
   subroutine profiler_end_region(name, region_id)
     character(kind=c_char, len=*), optional :: name
     integer, optional :: region_id
+    logical :: in_parallel
 
 #ifdef HAVE_NVTX
     call nvtxRangePop
@@ -123,7 +133,11 @@ contains
     end if
 #endif
 
-    call neko_rt_stats%end_region(name, region_id)
+    in_parallel = .false.
+    !$ in_parallel = omp_in_parallel()
+    if (.not. in_parallel) then
+       call neko_rt_stats%end_region(name, region_id)
+    end if
 
   end subroutine profiler_end_region
 
