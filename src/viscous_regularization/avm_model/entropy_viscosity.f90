@@ -113,7 +113,7 @@ contains
     call this%free()
     call json_get_or_default(json, 'field_name', &
          reg_coeff_name, "entropy_viscosity")
-    call this%init_base(case, trim(reg_coeff_name))
+    call this%init_base(case%fluid%dm_Xh, case%fluid%c_Xh, trim(reg_coeff_name))
 
     call json_get_or_default(json, 'c_avisc_low', this%c_avisc_low, 1.0_rp)
     call json_get_or_default(json, 'c_avisc_entropy', &
