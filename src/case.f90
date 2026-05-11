@@ -226,10 +226,12 @@ contains
 
     if (pe_rank .eq. 0) then
        inquire(file = trim(string_val), exist = found)
-       if (.not. found) then
-          call neko_error('The mesh file ' // trim(string_val) // &
-               ' does not exist.')
-       end if
+    end if
+    call MPI_Bcast(found, 1, MPI_LOGICAL, 0, NEKO_COMM)
+
+    if (.not. found) then
+       call neko_error('The mesh file ' // trim(string_val) // &
+            ' does not exist.')
     end if
 
     if (.not. load_balance) then
