@@ -248,8 +248,8 @@ contains
           if (trim(cheby_acc) .eq. "jacobi") then
              call this%phmg_hrchy%lvl(i)%cheby_device%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
-                  this%phmg_hrchy%lvl(i)%device_jacobi, KSP_REL_TOL, &
-                  KSP_ABS_TOL)
+                  this%phmg_hrchy%lvl(i)%device_jacobi, KSP_ABS_TOL, &
+                  KSP_REL_TOL)
              st = 1
           else
              call this%phmg_hrchy%lvl(i)%cheby_device%init( &
@@ -266,8 +266,8 @@ contains
           if (trim(cheby_acc) .eq. "jacobi") then
              call this%phmg_hrchy%lvl(i)%cheby%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
-                  this%phmg_hrchy%lvl(i)%jacobi, KSP_REL_TOL, &
-                  KSP_ABS_TOL)
+                  this%phmg_hrchy%lvl(i)%jacobi, KSP_ABS_TOL, &
+                  KSP_REL_TOL)
              st = 1
           else
              call this%phmg_hrchy%lvl(i)%cheby%init( &

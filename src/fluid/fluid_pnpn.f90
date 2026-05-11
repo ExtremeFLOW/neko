@@ -38,7 +38,7 @@ module fluid_pnpn
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE
   use num_types, only : rp
-  use krylov, only : ksp_monitor_t, KSP_REL_TOL
+  use krylov, only : ksp_monitor_t, KSP_ABS_TOL, KSP_REL_TOL
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
        pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
@@ -257,11 +257,11 @@ contains
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     integer :: i
     class(bc_t), pointer :: bc_i, vel_bc
-    real(kind=rp) :: abs_tol
+    real(kind=rp) :: abs_tol, rel_tol
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr, integer_val, solver_maxiter
     character(len=:), allocatable :: solver_type, precon_type
-    logical :: monitor, found
+    logical :: monitor, found, has_abs_tol, has_rel_tol
     logical :: advection
     type(json_file) :: numerics_params, precon_params
 
@@ -400,19 +400,37 @@ contains
          precon_type)
     call json_get(params, &
          'case.fluid.pressure_solver.preconditioner', precon_params)
-    call json_get_or_lookup(params, &
-         'case.fluid.pressure_solver.absolute_tolerance', &
-         abs_tol)
+    has_abs_tol = params%valid_path( &
+         'case.fluid.pressure_solver.absolute_tolerance')
+    has_rel_tol = params%valid_path( &
+         'case.fluid.pressure_solver.relative_tolerance')
+    if (.not. has_abs_tol .and. .not. has_rel_tol) then
+       call neko_error('Pressure solver requires absolute_tolerance or ' // &
+            'relative_tolerance in the case file')
+    end if
+    if (has_abs_tol) then
+       call json_get_or_lookup(params, &
+            'case.fluid.pressure_solver.absolute_tolerance', abs_tol)
+    else
+       abs_tol = KSP_ABS_TOL
+    end if
+    if (has_rel_tol) then
+       call json_get_or_lookup(params, &
+            'case.fluid.pressure_solver.relative_tolerance', rel_tol)
+    else
+       rel_tol = KSP_REL_TOL
+    end if
     call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
          monitor, .false.)
     call neko_log%message('Type       : ('// trim(solver_type) // &
          ', ' // trim(precon_type) // ')')
     write(log_buf, '(A,ES13.6)') 'Abs tol    :', abs_tol
     call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'Rel tol    :', rel_tol
+    call neko_log%message(log_buf)
 
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_type, solver_maxiter, abs_tol, monitor, &
-         reltol = KSP_REL_TOL)
+         solver_type, solver_maxiter, abs_tol, rel_tol, monitor = monitor)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
          precon_type, precon_params)

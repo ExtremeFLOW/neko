@@ -174,8 +174,8 @@ contains
        call neko_type_error('Krylov solver', type_name, KSP_KNOWN_TYPES)
     end select
 
-    call object%init(n, max_iter, M = M, rel_tol = reltol, &
-         abs_tol = abstol, monitor = monitor)
+    call object%init(n, max_iter, M = M, abs_tol = abstol, &
+         rel_tol = reltol, monitor = monitor)
     if (present(residual_weight_type) .and. &
          present(residual_normalization_type)) then
        call object%residual%init(residual_weight_type, &

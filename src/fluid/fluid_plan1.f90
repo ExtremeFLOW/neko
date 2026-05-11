@@ -52,7 +52,7 @@ contains
     call this%c_Yh%init(this%gs_Yh)
 
     call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), &
-         param%ksp_prs, param%abstol_prs, reltol = KSP_REL_TOL)
+         param%ksp_prs, param%abstol_prs, KSP_REL_TOL, monitor = .false.)
     call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
          this%c_Yh, this%dm_Yh, this%gs_Yh, this%bclst_prs, param%pc_prs)
 

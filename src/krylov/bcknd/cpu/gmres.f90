@@ -69,13 +69,13 @@ module gmres
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine gmres_init(this, n, max_iter, M, abs_tol, rel_tol, monitor)
     class(gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    real(kind=rp), intent(in) :: rel_tol
     real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -97,9 +97,9 @@ contains
     allocate(this%h(this%lgmres, this%lgmres))
 
     if (present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+       call this%ksp_init(max_iter, abs_tol, rel_tol, monitor = monitor)
     else
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
+       call this%ksp_init(max_iter, abs_tol, rel_tol)
     end if
 
   end subroutine gmres_init

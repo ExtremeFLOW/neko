@@ -71,13 +71,13 @@ module gmres_sx
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine sx_gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine sx_gmres_init(this, n, max_iter, M, abs_tol, rel_tol, monitor)
     class(sx_gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    real(kind=rp), intent(in) :: rel_tol
     real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -103,9 +103,9 @@ contains
 
 
     if (present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+       call this%ksp_init(max_iter, abs_tol, rel_tol, monitor = monitor)
     else
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
+       call this%ksp_init(max_iter, abs_tol, rel_tol)
     end if
 
   end subroutine sx_gmres_init
@@ -347,4 +347,3 @@ contains
   end function sx_gmres_solve_coupled
 
 end module gmres_sx
-

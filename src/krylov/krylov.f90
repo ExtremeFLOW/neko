@@ -108,19 +108,19 @@ module krylov
   !! @param n Size of work arrays.
   !! @param max_iter Max number of iterations.
   !! @param M The preconditioner (optional).
-  !! @param rel_tol Relative tolerance.
   !! @param abs_tol Absolute tolerance.
+  !! @param rel_tol Relative tolerance.
   !! @param monitor Whether to log the iteration count and residuals (optional).
   abstract interface
-     subroutine ksp_init_intrf(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+     subroutine ksp_init_intrf(this, n, max_iter, M, abs_tol, rel_tol, monitor)
        import :: pc_t, ksp_t, rp
        implicit none
        class(ksp_t), target, intent(inout) :: this
        integer, intent(in) :: max_iter
        class(pc_t), optional, intent(in), target :: M
        integer, intent(in) :: n
-       real(kind=rp), intent(in) :: rel_tol
        real(kind=rp), intent(in) :: abs_tol
+       real(kind=rp), intent(in) :: rel_tol
        logical, optional, intent(in) :: monitor
      end subroutine ksp_init_intrf
   end interface
@@ -246,14 +246,14 @@ contains
 
   !> Constructor for the base type.
   !! @param max_iter Maximum number of iterations.
-  !! @param rel_tol Relative tolarance for converence.
   !! @param abs_tol Absolute tolarance for converence.
+  !! @param rel_tol Relative tolarance for converence.
   !! @param M The preconditioner.
-  subroutine krylov_init(this, max_iter, rel_tol, abs_tol, M, monitor)
+  subroutine krylov_init(this, max_iter, abs_tol, rel_tol, M, monitor)
     class(ksp_t), target, intent(inout) :: this
     integer, intent(in) :: max_iter
-    real(kind=rp), intent(in) :: rel_tol
     real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     class(pc_t), optional, target, intent(in) :: M
     logical, optional, intent(in) :: monitor
 

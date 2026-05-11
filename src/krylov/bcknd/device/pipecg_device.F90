@@ -173,13 +173,13 @@ contains
   end subroutine device_cg_update_xp
 
   !> Initialise a pipelined PCG solver
-  subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine pipecg_device_init(this, n, max_iter, M, abs_tol, rel_tol, monitor)
     class(pipecg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), intent(in) :: rel_tol
     real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: u_size
@@ -226,9 +226,9 @@ contains
          HOST_TO_DEVICE, sync=.false.)
 
     if (present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+       call this%ksp_init(max_iter, abs_tol, rel_tol, monitor = monitor)
     else
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
+       call this%ksp_init(max_iter, abs_tol, rel_tol)
     end if
 
     call device_event_create(this%gs_event, 2)

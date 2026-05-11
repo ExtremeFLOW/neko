@@ -41,7 +41,8 @@ module fluid_scheme_incompressible
   use field, only : field_t
   use space, only : GLL
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, KSP_REL_TOL
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, &
+       KSP_ABS_TOL, KSP_REL_TOL
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use jacobi, only : jacobi_t
@@ -156,8 +157,8 @@ contains
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
-    real(kind=rp) :: real_val, kappa, B, z0
-    logical :: logical_val
+    real(kind=rp) :: real_val, kappa, B, z0, abs_tol, rel_tol
+    logical :: logical_val, has_abs_tol, has_rel_tol
     integer :: integer_val, ierr
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
@@ -288,9 +289,26 @@ contains
             string_val2)
        call json_get(params, &
             'case.fluid.velocity_solver.preconditioner', json_subdict)
-       call json_get_or_lookup(params, &
-            'case.fluid.velocity_solver.absolute_tolerance', &
-            real_val)
+       has_abs_tol = params%valid_path( &
+            'case.fluid.velocity_solver.absolute_tolerance')
+       has_rel_tol = params%valid_path( &
+            'case.fluid.velocity_solver.relative_tolerance')
+       if (.not. has_abs_tol .and. .not. has_rel_tol) then
+          call neko_error('Velocity solver requires absolute_tolerance ' // &
+               'or relative_tolerance in the case file')
+       end if
+       if (has_abs_tol) then
+          call json_get_or_lookup(params, &
+               'case.fluid.velocity_solver.absolute_tolerance', abs_tol)
+       else
+          abs_tol = KSP_ABS_TOL
+       end if
+       if (has_rel_tol) then
+          call json_get_or_lookup(params, &
+               'case.fluid.velocity_solver.relative_tolerance', rel_tol)
+       else
+          rel_tol = KSP_REL_TOL
+       end if
        call json_get_or_default(params, &
             'case.fluid.velocity_solver.monitor', &
             logical_val, .false.)
@@ -298,11 +316,12 @@ contains
        call neko_log%message('Type       : ('// trim(string_val1) // &
             ', ' // trim(string_val2) // ')')
 
-       write(log_buf, '(A,ES13.6)') 'Abs tol    :', real_val
+       write(log_buf, '(A,ES13.6)') 'Abs tol    :', abs_tol
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'Rel tol    :', rel_tol
        call neko_log%message(log_buf)
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, integer_val, real_val, logical_val, &
-            reltol = KSP_REL_TOL)
+            string_val1, integer_val, abs_tol, rel_tol, monitor = logical_val)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, &
             string_val2, json_subdict)
@@ -531,14 +550,14 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine fluid_scheme_solver_factory(ksp, n, solver, &
-       max_iter, abstol, monitor, residual_weight_type, &
-       residual_normalization_type, reltol)
+       max_iter, abstol, reltol, monitor, residual_weight_type, &
+       residual_normalization_type)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
     integer, intent(in) :: max_iter
-    real(kind=rp), intent(in) :: reltol
     real(kind=rp), intent(in) :: abstol
+    real(kind=rp), intent(in) :: reltol
     logical, intent(in) :: monitor
     character(len=*), optional, intent(in) :: residual_weight_type
     character(len=*), optional, intent(in) :: residual_normalization_type
