@@ -64,15 +64,14 @@ To enable load balancing (mesh partitioning) during a simulation, set
 the `load_balancing` option to `true` (see \ref case-file). Runtime
 load balancing will partition the mesh (in parallel) before the
 time-stepping loop starts, and it will also save the balanced mesh
-with an additional `_lb` in the filename.
+with an additional `_lb_<nparts>` in the filename.
 
-@note Since mesh partitioning is non-deterministic, care has to be
-taken when restarting a simulation such that one does not i) restart
-with load balancing enabled and ii) use the original unbalanced
-mesh. The suggested workflow is to run the first simulation with load
-balancing enabled, and for all subsequent restarts, turn off load
-balancing and use the balanced mesh with the additional `_lb` in the
-filename.
+The load balancing is robust against restarts as it will check for the load
+balanced mesh before performing the partitioning. If the load balanced mesh is
+found, it will be used instead of the original mesh, and no partitioning will be
+performed. It should be noted that a simulation restarted on a different number
+of MPI ranks will trigger a new load balancing, and the balanced mesh will be
+saved with the corresponding number of ranks in the filename.
 
  ### Parameters
 
