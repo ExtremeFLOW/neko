@@ -110,9 +110,9 @@ module artificial_viscosity_model
   end interface
 
   interface
-     !> AVM model allocator.
+     !> Artificial viscosity model allocator.
      !! @param object The object to be allocated.
-     !! @param type_name The name of the AVM model.
+     !! @param type_name The name of the artificial viscosity model.
      module subroutine avm_allocator(object, type_name)
        class(avm_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
@@ -157,9 +157,10 @@ module artificial_viscosity_model
 
 
   interface
-     !> avm model factory. Both allocates and initializes the object.
+     !> Artificial viscosity model factory. Both allocates and initializes 
+     !! the object.
      !! @param object The object to be allocated.
-     !! @param type_name The name of the avm model.
+     !! @param type_name The name of the artificial viscosity model.
      !! @param case The case_t object.
      !! @param dofmap SEM map of degrees of freedom.
      !! @param coef SEM coefficients.

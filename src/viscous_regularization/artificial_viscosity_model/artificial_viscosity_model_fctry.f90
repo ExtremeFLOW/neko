@@ -41,9 +41,9 @@ submodule (artificial_viscosity_model) artificial_viscosity_model_fctry
        "entropy_viscosity"]
 
 contains
-  !> avm model factory.
+  !> artificial viscosity model factory.
   !! @param object The object to be allocated.
-  !! @param type_name The name of the avm model.
+  !! @param type_name The name of the artificial viscosity model.
   !! @param case The case_t object.
   !! @param json A dictionary with parameters.
   module subroutine avm_factory(object, type_name, case, json)
@@ -57,9 +57,9 @@ contains
     call object%init(case, json)
   end subroutine avm_factory
 
-  !> avm model allocator.
+  !> artificial viscosity model allocator.
   !! @param object The object to be allocated.
-  !! @param type_name The name of the avm model.
+  !! @param type_name The name of the artificial viscosity model.
   module subroutine avm_allocator(object, type_name)
     class(avm_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
@@ -81,13 +81,14 @@ contains
           end if
        end do
 
-       call neko_type_error("avm model", type_name, AVM_KNOWN_TYPES)
+       call neko_type_error("artificial viscosity model", &
+            type_name, AVM_KNOWN_TYPES)
     end select
 
   end subroutine avm_allocator
 
-  !> Register a custom avm model allocator.
-  !! Called in custom user moduavm inside the `module_name_register_types`
+  !> Register a custom artificial viscosity model allocator.
+  !! Called in custom user module inside the `module_name_register_types`
   !! routine to add a custom type allocator to the registry.
   !! @param type_name The name of the type to allocate.
   !! @param allocator The allocator for the custom user type.
@@ -99,13 +100,15 @@ contains
 
     do i = 1, size(AVM_KNOWN_TYPES)
        if (trim(type_name) .eq. trim(AVM_KNOWN_TYPES(i))) then
-          call neko_type_registration_error("avm model", type_name, .true.)
+          call neko_type_registration_error("artificial viscosity model", &
+               type_name, .true.)
        end if
     end do
 
     do i = 1, avm_registry_size
        if (trim(type_name) .eq. trim(avm_registry(i)%type_name)) then
-          call neko_type_registration_error("avm model", type_name, .false.)
+          call neko_type_registration_error("artificial viscosity model", &
+               type_name, .false.)
        end if
     end do
 
