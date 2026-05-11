@@ -178,25 +178,23 @@ module avm_model
 
 contains
   !> Constructor for the avm_model_t (base) class.
-  !! @param case The case_t object.
+  !! @param dof Map of degrees of freedom.
+  !! @param coef The SEM coefficients.
   !! @param reg_coeff_name The name of the artificial viscosity field.
-  subroutine avm_model_init_base(this, case, reg_coeff_name)
+  subroutine avm_model_init_base(this, dof, coef, reg_coeff_name)
     class(avm_model_t), intent(inout) :: this
-    class(case_t), intent(inout), target :: case
+    class(dofmap_t), intent(in), target :: dof
+    class(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: reg_coeff_name
 
     call this%free_base()
 
-    associate(dofmap => case%fluid%dm_Xh, &
-         coef => case%fluid%c_Xh)
+    call neko_registry%add_field(dof, trim(reg_coeff_name), .true.)
 
-      call neko_registry%add_field(dofmap, trim(reg_coeff_name), .true.)
-      call neko_registry%add_field(dofmap, "avm_delta", .true.)
-      this%reg_coeff => neko_registry%get_field(trim(reg_coeff_name))
-      this%coef => case%fluid%c_Xh
-      this%dof => case%fluid%dm_Xh
+    this%reg_coeff => neko_registry%get_field(trim(reg_coeff_name))
+    this%coef => coef
+    this%dof => dof
 
-    end associate
   end subroutine avm_model_init_base
 
   !> Destructor for the avm_model_t (base) class.
