@@ -1,3 +1,6 @@
+#ifndef CAI_SAGAUT_MODEL_II_KERNEL_H
+#define CAI_SAGAUT_MODEL_II_KERNEL_H
+
 /*
  Copyright (c) 2026, The Neko Authors
  All rights reserved.
@@ -32,15 +35,12 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __COMMON_CAISAGAUT_MODEL_II_KERNEL_H__
-#define __COMMON_CAISAGAUT_MODEL_II_KERNEL_H__
-
 #include <cfloat>
 #include <algorithm>
 #include <cmath>
 
 /**
- * CUDA kernel for the Caisagaut Model-II wall model.
+ * HIP kernel for the Cai & Sagaut Model-II wall model.
  * @param u_d The sampled x-velocity field.
  * @param v_d The sampled y-velocity field.
  * @param w_d The sampled z-velocity field.
@@ -65,7 +65,7 @@
  * @param s The blending scale.
  */
 template<typename T>
-__global__ void caisagaut_model_ii_compute(const T * __restrict__ u_d,
+__global__ void cai_sagaut_model_ii_compute(const T * __restrict__ u_d,
                                            const T * __restrict__ v_d,
                                            const T * __restrict__ w_d,
                                            const int * __restrict__ ind_r_d,

@@ -43,10 +43,10 @@
 #include <device/opencl/jit.h>
 #include <device/opencl/prgm_lib.h>
 
-#include "caisagaut_model_ii_kernel.cl.h"
+#include "cai_sagaut_model_ii_kernel.cl.h"
 
 /**
- * Fortran wrapper for the OpenCL Caisagaut Model-II kernel.
+ * Fortran wrapper for the OpenCL Cai & Sagaut Model-II kernel.
  * @param u_d The sampled x-velocity field.
  * @param v_d The sampled y-velocity field.
  * @param w_d The sampled z-velocity field.
@@ -70,7 +70,7 @@
  * @param p The blending exponent.
  * @param s The blending scale.
  */
-void opencl_caisagaut_model_ii_compute(void *u_d, void *v_d, void *w_d,
+void opencl_cai_sagaut_model_ii_compute(void *u_d, void *v_d, void *w_d,
                                        void *ind_r_d, void *ind_s_d,
                                        void *ind_t_d, void *ind_e_d,
                                        void *n_x_d, void *n_y_d, void *n_z_d,
@@ -81,13 +81,13 @@ void opencl_caisagaut_model_ii_compute(void *u_d, void *v_d, void *w_d,
                                        real *s) {
   cl_int err;
 
-  if (caisagaut_model_ii_program == NULL) {
-    opencl_kernel_jit(caisagaut_model_ii_kernel,
-                      (cl_program *) &caisagaut_model_ii_program);
+  if (cai_sagaut_model_ii_program == NULL) {
+    opencl_kernel_jit(cai_sagaut_model_ii_kernel,
+                      (cl_program *) &cai_sagaut_model_ii_program);
   }
 
-  cl_kernel kernel = clCreateKernel(caisagaut_model_ii_program,
-                                    "caisagaut_model_ii_compute_kernel",
+  cl_kernel kernel = clCreateKernel(cai_sagaut_model_ii_program,
+                                    "cai_sagaut_model_ii_compute_kernel",
                                     &err);
   CL_CHECK(err);
 

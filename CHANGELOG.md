@@ -2,7 +2,7 @@
 
 ## Develop
 
-- Added the `caisagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL
+- Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL
   backends. This model is based on the work of [Cai and Sagaut (PoF,
   2021)](https://doi.org/10.1063/5.0048563).
 - Added hdf5 support for probes and added hdf5 I/O helper routines

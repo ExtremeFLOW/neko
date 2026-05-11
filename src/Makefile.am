@@ -423,11 +423,11 @@ neko_fortran_SOURCES = \
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/spalding.f90\
-	wall_models/caisagaut_model_ii.f90\
+	wall_models/cai_sagaut_model_ii.f90\
 	wall_models/bcknd/cpu/spalding_cpu.f90\
-	wall_models/bcknd/cpu/caisagaut_model_ii_cpu.f90\
+	wall_models/bcknd/cpu/cai_sagaut_model_ii_cpu.f90\
 	wall_models/bcknd/device/spalding_device.F90\
-	wall_models/bcknd/device/caisagaut_model_ii_device.F90\
+	wall_models/bcknd/device/cai_sagaut_model_ii_device.F90\
 	wall_models/rough_log_law.f90\
 	wall_models/bcknd/cpu/rough_log_law_cpu.f90\
 	wall_models/bcknd/device/rough_log_law_device.F90\
@@ -513,7 +513,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/hip/deardorff_nut.hip\
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
-	wall_models/bcknd/device/hip/caisagaut_model_ii.hip\
+	wall_models/bcknd/device/hip/cai_sagaut_model_ii.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
 	wall_models/bcknd/device/hip/most.hip\
 	wall_models/bcknd/device/hip/richardson.hip\
@@ -578,7 +578,7 @@ libneko_la_SOURCES += \
 	comm/bcknd/device/cuda/comm_nvshmem.cu\
 	wall_models/bcknd/device/cuda/wall_model.cu\
 	wall_models/bcknd/device/cuda/spalding.cu\
-	wall_models/bcknd/device/cuda/caisagaut_model_ii.cu\
+	wall_models/bcknd/device/cuda/cai_sagaut_model_ii.cu\
 	wall_models/bcknd/device/cuda/rough_log_law.cu\
 	wall_models/bcknd/device/cuda/most.cu\
 	wall_models/bcknd/device/cuda/richardson.cu\
@@ -618,7 +618,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	bc/bcknd/device/opencl/dong_outflow.c\
-	wall_models/bcknd/device/opencl/caisagaut_model_ii.c\
+	wall_models/bcknd/device/opencl/cai_sagaut_model_ii.c\
 	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
 	fluid/stress_formulation/bcknd/device/opencl/pnpn_stress_res.c\
@@ -768,7 +768,7 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/cuda/wall_model_kernel.h\
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
-	wall_models/bcknd/device/cuda/caisagaut_model_ii_kernel.h\
+	wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
 	wall_models/bcknd/device/cuda/most_kernel.h\
 	wall_models/bcknd/device/cuda/richardson_kernel.h\
@@ -827,7 +827,7 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/hip/wall_model_kernel.h\
 	wall_models/bcknd/device/hip/spalding_kernel.h\
-	wall_models/bcknd/device/hip/caisagaut_model_ii_kernel.h\
+	wall_models/bcknd/device/hip/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
 	wall_models/bcknd/device/hip/most_kernel.h\
 	wall_models/bcknd/device/hip/richardson_kernel.h\
@@ -840,7 +840,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/bc_utils.h\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
-	wall_models/bcknd/device/opencl/caisagaut_model_ii_kernel.cl\
+	wall_models/bcknd/device/opencl/cai_sagaut_model_ii_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/schwarz_kernel.cl\
 	math/bcknd/device/opencl/tensor_kernel.cl\
