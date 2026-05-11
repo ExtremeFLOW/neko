@@ -219,14 +219,14 @@ contains
 
   end function ksp_residual_normalization_volume
 
-  !> Normalize using an OpenFOAM-inspired equation-scale weighted L2 scaling.
+  !> Normalize using an equation-scale weighted L2 scaling.
   !!
-  !! The reference state follows OpenFOAM's mean-field correction, but the
+  !! Similar structurally to what OpenFOAM does, but the
   !! resulting scale uses the same weighted discrete L2 measure as the solver
-  !! residual itself.
+  !! residual itself. For correction solves with rhs = b - A(ref), the
+  !! full-system right-hand side b is reconstructed internally.
   function ksp_residual_normalization_equation_scale(Ax, ref, rhs, coef, gs_h, &
-       blst, &
-       weight, n) result(scale)
+       blst, weight, n) result(scale)
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(in) :: ref
     integer, intent(in) :: n
@@ -236,7 +236,7 @@ contains
     type(bc_list_t), intent(inout) :: blst
     type(field_t), intent(in) :: weight
     real(kind=rp) :: scale
-    real(kind=rp) :: mean_x
+    real(kind=rp) :: mean_x, a_ref, a_mean
     integer :: ax_idx, ref_idx, const_idx, i
     type(field_t), pointer :: ax_x, ax_ref, x_const
 
@@ -256,10 +256,15 @@ contains
     call blst%apply(ax_ref)
 
     do i = 1, n
-       ax_x%x(i, 1, 1, 1) = ax_x%x(i, 1, 1, 1) - ax_ref%x(i, 1, 1, 1)
-       ax_ref%x(i, 1, 1, 1) = rhs(i) - ax_ref%x(i, 1, 1, 1)
+       a_ref = ax_x%x(i, 1, 1, 1)
+       a_mean = ax_ref%x(i, 1, 1, 1)
+       ! This is now Ax - A x_const
+       ax_x%x(i, 1, 1, 1) = a_ref - a_mean
+       ! This is now b - A x_const
+       ax_ref%x(i, 1, 1, 1) = rhs(i) + a_ref - a_mean
     end do
 
+    ! Sum the norms of the two contributions to get the final scale.
     scale = sqrt(glsc3(ax_x%x, ax_x%x, weight%x, n) + &
          glsc3(ax_ref%x, ax_ref%x, weight%x, n))
     scale = max(scale, tiny(1.0_rp))
@@ -270,10 +275,10 @@ contains
 
   end function ksp_residual_normalization_equation_scale
 
-  !> Normalize by the weighted norm of the current residual.
-  !!
-  !! This is intended to be called once at solve entry when the solver wants to
-  !! capture the initial residual scale.
+  !> Normalize by the weighted norm of the initial residual.
+  !! Since we solve for dx with guess 0, this is just the norm of the RHS,
+  !! i.e. b - A(ref). So this scales the initial residual to 1,
+  !! effectively making the absolute tolerance a relative one.
   function ksp_residual_normalization_initial(Ax, ref, rhs, coef, gs_h, blst, &
        weight, n) result(scale)
     class(ax_t), intent(in) :: Ax
@@ -285,23 +290,9 @@ contains
     type(bc_list_t), intent(inout) :: blst
     type(field_t), intent(in) :: weight
     real(kind=rp) :: scale
-    integer :: work_idx, i
-    type(field_t), pointer :: work
 
-    call neko_scratch_registry%request_field(work, work_idx, .false.)
-
-    call Ax%compute(work%x, ref%x, coef, ref%msh, ref%Xh)
-    call gs_h%op(work%x, n, GS_OP_ADD)
-    call blst%apply(work)
-
-    do i = 1, n
-       work%x(i, 1, 1, 1) = rhs(i) - work%x(i, 1, 1, 1)
-    end do
-
-    scale = sqrt(glsc3(work%x, work%x, weight%x, n))
+    scale = sqrt(glsc3(rhs, rhs, weight%x, n))
     scale = max(scale, tiny(1.0_rp))
-
-    call neko_scratch_registry%relinquish_field(work_idx)
 
   end function ksp_residual_normalization_initial
 
