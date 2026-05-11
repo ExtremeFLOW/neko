@@ -45,7 +45,7 @@ module case
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
   use file, only : file_t
-  use utils, only : neko_error, mkdir
+  use utils, only : neko_error, mkdir, NEKO_FNAME_LEN
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
@@ -154,7 +154,8 @@ contains
     real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vals(:)
     type(vector_t), pointer :: vec
-    character(len = :), allocatable :: string_val, name, file_format, lb_file
+    character(len=:), allocatable :: string_val, name, file_format
+    character(len=NEKO_FNAME_LEN), allocatable :: lb_file
     integer :: output_dir_len
     integer :: precision, layout
     type(json_file) :: scalar_params, numerics_params
