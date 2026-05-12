@@ -503,7 +503,6 @@ contains
           call device_cadd(this%r2%x_d, -this%center(2), n_pts)
           call device_cadd(this%r3%x_d, -this%center(3), n_pts)
 
-          ! Once coef_t is fully on the device, we can remove the need to copy these back and forth
           call device_memcpy(this%n1%x, this%n1%x_d, n_pts, &
                HOST_TO_DEVICE, .false.)
           call device_memcpy(this%n2%x, this%n2%x_d, n_pts, &
