@@ -713,7 +713,7 @@ contains
            ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)
 
       ! Compute the source terms
-    call this%source_term%compute(time)
+      call this%source_term%compute(time)
 
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
@@ -767,6 +767,13 @@ contains
 
       call this%bc_apply_vel(time, strong = .true.)
       call this%bc_apply_prs(time)
+
+      if (allocated(gs_Xh%interp)) then
+         call gs_Xh%op_h1(u, GS_OP_ADD)
+         call gs_Xh%op_h1(v, GS_OP_ADD)
+         call gs_Xh%op_h1(w, GS_OP_ADD)
+         call gs_Xh%op_h1(p, GS_OP_ADD)
+      end if
 
       ! Update material properties if necessary
       call this%update_material_properties(time)
@@ -846,7 +853,6 @@ contains
 
       ! Set residual to zero at strong velocity boundaries.
       call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
-
 
       call profiler_end_region('Velocity_residual', 19)
 
