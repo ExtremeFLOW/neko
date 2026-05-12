@@ -53,7 +53,8 @@ module overset_interface_vector
   use vector, only : vector_t
   use vector_list, only : vector_list_t
   use vector_series, only: vector_series_t
-  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy
+  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, vector_add2s2, &
+         vector_cmult2
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
@@ -91,6 +92,8 @@ module overset_interface_vector
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      type(vector_t) :: u_interface, v_interface, w_interface
      type(vector_series_t) :: u_interface_lag, v_interface_lag, w_interface_lag
+     integer :: iextm_order = 1
+     integer :: last_tstep = -1
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
@@ -150,6 +153,7 @@ contains
          tol, -1.0_rp)
     call json_get_or_default(json, "interpolation.padding", &
          pad, -1.0_rp)
+    call json_get_or_default(json, "order", this%iextm_order, 1)
 
     call this%init_from_components(coef, tol, pad)
 
@@ -403,6 +407,11 @@ contains
     call this%interface_field%assign_to_vector(2, this%v_interface)
     call this%interface_field%assign_to_vector(3, this%w_interface)
 
+    !> Initialize the lag arrays
+    call this%u_interface_lag%init(this%u_interface, this%iextm_order)
+    call this%v_interface_lag%init(this%v_interface, this%iextm_order)
+    call this%w_interface_lag%init(this%w_interface, this%iextm_order)
+
 
   end subroutine overset_interface_vector_finalize
 
@@ -411,7 +420,9 @@ contains
     class(overset_interface_vector_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: u, v, w
-
+    type(iextm_time_scheme_t) :: time_scheme
+    integer :: nhist, ihist
+    real(kind=rp) :: iextm_coeffs(4), dt_history(10)
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -439,7 +450,7 @@ contains
 
     end if
 
-    !> For more substep than 1, then we just interpolate
+    !> Interpolate
     u => neko_registry%get_field("u")
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
@@ -448,6 +459,36 @@ contains
     call this%interface_interpolator%evaluate_masked(this%u_interface%x, u%x, this%domain_element_mask, .false.)
     call this%interface_interpolator%evaluate_masked(this%v_interface%x, v%x, this%domain_element_mask, .false.)
     call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
+
+    !> If this is the first substep, then we do the extrapolation
+    if (time%tstep .ne. this%last_tstep) then
+       ! Update the last steps
+       this%last_tstep = time%tstep
+
+       ! Update the lag arrays with the value just got from the last step
+       call this%u_interface_lag%update()
+       call this%v_interface_lag%update()
+       call this%w_interface_lag%update()
+
+       ! Get the coefficients for the extrapolation
+       dt_history(1) = time%dtlag(1)
+       dt_history(2) = time%dtlag(2)
+       dt_history(3) = time%dtlag(3)
+       nhist = min(time%tstep, this%iextm_order)
+       call time_scheme%compute_coeffs(iextm_coeffs, dt_history, nhist)
+  
+       ! Perfrom the extrapolation using the lag arrays
+       call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), iextm_coeffs(1))
+       call vector_cmult2(this%v_interface, this%v_interface_lag%lv(1), iextm_coeffs(1))
+       call vector_cmult2(this%w_interface, this%w_interface_lag%lv(1), iextm_coeffs(1)) 
+       do ihist = 2, nhist
+         call vector_add2s2(this%u_interface, this%u_interface_lag%lv(ihist), iextm_coeffs(ihist))
+         call vector_add2s2(this%v_interface, this%v_interface_lag%lv(ihist), iextm_coeffs(ihist))
+         call vector_add2s2(this%w_interface, this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
+       end do
+
+    end if
+
 
     !> Scatter them to the bc fields
     call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), this%u_interface, &
