@@ -121,6 +121,7 @@ math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo co
 math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo 
 math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
 math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo math/math.lo device/device.lo config/num_types.lo config/neko_config.lo 
+math/vector_series.lo : math/vector_series.f90 math/vector.lo 
 math/vector_list.lo : math/vector_list.f90 comm/comm.lo common/utils.lo config/num_types.lo math/vector.lo 
 math/vector_math.lo : math/vector_math.f90 math/bcknd/device/device_math.lo math/math.lo common/utils.lo device/device.lo common/mask.lo math/vector.lo config/num_types.lo config/neko_config.lo 
 registries/registry.lo : registries/registry.f90 common/log.lo common/utils.lo sem/dofmap.lo registries/registry_entry.lo math/matrix.lo math/vector.lo field/field.lo config/num_types.lo 
@@ -224,6 +225,7 @@ krylov/bcknd/device/pc_identity_device.lo : krylov/bcknd/device/pc_identity_devi
 time_schemes/time_scheme.lo : time_schemes/time_scheme.f90 config/num_types.lo 
 time_schemes/bdf_time_scheme.lo : time_schemes/bdf_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo 
 time_schemes/ext_time_scheme.lo : time_schemes/ext_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo 
+time_schemes/iextm_time_scheme.lo : time_schemes/iextm_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo 
 time_schemes/ab_time_scheme.lo : time_schemes/ab_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo 
 time_schemes/time_scheme_controller.lo : time_schemes/time_scheme_controller.f90 math/vector.lo device/device.lo time_schemes/ab_time_scheme.lo time_schemes/ext_time_scheme.lo time_schemes/bdf_time_scheme.lo config/num_types.lo config/neko_config.lo 
 time_schemes/runge_kutta_scheme.lo : time_schemes/runge_kutta_scheme.f90 device/device.lo common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo config/neko_config.lo 
