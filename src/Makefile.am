@@ -4,7 +4,7 @@ neko_fortran_SOURCES = \
 	ale/ale_rigid_kinematics.f90\
 	ale/ale_manager.f90\
 	ale/bcknd/cpu/ale_routines_cpu.f90\
-	ale/bcknd/ale_routines_device.F90\
+	ale/bcknd/device/ale_routines_device.F90\
 	api/neko_api.f90\
 	api/neko_api_user.f90\
 	config/num_types.f90\
