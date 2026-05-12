@@ -460,7 +460,7 @@ endif
 
 if ENABLE_HIP
 libneko_la_SOURCES += \
-        ale/bcknd/device/hip/ale_kinematics.hip\
+    ale/bcknd/device/hip/ale_kinematics.hip\
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
@@ -524,7 +524,7 @@ endif
 
 if ENABLE_CUDA
 libneko_la_SOURCES += \
-        ale/bcknd/device/cuda/ale_kinematics.cu\
+    ale/bcknd/device/cuda/ale_kinematics.cu\
 	device/cuda/check.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/schwarz.cu\
