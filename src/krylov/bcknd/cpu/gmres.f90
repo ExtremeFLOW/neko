@@ -231,6 +231,7 @@ contains
             iter = iter+1
 
             call this%M%solve(z(1,j), v(1,j), n)
+            if (allocated(gs_h%interp)) call gs_h%op_h1(z(:,j), n, GS_OP_ADD)
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD)

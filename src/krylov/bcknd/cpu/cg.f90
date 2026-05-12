@@ -188,6 +188,8 @@ contains
       call this%monitor_start('CG')
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
+         if (allocated(gs_h%interp)) call gs_h%op_h1(z, n, GS_OP_ADD)
+
          rtz2 = rtz1
          rtz1 = glsc3(r, coef%mult, z, n)
 
