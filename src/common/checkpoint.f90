@@ -521,7 +521,7 @@ contains
     this%wm_z_lag => wm_z_lag
     this%Blag => Blag
     this%Blaglag => Blaglag
-    this%Blag_d  = Blag_d
+    this%Blag_d = Blag_d
     this%Blaglag_d = Blaglag_d
     this%pivot_pos => pivot_pos
     this%pivot_vel_lag => pivot_vel_lag

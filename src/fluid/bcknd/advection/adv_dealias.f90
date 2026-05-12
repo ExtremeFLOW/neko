@@ -502,7 +502,7 @@ contains
     n_GL = nel * this%Xh_GL%lxyz
 
     associate(c_GL => this%coef_GL)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
 
          ! Map mesh velocity (wm) to the GL space
          call this%GLL_to_GL%map(this%vr, wm_x%x, nel, this%Xh_GL)
@@ -573,7 +573,7 @@ contains
          call this%GLL_to_GL%map(this%temp, this%tz, nel, this%Xh_GLL)
          call device_add2(fz%x_d, this%temp_d, n)
 
-       else
+      else
          !$omp parallel do private(e, i, flux_GL, total_div_GL, idx)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity and mesh velocity onto the higher-order space
