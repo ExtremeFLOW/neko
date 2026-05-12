@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 ! Implemented as shown in:
-! Brandon E. Merrill, Yulia T. Peet, Paul F. Fischer, & James W. Lottes (2016). 
-! A spectrally accurate method for overlapping grid solution of incompressible 
+! Brandon E. Merrill, Yulia T. Peet, Paul F. Fischer, & James W. Lottes (2016).
+! A spectrally accurate method for overlapping grid solution of incompressible
 ! Navier–Stokes equations. Journal of Computational Physics, 307, 60-93.
 module iextm_time_scheme
   use num_types, only : rp

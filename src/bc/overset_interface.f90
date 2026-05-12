@@ -48,7 +48,7 @@ module overset_interface
   use vector_series, only : vector_series_t
   use vector_list, only : vector_list_t
   use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, &
-     vector_add2s2, vector_cmult2
+       vector_add2s2, vector_cmult2
   use device, only : DEVICE_TO_HOST
   use field_dirichlet, only : field_dirichlet_t
   use iextm_time_scheme, only : iextm_time_scheme_t
@@ -81,9 +81,9 @@ module overset_interface
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      !> Interpolated scalar values on the interface.
      type(vector_t) :: s_interface
-   type(vector_series_t) :: s_interface_lag
-   integer :: iextm_order = 1
-   integer :: last_tstep = -1
+     type(vector_series_t) :: s_interface_lag
+     integer :: iextm_order = 1
+     integer :: last_tstep = -1
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
@@ -168,7 +168,7 @@ contains
     call json_get(json, "field_name", field_name)
     call json_get_or_default(json, "interpolation.tolerance", tol, -1.0_rp)
     call json_get_or_default(json, "interpolation.padding", pad, -1.0_rp)
-   call json_get_or_default(json, "order", this%iextm_order, 1)
+    call json_get_or_default(json, "order", this%iextm_order, 1)
     call this%init_from_components(coef, field_name, tol, pad)
     if (allocated(field_name)) deallocate(field_name)
 
@@ -242,7 +242,7 @@ contains
     call this%y_interface_dof%free()
     call this%z_interface_dof%free()
     call this%s_interface%free()
-   call this%s_interface_lag%free()
+    call this%s_interface_lag%free()
 
     if (allocated(this%field_name)) then
        deallocate(this%field_name)
@@ -384,7 +384,7 @@ contains
     call this%interface_field%init(1)
     call this%interface_field%assign_to_vector(1, this%s_interface)
 
-   call this%s_interface_lag%init(this%s_interface, this%iextm_order)
+    call this%s_interface_lag%init(this%s_interface, this%iextm_order)
 
   end subroutine overset_interface_finalize
 
@@ -393,9 +393,9 @@ contains
     class(overset_interface_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: s
-      type(iextm_time_scheme_t) :: time_scheme
-      integer :: nhist, ihist
-      real(kind=rp) :: iextm_coeffs(4), dt_history(10)
+    type(iextm_time_scheme_t) :: time_scheme
+    integer :: nhist, ihist
+    real(kind=rp) :: iextm_coeffs(4), dt_history(10)
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &

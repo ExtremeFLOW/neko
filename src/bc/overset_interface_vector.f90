@@ -54,7 +54,7 @@ module overset_interface_vector
   use vector_list, only : vector_list_t
   use vector_series, only: vector_series_t
   use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, vector_add2s2, &
-         vector_cmult2
+       vector_cmult2
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
@@ -479,15 +479,15 @@ contains
        dt_history(3) = time%dtlag(3)
        nhist = min(time%tstep, this%iextm_order)
        call time_scheme%compute_coeffs(iextm_coeffs, dt_history, nhist)
-  
+
        ! Perfrom the extrapolation using the lag arrays
        call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), iextm_coeffs(1))
        call vector_cmult2(this%v_interface, this%v_interface_lag%lv(1), iextm_coeffs(1))
-       call vector_cmult2(this%w_interface, this%w_interface_lag%lv(1), iextm_coeffs(1)) 
+       call vector_cmult2(this%w_interface, this%w_interface_lag%lv(1), iextm_coeffs(1))
        do ihist = 2, nhist
-         call vector_add2s2(this%u_interface, this%u_interface_lag%lv(ihist), iextm_coeffs(ihist))
-         call vector_add2s2(this%v_interface, this%v_interface_lag%lv(ihist), iextm_coeffs(ihist))
-         call vector_add2s2(this%w_interface, this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%u_interface, this%u_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%v_interface, this%v_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%w_interface, this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
        end do
 
     end if
