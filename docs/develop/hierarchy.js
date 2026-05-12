@@ -388,7 +388,7 @@ var hierarchy =
     [ "ax_helm_device::hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector_part2", "d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2.html", null ],
     [ "hip_math::hip_cadd2", "d3/da8/interfacehip__math_1_1hip__cadd2.html", null ],
-    [ "caisagaut_model_ii_device::hip_caisagaut_model_ii_compute", "d6/d7c/interfacecaisagaut__model__ii__device_1_1hip__caisagaut__model__ii__compute.html", null ],
+    [ "cai_sagaut_model_ii_device::hip_cai_sagaut_model_ii_compute", "da/d6a/interfacecai__sagaut__model__ii__device_1_1hip__cai__sagaut__model__ii__compute.html", null ],
     [ "hip_math::hip_cdiv", "d1/d5e/interfacehip__math_1_1hip__cdiv.html", null ],
     [ "hip_math::hip_cdiv2", "d6/d53/interfacehip__math_1_1hip__cdiv2.html", null ],
     [ "opr_device::hip_cdtp", "db/d39/interfaceopr__device_1_1hip__cdtp.html", null ],
@@ -1023,7 +1023,7 @@ var hierarchy =
     [ "wall_model::wall_model_init", "d5/db1/interfacewall__model_1_1wall__model__init.html", null ],
     [ "wall_model::wall_model_partial_init", "d8/df2/interfacewall__model_1_1wall__model__partial__init.html", null ],
     [ "wall_model::wall_model_t", "d4/d70/structwall__model_1_1wall__model__t.html", [
-      [ "caisagaut_model_ii::caisagaut_model_ii_t", "d2/db9/structcaisagaut__model__ii_1_1caisagaut__model__ii__t.html", null ],
+      [ "cai_sagaut_model_ii::cai_sagaut_model_ii_t", "d9/d4a/structcai__sagaut__model__ii_1_1cai__sagaut__model__ii__t.html", null ],
       [ "most::most_t", "de/d0b/structmost_1_1most__t.html", null ],
       [ "richardson::richardson_t", "dd/df1/structrichardson_1_1richardson__t.html", null ],
       [ "rough_log_law::rough_log_law_t", "df/d21/structrough__log__law_1_1rough__log__law__t.html", null ],

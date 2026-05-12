@@ -55,11 +55,11 @@ var namespaces_dup =
     [ "buffer_4d", "dd/d9e/namespacebuffer__4d.html", "dd/d9e/namespacebuffer__4d" ],
     [ "buffer_4d_npar", "de/dac/namespacebuffer__4d__npar.html", "de/dac/namespacebuffer__4d__npar" ],
     [ "cacg", "d2/d10/namespacecacg.html", "d2/d10/namespacecacg" ],
-    [ "caisagaut_model_ii", "d6/d2b/namespacecaisagaut__model__ii.html", "d6/d2b/namespacecaisagaut__model__ii" ],
-    [ "caisagaut_model_ii_cpu", "d9/d6e/namespacecaisagaut__model__ii__cpu.html", [
-      [ "caisagaut_model_ii_compute_cpu", "d9/d6e/namespacecaisagaut__model__ii__cpu.html#a8f89c34a7c1f84c0a4d70e803da2bcac", null ]
+    [ "cai_sagaut_model_ii", "d0/d21/namespacecai__sagaut__model__ii.html", "d0/d21/namespacecai__sagaut__model__ii" ],
+    [ "cai_sagaut_model_ii_cpu", "dd/d35/namespacecai__sagaut__model__ii__cpu.html", [
+      [ "cai_sagaut_model_ii_compute_cpu", "dd/d35/namespacecai__sagaut__model__ii__cpu.html#a37edc2a72084ba50940a68e6666867d7", null ]
     ] ],
-    [ "caisagaut_model_ii_device", "d4/d78/namespacecaisagaut__model__ii__device.html", "d4/d78/namespacecaisagaut__model__ii__device" ],
+    [ "cai_sagaut_model_ii_device", "df/d3e/namespacecai__sagaut__model__ii__device.html", "df/d3e/namespacecai__sagaut__model__ii__device" ],
     [ "cartesian_el_finder", "d6/d46/namespacecartesian__el__finder.html", "d6/d46/namespacecartesian__el__finder" ],
     [ "cartesian_pe_finder", "d4/d53/namespacecartesian__pe__finder.html", "d4/d53/namespacecartesian__pe__finder" ],
     [ "case", "dd/da8/namespacecase.html", "dd/da8/namespacecase" ],
@@ -566,7 +566,7 @@ var namespaces_dup =
       [ "opencl_prgm_lib_release", "d0/dc0/namespaceopencl__prgm__lib.html#a78c01ae7f526303f5064048ada2d1529", null ],
       [ "ax_helm_full_program", "d0/dc0/namespaceopencl__prgm__lib.html#a3419a6dedabdc69207a8c54cd65e3fda", null ],
       [ "ax_helm_program", "d0/dc0/namespaceopencl__prgm__lib.html#a61cd844e7945c7a835ccfa0ead333084", null ],
-      [ "caisagaut_model_ii_program", "d0/dc0/namespaceopencl__prgm__lib.html#a34d63a2f61444066ded54bea4fdd10e8", null ],
+      [ "cai_sagaut_model_ii_program", "d0/dc0/namespaceopencl__prgm__lib.html#a6926742f1918c0006b2a3d1d5828593e", null ],
       [ "cdtp_program", "d0/dc0/namespaceopencl__prgm__lib.html#a6f01705bed523e0db70af79c37bfdb1f", null ],
       [ "cfl_program", "d0/dc0/namespaceopencl__prgm__lib.html#a964fd76652aacc6fdf755f7a99243e29", null ],
       [ "coef_program", "d0/dc0/namespaceopencl__prgm__lib.html#a517cc19754edd7c876f9464f9c9f16f2", null ],

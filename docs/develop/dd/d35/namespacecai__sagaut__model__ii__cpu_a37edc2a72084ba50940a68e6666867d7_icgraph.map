@@ -1,0 +1,5 @@
+<map id="cai_sagaut_model_ii_cpu::cai_sagaut_model_ii_compute_cpu" name="cai_sagaut_model_ii_cpu::cai_sagaut_model_ii_compute_cpu">
+<area shape="rect" id="Node000001" title="Evaluate wall shear stresses with the CPU Model&#45;II kernel." alt="" coords="216,5,395,60"/>
+<area shape="rect" id="Node000002" href="$d0/d21/namespacecai__sagaut__model__ii.html#a93d1df6deba4bdd4c31086f27a1d6f61" title="Evaluate wall shear stresses with the Cai&#45;Sagaut Model&#45;II closure." alt="" coords="5,5,168,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,35,168,35,168,30,202,30"/>
+</map>

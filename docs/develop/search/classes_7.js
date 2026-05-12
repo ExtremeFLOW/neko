@@ -27,7 +27,7 @@ var searchData=
   ['hip_5fax_5fhelm_5fvector_24',['hip_ax_helm_vector',['../d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html',1,'ax_helm_device']]],
   ['hip_5fax_5fhelm_5fvector_5fpart2_25',['hip_ax_helm_vector_part2',['../d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2.html',1,'ax_helm_device']]],
   ['hip_5fcadd2_26',['hip_cadd2',['../d3/da8/interfacehip__math_1_1hip__cadd2.html',1,'hip_math']]],
-  ['hip_5fcaisagaut_5fmodel_5fii_5fcompute_27',['hip_caisagaut_model_ii_compute',['../d6/d7c/interfacecaisagaut__model__ii__device_1_1hip__caisagaut__model__ii__compute.html',1,'caisagaut_model_ii_device']]],
+  ['hip_5fcai_5fsagaut_5fmodel_5fii_5fcompute_27',['hip_cai_sagaut_model_ii_compute',['../da/d6a/interfacecai__sagaut__model__ii__device_1_1hip__cai__sagaut__model__ii__compute.html',1,'cai_sagaut_model_ii_device']]],
   ['hip_5fcdiv_28',['hip_cdiv',['../d1/d5e/interfacehip__math_1_1hip__cdiv.html',1,'hip_math']]],
   ['hip_5fcdiv2_29',['hip_cdiv2',['../d6/d53/interfacehip__math_1_1hip__cdiv2.html',1,'hip_math']]],
   ['hip_5fcdtp_30',['hip_cdtp',['../db/d39/interfaceopr__device_1_1hip__cdtp.html',1,'opr_device']]],

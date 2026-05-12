@@ -1,0 +1,5 @@
+<map id="cai_sagaut_model_ii::cai_sagaut_model_ii_t" name="cai_sagaut_model_ii::cai_sagaut_model_ii_t">
+<area shape="rect" id="Node000001" title="Explicit wall model based on Model&#45;II from Cai and Sagaut (2021)." alt="" coords="14,79,189,119"/>
+<area shape="rect" id="Node000002" href="$d4/d70/structwall__model_1_1wall__model__t.html" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="5,5,197,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,44,104,79,99,79,99,44"/>
+</map>
