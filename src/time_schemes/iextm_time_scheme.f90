@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,12 +42,7 @@ module iextm_time_scheme
   implicit none
   private
 
-  !> Explicit Adam-Bashforth scheme for time integration.
-  !! @details
-  !! For a contant time-step this corresponds to the following schemes for
-  !! order 1 to 3:
-  !! - Order 1: \f$  u^{n+1} = u^n \f$
-  !! - Order 2: \f$  u^{n+1} = 2u^n - u^{n-1} \f$, linear extrapolation
+  !> Explicit interface extrapolation scheme for overset girds.
   type, public, extends(time_scheme_t) :: iextm_time_scheme_t
    contains
      !> Compute the scheme coefficients

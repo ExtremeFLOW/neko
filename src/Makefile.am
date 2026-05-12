@@ -124,6 +124,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/vector_series.f90\
 	math/vector_list.f90\
 	math/vector_math.f90\
 	registries/registry.f90\
