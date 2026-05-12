@@ -216,7 +216,7 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if ((.not. (NEKO_BCKND_HIP .eq. 1)) .and. &
                (.not. (NEKO_BCKND_CUDA .eq. 1))) then
-             call neko_error("ALE_device currently " // &
+             call neko_error("ALE currently " // &
                   "supported only with HIP or CUDA backend.")
           end if
        end if
@@ -1254,7 +1254,7 @@ contains
     call update_ale_mesh(coef, this%wm_x, this%wm_y, this%wm_z, &
          this%wm_x_lag, this%wm_y_lag, this%wm_z_lag, &
          time, nadv, "ab")
-         
+
     ! Update internal history of mesh velocity.
     call this%wm_x_lag%update()
     call this%wm_y_lag%update()
@@ -1457,7 +1457,7 @@ contains
     if (.not. this%active) return
 
     if (allocated(chkp%previous_mesh%elements)) then
-        call neko_error("ALE restart failed: " // &
+       call neko_error("ALE restart failed: " // &
             "The current mesh has a different number " // &
             "of elements than the checkpoint.")
     end if
@@ -1466,12 +1466,12 @@ contains
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
        n = coef%dof%size()
        associate(wm_x => this%wm_x, wm_y => this%wm_y, wm_z => this%wm_z)
-          do concurrent (j = 1:n)
-             ! Mesh Velocity
-             wm_x%x(j,1,1,1) = wm_x%x(j,1,1,1) * coef%mult(j,1,1,1)
-             wm_y%x(j,1,1,1) = wm_y%x(j,1,1,1) * coef%mult(j,1,1,1)
-             wm_z%x(j,1,1,1) = wm_z%x(j,1,1,1) * coef%mult(j,1,1,1)
-          end do
+         do concurrent (j = 1:n)
+            ! Mesh Velocity
+            wm_x%x(j,1,1,1) = wm_x%x(j,1,1,1) * coef%mult(j,1,1,1)
+            wm_y%x(j,1,1,1) = wm_y%x(j,1,1,1) * coef%mult(j,1,1,1)
+            wm_z%x(j,1,1,1) = wm_z%x(j,1,1,1) * coef%mult(j,1,1,1)
+         end do
        end associate
 
        do i = 1, this%wm_x_lag%size()
@@ -1526,6 +1526,7 @@ contains
        end if
     end if
 
+    ! Restarting from a different polynomial order
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
        call rotate_cyc(this%wm_x%x, this%wm_y%x, this%wm_z%x, 1, coef)
        call gs_Xh%op(this%wm_x, GS_OP_ADD)
@@ -1553,18 +1554,18 @@ contains
     ! not restarting at all. Otherwise we need to save lagged mesh coordinates
     ! as well in order to be more accurate.
     if (chkp%previous_Xh%lx .ne. Xh%lx) then
-        coef%Blag = coef%B
-        coef%Blaglag = coef%B
-        if (NEKO_BCKND_DEVICE .eq. 1) then
-           if (c_associated(coef%Blag_d)) then
-              call device_memcpy(coef%Blag, coef%Blag_d, n, &
+       coef%Blag = coef%B
+       coef%Blaglag = coef%B
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (c_associated(coef%Blag_d)) then
+             call device_memcpy(coef%Blag, coef%Blag_d, n, &
                    HOST_TO_DEVICE, .false.)
-           end if
-           if (c_associated(coef%Blaglag_d)) then
-              call device_memcpy(coef%Blaglag, coef%Blaglag_d, n, &
+          end if
+          if (c_associated(coef%Blaglag_d)) then
+             call device_memcpy(coef%Blaglag, coef%Blaglag_d, n, &
                    HOST_TO_DEVICE, .true.)
-           end if
-        end if
+          end if
+       end if
     end if
 
     call adv%recompute_metrics(coef, .true.)

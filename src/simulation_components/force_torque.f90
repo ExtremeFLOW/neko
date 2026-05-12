@@ -497,7 +497,7 @@ contains
           call device_masked_gather_copy_0(this%r2%x_d, this%coef%dof%y_d, &
                this%bc%msk_d, this%u%size(), n_pts)
           call device_masked_gather_copy_0(this%r3%x_d, this%coef%dof%z_d, &
-               this%bc%msk_d, this%u%size(), n_pts) 
+               this%bc%msk_d, this%u%size(), n_pts)
 
           call device_cadd(this%r1%x_d, -this%center(1), n_pts)
           call device_cadd(this%r2%x_d, -this%center(2), n_pts)
@@ -512,7 +512,7 @@ contains
                HOST_TO_DEVICE, .true.)
 
        else
-          
+
           call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
                this%u%size(), n_pts)
           call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
