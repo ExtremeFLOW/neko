@@ -44,8 +44,8 @@ module ksp_residual
   implicit none
   private
 
-  character(len=16), parameter :: KSP_RESIDUAL_WEIGHT_TYPES(2) = &
-       [character(len=16) :: 'none', 'volume']
+  character(len=16), parameter :: KSP_RESIDUAL_WEIGHT_TYPES(3) = &
+       [character(len=16) :: 'none', 'volume', 'inverse_volume']
   character(len=16), parameter :: KSP_RESIDUAL_NORMALIZATION_TYPES(4) = &
        [character(len=16) :: 'none', 'volume', 'initial', 'equation_scale']
 
@@ -114,6 +114,8 @@ contains
        this%compute_weight => ksp_residual_weight_none
     case ('volume')
        this%compute_weight => ksp_residual_weight_volume
+    case ('inverse_volume')
+       this%compute_weight => ksp_residual_weight_inverse_volume
     case default
        call neko_type_error('KSP residual weight', weight_type, &
             KSP_RESIDUAL_WEIGHT_TYPES)
@@ -183,6 +185,21 @@ contains
     call col2(weight%x, coef%mult, n)
 
   end subroutine ksp_residual_weight_volume
+
+  !> Use the SEM mass/volume matrix from the coefficient structure.
+  subroutine ksp_residual_weight_inverse_volume(weight, coef, n)
+    type(field_t), intent(inout) :: weight
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: n
+
+    if (.not. allocated(weight%x)) then
+      call neko_error('KSP residual weight field is not allocated')
+    end if
+
+    call copy(weight%x, coef%Binv, n)
+    call col2(weight%x, coef%mult, n)
+
+  end subroutine ksp_residual_weight_inverse_volume
 
   !> No normalization.
   function ksp_residual_normalization_none(Ax, ref, rhs, coef, gs_h, blst, &
