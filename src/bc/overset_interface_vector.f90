@@ -52,6 +52,7 @@ module overset_interface_vector
   use dofmap, only : dofmap_t
   use vector, only : vector_t
   use vector_list, only : vector_list_t
+  use vector_series, only: vector_series_t
   use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
@@ -63,6 +64,7 @@ module overset_interface_vector
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
   use field_list, only : field_list_t
+  use iextm_time_scheme, only : iextm_time_scheme_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   use time_state, only : time_state_t
   implicit none
@@ -88,6 +90,7 @@ module overset_interface_vector
      type(vector_t) :: x_dof, y_dof, z_dof
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      type(vector_t) :: u_interface, v_interface, w_interface
+     type(vector_series_t) :: u_interface_lag, v_interface_lag, w_interface_lag
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
