@@ -3,8 +3,6 @@
 ## Develop
 
 - Added HIP and CUDA support for ALE.
-- Added hdf5 support for probes and added hdf5 I/O helper routines
-
 - Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
