@@ -1403,7 +1403,7 @@ If the output flags are enabled, Neko will generate `.fld` files during the init
 
 @attention It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
 
-@note If the option `import_base_shapes` is set to `true`, the Laplace solve will be skipped entirely, and the \f$ \phi \f$ fields are instead loaded from previously computed `.fld` files. When this feature is enabled, the file to be loaded for each body must be specified using the `base_shape_import_file` keyword within the `"bodies"` block.
+@note If the option `import_base_shape` is set to `true`, the Laplace solve will be skipped entirely, and the \f$ \phi \f$ fields are instead loaded from previously computed `.fld` files. When this feature is enabled, the file to be loaded for each body must be specified using the `base_shape_import_file` keyword within the `"bodies"` block.
 
 #### Mesh preview
 
@@ -1446,7 +1446,7 @@ Each individual body object accepts the following general keywords and base kine
 
 @attention If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
 
-@note The `base_shape_import_file` keyword is only mandatory if the solver option `"ale.solver.import_base_shapes"` is set to `true`. In this case, this keyword should be provided for **every** single registered body.
+@note The `base_shape_import_file` keyword is only mandatory if the solver option `"ale.solver.import_base_shape"` is set to `true`. In this case, this keyword should be provided for **every** single registered body.
 
 
 ##### Oscillation
