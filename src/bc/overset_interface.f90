@@ -395,7 +395,7 @@ contains
     type(field_t), pointer :: s
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
-      real(kind=rp) :: iextm_coeffs(4)
+    real(kind=rp) :: iextm_coeffs(4)
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &

@@ -65,7 +65,7 @@ contains
     real(kind=rp) :: basis
 
     call rzero(coeffs, 4)
-    
+
     ! This is the direct way, working for constant tstep
     !select case (order)
     !case (1)
@@ -90,7 +90,7 @@ contains
     x(0) = dt(1) ! Current timestep
     do i = 1, order
        x(i) = x(i-1) - dt(i)
-    end do 
+    end do
     ! Define the test point
     xtest = x(0)
 
