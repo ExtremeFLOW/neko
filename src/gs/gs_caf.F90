@@ -47,9 +47,9 @@ module gs_caf
   implicit none
   private
 
-  !> Signaling mode constants. Selected at first init via the
-  !! NEKO_GS_CAF_SIGNALING environment variable
-  !! ("sync", "atomic", or "event").
+  ! Signaling mode constants. Selected at first init via the
+  ! NEKO_GS_CAF_SIGNALING environment variable
+  ! ("sync", "atomic", or "event").
   integer, parameter, public :: GS_CAF_SIGNAL_SYNC = 1
   integer, parameter, public :: GS_CAF_SIGNAL_ATOMIC = 2
   integer, parameter, public :: GS_CAF_SIGNAL_EVENT = 3
