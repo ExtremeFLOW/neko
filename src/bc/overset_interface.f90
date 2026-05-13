@@ -395,7 +395,7 @@ contains
     type(field_t), pointer :: s
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
-    real(kind=rp) :: iextm_coeffs(4), dt_history(10)
+      real(kind=rp) :: iextm_coeffs(4)
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -427,11 +427,8 @@ contains
 
        call this%s_interface_lag%update()
 
-       dt_history(1) = time%dtlag(1)
-       dt_history(2) = time%dtlag(2)
-       dt_history(3) = time%dtlag(3)
        nhist = min(time%tstep, this%iextm_order)
-       call time_scheme%compute_coeffs(iextm_coeffs, dt_history, nhist)
+       call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
 
        call vector_cmult2(this%s_interface, this%s_interface_lag%lv(1), iextm_coeffs(1))
        do ihist = 2, nhist
