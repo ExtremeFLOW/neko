@@ -474,11 +474,8 @@ contains
        call this%w_interface_lag%update()
 
        ! Get the coefficients for the extrapolation
-       dt_history(1) = time%dtlag(1)
-       dt_history(2) = time%dtlag(2)
-       dt_history(3) = time%dtlag(3)
        nhist = min(time%tstep, this%iextm_order)
-       call time_scheme%compute_coeffs(iextm_coeffs, dt_history, nhist)
+       call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
 
        ! Perfrom the extrapolation using the lag arrays
        call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), iextm_coeffs(1))
