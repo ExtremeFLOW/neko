@@ -291,7 +291,7 @@ contains
     end if ! atomic & event modes: no per-instance state to allocate
 
     ! Ensure recv_buf is allocated and (atomic mode) baselines are stable
-    ! on every image before any signaling activity begins.
+    ! on every image before any signalling activity begins.
     sync all
 #else
     call neko_error("Coarray Fortran support not built; reconfigure with " // &
@@ -324,7 +324,7 @@ contains
   !! recv_buf. Double buffering means each round writes to a different
   !! half of the recv coarray, so no back-pressure synchronisation is
   !! needed in sync mode -- the visibility synchronisation in nbwait
-  !! suffices. Atomic and event modes still use their per-pair signaling.
+  !! suffices. Atomic and event modes still use their per-pair signalling.
   subroutine gs_nbsend_caf(this, u, n, deps, strm)
     class(gs_caf_t), intent(inout) :: this
     integer, intent(in) :: n
