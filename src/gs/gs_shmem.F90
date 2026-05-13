@@ -91,18 +91,18 @@ module gs_shmem
   type, public, extends(gs_comm_t) :: gs_shmem_t
      type(gs_shmem_buf_t) :: send_buf
      type(gs_shmem_buf_t) :: recv_buf
-     !> Symmetric data-arrival signals; data_signals[r] is set to `iter`
-     !! by PE r via shmem_putmem_signal_nbi when it has put data into
-     !! our recv buffer. Sized to pe_size on every PE.
+     ! Symmetric data-arrival signals; data_signals[r] is set to `iter`
+     ! by PE r via shmem_putmem_signal_nbi when it has put data into
+     ! our recv buffer. Sized to pe_size on every PE.
      type(c_ptr) :: data_signals_ptr = C_NULL_PTR
-     !> Symmetric ack signals; ack_signals[r] is set to `iter` by PE r
-     !! via shmem_uint64_atomic_set after it has consumed our most
-     !! recent put. Sized to pe_size on every PE.
+     ! Symmetric ack signals; ack_signals[r] is set to `iter` by PE r
+     ! via shmem_uint64_atomic_set after it has consumed our most
+     ! recent put. Sized to pe_size on every PE.
      type(c_ptr) :: ack_signals_ptr = C_NULL_PTR
-     !> Monotonically increasing iteration counter; sender writes this
-     !! value into the receiver's data signal slot via SHMEM_SIGNAL_SET,
-     !! and the receiver writes the same value into the sender's ack
-     !! slot after consumption.
+     ! Monotonically increasing iteration counter; sender writes this
+     ! value into the receiver's data signal slot via SHMEM_SIGNAL_SET,
+     ! and the receiver writes the same value into the sender's ack
+     ! slot after consumption.
      integer(kind=8) :: iter = 0
    contains
      procedure, pass(this) :: init => gs_shmem_init
