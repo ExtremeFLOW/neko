@@ -38,8 +38,10 @@ module gmres
   use num_types, only: rp, xp
   use field, only : field_t
   use coefs, only : coef_t
+  use scratch_registry, only : neko_scratch_registry
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use field_math, only : field_copy
   use math, only : glsc3, rzero, copy, sub2, cmult2, abscmp
   use neko_config, only : NEKO_BLK_SIZE
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
@@ -69,13 +71,13 @@ module gmres
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine gmres_init(this, n, max_iter, M, abs_tol, rel_tol, monitor)
     class(gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    real(kind=rp), optional, intent(in) :: rel_tol
-    real(kind=rp), optional, intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -96,22 +98,10 @@ contains
 
     allocate(this%h(this%lgmres, this%lgmres))
 
-    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
-    else if (present(monitor) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
-    else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol = rel_tol)
-    else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol)
-    else if (present(monitor)) then
-       call this%ksp_init(max_iter, monitor = monitor)
+    if (present(monitor)) then
+       call this%ksp_init(max_iter, abs_tol, rel_tol, monitor = monitor)
     else
-       call this%ksp_init(max_iter)
+       call this%ksp_init(max_iter, abs_tol, rel_tol)
     end if
 
   end subroutine gmres_init
@@ -160,7 +150,7 @@ contains
   end subroutine gmres_free
 
   !> Standard GMRES solve
-  function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
        result(ksp_results)
     class(gmres_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -172,29 +162,41 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter
+    type(field_t), optional, intent(in) :: ref
+    integer :: iter, max_iter, weight_idx, ref_idx
     integer :: i, j, k, l, ierr, blk_size
     real(kind=xp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
-    real(kind=xp) :: alpha, lr, alpha2, norm_fac
+    real(kind=xp) :: alpha, lr, alpha2
     real(kind=xp) :: hl_priv(this%lgmres)
-    real(kind=rp) :: temp, rnorm
+    real(kind=rp) :: temp, rnorm, norm_scale, raw_res0, rel_limit
     logical :: conv
+    type(field_t), pointer :: weight, ref_
 
     conv = .false.
     iter = 0
     rnorm = 0.0_rp
+    raw_res0 = 0.0_rp
+    rel_limit = 0.0_rp
 
     if (present(niter)) then
        max_iter = niter
     else
        max_iter = this%max_iter
-    end if
+     end if
+     call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+     call neko_scratch_registry%request_field(ref_, ref_idx, .false.)
+     call this%residual%compute_weight(weight, coef, n)
+     if (present(ref)) then
+        call field_copy(ref_, ref, n)
+     else
+        call field_copy(ref_, x, n)
+     end if
+     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
+          v => this%v, s => this%s, gam => this%gam)
 
-    associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-         v => this%v, s => this%s, gam => this%gam)
-
-      norm_fac = 1.0_rp / sqrt(coef%volume)
-      call rzero(x%x, n)
+       call rzero(x%x, n)
+       norm_scale = this%residual%compute_normalization(Ax, ref_, f, coef, gs_h, &
+            blst, weight, n)
       gam = 0.0_xp
       s = 1.0_xp
       c = 1.0_xp
@@ -212,12 +214,17 @@ contains
             call sub2(r, w, n)
          end if
 
-         gam(1) = sqrt(glsc3(r, r, coef%mult, n))
+         gam(1) = sqrt(glsc3(r, r, weight%x, n))
          if (iter .eq. 0) then
-            ksp_results%res_start = gam(1) * norm_fac
+            raw_res0 = gam(1)
+            rel_limit = this%rel_tol * raw_res0
+            ksp_results%res_start = raw_res0 / norm_scale
          end if
 
-         if (abscmp(gam(1), 0.0_xp)) exit
+         if (abscmp(gam(1), 0.0_xp)) then
+            conv = .true.
+            exit
+         end if
 
          rnorm = 0.0_rp
          temp = 1.0_rp / gam(1)
@@ -245,7 +252,7 @@ contains
                do l = 1, j
                   do concurrent (k = 1:blk_size)
                      hl_priv(l) = hl_priv(l) + &
-                          w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+                          w(i+k) * v(i+k,l) * weight%x(i+k,1,1,1)
                   end do
                end do
             end do
@@ -274,7 +281,7 @@ contains
                end do
                do k = 1, blk_size
                   w(i+k) = w(i+k) + w_plus(k)
-                  alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
+                  alpha2 = alpha2 + w(i+k)**2 * weight%x(i+k,1,1,1)
                end do
             end do
             !$omp end parallel do
@@ -300,9 +307,9 @@ contains
             h(j,j) = lr
             gam(j+1) = -s(j) * gam(j)
             gam(j) = c(j) * gam(j)
-            rnorm = abs(gam(j+1)) * norm_fac
+            rnorm = abs(gam(j+1)) / norm_scale
             call this%monitor_iter(iter, rnorm)
-            if (rnorm .lt. this%abs_tol) then
+            if (rnorm .lt. this%abs_tol .or. abs(gam(j+1)) .lt. rel_limit) then
                conv = .true.
                exit
             end if
@@ -343,17 +350,20 @@ contains
          !$omp end parallel do
       end do
 
-    end associate
+     end associate
+    call neko_scratch_registry%relinquish_field(ref_idx)
+    call neko_scratch_registry%relinquish_field(weight_idx)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
-    ksp_results%converged = this%is_converged(iter, rnorm)
+    ksp_results%converged = conv
 
   end function gmres_solve
 
   !> Standard GMRES coupled solve
   function gmres_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(gmres_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -370,10 +380,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function gmres_solve_coupled
 

@@ -84,7 +84,8 @@ module hsmg
   use mesh, only : mesh_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, KSP_ABS_TOL, &
+       KSP_REL_TOL, &
        krylov_solver_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
@@ -148,6 +149,8 @@ contains
     type(bc_list_t), intent(inout), target :: bclst
     type(json_file), intent(inout) :: hsmg_params
     character(len=:), allocatable :: crs_solver, crs_pc
+    character(len=:), allocatable :: crs_residual_weight_type
+    character(len=:), allocatable :: crs_residual_normalization_type
     logical :: crs_monitor
     integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
 
@@ -156,6 +159,11 @@ contains
     ! Common parameters for the coarse grid
     call json_get_or_default(hsmg_params, 'coarse_grid.solver', &
          crs_solver, "cg")
+    call json_get_or_default(hsmg_params, 'coarse_grid.residual_weight', &
+         crs_residual_weight_type, 'none')
+    call json_get_or_default(hsmg_params, &
+         'coarse_grid.residual_normalization', &
+         crs_residual_normalization_type, 'volume')
 
     !
     ! Parameters for a Krylov based coarse grid solverthis
@@ -182,18 +190,22 @@ contains
          crs_tamg_cheby_degree, 4)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
-         crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
+         crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree, &
+         crs_residual_weight_type, crs_residual_normalization_type)
 
   end subroutine hsmg_init
 
   subroutine hsmg_init_from_components(this, coef, bclst, crs_solver, crs_pc, &
-       crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
+       crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree, &
+       crs_residual_weight_type, crs_residual_normalization_type)
     class(hsmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
     character(len=:), intent(inout), allocatable :: crs_solver, crs_pc
     logical, intent(inout) :: crs_monitor
     integer, intent(in) :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
+    character(len=*), optional, intent(in) :: crs_residual_weight_type
+    character(len=*), optional, intent(in) :: crs_residual_normalization_type
     integer :: n, i
     integer :: lx_crs, lx_mid
     class(bc_t), pointer :: bc_i
@@ -352,10 +364,21 @@ contains
           call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
        end select
 
-       call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), trim(crs_solver), KSP_MAX_ITER, &
-            M = this%pc_crs, monitor = crs_monitor)
-    end if
+        if (present(crs_residual_weight_type) .and. &
+             present(crs_residual_normalization_type)) then
+           call krylov_solver_factory(this%crs_solver, &
+                this%dm_crs%size(), trim(crs_solver), KSP_MAX_ITER, &
+                KSP_ABS_TOL, M = this%pc_crs, monitor = crs_monitor, &
+                reltol = KSP_REL_TOL, &
+                residual_weight_type = crs_residual_weight_type, &
+                residual_normalization_type = crs_residual_normalization_type)
+        else
+           call krylov_solver_factory(this%crs_solver, &
+                this%dm_crs%size(), trim(crs_solver), KSP_MAX_ITER, &
+                KSP_ABS_TOL, M = this%pc_crs, monitor = crs_monitor, &
+                reltol = KSP_REL_TOL)
+        end if
+     end if
 
     call neko_log%end_section()
 

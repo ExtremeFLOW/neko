@@ -41,6 +41,8 @@ module cg
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy
   use math, only : glsc3, rzero, copy, abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -66,13 +68,13 @@ module cg
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine cg_init(this, n, max_iter, M, abs_tol, rel_tol, monitor)
     class(cg_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
-    real(kind=rp), optional, intent(in) :: rel_tol
-    real(kind=rp), optional, intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -86,22 +88,10 @@ contains
     if (present(M)) then
        this%M => M
     end if
-    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
-    else if (present(monitor) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
-    else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol = rel_tol)
-    else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol)
-    else if (present(monitor)) then
-       call this%ksp_init(max_iter, monitor = monitor)
+    if (present(monitor)) then
+       call this%ksp_init(max_iter, abs_tol, rel_tol, monitor = monitor)
     else
-       call this%ksp_init(max_iter)
+       call this%ksp_init(max_iter, abs_tol, rel_tol)
     end if
 
   end subroutine cg_init
@@ -137,7 +127,8 @@ contains
   end subroutine cg_free
 
   !> Standard PCG solve
-  function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
+       result(ksp_results)
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -148,34 +139,54 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: ref
     integer :: iter, max_iter, i, j, k, p_cur, p_prev, blk_size
+    integer :: weight_idx, ref_idx
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
-    real(kind=rp) :: beta, pap, norm_fac
+    real(kind=rp) :: raw_res, raw_res0, rel_limit
+    real(kind=rp) :: beta, pap, norm_scale
+    logical :: converged
+    type(field_t), pointer :: weight, ref_
 
     if (present(niter)) then
        max_iter = niter
     else
        max_iter = this%max_iter
-    end if
-    norm_fac = 1.0_rp / sqrt(coef%volume)
+     end if
+     call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+     call neko_scratch_registry%request_field(ref_, ref_idx, .false.)
+     call this%residual%compute_weight(weight, coef, n)
+     if (present(ref)) then
+        call field_copy(ref_, ref, n)
+     else
+        call field_copy(ref_, x, n)
+     end if
+     converged = .false.
 
     associate(w => this%w, r => this%r, p => this%p, &
          z => this%z, alpha => this%alpha)
 
-      rtz1 = 1.0_rp
-      call rzero(x%x, n)
-      call rzero(p(1,CG_P_SPACE), n)
-      call copy(r, f, n)
+       rtz1 = 1.0_rp
+       call rzero(x%x, n)
+       call rzero(p(1,CG_P_SPACE), n)
+       call copy(r, f, n)
+       norm_scale = this%residual%compute_normalization(Ax, ref_, f, coef, gs_h, &
+            blst, weight, n)
 
-      rtr = glsc3(r, coef%mult, r, n)
-      rnorm = sqrt(rtr) * norm_fac
+      rtr = glsc3(r, weight%x, r, n)
+      raw_res0 = sqrt(rtr)
+      raw_res = raw_res0
+      rel_limit = this%rel_tol * raw_res0
+      rnorm = raw_res / norm_scale
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
-         ksp_results%converged = .true.
-         return
-      end if
+       if(abscmp(rnorm, 0.0_rp)) then
+          ksp_results%converged = .true.
+          call neko_scratch_registry%relinquish_field(ref_idx)
+          call neko_scratch_registry%relinquish_field(weight_idx)
+          return
+       end if
 
       p_prev = CG_P_SPACE
       p_cur = 1
@@ -183,7 +194,7 @@ contains
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          rtz2 = rtz1
-         rtz1 = glsc3(r, coef%mult, z, n)
+         rtz1 = glsc3(r, weight%x, z, n)
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
@@ -195,15 +206,17 @@ contains
          call gs_h%op(w, n, GS_OP_ADD)
          call blst%apply(w, n)
 
-         pap = glsc3(w, coef%mult, p(1,p_cur), n)
+         pap = glsc3(w, weight%x, p(1,p_cur), n)
 
          alpha(p_cur) = rtz1 / pap
-         call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
-         rnorm = sqrt(rtr) * norm_fac
+         call second_cg_part(rtr, r, weight%x, w, alpha(p_cur), n)
+         raw_res = sqrt(rtr)
+         rnorm = raw_res / norm_scale
+         converged = (rnorm .lt. this%abs_tol) .or. (raw_res .lt. rel_limit)
          call this%monitor_iter(iter, rnorm)
 
          if ((p_cur .eq. CG_P_SPACE) .or. &
-              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
+              converged .or. iter .eq. max_iter) then
             !$omp parallel do private(blk_size, j, k, x_plus)
             do i = 0, n, NEKO_BLK_SIZE
                blk_size = min(NEKO_BLK_SIZE, n - i)
@@ -224,17 +237,19 @@ contains
             !$omp end parallel do
             p_prev = p_cur
             p_cur = 1
-            if (rnorm .lt. this%abs_tol) exit
+            if (converged) exit
          else
             p_prev = p_cur
             p_cur = p_cur + 1
          end if
       end do
     end associate
+    call neko_scratch_registry%relinquish_field(ref_idx)
+    call neko_scratch_registry%relinquish_field(weight_idx)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
-    ksp_results%converged = this%is_converged(iter, rnorm)
+    ksp_results%converged = converged
   end function cg_solve
 
   subroutine second_cg_part(rtr, r, mult, w, alpha, n)
@@ -259,7 +274,8 @@ contains
 
   !> Standard PCG coupled solve
   function cg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(cg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -276,10 +292,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function cg_solve_coupled
 

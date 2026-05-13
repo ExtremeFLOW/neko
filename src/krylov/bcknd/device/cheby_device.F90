@@ -42,6 +42,8 @@ module cheby_device
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy
   use schwarz, only : schwarz_t
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy, &
@@ -156,13 +158,13 @@ contains
   end subroutine cheby_device_part2
 
   !> Initialise a standard solver
-  subroutine cheby_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine cheby_device_init(this, n, max_iter, M, abs_tol, rel_tol, monitor)
     class(cheby_device_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
-    real(kind=rp), optional, intent(in) :: rel_tol
-    real(kind=rp), optional, intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -178,22 +180,10 @@ contains
        this%M => M
     end if
 
-    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
-    else if (present(monitor) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
-    else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol = rel_tol)
-    else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol)
-    else if (present(monitor)) then
-       call this%ksp_init(max_iter, monitor = monitor)
+    if (present(monitor)) then
+       call this%ksp_init(max_iter, abs_tol, rel_tol, monitor = monitor)
     else
-       call this%ksp_init(max_iter)
+       call this%ksp_init(max_iter, abs_tol, rel_tol)
     end if
 
     call device_event_create(this%gs_event, 2)
@@ -305,7 +295,7 @@ contains
   end subroutine cheby_device_power
 
   !> A chebyshev preconditioner
-  function cheby_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cheby_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
        result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -317,9 +307,11 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter
-    real(kind=rp) :: a, b, rtr, rnorm, norm_fac
+    type(field_t), optional, intent(in) :: ref
+    integer :: iter, max_iter, weight_idx, ref_idx
+    real(kind=rp) :: a, b, rtr, rnorm, norm_scale
     type(c_ptr) :: f_d
+    type(field_t), pointer :: weight, ref_
 
     f_d = device_get_ptr(f)
 
@@ -332,7 +324,16 @@ contains
     else
        max_iter = this%max_iter
     end if
-    norm_fac = 1.0_rp / sqrt(coef%volume)
+    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+    call neko_scratch_registry%request_field(ref_, ref_idx, .false.)
+    call this%residual%compute_weight(weight, coef, n)
+    if (present(ref)) then
+       call field_copy(ref_, ref, n)
+    else
+       call field_copy(ref_, x, n)
+    end if
+    norm_scale = this%residual%compute_normalization(Ax, ref_, f, coef, gs_h, &
+         blst, weight, n)
 
     associate( w => this%w, r => this%r, d => this%d, &
          w_d => this%w_d, r_d => this%r_d, d_d => this%d_d)
@@ -343,8 +344,8 @@ contains
       call blst%apply(w, n)
       call device_sub2(r_d, w_d, n)
 
-      rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
-      rnorm = sqrt(rtr) * norm_fac
+      rtr = device_glsc3(r_d, weight%x_d, r_d, n)
+      rnorm = sqrt(rtr) / norm_scale
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
@@ -383,18 +384,20 @@ contains
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call blst%apply(w, n)
       call device_sub2(r_d, w_d, n)
-      rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
-      rnorm = sqrt(rtr) * norm_fac
+      rtr = device_glsc3(r_d, weight%x_d, r_d, n)
+      rnorm = sqrt(rtr) / norm_scale
 
 
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
       ksp_results%converged = this%is_converged(iter, rnorm)
     end associate
+    call neko_scratch_registry%relinquish_field(ref_idx)
+    call neko_scratch_registry%relinquish_field(weight_idx)
   end function cheby_device_solve
 
   !> A chebyshev preconditioner
-  function cheby_device_impl(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cheby_device_impl(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
        result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -406,8 +409,9 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: ref
     integer :: iter, max_iter
-    real(kind=rp) :: a, b, rtr, rnorm, norm_fac
+    real(kind=rp) :: a, b, rtr, rnorm
     real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2
     type(c_ptr) :: f_d
 
@@ -422,7 +426,6 @@ contains
     else
        max_iter = this%max_iter
     end if
-    norm_fac = 1.0_rp / sqrt(coef%volume)
 
     associate( w => this%w, r => this%r, d => this%d, &
          w_d => this%w_d, r_d => this%r_d, d_d => this%d_d)
@@ -477,7 +480,8 @@ contains
 
   !> Standard Cheby_Deviceshev coupled solve
   function cheby_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -494,10 +498,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function cheby_device_solve_coupled
 

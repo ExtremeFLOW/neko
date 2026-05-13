@@ -49,6 +49,7 @@ module phmg
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
   use schwarz, only : schwarz_t
+  use krylov, only : KSP_ABS_TOL, KSP_REL_TOL
   use ax_product, only : ax_t, ax_helm_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use interpolation, only : interpolator_t
@@ -247,11 +248,13 @@ contains
           if (trim(cheby_acc) .eq. "jacobi") then
              call this%phmg_hrchy%lvl(i)%cheby_device%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
-                  this%phmg_hrchy%lvl(i)%device_jacobi)
+                  this%phmg_hrchy%lvl(i)%device_jacobi, KSP_ABS_TOL, &
+                  KSP_REL_TOL)
              st = 1
           else
              call this%phmg_hrchy%lvl(i)%cheby_device%init( &
-                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
+                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
+                  rel_tol = KSP_REL_TOL, abs_tol = KSP_ABS_TOL)
              st = 0
              if (trim(cheby_acc) .eq. "schwarz") then
                 this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
@@ -263,11 +266,13 @@ contains
           if (trim(cheby_acc) .eq. "jacobi") then
              call this%phmg_hrchy%lvl(i)%cheby%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
-                  this%phmg_hrchy%lvl(i)%jacobi)
+                  this%phmg_hrchy%lvl(i)%jacobi, KSP_ABS_TOL, &
+                  KSP_REL_TOL)
              st = 1
           else
              call this%phmg_hrchy%lvl(i)%cheby%init( &
-                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
+                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
+                  rel_tol = KSP_REL_TOL, abs_tol = KSP_ABS_TOL)
              st = 0
              if (trim(cheby_acc) .eq. "schwarz") then
                 this%phmg_hrchy%lvl(i)%cheby%schwarz => &

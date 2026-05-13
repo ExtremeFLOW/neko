@@ -38,7 +38,8 @@ module ale_manager
   use field, only : field_t
   use coefs, only : coef_t
   use ax_product, only : ax_t, ax_helm_factory
-  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_REL_TOL, &
+       krylov_solver_factory
   use precon, only : pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
@@ -187,6 +188,8 @@ contains
     character(len=:), allocatable :: tmp_str
     character(len=:), allocatable :: ksp_solver
     character(len=:), allocatable :: precon_type
+    character(len=:), allocatable :: residual_weight_type
+    character(len=:), allocatable :: residual_normalization_type
     logical :: tmp_logical, oifs
     logical :: moving_
     logical :: found_zone
@@ -252,7 +255,8 @@ contains
     this%wm_z => neko_registry%get_field('wm_z')
 
     call get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-         precon_params, abstol, ksp_max_iter, res_monitor)
+         residual_weight_type, residual_normalization_type, precon_params, &
+         abstol, ksp_max_iter, res_monitor)
 
     ! Mark BCs
     call this%bc_moving%init_from_components(coef)
@@ -313,6 +317,10 @@ contains
           trim(ksp_solver) // ', ' // trim(precon_type) // ')')
        write(log_buf, '(A,ES13.6)') 'Abs tol           :', abstol
        call neko_log%message(log_buf)
+       call neko_log%message('Residual Weight   : ' // &
+            trim(residual_weight_type))
+       call neko_log%message('Residual normalization: ' // &
+            trim(residual_normalization_type))
        call neko_log%message('Mesh Stiffness    : ' // &
           trim(this%config%stiffness_type))
     end if
@@ -765,7 +773,8 @@ contains
 
     ! Find the smooth blending function for mesh displacement.
     call this%solve_base_mesh_displacement(coef, abstol, ksp_solver, &
-         ksp_max_iter, precon_type, precon_params, res_monitor)
+         ksp_max_iter, precon_type, residual_weight_type, &
+         residual_normalization_type, precon_params, res_monitor)
 
     ! If we are restarting, we skip this. It will be handled
     ! properly by chkp file.
@@ -790,6 +799,9 @@ contains
     if (allocated(zone_indices)) deallocate(zone_indices)
     if (allocated(ksp_solver)) deallocate(ksp_solver)
     if (allocated(precon_type)) deallocate(precon_type)
+    if (allocated(residual_weight_type)) deallocate(residual_weight_type)
+    if (allocated(residual_normalization_type)) &
+         deallocate(residual_normalization_type)
 
     ! Performing mesh_preview.
     call this%mesh_preview(coef, json)
@@ -802,7 +814,8 @@ contains
   !> For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.
   !> should be modified for device support (ToDo)
   subroutine solve_base_mesh_displacement(this, coef, abstol, ksp_solver, &
-       ksp_max_iter, precon_type, precon_params, res_monitor)
+       ksp_max_iter, precon_type, residual_weight_type, &
+       residual_normalization_type, precon_params, res_monitor)
     class(ale_manager_t), intent(inout) :: this
     class(ax_t), allocatable :: Ax
     class(ksp_t), allocatable :: ksp
@@ -811,6 +824,8 @@ contains
     real(kind=rp), intent(in) :: abstol
     logical, intent(in) :: res_monitor
     character(len=*), intent(in) :: ksp_solver, precon_type
+    character(len=*), intent(in) :: residual_weight_type
+    character(len=*), intent(in) :: residual_normalization_type
     integer, intent(in) :: ksp_max_iter
     type(json_file), intent(inout) :: precon_params
     type(file_t) :: phi_file
@@ -840,7 +855,9 @@ contains
 
     call ax_helm_factory(Ax, full_formulation = .false.)
     call krylov_solver_factory(ksp, n, ksp_solver, &
-         ksp_max_iter, abstol, monitor = res_monitor)
+         ksp_max_iter, abstol, monitor = res_monitor, reltol = KSP_REL_TOL, &
+         residual_weight_type = residual_weight_type, &
+         residual_normalization_type = residual_normalization_type)
     call ale_precon_factory(pc, ksp, coef, coef%dof, &
          coef%gs_h, this%bc_list, precon_type, precon_params)
 
@@ -973,11 +990,11 @@ contains
           call bcloc%apply_scalar(rhs_field%x, n)
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
-          ! Solve
-          call field_rzero(corr_field)
-          call pc%update()
-          monitor(1) = ksp%solve(Ax, corr_field, &
-               rhs_field%x, n, coef, bcloc, coef%gs_h)
+           ! Solve
+           call field_rzero(corr_field)
+           call pc%update()
+           monitor(1) = ksp%solve(Ax, corr_field, &
+                rhs_field%x, n, coef, bcloc, coef%gs_h)
 
           ! phi = phi_lifted + phi_corr
           call field_add2(this%base_shapes(body_idx), corr_field, n)
@@ -1797,11 +1814,14 @@ contains
   end subroutine ghost_tracker_coord_step
 
   subroutine get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-       precon_params, abstol, ksp_max_iter, res_monitor)
+       residual_weight_type, residual_normalization_type, precon_params, &
+       abstol, ksp_max_iter, res_monitor)
     class(ale_manager_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     character(len=:), allocatable, intent(inout) :: ksp_solver
     character(len=:), allocatable, intent(inout) :: precon_type
+    character(len=:), allocatable, intent(inout) :: residual_weight_type
+    character(len=:), allocatable, intent(inout) :: residual_normalization_type
     type(json_file), intent(inout) :: precon_params
     real(kind=rp), intent(out) :: abstol
     integer, intent(out) :: ksp_max_iter
@@ -1811,12 +1831,20 @@ contains
 
     if (allocated(ksp_solver)) deallocate(ksp_solver)
     if (allocated(precon_type)) deallocate(precon_type)
+    if (allocated(residual_weight_type)) deallocate(residual_weight_type)
+    if (allocated(residual_normalization_type)) &
+         deallocate(residual_normalization_type)
 
     call json_get_or_default(json, 'case.fluid.ale.solver.type', &
          ksp_solver, 'cg')
 
     call json_get_or_default(json, &
          'case.fluid.ale.solver.preconditioner.type', precon_type, 'jacobi')
+    call json_get_or_default(json, 'case.fluid.ale.solver.residual_weight', &
+         residual_weight_type, 'none')
+    call json_get_or_default(json, &
+         'case.fluid.ale.solver.residual_normalization', &
+         residual_normalization_type, 'volume')
 
     if (json%valid_path('case.fluid.ale.solver.preconditioner')) then
        call json_get(json, 'case.fluid.ale.solver.preconditioner', &

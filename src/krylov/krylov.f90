@@ -36,6 +36,7 @@ module krylov
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use precon, only : pc_t
+  use ksp_residual, only : ksp_residual_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
@@ -49,7 +50,7 @@ module krylov
   private
 
   integer, public, parameter :: KSP_MAX_ITER = 1e3 !< Maximum number of iters.
-  real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
+  real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolute tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
   !> Type for storing initial and final residuals in a Krylov solver.
@@ -72,6 +73,7 @@ module krylov
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
+     type(ksp_residual_t) :: residual !< Residual weighting/normalization
      real(kind=rp) :: rel_tol !< Relative tolerance
      real(kind=rp) :: abs_tol !< Absolute tolerance
      integer :: max_iter !< Maximum number of iterations
@@ -106,19 +108,19 @@ module krylov
   !! @param n Size of work arrays.
   !! @param max_iter Max number of iterations.
   !! @param M The preconditioner (optional).
-  !! @param rel_tol Relative tolerance (optional).
-  !! @param abs_tol Absolute tolerance (optional).
+  !! @param abs_tol Absolute tolerance.
+  !! @param rel_tol Relative tolerance.
   !! @param monitor Whether to log the iteration count and residuals (optional).
   abstract interface
-     subroutine ksp_init_intrf(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+     subroutine ksp_init_intrf(this, n, max_iter, M, abs_tol, rel_tol, monitor)
        import :: pc_t, ksp_t, rp
        implicit none
        class(ksp_t), target, intent(inout) :: this
        integer, intent(in) :: max_iter
        class(pc_t), optional, intent(in), target :: M
        integer, intent(in) :: n
-       real(kind=rp), optional, intent(in) :: rel_tol
-       real(kind=rp), optional, intent(in) :: abs_tol
+       real(kind=rp), intent(in) :: abs_tol
+       real(kind=rp), intent(in) :: rel_tol
        logical, optional, intent(in) :: monitor
      end subroutine ksp_init_intrf
   end interface
@@ -132,11 +134,12 @@ module krylov
   !! @param blst list of  boundary conditions
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
+  !! @param ref optional reference field for residual normalization
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) &
-          result(ksp_results)
-       import :: bc_list_t
-       import :: field_t
+      function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
+           result(ksp_results)
+        import :: bc_list_t
+        import :: field_t
        import :: ksp_t
        import :: coef_t
        import :: gs_t
@@ -149,13 +152,14 @@ module krylov
        type(field_t), intent(inout) :: x
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
-       type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(inout) :: blst
-       type(gs_t), intent(inout) :: gs_h
-       integer, optional, intent(in) :: niter
-       type(ksp_monitor_t) :: ksp_results
-     end function ksp_method
-  end interface
+        type(coef_t), intent(inout) :: coef
+        type(bc_list_t), intent(inout) :: blst
+        type(gs_t), intent(inout) :: gs_h
+        integer, optional, intent(in) :: niter
+        type(field_t), optional, intent(in) :: ref
+        type(ksp_monitor_t) :: ksp_results
+      end function ksp_method
+   end interface
 
   !> Abstract interface for a Krylov method's coupled solve routine
   !!
@@ -170,12 +174,16 @@ module krylov
   !! @param blst list of boundary conditions
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
+  !! @param refx optional reference field for x normalization
+  !! @param refy optional reference field for y normalization
+  !! @param refz optional reference field for z normalization
   abstract interface
-     function ksp_method_coupled(this, Ax, x, y, z, fx, fy, fz, &
-          n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
-       import :: bc_list_t
-       import :: field_t
-       import :: ksp_t
+      function ksp_method_coupled(this, Ax, x, y, z, fx, fy, fz, &
+           n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+           result(ksp_results)
+        import :: bc_list_t
+        import :: field_t
+        import :: ksp_t
        import :: coef_t
        import :: gs_t
        import :: ax_t
@@ -194,12 +202,15 @@ module krylov
        type(coef_t), intent(inout) :: coef
        type(bc_list_t), intent(inout) :: blstx
        type(bc_list_t), intent(inout) :: blsty
-       type(bc_list_t), intent(inout) :: blstz
-       type(gs_t), intent(inout) :: gs_h
-       integer, optional, intent(in) :: niter
-       type(ksp_monitor_t), dimension(3) :: ksp_results
-     end function ksp_method_coupled
-  end interface
+        type(bc_list_t), intent(inout) :: blstz
+        type(gs_t), intent(inout) :: gs_h
+        integer, optional, intent(in) :: niter
+        type(field_t), optional, intent(in) :: refx
+        type(field_t), optional, intent(in) :: refy
+        type(field_t), optional, intent(in) :: refz
+        type(ksp_monitor_t), dimension(3) :: ksp_results
+      end function ksp_method_coupled
+   end interface
 
   !> Abstract interface for deallocating a Krylov method
   abstract interface
@@ -215,18 +226,26 @@ module krylov
      !! @param n Size of the vectors the solver operates on.
      !! @param type_name The name of the solver type.
      !! @param max_iter The maximum number of iterations
-     !! @param abstol The absolute tolerance, optional.
+     !! @param abstol The absolute tolerance.
+     !! @param reltol The relative tolerance.
      !! @param M The preconditioner, optional.
      !! @param monitor Enable/disable monitoring, optional.
+     !! @param residual_weight_type Residual weight selection, optional.
+     !! @param residual_normalization_type Residual normalization selection,
+     !! optional.
      module subroutine krylov_solver_factory(object, n, type_name, &
-          max_iter, abstol, M, monitor)
+          max_iter, abstol, reltol, M, monitor, residual_weight_type, &
+          residual_normalization_type)
        class(ksp_t), allocatable, intent(inout) :: object
        integer, intent(in), value :: n
        character(len=*), intent(in) :: type_name
        integer, intent(in) :: max_iter
-       real(kind=rp), optional :: abstol
+       real(kind=rp), intent(in) :: abstol
+       real(kind=rp), intent(in) :: reltol
        class(pc_t), optional, intent(in), target :: M
        logical, optional, intent(in) :: monitor
+       character(len=*), optional, intent(in) :: residual_weight_type
+       character(len=*), optional, intent(in) :: residual_normalization_type
      end subroutine krylov_solver_factory
 
   end interface
@@ -236,30 +255,21 @@ contains
 
   !> Constructor for the base type.
   !! @param max_iter Maximum number of iterations.
-  !! @param rel_tol Relative tolarance for converence.
-  !! @param rel_tol Absolute tolarance for converence.
+  !! @param abs_tol Absolute tolerance for convergence.
+  !! @param rel_tol Relative tolerance for convergence.
   !! @param M The preconditioner.
-  subroutine krylov_init(this, max_iter, rel_tol, abs_tol, M, monitor)
+  subroutine krylov_init(this, max_iter, abs_tol, rel_tol, M, monitor)
     class(ksp_t), target, intent(inout) :: this
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(in) :: rel_tol
-    real(kind=rp), optional, intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     class(pc_t), optional, target, intent(in) :: M
     logical, optional, intent(in) :: monitor
 
     call krylov_free(this)
 
-    if (present(rel_tol)) then
-       this%rel_tol = rel_tol
-    else
-       this%rel_tol = KSP_REL_TOL
-    end if
-
-    if (present(abs_tol)) then
-       this%abs_tol = abs_tol
-    else
-       this%abs_tol = KSP_ABS_TOL
-    end if
+    this%rel_tol = rel_tol
+    this%abs_tol = abs_tol
 
     this%max_iter = max_iter
 
@@ -287,6 +297,8 @@ contains
   !> Deallocate a Krylov solver
   subroutine krylov_free(this)
     class(ksp_t), intent(inout) :: this
+
+    call this%residual%free()
 
     !> @todo add calls to destroy precon. if necessary
 

@@ -40,7 +40,8 @@ module PDE_filter
   use field, only : field_t
   use coefs, only : coef_t
   use ax_product, only : ax_t, ax_helm_factory
-  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_REL_TOL, &
+       krylov_solver_factory
   use precon, only : pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
   use neumann, only : neumann_t
@@ -119,6 +120,8 @@ contains
     real(kind=rp) :: r, tol
     integer :: max_iter
     character(len=:), allocatable :: ksp_solver, precon_type
+    character(len=:), allocatable :: residual_weight_type
+    character(len=:), allocatable :: residual_normalization_type
 
     ! user parameters
     call json_get(json, "radius", r)
@@ -126,20 +129,27 @@ contains
     call json_get_or_default(json, "max_iter", max_iter, 200)
     call json_get_or_default(json, "solver", ksp_solver, "cg")
     call json_get_or_default(json, "preconditioner", precon_type, "jacobi")
+    call json_get_or_default(json, "residual_weight", residual_weight_type, &
+         "none")
+    call json_get_or_default(json, "residual_normalization", &
+         residual_normalization_type, "volume")
 
     call this%init_from_components(coef, r, tol, max_iter, ksp_solver, &
-         precon_type)
+         precon_type, residual_weight_type, residual_normalization_type)
 
   end subroutine PDE_filter_init_from_json
 
   !> Actual constructor.
   subroutine PDE_filter_init_from_components(this, coef, r, tol, max_iter, &
-       ksp_solver, precon_type)
+       ksp_solver, precon_type, residual_weight_type, &
+       residual_normalization_type)
     class(PDE_filter_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     real(kind=rp), intent(in) :: r, tol
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: ksp_solver, precon_type
+    character(len=*), optional, intent(in) :: residual_weight_type
+    character(len=*), optional, intent(in) :: residual_normalization_type
     integer :: n
 
     call this%init_base(coef)
@@ -159,9 +169,17 @@ contains
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%Ax, full_formulation = .false.)
 
-    ! set up krylov solver
-    call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, &
-         this%ksp_max_iter, this%abstol_filt)
+     ! set up krylov solver
+     if (present(residual_weight_type) .and. &
+          present(residual_normalization_type)) then
+        call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, &
+             this%ksp_max_iter, this%abstol_filt, reltol = KSP_REL_TOL, &
+             residual_weight_type = residual_weight_type, &
+             residual_normalization_type = residual_normalization_type)
+     else
+        call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, &
+             this%ksp_max_iter, this%abstol_filt, reltol = KSP_REL_TOL)
+     end if
 
     ! set up preconditioner
     call filter_precon_factory(this%pc_filt, this%ksp_filt, &
@@ -269,7 +287,7 @@ contains
     call profiler_start_region("filter solve")
     this%ksp_results(1) = &
          this%ksp_filt%solve(this%Ax, d_F_out, RHS%x, n, this%coef, &
-         this%bclst_filt, this%coef%gs_h)
+         this%bclst_filt, this%coef%gs_h, ref = F_in)
 
     call profiler_end_region
 

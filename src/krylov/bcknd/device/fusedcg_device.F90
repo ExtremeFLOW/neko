@@ -40,6 +40,8 @@ module fusedcg_device
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3
   use device, only : device_memcpy, HOST_TO_DEVICE, device_get_ptr, &
@@ -198,14 +200,14 @@ contains
   end function device_fusedcg_part2
 
   !> Initialise a fused PCG solver
-  subroutine fusedcg_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
+  subroutine fusedcg_device_init(this, n, max_iter, M, abs_tol, rel_tol, &
        monitor)
     class(fusedcg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(in) :: rel_tol
-    real(kind=rp), optional, intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: p_size
@@ -238,22 +240,10 @@ contains
     ptr = c_loc(this%p_d)
     call device_memcpy(ptr, this%p_d_d, p_size, &
          HOST_TO_DEVICE, sync=.false.)
-    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
-    else if (present(monitor) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
-    else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol = rel_tol)
-    else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol)
-    else if (present(monitor)) then
-       call this%ksp_init(max_iter, monitor = monitor)
+    if (present(monitor)) then
+       call this%ksp_init(max_iter, abs_tol, rel_tol, monitor = monitor)
     else
-       call this%ksp_init(max_iter)
+       call this%ksp_init(max_iter, abs_tol, rel_tol)
     end if
 
     call device_event_create(this%gs_event, 2)
@@ -326,7 +316,8 @@ contains
   end subroutine fusedcg_device_free
 
   !> Pipelined PCG solve
-  function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter, &
+       ref) result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -337,10 +328,12 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter, ierr, i, p_cur, p_prev
-    real(kind=rp) :: rnorm, rtr, norm_fac, rtz1, rtz2
+    type(field_t), optional, intent(in) :: ref
+    integer :: iter, max_iter, ierr, i, p_cur, p_prev, weight_idx, ref_idx
+    real(kind=rp) :: rnorm, rtr, norm_scale, rtz1, rtz2
     real(kind=rp) :: pap, beta
     type(c_ptr) :: f_d
+    type(field_t), pointer :: weight, ref_
     f_d = device_get_ptr(f)
 
     if (present(niter)) then
@@ -348,7 +341,16 @@ contains
     else
        max_iter = KSP_MAX_ITER
     end if
-    norm_fac = 1.0_rp / sqrt(coef%volume)
+    call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+    call neko_scratch_registry%request_field(ref_, ref_idx, .false.)
+    call this%residual%compute_weight(weight, coef, n)
+    if (present(ref)) then
+       call field_copy(ref_, ref, n)
+    else
+       call field_copy(ref_, x, n)
+    end if
+    norm_scale = this%residual%compute_normalization(Ax, ref_, f, coef, gs_h, &
+         blst, weight, n)
 
     associate(w => this%w, r => this%r, p => this%p, z => this%z, &
          alpha => this%alpha, alpha_d => this%alpha_d, &
@@ -362,13 +364,15 @@ contains
       call device_rzero(p_d(1), n)
       call device_copy(r_d, f_d, n)
 
-      rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
-      rnorm = sqrt(rtr)*norm_fac
+      rtr = device_glsc3(r_d, weight%x_d, r_d, n)
+      rnorm = sqrt(rtr) / norm_scale
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       if(abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
+         call neko_scratch_registry%relinquish_field(ref_idx)
+         call neko_scratch_registry%relinquish_field(weight_idx)
          return
       end if
 
@@ -376,7 +380,7 @@ contains
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          rtz2 = rtz1
-         rtz1 = device_glsc3(r_d, coef%mult_d, z_d, n)
+         rtz1 = device_glsc3(r_d, weight%x_d, z_d, n)
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
          call device_fusedcg_update_p(p_d(p_cur), z_d, p_d(p_prev), beta, n)
@@ -386,12 +390,12 @@ contains
          call device_event_sync(this%gs_event)
          call blst%apply(w, n)
 
-         pap = device_glsc3(w_d, coef%mult_d, this%p_d(p_cur), n)
+         pap = device_glsc3(w_d, weight%x_d, this%p_d(p_cur), n)
 
          alpha(p_cur) = rtz1 / pap
-         rtr = device_fusedcg_part2(r_d, coef%mult_d, w_d, &
+         rtr = device_fusedcg_part2(r_d, weight%x_d, w_d, &
               alpha_d, alpha(p_cur), p_cur, n)
-         rnorm = sqrt(rtr)*norm_fac
+         rnorm = sqrt(rtr) / norm_scale
          call this%monitor_iter(iter, rnorm)
          if ((p_cur .eq. DEVICE_FUSEDCG_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
@@ -404,6 +408,8 @@ contains
             p_cur = p_cur + 1
          end if
       end do
+      call neko_scratch_registry%relinquish_field(ref_idx)
+      call neko_scratch_registry%relinquish_field(weight_idx)
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
@@ -415,7 +421,8 @@ contains
 
   !> Pipelined PCG solve coupled solve
   function fusedcg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -432,10 +439,16 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter, &
+         ref = refx)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter, &
+         ref = refy)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter, &
+         ref = refz)
 
   end function fusedcg_device_solve_coupled
 

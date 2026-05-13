@@ -73,18 +73,26 @@ contains
   !! @param n Size of the vectors the solver operates on.
   !! @param type_name The name of the solver type.
   !! @param max_iter The maximum number of iterations
-  !! @param abstol The absolute tolerance, optional.
+  !! @param abstol The absolute tolerance.
+  !! @param reltol The relative tolerance.
   !! @param M The preconditioner, optional.
   !! @param monitor Enable/disable residual history, optional.
+  !! @param residual_weight_type Residual weight selection, optional.
+  !! @param residual_normalization_type Residual normalization selection,
+  !! optional.
   module subroutine krylov_solver_factory(object, n, type_name, &
-       max_iter, abstol, M, monitor)
+       max_iter, abstol, reltol, M, monitor, residual_weight_type, &
+       residual_normalization_type)
     class(ksp_t), allocatable, intent(inout) :: object
     integer, intent(in), value :: n
     character(len=*), intent(in) :: type_name
     integer, intent(in) :: max_iter
-    real(kind=rp), optional :: abstol
+    real(kind=rp), intent(in) :: abstol
+    real(kind=rp), intent(in) :: reltol
     class(pc_t), optional, intent(in), target :: M
     logical, optional, intent(in) :: monitor
+    character(len=*), optional, intent(in) :: residual_weight_type
+    character(len=*), optional, intent(in) :: residual_normalization_type
 
     if (allocated(object)) then
        call object%free()
@@ -166,7 +174,15 @@ contains
        call neko_type_error('Krylov solver', type_name, KSP_KNOWN_TYPES)
     end select
 
-    call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+    call object%init(n, max_iter, M = M, abs_tol = abstol, &
+         rel_tol = reltol, monitor = monitor)
+    if (present(residual_weight_type) .and. &
+         present(residual_normalization_type)) then
+       call object%residual%init(residual_weight_type, &
+            residual_normalization_type)
+    else
+       call object%residual%init('none', 'volume')
+    end if
 
   end subroutine krylov_solver_factory
 

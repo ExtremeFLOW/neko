@@ -40,6 +40,8 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use scratch_registry, only : neko_scratch_registry
+  use field_math, only : field_copy
   use math, only : glsc2, abscmp
   use utils, only : neko_error
   use operators, only : rotate_cyc
@@ -71,13 +73,13 @@ module cg_cpld
 contains
 
   !> Initialise a coupled PCG solver
-  subroutine cg_cpld_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine cg_cpld_init(this, n, max_iter, M, abs_tol, rel_tol, monitor)
     class(cg_cpld_t), target, intent(inout) :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
-    real(kind=rp), optional, intent(in) :: rel_tol
-    real(kind=rp), optional, intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: abs_tol
+    real(kind=rp), intent(in) :: rel_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -100,22 +102,10 @@ contains
        this%M => M
     end if
 
-    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, rel_tol, abs_tol)
-    else if (present(monitor) .and. present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
-    else if (present(rel_tol) .and. present(monitor)) then
-       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
-    else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol = rel_tol)
-    else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol = abs_tol)
-    else if (present(monitor)) then
-       call this%ksp_init(max_iter, monitor = monitor)
+    if (present(monitor)) then
+       call this%ksp_init(max_iter, abs_tol, rel_tol, monitor = monitor)
     else
-       call this%ksp_init(max_iter)
+       call this%ksp_init(max_iter, abs_tol, rel_tol)
     end if
 
   end subroutine cg_cpld_init
@@ -182,7 +172,7 @@ contains
 
   end subroutine cg_cpld_free
 
-  function cg_cpld_nop(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+  function cg_cpld_nop(this, Ax, x, f, n, coef, blst, gs_h, niter, ref) &
        result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
@@ -194,6 +184,7 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(field_t), optional, intent(in) :: ref
 
     ! Throw and error
     call neko_error('The cpldcg solver is only defined for coupled solves')
@@ -204,7 +195,8 @@ contains
 
   !> Coupled PCG solve
   function cg_cpld_solve(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter, refx, refy, refz) &
+       result(ksp_results)
     class(cg_cpld_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -221,19 +213,56 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: i, iter, max_iter
+    type(field_t), optional, intent(in) :: refx
+    type(field_t), optional, intent(in) :: refy
+    type(field_t), optional, intent(in) :: refz
+    integer :: i, iter, max_iter, weight_idx, refx_idx, refy_idx, refz_idx
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
+    real(kind=rp) :: beta, pap, alpha, alphm, norm_scale
+    type(field_t), pointer :: weight, refx_, refy_, refz_
 
-    if (present(niter)) then
-       max_iter = niter
-    else
-       max_iter = this%max_iter
-    end if
-    norm_fac = 1.0_rp / sqrt(coef%volume)
+     if (present(niter)) then
+        max_iter = niter
+     else
+        max_iter = this%max_iter
+     end if
+     call neko_scratch_registry%request_field(weight, weight_idx, .false.)
+     call neko_scratch_registry%request_field(refx_, refx_idx, .false.)
+     call neko_scratch_registry%request_field(refy_, refy_idx, .false.)
+     call neko_scratch_registry%request_field(refz_, refz_idx, .false.)
+     call this%residual%compute_weight(weight, coef, n)
+     if (present(refx)) then
+        call field_copy(refx_, refx, n)
+     else
+        call field_copy(refx_, x, n)
+     end if
+     if (present(refy)) then
+        call field_copy(refy_, refy, n)
+     else
+        call field_copy(refy_, y, n)
+     end if
+     if (present(refz)) then
+        call field_copy(refz_, refz, n)
+     else
+        call field_copy(refz_, z, n)
+     end if
+     select case (trim(this%residual%normalization_type))
+     case ('none')
+        norm_scale = 1.0_rp
+     case ('volume')
+        norm_scale = sqrt(coef%volume)
+     case default
+        norm_scale = sqrt( &
+             this%residual%compute_normalization(Ax, refx_, fx, coef, gs_h, &
+             blstx, weight, n)**2 + &
+             this%residual%compute_normalization(Ax, refy_, fy, coef, gs_h, &
+             blsty, weight, n)**2 + &
+             this%residual%compute_normalization(Ax, refz_, fz, coef, gs_h, &
+             blstz, weight, n)**2)
+     end select
 
-    associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
-         z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
+     associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
+          z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
          r3 => this%r3, tmp => this%tmp, w1 => this%w1, w2 => this%w2, &
          w3 => this%w3)
 
@@ -254,15 +283,19 @@ contains
          tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
       end do
 
-      rtr = glsc2(tmp, coef%mult, n)
-      rnorm = sqrt(rtr)*norm_fac
-      ksp_results%res_start = rnorm
-      ksp_results%res_final = rnorm
-      ksp_results%iter = 0
-      if (abscmp(rnorm, 0.0_rp)) then
-         ksp_results%converged = .true.
-         return
-      end if
+       rtr = glsc2(tmp, weight%x, n)
+       rnorm = sqrt(rtr) / norm_scale
+       ksp_results%res_start = rnorm
+       ksp_results%res_final = rnorm
+       ksp_results%iter = 0
+       if (abscmp(rnorm, 0.0_rp)) then
+          ksp_results%converged = .true.
+          call neko_scratch_registry%relinquish_field(refz_idx)
+          call neko_scratch_registry%relinquish_field(refy_idx)
+          call neko_scratch_registry%relinquish_field(refx_idx)
+          call neko_scratch_registry%relinquish_field(weight_idx)
+          return
+       end if
 
       call this%monitor_start('cpldCG')
       do iter = 1, max_iter
@@ -277,7 +310,7 @@ contains
                  + z3(i) * r3(i)
          end do
 
-         rtz1 = glsc2(tmp, coef%mult, n)
+          rtz1 = glsc2(tmp, weight%x, n)
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
@@ -305,7 +338,7 @@ contains
                  + w3(i) * p3(i)
          end do
 
-         pap = glsc2(tmp, coef%mult, n)
+          pap = glsc2(tmp, weight%x, n)
 
          alpha = rtz1 / pap
          alphm = -alpha
@@ -319,16 +352,20 @@ contains
             tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
          end do
 
-         rtr = glsc2(tmp, coef%mult, n)
-         if (iter .eq. 1) rtr0 = rtr
-         rnorm = sqrt(rtr) * norm_fac
-         call this%monitor_iter(iter, rnorm)
-         if (rnorm .lt. this%abs_tol) then
-            exit
-         end if
-      end do
-    end associate
-    call this%monitor_stop()
+          rtr = glsc2(tmp, weight%x, n)
+          if (iter .eq. 1) rtr0 = rtr
+          rnorm = sqrt(rtr) / norm_scale
+          call this%monitor_iter(iter, rnorm)
+          if (rnorm .lt. this%abs_tol) then
+             exit
+          end if
+       end do
+     end associate
+     call neko_scratch_registry%relinquish_field(refz_idx)
+     call neko_scratch_registry%relinquish_field(refy_idx)
+     call neko_scratch_registry%relinquish_field(refx_idx)
+     call neko_scratch_registry%relinquish_field(weight_idx)
+     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
     ksp_results%converged = this%is_converged(iter, rnorm)

@@ -40,7 +40,8 @@ module scalar_scheme
   use field_list, only : field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, &
+       KSP_ABS_TOL, KSP_REL_TOL, ksp_monitor_t
   use coefs, only : coef_t
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
@@ -341,10 +342,12 @@ contains
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
-    logical :: logical_val
-    real(kind=rp) :: real_val, solver_abstol
+    logical :: logical_val, has_abs_tol, has_rel_tol
+    real(kind=rp) :: real_val, solver_abstol, solver_reltol
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon
+    character(len=:), allocatable :: residual_weight_type
+    character(len=:), allocatable :: residual_normalization_type
     type(json_file) :: precon_params
     type(json_file) :: json_subdict
     logical :: nut_dependency
@@ -367,8 +370,28 @@ contains
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
     call json_get(params, 'solver.preconditioner', precon_params)
-    call json_get_or_lookup(params, 'solver.absolute_tolerance', &
-         solver_abstol)
+    call json_get_or_default(params, 'solver.residual_weight', &
+         residual_weight_type, 'none')
+    call json_get_or_default(params, 'solver.residual_normalization', &
+         residual_normalization_type, 'volume')
+    has_abs_tol = params%valid_path('solver.absolute_tolerance')
+    has_rel_tol = params%valid_path('solver.relative_tolerance')
+    if (.not. has_abs_tol .and. .not. has_rel_tol) then
+       call neko_error('Scalar solver requires absolute_tolerance or ' // &
+            'relative_tolerance in the case file')
+    end if
+    if (has_abs_tol) then
+       call json_get_or_lookup(params, 'solver.absolute_tolerance', &
+            solver_abstol)
+    else
+       solver_abstol = KSP_ABS_TOL
+    end if
+    if (has_rel_tol) then
+       call json_get_or_lookup(params, 'solver.relative_tolerance', &
+            solver_reltol)
+    else
+       solver_reltol = KSP_REL_TOL
+    end if
 
     call json_get_or_lookup_or_default(params, &
          'solver.projection_space_size', &
@@ -385,6 +408,13 @@ contains
     call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
          ', ' // trim(solver_precon) // ')')
     write(log_buf, '(A,ES13.6)') ' `-abs tol :', solver_abstol
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') ' `-rel tol :', solver_reltol
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') ' `-weight  : ', trim(residual_weight_type)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') ' `-normalization: ', &
+         trim(residual_normalization_type)
     call neko_log%message(log_buf)
 
     this%Xh => this%u%Xh
@@ -442,7 +472,10 @@ contains
          'solver.monitor', &
          logical_val, .false.)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, integer_val, solver_abstol, logical_val)
+         solver_type, integer_val, solver_abstol, solver_reltol, &
+         monitor = logical_val, &
+         residual_weight_type = residual_weight_type, &
+         residual_normalization_type = residual_normalization_type)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, &
          solver_precon, precon_params)
@@ -532,16 +565,29 @@ contains
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
   subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, &
-       abstol, monitor)
+       abstol, reltol, monitor, residual_weight_type, &
+       residual_normalization_type)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
-    real(kind=rp) :: abstol
+    real(kind=rp), intent(in) :: abstol
+    real(kind=rp), intent(in) :: reltol
     logical, intent(in) :: monitor
+    character(len=*), optional, intent(in) :: residual_weight_type
+    character(len=*), optional, intent(in) :: residual_normalization_type
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, &
-         abstol, monitor = monitor)
+    if (present(residual_weight_type) .and. &
+         present(residual_normalization_type)) then
+       call krylov_solver_factory(ksp, n, solver, max_iter, &
+            abstol, monitor = monitor, &
+            residual_weight_type = residual_weight_type, &
+            residual_normalization_type = residual_normalization_type, &
+            reltol = reltol)
+    else
+       call krylov_solver_factory(ksp, n, solver, max_iter, &
+            abstol, monitor = monitor, reltol = reltol)
+    end if
 
   end subroutine scalar_scheme_solver_factory
 

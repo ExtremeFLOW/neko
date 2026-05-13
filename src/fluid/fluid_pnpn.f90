@@ -38,7 +38,7 @@ module fluid_pnpn
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE
   use num_types, only : rp
-  use krylov, only : ksp_monitor_t
+  use krylov, only : ksp_monitor_t, KSP_ABS_TOL, KSP_REL_TOL
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
        pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
@@ -257,11 +257,13 @@ contains
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     integer :: i
     class(bc_t), pointer :: bc_i, vel_bc
-    real(kind=rp) :: abs_tol
+    real(kind=rp) :: abs_tol, rel_tol
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr, integer_val, solver_maxiter
     character(len=:), allocatable :: solver_type, precon_type
-    logical :: monitor, found
+    character(len=:), allocatable :: residual_weight_type
+    character(len=:), allocatable :: residual_normalization_type
+    logical :: monitor, found, has_abs_tol, has_rel_tol
     logical :: advection
     type(json_file) :: numerics_params, precon_params
 
@@ -400,18 +402,49 @@ contains
          precon_type)
     call json_get(params, &
          'case.fluid.pressure_solver.preconditioner', precon_params)
-    call json_get_or_lookup(params, &
-         'case.fluid.pressure_solver.absolute_tolerance', &
-         abs_tol)
+    call json_get_or_default(params, &
+         'case.fluid.pressure_solver.residual_weight', &
+         residual_weight_type, 'none')
+    call json_get_or_default(params, &
+         'case.fluid.pressure_solver.residual_normalization', &
+         residual_normalization_type, 'volume')
+    has_abs_tol = params%valid_path( &
+         'case.fluid.pressure_solver.absolute_tolerance')
+    has_rel_tol = params%valid_path( &
+         'case.fluid.pressure_solver.relative_tolerance')
+    if (.not. has_abs_tol .and. .not. has_rel_tol) then
+       call neko_error('Pressure solver requires absolute_tolerance or ' // &
+            'relative_tolerance in the case file')
+    end if
+    if (has_abs_tol) then
+       call json_get_or_lookup(params, &
+            'case.fluid.pressure_solver.absolute_tolerance', abs_tol)
+    else
+       abs_tol = KSP_ABS_TOL
+    end if
+    if (has_rel_tol) then
+       call json_get_or_lookup(params, &
+            'case.fluid.pressure_solver.relative_tolerance', rel_tol)
+    else
+       rel_tol = KSP_REL_TOL
+    end if
     call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
          monitor, .false.)
     call neko_log%message('Type       : ('// trim(solver_type) // &
          ', ' // trim(precon_type) // ')')
     write(log_buf, '(A,ES13.6)') 'Abs tol    :', abs_tol
     call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'Rel tol    :', rel_tol
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Weight     :', trim(residual_weight_type)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Normalization:', trim(residual_normalization_type)
+    call neko_log%message(log_buf)
 
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_type, solver_maxiter, abs_tol, monitor)
+         solver_type, solver_maxiter, abs_tol, rel_tol, monitor = monitor, &
+         residual_weight_type = residual_weight_type, &
+         residual_normalization_type = residual_normalization_type)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
          precon_type, precon_params)
@@ -837,10 +870,10 @@ contains
 
       call profiler_start_region('Pressure_solve', 3)
 
-      ! Solve for the pressure increment.
-      ksp_results(1) = &
-           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-           this%bclst_dp, gs_Xh)
+       ! Solve for the pressure increment.
+       ksp_results(1) = &
+            this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+            this%bclst_dp, gs_Xh, ref = p)
       ksp_results(1)%name = 'Pressure'
 
 
@@ -887,11 +920,11 @@ contains
 
       call this%pc_vel%update()
 
-      call profiler_start_region("Velocity_solve", 4)
-      ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
-           u_res%x, v_res%x, w_res%x, n, c_Xh, &
-           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
-           this%ksp_vel%max_iter)
+       call profiler_start_region("Velocity_solve", 4)
+       ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
+            u_res%x, v_res%x, w_res%x, n, c_Xh, &
+            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
+            this%ksp_vel%max_iter, refx = u, refy = v, refz = w)
       call profiler_end_region("Velocity_solve", 4)
       if (this%full_stress_formulation) then
          ksp_results(2)%name = 'Momentum'
