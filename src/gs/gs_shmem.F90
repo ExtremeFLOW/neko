@@ -32,7 +32,7 @@
 !
 !> Defines OpenSHMEM gather-scatter communication
 module gs_shmem
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, i8
   use gs_comm, only : gs_comm_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
@@ -103,7 +103,7 @@ module gs_shmem
      ! value into the receiver's data signal slot via SHMEM_SIGNAL_SET,
      ! and the receiver writes the same value into the sender's ack
      ! slot after consumption.
-     integer(kind=8) :: iter = 0
+     integer(kind=i8) :: iter = 0
    contains
      procedure, pass(this) :: init => gs_shmem_init
      procedure, pass(this) :: free => gs_shmem_free

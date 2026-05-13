@@ -112,7 +112,7 @@ module shmem
 
   interface
      subroutine shmem_info_get_name(name) &
-          bind(c, name='shmem_info_get_name')
+          bind(c, name = 'shmem_info_get_name')
        use, intrinsic :: iso_c_binding
        import SHMEM_MAX_NAME_LEN
        implicit none
@@ -122,7 +122,7 @@ module shmem
 
   interface
      subroutine shmem_info_get_version(major, minor) &
-          bind(c, name='shmem_info_get_version')
+          bind(c, name = 'shmem_info_get_version')
        use, intrinsic :: iso_c_binding
        integer(c_int) :: major
        integer(c_int) :: minor
@@ -131,7 +131,7 @@ module shmem
 
   interface
      integer(c_int) function shmem_pe_accessible(pe) &
-          bind(c, name='shmem_pe_accessible')
+          bind(c, name = 'shmem_pe_accessible')
        use, intrinsic :: iso_c_binding
        integer(c_int), value :: pe
      end function shmem_pe_accessible
@@ -139,7 +139,7 @@ module shmem
 
   interface
      integer(c_int) function shmem_addr_accessible(addr, pe) &
-          bind(c, name='shmem_addr_accessible')
+          bind(c, name = 'shmem_addr_accessible')
        use, intrinsic :: iso_c_binding
        type(c_ptr) :: addr
        integer(c_int), value :: pe
@@ -152,7 +152,7 @@ module shmem
 
   interface
      type(c_ptr) function shmem_malloc(size) &
-          bind(c, name='shmem_malloc')
+          bind(c, name = 'shmem_malloc')
        use, intrinsic :: iso_c_binding
        integer(c_size_t), value :: size
      end function shmem_malloc
@@ -160,7 +160,7 @@ module shmem
 
   interface
      subroutine shmem_free(ptr) &
-          bind(c, name='shmem_free')
+          bind(c, name = 'shmem_free')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ptr
      end subroutine shmem_free
@@ -168,7 +168,7 @@ module shmem
 
   interface
      type(c_ptr) function shmem_realloc(ptr, size) &
-          bind(c, name='shmem_realloc')
+          bind(c, name = 'shmem_realloc')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ptr
        integer(c_size_t), value :: size
@@ -177,7 +177,7 @@ module shmem
 
   interface
      type(c_ptr) function shmem_align(alignment, size) &
-          bind(c, name='shmem_align')
+          bind(c, name = 'shmem_align')
        use, intrinsic :: iso_c_binding
        integer(c_size_t), value :: alignment
        integer(c_size_t), value :: size
@@ -186,7 +186,7 @@ module shmem
 
   interface
      type(c_ptr) function shmem_calloc(count, size) &
-          bind(c, name='shmem_calloc')
+          bind(c, name = 'shmem_calloc')
        use, intrinsic :: iso_c_binding
        integer(c_size_t), value :: count
        integer(c_size_t), value :: size
@@ -195,7 +195,7 @@ module shmem
 
   interface
      type(c_ptr) function shmem_malloc_with_hints(size, hints) &
-          bind(c, name='shmem_malloc_with_hints')
+          bind(c, name = 'shmem_malloc_with_hints')
        use, intrinsic :: iso_c_binding
        integer(c_size_t), value :: size
        integer(c_long), value :: hints
@@ -204,7 +204,7 @@ module shmem
 
   interface
      type(c_ptr) function shmem_ptr(dest, pe) &
-          bind(c, name='shmem_ptr')
+          bind(c, name = 'shmem_ptr')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dest
        integer(c_int), value :: pe
@@ -217,7 +217,7 @@ module shmem
 
   interface
      integer(c_int) function shmem_init_thread(requested, provided) &
-          bind(c, name='shmem_init_thread')
+          bind(c, name = 'shmem_init_thread')
        use, intrinsic :: iso_c_binding
        integer(c_int), value :: requested
        integer(c_int) :: provided
@@ -226,7 +226,7 @@ module shmem
 
   interface
      subroutine shmem_query_thread(provided) &
-          bind(c, name='shmem_query_thread')
+          bind(c, name = 'shmem_query_thread')
        use, intrinsic :: iso_c_binding
        integer(c_int) :: provided
      end subroutine shmem_query_thread
@@ -238,7 +238,7 @@ module shmem
 
   interface
      integer(c_int) function shmem_ctx_create(options, ctx) &
-          bind(c, name='shmem_ctx_create')
+          bind(c, name = 'shmem_ctx_create')
        use, intrinsic :: iso_c_binding
        integer(c_long), value :: options
        type(c_ptr), value :: ctx
@@ -247,7 +247,7 @@ module shmem
 
   interface
      subroutine shmem_ctx_destroy(ctx) &
-          bind(c, name='shmem_ctx_destroy')
+          bind(c, name = 'shmem_ctx_destroy')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ctx
      end subroutine shmem_ctx_destroy
@@ -259,7 +259,7 @@ module shmem
 
   interface
      subroutine shmem_putmem(dest, source, nelems, pe) &
-          bind(c, name='shmem_putmem')
+          bind(c, name = 'shmem_putmem')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dest
        type(c_ptr), value :: source
@@ -270,7 +270,7 @@ module shmem
 
   interface
      subroutine shmem_ctx_putmem(ctx, dest, source, nelems, pe) &
-          bind(c, name='shmem_ctx_putmem')
+          bind(c, name = 'shmem_ctx_putmem')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ctx
        type(c_ptr), value :: dest
@@ -282,7 +282,7 @@ module shmem
 
   interface
      subroutine shmem_getmem(dest, source, nelems, pe) &
-          bind(c, name='shmem_getmem')
+          bind(c, name = 'shmem_getmem')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dest
        type(c_ptr), value :: source
@@ -293,7 +293,7 @@ module shmem
 
   interface
      subroutine shmem_ctx_getmem(ctx, dest, source, nelems, pe) &
-          bind(c, name='shmem_ctx_getmem')
+          bind(c, name = 'shmem_ctx_getmem')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ctx
        type(c_ptr), value :: dest
@@ -305,7 +305,7 @@ module shmem
 
   interface
      subroutine shmem_putmem_nbi(dest, source, nelems, pe) &
-          bind(c, name='shmem_putmem_nbi')
+          bind(c, name = 'shmem_putmem_nbi')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dest
        type(c_ptr), value :: source
@@ -316,7 +316,7 @@ module shmem
 
   interface
      subroutine shmem_ctx_putmem_nbi(ctx, dest, source, nelems, pe) &
-          bind(c, name='shmem_ctx_putmem_nbi')
+          bind(c, name = 'shmem_ctx_putmem_nbi')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ctx
        type(c_ptr), value :: dest
@@ -328,7 +328,7 @@ module shmem
 
   interface
      subroutine shmem_getmem_nbi(dest, source, nelems, pe) &
-          bind(c, name='shmem_getmem_nbi')
+          bind(c, name = 'shmem_getmem_nbi')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dest
        type(c_ptr), value :: source
@@ -339,7 +339,7 @@ module shmem
 
   interface
      subroutine shmem_ctx_getmem_nbi(ctx, dest, source, nelems, pe) &
-          bind(c, name='shmem_ctx_getmem_nbi')
+          bind(c, name = 'shmem_ctx_getmem_nbi')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ctx
        type(c_ptr), value :: dest
@@ -355,7 +355,7 @@ module shmem
 
   interface
      subroutine shmem_putmem_signal_nbi(dest, source, nelems, sig_addr, &
-          signal, sig_op, pe) bind(c, name='shmem_putmem_signal_nbi')
+          signal, sig_op, pe) bind(c, name = 'shmem_putmem_signal_nbi')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dest
        type(c_ptr), value :: source
@@ -369,7 +369,7 @@ module shmem
 
   interface
      integer(c_int64_t) function shmem_signal_wait_until(sig_addr, cmp, &
-          cmp_value) bind(c, name='shmem_signal_wait_until')
+          cmp_value) bind(c, name = 'shmem_signal_wait_until')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: sig_addr
        integer(c_int), value :: cmp
@@ -379,7 +379,7 @@ module shmem
 
   interface
      subroutine shmem_uint64_atomic_set(dest, val, pe) &
-          bind(c, name='shmem_uint64_atomic_set')
+          bind(c, name = 'shmem_uint64_atomic_set')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dest
        integer(c_int64_t), value :: val
@@ -389,7 +389,7 @@ module shmem
 
   interface
      subroutine shmem_uint64_wait_until(ivar, cmp, cmp_value) &
-          bind(c, name='shmem_uint64_wait_until')
+          bind(c, name = 'shmem_uint64_wait_until')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ivar
        integer(c_int), value :: cmp
@@ -403,7 +403,7 @@ module shmem
 
   interface
      integer(c_int) function shmem_alltoallmem(team, dest, source, nelems) &
-          bind(c, name='shmem_alltoall_mem')
+          bind(c, name = 'shmem_alltoall_mem')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: team
        type(c_ptr), value :: dest
@@ -414,7 +414,7 @@ module shmem
 
   interface
      subroutine shmem_barrier(PE_start, logPE_stride, PE_size, pSync) &
-          bind(c, name='shmem_barrier')
+          bind(c, name = 'shmem_barrier')
        use, intrinsic :: iso_c_binding
        integer(c_int), value :: PE_start
        integer(c_int), value :: logPE_stride
@@ -425,13 +425,13 @@ module shmem
        
   interface
      subroutine shmem_barrier_all() &
-          bind(c, name='shmem_barrier_all')
+          bind(c, name = 'shmem_barrier_all')
      end subroutine shmem_barrier_all
   end interface
 
   interface
      integer(c_int) function shmem_broadcastmem(team, dest, source, &
-          nelems, PE_root) bind(c, name='shmem_broadcastmem')
+          nelems, PE_root) bind(c, name = 'shmem_broadcastmem')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: team
        type(c_ptr), value :: dest
@@ -443,7 +443,7 @@ module shmem
 
   interface
      integer(c_int) function shmem_collectmem(team, dest, source, nelems) &
-          bind(c, name='shmem_collectmem')
+          bind(c, name = 'shmem_collectmem')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: team
        type(c_ptr), value :: dest
@@ -454,7 +454,7 @@ module shmem
 
   interface
      integer(c_int) function shmem_fcollectmem(team, dest, source, nelems) &
-          bind(c, name='shmem_fcollectmem')
+          bind(c, name = 'shmem_fcollectmem')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: team
        type(c_ptr), value :: dest
@@ -465,7 +465,7 @@ module shmem
 
   interface
      subroutine shmem_sync(team) &
-          bind(c, name='shmem_sync')
+          bind(c, name = 'shmem_sync')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: team
      end subroutine shmem_sync
@@ -473,19 +473,19 @@ module shmem
 
   interface
      subroutine shmem_sync_all() &
-          bind(c, name='shmem_sync_all')
+          bind(c, name = 'shmem_sync_all')
      end subroutine shmem_sync_all
   end interface
 
   interface
      subroutine shmem_fence() &
-          bind(c, name='shmem_fence')
+          bind(c, name = 'shmem_fence')
      end subroutine shmem_fence
   end interface
 
   interface
      subroutine shmem_ctx_fence(ctx) &
-          bind(c, name='shmem_ctx_fence')
+          bind(c, name = 'shmem_ctx_fence')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ctx
      end subroutine shmem_ctx_fence
@@ -497,13 +497,13 @@ module shmem
 
   interface
      subroutine shmem_quiet() &
-          bind(c, name='shmem_quiet')
+          bind(c, name = 'shmem_quiet')
      end subroutine shmem_quiet
   end interface
 
   interface
      subroutine shmem_ctx_quiet(ctx) &
-          bind(c, name='shmem_ctx_quiet')
+          bind(c, name = 'shmem_ctx_quiet')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ctx
      end subroutine shmem_ctx_quiet
@@ -515,7 +515,7 @@ module shmem
   
   interface
      subroutine shmem_clear_lock(lock) &
-          bind(c, name='shmem_clear_lock')
+          bind(c, name = 'shmem_clear_lock')
        use, intrinsic :: iso_c_binding
        integer(c_long) :: lock
      end subroutine shmem_clear_lock
@@ -523,7 +523,7 @@ module shmem
 
   interface
      subroutine shmem_set_lock(lock) &
-          bind(c, name='shmem_set_lock')
+          bind(c, name = 'shmem_set_lock')
        use, intrinsic :: iso_c_binding
        integer(c_long) :: lock
      end subroutine shmem_set_lock
@@ -531,7 +531,7 @@ module shmem
 
   interface
      integer(c_int) function shmem_test_lock(lock) &
-          bind(c, name='shmem_test_lock')
+          bind(c, name = 'shmem_test_lock')
        use, intrinsic :: iso_c_binding
        integer(c_long) :: lock
      end function shmem_test_lock
