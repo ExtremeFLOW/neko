@@ -62,7 +62,7 @@ module shmem
      enumerator :: SHMEM_CTX_SERIALIZED = 2
      enumerator :: SHMEM_CTX_NOSTORE = 4
   end enum
-  
+
   enum, bind(c)
      enumerator :: SHMEM_CTX_LOW_LATENCY = Z'100'
      enumerator :: SHMEM_CTX_DEDICATED = Z'200'
@@ -74,7 +74,7 @@ module shmem
      enumerator :: SHMEM_MALLOC_ATOMICS_REMOTE = 1
      enumerator :: SHMEM_MALLOC_SIGNAL_REMOTE = 2
   end enum
-  
+
   enum, bind(c)
      enumerator :: SHMEM_SIGNAL_SET = 1
      enumerator :: SHMEM_SIGNAL_ADD = 2
@@ -83,7 +83,7 @@ module shmem
   !
   ! Library Setup
   !
-  
+
   interface
      subroutine shmem_init() bind (c, name='shmem_init')
      end subroutine shmem_init
@@ -108,7 +108,7 @@ module shmem
 
   !
   ! Library Query
-  ! 
+  !
 
   interface
      subroutine shmem_info_get_name(name) &
@@ -301,7 +301,7 @@ module shmem
        integer(c_size_t), value :: nelems
        integer(c_int), value :: pe
      end subroutine shmem_ctx_getmem
-  end interface       
+  end interface
 
   interface
      subroutine shmem_putmem_nbi(dest, source, nelems, pe) &
@@ -422,7 +422,7 @@ module shmem
        integer(c_long) :: pSync
      end subroutine shmem_barrier
   end interface
-       
+
   interface
      subroutine shmem_barrier_all() &
           bind(c, name = 'shmem_barrier_all')
@@ -510,9 +510,9 @@ module shmem
   end interface
 
   !
-  ! Distributed Locks  
+  ! Distributed Locks
   !
-  
+
   interface
      subroutine shmem_clear_lock(lock) &
           bind(c, name = 'shmem_clear_lock')
@@ -536,8 +536,7 @@ module shmem
        integer(c_long) :: lock
      end function shmem_test_lock
   end interface
-  
-#endif  
-  
-end module shmem
 
+#endif
+
+end module shmem
