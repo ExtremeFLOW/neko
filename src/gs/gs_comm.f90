@@ -40,7 +40,7 @@ module gs_comm
   private
 
   integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &
-       GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4
+       GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4, GS_COMM_CAF = 5
 
   !> Gather-scatter communication method
   type, public, abstract :: gs_comm_t
