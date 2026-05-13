@@ -177,7 +177,9 @@ Under the hood, Neko stores the constants in an object called
 ### Time control
 The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
-to the variable time-stepping algorithm.
+to the variable time-stepping algorithm. For the variable timestep, one can
+specify a `timestep`, such that the first timestep will be assigned to the
+smallest of `timestep` and the value calculated from the target CFL number.
 
 | Name                       | Description                                                                                 | Admissible values                 | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
@@ -535,6 +537,13 @@ A more detailed description of each boundary condition is provided below.
    * The `spalding`model requires specifying `kappa` and `B`, which are the
      log-law constants. This model is suitable for smooth walls.
 
+   * The `cai_sagaut_model_ii` model is a smooth-wall explicit algebraic wall
+     model defined as Model-II of Cai and Sagaut (DOI: `10.1063/5.0048563`). It
+     uses the same `kappa` and `B` parameters as `spalding`, and also accepts
+     optional blending parameters `p` and `s`, which default to the paper
+     calibration values `1.138` and `217.8`. The main advantage of this model
+     is that it is explicit.
+
    * The `rough_log_law` model requires specifying `kappa` and `B`, which are
      the log-law constants, and `z0`, which is the characteristic roughness
      height.
@@ -556,7 +565,7 @@ A more detailed description of each boundary condition is provided below.
   ```json
   {
     "type": "wall_model",
-    "model": "spalding",
+    "model": "cai_sagaut_model_ii",
     "kappa": 0.41,
     "B": 5.2,
     "zone_indices": [1, 2],
@@ -595,10 +604,14 @@ A more detailed description of each boundary condition is provided below.
   The *time-step* must be the same between the simulations. A variable time-step is not
   supported at the moment.
 
+  The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
+  the coupled simulation. This should, for the time being, be left as `false`.
+
   ```json
   {
     "type": "overset_interface",
-    "zone_indices": [1, 2]
+    "zone_indices": [1, 2],
+    "couple_pressure" : false
   }
   ```
 

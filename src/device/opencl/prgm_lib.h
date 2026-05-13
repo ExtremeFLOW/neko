@@ -94,6 +94,9 @@ extern void *schwarz_program;
 /** Device dong kernels */
 extern void *dong_program;
 
+/** Device Cai-Sagaut Model-II kernels */
+extern void *cai_sagaut_model_ii_program;
+
 /** Device coef kernels */
 extern void *coef_program;
 

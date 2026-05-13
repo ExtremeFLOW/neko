@@ -16,7 +16,7 @@ for `p = 4` and `p = 6`. Each sketch spans `[−1, 1]` in the reference element.
 Vertical ticks show node positions; note the boundary clustering.
 
 ```
--1                                        1 
+-1                                        1
 |------|-------------|-------------|------|  p = 4
 ^      ^             ^             ^      ^
 |      |             |             |      |
@@ -71,11 +71,11 @@ boundary conditions are part of the mesh definition in Neko, and not something
 you specify in the case file. Baking in periodicity into the mesh is discussed
 below.
 
-## Constructing meshes
+## Constructing meshes {#constructing-meshes}
 If your domain is a box, you can use Neko's built-in mesher called `genmeshbox`.
 Otherwise, you have to convert your mesh into a Nek5000 format called `.re2`,
 and then apply a utility in Neko called `rea2nbin`, which produces a mesh in the
-native Neko format `.nmsh`. 
+native Neko format `.nmsh`.
 
 So, for most practical cases, the mesh generation for Neko boils down to mesh
 generation for Nek5000. At this stage it is indeed helpful to have a local copy
@@ -91,7 +91,7 @@ supports only a particular flavour. Moreover, it expects the order of the mesh
 to be 2, whereas most software will produce a linear mesh. The typical meshing
 pipeline is therefore the following:
 
-1. Generate your element mesh and save it to the `.msh` format. 
+1. Generate your element mesh and save it to the `.msh` format.
 2. Open the mesh in gmsh, set the order to 2, and export the mesh in the legacy
    version 2 `.msh` format.
 3. Convert it to `.re2` with `gmsh2nek`, defining periodic boundaries if needed.
@@ -107,3 +107,34 @@ there contains much the same meshing instructions as the points above, and
 provides concrete commands to run to get from a `.geo` to a `.nmsh`. Finally, as
 already noted, `gmsh2nek` is not the only converter provided in Nek5000, and you
 may find it useful to explore alternatives, depending on your workflow.
+
+## Adding periodicity to an existing `.nmsh` {#adding-periodicity-to-an-existing-nmsh}
+
+Sometimes the mesh is already available as an `.nmsh`, but some pairs of labeled
+boundary zones should actually be periodic. In this case, the utility
+`create_periodic_zones` under `contrib` can be used to rewrite the zone
+information into a new mesh file.
+
+The utility expects the periodic surfaces to be represented by pairs of labeled
+zones with a one-to-one facet correspondence and a constant translation offset
+between the two surfaces. A typical invocation looks like:
+
+```text
+create_periodic_zones input.nmsh output.nmsh "(1,2),(3,4)"
+```
+
+This command converts zones `1` and `2` into one periodic pair, and zones `3`
+and `4` into another. Any labeled zones not mentioned in the pair list are kept
+unchanged. Existing periodic zones in the mesh are also preserved.
+
+The utility infers the translation vector for each pair from the facet centres
+and then verifies the match using the facet corner coordinates. If your mesh is
+very large or your coordinates are noisy, you can override the matching
+tolerance:
+
+```text
+create_periodic_zones input.nmsh output.nmsh "(1,2)" --tol=1.0e-7
+```
+
+As with any mesh conversion step, you should always run `mesh_checker` on the
+resulting mesh and make sure it reports no errors.

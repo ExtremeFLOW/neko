@@ -42,6 +42,7 @@ AC_ARG_ENABLE(python, AC_HELP_STRING([--enable-python],
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
 AX_COARRAY
+AX_COARRAY_EVENTS
 AX_DTYPE_IO
 AX_REAL128
 
@@ -443,6 +444,7 @@ if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
+		    contrib/create_periodic_zones/Makefile\
 		    contrib/average_fields_in_time/Makefile\
 		    contrib/calc_lift_from_field/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\
