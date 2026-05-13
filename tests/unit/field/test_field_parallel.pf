@@ -273,7 +273,7 @@ contains
     call f%init(msh, Xh, 'test')
 
     n = f%size()
-    f = 1.0_rp
+    f%x = 1.0_rp
     f%x(1, 1, 1, 1) = -3.0_rp
     f%x(lx, lx, lx, msh%nelv) = 7.0_rp
 

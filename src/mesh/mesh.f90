@@ -297,7 +297,7 @@ contains
        end if
        allocate(this%point_neigh(this%gdim*this%npts*this%nelv))
        do i = 1, this%gdim*this%npts*this%nelv
-          call this%point_neigh(i)%init()
+          call this%point_neigh(i)%init(size=4)
        end do
     end if
 
