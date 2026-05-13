@@ -38,46 +38,46 @@ module shmem
 #ifdef HAVE_OPENSHMEM
 
   enum, bind(c)
-     enumerator :: SHMEM_MAX_NAME_LEN = 256
+    enumerator :: SHMEM_MAX_NAME_LEN = 256
   end enum
 
   enum, bind(c)
-     enumerator :: SHMEM_CMP_EQ = 0
-     enumerator :: SHMEM_CMP_NE = 1
-     enumerator :: SHMEM_CMP_GT = 2
-     enumerator :: SHMEM_CMP_LE = 3
-     enumerator :: SHMEM_CMP_LT = 4
-     enumerator :: SHMEM_CMP_GE = 5
+    enumerator :: SHMEM_CMP_EQ = 0
+    enumerator :: SHMEM_CMP_NE = 1
+    enumerator :: SHMEM_CMP_GT = 2
+    enumerator :: SHMEM_CMP_LE = 3
+    enumerator :: SHMEM_CMP_LT = 4
+    enumerator :: SHMEM_CMP_GE = 5
+ end enum
+
+  enum, bind(c)
+    enumerator :: SHMEM_THREAD_SINGLE = 0
+    enumerator :: SHMEM_THREAD_FUNNELED = 1
+    enumerator :: SHMEM_THREAD_SERIALIZED = 2
+    enumerator :: SHMEM_THREAD_MULTIPLE= 3
   end enum
 
   enum, bind(c)
-     enumerator :: SHMEM_THREAD_SINGLE = 0
-     enumerator :: SHMEM_THREAD_FUNNELED = 1
-     enumerator :: SHMEM_THREAD_SERIALIZED = 2
-     enumerator :: SHMEM_THREAD_MULTIPLE= 3
+    enumerator :: SHMEM_CTX_PRIVATE = 1
+    enumerator :: SHMEM_CTX_SERIALIZED = 2
+    enumerator :: SHMEM_CTX_NOSTORE = 4
   end enum
 
   enum, bind(c)
-     enumerator :: SHMEM_CTX_PRIVATE = 1
-     enumerator :: SHMEM_CTX_SERIALIZED = 2
-     enumerator :: SHMEM_CTX_NOSTORE = 4
+    enumerator :: SHMEM_CTX_LOW_LATENCY = Z'100'
+    enumerator :: SHMEM_CTX_DEDICATED = Z'200'
+    enumerator :: SHMEM_CTX_BEST_EFFORT = Z'400'
+    enumerator :: SHMEM_CTX_BULK_DATA = Z'800'
   end enum
 
   enum, bind(c)
-     enumerator :: SHMEM_CTX_LOW_LATENCY = Z'100'
-     enumerator :: SHMEM_CTX_DEDICATED = Z'200'
-     enumerator :: SHMEM_CTX_BEST_EFFORT = Z'400'
-     enumerator :: SHMEM_CTX_BULK_DATA = Z'800'
+    enumerator :: SHMEM_MALLOC_ATOMICS_REMOTE = 1
+    enumerator :: SHMEM_MALLOC_SIGNAL_REMOTE = 2
   end enum
 
   enum, bind(c)
-     enumerator :: SHMEM_MALLOC_ATOMICS_REMOTE = 1
-     enumerator :: SHMEM_MALLOC_SIGNAL_REMOTE = 2
-  end enum
-
-  enum, bind(c)
-     enumerator :: SHMEM_SIGNAL_SET = 1
-     enumerator :: SHMEM_SIGNAL_ADD = 2
+    enumerator :: SHMEM_SIGNAL_SET = 1
+    enumerator :: SHMEM_SIGNAL_ADD = 2
   end enum
 
   !
