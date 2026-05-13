@@ -48,7 +48,7 @@ module shmem
     enumerator :: SHMEM_CMP_LE = 3
     enumerator :: SHMEM_CMP_LT = 4
     enumerator :: SHMEM_CMP_GE = 5
- end enum
+  end enum
 
   enum, bind(c)
     enumerator :: SHMEM_THREAD_SINGLE = 0
