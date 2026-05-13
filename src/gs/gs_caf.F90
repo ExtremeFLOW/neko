@@ -55,61 +55,61 @@ module gs_caf
   integer, parameter, public :: GS_CAF_SIGNAL_EVENT = 3
 
 #ifdef HAVE_COARRAY
-  !> Module-level receive coarray, shared by all gs_caf_t instances.
-  !! F2008 forbids a derived type from adding a coarray ultimate
-  !! component when its parent type has none, so the coarray buffer is
-  !! held at module scope rather than as a component of gs_caf_t.
-  !!
-  !! The buffer is double-buffered: it is allocated to twice the global
-  !! max receive count so that consecutive rounds write to alternating
-  !! halves. This eliminates the need for a back-pressure synchronisation
-  !! before nbsend's puts -- the receiver may still be unpacking the
-  !! previous round, but from a different half, so no overwrite hazard
-  !! exists. gs_caf_buf_size is the size of one half.
-  !!
-  !! Multiple gs_caf_t instances may coexist (each carrying its own
-  !! offset bookkeeping) provided they are used strictly sequentially
-  !! -- no overlapping nbsend/nbwait rounds across instances. The buffer
-  !! is grown on demand to fit the largest gs ever initialised; it is
-  !! never shrunk and is retained for the program lifetime.
+  ! Module-level receive coarray, shared by all gs_caf_t instances.
+  ! F2008 forbids a derived type from adding a coarray ultimate
+  ! component when its parent type has none, so the coarray buffer is
+  ! held at module scope rather than as a component of gs_caf_t.
+  !
+  ! The buffer is double-buffered: it is allocated to twice the global
+  ! max receive count so that consecutive rounds write to alternating
+  ! halves. This eliminates the need for a back-pressure synchronisation
+  ! before nbsend's puts -- the receiver may still be unpacking the
+  ! previous round, but from a different half, so no overwrite hazard
+  ! exists. gs_caf_buf_size is the size of one half.
+  !
+  ! Multiple gs_caf_t instances may coexist (each carrying its own
+  ! offset bookkeeping) provided they are used strictly sequentially
+  ! -- no overlapping nbsend/nbwait rounds across instances. The buffer
+  ! is grown on demand to fit the largest gs ever initialised; it is
+  ! never shrunk and is retained for the program lifetime.
   real(kind=rp), allocatable :: gs_caf_recv_buf(:)[:]
   integer :: gs_caf_buf_size = 0
 
-  !> Active signaling mode; bound on the first gs_caf_t init from the
-  !! NEKO_GS_CAF_SIGNALING environment variable. Subsequent instances
-  !! must use the same mode (the env var is read once).
+  ! Active signaling mode; bound on the first gs_caf_t init from the
+  ! NEKO_GS_CAF_SIGNALING environment variable. Subsequent instances
+  ! must use the same mode (the env var is read once).
   integer :: gs_caf_mode = 0
 
-  !> Atomic-mode signaling counters, indexed by remote rank.
-  !! gs_caf_data_ready(s_rank) on image r counts rounds image s has put
-  !! into r so far. gs_caf_buf_ready(r_rank) on image s counts rounds
-  !! image r has finished unpacking from s so far. Allocated only in
-  !! atomic mode and shared by all instances.
+  ! Atomic-mode signaling counters, indexed by remote rank.
+  ! gs_caf_data_ready(s_rank) on image r counts rounds image s has put
+  ! into r so far. gs_caf_buf_ready(r_rank) on image s counts rounds
+  ! image r has finished unpacking from s so far. Allocated only in
+  ! atomic mode and shared by all instances.
   integer(kind=atomic_int_kind), allocatable :: gs_caf_data_ready(:)[:]
   integer(kind=atomic_int_kind), allocatable :: gs_caf_buf_ready(:)[:]
 
-  !> Local caches of "rounds we have sent to / received from each remote
-  !! rank" -- size pe_size per image, indexed by remote rank. Updated
-  !! locally on every atomic_define / wait completion in nbsend / nbwait.
-  !! Reading these to baseline a new gs_caf_t avoids any remote
-  !! atomic_ref during init, which Cray CCE has historically deadlocked
-  !! on. The values match the remote atomic counters at quiescent
-  !! points (i.e. between gs ops) for symmetric, lockstep gs traffic.
+  ! Local caches of "rounds we have sent to / received from each remote
+  ! rank" -- size pe_size per image, indexed by remote rank. Updated
+  ! locally on every atomic_define / wait completion in nbsend / nbwait.
+  ! Reading these to baseline a new gs_caf_t avoids any remote
+  ! atomic_ref during init, which Cray CCE has historically deadlocked
+  ! on. The values match the remote atomic counters at quiescent
+  ! points (i.e. between gs ops) for symmetric, lockstep gs traffic.
   integer, allocatable :: gs_caf_send_count(:)
   integer, allocatable :: gs_caf_recv_count(:)
 
 #ifdef HAVE_COARRAY_EVENTS
-  !> Event-mode signaling. The data_ready event accumulates one post per
-  !! sender per round; buf_ready is the back-channel from receiver to
-  !! sender. Events are scalar coarrays whose count cannot distinguish
-  !! posts coming from different gs_caf_t instances, so event mode is
-  !! restricted to a single live instance at a time.
-  !!
-  !! The events are allocatable rather than static module-scope coarrays
-  !! because Cray CCE has historically had layout issues with mixing
-  !! module-scope static coarrays of derived type with allocatable
-  !! coarrays on the symmetric heap; an explicit allocate side-steps
-  !! that.
+  ! Event-mode signaling. The data_ready event accumulates one post per
+  ! sender per round; buf_ready is the back-channel from receiver to
+  ! sender. Events are scalar coarrays whose count cannot distinguish
+  ! posts coming from different gs_caf_t instances, so event mode is
+  ! restricted to a single live instance at a time.
+  !
+  ! The events are allocatable rather than static module-scope coarrays
+  ! because Cray CCE has historically had layout issues with mixing
+  ! module-scope static coarrays of derived type with allocatable
+  ! coarrays on the symmetric heap; an explicit allocate side-steps
+  ! that.
   type(event_type), allocatable :: gs_caf_data_ready_ev[:]
   type(event_type), allocatable :: gs_caf_buf_ready_ev[:]
   logical :: gs_caf_event_in_use = .false.
@@ -145,7 +145,6 @@ module gs_caf
    contains
      procedure, pass(this) :: init => gs_caf_init
      procedure, pass(this) :: free => gs_caf_free
-     !> See gs_comm.f90 for more details on these routines
      procedure, pass(this) :: nbsend => gs_nbsend_caf
      procedure, pass(this) :: nbrecv => gs_nbrecv_caf
      procedure, pass(this) :: nbwait => gs_nbwait_caf
@@ -154,7 +153,6 @@ module gs_caf
 contains
 
   !> Initialise Coarray Fortran based communication method
-  !! See gs_comm.f90 for details
   subroutine gs_caf_init(this, send_pe, recv_pe)
     class(gs_caf_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
