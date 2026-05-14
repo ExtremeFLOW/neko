@@ -329,6 +329,7 @@ var namespaces_dup =
     [ "gradient_jump_penalty", "d6/def/namespacegradient__jump__penalty.html", "d6/def/namespacegradient__jump__penalty" ],
     [ "gradient_simcomp", "d6/dbf/namespacegradient__simcomp.html", "d6/dbf/namespacegradient__simcomp" ],
     [ "gs_bcknd", "de/d93/namespacegs__bcknd.html", "de/d93/namespacegs__bcknd" ],
+    [ "gs_caf", "df/dd5/namespacegs__caf.html", "df/dd5/namespacegs__caf" ],
     [ "gs_comm", "d6/d7c/namespacegs__comm.html", "d6/d7c/namespacegs__comm" ],
     [ "gs_cpu", "d5/d22/namespacegs__cpu.html", "d5/d22/namespacegs__cpu" ],
     [ "gs_device", "d8/dcd/namespacegs__device.html", "d8/dcd/namespacegs__device" ],

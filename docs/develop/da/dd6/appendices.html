@@ -104,6 +104,7 @@ $(document).ready(function(){initNavTree('da/dd6/appendices.html','../../'); ini
 <div class="toc"><h3>Table of Contents</h3>
 <ul><li class="level1"><a href="#appendices_env-var">Environmental variable reference</a><ul><li class="level2"><a href="#autotoc_md0">Logging level details</a></li>
 <li class="level2"><a href="#autotoc_md1">Gather-scatter communication backend details</a></li>
+<li class="level2"><a href="#autotoc_md2">Coarray Fortran signaling mode details</a></li>
 </ul>
 </li>
 </ul>
@@ -134,6 +135,8 @@ Environmental variable reference</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_GS_COMM</code>   </td><td class="markdownTableBodyNone">Gather-scatter communication backend   </td><td class="markdownTableBodyNone">Unset    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>NEKO_GS_CAF_SIGNALING</code>   </td><td class="markdownTableBodyNone">Coarray Fortran gather-scatter signaling mode   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_COMM_ID</code>   </td><td class="markdownTableBodyNone">Communicator id for this process (non-negative integer)   </td><td class="markdownTableBodyNone">0   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md0"></a>
@@ -153,7 +156,16 @@ Gather-scatter communication backend details</h2>
 <li><code>NEKO_GS_COMM=MPI</code> : Host based MPI</li>
 <li><code>NEKO_GS_COMM=MPIGPU</code> : Device based MPI</li>
 <li><code>NEKO_GS_COMM=NCCL</code> : NCCL/RCCL using its point-to-point interface</li>
-<li><code>NEKO_GS_COMM=SHMEM</code> : NVSHMEM based (for NVIDIA GPUs) </li>
+<li><code>NEKO_GS_COMM=SHMEM</code> : NVSHMEM based (for NVIDIA GPUs)</li>
+<li><code>NEKO_GS_COMM=CAF</code> : Coarray Fortran (requires a coarray-capable compiler)</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md2"></a>
+Coarray Fortran signaling mode details</h2>
+<p>When <code>NEKO_GS_COMM=CAF</code>, the per-pair synchronisation strategy is selected by <code>NEKO_GS_CAF_SIGNALING</code>. The mode is bound on the first gather-scatter initialisation and cannot change thereafter. The default (when unset) is <code>sync</code>.</p>
+<ul>
+<li><code>NEKO_GS_CAF_SIGNALING=sync</code> : <code>sync images</code> over the union of neighbour pairs, with a double-buffered receive coarray (F2008).</li>
+<li><code>NEKO_GS_CAF_SIGNALING=atomic</code> : Per-pair atomic counters via <code>atomic_define</code>/<code>atomic_ref</code> with a busy-wait spin (F2008).</li>
+<li><code>NEKO_GS_CAF_SIGNALING=event</code> : F2018 events (<code>event post</code> / <code>event wait</code>); requires a runtime that implements F2018 event semantics. </li>
 </ul>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
@@ -162,7 +174,7 @@ Gather-scatter communication backend details</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Wed May 13 2026 04:48:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu May 14 2026 04:47:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -702,6 +702,9 @@ var annotated_dup =
       [ "gs_gather", "d3/de4/interfacegs__bcknd_1_1gs__gather.html", "d3/de4/interfacegs__bcknd_1_1gs__gather" ],
       [ "gs_scatter", "d2/df0/interfacegs__bcknd_1_1gs__scatter.html", "d2/df0/interfacegs__bcknd_1_1gs__scatter" ]
     ] ],
+    [ "gs_caf", "df/dd5/namespacegs__caf.html", [
+      [ "gs_caf_t", "d1/d7a/structgs__caf_1_1gs__caf__t.html", "d1/d7a/structgs__caf_1_1gs__caf__t" ]
+    ] ],
     [ "gs_comm", "d6/d7c/namespacegs__comm.html", [
       [ "gs_comm_free", "dc/dc5/interfacegs__comm_1_1gs__comm__free.html", "dc/dc5/interfacegs__comm_1_1gs__comm__free" ],
       [ "gs_comm_init", "d8/db4/interfacegs__comm_1_1gs__comm__init.html", "d8/db4/interfacegs__comm_1_1gs__comm__init" ],

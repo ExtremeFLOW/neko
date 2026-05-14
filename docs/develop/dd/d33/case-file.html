@@ -102,68 +102,68 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md71">High-level structure</a></li>
-<li class="level1"><a href="#autotoc_md72">Output frequency control</a></li>
-<li class="level1"><a href="#autotoc_md73">The case object</a><ul><li class="level2"><a href="#autotoc_md74">Constants</a></li>
-<li class="level2"><a href="#autotoc_md75">Time control</a></li>
-<li class="level2"><a href="#autotoc_md76">Restarts and joblimit</a></li>
-<li class="level2"><a href="#autotoc_md77">Boundary type numbering in the &quot;output_boundary&quot; field</a></li>
+<ul><li class="level1"><a href="#autotoc_md72">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md73">Output frequency control</a></li>
+<li class="level1"><a href="#autotoc_md74">The case object</a><ul><li class="level2"><a href="#autotoc_md75">Constants</a></li>
+<li class="level2"><a href="#autotoc_md76">Time control</a></li>
+<li class="level2"><a href="#autotoc_md77">Restarts and joblimit</a></li>
+<li class="level2"><a href="#autotoc_md78">Boundary type numbering in the &quot;output_boundary&quot; field</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md78">Numerics</a></li>
-<li class="level1"><a href="#case-file_fluid">Fluid</a><ul><li class="level2"><a href="#autotoc_md79">Material properties</a></li>
-<li class="level2"><a href="#autotoc_md80">Compressible flows</a><ul><li class="level3"><a href="#autotoc_md81">Compressible boundary conditions</a></li>
+<li class="level1"><a href="#autotoc_md79">Numerics</a></li>
+<li class="level1"><a href="#case-file_fluid">Fluid</a><ul><li class="level2"><a href="#autotoc_md80">Material properties</a></li>
+<li class="level2"><a href="#autotoc_md81">Compressible flows</a><ul><li class="level3"><a href="#autotoc_md82">Compressible boundary conditions</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#autotoc_md82">Turbulence modelling</a></li>
-<li class="level2"><a href="#case-file_fluid-boundary-conditions">Boundary conditions</a><ul><li class="level3"><a href="#autotoc_md83">Specifying the boundaries</a></li>
-<li class="level3"><a href="#autotoc_md84">Available conditions</a></li>
+<li class="level2"><a href="#autotoc_md83">Turbulence modelling</a></li>
+<li class="level2"><a href="#case-file_fluid-boundary-conditions">Boundary conditions</a><ul><li class="level3"><a href="#autotoc_md84">Specifying the boundaries</a></li>
+<li class="level3"><a href="#autotoc_md85">Available conditions</a></li>
 <li class="level3"><a href="#most-wall-model">MOST wall model</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#richardson-wall-model">Richardson wall model</a></li>
 <li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
-<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md85">Brinkman</a></li>
-<li class="level3"><a href="#autotoc_md86">Gradient Jump Penalty</a></li>
-<li class="level3"><a href="#autotoc_md87">Sponge</a></li>
+<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md86">Brinkman</a></li>
+<li class="level3"><a href="#autotoc_md87">Gradient Jump Penalty</a></li>
+<li class="level3"><a href="#autotoc_md88">Sponge</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#case-file_fluid-ale">Arbitrary Lagrangian-Eulerian Framework</a><ul><li class="level3"><a href="#case-file_fluid-ale-solver">Solver</a><ul><li class="level4"><a href="#autotoc_md88">Output Files and Diagnostics</a></li>
+<li class="level2"><a href="#case-file_fluid-ale">Arbitrary Lagrangian-Eulerian Framework</a><ul><li class="level3"><a href="#case-file_fluid-ale-solver">Solver</a><ul><li class="level4"><a href="#autotoc_md89">Output Files and Diagnostics</a></li>
 </ul>
 </li>
-<li class="level3"><a href="#autotoc_md89">Mesh preview</a></li>
-<li class="level3"><a href="#autotoc_md90">Bodies</a><ul><li class="level4"><a href="#autotoc_md91">Oscillation</a></li>
-<li class="level4"><a href="#autotoc_md92">Rotation</a></li>
+<li class="level3"><a href="#autotoc_md90">Mesh preview</a></li>
+<li class="level3"><a href="#autotoc_md91">Bodies</a><ul><li class="level4"><a href="#autotoc_md92">Oscillation</a></li>
+<li class="level4"><a href="#autotoc_md93">Rotation</a></li>
 <li class="level4"><a href="#case-file_fluid-ale-pivot">Pivot</a></li>
 <li class="level4"><a href="#case-file_fluid_ale_stiff_geom">Mesh Stiffness</a></li>
 </ul>
 </li>
-<li class="level3"><a href="#autotoc_md93">Restarting ALE simulations</a></li>
+<li class="level3"><a href="#autotoc_md94">Restarting ALE simulations</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md94">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md95">Multilevel preconditioners</a></li>
-<li class="level2"><a href="#autotoc_md96">Flow rate forcing</a></li>
-<li class="level2"><a href="#autotoc_md97">Full parameter table</a></li>
+<li class="level1"><a href="#autotoc_md95">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md96">Multilevel preconditioners</a></li>
+<li class="level2"><a href="#autotoc_md97">Flow rate forcing</a></li>
+<li class="level2"><a href="#autotoc_md98">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md98">Material properties</a></li>
-<li class="level2"><a href="#autotoc_md99">Turbulence modelling</a></li>
-<li class="level2"><a href="#autotoc_md100">Boundary conditions</a></li>
-<li class="level2"><a href="#autotoc_md101">Initial conditions</a></li>
-<li class="level2"><a href="#autotoc_md102">Source terms</a></li>
-<li class="level2"><a href="#autotoc_md103">Linear solver configuration</a></li>
-<li class="level2"><a href="#autotoc_md104">Full parameter table</a></li>
+<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md99">Material properties</a></li>
+<li class="level2"><a href="#autotoc_md100">Turbulence modelling</a></li>
+<li class="level2"><a href="#autotoc_md101">Boundary conditions</a></li>
+<li class="level2"><a href="#autotoc_md102">Initial conditions</a></li>
+<li class="level2"><a href="#autotoc_md103">Source terms</a></li>
+<li class="level2"><a href="#autotoc_md104">Linear solver configuration</a></li>
+<li class="level2"><a href="#autotoc_md105">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md105">Simulation components</a></li>
-<li class="level1"><a href="#autotoc_md106">Point zones</a></li>
-<li class="level1"><a href="#autotoc_md107">Runtime statistics</a></li>
+<li class="level1"><a href="#autotoc_md106">Simulation components</a></li>
+<li class="level1"><a href="#autotoc_md107">Point zones</a></li>
+<li class="level1"><a href="#autotoc_md108">Runtime statistics</a></li>
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
-<h1><a class="anchor" id="autotoc_md71"></a>
+<h1><a class="anchor" id="autotoc_md72"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
 <div class="fragment"><div class="line">{</div>
@@ -180,7 +180,7 @@ High-level structure</h1>
 <div class="line">}</div>
 </div><!-- fragment --><p> Neko also supports multiple scalar fields, using the keyword <code>scalars</code> in the case object. Users can define multiple scalar fields, and each field can have its own boundary conditions, source terms, and solver settings. When using multiple scalar fields, the <code>name</code> property of each scalar field is used to identify the scalar field in the user file, defaulted to <code>s_1, s_2, ...</code>.</p>
 <p>The <code>version</code> keyword is reserved to track changes in the format of the file. The subsections below list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
-<h1><a class="anchor" id="autotoc_md72"></a>
+<h1><a class="anchor" id="autotoc_md73"></a>
 Output frequency control</h1>
 <p>A common scheme for controlling the output frequency is applied for various outputs. It is described already now in order to clarify the meaning of several parameters found in the tables below.</p>
 <p>The frequency is controlled by two parameters, ending with <code>_control</code> and <code>_value</code>, respectively. The latter name is perhaps not ideal, but it is somewhat difficult to come up with a good one, suggestions are welcome.</p>
@@ -190,7 +190,7 @@ Output frequency control</h1>
 <li><code>nsamples</code>, then <code>_value</code> is the total number of outputs that will be performed in the course of the simulation.</li>
 <li><code>never</code>, then <code>_value</code> is ignored and output is never performed.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md73"></a>
+<h1><a class="anchor" id="autotoc_md74"></a>
 The case object</h1>
 <p>This object is mostly used as a high-level container for all the other objects, but also defines several parameters that pertain to the simulation as a whole.</p>
 <table class="markdownTable">
@@ -239,7 +239,7 @@ The case object</h1>
 <p>If <code>output_at_end</code> is set to <code>true</code>, an additional write is performed after the execution of the simulation time-loop is finished. This triggers most outputs, like the fluid solvers, the checkpoint, etc. Note that if your case settings are such that a particular output is written at the last time step regardless of <code>output_at_end</code> (e.g. <code>end_time: 5</code>, <code>checkpoint_value: 5</code>, <code>checkpoint_control: simulationtime</code> ) you will get two outputs with the same values: one from your ordinary write and one triggered by <code>output_at_end</code>.</p>
 <dl class="section note"><dt>Note</dt><dd>This has a rather detrimental effect on outputs from various statistics-related <a class="el" href="../../d3/d84/simcomps.html">simulation components</a>. Since the collected statistics are reset on write, the data written by <code>output_at_end</code> will be just zeroes.</dd></dl>
 <p>The purpose of <code>job_timelimit</code> is to gracefully stop the simulation in a typical supercomputer environment, where your runtime is limited. When Neko detects that the time of the run exceeds the <code>job_timelimit</code>, it exits the time-loop. At this point, if one sets <code>output_at_end</code> to <code>true</code>, this will trigger a write as per usual. However, if <code>output_at_end</code> is <code>false</code>, Neko will still write a special checkpoint file, with the filename called <code>joblimit#####.chkp</code>. This is done so that the user is at least provided a restart file, and none of the computer time spent on the simulation is wasted. Generally, however, it is recommended to have <code>output_at_end</code> set to <code>true</code> in tandem with <code>job_timelimit</code>, so that what exactly gets written is controlled by the case file settings.</p>
-<h2><a class="anchor" id="autotoc_md74"></a>
+<h2><a class="anchor" id="autotoc_md75"></a>
 Constants</h2>
 <p>The <code>constants</code> array allows the user to define parameters that are global to the case file, and can be referred to when setting the values of other parameters. Two types of parameters can be defined: scalars and arrays. Each is represented as a subobject inside the <code>constants</code> object and should containt two entries: <code>name</code> and <code>value</code>. Here is an example:</p>
 <div class="fragment"><div class="line">&quot;constants&quot;:</div>
@@ -271,7 +271,7 @@ Constants</h2>
 <div class="line">}</div>
 </div><!-- fragment --><p> The advantage is that this guarantees that the fluid and scalar output will be in sync, and if one wants to change the frequency only does that in one place in the case file. Another use case is demonstrated in the <code>hemi</code> example, where the freestream velocity is defined under <code>constants</code> and then used to setup both initial and boundary conditions.</p>
 <p>Under the hood, Neko stores the constants in an object called <code>neko_const_registry</code>, which is of the type <code>registry_t</code> (same as <code>neko_registry</code>). The object is accessible in the <a class="el" href="../../d6/def/user-file.html">user file</a>.</p>
-<h2><a class="anchor" id="autotoc_md75"></a>
+<h2><a class="anchor" id="autotoc_md76"></a>
 Time control</h2>
 <p>The <code>time</code> object is used to define the time-stepping of the simulation, including the time-step size, the start and end time, and the variables related to the variable time-stepping algorithm. For the variable timestep, one can specify a <code>timestep</code>, such that the first timestep will be assigned to the smallest of <code>timestep</code> and the value calculated from the target CFL number.</p>
 <table class="markdownTable">
@@ -308,11 +308,11 @@ Time control</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>cfl_running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md76"></a>
+<h2><a class="anchor" id="autotoc_md77"></a>
 Restarts and joblimit</h2>
 <p>Restarts will restart the simulation from the exact state at a given time that the checkpoint was written. This means that the flow field and potential scalars will be at the exact same values before as after restarts. However, derived quantities from the flow field and any observables are not guaranteed to be restarted. In addition, Neko does not guarantee that any files are not overwritten. As such, it is recommended to run in different directories if doing large scale simulations that require many restarts. Unless <code>output_at_end</code> is disabled Neko will also ensure that all output is written to file when reaching the <code>end_time</code> or the <code>job_timelimit</code>. In particular, unless <code>output_checkpoints</code> and <code>output_at_end</code> are set to false a checkpoint at the final time will be written as to avoid losing progress as far as possible.</p>
 <dl class="section attention"><dt>Attention</dt><dd>For simulations requiring restarts, it is recommended to run each restart in a different output directory as a precaution to avoid potential overwritings of files.</dd></dl>
-<h2><a class="anchor" id="autotoc_md77"></a>
+<h2><a class="anchor" id="autotoc_md78"></a>
 Boundary type numbering in the "output_boundary" field</h2>
 <p>When the <code>output_boundary</code> setting is set to <code>true</code>, and additional <code>.fld</code> file will be stored in the beginning of the simulation, where the recognized boundary conditions for the fluid will be marked with an integer number. This is a good way to debug the simulation setup. The value of the number depends on the type of the boundary as follows.</p>
 <table class="markdownTable">
@@ -342,7 +342,7 @@ Boundary type numbering in the "output_boundary" field</h2>
 <td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a> (moving wall)   </td><td class="markdownTableBodyNone">12   </td></tr>
 </table>
 <p>For a description of the boundary conditions themselves, see below.</p>
-<h1><a class="anchor" id="autotoc_md78"></a>
+<h1><a class="anchor" id="autotoc_md79"></a>
 Numerics</h1>
 <p>Used to define the properties of the numerical discretization.</p>
 <table class="markdownTable">
@@ -364,7 +364,7 @@ Numerics</h1>
 <h1><a class="anchor" id="case-file_fluid"></a>
 Fluid</h1>
 <p>The configuration of the fluid solver and the flow problem. Contains multiple subobjects for various parts of the setup.</p>
-<h2><a class="anchor" id="autotoc_md79"></a>
+<h2><a class="anchor" id="autotoc_md80"></a>
 Material properties</h2>
 <p>As per the governing equations, Neko requires the value of the density and dynamic viscosity to define the flow problem. These can be provided as <code>rho</code> and <code>mu</code> in the case file.</p>
 <p>Alternatively, one may opt to provide the Reynolds number, <code>Re</code>, which corresponds to a non-dimensional formulation of the Navier-Stokes equations. This formulation can effectively be obtained by setting \( \rho = 1 \) and \(
@@ -372,7 +372,7 @@ Material properties</h2>
 <p>Note that if both <code>Re</code> and any of the dimensional material properties are provided, the simulation will issue an error.</p>
 <p>As an alternative to providing material properties in the case file, it is possible to do that in a special routine in the user file. This is demonstrated in the <code>rayleigh_benard_cylinder</code> example. Ultimately, both <code>rho</code> and <code>mu</code> have to be set in the subroutine. Additionally, this allows to change the material properties in time. Yet another options is to directly manipulate the case file programmatically in the <code>user_startup</code> routine and inject the material properties there. This is demonstrated in the <code>rayleigh_benard</code> example.</p>
 <p>When material properties are constant or only vary in time, one can use the simplified form of the viscous stress tensor in the governing equations. However, when there are spatial variations, it is necessary to use the general (full) form. The variation may come, for example, due to a turbulence model, the modifications in the above-mentioned user routine. The general form of the stress tensor requires solving the 3 equations for the velocity components in a coupled manner, which requires an appropriate linear solver. By default, Neko will use the simplified form of the tensor, and the full one must be selected by the user by setting <code>full_stress_formulation</code> to true.</p>
-<h2><a class="anchor" id="autotoc_md80"></a>
+<h2><a class="anchor" id="autotoc_md81"></a>
 Compressible flows</h2>
 <p>Neko supports compressible flow simulations via the compressible solver. To enable compressible flow, set <code>"scheme": "compressible"</code> in the fluid configuration. This solver integrates the compressible Euler equations (full Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time integration scheme with artificial viscosity for stability.</p>
 <p>The compressible solver requires the following parameters:</p>
@@ -426,7 +426,7 @@ Compressible flows</h2>
 <div class="line">    &quot;c_avisc_entropy&quot;: 0.5</div>
 <div class="line">  }</div>
 <div class="line">}</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md81"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md82"></a>
 Compressible boundary conditions</h3>
 <p>The compressible solver supports the following boundary conditions:</p>
 <table class="markdownTable">
@@ -448,21 +448,21 @@ Compressible boundary conditions</h3>
 <td class="markdownTableBodyNone">normal_outflow   </td><td class="markdownTableBodyNone">Normal outflow condition   </td></tr>
 </table>
 <p>For examples of compressible flow setups, see the <code>euler_1d_sod</code>, <code>euler_2d_forward_facing_step</code>, and <code>euler_tgv</code> examples.</p>
-<h2><a class="anchor" id="autotoc_md82"></a>
+<h2><a class="anchor" id="autotoc_md83"></a>
 Turbulence modelling</h2>
 <p>Neko currently provides several LES models via the <code><a class="el" href="../../dd/dfc/namespaceles__model.html" title="Implements les_model_t.">les_model</a></code> simulation component. The simcomp computes the viscosity and stores in the field registry under the name selected in the case file. For more details, see the documentation of the simcomp. To enable LES in the fluid solver, one simply has to add the <code>nut_field</code> keyword to the configuration and set it to the name of the field generated by the <code><a class="el" href="../../dd/dfc/namespaceles__model.html" title="Implements les_model_t.">les_model</a></code> simcomp. This will automatically change the governing equations to feature the full viscous stress tensor, as required for a variable viscosity field.</p>
 <p>Note that the full viscous stress tensor requires the equations for the 3 velocity components to be solved in a coupled manner. Therefore, the <code>coupled_cg</code> (or <code>fused_coupled_cg</code>) solver should be used for velocity.</p>
 <h2><a class="anchor" id="case-file_fluid-boundary-conditions"></a>
 Boundary conditions</h2>
 <p>The optional <code>boundary_conditions</code> keyword can be used to specify boundary conditions. The reason for it being optional, is that periodic boundary conditions are built into the definition of the mesh, so for a periodic box nothings needs to be added to the case file. The TGV example is such a case, for instance. The value of the keyword is an array of JSON objects, each specifying a single boundary condition.</p>
-<h3><a class="anchor" id="autotoc_md83"></a>
+<h3><a class="anchor" id="autotoc_md84"></a>
 Specifying the boundaries</h3>
 <p>In Neko we usually refer to boundaries as "zones", which in this case are face zones, i.e. a collection of element faces. Which zones the boundary condition is applied to is controlled by the <code>zone_indices</code> keyword, which takes an array of integers. It is up to the user whether to apply a single condition to multiple zones or specify several conditions applied to one zone each. For example, if you have two zones, which should be no-slip walls, you can either create two <code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code> conditions, one for each zone, or just create a single condition and apply it to both.</p>
 <p>The indices your boundaries have is determined by the mesh. To check them, you can use the <code>mesh_checker</code> utility with the optional <code>--write_zone_indices</code> argument. This will output a <code>zone_indices0.f00000</code> file that you can inspect in Paraview, and the boundaries will be marked by their index value.</p>
 <p>Recall that periodic conditions are built into the mesh, since they are topological in nature. This means that you must not specify any conditions for the corresponding zones. For example, in the <code>turb_pipe</code> example, which is a periodic pipe simulation, two periodic zones comprise the boundary conditions in the streamwise direction. Only one condition, corresponding to zone index 3 (the wall) is the specified in the case file.</p>
 <p>It is possible to assign specific names to the boundary conditions through the <code>name</code> keyword. Boundary conditions can then be retireved in the code by using the name or the <code>zone_index</code> where it is applied.</p>
 <p>The default name of the boundary conditions is given by the <code>&lt;variable&gt;_bc_&lt;zone_index&gt;</code> pattern. i.e., the pressure boundary condition that applies in zone index 5 can be retrieved by the <code>pressure_bc_5</code> name.</p>
-<h3><a class="anchor" id="autotoc_md84"></a>
+<h3><a class="anchor" id="autotoc_md85"></a>
 Available conditions</h3>
 <p>The conditions to apply is specified by <code>type</code> keyword inside each of the JSON objects. The full list of possible conditions for the fluid is specified in the table below.</p>
 <table class="markdownTable">
@@ -795,7 +795,7 @@ Source terms</h2>
 <p class="startli">Note that in this case, we still solve for the absolute velocity, not the relative one. It is simply advection that is affected. Useful to perform simulations on domains that are moving on a periodic direction.</p>
 </li>
 </ol>
-<h3><a class="anchor" id="autotoc_md85"></a>
+<h3><a class="anchor" id="autotoc_md86"></a>
 Brinkman</h3>
 <p>The Brinkman source term introduces regions of resistance in the fluid domain. The volume force \( f_i \) applied in the selected regions are proportional to the fluid velocity component \( u_i \).</p>
 <p class="formulaDsp">
@@ -877,7 +877,7 @@ Brinkman</h3>
 <div class="line">      }</div>
 <div class="line">   }</div>
 <div class="line">]</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md86"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md87"></a>
 Gradient Jump Penalty</h3>
 <p>The optional <code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code> object can be used to perform gradient jump penalty as an continuous interior penalty option. The penalty term is performed on the weak form equation of quantity \( T \) (could either be velocity or scalar) as a right hand side term</p>
 <p>\( - &lt; \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}&gt;\),</p>
@@ -893,7 +893,7 @@ Gradient Jump Penalty</h3>
 <li><code>scaling_factor</code>, the scaling parameter \( a \) for \( P &gt; 1 \), default to be <code>0.8</code>.</li>
 <li><code>scaling_exponent</code>, the scaling parameter \( b \) for \( P &gt; 1 \), default to be <code>4.0</code>.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md87"></a>
+<h3><a class="anchor" id="autotoc_md88"></a>
 Sponge</h3>
 <p>The sponge source term adds a term to each of the momentum equations of the form</p>
 <p>\( \mathbf{\lambda} f(\mathbf{x}) ( \mathbf{u}^{bf} - \mathbf{u}) \)</p>
@@ -1197,7 +1197,7 @@ Solver</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyLeft"><code>output_stiffness</code>   </td><td class="markdownTableBodyLeft">Enables output of the computed mesh stiffness field \( h(\mathbf{x}) \)   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>   </td></tr>
 </table>
-<h4><a class="anchor" id="autotoc_md88"></a>
+<h4><a class="anchor" id="autotoc_md89"></a>
 Output Files and Diagnostics</h4>
 <p>If the output flags are enabled, Neko will generate <code>.fld</code> files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:</p>
 <ul>
@@ -1207,7 +1207,7 @@ Output Files and Diagnostics</h4>
 </ul>
 <dl class="section attention"><dt>Attention</dt><dd>Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \( \phi_{total} \) is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's <code>absolute_tolerance</code> is set appropriately.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>It is also possible to provide a custom base shape \( \phi \) using a <code>user_ale_base_shapes</code> user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting <code>"output_base_shape": true</code> will still write your custom user shapes to <code>.fld</code> files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found <a class="el" href="../../d6/def/user-file.html#user-file_ale-base-shapes">here</a>.</dd></dl>
-<h3><a class="anchor" id="autotoc_md89"></a>
+<h3><a class="anchor" id="autotoc_md90"></a>
 Mesh preview</h3>
 <p>One of the available features in the Neko ALE module is the Mesh Preview. This allows users to investigate mesh quality over time <b>without</b> running an expensive full fluid simulation. The preview applies the exact same prescribed motion configured by the user, ensuring the visualized mesh motion perfectly mirrors what will happen during the actual simulation. Enabling this feature generates <code>.fld</code> files named <code>mesh_preview0.f*****</code>, which contain the deformed mesh and the mass matrix.</p>
 <p>The <code>"mesh_preview"</code> block accepts the following keywords:</p>
@@ -1228,7 +1228,7 @@ Mesh preview</h3>
 <dl class="section attention"><dt>Attention</dt><dd>The <code>"mesh_preview"</code> feature is strictly a pre-processing step. Once the preview completes, whether successfully or due to a failure, the Neko run will terminate and output a corresponding success or failure message. To proceed with the actual fluid simulation, the user <b>must</b> set <code>"mesh_preview.enabled: false"</code> in order for the actual simulation to run. Additionally, if the solver detects an inverted mesh element during the preview phase, it will save the exact time step at which the Jacobian becomes negative to assist with debugging.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The <code>"mesh_preview"</code> feature uses the same time integration order as defined in <code>"case.numerics.time_order"</code>. However, the <code>start_time</code>, <code>end_time</code>, constant <code>dt</code>, and <code>output_freq</code> parameters must be explicitly defined within the <code>"mesh_preview"</code> block itself.</dd></dl>
 <dl class="section attention"><dt>Attention</dt><dd>When the ALE module is <code>enabled</code>, Neko will <b>always</b> save the mesh in the <code>.fld</code> files at every output step.</dd></dl>
-<h3><a class="anchor" id="autotoc_md90"></a>
+<h3><a class="anchor" id="autotoc_md91"></a>
 Bodies</h3>
 <p>The <code>"bodies"</code> block defines an array of objects, where each object represents an individually controlled ALE body. Each body must map to corresponding physical boundary zone using <code>"bodies.zone_indices"</code>.</p>
 <p>Each individual body object accepts the following general keywords and base kinematics:</p>
@@ -1250,7 +1250,7 @@ Bodies</h3>
 </table>
 <dl class="section attention"><dt>Attention</dt><dd>The body_ID for ALE bodies is defined based on the order in which they are added to the <code>"bodies"</code> array, not based on their <code>"zone_indices"</code>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>If multiple moving <code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code> zone IDs are assigned to <code>"zone_indices"</code> of a single ALE body, the code will treat all those boundaries as a unified rigid body.</dd></dl>
-<h4><a class="anchor" id="autotoc_md91"></a>
+<h4><a class="anchor" id="autotoc_md92"></a>
 Oscillation</h4>
 <p>The <code>"oscillation"</code> sub-object defines the harmonic translational motion of the body. It takes the following mandatory keywords:</p>
 <table class="markdownTable">
@@ -1270,7 +1270,7 @@ Oscillation</h4>
 \end{eqnarray*}
 </p>
 <p>where \( A_i \) is the <code>oscillation.amplitude</code> and \( f_i \) is the <code>oscillation.frequency</code> for that specific direction.</p>
-<h4><a class="anchor" id="autotoc_md92"></a>
+<h4><a class="anchor" id="autotoc_md93"></a>
 Rotation</h4>
 <p>If the body undergoes rotational motion, the <code>"rotation"</code> sub-object can be configured. Depending on the <code>rotation.type</code>, different parameters become applicable:</p>
 <table class="markdownTable">
@@ -1442,11 +1442,11 @@ Mesh Stiffness</h4>
 </ul>
 <dl class="section attention"><dt>Attention</dt><dd>Within the region defined by <code>radius</code> (from the center) or <code>stiff_dist</code> (from the boundary), the mesh stiffness is at its highest. If the <code>gain</code> parameter is set large enough, the mesh within this region moves rigidly with the body, preserving its original element quality without deformation. Users are encouraged to check the <code>ocyl_cylinder3D</code>, <code>ocyl_ellipse3D</code>, and <code>Double_ocyl_cylinder</code> examples to get a better idea of how these parameters are configured in practice.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Setting a very large value for <code>gain</code> (e.g., <code>1.0e6</code>) is recommended if the mesh immediately surrounding the body is intended to be fully rigid (i.e., \( \phi_i \approx 1 \)). Conversely, if two moving objects are in close proximity, the <code>gain</code> should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated <code>phi_total0.f00000</code> file, and checking the mesh quality using <code>mesh_preview</code> are highly recommended.</dd></dl>
-<h3><a class="anchor" id="autotoc_md93"></a>
+<h3><a class="anchor" id="autotoc_md94"></a>
 Restarting ALE simulations</h3>
 <p>Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving <code>.chkp</code> files.</p>
 <dl class="section attention"><dt>Attention</dt><dd>A <code>.chkp</code> file generated from a standard static simulation (i.e., <code>"ale.enabled": false</code>) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an <code>initial_condition</code> for a subsequent ALE simulation. In this case, saving the file in <code>double precision</code> is recommended.</dd></dl>
-<h1><a class="anchor" id="autotoc_md94"></a>
+<h1><a class="anchor" id="autotoc_md95"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
 <ul>
@@ -1476,7 +1476,7 @@ Linear solver configuration</h1>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
 <p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated. This can in some situations cause issues if the initial condition is far from a valid solution. Therefore a user can allow an initial stabilization phase by setting the <code>case.fluid.allow_stabilization</code> keyword to <code>true</code>. In this case, the strict convergence will be ignored untill all components of the velocity field converge within the specified tolerance. After this initial stabilization phase, strict convergence will be enforced for the rest of the simulation.</p>
-<h2><a class="anchor" id="autotoc_md95"></a>
+<h2><a class="anchor" id="autotoc_md96"></a>
 Multilevel preconditioners</h2>
 <p>The multilevel preconditioners, <code>hsmg</code> and <code>phmg</code>, come with an additional set of parameters related to the solution of the coarse grid problem. These parameters are specified as a <code>coarse_grid</code> block under <code>preconditioner</code>.</p>
 <p>For <code>hsmg</code>, the following keywords are used:</p>
@@ -1515,7 +1515,7 @@ Multilevel preconditioners</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">4   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md96"></a>
+<h2><a class="anchor" id="autotoc_md97"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
 <ul>
@@ -1524,7 +1524,7 @@ Flow rate forcing</h2>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
 <li><code>log</code>, whether to print the flow-rate forcing log message each time the forcing is adjusted. Defaults to <code>true</code>.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md97"></a>
+<h2><a class="anchor" id="autotoc_md98"></a>
 Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
@@ -1636,11 +1636,11 @@ Full parameter table</h2>
 <h1><a class="anchor" id="case-file_scalar"></a>
 Scalar</h1>
 <p>The scalar object allows to add a scalar transport equation to the solution. The solution variable is called <code>s</code> by default, but can be controlled by the <code>field_name</code> entry in the case file. In the fld files, it is saved as <code>temperature</code>. Some properties of the object are inherited from <code>fluid</code>: the value of the density, and the output control.</p>
-<h2><a class="anchor" id="autotoc_md98"></a>
+<h2><a class="anchor" id="autotoc_md99"></a>
 Material properties</h2>
 <p>The scalar equation requires defining additional material properties: the specific heat capacity and thermal conductivity. These are provided as <code>cp</code> and <code>lambda</code>. Similarly to the fluid, one can provide the Peclet number, <code>Pe</code>, as an alternative. In this case, <code>cp</code> is set to 1 and <code>lambda</code> to the inverse of <code>Pe</code>.</p>
 <p>Different from the setup in the fluid, turbulence modelling is enabled by setting the <code>alphat</code> json entry.</p>
-<h2><a class="anchor" id="autotoc_md99"></a>
+<h2><a class="anchor" id="autotoc_md100"></a>
 Turbulence modelling</h2>
 <p>The user could choose to either relate the eddy diffusivity field to the eddy viscosity field in the Fluid, or model the eddy diffusivity field by some particular SGS models, by setting up the <code>nut_dependency</code> entry. If the eddy diffusivity field is associated to the eddy viscosity field by a coefficient <code>Pr_t</code>, the eddy viscosity values will be divided by it to produce eddy diffusivity. And the corresponding setting could be done by the following:</p>
 <div class="fragment"><div class="line">&quot;alphat&quot;:{</div>
@@ -1653,7 +1653,7 @@ Turbulence modelling</h2>
 <div class="line">    &quot;nut_dependency&quot;: false,</div>
 <div class="line">    &quot;alphat_field&quot;: &quot;temperature_alphat&quot;</div>
 <div class="line">},</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md100"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md101"></a>
 Boundary conditions</h2>
 <p>The boundary conditions for the scalar are specified through the <code>boundary_conditions</code> keyword, which follows the same format as the fluid, for specifying the type of the condition and where it is applied. Four types of conditions are available for the scalar:</p>
 <ul>
@@ -1675,7 +1675,7 @@ Boundary conditions</h2>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md101"></a>
+<h2><a class="anchor" id="autotoc_md102"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
@@ -1684,13 +1684,13 @@ Initial conditions</h2>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><code>field</code>, where the initial condition is retrieved from a field file. Works in the same way as for the fluid. See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid section</a> for detailed explanations.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md102"></a>
+<h2><a class="anchor" id="autotoc_md103"></a>
 Source terms</h2>
 <p>The configuration of source terms is the same as for the fluid. A demonstration of using source terms for the scalar can be found in the <code>scalar_mms</code> example.</p>
-<h2><a class="anchor" id="autotoc_md103"></a>
+<h2><a class="anchor" id="autotoc_md104"></a>
 Linear solver configuration</h2>
 <p>Should be provided as an object under the <code>solver</code> keyword. For available configuration options, see the corresponding documentation for the fliud. A standard choice would be <code>"type": "cg"</code> and <code>"preconditioner": "jacobi"</code>.</p>
-<h2><a class="anchor" id="autotoc_md104"></a>
+<h2><a class="anchor" id="autotoc_md105"></a>
 Full parameter table</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -1740,16 +1740,16 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the scalar equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md105"></a>
+<h1><a class="anchor" id="autotoc_md106"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md106"></a>
+<h1><a class="anchor" id="autotoc_md107"></a>
 Point zones</h1>
 <p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md107"></a>
+<h1><a class="anchor" id="autotoc_md108"></a>
 Runtime statistics</h1>
 <p>This object adds the collection of runtime statistics (timings) for identified profiling regions. A region is defined as all functions between a call to <code>profiler_start_region(name, id)</code> and <code>profiler_end_region(name, id)</code>. Neko currently supports 50 regions, with id 1..25 being reserved for internal use.</p>
 <table class="markdownTable">
@@ -1767,7 +1767,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed May 13 2026 04:48:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu May 14 2026 04:47:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

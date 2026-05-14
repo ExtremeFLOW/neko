@@ -8,6 +8,7 @@ var checkpoint_8f90 =
     [ "chkp_free", "d3/d71/checkpoint_8f90.html#a47098711c5654f34b1e72a8eba70cb79", null ],
     [ "chkp_init", "d3/d71/checkpoint_8f90.html#aabfb09926b3f1edc7ef5054ec1d87a0b", null ],
     [ "chkp_restart_time", "d3/d71/checkpoint_8f90.html#a4690a123d6f80666a70b4783269d2c82", null ],
+    [ "chkp_set_time_state", "d3/d71/checkpoint_8f90.html#a2068c366fb503976f64212b0ab248496", null ],
     [ "chkp_sync_device", "d3/d71/checkpoint_8f90.html#a38c4f1cace722f21ad213214b4c5f87f", null ],
     [ "chkp_sync_host", "d3/d71/checkpoint_8f90.html#a0cb6e92dbde539c6a73f5942c924a40e", null ]
 ];
