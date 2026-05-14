@@ -1,6 +1,5 @@
-#ifndef CAISAGAUT_MODEL_II_KERNEL_H
-#define CAISAGAUT_MODEL_II_KERNEL_H
-
+#ifndef __WALL_MODELS_CAI_SAGAUT_MODEL_II_KERNEL_CL__
+#define __WALL_MODELS_CAI_SAGAUT_MODEL_II_KERNEL_CL__
 /*
  Copyright (c) 2026, The Neko Authors
  All rights reserved.
@@ -35,12 +34,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <cfloat>
-#include <algorithm>
-#include <cmath>
-
 /**
- * HIP kernel for the Caisagaut Model-II wall model.
+ * Device kernel for the OpenCL Cai & Sagaut Model-II wall model.
  * @param u_d The sampled x-velocity field.
  * @param v_d The sampled y-velocity field.
  * @param w_d The sampled z-velocity field.
@@ -64,36 +59,36 @@
  * @param p The blending exponent.
  * @param s The blending scale.
  */
-template<typename T>
-__global__ void caisagaut_model_ii_compute(const T * __restrict__ u_d,
-                                           const T * __restrict__ v_d,
-                                           const T * __restrict__ w_d,
-                                           const int * __restrict__ ind_r_d,
-                                           const int * __restrict__ ind_s_d,
-                                           const int * __restrict__ ind_t_d,
-                                           const int * __restrict__ ind_e_d,
-                                           const T * __restrict__ n_x_d,
-                                           const T * __restrict__ n_y_d,
-                                           const T * __restrict__ n_z_d,
-                                           const T * __restrict__ nu_d,
-                                           const T * __restrict__ rho_w_d,
-                                           const T * __restrict__ h_d,
-                                           T * __restrict__ tau_x_d,
-                                           T * __restrict__ tau_y_d,
-                                           T * __restrict__ tau_z_d,
-                                           const int n_nodes,
-                                           const int lx,
-                                           const T kappa,
-                                           const T B,
-                                           const T p,
-                                           const T s) {
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-  const T one = static_cast<T>(1.0);
-  const T eps = (sizeof(T) == sizeof(float)) ?
-    static_cast<T>(FLT_EPSILON) :
-    static_cast<T>(DBL_EPSILON);
-  const T e_const = exp(kappa * B);
+__kernel void cai_sagaut_model_ii_compute_kernel(
+    __global const real * __restrict__ u_d,
+    __global const real * __restrict__ v_d,
+    __global const real * __restrict__ w_d,
+    __global const int * __restrict__ ind_r_d,
+    __global const int * __restrict__ ind_s_d,
+    __global const int * __restrict__ ind_t_d,
+    __global const int * __restrict__ ind_e_d,
+    __global const real * __restrict__ n_x_d,
+    __global const real * __restrict__ n_y_d,
+    __global const real * __restrict__ n_z_d,
+    __global const real * __restrict__ nu_d,
+    __global const real * __restrict__ rho_w_d,
+    __global const real * __restrict__ h_d,
+    __global real * __restrict__ tau_x_d,
+    __global real * __restrict__ tau_y_d,
+    __global real * __restrict__ tau_z_d,
+    const int n_nodes,
+    const int lx,
+    const real kappa,
+    const real B,
+    const real p,
+    const real s) {
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+  const real one = (real) 1.0;
+  const real half = (real) 0.5;
+  const real eps = (sizeof(real) == sizeof(float)) ?
+    (real) FLT_EPSILON : (real) DBL_EPSILON;
+  const real e_const = exp(kappa * B);
 
   for (int i = idx; i < n_nodes; i += str) {
     const int index = (ind_e_d[i] - 1) * lx * lx * lx +
@@ -101,38 +96,37 @@ __global__ void caisagaut_model_ii_compute(const T * __restrict__ u_d,
       (ind_s_d[i] - 1) * lx +
       (ind_r_d[i] - 1);
 
-    T ui = u_d[index];
-    T vi = v_d[index];
-    T wi = w_d[index];
-    const T rho = rho_w_d[i];
-    const T nx = n_x_d[i];
-    const T ny = n_y_d[i];
-    const T nz = n_z_d[i];
+    real ui = u_d[index];
+    real vi = v_d[index];
+    real wi = w_d[index];
+    const real rho = rho_w_d[i];
+    const real nx = n_x_d[i];
+    const real ny = n_y_d[i];
+    const real nz = n_z_d[i];
 
-    const T normu = ui * nx + vi * ny + wi * nz;
+    const real normu = ui * nx + vi * ny + wi * nz;
     ui -= normu * nx;
     vi -= normu * ny;
     wi -= normu * nz;
 
-    const T magu = sqrt(ui * ui + vi * vi + wi * wi);
+    const real magu = sqrt(ui * ui + vi * vi + wi * wi);
 
     if (magu < eps) {
-      tau_x_d[i] = static_cast<T>(0.0);
-      tau_y_d[i] = static_cast<T>(0.0);
-      tau_z_d[i] = static_cast<T>(0.0);
+      tau_x_d[i] = (real) 0.0;
+      tau_y_d[i] = (real) 0.0;
+      tau_z_d[i] = (real) 0.0;
       continue;
     }
 
-    const T rey = magu * h_d[i] / nu_d[i];
-    const T blend = exp(-pow(rey / s, p));
-    const T warg = kappa * e_const * rey;
-    const T a = one /
-      (one + static_cast<T>(0.5) * log(one + warg));
-    T wlam = log(one + a * warg);
+    const real rey = magu * h_d[i] / nu_d[i];
+    const real blend = exp(-pow(rey / s, p));
+    const real warg = kappa * e_const * rey;
+    const real a = one / (one + half * log(one + warg));
+    real wlam = log(one + a * warg);
     wlam = wlam / (one + wlam) * (one + log(warg / wlam));
-    const T up = blend * sqrt(rey) +
-      (one - blend) * wlam / kappa;
-    const T utau = magu / (up + eps);
+
+    const real up = blend * sqrt(rey) + (one - blend) * wlam / kappa;
+    const real utau = magu / (up + eps);
 
     tau_x_d[i] = -rho * utau * utau * ui / (magu + eps);
     tau_y_d[i] = -rho * utau * utau * vi / (magu + eps);

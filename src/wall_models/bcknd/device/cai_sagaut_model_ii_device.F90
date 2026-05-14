@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Device dispatch for `caisagaut_model_ii_t`.
-module caisagaut_model_ii_device
+!> Device dispatch for `cai_sagaut_model_ii_t`.
+module cai_sagaut_model_ii_device
   use num_types, only : rp, c_rp
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error
@@ -40,10 +40,10 @@ module caisagaut_model_ii_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_caisagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
+     subroutine hip_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
           ind_s_d, ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, &
           h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s) &
-          bind(c, name = 'hip_caisagaut_model_ii_compute')
+          bind(c, name = 'hip_cai_sagaut_model_ii_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
@@ -53,14 +53,14 @@ module caisagaut_model_ii_device
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        real(c_rp) :: kappa, B, p, s
        integer(c_int) :: n_nodes, lx
-     end subroutine hip_caisagaut_model_ii_compute
+     end subroutine hip_cai_sagaut_model_ii_compute
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_caisagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
+     subroutine cuda_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
           ind_s_d, ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, &
           h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s) &
-          bind(c, name = 'cuda_caisagaut_model_ii_compute')
+          bind(c, name = 'cuda_cai_sagaut_model_ii_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
@@ -70,14 +70,14 @@ module caisagaut_model_ii_device
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        real(c_rp) :: kappa, B, p, s
        integer(c_int) :: n_nodes, lx
-     end subroutine cuda_caisagaut_model_ii_compute
+     end subroutine cuda_cai_sagaut_model_ii_compute
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_caisagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
+     subroutine opencl_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, &
           ind_s_d, ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, &
           h_d, tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s) &
-          bind(c, name = 'opencl_caisagaut_model_ii_compute')
+          bind(c, name = 'opencl_cai_sagaut_model_ii_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
@@ -87,10 +87,10 @@ module caisagaut_model_ii_device
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
        real(c_rp) :: kappa, B, p, s
        integer(c_int) :: n_nodes, lx
-     end subroutine opencl_caisagaut_model_ii_compute
+     end subroutine opencl_cai_sagaut_model_ii_compute
   end interface
 #endif
-  public :: caisagaut_model_ii_compute_device
+  public :: cai_sagaut_model_ii_compute_device
 
 contains
   !> Evaluate the device wall-model kernel for Model-II.
@@ -116,7 +116,7 @@ contains
   !! @param B The log-law intercept.
   !! @param p The blending exponent.
   !! @param s The blending scale.
-  subroutine caisagaut_model_ii_compute_device(u_d, v_d, w_d, ind_r_d, &
+  subroutine cai_sagaut_model_ii_compute_device(u_d, v_d, w_d, ind_r_d, &
        ind_s_d, ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
        tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s)
     integer, intent(in) :: n_nodes, lx
@@ -127,19 +127,19 @@ contains
     real(kind=rp), intent(in) :: kappa, B, p, s
 
 #if HAVE_HIP
-    call hip_caisagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
+    call hip_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
          ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s)
 #elif HAVE_CUDA
-    call cuda_caisagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
+    call cuda_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
          ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s)
 #elif HAVE_OPENCL
-    call opencl_caisagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
+    call opencl_cai_sagaut_model_ii_compute(u_d, v_d, w_d, ind_r_d, ind_s_d, &
          ind_t_d, ind_e_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, &
          tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, p, s)
 #else
     call neko_error('No device backend configured')
 #endif
-  end subroutine caisagaut_model_ii_compute_device
-end module caisagaut_model_ii_device
+  end subroutine cai_sagaut_model_ii_compute_device
+end module cai_sagaut_model_ii_device
