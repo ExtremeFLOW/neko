@@ -129,6 +129,7 @@ contains
     call neko_error('Neko was not built with OpenSHMEM support')
 #else
 
+call this%free()
     n = size(pe_order)
 
     allocate(this%ndofs(n))
