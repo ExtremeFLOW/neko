@@ -42,7 +42,7 @@ module iextm_time_scheme
   implicit none
   private
 
-  !> Explicit interface extrapolation scheme for overset girds.
+  !> Explicit interface extrapolation scheme for overset grids.
   type, public, extends(time_scheme_t) :: iextm_time_scheme_t
    contains
      !> Compute the scheme coefficients
@@ -52,7 +52,7 @@ module iextm_time_scheme
 contains
 
   !> Compute the scheme coefficients
-  !! @param t Timestep values, first element is the current timestep.
+  !! @param dt Timestep values, first element is the current timestep.
   !! @param order Order the scheme.
   !! @note dt(1) is the current timestep, dt(2) is the previous timestep, etc.
   subroutine iextm_time_scheme_compute_coeffs(coeffs, dt, order)

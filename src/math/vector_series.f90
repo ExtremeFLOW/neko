@@ -30,15 +30,15 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Contains the `field_serties_t` type.
+!> Contains the `vector_series_t` type.
 module vector_series
   use vector, only : vector_t
   implicit none
   private
 
-  !> Stores a series (sequence) of fields, logically connected to a base field,
+  !> Stores a series (sequence) of vectors, logically connected to a base vector,
   !! and arranged according to some ordering.
-  !! Currently used to store time-lagged values of solution fields.
+  !! Currently used to store time-lagged values of solution vectors.
   type, public :: vector_series_t
      type(vector_t), pointer :: v => null()
      type(vector_t), allocatable :: lv(:)
