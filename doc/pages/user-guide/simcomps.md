@@ -40,6 +40,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Probing of fields at selected points \ref simcomp_probes
 - Output of registered fields to a file \ref simcomp_field_writer
 - Computation of forces and torque on a surface \ref simcomp_force_torque
+- Boundary operations on labelled zones \ref simcomp_boundary_operation
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
 - User defined components \ref user-file_simcomps
@@ -55,8 +56,11 @@ in Neko. The list will be updated as new simcomps are added.
   [statistics guide](@ref statistics-guide)
 - User statistics simcomp, "user_stats" \ref user_stats
 - Computation of the spectral error indicator \ref simcomp_speri
+- Streaming of data for in-situ field manipulation \ref simcomp_data_streamer
+- Sub-sampling of fields by changing polynomial order and masking by point
+  zones \ref simcomp_field_subsampler
 
-## Controling execution and file output
+## Controlling execution and file output
 Each simulation component is, by default, executed once per time step to perform
 associated computations and output. However, this can be modified by using the
 `compute_control` and `compute_value` parameters for the computation and the
@@ -195,6 +199,36 @@ the `"output_filename"` parameter.
  }
  ~~~~~~~~~~~~~~~
 
+### boundary_operation {#simcomp_boundary_operation}
+Computes boundary operations on one or more labelled boundary zones. The
+supported operations are `integral`, `average`, `min`, and `max`. Any subset of
+these can be requested. The `integral` and `average` use the facet area weights.
+
+Mandatory fields for this simcomp are:
+- `zone_indices`: the labelled boundary zones to include.
+- `field_name`: the name of the registered field to integrate.
+- `operations`: array containing any subset of `integral`, `average`, `min`,
+  and `max`.
+
+Optional fields for this simcomp are:
+- `log`: if `true` (default), print the requested operations in the log each
+  time the simcomp computes.
+- `output_filename`: if set to a `.csv` file, write `tstep`, `time`, and the
+  requested operations to that file. These writes respect `output_control` and
+  `output_value`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "boundary_operation",
+  "name": "wall_pressure_integral",
+  "zone_indices": [1, 2],
+  "field_name": "p",
+  "operations": ["integral", "average"],
+  "log": true,
+  "output_filename": "wall_pressure.csv"
+}
+~~~~~~~~~~~~~~~
+
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
 generated in a variety of ways, but the most common is to use the `csv` type.
@@ -203,7 +237,7 @@ Mandatory fields for this simcomp are:
 - `fields`: a list of fields to probe. Should be a list of field names that
   exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
 - `output_file`: Name of the file in which to output the probed fields. Must be
-  `.csv`.
+  `.csv` or `.hdf5`. By default, will be written in the `case.output_directory` folder.
 
 Optional arguments:
 - Interpolation parameters can be provided as a JSON sub-dictionary, 
@@ -231,6 +265,9 @@ executed (same behavior as the statistics).
    x_N, y_N, z_N
    ~~~~~~~~~~~~~~~
    The points are assumed to be in the same units as the simulation.
+   It is also possible to read the probes from a `hdf5` file. The probes 
+   need to be in the same format as csv and must be saved in the root directory
+   of the file under the `xyz` keyword.
 - `points`: Reads a list of points from a JSON file. The points are specified
   based in the `coordinates` keyword and should be a list of x,y,z values.
   The file should have the following format:
@@ -292,6 +329,7 @@ executed (same behavior as the statistics).
    "compute_value"    : 1.0,
    "fields": ["w", "s"],
    "output_file":  "output.csv",
+   "append_output" : false,
    "points": [
       {
         "type": "file",
@@ -321,6 +359,43 @@ time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1
 time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
 ~~~~~~~~~~~~~~~
 
+The `append_output` keyword only works for `hdf5` files. 
+It sets the behaviour of the written probes. 
+If `true` they are written in one group and each sample appends its data.
+
+As an example, the file structure for a simulation where we sample "u", "v",
+and "w" is the following when `append_output=false`:
+~~~~~~~~~~~~~~~{.bash}
+/                        Group
+/probes                  Group
+/probes/Step_1           Group
+/probes/Step_1/u         Dataset {200/Inf}
+/probes/Step_1/v         Dataset {200/Inf}
+/probes/Step_1/w         Dataset {200/Inf}
+/probes/Step_2           Group
+/probes/Step_2/u         Dataset {200/Inf}
+/probes/Step_2/v         Dataset {200/Inf}
+/probes/Step_2/w         Dataset {200/Inf}
+/probes/coordinates      Dataset {200/Inf, 3}
+~~~~~~~~~~~~~~~
+
+Note that every sampled field is saved under the `probes/Step_i` group. Where
+`i` is the sample number. In this case, the sampled time is saved as an attribute
+of the `Step_i` group and accessed by the `time` keyword.
+
+The default behaviour is `append_output=true`. This mode behaves as the `.csv`
+output, where each new sample is appended directly under the `probes` group:
+~~~~~~~~~~~~~~~{bash}
+/                        Group
+/probes                  Group
+/probes/coordinates      Dataset {200/Inf, 3}
+/probes/time             Dataset {2/Inf}
+/probes/u                Dataset {400/Inf}
+/probes/v                Dataset {400/Inf}
+/probes/w                Dataset {400/Inf}
+~~~~~~~~~~~~~~~
+
+Note that here the sample time is stored as a dedicated variable.
 ### field_writer {#simcomp_field_writer}
 Outputs registered 3D fields to a file. Requires a list of field names
 in the `fields` keyword. Primarily to be used for outputting new fields defined
@@ -329,15 +404,22 @@ are expected to be updated in the user file, or, perhaps, by other simcomps.
 Since this simcomp does not compute anything, `compute_` configuration is
 irrelevant.
 
-The output format is controlled by the `output_format` keyword, which can be
-set to `nek5000` (default), `vtkhdf`, or `adios2`. The `output_precision`
-keyword controls the precision of the written data and can be set to `single`
-(default) or `double`.
+Unless `output_filename` is specified, the `fields` are appended to the 
+fluid output as additional scalars.
 
-When using the `vtkhdf` format, the `output_subdivide` keyword can be set to
+- The output format is controlled by the `output_format` keyword, which can be
+  set to `nek5000` (default), `vtkhdf`, or `adios2`. 
+- The `output_precision` keyword controls the precision of the written data 
+  and can be set to `single` (default) or `double`.
+- When using the `vtkhdf` format, the `output_subdivide` keyword can be set to
 `true` to subdivide spectral elements into linear sub-cells instead of
 writing high-order Lagrange cells. See the [cell representation](@ref
 vtkhdf-cell-representation) section for more details.
+
+@note If `output_filename` is specified, files will be written in the 
+`case.output_directory` folder. If an alternative path is desired, it must
+be specified relative to the `case.output_directory`, since the 
+`case.output_directory` path will always be prepended to `output_filename`. 
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -354,6 +436,25 @@ vtkhdf-cell-representation) section for more details.
  ~~~~~~~~~~~~~~~
 
 
+The `field_writer` may be used in conjunction with a `point_zone` to sample
+the corresponding subsection of the domain. At the moment, this capability
+can only be used with `nek5000` files.
+@attention When using `point_zone` with the `nek5000` format, an 
+`output_filename` must be provided.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "field_writer",
+   "name": "field_writer",
+   "fields": ["my_field1", "my_field2"],
+   "output_format": "nek5000",
+   "output_control" : "simulationtime",
+   "output_value" : 1.0,
+   "output_filename": "my_point_zone_field",
+   "point_zone": "my_point_zone"
+ }
+ ~~~~~~~~~~~~~~~
+
 ### force_torque {#simcomp_force_torque}
 Computes the force on a specified zone and the corresponding torque around a
 center point. The compute control specifies how often they are computed and
@@ -367,6 +468,7 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
    "type": "force_torque",
    "name": "force_torque",
    "zone_id": 1,
+   "center_type": "fixed",
    "center": [0.0, 0.0, 0.0],
    "zone_name": "some chosen name, optional",
    "scale": 1.0
@@ -376,6 +478,22 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
  }
  ~~~~~~~~~~~~~~~
 
+#### Torque calculation for moving bodies
+
+When an object undergoes translational or rotational movement, it is often necessary to calculate the torque around its dynamic center of rotation, or around another specific reference point that moves rigidly with the body. The `center_type` parameter enables accurate torque computation for these scenarios by dictating how the tracking point behaves:
+
+* `"fixed"` <i>(Default):</i> The torque is calculated around the static coordinates provided in the `center` array, regardless of how the body moves.
+* `"pivot"` <i>(ALE only):</i> The torque is calculated directly around the ALE body's dynamic pivot point. If this is selected, the `center` array in the JSON is ignored, and the pivot coordinate at each time step is used automatically.
+* `"body_attached"` <i>(ALE only):</i> The torque is calculated around a custom point that translates and rotates *with* the rigid movement of the ALE body. The initial position of this point is defined by the `center` array.
+  > <i>Example use case:</i> If you are simulating a pitching and heaving airfoil, you might want to calculate the torque acting on a trailing-edge flap. By using `"body_attached"`, you simply define the initial coordinates of the hinge in the `center` array, and the code will automatically track its dynamic position as the main airfoil moves.
+
+@attention For static simulations, the `center_type` parameter is completely optional. If omitted from the case file, the code will automatically default to `"fixed"`.
+
+@note If `center_type` is set to `"pivot"` or `"body_attached"` but the specified `zone_id` is not registered as an ALE body (or ALE is globally inactive), the code will print a warning and automatically revert back to `"fixed"` using the provided `"center"` in the case file.
+
+@attention For ALE simulations, the wall normal vectors are re-calculated at every time step to account for body movement and deformation. If the ALE module is not enabled, this calculation is performed only once during initialization.
+
+@note **Restarting Simulations:** When restarting an ALE simulation, the code automatically calculates the correct current position of the torque center at the restart time. Therefore, if the intended torque calculation point remains the same, the `center` array in the JSON file should **not** be modified between restarts. If you wish to calculate torque around a *new* point upon restart, the `center` array must specify the coordinates of that new point in the **original, undeformed mesh** (at \f$ t=0 \f$), not its current spatial location.
 
 ### les_model {#simcomp_les_model}
 Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp
@@ -525,5 +643,63 @@ in 3 additional fields appended to the field files.
  {
    "type": "spectral_error"
    "name": "spectral_error"
+ }
+ ~~~~~~~~~~~~~~~
+
+### Data streamer {#simcomp_data_streamer}
+
+Enables data streaming of a set of given `fields` with the `ADIOS2` library. 
+The simcomp is controlled by the following keywords:
+- `"fields"`: A list of field names corresponding to the fields to stream 
+  (must exist in the registry). The fields will be streamed in the order
+  given in the list.
+- `"stream_mesh"`: Whether or not to stream mesh coordinates, in the order
+  `x`, `y`, `z`. The mesh coordinates will always be streamed first, in
+  that exact order, before the fields in `"fields"`.
+
+See the `cylinder` or `turb_pipe` examples for more details on how this 
+simcomp cam be coupled to Python scripts for in-situ data processing.
+
+@note This simcomp requires configuration of Neko with the ADIOS2 library
+(`--with-adios2=DIR`).
+
+~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "data_streamer",
+   "name": "spectral_error",
+   "fields": ["u", "omega_z", "fluid_stats/mean_u"],
+   "stream_mesh": true,
+   "compute_control": "tsteps",
+   "compute_value": 10
+ }
+ ~~~~~~~~~~~~~~~
+
+### Field subsampler {#simcomp_field_subsampler}
+
+Creates sub-sections of the domain from a `point_zone` and/or at a lower
+`polynomial_order`. The fields are added to the registry under the name
+`name_of_simcomp + "/" + name_of_base_field`. For example, 
+`field_subsampler_u`.
+
+The simcomp is controlled by the following keywords:
+- `"source_fields"`: A list of names corresponding to the fields to subsample 
+  (must exist in the registry).
+- `point_zone` (optional): The name of the point zone to use to mask the fields.
+- `polynomial_order` (optional): The new polynomial at which to interpolate 
+  the fields. Must be different from the order used in the simulation.
+
+The `field_subsampler` contains its own `field_writer`. Therefore, all the
+keywords used by the latter can also be specified, with the exception of
+`point_zone` and `fields` which will be handled by the `field_subsampler`.
+
+~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "field_subsampler",
+   "name": "field_subsampler",
+   "source_fields": ["u", "omega_z", "fluid_stats/mean_u"],
+   "point_zone": "my_point_zone",
+   "polynomial_order": 3,
+   "compute_control": "tsteps",
+   "compute_value": 10
  }
  ~~~~~~~~~~~~~~~

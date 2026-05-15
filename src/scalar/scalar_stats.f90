@@ -38,7 +38,7 @@ module scalar_stats
   use device_math, only : device_col3, device_col2, device_cfill, &
        device_invcol2, device_addcol3
   use num_types, only : rp
-  use math, only : invers2, col2, addcol3, col3
+  use math, only : addcol3, col3
   use operators, only : opgrad
   use coefs, only : coef_t
   use field, only : field_t
@@ -771,7 +771,8 @@ contains
   ! Convert computed weak gradients to strong.
   subroutine scalar_stats_make_strong_grad(this)
     class(scalar_stats_t) :: this
-    integer :: n
+    integer :: n, i
+    real(kind=rp) :: wrk, wrk_sqr
 
     if (this%n_stats .eq. 5) return
 
@@ -813,39 +814,43 @@ contains
        call device_col2(this%ews%mf%x_d, this%stats_work%x_d, n)
 
     else
+       do concurrent (i = 1:n)
+          wrk = 1.0_rp / this%coef%B(i,1,1,1)
+          this%pdsdx%mf%x(i,1,1,1) = this%pdsdx%mf%x(i,1,1,1) * wrk
+          this%pdsdy%mf%x(i,1,1,1) = this%pdsdy%mf%x(i,1,1,1) * wrk
+          this%pdsdz%mf%x(i,1,1,1) = this%pdsdz%mf%x(i,1,1,1) * wrk
 
-       call invers2(this%stats_work%x, this%coef%B, n)
+          this%udsdx%mf%x(i,1,1,1) = this%udsdx%mf%x(i,1,1,1) * wrk
+          this%udsdy%mf%x(i,1,1,1) = this%udsdy%mf%x(i,1,1,1) * wrk
+          this%udsdz%mf%x(i,1,1,1) = this%udsdz%mf%x(i,1,1,1) * wrk
 
-       call col2(this%pdsdx%mf%x, this%stats_work%x, n)
-       call col2(this%pdsdy%mf%x, this%stats_work%x, n)
-       call col2(this%pdsdz%mf%x, this%stats_work%x, n)
+          this%vdsdx%mf%x(i,1,1,1) = this%vdsdx%mf%x(i,1,1,1) * wrk
+          this%vdsdy%mf%x(i,1,1,1) = this%vdsdy%mf%x(i,1,1,1) * wrk
+          this%vdsdz%mf%x(i,1,1,1) = this%vdsdz%mf%x(i,1,1,1) * wrk
 
-       call col2(this%udsdx%mf%x, this%stats_work%x, n)
-       call col2(this%udsdy%mf%x, this%stats_work%x, n)
-       call col2(this%udsdz%mf%x, this%stats_work%x, n)
-       call col2(this%vdsdx%mf%x, this%stats_work%x, n)
-       call col2(this%vdsdy%mf%x, this%stats_work%x, n)
-       call col2(this%vdsdz%mf%x, this%stats_work%x, n)
-       call col2(this%wdsdx%mf%x, this%stats_work%x, n)
-       call col2(this%wdsdy%mf%x, this%stats_work%x, n)
-       call col2(this%wdsdz%mf%x, this%stats_work%x, n)
+          this%wdsdx%mf%x(i,1,1,1) = this%wdsdx%mf%x(i,1,1,1) * wrk
+          this%wdsdy%mf%x(i,1,1,1) = this%wdsdy%mf%x(i,1,1,1) * wrk
+          this%wdsdz%mf%x(i,1,1,1) = this%wdsdz%mf%x(i,1,1,1) * wrk
 
-       call col2(this%sdudx%mf%x, this%stats_work%x, n)
-       call col2(this%sdudy%mf%x, this%stats_work%x, n)
-       call col2(this%sdudz%mf%x, this%stats_work%x, n)
-       call col2(this%sdvdx%mf%x, this%stats_work%x, n)
-       call col2(this%sdvdy%mf%x, this%stats_work%x, n)
-       call col2(this%sdvdz%mf%x, this%stats_work%x, n)
-       call col2(this%sdwdx%mf%x, this%stats_work%x, n)
-       call col2(this%sdwdy%mf%x, this%stats_work%x, n)
-       call col2(this%sdwdz%mf%x, this%stats_work%x, n)
+          this%sdudx%mf%x(i,1,1,1) = this%sdudx%mf%x(i,1,1,1) * wrk
+          this%sdudy%mf%x(i,1,1,1) = this%sdudy%mf%x(i,1,1,1) * wrk
+          this%sdudz%mf%x(i,1,1,1) = this%sdudz%mf%x(i,1,1,1) * wrk
 
-       call col2(this%stats_work%x, this%stats_work%x, n)
+          this%sdvdx%mf%x(i,1,1,1) = this%sdvdx%mf%x(i,1,1,1) * wrk
+          this%sdvdy%mf%x(i,1,1,1) = this%sdvdy%mf%x(i,1,1,1) * wrk
+          this%sdvdz%mf%x(i,1,1,1) = this%sdvdz%mf%x(i,1,1,1) * wrk
 
-       call col2(this%ess%mf%x, this%stats_work%x, n)
-       call col2(this%eus%mf%x, this%stats_work%x, n)
-       call col2(this%evs%mf%x, this%stats_work%x, n)
-       call col2(this%ews%mf%x, this%stats_work%x, n)
+          this%sdwdx%mf%x(i,1,1,1) = this%sdwdx%mf%x(i,1,1,1) * wrk
+          this%sdwdy%mf%x(i,1,1,1) = this%sdwdy%mf%x(i,1,1,1) * wrk
+          this%sdwdz%mf%x(i,1,1,1) = this%sdwdz%mf%x(i,1,1,1) * wrk
+
+          wrk_sqr = wrk * wrk
+
+          this%ess%mf%x(i,1,1,1) = this%ess%mf%x(i,1,1,1) * wrk_sqr
+          this%eus%mf%x(i,1,1,1) = this%eus%mf%x(i,1,1,1) * wrk_sqr
+          this%evs%mf%x(i,1,1,1) = this%evs%mf%x(i,1,1,1) * wrk_sqr
+          this%ews%mf%x(i,1,1,1) = this%ews%mf%x(i,1,1,1) * wrk_sqr
+       end do
 
     end if
 

@@ -138,10 +138,11 @@ contains
   end subroutine scalar_rhs_maker_ext_cpu
 
   subroutine rhs_maker_bdf_cpu(ulag, vlag, wlag, bfx, bfy, bfz, &
-       u, v, w, B, rho, dt, bd, nbd, n)
+       u, v, w, B, rho, dt, bd, nbd, n, Blag, Blaglag)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
     type(field_series_t), intent(in) :: ulag, vlag, wlag
+    real(kind=rp), intent(in) :: Blag(n), Blaglag(n)
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
@@ -160,14 +161,25 @@ contains
     end do
 
     do ilag = 2, nbd
-       do concurrent (i = 1:n)
-          tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + &
-               (ulag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
-          tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + &
-               (vlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
-          tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + &
-               (wlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
-       end do
+       if (ilag .eq. 2) then
+          do concurrent (i = 1:n)
+             tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + &
+                  (ulag%lf(ilag-1)%x(i,1,1,1) * Blag(i) * bd(ilag+1))
+             tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + &
+                  (vlag%lf(ilag-1)%x(i,1,1,1) * Blag(i) * bd(ilag+1))
+             tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + &
+                  (wlag%lf(ilag-1)%x(i,1,1,1) * Blag(i) * bd(ilag+1))
+          end do
+       else if (ilag .eq. 3) then
+          do concurrent (i = 1:n)
+             tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + &
+                  (ulag%lf(ilag-1)%x(i,1,1,1) * Blaglag(i) * bd(ilag+1))
+             tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + &
+                  (vlag%lf(ilag-1)%x(i,1,1,1) * Blaglag(i) * bd(ilag+1))
+             tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + &
+                  (wlag%lf(ilag-1)%x(i,1,1,1) * Blaglag(i) * bd(ilag+1))
+          end do
+       end if
     end do
 
     do concurrent (i = 1:n)

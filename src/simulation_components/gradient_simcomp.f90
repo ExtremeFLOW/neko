@@ -45,7 +45,7 @@ module gradient_simcomp
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use utils, only : neko_error ! just for now
+  use utils, only : NEKO_VARNAME_LEN, neko_error ! just for now
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
@@ -96,7 +96,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: name
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
     character(len=:), allocatable :: computed_field
 
     call json_get_or_default(json, "name", name, "gradient")
@@ -168,7 +168,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     fields(1) = trim(computed_field) // "_x"
     fields(2) = trim(computed_field) // "_y"
@@ -219,7 +219,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     fields(1) = trim(computed_field) // "_x"
     fields(2) = trim(computed_field) // "_y"

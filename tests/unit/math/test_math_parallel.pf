@@ -8,6 +8,36 @@ module test_math_parallel
 
 contains
 
+  ! To test the approximate implementation in math
+  pure function lambert_w0_halley(x) result(w)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: w
+    real(kind=rp) :: ew, f, wp1, denom, logx
+    integer :: k
+
+    if (x <= 0.0_rp) then
+       w = 0.0_rp
+       return
+    end if
+
+    if (x < 1.0_rp) then
+       w = x
+    else
+      logx = log(x)
+      w = logx
+      if (x > exp(1.0_rp)) w = logx - log(logx)
+    end if
+
+    do k = 1, 20
+       ew = exp(w)
+       f = w * ew - x
+       wp1 = w + 1.0_rp
+       denom = ew * wp1 - ((w + 2.0_rp) * f) / (2.0_rp * wp1)
+       w = w - f / denom
+       if (abs(f) <= 32.0_rp * epsilon(1.0_rp) * max(x, 1.0_rp)) exit
+    end do
+  end function lambert_w0_halley
+
   @test
   subroutine test_math_abscmp
     real(kind=rp) :: a, b, c, d
@@ -26,6 +56,28 @@ contains
     @assertFalse(abscmp(b, d))
 
   end subroutine test_math_abscmp
+
+  @test
+  subroutine test_math_lambert_w0
+    real(kind=rp), parameter :: xvals(8) = [0.0_rp, 1.0e-6_rp, 1.0e-3_rp, &
+         1.0e-1_rp, 1.0_rp, exp(1.0_rp), 10.0_rp, 1.0e3_rp]
+    real(kind=rp) :: w_appendix, w_halley, relerr, tol
+    integer :: i
+
+    tol = 1.0e-6_rp
+
+    do i = 1, size(xvals)
+       w_appendix = lambert_w0(xvals(i), 3)
+       w_halley = lambert_w0_halley(xvals(i))
+
+       if (w_halley == 0.0_rp) then
+          @assertEqual(w_halley, w_appendix)
+       else
+          relerr = abs(w_appendix - w_halley) / abs(w_halley)
+          @assertTrue(relerr < tol)
+       end if
+    end do
+  end subroutine test_math_lambert_w0
 
   @test
   subroutine test_math_rzero

@@ -40,7 +40,7 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, glsc2, abscmp
+  use math, only : glsc2, abscmp
   use utils, only : neko_error
   use operators, only : rotate_cyc
   use amr_reconstruct, only : amr_reconstruct_t
@@ -235,7 +235,7 @@ contains
     else
        max_iter = this%max_iter
     end if
-    norm_fac = 1.0_rp / coef%volume
+    norm_fac = 1.0_rp / sqrt(coef%volume)
 
     associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
          z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
@@ -259,7 +259,7 @@ contains
          tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
       end do
 
-      rtr = glsc3(tmp, coef%mult, coef%binv, n)
+      rtr = glsc2(tmp, coef%mult, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -324,7 +324,7 @@ contains
             tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
          end do
 
-         rtr = glsc3(tmp, coef%mult, coef%binv, n)
+         rtr = glsc2(tmp, coef%mult, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)

@@ -95,3 +95,9 @@ install
 
 # Mac
 .DS_Store
+
+# Codex
+.codex
+
+# Directory to stash temporary files during development
+.temp

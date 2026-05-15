@@ -25,7 +25,7 @@ AC_ARG_ENABLE(real,
 
 AC_ARG_ENABLE(blk_size,
               AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
-              [blk_size=${enableval}], [blk_size="10000"])
+              [blk_size=${enableval}], [blk_size="1024"])
 
 AC_ARG_ENABLE(device-mpi,
           AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
@@ -434,12 +434,14 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/json_utils/Makefile\
         tests/unit/point_interpolation/Makefile\
         tests/unit/templates/parallel/Makefile\
+        tests/unit/boundary_operation/Makefile\
         tests/unit/templates/serial/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
+		    contrib/create_periodic_zones/Makefile\
 		    contrib/average_fields_in_time/Makefile\
 		    contrib/calc_lift_from_field/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\

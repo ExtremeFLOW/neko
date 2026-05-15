@@ -20,11 +20,7 @@
             "Re": 1000.0,
             "initial_condition": {
                 "type": "uniform",
-                "value": [
-                    1.0,
-                    0.0,
-                    0.0
-                ]
+                "value": [ 1.0, 0.0, 0.0 ]
             },
             "velocity_solver": {
                 "type": "cg",
@@ -64,6 +60,8 @@
             "source_terms": [
                 {
                     "type": "brinkman",
+                    "limits": [ 0.0, 1000.0 ],
+                    "penalty": 1.0,
                     "objects": [
                         {
                             "type": "boundary_mesh",
@@ -74,27 +72,12 @@
                             },
                             "mesh_transform": {
                                 "type": "bounding_box",
-                                "box_min": [
-                                    0.75,
-                                    0.25,
-                                    0.00
-                                ],
-                                "box_max": [
-                                    1.25,
-                                    0.75,
-                                    0.50
-                                ],
+                                "box_min": [ 0.75, 0.25, 0.00 ],
+                                "box_max": [ 1.25, 0.75, 0.50 ],
                                 "keep_aspect_ratio": true
                             }
                         }
-                    ],
-                    "brinkman": {
-                        "limits": [
-                            0.0,
-                            1000.0
-                        ],
-                        "penalty": 1.0
-                    }
+                    ]
                 }
             ]
         }

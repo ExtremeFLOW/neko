@@ -41,7 +41,7 @@ module field
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
-  use utils, only : neko_error !! temporary
+  use utils, only : NEKO_VARNAME_LEN, neko_error !! temporary
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
@@ -56,7 +56,7 @@ module field
      type(dofmap_t), pointer :: dof !< Dofmap
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
-     character(len=80) :: name = "" !< Name of the field
+     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
    contains
      procedure, private, pass(this) :: init_common => field_init_common

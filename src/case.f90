@@ -45,7 +45,7 @@ module case
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
   use file, only : file_t
-  use utils, only : neko_error
+  use utils, only : neko_error, mkdir
   use mesh, only : mesh_t
   use mesh_manager, only : mesh_manager_t, mesh_manager_factory
   use amr, only : amr_t
@@ -164,6 +164,7 @@ contains
     type(json_file) :: scalar_params, numerics_params, meshmng_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
+    logical :: tmp_feature
 
     !
     ! Setup user defined functions
@@ -499,9 +500,9 @@ contains
     if (output_dir_len .gt. 0) then
        if (this%output_directory(output_dir_len:output_dir_len) .ne. "/") then
           this%output_directory = trim(this%output_directory)//"/"
-          if (pe_rank .eq. 0) then
-             call execute_command_line('mkdir -p '//this%output_directory)
-          end if
+       end if
+       if (pe_rank .eq. 0) then
+          call mkdir(trim(this%output_directory))
        end if
     end if
 
@@ -546,6 +547,13 @@ contains
     call json_get_or_default(this%params, &
          'case.fluid.output_mesh_in_all_files', &
          logical_val, .false.)
+
+    ! Kind of hacky for the moment to ensure we don't miss
+    ! saving the mesh for ALE.
+    call json_get_or_default(this%params, 'case.fluid.ale.enabled', &
+         tmp_feature, .false.)
+    if (tmp_feature) logical_val = .true.
+
     call this%output_controller%init(this%time%end_time)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &

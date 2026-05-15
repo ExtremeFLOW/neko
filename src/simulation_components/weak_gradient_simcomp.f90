@@ -45,6 +45,7 @@ module weak_gradient_simcomp
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
+  use utils, only : NEKO_VARNAME_LEN
   use time_based_controller, only : time_based_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use utils, only : neko_error ! just for now
@@ -98,7 +99,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: name
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
     character(len=:), allocatable :: computed_field
 
     ! Add fields keyword to the json so that the field_writer picks it up.
@@ -168,7 +169,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     fields(1) = trim(computed_field) // "_x"
     fields(2) = trim(computed_field) // "_y"
@@ -219,7 +220,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     fields(1) = trim(computed_field) // "_x"
     fields(2) = trim(computed_field) // "_y"

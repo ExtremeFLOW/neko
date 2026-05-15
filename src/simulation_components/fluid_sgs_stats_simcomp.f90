@@ -44,9 +44,10 @@ module fluid_sgs_stats_simcomp
   use case, only : case_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
-       neko_error ! just for now
+       NEKO_VARNAME_LEN, neko_error ! just for now
   use logger, only : LOG_SIZE, neko_log
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup_or_default
   use comm, only : NEKO_COMM
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
@@ -96,7 +97,7 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
-    character(len=20), allocatable :: fields(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: nut_field
     character(len=:), allocatable :: name
@@ -108,7 +109,7 @@ contains
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
-    call json_get_or_default(json, 'start_time', &
+    call json_get_or_lookup_or_default(json, 'start_time', &
          start_time, 0.0_rp)
     call json_get_or_default(json, 'nut_field', &
          nut_field, 'nut')
