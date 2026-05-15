@@ -155,7 +155,7 @@ The backend can also be selected programmatically by passing the
 `GS_COMM_OPENSHMEM`, or `GS_COMM_CAF` exposed by the `gather_scatter`
 module. The environment variable wins when both are present.
 
-#### NVSHMEM backend
+#### NVSHMEM backend {#performance-nvshmem-backend}
 
 The NVSHMEM backend (`NEKO_GS_COMM=SHMEM` on CUDA builds) keeps the
 entire exchange on the GPU: a fused CUDA kernel
@@ -186,7 +186,7 @@ unaffected.
 NVSHMEM transport (typically Slingshot, InfiniBand with GDR, or
 NVLink).
 
-#### OpenSHMEM backend
+#### OpenSHMEM backend {#performance-openshmem-backend}
 
 The OpenSHMEM backend (`NEKO_GS_COMM=SHMEM` on CPU builds) uses
 one-sided `shmem_putmem_signal_nbi` (OpenSHMEM 1.5) to deliver each

@@ -266,8 +266,7 @@ AC_DEFUN([AX_CRAY_SHMEM],[
               AC_MSG_RESULT([yes])
               have_cray_shmem="yes"
               AC_DEFINE(HAVE_CRAYSHMEM,1,[Define if you have CRAYSHMEM.])
-              AC_DEFINE(HAVE_OPENSHMEM,1,[Define if you have OPENfg
-              SHMEM.])
+              AC_DEFINE(HAVE_OPENSHMEM,1,[Define if you have OPENSHMEM.])
            else
               AC_MSG_RESULT([no])
               have_cray_shmem="no"
