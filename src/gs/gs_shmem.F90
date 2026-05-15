@@ -195,6 +195,7 @@ contains
     call neko_error('Neko was not built with OpenSHMEM support')
 #else
 
+    call this%free()
     call this%init_order(send_pe, recv_pe)
 
     call this%send_buf%init(this%send_pe, this%send_dof)
