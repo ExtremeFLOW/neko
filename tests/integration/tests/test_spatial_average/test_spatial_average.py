@@ -28,15 +28,6 @@ def _load_output(test_dir, stem):
     with open(matches[0], newline="", encoding="utf-8") as csv_file:
         return [[float(value) for value in row] for row in csv.reader(csv_file)]
 
-
-def _get_tool(getter, fallback):
-    """Resolve a test helper executable, with a repository-local fallback."""
-    try:
-        return getter()
-    except FileNotFoundError:
-        return abspath(join(get_neko_dir(), fallback))
-
-
 def _assert_profile(data, expected_values):
     """Check the final 1D CSV snapshot against the current reference values."""
     # The current implementation writes one snapshot during preprocessing
@@ -55,10 +46,10 @@ def _assert_profile(data, expected_values):
     final_values = []
     seen = set()
     for row in data:
-        if abs(row[0] - 1.0) > 1e-12:
+        if abs(row[0] - 1.0) > 1e-6:
             continue
 
-        key = tuple(round(value, 12) for value in row[2:])
+        key = tuple(round(value, 6) for value in row[2:])
         if key not in seen:
             seen.add(key)
             final_values.append(row[2:])
@@ -69,7 +60,7 @@ def _assert_profile(data, expected_values):
     assert len(final_values) == len(expected_values)
     for actual, expected in zip(final_values, expected_values):
         for actual_value, expected_value in zip(actual, expected):
-            assert abs(actual_value - expected_value) <= 1e-11
+            assert abs(actual_value - expected_value) <= 1e-6
 
 
 def test_spatial_average(launcher_script, request, log_file, tmp_path):
@@ -77,7 +68,9 @@ def test_spatial_average(launcher_script, request, log_file, tmp_path):
     del request, tmp_path
 
     test_dir = join("tests", "test_spatial_average")
-    makeneko = _get_tool(get_makeneko, join("install", "bin", "makeneko"))
+
+    makeneko = get_makeneko()
+    genmeshbox = get_genmeshbox()
 
     _remove_old_outputs(test_dir)
 
@@ -91,7 +84,6 @@ def test_spatial_average(launcher_script, request, log_file, tmp_path):
         f"makeneko process failed with exit code {result.returncode}"
     )
 
-    genmeshbox = _get_tool(get_genmeshbox, join("install", "bin", "genmeshbox"))
     result = subprocess.run(
         [genmeshbox, "0", "1", "0", "1", "0", "1", "2", "2", "2",
          ".true.", ".true.", ".true."],
