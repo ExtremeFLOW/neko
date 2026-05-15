@@ -50,7 +50,7 @@ module spatial_average
   use device, only : DEVICE_TO_HOST
   use field_math, only : field_copy
   use matrix, only : matrix_t
-  use utils, only : NEKO_VARNAME_LEN, neko_error
+  use utils, only : NEKO_FNAME_LEN, NEKO_VARNAME_LEN, neko_error
   implicit none
   private
 
@@ -92,55 +92,44 @@ module spatial_average
 contains
 
   !> Constructor.
-  !! @param field_names Names of the fields to average.
+  !! @param fields Names of the fields to average.
   !! @param coef SEM coefficients.
   !! @param avg_direction Direction(s) to average in. Either 'x', 'y', 'z',
   !! 'xy', 'xz', or 'yz', matching the statistics output semantics.
-  !! @param name Name of the output file.
-  !! @param path Path to the output file.
-  subroutine spatial_average_output_init(this, field_names, coef, 
-       avg_direction, name, path)
+  !! @param filename Base filename for the output file.
+  subroutine spatial_average_output_init(this, fields, coef, &
+       avg_direction, filename)
     class(spatial_average_output_t), intent(inout) :: this
-    character(len=*), intent(in) :: field_names(:)
+    character(len=*), intent(in) :: fields(:)
     type(coef_t), target, intent(inout) :: coef
     character(len=*), intent(in) :: avg_direction
-    character(len=*), intent(in), optional :: name
-    character(len=*), intent(in), optional :: path
-    character(len=1024) :: filename
+    character(len=*), intent(in) :: filename
+    character(len=NEKO_FNAME_LEN) :: output_filename
     integer :: i
 
     call this%free()
+    output_filename = trim(filename)
 
-    if (present(name) .and. present(path)) then
-       filename = trim(path) // trim(name)
-    else if (present(name)) then
-       filename = trim(name)
-    else if (present(path)) then
-       filename = trim(path) // 'spatial_average'
-    else
-       filename = 'spatial_average'
-    end if
+    call this%fields%init(size(fields))
+    do i = 1, size(fields)
+       call this%fields%assign(i, neko_registry%get_field(trim(fields(i))))
+    end do
 
-    call this%fields%init(size(field_names))
-    do i = 1, size(field_names)
-       call this%fields%assign(i, neko_registry%get_field(trim(field_names(i))))
-     end do
-
-     select case (trim(avg_direction))
-     case ('x', 'y', 'z')
-        this%output_dim = 2
-        filename = trim(filename) // '.fld'
-        call this%map_2d%init_char(coef, avg_direction, 1e-7_rp)
-     case ('xy', 'xz', 'yz')
-        this%output_dim = 1
-        filename = trim(filename) // '.csv'
-        call this%map_1d%init_char(coef, avg_direction, 1e-7_rp)
+    select case (trim(avg_direction))
+    case ('x', 'y', 'z')
+       this%output_dim = 2
+       output_filename = trim(output_filename) // '.fld'
+       call this%map_2d%init_char(coef, avg_direction, 1e-7_rp)
+    case ('xy', 'xz', 'yz')
+       this%output_dim = 1
+       output_filename = trim(output_filename) // '.csv'
+       call this%map_1d%init_char(coef, avg_direction, 1e-7_rp)
     case default
        call neko_error('Unsupported avg_direction for spatial_average: ' // &
             trim(avg_direction))
     end select
 
-    call this%init_base(filename)
+    call this%init_base(output_filename)
   end subroutine spatial_average_output_init
 
   !> Destructor.
@@ -152,7 +141,7 @@ contains
     call this%map_1d%free()
     call this%map_2d%free()
 
-     this%output_dim = 0
+    this%output_dim = 0
   end subroutine spatial_average_output_free
 
   !> Sample the current fields, spatially average, and write.
@@ -205,20 +194,20 @@ contains
     character(len=:), allocatable :: name
     character(len=:), allocatable :: avg_direction
     character(len=:), allocatable :: output_filename
-    character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
 
-     call this%init_base(json, case)
+    call this%init_base(json, case)
 
-     call json_get_or_default(json, 'name', name, 'spatial_average')
-     call json_get(json, 'fields', field_names)
-     call json_get(json, 'avg_direction', avg_direction)
-     call json_get_or_default(json, 'output_filename', output_filename, &
-          'spatial_average')
+    call json_get_or_default(json, 'name', name, 'spatial_average')
+    call json_get(json, 'fields', fields)
+    call json_get(json, 'avg_direction', avg_direction)
+    call json_get_or_default(json, 'output_filename', output_filename, &
+         'spatial_average')
 
-    call this%init_from_components(name, field_names, case%fluid%c_Xh, &
+    call this%init_from_components(name, fields, case%fluid%c_Xh, &
          avg_direction, output_filename)
 
-    if (allocated(field_names)) deallocate(field_names)
+    if (allocated(fields)) deallocate(fields)
     if (allocated(output_filename)) deallocate(output_filename)
     if (allocated(avg_direction)) deallocate(avg_direction)
     if (allocated(name)) deallocate(name)
@@ -226,23 +215,32 @@ contains
 
   !> Constructor from components.
   !! @param name The unique name of the simcomp.
-  !! @param field_names Names of the fields to average.
+  !! @param fields Names of the fields to average.
   !! @param coef The SEM coefficients.
   !! @param avg_direction Direction(s) to average in.
   !! @param output_filename Base name of the output file.
-  subroutine spatial_average_init_from_components(this, name, field_names, coef, &
+  subroutine spatial_average_init_from_components(this, name, fields, coef, &
        avg_direction, output_filename)
     class(spatial_average_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=*), intent(in) :: field_names(:)
+    character(len=*), intent(in) :: fields(:)
     type(coef_t), target, intent(inout) :: coef
     character(len=*), intent(in) :: avg_direction
     character(len=*), intent(in) :: output_filename
+    character(len=NEKO_FNAME_LEN) :: resolved_output_filename
 
     this%name = name
 
-    call this%output%init(field_names, coef, avg_direction, &
-         name = output_filename, path = this%case%output_directory)
+    if (allocated(this%case%output_directory) .and. &
+         len_trim(this%case%output_directory) .gt. 0) then
+       resolved_output_filename = trim(this%case%output_directory) // &
+            trim(output_filename)
+    else
+       resolved_output_filename = trim(output_filename)
+    end if
+
+    call this%output%init(fields, coef, avg_direction, &
+         resolved_output_filename)
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
