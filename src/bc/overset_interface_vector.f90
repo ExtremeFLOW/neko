@@ -154,9 +154,9 @@ contains
     call json_get_or_default(json, "interpolation.padding", &
          pad, -1.0_rp)
     call json_get_or_default(json, "order", this%iextm_order, 1)
-       if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
-         call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
-       end if
+    if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
+       call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
+    end if
 
     call this%init_from_components(coef, tol, pad)
 
