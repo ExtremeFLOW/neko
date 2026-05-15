@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added `spatial_average` simcomp for spatially averaging a list of registered
+  fields.
 - Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
