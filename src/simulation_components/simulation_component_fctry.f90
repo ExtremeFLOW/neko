@@ -39,6 +39,7 @@ submodule (simulation_component) simulation_component_fctry
   use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
   use scalar_stats_simcomp, only : scalar_stats_simcomp_t
   use scalar_sgs_stats_simcomp, only : scalar_sgs_stats_simcomp_t
+  use spatial_average, only : spatial_average_t
   use user_stats, only : user_stats_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
@@ -57,7 +58,7 @@ submodule (simulation_component) simulation_component_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(19) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(20) = [character(len=20) :: &
        "boundary_operation", &
        "lambda2", &
        "probes", &
@@ -73,6 +74,7 @@ submodule (simulation_component) simulation_component_fctry
        "derivative", &
        "weak_grad", &
        "force_torque", &
+       "spatial_average", &
        "user_stats", &
        "spectral_error", &
        "data_streamer", &
@@ -143,6 +145,8 @@ contains
        allocate(divergence_t::object)
     case ("force_torque")
        allocate(force_torque_t::object)
+    case ("spatial_average")
+       allocate(spatial_average_t::object)
     case ("fluid_stats")
        allocate(fluid_stats_simcomp_t::object)
     case ("fluid_sgs_stats")

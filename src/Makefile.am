@@ -245,6 +245,7 @@ neko_fortran_SOURCES = \
 	simulation_components/fluid_sgs_stats_simcomp.f90\
 	simulation_components/scalar_stats_simcomp.f90\
 	simulation_components/scalar_sgs_stats_simcomp.f90\
+	simulation_components/spatial_average.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\

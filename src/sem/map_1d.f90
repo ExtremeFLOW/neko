@@ -333,10 +333,9 @@ contains
             MPI_SUM, NEKO_COMM, ierr)
     end if
 
-
   end subroutine map_1d_average_field_list
 
-  !> Computes average if vector_pt in two directions and outputs matrix
+  !> Computes average of vector_pt in two directions and outputs matrix
   !! with averaged values
   !! avg_planes contains coordinates in first row, avg. of fields in the rest
   !! @param avg_planes output averages
