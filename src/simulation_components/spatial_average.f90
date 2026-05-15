@@ -158,30 +158,30 @@ contains
 
     select case (this%output_dim)
     case (1)
-        call this%fields%copy_from(DEVICE_TO_HOST, .true.)
-        call this%map_1d%average_planes(output_1d, this%fields)
-        call this%file_%write(output_1d, t)
-        call output_1d%free()
+       call this%fields%copy_from(DEVICE_TO_HOST, .true.)
+       call this%map_1d%average_planes(output_1d, this%fields)
+       call this%file_%write(output_1d, t)
+       call output_1d%free()
     case (2)
-        ! map_2d mutates input, so we need temporaries from the scratch registry
-        allocate(temp_indices(this%fields%size()))
-        call temp_fields%init(this%fields%size())
-        do i = 1, this%fields%size()
-           call neko_scratch_registry%request_field(temp_field, &
-                temp_indices(i), .false.)
-           call field_copy(temp_field, this%fields%items(i)%ptr)
-           call temp_fields%assign(i, temp_field)
-        end do
-        call temp_fields%copy_from(DEVICE_TO_HOST, .true.)
-        call this%map_2d%average(output_2d, temp_fields)
-        call this%file_%write(output_2d, t)
-        call output_2d%free()
-        call temp_fields%free()
-        call neko_scratch_registry%relinquish_field(temp_indices)
-        deallocate(temp_indices)
-     case default
-        call neko_error('Invalid spatial_average output dimension')
-     end select
+       ! map_2d mutates input, so we need temporaries from the scratch registry
+       allocate(temp_indices(this%fields%size()))
+       call temp_fields%init(this%fields%size())
+       do i = 1, this%fields%size()
+          call neko_scratch_registry%request_field(temp_field, &
+               temp_indices(i), .false.)
+          call field_copy(temp_field, this%fields%items(i)%ptr)
+          call temp_fields%assign(i, temp_field)
+       end do
+       call temp_fields%copy_from(DEVICE_TO_HOST, .true.)
+       call this%map_2d%average(output_2d, temp_fields)
+       call this%file_%write(output_2d, t)
+       call output_2d%free()
+       call temp_fields%free()
+       call neko_scratch_registry%relinquish_field(temp_indices)
+       deallocate(temp_indices)
+    case default
+       call neko_error('Invalid spatial_average output dimension')
+    end select
   end subroutine spatial_average_output_sample
 
   !> Constructor from json.
