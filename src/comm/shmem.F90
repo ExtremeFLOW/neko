@@ -64,10 +64,10 @@ module shmem
   end enum
 
   enum, bind(c)
-    enumerator :: SHMEM_CTX_LOW_LATENCY = Z'100'
-    enumerator :: SHMEM_CTX_DEDICATED = Z'200'
-    enumerator :: SHMEM_CTX_BEST_EFFORT = Z'400'
-    enumerator :: SHMEM_CTX_BULK_DATA = Z'800'
+    enumerator :: SHMEM_CTX_LOW_LATENCY = int(Z'100')
+    enumerator :: SHMEM_CTX_DEDICATED = int(Z'200')
+    enumerator :: SHMEM_CTX_BEST_EFFORT = int(Z'400')
+    enumerator :: SHMEM_CTX_BULK_DATA = int(Z'800')
   end enum
 
   enum, bind(c)
