@@ -16,21 +16,20 @@ module boundary_profile
   use vector, only : vector_t
   use time_based_controller, only : time_based_controller_t
   use drag_torque, only : setup_normals, calc_force_array, device_calc_force_array
-  use operators, only : strain_rate
+  use operators, only : strain_rate, opgrad
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use mpi_f08, only : MPI_Comm_rank, MPI_Comm_size, MPI_Gather, MPI_Gatherv, &
        MPI_Exscan, MPI_INTEGER, MPI_SUM
-  use math, only : masked_gather_copy_0
+  use math, only : masked_gather_copy_0, invcol2
   use ale_manager, only : neko_ale
   use file, only : file_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_masked_gather_copy_0
+  use device_math, only : device_masked_gather_copy_0, device_invcol2
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
-
   implicit none
   private
 
-  !> A simulation component for boundary profiles (pressure, wall shear)
+  !> A simulation component for boundary profiles (pressure, wall shear stress, pressure gradient)
   type, public, extends(simulation_component_t) :: boundary_profile_t
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
@@ -52,12 +51,16 @@ module boundary_profile
      logical :: out_ty = .true.
      logical :: out_tz = .true.
      logical :: out_tmag = .true.
+     logical :: out_dpdx = .true. 
+     logical :: out_dpdy = .true.
+     logical :: out_dpdz = .true.
 
      integer, allocatable :: gll_id(:)
      type(vector_t) :: x_ref, y_ref, z_ref
      type(vector_t) :: r1, r2, r3, n1, n2, n3
 
      type(vector_t) :: p_work, mu_work
+     type(vector_t) :: dpdx_work, dpdy_work, dpdz_work
      type(vector_t) :: s11msk, s22msk, s33msk, s12msk, s13msk, s23msk
      type(vector_t) :: force1, force2, force3, force4, force5, force6
 
@@ -65,10 +68,14 @@ module boundary_profile
 
    contains
      procedure, pass(this) :: init => boundary_profile_init_from_json
-     generic :: init_from_components => init_from_controllers, init_from_controllers_properties
-     procedure, pass(this) :: init_from_controllers => boundary_profile_init_from_controllers
-     procedure, pass(this) :: init_from_controllers_properties => boundary_profile_init_from_controllers_properties
-     procedure, private, pass(this) :: init_common => boundary_profile_init_common
+     generic :: init_from_components => &
+          init_from_controllers, init_from_controllers_properties
+     procedure, pass(this) :: init_from_controllers => &
+          boundary_profile_init_from_controllers
+     procedure, pass(this) :: init_from_controllers_properties => &
+          boundary_profile_init_from_controllers_properties
+     procedure, private, pass(this) :: init_common => &
+          boundary_profile_init_common
      procedure, pass(this) :: free => boundary_profile_free
      procedure, pass(this) :: compute_ => boundary_profile_compute
      procedure, pass(this) :: write_profile => boundary_profile_write
@@ -107,7 +114,11 @@ contains
     this%out_tx = (index(var_str, 'tau_x') > 0 .or. index(var_str, 'all') > 0)
     this%out_ty = (index(var_str, 'tau_y') > 0 .or. index(var_str, 'all') > 0)
     this%out_tz = (index(var_str, 'tau_z') > 0 .or. index(var_str, 'all') > 0)
-    this%out_tmag = (index(var_str, 'tau_mag') > 0 .or. index(var_str, 'all') > 0)
+    this%out_tmag = (index(var_str, 'tau_mag') > 0 .or. &
+         index(var_str, 'all') > 0)
+    this%out_dpdx = (index(var_str, 'dpdx') > 0 .or. index(var_str, 'all') > 0)
+    this%out_dpdy = (index(var_str, 'dpdy') > 0 .or. index(var_str, 'all') > 0)
+    this%out_dpdz = (index(var_str, 'dpdz') > 0 .or. index(var_str, 'all') > 0)
     call this%init_common(name, fluid_name, zone_id, zone_name, &
          start_time, case%fluid%c_Xh)
 
@@ -121,11 +132,13 @@ contains
     class(case_t), intent(inout), target :: case
     integer, intent(in) :: order, zone_id
     real(kind=rp), intent(in) :: start_time
-    type(time_based_controller_t), intent(in) :: preprocess_controller, compute_controller, output_controller
+    type(time_based_controller_t), intent(in) :: preprocess_controller, &
+         compute_controller, output_controller
     type(coef_t), intent(inout), target :: coef
 
     call this%free()
-    call this%init_base_from_components(case, order, preprocess_controller, compute_controller, output_controller)
+    call this%init_base_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller)
     call this%init_common(name, fluid_name, zone_id, zone_name, start_time, coef)
   end subroutine boundary_profile_init_from_controllers
 
@@ -143,8 +156,10 @@ contains
 
     call this%free()
     call this%init_base_from_components(case, order, preprocess_control, &
-         preprocess_value, compute_control, compute_value, output_control, output_value)
-    call this%init_common(name, fluid_name, zone_id, zone_name, start_time, coef)
+         preprocess_value, compute_control, compute_value, &
+         output_control, output_value)
+    call this%init_common(name, fluid_name, zone_id, zone_name, &
+         start_time, coef)
   end subroutine boundary_profile_init_from_controllers_properties
 
   subroutine boundary_profile_init_common(this, name, fluid_name, zone_id, zone_name, &
@@ -194,8 +209,12 @@ contains
        call this%n2%init(n_pts)
        call this%n3%init(n_pts)
        call this%p_work%init(n_pts)
+       if (this%out_dpdx) call this%dpdx_work%init(n_pts)
+       if (this%out_dpdy) call this%dpdy_work%init(n_pts)
+       if (this%out_dpdz) call this%dpdz_work%init(n_pts)
 
-       if (this%out_tx .or. this%out_ty .or. this%out_tz .or. this%out_tmag) then
+       if (this%out_tx .or. &
+            this%out_ty .or. this%out_tz .or. this%out_tmag) then
           call this%mu_work%init(n_pts)
           call this%s11msk%init(n_pts)
           call this%s22msk%init(n_pts)
@@ -215,7 +234,8 @@ contains
        call this%y_ref%init(n_pts)
        call this%z_ref%init(n_pts)
 
-       call setup_normals(this%coef, this%bc%msk, this%bc%facet, this%n1%x, this%n2%x, this%n3%x, n_pts)
+       call setup_normals(this%coef, this%bc%msk, this%bc%facet, this%n1%x, &
+            this%n2%x, this%n3%x, n_pts)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_masked_gather_copy_0(this%r1%x_d, &
@@ -225,13 +245,19 @@ contains
           call device_masked_gather_copy_0(this%r3%x_d, &
                this%coef%dof%z_d, this%bc%msk_d, this%u%size(), n_pts)
 
-          call device_memcpy(this%r1%x, this%r1%x_d, n_pts, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%r2%x, this%r2%x_d, n_pts, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%r3%x, this%r3%x_d, n_pts, DEVICE_TO_HOST, .false.)
+          call device_memcpy(this%r1%x, this%r1%x_d, n_pts, &
+               DEVICE_TO_HOST, .false.)
+          call device_memcpy(this%r2%x, this%r2%x_d, n_pts, &
+               DEVICE_TO_HOST, .false.)
+          call device_memcpy(this%r3%x, this%r3%x_d, n_pts, &
+               DEVICE_TO_HOST, .false.)
 
-          call device_memcpy(this%n1%x, this%n1%x_d, n_pts, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%n2%x, this%n2%x_d, n_pts, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%n3%x, this%n3%x_d, n_pts, HOST_TO_DEVICE, .true.)
+          call device_memcpy(this%n1%x, this%n1%x_d, n_pts, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%n2%x, this%n2%x_d, n_pts, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%n3%x, this%n3%x_d, n_pts, &
+               HOST_TO_DEVICE, .true.)
        else
           call masked_gather_copy_0(this%r1%x, this%coef%dof%x, &
              this%bc%msk, this%u%size(), n_pts)
@@ -246,15 +272,19 @@ contains
        this%z_ref%x = this%r3%x
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(this%x_ref%x, this%x_ref%x_d, n_pts, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%y_ref%x, this%y_ref%x_d, n_pts, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%z_ref%x, this%z_ref%x_d, n_pts, HOST_TO_DEVICE, .true.)
+          call device_memcpy(this%x_ref%x, this%x_ref%x_d, n_pts, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%y_ref%x, this%y_ref%x_d, n_pts, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%z_ref%x, this%z_ref%x_d, n_pts, &
+               HOST_TO_DEVICE, .true.)
        end if
     end if
 
     init_rank = pe_rank
     init_offset = 0
-    call MPI_Exscan(n_pts, init_offset, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, init_ierr)
+    call MPI_Exscan(n_pts, init_offset, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, init_ierr)
     if (init_rank == 0) init_offset = 0
 
     allocate(this%gll_id(max(0, n_pts)))
@@ -263,12 +293,15 @@ contains
     end do
 
     if (pe_rank == 0) allocate(recvcounts(pe_size), displs(pe_size))
-    call MPI_Gather(n_pts, 1, MPI_INTEGER, recvcounts, 1, MPI_INTEGER, 0, NEKO_COMM, init_ierr)
+    call MPI_Gather(n_pts, 1, MPI_INTEGER, recvcounts, 1, &
+         MPI_INTEGER, 0, NEKO_COMM, init_ierr)
 
     init_offset = 0
-    call MPI_Exscan(n_pts, init_offset, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, init_ierr)
+    call MPI_Exscan(n_pts, init_offset, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, init_ierr)
     if (pe_rank == 0) init_offset = 0
-    call MPI_Gather(init_offset, 1, MPI_INTEGER, displs, 1, MPI_INTEGER, 0, NEKO_COMM, init_ierr)
+    call MPI_Gather(init_offset, 1, MPI_INTEGER, displs, 1, &
+         MPI_INTEGER, 0, NEKO_COMM, init_ierr)
 
     allocate(local_id_buf(max(1, n_pts)))
     allocate(local_mesh_buf(6, max(1, n_pts)))
@@ -319,17 +352,25 @@ contains
          0, NEKO_COMM, init_ierr)
 
     if (pe_rank == 0 .and. total_n > 0) then
-       write(filename_mesh, '("boundary_profile_",A,"_mesh.csv")') trim(this%name)
-       open(newunit=io_unit, file=this%case%output_directory // trim(filename_mesh), &
+       write(filename_mesh, '("boundary_profile_",A,"_mesh.csv")') &
+            trim(this%name)
+
+       open(newunit=io_unit, &
+            file=this%case%output_directory // trim(filename_mesh), &
             status='replace', action='write')
 
-       write(io_unit, '(A)') "gll_id,x_ref,y_ref,z_ref,-nrm_x_ref,-nrm_y_ref,-nrm_z_ref"
+       write(io_unit, '(A)') &
+            "gll_id,x_ref,y_ref,z_ref,-nrm_x_ref,-nrm_y_ref,-nrm_z_ref"
 
        do i = 1, total_n
           write(io_unit, '(I0,A,6(G0.15,A))') &
-             global_id_buf(i), ',', &
-             global_mesh_buf(1, i), ',', global_mesh_buf(2, i), ',', global_mesh_buf(3, i), ',', &
-             global_mesh_buf(4, i), ',', global_mesh_buf(5, i), ',', global_mesh_buf(6, i)
+                  global_id_buf(i), ',', &
+                  global_mesh_buf(1, i), ',', &
+                  global_mesh_buf(2, i), ',', &
+                  global_mesh_buf(3, i), ',', &
+                  global_mesh_buf(4, i), ',', &
+                  global_mesh_buf(5, i), ',', &
+                  global_mesh_buf(6, i)
        end do
        close(io_unit)
     end if
@@ -338,19 +379,25 @@ contains
     deallocate(local_mesh_buf, global_mesh_buf)
     if (pe_rank == 0) deallocate(recvcounts, displs)
 
-    write(this%data_filename, '("boundary_profile_",A,"_data.csv")') trim(this%name)
+    write(this%data_filename, &
+         '("boundary_profile_",A,"_data.csv")') trim(this%name)
 
     if (pe_rank == 0) then
-       open(newunit=io_unit, file=this%case%output_directory // trim(this%data_filename), &
+       open(newunit=io_unit, &
+            file=this%case%output_directory // trim(this%data_filename), &
             status='replace', action='write')
 
        header_str = "t,gll_id"
-       if (this%ale_enabled) header_str = trim(header_str) // ",x,y,z,-nrm_x,-nrm_y,-nrm_z"
+       if (this%ale_enabled) header_str = &
+            trim(header_str) // ",x,y,z,-nrm_x,-nrm_y,-nrm_z"
        if (this%out_p) header_str = trim(header_str) // ",p"
        if (this%out_tx) header_str = trim(header_str) // ",tau_x"
        if (this%out_ty) header_str = trim(header_str) // ",tau_y"
        if (this%out_tz) header_str = trim(header_str) // ",tau_z"
        if (this%out_tmag) header_str = trim(header_str) // ",tau_mag"
+       if (this%out_dpdx) header_str = trim(header_str) // ",dpdx"
+       if (this%out_dpdy) header_str = trim(header_str) // ",dpdy"
+       if (this%out_dpdz) header_str = trim(header_str) // ",dpdz"
        write(io_unit, '(A)') trim(header_str)
        close(io_unit)
     end if
@@ -358,7 +405,8 @@ contains
     call neko_log%section("Boundary Profile Operation")
     write(log_buf, '(A,A)') "Name: ", trim(this%name)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I0,A,A)') "Zone: ", this%zone_id, " ", trim(this%zone_name)
+    write(log_buf, &
+         '(A,I0,A,A)') "Zone: ", this%zone_id, " ", trim(this%zone_name)
     call neko_log%message(log_buf)
 
     header_str = "Output Variables: "
@@ -367,6 +415,9 @@ contains
     if (this%out_ty) header_str = trim(header_str) // " tau_y"
     if (this%out_tz) header_str = trim(header_str) // " tau_z"
     if (this%out_tmag) header_str = trim(header_str) // " tau_mag"
+    if (this%out_dpdx) header_str = trim(header_str) // " dpdx"
+    if (this%out_dpdy) header_str = trim(header_str) // " dpdy"
+    if (this%out_dpdz) header_str = trim(header_str) // " dpdz"
     call neko_log%message(trim(header_str))
 
     call neko_log%end_section()
@@ -384,6 +435,9 @@ contains
     call this%n2%free()
     call this%n3%free()
     call this%p_work%free()
+    if (this%out_dpdx) call this%dpdx_work%free()
+    if (this%out_dpdy) call this%dpdy_work%free()
+    if (this%out_dpdz) call this%dpdz_work%free()
 
     if (this%out_tx .or. this%out_ty .or. this%out_tz .or. this%out_tmag) then
        call this%mu_work%free()
@@ -436,23 +490,31 @@ contains
     class(boundary_profile_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    integer :: i, j, local_n, total_n, rank, num_procs, ierr, local_offset, num_cols
-    integer :: temp_indices(6), idx
+    integer :: i, j, local_n, total_n, rank, num_procs, ierr
+    integer :: local_offset, num_cols
+    integer :: temp_indices(6), temp_indices_dp(3), idx
     integer, allocatable :: recvcounts(:), displs(:)
     integer, allocatable :: local_id_buf(:), global_id_buf(:)
     real(kind=rp), allocatable :: local_buffer(:,:), global_buffer(:,:)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
+    type(field_t), pointer :: dpdx, dpdy, dpdz
     real(kind=rp) :: total_visc_x, total_visc_y, total_visc_z, dot_v_n
     real(kind=rp) :: nx_unit, ny_unit, nz_unit, area_mag
     real(kind=rp) :: tx, ty, tz
     integer :: io_unit
-    logical :: compute_tau
+    logical :: compute_tau, compute_dp
     character(len=256) :: fmt_str
 
     rank = pe_rank
     num_procs = pe_size
     local_n = this%bc%msk(0)
-    compute_tau = this%out_tx .or. this%out_ty .or. this%out_tz .or. this%out_tmag
+    compute_tau = &
+         this%out_tx .or. &
+         this%out_ty .or. &
+         this%out_tz .or. &
+         this%out_tmag
+
+    compute_dp = this%out_dpdx .or. this%out_dpdy .or. this%out_dpdz
 
     num_cols = 0
     if (this%ale_enabled) num_cols = 6
@@ -461,6 +523,9 @@ contains
     if (this%out_ty) num_cols = num_cols + 1
     if (this%out_tz) num_cols = num_cols + 1
     if (this%out_tmag) num_cols = num_cols + 1
+    if (this%out_dpdx) num_cols = num_cols + 1
+    if (this%out_dpdy) num_cols = num_cols + 1
+    if (this%out_dpdz) num_cols = num_cols + 1
 
     if (compute_tau) then
        call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
@@ -469,17 +534,88 @@ contains
        call neko_scratch_registry%request_field(s22, temp_indices(4), .false.)
        call neko_scratch_registry%request_field(s23, temp_indices(5), .false.)
        call neko_scratch_registry%request_field(s33, temp_indices(6), .false.)
-       call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, this%u, this%v, this%w, this%coef)
+       call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
+            this%u, this%v, this%w, this%coef)
+    end if
+
+    if (compute_dp) then
+       call neko_scratch_registry%request_field(dpdx, temp_indices_dp(1), &
+            .false.)
+       call neko_scratch_registry%request_field(dpdy, temp_indices_dp(2), &
+            .false.)
+       call neko_scratch_registry%request_field(dpdz, temp_indices_dp(3), &
+            .false.)
+
+       ! Calculate Weak Gradient
+       call opgrad(dpdx%x, dpdy%x, dpdz%x, this%p%x, this%coef)
+
+       ! Divide by B to get Strong Gradient
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_invcol2(dpdx%x_d, this%coef%B_d, this%p%size())
+          call device_invcol2(dpdy%x_d, this%coef%B_d, this%p%size())
+          call device_invcol2(dpdz%x_d, this%coef%B_d, this%p%size())
+       else
+          call invcol2(dpdx%x, this%coef%B, this%p%size())
+          call invcol2(dpdy%x, this%coef%B, this%p%size())
+          call invcol2(dpdz%x, this%coef%B, this%p%size())
+       end if
+    end if
+
+    if (compute_dp .and. local_n > 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (this%out_dpdx) then
+            call device_masked_gather_copy_0(this%dpdx_work%x_d, dpdx%x_d, &
+                 this%bc%msk_d, this%p%size(), local_n)
+          end if
+          if (this%out_dpdy) then 
+            call device_masked_gather_copy_0(this%dpdy_work%x_d, dpdy%x_d, &
+                 this%bc%msk_d, this%p%size(), local_n)
+          end if
+          if (this%out_dpdz) then
+            call device_masked_gather_copy_0(this%dpdz_work%x_d, dpdz%x_d, &
+                 this%bc%msk_d, this%p%size(), local_n)
+          end if
+
+          if (this%out_dpdx) then 
+            call device_memcpy(this%dpdx_work%x, this%dpdx_work%x_d, &
+                 local_n, DEVICE_TO_HOST, .true.)
+          end if
+          if (this%out_dpdy) then 
+            call device_memcpy(this%dpdy_work%x, this%dpdy_work%x_d, &
+                 local_n, DEVICE_TO_HOST, .true.)
+          end if
+          if (this%out_dpdz) then
+            call device_memcpy(this%dpdz_work%x, this%dpdz_work%x_d, &
+                 local_n, DEVICE_TO_HOST, .true.)
+          end if
+       else
+          if (this%out_dpdx) then 
+            call masked_gather_copy_0(this%dpdx_work%x, dpdx%x, &
+                 this%bc%msk, this%u%size(), local_n)
+          end if
+          if (this%out_dpdy) then 
+            call masked_gather_copy_0(this%dpdy_work%x, dpdy%x, &
+                 this%bc%msk, this%u%size(), local_n)
+          end if
+          if (this%out_dpdz) then
+            call masked_gather_copy_0(this%dpdz_work%x, dpdz%x, &
+                 this%bc%msk, this%u%size(), local_n)
+          end if
+       end if
     end if
 
     if (this%ale_enabled .and. local_n > 0) then
        ! get normals for ALE
-       call setup_normals(this%coef, this%bc%msk, this%bc%facet, this%n1%x, this%n2%x, this%n3%x, local_n)
+       call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
+            this%n1%x, this%n2%x, this%n3%x, local_n)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(this%n1%x, this%n1%x_d, local_n, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%n2%x, this%n2%x_d, local_n, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%n3%x, this%n3%x_d, local_n, HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%n1%x, this%n1%x_d, local_n, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%n2%x, this%n2%x_d, local_n, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%n3%x, this%n3%x_d, local_n, &
+               HOST_TO_DEVICE, .false.)
 
           call device_masked_gather_copy_0(this%r1%x_d, this%coef%dof%x_d, &
                this%bc%msk_d, this%u%size(), local_n)
@@ -488,9 +624,12 @@ contains
           call device_masked_gather_copy_0(this%r3%x_d, this%coef%dof%z_d, &
                this%bc%msk_d, this%u%size(), local_n)
 
-          call device_memcpy(this%r1%x, this%r1%x_d, local_n, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%r2%x, this%r2%x_d, local_n, HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%r3%x, this%r3%x_d, local_n, HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%r1%x, this%r1%x_d, local_n, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%r2%x, this%r2%x_d, local_n, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%r3%x, this%r3%x_d, local_n, &
+               HOST_TO_DEVICE, .true.)
        else
           call masked_gather_copy_0(this%r1%x, this%coef%dof%x, &
                this%bc%msk, this%u%size(), local_n)
@@ -503,27 +642,38 @@ contains
 
     if ((this%out_p .or. compute_tau) .and. local_n > 0) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_masked_gather_copy_0(this%p_work%x_d, this%p%x_d, this%bc%msk_d, this%p%size(), local_n)
+          call device_masked_gather_copy_0(this%p_work%x_d, &
+          this%p%x_d, this%bc%msk_d, this%p%size(), local_n)
        else
-          call masked_gather_copy_0(this%p_work%x, this%p%x, this%bc%msk, this%p%size(), local_n)
+          call masked_gather_copy_0(this%p_work%x, this%p%x, &
+               this%bc%msk, this%p%size(), local_n)
        end if
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (this%out_p .and. local_n > 0) then
-          call device_memcpy(this%p_work%x, this%p_work%x_d, local_n, DEVICE_TO_HOST, .false.)
+          call device_memcpy(this%p_work%x, this%p_work%x_d, local_n, &
+               DEVICE_TO_HOST, .false.)
        end if
 
        if (compute_tau .and. local_n > 0) then
-          call device_masked_gather_copy_0(this%mu_work%x_d, this%mu%x_d, this%bc%msk_d, this%mu%size(), local_n)
-          call device_masked_gather_copy_0(this%s11msk%x_d, s11%x_d, this%bc%msk_d, s11%size(), local_n)
-          call device_masked_gather_copy_0(this%s22msk%x_d, s22%x_d, this%bc%msk_d, s22%size(), local_n)
-          call device_masked_gather_copy_0(this%s33msk%x_d, s33%x_d, this%bc%msk_d, s33%size(), local_n)
-          call device_masked_gather_copy_0(this%s12msk%x_d, s12%x_d, this%bc%msk_d, s12%size(), local_n)
-          call device_masked_gather_copy_0(this%s13msk%x_d, s13%x_d, this%bc%msk_d, s13%size(), local_n)
-          call device_masked_gather_copy_0(this%s23msk%x_d, s23%x_d, this%bc%msk_d, s23%size(), local_n)
+          call device_masked_gather_copy_0(this%mu_work%x_d, &
+               this%mu%x_d, this%bc%msk_d, this%mu%size(), local_n)
+          call device_masked_gather_copy_0(this%s11msk%x_d, &
+               s11%x_d, this%bc%msk_d, s11%size(), local_n)
+          call device_masked_gather_copy_0(this%s22msk%x_d, &
+               s22%x_d, this%bc%msk_d, s22%size(), local_n)
+          call device_masked_gather_copy_0(this%s33msk%x_d, &
+               s33%x_d, this%bc%msk_d, s33%size(), local_n)
+          call device_masked_gather_copy_0(this%s12msk%x_d, &
+               s12%x_d, this%bc%msk_d, s12%size(), local_n)
+          call device_masked_gather_copy_0(this%s13msk%x_d, &
+               s13%x_d, this%bc%msk_d, s13%size(), local_n)
+          call device_masked_gather_copy_0(this%s23msk%x_d, &
+               s23%x_d, this%bc%msk_d, s23%size(), local_n)
 
-          call device_calc_force_array(this%force1%x_d, this%force2%x_d, this%force3%x_d, &
+          call device_calc_force_array(this%force1%x_d, &
+               this%force2%x_d, this%force3%x_d, &
                this%force4%x_d, this%force5%x_d, this%force6%x_d, &
                this%s11msk%x_d, this%s22msk%x_d, this%s33msk%x_d, &
                this%s12msk%x_d, this%s13msk%x_d, this%s23msk%x_d, &
@@ -531,19 +681,29 @@ contains
                this%mu_work%x_d, local_n)
 
           ! Forces 4, 5, 6 are viscous forces
-          call device_memcpy(this%force4%x, this%force4%x_d, local_n, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%force5%x, this%force5%x_d, local_n, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%force6%x, this%force6%x_d, local_n, DEVICE_TO_HOST, .true.)
+          call device_memcpy(this%force4%x, this%force4%x_d, local_n, &
+               DEVICE_TO_HOST, .false.)
+          call device_memcpy(this%force5%x, this%force5%x_d, local_n, &
+               DEVICE_TO_HOST, .false.)
+          call device_memcpy(this%force6%x, this%force6%x_d, local_n, &
+               DEVICE_TO_HOST, .true.)
        end if
     else
        if (compute_tau .and. local_n > 0) then
-          call masked_gather_copy_0(this%mu_work%x, this%mu%x, this%bc%msk, this%mu%size(), local_n)
-          call masked_gather_copy_0(this%s11msk%x, s11%x, this%bc%msk, s11%size(), local_n)
-          call masked_gather_copy_0(this%s22msk%x, s22%x, this%bc%msk, s22%size(), local_n)
-          call masked_gather_copy_0(this%s33msk%x, s33%x, this%bc%msk, s33%size(), local_n)
-          call masked_gather_copy_0(this%s12msk%x, s12%x, this%bc%msk, s12%size(), local_n)
-          call masked_gather_copy_0(this%s13msk%x, s13%x, this%bc%msk, s13%size(), local_n)
-          call masked_gather_copy_0(this%s23msk%x, s23%x, this%bc%msk, s23%size(), local_n)
+          call masked_gather_copy_0(this%mu_work%x, &
+               this%mu%x, this%bc%msk, this%mu%size(), local_n)
+          call masked_gather_copy_0(this%s11msk%x, s11%x, this%bc%msk, &
+               s11%size(), local_n)
+          call masked_gather_copy_0(this%s22msk%x, s22%x, this%bc%msk, &
+               s22%size(), local_n)
+          call masked_gather_copy_0(this%s33msk%x, s33%x, this%bc%msk, &
+               s33%size(), local_n)
+          call masked_gather_copy_0(this%s12msk%x, s12%x, this%bc%msk, &
+               s12%size(), local_n)
+          call masked_gather_copy_0(this%s13msk%x, s13%x, this%bc%msk, &
+               s13%size(), local_n)
+          call masked_gather_copy_0(this%s23msk%x, s23%x, this%bc%msk, &
+               s23%size(), local_n)
 
           call calc_force_array(this%force1%x, this%force2%x, this%force3%x, &
                this%force4%x, this%force5%x, this%force6%x, &
@@ -599,7 +759,11 @@ contains
           end if
 
           ! Normal viscous stress component
-          dot_v_n = total_visc_x*nx_unit + total_visc_y*ny_unit + total_visc_z*nz_unit
+          dot_v_n = &
+               total_visc_x*nx_unit + &
+               total_visc_y*ny_unit + &
+               total_visc_z*nz_unit
+
           tx = total_visc_x - dot_v_n*nx_unit
           ty = total_visc_y - dot_v_n*ny_unit
           tz = total_visc_z - dot_v_n*nz_unit
@@ -625,17 +789,37 @@ contains
              idx = idx + 1
           end if
        end if
+
+          if (this%out_dpdx) then
+             local_buffer(idx, i) = this%dpdx_work%x(i); idx = idx + 1
+          end if
+          if (this%out_dpdy) then
+             local_buffer(idx, i) = this%dpdy_work%x(i); idx = idx + 1
+          end if
+          if (this%out_dpdz) then
+             local_buffer(idx, i) = this%dpdz_work%x(i); idx = idx + 1
+          end if
+
     end do
 
-    if (compute_tau) call neko_scratch_registry%relinquish_field(temp_indices)
+    if (compute_tau) &
+         call neko_scratch_registry%relinquish_field(temp_indices)
+
+    if (compute_dp) &
+         call neko_scratch_registry%relinquish_field(temp_indices_dp)
 
     if (rank == 0) allocate(recvcounts(num_procs), displs(num_procs))
-    call MPI_Gather(local_n, 1, MPI_INTEGER, recvcounts, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+    call MPI_Gather(local_n, 1, MPI_INTEGER, &
+         recvcounts, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
 
     local_offset = 0
-    call MPI_Exscan(local_n, local_offset, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Exscan(local_n, local_offset, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+
     if (rank == 0) local_offset = 0
-    call MPI_Gather(local_offset, 1, MPI_INTEGER, displs, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+
+    call MPI_Gather(local_offset, 1, MPI_INTEGER, displs, 1, &
+         MPI_INTEGER, 0, NEKO_COMM, ierr)
 
     if (rank == 0) then
        total_n = sum(recvcounts)
@@ -686,13 +870,15 @@ contains
        end if
        fmt_str = trim(fmt_str) // ")"
 
-       open(newunit=io_unit, file=this%case%output_directory // trim(this%data_filename), &
+       open(newunit=io_unit, &
+            file=this%case%output_directory // trim(this%data_filename), &
             position='append', action='write')
 
        do i = 1, total_n
           if (num_cols > 0) then
              write(io_unit, fmt_str) time%t, ',', global_id_buf(i), ',', &
-                 (global_buffer(j, i), ',', j=1, num_cols-1), global_buffer(num_cols, i)
+                 (global_buffer(j, i), ',', j=1, num_cols-1), &
+                 global_buffer(num_cols, i)
           else
              write(io_unit, fmt_str) time%t, ',', global_id_buf(i)
           end if
