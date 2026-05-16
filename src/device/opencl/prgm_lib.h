@@ -53,6 +53,9 @@ extern void *cfl_program;
 /** Device Velocity gradient kernels */
 extern void *opgrad_program;
 
+/** Device cyclic boundary rotation kernels */
+extern void *rotate_program;
+
 /** Device Gather-Scatter kernels */
 extern void *gs_program;
 
