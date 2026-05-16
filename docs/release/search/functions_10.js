@@ -35,7 +35,7 @@ var searchData=
   ['phmg_5finit_32',['phmg_init',['../d1/d38/namespacephmg.html#a418fd06ee7695c0f6f3ba9a66c2594c9',1,'phmg']]],
   ['phmg_5finit_5ffrom_5fcomponents_33',['phmg_init_from_components',['../d1/d38/namespacephmg.html#a18d30ebc1747cd2854802ecc692eb293',1,'phmg']]],
   ['phmg_5fjacobi_5fsmoother_34',['phmg_jacobi_smoother',['../d1/d38/namespacephmg.html#a0bfdfc7e98d9c658d456ff3790e22562',1,'phmg']]],
-  ['phmg_5fmg_5fcycle_35',['phmg_mg_cycle',['../d1/d38/namespacephmg.html#ad2399ef98a12756b4a63abff6f55c23c',1,'phmg']]],
+  ['phmg_5fmg_5fcycle_35',['phmg_mg_cycle',['../d1/d38/namespacephmg.html#a72c49e1a8254026f81c10a3a8d1755a2',1,'phmg']]],
   ['phmg_5fresid_5fmonitor_36',['phmg_resid_monitor',['../d1/d38/namespacephmg.html#a810bef12c508567a313351c78cac63e6',1,'phmg']]],
   ['phmg_5fsolve_37',['phmg_solve',['../d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678',1,'phmg']]],
   ['phmg_5fupdate_38',['phmg_update',['../d1/d38/namespacephmg.html#a4b4699e6c222fd54365a713d9571a23d',1,'phmg']]],

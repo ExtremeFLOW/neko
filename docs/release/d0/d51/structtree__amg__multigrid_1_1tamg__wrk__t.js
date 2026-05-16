@@ -1,9 +1,10 @@
 var structtree__amg__multigrid_1_1tamg__wrk__t =
 [
+    [ "b", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#a64f6394e3948d27865a3793c7daf1777", null ],
+    [ "b_d", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#afa178630867e56e8d46d3ff62fe4081d", null ],
+    [ "n", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#aeddb4fad83423045bb443623502419e5", null ],
     [ "r", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#a563edd2186d04519a632e912daa96485", null ],
     [ "r_d", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#a6aaec0a4f94d7db13fa8dead48a2bb47", null ],
-    [ "rc", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#a0eb4a8deeca67b6319d1d67f8c67a01f", null ],
-    [ "rc_d", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#a57b29f9a1cd0f9852519bede1e9f4d59", null ],
-    [ "tmp", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#ae52864e56154fa816ddae29a82896924", null ],
-    [ "tmp_d", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#a676a892a02aef14984b2a00b11157015", null ]
+    [ "x", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#a34cac0ff90450b1b4ba6539e4b47c5e9", null ],
+    [ "x_d", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html#a6be96da5f15adc6a822844adff30132a", null ]
 ];

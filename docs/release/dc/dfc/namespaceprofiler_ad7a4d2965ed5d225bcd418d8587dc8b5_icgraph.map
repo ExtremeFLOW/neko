@@ -1,21 +1,25 @@
 <map id="profiler::profiler_end_region" name="profiler::profiler_end_region">
-<area shape="rect" id="Node000001" title="End the most recently started profiler region." alt="" coords="679,199,801,239"/>
+<area shape="rect" id="Node000001" title="End the most recently started profiler region." alt="" coords="679,257,801,297"/>
 <area shape="rect" id="Node000002" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="407,5,631,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="725,187,711,153,690,115,663,77,629,46,606,33,608,28,632,41,667,73,694,112,715,151,730,185"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="730,244,719,199,699,145,670,91,651,66,629,45,608,33,611,29,632,41,655,63,674,88,704,142,724,197,735,243"/>
 <area shape="rect" id="Node000003" href="$d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="438,55,599,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="714,190,677,148,654,127,629,110,598,95,601,90,632,105,658,123,681,144,718,187"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="724,245,688,176,661,140,629,109,598,93,601,88,632,105,665,137,692,173,729,243"/>
 <area shape="rect" id="Node000004" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="414,120,623,145"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="696,194,630,160,589,148,591,143,632,156,698,190"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="716,247,679,201,656,179,629,160,601,148,603,143,632,156,659,175,683,198,720,243"/>
 <area shape="rect" id="Node000005" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="449,170,588,210"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="665,212,588,202,589,197,665,207"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="690,252,630,224,588,210,589,205,632,220,692,248"/>
 <area shape="rect" id="Node000010" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="447,235,591,260"/>
-<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="665,231,591,241,591,236,665,226"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="665,269,591,259,591,254,665,264"/>
 <area shape="rect" id="Node000011" href="$d8/d57/namespaceoutput__controller.html#a08c282053e52e289594f25a59e1926a8" title="Query each of the controllers whether it is time to write, and if so, do so for the corresponding out..." alt="" coords="423,285,614,325"/>
-<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="690,248,632,274,593,287,592,282,630,269,688,243"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="665,289,615,295,614,290,665,283"/>
 <area shape="rect" id="Node000012" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="443,349,595,389"/>
-<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="720,252,682,297,658,320,632,339,596,355,594,351,629,334,655,316,678,293,716,249"/>
-<area shape="rect" id="Node000013" href="$d1/d2d/namespacesimulation.html#a625edcf01f19970ace9c4af485edfb19" title="Compute a single time&#45;step of a case." alt="" coords="417,413,620,439"/>
-<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="730,254,716,289,695,330,667,369,632,403,609,416,606,411,629,399,663,366,691,327,711,287,726,252"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="697,306,632,339,596,352,594,347,630,334,694,301"/>
+<area shape="rect" id="Node000013" href="$d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678" title=" " alt="" coords="445,413,592,439"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="722,310,684,358,660,383,632,403,593,419,591,414,629,398,656,379,680,355,717,307"/>
+<area shape="rect" id="Node000014" href="$d1/d2d/namespacesimulation.html#a625edcf01f19970ace9c4af485edfb19" title="Compute a single time&#45;step of a case." alt="" coords="417,463,620,488"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="730,311,715,345,694,384,667,422,632,454,611,465,608,460,629,449,663,418,690,381,710,343,725,309"/>
+<area shape="rect" id="Node000016" href="$d5/d1b/namespacetree__amg__multigrid.html#ad8909c9e701623c78bcd446fcc2ef26a" title="multigrid cycle for the TreeAMG solver object" alt="" coords="443,513,594,553"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="734,311,722,354,701,406,672,458,654,482,632,503,615,515,595,523,593,518,612,510,629,499,650,478,668,455,697,404,717,353,729,309"/>
 <area shape="rect" id="Node000006" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="192,92,359,117"/>
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="435,170,406,159,358,132,323,120,325,115,360,128,408,154,437,165"/>
 <area shape="rect" id="Node000007" href="$d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="206,142,345,182"/>
@@ -26,6 +30,6 @@
 <area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="437,215,408,225,322,259,320,254,406,219,435,210"/>
 <area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="194,188,145,202,144,197,192,183"/>
 <area shape="poly" id="edge9_Node000009_Node000008" title=" " alt="" coords="192,256,144,242,145,237,194,251"/>
-<area shape="rect" id="Node000014" href="$dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="208,413,343,439"/>
-<area shape="poly" id="edge15_Node000013_Node000014" title=" " alt="" coords="403,429,343,429,343,423,403,423"/>
+<area shape="rect" id="Node000015" href="$dd/d62/namespaceneko.html#abf12d6da8fb2dd09f7ff843e0356ee04" title="Main driver to solve a case C." alt="" coords="208,463,343,488"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="403,478,343,478,343,473,403,473"/>
 </map>

@@ -17,11 +17,11 @@
 <area shape="rect" id="Node000018" href="$dc/d12/namespacematrix__math.html#a30b0cebe559d60667e303926de45e865" title="Vector addition ." alt="" coords="531,506,727,531"/>
 <area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="815,444,782,471,743,496,708,509,706,503,740,491,779,467,811,439"/>
 <area shape="rect" id="Node000019" href="$d9/d5a/namespaceopr__xsmm.html#a57bf41f6f4190d4e8f728bd37db80ec9" title=" " alt="" coords="528,555,731,581"/>
-<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="826,445,793,496,770,523,743,545,717,558,714,553,740,540,766,519,789,493,822,442"/>
-<area shape="rect" id="Node000026" href="$d5/d1b/namespacetree__amg__multigrid.html#a06bb4fd3fe04b4bc0a36cafaccf475eb" title="Recrsive multigrid cycle for the TreeAMG solver object." alt="" coords="554,629,705,669"/>
-<area shape="poly" id="edge26_Node000001_Node000026" title=" " alt="" coords="830,446,798,517,774,558,743,594,716,615,686,631,684,627,713,611,739,590,769,554,793,515,825,443"/>
-<area shape="rect" id="Node000028" href="$d3/d0d/namespacevector__math.html#a2ca83e4227ff57fef1ae01d8c4d3e963" title="Vector addition ." alt="" coords="533,694,725,719"/>
-<area shape="poly" id="edge29_Node000001_Node000028" title=" " alt="" coords="837,445,831,496,816,560,803,594,788,627,768,657,743,683,723,696,721,692,740,679,763,654,783,624,798,592,810,558,826,495,832,444"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="826,445,794,497,770,524,743,546,719,558,717,553,740,542,767,520,790,494,822,442"/>
+<area shape="rect" id="Node000026" href="$d5/d1b/namespacetree__amg__multigrid.html#ad8909c9e701623c78bcd446fcc2ef26a" title="multigrid cycle for the TreeAMG solver object" alt="" coords="554,605,705,645"/>
+<area shape="poly" id="edge26_Node000001_Node000026" title=" " alt="" coords="832,445,820,479,801,520,776,560,743,595,706,615,704,610,740,591,772,557,797,517,815,477,827,443"/>
+<area shape="rect" id="Node000027" href="$d3/d0d/namespacevector__math.html#a2ca83e4227ff57fef1ae01d8c4d3e963" title="Vector addition ." alt="" coords="533,670,725,695"/>
+<area shape="poly" id="edge27_Node000001_Node000027" title=" " alt="" coords="836,445,828,491,812,549,785,609,766,636,743,659,723,672,720,668,740,655,762,632,780,606,807,548,823,490,831,444"/>
 <area shape="rect" id="Node000005" href="$d8/dec/namespacedivergence__simcomp.html#afd972ea52ff980dd011d6f144b62b137" title="Compute the divergence field." alt="" coords="281,5,447,45"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="559,215,536,207,516,194,501,177,494,160,490,126,487,92,480,75,468,59,446,45,449,40,471,55,485,73,492,90,495,125,499,159,506,174,519,190,538,202,560,210"/>
 <area shape="rect" id="Node000006" href="$d1/d20/namespaceeuler__res__cpu.html#a83856a062ef183395a069cd9fb5c1a30" title="Evaluates the right&#45;hand side of the Euler equations Computes fluxes, divergence terms,..." alt="" coords="275,69,453,109"/>
@@ -50,10 +50,7 @@
 <area shape="rect" id="Node000023" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="27,591,189,646"/>
 <area shape="poly" id="edge23_Node000020_Node000023" title=" " alt="" coords="291,585,190,605,189,600,290,580"/>
 <area shape="rect" id="Node000024" href="$dd/d1f/namespacepnpn__res__stress__device.html#a9c09a9089caa70d30de4f4b7b087d19e" title=" " alt="" coords="19,670,197,725"/>
-<area shape="poly" id="edge24_Node000020_Node000024" title=" " alt="" coords="319,589,260,620,237,640,212,661,190,672,188,668,209,656,233,636,257,615,316,584"/>
+<area shape="poly" id="edge24_Node000020_Node000024" title=" " alt="" coords="334,591,278,625,212,661,187,672,185,667,209,656,275,621,331,586"/>
 <area shape="rect" id="Node000025" href="$d4/da3/namespacepnpn__res__sx.html#aef62882f6b94db68f970070af4cba651" title=" " alt="" coords="23,749,193,789"/>
-<area shape="poly" id="edge25_Node000020_Node000025" title=" " alt="" coords="307,588,282,602,261,619,249,634,243,649,238,679,233,709,225,724,212,739,195,752,192,747,209,735,221,721,228,707,233,678,238,648,245,632,257,615,279,597,304,584"/>
-<area shape="poly" id="edge27_Node000026_Node000026" title=" " alt="" coords="664,618,652,611,629,608,609,610,597,615,593,621,595,628,590,630,588,620,594,610,608,605,629,603,654,606,667,613"/>
-<area shape="rect" id="Node000027" href="$d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="289,629,439,669"/>
-<area shape="poly" id="edge28_Node000026_Node000027" title=" " alt="" coords="540,652,439,652,439,647,540,647"/>
+<area shape="poly" id="edge25_Node000020_Node000025" title=" " alt="" coords="349,594,294,666,256,705,212,740,189,751,187,747,209,735,252,701,290,662,345,591"/>
 </map>

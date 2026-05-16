@@ -1,85 +1,87 @@
 <map id="math::copy" name="math::copy">
-<area shape="rect" id="Node000001" title="Copy a vector ." alt="" coords="1036,1166,1131,1191"/>
+<area shape="rect" id="Node000001" title="Copy a vector ." alt="" coords="1036,1190,1131,1215"/>
 <area shape="rect" id="Node000002" href="$d1/d20/namespaceeuler__res__cpu.html#aa1bfd1583e093204cb59e081daaf9646" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="783,5,969,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1079,1152,1073,926,1058,577,1046,400,1030,243,1010,123,998,83,986,59,967,43,971,39,990,56,1003,81,1015,122,1035,242,1051,400,1063,577,1078,925,1084,1152"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1079,1176,1073,945,1059,589,1046,408,1030,247,1010,125,999,84,986,59,967,43,971,39,990,56,1004,82,1016,124,1036,247,1052,407,1064,589,1079,945,1084,1176"/>
 <area shape="rect" id="Node000003" href="$de/d1c/namespaceeuler__res__sx.html#a17f468c7e2d9fdc556f6c2c371aaf219" title=" " alt="" coords="787,69,965,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1079,1152,1072,937,1056,610,1044,443,1028,296,1009,183,998,146,986,123,964,106,967,101,990,120,1003,144,1014,182,1033,295,1049,442,1061,609,1077,937,1084,1152"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1079,1176,1072,957,1057,621,1044,451,1029,300,1009,185,998,146,986,123,964,106,967,101,990,120,1003,144,1014,184,1034,299,1050,450,1062,621,1078,957,1084,1176"/>
 <area shape="rect" id="Node000004" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="764,134,988,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1079,1152,1072,946,1055,634,1043,476,1027,336,1008,230,998,195,986,174,971,161,974,157,990,170,1002,193,1014,229,1033,336,1048,475,1061,634,1077,946,1084,1152"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1079,1176,1072,965,1056,646,1044,484,1028,340,1009,232,998,195,986,174,971,161,974,157,990,170,1003,193,1014,231,1033,340,1049,483,1062,645,1078,965,1084,1176"/>
 <area shape="rect" id="Node000005" href="$d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="795,184,957,224"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1078,1152,1070,958,1053,667,1040,520,1025,390,1007,291,996,258,986,238,972,226,956,217,958,212,975,221,990,234,1001,256,1012,290,1030,389,1045,519,1058,666,1076,958,1084,1152"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1079,1176,1071,978,1053,679,1041,528,1025,394,1007,292,997,258,986,238,972,226,956,217,958,212,975,221,990,234,1002,256,1012,291,1031,393,1046,527,1059,679,1076,978,1084,1176"/>
 <area shape="rect" id="Node000006" href="$dd/d2f/namespacebicgstab.html#af95e1c5813a5792173b519b09fea8270" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="806,248,946,288"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1078,1152,1069,969,1051,699,1038,562,1023,442,1005,351,996,320,986,302,968,287,945,277,947,272,970,282,990,298,1001,318,1010,349,1028,441,1043,562,1056,698,1074,969,1084,1152"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1078,1176,1069,989,1051,711,1039,570,1023,446,1006,352,996,321,986,302,968,287,945,277,947,272,970,282,990,298,1001,319,1011,351,1029,446,1044,570,1057,710,1075,989,1084,1176"/>
 <area shape="rect" id="Node000007" href="$dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="805,312,947,352"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1078,1152,1068,981,1049,731,1036,606,1021,495,1004,411,995,383,986,366,968,351,947,342,949,337,971,347,990,362,1000,381,1009,409,1026,494,1041,605,1054,731,1073,981,1083,1152"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1078,1177,1068,1002,1049,744,1037,614,1022,499,1005,412,995,383,986,366,968,351,947,342,949,337,971,347,990,362,1000,381,1010,411,1027,498,1042,613,1055,743,1074,1002,1083,1176"/>
 <area shape="rect" id="Node000009" href="$d2/d10/namespacecacg.html#a2b9a6da5ee5dab7e10d72d97392d731c" title="S&#45;step CA PCG solve." alt="" coords="810,377,942,402"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="1078,1153,1068,991,1048,756,1035,638,1020,535,1004,457,995,431,986,415,966,401,941,393,943,388,968,396,990,412,1000,428,1009,455,1026,534,1040,638,1053,756,1073,991,1083,1152"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="1078,1176,1068,1010,1049,767,1036,646,1021,539,1004,458,995,431,986,415,966,401,941,393,943,388,968,396,990,412,1000,429,1009,457,1026,538,1041,645,1054,767,1073,1009,1083,1176"/>
 <area shape="rect" id="Node000010" href="$d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c" title="Standard PCG solve." alt="" coords="825,426,927,451"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1080,1152,1079,1009,1069,802,1057,695,1040,598,1017,518,1002,487,986,464,974,454,959,447,927,440,928,435,961,442,977,450,990,461,1007,485,1022,516,1046,597,1063,695,1074,802,1084,1009,1085,1152"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1080,1176,1080,1029,1070,815,1059,704,1042,603,1018,520,1003,488,986,464,974,454,959,447,927,440,928,435,961,442,977,450,990,461,1008,486,1023,518,1047,602,1064,704,1075,815,1085,1029,1085,1176"/>
 <area shape="rect" id="Node000011" href="$d8/dec/namespacecheby.html#ab40c8151b9adc5d370afba6bc0ef9b65" title=" " alt="" coords="799,475,953,501"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1079,1152,1077,1019,1065,827,1054,729,1037,638,1015,565,1001,536,986,515,971,503,952,495,955,490,974,499,990,511,1006,534,1020,563,1042,637,1059,728,1071,827,1082,1019,1085,1152"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1080,1176,1078,1038,1067,839,1055,737,1038,643,1016,567,1002,537,986,515,971,503,952,495,955,490,974,499,990,511,1006,535,1021,565,1044,642,1060,736,1072,839,1083,1038,1085,1176"/>
 <area shape="rect" id="Node000014" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="797,525,955,565"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="1079,1152,1074,1030,1060,858,1048,770,1032,690,1012,624,999,598,986,579,972,567,955,558,957,554,975,563,990,576,1004,596,1016,622,1037,688,1053,769,1065,858,1079,1030,1084,1152"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="1079,1176,1075,1050,1062,871,1050,779,1034,695,1012,626,1000,599,986,579,972,567,954,558,957,553,975,562,990,576,1005,597,1017,624,1039,694,1055,778,1067,870,1080,1050,1084,1176"/>
 <area shape="rect" id="Node000016" href="$d2/d80/namespacecpr.html#ae689f520261060721e9a32eee074c3d7" title="Generate spectral tranform matrices." alt="" coords="777,590,975,615"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="1078,1153,1072,1042,1057,887,1044,808,1029,735,1009,676,986,636,959,618,962,613,990,633,1014,674,1034,734,1050,807,1062,886,1077,1041,1084,1152"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="1079,1176,1074,1059,1060,894,1048,809,1032,733,1011,670,999,646,986,629,972,618,975,613,990,625,1004,644,1016,668,1037,732,1053,809,1065,893,1079,1058,1084,1176"/>
 <area shape="rect" id="Node000018" href="$dd/dd2/namespacedofmap.html#a971e44364f26c18dcc5aeaa06ab7d50d" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="788,741,964,766"/>
-<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="1077,1153,1066,1068,1048,956,1021,849,1005,808,986,781,963,765,966,761,990,777,1009,806,1026,847,1053,955,1072,1067,1082,1152"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="1077,1177,1068,1087,1050,968,1037,908,1023,854,1006,810,986,781,963,765,966,761,990,777,1010,808,1028,852,1043,907,1055,967,1073,1087,1082,1176"/>
 <area shape="rect" id="Node000021" href="$dd/dd2/namespacedofmap.html#adb78d2dd3cc039858605775479de13ca" title=" " alt="" coords="505,661,697,686"/>
-<area shape="poly" id="edge22_Node000001_Node000021" title=" " alt="" coords="1079,1152,1073,1047,1058,904,1046,831,1031,766,1011,714,999,695,986,681,946,655,901,639,852,632,803,631,755,636,711,644,639,663,637,658,709,639,755,631,803,626,853,627,902,634,948,650,990,677,1003,692,1015,712,1036,765,1052,830,1064,903,1078,1047,1084,1152"/>
+<area shape="poly" id="edge22_Node000001_Node000021" title=" " alt="" coords="1078,1176,1071,1077,1054,942,1042,874,1027,812,1008,763,986,730,967,717,939,706,864,691,779,682,697,677,697,672,779,676,865,685,940,701,969,712,990,726,1013,760,1032,811,1048,873,1060,941,1076,1076,1083,1176"/>
 <area shape="rect" id="Node000022" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="793,855,959,881"/>
-<area shape="poly" id="edge23_Node000001_Node000022" title=" " alt="" coords="1079,1152,1074,1097,1060,1027,1048,991,1032,955,1012,922,986,894,958,878,960,873,990,890,1016,919,1037,953,1053,989,1065,1026,1079,1097,1084,1152"/>
+<area shape="poly" id="edge23_Node000001_Node000022" title=" " alt="" coords="1080,1176,1076,1117,1063,1041,1052,1001,1035,961,1014,925,986,894,958,877,960,873,990,890,1018,922,1040,959,1057,999,1069,1040,1082,1117,1085,1176"/>
 <area shape="rect" id="Node000028" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="803,791,949,831"/>
-<area shape="poly" id="edge29_Node000001_Node000028" title=" " alt="" coords="1080,1153,1078,1090,1065,1007,1053,963,1037,920,1015,880,986,845,969,832,949,823,951,818,972,827,990,841,1019,877,1042,918,1059,962,1070,1006,1083,1090,1085,1152"/>
-<area shape="rect" id="Node000029" href="$dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="773,691,979,717"/>
-<area shape="poly" id="edge30_Node000001_Node000029" title=" " alt="" coords="1078,1153,1069,1058,1052,931,1039,867,1024,809,1007,761,986,730,971,719,975,715,990,726,1011,759,1030,807,1045,866,1057,930,1074,1058,1083,1152"/>
+<area shape="poly" id="edge29_Node000001_Node000028" title=" " alt="" coords="1076,1177,1064,1100,1044,1000,1018,906,1003,869,986,844,969,831,948,822,950,817,971,827,990,841,1007,867,1023,904,1050,999,1069,1099,1081,1176"/>
+<area shape="rect" id="Node000029" href="$dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="773,639,979,665"/>
+<area shape="poly" id="edge30_Node000001_Node000029" title=" " alt="" coords="1078,1176,1071,1069,1055,922,1043,847,1027,779,1009,724,986,686,959,667,962,663,990,682,1013,721,1032,778,1048,846,1060,921,1076,1069,1083,1176"/>
 <area shape="rect" id="Node000030" href="$dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="796,905,956,959"/>
-<area shape="poly" id="edge32_Node000001_Node000030" title=" " alt="" coords="1075,1153,1064,1113,1047,1065,1021,1015,986,973,955,953,958,948,990,969,1026,1013,1052,1063,1069,1112,1080,1152"/>
+<area shape="poly" id="edge32_Node000001_Node000030" title=" " alt="" coords="1076,1177,1067,1132,1050,1078,1024,1021,1007,996,986,973,955,952,958,948,990,969,1011,992,1029,1019,1055,1076,1072,1131,1081,1175"/>
 <area shape="rect" id="Node000031" href="$dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="796,983,956,1038"/>
-<area shape="poly" id="edge33_Node000001_Node000031" title=" " alt="" coords="1067,1155,1035,1102,1012,1075,986,1051,955,1034,958,1029,990,1047,1016,1071,1039,1099,1072,1152"/>
+<area shape="poly" id="edge33_Node000001_Node000031" title=" " alt="" coords="1070,1178,1039,1115,1015,1081,986,1051,955,1033,958,1028,990,1047,1019,1077,1044,1112,1075,1176"/>
 <area shape="rect" id="Node000032" href="$dd/de1/namespaceglobal__interpolation.html#aa22c2902ead56b80171cf0a6874732b7" title="Initialize the global interpolation object on a set of coordinates." alt="" coords="796,1062,956,1117"/>
-<area shape="poly" id="edge34_Node000001_Node000032" title=" " alt="" coords="1047,1161,987,1130,956,1118,958,1113,989,1126,1050,1157"/>
+<area shape="poly" id="edge34_Node000001_Node000032" title=" " alt="" coords="1057,1183,1025,1156,987,1130,955,1116,957,1111,989,1126,1028,1152,1061,1179"/>
 <area shape="rect" id="Node000033" href="$dc/d48/namespacegmres.html#a3ad50be018611153f4c6184821724c96" title="Standard GMRES solve." alt="" coords="799,1141,953,1166"/>
-<area shape="poly" id="edge35_Node000001_Node000033" title=" " alt="" coords="1022,1174,953,1165,954,1160,1022,1169"/>
+<area shape="poly" id="edge35_Node000001_Node000033" title=" " alt="" coords="1023,1189,987,1180,938,1169,940,1164,989,1175,1024,1184"/>
 <area shape="rect" id="Node000034" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="804,1190,948,1215"/>
-<area shape="poly" id="edge36_Node000001_Node000034" title=" " alt="" coords="1022,1188,948,1197,948,1192,1021,1183"/>
+<area shape="poly" id="edge36_Node000001_Node000034" title=" " alt="" coords="1022,1205,948,1205,948,1200,1022,1200"/>
 <area shape="rect" id="Node000036" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="804,1239,948,1265"/>
-<area shape="poly" id="edge38_Node000001_Node000036" title=" " alt="" coords="1050,1201,989,1229,946,1242,945,1237,987,1224,1048,1196"/>
+<area shape="poly" id="edge38_Node000001_Node000036" title=" " alt="" coords="1023,1221,989,1229,935,1242,934,1237,987,1224,1022,1216"/>
 <area shape="rect" id="Node000037" href="$d2/d1a/namespaceidentity.html#a32e4a4d8b76faa83b2c07af7c2032615" title="The (default) naive preconditioner ." alt="" coords="799,1289,953,1314"/>
-<area shape="poly" id="edge39_Node000001_Node000037" title=" " alt="" coords="1067,1204,1034,1243,1013,1262,989,1278,954,1293,952,1288,987,1274,1010,1258,1031,1239,1063,1201"/>
+<area shape="poly" id="edge39_Node000001_Node000037" title=" " alt="" coords="1061,1227,1029,1254,989,1278,954,1291,952,1286,987,1274,1025,1250,1058,1223"/>
 <area shape="rect" id="Node000038" href="$d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="779,1338,973,1363"/>
-<area shape="poly" id="edge40_Node000001_Node000038" title=" " alt="" coords="1075,1205,1044,1267,1020,1300,990,1328,965,1340,963,1335,986,1323,1016,1296,1039,1264,1070,1203"/>
+<area shape="poly" id="edge40_Node000001_Node000038" title=" " alt="" coords="1072,1229,1040,1279,1017,1306,989,1328,963,1340,961,1335,987,1323,1013,1302,1035,1276,1068,1226"/>
 <area shape="rect" id="Node000039" href="$d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="779,1388,973,1428"/>
-<area shape="poly" id="edge41_Node000001_Node000039" title=" " alt="" coords="1079,1206,1069,1244,1051,1290,1025,1336,990,1377,970,1390,967,1385,986,1373,1021,1333,1046,1287,1063,1242,1074,1204"/>
+<area shape="poly" id="edge41_Node000001_Node000039" title=" " alt="" coords="1077,1230,1065,1263,1047,1303,1022,1343,990,1377,968,1390,965,1386,986,1373,1018,1339,1042,1300,1060,1261,1072,1228"/>
 <area shape="rect" id="Node000040" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="795,1453,957,1478"/>
-<area shape="poly" id="edge42_Node000001_Node000040" title=" " alt="" coords="1083,1205,1077,1256,1062,1320,1050,1353,1034,1386,1014,1416,990,1442,959,1459,956,1455,986,1438,1010,1412,1029,1383,1045,1351,1057,1318,1072,1255,1078,1205"/>
+<area shape="poly" id="edge42_Node000001_Node000040" title=" " alt="" coords="1082,1230,1074,1276,1058,1333,1031,1392,1012,1419,990,1442,959,1459,956,1455,986,1438,1008,1415,1026,1389,1053,1331,1069,1275,1077,1229"/>
 <area shape="rect" id="Node000041" href="$dc/d12/namespacematrix__math.html#a20673dc1052c7361ff17585f456e89e6" title="Copy a matrix ." alt="" coords="779,1502,973,1527"/>
-<area shape="poly" id="edge43_Node000001_Node000041" title=" " alt="" coords="1085,1205,1081,1264,1068,1341,1056,1382,1040,1422,1018,1459,990,1491,971,1504,968,1500,986,1487,1014,1456,1035,1420,1051,1380,1063,1340,1076,1264,1080,1205"/>
+<area shape="poly" id="edge43_Node000001_Node000041" title=" " alt="" coords="1084,1230,1079,1285,1065,1355,1053,1392,1037,1429,1016,1462,990,1491,971,1504,968,1500,986,1487,1012,1459,1032,1426,1048,1390,1060,1354,1074,1284,1079,1229"/>
 <area shape="rect" id="Node000042" href="$d0/d94/namespaceopr__cpu.html#a102777fce325ee827cf3ddbbe20e1eea" title=" " alt="" coords="795,1551,957,1577"/>
-<area shape="poly" id="edge44_Node000001_Node000042" title=" " alt="" coords="1081,1205,1070,1282,1050,1383,1024,1478,1008,1515,990,1541,975,1552,959,1559,957,1554,973,1547,986,1537,1003,1513,1019,1476,1045,1381,1065,1281,1076,1204"/>
+<area shape="poly" id="edge44_Node000001_Node000042" title=" " alt="" coords="1086,1229,1084,1293,1072,1376,1060,1421,1043,1465,1020,1505,990,1541,975,1551,959,1559,956,1554,972,1547,986,1537,1015,1502,1038,1462,1055,1419,1067,1375,1078,1292,1080,1229"/>
 <area shape="rect" id="Node000043" href="$df/db5/namespaceopr__sx.html#a4fe2c37228ee80eea0e3cd08b067aaea" title=" " alt="" coords="803,1601,949,1626"/>
-<area shape="poly" id="edge45_Node000001_Node000043" title=" " alt="" coords="1082,1205,1072,1292,1054,1407,1027,1517,1010,1560,990,1590,971,1603,950,1611,948,1606,969,1599,986,1586,1005,1558,1022,1516,1049,1406,1067,1291,1077,1205"/>
+<area shape="poly" id="edge45_Node000001_Node000043" title=" " alt="" coords="1082,1229,1071,1311,1052,1419,1025,1522,1009,1562,990,1590,972,1603,951,1611,949,1606,969,1598,986,1586,1004,1560,1020,1521,1047,1418,1066,1311,1077,1229"/>
 <area shape="rect" id="Node000044" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="777,1650,975,1675"/>
-<area shape="poly" id="edge46_Node000001_Node000044" title=" " alt="" coords="1083,1206,1074,1302,1057,1431,1045,1497,1030,1557,1012,1606,990,1639,973,1652,969,1648,986,1636,1007,1603,1025,1555,1040,1496,1052,1431,1069,1301,1078,1205"/>
+<area shape="poly" id="edge46_Node000001_Node000044" title=" " alt="" coords="1083,1230,1073,1321,1056,1444,1043,1506,1028,1562,1011,1608,990,1639,973,1652,969,1648,986,1635,1006,1605,1023,1560,1038,1504,1050,1443,1068,1321,1077,1229"/>
 <area shape="rect" id="Node000045" href="$d1/d38/namespacephmg.html#a18d30ebc1747cd2854802ecc692eb293" title=" " alt="" coords="791,1700,961,1740"/>
-<area shape="poly" id="edge47_Node000001_Node000045" title=" " alt="" coords="1083,1205,1076,1310,1059,1454,1047,1527,1032,1595,1013,1650,990,1688,963,1708,960,1703,986,1685,1008,1648,1027,1593,1042,1526,1054,1453,1070,1309,1078,1205"/>
+<area shape="poly" id="edge47_Node000001_Node000045" title=" " alt="" coords="1083,1230,1075,1330,1058,1467,1045,1536,1030,1600,1012,1652,990,1688,963,1708,960,1703,986,1685,1007,1650,1025,1598,1040,1535,1053,1466,1069,1329,1078,1229"/>
 <area shape="rect" id="Node000046" href="$d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678" title=" " alt="" coords="803,1765,949,1790"/>
-<area shape="poly" id="edge48_Node000001_Node000046" title=" " alt="" coords="1084,1205,1079,1322,1065,1487,1053,1571,1037,1647,1016,1710,1004,1735,990,1754,972,1768,951,1776,949,1771,969,1763,986,1750,999,1732,1011,1708,1032,1646,1048,1570,1060,1486,1074,1322,1079,1205"/>
+<area shape="poly" id="edge48_Node000001_Node000046" title=" " alt="" coords="1084,1229,1078,1342,1063,1499,1051,1579,1035,1653,1015,1713,1003,1736,990,1754,972,1768,951,1776,949,1771,969,1763,986,1750,999,1733,1010,1710,1030,1651,1046,1578,1058,1499,1073,1342,1079,1229"/>
 <area shape="rect" id="Node000047" href="$de/d49/namespacepipecg.html#a7cf83f02e364f94f5b2738684b52629b" title="Pipelined PCG solve." alt="" coords="797,1814,955,1839"/>
-<area shape="poly" id="edge49_Node000001_Node000047" title=" " alt="" coords="1084,1205,1081,1331,1068,1511,1056,1603,1040,1687,1018,1756,1005,1783,990,1803,975,1815,957,1824,955,1819,972,1811,986,1799,1000,1780,1013,1754,1035,1685,1051,1602,1063,1510,1076,1331,1079,1205"/>
+<area shape="poly" id="edge49_Node000001_Node000047" title=" " alt="" coords="1084,1230,1080,1352,1066,1523,1054,1611,1038,1692,1017,1758,1004,1783,990,1803,974,1815,957,1823,955,1819,972,1811,986,1799,1000,1781,1012,1756,1033,1690,1049,1610,1061,1523,1075,1351,1079,1229"/>
 <area shape="rect" id="Node000048" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a986698f8eee1fe0a1178677cd9f304ed" title=" " alt="" coords="795,1863,957,1918"/>
-<area shape="poly" id="edge50_Node000001_Node000048" title=" " alt="" coords="1084,1205,1081,1339,1068,1532,1056,1631,1040,1723,1018,1799,1005,1829,990,1852,976,1866,959,1876,956,1871,972,1862,986,1849,1000,1827,1013,1797,1035,1722,1051,1631,1063,1531,1076,1338,1079,1205"/>
+<area shape="poly" id="edge50_Node000001_Node000048" title=" " alt="" coords="1084,1229,1080,1359,1067,1545,1055,1640,1039,1728,1017,1801,1004,1830,990,1852,976,1866,959,1876,957,1871,973,1862,986,1849,1000,1828,1012,1800,1033,1727,1049,1640,1061,1544,1075,1359,1079,1229"/>
 <area shape="rect" id="Node000049" href="$da/d78/namespacescalar__residual__cpu.html#aa9743866d1914bf81a9f7414d140acc1" title="Compute the residual." alt="" coords="797,1942,955,1997"/>
-<area shape="poly" id="edge51_Node000001_Node000049" title=" " alt="" coords="1085,1205,1083,1353,1073,1569,1061,1682,1044,1785,1021,1871,1007,1905,990,1931,975,1945,957,1956,954,1951,972,1941,986,1928,1002,1902,1016,1869,1039,1784,1056,1681,1067,1569,1078,1353,1080,1205"/>
+<area shape="poly" id="edge51_Node000001_Node000049" title=" " alt="" coords="1085,1230,1083,1373,1071,1582,1060,1691,1043,1790,1020,1873,1006,1906,990,1931,975,1945,957,1956,954,1951,972,1941,986,1928,1001,1903,1015,1871,1038,1789,1054,1690,1066,1582,1077,1373,1079,1229"/>
 <area shape="rect" id="Node000050" href="$d9/db6/namespacescalar__residual__sx.html#a80e257b7bac5afedf527bf9bfffc6940" title=" " alt="" coords="801,2021,951,2075"/>
-<area shape="poly" id="edge52_Node000001_Node000050" title=" " alt="" coords="1083,1205,1073,1379,1053,1633,1041,1761,1026,1875,1009,1961,1000,1991,990,2010,973,2025,953,2036,950,2032,970,2021,986,2006,995,1989,1004,1960,1020,1874,1035,1761,1048,1633,1068,1378,1078,1205"/>
+<area shape="poly" id="edge52_Node000001_Node000050" title=" " alt="" coords="1085,1229,1085,1386,1076,1619,1064,1740,1047,1852,1023,1945,1008,1981,990,2010,973,2025,953,2036,950,2032,970,2021,986,2006,1003,1979,1018,1943,1042,1851,1059,1739,1070,1618,1080,1385,1080,1229"/>
 <area shape="rect" id="Node000051" href="$d5/d0d/namespacespace.html#af5f26a3966b9af7712f57271e972a34b" title="Generate spectral tranform matrices." alt="" coords="781,2100,971,2140"/>
-<area shape="poly" id="edge53_Node000001_Node000051" title=" " alt="" coords="1084,1205,1075,1393,1057,1673,1044,1815,1029,1940,1011,2035,1001,2068,990,2088,973,2103,970,2099,986,2085,996,2066,1006,2034,1023,1939,1039,1814,1051,1673,1070,1393,1078,1205"/>
+<area shape="poly" id="edge53_Node000001_Node000051" title=" " alt="" coords="1084,1229,1074,1412,1056,1685,1043,1822,1028,1944,1010,2037,1001,2068,990,2088,974,2103,970,2099,986,2085,996,2066,1005,2035,1023,1943,1038,1822,1051,1684,1069,1412,1078,1229"/>
 <area shape="rect" id="Node000053" href="$d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="798,2164,954,2204"/>
-<area shape="poly" id="edge55_Node000001_Node000053" title=" " alt="" coords="1084,1205,1076,1405,1059,1706,1046,1859,1031,1994,1012,2096,1002,2132,990,2154,974,2168,955,2177,953,2172,971,2163,986,2150,997,2130,1007,2095,1026,1993,1041,1858,1054,1706,1071,1405,1079,1205"/>
-<area shape="rect" id="Node000054" href="$d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef" title="Assignment ." alt="" coords="795,2228,957,2268"/>
-<area shape="poly" id="edge56_Node000001_Node000054" title=" " alt="" coords="1084,1205,1077,1416,1061,1738,1048,1901,1033,2046,1013,2156,1002,2194,990,2218,975,2231,958,2240,956,2235,972,2227,986,2214,997,2192,1008,2155,1027,2045,1043,1901,1055,1738,1072,1416,1079,1205"/>
-<area shape="rect" id="Node000056" href="$d3/d0d/namespacevector__math.html#a37ffda7f54dcc1310d9db2032117013e" title="Copy a vector ." alt="" coords="781,2293,971,2318"/>
-<area shape="poly" id="edge58_Node000001_Node000056" title=" " alt="" coords="1084,1205,1079,1429,1064,1771,1052,1945,1036,2100,1015,2217,1003,2257,990,2282,973,2295,970,2291,986,2278,999,2255,1010,2216,1030,2099,1046,1945,1058,1771,1073,1429,1079,1205"/>
+<area shape="poly" id="edge55_Node000001_Node000053" title=" " alt="" coords="1084,1230,1076,1425,1058,1719,1045,1867,1030,1998,1012,2098,1001,2132,990,2154,974,2168,955,2177,953,2172,971,2163,986,2150,997,2130,1007,2097,1025,1997,1040,1866,1053,1718,1070,1425,1078,1229"/>
+<area shape="rect" id="Node000054" href="$d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="801,2228,951,2268"/>
+<area shape="poly" id="edge56_Node000001_Node000054" title=" " alt="" coords="1084,1229,1077,1436,1060,1750,1048,1909,1032,2050,1013,2158,1002,2195,990,2218,973,2232,953,2242,951,2237,970,2228,986,2214,997,2193,1008,2157,1027,2050,1042,1909,1055,1749,1071,1436,1079,1229"/>
+<area shape="rect" id="Node000055" href="$d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef" title="Assignment ." alt="" coords="795,2292,957,2332"/>
+<area shape="poly" id="edge57_Node000001_Node000055" title=" " alt="" coords="1084,1229,1078,1448,1062,1782,1050,1952,1034,2103,1014,2218,1003,2257,990,2282,975,2295,958,2304,956,2299,972,2291,986,2278,998,2255,1009,2217,1029,2102,1044,1952,1057,1782,1072,1448,1079,1229"/>
+<area shape="rect" id="Node000057" href="$d3/d0d/namespacevector__math.html#a37ffda7f54dcc1310d9db2032117013e" title="Copy a vector ." alt="" coords="781,2357,971,2382"/>
+<area shape="poly" id="edge59_Node000001_Node000057" title=" " alt="" coords="1084,1229,1079,1460,1065,1815,1053,1996,1037,2156,1016,2278,1004,2320,990,2346,973,2359,970,2355,986,2342,999,2318,1011,2277,1031,2156,1048,1996,1060,1815,1074,1460,1079,1229"/>
 <area shape="rect" id="Node000008" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="529,312,672,352"/>
 <area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="791,335,672,335,672,329,791,329"/>
 <area shape="rect" id="Node000012" href="$d8/dec/namespacecheby.html#a7cd4306d83190ab13e731079edeeb61d" title="A chebyshev preconditioner." alt="" coords="529,479,672,505"/>
@@ -92,7 +94,7 @@
 <area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="763,605,664,605,664,600,763,600"/>
 <area shape="rect" id="Node000019" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,686,437,711"/>
 <area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="774,746,437,712,438,707,774,741"/>
-<area shape="poly" id="edge20_Node000018_Node000021" title=" " alt="" coords="795,740,763,730,715,708,653,689,655,683,717,703,765,726,796,735"/>
+<area shape="poly" id="edge20_Node000018_Node000021" title=" " alt="" coords="815,739,763,724,715,708,649,689,650,683,717,703,765,719,817,734"/>
 <area shape="rect" id="Node000020" href="$dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0" title="Constructor." alt="" coords="5,686,164,711"/>
 <area shape="poly" id="edge19_Node000019_Node000020" title=" " alt="" coords="198,701,164,701,164,696,198,696"/>
 <area shape="poly" id="edge21_Node000021_Node000019" title=" " alt="" coords="491,686,438,691,437,686,491,681"/>
@@ -106,11 +108,11 @@
 <area shape="poly" id="edge27_Node000022_Node000026" title=" " alt="" coords="782,884,766,894,755,905,748,915,742,939,736,963,729,976,718,987,699,1000,678,1009,676,1004,696,995,714,983,725,972,731,961,737,938,743,913,751,901,762,890,779,880"/>
 <area shape="rect" id="Node000027" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="516,1063,685,1118"/>
 <area shape="poly" id="edge28_Node000022_Node000027" title=" " alt="" coords="782,883,766,894,751,912,743,931,741,970,740,1011,733,1032,718,1053,687,1074,684,1070,714,1049,728,1029,735,1010,736,970,738,930,746,910,762,890,779,878"/>
-<area shape="poly" id="edge31_Node000029_Node000021" title=" " alt="" coords="759,694,696,687,697,681,759,688"/>
+<area shape="poly" id="edge31_Node000029_Node000021" title=" " alt="" coords="759,664,697,669,697,663,759,658"/>
 <area shape="rect" id="Node000035" href="$dd/dd1/namespacehsmg.html#ab830dd9f45e2e8d9c22e36f8639af6ae" title=" " alt="" coords="517,1183,685,1223"/>
 <area shape="poly" id="edge37_Node000034_Node000035" title=" " alt="" coords="790,1205,685,1205,685,1200,790,1200"/>
 <area shape="rect" id="Node000052" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="533,2107,668,2133"/>
 <area shape="poly" id="edge54_Node000051_Node000052" title=" " alt="" coords="767,2123,668,2123,668,2117,767,2117"/>
-<area shape="rect" id="Node000055" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="497,2235,705,2261"/>
-<area shape="poly" id="edge57_Node000054_Node000055" title=" " alt="" coords="782,2251,705,2251,705,2245,782,2245"/>
+<area shape="rect" id="Node000056" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="497,2299,705,2325"/>
+<area shape="poly" id="edge58_Node000055_Node000056" title=" " alt="" coords="782,2315,705,2315,705,2309,782,2309"/>
 </map>

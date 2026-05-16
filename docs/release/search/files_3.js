@@ -21,7 +21,7 @@ var searchData=
   ['cheby_5fdevice_2ef90_18',['cheby_device.F90',['../d5/dd2/cheby__device_8F90.html',1,'']]],
   ['check_2ec_19',['check.c',['../dc/db5/check_8c.html',1,'']]],
   ['check_2ecu_20',['check.cu',['../db/dac/check_8cu.html',1,'']]],
-  ['check_2eh_21',['check.h',['../d5/d08/cuda_2check_8h.html',1,'(Global Namespace)'],['../d0/d05/opencl_2check_8h.html',1,'(Global Namespace)'],['../d4/d7a/hip_2check_8h.html',1,'(Global Namespace)']]],
+  ['check_2eh_21',['check.h',['../d0/d05/opencl_2check_8h.html',1,'(Global Namespace)'],['../d4/d7a/hip_2check_8h.html',1,'(Global Namespace)'],['../d5/d08/cuda_2check_8h.html',1,'(Global Namespace)']]],
   ['check_2ehip_22',['check.hip',['../d6/de5/check_8hip.html',1,'']]],
   ['checkpoint_2ef90_23',['checkpoint.f90',['../d3/d71/checkpoint_8f90.html',1,'']]],
   ['chkp_5ffile_2ef90_24',['chkp_file.f90',['../db/d8c/chkp__file_8f90.html',1,'']]],
