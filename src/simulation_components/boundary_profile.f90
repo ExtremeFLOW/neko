@@ -15,7 +15,7 @@ module boundary_profile
   use utils, only : neko_error
   use vector, only : vector_t
   use time_based_controller, only : time_based_controller_t
-  use drag_torque, only : setup_normals
+  use drag_torque, only : setup_normals, calc_force_array, device_calc_force_array
   use operators, only : strain_rate
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use mpi_f08, only : MPI_Comm_rank, MPI_Comm_size, MPI_Gather, MPI_Gatherv, &
@@ -51,6 +51,7 @@ module boundary_profile
      logical :: out_tx = .true.
      logical :: out_ty = .true.
      logical :: out_tz = .true.
+     logical :: out_tmag = .true.
 
      integer, allocatable :: gll_id(:)
      type(vector_t) :: x_ref, y_ref, z_ref
@@ -58,6 +59,7 @@ module boundary_profile
 
      type(vector_t) :: p_work, mu_work
      type(vector_t) :: s11msk, s22msk, s33msk, s12msk, s13msk, s23msk
+     type(vector_t) :: force1, force2, force3, force4, force5, force6
 
      character(len=256) :: data_filename
 
@@ -105,7 +107,7 @@ contains
     this%out_tx = (index(var_str, 'tau_x') > 0 .or. index(var_str, 'all') > 0)
     this%out_ty = (index(var_str, 'tau_y') > 0 .or. index(var_str, 'all') > 0)
     this%out_tz = (index(var_str, 'tau_z') > 0 .or. index(var_str, 'all') > 0)
-
+    this%out_tmag = (index(var_str, 'tau_mag') > 0 .or. index(var_str, 'all') > 0)
     call this%init_common(name, fluid_name, zone_id, zone_name, &
          start_time, case%fluid%c_Xh)
 
@@ -152,6 +154,7 @@ contains
     integer, intent(in) :: zone_id
     real(kind=rp), intent(in) :: start_time
     type(coef_t), intent(inout), target :: coef
+    real(kind=rp) :: area_mag, nx_unit, ny_unit, nz_unit
     integer :: n_pts, i, init_rank, init_ierr, init_offset, total_n
     integer, allocatable :: recvcounts(:), displs(:)
     integer, allocatable :: local_id_buf(:), global_id_buf(:)
@@ -190,10 +193,9 @@ contains
        call this%n1%init(n_pts)
        call this%n2%init(n_pts)
        call this%n3%init(n_pts)
+       call this%p_work%init(n_pts)
 
-       if (this%out_p) call this%p_work%init(n_pts)
-
-       if (this%out_tx .or. this%out_ty .or. this%out_tz) then
+       if (this%out_tx .or. this%out_ty .or. this%out_tz .or. this%out_tmag) then
           call this%mu_work%init(n_pts)
           call this%s11msk%init(n_pts)
           call this%s22msk%init(n_pts)
@@ -201,6 +203,12 @@ contains
           call this%s12msk%init(n_pts)
           call this%s13msk%init(n_pts)
           call this%s23msk%init(n_pts)
+          call this%force1%init(n_pts)
+          call this%force2%init(n_pts)
+          call this%force3%init(n_pts)
+          call this%force4%init(n_pts)
+          call this%force5%init(n_pts)
+          call this%force6%init(n_pts)
        end if
 
        call this%x_ref%init(n_pts)
@@ -269,9 +277,24 @@ contains
        local_mesh_buf(1, i) = this%x_ref%x(i)
        local_mesh_buf(2, i) = this%y_ref%x(i)
        local_mesh_buf(3, i) = this%z_ref%x(i)
-       local_mesh_buf(4, i) = -this%n1%x(i)
-       local_mesh_buf(5, i) = -this%n2%x(i)
-       local_mesh_buf(6, i) = -this%n3%x(i)
+
+       ! setup_normal premultiplies the normals by area.
+       ! so here we calculate the area.
+       area_mag = sqrt(this%n1%x(i)**2 + this%n2%x(i)**2 + this%n3%x(i)**2)
+       if (area_mag > 0.0_rp) then
+          nx_unit = this%n1%x(i) / area_mag
+          ny_unit = this%n2%x(i) / area_mag
+          nz_unit = this%n3%x(i) / area_mag
+       else
+          nx_unit = 0.0_rp
+          ny_unit = 0.0_rp
+          nz_unit = 0.0_rp
+       end if
+
+       ! Output the unit normals of wall points (pointing out into the fluid)
+       local_mesh_buf(4, i) = -nx_unit
+       local_mesh_buf(5, i) = -ny_unit
+       local_mesh_buf(6, i) = -nz_unit
     end do
 
     if (pe_rank == 0) then
@@ -321,14 +344,13 @@ contains
        open(newunit=io_unit, file=this%case%output_directory // trim(this%data_filename), &
             status='replace', action='write')
 
-       ! Dynamically build the header
        header_str = "t,gll_id"
        if (this%ale_enabled) header_str = trim(header_str) // ",x,y,z,-nrm_x,-nrm_y,-nrm_z"
        if (this%out_p) header_str = trim(header_str) // ",p"
        if (this%out_tx) header_str = trim(header_str) // ",tau_x"
        if (this%out_ty) header_str = trim(header_str) // ",tau_y"
        if (this%out_tz) header_str = trim(header_str) // ",tau_z"
-
+       if (this%out_tmag) header_str = trim(header_str) // ",tau_mag"
        write(io_unit, '(A)') trim(header_str)
        close(io_unit)
     end if
@@ -336,15 +358,15 @@ contains
     call neko_log%section("Boundary Profile Operation")
     write(log_buf, '(A,A)') "Name: ", trim(this%name)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I0,A,A)') "Tracking Zone: ", this%zone_id, " ", trim(this%zone_name)
+    write(log_buf, '(A,I0,A,A)') "Zone: ", this%zone_id, " ", trim(this%zone_name)
     call neko_log%message(log_buf)
 
-    ! Log active variables
     header_str = "Output Variables: "
     if (this%out_p) header_str = trim(header_str) // " p"
     if (this%out_tx) header_str = trim(header_str) // " tau_x"
     if (this%out_ty) header_str = trim(header_str) // " tau_y"
     if (this%out_tz) header_str = trim(header_str) // " tau_z"
+    if (this%out_tmag) header_str = trim(header_str) // " tau_mag"
     call neko_log%message(trim(header_str))
 
     call neko_log%end_section()
@@ -355,11 +377,15 @@ contains
     class(boundary_profile_t), intent(inout) :: this
 
     call this%bc%free()
-    call this%r1%free(); call this%r2%free(); call this%r3%free()
-    call this%n1%free(); call this%n2%free(); call this%n3%free()
+    call this%r1%free()
+    call this%r2%free()
+    call this%r3%free()
+    call this%n1%free()
+    call this%n2%free()
+    call this%n3%free()
+    call this%p_work%free()
 
-    if (this%out_p) call this%p_work%free()
-    if (this%out_tx .or. this%out_ty .or. this%out_tz) then
+    if (this%out_tx .or. this%out_ty .or. this%out_tz .or. this%out_tmag) then
        call this%mu_work%free()
        call this%s11msk%free()
        call this%s22msk%free()
@@ -367,6 +393,12 @@ contains
        call this%s12msk%free()
        call this%s13msk%free()
        call this%s23msk%free()
+       call this%force1%free()
+       call this%force2%free()
+       call this%force3%free()
+       call this%force4%free()
+       call this%force5%free()
+       call this%force6%free()
     end if
 
     call this%x_ref%free()
@@ -380,8 +412,8 @@ contains
     nullify(this%p)
     nullify(this%mu)
     nullify(this%coef)
-
     call this%free_base()
+
   end subroutine boundary_profile_free
 
   subroutine boundary_profile_compute(this, time)
@@ -410,7 +442,9 @@ contains
     integer, allocatable :: local_id_buf(:), global_id_buf(:)
     real(kind=rp), allocatable :: local_buffer(:,:), global_buffer(:,:)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
-    real(kind=rp) :: total_visc_x, total_visc_y, total_visc_z, dot_v_n, mu_val, p_val
+    real(kind=rp) :: total_visc_x, total_visc_y, total_visc_z, dot_v_n
+    real(kind=rp) :: nx_unit, ny_unit, nz_unit, area_mag
+    real(kind=rp) :: tx, ty, tz
     integer :: io_unit
     logical :: compute_tau
     character(len=256) :: fmt_str
@@ -418,7 +452,7 @@ contains
     rank = pe_rank
     num_procs = pe_size
     local_n = this%bc%msk(0)
-    compute_tau = this%out_tx .or. this%out_ty .or. this%out_tz
+    compute_tau = this%out_tx .or. this%out_ty .or. this%out_tz .or. this%out_tmag
 
     num_cols = 0
     if (this%ale_enabled) num_cols = 6
@@ -426,6 +460,7 @@ contains
     if (this%out_tx) num_cols = num_cols + 1
     if (this%out_ty) num_cols = num_cols + 1
     if (this%out_tz) num_cols = num_cols + 1
+    if (this%out_tmag) num_cols = num_cols + 1
 
     if (compute_tau) then
        call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
@@ -437,9 +472,8 @@ contains
        call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, this%u, this%v, this%w, this%coef)
     end if
 
-
     if (this%ale_enabled .and. local_n > 0) then
-       ! get normals
+       ! get normals for ALE
        call setup_normals(this%coef, this%bc%msk, this%bc%facet, this%n1%x, this%n2%x, this%n3%x, local_n)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -454,7 +488,6 @@ contains
           call device_masked_gather_copy_0(this%r3%x_d, this%coef%dof%z_d, &
                this%bc%msk_d, this%u%size(), local_n)
 
-
           call device_memcpy(this%r1%x, this%r1%x_d, local_n, HOST_TO_DEVICE, .false.)
           call device_memcpy(this%r2%x, this%r2%x_d, local_n, HOST_TO_DEVICE, .false.)
           call device_memcpy(this%r3%x, this%r3%x_d, local_n, HOST_TO_DEVICE, .false.)
@@ -468,10 +501,17 @@ contains
        end if
     end if
 
+    if ((this%out_p .or. compute_tau) .and. local_n > 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_masked_gather_copy_0(this%p_work%x_d, this%p%x_d, this%bc%msk_d, this%p%size(), local_n)
+       else
+          call masked_gather_copy_0(this%p_work%x, this%p%x, this%bc%msk, this%p%size(), local_n)
+       end if
+    end if
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (this%out_p .and. local_n > 0) then
-          call device_masked_gather_copy_0(this%p_work%x_d, this%p%x_d, this%bc%msk_d, this%p%size(), local_n)
-          call device_memcpy(this%p_work%x, this%p_work%x_d, local_n, DEVICE_TO_HOST, .true.)
+          call device_memcpy(this%p_work%x, this%p_work%x_d, local_n, DEVICE_TO_HOST, .false.)
        end if
 
        if (compute_tau .and. local_n > 0) then
@@ -483,19 +523,19 @@ contains
           call device_masked_gather_copy_0(this%s13msk%x_d, s13%x_d, this%bc%msk_d, s13%size(), local_n)
           call device_masked_gather_copy_0(this%s23msk%x_d, s23%x_d, this%bc%msk_d, s23%size(), local_n)
 
-          call device_memcpy(this%mu_work%x, this%mu_work%x_d, local_n, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%s11msk%x, this%s11msk%x_d, local_n, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%s22msk%x, this%s22msk%x_d, local_n, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%s33msk%x, this%s33msk%x_d, local_n, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%s12msk%x, this%s12msk%x_d, local_n, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%s13msk%x, this%s13msk%x_d, local_n, DEVICE_TO_HOST, .false.)
-          call device_memcpy(this%s23msk%x, this%s23msk%x_d, local_n, DEVICE_TO_HOST, .true.)
+          call device_calc_force_array(this%force1%x_d, this%force2%x_d, this%force3%x_d, &
+               this%force4%x_d, this%force5%x_d, this%force6%x_d, &
+               this%s11msk%x_d, this%s22msk%x_d, this%s33msk%x_d, &
+               this%s12msk%x_d, this%s13msk%x_d, this%s23msk%x_d, &
+               this%p_work%x_d, this%n1%x_d, this%n2%x_d, this%n3%x_d, &
+               this%mu_work%x_d, local_n)
+
+          ! Forces 4, 5, 6 are viscous forces
+          call device_memcpy(this%force4%x, this%force4%x_d, local_n, DEVICE_TO_HOST, .false.)
+          call device_memcpy(this%force5%x, this%force5%x_d, local_n, DEVICE_TO_HOST, .false.)
+          call device_memcpy(this%force6%x, this%force6%x_d, local_n, DEVICE_TO_HOST, .true.)
        end if
     else
-       if (this%out_p .and. local_n > 0) then
-          call masked_gather_copy_0(this%p_work%x, this%p%x, this%bc%msk, this%p%size(), local_n)
-       end if
-
        if (compute_tau .and. local_n > 0) then
           call masked_gather_copy_0(this%mu_work%x, this%mu%x, this%bc%msk, this%mu%size(), local_n)
           call masked_gather_copy_0(this%s11msk%x, s11%x, this%bc%msk, s11%size(), local_n)
@@ -504,6 +544,13 @@ contains
           call masked_gather_copy_0(this%s12msk%x, s12%x, this%bc%msk, s12%size(), local_n)
           call masked_gather_copy_0(this%s13msk%x, s13%x, this%bc%msk, s13%size(), local_n)
           call masked_gather_copy_0(this%s23msk%x, s23%x, this%bc%msk, s23%size(), local_n)
+
+          call calc_force_array(this%force1%x, this%force2%x, this%force3%x, &
+               this%force4%x, this%force5%x, this%force6%x, &
+               this%s11msk%x, this%s22msk%x, this%s33msk%x, &
+               this%s12msk%x, this%s13msk%x, this%s23msk%x, &
+               this%p_work%x, this%n1%x, this%n2%x, this%n3%x, &
+               this%mu_work%x, local_n)
        end if
     end if
 
@@ -513,20 +560,25 @@ contains
     do i = 1, local_n
        idx = 1
        local_id_buf(i) = this%gll_id(i)
+       area_mag = sqrt(this%n1%x(i)**2 + this%n2%x(i)**2 + this%n3%x(i)**2)
+
+       if (area_mag > 0.0_rp) then
+          nx_unit = this%n1%x(i) / area_mag
+          ny_unit = this%n2%x(i) / area_mag
+          nz_unit = this%n3%x(i) / area_mag
+       else
+          nx_unit = 0.0_rp
+          ny_unit = 0.0_rp
+          nz_unit = 0.0_rp
+       end if
 
        if (this%ale_enabled) then
-          local_buffer(idx, i) = this%r1%x(i)
-          idx = idx + 1
-          local_buffer(idx, i) = this%r2%x(i)
-          idx = idx + 1
-          local_buffer(idx, i) = this%r3%x(i)
-          idx = idx + 1
-          local_buffer(idx, i) = -this%n1%x(i)
-          idx = idx + 1
-          local_buffer(idx, i) = -this%n2%x(i)
-          idx = idx + 1
-          local_buffer(idx, i) = -this%n3%x(i)
-          idx = idx + 1
+          local_buffer(idx, i) = this%r1%x(i); idx = idx + 1
+          local_buffer(idx, i) = this%r2%x(i); idx = idx + 1
+          local_buffer(idx, i) = this%r3%x(i); idx = idx + 1
+          local_buffer(idx, i) = -nx_unit; idx = idx + 1
+          local_buffer(idx, i) = -ny_unit; idx = idx + 1
+          local_buffer(idx, i) = -nz_unit; idx = idx + 1
        end if
 
        if (this%out_p) then
@@ -535,25 +587,42 @@ contains
        end if
 
        if (compute_tau) then
-          mu_val = this%mu_work%x(i)
+          ! Viscous traction vector on the solid wall.
+          if (area_mag > 0.0_rp) then
+             total_visc_x = this%force4%x(i) / area_mag
+             total_visc_y = this%force5%x(i) / area_mag
+             total_visc_z = this%force6%x(i) / area_mag
+          else
+             total_visc_x = 0.0_rp
+             total_visc_y = 0.0_rp
+             total_visc_z = 0.0_rp
+          end if
 
-          total_visc_x = mu_val * 2.0_rp * &
-          (this%s11msk%x(i)*this%n1%x(i) + this%s12msk%x(i)*this%n2%x(i) + this%s13msk%x(i)*this%n3%x(i))
-          total_visc_y = mu_val * 2.0_rp * &
-          (this%s12msk%x(i)*this%n1%x(i) + this%s22msk%x(i)*this%n2%x(i) + this%s23msk%x(i)*this%n3%x(i))
-          total_visc_z = mu_val * 2.0_rp * &
-          (this%s13msk%x(i)*this%n1%x(i) + this%s23msk%x(i)*this%n2%x(i) + this%s33msk%x(i)*this%n3%x(i))
-
-          dot_v_n = total_visc_x*this%n1%x(i) + total_visc_y*this%n2%x(i) + total_visc_z*this%n3%x(i)
+          ! Normal viscous stress component
+          dot_v_n = total_visc_x*nx_unit + total_visc_y*ny_unit + total_visc_z*nz_unit
+          tx = total_visc_x - dot_v_n*nx_unit
+          ty = total_visc_y - dot_v_n*ny_unit
+          tz = total_visc_z - dot_v_n*nz_unit
 
           if (this%out_tx) then
-             local_buffer(idx, i) = (total_visc_x - dot_v_n*this%n1%x(i)); idx = idx + 1
+             ! tau_x
+             local_buffer(idx, i) = tx
+             idx = idx + 1
           end if
           if (this%out_ty) then
-             local_buffer(idx, i) = (total_visc_y - dot_v_n*this%n2%x(i)); idx = idx + 1
+             ! tau_y
+             local_buffer(idx, i) = ty
+             idx = idx + 1
           end if
           if (this%out_tz) then
-             local_buffer(idx, i) = (total_visc_z - dot_v_n*this%n3%x(i)); idx = idx + 1
+             ! tau_z
+             local_buffer(idx, i) = tz
+             idx = idx + 1
+          end if
+          if (this%out_tmag) then
+             ! Total magnitude of wall friction
+             local_buffer(idx, i) = sqrt(tx**2 + ty**2 + tz**2)
+             idx = idx + 1
           end if
        end if
     end do
