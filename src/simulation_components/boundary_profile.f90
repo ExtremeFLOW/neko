@@ -486,6 +486,8 @@ contains
     end if
 
     call neko_log%section("Boundary Profile Operation")
+    write(log_buf, '(A,E24.16)') "Start time: ", start_time
+    call neko_log%message(log_buf)
     write(log_buf, '(A,A)') "Name: ", trim(this%name)
     call neko_log%message(log_buf)
     write(log_buf, &
