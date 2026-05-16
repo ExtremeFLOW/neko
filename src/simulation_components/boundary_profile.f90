@@ -387,7 +387,7 @@ contains
             file=this%case%output_directory // trim(this%data_filename), &
             status='replace', action='write')
 
-       header_str = "t,gll_id"
+       header_str = "gll_id"
        if (this%ale_enabled) header_str = &
             trim(header_str) // ",x,y,z,-nrm_x,-nrm_y,-nrm_z"
        if (this%out_p) header_str = trim(header_str) // ",p"
@@ -399,6 +399,7 @@ contains
        if (this%out_dpdy) header_str = trim(header_str) // ",dpdy"
        if (this%out_dpdz) header_str = trim(header_str) // ",dpdz"
        write(io_unit, '(A)') trim(header_str)
+       write(io_unit, '(I0)') total_n
        close(io_unit)
     end if
 
@@ -845,7 +846,7 @@ contains
     end if
 
     if (rank == 0 .and. total_n > 0) then
-       fmt_str = "(G0.15,A,I0"
+       fmt_str = "(I0"
        if (num_cols > 0) then
           fmt_str = trim(fmt_str) // ",A"
           do j = 1, num_cols
@@ -874,13 +875,17 @@ contains
             file=this%case%output_directory // trim(this%data_filename), &
             position='append', action='write')
 
+       ! Write the time step header
+       write(io_unit, '("t=",G0.15)') time%t
+
        do i = 1, total_n
           if (num_cols > 0) then
-             write(io_unit, fmt_str) time%t, ',', global_id_buf(i), ',', &
+             ! Time is no longer written in the row
+             write(io_unit, fmt_str) global_id_buf(i), ',', &
                  (global_buffer(j, i), ',', j=1, num_cols-1), &
                  global_buffer(num_cols, i)
           else
-             write(io_unit, fmt_str) time%t, ',', global_id_buf(i)
+             write(io_unit, fmt_str) global_id_buf(i)
           end if
        end do
        close(io_unit)
