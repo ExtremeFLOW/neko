@@ -1,24 +1,57 @@
+! Copyright (c) 2026, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Implements `boundary_profile_t` to capture and output instantaneous boundary profiles.
 module boundary_profile
   use num_types, only : rp
-  use json_module, only : json_file
+  use json_module, only : json_file, json_value
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use field, only : field_t
   use case, only : case_t
-  use json_utils, only : json_get_or_default, json_get_or_lookup
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+       json_extract_item
   use time_state, only : time_state_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log
   use utils, only : neko_error
   use vector, only : vector_t
   use time_based_controller, only : time_based_controller_t
   use drag_torque, only : setup_normals, calc_force_array, device_calc_force_array
   use operators, only : strain_rate, opgrad
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
-  use mpi_f08, only : MPI_Comm_rank, MPI_Comm_size, MPI_Gather, MPI_Gatherv, &
+  use mpi_f08, only : MPI_Gather, MPI_Gatherv, &
        MPI_Exscan, MPI_INTEGER, MPI_SUM
   use math, only : masked_gather_copy_0, invcol2
   use ale_manager, only : neko_ale
@@ -46,14 +79,14 @@ module boundary_profile
      logical :: format_short = .true.
 
      ! Output variable flags
-     logical :: out_p = .true.
-     logical :: out_tx = .true.
-     logical :: out_ty = .true.
-     logical :: out_tz = .true.
-     logical :: out_tmag = .true.
-     logical :: out_dpdx = .true. 
-     logical :: out_dpdy = .true.
-     logical :: out_dpdz = .true.
+     logical :: out_p = .false.
+     logical :: out_tx = .false.
+     logical :: out_ty = .false.
+     logical :: out_tz = .false.
+     logical :: out_tmag = .false.
+     logical :: out_dpdx = .false.
+     logical :: out_dpdy = .false.
+     logical :: out_dpdz = .false.
 
      integer, allocatable :: gll_id(:)
      type(vector_t) :: x_ref, y_ref, z_ref
@@ -87,11 +120,11 @@ contains
     class(boundary_profile_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-
-    character(len=:), allocatable :: name, fluid_name, zone_name, var_str
-    integer :: zone_id
+    character(len=:), allocatable :: name, fluid_name, zone_name, current_var
+    integer :: zone_id, n_vars, i
     real(kind=rp) :: start_time
-    logical :: format_long
+    logical :: format_long, found
+    character(len=64) :: path_str
 
     call this%free()
     call json_get_or_default(json, "name", name, "boundary_profile")
@@ -109,16 +142,65 @@ contains
        this%format_short = .true.
     end if
 
-    call json_get_or_default(json, 'variables', var_str, 'all')
-    this%out_p = (index(var_str, 'p') > 0 .or. index(var_str, 'all') > 0)
-    this%out_tx = (index(var_str, 'tau_x') > 0 .or. index(var_str, 'all') > 0)
-    this%out_ty = (index(var_str, 'tau_y') > 0 .or. index(var_str, 'all') > 0)
-    this%out_tz = (index(var_str, 'tau_z') > 0 .or. index(var_str, 'all') > 0)
-    this%out_tmag = (index(var_str, 'tau_mag') > 0 .or. &
-         index(var_str, 'all') > 0)
-    this%out_dpdx = (index(var_str, 'dpdx') > 0 .or. index(var_str, 'all') > 0)
-    this%out_dpdy = (index(var_str, 'dpdy') > 0 .or. index(var_str, 'all') > 0)
-    this%out_dpdz = (index(var_str, 'dpdz') > 0 .or. index(var_str, 'all') > 0)
+    this%out_p = .false.
+    this%out_tx = .false.
+    this%out_ty = .false.
+    this%out_tz = .false.
+    this%out_tmag = .false.
+    this%out_dpdx = .false.
+    this%out_dpdy = .false.
+    this%out_dpdz = .false.
+
+    call json%info('variables', found = found)
+
+    if (found) then
+       call json%info('variables', n_children = n_vars)
+
+       if (n_vars > 0) then
+          do i = 1, n_vars
+             write(path_str, '("variables(",I0,")")') i
+             call json%get(trim(path_str), current_var)
+
+             select case (trim(current_var))
+             case ('p')
+                this%out_p = .true.
+             case ('tau_x')
+                this%out_tx = .true.
+             case ('tau_y')
+                this%out_ty = .true.
+             case ('tau_z')
+                this%out_tz = .true.
+             case ('tau_mag')
+                this%out_tmag = .true.
+             case ('dpdx')
+                this%out_dpdx = .true.
+             case ('dpdy')
+                this%out_dpdy = .true.
+             case ('dpdz')
+                this%out_dpdz = .true.
+             case ('all')
+                this%out_p = .true.
+                this%out_tx = .true.
+                this%out_ty = .true.
+                this%out_tz = .true.
+                this%out_tmag = .true.
+                this%out_dpdx = .true.
+                this%out_dpdy = .true.
+                this%out_dpdz = .true.
+             case default
+                call neko_error('boundary_profile: ' // &
+                     'Unknown variable requested: ' // trim(current_var))
+             end select
+          end do
+       else
+          call neko_error('boundary_profile: "variables" must be an ' // &
+               'array of strings (e.g., ["p", "dpdx"]).')
+       end if
+    else
+       call neko_error('boundary_profile: ' // &
+            'missing "variables" keyword in JSON.')
+    end if
+
     call this%init_common(name, fluid_name, zone_id, zone_name, &
          start_time, case%fluid%c_Xh)
 
@@ -565,41 +647,41 @@ contains
     if (compute_dp .and. local_n > 0) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (this%out_dpdx) then
-            call device_masked_gather_copy_0(this%dpdx_work%x_d, dpdx%x_d, &
+             call device_masked_gather_copy_0(this%dpdx_work%x_d, dpdx%x_d, &
                  this%bc%msk_d, this%p%size(), local_n)
           end if
-          if (this%out_dpdy) then 
-            call device_masked_gather_copy_0(this%dpdy_work%x_d, dpdy%x_d, &
+          if (this%out_dpdy) then
+             call device_masked_gather_copy_0(this%dpdy_work%x_d, dpdy%x_d, &
                  this%bc%msk_d, this%p%size(), local_n)
           end if
           if (this%out_dpdz) then
-            call device_masked_gather_copy_0(this%dpdz_work%x_d, dpdz%x_d, &
+             call device_masked_gather_copy_0(this%dpdz_work%x_d, dpdz%x_d, &
                  this%bc%msk_d, this%p%size(), local_n)
           end if
 
-          if (this%out_dpdx) then 
-            call device_memcpy(this%dpdx_work%x, this%dpdx_work%x_d, &
+          if (this%out_dpdx) then
+             call device_memcpy(this%dpdx_work%x, this%dpdx_work%x_d, &
                  local_n, DEVICE_TO_HOST, .true.)
           end if
-          if (this%out_dpdy) then 
-            call device_memcpy(this%dpdy_work%x, this%dpdy_work%x_d, &
+          if (this%out_dpdy) then
+             call device_memcpy(this%dpdy_work%x, this%dpdy_work%x_d, &
                  local_n, DEVICE_TO_HOST, .true.)
           end if
           if (this%out_dpdz) then
-            call device_memcpy(this%dpdz_work%x, this%dpdz_work%x_d, &
+             call device_memcpy(this%dpdz_work%x, this%dpdz_work%x_d, &
                  local_n, DEVICE_TO_HOST, .true.)
           end if
        else
-          if (this%out_dpdx) then 
-            call masked_gather_copy_0(this%dpdx_work%x, dpdx%x, &
+          if (this%out_dpdx) then
+             call masked_gather_copy_0(this%dpdx_work%x, dpdx%x, &
                  this%bc%msk, this%u%size(), local_n)
           end if
-          if (this%out_dpdy) then 
-            call masked_gather_copy_0(this%dpdy_work%x, dpdy%x, &
+          if (this%out_dpdy) then
+             call masked_gather_copy_0(this%dpdy_work%x, dpdy%x, &
                  this%bc%msk, this%u%size(), local_n)
           end if
           if (this%out_dpdz) then
-            call masked_gather_copy_0(this%dpdz_work%x, dpdz%x, &
+             call masked_gather_copy_0(this%dpdz_work%x, dpdz%x, &
                  this%bc%msk, this%u%size(), local_n)
           end if
        end if
@@ -734,12 +816,18 @@ contains
        end if
 
        if (this%ale_enabled) then
-          local_buffer(idx, i) = this%r1%x(i); idx = idx + 1
-          local_buffer(idx, i) = this%r2%x(i); idx = idx + 1
-          local_buffer(idx, i) = this%r3%x(i); idx = idx + 1
-          local_buffer(idx, i) = -nx_unit; idx = idx + 1
-          local_buffer(idx, i) = -ny_unit; idx = idx + 1
-          local_buffer(idx, i) = -nz_unit; idx = idx + 1
+          local_buffer(idx, i) = this%r1%x(i)
+          idx = idx + 1
+          local_buffer(idx, i) = this%r2%x(i)
+          idx = idx + 1
+          local_buffer(idx, i) = this%r3%x(i)
+          idx = idx + 1
+          local_buffer(idx, i) = -nx_unit
+          idx = idx + 1
+          local_buffer(idx, i) = -ny_unit
+          idx = idx + 1
+          local_buffer(idx, i) = -nz_unit
+          idx = idx + 1
        end if
 
        if (this%out_p) then
@@ -791,15 +879,18 @@ contains
           end if
        end if
 
-          if (this%out_dpdx) then
-             local_buffer(idx, i) = this%dpdx_work%x(i); idx = idx + 1
-          end if
-          if (this%out_dpdy) then
-             local_buffer(idx, i) = this%dpdy_work%x(i); idx = idx + 1
-          end if
-          if (this%out_dpdz) then
-             local_buffer(idx, i) = this%dpdz_work%x(i); idx = idx + 1
-          end if
+       if (this%out_dpdx) then
+          local_buffer(idx, i) = this%dpdx_work%x(i)
+          idx = idx + 1
+       end if
+       if (this%out_dpdy) then
+          local_buffer(idx, i) = this%dpdy_work%x(i)
+          idx = idx + 1
+       end if
+       if (this%out_dpdz) then
+          local_buffer(idx, i) = this%dpdz_work%x(i)
+          idx = idx + 1
+       end if
 
     end do
 
