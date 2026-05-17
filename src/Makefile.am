@@ -239,7 +239,6 @@ neko_fortran_SOURCES = \
 	simulation_components/probes.F90\
 	simulation_components/boundary_operation.f90\
 	simulation_components/boundary_flux.f90\
-	simulation_components/data_streamer_simcomp.f90\
 	simulation_components/data_streamer_simcomp.F90\
 	simulation_components/field_subsampler.f90\
 	simulation_components/force_torque.f90\
