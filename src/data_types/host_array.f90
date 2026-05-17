@@ -35,8 +35,8 @@ module host_array
   use num_types, only : rp
   use math, only : rzero
 
-  private
   implicit none
+  private
 
   type, public :: host_array_t
      real(kind=rp), allocatable :: x(:)

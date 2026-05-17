@@ -37,8 +37,8 @@ module device_array
   use device_math, only : device_rzero
   use, intrinsic :: iso_c_binding
 
-  private
   implicit none
+  private
 
   type, public :: device_array_t
      type(c_ptr) :: x_d = C_NULL_PTR
