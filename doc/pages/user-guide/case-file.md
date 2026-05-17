@@ -177,7 +177,9 @@ Under the hood, Neko stores the constants in an object called
 ### Time control
 The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
-to the variable time-stepping algorithm.
+to the variable time-stepping algorithm. For the variable timestep, one can
+specify a `timestep`, such that the first timestep will be assigned to the
+smallest of `timestep` and the value calculated from the target CFL number.
 
 | Name                       | Description                                                                                 | Admissible values                 | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
@@ -535,11 +537,20 @@ A more detailed description of each boundary condition is provided below.
    * The `spalding`model requires specifying `kappa` and `B`, which are the
      log-law constants. This model is suitable for smooth walls.
 
+   * The `cai_sagaut_model_ii` model is a smooth-wall explicit algebraic wall
+     model defined as Model-II of Cai and Sagaut (DOI: `10.1063/5.0048563`). It
+     uses the same `kappa` and `B` parameters as `spalding`, and also accepts
+     optional blending parameters `p` and `s`, which default to the paper
+     calibration values `1.138` and `217.8`. The main advantage of this model
+     is that it is explicit.
+
    * The `rough_log_law` model requires specifying `kappa` and `B`, which are
      the log-law constants, and `z0`, which is the characteristic roughness
      height.
 
-   * The `most` model is a version of the `rough_log_law` adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given [below](#most-wall-model)
+   * The `most` model is a version of the `rough_log_law` adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given [below](#most-wall-model).
+
+   * The `richardson` model is similar to the `most` model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given [below](#richardson-wall-model).
 
     For all wall models, the distance to the sampling point has to be specified
     based on the off-wall index in the wall-normal direction. Thus, the sampling
@@ -554,7 +565,7 @@ A more detailed description of each boundary condition is provided below.
   ```json
   {
     "type": "wall_model",
-    "model": "spalding",
+    "model": "cai_sagaut_model_ii",
     "kappa": 0.41,
     "B": 5.2,
     "zone_indices": [1, 2],
@@ -579,7 +590,7 @@ A more detailed description of each boundary condition is provided below.
   }
   ```
 * `overset_interface`, a Dirichlet boundary condition that retrieves values
-  from another simulation with an overlapping domain. For this case, it is 
+  from another simulation with an overlapping domain. For this case, it is
   recommended that all zone indices that need to be considered as an overset
   interface are included in one boundary. This avoids repeated calls to
   interpolation routines.
@@ -593,14 +604,18 @@ A more detailed description of each boundary condition is provided below.
   The *time-step* must be the same between the simulations. A variable time-step is not
   supported at the moment.
 
+  The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
+  the coupled simulation. This should, for the time being, be left as `false`.
+
   ```json
   {
     "type": "overset_interface",
-    "zone_indices": [1, 2]
+    "zone_indices": [1, 2],
+    "couple_pressure" : false
   }
   ```
 
-#### MOST wall model
+#### MOST wall model {#most-wall-model}
 The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law according to
 
 \f{eqnarray*}{
@@ -703,6 +718,34 @@ The `most` model is based on Monin-Obukhov similarity theory (Monin and Obukhov,
   Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60.
 </details>
 
+### Richardson wall model {#richardson-wall-model}
+This Richardson-number based wall model is conceptually similar to the more well-known MOST-based wall model, but it computes the effect of the temperature stratification based on the bulk Richardson number instead of the Obukhov length.
+
+In the convective regime, the surface shear stress, \f$\tau\f$, and surface heat flux, \f$\overline{u'\theta'}\f$ are computed using the formulations of Louis 1979:
+\f{eqnarray*}{
+\tau &=& a^2 V^2 F_m\left(\frac{z}{z_0}, \mathrm{Ri}_b\right), \\
+\overline{u'\theta'} &=& \frac{a^2}{R}\, V\, \Delta\theta \, F_h\left(\frac{z}{z_{0h}}, \mathrm{Ri}_b\right).
+\f}
+
+Here, \f$V\f$ is the horizontal wind speed (given that \f$z\f$ is the wall-normal direction); \f$\theta\f$ is the potential temperature; \f$\mathrm{Ri}_b\f$ is the bulk Richardson number; \f$z_0\f$ and \f$z_{0h}\f$ are the roughness lengths for momentum and heat, respectively; \f$F_m\f$ and \f$F_h\f$ are stability functions as defined in Louis 1979; and \f$a\f$ and \f$R\f$ are constants, also as defined in Louis 1979.
+
+In the stable regime, the surface shear stress and surface heat flux are computed based on Mauritsen et al. 2007:
+\f{eqnarray*}{
+\tau &=& \frac{V^2}{\left[\ln\left(\dfrac{z}{z_0}\right)\right]^2} \,\frac{f_{\tau}(\mathrm{Ri}_b)}{f_{\tau}(0)} \left(\frac{\ell}{z}\right)^2, \\
+\overline{u'\theta'} &=& \frac{\Delta\theta}{\ln\left(\dfrac{z}{z_{0h}}\right)} \,\frac{f_{\theta}(\mathrm{Ri}_b)}{\left|f_{\theta}(0)\right|} \left(\frac{\ell}{z}\right) \frac{u_*}{\mathrm{Pr}}.
+\f}
+
+Here, \f$V, \theta, \mathrm{Ri}_b, z_0\f$, and \f$z_{0h}\f$ are the same as above; \f$f_{\tau}\f$ and \f$f_{\theta}\f$ are defined in Mauritsen et al. 2007; \f$l\f$ is a lengthscale (we use \f$l = \kappa z\f$, where \f$\kappa=0.4\f$ is the von Kàrmàn constant); \f$u_*\f$ is the friction velocity, and \f$\mathrm{Pr}\f$ is the turbulent Prandtl number.
+
+The keywords for this wall model are the same as for the [MOST model](#most-wall-model), and a time-varying temperature boundary condition can be applied in the same way as described for the MOST model.
+
+
+   <details>
+   <summary><b><u>References</u></b></summary>
+  Louis, J.-F. (1979). A parametric model of vertical eddy fluxes in the atmosphere. Boundary-Layer Meteorology, 17(2), 187–202. https://doi.org/10.1007/BF00117978.
+
+  Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., & Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. https://doi.org/10.1175/2007JAS2294.1.
+  </details>
 
 ### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
@@ -837,6 +880,36 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
    applied in a user-specified region of the domain.
 9. `field`, uses fields in the `neko_registry` as values of the source term. The
    fields are selected with the `field_names` keyword.
+10. `hpfrt`, adds a high-pass filter relaxation term to the momentum equation.
+    This source term damps the highest elementwise Legendre modes of the
+    velocity field. It is configured with `filter_weight`, the damping strength,
+    and `filter_modes`, the number of highest modes affected by the filter.
+    See [High-pass filter relaxation source term](@ref filter_hpfrt) for the
+    definition of the filter and the source term.
+
+~~~~~~~~~~~~~~~{.json}
+"source_terms": [
+   {
+      "type": "hpfrt",
+      "filter_weight": 5.0,
+      "filter_modes": 2
+   }
+]
+~~~~~~~~~~~~~~~
+
+  The same source-term object can be used for scalars. In this case it is added to
+  the scalar `source_terms` array and acts on that scalar field.
+11. `translation` Adds a forcing term corresponding to a domain translating with
+    constant velocity. The term comes from the ALE formulation and is written as
+    \f$ (\mathbf{w}\cdot\nabla)\mathbf{u} \f$,
+    or, for spatially constant mesh velocity \f$ \nabla\cdot\mathbf{w} = 0 \f$,
+    equivalently in conservative form as
+    \f$ \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \f$. The keyword to be provided
+    in the case file is `domain_velocity`, which expects an array with 3 values.
+
+    Note that in this case, we still solve for the absolute velocity, not the
+    relative one. It is simply advection that is affected. Useful to perform
+    simulations on domains that are moving on a periodic direction.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -1085,7 +1158,7 @@ the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
 This prefix can be changed by setting the parameter `bf_registry_prefix`.
 
 <details>
-<summary><b><u>Example using `user_init_modules`</u></b></summary>
+<summary><b><u>Example using `initialize`</u></b></summary>
 
 ```fortran
 module user
@@ -1163,7 +1236,8 @@ contains
 
     end do
 
-    wbf = 0.0_rp
+    wbf%x = 0.0_rp
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(ubf%x, ubf%x_d, ubf%size(), &
             HOST_TO_DEVICE, .false.)

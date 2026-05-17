@@ -33,7 +33,8 @@
 !> Implements type data_streamer_t.
 module data_streamer
   use num_types, only : rp, c_rp
-  use field, only : field_t
+  use mesh, only : mesh_t
+  use space, only : space_t
   use coefs, only : coef_t
   use utils, only : neko_warning
   use comm, only : NEKO_COMM
@@ -58,8 +59,14 @@ module data_streamer
      !> global element numbers
      integer, allocatable :: lglel(:)
    contains
-     !> Constructor
-     procedure, pass(this) :: init => data_streamer_init
+     !> Generic constructor
+     generic :: init => init_coef, init_msh_Xh, init_params
+     !> Constructor from coef
+     procedure, pass(this) :: init_coef => data_streamer_init_coef
+     !> Constructor from mesh and space
+     procedure, pass(this) :: init_msh_Xh => data_streamer_init_msh_Xh
+     !> Constructor from parameters
+     procedure, pass(this) :: init_params => data_streamer_init_params
      !> Destructor
      procedure, pass(this) :: free => data_streamer_free
      !> Stream data
@@ -71,24 +78,26 @@ module data_streamer
 
 contains
 
-  !> Constructor
-  !! Wraps the adios2 set-up.
-  !! @param coef Type that contains geometrical information
-  !! on the case.
+  !> Constructor from parameters
+  !! @param nelv Local number of elements
+  !! @param lx Number of GLL points in x
+  !! @param ly Number of GLL points in y
+  !! @param lz Number of GLL points in z
+  !! @param glb_nelv Global number of elements
+  !! @param offset_el Element offset for each rank
+  !! @param gdim Dimension of the problem
   !! @param timeout_seconds Time in seconds after which the streaming should
   !! time out. Default is 300 seconds.
-  subroutine data_streamer_init(this, coef, timeout_seconds)
+  subroutine data_streamer_init_params(this, nelv, lx, ly, lz, glb_nelv, &
+       offset_el, gdim, timeout_seconds)
     class(data_streamer_t), intent(inout) :: this
-    type(coef_t), intent(inout) :: coef
+    integer, intent(in) :: nelv, lx, ly, lz, glb_nelv, offset_el, gdim
     integer, intent(in), optional :: timeout_seconds
-    integer :: nelb, nelv, nelgv, npts, gdim, timeout
 
-    !Assign the set up parameters
-    nelv = coef%msh%nelv
-    npts = coef%Xh%lx*coef%Xh%ly*coef%Xh%lz
-    nelgv = coef%msh%glb_nelv
-    nelb = coef%msh%offset_el
-    gdim = coef%msh%gdim
+    integer :: npts, timeout
+
+    npts = lx*ly*lz
+
     if (present(timeout_seconds)) then
        timeout = timeout_seconds
     else
@@ -97,16 +106,15 @@ contains
 
 #ifdef HAVE_ADIOS2
     call neko_log%message("Initializing ADIOS2", lvl = NEKO_LOG_DEBUG)
-    call fortran_adios2_initialize(npts, nelv, nelb, nelgv, gdim, NEKO_COMM, &
-         timeout)
+    call fortran_adios2_initialize(npts, nelv, offset_el, glb_nelv, gdim, &
+         NEKO_COMM, timeout)
     call neko_log%message("Done initializing ADIOS2", lvl = NEKO_LOG_DEBUG)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
     call neko_warning('Not able to use stream/compression functionality')
 #endif
 
-
-  end subroutine data_streamer_init
+  end subroutine data_streamer_init_params
 
   !> Destructor
   !! wraps the adios2 finalize routine. Closes insitu writer
@@ -159,12 +167,44 @@ contains
   end subroutine data_streamer_recieve
 
 
+  !> Constructor from a coef_t object. Kept for backwards compatibility.
+  !! Wraps the adios2 set-up.
+  !! @param coef Type that contains geometrical information
+  !! on the case.
+  !! @param timeout_seconds Time in seconds after which the streaming should
+  !! time out. Default is 300 seconds.
+  subroutine data_streamer_init_coef(this, coef, timeout_seconds)
+    class(data_streamer_t), intent(inout) :: this
+    type(coef_t), intent(inout) :: coef
+    integer, intent(in), optional :: timeout_seconds
+
+    call this%init_msh_Xh(coef%msh, coef%Xh, timeout_seconds)
+
+  end subroutine data_streamer_init_coef
+
+  !> Constructor from a mesh and space
+  !! @param msh mesh_t object containing global information about number
+  !! of elements and offsets
+  !! @param xh space_t object containing ing
+  !! @param timeout_seconds Time in seconds after which the streaming should
+  !! time out. Default is 300 seconds.
+  subroutine data_streamer_init_msh_xh(this, msh, xh, timeout_seconds)
+    class(data_streamer_t), intent(inout) :: this
+    type(mesh_t), intent(in) :: msh
+    type(space_t), intent(in) :: xh
+    integer, intent(in), optional :: timeout_seconds
+
+    call this%init_params(msh%nelv, xh%lx, xh%ly, xh%lz, msh%glb_nelv, &
+         msh%offset_el, msh%gdim, timeout_seconds)
+
+  end subroutine data_streamer_init_msh_xh
+
 #ifdef HAVE_ADIOS2
 
   !> Interface to adios2_initialize in c++.
   !! @details This routine interfaces with c++ routine that set up adios2
   !! if streaming, the global array to pair writer and reader is opened.
-  !! @param npts number of points per element
+  !! @param npts number of points per element (lxyz)
   !! @param nelv number of elements in this rank
   !! @param nelb number of elements in ranks before this one
   !! @param nelgv total number of elements in velocity mesh
