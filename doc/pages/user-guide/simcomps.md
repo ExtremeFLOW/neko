@@ -41,6 +41,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Output of registered fields to a file \ref simcomp_field_writer
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Boundary operations on labelled zones \ref simcomp_boundary_operation
+- Total vector flux through labelled zones \ref simcomp_boundary_flux
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
 - User defined components \ref user-file_simcomps
@@ -50,7 +51,7 @@ in Neko. The list will be updated as new simcomps are added.
   [statistics guide](@ref statistics-guide)
 - Scalar statistics simcomp, "scalar_stats", for more details see the
   [statistics guide](@ref statistics-guide). If a `field` is specified in the
-  case file without `name` being specified, the field name is appended to the 
+  case file without `name` being specified, the field name is appended to the
   default simcomp name as `scalar_stats_{field}`.
 - Scalar SGS statistics simcomp, "scalar_sgs_stats", for more details see the
   [statistics guide](@ref statistics-guide)
@@ -229,6 +230,34 @@ Optional fields for this simcomp are:
 }
 ~~~~~~~~~~~~~~~
 
+### boundary_flux {#simcomp_boundary_flux}
+Computes the total flux of a registered vector field through one or more
+labelled boundary zones. The computed value is the surface integral of the
+vector field dotted with the *inward* unit normal.
+
+Mandatory fields for this simcomp are:
+- `zone_indices`: the labelled boundary zones to include.
+- `field_names`: the three registered field names containing the vector
+  components, for example `["u", "v", "w"]`.
+
+Optional fields for this simcomp are:
+- `log`: if `true` (default), print the flux in the log each time the simcomp
+  computes.
+- `output_filename`: should be set to a `.csv` file. Writes `tstep`, `time`, and
+  `flux` to that file. These writes respect `output_control` and
+  `output_value`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "boundary_flux",
+  "name": "inlet_flux",
+  "zone_indices": [1],
+  "field_names": ["u", "v", "w"],
+  "log": true,
+  "output_filename": "inlet_flux.csv"
+}
+~~~~~~~~~~~~~~~
+
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
 generated in a variety of ways, but the most common is to use the `csv` type.
@@ -240,8 +269,8 @@ Mandatory fields for this simcomp are:
   `.csv` or `.hdf5`. By default, will be written in the `case.output_directory` folder.
 
 Optional arguments:
-- Interpolation parameters can be provided as a JSON sub-dictionary, 
-  `interpolation`. If not provided, default values defined in 
+- Interpolation parameters can be provided as a JSON sub-dictionary,
+  `interpolation`. If not provided, default values defined in
   the `global_interpolation` module will be used.
   ~~~~~~~~~~~~~~~{.json}
   "interpolation": {
@@ -265,7 +294,7 @@ executed (same behavior as the statistics).
    x_N, y_N, z_N
    ~~~~~~~~~~~~~~~
    The points are assumed to be in the same units as the simulation.
-   It is also possible to read the probes from a `hdf5` file. The probes 
+   It is also possible to read the probes from a `hdf5` file. The probes
    need to be in the same format as csv and must be saved in the root directory
    of the file under the `xyz` keyword.
 - `points`: Reads a list of points from a JSON file. The points are specified
@@ -359,8 +388,8 @@ time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1
 time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
 ~~~~~~~~~~~~~~~
 
-The `append_output` keyword only works for `hdf5` files. 
-It sets the behaviour of the written probes. 
+The `append_output` keyword only works for `hdf5` files.
+It sets the behaviour of the written probes.
 If `true` they are written in one group and each sample appends its data.
 
 As an example, the file structure for a simulation where we sample "u", "v",
@@ -404,22 +433,22 @@ are expected to be updated in the user file, or, perhaps, by other simcomps.
 Since this simcomp does not compute anything, `compute_` configuration is
 irrelevant.
 
-Unless `output_filename` is specified, the `fields` are appended to the 
+Unless `output_filename` is specified, the `fields` are appended to the
 fluid output as additional scalars.
 
 - The output format is controlled by the `output_format` keyword, which can be
-  set to `nek5000` (default), `vtkhdf`, or `adios2`. 
-- The `output_precision` keyword controls the precision of the written data 
+  set to `nek5000` (default), `vtkhdf`, or `adios2`.
+- The `output_precision` keyword controls the precision of the written data
   and can be set to `single` (default) or `double`.
 - When using the `vtkhdf` format, the `output_subdivide` keyword can be set to
 `true` to subdivide spectral elements into linear sub-cells instead of
 writing high-order Lagrange cells. See the [cell representation](@ref
 vtkhdf-cell-representation) section for more details.
 
-@note If `output_filename` is specified, files will be written in the 
+@note If `output_filename` is specified, files will be written in the
 `case.output_directory` folder. If an alternative path is desired, it must
-be specified relative to the `case.output_directory`, since the 
-`case.output_directory` path will always be prepended to `output_filename`. 
+be specified relative to the `case.output_directory`, since the
+`case.output_directory` path will always be prepended to `output_filename`.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -439,7 +468,7 @@ be specified relative to the `case.output_directory`, since the
 The `field_writer` may be used in conjunction with a `point_zone` to sample
 the corresponding subsection of the domain. At the moment, this capability
 can only be used with `nek5000` files.
-@attention When using `point_zone` with the `nek5000` format, an 
+@attention When using `point_zone` with the `nek5000` format, an
 `output_filename` must be provided.
 
  ~~~~~~~~~~~~~~~{.json}
@@ -648,16 +677,16 @@ in 3 additional fields appended to the field files.
 
 ### Data streamer {#simcomp_data_streamer}
 
-Enables data streaming of a set of given `fields` with the `ADIOS2` library. 
+Enables data streaming of a set of given `fields` with the `ADIOS2` library.
 The simcomp is controlled by the following keywords:
-- `"fields"`: A list of field names corresponding to the fields to stream 
+- `"fields"`: A list of field names corresponding to the fields to stream
   (must exist in the registry). The fields will be streamed in the order
   given in the list.
 - `"stream_mesh"`: Whether or not to stream mesh coordinates, in the order
   `x`, `y`, `z`. The mesh coordinates will always be streamed first, in
   that exact order, before the fields in `"fields"`.
 
-See the `cylinder` or `turb_pipe` examples for more details on how this 
+See the `cylinder` or `turb_pipe` examples for more details on how this
 simcomp cam be coupled to Python scripts for in-situ data processing.
 
 @note This simcomp requires configuration of Neko with the ADIOS2 library
@@ -678,14 +707,14 @@ simcomp cam be coupled to Python scripts for in-situ data processing.
 
 Creates sub-sections of the domain from a `point_zone` and/or at a lower
 `polynomial_order`. The fields are added to the registry under the name
-`name_of_simcomp + "/" + name_of_base_field`. For example, 
+`name_of_simcomp + "/" + name_of_base_field`. For example,
 `field_subsampler_u`.
 
 The simcomp is controlled by the following keywords:
-- `"source_fields"`: A list of names corresponding to the fields to subsample 
+- `"source_fields"`: A list of names corresponding to the fields to subsample
   (must exist in the registry).
 - `point_zone` (optional): The name of the point zone to use to mask the fields.
-- `polynomial_order` (optional): The new polynomial at which to interpolate 
+- `polynomial_order` (optional): The new polynomial at which to interpolate
   the fields. Must be different from the order used in the simulation.
 
 The `field_subsampler` contains its own `field_writer`. Therefore, all the
