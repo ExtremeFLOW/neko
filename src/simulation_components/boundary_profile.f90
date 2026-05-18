@@ -710,11 +710,11 @@ contains
                this%bc%msk_d, this%u%size(), local_n)
 
           call device_memcpy(this%r1%x, this%r1%x_d, local_n, &
-               HOST_TO_DEVICE, .false.)
+               DEVICE_TO_HOST, .false.)
           call device_memcpy(this%r2%x, this%r2%x_d, local_n, &
-               HOST_TO_DEVICE, .false.)
+               DEVICE_TO_HOST, .false.)
           call device_memcpy(this%r3%x, this%r3%x_d, local_n, &
-               HOST_TO_DEVICE, .true.)
+               DEVICE_TO_HOST, .true.)
        else
           call masked_gather_copy_0(this%r1%x, this%coef%dof%x, &
                this%bc%msk, this%u%size(), local_n)
