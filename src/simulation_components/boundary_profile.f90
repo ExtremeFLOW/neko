@@ -30,17 +30,16 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements `boundary_profile_t` to capture and output instantaneous boundary profiles.
+!> Implements `boundary_profile_t` to compute and output instantaneous boundary profiles.
 module boundary_profile
   use num_types, only : rp
-  use json_module, only : json_file, json_value
+  use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use field, only : field_t
   use case, only : case_t
-  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
-       json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
   use time_state, only : time_state_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
@@ -48,11 +47,11 @@ module boundary_profile
   use utils, only : neko_error
   use vector, only : vector_t
   use time_based_controller, only : time_based_controller_t
-  use drag_torque, only : setup_normals, calc_force_array, device_calc_force_array
+  use drag_torque, only : setup_normals, calc_force_array, &
+       device_calc_force_array
   use operators, only : strain_rate, opgrad
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
-  use mpi_f08, only : MPI_Gather, MPI_Gatherv, &
-       MPI_Exscan, MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_Gather, MPI_Gatherv, MPI_Exscan, MPI_INTEGER, MPI_SUM
   use math, only : masked_gather_copy_0, invcol2
   use ale_manager, only : neko_ale
   use file, only : file_t
@@ -116,6 +115,10 @@ module boundary_profile
 
 contains
 
+  !> Construct from JSON.
+  !! @param this The boundary_profile_t object.
+  !! @param json JSON object describing the simcomp.
+  !! @param case Simulation case.
   subroutine boundary_profile_init_from_json(this, json, case)
     class(boundary_profile_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
@@ -206,6 +209,19 @@ contains
 
   end subroutine boundary_profile_init_from_json
 
+  !> Construct from explicit time-based controllers.
+  !! @param this The boundary_profile_t object.
+  !! @param name Unique simcomp name.
+  !! @param case Simulation case owning the simcomp.
+  !! @param order Execution priority.
+  !! @param preprocess_controller Controller for preprocessing.
+  !! @param compute_controller Controller for computation.
+  !! @param output_controller Controller for output.
+  !! @param fluid_name Name of the fluid.
+  !! @param zone_id Labelled zone ID to include.
+  !! @param zone_name Name of the boundary zone.
+  !! @param start_time Time to start profiling.
+  !! @param coef SEM coefficients.
   subroutine boundary_profile_init_from_controllers(this, name, case, order, &
         preprocess_controller, compute_controller, output_controller, &
         fluid_name, zone_id, zone_name, start_time, coef)
@@ -224,6 +240,22 @@ contains
     call this%init_common(name, fluid_name, zone_id, zone_name, start_time, coef)
   end subroutine boundary_profile_init_from_controllers
 
+  !> Construct from time-based controller properties.
+  !! @param this The boundary_profile_t object.
+  !! @param name Unique simcomp name.
+  !! @param case Simulation case owning the simcomp.
+  !! @param order Execution priority.
+  !! @param preprocess_control Control mode for preprocessing.
+  !! @param preprocess_value Control value for preprocessing.
+  !! @param compute_control Control mode for computation.
+  !! @param compute_value Control value for computation.
+  !! @param output_control Control mode for output.
+  !! @param output_value Control value for output.
+  !! @param fluid_name Name of the fluid.
+  !! @param zone_id Labelled zone ID to include.
+  !! @param zone_name Name of the boundary zone.
+  !! @param start_time Time to start profiling.
+  !! @param coef SEM coefficients.
   subroutine boundary_profile_init_from_controllers_properties(this, name, &
         case, order, preprocess_control, preprocess_value, compute_control, &
         compute_value, output_control, output_value, fluid_name, zone_id, &
@@ -244,6 +276,14 @@ contains
          start_time, coef)
   end subroutine boundary_profile_init_from_controllers_properties
 
+  !> Common constructor shared by all public constructors.
+  !! @param this The boundary_profile_t object.
+  !! @param name Unique simcomp name.
+  !! @param fluid_name Name of the fluid.
+  !! @param zone_id Labelled zone ID to include.
+  !! @param zone_name Name of the boundary zone.
+  !! @param start_time Time to start profiling.
+  !! @param coef SEM coefficients.
   subroutine boundary_profile_init_common(this, name, fluid_name, zone_id, zone_name, &
        start_time, coef)
     class(boundary_profile_t), intent(inout) :: this
@@ -509,6 +549,7 @@ contains
 
   end subroutine boundary_profile_init_common
 
+  !> Free all resources owned by the component.
   subroutine boundary_profile_free(this)
     class(boundary_profile_t), intent(inout) :: this
 
@@ -555,6 +596,9 @@ contains
 
   end subroutine boundary_profile_free
 
+  !> Compute boundary profile data.
+  !! @param this The boundary_profile_t object.
+  !! @param time Current simulation time state.
   subroutine boundary_profile_compute(this, time)
     class(boundary_profile_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -571,6 +615,9 @@ contains
     end if
   end subroutine boundary_profile_compute
 
+  !> Write boundary profile data to output.
+  !! @param this The boundary_profile_t object.
+  !! @param time Current simulation time state.
   subroutine boundary_profile_write(this, time)
     class(boundary_profile_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -634,7 +681,7 @@ contains
        ! Calculate Weak Gradient
        call opgrad(dpdx%x, dpdy%x, dpdz%x, this%p%x, this%coef)
 
-       ! Divide by B to get Strong Gradient
+       ! Divide by B to get strong gradient
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_invcol2(dpdx%x_d, this%coef%B_d, this%p%size())
           call device_invcol2(dpdy%x_d, this%coef%B_d, this%p%size())
@@ -968,12 +1015,10 @@ contains
             file=this%case%output_directory // trim(this%data_filename), &
             position='append', action='write')
 
-       ! Write the time step header
        write(io_unit, '("t=",G0.15)') time%t
 
        do i = 1, total_n
           if (num_cols > 0) then
-             ! Time is no longer written in the row
              write(io_unit, fmt_str) global_id_buf(i), ',', &
                  (global_buffer(j, i), ',', j=1, num_cols-1), &
                  global_buffer(num_cols, i)
