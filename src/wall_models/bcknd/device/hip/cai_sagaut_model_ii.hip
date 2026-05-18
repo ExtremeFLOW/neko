@@ -36,11 +36,11 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 
-#include "caisagaut_model_ii_kernel.h"
+#include "cai_sagaut_model_ii_kernel.h"
 
 extern "C" {
   /**
-   * Fortran wrapper for the HIP Caisagaut Model-II kernel.
+   * Fortran wrapper for the HIP Cai & Sagaut Model-II kernel.
    * @param u_d The sampled x-velocity field.
    * @param v_d The sampled y-velocity field.
    * @param w_d The sampled z-velocity field.
@@ -64,7 +64,7 @@ extern "C" {
    * @param p The blending exponent.
    * @param s The blending scale.
    */
-  void hip_caisagaut_model_ii_compute(void *u_d, void *v_d, void *w_d,
+  void hip_cai_sagaut_model_ii_compute(void *u_d, void *v_d, void *w_d,
                                       void *ind_r_d, void *ind_s_d,
                                       void *ind_t_d, void *ind_e_d,
                                       void *n_x_d, void *n_y_d, void *n_z_d,
@@ -77,7 +77,7 @@ extern "C" {
     const dim3 nblcks(((*n_nodes) + 256 - 1) / 256, 1, 1);
 
     if (*n_nodes > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(caisagaut_model_ii_compute<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(cai_sagaut_model_ii_compute<real>),
                          nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                          (real *) u_d, (real *) v_d, (real *) w_d,
                          (int *) ind_r_d, (int *) ind_s_d, (int *) ind_t_d,

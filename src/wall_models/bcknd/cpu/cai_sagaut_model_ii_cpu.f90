@@ -30,14 +30,14 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> CPU backend for `caisagaut_model_ii_t`.
-module caisagaut_model_ii_cpu
+!> CPU backend for `cai_sagaut_model_ii_t`.
+module cai_sagaut_model_ii_cpu
   use num_types, only : rp
   use math, only : lambert_w0, NEKO_EPS
   implicit none
   private
 
-  public :: caisagaut_model_ii_compute_cpu
+  public :: cai_sagaut_model_ii_compute_cpu
 
 contains
   !> Evaluate wall shear stresses with the CPU Model-II kernel.
@@ -64,7 +64,7 @@ contains
   !! @param B The log-law intercept.
   !! @param p The blending exponent.
   !! @param s The blending scale.
-  subroutine caisagaut_model_ii_compute_cpu(u, v, w, ind_r, ind_s, ind_t, &
+  subroutine cai_sagaut_model_ii_compute_cpu(u, v, w, ind_r, ind_s, ind_t, &
        ind_e, n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, &
        lx, nelv, kappa, B, p, s)
     integer, intent(in) :: n_nodes, lx, nelv
@@ -111,6 +111,6 @@ contains
        tau_y(i) = -rho * utau**2 * vi / (magu + NEKO_EPS)
        tau_z(i) = -rho * utau**2 * wi / (magu + NEKO_EPS)
     end do
-  end subroutine caisagaut_model_ii_compute_cpu
+  end subroutine cai_sagaut_model_ii_compute_cpu
 
-end module caisagaut_model_ii_cpu
+end module cai_sagaut_model_ii_cpu

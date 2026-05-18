@@ -5,9 +5,9 @@
 - Removed restart limitations on load balancing. We now cache the the balanced
   mesh and read the cache if available. Load balance name pattern updated to
   include partition number.
+- Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
-- Added the `caisagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL
   backends. This model is based on the work of [Cai and Sagaut (PoF,
   2021)](https://doi.org/10.1063/5.0048563).
 - Added hdf5 support for probes and added hdf5 I/O helper routines
