@@ -42,6 +42,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Boundary operations on labelled zones \ref simcomp_boundary_operation
 - Total vector flux through labelled zones \ref simcomp_boundary_flux
+- Compute and output of instantaneous boundary profiles \ref simcomp_boundary_profile
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
 - User defined components \ref user-file_simcomps
@@ -255,6 +256,49 @@ Optional fields for this simcomp are:
   "field_names": ["u", "v", "w"],
   "log": true,
   "output_filename": "inlet_flux.csv"
+}
+~~~~~~~~~~~~~~~
+
+### boundary_profile {#simcomp_boundary_profile}
+
+Computes and outputs instantaneous boundary profiles (such as pressure, wall shear stress, and pressure gradients) on a specific labelled boundary zone. This simcomp extracts values at the GLL nodes corresponding to the selected zone and outputs them to a `.csv` file. During initialization, a mesh file containing the surface coordinates and outward-pointing unit normal vectors is generated. Data is appended to a separate `.csv` file according to the `compute_control` values. 
+
+Two files are generated in the `case.output_directory`:
+- `boundary_profile_[name]_mesh.csv`: Created once at the start of the simulation containing the `gll_id`, initial point coordinates, and wall-normal vectors. Its header reads:
+  `gll_id,x_ref,y_ref,z_ref,-nrm_x_ref,-nrm_y_ref,-nrm_z_ref`
+- `boundary_profile_[name]_data.csv`: Written to continuously, recording the requested variables and simulation time `t`. The first line is the header, starting with `gll_id` and followed by the selected output variables (e.g., `gll_id,p,tau_x`). The second line is the total number of GLL points on the selected boundary zone. Note that every time step block appended to this file begins with a line specifying the current time (e.g., `t=5.0`).
+
+Each point on the boundary is assigned a unique `gll_id`. This identifier acts as a key to map the GLL points defined in the `*_mesh.csv` file to their corresponding rows of data in the `*_data.csv` file.
+
+If the simulation is using the Arbitrary Lagrangian-Eulerian (ALE) framework, the updated mesh coordinates and unit normal vectors will be written to the `*_data.csv` file as the body moves. In this case, the data file header will automatically include these fields before the fluid variables: `gll_id,x,y,z,-nrm_x,-nrm_y,-nrm_z,...`
+
+Note that the unit normal vectors, written in `*_mesh.csv` or `*_data.csv` (in case of ALE), are unit normal vectors pointing outward from the wall. So they are pointing into the fluid.
+
+Mandatory fields for this simcomp are:
+- `zone_id`: The ID of the labelled boundary zone where profiles should be extracted.
+- `variables`: An array of strings specifying which variables to compute and output. Available options are:
+  - `"p"`: Instantaneous static pressure.
+  - `"tau_x"`, `"tau_y"`, `"tau_z"`: Cartesian components of the wall shear stress vector.
+  - `"tau_mag"`: The magnitude of the wall shear stress.
+  - `"dpdx"`, `"dpdy"`, `"dpdz"`: Cartesian components of the strong pressure gradient vector.
+  - `"all"`: Shortcut to include all of the above.
+
+Optional fields for this simcomp are:
+- `zone_name`: A descriptive name for the zone, defaults to `"profile_zone"`.
+- `start_time`: Physical simulation time to begin outputting the profiles. Defaults to `0.0`.
+- `format_long`: If set to `true`, the exported data fields are written with extended precision (`15` decimal places) instead of the default shorter format (`6` decimal places). The coordinates are always written with extended precision. Defaults to `false`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "boundary_profile",
+  "name": "my_boundary_profile",
+  "zone_id": 1,
+  "zone_name": "profiler_wall",
+  "start_time": 5.0,
+  "format_long": true,
+  "variables": ["p", "tau_mag", "dpdx"],
+  "compute_control": "tsteps",
+  "compute_value": 10
 }
 ~~~~~~~~~~~~~~~
 
@@ -732,3 +776,4 @@ keywords used by the latter can also be specified, with the exception of
    "compute_value": 10
  }
  ~~~~~~~~~~~~~~~
+

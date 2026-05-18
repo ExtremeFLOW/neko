@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added `boundary_profile` simulation component.
 - Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
