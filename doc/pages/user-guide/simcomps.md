@@ -266,13 +266,13 @@ Computes and outputs instantaneous boundary profiles (such as pressure, wall she
 Two files are generated in the `case.output_directory`:
 - `boundary_profile_[name]_mesh.csv`: Created once at the start of the simulation containing the `gll_id`, initial point coordinates, and wall-normal vectors. Its header reads:
   `gll_id,x_ref,y_ref,z_ref,-nrm_x_ref,-nrm_y_ref,-nrm_z_ref`
-- `boundary_profile_[name]_data.csv`: Written to continuously, recording the requested variables and simulation time `t`. The first line is the header, starting with `gll_id` and followed by the selected output variables (e.g., `gll_id,p,tau_x`). The second line is the total number of GLL points on the selected boundary zone. Note that every time step block appended to this file begins with a line specifying the current time (e.g., `t=5.0`).
+- `boundary_profile_[name]_data.csv`: Appended continuously throughout the simulation, logging the requested variables alongside the current time `t`. The first line is the header, starting with `gll_id` and followed by the selected output variables (e.g., `gll_id,p,tau_x`). The second line is the total number of GLL points on the selected boundary zone. Note that every time step block appended to this file begins with a line specifying the current time (e.g., `t=5.0`).
 
 Each point on the boundary is assigned a unique `gll_id`. This identifier acts as a key to map the GLL points defined in the `*_mesh.csv` file to their corresponding rows of data in the `*_data.csv` file.
 
 If the simulation is using the Arbitrary Lagrangian-Eulerian (ALE) framework, the updated mesh coordinates and unit normal vectors will be written to the `*_data.csv` file as the body moves. In this case, the data file header will automatically include these fields before the fluid variables: `gll_id,x,y,z,-nrm_x,-nrm_y,-nrm_z,...`
 
-Note that the unit normal vectors, written in `*_mesh.csv` or `*_data.csv` (in case of ALE), are unit normal vectors pointing outward from the wall. So they are pointing into the fluid.
+Note that the unit normal vectors, written in `*_mesh.csv` or `*_data.csv` (in case of ALE), are unit normal vectors pointing **outward** from the **wall**. So they are pointing into the fluid.
 
 Mandatory fields for this simcomp are:
 - `zone_id`: The ID of the labelled boundary zone where profiles should be extracted.
