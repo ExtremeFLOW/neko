@@ -334,8 +334,8 @@ contains
       n_entries = n_entries + 1
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
-      call entries(n_entries)%init_host_array(n)
-      v => entries(n_entries)%get_host_array()
+      call this%entries(n_entries)%init_host_array(n)
+      v => this%entries(n_entries)%get_host_array()
 
     end associate
   end subroutine request_host_array
@@ -384,8 +384,8 @@ contains
       n_entries = n_entries + 1
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
-      call entries(n_entries)%init_device_array(n)
-      v => entries(n_entries)%get_device_array()
+      call this%entries(n_entries)%init_device_array(n)
+      v => this%entries(n_entries)%get_device_array()
 
     end associate
   end subroutine request_device_array
@@ -434,8 +434,8 @@ contains
       n_entries = n_entries + 1
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
-      call entries(n_entries)%init_vector(n)
-      v => entries(n_entries)%get_vector()
+      call this%entries(n_entries)%init_vector(n)
+      v => this%entries(n_entries)%get_vector()
 
     end associate
   end subroutine request_vector
@@ -486,8 +486,8 @@ contains
       n_entries = n_entries + 1
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
-      call entries(n_entries)%init_matrix(nrows, ncols)
-      m => entries(n_entries)%get_matrix()
+      call this%entries(n_entries)%init_matrix(nrows, ncols)
+      m => this%entries(n_entries)%get_matrix()
 
     end associate
   end subroutine request_matrix
@@ -538,8 +538,8 @@ contains
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
       write (name, "(A3,I0.3)") "wrk", index
-      call entries(n_entries)%init_field(this%dof, trim(name))
-      f => entries(n_entries)%get_field()
+      call this%entries(n_entries)%init_field(this%dof, trim(name))
+      f => this%entries(n_entries)%get_field()
 
     end associate
   end subroutine request_field
