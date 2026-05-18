@@ -99,6 +99,17 @@
                 "compute_value": 10,
                 "avg_direction": "z",
                 "set_of_stats": "basic"
+            },
+            {
+              "type": "boundary_profile",
+              "name": "cylinder_wall",
+              "zone_id": 7,
+              "zone_name": "Cylinder wall",
+              "start_time": 5.0,
+              "format_long": true,
+              "variables": ["p", "tau_mag", "tau_x", "dpdx", "tau_y"],
+              "compute_control": "tsteps",
+              "compute_value": 10
             }
         ]
     }
