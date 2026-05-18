@@ -1,7 +1,7 @@
-#ifndef __COMMON_WALL_MODEL_KERNEL_H__
-#define __COMMON_WALL_MODEL_KERNEL_H__
+#ifndef __MATH_ROTATE_KERNEL_CL__
+#define __MATH_ROTATE_KERNEL_CL__
 /*
- Copyright (c) 2025, The Neko Authors
+ Copyright (c) 2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,28 +35,43 @@
 */
 
 /**
- * Device kernel for wall_model_tau_field_compute
+ * Device kernel for cyclic boundary condition rotation
  */
-#include <cmath>
-#include <algorithm>
-template<typename T>
-__global__ void wall_model_compute_mag_field(const T * __restrict__ tau_x_d,
-                                             const T * __restrict__ tau_y_d,
-                                             const T * __restrict__ tau_z_d,
-                                             T * __restrict__ tau_field_d,
-                                             const int * __restrict__ msk_d,
-                                             const int m) {
-    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    const int str = blockDim.x * gridDim.x;
+__kernel void rotate_cyc_kernel(__global real *vx,
+                                __global real *vy,
+                                __global real *vz,
+                                __global const real *x,
+                                __global const real *y,
+                                __global const real *z,
+                                __global const int *cyc_msk,
+                                __global const real *R11,
+                                __global const real *R12,
+                                const int ncyc,
+                                const int idir) {
 
-    for (int i = idx; i < m; i += str) {
-        // Compute the magnitude of the shear stress vector
-        T magtau = sqrt(tau_x_d[i] * tau_x_d[i] +
-        tau_y_d[i] * tau_y_d[i] +
-        tau_z_d[i] * tau_z_d[i]);
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
 
-        // Store the result in the tau_field array at the masked index
-        tau_field_d[msk_d[i + 1] - 1] = magtau;
+  for (int i = idx; i < ncyc; i += str) {
+    const int j = cyc_msk[i + 1] - 1;
+    const real vxj = vx[j];
+    const real vyj = vy[j];
+    const real R11i = R11[i];
+    const real R12i = R12[i];
+    real vnor;
+    real vtan;
+    if (idir == 1) {
+      vnor =  vxj * R11i + vyj * R12i;
+      vtan = -vxj * R12i + vyj * R11i;
     }
-} 
-#endif // __COMMON_WALL_model_KERNEL_H__
+    else if (idir == 0) {
+      vnor =  vxj * R11i - vyj * R12i;
+      vtan =  vxj * R12i + vyj * R11i;
+    }
+
+    vx[j] = vnor;
+    vy[j] = vtan;
+  }
+}
+
+#endif // __MATH_ROTATE_KERNEL_CL__
