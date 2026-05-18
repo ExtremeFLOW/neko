@@ -50,6 +50,7 @@ multigrid/bcknd/device/hip/amg_cheby.lo : multigrid/bcknd/device/hip/amg_cheby.h
 krylov/bcknd/device/hip/cheby_aux.lo : krylov/bcknd/device/hip/cheby_aux.hip
 comm/bcknd/device/cuda/nvshmem.lo : comm/bcknd/device/cuda/nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
+device/cuda/nvtx_wrapper.lo : device/cuda/nvtx_wrapper.cu
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
 math/bcknd/device/cuda/mathops.lo : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
 math/bcknd/device/cuda/opr_dudxyz.lo : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h

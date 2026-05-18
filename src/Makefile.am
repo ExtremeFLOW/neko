@@ -526,6 +526,7 @@ endif
 if ENABLE_CUDA
 libneko_la_SOURCES += \
 	device/cuda/check.cu\
+	device/cuda/nvtx_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/schwarz.cu\
 	math/bcknd/device/cuda/tensor.cu\
