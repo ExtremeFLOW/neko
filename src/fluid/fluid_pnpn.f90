@@ -807,7 +807,7 @@ contains
 
       ! Update material properties if necessary
       call this%update_material_properties(time)
-      
+
       do iter = 1, 1 + this%schwarz_iterations
 
          call this%bc_apply_vel(time, strong = .true.)

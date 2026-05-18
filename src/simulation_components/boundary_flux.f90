@@ -32,7 +32,7 @@
 !
 !> Implements `boundary_flux_t`.
 module boundary_flux
-  use num_types, only : rp, dp 
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
