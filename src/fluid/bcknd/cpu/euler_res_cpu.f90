@@ -41,11 +41,15 @@ module euler_res_cpu
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
   use num_types, only : rp
-  use operators, only : div, rotate_cyc
+  use operators, only : div, grad, opgrad, rotate_cyc
   use gs_ops, only : GS_OP_ADD
   use scratch_registry, only : neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
+  use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
+       compressible_ops_cpu_update_mxyz_p_ruvw
+  use bc_list, only : bc_list_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -75,16 +79,21 @@ contains
   !> @param artificial_visc Artificial viscosity field (entropy viscosity, min with low-order)
   !> @param mu Dynamic viscosity field (physical viscosity for momentum)
   !> @param kappa Thermal conductivity field (physical viscosity for energy)
+  !> @param bcs_vel Velocity boundary conditions
+  !> @param time Current time state
   !> @param rk_scheme Runge-Kutta time integration scheme
   !> @param dt Time step size
   subroutine advance_primitive_variables_cpu(rho_field, m_x, m_y, m_z, &
        E, p, u, v, w, Ax, &
-       coef, gs, h, artificial_visc, mu, kappa, rk_scheme, dt)
+       Ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, &
+       rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
-    class(Ax_t), intent(inout) :: Ax
+    class(Ax_t), intent(inout) :: Ax, Ax_stress
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
+    type(bc_list_t), intent(inout) :: bcs_vel
+    type(time_state_t), intent(in) :: time
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
     integer :: n, s, i, j, k
@@ -93,8 +102,9 @@ contains
          k_m_y_1, k_m_y_2, k_m_y_3, k_m_y_4, &
          k_m_z_1, k_m_z_2, k_m_z_3, k_m_z_4, &
          k_E_1, k_E_2, k_E_3, k_E_4, &
-         temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E
-    integer :: tmp_indices(25)
+         temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
+         temp_p, temp_u, temp_v, temp_w, temp_ruvw
+    integer :: tmp_indices(30)
     type(field_list_t) :: k_rho, k_m_x, k_m_y, k_m_z, k_E
 
     n = p%dof%size()
@@ -124,6 +134,11 @@ contains
     call neko_scratch_registry%request_field(temp_m_y, tmp_indices(23), .false.)
     call neko_scratch_registry%request_field(temp_m_z, tmp_indices(24), .false.)
     call neko_scratch_registry%request_field(temp_E, tmp_indices(25), .false.)
+    call neko_scratch_registry%request_field(temp_p, tmp_indices(26), .false.)
+    call neko_scratch_registry%request_field(temp_u, tmp_indices(27), .false.)
+    call neko_scratch_registry%request_field(temp_v, tmp_indices(28), .false.)
+    call neko_scratch_registry%request_field(temp_w, tmp_indices(29), .false.)
+    call neko_scratch_registry%request_field(temp_ruvw, tmp_indices(30), .false.)
 
     ! Initialize Runge-Kutta stage variables for each conserved quantity
     call k_rho%init(4)
@@ -184,13 +199,23 @@ contains
           end do
        end do
 
-       ! Evaluate RHS terms for current stage using intermediate solution values
+       ! Evaluate RHS terms using primitive variables from the RK stage state.
+       call compressible_ops_cpu_update_uvw(temp_u%x, temp_v%x, temp_w%x, &
+            temp_m_x%x, temp_m_y%x, temp_m_z%x, temp_rho%x, n)
+       if (euler_res_cpu_viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES) then
+          call bcs_vel%apply_vector(temp_u%x, temp_v%x, temp_w%x, n, time, &
+               strong = .true.)
+       end if
+       call compressible_ops_cpu_update_mxyz_p_ruvw(temp_m_x%x, temp_m_y%x, &
+            temp_m_z%x, temp_p%x, temp_ruvw%x, temp_u%x, temp_v%x, temp_w%x, &
+            temp_E%x, temp_rho%x, euler_res_cpu_gamma, n)
+
        call evaluate_rhs_cpu(k_rho%items(i)%ptr, k_m_x%items(i)%ptr, &
             k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, &
             k_E%items(i)%ptr, &
             temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
-            p, u, v, w, Ax, &
-            coef, gs, h, artificial_visc, mu, kappa)
+            temp_p, temp_u, temp_v, temp_w, Ax, &
+            Ax_stress, coef, gs, h, artificial_visc, mu, kappa)
     end do
 
     ! Update the solution
@@ -215,8 +240,8 @@ contains
 
   !> Evaluates the right-hand side of the compressible equations.
   !> Inviscid terms are evaluated through div(). Stabilization is always the
-  !> existing Laplacian. In navier-stokes mode, physical mu and kappa add
-  !> separate primitive-variable Laplacians for velocity and temperature.
+  !> existing scalar Laplacian. In navier-stokes mode, physical mu and kappa
+  !> add a separate compressible Navier-Stokes viscous flux.
   !> @param rhs_rho_field Output array for density RHS terms
   !> @param rhs_m_x Output array for x-momentum RHS terms
   !> @param rhs_m_y Output array for y-momentum RHS terms
@@ -240,12 +265,12 @@ contains
   !> @param kappa Thermal conductivity field for physical energy diffusion
   subroutine evaluate_rhs_cpu(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
        rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-       coef, gs, h, artificial_visc, mu, kappa)
+       Ax_stress, coef, gs, h, artificial_visc, mu, kappa)
     type(field_t), intent(inout) :: rhs_rho_field, &
          rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
-    class(Ax_t), intent(inout) :: Ax
+    class(Ax_t), intent(inout) :: Ax, Ax_stress
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
     integer :: i, n
@@ -355,33 +380,8 @@ contains
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     if (add_physical_visc) then
-       ! Add physical diffusion separately so it cannot change the shock
-       ! stabilization applied to conserved variables.
-       do concurrent (i = 1:n)
-          coef%h1(i,1,1,1) = mu%x(i,1,1,1)
-       end do
-       call Ax%compute(f_x%x, u%x, coef, p%msh, p%Xh)
-       do concurrent (i = 1:n)
-          visc_m_x%x(i,1,1,1) = visc_m_x%x(i,1,1,1) + f_x%x(i,1,1,1)
-       end do
-       call Ax%compute(f_x%x, v%x, coef, p%msh, p%Xh)
-       do concurrent (i = 1:n)
-          visc_m_y%x(i,1,1,1) = visc_m_y%x(i,1,1,1) + f_x%x(i,1,1,1)
-       end do
-       call Ax%compute(f_x%x, w%x, coef, p%msh, p%Xh)
-       do concurrent (i = 1:n)
-          visc_m_z%x(i,1,1,1) = visc_m_z%x(i,1,1,1) + f_x%x(i,1,1,1)
-       end do
-
-       do concurrent (i = 1:n)
-          coef%h1(i,1,1,1) = kappa%x(i,1,1,1)
-          f_y%x(i,1,1,1) = p%x(i,1,1,1) / &
-               (rho_field%x(i,1,1,1) * (euler_res_cpu_gamma - 1.0_rp))
-       end do
-       call Ax%compute(f_x%x, f_y%x, coef, p%msh, p%Xh)
-       do concurrent (i = 1:n)
-          visc_E%x(i,1,1,1) = visc_E%x(i,1,1,1) + f_x%x(i,1,1,1)
-       end do
+       call add_navier_stokes_flux_cpu(visc_m_x, visc_m_y, visc_m_z, visc_E, &
+            rho_field, p, u, v, w, mu, kappa, Ax, Ax_stress, coef)
     end if
 
     do concurrent (i = 1:n)
@@ -411,5 +411,127 @@ contains
 
     call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine evaluate_rhs_cpu
+
+  !> Add the physical Navier-Stokes flux contribution to the viscous residual.
+  !! @param visc_m_x Viscous residual for x-momentum.
+  !! @param visc_m_y Viscous residual for y-momentum.
+  !! @param visc_m_z Viscous residual for z-momentum.
+  !! @param visc_E Viscous residual for total energy.
+  !! @param rho_field Density field.
+  !! @param p Pressure field.
+  !! @param u X-velocity field.
+  !! @param v Y-velocity field.
+  !! @param w Z-velocity field.
+  !! @param mu Dynamic viscosity field.
+  !! @param kappa Thermal conductivity field.
+  !! @param Ax Matrix-vector product operator for scalar diffusion.
+  !! @param Ax_stress Matrix-vector product operator for full stress.
+  !! @param coef Spatial discretization coefficients.
+  subroutine add_navier_stokes_flux_cpu(visc_m_x, visc_m_y, visc_m_z, visc_E, &
+       rho_field, p, u, v, w, mu, kappa, Ax, Ax_stress, coef)
+    type(field_t), intent(inout) :: visc_m_x, visc_m_y, visc_m_z, visc_E
+    type(field_t), intent(in) :: rho_field
+    type(field_t), intent(in) :: p, u, v, w, mu, kappa
+    class(Ax_t), intent(inout) :: Ax, Ax_stress
+    type(coef_t), intent(inout) :: coef
+    type(field_t), pointer :: dudx, dudy, dudz, dvdx, dvdy, dvdz, &
+         dwdx, dwdy, dwdz, tau_xx, tau_xy, tau_xz, tau_yy, tau_yz, &
+         tau_zz, f_x, f_y, f_z, div_flux, dissipation
+    integer :: tmp_indices(20)
+    integer :: i, n
+    real(kind=rp) :: div_u, two_thirds
+
+    n = coef%dof%size()
+    two_thirds = 2.0_rp / 3.0_rp
+
+    call neko_scratch_registry%request_field(dudx, tmp_indices(1), .false.)
+    call neko_scratch_registry%request_field(dudy, tmp_indices(2), .false.)
+    call neko_scratch_registry%request_field(dudz, tmp_indices(3), .false.)
+    call neko_scratch_registry%request_field(dvdx, tmp_indices(4), .false.)
+    call neko_scratch_registry%request_field(dvdy, tmp_indices(5), .false.)
+    call neko_scratch_registry%request_field(dvdz, tmp_indices(6), .false.)
+    call neko_scratch_registry%request_field(dwdx, tmp_indices(7), .false.)
+    call neko_scratch_registry%request_field(dwdy, tmp_indices(8), .false.)
+    call neko_scratch_registry%request_field(dwdz, tmp_indices(9), .false.)
+    call neko_scratch_registry%request_field(tau_xx, tmp_indices(10), .false.)
+    call neko_scratch_registry%request_field(tau_xy, tmp_indices(11), .false.)
+    call neko_scratch_registry%request_field(tau_xz, tmp_indices(12), .false.)
+    call neko_scratch_registry%request_field(tau_yy, tmp_indices(13), .false.)
+    call neko_scratch_registry%request_field(tau_yz, tmp_indices(14), .false.)
+    call neko_scratch_registry%request_field(tau_zz, tmp_indices(15), .false.)
+    call neko_scratch_registry%request_field(f_x, tmp_indices(16), .false.)
+    call neko_scratch_registry%request_field(f_y, tmp_indices(17), .false.)
+    call neko_scratch_registry%request_field(f_z, tmp_indices(18), .false.)
+    call neko_scratch_registry%request_field(div_flux, tmp_indices(19), .false.)
+    call neko_scratch_registry%request_field(dissipation, tmp_indices(20), .false.)
+
+    call grad(dudx%x, dudy%x, dudz%x, u%x, coef)
+    call grad(dvdx%x, dvdy%x, dvdz%x, v%x, coef)
+    call grad(dwdx%x, dwdy%x, dwdz%x, w%x, coef)
+
+    do concurrent (i = 1:n)
+       div_u = dudx%x(i,1,1,1) + dvdy%x(i,1,1,1) + dwdz%x(i,1,1,1)
+       div_flux%x(i,1,1,1) = mu%x(i,1,1,1) * div_u
+       coef%h1(i,1,1,1) = mu%x(i,1,1,1)
+       tau_xx%x(i,1,1,1) = mu%x(i,1,1,1) * &
+            (2.0_rp * dudx%x(i,1,1,1) - two_thirds * div_u)
+       tau_yy%x(i,1,1,1) = mu%x(i,1,1,1) * &
+            (2.0_rp * dvdy%x(i,1,1,1) - two_thirds * div_u)
+       tau_zz%x(i,1,1,1) = mu%x(i,1,1,1) * &
+            (2.0_rp * dwdz%x(i,1,1,1) - two_thirds * div_u)
+       tau_xy%x(i,1,1,1) = mu%x(i,1,1,1) * &
+            (dudy%x(i,1,1,1) + dvdx%x(i,1,1,1))
+       tau_xz%x(i,1,1,1) = mu%x(i,1,1,1) * &
+            (dudz%x(i,1,1,1) + dwdx%x(i,1,1,1))
+       tau_yz%x(i,1,1,1) = mu%x(i,1,1,1) * &
+            (dvdz%x(i,1,1,1) + dwdy%x(i,1,1,1))
+    end do
+
+    do concurrent (i = 1:n)
+       dissipation%x(i,1,1,1) = &
+            tau_xx%x(i,1,1,1) * dudx%x(i,1,1,1) &
+            + tau_xy%x(i,1,1,1) * (dudy%x(i,1,1,1) + dvdx%x(i,1,1,1)) &
+            + tau_xz%x(i,1,1,1) * (dudz%x(i,1,1,1) + dwdx%x(i,1,1,1)) &
+            + tau_yy%x(i,1,1,1) * dvdy%x(i,1,1,1) &
+            + tau_yz%x(i,1,1,1) * (dvdz%x(i,1,1,1) + dwdy%x(i,1,1,1)) &
+            + tau_zz%x(i,1,1,1) * dwdz%x(i,1,1,1)
+    end do
+
+    call Ax_stress%compute_vector(f_x%x, f_y%x, f_z%x, u%x, v%x, w%x, coef, &
+         p%msh, p%Xh)
+    call opgrad(dudx%x, dudy%x, dudz%x, div_flux%x, coef)
+    do concurrent (i = 1:n)
+       f_x%x(i,1,1,1) = f_x%x(i,1,1,1) &
+            - two_thirds * dudx%x(i,1,1,1)
+       f_y%x(i,1,1,1) = f_y%x(i,1,1,1) &
+            - two_thirds * dudy%x(i,1,1,1)
+       f_z%x(i,1,1,1) = f_z%x(i,1,1,1) &
+            - two_thirds * dudz%x(i,1,1,1)
+       visc_m_x%x(i,1,1,1) = visc_m_x%x(i,1,1,1) + f_x%x(i,1,1,1)
+       visc_m_y%x(i,1,1,1) = visc_m_y%x(i,1,1,1) + f_y%x(i,1,1,1)
+       visc_m_z%x(i,1,1,1) = visc_m_z%x(i,1,1,1) + f_z%x(i,1,1,1)
+       visc_E%x(i,1,1,1) = visc_E%x(i,1,1,1) &
+            + u%x(i,1,1,1) * f_x%x(i,1,1,1) &
+            + v%x(i,1,1,1) * f_y%x(i,1,1,1) &
+            + w%x(i,1,1,1) * f_z%x(i,1,1,1)
+    end do
+
+    do concurrent (i = 1:n)
+       visc_E%x(i,1,1,1) = visc_E%x(i,1,1,1) &
+            - coef%B(i,1,1,1) * dissipation%x(i,1,1,1)
+       div_flux%x(i,1,1,1) = p%x(i,1,1,1) / &
+            (rho_field%x(i,1,1,1) * (euler_res_cpu_gamma - 1.0_rp))
+    end do
+    do concurrent (i = 1:n)
+       coef%h1(i,1,1,1) = kappa%x(i,1,1,1)
+    end do
+    call Ax%compute(dudx%x, div_flux%x, coef, p%msh, p%Xh)
+    do concurrent (i = 1:n)
+       visc_E%x(i,1,1,1) = visc_E%x(i,1,1,1) + dudx%x(i,1,1,1)
+    end do
+
+    call neko_scratch_registry%relinquish_field(tmp_indices)
+
+  end subroutine add_navier_stokes_flux_cpu
 
 end module euler_res_cpu

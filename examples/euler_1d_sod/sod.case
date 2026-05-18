@@ -19,7 +19,6 @@
         },
         "fluid": {
             "scheme": "compressible",
-            "viscous_flux": "navier-stokes",
             "gamma": 1.4,
             "initial_condition": {
                 "type": "user"

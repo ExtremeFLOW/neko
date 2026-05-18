@@ -5,7 +5,7 @@
   compressible solver while keeping stabilization Laplacian-based. The
   `viscous_flux` case-file parameter selects between artificial-only diffusion
   (`monolithic`, default) and a `navier-stokes` mode that adds separate
-  physical `mu` and `kappa` Laplacian terms for velocity and temperature.
+  physical stress and heat-conduction fluxes from `mu` and `kappa`.
 - Updated field types with a wrapper and ensure lifetime management of field
   data in field lists and arrays.
 - Updated Developer Patterns documentation with new information on how to manage

@@ -76,7 +76,6 @@ module entropy_viscosity
      type(field_t), pointer :: w => null()
      type(field_t), pointer :: h => null()
      type(field_t), pointer :: max_wave_speed => null()
-     type(field_t), pointer :: mu => null()
      type(mesh_t), pointer :: msh => null()
      type(space_t), pointer :: Xh => null()
      type(gs_t), pointer :: gs => null()
@@ -116,7 +115,6 @@ contains
     nullify(this%w)
     nullify(this%h)
     nullify(this%max_wave_speed)
-    nullify(this%mu)
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%gs)
@@ -136,7 +134,6 @@ contains
     nullify(this%w)
     nullify(this%h)
     nullify(this%max_wave_speed)
-    nullify(this%mu)
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%gs)
@@ -296,7 +293,6 @@ contains
             this%c_avisc_low, n)
     end if
 
-
     call this%apply_element_max()
 
     call this%smooth_viscosity()
@@ -351,10 +347,10 @@ contains
   end subroutine entropy_viscosity_apply_element_max
 
   subroutine entropy_viscosity_set_fields(this, S, u, v, w, h, max_wave_speed, &
-       mu, msh, Xh, gs)
+       msh, Xh, gs)
     class(entropy_viscosity_t), intent(inout) :: this
     type(field_t), target, intent(inout) :: S
-    type(field_t), target, intent(in) :: u, v, w, h, max_wave_speed, mu
+    type(field_t), target, intent(in) :: u, v, w, h, max_wave_speed
     type(mesh_t), target, intent(in) :: msh
     type(space_t), target, intent(in) :: Xh
     type(gs_t), target, intent(in) :: gs
@@ -365,7 +361,6 @@ contains
     this%w => w
     this%h => h
     this%max_wave_speed => max_wave_speed
-    this%mu => mu
     this%msh => msh
     this%Xh => Xh
     this%gs => gs

@@ -32,7 +32,7 @@
 !
 module fluid_scheme_compressible
   use field, only : field_t
-  use field_math, only : field_cfill, field_col2, field_col3, &
+  use field_math, only : field_col2, field_col3, &
        field_cmult2, field_cmult, field_addcol3, field_add2
 
   use registry, only : neko_registry
@@ -47,7 +47,6 @@ module fluid_scheme_compressible
   use json_utils, only : json_get_or_default
   use mpi_f08
   use operators, only : cfl_compressible
-  use field_math, only : field_cfill
   use device, only : device_memcpy, HOST_TO_DEVICE
   use compressible_ops_cpu, only : &
        compressible_ops_cpu_compute_max_wave_speed, &
@@ -410,8 +409,8 @@ contains
             dummy_time_state)
     else
        this%user_material_properties => dummy_user_material_properties
-       call field_cfill(this%mu, 0.0_rp)
-       call field_cfill(this%kappa, 0.0_rp)
+       this%mu%x = 0.0_rp
+       this%kappa%x = 0.0_rp
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -436,8 +435,6 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
             HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%kappa%x, this%kappa%x_d, this%kappa%size(), &
             HOST_TO_DEVICE, sync = .false.)

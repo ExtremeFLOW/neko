@@ -1,21 +1,53 @@
-! Reflected shock-boundary layer interaction in a 2D shock tube
+! Copyright (c) 2025, The Neko Authors
+! All rights reserved.
 !
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+! Reflected shock-boundary layer interaction in a 2D shock tube.
 module user
   use neko
   implicit none
 
 contains
 
+  !> Register user callbacks for the shock-tube example.
+  !! @param user User interface object.
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
     user%material_properties => material_properties
   end subroutine user_setup
 
-  ! Riemann problem: diaphragm at x = 0.5
-  ! Left  (x < 0.5): rho = 120.0, p = 120.0 / gamma
-  ! Right (x > 0.5): rho = 1.2,   p = 1.2   / gamma
-  ! Velocity = 0 everywhere
+  !> Set the Riemann initial condition with the diaphragm at x = 0.5.
+  !! @param scheme_name Name of the fluid scheme.
+  !! @param fields Simulation fields supplied by Neko.
   subroutine initial_conditions(scheme_name, fields)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
@@ -49,7 +81,10 @@ contains
     end do
   end subroutine initial_conditions
 
-  ! Set dynamic viscosity: mu = 1 / Re
+  !> Set dynamic viscosity and thermal conductivity.
+  !! @param scheme_name Name of the fluid scheme.
+  !! @param properties Material property fields supplied by Neko.
+  !! @param time Current simulation time state.
   subroutine material_properties(scheme_name, properties, time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: properties

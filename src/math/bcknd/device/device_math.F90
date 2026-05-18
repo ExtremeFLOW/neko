@@ -771,8 +771,7 @@ contains
 #elif HAVE_CUDA
     call cuda_invcol3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
-    ! call opencl_invcol3(a_d, b_d, c_d, n)
-    call neko_error('opencl_invcol3 not implemented')
+    call opencl_invcol3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif

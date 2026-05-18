@@ -267,6 +267,14 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_invcol2
 
+     subroutine opencl_invcol3(a_d, b_d, c_d, n, strm) &
+          bind(c, name = 'opencl_invcol3')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, strm
+       integer(c_int) :: n
+     end subroutine opencl_invcol3
+
      subroutine opencl_col2(a_d, b_d, n, strm) &
           bind(c, name = 'opencl_col2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int

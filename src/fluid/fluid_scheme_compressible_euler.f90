@@ -39,7 +39,7 @@ module fluid_scheme_compressible_euler
   use bdf_time_scheme, only : bdf_time_scheme_t
   use time_scheme_controller, only : time_scheme_controller_t
   use math, only : col2
-  use device_math, only : device_col2
+  use device_math, only : device_cmult, device_col2, device_invcol3
   use field, only : field_t
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use scratch_registry, only : neko_scratch_registry
@@ -84,6 +84,7 @@ module fluid_scheme_compressible_euler
      real(kind=rp) :: c_avisc_low
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
+     class(ax_t), allocatable :: Ax_stress
      class(euler_rhs_t), allocatable :: euler_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
@@ -184,10 +185,13 @@ contains
     ! Get viscous flux type from case file (default: monolithic)
     call json_get_or_default(params, 'case.fluid.viscous_flux', &
          viscous_flux_string, 'monolithic')
-    if (index(viscous_flux_string, 'navier-stokes') > 0) then
+    if (trim(viscous_flux_string) .eq. 'navier-stokes') then
        viscous_flux_type = VISCOUS_FLUX_NAVIER_STOKES
-    else
+    else if (trim(viscous_flux_string) .eq. 'monolithic') then
        viscous_flux_type = VISCOUS_FLUX_MONOLITHIC
+    else
+       call neko_error('Invalid case.fluid.viscous_flux. Expected ' // &
+            '"monolithic" or "navier-stokes".')
     end if
 
     call euler_rhs_factory(this%euler_rhs, viscous_flux_type, this%gamma)
@@ -230,8 +234,13 @@ contains
        end associate
     end if
 
-    ! Initialize the diffusion operator
+    ! Initialize the diffusion operators
     call ax_helm_factory(this%Ax, full_formulation = .false.)
+    if (viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES) then
+       call ax_helm_factory(this%Ax_stress, full_formulation = .true.)
+    else
+       call ax_helm_factory(this%Ax_stress, full_formulation = .false.)
+    end if
 
     ! Compute h
     call this%compute_h()
@@ -257,6 +266,10 @@ contains
 
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
+    end if
+
+    if (allocated(this%Ax_stress)) then
+       deallocate(this%Ax_stress)
     end if
 
     if (allocated(this%euler_rhs)) then
@@ -316,11 +329,14 @@ contains
       ! Compute artificial viscosity
       call this%regularization%compute(time, time%tstep, time%dt)
 
+      ! Refresh user-specified physical viscosity/conductivity before RHS.
+      call this%update_material_properties(time)
+
       ! Execute RHS step with artificial viscosity field
       call euler_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, this%Ax, &
-           c_Xh, gs_Xh, h, this%artificial_visc, this%mu, this%kappa, &
-           rk_scheme, dt)
+           this%Ax_stress, c_Xh, gs_Xh, h, this%artificial_visc, this%mu, &
+           this%kappa, this%bcs_vel, time, rk_scheme, dt)
 
       !> Apply density boundary conditions
       call this%bcs_density%apply(rho, time)
@@ -362,10 +378,16 @@ contains
       end if
 
       !> Update temperature T = p / (rho * (gamma - 1))
-      do concurrent (i = 1:n)
-         this%temperature%x(i,1,1,1) = p%x(i,1,1,1) / &
-              (rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
-      end do
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_invcol3(this%temperature%x_d, p%x_d, rho%x_d, n)
+         call device_cmult(this%temperature%x_d, &
+              1.0_rp / (this%gamma - 1.0_rp), n)
+      else
+         do concurrent (i = 1:n)
+            this%temperature%x(i,1,1,1) = p%x(i,1,1,1) / &
+                 (rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
+         end do
+      end if
 
       !> Update entropy lag series BEFORE computing new entropy,
       !> so that S_lag(1) holds the previous step's S (not the current).
@@ -626,7 +648,7 @@ contains
     select type (reg => this%regularization)
     type is (entropy_viscosity_t)
        call entropy_viscosity_set_fields(reg, this%S, this%u, this%v, this%w, &
-            this%h, this%max_wave_speed, this%mu, this%msh, this%Xh, this%gs_Xh)
+            this%h, this%max_wave_speed, this%msh, this%Xh, this%gs_Xh)
     end select
 
     call reg_json%destroy()

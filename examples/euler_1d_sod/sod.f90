@@ -16,7 +16,6 @@ contains
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
     user%initial_conditions => initial_conditions
-    user%material_properties => material_properties
   end subroutine user_setup
 
   subroutine initial_conditions(scheme_name, fields)
@@ -54,31 +53,5 @@ contains
        end if
     end do
   end subroutine initial_conditions
-
-  subroutine material_properties(scheme_name, properties, time)
-    character(len=*), intent(in) :: scheme_name
-    type(field_list_t), intent(inout) :: properties
-    type(time_state_t), intent(in) :: time
-
-    type(field_t), pointer :: mu, rho, kappa
-    integer :: i, nx
-    real(kind=rp) :: Prandtl_number, gamma
-
-    Prandtl_number = 0.73_rp
-    gamma = 1.4_rp
-
-    if (scheme_name .eq. "fluid") then
-       rho => properties%get_by_name("fluid_rho")
-       mu => properties%get_by_name("fluid_mu")
-       kappa => properties%get_by_name("fluid_kappa")
-
-       nx = mu%dof%msh%glb_nelv
-
-       do i = 1, mu%dof%size()
-          mu%x(i,1,1,1) = 1.0_rp / (nx * 30)
-          kappa%x(i,1,1,1) = mu%x(i,1,1,1) * gamma / Prandtl_number
-       end do
-    end if
-  end subroutine material_properties
 
 end module user

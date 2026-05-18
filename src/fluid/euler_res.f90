@@ -38,6 +38,8 @@ module euler_residual
   use num_types, only : rp
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use viscous_flux, only : VISCOUS_FLUX_MONOLITHIC, VISCOUS_FLUX_NAVIER_STOKES
+  use bc_list, only : bc_list_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -52,18 +54,23 @@ module euler_residual
   !> Abstract interface to evaluate rhs
   abstract interface
      subroutine euler_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-          coef, gs, h, artificial_visc, mu, kappa, rk_scheme, dt)
+          Ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, &
+          rk_scheme, dt)
        import field_t
        import Ax_t
        import gs_t
        import coef_t
        import rp
        import runge_kutta_time_scheme_t
+       import bc_list_t
+       import time_state_t
        type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
        type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
-       class(Ax_t), intent(inout) :: Ax
+       class(Ax_t), intent(inout) :: Ax, Ax_stress
        type(coef_t), intent(inout) :: coef
        type(gs_t), intent(inout) :: gs
+       type(bc_list_t), intent(inout) :: bcs_vel
+       type(time_state_t), intent(in) :: time
        class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
        real(kind=rp), intent(in) :: dt
      end subroutine euler_rhs

@@ -914,14 +914,14 @@ contains
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
     type(MPI_Request) :: send_req, recv_req
-    integer, contiguous, pointer :: p1(:), p2(:), ns_id(:)
+    integer, contiguous, pointer :: p1(:), p2(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
     integer(kind=i8) :: C, glb_max, glb_id
     integer(kind=i8), pointer :: glb_ptr
     integer(kind=i8), allocatable :: recv_buff(:)
+    integer, allocatable :: non_shared_edges(:)
     logical :: shared_edge
-    type(stack_i4_t), target :: non_shared_edges
     integer :: max_recv, src, dst, n_recv
 
 
@@ -946,12 +946,18 @@ contains
 
     glb_max = int(num_edge_glb, i8)
 
-    call non_shared_edges%init(this%hte%num_entries())
+    allocate(non_shared_edges(this%hte%num_entries()))
+    num_edge_loc = 0
 
     call it%init(this%hte)
     do while(it%next())
        edge => it%key()
-       call it%data(id)
+       if (this%hte%get(edge, id) .ne. 0) then
+          call neko_error('Invalid edge key in mesh_generate_edge_conn')
+       end if
+       if (id .lt. 1 .or. id .gt. this%meds) then
+          call neko_error('Invalid edge id in mesh_generate_edge_conn')
+       end if
 
        k = this%have_point_glb_idx(edge%x(1))
        l = this%have_point_glb_idx(edge%x(2))
@@ -981,24 +987,22 @@ contains
           call owner%add(glb_id) ! Always assume the PE is the owner
           call send_buff%push(glb_id)
        else
-          call non_shared_edges%push(id)
+          num_edge_loc = num_edge_loc + 1
+          non_shared_edges(num_edge_loc) = id
        end if
     end do
 
     ! Determine start offset for global numbering of locally owned edges
     edge_offset = 0
-    num_edge_loc = non_shared_edges%size()
     call MPI_Exscan(num_edge_loc, edge_offset, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     edge_offset = edge_offset + 1
 
     ! Construct global numbering of locally owned edges
-    ns_id => non_shared_edges%array()
-    do i = 1, non_shared_edges%size()
-       call this%ddata%set_local_to_global_edge(ns_id(i), edge_offset)
+    do i = 1, num_edge_loc
+       call this%ddata%set_local_to_global_edge(non_shared_edges(i), edge_offset)
        edge_offset = edge_offset + 1
     end do
-    nullify(ns_id)
 
     !
     ! Renumber shared edges into integer range
@@ -1138,10 +1142,10 @@ contains
     end do
 
     deallocate(recv_buff)
+    deallocate(non_shared_edges)
     call glb_to_loc%free()
     call send_buff%free()
     call edge_idx%free()
-    call non_shared_edges%free()
     call ghost%free()
     call owner%free()
 
