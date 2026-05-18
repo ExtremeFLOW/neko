@@ -44,6 +44,7 @@ module checkpoint
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
   use global_interpolation, only : GLOB_INTERP_TOL
+  use time_state, only : time_state_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -119,6 +120,7 @@ module checkpoint
      procedure, pass(this) :: add_scalar => chkp_add_scalar
      procedure, pass(this) :: add_ale => chkp_add_ale
      procedure, pass(this) :: restart_time => chkp_restart_time
+     procedure, pass(this) :: set_time_state => chkp_set_time_state
      procedure, pass(this) :: free => chkp_free
   end type chkp_t
 
@@ -536,5 +538,15 @@ contains
 
     rtime = this%t
   end function chkp_restart_time
+
+  !> Set time state
+  subroutine chkp_set_time_state(this, time_state)
+    class(chkp_t), intent(in) :: this
+    type(time_state_t), intent(inout) :: time_state
+
+    time_state%t = this%t
+    time_state%dtlag = this%dtlag
+    time_state%tlag = this%tlag
+  end subroutine chkp_set_time_state
 
 end module checkpoint

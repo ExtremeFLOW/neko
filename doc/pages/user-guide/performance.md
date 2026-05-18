@@ -122,3 +122,58 @@ Finally, achieved performance depends on many factors, for example,
 the interconnect; it is therefore advisable to invest time in
 establishing a performance baseline the first time a new machine is
 used.
+
+### Gather-scatter communication backends
+
+The dominant communication pattern in spectral element methods is the
+gather-scatter (gs) operation that assembles partial element-local
+contributions across element boundaries. Neko ships several
+implementations of the off-process gs exchange, and the right choice
+depends on the host/accelerator combination and the interconnect.
+
+The active backend can be selected at runtime via the `NEKO_GS_COMM`
+environment variable. If the variable is unset, a sensible default is
+chosen based on the build configuration (device-aware MPI when device
+MPI is available, host MPI otherwise). The supported values are:
+
+| `NEKO_GS_COMM` | Backend | Requirement | Typical use |
+|---|---|---|---|
+| `MPI` | Host MPI (`gs_mpi`) | None | CPU runs, fallback for any system |
+| `MPIGPU` | Device-aware MPI (`gs_device_mpi`) | `--enable-device-mpi`, GPU build | NVIDIA / AMD GPUs with GPU-aware MPI |
+| `NCCL` | NCCL/RCCL (`gs_device_nccl`) | `--with-nccl=...` | Multi-GPU runs where NCCL outperforms MPI |
+| `SHMEM` | NVSHMEM (`gs_device_shmem`) | `--with-nvshmem=...`, CUDA | NVIDIA GPUs with NVSHMEM-capable interconnect |
+| `CAF` | Coarray Fortran (`gs_caf`) | Coarray-capable Fortran compiler | Systems with a tuned coarray runtime |
+
+@note `MPIGPU`, `NCCL`, and `SHMEM` all require Neko to be built with
+GPU support and the corresponding optional dependency. They are no-ops
+on CPU builds.
+
+The backend can also be selected programmatically by passing the
+`comm_bcknd` argument to `gs%init`, using the constants `GS_COMM_MPI`,
+`GS_COMM_MPIGPU`, `GS_COMM_NCCL`, `GS_COMM_NVSHMEM`, or `GS_COMM_CAF`
+exposed by the `gather_scatter` module. The environment variable wins
+when both are present.
+
+#### Coarray Fortran backend
+
+The CAF backend (`NEKO_GS_COMM=CAF`) uses one-sided coarray puts
+directly into a symmetric receive buffer, with a runtime-selectable
+synchronisation strategy controlled by `NEKO_GS_CAF_SIGNALING`:
+
+| `NEKO_GS_CAF_SIGNALING` | Standard | Mechanism | Notes |
+|---|---|---|---|
+| `sync` (default) | F2008 | `sync images` over the union of neighbour pairs, with a double-buffered receive coarray so only one rendezvous is needed per gs op | Most portable; works on every coarray-capable compiler |
+| `atomic` | F2008 | Per-pair atomic counters via `atomic_define`/`atomic_ref` and a busy-wait spin | Avoids the image-set barrier; trade-off depends on the relative cost of pairwise atomics versus `sync images` on the target runtime |
+| `event` | F2018 | F2018 events (`event post`/`event wait`) | Lowest theoretical overhead; requires a runtime that implements F2018 event semantics |
+
+The signaling mode is bound on the first gs initialisation and cannot
+be changed thereafter. If the chosen mode requires a feature
+unavailable in the build (e.g. `event` on a compiler without F2018
+events), Neko aborts with a clear error.
+
+@note The CAF backend allocates a symmetric receive coarray sized to
+the global maximum total receive count (doubled for the buffer
+parity), shared by all gs instances. The buffer is grown on demand and
+retained for the program lifetime. Multiple `gs_t` objects can coexist
+provided they are used strictly sequentially -- no overlapping
+nbsend/nbwait windows across instances.
