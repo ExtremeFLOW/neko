@@ -279,7 +279,7 @@ contains
     integer :: i
 
     ! Restart the time state and BDF coefficients
-    call C%time%restart(chkp)
+    call chkp%set_time_state(C%time)
     do i = 1, size(C%time%dtlag)
        call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
     end do
