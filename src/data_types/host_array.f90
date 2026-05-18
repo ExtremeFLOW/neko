@@ -56,7 +56,7 @@ contains
 
     call this%free()
     this%n = size
-    allocate(this%x(n))
+    allocate(this%x(size))
     call rzero(this%x, this%n)
 
   end subroutine host_array_init

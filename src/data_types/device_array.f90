@@ -55,16 +55,16 @@ contains
   subroutine device_array_init(this, size)
     class(device_array_t), intent(inout) :: this
     integer, intent(in) :: size
-    integer :: c_size
+    integer(c_size_t) :: c_size
 
     call this%free()
     this%n = size
 
     select case (rp)
     case (sp)
-       c_size = n * int(4, c_size_t)
+       c_size = size * int(4, c_size_t)
     case (dp)
-       c_size = n * int(8, c_size_t)
+       c_size = size * int(8, c_size_t)
     case default
        call neko_error('Unknown Fortran type')
     end select

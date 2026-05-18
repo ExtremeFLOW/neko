@@ -36,10 +36,14 @@
 !! it on each call.
 module scratch_registry
   use registry_entry, only : registry_entry_t
+  use host_array, only : host_array_t
+  use device_array, only : device_array_t
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
 
+  use math, only : rzero
+  use device_math, only : device_rzero
   use field_math, only : field_rzero
   use vector_math, only : vector_rzero
   use matrix_math, only : matrix_rzero
@@ -317,7 +321,7 @@ contains
                cycle
             end if
 
-            if (clear) call host_array_rzero(v)
+            if (clear) call rzero(v%x, v%size())
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -367,7 +371,7 @@ contains
                cycle
             end if
 
-            if (clear) call device_array_rzero(v)
+            if (clear) call device_rzero(v%x_d, v%size())
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
@@ -540,38 +544,71 @@ contains
     end associate
   end subroutine request_field
 
-  !> Relinquish the use of a field in the registry
-  !! @param index The index of the field to free
-  subroutine relinquish_field_single(this, index)
+  !> Relinquish the use of a host_array in the registry
+  !! @param index The index of the host_array to free
+  subroutine relinquish_host_array_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'field') then
-       call neko_error("scratch_registry::relinquish_field_single: " &
-            // "Register entry is not a field.")
+    if (trim(this%entries(index)%get_type()) .ne. 'host_array') then
+       call neko_error("scratch_registry::relinquish_host_array_single: " &
+            // "Register entry is not a host_array.")
     end if
 
     this%inuse(index) = .false.
     this%n_inuse = this%n_inuse - 1
-  end subroutine relinquish_field_single
+  end subroutine relinquish_host_array_single
 
-  !> Relinquish the use of multiple fields in the registry
-  !! @param indices The indices of the fields to free
-  subroutine relinquish_field_multiple(this, indices)
+  !> Relinquish the use of multiple host_arrays in the registry
+  !! @param indices The indices of the host_arrays to free
+  subroutine relinquish_host_array_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'field') then
-          call neko_error("scratch_registry::relinquish_field_single: " &
-               // "Register entry is not a field.")
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'host_array') then
+          call neko_error("scratch_registry::relinquish_host_array_single: " &
+               // "Register entry is not a host_array.")
        end if
 
        this%inuse(indices(i)) = .false.
     end do
     this%n_inuse = this%n_inuse - size(indices)
-  end subroutine relinquish_field_multiple
+  end subroutine relinquish_host_array_multiple
+
+  !> Relinquish the use of a device_array in the registry
+  !! @param index The index of the device_array to free
+  subroutine relinquish_device_array_single(this, index)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: index
+
+    if (trim(this%entries(index)%get_type()) .ne. 'device_array') then
+       call neko_error("scratch_registry::relinquish_device_array_single: " &
+            // "Register entry is not a device_array.")
+    end if
+
+    this%inuse(index) = .false.
+    this%n_inuse = this%n_inuse - 1
+  end subroutine relinquish_device_array_single
+
+  !> Relinquish the use of multiple device_arrays in the registry
+  !! @param indices The indices of the device_arrays to free
+  subroutine relinquish_device_array_multiple(this, indices)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'device_array') then
+          call neko_error("scratch_registry::relinquish_device_array_single: " &
+               // "Register entry is not a device_array.")
+       end if
+
+       this%inuse(indices(i)) = .false.
+    end do
+    this%n_inuse = this%n_inuse - size(indices)
+  end subroutine relinquish_device_array_multiple
 
   !> Relinquish the use of a vector in the registry
   !! @param index The index of the vector to free
@@ -638,6 +675,39 @@ contains
     end do
     this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_matrix_multiple
+
+  !> Relinquish the use of a field in the registry
+  !! @param index The index of the field to free
+  subroutine relinquish_field_single(this, index)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: index
+
+    if (trim(this%entries(index)%get_type()) .ne. 'field') then
+       call neko_error("scratch_registry::relinquish_field_single: " &
+            // "Register entry is not a field.")
+    end if
+
+    this%inuse(index) = .false.
+    this%n_inuse = this%n_inuse - 1
+  end subroutine relinquish_field_single
+
+  !> Relinquish the use of multiple fields in the registry
+  !! @param indices The indices of the fields to free
+  subroutine relinquish_field_multiple(this, indices)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'field') then
+          call neko_error("scratch_registry::relinquish_field_single: " &
+               // "Register entry is not a field.")
+       end if
+
+       this%inuse(indices(i)) = .false.
+    end do
+    this%n_inuse = this%n_inuse - size(indices)
+  end subroutine relinquish_field_multiple
 
   !> Relinquish the use of an object in the registry
   !! @param index The index of the object to free

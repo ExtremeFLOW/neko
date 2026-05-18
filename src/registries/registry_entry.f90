@@ -66,6 +66,8 @@ module registry_entry
      ! Constructors
      procedure, pass(this) :: init_real_scalar => init_register_real_scalar
      procedure, pass(this) :: init_integer_scalar => init_register_integer_scalar
+     procedure, pass(this) :: init_host_array => init_register_host_array
+     procedure, pass(this) :: init_device_array => init_register_device_array
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
      procedure, pass(this) :: init_field => init_register_field
@@ -91,13 +93,13 @@ contains
 
   !> Initialize by a host array
   subroutine init_register_host_array(this, n, name)
-    class(register_entry_t), intent(inout) :: this
+    class(registry_entry_t), intent(inout) :: this
     integer, intent(in) :: n
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("init_register_host_array: " &
-            // "Register entry is already allocated.")
+       call neko_error("init_register_host_array: " // &
+            "Register entry is already allocated.")
     end if
 
     call this%free()
@@ -113,13 +115,13 @@ contains
 
   !> Initialize by a device array
   subroutine init_register_device_array(this, n, name)
-    class(register_entry_t), intent(inout) :: this
+    class(registry_entry_t), intent(inout) :: this
     integer, intent(in) :: n
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("init_register_device_array: " &
-            // "Register entry is already allocated.")
+       call neko_error("init_register_device_array: " // &
+            "Register entry is already allocated.")
     end if
 
     call this%free()
@@ -395,6 +397,12 @@ contains
        this%real_scalar = source%real_scalar
     case ('integer_scalar')
        this%integer_scalar = source%integer_scalar
+    case ('host_array')
+       this%host_array_ptr => source%host_array_ptr
+       nullify(source%host_array_ptr)
+    case ('device_array')
+       this%device_array_ptr => source%device_array_ptr
+       nullify(source%device_array_ptr)
     case ('vector')
        this%vector_ptr => source%vector_ptr
        nullify(source%vector_ptr)
