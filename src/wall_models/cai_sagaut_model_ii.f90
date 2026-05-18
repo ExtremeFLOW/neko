@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements [caisagaut_model_ii_t](#caisagaut_model_ii::caisagaut_model_ii_t).
-module caisagaut_model_ii
+!> Implements [cai_sagaut_model_ii_t](#cai_sagaut_model_ii::cai_sagaut_model_ii_t).
+module cai_sagaut_model_ii
   use field, only : field_t
   use num_types, only : rp
   use json_module, only : json_file
@@ -40,8 +40,8 @@ module caisagaut_model_ii
   use wall_model, only : wall_model_t
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup, json_get_or_lookup_or_default
-  use caisagaut_model_ii_cpu, only : caisagaut_model_ii_compute_cpu
-  use caisagaut_model_ii_device, only : caisagaut_model_ii_compute_device
+  use cai_sagaut_model_ii_cpu, only : cai_sagaut_model_ii_compute_cpu
+  use cai_sagaut_model_ii_device, only : cai_sagaut_model_ii_compute_device
   use field_math, only : field_invcol3
   use vector, only : vector_t
   use math, only : masked_gather_copy_0
@@ -53,7 +53,7 @@ module caisagaut_model_ii
 
   !> Explicit wall model based on Model-II from Cai and Sagaut (2021).
   !! @details Reference: https://doi.org/10.1063/5.0048563
-  type, public, extends(wall_model_t) :: caisagaut_model_ii_t
+  type, public, extends(wall_model_t) :: cai_sagaut_model_ii_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa = 0.41_rp
      !> The log-law intercept.
@@ -68,22 +68,22 @@ module caisagaut_model_ii
      type(vector_t) :: rho_w
    contains
      !> Initialise the wall model from the case file.
-     procedure, pass(this) :: init => caisagaut_model_ii_init
+     procedure, pass(this) :: init => cai_sagaut_model_ii_init
      !> Partially initialise the wall model from the case file.
-     procedure, pass(this) :: partial_init => caisagaut_model_ii_partial_init
+     procedure, pass(this) :: partial_init => cai_sagaut_model_ii_partial_init
      !> Finalise allocation of derived data structures.
-     procedure, pass(this) :: finalize => caisagaut_model_ii_finalize
+     procedure, pass(this) :: finalize => cai_sagaut_model_ii_finalize
      !> Initialise the wall model from explicit components.
      procedure, pass(this) :: init_from_components => &
-          caisagaut_model_ii_init_from_components
+          cai_sagaut_model_ii_init_from_components
      !> Destructor.
-     procedure, pass(this) :: free => caisagaut_model_ii_free
+     procedure, pass(this) :: free => cai_sagaut_model_ii_free
      !> Compute wall-node viscosity and density samples.
      procedure, pass(this) :: compute_nu_and_rho => &
-          caisagaut_model_ii_compute_nu_and_rho
+          cai_sagaut_model_ii_compute_nu_and_rho
      !> Evaluate wall shear stresses.
-     procedure, pass(this) :: compute => caisagaut_model_ii_compute
-  end type caisagaut_model_ii_t
+     procedure, pass(this) :: compute => cai_sagaut_model_ii_compute
+  end type cai_sagaut_model_ii_t
 
 contains
   !> Initialise the wall model from the case file.
@@ -93,9 +93,9 @@ contains
   !! @param facet The wall-point facet indices.
   !! @param h_index The GLL index used for wall-model sampling.
   !! @param json The case-file parameters for this wall model.
-  subroutine caisagaut_model_ii_init(this, scheme_name, coef, msk, facet, &
+  subroutine cai_sagaut_model_ii_init(this, scheme_name, coef, msk, facet, &
        h_index, json)
-    class(caisagaut_model_ii_t), intent(inout) :: this
+    class(cai_sagaut_model_ii_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
@@ -111,13 +111,13 @@ contains
 
     call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
          kappa, B, p, s)
-  end subroutine caisagaut_model_ii_init
+  end subroutine cai_sagaut_model_ii_init
 
   !> Partially initialise the wall model from the case file.
   !! @param coef The SEM coefficients.
   !! @param json The case-file parameters for this wall model.
-  subroutine caisagaut_model_ii_partial_init(this, coef, json)
-    class(caisagaut_model_ii_t), intent(inout) :: this
+  subroutine cai_sagaut_model_ii_partial_init(this, coef, json)
+    class(cai_sagaut_model_ii_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
     call this%partial_init_base(coef, json)
@@ -125,20 +125,20 @@ contains
     call json_get_or_lookup(json, "B", this%B)
     call json_get_or_lookup_or_default(json, "p", this%p, 1.138_rp)
     call json_get_or_lookup_or_default(json, "s", this%s, 217.8_rp)
-  end subroutine caisagaut_model_ii_partial_init
+  end subroutine cai_sagaut_model_ii_partial_init
 
   !> Finalise allocation of derived data structures.
   !! @param msk The wall-point mask.
   !! @param facet The wall-point facet indices.
-  subroutine caisagaut_model_ii_finalize(this, msk, facet)
-    class(caisagaut_model_ii_t), intent(inout) :: this
+  subroutine cai_sagaut_model_ii_finalize(this, msk, facet)
+    class(cai_sagaut_model_ii_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
 
     call this%finalize_base(msk, facet)
     call this%nu%init(this%n_nodes)
     call this%rho_w%init(this%n_nodes)
-  end subroutine caisagaut_model_ii_finalize
+  end subroutine cai_sagaut_model_ii_finalize
 
   !> Initialise the wall model from explicit components.
   !! @param scheme_name The solver scheme name.
@@ -150,9 +150,9 @@ contains
   !! @param B The log-law intercept.
   !! @param p The blending exponent.
   !! @param s The blending scale.
-  subroutine caisagaut_model_ii_init_from_components(this, scheme_name, coef, &
+  subroutine cai_sagaut_model_ii_init_from_components(this, scheme_name, coef, &
        msk, facet, h_index, kappa, B, p, s)
-    class(caisagaut_model_ii_t), intent(inout) :: this
+    class(cai_sagaut_model_ii_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
@@ -170,11 +170,11 @@ contains
 
     call this%nu%init(this%n_nodes)
     call this%rho_w%init(this%n_nodes)
-  end subroutine caisagaut_model_ii_init_from_components
+  end subroutine cai_sagaut_model_ii_init_from_components
 
   !> Gather viscosity and density values at the wall-model points.
-  subroutine caisagaut_model_ii_compute_nu_and_rho(this)
-    class(caisagaut_model_ii_t), intent(inout) :: this
+  subroutine cai_sagaut_model_ii_compute_nu_and_rho(this)
+    class(cai_sagaut_model_ii_t), intent(inout) :: this
     type(field_t), pointer :: temp
     integer :: idx
 
@@ -194,22 +194,22 @@ contains
     end if
 
     call neko_scratch_registry%relinquish_field(idx)
-  end subroutine caisagaut_model_ii_compute_nu_and_rho
+  end subroutine cai_sagaut_model_ii_compute_nu_and_rho
 
   !> Destructor.
-  subroutine caisagaut_model_ii_free(this)
-    class(caisagaut_model_ii_t), intent(inout) :: this
+  subroutine cai_sagaut_model_ii_free(this)
+    class(cai_sagaut_model_ii_t), intent(inout) :: this
 
     call this%rho_w%free()
     call this%nu%free()
     call this%free_base()
-  end subroutine caisagaut_model_ii_free
+  end subroutine cai_sagaut_model_ii_free
 
   !> Evaluate wall shear stresses with the Cai-Sagaut Model-II closure.
   !! @param t The current physical time.
   !! @param tstep The current time-step number.
-  subroutine caisagaut_model_ii_compute(this, t, tstep)
-    class(caisagaut_model_ii_t), intent(inout) :: this
+  subroutine cai_sagaut_model_ii_compute(this, t, tstep)
+    class(cai_sagaut_model_ii_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: u
@@ -223,18 +223,18 @@ contains
     w => neko_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call caisagaut_model_ii_compute_device(u%x_d, v%x_d, w%x_d, &
+       call cai_sagaut_model_ii_compute_device(u%x_d, v%x_d, w%x_d, &
             this%ind_r_d, this%ind_s_d, this%ind_t_d, this%ind_e_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, this%nu%x_d, &
             this%rho_w%x_d, this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, this%B, &
             this%p, this%s)
     else
-       call caisagaut_model_ii_compute_cpu(u%x, v%x, w%x, this%ind_r, &
+       call cai_sagaut_model_ii_compute_cpu(u%x, v%x, w%x, this%ind_r, &
             this%ind_s, this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, &
             this%n_z%x, this%nu%x, this%rho_w%x, this%h%x, this%tau_x%x, &
             this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, u%msh%nelv, &
             this%kappa, this%B, this%p, this%s)
     end if
-  end subroutine caisagaut_model_ii_compute
-end module caisagaut_model_ii
+  end subroutine cai_sagaut_model_ii_compute
+end module cai_sagaut_model_ii

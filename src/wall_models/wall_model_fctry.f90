@@ -33,7 +33,7 @@
 
 submodule (wall_model) wall_model_fctry
   use spalding, only : spalding_t
-  use caisagaut_model_ii, only : caisagaut_model_ii_t
+  use cai_sagaut_model_ii, only : cai_sagaut_model_ii_t
   use rough_log_law, only : rough_log_law_t
   use most, only : most_t
   use richardson, only : richardson_t
@@ -44,7 +44,7 @@ submodule (wall_model) wall_model_fctry
   ! List of all possible types created by the factory routine
   character(len=20) :: WALLM_KNOWN_TYPES(5) = [character(len=20) :: &
        "spalding", &
-       "caisagaut_model_ii", &
+       "cai_sagaut_model_ii", &
        "rough_log_law", &
        "most", &
        "richardson"]
@@ -97,8 +97,8 @@ contains
     select case (trim(type_name) )
     case ("spalding")
        allocate(spalding_t::object)
-    case ("caisagaut_model_ii")
-       allocate(caisagaut_model_ii_t::object)
+    case ("cai_sagaut_model_ii")
+       allocate(cai_sagaut_model_ii_t::object)
     case ("rough_log_law")
        allocate(rough_log_law_t::object)
     case ("most")
