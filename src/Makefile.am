@@ -609,6 +609,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/opr_lambda2.c\
 	math/bcknd/device/opencl/opr_cfl.c\
+	math/bcknd/device/opencl/opr_rotate_cyc.c\
 	math/bcknd/device/opencl/ax_helm.c\
 	math/bcknd/device/opencl/ax_helm_full.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
@@ -859,6 +860,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/set_convect_rst_kernel.cl\
 	math/bcknd/device/opencl/lambda2_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
+	math/bcknd/device/opencl/rotate_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	fluid/bcknd/device/opencl/euler_res_kernel.cl\
