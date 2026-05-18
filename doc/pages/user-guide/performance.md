@@ -163,7 +163,7 @@ synchronisation strategy controlled by `NEKO_GS_CAF_SIGNALING`:
 | `NEKO_GS_CAF_SIGNALING` | Standard | Mechanism | Notes |
 |---|---|---|---|
 | `sync` (default) | F2008 | `sync images` over the union of neighbour pairs, with a double-buffered receive coarray so only one rendezvous is needed per gs op | Most portable; works on every coarray-capable compiler |
-| `atomic` | F2008 | Per-pair atomic counters via `atomic_define`/`atomic_ref` and a busy-wait spin | Lower synchronisation overhead than `sync` on runtimes that order remote atomics after RMA writes |
+| `atomic` | F2008 | Per-pair atomic counters via `atomic_define`/`atomic_ref` and a busy-wait spin | Avoids the image-set barrier; trade-off depends on the relative cost of pairwise atomics versus `sync images` on the target runtime |
 | `event` | F2018 | F2018 events (`event post`/`event wait`) | Lowest theoretical overhead; requires a runtime that implements F2018 event semantics |
 
 The signaling mode is bound on the first gs initialisation and cannot
