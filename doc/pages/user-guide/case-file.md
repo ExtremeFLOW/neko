@@ -271,7 +271,6 @@ The compressible solver requires the following parameters:
 | Name    | Description                              | Admissible values | Default value |
 | ------- | ---------------------------------------- | ----------------- | ------------- |
 | `gamma` | Ratio of specific heats for ideal gas    | Positive reals    | `1.4`         |
-| `viscous_flux` | Type of viscous flux for the compressible solver | `monolithic`, `navier-stokes` | `monolithic` |
 
 Additional numerics parameters specific to compressible flows:
 
@@ -287,16 +286,11 @@ control object.
 Physical viscosity can be specified via the `material_properties` user interface
 in the user file. Stabilization uses the existing Laplacian artificial
 viscosity, computed as the minimum of entropy-based and low-order viscosities.
-Physical viscosity and thermal conductivity are applied separately from the
-artificial viscosity when requested. See the user file documentation for details
-on implementing `material_properties`.
-
-The `viscous_flux` parameter controls the type of viscous flux computation:
-- `monolithic`: Uses Laplacian artificial viscosity for all equations (default).
-- `navier-stokes`: Uses the same Laplacian artificial viscosity for
-  stabilization, and additionally applies the compressible Navier-Stokes
-  viscous stress flux from physical viscosity (`fluid_mu`) and the conductive
-  energy flux from thermal conductivity (`fluid_kappa`).
+When `fluid_mu` or `fluid_kappa` are nonzero, the solver also applies the
+compressible Navier-Stokes viscous stress flux and conductive energy flux.
+If neither field is provided by the user, both default to zero and no physical
+viscous flux is added. See the user file documentation for details on
+implementing `material_properties`.
 
 Example configuration:
 ~~~~~~~~~~~~~~~{.json}

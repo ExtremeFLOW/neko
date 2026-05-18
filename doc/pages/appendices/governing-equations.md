@@ -84,9 +84,9 @@ the ideal gas equation of state:
 
 $$p = (\gamma - 1) \left( E - \frac{1}{2} \rho u_i u_i \right).$$
 
-When `case.fluid.viscous_flux` is set to `navier-stokes`, the same scalar
-artificial-viscosity Laplacians are retained for stabilization, and the physical
-compressible Navier-Stokes flux is added separately:
+The same scalar artificial-viscosity Laplacians are retained for stabilization.
+When the material-property fields provide nonzero \f$\mu\f$ or \f$\kappa\f$,
+the physical compressible Navier-Stokes flux is added separately:
 
 $$\frac{\partial (\rho u_i)}{\partial t} +
   \frac{\partial (\rho u_i u_j + p \delta_{ij})}{\partial x_j} =

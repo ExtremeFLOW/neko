@@ -3,9 +3,8 @@
 ## Develop
 - Added optional physical viscosity and thermal conductivity support for the
   compressible solver while keeping stabilization Laplacian-based. The
-  `viscous_flux` case-file parameter selects between artificial-only diffusion
-  (`monolithic`, default) and a `navier-stokes` mode that adds separate
-  physical stress and heat-conduction fluxes from `mu` and `kappa`.
+  solver applies separate physical stress and heat-conduction fluxes when
+  `mu` or `kappa` are provided by material properties.
 - Updated field types with a wrapper and ensure lifetime management of field
   data in field lists and arrays.
 - Updated Developer Patterns documentation with new information on how to manage

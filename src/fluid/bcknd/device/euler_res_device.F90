@@ -32,7 +32,6 @@
 !
 module euler_res_device
   use euler_residual, only : euler_rhs_t
-  use viscous_flux, only : VISCOUS_FLUX_MONOLITHIC, VISCOUS_FLUX_NAVIER_STOKES
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
@@ -58,8 +57,11 @@ module euler_res_device
      procedure, nopass :: evaluate_rhs => evaluate_rhs_device
   end type euler_res_device_t
 
-  !> Module variables to store viscous flux parameters (set by factory)
-  integer, public :: euler_res_device_viscous_flux_type = VISCOUS_FLUX_MONOLITHIC
+  !> Whether physical Navier-Stokes fluxes are active for the current step.
+  logical :: euler_res_device_add_physical_flux = .false.
+  !> Whether physical viscous stress is active for the current step.
+  logical :: euler_res_device_add_physical_stress = .false.
+  !> Module variable to store thermodynamic parameter set by factory.
   real(kind=rp), public :: euler_res_device_gamma = 1.4_rp
 
 #ifdef HAVE_HIP
@@ -407,6 +409,10 @@ contains
     call k_E%assign(3, k_E_3)
     call k_E%assign(4, k_E_4)
 
+    euler_res_device_add_physical_flux = &
+         any(mu%x .ne. 0.0_rp) .or. any(kappa%x .ne. 0.0_rp)
+    euler_res_device_add_physical_stress = any(mu%x .ne. 0.0_rp)
+
     ! Runge-Kutta stages
     do i = 1, s
        call device_copy(temp_rho%x_d, rho_field%x_d, n)
@@ -441,7 +447,7 @@ contains
        call compressible_ops_device_update_uvw(temp_u%x_d, temp_v%x_d, &
             temp_w%x_d, temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, &
             temp_rho%x_d, n)
-       if (euler_res_device_viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES) then
+       if (euler_res_device_add_physical_stress) then
           call bcs_vel%apply_vector(temp_u%x, temp_v%x, temp_w%x, n, time, &
                strong = .true.)
        end if
@@ -610,7 +616,7 @@ contains
     call device_copy(coef%h1_d, artificial_visc%x_d, n)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
-    if (euler_res_device_viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES) then
+    if (euler_res_device_add_physical_flux) then
        call add_navier_stokes_flux_device(visc_m_x, visc_m_y, visc_m_z, &
             visc_E, rho_field, p, u, v, w, mu, kappa, Ax, Ax_stress, coef)
     end if

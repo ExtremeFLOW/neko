@@ -35,7 +35,6 @@
 !? and evaluates the right-hand side terms of the Euler equations including artificial viscosity.
 module euler_res_cpu
   use euler_residual, only : euler_rhs_t
-  use viscous_flux, only : VISCOUS_FLUX_MONOLITHIC, VISCOUS_FLUX_NAVIER_STOKES
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
@@ -59,8 +58,11 @@ module euler_res_cpu
      procedure, nopass :: evaluate_rhs => evaluate_rhs_cpu
   end type euler_res_cpu_t
 
-  !> Module variables to store viscous flux parameters (set by factory)
-  integer, public :: euler_res_cpu_viscous_flux_type = VISCOUS_FLUX_MONOLITHIC
+  !> Whether physical Navier-Stokes fluxes are active for the current step.
+  logical :: euler_res_cpu_add_physical_flux = .false.
+  !> Whether physical viscous stress is active for the current step.
+  logical :: euler_res_cpu_add_physical_stress = .false.
+  !> Module variable to store thermodynamic parameter set by factory.
   real(kind=rp), public :: euler_res_cpu_gamma = 1.4_rp
 
 
@@ -167,6 +169,10 @@ contains
     call k_E%assign(3, k_E_3)
     call k_E%assign(4, k_E_4)
 
+    euler_res_cpu_add_physical_flux = &
+         any(mu%x .ne. 0.0_rp) .or. any(kappa%x .ne. 0.0_rp)
+    euler_res_cpu_add_physical_stress = any(mu%x .ne. 0.0_rp)
+
     ! Loop over Runge-Kutta stages
     do i = 1, s
        ! Copy current solution state to temporary arrays for this RK stage
@@ -202,7 +208,7 @@ contains
        ! Evaluate RHS terms using primitive variables from the RK stage state.
        call compressible_ops_cpu_update_uvw(temp_u%x, temp_v%x, temp_w%x, &
             temp_m_x%x, temp_m_y%x, temp_m_z%x, temp_rho%x, n)
-       if (euler_res_cpu_viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES) then
+       if (euler_res_cpu_add_physical_stress) then
           call bcs_vel%apply_vector(temp_u%x, temp_v%x, temp_w%x, n, time, &
                strong = .true.)
        end if
@@ -277,11 +283,8 @@ contains
     type(field_t), pointer :: f_x, f_y, f_z
     type(field_t), pointer :: visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
     integer :: tmp_indices(8)
-    logical :: add_physical_visc
 
     n = coef%dof%size()
-    add_physical_visc = &
-         euler_res_cpu_viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES
 
     call neko_scratch_registry%request_field(f_x, tmp_indices(1), .false.)
     call neko_scratch_registry%request_field(f_y, tmp_indices(2), .false.)
@@ -379,7 +382,7 @@ contains
     end do
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
-    if (add_physical_visc) then
+    if (euler_res_cpu_add_physical_flux) then
        call add_navier_stokes_flux_cpu(visc_m_x, visc_m_y, visc_m_z, visc_E, &
             rho_field, p, u, v, w, mu, kappa, Ax, Ax_stress, coef)
     end if

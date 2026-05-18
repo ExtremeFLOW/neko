@@ -56,7 +56,6 @@ module fluid_scheme_compressible_euler
   use ax_product, only : ax_t, ax_helm_factory
   use coefs, only : coef_t
   use euler_residual, only : euler_rhs_t, euler_rhs_factory
-  use viscous_flux, only : VISCOUS_FLUX_MONOLITHIC, VISCOUS_FLUX_NAVIER_STOKES
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use bc_list, only : bc_list_t
@@ -174,27 +173,13 @@ contains
     type(chkp_t), target, intent(inout) :: chkp
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
-    integer :: viscous_flux_type
-    character(len=:), allocatable :: viscous_flux_string
 
     call this%free()
 
     ! Initialize base class
     call this%scheme_init(msh, lx, params, scheme, user)
 
-    ! Get viscous flux type from case file (default: monolithic)
-    call json_get_or_default(params, 'case.fluid.viscous_flux', &
-         viscous_flux_string, 'monolithic')
-    if (trim(viscous_flux_string) .eq. 'navier-stokes') then
-       viscous_flux_type = VISCOUS_FLUX_NAVIER_STOKES
-    else if (trim(viscous_flux_string) .eq. 'monolithic') then
-       viscous_flux_type = VISCOUS_FLUX_MONOLITHIC
-    else
-       call neko_error('Invalid case.fluid.viscous_flux. Expected ' // &
-            '"monolithic" or "navier-stokes".')
-    end if
-
-    call euler_rhs_factory(this%euler_rhs, viscous_flux_type, this%gamma)
+    call euler_rhs_factory(this%euler_rhs, this%gamma)
 
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
@@ -236,11 +221,7 @@ contains
 
     ! Initialize the diffusion operators
     call ax_helm_factory(this%Ax, full_formulation = .false.)
-    if (viscous_flux_type == VISCOUS_FLUX_NAVIER_STOKES) then
-       call ax_helm_factory(this%Ax_stress, full_formulation = .true.)
-    else
-       call ax_helm_factory(this%Ax_stress, full_formulation = .false.)
-    end if
+    call ax_helm_factory(this%Ax_stress, full_formulation = .true.)
 
     ! Compute h
     call this%compute_h()

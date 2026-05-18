@@ -37,7 +37,6 @@ module euler_residual
   use coefs, only : coef_t
   use num_types, only : rp
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
-  use viscous_flux, only : VISCOUS_FLUX_MONOLITHIC, VISCOUS_FLUX_NAVIER_STOKES
   use bc_list, only : bc_list_t
   use time_state, only : time_state_t
   implicit none
@@ -45,7 +44,6 @@ module euler_residual
 
   !> Abstract type to compute rhs
   type, public, abstract :: euler_rhs_t
-     integer :: viscous_flux_type = VISCOUS_FLUX_MONOLITHIC
      real(kind=rp) :: gamma = 1.4_rp
    contains
      procedure(euler_rhs), nopass, deferred :: step
@@ -78,9 +76,8 @@ module euler_residual
 
   !> Abstract interface to choose bcknd for rhs evaluation
   interface
-     module subroutine euler_rhs_factory(object, viscous_flux_type, gamma)
+     module subroutine euler_rhs_factory(object, gamma)
        class(euler_rhs_t), allocatable, intent(inout) :: object
-       integer, intent(in) :: viscous_flux_type
        real(kind=rp), intent(in) :: gamma
      end subroutine euler_rhs_factory
   end interface
