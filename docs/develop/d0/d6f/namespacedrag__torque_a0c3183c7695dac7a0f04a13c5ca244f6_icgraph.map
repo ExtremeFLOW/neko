@@ -1,7 +1,9 @@
 <map id="drag_torque::setup_normals" name="drag_torque::setup_normals">
-<area shape="rect" id="Node000001" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="216,37,360,77"/>
-<area shape="rect" id="Node000002" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="14,5,159,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,46,159,40,160,34,203,41"/>
-<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#ae9ae027762ffb4b12cc853766cb415bb" title="Common part of constructors." alt="" coords="5,69,168,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="202,74,169,79,168,74,202,68"/>
+<area shape="rect" id="Node000001" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="236,69,380,109"/>
+<area shape="rect" id="Node000002" href="$d1/d36/namespaceboundary__flux.html#a316fd4eba5e521e2a2c279b7f2ce4962" title="Common constructor shared by all public constructors." alt="" coords="5,5,188,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,68,162,48,164,43,229,63"/>
+<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="24,69,169,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="222,92,170,92,170,87,222,87"/>
+<area shape="rect" id="Node000004" href="$d6/daa/namespaceforce__torque.html#ae9ae027762ffb4b12cc853766cb415bb" title="Common part of constructors." alt="" coords="15,133,178,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="229,116,164,136,162,131,227,111"/>
 </map>

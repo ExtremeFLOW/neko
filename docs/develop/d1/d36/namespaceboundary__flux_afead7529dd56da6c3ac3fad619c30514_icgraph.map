@@ -1,0 +1,5 @@
+<map id="boundary_flux::left_pad" name="boundary_flux::left_pad">
+<area shape="rect" id="Node000001" title="Left&#45;pad a string to a fixed width." alt="" coords="236,13,411,38"/>
+<area shape="rect" id="Node000002" href="$d1/d36/namespaceboundary__flux.html#aa0e9f89a7ddd534570a1d6e05d16be46" title="Compute and optionally output the total boundary flux." alt="" coords="5,5,188,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,28,188,28,188,23,222,23"/>
+</map>

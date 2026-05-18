@@ -107,6 +107,9 @@ var annotated_dup =
     [ "blasius", "de/da4/namespaceblasius.html", [
       [ "blasius_t", "d0/dca/structblasius_1_1blasius__t.html", "d0/dca/structblasius_1_1blasius__t" ]
     ] ],
+    [ "boundary_flux", "d1/d36/namespaceboundary__flux.html", [
+      [ "boundary_flux_t", "d7/df8/structboundary__flux_1_1boundary__flux__t.html", "d7/df8/structboundary__flux_1_1boundary__flux__t" ]
+    ] ],
     [ "boundary_operation", "df/d21/namespaceboundary__operation.html", [
       [ "boundary_operation_t", "d0/d23/structboundary__operation_1_1boundary__operation__t.html", "d0/d23/structboundary__operation_1_1boundary__operation__t" ]
     ] ],

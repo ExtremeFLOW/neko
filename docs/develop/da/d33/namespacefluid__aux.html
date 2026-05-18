@@ -110,9 +110,9 @@ $(document).ready(function(){initNavTree('da/d33/namespacefluid__aux.html','../.
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:aad579682e929ac47e335858dc93c076d" id="r_aad579682e929ac47e335858dc93c076d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d">fluid_step_info</a> (time, ksp_results, full_stress_formulation, strict_convergence, allow_stabilization)</td></tr>
-<tr class="memdesc:aad579682e929ac47e335858dc93c076d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <br /></td></tr>
-<tr class="separator:aad579682e929ac47e335858dc93c076d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d90ca6dffb6079c54839f546134012e" id="r_a1d90ca6dffb6079c54839f546134012e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#a1d90ca6dffb6079c54839f546134012e">fluid_step_info</a> (time, ksp_results, full_stress_formulation, strict_convergence, allow_stabilization, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">iteration</a>)</td></tr>
+<tr class="memdesc:a1d90ca6dffb6079c54839f546134012e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <br /></td></tr>
+<tr class="separator:a1d90ca6dffb6079c54839f546134012e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a652702d61a318d842f245a184d9b1cba" id="r_a652702d61a318d842f245a184d9b1cba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba">fluid_step_info_reset_stabilized</a> ()</td></tr>
 <tr class="memdesc:a652702d61a318d842f245a184d9b1cba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the stabilized flag to false.  <br /></td></tr>
 <tr class="separator:a652702d61a318d842f245a184d9b1cba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,8 +124,8 @@ Variables</h2></td></tr>
 <tr class="separator:af56599981e3da44761e7b7484a81a301"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="aad579682e929ac47e335858dc93c076d" name="aad579682e929ac47e335858dc93c076d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aad579682e929ac47e335858dc93c076d">&#9670;&#160;</a></span>fluid_step_info()</h2>
+<a id="a1d90ca6dffb6079c54839f546134012e" name="a1d90ca6dffb6079c54839f546134012e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d90ca6dffb6079c54839f546134012e">&#9670;&#160;</a></span>fluid_step_info()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -158,7 +158,13 @@ Variables</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>allow_stabilization</em>&#160;</td>
+          <td class="paramname"><em>allow_stabilization</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>iteration</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -184,7 +190,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d68/fluid__aux_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d6/d68/fluid__aux_8f90_source.html">fluid_aux.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d68/fluid__aux_8f90_source.html#l00121">121</a> of file <a class="el" href="../../d6/d68/fluid__aux_8f90_source.html">fluid_aux.f90</a>.</p>
 
 </div>
 </div>
@@ -211,7 +217,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/d33/namespacefluid__aux.html">fluid_aux</a></li>
-    <li class="footer">Generated on Sun May 17 2026 04:49:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon May 18 2026 04:56:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

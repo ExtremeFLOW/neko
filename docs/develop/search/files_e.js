@@ -17,5 +17,6 @@ var searchData=
   ['no_5fslip_2ef90_14',['no_slip.f90',['../de/d75/no__slip_8f90.html',1,'']]],
   ['non_5fnormal_2ef90_15',['non_normal.f90',['../d1/d20/non__normal_8f90.html',1,'']]],
   ['num_5ftypes_2ef90_16',['num_types.f90',['../dc/d99/num__types_8f90.html',1,'']]],
-  ['nvtx_2ef90_17',['nvtx.F90',['../da/d09/nvtx_8F90.html',1,'']]]
+  ['nvtx_2ef90_17',['nvtx.F90',['../da/d09/nvtx_8F90.html',1,'']]],
+  ['nvtx_5fwrapper_2ecu_18',['nvtx_wrapper.cu',['../d7/d1e/nvtx__wrapper_8cu.html',1,'']]]
 ];

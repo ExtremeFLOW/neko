@@ -873,6 +873,7 @@ var hierarchy =
     [ "simulation_component::simulation_component_free", "d7/d7f/interfacesimulation__component_1_1simulation__component__free.html", null ],
     [ "simulation_component::simulation_component_init", "d6/deb/interfacesimulation__component_1_1simulation__component__init.html", null ],
     [ "simulation_component::simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", [
+      [ "boundary_flux::boundary_flux_t", "d7/df8/structboundary__flux_1_1boundary__flux__t.html", null ],
       [ "boundary_operation::boundary_operation_t", "d0/d23/structboundary__operation_1_1boundary__operation__t.html", null ],
       [ "curl_simcomp::curl_t", "d7/d9c/structcurl__simcomp_1_1curl__t.html", null ],
       [ "data_streamer_simcomp::data_streamer_simcomp_t", "d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html", null ],

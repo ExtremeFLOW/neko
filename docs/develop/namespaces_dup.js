@@ -39,6 +39,7 @@ var namespaces_dup =
     [ "bdf_time_scheme", "d4/db4/namespacebdf__time__scheme.html", "d4/db4/namespacebdf__time__scheme" ],
     [ "bicgstab", "dd/d2f/namespacebicgstab.html", "dd/d2f/namespacebicgstab" ],
     [ "blasius", "de/da4/namespaceblasius.html", "de/da4/namespaceblasius" ],
+    [ "boundary_flux", "d1/d36/namespaceboundary__flux.html", "d1/d36/namespaceboundary__flux" ],
     [ "boundary_operation", "df/d21/namespaceboundary__operation.html", "df/d21/namespaceboundary__operation" ],
     [ "boussinesq_source_term", "d0/d10/namespaceboussinesq__source__term.html", "d0/d10/namespaceboussinesq__source__term" ],
     [ "boussinesq_source_term_cpu", "d3/d4a/namespaceboussinesq__source__term__cpu.html", [
@@ -297,7 +298,7 @@ var namespaces_dup =
     [ "flow_ic", "d2/d13/namespaceflow__ic.html", "d2/d13/namespaceflow__ic" ],
     [ "flow_profile", "d4/d1e/namespaceflow__profile.html", "d4/d1e/namespaceflow__profile" ],
     [ "fluid_aux", "da/d33/namespacefluid__aux.html", [
-      [ "fluid_step_info", "da/d33/namespacefluid__aux.html#aad579682e929ac47e335858dc93c076d", null ],
+      [ "fluid_step_info", "da/d33/namespacefluid__aux.html#a1d90ca6dffb6079c54839f546134012e", null ],
       [ "fluid_step_info_reset_stabilized", "da/d33/namespacefluid__aux.html#a652702d61a318d842f245a184d9b1cba", null ],
       [ "stabilized", "da/d33/namespacefluid__aux.html#af56599981e3da44761e7b7484a81a301", null ]
     ] ],
