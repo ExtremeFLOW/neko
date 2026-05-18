@@ -12,7 +12,7 @@ target_variable = 'tau_mag'
 # Time Averaging
 # Set t_end to None to average until the last snapshot.
 t_start = 5.0
-t_end = 9.0
+t_end = None
 
 
 # ==========================================
@@ -103,7 +103,7 @@ def time_weighted_average(group, target_var):
 
     t = group['time'].values
     y = group[target_var].values
-gi
+
     if len(t) > 1:
         total_time = t[-1] - t[0]
         if total_time > 0:
