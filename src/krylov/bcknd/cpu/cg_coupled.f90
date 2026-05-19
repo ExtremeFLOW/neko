@@ -343,10 +343,10 @@ contains
     tmp = 0.0_xp
     !$omp parallel do reduction(+:tmp)
     do i = 1, n
-      r1(i) = r1(i) - alpha * w1(i)
-      r2(i) = r2(i) - alpha * w2(i)
-      r3(i) = r3(i) - alpha * w3(i)
-      tmp = tmp + (r1(i) * r1(i) + r2(i) * r2(i) + r3(i) * r3(i)) * mult(i)
+       r1(i) = r1(i) - alpha * w1(i)
+       r2(i) = r2(i) - alpha * w2(i)
+       r3(i) = r3(i) - alpha * w3(i)
+       tmp = tmp + (r1(i) * r1(i) + r2(i) * r2(i) + r3(i) * r3(i)) * mult(i)
     end do
     !$omp end parallel do
 
