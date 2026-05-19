@@ -50,7 +50,7 @@ module host_array
      !> Free the array.
      procedure, pass(this) :: free => host_array_free
      !> Allocate the array
-     procedure, private, pass(this) :: allocate => host_array_init
+     procedure, private, pass(this) :: allocate => host_array_allocate
      !> Return the number of entries.
      procedure, pass(this) :: size => host_array_size
      !> Check whether storage is allocated.

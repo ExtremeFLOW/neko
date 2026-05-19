@@ -53,7 +53,7 @@ module device_array
      !> Free the array.
      procedure, pass(this) :: free => device_array_free
      !> Allocate the array
-     procedure, private, pass(this) :: allocate => device_array_init
+     procedure, private, pass(this) :: allocate => device_array_allocate
      !> Return the number of entries.
      procedure, pass(this) :: size => device_array_size
      !> Check whether storage is allocated.
@@ -73,6 +73,11 @@ contains
   subroutine device_array_init(this, size)
     class(device_array_t), intent(inout) :: this
     integer, intent(in) :: size
+
+    if (NEKO_BCKND_DEVICE .ne. 1) then
+       call neko_error('Device array cannot be initialized when ' // &
+            'NEKO_BCKND_DEVICE is not set to 1')
+    end if
 
     call this%free()
     call this%allocate(size)
