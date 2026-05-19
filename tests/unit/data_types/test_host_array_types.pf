@@ -48,4 +48,28 @@ contains
     @assertEqual(a%size(), 0)
   end subroutine test_host_array_free
 
+  @test
+  subroutine test_host_array_assign_deep_copy
+    type(host_array_t) :: a
+    type(host_array_t) :: b
+
+    call a%init(4)
+    call b%init(2)
+    a%x = [1.0_rp, 2.0_rp, 3.0_rp, 4.0_rp]
+    b%x = [5.0_rp, 6.0_rp]
+
+    b = a
+    call a%free()
+
+    @assertFalse(a%is_allocated())
+    @assertTrue(b%is_allocated())
+    @assertEqual(b%size(), 4)
+    @assertEqual(b%x(1), 1.0_rp)
+    @assertEqual(b%x(2), 2.0_rp)
+    @assertEqual(b%x(3), 3.0_rp)
+    @assertEqual(b%x(4), 4.0_rp)
+
+    call b%free()
+  end subroutine test_host_array_assign_deep_copy
+
 end module test_host_array_types

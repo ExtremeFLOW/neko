@@ -40,8 +40,8 @@ contains
     integer :: i
 
     if (NEKO_BCKND_DEVICE .ne. 1) then
-      @assertFalse(a%is_allocated())
-      return
+       @assertFalse(a%is_allocated())
+       return
     end if
 
     call a%init(7)
@@ -54,7 +54,7 @@ contains
     @assertEqual(a%size(), 7)
 
     do i = 1, size(x)
-      @assertEqual(x(i), 0.0_rp)
+       @assertEqual(x(i), 0.0_rp)
     end do
 
     deallocate(x)
@@ -69,8 +69,8 @@ contains
     integer :: i
 
     if (NEKO_BCKND_DEVICE .ne. 1) then
-      @assertFalse(a%is_allocated())
-      return
+       @assertFalse(a%is_allocated())
+       return
     end if
 
     call a%init(3)
@@ -90,7 +90,7 @@ contains
     @assertEqual(a%size(), 5)
 
     do i = 1, size(x)
-      @assertEqual(x(i), 0.0_rp)
+       @assertEqual(x(i), 0.0_rp)
     end do
 
     deallocate(x)
@@ -103,8 +103,8 @@ contains
     type(device_array_t) :: a
 
     if (NEKO_BCKND_DEVICE .ne. 1) then
-      @assertFalse(a%is_allocated())
-      return
+       @assertFalse(a%is_allocated())
+       return
     end if
 
     call a%init(4)
@@ -113,5 +113,40 @@ contains
     @assertFalse(a%is_allocated())
     @assertEqual(a%size(), 0)
   end subroutine test_dev_array_free
+
+  @test
+  subroutine test_dev_array_assign_deep_copy(this)
+    class(test_device_arrays), intent(inout) :: this
+    type(device_array_t) :: a
+    type(device_array_t) :: b
+    real(kind=rp), allocatable :: x(:)
+
+    if (NEKO_BCKND_DEVICE .ne. 1) then
+       @assertFalse(a%is_allocated())
+       return
+    end if
+
+    call a%init(4)
+    allocate(x(4))
+    x = [1.0_rp, 2.0_rp, 3.0_rp, 4.0_rp]
+    call device_memcpy(x, a%x_d, a%size(), HOST_TO_DEVICE, sync=.true.)
+
+    b = a
+    call a%free()
+
+    x = -1.0_rp
+    call device_memcpy(x, b%x_d, b%size(), DEVICE_TO_HOST, sync=.true.)
+
+    @assertFalse(a%is_allocated())
+    @assertTrue(b%is_allocated())
+    @assertEqual(b%size(), 4)
+    @assertEqual(x(1), 1.0_rp)
+    @assertEqual(x(2), 2.0_rp)
+    @assertEqual(x(3), 3.0_rp)
+    @assertEqual(x(4), 4.0_rp)
+
+    deallocate(x)
+    call b%free()
+  end subroutine test_dev_array_assign_deep_copy
 
 end module test_device_array_types

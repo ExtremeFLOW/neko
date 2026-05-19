@@ -66,4 +66,31 @@ contains
     call scratch%free()
   end subroutine test_host_scratch_expand
 
+  @test
+  subroutine test_host_scratch_size_mismatch
+    type(scratch_registry_t) :: scratch
+    type(host_array_t), pointer :: h1
+    type(host_array_t), pointer :: h2
+    integer :: i1, i2
+
+    call scratch%init(1, 1)
+
+    call scratch%request(h1, i1, 3, .false.)
+    h1%x = 5.0_rp
+    call scratch%relinquish(i1)
+
+    call scratch%request(h2, i2, 7, .false.)
+
+    @assertEqual(i1, 1)
+    @assertEqual(i2, 2)
+    @assertEqual(h1%x(1), 5.0_rp)
+    @assertEqual(h2%size(), 7)
+    @assertEqual(scratch%get_n_entries(), 2)
+    @assertEqual(scratch%get_n_inuse(), 1)
+    @assertEqual(scratch%get_size(), 2)
+
+    call scratch%relinquish(i2)
+    call scratch%free()
+  end subroutine test_host_scratch_size_mismatch
+
 end module test_host_scratch_registry
