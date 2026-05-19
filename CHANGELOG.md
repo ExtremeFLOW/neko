@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added `host_array_t` and `device_array_t` temporary array types and support
+  for requesting these through `scratch_registry_t`.
 - Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
