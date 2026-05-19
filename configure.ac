@@ -414,6 +414,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/jobctrl/Makefile\
         tests/unit/vtkhdf/Makefile\
         tests/unit/device/Makefile\
+        tests/unit/data_types/Makefile\
         tests/unit/device_math/Makefile\
         tests/unit/mathops/Makefile\
         tests/unit/device_mathops/Makefile\

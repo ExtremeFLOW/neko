@@ -1,0 +1,96 @@
+module test_host_scratch_registry
+  use pfunit
+  use host_array, only : host_array_t
+  use scratch_registry, only : scratch_registry_t
+  use num_types, only : rp
+  implicit none
+
+contains
+
+  @test
+  subroutine test_host_scratch_reuse_clear
+    type(scratch_registry_t) :: scratch
+    type(host_array_t), pointer :: h1
+    type(host_array_t), pointer :: h2
+    integer :: i1, i2
+
+    call scratch%init(1, 1)
+
+    call scratch%request(h1, i1, 8, .false.)
+    h1%x = 2.0_rp
+
+    @assertEqual(i1, 1)
+    @assertEqual(scratch%get_n_entries(), 1)
+    @assertEqual(scratch%get_n_inuse(), 1)
+
+    call scratch%relinquish(i1)
+
+    call scratch%request(h2, i2, 8, .false.)
+    @assertEqual(i2, 1)
+    @assertEqual(h2%x(1), 2.0_rp)
+
+    call scratch%relinquish(i2)
+
+    call scratch%request(h2, i2, 8, .true.)
+    @assertEqual(i2, 1)
+    @assertEqual(h2%x(1), 0.0_rp)
+
+    call scratch%relinquish(i2)
+    call scratch%free()
+  end subroutine test_host_scratch_reuse_clear
+
+  @test
+  subroutine test_host_scratch_expand
+    type(scratch_registry_t) :: scratch
+    type(host_array_t), pointer :: h1
+    type(host_array_t), pointer :: h2
+    integer :: i1, i2
+
+    call scratch%init(1, 1)
+
+    call scratch%request(h1, i1, 4, .false.)
+    h1%x = 1.0_rp
+    call scratch%request(h2, i2, 6, .false.)
+
+    @assertEqual(i1, 1)
+    @assertEqual(i2, 2)
+    @assertEqual(h1%x(1), 1.0_rp)
+    @assertEqual(h1%size(), 4)
+    @assertEqual(h2%size(), 6)
+    @assertEqual(scratch%get_n_entries(), 2)
+    @assertEqual(scratch%get_n_inuse(), 2)
+    @assertEqual(scratch%get_size(), 2)
+
+    call scratch%relinquish(i1)
+    call scratch%relinquish(i2)
+    call scratch%free()
+  end subroutine test_host_scratch_expand
+
+  @test
+  subroutine test_host_scratch_size_mismatch
+    type(scratch_registry_t) :: scratch
+    type(host_array_t), pointer :: h1
+    type(host_array_t), pointer :: h2
+    integer :: i1, i2
+
+    call scratch%init(1, 1)
+
+    call scratch%request(h1, i1, 3, .false.)
+    h1%x = 5.0_rp
+    call scratch%relinquish(i1)
+
+    call scratch%request(h2, i2, 7, .false.)
+
+    @assertEqual(i1, 1)
+    @assertEqual(i2, 2)
+    @assertEqual(h1%x(1), 5.0_rp)
+    @assertEqual(h2%size(), 7)
+    @assertEqual(scratch%get_n_entries(), 2)
+    @assertEqual(scratch%get_n_inuse(), 1)
+    @assertEqual(scratch%get_size(), 2)
+
+    call scratch%relinquish(i2)
+    call scratch%free()
+  end subroutine test_host_scratch_size_mismatch
+
+end module test_host_scratch_registry

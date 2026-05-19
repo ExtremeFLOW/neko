@@ -1,0 +1,114 @@
+module test_device_scratch_registry
+  use pfunit
+  use device_array, only : device_array_t
+  use scratch_registry, only : scratch_registry_t
+  use num_types, only : rp
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : device_init, device_finalize, device_memcpy, &
+       DEVICE_TO_HOST, HOST_TO_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_device_scratch
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_device_scratch
+
+contains
+
+  subroutine setUp(this)
+    class(test_device_scratch), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_device_scratch), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  @test
+  subroutine test_dev_scratch_reuse_clear(this)
+    class(test_device_scratch), intent(inout) :: this
+    type(scratch_registry_t) :: scratch
+    type(device_array_t), pointer :: d1
+    type(device_array_t), pointer :: d2
+    real(kind=rp), allocatable :: x(:)
+    integer :: i1, i2, i
+
+    if (NEKO_BCKND_DEVICE .ne. 1) then
+       return
+    end if
+
+    call scratch%init(1, 1)
+
+    call scratch%request(d1, i1, 5, .false.)
+    allocate(x(5))
+    x = 3.0_rp
+    call device_memcpy(x, d1%x_d, d1%size(), HOST_TO_DEVICE, sync=.true.)
+
+    call scratch%relinquish(i1)
+
+    call scratch%request(d2, i2, 5, .false.)
+    x = 0.0_rp
+    call device_memcpy(x, d2%x_d, d2%size(), DEVICE_TO_HOST, sync=.true.)
+
+    @assertEqual(i1, 1)
+    @assertEqual(i2, 1)
+    do i = 1, size(x)
+       @assertEqual(x(i), 3.0_rp)
+    end do
+
+    call scratch%relinquish(i2)
+
+    call scratch%request(d2, i2, 5, .true.)
+    x = -1.0_rp
+    call device_memcpy(x, d2%x_d, d2%size(), DEVICE_TO_HOST, sync=.true.)
+
+    do i = 1, size(x)
+       @assertEqual(x(i), 0.0_rp)
+    end do
+
+    deallocate(x)
+    call scratch%relinquish(i2)
+    call scratch%free()
+  end subroutine test_dev_scratch_reuse_clear
+
+  @test
+  subroutine test_dev_scratch_size_mismatch(this)
+    class(test_device_scratch), intent(inout) :: this
+    type(scratch_registry_t) :: scratch
+    type(device_array_t), pointer :: d1
+    type(device_array_t), pointer :: d2
+    integer :: i1, i2
+
+    if (NEKO_BCKND_DEVICE .ne. 1) then
+       return
+    end if
+
+    call scratch%init(1, 1)
+
+    call scratch%request(d1, i1, 3, .false.)
+    call scratch%relinquish(i1)
+
+    call scratch%request(d2, i2, 7, .false.)
+
+    @assertEqual(i1, 1)
+    @assertEqual(i2, 2)
+    @assertEqual(d1%size(), 3)
+    @assertEqual(d2%size(), 7)
+    @assertEqual(scratch%get_n_entries(), 2)
+    @assertEqual(scratch%get_n_inuse(), 1)
+    @assertEqual(scratch%get_size(), 2)
+
+    call scratch%relinquish(i2)
+    call scratch%free()
+  end subroutine test_dev_scratch_size_mismatch
+
+end module test_device_scratch_registry
