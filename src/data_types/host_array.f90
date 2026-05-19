@@ -95,7 +95,6 @@ contains
   subroutine host_array_allocate(this, size)
     class(host_array_t), intent(inout) :: this
     integer, intent(in) :: size
-    integer(c_size_t) :: c_size
 
     this%n = size
     allocate(this%x(size))
