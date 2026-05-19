@@ -33,7 +33,8 @@
 !> Module containing device only array type.
 module device_array
   use num_types, only : rp, sp, dp
-  use device, only : device_alloc, device_free
+  use device, only : device_alloc, device_free, device_memcpy, &
+       DEVICE_TO_DEVICE
   use device_math, only : device_rzero
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
@@ -41,40 +42,47 @@ module device_array
   implicit none
   private
 
+  !> Device-only temporary array.
   type, public :: device_array_t
+     !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
+     !> Number of entries.
      integer, private :: n = 0
    contains
+     !> Initialize the array.
      procedure, pass(this) :: init => device_array_init
+     !> Free the array.
      procedure, pass(this) :: free => device_array_free
+     !> Allocate the array
+     procedure, private, pass(this) :: allocate => device_array_init
+     !> Return the number of entries.
      procedure, pass(this) :: size => device_array_size
+     !> Check whether storage is allocated.
      procedure, pass(this) :: is_allocated => device_array_is_allocated
+     !> Assignment with deep-copy ownership semantics.
+     procedure, pass(this) :: assign => device_array_assign
+
+     !> Assignments
+     generic :: assignment(=) => assign
   end type device_array_t
 
 contains
 
+  !> Initialize a device array of size `size`.
+  !! @param this Device array object.
+  !! @param size Number of entries to allocate.
   subroutine device_array_init(this, size)
     class(device_array_t), intent(inout) :: this
     integer, intent(in) :: size
-    integer(c_size_t) :: c_size
 
     call this%free()
-    this%n = size
-
-    select case (rp)
-    case (sp)
-       c_size = size * int(4, c_size_t)
-    case (dp)
-       c_size = size * int(8, c_size_t)
-    case default
-       call neko_error('Unknown Fortran type')
-    end select
-
-    call device_alloc(this%x_d, c_size)
+    call this%allocate(size)
     call device_rzero(this%x_d, this%n)
 
   end subroutine device_array_init
 
+  !> Free a device array.
+  !! @param this Device array object.
   subroutine device_array_free(this)
     class(device_array_t), intent(inout) :: this
 
@@ -83,12 +91,56 @@ contains
 
   end subroutine device_array_free
 
+  !> Allocate a device array (used by init and assignment).
+  !! @param this Device array object.
+  !! @param size Number of entries to allocate.
+  subroutine device_array_allocate(this, size)
+    class(device_array_t), intent(inout) :: this
+    integer, intent(in) :: size
+    integer(c_size_t) :: c_size
+
+    this%n = size
+    select case (rp)
+    case (sp)
+       c_size = size * int(4, c_size_t)
+    case (dp)
+       c_size = size * int(8, c_size_t)
+    case default
+       call neko_error('Unknown Fortran type')
+    end select
+    call device_alloc(this%x_d, c_size)
+
+  end subroutine device_array_allocate
+
+  !> Assignment with deep-copy ownership semantics.
+  !! @param this Destination device array object.
+  !! @param source Source device array object.
+  subroutine device_array_assign(this, source)
+    class(device_array_t), intent(inout) :: this
+    type(device_array_t), intent(in) :: source
+
+    if (.not. source%is_allocated()) then
+       call this%free()
+       return
+    else if (source%size() .ne. this%size()) then
+       call this%free()
+       call this%allocate(source%size())
+    end if
+
+    call device_memcpy(this%x_d, source%x_d, c_size, DEVICE_TO_DEVICE)
+
+  end subroutine device_array_assign
+
+  !> Return the size of the device array.
+  !! @param this Device array object.
   pure function device_array_size(this) result(n)
     class(device_array_t), intent(in) :: this
     integer :: n
     n = this%n
   end function device_array_size
 
+  !> Check whether the device array is allocated.
+  !! @param this Device array object.
   pure function device_array_is_allocated(this) result(is_alloc)
     class(device_array_t), intent(in) :: this
     logical :: is_alloc
