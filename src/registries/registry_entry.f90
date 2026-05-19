@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a registry entry for storing and requesting temporary objects
-!! This is used in the registries to store a scalar, vector, matrix or field.
+!! This is used in the registries to store a scalar, host array, device array,
+!! vector, matrix or field.
 module registry_entry
   use num_types, only : rp
   use host_array, only : host_array_t

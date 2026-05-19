@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -54,15 +54,15 @@ module scratch_registry
   private
 
   type, public :: scratch_registry_t
-     !> list of scratch fields
+     !> List of scratch objects
      type(registry_entry_t), private, allocatable :: entries(:)
-     !> Tracks which fields are used
+     !> Tracks which objects are used
      logical, private, allocatable :: inuse(:)
-     !> number of registered fields
+     !> Number of registered objects
      integer, private :: n_entries = 0
-     !> number of fields in use
+     !> Number of objects in use
      integer, private :: n_inuse = 0
-     !> the size the fields array is increased by upon reallocation
+     !> The size the objects array is increased by upon reallocation
      integer, private :: expansion_size = 10
      !> Dofmap
      type(dofmap_t), pointer :: dof => null()
@@ -176,8 +176,8 @@ contains
 
     if (allocated(this%inuse)) then
        if(any(this%inuse)) then
-          call neko_error("scratch_registry::free: "&
-               // "Cannot free scratch registry with in-use entries.")
+          call neko_error("scratch_registry::free: " // &
+               "Cannot free scratch registry with in-use entries.")
        end if
        deallocate(this%inuse)
     end if

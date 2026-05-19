@@ -35,6 +35,7 @@ module device_array
   use num_types, only : rp, sp, dp
   use device, only : device_alloc, device_free
   use device_math, only : device_rzero
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
 
   implicit none
@@ -42,7 +43,7 @@ module device_array
 
   type, public :: device_array_t
      type(c_ptr) :: x_d = C_NULL_PTR
-     integer :: n = 0
+     integer, private :: n = 0
    contains
      procedure, pass(this) :: init => device_array_init
      procedure, pass(this) :: free => device_array_free

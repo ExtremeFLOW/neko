@@ -40,7 +40,7 @@ module host_array
 
   type, public :: host_array_t
      real(kind=rp), allocatable :: x(:)
-     integer :: n = 0
+     integer, private :: n = 0
    contains
      procedure, pass(this) :: init => host_array_init
      procedure, pass(this) :: free => host_array_free
