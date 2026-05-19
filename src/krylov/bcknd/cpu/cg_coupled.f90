@@ -332,6 +332,7 @@ contains
     ksp_results%converged = this%is_converged(iter, rnorm)
   end function cg_cpld_solve
 
+  !> Updates residual vectors and computes the norm in extended precision.
   subroutine second_cg_cpld_part(rtr, r1, r2, r3, mult, w1, w2, w3, alpha, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: r1(n), r2(n), r3(n), rtr
