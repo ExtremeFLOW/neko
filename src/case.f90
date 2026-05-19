@@ -45,7 +45,7 @@ module case
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
   use file, only : file_t
-  use utils, only : neko_error, mkdir, NEKO_FNAME_LEN
+  use utils, only : neko_error, mkdir, filename_split, NEKO_FNAME_LEN
   use mesh, only : mesh_t
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
@@ -155,7 +155,7 @@ contains
     real(kind=rp), allocatable :: real_vals(:)
     type(vector_t), pointer :: vec
     character(len=:), allocatable :: string_val, name, file_format
-    character(len=NEKO_FNAME_LEN), allocatable :: lb_file
+    character(len=NEKO_FNAME_LEN) :: lb_file, lb_name, lb_path, lb_ext
     integer :: output_dir_len
     integer :: precision, layout
     type(json_file) :: scalar_params, numerics_params
@@ -235,14 +235,11 @@ contains
             ' does not exist.')
     end if
 
-    if (.not. load_balance) then
-
-       call msh_file%init(string_val)
-       call msh_file%read(this%msh)
-
-    else if (load_balance .and. pe_size .eq. 1) then
-       call neko_log%message('Load balancing requested but only one ' // &
-            'MPI rank found, ignoring.')
+    if (.not. load_balance .or. pe_size .eq. 1) then
+       if (load_balance) then
+          call neko_log%message('Load balancing requested but only one ' // &
+               'MPI rank found, ignoring.')
+       end if
 
        call msh_file%init(string_val)
        call msh_file%read(this%msh)
@@ -250,9 +247,9 @@ contains
     else if (load_balance) then
        call neko_log%section('Load Balancing')
 
-       write(lb_file, '(A,A,I0,A)') &
-            trim(string_val(1:scan(trim(string_val), '.', back = .true.) - 1)),&
-            "_lb_", pe_size, '.nmsh'
+       call filename_split(trim(string_val), lb_path, lb_name, lb_ext)
+       write(lb_file, '(A,A,A,I0,A)') &
+            trim(lb_path), trim(lb_name), "_lb_", pe_size, trim(lb_ext)
 
        if (pe_rank .eq. 0) then
           inquire(file = trim(lb_file), exist = found)
