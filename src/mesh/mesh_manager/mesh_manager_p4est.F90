@@ -347,10 +347,10 @@ module mesh_manager_p4est
        type(c_ptr), value :: nglid, lrank, loff, lshare
      end subroutine wp4est_sharers_get_ind
 
-     subroutine wp4est_hang_get_info(hang_elm, hang_fsc, hang_edg) &
+     subroutine wp4est_hang_get_info(hang_elm, hang_vrt, hang_fsc, hang_edg) &
           bind(c, name = 'wp4est_hang_get_info')
        USE, INTRINSIC :: ISO_C_BINDING
-       type(c_ptr), value :: hang_elm, hang_fsc, hang_edg
+       type(c_ptr), value :: hang_elm, hang_vrt, hang_fsc, hang_edg
      end subroutine wp4est_hang_get_info
 
      subroutine wp4est_fml_get_info(family, nelf) &
@@ -677,6 +677,8 @@ contains
 
     ! create p4est ghost zones
     call wp4est_ghost_new()
+    ! create p4est nodes
+    call wp4est_nodes_new()
 
     ! get mesh size and distribution information
     call wp4est_msh_get_size(gdim, gnelt, gnelto, nelt, nelv, ngrp, maxl)
@@ -720,6 +722,8 @@ contains
     ! of faces with respect of multiplicity
     if (ifcomplete) call p4est_hng_periodic_gnum_get(mesh_new)
 
+    ! destroy p4est nodes
+    call wp4est_nodes_del()
     ! destroy p4est ghost cells
     call wp4est_ghost_del()
 
@@ -756,9 +760,6 @@ contains
 
        ! get complete global information
        if (ifcomplete) then
-          ! create p4est nodes
-          call wp4est_nodes_new()
-
           ! get nodes and their coordinates
           call wp4est_nds_get_size(lown, lshr, loff, lnum_in, lnum_fh, lnum_eh)
           itmp8 = lown
@@ -820,7 +821,6 @@ contains
              end if
           end select
 
-          call wp4est_nodes_del()
        else ! ifcomplete
           ! just a simple set of information containing approximate (linear
           ! interpolation) coordinates of element vertices, but no global
@@ -846,8 +846,8 @@ contains
     integer(i4), allocatable, dimension(:, :), intent(inout) :: falgn
     integer(i4) :: nvert, nface, nedge
     integer(i4), allocatable, target, dimension(:) :: hngei
-    integer(i4), allocatable, target, dimension(:, :) :: hngfc, hnged, vmap, &
-         fmap, emap, ealgn
+    integer(i4), allocatable, target, dimension(:, :) :: hngvt, hngfc, hnged, &
+         vmap, fmap, emap, ealgn
     integer(i8), dimension(3) :: itmp8lv
     logical, allocatable, target, dimension(:) :: hngel
     character(len=LOG_SIZE) :: log_buf
@@ -867,9 +867,10 @@ contains
        call wp4est_lnodes_new(1)
 
        ! get hanging object info; based on lnode information
-       allocate(hngei(nelt), hngel(nelt), hngfc(nface, nelt), &
-            hnged(nedge, nelt))
-       call wp4est_hang_get_info(c_loc(hngei), c_loc(hngfc), c_loc(hnged))
+       allocate(hngei(nelt), hngel(nelt), hngvt(nvert, nelt), &
+            hngfc(nface, nelt), hnged(nedge, nelt))
+       call wp4est_hang_get_info(c_loc(hngei), c_loc(hngvt), c_loc(hngfc), &
+            c_loc(hnged))
        hngel(:) = (hngei(:) == 1)
        deallocate(hngei)
 
@@ -909,7 +910,7 @@ contains
 
        ! element connectivity mappings saving already imported data
        call conn%init_data(gdim, nelt, vmap, fmap, falgn, emap, ealgn, &
-            hngel, hngfc, hnged, .true.)
+            hngel, hngvt, hngfc, hnged, .true.)
 
     end select
 
@@ -1682,7 +1683,8 @@ contains
           call conn%vrt%init(vrt%gnum, vrt%gidx, connmm%vmap, &
                lmap = vrt%lmap, lmapoff = vrt%lmapoff, sharelist = vrt%glist, &
                rank = rank, rankshare = rankshare, sharemap = sharemap, &
-               rankoff = rankoff, gmap = vrt%gmap, gmapoff = vrt%gmapoff)
+               rankoff = rankoff, gmap = vrt%gmap, gmapoff = vrt%gmapoff, &
+               hang = connmm%hngvt)
           deallocate(rank, rankshare, sharemap, rankoff)
        else
           call conn%vrt%init(vrt%gnum, vrt%gidx, connmm%vmap, &

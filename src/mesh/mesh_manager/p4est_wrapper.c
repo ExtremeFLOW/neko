@@ -1364,14 +1364,56 @@ void wp4est_sharers_get_ind(int64_t * nglid, int * lrank, int * loff,
 }
 
 
-/* get hanging element/face/edge information */
-void wp4est_hang_get_info(int * hang_elm, int * hang_fsc, int * hang_edg) {
+/* get hanging element/vertex/face/edge information */
+void wp4est_hang_get_info(int * hang_elm, int * hang_vrt, int * hang_fsc,
+			  int * hang_edg) {
 
   int il, jl;
   int hanging_face[P4EST_FACES];
 #ifdef P4_TO_P8
   int hanging_edge[P8EST_EDGES];
 #endif
+
+  // hanging vertices
+  if (nodes_neko) {
+    // numbers of independent and hanging nodes
+    const int ni = (int) nodes_neko->indep_nodes.elem_count;
+    const int fi = (int) nodes_neko->face_hangings.elem_count;
+#ifdef P4_TO_P8
+    const int ei = (int) nodes_neko->edge_hangings.elem_count;
+#endif
+    // number of local elements
+    const int vi = (int) nodes_neko->num_local_quadrants;
+    int il, jl, nl, nr;
+
+    // quad to vertex global map
+    for (il = 0; il < vi; ++il) {
+      for (jl = 0; jl < P4EST_CHILDREN; ++jl) {
+	nl = (int) nodes_neko->local_nodes[il * P4EST_CHILDREN + jl];
+	if (nl < ni) {
+	  // independent node
+	  nr = -1;
+	} else if (nl < ni + fi) {
+	  // face hanging
+	  nr = 0;
+	}
+#ifdef P4_TO_P8
+	else if (nl < ni + fi + ei) {
+	  // edge hanging
+	  nr = 1;
+	}
+#endif
+	else {
+	  SC_ABORT("Wrong node number, aborting: wp4est_hang_get_info\n");
+	}
+	hang_vrt[il * P4EST_CHILDREN + jl] = (int) nr;
+      }
+    }
+  } else {
+    SC_ABORT("nodes_neko not allocated; aborting: wp4est_hang_get_info\n");
+  }
+
+  // hanging edges and faces
   if (lnodes_neko != NULL) {
     for (il = 0; il < lnodes_neko->num_local_elements; ++il) {
       for (jl = 0; jl < P4EST_FACES; ++jl) {
@@ -1398,7 +1440,7 @@ void wp4est_hang_get_info(int * hang_elm, int * hang_fsc, int * hang_edg) {
 #endif
     }
   } else {
-    SC_ABORT("lnodes_neko not allocated; aborting: wp4est_msh_get_tplg\n");
+    SC_ABORT("lnodes_neko not allocated; aborting: wp4est_hang_get_info\n");
   }
 }
 

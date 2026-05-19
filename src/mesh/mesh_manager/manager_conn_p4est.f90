@@ -114,11 +114,15 @@ module manager_conn_p4est
      ! Topology information: hanging elements, faces, edges and vertices
      ! The element is marked as hanging if it contains at least one hanging
      ! object.
+     ! Hanging vertex
+     !   = -1 - independent,
+     !   =  0 - face hanging,
+     !   =  1 - edge hanging
      ! Hanging face
      ! 2D
      !   = -1 if the face is not hanging,
-     !   = 0 if the face is the first half,
-     !   = 1 if the face is the second half.
+     !   =  0 if the face is the first half,
+     !   =  1 if the face is the second half.
      ! 3D
      !   = -1 if the face is not hanging,
      !   = the corner of the full face that it touches:
@@ -160,6 +164,8 @@ module manager_conn_p4est
      !                        +-------+
      !> Hanging element list; 1 if at least one hanging face or edge otherwise 0
      logical, allocatable, dimension(:) :: hngel
+     !> Hanging vertex list;
+     integer(i4), allocatable, dimension(:,:) :: hngvt
      !> Hanging face list; position of hanging face; otherwise -1
      integer(i4), allocatable, dimension(:,:) :: hngfc
      !> Hanging edge list;
@@ -695,16 +701,17 @@ contains
   !! @param[inout] emap    element edge mapping
   !! @param[inout] ealgn   element edge alignment
   !! @param[inout] hngel   element hanging flag
+  !! @param[inout] hngvt   element vertex hanging flag
   !! @param[inout] hngfc   element face hanging flag
   !! @param[inout] hnged   element edge hanging flag
   !! @param[in]   ifsave      save component types
   subroutine manager_conn_init_data_p4est(this, tdim, nel, vmap, fmap, falgn, &
-       emap, ealgn, hngel, hngfc, hnged, ifsave)
+       emap, ealgn, hngel, hngvt, hngfc, hnged, ifsave)
     class(manager_conn_p4est_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     logical, allocatable, dimension(:), intent(inout) :: hngel
     integer(i4), allocatable, dimension(:,:), intent(inout) :: vmap, fmap, &
-         falgn, emap, ealgn, hngfc, hnged
+         falgn, emap, ealgn, hngvt, hngfc, hnged
     logical, optional, intent(in) :: ifsave
     integer(i4) :: nvert, nface, nedge
 
@@ -719,6 +726,7 @@ contains
          (nedge .ne. size(emap, 1)) .or. (nel .ne. size(emap, 2)) .or. &
          (nedge .ne. size(ealgn, 1)) .or. (nel .ne. size(ealgn, 2)) .or. &
          (nel .ne. size(hngel)) .or. &
+         (nvert .ne. size(hngvt, 1)) .or. (nel .ne. size(hngvt, 2)) .or. &
          (nface .ne. size(hngfc, 1)) .or. (nel .ne. size(hngfc, 2)) .or. &
          (nedge .ne. size(hnged, 1)) .or. (nel .ne. size(hnged, 2))) &
          call neko_error('Inconsistent array sizes; p4est%conn')
@@ -734,6 +742,7 @@ contains
     if (allocated(falgn)) call move_alloc(falgn, this%falgn)
     if (allocated(ealgn)) call move_alloc(ealgn, this%ealgn)
     if (allocated(hngel)) call move_alloc(hngel, this%hngel)
+    if (allocated(hngvt)) call move_alloc(hngvt, this%hngvt)
     if (allocated(hngfc)) call move_alloc(hngfc, this%hngfc)
     if (allocated(hnged)) call move_alloc(hnged, this%hnged)
 
@@ -754,6 +763,7 @@ contains
        if (allocated(conn%falgn)) call move_alloc(conn%falgn, this%falgn)
        if (allocated(conn%ealgn)) call move_alloc(conn%ealgn, this%ealgn)
        if (allocated(conn%hngel)) call move_alloc(conn%hngel, this%hngel)
+       if (allocated(conn%hngvt)) call move_alloc(conn%hngvt, this%hngvt)
        if (allocated(conn%hngfc)) call move_alloc(conn%hngfc, this%hngfc)
        if (allocated(conn%hnged)) call move_alloc(conn%hnged, this%hnged)
     end select
@@ -775,6 +785,7 @@ contains
     if (allocated(this%falgn)) deallocate(this%falgn)
     if (allocated(this%ealgn)) deallocate(this%ealgn)
     if (allocated(this%hngel)) deallocate(this%hngel)
+    if (allocated(this%hngvt)) deallocate(this%hngvt)
     if (allocated(this%hngfc)) deallocate(this%hngfc)
     if (allocated(this%hnged)) deallocate(this%hnged)
 
@@ -789,6 +800,7 @@ contains
     if (allocated(this%falgn)) deallocate(this%falgn)
     if (allocated(this%ealgn)) deallocate(this%ealgn)
     if (allocated(this%hngel)) deallocate(this%hngel)
+    if (allocated(this%hngvt)) deallocate(this%hngvt)
     if (allocated(this%hngfc)) deallocate(this%hngfc)
     if (allocated(this%hnged)) deallocate(this%hnged)
 

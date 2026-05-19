@@ -383,10 +383,12 @@ void wp4est_sharers_get_ind(int64_t * nglid, int * lrank, int * loff,
 /** Get hanging objects information
  *
  * @param[out] hang_elm   is any of element's faces/edges hanging
+ * @param[out] hang_vrt   hanging vertex list
  * @param[out] hang_fsc   hanging face list
  * @param[out] hang_edg   hanging edge list; 3D mesh only
  */
-void wp4est_hang_get_info(int * hang_elm, int * hang_fsc, int * hang_edg)
+void wp4est_hang_get_info(int * hang_elm, int * hang_vrt, int * hang_fsc,
+			  int * hang_edg)
 ;
 
 /** Provide information about element families
