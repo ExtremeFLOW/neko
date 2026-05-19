@@ -33,6 +33,7 @@
 !> Module containing device only array type.
 module device_array
   use num_types, only : rp, sp, dp
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_alloc, device_free
   use device_math, only : device_rzero, device_copy
   use utils, only : neko_error
