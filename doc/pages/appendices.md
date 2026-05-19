@@ -8,6 +8,7 @@ of the code. But can be useful for users and developers alike.
 - [Environmental variable reference](@ref appendices_env-var)
 - \subpage governing-equations
 - \subpage nmsh-format
+- \subpage fld-format
 - \subpage publications
 
 ## Environmental variable reference {#appendices_env-var}

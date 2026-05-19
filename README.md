@@ -30,7 +30,7 @@ export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${JSON_INSTALL}/lib/pkgconfig
 
 A basic CPU version of Neko can then be installed according to the following
 ```bash
-cd neko
+cd path/to/neko
 ./regen.sh
 ./configure --prefix=/path/to/neko_install # Where you want to install neko
 make install
@@ -59,16 +59,16 @@ for more information on which compilers and systems Neko has been used on.
 After the project has been built
 
 ```bash
-cd examples/tgv
+cd path/to/neko/examples/tgv
 /path/to/neko_install/bin/makeneko tgv.f90
 mpirun -np 4 ./neko tgv.case
 ```
-If there is not a .f90 (user) file in the example, the standard executable `neko` can also be used, for example:
+If there is no .f90 (user) file in the example, the standard executable `neko` can also be used, for example:
 ```bash
 cd examples/hemi
 mpirun -np 4 /path/to/neko_install/bin/neko hemi.case
 ```
-only uses built-in functions and does not need a compiled user file. Whether you will need a user file or not depends on what functionality you want and this is also documented in the documentation.
+This example only uses built-in functions and does not need a compiled user file. Whether you will need a user file or not depends on what functionality you want and this is also documented in the documentation.
 
 ## Preferred citation for Neko
 

@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,9 @@ module mesh
   use num_types, only : rp, dp, i8
   use point, only : point_t
   use element, only : element_t
-  use hex, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_GDIM, NEKO_HEX_NFCS, &
+  use hex, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_NFCS, &
        NEKO_HEX_NPTS
-  use quad, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS
+  use quad, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_NPTS
   use utils, only : neko_error, neko_warning
   use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
   use tuple, only : tuple_i4_t, tuple4_i4_t

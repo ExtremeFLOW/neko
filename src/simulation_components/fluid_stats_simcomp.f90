@@ -164,7 +164,7 @@ contains
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
 
-    call this%stats%init(coef, u, v, w, p, stat_set)
+    call this%stats%init(coef, u, v, w, p, stat_set, name)
 
     this%name = name
     this%start_time = start_time

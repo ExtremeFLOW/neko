@@ -117,6 +117,12 @@ contains
     type(field_ptr_t), allocatable :: tmp(:)
     integer :: len
 
+    if (.not. allocated(this%items)) then
+       allocate(this%items(1))
+       call this%items(1)%init(f)
+       return
+    end if
+
     len = size(this%items)
 
     allocate(tmp(len+1))

@@ -40,7 +40,7 @@ module gmres
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
+  use math, only : glsc3, rzero, copy, sub2, cmult2, abscmp
   use neko_config, only : NEKO_BLK_SIZE
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM

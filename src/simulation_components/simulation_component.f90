@@ -106,8 +106,19 @@ module simulation_component
   !> A helper type that is needed to have an array of polymorphic objects
   type, public :: simulation_component_wrapper_t
      class(simulation_component_t), allocatable :: simcomp
+   contains
+     !> Constructor. Initializes the object.
+     procedure, pass(this) :: init => simulation_component_wrapper_init
+     !> Destructor. Just deallocates the pointer.
+     procedure, pass(this) :: free => simulation_component_wrapper_free
+     !> Move operator for the wrapper, needed for storing simcomps
+     !! in lists and arrays.
+     procedure, pass(this) :: move_from => &
+          simulation_component_wrapper_move_from
+     !> Return allocation status.
+     procedure, pass(this) :: is_allocated => &
+          simulation_component_wrapper_is_allocated
   end type simulation_component_wrapper_t
-
 
   abstract interface
      !> The common constructor using a JSON dictionary.
@@ -483,4 +494,51 @@ contains
 
     ! Do nothing
   end subroutine compute_
+
+  ! ========================================================================== !
+  ! Simulation component wrapper type methods
+
+  !> Constructor. Initializes the object.
+  subroutine simulation_component_wrapper_init(this, json, case)
+    class(simulation_component_wrapper_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(case_t), intent(inout), target :: case
+
+    call this%free()
+    call simulation_component_factory(this%simcomp, json, case)
+
+  end subroutine simulation_component_wrapper_init
+
+  !> Destructor. Just deallocates the pointer.
+  subroutine simulation_component_wrapper_free(this)
+    class(simulation_component_wrapper_t), intent(inout) :: this
+
+    if (allocated(this%simcomp)) then
+       call this%simcomp%free()
+       deallocate(this%simcomp)
+    end if
+
+  end subroutine simulation_component_wrapper_free
+
+  !> Move assignment operator for the wrapper, needed for storing simcomps
+  !! in lists and arrays.
+  !! @param this The wrapper to move to.
+  !! @param other The other wrapper to move from. Will be deallocated.
+  subroutine simulation_component_wrapper_move_from(this, other)
+    class(simulation_component_wrapper_t), intent(inout) :: this
+    class(simulation_component_wrapper_t), intent(inout) :: other
+
+    ! Move the pointer
+    call move_alloc(other%simcomp, this%simcomp)
+
+  end subroutine simulation_component_wrapper_move_from
+
+  !> Return allocation status.
+  !! @param this The wrapper to check.
+  function simulation_component_wrapper_is_allocated(this) result(is_alloc)
+    class(simulation_component_wrapper_t), intent(in) :: this
+    logical :: is_alloc
+    is_alloc = allocated(this%simcomp)
+  end function simulation_component_wrapper_is_allocated
+
 end module simulation_component

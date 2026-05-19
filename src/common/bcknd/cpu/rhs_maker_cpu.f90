@@ -3,7 +3,7 @@ module rhs_maker_cpu
        rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
-  use num_types, only : rp, c_rp
+  use num_types, only : rp
   use scratch_registry, only : neko_scratch_registry
   implicit none
   private

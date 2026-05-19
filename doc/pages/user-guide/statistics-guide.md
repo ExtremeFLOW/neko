@@ -68,6 +68,13 @@ The argument "avg_direction" is optional and if ignored we output 3d fields. The
 
 For 1D statistics a CSV file is outputted. The first column is the time at which the statistics are collected, the second column the spatial coordinate, and the rest of the data is stored in the order below. In this case all statistics are kept in the same order as in 3D. The name for these files are `fluid_statsX.csv,..., fluid_statsX.csv` where X is the number of the first outputted statistic of the current run.
 
+The statistics fields created by this simcomp are accessible from the 
+neko registry and retrievable under the following naming convention:
+`name_in_registry = name_of_simcomp + "/mean_" + name_of_field`. Unless 
+specified, the name of the simcomp will default to `fluid_stats`.
+For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then 
+the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added 
+to the registry. 
 
 ## List of fields in output files
 

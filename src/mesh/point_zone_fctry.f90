@@ -58,7 +58,6 @@ contains
     type(json_file), intent(inout) :: json
     type(dofmap_t), intent(inout), optional :: dof
     character(len=:), allocatable :: type_name
-    character(len=:), allocatable :: type_string
 
     call json_get(json, "geometry", type_name)
 

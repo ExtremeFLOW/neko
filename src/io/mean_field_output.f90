@@ -165,7 +165,6 @@ contains
     integer :: i
     type(fld_file_data_t) :: output_2d
     type(matrix_t) :: avg_output_1d
-    real(kind=rp) :: u, v, w, p
 
     associate (out_fields => this%fields%items)
       if (t .ge. this%start_time) then

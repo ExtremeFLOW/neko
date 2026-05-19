@@ -64,6 +64,8 @@ contains
     character(len=:), allocatable :: type
     integer :: i
     integer, allocatable :: zone_indices(:)
+    character(len=:), allocatable :: default_name
+    character(len=64) :: buf
 
     if (associated(object)) then
        call object%free()
@@ -96,6 +98,11 @@ contains
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
+
+    write(buf,'("scalar_bc_",I0)') zone_indices(1)
+    default_name = trim(buf)
+    call json_get_or_default(json, "name", object%name, default_name)
+    object%zone_indices = zone_indices
     call object%finalize()
 
   end subroutine bc_factory

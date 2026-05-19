@@ -36,6 +36,7 @@ module mean_field
   use neko_config, only : NEKO_BCKND_DEVICE
   use stats_quant, only : stats_quant_t
   use num_types, only : rp
+  use registry, only: neko_registry
   use field, only : field_t
   use field_math, only : field_cmult, field_add2s2
   implicit none
@@ -46,7 +47,7 @@ module mean_field
      !> Pointer to the averaged field.
      type(field_t), pointer :: f => null()
      !> Stores the mean field.
-     type(field_t) :: mf
+     type(field_t), pointer :: mf => null()
      !> Total time across which the mean has been computed.
      real(kind=rp) :: time
    contains
@@ -83,7 +84,8 @@ contains
        write(name, '(A,A)') 'mean_', trim(f%name)
     end if
 
-    call this%mf%init(f%dof, name)
+    call neko_registry%add_field(f%dof, trim(name))
+    this%mf => neko_registry%get_field(trim(name))
 
   end subroutine mean_field_init
 
@@ -94,7 +96,10 @@ contains
     if (associated(this%f)) then
        nullify(this%f)
     end if
-    call this%mf%free()
+
+    if (associated(this%mf)) then
+       nullify(this%mf)
+    end if
 
   end subroutine mean_field_free
 

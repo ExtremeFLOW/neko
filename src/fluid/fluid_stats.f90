@@ -164,11 +164,15 @@ contains
   !! @param p The pressure.
   !! @param set Specifies the subset of the statistics to be collected.
   !! Optional. Either `basic` or `full`, defaults to `full`.
-  subroutine fluid_stats_init(this, coef, u, v, w, p, set)
+  subroutine fluid_stats_init(this, coef, u, v, w, p, set, name)
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(in) :: u, v, w, p
     character(*), intent(in), optional :: set
+    character(*), intent(in), optional :: name
+
+    character(len=1024) :: unique_name
+    unique_name = ""
 
     call this%free()
     this%coef => coef
@@ -188,22 +192,28 @@ contains
        this%n_stats = 44
     end if
 
+    if (present(name)) then
+       unique_name = name // "/"
+    else
+       unique_name = "fluid_stats/"
+    end if
+
     call this%stats_work%init(this%u%dof, 'stats')
     call this%stats_u%init(this%u%dof, 'u temp')
     call this%stats_v%init(this%u%dof, 'v temp')
     call this%stats_w%init(this%u%dof, 'w temp')
     call this%stats_p%init(this%u%dof, 'p temp')
-    call this%u_mean%init(this%u)
-    call this%v_mean%init(this%v)
-    call this%w_mean%init(this%w)
-    call this%p_mean%init(this%p)
-    call this%uu%init(this%stats_u, 'uu')
-    call this%vv%init(this%stats_v, 'vv')
-    call this%ww%init(this%stats_w, 'ww')
-    call this%uv%init(this%stats_work, 'uv')
-    call this%uw%init(this%stats_work, 'uw')
-    call this%vw%init(this%stats_work, 'vw')
-    call this%pp%init(this%stats_p, 'pp')
+    call this%u_mean%init(this%u, trim(unique_name) // 'mean_u')
+    call this%v_mean%init(this%v, trim(unique_name) // 'mean_v')
+    call this%w_mean%init(this%w, trim(unique_name) // 'mean_w')
+    call this%p_mean%init(this%p, trim(unique_name) // 'mean_p')
+    call this%uu%init(this%stats_u , trim(unique_name) // 'mean_uu')
+    call this%vv%init(this%stats_v , trim(unique_name) // 'mean_vv')
+    call this%ww%init(this%stats_w , trim(unique_name) // 'mean_ww')
+    call this%uv%init(this%stats_work, trim(unique_name) // 'mean_uv')
+    call this%uw%init(this%stats_work, trim(unique_name) // 'mean_uw')
+    call this%vw%init(this%stats_work, trim(unique_name) // 'mean_vw')
+    call this%pp%init(this%stats_p , trim(unique_name) // 'mean_pp')
 
     if (this%n_stats .eq. 44) then
        call this%dudx%init(this%u%dof, 'dudx')
@@ -216,43 +226,43 @@ contains
        call this%dwdy%init(this%u%dof, 'dwdy')
        call this%dwdz%init(this%u%dof, 'dwdz')
 
-       call this%uuu%init(this%stats_work, 'uuu')
-       call this%vvv%init(this%stats_work, 'vvv')
-       call this%www%init(this%stats_work, 'www')
-       call this%uuv%init(this%stats_work, 'uuv')
-       call this%uuw%init(this%stats_work, 'uuw')
-       call this%uvv%init(this%stats_work, 'uvv')
-       call this%uvw%init(this%stats_work, 'uvw')
-       call this%vvw%init(this%stats_work, 'vvw')
-       call this%uww%init(this%stats_work, 'uww')
-       call this%vww%init(this%stats_work, 'vww')
-       call this%uuuu%init(this%stats_work, 'uuuu')
-       call this%vvvv%init(this%stats_work, 'vvvv')
-       call this%wwww%init(this%stats_work, 'wwww')
+       call this%uuu%init(this%stats_work, trim(unique_name) // 'mean_uuu')
+       call this%vvv%init(this%stats_work, trim(unique_name) // 'mean_vvv')
+       call this%www%init(this%stats_work, trim(unique_name) // 'mean_www')
+       call this%uuv%init(this%stats_work, trim(unique_name) // 'mean_uuv')
+       call this%uuw%init(this%stats_work, trim(unique_name) // 'mean_uuw')
+       call this%uvv%init(this%stats_work, trim(unique_name) // 'mean_uvv')
+       call this%uvw%init(this%stats_work, trim(unique_name) // 'mean_uvw')
+       call this%vvw%init(this%stats_work, trim(unique_name) // 'mean_vvw')
+       call this%uww%init(this%stats_work, trim(unique_name) // 'mean_uww')
+       call this%vww%init(this%stats_work, trim(unique_name) // 'mean_vww')
+       call this%uuuu%init(this%stats_work, trim(unique_name) // 'mean_uuuu')
+       call this%vvvv%init(this%stats_work, trim(unique_name) // 'mean_vvvv')
+       call this%wwww%init(this%stats_work, trim(unique_name) // 'mean_wwww')
        !> Pressure
-       call this%ppp%init(this%stats_work, 'ppp')
-       call this%pppp%init(this%stats_work, 'pppp')
+       call this%ppp%init(this%stats_work , trim(unique_name) // 'mean_ppp')
+       call this%pppp%init(this%stats_work, trim(unique_name) // 'mean_pppp')
        !> Pressure * velocity
-       call this%pu%init(this%stats_work, 'pu')
-       call this%pv%init(this%stats_work, 'pv')
-       call this%pw%init(this%stats_work, 'pw')
+       call this%pu%init(this%stats_work, trim(unique_name) // 'mean_pu')
+       call this%pv%init(this%stats_work, trim(unique_name) // 'mean_pv')
+       call this%pw%init(this%stats_work, trim(unique_name) // 'mean_pw')
 
-       call this%pdudx%init(this%stats_work, 'pdudx')
-       call this%pdudy%init(this%stats_work, 'pdudy')
-       call this%pdudz%init(this%stats_work, 'pdudz')
-       call this%pdvdx%init(this%stats_work, 'pdvdx')
-       call this%pdvdy%init(this%stats_work, 'pdvdy')
-       call this%pdvdz%init(this%stats_work, 'pdvdz')
-       call this%pdwdx%init(this%stats_work, 'pdwdx')
-       call this%pdwdy%init(this%stats_work, 'pdwdy')
-       call this%pdwdz%init(this%stats_work, 'pdwdz')
+       call this%pdudx%init(this%stats_work, trim(unique_name) // 'mean_pdudx')
+       call this%pdudy%init(this%stats_work, trim(unique_name) // 'mean_pdudy')
+       call this%pdudz%init(this%stats_work, trim(unique_name) // 'mean_pdudz')
+       call this%pdvdx%init(this%stats_work, trim(unique_name) // 'mean_pdvdx')
+       call this%pdvdy%init(this%stats_work, trim(unique_name) // 'mean_pdvdy')
+       call this%pdvdz%init(this%stats_work, trim(unique_name) // 'mean_pdvdz')
+       call this%pdwdx%init(this%stats_work, trim(unique_name) // 'mean_pdwdx')
+       call this%pdwdy%init(this%stats_work, trim(unique_name) // 'mean_pdwdy')
+       call this%pdwdz%init(this%stats_work, trim(unique_name) // 'mean_pdwdz')
 
-       call this%e11%init(this%stats_work, 'e11')
-       call this%e22%init(this%stats_work, 'e22')
-       call this%e33%init(this%stats_work, 'e33')
-       call this%e12%init(this%stats_work, 'e12')
-       call this%e13%init(this%stats_work, 'e13')
-       call this%e23%init(this%stats_work, 'e23')
+       call this%e11%init(this%stats_work, trim(unique_name) // 'mean_e11')
+       call this%e22%init(this%stats_work, trim(unique_name) // 'mean_e22')
+       call this%e33%init(this%stats_work, trim(unique_name) // 'mean_e33')
+       call this%e12%init(this%stats_work, trim(unique_name) // 'mean_e12')
+       call this%e13%init(this%stats_work, trim(unique_name) // 'mean_e13')
+       call this%e23%init(this%stats_work, trim(unique_name) // 'mean_e23')
     end if
 
     call this%stat_fields%init(this%n_stats)

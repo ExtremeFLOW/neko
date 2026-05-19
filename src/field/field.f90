@@ -281,7 +281,6 @@ contains
   subroutine field_assign_scalar(this, a)
     class(field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: a
-    integer :: i, j, k, l
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%x_d, a, this%size())

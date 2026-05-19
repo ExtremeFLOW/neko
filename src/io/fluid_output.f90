@@ -149,7 +149,7 @@ contains
     if (present(scalar_fields)) then
        do j = 1, n_scalars
           i = i + 1
-          call this%fluid%assign(i, scalar_fields%scalar_fields(j)%s)
+          call this%fluid%assign(i, scalar_fields%scalar_fields(j)%scalar%s)
        end do
     end if
 
