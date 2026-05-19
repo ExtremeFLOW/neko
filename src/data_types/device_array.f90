@@ -33,9 +33,8 @@
 !> Module containing device only array type.
 module device_array
   use num_types, only : rp, sp, dp
-  use device, only : device_alloc, device_free, device_memcpy, &
-       DEVICE_TO_DEVICE
-  use device_math, only : device_rzero
+  use device, only : device_alloc, device_free
+  use device_math, only : device_rzero, device_copy
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
 
@@ -127,7 +126,7 @@ contains
        call this%allocate(source%size())
     end if
 
-    call device_memcpy(this%x_d, source%x_d, c_size, DEVICE_TO_DEVICE)
+    call device_copy(this%x_d, source%x_d, this%n)
 
   end subroutine device_array_assign
 

@@ -33,7 +33,7 @@
 !> Module containing host-only array type.
 module host_array
   use num_types, only : rp
-  use math, only : rzero
+  use math, only : rzero, copy
 
   implicit none
   private
@@ -116,7 +116,7 @@ contains
        call this%allocate(source%size())
     end if
 
-    call copy(this%x, source%x)
+    call copy(this%x, source%x, this%n)
 
   end subroutine host_array_assign
 
