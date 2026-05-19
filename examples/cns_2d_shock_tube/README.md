@@ -24,7 +24,7 @@ Pressure `p = rho / gamma`
 ### Parameters
 
 - gamma = 1.4 (ideal gas)
-- Re = 200 (set in `2d_shock_tube.f90`, change to 1000 for more complex flow)
+- Re = 1000 (set in `2d_shock_tube.f90`)
 - End time: t = 0.6
 - Incident shock reflects off right wall at approximately t = 0.2
 

@@ -73,7 +73,6 @@ module fluid_scheme_compressible
      type(field_t), pointer :: temperature => null() !< Temperature field
      type(field_t), pointer :: max_wave_speed => null() !< Maximum wave speed field
      type(field_t), pointer :: S => null() !< Entropy field
-     type(field_t), pointer :: effective_visc => null() !< Effective artificial viscosity field
      type(field_t), pointer :: artificial_visc => null() !< Artificial viscosity field (without physical)
      type(field_t), pointer :: kappa => null() !< Thermal conductivity
 
@@ -190,11 +189,6 @@ contains
     call neko_registry%add_field(this%dm_Xh, "S")
     this%S => neko_registry%get_field("S")
     call this%S%init(this%dm_Xh, "S")
-
-    ! Assign effective artificial viscosity field
-    call neko_registry%add_field(this%dm_Xh, "effective_visc")
-    this%effective_visc => neko_registry%get_field("effective_visc")
-    call this%effective_visc%init(this%dm_Xh, "effective_visc")
 
     ! Assign artificial viscosity field (without physical viscosity)
     call neko_registry%add_field(this%dm_Xh, "artificial_visc")
