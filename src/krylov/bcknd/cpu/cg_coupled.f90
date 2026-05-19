@@ -32,7 +32,7 @@
 !
 !> Defines a coupled Conjugate Gradient methods
 module cg_cpld
-  use num_types, only: rp
+  use num_types, only: rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -41,6 +41,8 @@ module cg_cpld
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc2, abscmp
+  use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use utils, only : neko_error
   use operators, only : rotate_cyc
   implicit none
@@ -223,7 +225,7 @@ contains
     integer, optional, intent(in) :: niter
     integer :: i, iter, max_iter
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
+    real(kind=rp) :: beta, pap, alpha, norm_fac
 
     if (present(niter)) then
        max_iter = niter
@@ -308,18 +310,14 @@ contains
          pap = glsc2(tmp, coef%mult, n)
 
          alpha = rtz1 / pap
-         alphm = -alpha
          do concurrent (i = 1:n)
             x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)
             y%x(i,1,1,1) = y%x(i,1,1,1) + alpha * p2(i)
             z%x(i,1,1,1) = z%x(i,1,1,1) + alpha * p3(i)
-            r1(i) = r1(i) + alphm * w1(i)
-            r2(i) = r2(i) + alphm * w2(i)
-            r3(i) = r3(i) + alphm * w3(i)
-            tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
          end do
 
-         rtr = glsc2(tmp, coef%mult, n)
+         call second_cg_cpld_part(rtr, r1, r2, r3, coef%mult, &
+              w1, w2, w3, alpha, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)
@@ -333,5 +331,28 @@ contains
     ksp_results%iter = iter
     ksp_results%converged = this%is_converged(iter, rnorm)
   end function cg_cpld_solve
+
+  subroutine second_cg_cpld_part(rtr, r1, r2, r3, mult, w1, w2, w3, alpha, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: r1(n), r2(n), r3(n), rtr
+    real(kind=rp), intent(in) :: mult(n), w1(n), w2(n), w3(n), alpha
+    real(kind=xp) :: tmp
+    integer :: i, ierr
+
+    tmp = 0.0_xp
+    !$omp parallel do reduction(+:tmp)
+    do i = 1, n
+      r1(i) = r1(i) - alpha * w1(i)
+      r2(i) = r2(i) - alpha * w2(i)
+      r3(i) = r3(i) - alpha * w3(i)
+      tmp = tmp + (r1(i) * r1(i) + r2(i) * r2(i) + r3(i) * r3(i)) * mult(i)
+    end do
+    !$omp end parallel do
+
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    rtr = tmp
+
+  end subroutine second_cg_cpld_part
 
 end module cg_cpld
