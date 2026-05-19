@@ -13,6 +13,7 @@ var dir_a753435b69305af25b1972a8c16b18f4 =
     [ "opr_dudxyz.c", "d1/d28/opr__dudxyz_8c.html", "d1/d28/opr__dudxyz_8c" ],
     [ "opr_lambda2.c", "d9/d48/opr__lambda2_8c.html", "d9/d48/opr__lambda2_8c" ],
     [ "opr_opgrad.c", "d0/d82/opr__opgrad_8c.html", "d0/d82/opr__opgrad_8c" ],
+    [ "opr_rotate_cyc.c", "da/d90/opr__rotate__cyc_8c.html", "da/d90/opr__rotate__cyc_8c" ],
     [ "schwarz.c", "d0/d3c/schwarz_8c.html", "d0/d3c/schwarz_8c" ],
     [ "set_convect_rst.c", "d3/d53/set__convect__rst_8c.html", "d3/d53/set__convect__rst_8c" ],
     [ "tensor.c", "d9/dbd/tensor_8c.html", "d9/dbd/tensor_8c" ]

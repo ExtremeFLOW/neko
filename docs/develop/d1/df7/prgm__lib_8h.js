@@ -33,6 +33,7 @@ var prgm__lib_8h =
     [ "pnpn_res_program", "d1/df7/prgm__lib_8h.html#a3f9718b4ebe69576432449307ae88557", null ],
     [ "pnpn_stress_res_program", "d1/df7/prgm__lib_8h.html#a0a758b9f0a405ec30cd95ea905048ac9", null ],
     [ "rhs_maker_program", "d1/df7/prgm__lib_8h.html#a451e397ab1f76f66be365b3e00755c88", null ],
+    [ "rotate_program", "d1/df7/prgm__lib_8h.html#abc5afe1f9e55f179c233ca38b4aec264", null ],
     [ "scalar_residual_program", "d1/df7/prgm__lib_8h.html#ad17eca179e9dec83cd6237f2014565a2", null ],
     [ "schwarz_program", "d1/df7/prgm__lib_8h.html#afd82e2e5bcfc5ea4d5bb2f559f615d1c", null ],
     [ "set_convect_rst_program", "d1/df7/prgm__lib_8h.html#aa2c2f85b9eee5a6f841950101855c1ee", null ],

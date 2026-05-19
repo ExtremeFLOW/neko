@@ -112,7 +112,7 @@ $(document).ready(function(){initNavTree('db/df1/gs__caf_8F90.html','../../'); i
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html">gs_caf::gs_caf_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather-scatter communication using Coarray Fortran (F2008). Each image puts directly into the (module-level) receive coarray on the destination image; segment ordering is enforced with <code>sync images</code> over the union of send and receive peers.  <a href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather-scatter communication using Coarray Fortran (F2008). Each image puts directly into the (module-level) receive coarray on the destination image. The signaling mode (<code>NEKO_GS_CAF_SIGNALING</code>) selects how segment ordering is established: <code>sync</code> uses <code>sync images</code> over the union of send and recv peers, <code>atomic</code> uses per-peer <code>atomic_define</code>/<code>atomic_ref</code> on <code>data_ready</code>/<code>buf_ready</code> counters, and <code>event</code> uses coarray events.  <a href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -154,7 +154,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../db/df1/gs__caf_8F90.html">gs_caf.F90</a></li>
-    <li class="footer">Generated on Mon May 18 2026 04:56:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue May 19 2026 04:51:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

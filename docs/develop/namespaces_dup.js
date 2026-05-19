@@ -599,6 +599,7 @@ var namespaces_dup =
       [ "pnpn_res_program", "d0/dc0/namespaceopencl__prgm__lib.html#aa23394a56bd960ab80d7fb4299ca6240", null ],
       [ "pnpn_stress_res_program", "d0/dc0/namespaceopencl__prgm__lib.html#adbd02248862f23ec4851d3ca89c658a2", null ],
       [ "rhs_maker_program", "d0/dc0/namespaceopencl__prgm__lib.html#ab6176c9407c4650ec0b77425b7706086", null ],
+      [ "rotate_program", "d0/dc0/namespaceopencl__prgm__lib.html#a08fec87f65021c09df76f299e2a6b760", null ],
       [ "scalar_residual_program", "d0/dc0/namespaceopencl__prgm__lib.html#ac712e8636abeeb5726b6c72c17c5326c", null ],
       [ "schwarz_program", "d0/dc0/namespaceopencl__prgm__lib.html#a7e61f26e41f46b37db4b073cde184b93", null ],
       [ "set_convect_rst_program", "d0/dc0/namespaceopencl__prgm__lib.html#a1d8e3032ef302c14e2cc7e221f060c7c", null ],

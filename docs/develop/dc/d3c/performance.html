@@ -175,7 +175,7 @@ Coarray Fortran backend</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>sync</code> (default)   </td><td class="markdownTableBodyNone">F2008   </td><td class="markdownTableBodyNone"><code>sync images</code> over the union of neighbour pairs, with a double-buffered receive coarray so only one rendezvous is needed per gs op   </td><td class="markdownTableBodyNone">Most portable; works on every coarray-capable compiler    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>atomic</code>   </td><td class="markdownTableBodyNone">F2008   </td><td class="markdownTableBodyNone">Per-pair atomic counters via <code>atomic_define</code>/<code>atomic_ref</code> and a busy-wait spin   </td><td class="markdownTableBodyNone">Lower synchronisation overhead than <code>sync</code> on runtimes that order remote atomics after RMA writes    </td></tr>
+<td class="markdownTableBodyNone"><code>atomic</code>   </td><td class="markdownTableBodyNone">F2008   </td><td class="markdownTableBodyNone">Per-pair atomic counters via <code>atomic_define</code>/<code>atomic_ref</code> and a busy-wait spin   </td><td class="markdownTableBodyNone">Avoids the image-set barrier; trade-off depends on the relative cost of pairwise atomics versus <code>sync images</code> on the target runtime    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>event</code>   </td><td class="markdownTableBodyNone">F2018   </td><td class="markdownTableBodyNone">F2018 events (<code>event post</code>/<code>event wait</code>)   </td><td class="markdownTableBodyNone">Lowest theoretical overhead; requires a runtime that implements F2018 event semantics   </td></tr>
 </table>
@@ -188,7 +188,7 @@ Coarray Fortran backend</h3>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon May 18 2026 04:56:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue May 19 2026 04:51:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
