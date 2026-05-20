@@ -114,6 +114,10 @@ module gs_interp
      procedure(gs_interp_set_fld), pass(this), deferred :: set_children_fld
      procedure(gs_interp_set_r4), pass(this), deferred :: set_children_r4
      generic :: set_children => set_children_fld, set_children_r4
+     !> Scale children's nonconforming faces/edges
+     procedure(gs_interp_set_fld), pass(this), deferred :: scale_children_fld
+     procedure(gs_interp_set_r4), pass(this), deferred :: scale_children_r4
+     generic :: scale_children => scale_children_fld, scale_children_r4
      !> Remove multiplicity for H1
      procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_h1_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_h1_r4

@@ -106,6 +106,11 @@ module gs_interp_cpu
      !> Set children's nonconforming faces/edges
      procedure, pass(this) :: set_children_fld => gs_interp_cpu_set_children_fld
      procedure, pass(this) :: set_children_r4 => gs_interp_cpu_set_children_r4
+     !> Scale children's nonconforming faces/edges
+     procedure, pass(this) :: scale_children_fld => &
+          gs_interp_cpu_scale_children_fld
+     procedure, pass(this) :: scale_children_r4 => &
+          gs_interp_cpu_scale_children_r4
      !> Remove multiplicity for H1
      procedure, pass(this) :: remove_mult_h1_fld => &
           gs_interp_cpu_remove_mult_h1_fld
@@ -892,6 +897,57 @@ contains
     end if
 
   end subroutine gs_interp_cpu_set_children_r4
+
+  !> Scale children's nonconforming faces/edges using field
+  !! @param[inout]  field    field for face interpolation
+  !! @param[in]     cnst     constant value
+  subroutine gs_interp_cpu_scale_children_fld(this, field, cnst)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    type(field_t), intent(inout) :: field
+    real(rp), intent(in) :: cnst
+
+    call this%scale_children_r4(field%x, cnst)
+
+  end subroutine gs_interp_cpu_scale_children_fld
+
+  !> Scale children's nonconforming faces/edges using vector
+  !! @param[inout]  vec    vector for face interpolation
+  !! @param[in]     cnst   constant value
+  subroutine gs_interp_cpu_scale_children_r4(this, vec, cnst)
+    class(gs_interp_cpu_t), intent(inout) :: this
+    real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+    real(rp), intent(in) :: cnst
+    integer :: il, jl, itmp
+
+    if (this%ifhang) then
+       do il = 1, this%nhang_el
+          ! faces
+          itmp = this%hang_fcs_off(il + 1) - this%hang_fcs_off(il)
+          if (itmp .gt. 0) then
+             do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
+                call face_to_vector(vec(:, :, :, this%hang_el(il)), &
+                     this%face_tmp, this%hang_fcs(jl), this%lx)
+                this%face_tmp(:, :) = cnst * this%face_tmp(:, :)
+                call vector_to_face(vec(:, :, :, this%hang_el(il)), &
+                     this%face_tmp, this%hang_fcs(jl), this%lx)
+             end do
+          end if
+
+          ! edges
+          itmp = this%hang_edg_off(il + 1) - this%hang_edg_off(il)
+          if (itmp .gt. 0) then
+             do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
+                call edge_to_vector(vec(:, :, :, this%hang_el(il)), &
+                     this%edge_tmp, this%hang_edg(jl), this%lx)
+                this%edge_tmp(:) = cnst * this%edge_tmp(:)
+                call vector_to_edge(vec(:, :, :, this%hang_el(il)), &
+                     this%edge_tmp, this%hang_edg(jl), this%lx)
+             end do
+          end if
+       end do
+    end if
+
+  end subroutine gs_interp_cpu_scale_children_r4
 
   !> Add multiplicity for H1 using field
   !! @param[inout]  field    field for face interpolation
