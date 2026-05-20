@@ -32,7 +32,7 @@
 !
 module device_math
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only : rp, xp, c_rp
+  use num_types, only : rp, xp, c_rp, c_xp
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_SUM, MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_Allreduce
@@ -1198,6 +1198,7 @@ contains
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
     real(kind=rp) :: res
+    real(kind=xp) :: res_xp
 
     if (present(strm)) then
        strm_ = strm
@@ -1205,29 +1206,31 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = 0.0_rp
+    res_xp = 0.0_xp
 #if HAVE_HIP
-    res = hip_glsc3(a_d, b_d, c_d, n, strm_)
+    res_xp = hip_glsc3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glsc3(a_d, b_d, c_d, n, strm_)
+    res_xp = cuda_glsc3(a_d, b_d, c_d, n, strm_)
 #elif HAVE_OPENCL
-    res = opencl_glsc3(a_d, b_d, c_d, n, strm_)
+    res_xp = opencl_glsc3(a_d, b_d, c_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, res_xp, 1, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
+    res = real(res_xp, kind=rp)
   end function device_glsc3
 
   subroutine device_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm)
     type(c_ptr), value :: w_d, v_d_d, mult_d
     integer(c_int) :: j, n
     real(c_rp) :: h(j)
+    real(c_xp) :: h_xp(j)
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
     integer :: ierr
@@ -1241,7 +1244,8 @@ contains
 #if HAVE_HIP
     call hip_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
 #elif HAVE_CUDA
-    call cuda_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
+    h_xp = 0.0_c_xp
+    call cuda_glsc3_many(h_xp, w_d, v_d_d, mult_d, j, n, strm_)
 #elif HAVE_OPENCL
     call opencl_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
 #else
@@ -1250,9 +1254,17 @@ contains
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
+#if HAVE_CUDA
+       call MPI_Allreduce(MPI_IN_PLACE, h_xp, j, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+#else
        call MPI_Allreduce(MPI_IN_PLACE, h, j, &
             MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+#endif
     end if
+#endif
+#if HAVE_CUDA
+    h = real(h_xp, kind=c_rp)
 #endif
   end subroutine device_glsc3_many
 
@@ -1286,6 +1298,7 @@ contains
     type(c_ptr) :: a_d, b_d
     integer :: n, ierr
     real(kind=rp) :: res
+    real(kind=xp) :: res_xp
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
@@ -1295,23 +1308,24 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = 0.0_rp
+    res_xp = 0.0_xp
 #if HAVE_HIP
-    res = hip_glsc2(a_d, b_d, n, strm_)
+    res_xp = hip_glsc2(a_d, b_d, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glsc2(a_d, b_d, n, strm_)
+    res_xp = cuda_glsc2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
-    res = opencl_glsc2(a_d, b_d, n, strm_)
+    res_xp = opencl_glsc2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, res_xp, 1, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
+    res = real(res_xp, kind=rp)
   end function device_glsc2
 
   !> Returns the norm of the difference of two vectors
@@ -1321,6 +1335,7 @@ contains
     integer, intent(in) :: n
     integer :: ierr
     real(kind=rp) :: res
+    real(kind=xp) :: res_xp
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
@@ -1330,25 +1345,25 @@ contains
        strm_ = glb_cmd_queue
     end if
 
-    res = 0.0_rp
+    res_xp = 0.0_xp
 #if HAVE_HIP
-    res = hip_glsubnorm2(a_d, b_d, n, strm_)
+    res_xp = hip_glsubnorm2(a_d, b_d, n, strm_)
 #elif HAVE_CUDA
-    res = cuda_glsubnorm2(a_d, b_d, n, strm_)
+    res_xp = cuda_glsubnorm2(a_d, b_d, n, strm_)
 #elif HAVE_OPENCL
-    res = opencl_glsubnorm2(a_d, b_d, n, strm_)
+    res_xp = opencl_glsubnorm2(a_d, b_d, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+       call MPI_Allreduce(MPI_IN_PLACE, res_xp, 1, &
+            MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     end if
 #endif
 
-    res = sqrt(res)
+    res = real(sqrt(res_xp), kind=rp)
   end function device_glsubnorm
 
   !> Sum a vector of length n
