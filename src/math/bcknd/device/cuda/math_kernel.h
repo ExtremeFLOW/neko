@@ -34,6 +34,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <device/device_config.h>
+
 /**
  * Device kernel for cmult
  */
@@ -1099,9 +1101,9 @@ __global__ void glsubnorm2_kernel(const T * a,
 /**
  * Device kernel for glsum
  */
-template< typename T >
+template< typename T>
 __global__ void glsum_kernel(const T * a,
-                             T * buf_h,
+                             real_xp * buf_h,
                              const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1110,21 +1112,21 @@ __global__ void glsum_kernel(const T * a,
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
 
-  __shared__ T shared[32];
-  T sum = 0;
+  __shared__ real_xp shared[32];
+  real_xp sum = 0;
   for (int i = idx; i<n ; i += str)
   {
     sum += a[i];
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<real_xp>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
   sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<real_xp>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;

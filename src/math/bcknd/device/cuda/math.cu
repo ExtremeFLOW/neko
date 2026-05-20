@@ -90,7 +90,7 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
   }
-  
+
   /** Fortran wrapper for masked gather copy
    * Copy a vector \f$ a(i) = b(mask(i)) \f$
    */
@@ -151,7 +151,7 @@ extern "C" {
       ((real *) a, (real*) b,(int*) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /** Fortran wrapper for masked scatter copy with aligned mask
    * Copy a vector \f$ a(mask(i)) = b(i) \f$
    */
@@ -661,6 +661,8 @@ extern "C" {
   int red_s = 0;
   real * bufred = NULL;
   void * bufred_d = NULL;
+  real_xp * bufred_xp = NULL;
+  void * bufred_xp_d = NULL;
 
   /**
    *Checks and allocates a buffer of size nb*sizeof(real) for reductions
@@ -670,17 +672,23 @@ extern "C" {
       red_s = nb+1;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
+        CUDA_CHECK(cudaFreeHost(bufred_xp));
 #ifdef HAVE_NVSHMEM
         nvshmem_free(bufred_d);
+        nvshmem_free(bufred_xp_d);
 #else
         CUDA_CHECK(cudaFree(bufred_d));
+        CUDA_CHECK(cudaFree(bufred_xp_d));
 #endif
       }
       CUDA_CHECK(cudaMallocHost(&bufred,red_s*sizeof(real)));
+      CUDA_CHECK(cudaMallocHost(&bufred_xp,red_s*sizeof(real_xp)));
 #ifdef HAVE_NVSHMEM
       bufred_d = (real *) nvshmem_malloc(red_s*sizeof(real));
+      bufred_xp_d = (real_xp *) nvshmem_malloc(red_s*sizeof(real_xp));
 #else
       CUDA_CHECK(cudaMalloc(&bufred_d, red_s*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_xp_d, red_s*sizeof(real_xp)));
 #endif
     }
   }
@@ -717,6 +725,43 @@ extern "C" {
     device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_SUM);
 #else
     CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#endif
+  }
+
+  /**
+   * Global additive reduction in extra precision
+   */
+  void cuda_global_reduce_add_xp(real_xp * bufred, void * bufred_d,
+                                 int n, const cudaStream_t stream) {
+
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real_xp),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real_xp)*n,
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real_xp) == sizeof(float)) {
+      nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                          (float *) bufred_d,
+                                          (float *) bufred_d, n, stream);
+    }
+    else if (sizeof(real_xp) == sizeof(double)) {
+      nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) bufred_d,
+                                           (double *) bufred_d, n, stream);
+
+    }
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d,
+                               sizeof(real_xp)*n, cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(bufred_d, bufred, n, sizeof(real_xp), DEVICE_MPI_SUM);
+#else
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, n*sizeof(real_xp),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #endif
@@ -946,7 +991,7 @@ extern "C" {
    * Fortran wrapper glsum
    * Sum a vector of length n
    */
-  real cuda_glsum(void *a, int *n, cudaStream_t stream) {
+  real_xp cuda_glsum(void *a, int *n, cudaStream_t stream) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
@@ -955,18 +1000,18 @@ extern "C" {
     if ( *n > 0) {
       glsum_kernel<real>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
-                                        (real *) bufred_d, *n);
+                                        (real_xp *) bufred_xp_d, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
+      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) bufred_xp_d, nb);
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      cuda_rzero(bufred_d, &red_s, stream);
+      CUDA_CHECK(cudaMemsetAsync(bufred_xp_d, 0, red_s * sizeof(real_xp), stream));
     }
 
-    cuda_global_reduce_add(bufred, bufred_d, 1, stream);
+    cuda_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
 
-    return bufred[0];
+    return bufred_xp[0];
   }
 
   /**
@@ -984,7 +1029,7 @@ extern "C" {
         <<<nblcks, nthrds, 0, stream>>>((real *) a, *ninf,
                                         (real *) bufred_d, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_max_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, 
+      reduce_max_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d,
                                                         *ninf, nb);
       CUDA_CHECK(cudaGetLastError());
     }
@@ -1155,7 +1200,7 @@ extern "C" {
   }
 
   // ======================================================================== //
-  
+
   /** Fortran wrapper for iadd
    * Add a scalar to vector \f$ a_i = a_i + c \f$
    */
