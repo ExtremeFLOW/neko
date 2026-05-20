@@ -953,6 +953,41 @@ __global__ void glsc3_reduce_kernel( T * bufred,
 
 
 /**
+ * Device kernel for vlsc3
+ */
+template< typename T >
+__global__ void vlsc3_kernel(const T * a,
+                             const T * b,
+                             const T * c,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[32];
+  T sum = 0.0;
+  for (int i = idx; i < n; i+= str) {
+    sum += a[i] * b[i] * c[i];
+  }
+
+  sum = reduce_warp<T>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
+  __syncthreads();
+
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+}
+
+/**
  * Device kernel for glsc3
  */
 template< typename T >

@@ -1242,7 +1242,8 @@ contains
     end if
 
 #if HAVE_HIP
-    call hip_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
+    h_xp = 0.0_c_xp
+    call hip_glsc3_many(h_xp, w_d, v_d_d, mult_d, j, n, strm_)
 #elif HAVE_CUDA
     h_xp = 0.0_c_xp
     call cuda_glsc3_many(h_xp, w_d, v_d_d, mult_d, j, n, strm_)
@@ -1254,7 +1255,7 @@ contains
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-#if HAVE_CUDA
+#if HAVE_HIP || HAVE_CUDA
        call MPI_Allreduce(MPI_IN_PLACE, h_xp, j, &
             MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 #else
@@ -1263,7 +1264,7 @@ contains
 #endif
     end if
 #endif
-#if HAVE_CUDA
+#if HAVE_HIP || HAVE_CUDA
     h = real(h_xp, kind=c_rp)
 #endif
   end subroutine device_glsc3_many

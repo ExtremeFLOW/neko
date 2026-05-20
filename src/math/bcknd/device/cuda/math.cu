@@ -870,19 +870,19 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
-    cuda_redbuf_check_alloc_xp(nb);
+    cuda_redbuf_check_alloc(nb);
 
-    glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
-      ((real *) u, (real *) v, (real *) w, (real_xp *) bufred_xp_d, *n);
+    vlsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
+      ((real *) u, (real *) v, (real *) w, (real *) bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) bufred_xp_d, nb);
+    reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpyAsync(bufred_xp, bufred_xp_d, sizeof(real_xp),
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 
-    return static_cast<real>(bufred_xp[0]);
+    return bufred[0];
   }
 
 
