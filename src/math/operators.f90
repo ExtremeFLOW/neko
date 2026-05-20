@@ -48,7 +48,7 @@ module operators
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_dudxyz, &
        opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst, &
-       opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4
+       opr_device_rotate_cyc
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -103,7 +103,7 @@ contains
   !! @param dt The derivative of t with respect to the chosen direction.
   !! @param coef The SEM coefficients.
   subroutine dudxyz_r4(du, u, dr, ds, dt, coef)
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv), intent(inout) :: du
     real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
@@ -132,7 +132,7 @@ contains
   end subroutine dudxyz_r4
 
   subroutine dudxyz_d(du_d, u_d, dr_d, ds_d, dt_d, coef)
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     type(c_ptr), intent(inout) :: du_d
     type(c_ptr), intent(in) :: u_d, dr_d, ds_d, dt_d
 
@@ -141,7 +141,7 @@ contains
   end subroutine dudxyz_d
 
   subroutine dudxyz_field(du, u, dr, ds, dt, coef)
-    type(coef_t), intent(in), target :: coef
+    type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: du
     type(field_t), intent(in) :: u, dr, ds, dt
 
@@ -863,13 +863,17 @@ contains
     real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
+    type(c_ptr) :: vx_d, vy_d, vz_d
 
     if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_log%deprecated('Operator: rotate_cyc_r1, implicit device', &
                'v2.0.0', 'Please call rotate_cyc_d instead.')
 
-          call opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
+          vx_d = device_get_ptr(vx)
+          vy_d = device_get_ptr(vy)
+          vz_d = device_get_ptr(vz)
+          call opr_device_rotate_cyc(vx_d, vy_d, vz_d, idir, coef)
        else
           call opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
        end if
@@ -890,7 +894,7 @@ contains
           vx_d = device_get_ptr(vx)
           vy_d = device_get_ptr(vy)
           vz_d = device_get_ptr(vz)
-          call opr_device_rotate_cyc_r4(vx_d, vy_d, vz_d, idir, coef)
+          call opr_device_rotate_cyc(vx_d, vy_d, vz_d, idir, coef)
        else
           call opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)
        end if
@@ -903,7 +907,7 @@ contains
     type(coef_t), intent(in) :: coef
 
     if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
-       call opr_device_rotate_cyc_r4(vx_d, vy_d, vz_d, idir, coef)
+       call opr_device_rotate_cyc(vx_d, vy_d, vz_d, idir, coef)
     end if
   end subroutine rotate_cyc_d
 
@@ -914,7 +918,7 @@ contains
 
     if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call rotate_cyc_d(vx%x_d, vy%x_d, vz%x_d, idir, coef)
+          call opr_device_rotate_cyc(vx%x_d, vy%x_d, vz%x_d, idir, coef)
        else
           call opr_cpu_rotate_cyc_r4(vx%x, vy%x, vz%x, idir, coef)
        end if
