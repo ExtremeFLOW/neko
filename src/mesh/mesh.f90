@@ -56,7 +56,7 @@ module mesh
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit
   implicit none
   private
 
@@ -256,7 +256,7 @@ contains
        if (this%lgenc) then
           allocate(htable_i4t4_t::this%facet_map)
           select type (fmp => this%facet_map)
-          type is(htable_i4t4_t)
+          type is (htable_i4t4_t)
              call fmp%init(this%nelv, facet_data)
           end select
 
@@ -273,7 +273,7 @@ contains
        if (this%lgenc) then
           allocate(htable_i4t2_t::this%facet_map)
           select type (fmp => this%facet_map)
-          type is(htable_i4t2_t)
+          type is (htable_i4t2_t)
              call fmp%init(this%nelv, facet_data)
           end select
 
@@ -297,7 +297,7 @@ contains
        end if
        allocate(this%point_neigh(this%gdim*this%npts*this%nelv))
        do i = 1, this%gdim*this%npts*this%nelv
-          call this%point_neigh(i)%init(size=4)
+          call this%point_neigh(i)%init(size = 4)
        end do
     end if
 
@@ -353,9 +353,9 @@ contains
 
     if (allocated(this%facet_map)) then
        select type (fmp => this%facet_map)
-       type is(htable_i4t2_t)
+       type is (htable_i4t2_t)
           call fmp%free()
-       type is(htable_i4t4_t)
+       type is (htable_i4t4_t)
           call fmp%free()
        end select
        deallocate(this%facet_map)
@@ -432,23 +432,23 @@ contains
           u = this%elements(e)%e%pts(2)%p%x - this%elements(e)%e%pts(1)%p%x
           v = this%elements(e)%e%pts(3)%p%x - this%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2)
-          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
        else
           this%dfrmd_el(e) = .false.
           u = this%elements(e)%e%pts(2)%p%x - this%elements(e)%e%pts(1)%p%x
           v = this%elements(e)%e%pts(3)%p%x - this%elements(e)%e%pts(1)%p%x
           w = this%elements(e)%e%pts(5)%p%x - this%elements(e)%e%pts(1)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
-          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
-          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
           u = this%elements(e)%e%pts(7)%p%x - this%elements(e)%e%pts(8)%p%x
           v = this%elements(e)%e%pts(6)%p%x - this%elements(e)%e%pts(8)%p%x
           w = this%elements(e)%e%pts(4)%p%x - this%elements(e)%e%pts(8)%p%x
           temp = u(1)*v(1) + u(2)*v(2) + u(3)*v(3)
-          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
           temp = u(1)*w(1) + u(2)*w(2) + u(3)*w(3)
-          if(.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
+          if (.not. abscmp(temp, 0d0)) this%dfrmd_el(e) = .true.
        end if
     end do
   end subroutine mesh_generate_flags
@@ -480,7 +480,7 @@ contains
     !If we generate connectivity, we do that here.
     do el = 1, this%nelv
        ep => this%elements(el)%e
-       select type(ep)
+       select type (ep)
        type is (hex_t)
           do i = 1, NEKO_HEX_NPTS
              !Only for getting the id
@@ -537,7 +537,7 @@ contains
     !! that both odd and even sides are marked
     !! @todo These loop nests needs a lot of love...
     select type (fmp => this%facet_map)
-    type is(htable_i4t2_t)
+    type is (htable_i4t2_t)
        do k = 1, 2
           do i = 1, this%nelv
              el_glb_idx = i + this%offset_el
@@ -552,15 +552,15 @@ contains
                    !if element is already recognized on face
                    if (facet_data%x(1) .eq. el_glb_idx ) then
                       this%facet_neigh(j, i) = facet_data%x(2)
-                   else if( facet_data%x(2) .eq. el_glb_idx) then
+                   else if (facet_data%x(2) .eq. el_glb_idx) then
                       this%facet_neigh(j, i) = facet_data%x(1)
                       !if this is the second element, arrange so low id is first
-                   else if(facet_data%x(1) .gt. el_glb_idx) then
+                   else if (facet_data%x(1) .gt. el_glb_idx) then
                       facet_data%x(2) = facet_data%x(1)
                       facet_data%x(1) = el_glb_idx
                       this%facet_neigh(j, i) = facet_data%x(2)
                       call fmp%set(edge, facet_data)
-                   else if(facet_data%x(1) .lt. el_glb_idx) then
+                   else if (facet_data%x(1) .lt. el_glb_idx) then
                       facet_data%x(2) = el_glb_idx
                       this%facet_neigh(j, i) = facet_data%x(1)
                       call fmp%set(edge, facet_data)
@@ -573,7 +573,7 @@ contains
              end do
           end do
        end do
-    type is(htable_i4t4_t)
+    type is (htable_i4t4_t)
 
        do k = 1, 2
           do i = 1, this%nelv
@@ -581,7 +581,7 @@ contains
              do j = 1, n_sides
                 call this%elements(i)%e%facet_id(face, j)
 
-                facet_data%x = (/ 0, 0/)
+                facet_data%x = [0, 0]
 
                 !check it this face has shown up earlier
                 if (fmp%get(face, facet_data) .eq. 0) then
@@ -595,15 +595,15 @@ contains
                          this%facet_neigh(j, i) = facet_data%x(1)
                          call fmp%set(face, facet_data)
                       end if
-                   else if( facet_data%x(2) .eq. el_glb_idx) then
+                   else if (facet_data%x(2) .eq. el_glb_idx) then
                       this%facet_neigh(j, i) = facet_data%x(1)
                       !if this is the second element, arrange so low id is first
-                   else if(facet_data%x(1) .gt. el_glb_idx) then
+                   else if (facet_data%x(1) .gt. el_glb_idx) then
                       facet_data%x(2) = facet_data%x(1)
                       facet_data%x(1) = el_glb_idx
                       this%facet_neigh(j, i) = facet_data%x(2)
                       call fmp%set(face, facet_data)
-                   else if(facet_data%x(1) .lt. el_glb_idx) then
+                   else if (facet_data%x(1) .lt. el_glb_idx) then
                       facet_data%x(2) = el_glb_idx
                       this%facet_neigh(j, i) = facet_data%x(1)
                       call fmp%set(face, facet_data)
@@ -643,7 +643,7 @@ contains
        end do
 
        allocate(this%neigh_order(neigh_order%size()))
-       select type(order => neigh_order%data)
+       select type (order => neigh_order%data)
        type is (integer)
           do i = 1, neigh_order%size()
              this%neigh_order(i) = order(i)
@@ -748,21 +748,21 @@ contains
           call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
 
           select type (fmp => this%facet_map)
-          type is(htable_i4t2_t)
+          type is (htable_i4t2_t)
              do j = 1, n_recv, n_nodes + 2
                 neigh_el = recv_buffer(j)
                 recv_side = recv_buffer(j+1)
 
-                edge = (/ recv_buffer(j+2), recv_buffer(j+3) /)
+                edge = [recv_buffer(j+2), recv_buffer(j+3)]
 
-                facet_data = (/ 0, 0 /)
+                facet_data = [0, 0]
                 !Check if the face is present on this PE
                 if (fmp%get(edge, facet_data) .eq. 0) then
                    element = facet_data%x(1) - this%offset_el
                    !Check which side is connected
                    do l = 1, n_sides
                       call this%elements(element)%e%facet_id(edge2, l)
-                      if(edge2 .eq. edge) then
+                      if (edge2 .eq. edge) then
                          facet = l
                          exit
                       end if
@@ -784,16 +784,16 @@ contains
                 end if
 
              end do
-          type is(htable_i4t4_t)
+          type is (htable_i4t4_t)
              do j = 1, n_recv, n_nodes + 2
                 neigh_el = recv_buffer(j)
                 recv_side = recv_buffer(j+1)
 
-                face%x = (/ recv_buffer(j+2), recv_buffer(j+3), &
-                     recv_buffer(j+4), recv_buffer(j+5) /)
+                face%x = [recv_buffer(j+2), recv_buffer(j+3), &
+                     recv_buffer(j+4), recv_buffer(j+5)]
 
 
-                facet_data%x = (/ 0, 0 /)
+                facet_data%x = [0, 0]
 
                 !Check if the face is present on this PE
                 if (fmp%get(face, facet_data) .eq. 0) then
@@ -801,7 +801,7 @@ contains
                    element = facet_data%x(1) - this%offset_el
                    do l = 1, 6
                       call this%elements(element)%e%facet_id(face2, l)
-                      if(face2 .eq. face) then
+                      if (face2 .eq. face) then
                          facet = l
                          exit
                       end if
@@ -954,7 +954,7 @@ contains
     num_edge_loc = 0
 
     call it%init(this%hte)
-    do while(it%next())
+    do while (it%next())
        edge => it%key()
        if (this%hte%get(edge, id) .ne. 0) then
           call neko_error('Invalid edge key in mesh_generate_edge_conn')
@@ -1004,7 +1004,8 @@ contains
 
     ! Construct global numbering of locally owned edges
     do i = 1, num_edge_loc
-       call this%ddata%set_local_to_global_edge(non_shared_edges(i), edge_offset)
+       call this%ddata%set_local_to_global_edge(non_shared_edges(i), &
+            edge_offset)
        edge_offset = edge_offset + 1
     end do
 
@@ -1032,7 +1033,7 @@ contains
           ! We should use the %array() procedure, which works great for
           ! GNU, Intel and NEC, but it breaks horribly on Cray when using
           ! certain data types
-          select type(sbarray=>send_buff%data)
+          select type (sbarray => send_buff%data)
           type is (integer(i8))
              call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER8, &
                   dst, 0, NEKO_COMM, send_req, ierr)
@@ -1117,7 +1118,7 @@ contains
           ! We should use the %array() procedure, which works great for
           ! GNU, Intel and NEC, but it breaks horribly on Cray when using
           ! certain data types
-          select type(sbarray=>send_buff%data)
+          select type (sbarray => send_buff%data)
           type is (integer(i8))
              call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER8, &
                   dst, 0, NEKO_COMM, send_req, ierr)
@@ -1209,8 +1210,8 @@ contains
              call this%ddata%set_local_to_global_facet(id, facet_offset)
              facet_offset = facet_offset + 1
           else
-             select type(fmp => this%facet_map)
-             type is(htable_i4t2_t)
+             select type (fmp => this%facet_map)
+             type is (htable_i4t2_t)
                 if (fmp%get(edge, facet_data) .eq. 0) then
                    if (facet_data%x(2) .lt. 0) then
                       if (abs(facet_data%x(2)) .lt. (this%offset_el + 1)) then
@@ -1235,8 +1236,8 @@ contains
              call this%ddata%set_local_to_global_facet(id, facet_offset)
              facet_offset = facet_offset + 1
           else
-             select type(fmp => this%facet_map)
-             type is(htable_i4t4_t)
+             select type (fmp => this%facet_map)
+             type is (htable_i4t4_t)
                 if (fmp%get(face, facet_data) .eq. 0) then
                    if (facet_data%x(2) .lt. 0) then
                       if (abs(facet_data%x(2)) .lt. (this%offset_el + 1)) then
@@ -1352,7 +1353,7 @@ contains
           if (this%gdim .eq. 2) then
              do j = 1, n_recv, 3
 
-                recv_edge = (/recv_buff(j), recv_buff(j+1)/)
+                recv_edge = [recv_buff(j), recv_buff(j+1)]
 
                 ! Check if the PE has the shared edge
                 if (edge_ghost%get(recv_edge, id) .eq. 0) then
@@ -1362,8 +1363,8 @@ contains
           else
              do j = 1, n_recv, 5
 
-                recv_face = (/recv_buff(j), recv_buff(j+1), &
-                     recv_buff(j+2), recv_buff(j+3) /)
+                recv_face = [recv_buff(j), recv_buff(j+1), &
+                     recv_buff(j+2), recv_buff(j+3)]
 
                 ! Check if the PE has the shared face
                 if (face_ghost%get(recv_face, id) .eq. 0) then
@@ -1576,12 +1577,12 @@ contains
     type(tuple4_i4_t) :: t
     type(tuple_i4_t) :: t2
 
-    select type(ele => this%elements(e)%e)
-    type is(hex_t)
-       call ele%facet_order(t,f)
+    select type (ele => this%elements(e)%e)
+    type is (hex_t)
+       call ele%facet_order(t, f)
        pids = t%x
-    type is(quad_t)
-       call ele%facet_order(t2,f)
+    type is (quad_t)
+       call ele%facet_order(t2, f)
        pids(1) = t2%x(1)
        pids(2) = t2%x(2)
        pids(3) = 0
@@ -1627,15 +1628,15 @@ contains
        e = this%periodic%facet_el(i)%x(2)
        f = this%periodic%facet_el(i)%x(1)
        org_ids = this%periodic%org_ids(i)%x
-       select type(ele => this%elements(e)%e)
-       type is(hex_t)
+       select type (ele => this%elements(e)%e)
+       type is (hex_t)
           do j = 1, 4
-             pi => ele%pts(face_nodes(j,f))%p
+             pi => ele%pts(face_nodes(j, f))%p
              call pi%set_id(org_ids(j))
           end do
-       type is(quad_t)
+       type is (quad_t)
           do j = 1, 2
-             pi => ele%pts(edge_nodes(j,f))%p
+             pi => ele%pts(edge_nodes(j, f))%p
              call pi%set_id(org_ids(j))
           end do
        end select
@@ -1669,21 +1670,21 @@ contains
          3,4 ],&
          [2,4])
 
-    select type(ele => this%elements(e)%e)
-    type is(hex_t)
-       select type(elp => this%elements(pe)%e)
-       type is(hex_t)
+    select type (ele => this%elements(e)%e)
+    type is (hex_t)
+       select type (elp => this%elements(pe)%e)
+       type is (hex_t)
           L = 0d0
           do i = 1, 4
-             L = L + ele%pts(face_nodes(i,f))%p%x(1:3) - &
-                  elp%pts(face_nodes(i,pf))%p%x(1:3)
+             L = L + ele%pts(face_nodes(i, f))%p%x(1:3) - &
+                  elp%pts(face_nodes(i, pf))%p%x(1:3)
           end do
           L = L/4
           do i = 1, 4
-             pi => ele%pts(face_nodes(i,f))%p
+             pi => ele%pts(face_nodes(i, f))%p
              match = 0
              do j = 1, 4
-                pj => elp%pts(face_nodes(j,pf))%p
+                pj => elp%pts(face_nodes(j, pf))%p
                 if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
                    id = min(pi%id(), pj%id())
                    call pi%set_id(id)
@@ -1699,19 +1700,19 @@ contains
              end if
           end do
        end select
-    type is(quad_t)
-       select type(elp => this%elements(pe)%e)
-       type is(quad_t)
+    type is (quad_t)
+       select type (elp => this%elements(pe)%e)
+       type is (quad_t)
           L = 0d0
           do i = 1, 2
-             L = L + ele%pts(edge_nodes(i,f))%p%x(1:3) - &
-                  elp%pts(edge_nodes(i,pf))%p%x(1:3)
+             L = L + ele%pts(edge_nodes(i, f))%p%x(1:3) - &
+                  elp%pts(edge_nodes(i, pf))%p%x(1:3)
           end do
           L = L/2
           do i = 1, 2
-             pi => ele%pts(edge_nodes(i,f))%p
+             pi => ele%pts(edge_nodes(i, f))%p
              do j = 1, 2
-                pj => elp%pts(edge_nodes(j,pf))%p
+                pj => elp%pts(edge_nodes(j, pf))%p
                 !whatabout thie tolerance?
                 if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
                    id = min(pi%id(), pj%id())
@@ -1746,10 +1747,10 @@ contains
          1,2,4,3,&
          5,6,8,7],&
          [4,6])
-    select type(ele => this%elements(e)%e)
-    type is(hex_t)
+    select type (ele => this%elements(e)%e)
+    type is (hex_t)
        do i = 1, 4
-          pi => ele%pts(face_nodes(i,f))%p
+          pi => ele%pts(face_nodes(i, f))%p
           call pi%set_id(pids(i))
           call this%add_point(pi, id)
           p_local_idx = this%get_local(this%points(id))

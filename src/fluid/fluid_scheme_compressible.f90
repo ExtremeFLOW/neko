@@ -377,7 +377,8 @@ contains
   !> @param this The compressible fluid scheme object
   !> @param params The case parameter file
   !> @param user The user interface
-  subroutine fluid_scheme_compressible_set_material_properties(this, params, user)
+  subroutine fluid_scheme_compressible_set_material_properties(this, &
+       params, user)
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(user_t), target, intent(in) :: user

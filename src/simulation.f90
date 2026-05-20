@@ -77,7 +77,7 @@ contains
     ! Write the initial logging message
     call neko_log%section('Starting simulation')
     write(log_buf, '(A, E15.7,A,E15.7,A)') &
-         'T  : [', C%time%t, ',', C%time%end_time, ']'
+         'T  : [', C%time%t, ', ', C%time%end_time, ']'
     call neko_log%message(log_buf)
     if (.not. dt_controller%is_variable_dt) then
        write(log_buf, '(A, E15.7)') 'dt :  ', C%time%dt

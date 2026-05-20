@@ -32,10 +32,10 @@
 !
 !> Device implementation of compressible flow operations
 module compressible_ops_device
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use field, only: field_t
-  use utils, only: neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use num_types, only : rp, c_rp
+  use field, only : field_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -380,18 +380,22 @@ module compressible_ops_device
 contains
 
   !> Compute maximum wave speed for compressible flows on device
-  subroutine compressible_ops_device_compute_max_wave_speed(max_wave_speed, u, v, w, gamma, p, rho, n)
+  subroutine compressible_ops_device_compute_max_wave_speed(max_wave_speed, &
+       u, v, w, gamma, p, rho, n)
     integer, intent(in) :: n
     real(kind=rp), intent(in) :: gamma
     type(field_t), intent(inout) :: max_wave_speed
     type(field_t), intent(in) :: u, v, w, p, rho
 
 #ifdef HAVE_HIP
-    call hip_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
+    call hip_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, &
+         w%x_d, gamma, p%x_d, rho%x_d, n)
 #elif HAVE_CUDA
-    call cuda_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
+    call cuda_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, &
+         w%x_d, gamma, p%x_d, rho%x_d, n)
 #elif HAVE_OPENCL
-    call opencl_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
+    call opencl_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, &
+         w%x_d, gamma, p%x_d, rho%x_d, n)
 #else
     call neko_error('No device backend configured')
 #endif

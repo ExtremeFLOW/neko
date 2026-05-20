@@ -147,7 +147,8 @@ contains
     call neko_scratch_registry%request_field(temp_u, tmp_indices(27), .false.)
     call neko_scratch_registry%request_field(temp_v, tmp_indices(28), .false.)
     call neko_scratch_registry%request_field(temp_w, tmp_indices(29), .false.)
-    call neko_scratch_registry%request_field(temp_ruvw, tmp_indices(30), .false.)
+    call neko_scratch_registry%request_field(temp_ruvw, tmp_indices(30), &
+         .false.)
 
     ! Initialize Runge-Kutta stage variables for each conserved quantity
     call k_rho%init(4)
@@ -478,7 +479,8 @@ contains
     call neko_scratch_registry%request_field(f_y, tmp_indices(17), .false.)
     call neko_scratch_registry%request_field(f_z, tmp_indices(18), .false.)
     call neko_scratch_registry%request_field(div_flux, tmp_indices(19), .false.)
-    call neko_scratch_registry%request_field(dissipation, tmp_indices(20), .false.)
+    call neko_scratch_registry%request_field(dissipation, tmp_indices(20), &
+         .false.)
 
     call grad(dudx%x, dudy%x, dudz%x, u%x, coef)
     call grad(dvdx%x, dvdy%x, dvdz%x, v%x, coef)

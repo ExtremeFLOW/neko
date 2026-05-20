@@ -37,7 +37,7 @@ module euler_res_device
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use num_types, only : rp, c_rp
-  use scratch_registry, only: neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use operators, only : div, grad, opgrad, rotate_cyc
@@ -374,16 +374,21 @@ contains
     call neko_scratch_registry%request_field(k_E_2, temp_indices(18), .true.)
     call neko_scratch_registry%request_field(k_E_3, temp_indices(19), .true.)
     call neko_scratch_registry%request_field(k_E_4, temp_indices(20), .true.)
-    call neko_scratch_registry%request_field(temp_rho, temp_indices(21), .false.)
-    call neko_scratch_registry%request_field(temp_m_x, temp_indices(22), .false.)
-    call neko_scratch_registry%request_field(temp_m_y, temp_indices(23), .false.)
-    call neko_scratch_registry%request_field(temp_m_z, temp_indices(24), .false.)
+    call neko_scratch_registry%request_field(temp_rho, temp_indices(21), &
+         .false.)
+    call neko_scratch_registry%request_field(temp_m_x, temp_indices(22), &
+         .false.)
+    call neko_scratch_registry%request_field(temp_m_y, temp_indices(23), &
+         .false.)
+    call neko_scratch_registry%request_field(temp_m_z, temp_indices(24), &
+         .false.)
     call neko_scratch_registry%request_field(temp_E, temp_indices(25), .false.)
     call neko_scratch_registry%request_field(temp_p, temp_indices(26), .false.)
     call neko_scratch_registry%request_field(temp_u, temp_indices(27), .false.)
     call neko_scratch_registry%request_field(temp_v, temp_indices(28), .false.)
     call neko_scratch_registry%request_field(temp_w, temp_indices(29), .false.)
-    call neko_scratch_registry%request_field(temp_ruvw, temp_indices(30), .false.)
+    call neko_scratch_registry%request_field(temp_ruvw, temp_indices(30), &
+         .false.)
 
     call k_rho%init(4)
     call k_rho%assign(1, k_rho_1)
@@ -425,21 +430,24 @@ contains
 
        do j = 1, i-1
 #ifdef HAVE_HIP
-          call euler_res_part_rk_sum_hip(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
-               temp_m_z%x_d, temp_E%x_d, &
-               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
+          call euler_res_part_rk_sum_hip(temp_rho%x_d, temp_m_x%x_d, &
+               temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
+               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
+               k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_CUDA
-          call euler_res_part_rk_sum_cuda(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
-               temp_m_z%x_d, temp_E%x_d, &
-               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
+          call euler_res_part_rk_sum_cuda(temp_rho%x_d, temp_m_x%x_d, &
+               temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
+               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
+               k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_OPENCL
-          call euler_res_part_rk_sum_opencl(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
-               temp_m_z%x_d, temp_E%x_d, &
-               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
+          call euler_res_part_rk_sum_opencl(temp_rho%x_d, temp_m_x%x_d, &
+               temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
+               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
+               k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #endif
@@ -470,19 +478,22 @@ contains
 #ifdef HAVE_HIP
        call euler_res_part_rk_sum_hip(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
-            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
+            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
+            k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_CUDA
        call euler_res_part_rk_sum_cuda(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
-            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
+            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
+            k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_OPENCL
        call euler_res_part_rk_sum_opencl(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
-            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
+            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
+            k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #endif
@@ -495,7 +506,8 @@ contains
        rhs_m_z, rhs_E, rho_field, &
        m_x, m_y, m_z, E, p, u, v, w, Ax, &
        Ax_stress, coef, gs, h, artificial_visc, mu, kappa)
-    type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
+    type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, &
+         rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax, Ax_stress
@@ -702,7 +714,8 @@ contains
     call neko_scratch_registry%request_field(f_x, temp_indices(10), .false.)
     call neko_scratch_registry%request_field(f_y, temp_indices(11), .false.)
     call neko_scratch_registry%request_field(f_z, temp_indices(12), .false.)
-    call neko_scratch_registry%request_field(div_flux, temp_indices(13), .false.)
+    call neko_scratch_registry%request_field(div_flux, temp_indices(13), &
+         .false.)
     call neko_scratch_registry%request_field(dissipation, temp_indices(14), &
          .false.)
 

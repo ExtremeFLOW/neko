@@ -57,7 +57,8 @@ module entropy_viscosity
        entropy_viscosity_apply_element_max_cpu, &
        entropy_viscosity_clamp_to_low_order_cpu, &
        entropy_viscosity_smooth_divide_cpu
-  use entropy_viscosity_device, only : entropy_viscosity_compute_residual_device, &
+  use entropy_viscosity_device, only : &
+       entropy_viscosity_compute_residual_device, &
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
@@ -84,11 +85,16 @@ module entropy_viscosity
      procedure, pass(this) :: free => entropy_viscosity_free
      procedure, pass(this) :: compute => entropy_viscosity_compute
      procedure, pass(this) :: update_lag => entropy_viscosity_update_lag
-     procedure, pass(this), private :: compute_residual => entropy_viscosity_compute_residual
-     procedure, pass(this), private :: compute_viscosity => entropy_viscosity_compute_viscosity
-     procedure, pass(this), private :: smooth_viscosity => entropy_viscosity_smooth_viscosity
-     procedure, pass(this), private :: apply_element_max => entropy_viscosity_apply_element_max
-     procedure, pass(this), private :: low_order_viscosity => entropy_viscosity_low_order
+     procedure, pass(this), private :: compute_residual => &
+          entropy_viscosity_compute_residual
+     procedure, pass(this), private :: compute_viscosity => &
+          entropy_viscosity_compute_viscosity
+     procedure, pass(this), private :: smooth_viscosity => &
+          entropy_viscosity_smooth_viscosity
+     procedure, pass(this), private :: apply_element_max => &
+          entropy_viscosity_apply_element_max
+     procedure, pass(this), private :: low_order_viscosity => &
+          entropy_viscosity_low_order
   end type entropy_viscosity_t
 
   public :: entropy_viscosity_set_fields
@@ -105,7 +111,8 @@ contains
     call this%init_base(json, coef, dof, reg_coeff)
 
     call json_get_or_default(json, 'c_avisc_low', this%c_avisc_low, 1.0_rp)
-    call json_get_or_default(json, 'c_avisc_entropy', this%c_avisc_entropy, 1.0_rp)
+    call json_get_or_default(json, 'c_avisc_entropy', &
+         this%c_avisc_entropy, 1.0_rp)
 
     call this%entropy_residual%init(dof, 'entropy_residual')
 
@@ -195,7 +202,8 @@ contains
     call neko_scratch_registry%request_field(us_field, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(vs_field, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(ws_field, temp_indices(3), .false.)
-    call neko_scratch_registry%request_field(div_field, temp_indices(4), .false.)
+    call neko_scratch_registry%request_field(div_field, temp_indices(4), &
+         .false.)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col3(us_field%x_d, this%u%x_d, this%S%x_d, n)
@@ -246,7 +254,8 @@ contains
        return
     end if
 
-    call neko_scratch_registry%request_field(temp_field, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(temp_field, temp_indices(1), &
+         .false.)
 
     call field_cfill(temp_field, 1.0_rp, n)
     S_mean = field_glsum(this%S, n) / field_glsum(temp_field, n)
@@ -309,8 +318,10 @@ contains
 
     n = this%dof%size()
 
-    call neko_scratch_registry%request_field(temp_field, temp_indices(1), .false.)
-    call neko_scratch_registry%request_field(mult_field, temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(temp_field, temp_indices(1), &
+         .false.)
+    call neko_scratch_registry%request_field(mult_field, temp_indices(2), &
+         .false.)
 
     call field_copy(temp_field, this%reg_coeff, n)
     call this%gs%op(temp_field, GS_OP_ADD)

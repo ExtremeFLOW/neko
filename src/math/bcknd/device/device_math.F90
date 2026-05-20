@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_math
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use num_types, only : rp, c_rp
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
@@ -40,9 +40,51 @@ module device_math
   ! ========================================================================== !
   ! Device math interfaces
 
-  use hip_math
-  use cuda_math
-  use opencl_math
+  use hip_math, only : hip_absval, hip_add2, hip_add2s1, hip_add2s2, &
+       hip_add2s2_many, hip_add3, hip_add3s2, hip_add4, hip_add4s3, &
+       hip_add5s4, hip_addcol3, hip_addcol3s2, hip_addcol4, &
+       hip_addsqr2s2, hip_cadd2, hip_cdiv, hip_cdiv2, hip_cfill, &
+       hip_cfill_mask, hip_cmult, hip_cmult2, hip_col2, hip_col3, &
+       hip_copy, hip_cwrap, hip_face_masked_gather_copy, hip_glmax, &
+       hip_glmin, hip_glsc2, hip_glsc3, hip_glsc3_many, hip_glsubnorm2, &
+       hip_glsum, hip_iadd, hip_invcol1, hip_invcol2, hip_invcol3, &
+       hip_masked_atomic_reduction, hip_masked_copy, hip_masked_gather_copy, &
+       hip_masked_gather_copy_aligned, hip_masked_scatter_copy, &
+       hip_masked_scatter_copy_aligned, hip_pwmax_sca2, hip_pwmax_sca3, &
+       hip_pwmax_vec2, hip_pwmax_vec3, hip_pwmin_sca2, hip_pwmin_sca3, &
+       hip_pwmin_vec2, hip_pwmin_vec3, hip_radd, hip_rzero, hip_sub2, &
+       hip_sub3, hip_subcol3, hip_vcross, hip_vdot3, hip_vlsc3
+  use cuda_math, only : cuda_absval, cuda_add2, cuda_add2s1, cuda_add2s2, &
+       cuda_add2s2_many, cuda_add3, cuda_add3s2, cuda_add4, cuda_add4s3, &
+       cuda_add5s4, cuda_addcol3, cuda_addcol3s2, cuda_addcol4, &
+       cuda_addsqr2s2, cuda_cadd2, cuda_cdiv, cuda_cdiv2, cuda_cfill, &
+       cuda_cfill_mask, cuda_cmult, cuda_cmult2, cuda_col2, cuda_col3, &
+       cuda_copy, cuda_cwrap, cuda_face_masked_gather_copy, cuda_glmax, &
+       cuda_glmin, cuda_glsc2, cuda_glsc3, cuda_glsc3_many, &
+       cuda_glsubnorm2, cuda_glsum, cuda_iadd, cuda_invcol1, cuda_invcol2, &
+       cuda_invcol3, cuda_masked_atomic_reduction, cuda_masked_copy, &
+       cuda_masked_gather_copy, cuda_masked_gather_copy_aligned, &
+       cuda_masked_scatter_copy, cuda_masked_scatter_copy_aligned, &
+       cuda_pwmax_sca2, cuda_pwmax_sca3, cuda_pwmax_vec2, cuda_pwmax_vec3, &
+       cuda_pwmin_sca2, cuda_pwmin_sca3, cuda_pwmin_vec2, cuda_pwmin_vec3, &
+       cuda_radd, cuda_rzero, cuda_sub2, cuda_sub3, cuda_subcol3, &
+       cuda_vcross, cuda_vdot3, cuda_vlsc3
+  use opencl_math, only : opencl_absval, opencl_add2, opencl_add2s1, &
+       opencl_add2s2, opencl_add2s2_many, opencl_add3, opencl_add3s2, &
+       opencl_add4, opencl_add4s3, opencl_add5s4, opencl_addcol3, &
+       opencl_addcol3s2, opencl_addcol4, opencl_addsqr2s2, opencl_cadd2, &
+       opencl_cdiv, opencl_cdiv2, opencl_cfill, opencl_cfill_mask, &
+       opencl_cmult, opencl_cmult2, opencl_col2, opencl_col3, opencl_copy, &
+       opencl_cwrap, opencl_face_masked_gather_copy, opencl_glmax, &
+       opencl_glmin, opencl_glsc2, opencl_glsc3, opencl_glsc3_many, &
+       opencl_glsubnorm2, opencl_glsum, opencl_iadd, opencl_invcol1, &
+       opencl_invcol2, opencl_invcol3, opencl_masked_copy, &
+       opencl_masked_gather_copy, opencl_masked_gather_copy_aligned, &
+       opencl_masked_scatter_copy, opencl_masked_scatter_copy_aligned, &
+       opencl_pwmax_sca2, opencl_pwmax_sca3, opencl_pwmax_vec2, &
+       opencl_pwmax_vec3, opencl_pwmin_sca2, opencl_pwmin_sca3, &
+       opencl_pwmin_vec2, opencl_pwmin_vec3, opencl_radd, opencl_rzero, &
+       opencl_sub2, opencl_sub3, opencl_subcol3, opencl_vcross, opencl_vdot3
 
   implicit none
   private
@@ -181,7 +223,8 @@ contains
 
   !> Gather a masked vector \f$ a(i) = b(mask(i)) \f$.
   ! In this case, the mask comes from a mask_t type
-  subroutine device_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_gather_copy_aligned(a_d, b_d, mask_d, n, &
+       n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
@@ -234,7 +277,8 @@ contains
 
   !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
   ! In this case, the mask comes from a mask_t type
-  subroutine device_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)
+  subroutine device_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, &
+       n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
     type(c_ptr), optional :: strm
