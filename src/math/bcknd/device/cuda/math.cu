@@ -661,6 +661,7 @@ extern "C" {
   int red_s = 0;
   real * bufred = NULL;
   void * bufred_d = NULL;
+  int red_xp_s = 0;
   real_xp * bufred_xp = NULL;
   void * bufred_xp_d = NULL;
 
@@ -672,23 +673,40 @@ extern "C" {
       red_s = nb+1;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
-        CUDA_CHECK(cudaFreeHost(bufred_xp));
 #ifdef HAVE_NVSHMEM
         nvshmem_free(bufred_d);
-        nvshmem_free(bufred_xp_d);
 #else
         CUDA_CHECK(cudaFree(bufred_d));
-        CUDA_CHECK(cudaFree(bufred_xp_d));
 #endif
       }
       CUDA_CHECK(cudaMallocHost(&bufred,red_s*sizeof(real)));
-      CUDA_CHECK(cudaMallocHost(&bufred_xp,red_s*sizeof(real_xp)));
 #ifdef HAVE_NVSHMEM
       bufred_d = (real *) nvshmem_malloc(red_s*sizeof(real));
-      bufred_xp_d = (real_xp *) nvshmem_malloc(red_s*sizeof(real_xp));
 #else
       CUDA_CHECK(cudaMalloc(&bufred_d, red_s*sizeof(real)));
-      CUDA_CHECK(cudaMalloc(&bufred_xp_d, red_s*sizeof(real_xp)));
+#endif
+    }
+  }
+
+  /**
+   *Checks and allocates a buffer of size nb*sizeof(real_xp) for reductions
+  */
+  void cuda_redbuf_check_alloc_xp(int nb) {
+    if ( nb >= red_xp_s) {
+      red_xp_s = nb+1;
+      if (bufred_xp != NULL) {
+        CUDA_CHECK(cudaFreeHost(bufred_xp));
+#ifdef HAVE_NVSHMEM
+        nvshmem_free(bufred_xp_d);
+#else
+        CUDA_CHECK(cudaFree(bufred_xp_d));
+#endif
+      }
+      CUDA_CHECK(cudaMallocHost(&bufred_xp, red_xp_s*sizeof(real_xp)));
+#ifdef HAVE_NVSHMEM
+      bufred_xp_d = (real_xp *) nvshmem_malloc(red_xp_s*sizeof(real_xp));
+#else
+      CUDA_CHECK(cudaMalloc(&bufred_xp_d, red_xp_s*sizeof(real_xp)));
 #endif
     }
   }
@@ -996,7 +1014,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
-    cuda_redbuf_check_alloc(nb);
+    cuda_redbuf_check_alloc_xp(nb);
     if ( *n > 0) {
       glsum_kernel<real>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
@@ -1006,7 +1024,7 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      CUDA_CHECK(cudaMemsetAsync(bufred_xp_d, 0, red_s * sizeof(real_xp), stream));
+      CUDA_CHECK(cudaMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
     }
 
     cuda_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
