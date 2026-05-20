@@ -74,9 +74,23 @@ module operators
        lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
        rotate_cyc
 
+  interface dudxyz
+     module procedure dudxyz_r4
+     module procedure dudxyz_d
+     module procedure dudxyz_field
+  end interface dudxyz
+
+  interface cfl
+     module procedure cfl_r4
+     module procedure cfl_d
+     module procedure cfl_field
+  end interface cfl
+
   interface rotate_cyc
      module procedure rotate_cyc_r1
      module procedure rotate_cyc_r4
+     module procedure rotate_cyc_d
+     module procedure rotate_cyc_field
   end interface rotate_cyc
 
 contains
@@ -88,24 +102,60 @@ contains
   !! @param ds The derivative of s with respect to the chosen direction.
   !! @param dt The derivative of t with respect to the chosen direction.
   !! @param coef The SEM coefficients.
-  subroutine dudxyz (du, u, dr, ds, dt, coef)
+  subroutine dudxyz_r4(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
     real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv), intent(inout) :: du
     real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          coef%msh%nelv), intent(in) :: u, dr, ds, dt
+    type(c_ptr) :: du_d, u_d, dr_d, ds_d, dt_d
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_dudxyz(du, u, dr, ds, dt, coef)
+       call neko_log%deprecated('Operator: dudxyz_r4, implicit device', &
+            'v2.0.0', 'Please call dudxyz_d instead.')
+
+       du_d = device_get_ptr(du)
+       u_d = device_get_ptr(u)
+       dr_d = device_get_ptr(dr)
+       ds_d = device_get_ptr(ds)
+       dt_d = device_get_ptr(dt)
+
+       call opr_device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
     else
        call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     end if
 
-  end subroutine dudxyz
+  end subroutine dudxyz_r4
+
+  subroutine dudxyz_d(du_d, u_d, dr_d, ds_d, dt_d, coef)
+    type(coef_t), intent(in), target :: coef
+    type(c_ptr), intent(inout) :: du_d
+    type(c_ptr), intent(in) :: u_d, dr_d, ds_d, dt_d
+
+    call opr_device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
+
+  end subroutine dudxyz_d
+
+  subroutine dudxyz_field(du, u, dr, ds, dt, coef)
+    type(coef_t), intent(in), target :: coef
+    type(field_t), intent(inout) :: du
+    type(field_t), intent(in) :: u, dr, ds, dt
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       call opr_sx_dudxyz(du%x, u%x, dr%x, ds%x, dt%x, coef)
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       call opr_xsmm_dudxyz(du%x, u%x, dr%x, ds%x, dt%x, coef)
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+       call dudxyz_d(du%x_d, u%x_d, dr%x_d, ds%x_d, dt%x_d, coef)
+    else
+       call opr_cpu_dudxyz(du%x, u%x, dr%x, ds%x, dt%x, coef)
+    end if
+
+  end subroutine dudxyz_field
 
   !> Compute the divergence of a vector field.
   !! @param res Holds the resulting divergence values.
@@ -130,10 +180,10 @@ contains
     call neko_scratch_registry%request_field(work, ind, .false.)
 
     ! Get dux / dx
-    call dudxyz(res, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz_r4(res, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
 
     ! Get duy / dy
-    call dudxyz(work%x, uy, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz_r4(work%x, uy, coef%drdy, coef%dsdy, coef%dtdy, coef)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(res_d, work%x_d, work%size())
     else
@@ -141,7 +191,7 @@ contains
     end if
 
     ! Get dux / dz
-    call dudxyz(work%x, uz, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz_r4(work%x, uz, coef%drdz, coef%dsdz, coef%dtdz, coef)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(res_d, work%x_d, work%size())
     else
@@ -165,9 +215,9 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
 
-    call dudxyz(ux, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz(uy, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz(uz, u, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz_r4(ux, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz_r4(uy, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz_r4(uz, u, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
   end subroutine grad
 
@@ -429,29 +479,81 @@ contains
   !! @param coef The SEM coefficients.
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
-  function cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+  function cfl_r4(dt, u, v, w, Xh, coef, nelv, gdim)
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(in) :: dt
     real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: u, v, w
-    real(kind=rp) :: cfl
+    real(kind=rp) :: cfl_r4
     integer :: ierr
+    type(c_ptr) :: u_d, v_d, w_d
 
     if (NEKO_BCKND_SX .eq. 1) then
-       cfl = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv)
+       cfl_r4 = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       cfl = opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+       call neko_log%deprecated('Operator: cfl_r4, implicit device', &
+            'v2.0.0', 'Please call cfl_d instead.')
+
+       u_d = device_get_ptr(u)
+       v_d = device_get_ptr(v)
+       w_d = device_get_ptr(w)
+
+       cfl_r4 = cfl_d(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+       return
     else
-       cfl = opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
+       cfl_r4 = opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
     end if
 
     if (.not. NEKO_DEVICE_MPI) then
-       call MPI_Allreduce(MPI_IN_PLACE, cfl, 1, &
+       call MPI_Allreduce(MPI_IN_PLACE, cfl_r4, 1, &
             MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
-  end function cfl
+  end function cfl_r4
+
+  function cfl_d(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: nelv, gdim
+    real(kind=rp), intent(in) :: dt
+    type(c_ptr), intent(in) :: u_d, v_d, w_d
+    real(kind=rp) :: cfl_d
+    integer :: ierr
+
+    cfl_d = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+
+    if (.not. NEKO_DEVICE_MPI) then
+       call MPI_Allreduce(MPI_IN_PLACE, cfl_d, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    end if
+
+  end function cfl_d
+
+  function cfl_field(dt, u, v, w, Xh, coef, nelv, gdim)
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: nelv, gdim
+    real(kind=rp), intent(in) :: dt
+    type(field_t), intent(in) :: u, v, w
+    real(kind=rp) :: cfl_field
+    integer :: ierr
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       cfl_field = opr_sx_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv)
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
+       cfl_field = cfl_d(dt, u%x_d, v%x_d, w%x_d, Xh, coef, nelv, gdim)
+       return
+    else
+       cfl_field = opr_cpu_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv, gdim)
+    end if
+
+    if (.not. NEKO_DEVICE_MPI) then
+       call MPI_Allreduce(MPI_IN_PLACE, cfl_field, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    end if
+
+  end function cfl_field
 
   !! Compute the CFL number for compressible flows
   !! @param dt The timestep.
@@ -513,33 +615,33 @@ contains
     lxyz = u%Xh%lxyz
 
     ! we use s11 as a work array here
-    call dudxyz (s12, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (s11, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz_r4 (s12, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz_r4 (s11, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(s12_d, s11_d, nelv*lxyz)
     else
        call add2(s12, s11, nelv*lxyz)
     end if
 
-    call dudxyz (s13, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-    call dudxyz (s11, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz_r4 (s13, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz_r4 (s11, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(s13_d, s11_d, nelv*lxyz)
     else
        call add2(s13, s11, nelv*lxyz)
     end if
 
-    call dudxyz (s23, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-    call dudxyz (s11, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz_r4 (s23, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz_r4 (s11, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(s23_d, s11_d, nelv*lxyz)
     else
        call add2(s23, s11, nelv*lxyz)
     end if
 
-    call dudxyz (s11, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (s22, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (s33, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz_r4 (s11, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz_r4 (s22, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz_r4 (s33, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cmult(s12_d, 0.5_rp, nelv*lxyz)
@@ -747,6 +849,9 @@ contains
 
     if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_log%deprecated('Operator: rotate_cyc_r1, implicit device', &
+               'v2.0.0', 'Please call rotate_cyc_d instead.')
+
           call opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
        else
           call opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
@@ -758,15 +863,46 @@ contains
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
+    type(c_ptr) :: vx_d, vy_d, vz_d
 
     if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
+          call neko_log%deprecated('Operator: rotate_cyc_r4, implicit device', &
+               'v2.0.0', 'Please call rotate_cyc_d instead.')
+
+          vx_d = device_get_ptr(vx)
+          vy_d = device_get_ptr(vy)
+          vz_d = device_get_ptr(vz)
+          call opr_device_rotate_cyc_r4(vx_d, vy_d, vz_d, idir, coef)
        else
           call opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)
        end if
     end if
   end subroutine rotate_cyc_r4
+
+  subroutine rotate_cyc_d(vx_d, vy_d, vz_d, idir, coef)
+    type(c_ptr), intent(inout) :: vx_d, vy_d, vz_d
+    integer, intent(in) :: idir
+    type(coef_t), intent(in) :: coef
+
+    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
+       call opr_device_rotate_cyc_r4(vx_d, vy_d, vz_d, idir, coef)
+    end if
+  end subroutine rotate_cyc_d
+
+  subroutine rotate_cyc_field(vx, vy, vz, idir, coef)
+    type(field_t), intent(inout) :: vx, vy, vz
+    integer, intent(in) :: idir
+    type(coef_t), intent(in) :: coef
+
+    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call rotate_cyc_d(vx%x_d, vy%x_d, vz%x_d, idir, coef)
+       else
+          call opr_cpu_rotate_cyc_r4(vx%x, vy%x, vz%x, idir, coef)
+       end if
+    end if
+  end subroutine rotate_cyc_field
 
 
 end module operators

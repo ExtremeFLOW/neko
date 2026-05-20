@@ -444,20 +444,10 @@ module opr_device
 
 contains
 
-  subroutine opr_device_dudxyz(du, u, dr, ds, dt, coef)
+  subroutine opr_device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, &
-         coef%Xh%lz, coef%msh%nelv), intent(inout) :: du
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, &
-         coef%Xh%lz, coef%msh%nelv), intent(in) :: u, dr, ds, dt
-    type(c_ptr) :: du_d, u_d, dr_d, ds_d, dt_d
-
-    du_d = device_get_ptr(du)
-    u_d = device_get_ptr(u)
-
-    dr_d = device_get_ptr(dr)
-    ds_d = device_get_ptr(ds)
-    dt_d = device_get_ptr(dt)
+    type(c_ptr), intent(inout) :: du_d
+    type(c_ptr), intent(in) :: u_d, dr_d, ds_d, dt_d
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
@@ -838,20 +828,20 @@ contains
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
 
     if (present(event)) then
-       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
        call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
        call device_event_sync(event)
        call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
        call device_event_sync(event)
        call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
        call device_event_sync(event)
-       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
     else
-       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
        call c_Xh%gs_h%op(w1, GS_OP_ADD)
        call c_Xh%gs_h%op(w2, GS_OP_ADD)
        call c_Xh%gs_h%op(w3, GS_OP_ADD)
-       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
     end if
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
@@ -862,18 +852,13 @@ contains
 
   end subroutine opr_device_curl
 
-  function opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim) result(cfl)
+  function opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim) result(cfl)
     type(space_t) :: Xh
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
+    type(c_ptr), intent(in) :: u_d, v_d, w_d
     real(kind=rp) :: cfl
-    type(c_ptr) :: u_d, v_d, w_d
-
-    u_d = device_get_ptr(u)
-    v_d = device_get_ptr(v)
-    w_d = device_get_ptr(w)
 
 #ifdef HAVE_HIP
     cfl = hip_cfl(dt, u_d, v_d, w_d, &
@@ -936,16 +921,10 @@ contains
 #endif
   end subroutine opr_device_rotate_cyc_r1
 
-  subroutine opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
+  subroutine opr_device_rotate_cyc_r4(vx_d, vy_d, vz_d, idir, coef)
     type(coef_t) :: coef
     integer :: idir, ncyc
-    real(rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: &
-         vx, vy, vz
-    type(c_ptr) :: vx_d, vy_d, vz_d
-
-    vx_d = device_get_ptr(vx)
-    vy_d = device_get_ptr(vy)
-    vz_d = device_get_ptr(vz)
+    type(c_ptr), intent(inout) :: vx_d, vy_d, vz_d
     ncyc = coef%cyc_msk(0) - 1
 
     if (ncyc .le. 0) return
