@@ -54,8 +54,35 @@ heat capacity, \f$ \lambda_{tot} \f$ is the total thermal conductivity, and \f$ 
 
 ## Compressible Flows
 
-Neko supports compressible flow simulations with artificial viscosity for
-stabilization. Physical dynamic viscosity and thermal conductivity can be
+Neko supports compressible flow simulations via the compressible Navier-Stokes
+equations. The current implementation solves the compressible Euler equations
+(inviscid limit). Physical viscosity terms will be added in upcoming updates.
+
+The compressible Euler equations consist of conservation of mass, momentum, and
+energy:
+
+$$\frac{\partial \rho}{\partial t} + 
+  \frac{\partial (\rho u_i)}{\partial x_i} = 0,$$
+
+$$\frac{\partial (\rho u_i)}{\partial t} + 
+  \frac{\partial (\rho u_i u_j)}{\partial x_j} = 
+  -\frac{\partial p}{\partial x_i}, \quad i=1,2,3,$$
+
+$$\frac{\partial E}{\partial t} + 
+  \frac{\partial ((E + p) u_i)}{\partial x_i} = 0.$$
+
+Here, \f$ \rho \f$ is the density, \f$ u_i \f$ are the velocity components,
+\f$ p \f$ is the pressure, and \f$ E \f$ is the total energy per unit volume.
+The total energy is related to the internal energy and kinetic energy by
+
+$$E = \frac{p}{\gamma - 1} + \frac{1}{2} \rho u_i u_i,$$
+
+where \f$ \gamma \f$ is the ratio of specific heats. The system is closed by
+the ideal gas equation of state:
+
+$$p = (\gamma - 1) \left( E - \frac{1}{2} \rho u_i u_i \right).$$
+
+Physical dynamic viscosity and thermal conductivity can be
 specified via the user file `material_properties` interface; if they are not
 specified, they default to zero.
 
