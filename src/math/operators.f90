@@ -241,6 +241,7 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
     integer, optional :: es, ee
     integer :: eblk_start, eblk_end
+    type(c_ptr) :: ux_d, uy_d, uz_d, u_d
 
     if (present(es)) then
        eblk_start = es
@@ -259,7 +260,11 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_opgrad(ux, uy, uz, u, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_opgrad(ux, uy, uz, u, coef)
+       ux_d = device_get_ptr(ux)
+       uy_d = device_get_ptr(uy)
+       uz_d = device_get_ptr(uz)
+       u_d = device_get_ptr(u)
+       call opr_device_opgrad(ux_d, uy_d, uz_d, u_d, coef)
     else
        call opr_cpu_opgrad(ux, uy, uz, u, coef, eblk_start, eblk_end)
     end if
@@ -311,6 +316,7 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
     integer, optional :: es, ee
     integer :: eblk_start, eblk_end
+    type(c_ptr) :: dtx_d, x_d, dr_d, ds_d, dt_d
 
     if (present(es)) then
        eblk_start = es
@@ -329,7 +335,12 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_cdtp(dtx, x, dr, ds, dt, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_cdtp(dtx, x, dr, ds, dt, coef)
+       dtx_d = device_get_ptr(dtx)
+       x_d = device_get_ptr(x)
+       dr_d = device_get_ptr(dr)
+       ds_d = device_get_ptr(ds)
+       dt_d = device_get_ptr(dt)
+       call opr_device_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, coef)
     else
        call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef, eblk_start, eblk_end)
     end if
@@ -356,6 +367,7 @@ contains
     real(kind=rp), intent(in) :: vz(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
     integer, optional :: es, ee
     integer :: eblk_end, eblk_start
+    type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
 
     associate(nelv => coef%msh%nelv, gdim => coef%msh%gdim)
       if (present(es)) then
@@ -375,7 +387,12 @@ contains
       else if (NEKO_BCKND_XSMM .eq. 1) then
          call opr_xsmm_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
       else if (NEKO_BCKND_DEVICE .eq. 1) then
-         call opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+         du_d = device_get_ptr(du)
+         u_d = device_get_ptr(u)
+         vx_d = device_get_ptr(vx)
+         vy_d = device_get_ptr(vy)
+         vz_d = device_get_ptr(vz)
+         call opr_device_conv1(du_d, u_d, vx_d, vy_d, vz_d, Xh, coef, nelv, gdim)
       else
          call opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, eblk_start, eblk_end)
       end if

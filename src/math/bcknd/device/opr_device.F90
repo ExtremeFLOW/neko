@@ -469,19 +469,10 @@ contains
 
   end subroutine opr_device_dudxyz
 
-  subroutine opr_device_opgrad(ux, uy, uz, u, coef)
+  subroutine opr_device_opgrad(ux_d, uy_d, uz_d, u_d, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
-    type(c_ptr) :: ux_d, uy_d, uz_d, u_d
-
-    ux_d = device_get_ptr(ux)
-    uy_d = device_get_ptr(uy)
-    uz_d = device_get_ptr(uz)
-
-    u_d = device_get_ptr(u)
+    type(c_ptr), intent(inout) :: ux_d, uy_d, uz_d
+    type(c_ptr), intent(in) :: u_d
 
     associate(Xh => coef%Xh, msh => coef%msh)
 #ifdef HAVE_HIP
@@ -558,21 +549,10 @@ contains
 #endif
   end subroutine opr_device_lambda2
 
-  subroutine opr_device_cdtp(dtx, x, dr, ds, dt, coef)
+  subroutine opr_device_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
-    type(c_ptr) :: dtx_d, x_d, dr_d, ds_d, dt_d
-
-    dtx_d = device_get_ptr(dtx)
-    x_d = device_get_ptr(x)
-
-    dr_d = device_get_ptr(dr)
-    ds_d = device_get_ptr(ds)
-    dt_d = device_get_ptr(dt)
+    type(c_ptr), intent(inout) :: dtx_d, x_d
+    type(c_ptr), intent(in) :: dr_d, ds_d, dt_d
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
@@ -594,23 +574,12 @@ contains
 
   end subroutine opr_device_cdtp
 
-  subroutine opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+  subroutine opr_device_conv1(du_d, u_d, vx_d, vy_d, vz_d, Xh, coef, nelv, gdim)
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
-    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
-    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
-    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
-    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
-    type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
-
-    du_d = device_get_ptr(du)
-    u_d = device_get_ptr(u)
-
-    vx_d = device_get_ptr(vx)
-    vy_d = device_get_ptr(vy)
-    vz_d = device_get_ptr(vz)
+    type(c_ptr), intent(inout) :: du_d
+    type(c_ptr), intent(in) :: u_d, vx_d, vy_d, vz_d
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
