@@ -1,0 +1,152 @@
+module test_device_array_types
+  use pfunit
+  use device_array, only : device_array_t
+  use num_types, only : rp
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : device_init, device_finalize, device_memcpy, &
+       DEVICE_TO_HOST, HOST_TO_DEVICE
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_device_arrays
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_device_arrays
+
+contains
+
+  subroutine setUp(this)
+    class(test_device_arrays), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_device_arrays), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  @test
+  subroutine test_dev_array_init(this)
+    class(test_device_arrays), intent(inout) :: this
+    type(device_array_t) :: a
+    real(kind=rp), allocatable :: x(:)
+    integer :: i
+
+    if (NEKO_BCKND_DEVICE .ne. 1) then
+       @assertFalse(a%is_allocated())
+       return
+    end if
+
+    call a%init(7)
+    allocate(x(7))
+    x = -1.0_rp
+
+    call device_memcpy(x, a%x_d, a%size(), DEVICE_TO_HOST, sync=.true.)
+
+    @assertTrue(a%is_allocated())
+    @assertEqual(a%size(), 7)
+
+    do i = 1, size(x)
+       @assertEqual(x(i), 0.0_rp)
+    end do
+
+    deallocate(x)
+    call a%free()
+  end subroutine test_dev_array_init
+
+  @test
+  subroutine test_dev_array_reinit(this)
+    class(test_device_arrays), intent(inout) :: this
+    type(device_array_t) :: a
+    real(kind=rp), allocatable :: x(:)
+    integer :: i
+
+    if (NEKO_BCKND_DEVICE .ne. 1) then
+       @assertFalse(a%is_allocated())
+       return
+    end if
+
+    call a%init(3)
+    allocate(x(3))
+    x = 3.5_rp
+    call device_memcpy(x, a%x_d, a%size(), HOST_TO_DEVICE, sync=.true.)
+
+    call a%init(5)
+
+    deallocate(x)
+    allocate(x(5))
+    x = -1.0_rp
+
+    call device_memcpy(x, a%x_d, a%size(), DEVICE_TO_HOST, sync=.true.)
+
+    @assertTrue(a%is_allocated())
+    @assertEqual(a%size(), 5)
+
+    do i = 1, size(x)
+       @assertEqual(x(i), 0.0_rp)
+    end do
+
+    deallocate(x)
+    call a%free()
+  end subroutine test_dev_array_reinit
+
+  @test
+  subroutine test_dev_array_free(this)
+    class(test_device_arrays), intent(inout) :: this
+    type(device_array_t) :: a
+
+    if (NEKO_BCKND_DEVICE .ne. 1) then
+       @assertFalse(a%is_allocated())
+       return
+    end if
+
+    call a%init(4)
+    call a%free()
+
+    @assertFalse(a%is_allocated())
+    @assertEqual(a%size(), 0)
+  end subroutine test_dev_array_free
+
+  @test
+  subroutine test_dev_array_assign_deep_copy(this)
+    class(test_device_arrays), intent(inout) :: this
+    type(device_array_t) :: a
+    type(device_array_t) :: b
+    real(kind=rp), allocatable :: x(:)
+
+    if (NEKO_BCKND_DEVICE .ne. 1) then
+       @assertFalse(a%is_allocated())
+       return
+    end if
+
+    call a%init(4)
+    allocate(x(4))
+    x = [1.0_rp, 2.0_rp, 3.0_rp, 4.0_rp]
+    call device_memcpy(x, a%x_d, a%size(), HOST_TO_DEVICE, sync=.true.)
+
+    b = a
+    call a%free()
+
+    x = -1.0_rp
+    call device_memcpy(x, b%x_d, b%size(), DEVICE_TO_HOST, sync=.true.)
+
+    @assertFalse(a%is_allocated())
+    @assertTrue(b%is_allocated())
+    @assertEqual(b%size(), 4)
+    @assertEqual(x(1), 1.0_rp)
+    @assertEqual(x(2), 2.0_rp)
+    @assertEqual(x(3), 3.0_rp)
+    @assertEqual(x(4), 4.0_rp)
+
+    deallocate(x)
+    call b%free()
+  end subroutine test_dev_array_assign_deep_copy
+
+end module test_device_array_types
