@@ -223,9 +223,10 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: i, iter, max_iter
+    integer :: i, iter, max_iter, ierr
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, norm_fac
+    real(kind=xp) :: tmp_xp, r1_xp, r2_xp, r3_xp, mult_xp
 
     if (present(niter)) then
        max_iter = niter
@@ -316,8 +317,26 @@ contains
             z%x(i,1,1,1) = z%x(i,1,1,1) + alpha * p3(i)
          end do
 
-         call second_cg_cpld_part(rtr, r1, r2, r3, coef%mult, &
-              w1, w2, w3, alpha, n)
+         tmp = 0.0_rp
+         tmp_xp = 0.0_xp
+         !$omp parallel do reduction(+:tmp_xp)
+         do i = 1, n
+            r1(i) = r1(i) - alpha * w1(i)
+            r2(i) = r2(i) - alpha * w2(i)
+            r3(i) = r3(i) - alpha * w3(i)
+            r1_xp = real(r1(i), kind=xp)
+            r2_xp = real(r2(i), kind=xp)
+            r3_xp = real(r3(i), kind=xp)
+            mult_xp = real(coef%mult(i,1,1,1), kind=xp)
+            tmp_xp = tmp_xp + &
+                 (r1_xp * r1_xp + r2_xp * r2_xp + r3_xp * r3_xp) * mult_xp
+         end do
+         !$omp end parallel do
+
+         call MPI_Allreduce(MPI_IN_PLACE, tmp_xp, 1, MPI_EXTRA_PRECISION, &
+              MPI_SUM, NEKO_COMM, ierr)
+         rtr = tmp_xp
+
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)
@@ -331,29 +350,5 @@ contains
     ksp_results%iter = iter
     ksp_results%converged = this%is_converged(iter, rnorm)
   end function cg_cpld_solve
-
-  !> Updates residual vectors and computes the norm in extended precision.
-  subroutine second_cg_cpld_part(rtr, r1, r2, r3, mult, w1, w2, w3, alpha, n)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: r1(n), r2(n), r3(n), rtr
-    real(kind=rp), intent(in) :: mult(n), w1(n), w2(n), w3(n), alpha
-    real(kind=xp) :: tmp
-    integer :: i, ierr
-
-    tmp = 0.0_xp
-    !$omp parallel do reduction(+:tmp)
-    do i = 1, n
-       r1(i) = r1(i) - alpha * w1(i)
-       r2(i) = r2(i) - alpha * w2(i)
-       r3(i) = r3(i) - alpha * w3(i)
-       tmp = tmp + (r1(i) * r1(i) + r2(i) * r2(i) + r3(i) * r3(i)) * mult(i)
-    end do
-    !$omp end parallel do
-
-    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
-         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-    rtr = tmp
-
-  end subroutine second_cg_cpld_part
 
 end module cg_cpld
