@@ -43,9 +43,11 @@ module fluid_sgs_stats_simcomp
   use fluid_sgs_stats_output, only : fluid_sgs_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
+       NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+       json_get_or_lookup_or_default
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
   implicit none
@@ -91,7 +93,7 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
-    character(len=20), allocatable :: fields(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
     character(len=:), allocatable :: nut_field
     character(len=:), allocatable :: name
@@ -103,7 +105,7 @@ contains
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
-    call json_get_or_default(json, 'start_time', &
+    call json_get_or_lookup_or_default(json, 'start_time', &
          start_time, 0.0_rp)
     call json_get_or_default(json, 'nut_field', &
          nut_field, 'nut')

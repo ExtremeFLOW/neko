@@ -1,6 +1,7 @@
 SUBDIRS = rea2nbin\
 	  prepart\
 	  genmeshbox\
+	  create_periodic_zones\
 	  average_fields_in_time\
 	  average_field_in_space\
 	  calc_lift_from_field\
@@ -9,4 +10,3 @@ SUBDIRS = rea2nbin\
 	  map_to_equidistant_1d\
 	  adios2_to_nek5000\
 	  psnr
-

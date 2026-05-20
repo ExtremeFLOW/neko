@@ -1,0 +1,22 @@
+diff --git a/src/sem/dofmap.f90 b/src/sem/dofmap.f90
+index b6fb6d70488..bf2d716a400 100644
+--- a/src/sem/dofmap.f90
++++ b/src/sem/dofmap.f90
+@@ -647,7 +647,7 @@ contains
+     num_dofs_faces(2) = int((Xh%lx - 2) * (Xh%lz - 2), i8)
+     num_dofs_faces(3) = int((Xh%lx - 2) * (Xh%ly - 2), i8)
+ 
+-    !$omp parallel do private(i,j,k,global_id,face,face_order,facet_id, shared_dof)
++    ! !$omp parallel do private(i,j,k,global_id,face,face_order,facet_id, shared_dof)
+     do i = 1, msh%nelv
+ 
+        !
+@@ -727,7 +727,7 @@ contains
+           this%shared_dof(j, k, Xh%lz, i) = shared_dof
+        end do
+     end do
+-    !$omp end parallel do
++    ! !$omp end parallel do
+ 
+   end subroutine dofmap_number_faces
+ 

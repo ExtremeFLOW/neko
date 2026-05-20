@@ -11,6 +11,11 @@ on:
       - ready_for_review
   workflow_dispatch:
 
+#merge queue trigger
+  merge_group:
+    types:
+      - checks_requested
+
 env:
   PFUNIT_VERSION: v4.15.0
   JSON_FORTRAN_VERSION: 8.4.0

@@ -35,7 +35,7 @@ module device_math
   use num_types, only : rp, c_rp
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
+  use mpi_f08, only : MPI_SUM, MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_Allreduce
   use device, only : glb_cmd_queue
   ! ========================================================================== !
   ! Device math interfaces
@@ -60,12 +60,14 @@ module device_math
        device_addcol4, device_addcol3s2, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
        device_glsum, device_masked_copy_0, device_cfill_mask, &
-       device_masked_gather_copy_aligned, &
+       device_masked_gather_copy_aligned, device_face_masked_gather_copy_0, &
+       device_masked_scatter_copy_aligned, &
        device_vcross, device_absval, device_masked_atomic_reduction_0, &
        device_masked_gather_copy_0, device_masked_scatter_copy_0, &
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
        device_pwmax2, device_pwmax3, device_cpwmax2, device_cpwmax3, &
-       device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3
+       device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3, &
+       device_glmax, device_glmin, device_cwrap
 
 contains
 
@@ -147,6 +149,36 @@ contains
 #endif
   end subroutine device_masked_gather_copy_0
 
+  !> Gather a face-local SEM field \f$ a(i) = b(face(mask(i), facet(i))) \f$.
+  subroutine device_face_masked_gather_copy_0(a_d, b_d, mask_d, facet_d, n1, &
+       n2, lx, ly, lz, n_mask, strm)
+    type(c_ptr) :: a_d, b_d, mask_d, facet_d
+    integer :: n1, n2, lx, ly, lz, n_mask
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n_mask .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_face_masked_gather_copy(a_d, b_d, mask_d, facet_d, n1, n2, lx, &
+         ly, lz, n_mask, strm_)
+#elif HAVE_CUDA
+    call cuda_face_masked_gather_copy(a_d, b_d, mask_d, facet_d, n1, n2, lx, &
+         ly, lz, n_mask, strm_)
+#elif HAVE_OPENCL
+    call opencl_face_masked_gather_copy(a_d, b_d, mask_d, facet_d, n1, n2, &
+         lx, ly, lz, n_mask, strm_)
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_face_masked_gather_copy_0
+
   !> Gather a masked vector \f$ a(i) = b(mask(i)) \f$.
   ! In this case, the mask comes from a mask_t type
   subroutine device_masked_gather_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)
@@ -199,6 +231,33 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_scatter_copy_0
+
+  !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
+  ! In this case, the mask comes from a mask_t type
+  subroutine device_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)
+    type(c_ptr) :: a_d, b_d, mask_d
+    integer :: n, n_mask
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1 .or. n_mask .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_CUDA
+    call cuda_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
+#elif HAVE_OPENCL
+    call opencl_masked_scatter_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm_)
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_masked_scatter_copy_aligned
 
   subroutine device_masked_atomic_reduction_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
@@ -462,6 +521,33 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_cadd2
+
+  !> Wrap value around a range (min, max)
+  subroutine device_cwrap(a_d, min_val, max_val, n, strm)
+    type(c_ptr) :: a_d
+    real(kind=rp), intent(in) :: min_val, max_val
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1 .or. max_val .le. min_val) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_cwrap(a_d, min_val, max_val, n, strm_)
+#elif HAVE_CUDA
+    call cuda_cwrap(a_d, min_val, max_val, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_cwrap(a_d, min_val, max_val, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cwrap
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine device_cfill(a_d, c, n, strm)
@@ -1297,6 +1383,82 @@ contains
     end if
 #endif
   end function device_glsum
+
+  !>Max of a vector of length n
+  function device_glmax(a_d, n, strm) result(res)
+    type(c_ptr) :: a_d
+    integer :: n, ierr
+    real(kind=rp) :: res, ninf
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) then
+       res = -huge(0.0_rp)
+       return
+    end if
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    ninf = -huge(0.0_rp)
+#if HAVE_HIP
+    res = hip_glmax(a_d, ninf, n, strm_)
+#elif HAVE_CUDA
+    res = cuda_glmax(a_d, ninf, n, strm_)
+#elif HAVE_OPENCL
+    res = opencl_glmax(a_d, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+#ifndef HAVE_DEVICE_MPI
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    end if
+#endif
+  end function device_glmax
+
+  !>Min of a vector of length n
+  function device_glmin(a_d, n, strm) result(res)
+    type(c_ptr) :: a_d
+    integer :: n, ierr
+    real(kind=rp) :: res, pinf
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) then
+       res = huge(0.0_rp)
+       return
+    end if
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+    pinf = huge(0.0_rp)
+#if HAVE_HIP
+    res = hip_glmin(a_d, pinf, n, strm_)
+#elif HAVE_CUDA
+    res = cuda_glmin(a_d, pinf, n, strm_)
+#elif HAVE_OPENCL
+    res = opencl_glmin(a_d, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+
+#ifndef HAVE_DEVICE_MPI
+    if (pe_size .gt. 1) then
+       call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+            MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+    end if
+#endif
+  end function device_glmin
 
   subroutine device_absval(a_d, n, strm)
     integer, intent(in) :: n

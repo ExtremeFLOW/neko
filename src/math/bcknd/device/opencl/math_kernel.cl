@@ -78,6 +78,64 @@ __kernel void masked_gather_copy_aligned_kernel(__global real* __restrict__ a,
   for (int i = idx; i < n_mask; i += str) { a[i] = b[mask[i]]; }
 }
 
+void face_gather_nonlinear_index(int *index, const int idx, const int lx,
+                                 const int ly, const int lz) {
+  const int idx2 = idx - 1;
+  index[3] = idx2 / (lx * ly * lz);
+  index[2] = (idx2 - (lx * ly * lz) * index[3]) / (lx * ly);
+  index[1] = (idx2 - (lx * ly * lz) * index[3] - (lx * ly) * index[2]) / lx;
+  index[0] = (idx2 - (lx * ly * lz) * index[3] - (lx * ly) * index[2]) -
+    lx * index[1];
+  index[0]++;
+  index[1]++;
+  index[2]++;
+  index[3]++;
+}
+
+int face_gather_idx(const int i, const int j, const int k, const int l,
+                    const int n1, const int n2, const int nf) {
+  return ((i) + (n1) * (((j) - 1) + (n2) * (((k) - 1) + (nf) * (((l) - 1))))) - 1;
+}
+
+/**
+ * Device kernel for masked gather copy from a face-local field
+ */
+__kernel void face_masked_gather_copy_kernel(__global real* __restrict__ a,
+                                             __global const real* b,
+                                             __global const int* mask,
+                                             __global const int* facet,
+                                             const int n1,
+                                             const int n2,
+                                             const int lx,
+                                             const int ly,
+                                             const int lz,
+                                             const int n_mask) {
+  int index[4];
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int m = idx; m < n_mask; m += str) {
+    const int f = facet[m + 1];
+    face_gather_nonlinear_index(index, mask[m + 1], lx, ly, lz);
+
+    switch (f) {
+    case 1:
+    case 2:
+      a[m] = b[face_gather_idx(index[1], index[2], f, index[3], n1, n2, 6)];
+      break;
+    case 3:
+    case 4:
+      a[m] = b[face_gather_idx(index[0], index[2], f, index[3], n1, n2, 6)];
+      break;
+    case 5:
+    case 6:
+      a[m] = b[face_gather_idx(index[0], index[1], f, index[3], n1, n2, 6)];
+      break;
+    }
+  }
+}
+
 /**
  * Device kernel for masked scatter copy
  */
@@ -90,6 +148,20 @@ __kernel void masked_scatter_copy_kernel(__global real* __restrict__ a,
   const int str = get_global_size(0);
 
   for (int i = idx; i < n_mask; i += str) { a[mask[i + 1] - 1] = b[i]; }
+}
+
+/**
+ * Device kernel for masked scatter copy with aligned mask
+ */
+__kernel void masked_scatter_copy_aligned_kernel(__global real* __restrict__ a,
+                                         __global real* __restrict__ b,
+                                         __global int* __restrict__ mask,
+                                         const int n, const int n_mask) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n_mask; i += str) { a[mask[i]] = b[i]; }
 }
 
 /**
@@ -198,6 +270,23 @@ __kernel void cadd2_kernel(__global real* __restrict__ a,
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) { a[i] = b[i] + c; }
+}
+
+/**
+ * Device kernel for cwrap
+ */
+__kernel void cwrap_kernel(__global real* __restrict__ a,
+                           const real min_val,
+                           const real max_val,
+                           const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+  const real l = max_val - min_val;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = min_val + fmod(fmod(a[i] - min_val, l) + l, l);
+  }
 }
 
 /**
@@ -709,6 +798,58 @@ __kernel void glsum_kernel(__global const real* __restrict__ a,
   while (i != 0) {
     if (get_local_id(0) < i) {
       buf[get_local_id(0)] += buf[get_local_id(0) + i];
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    i = i >> 1;
+  }
+
+  if (get_local_id(0) == 0) { buf_h[get_group_id(0)] = buf[0]; }
+}
+
+__kernel void glmax_kernel(__global const real* __restrict__ a,
+                           __global real* __restrict__ buf_h,
+                           const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  __local real buf[256];
+  real tmp = a[0];
+
+  for (int i = idx; i < n; i += str) { tmp = max(tmp, a[i]); }
+  buf[get_local_id(0)] = tmp;
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  int i = (get_local_size(0)) >> 1;
+  while (i != 0) {
+    if (get_local_id(0) < i) {
+      buf[get_local_id(0)] = max(buf[get_local_id(0)], buf[get_local_id(0) + i]);
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    i = i >> 1;
+  }
+
+  if (get_local_id(0) == 0) { buf_h[get_group_id(0)] = buf[0]; }
+}
+
+__kernel void glmin_kernel(__global const real* __restrict__ a,
+                           __global real* __restrict__ buf_h,
+                           const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  __local real buf[256];
+  real tmp = a[0];
+
+  for (int i = idx; i < n; i += str) { tmp = min(tmp, a[i]); }
+  buf[get_local_id(0)] = tmp;
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  int i = (get_local_size(0)) >> 1;
+  while (i != 0) {
+    if (get_local_id(0) < i) {
+      buf[get_local_id(0)] = min(buf[get_local_id(0)], buf[get_local_id(0) + i]);
     }
     barrier(CLK_LOCAL_MEM_FENCE);
     i = i >> 1;

@@ -33,6 +33,22 @@
 !> Implements a hash table ADT
 !! @details A hash table storing tuples @a (key, data), with fixed
 !! data-type @a key but with arbitrary typed @a data
+!! Public types:
+!!   htable_i4_t         | hash table keyed by 32-bit ints
+!!   htable_i8_t         | hash table keyed by 64-bit ints
+!!   htable_r8_t         | hash table keyed by 64-bit real values
+!!   htable_pt_t         | hash table keyed by point_t
+!!   htable_i4t2_t       | hash table keyed by tuple_i4_t
+!!   htable_i4t4_t       | hash table keyed by tuple4_i4_t
+!!   htable_cptr_t       | hash table keyed by C pointers
+!!   htable_iter_i4_t    | iterator for 32-bit integer hash tables
+!!   htable_iter_i8_t    | iterator for 64-bit integer hash tables
+!!   htable_iter_r8_t    | iterator for 64-bit real hash tables
+!!   htable_iter_pt_t    | iterator for point_t hash tables
+!!   htable_iter_i4t2_t  | iterator for tuple_i4_t hash tables
+!!   htable_iter_i4t4_t  | iterator for tuple4_i4_t hash tables
+!!   htable_iter_cptr_t  | iterator for C pointer hash tables
+!!   h_cptr_t            | wrapper for C pointers used as hash keys
 module htable
   use num_types, only: dp, i4, i8
   use utils, only: neko_error

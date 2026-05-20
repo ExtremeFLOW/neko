@@ -64,16 +64,18 @@ module matrix_math
   use device
   use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
        add2, add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, &
-       invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, &
-       glsc3, masked_gather_copy_0, masked_scatter_copy_0, glsubnorm, invcol3
+       invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glmax, &
+       glmin, glsc2, glsc3, masked_gather_copy_0, masked_scatter_copy_0, &
+       glsubnorm, invcol3
   use device_math, only : device_rzero, device_rone, device_copy, &
        device_cmult, device_cadd, device_cfill, device_invcol1, device_vdot3, &
        device_add2, device_add3, device_add4, device_sub2, device_sub3, &
        device_add2s1, device_add2s2, device_addsqr2s2, device_cmult2, &
        device_invcol2, device_col2, device_col3, device_subcol3, &
        device_add3s2, device_addcol3, device_addcol4, device_glsum, &
-       device_glsc2, device_glsc3, device_masked_gather_copy_0, &
-       device_masked_scatter_copy_0, device_glsubnorm, device_invcol3
+       device_glmax, device_glmin, device_glsc2, device_glsc3, &
+       device_masked_gather_copy_0, device_masked_scatter_copy_0, &
+       device_glsubnorm, device_invcol3
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -84,7 +86,7 @@ module matrix_math
        matrix_add2s2, matrix_addsqr2s2, matrix_cmult2, &
        matrix_invcol2, matrix_col2, matrix_col3, matrix_subcol3, &
        matrix_add3s2, matrix_addcol3, matrix_addcol4, matrix_glsum, &
-       matrix_glsc2, matrix_glsc3, matrix_add3, &
+       matrix_glmax, matrix_glmin, matrix_glsc2, matrix_glsc3, matrix_add3, &
        matrix_glsubnorm
 
 contains
@@ -621,6 +623,48 @@ contains
     end if
 
   end function matrix_glsum
+
+  !> Global maximum of all elements in a matrix \f$ max = \max_i a_i \f$
+  function matrix_glmax(a, n) result(val)
+    integer, intent(in), optional :: n
+    type(matrix_t), intent(in) :: a
+    real(kind=rp) :: val
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       val = device_glmax(a%x_d, size)
+    else
+       val = glmax(a%x, size)
+    end if
+
+  end function matrix_glmax
+
+  !> Global minimum of all elements in a matrix \f$ min = \min_i a_i \f$
+  function matrix_glmin(a, n) result(val)
+    integer, intent(in), optional :: n
+    type(matrix_t), intent(in) :: a
+    real(kind=rp) :: val
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       val = device_glmin(a%x_d, size)
+    else
+       val = glmin(a%x, size)
+    end if
+
+  end function matrix_glmin
 
   !> Global inner product of two matrices \f$ ip = \sum_i a_i * b_i \f$
   function matrix_glsc2(a, b, n) result(ip)

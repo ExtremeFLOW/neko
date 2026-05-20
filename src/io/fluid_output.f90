@@ -81,6 +81,8 @@ contains
     if (present(fmt)) then
        if (fmt .eq. 'adios2') then
           suffix = '.bp'
+       else if (fmt .eq. 'vtkhdf') then
+          suffix = '.vtkhdf'
        end if
     end if
 
@@ -182,7 +184,6 @@ contains
     class(fluid_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        associate(fields => this%fluid%items)

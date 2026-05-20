@@ -47,6 +47,13 @@ subroutine test_uset_size_i8
      call s%add(data)
   end do
   @assertEqual(s%size(), 66)
+
+  do i = 1, 10
+     data = int(i, i8)
+     call s%add(data)
+  end do
+  ! Re-adding existing members must not increase the cardinality.
+  @assertEqual(s%size(), 66)
     
 end subroutine test_uset_size_i8
 
@@ -107,6 +114,10 @@ subroutine test_uset_element_i8
      @assertTrue(s%element(data))
   end do
 
+  ! A value never inserted into the set must not be reported as present.
+  data = int(-1, i8)
+  @assertFalse(s%element(data))
+
     
 end subroutine test_uset_element_i8
 
@@ -131,7 +142,7 @@ subroutine test_uset_remove_i8
      @assertTrue(s%element(data))
   end do
 
-  do i = 64, 1
+  do i = 64, 1, -1
      data = int(i, i8)
      @assertTrue(s%element(data))
   end do
@@ -151,6 +162,12 @@ subroutine test_uset_remove_i8
      data = int(i, i8)
      @assertTrue(s%element(data))
   end do
+
+  ! Removing a missing value should be a no-op for both size and membership.
+  data = int(101, i8)
+  call s%remove(data)
+  @assertEqual(s%size(), 32)
+  @assertFalse(s%element(data))
   
 end subroutine test_uset_remove_i8
 
@@ -178,6 +195,11 @@ subroutine test_uset_iter_i8
      @assertTrue(s%element(data))
   end do
   @assertEqual(n_entries, 64)
+
+  ! After clearing, a freshly initialised iterator must terminate immediately.
+  call s%clear()
+  call s%iter_init()
+  @assertFalse(s%iter_next())
   
 end subroutine test_uset_iter_i8
 

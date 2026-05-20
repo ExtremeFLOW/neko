@@ -145,7 +145,10 @@ EXTRA_DIST = \
 	tests/integration/tests/test_cylinder/reflog2_opencl_dp.csv\
 	tests/integration/tests/test_cylinder/reflog2_opencl_sp.csv\
 	patches/nvhpc_bge.patch\
-	patches/json-fortran71.patch
+	patches/json-fortran71.patch\
+	patches/cce_openmp.patch\
+	patches/cce_stack.patch\
+	patches/cce_time_state.patch
 
 if ENABLE_FLINT
 lint:
@@ -155,6 +158,12 @@ check-local: lint
 
 endif
 
+if ENABLE_PFUNIT
 .PHONY: refresh-unit-test-makefiles
 refresh-unit-test-makefiles:
 	$(MAKE) -C tests/unit refresh-unit-test-makefiles-local
+else
+.PHONY: refresh-unit-test-makefiles
+refresh-unit-test-makefiles:
+	@echo "pFUnit support is disabled: no unit-test Makefiles to refresh."
+endif
