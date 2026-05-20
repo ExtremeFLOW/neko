@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Modified all `gl*` routines in `device_math` to do reductions in extended
+  precision instead of `rp`. This improves numerical robustness when running
+  in single precision.
 - Removed restart limitations on load balancing. We now cache the the balanced
   mesh and read the cache if available. Load balance name pattern updated to
   include partition number.
