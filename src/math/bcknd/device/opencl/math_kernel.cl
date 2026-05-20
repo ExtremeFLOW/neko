@@ -34,6 +34,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+typedef double real_xp;
+
 /**
  * Device kernel for masked copy
  */
@@ -781,14 +783,14 @@ __kernel void glsubnorm2_kernel(__global const real* __restrict__ a,
  * Device kernel for glsum
  */
 __kernel void glsum_kernel(__global const real* __restrict__ a,
-                           __global real* __restrict__ buf_h,
+                           __global real_xp* __restrict__ buf_h,
                            const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  __local real buf[256]; /* Make this nice...*/
-  real         tmp = 0.0;
+  __local real_xp buf[256]; /* Make this nice...*/
+  real_xp      tmp = 0.0;
 
   for (int i = idx; i < n; i += str) { tmp += a[i]; }
   buf[get_local_id(0)] = tmp;

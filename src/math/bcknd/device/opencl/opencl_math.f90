@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module opencl_math
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, c_xp
   implicit none
   public
 
@@ -431,10 +431,10 @@ module opencl_math
        integer(c_int) :: n
      end function opencl_glsubnorm2
 
-     real(c_rp) function opencl_glsum(a_d, n, strm) &
+     real(c_xp) function opencl_glsum(a_d, n, strm) &
           bind(c, name = 'opencl_glsum')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        type(c_ptr), value :: a_d, strm
        integer(c_int) :: n
