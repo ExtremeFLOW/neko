@@ -81,6 +81,8 @@ module gs_interp
      !> Hanging faces offset
      ! size of nhang_el + 1
      integer, allocatable, dimension(:) :: hang_fcs_off
+     !> Global grid point multiplicity
+     real(rp), allocatable, dimension(:, :, :, :) :: mult
    contains
      !> Initialise base type
      procedure, pass(this) :: init_base => gs_interp_init_base
@@ -312,6 +314,7 @@ contains
     call this%interpolate%free()
 
     call gs_interp_free_hang(this)
+    call gs_interp_free_mult(this)
 
   end subroutine gs_interp_free_base
 
@@ -333,6 +336,14 @@ contains
 
   end subroutine gs_interp_free_hang
 
+  !> Free gs interpolation type
+  subroutine gs_interp_free_mult(this)
+    class(gs_interp_t), intent(inout) :: this
+
+    if (allocated(this%mult)) deallocate(this%mult)
+
+  end subroutine gs_interp_free_mult
+
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
@@ -344,7 +355,9 @@ contains
     this%nel = this%conn%nel
     ! reinitialise hanging face/edge information
     call gs_interp_free_hang(this)
+    call gs_interp_free_mult(this)
     call gs_interp_init_hang(this)
+    ! Multiplicity is initialised within gs_t amr_restart
 
   end subroutine gs_interp_amr_restart_base
 

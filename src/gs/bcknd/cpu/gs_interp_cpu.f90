@@ -274,6 +274,13 @@ contains
     associate(lx => this%lx, nhang_fcs => this%nhang_fcs, &
          nhang_edg => this%nhang_edg)
 
+      ! save global grid point multiplicity; equal mult_jt
+      allocate(this%mult(this%lx, this%lx, this%lx, this%nel))
+      do concurrent (il = 1: this%lx, jl = 1: this%lx, kl = 1: this%lx, &
+           el = 1: this%nel)
+         this%mult(il, jl, kl, el) = mult_jt(il, jl, kl, el)
+      end do
+
       ! get inverse of multiplicity of H1 operator; this must be done
       ! irrespective of hanging element presence
       allocate(this%mult_h1_inv(this%lx, this%lx, this%lx, this%nel))
