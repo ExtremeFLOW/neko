@@ -2,7 +2,8 @@
 module pnpn_res_stress_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use utils, only : neko_error
-  use operators, only : dudxyz, cdtp, curl, opgrad, strain_rate, rotate_cyc
+  use operators, only : cdtp, curl, opgrad, strain_rate, rotate_cyc
+  use opr_device, only : device_dudxyz
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
@@ -272,9 +273,9 @@ contains
 
     ! Gradient of viscosity * 2
     !call opgrad(ta1%x, ta2%x, ta3%x, mu%x, c_Xh)
-    call dudxyz(ta1%x_d, mu%x_d, c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d, c_Xh)
-    call dudxyz(ta2%x_d, mu%x_d, c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d, c_Xh)
-    call dudxyz(ta3%x_d, mu%x_d, c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d, c_Xh)
+    call device_dudxyz(ta1%x_d, mu%x_d, c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d, c_Xh)
+    call device_dudxyz(ta2%x_d, mu%x_d, c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d, c_Xh)
+    call device_dudxyz(ta3%x_d, mu%x_d, c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d, c_Xh)
 
 #ifdef HAVE_HIP
     call pnpn_prs_stress_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &

@@ -46,7 +46,7 @@ module operators
        opr_xsmm_dudxyz, opr_xsmm_opgrad, &
        opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
-       opr_device_conv1, opr_device_convect_scalar, opr_device_dudxyz, &
+       opr_device_conv1, opr_device_convect_scalar, device_dudxyz, &
        opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst, &
        opr_device_rotate_cyc
   use space, only : space_t
@@ -76,7 +76,6 @@ module operators
 
   interface dudxyz
      module procedure dudxyz_r4
-     module procedure dudxyz_d
      module procedure dudxyz_field
   end interface dudxyz
 
@@ -116,7 +115,7 @@ contains
        call opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: dudxyz_r4, implicit device', &
-            'v2.0.0', 'Please call dudxyz_d instead.')
+            'v2.0.0', 'Please call device_dudxyz instead.')
 
        du_d = device_get_ptr(du)
        u_d = device_get_ptr(u)
@@ -124,21 +123,12 @@ contains
        ds_d = device_get_ptr(ds)
        dt_d = device_get_ptr(dt)
 
-       call opr_device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
+       call device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
     else
        call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     end if
 
   end subroutine dudxyz_r4
-
-  subroutine dudxyz_d(du_d, u_d, dr_d, ds_d, dt_d, coef)
-    type(coef_t), intent(in) :: coef
-    type(c_ptr), intent(inout) :: du_d
-    type(c_ptr), intent(in) :: u_d, dr_d, ds_d, dt_d
-
-    call opr_device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
-
-  end subroutine dudxyz_d
 
   subroutine dudxyz_field(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
@@ -150,7 +140,7 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_dudxyz(du%x, u%x, dr%x, ds%x, dt%x, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call dudxyz_d(du%x_d, u%x_d, dr%x_d, ds%x_d, dt%x_d, coef)
+       call device_dudxyz(du%x_d, u%x_d, dr%x_d, ds%x_d, dt%x_d, coef)
     else
        call opr_cpu_dudxyz(du%x, u%x, dr%x, ds%x, dt%x, coef)
     end if

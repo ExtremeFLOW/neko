@@ -47,7 +47,7 @@ module opr_device
   implicit none
   private
 
-  public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
+  public :: device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_curl, &
        opr_device_cfl, opr_device_lambda2, opr_device_set_convect_rst, &
        opr_device_rotate_cyc, device_ortho
@@ -443,7 +443,7 @@ module opr_device
 
 contains
 
-  subroutine opr_device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
+  subroutine device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
     type(coef_t), intent(in), target :: coef
     type(c_ptr), intent(inout) :: du_d
     type(c_ptr), intent(in) :: u_d, dr_d, ds_d, dt_d
@@ -466,7 +466,7 @@ contains
 #endif
     end associate
 
-  end subroutine opr_device_dudxyz
+  end subroutine device_dudxyz
 
   subroutine opr_device_opgrad(ux_d, uy_d, uz_d, u_d, coef)
     type(coef_t), intent(in), target :: coef
