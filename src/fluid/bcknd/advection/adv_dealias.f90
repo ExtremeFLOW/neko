@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -310,7 +310,8 @@ contains
          call sub2(fz%x, this%temp, n)
 
       else
-         !$omp parallel do private(e, i, idx)
+         !$omp parallel do private(e, i, idx, tempx, tempy, tempz), &
+         !$omp& private(tx, ty, tz, vr, vs, vt, tfx, tfy, tfz)
          do e = 1, coef%msh%nelv
             call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
@@ -428,7 +429,7 @@ contains
          call sub2(fs%x, this%temp, n)
 
       else
-         !$omp parallel do private (e, i, idx)
+         !$omp parallel do private (e, i, idx, vx_GL, vy_GL, s_GL, f_GL, temp)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity onto the higher-order space
             call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
