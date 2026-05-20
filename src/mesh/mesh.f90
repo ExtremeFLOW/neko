@@ -956,9 +956,7 @@ contains
     call it%init(this%hte)
     do while (it%next())
        edge => it%key()
-       if (this%hte%get(edge, id) .ne. 0) then
-          call neko_error('Invalid edge key in mesh_generate_edge_conn')
-       end if
+       call it%data(id)
        if (id .lt. 1 .or. id .gt. this%meds) then
           call neko_error('Invalid edge id in mesh_generate_edge_conn')
        end if
