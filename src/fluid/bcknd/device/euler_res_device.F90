@@ -44,10 +44,12 @@ module euler_res_device
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
   use compressible_ops_device, only : compressible_ops_device_update_uvw, &
-       compressible_ops_device_update_mxyz_p_ruvw
+       compressible_ops_device_update_mxyz_p_ruvw, &
+       compressible_ops_device_ns_flux_prepare, &
+       compressible_ops_device_ns_flux_finalize, &
+       compressible_ops_device_ns_flux_temperature
   use device_math, only : device_copy, device_rone, device_col2, &
-       device_cmult, device_sub2, device_vdot3, device_rzero, device_add2, &
-       device_invcol3, device_col3, device_addcol3, device_addcol3s2
+       device_cmult, device_sub2, device_add2
   use bc_list, only : bc_list_t
   use time_state, only : time_state_t
 
@@ -682,9 +684,8 @@ contains
     class(Ax_t), intent(inout) :: Ax, Ax_stress
     type(coef_t), intent(inout) :: coef
     type(field_t), pointer :: dudx, dudy, dudz, dvdx, dvdy, dvdz, &
-         dwdx, dwdy, dwdz, tau_xx, tau_xy, tau_xz, tau_yy, tau_yz, &
-         tau_zz, f_x, f_y, f_z, div_flux, dissipation
-    integer :: temp_indices(20)
+         dwdx, dwdy, dwdz, f_x, f_y, f_z, div_flux, dissipation
+    integer :: temp_indices(14)
     integer :: n
 
     n = coef%dof%size()
@@ -698,92 +699,32 @@ contains
     call neko_scratch_registry%request_field(dwdx, temp_indices(7), .false.)
     call neko_scratch_registry%request_field(dwdy, temp_indices(8), .false.)
     call neko_scratch_registry%request_field(dwdz, temp_indices(9), .false.)
-    call neko_scratch_registry%request_field(tau_xx, temp_indices(10), .false.)
-    call neko_scratch_registry%request_field(tau_xy, temp_indices(11), .false.)
-    call neko_scratch_registry%request_field(tau_xz, temp_indices(12), .false.)
-    call neko_scratch_registry%request_field(tau_yy, temp_indices(13), .false.)
-    call neko_scratch_registry%request_field(tau_yz, temp_indices(14), .false.)
-    call neko_scratch_registry%request_field(tau_zz, temp_indices(15), .false.)
-    call neko_scratch_registry%request_field(f_x, temp_indices(16), .false.)
-    call neko_scratch_registry%request_field(f_y, temp_indices(17), .false.)
-    call neko_scratch_registry%request_field(f_z, temp_indices(18), .false.)
-    call neko_scratch_registry%request_field(div_flux, temp_indices(19), .false.)
-    call neko_scratch_registry%request_field(dissipation, temp_indices(20), &
+    call neko_scratch_registry%request_field(f_x, temp_indices(10), .false.)
+    call neko_scratch_registry%request_field(f_y, temp_indices(11), .false.)
+    call neko_scratch_registry%request_field(f_z, temp_indices(12), .false.)
+    call neko_scratch_registry%request_field(div_flux, temp_indices(13), .false.)
+    call neko_scratch_registry%request_field(dissipation, temp_indices(14), &
          .false.)
 
     call grad(dudx%x, dudy%x, dudz%x, u%x, coef)
     call grad(dvdx%x, dvdy%x, dvdz%x, v%x, coef)
     call grad(dwdx%x, dwdy%x, dwdz%x, w%x, coef)
 
-    call device_copy(f_x%x_d, dudx%x_d, n)
-    call device_add2(f_x%x_d, dvdy%x_d, n)
-    call device_add2(f_x%x_d, dwdz%x_d, n)
-    call device_col3(div_flux%x_d, f_x%x_d, mu%x_d, n)
-    call device_copy(coef%h1_d, mu%x_d, n)
-
-    call device_copy(tau_xx%x_d, f_x%x_d, n)
-    call device_cmult(tau_xx%x_d, -2.0_rp / 3.0_rp, n)
-    call device_add2(tau_xx%x_d, dudx%x_d, n)
-    call device_add2(tau_xx%x_d, dudx%x_d, n)
-    call device_col2(tau_xx%x_d, mu%x_d, n)
-
-    call device_copy(tau_yy%x_d, f_x%x_d, n)
-    call device_cmult(tau_yy%x_d, -2.0_rp / 3.0_rp, n)
-    call device_add2(tau_yy%x_d, dvdy%x_d, n)
-    call device_add2(tau_yy%x_d, dvdy%x_d, n)
-    call device_col2(tau_yy%x_d, mu%x_d, n)
-
-    call device_copy(tau_zz%x_d, f_x%x_d, n)
-    call device_cmult(tau_zz%x_d, -2.0_rp / 3.0_rp, n)
-    call device_add2(tau_zz%x_d, dwdz%x_d, n)
-    call device_add2(tau_zz%x_d, dwdz%x_d, n)
-    call device_col2(tau_zz%x_d, mu%x_d, n)
-
-    call device_copy(tau_xy%x_d, dudy%x_d, n)
-    call device_add2(tau_xy%x_d, dvdx%x_d, n)
-    call device_col2(tau_xy%x_d, mu%x_d, n)
-
-    call device_copy(tau_xz%x_d, dudz%x_d, n)
-    call device_add2(tau_xz%x_d, dwdx%x_d, n)
-    call device_col2(tau_xz%x_d, mu%x_d, n)
-
-    call device_copy(tau_yz%x_d, dvdz%x_d, n)
-    call device_add2(tau_yz%x_d, dwdy%x_d, n)
-    call device_col2(tau_yz%x_d, mu%x_d, n)
-
-    call device_col3(dissipation%x_d, tau_xx%x_d, dudx%x_d, n)
-    call device_addcol3(dissipation%x_d, tau_xy%x_d, dudy%x_d, n)
-    call device_addcol3(dissipation%x_d, tau_xy%x_d, dvdx%x_d, n)
-    call device_addcol3(dissipation%x_d, tau_xz%x_d, dudz%x_d, n)
-    call device_addcol3(dissipation%x_d, tau_xz%x_d, dwdx%x_d, n)
-    call device_addcol3(dissipation%x_d, tau_yy%x_d, dvdy%x_d, n)
-    call device_addcol3(dissipation%x_d, tau_yz%x_d, dvdz%x_d, n)
-    call device_addcol3(dissipation%x_d, tau_yz%x_d, dwdy%x_d, n)
-    call device_addcol3(dissipation%x_d, tau_zz%x_d, dwdz%x_d, n)
+    call compressible_ops_device_ns_flux_prepare(div_flux%x_d, &
+         dissipation%x_d, coef%h1_d, dudx%x_d, dudy%x_d, dudz%x_d, &
+         dvdx%x_d, dvdy%x_d, dvdz%x_d, dwdx%x_d, dwdy%x_d, dwdz%x_d, &
+         mu%x_d, n)
 
     call Ax_stress%compute_vector(f_x%x, f_y%x, f_z%x, u%x, v%x, w%x, &
          coef, p%msh, p%Xh)
     call opgrad(dudx%x, dudy%x, dudz%x, div_flux%x, coef)
-    call device_cmult(dudx%x_d, -2.0_rp / 3.0_rp, n)
-    call device_add2(f_x%x_d, dudx%x_d, n)
-    call device_add2(visc_m_x%x_d, f_x%x_d, n)
-    call device_cmult(dudy%x_d, -2.0_rp / 3.0_rp, n)
-    call device_add2(f_y%x_d, dudy%x_d, n)
-    call device_add2(visc_m_y%x_d, f_y%x_d, n)
-    call device_cmult(dudz%x_d, -2.0_rp / 3.0_rp, n)
-    call device_add2(f_z%x_d, dudz%x_d, n)
-    call device_add2(visc_m_z%x_d, f_z%x_d, n)
+    call compressible_ops_device_ns_flux_finalize(visc_m_x%x_d, &
+         visc_m_y%x_d, visc_m_z%x_d, visc_E%x_d, f_x%x_d, f_y%x_d, &
+         f_z%x_d, dudx%x_d, dudy%x_d, dudz%x_d, u%x_d, v%x_d, w%x_d, &
+         coef%B_d, dissipation%x_d, n)
 
-    call device_addcol3(visc_E%x_d, u%x_d, f_x%x_d, n)
-    call device_addcol3(visc_E%x_d, v%x_d, f_y%x_d, n)
-    call device_addcol3(visc_E%x_d, w%x_d, f_z%x_d, n)
-
-    call device_addcol3s2(visc_E%x_d, coef%B_d, dissipation%x_d, -1.0_rp, n)
-
-    call device_invcol3(div_flux%x_d, p%x_d, rho_field%x_d, n)
-    call device_cmult(div_flux%x_d, &
-         1.0_rp / (euler_res_device_gamma - 1.0_rp), n)
-    call device_copy(coef%h1_d, kappa%x_d, n)
+    call compressible_ops_device_ns_flux_temperature(div_flux%x_d, coef%h1_d, &
+         p%x_d, rho_field%x_d, kappa%x_d, euler_res_device_gamma, n)
     call Ax%compute(dudx%x, div_flux%x, coef, p%msh, p%Xh)
     call device_add2(visc_E%x_d, dudx%x_d, n)
 

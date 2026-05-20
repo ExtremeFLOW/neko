@@ -39,7 +39,7 @@ module fluid_scheme_compressible_euler
   use bdf_time_scheme, only : bdf_time_scheme_t
   use time_scheme_controller, only : time_scheme_controller_t
   use math, only : col2
-  use device_math, only : device_cmult, device_col2, device_invcol3
+  use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use scratch_registry, only : neko_scratch_registry
@@ -68,7 +68,8 @@ module fluid_scheme_compressible_euler
        compressible_ops_cpu_update_e
   use compressible_ops_device, only : compressible_ops_device_update_uvw, &
        compressible_ops_device_update_mxyz_p_ruvw, &
-       compressible_ops_device_update_e
+       compressible_ops_device_update_e, &
+       compressible_ops_device_update_temperature
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
@@ -360,9 +361,8 @@ contains
 
       !> Update temperature T = p / (rho * (gamma - 1))
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_invcol3(this%temperature%x_d, p%x_d, rho%x_d, n)
-         call device_cmult(this%temperature%x_d, &
-              1.0_rp / (this%gamma - 1.0_rp), n)
+         call compressible_ops_device_update_temperature( &
+              this%temperature%x_d, p%x_d, rho%x_d, this%gamma, n)
       else
          do concurrent (i = 1:n)
             this%temperature%x(i,1,1,1) = p%x(i,1,1,1) / &

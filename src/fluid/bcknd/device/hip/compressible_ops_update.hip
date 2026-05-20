@@ -95,4 +95,79 @@ void hip_update_e(void *E, void *p, void *ruvw,
   
 }
 
+void hip_update_temperature(void *T, void *p, void *rho,
+                            real *gamma, int *n) {
+
+  const dim3 nthrds(1024, 1, 1);
+  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(update_temperature_kernel<real>),
+                    nblcks, nthrds, 0, stream,
+                    (real *) T, (real *) p, (real *) rho, *gamma, *n);
+
+  HIP_CHECK(hipGetLastError());
+
+}
+
+void hip_ns_flux_prepare(void *div_flux, void *dissipation, void *h1,
+                         void *dudx, void *dudy, void *dudz,
+                         void *dvdx, void *dvdy, void *dvdz,
+                         void *dwdx, void *dwdy, void *dwdz,
+                         void *mu, int *n) {
+
+  const dim3 nthrds(1024, 1, 1);
+  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(ns_flux_prepare_kernel<real>),
+                    nblcks, nthrds, 0, stream,
+                    (real *) div_flux, (real *) dissipation, (real *) h1,
+                    (real *) dudx, (real *) dudy, (real *) dudz,
+                    (real *) dvdx, (real *) dvdy, (real *) dvdz,
+                    (real *) dwdx, (real *) dwdy, (real *) dwdz,
+                    (real *) mu, *n);
+
+  HIP_CHECK(hipGetLastError());
+
+}
+
+void hip_ns_flux_finalize(void *visc_m_x, void *visc_m_y, void *visc_m_z,
+                          void *visc_E, void *f_x, void *f_y, void *f_z,
+                          void *opgrad_x, void *opgrad_y, void *opgrad_z,
+                          void *u, void *v, void *w, void *B,
+                          void *dissipation, int *n) {
+
+  const dim3 nthrds(1024, 1, 1);
+  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(ns_flux_finalize_kernel<real>),
+                    nblcks, nthrds, 0, stream,
+                    (real *) visc_m_x, (real *) visc_m_y, (real *) visc_m_z,
+                    (real *) visc_E, (real *) f_x, (real *) f_y,
+                    (real *) f_z, (real *) opgrad_x, (real *) opgrad_y,
+                    (real *) opgrad_z, (real *) u, (real *) v, (real *) w,
+                    (real *) B, (real *) dissipation, *n);
+
+  HIP_CHECK(hipGetLastError());
+
+}
+
+void hip_ns_flux_temperature(void *div_flux, void *h1, void *p, void *rho,
+                             void *kappa, real *gamma, int *n) {
+
+  const dim3 nthrds(1024, 1, 1);
+  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+  hipLaunchKernelGGL(HIP_KERNEL_NAME(ns_flux_temperature_kernel<real>),
+                    nblcks, nthrds, 0, stream,
+                    (real *) div_flux, (real *) h1, (real *) p,
+                    (real *) rho, (real *) kappa, *gamma, *n);
+
+  HIP_CHECK(hipGetLastError());
+
+}
+
 } 

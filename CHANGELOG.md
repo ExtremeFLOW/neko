@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Add physical viscous and conductive flux support to the compressible solver.
 - Update the simcomp wrappers to better handle allocation and deallocation.
 - Added a factory subroutine for scalar schemes, allowing for more flexible
   creation of scalar scheme objects based on JSON input.
