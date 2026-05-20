@@ -218,6 +218,7 @@ var hierarchy =
     [ "cuda_intf::cudastreamwaitevent", "d7/d0b/interfacecuda__intf_1_1cudastreamwaitevent.html", null ],
     [ "curve::curve_t", "dd/d69/structcurve_1_1curve__t.html", null ],
     [ "data_streamer::data_streamer_t", "d4/d91/structdata__streamer_1_1data__streamer__t.html", null ],
+    [ "device_array::device_array_t", "d7/d53/structdevice__array_1_1device__array__t.html", null ],
     [ "device::device_associate", "d6/d17/interfacedevice_1_1device__associate.html", null ],
     [ "device::device_associated", "d0/d30/interfacedevice_1_1device__associated.html", null ],
     [ "device_math::device_cadd", "d1/d1f/interfacedevice__math_1_1device__cadd.html", null ],
@@ -534,6 +535,7 @@ var hierarchy =
     [ "hip_intf::hipstreamdestroy", "d4/dbf/interfacehip__intf_1_1hipstreamdestroy.html", null ],
     [ "hip_intf::hipstreamsynchronize", "d3/df5/interfacehip__intf_1_1hipstreamsynchronize.html", null ],
     [ "hip_intf::hipstreamwaitevent", "d7/ddb/interfacehip__intf_1_1hipstreamwaitevent.html", null ],
+    [ "host_array::host_array_t", "d9/d61/structhost__array_1_1host__array__t.html", null ],
     [ "htable::htable_hash", "de/d44/interfacehtable_1_1htable__hash.html", null ],
     [ "htable::htable_iter_t", "d1/dec/structhtable_1_1htable__iter__t.html", [
       [ "htable::htable_iter_cptr_t", "dd/d3e/structhtable_1_1htable__iter__cptr__t.html", null ],

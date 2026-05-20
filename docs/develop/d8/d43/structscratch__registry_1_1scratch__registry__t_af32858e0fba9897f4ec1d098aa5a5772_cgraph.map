@@ -1,0 +1,7 @@
+<map id="scratch_registry::scratch_registry_t::relinquish_device_array" name="scratch_registry::scratch_registry_t::relinquish_device_array">
+<area shape="rect" id="Node000001" title="Free a device array for later reuse." alt="" coords="5,30,185,85"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a4e01b1c382c03be7669e0ac0cf62cb3a" title="Relinquish the use of multiple device_arrays in the registry." alt="" coords="233,5,431,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,43,219,38,220,43,186,48"/>
+<area shape="rect" id="Node000003" href="$d7/dda/namespacescratch__registry.html#a9ebd8ce04f6ffb29fd2ba1e97091b13c" title="Relinquish the use of a device_array in the registry." alt="" coords="233,69,431,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,67,220,72,219,77,185,72"/>
+</map>

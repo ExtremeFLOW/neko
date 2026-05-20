@@ -350,6 +350,9 @@ var annotated_dup =
       [ "device_sync", "d0/dbb/interfacedevice_1_1device__sync.html", "d0/dbb/interfacedevice_1_1device__sync" ],
       [ "device_unmap", "db/d56/interfacedevice_1_1device__unmap.html", "db/d56/interfacedevice_1_1device__unmap" ]
     ] ],
+    [ "device_array", "d2/d01/namespacedevice__array.html", [
+      [ "device_array_t", "d7/d53/structdevice__array_1_1device__array__t.html", "d7/d53/structdevice__array_1_1device__array__t" ]
+    ] ],
     [ "device_coef", "df/d80/namespacedevice__coef.html", [
       [ "hip_coef_generate_area_and_normal", "df/d07/interfacedevice__coef_1_1hip__coef__generate__area__and__normal.html", "df/d07/interfacedevice__coef_1_1hip__coef__generate__area__and__normal" ],
       [ "hip_coef_generate_dxyzdrst", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst" ],
@@ -848,6 +851,9 @@ var annotated_dup =
       [ "hip_vcross", "d9/dfe/interfacehip__math_1_1hip__vcross.html", "d9/dfe/interfacehip__math_1_1hip__vcross" ],
       [ "hip_vdot3", "d0/dd4/interfacehip__math_1_1hip__vdot3.html", "d0/dd4/interfacehip__math_1_1hip__vdot3" ],
       [ "hip_vlsc3", "dd/d4e/interfacehip__math_1_1hip__vlsc3.html", "dd/d4e/interfacehip__math_1_1hip__vlsc3" ]
+    ] ],
+    [ "host_array", "d7/d87/namespacehost__array.html", [
+      [ "host_array_t", "d9/d61/structhost__array_1_1host__array__t.html", "d9/d61/structhost__array_1_1host__array__t" ]
     ] ],
     [ "hpfrt_source_term", "d7/d3f/namespacehpfrt__source__term.html", [
       [ "hpfrt_source_term_t", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t" ]

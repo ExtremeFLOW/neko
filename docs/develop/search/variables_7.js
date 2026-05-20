@@ -11,7 +11,7 @@ var searchData=
   ['h_5fx_5fidx_8',['h_x_idx',['../de/d0b/structmost_1_1most__t.html#a614722ed027848791282278516d18dde',1,'most::most_t::h_x_idx'],['../dd/df1/structrichardson_1_1richardson__t.html#a5754dac5b180b80c698cc31955949c45',1,'richardson::richardson_t::h_x_idx']]],
   ['h_5fx_5fidx_5fd_9',['h_x_idx_d',['../de/d0b/structmost_1_1most__t.html#a54b6ea9e2631180c4a6d6425169e6c57',1,'most::most_t::h_x_idx_d'],['../dd/df1/structrichardson_1_1richardson__t.html#a3c1442398758b4e857a5a27ba96b11f7',1,'richardson::richardson_t::h_x_idx_d']]],
   ['h_5fy_5fidx_10',['h_y_idx',['../de/d0b/structmost_1_1most__t.html#adab361b67a6f7e7e4a64cf397d4ed3e9',1,'most::most_t::h_y_idx'],['../dd/df1/structrichardson_1_1richardson__t.html#a899282c1617c4c82196ac7dbacc7b7e7',1,'richardson::richardson_t::h_y_idx']]],
-  ['h_5fy_5fidx_5fd_11',['h_y_idx_d',['../de/d0b/structmost_1_1most__t.html#abaf94dbc1effe402666034b884de1602',1,'most::most_t::h_y_idx_d'],['../dd/df1/structrichardson_1_1richardson__t.html#a1af787bef16d2c6b39cca67aa16a2b35',1,'richardson::richardson_t::h_y_idx_d']]],
+  ['h_5fy_5fidx_5fd_11',['h_y_idx_d',['../dd/df1/structrichardson_1_1richardson__t.html#a1af787bef16d2c6b39cca67aa16a2b35',1,'richardson::richardson_t::h_y_idx_d'],['../de/d0b/structmost_1_1most__t.html#abaf94dbc1effe402666034b884de1602',1,'most::most_t::h_y_idx_d']]],
   ['h_5fz_5fidx_12',['h_z_idx',['../de/d0b/structmost_1_1most__t.html#a72986b56352f523d11996fd9129b0d53',1,'most::most_t::h_z_idx'],['../dd/df1/structrichardson_1_1richardson__t.html#a14e190ab675821d40e5a0780d7ea7c57',1,'richardson::richardson_t::h_z_idx']]],
   ['h_5fz_5fidx_5fd_13',['h_z_idx_d',['../dd/df1/structrichardson_1_1richardson__t.html#acfdb3e56097af5e3d096f9842ec4a6dd',1,'richardson::richardson_t::h_z_idx_d'],['../de/d0b/structmost_1_1most__t.html#a00f607a18dfe7317d7ba1b8feeaa755c',1,'most::most_t::h_z_idx_d']]],
   ['has_5fmoving_5fboundary_14',['has_moving_boundary',['../dd/d75/structale__manager_1_1ale__manager__t.html#a4ae465bc719ddb6b83dde7245e605f5c',1,'ale_manager::ale_manager_t']]],
@@ -20,10 +20,11 @@ var searchData=
   ['header_17',['header',['../d3/d88/structcsv__file_1_1csv__file__t.html#adeee8855189a2d275b7e5f5ccd4ba80e',1,'csv_file::csv_file_t']]],
   ['header_5fis_5fwritten_18',['header_is_written',['../d3/d88/structcsv__file_1_1csv__file__t.html#a4648116468887a4cd0e7eac3a485aa86',1,'csv_file::csv_file_t']]],
   ['heat_5fflux_5fptr_19',['heat_flux_ptr',['../d4/d09/namespacerichardson__cpu.html#a149cb567a288d4a9f2d59e50a6c7180d',1,'richardson_cpu']]],
-  ['host_5fto_5fdevice_20',['host_to_device',['../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80',1,'device']]],
-  ['hsmg_5fevent_21',['hsmg_event',['../dd/d81/structhsmg_1_1hsmg__t.html#a6d1bc4aa6695cc2bb4c2bbdf6bb5a903',1,'hsmg::hsmg_t']]],
-  ['hte_22',['hte',['../d7/d28/structmesh_1_1mesh__t.html#a21de8866e9c3dd21df6e9105b9c67b04',1,'mesh::mesh_t']]],
-  ['htel_23',['htel',['../d7/d28/structmesh_1_1mesh__t.html#a4bc742182346d47f899f003a5580148e',1,'mesh::mesh_t']]],
-  ['htf_24',['htf',['../d7/d28/structmesh_1_1mesh__t.html#a21cb53d3dc1feb3350a978a8817e9367',1,'mesh::mesh_t']]],
-  ['htp_25',['htp',['../d7/d28/structmesh_1_1mesh__t.html#ad0009d29150e4ce9e90bdfec87b30d47',1,'mesh::mesh_t']]]
+  ['host_5farray_5fptr_20',['host_array_ptr',['../df/db9/structregistry__entry_1_1registry__entry__t.html#a2b04e02ab63ddf3dc460889e59441217',1,'registry_entry::registry_entry_t']]],
+  ['host_5fto_5fdevice_21',['host_to_device',['../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80',1,'device']]],
+  ['hsmg_5fevent_22',['hsmg_event',['../dd/d81/structhsmg_1_1hsmg__t.html#a6d1bc4aa6695cc2bb4c2bbdf6bb5a903',1,'hsmg::hsmg_t']]],
+  ['hte_23',['hte',['../d7/d28/structmesh_1_1mesh__t.html#a21de8866e9c3dd21df6e9105b9c67b04',1,'mesh::mesh_t']]],
+  ['htel_24',['htel',['../d7/d28/structmesh_1_1mesh__t.html#a4bc742182346d47f899f003a5580148e',1,'mesh::mesh_t']]],
+  ['htf_25',['htf',['../d7/d28/structmesh_1_1mesh__t.html#a21cb53d3dc1feb3350a978a8817e9367',1,'mesh::mesh_t']]],
+  ['htp_26',['htp',['../d7/d28/structmesh_1_1mesh__t.html#ad0009d29150e4ce9e90bdfec87b30d47',1,'mesh::mesh_t']]]
 ];
