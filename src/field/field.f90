@@ -35,11 +35,12 @@ module field
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_add2, device_cadd, device_cfill, device_copy
   use num_types, only : rp, c_rp
-  use device, only : device_map, device_free, device_memset, device_memcpy
+  use device, only : device_map, device_unmap, device_memset, device_memcpy
   use math, only : add2, copy, cadd, cfill
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
+  use utils, only : NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -52,7 +53,7 @@ module field
      type(dofmap_t), pointer :: dof !< Dofmap
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
-     character(len=80) :: name = "" !< Name of the field
+     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
    contains
      procedure, private, pass(this) :: init_common => field_init_common
@@ -193,6 +194,9 @@ contains
 
     this%name = ""
     if (allocated(this%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%x, this%x_d)
+       end if
        deallocate(this%x)
     end if
 
@@ -205,10 +209,6 @@ contains
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%dof)
-
-    if (c_associated(this%x_d)) then
-       call device_free(this%x_d)
-    end if
 
   end subroutine field_free
 

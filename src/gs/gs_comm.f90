@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,8 @@ module gs_comm
   private
 
   integer, public, parameter :: GS_COMM_MPI = 1, GS_COMM_MPIGPU = 2, &
-       GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4
+       GS_COMM_NCCL = 3, GS_COMM_NVSHMEM = 4, GS_COMM_OPENSHMEM = 5, &
+       GS_COMM_CAF = 6
 
   !> Gather-scatter communication method
   type, public, abstract :: gs_comm_t

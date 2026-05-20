@@ -1,0 +1,26 @@
+module test_krylov
+contains
+@test
+subroutine test_krylov_init
+  use pfunit
+  use krylov
+  implicit none
+
+  integer :: i
+
+  ! UPDATE once redesign is done
+  
+end subroutine test_krylov_init
+
+@test
+subroutine test_krylov_free
+  use pfunit
+  use krylov
+  implicit none
+  integer :: i
+
+  ! UPDATE once redesign is done
+  
+end subroutine test_krylov_free
+
+end module test_krylov

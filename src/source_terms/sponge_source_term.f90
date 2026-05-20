@@ -37,7 +37,8 @@ module sponge_source_term
   use json_module, only : json_file
   use registry, only : neko_registry
   use field, only : field_t
-  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup, &
+       json_get_subdict_or_empty
   use utils, only : neko_error
   use device, only : device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_sub3, device_col2, device_add2s2
@@ -48,7 +49,7 @@ module sponge_source_term
   use source_term, only : source_term_t
   use case, only : case_t
   use simcomp_executor, only : neko_simcomps
-  use flow_ic, only : set_flow_ic_fld, set_flow_ic
+  use import_field_utils, only : import_fields
   use field_list, only : field_list_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN
@@ -172,20 +173,24 @@ contains
        fname = trim(read_str)
        call json_get_or_default(baseflow_subdict, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(baseflow_subdict, 'tolerance', tolerance, &
-            0.000001_rp)
        call json_get_or_default(baseflow_subdict, 'mesh_file_name', read_str, &
             "none")
        mesh_fname = trim(read_str)
 
-       call this%init_field(fields, coef, start_time, end_time, amplitudes, &
-            fringe_registry_name, bf_registry_pref, dump_fields, dump_fname, &
-            fname, interpolate, tolerance, mesh_fname)
+       block
+         type(json_file) :: interp_subdict
+         call json_get_subdict_or_empty(baseflow_subdict, "interpolation", &
+              interp_subdict)
+
+         call this%init_field(fields, coef, start_time, end_time, amplitudes, &
+              fringe_registry_name, bf_registry_pref, dump_fields, dump_fname, &
+              fname, interpolate, mesh_fname, interp_subdict)
+       end block
 
        ! Constant base flow
     case ("constant")
 
-       call json_get(baseflow_subdict, "value", constant_value)
+       call json_get_or_lookup(baseflow_subdict, "value", constant_value)
        if (size(constant_value) .lt. 3) then
           call neko_error("(SPONGE) Expected 3 elements for 'value'")
        end if
@@ -261,7 +266,7 @@ contains
   !> Initialize a sponge with a baseflow imported from a field file.
   subroutine sponge_init_field(this, fields, coef, start_time, end_time, &
        amplitudes, fringe_registry_name, bf_registry_pref, dump_fields, &
-       dump_fname, file_name, interpolate, tolerance, mesh_file_name)
+       dump_fname, file_name, interpolate, mesh_file_name, interp_subdict)
     class(sponge_source_term_t), intent(inout) :: this
     type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
@@ -272,8 +277,8 @@ contains
     logical, intent(in) :: dump_fields
     character(len=*), intent(in) :: file_name
     logical, intent(in) :: interpolate
-    real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    type(json_file), intent(inout) :: interp_subdict
 
     type(field_t) :: wk
     integer :: tmp_index
@@ -303,29 +308,11 @@ contains
     this%w_bf => neko_registry%get_field(trim(bf_registry_pref) // "_w")
 
     !
-    ! Use the initial condition field subroutine to set a field as baseflow
+    ! Import the u,v,w baseflows from fld
     !
-
-    ! TODO
-    ! This is a bit awkward, because the init for the source terms occurs
-    ! before the init of the scratch registry.
-    ! So we can't use the scratch registry here.
-    ! call neko_scratch_registry%request_field(wk, tmp_index)
-    call wk%init(this%u%dof)
-
-    call set_flow_ic_fld(this%u_bf, this%v_bf, this%w_bf, wk, &
-         file_name, interpolate, tolerance, mesh_file_name)
-
-    call wk%free()
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%u_bf%x, this%u_bf%x_d, this%u_bf%size(), &
-            HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%v_bf%x, this%v_bf%x_d, this%v_bf%size(), &
-            HOST_TO_DEVICE, .false.)
-       call device_memcpy(this%w_bf%x, this%w_bf%x_d, this%w_bf%size(), &
-            HOST_TO_DEVICE, .true.)
-    end if
+    call import_fields(file_name, interp_subdict, mesh_file_name, &
+         u = this%u_bf, v = this%v_bf, w = this%w_bf, &
+         interpolate = interpolate)
 
     this%baseflow_set = .true.
 

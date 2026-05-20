@@ -92,6 +92,10 @@ contains
 
     if (json%valid_path("geostrophic_wind")) then
        call json_get_or_lookup(json, "geostrophic_wind", u_geo)
+
+       if (size(u_geo) .ne. 3) then
+          call neko_error("The geostrophic wind should have 3 components.")
+       end if
     else
        allocate(u_geo(3))
        u_geo = 0.0_rp
@@ -99,6 +103,10 @@ contains
 
     if (json%valid_path("rotation_vector")) then
        call json_get_or_lookup(json, "rotation_vector", rotation_vec)
+
+       if (size(rotation_vec) .ne. 3) then
+          call neko_error("The rotation vector should have 3 components.")
+       end if
     else if (json%valid_path("omega") .and. json%valid_path("phi")) then
        call json_get_or_lookup(json, "phi", phi)
        call json_get_or_lookup(json, "omega", omega)

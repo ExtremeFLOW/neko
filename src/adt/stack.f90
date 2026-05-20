@@ -32,6 +32,20 @@
 !
 !> Implements a dynamic stack ADT
 !! @details a stack storing values @a data of an arbitrary type
+!! Public types:
+!!   stack_i4_t         | 32-bit integers
+!!   stack_i8_t         | 64-bit integers
+!!   stack_r8_t         | 64-bit real values
+!!   stack_i4t2_t       | tuple_i4_t
+!!   stack_i4t4_t       | tuple4_i4_t
+!!   stack_i4r8t2_t     | tuple_i4r8_t
+!!   stack_2i4r8t3_t    | tuple_2i4r8_t
+!!   stack_curve_t      | struct_curve_t
+!!   stack_nq_t         | nmsh_quad_t
+!!   stack_nh_t         | nmsh_hex_t
+!!   stack_nz_t         | nmsh_zone_t
+!!   stack_nc_t         | nmsh_curve_el_t
+!!   stack_pt_t         | point_t
 module stack
   use num_types
   use nmsh

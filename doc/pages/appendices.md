@@ -21,6 +21,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_LOG_LEVEL`    | Log verbosity level (integer > 0, default: 1)                         | Unset         |
 | `NEKO_GS_STRTGY`    | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
 | `NEKO_GS_COMM`      | Gather-scatter communication backend                                  | Unset         |
+| `NEKO_GS_CAF_SIGNALING` | Coarray Fortran gather-scatter signaling mode                     | Unset         |
 | `NEKO_COMM_ID`      | Communicator id for this process (non-negative integer)               | 0             |
 
 ### Logging level details
@@ -40,4 +41,22 @@ A number of gather-scatter backends are supported.
 - `NEKO_GS_COMM=MPI`    : Host based MPI
 - `NEKO_GS_COMM=MPIGPU` : Device based MPI
 - `NEKO_GS_COMM=NCCL`   : NCCL/RCCL using its point-to-point interface
-- `NEKO_GS_COMM=SHMEM`  : NVSHMEM based (for NVIDIA GPUs)
+- `NEKO_GS_COMM=SHMEM`  : NVSHMEM based on GPU builds (NVIDIA GPUs);
+  OpenSHMEM based on CPU builds (requires a native OpenSHMEM library,
+  e.g. Cray OpenSHMEMX, enabled at configure time with `--with-openshmem`)
+- `NEKO_GS_COMM=CAF`    : Coarray Fortran (requires a coarray-capable compiler)
+
+### Coarray Fortran signaling mode details
+
+When `NEKO_GS_COMM=CAF`, the per-pair synchronisation strategy is
+selected by `NEKO_GS_CAF_SIGNALING`. The mode is bound on the first
+gather-scatter initialisation and cannot change thereafter. The
+default (when unset) is `sync`.
+
+- `NEKO_GS_CAF_SIGNALING=sync`   : `sync images` over the union of
+  neighbour pairs, with a double-buffered receive coarray (F2008).
+- `NEKO_GS_CAF_SIGNALING=atomic` : Per-pair atomic counters via
+  `atomic_define`/`atomic_ref` with a busy-wait spin (F2008).
+- `NEKO_GS_CAF_SIGNALING=event`  : F2018 events (`event post` /
+  `event wait`); requires a runtime that implements F2018 event
+  semantics.

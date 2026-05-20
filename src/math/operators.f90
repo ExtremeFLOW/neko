@@ -300,10 +300,10 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: du(Xh%lxyz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: vy(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: vz(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
     integer, optional :: es, ee
     integer :: eblk_end, eblk_start
 
@@ -735,7 +735,8 @@ contains
        call add5s4(phi%x, k1%x, k2%x, k3%x, k4%x, c1, c2, c2, c1, n)
     end if
 
-    call neko_scratch_registry%relinquish_field(ind)
+    call neko_scratch_registry%relinquish_field(ind(1:5))
+    call neko_scratch_registry%relinquish_vector(ind(6))
 
   end subroutine runge_kutta
 
@@ -743,7 +744,8 @@ contains
     real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
-    if (coef%cyclic) then
+
+    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
        else
@@ -756,7 +758,8 @@ contains
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
-    if (coef%cyclic) then
+
+    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
        else

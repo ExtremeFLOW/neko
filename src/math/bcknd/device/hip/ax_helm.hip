@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -285,6 +285,7 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   const dim3 nblcks_1d((*nelv), 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks_kstep((*nelv), 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
   char *env_value = NULL;
   char neko_log_buf[80];
@@ -316,23 +317,28 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
-  HIP_CHECK(hipEventRecord(start,0));
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  HIP_CHECK(hipEventRecord(start, stream));
 
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
 
-  HIP_CHECK(hipEventRecord(stop,0));
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time1, start, stop));
 
-  HIP_CHECK(hipEventRecord(start,0));
+  HIP_CHECK(hipEventRecord(start, stream));
 
   for(int i = 0; i < 100; i++) {
      CASE_KSTEP(LX);
    }
 
-  HIP_CHECK(hipEventRecord(stop,0));
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time2, start, stop));
 
@@ -362,6 +368,7 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   const dim3 nblcks_1d((*nelv), 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks_kstep((*nelv), 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
   char *env_value = NULL;
   char neko_log_buf[80];
@@ -393,23 +400,28 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
-  HIP_CHECK(hipEventRecord(start,0));
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  HIP_CHECK(hipEventRecord(start, stream));
 
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
 
-  HIP_CHECK(hipEventRecord(stop, 0));
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time1, start, stop));
 
-  HIP_CHECK(hipEventRecord(start, 0));
+  HIP_CHECK(hipEventRecord(start, stream));
 
   for(int i = 0; i < 100; i++) {
     CASE_KSTEP_PADDED(LX);
   }
 
-  HIP_CHECK(hipEventRecord(stop, 0));
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time2, start, stop));
 

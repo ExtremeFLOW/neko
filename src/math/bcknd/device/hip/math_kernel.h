@@ -69,6 +69,85 @@ __global__ void masked_gather_copy_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for masked gather copy aligned
+ */
+template< typename T >
+__global__ void masked_gather_copy_aligned_kernel(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,
+                                   const int n,
+                                   const int n_mask) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[i] = b[mask[i]];
+  }
+}
+
+__device__ __forceinline__
+void face_gather_nonlinear_index(int *index, const int idx, const int lx,
+                                 const int ly, const int lz) {
+  const int idx2 = idx - 1;
+  index[3] = idx2 / (lx * ly * lz);
+  index[2] = (idx2 - (lx * ly * lz) * index[3]) / (lx * ly);
+  index[1] = (idx2 - (lx * ly * lz) * index[3] - (lx * ly) * index[2]) / lx;
+  index[0] = (idx2 - (lx * ly * lz) * index[3] - (lx * ly) * index[2]) -
+    lx * index[1];
+  index[0]++;
+  index[1]++;
+  index[2]++;
+  index[3]++;
+}
+
+__device__ __forceinline__
+int face_gather_idx(const int i, const int j, const int k, const int l,
+                    const int n1, const int n2, const int nf) {
+  return ((i) + (n1) * (((j) - 1) + (n2) * (((k) - 1) + (nf) * (((l) - 1))))) - 1;
+}
+
+/**
+ * Device kernel for masked gather copy from a face-local field
+ */
+template< typename T >
+__global__ void face_masked_gather_copy_kernel(T * __restrict__ a,
+                                               const T * __restrict__ b,
+                                               const int * __restrict__ mask,
+                                               const int * __restrict__ facet,
+                                               const int n1,
+                                               const int n2,
+                                               const int lx,
+                                               const int ly,
+                                               const int lz,
+                                               const int n_mask) {
+  int index[4];
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int m = idx; m < n_mask; m += str) {
+    const int f = facet[m + 1];
+    face_gather_nonlinear_index(index, mask[m + 1], lx, ly, lz);
+
+    switch (f) {
+    case 1:
+    case 2:
+      a[m] = b[face_gather_idx(index[1], index[2], f, index[3], n1, n2, 6)];
+      break;
+    case 3:
+    case 4:
+      a[m] = b[face_gather_idx(index[0], index[2], f, index[3], n1, n2, 6)];
+      break;
+    case 5:
+    case 6:
+      a[m] = b[face_gather_idx(index[0], index[1], f, index[3], n1, n2, 6)];
+      break;
+    }
+  }
+}
+
+/**
  * Device kernel for masked scatter copy
  */
 template< typename T >
@@ -83,6 +162,24 @@ __global__ void masked_scatter_copy_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n_mask; i += str) {
     a[mask[i+1]-1] = b[i];
+  }
+}
+
+/**
+ * Device kernel for masked scatter copy with aligned mask
+ */
+template< typename T >
+__global__ void masked_scatter_copy_aligned_kernel(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,
+                                   const int n,
+                                   const int n_mask) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[mask[i]] = b[i];
   }
 }
 
@@ -219,6 +316,24 @@ __global__ void cadd2_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = b[i] + c;
+  }
+}
+
+/**
+ * Device kernel for cwrap
+ */
+template< typename T >
+__global__ void cwrap_kernel(T * __restrict__ a,
+                             const T min_val,
+                             const T max_val,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  const T l = max_val - min_val;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = min_val + fmod(fmod(a[i] - min_val, l) + l, l);
   }
 }
 
@@ -676,6 +791,34 @@ __inline__ __device__ T reduce_warp(T val) {
 }
 
 /**
+ * Warp shuffle reduction of maximisation
+ */
+template< typename T>
+__inline__ __device__ T reduce_max_warp(T val) {
+  val = max(val, __shfl_down(val, 32));
+  val = max(val, __shfl_down(val, 16));
+  val = max(val, __shfl_down(val, 8));
+  val = max(val, __shfl_down(val, 4));
+  val = max(val, __shfl_down(val, 2));
+  val = max(val, __shfl_down(val, 1));
+  return val;
+}
+
+/**
+ * Warp shuffle reduction of minimisation
+ */
+template< typename T>
+__inline__ __device__ T reduce_min_warp(T val) {
+  val = min(val, __shfl_down(val, 32));
+  val = min(val, __shfl_down(val, 16));
+  val = min(val, __shfl_down(val, 8));
+  val = min(val, __shfl_down(val, 4));
+  val = min(val, __shfl_down(val, 2));
+  val = min(val, __shfl_down(val, 1));
+  return val;
+}
+
+/**
  * Vector reduction kernel
  */
 template< typename T >
@@ -704,6 +847,68 @@ __global__ void reduce_kernel(T * bufred, const int n) {
 
   if (threadIdx.x == 0)
     bufred[blockIdx.x] = sum;
+}
+
+/**
+ * Vector reduction maximisation kernel
+ */
+template< typename T >
+__global__ void reduce_max_kernel(T * bufred, const T ninf, const int n) {
+
+  T max_val = ninf;
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  for (int i = idx; i<n ; i += str)
+  {
+    max_val = max(max_val, bufred[i]);
+  }
+
+  __shared__ T shared[64];
+  unsigned int lane = threadIdx.x % warpSize;
+  unsigned int wid = threadIdx.x / warpSize;
+
+  max_val = reduce_max_warp<T>(max_val);
+  if (lane == 0)
+    shared[wid] = max_val;
+  __syncthreads();
+
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  if (wid == 0)
+    max_val = reduce_max_warp<T>(max_val);
+
+  if (threadIdx.x == 0)
+    bufred[blockIdx.x] = max_val;
+}
+
+/**
+ * Vector reduction minimisation kernel
+ */
+template< typename T >
+__global__ void reduce_min_kernel(T * bufred, const T pinf, const int n) {
+
+  T min_val = pinf;
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  for (int i = idx; i<n ; i += str)
+  {
+    min_val = min(min_val, bufred[i]);
+  }
+
+  __shared__ T shared[64];
+  unsigned int lane = threadIdx.x % warpSize;
+  unsigned int wid = threadIdx.x / warpSize;
+
+  min_val = reduce_min_warp<T>(min_val);
+  if (lane == 0)
+    shared[wid] = min_val;
+  __syncthreads();
+
+  min_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : pinf;
+  if (wid == 0)
+    min_val = reduce_min_warp<T>(min_val);
+
+  if (threadIdx.x == 0)
+    bufred[blockIdx.x] = min_val;
 }
 
 /**
@@ -919,6 +1124,78 @@ __global__ void glsum_kernel(const T * a,
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
+
+}
+
+/**
+ * Device kernel for glmax
+ */
+template< typename T >
+__global__ void glmax_kernel(const T * a,
+                             const T ninf,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[64];
+  T max_val = ninf;
+  for (int i = idx; i<n ; i += str)
+  {
+    max_val = max(max_val, a[i]);
+  }
+
+  max_val = reduce_max_warp<T>(max_val);
+  if (lane == 0)
+    shared[wid] = max_val;
+  __syncthreads();
+
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  if (wid == 0)
+    max_val = reduce_max_warp<T>(max_val);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = max_val;
+
+}
+
+/**
+ * Device kernel for glmin
+ */
+template< typename T >
+__global__ void glmin_kernel(const T * a,
+                             const T pinf,
+                             T * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[64];
+  T min_val = pinf;
+  for (int i = idx; i<n ; i += str)
+  {
+    min_val = min(min_val, a[i]);
+  }
+
+  min_val = reduce_min_warp<T>(min_val);
+  if (lane == 0)
+    shared[wid] = min_val;
+  __syncthreads();
+
+  min_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : pinf;
+  if (wid == 0)
+    min_val = reduce_min_warp<T>(min_val);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = min_val;
 
 }
 

@@ -50,6 +50,7 @@ def pytest_addoption(parser):
         "--real_precision",
         action="store",
         default="dp",
+        choices=["dp", "sp"],
         help="Precisions of reals for Neko (dp [default], sp)."
     )
 

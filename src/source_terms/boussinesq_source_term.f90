@@ -37,7 +37,7 @@ module boussinesq_source_term
   use field, only : field_t
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default, &
-       json_get_or_lookup
+       json_get_or_lookup, json_get_or_lookup_or_default
   use source_term, only : source_term_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -114,7 +114,7 @@ contains
     end if
 
     call json_get_or_lookup(json, "reference_value", ref_value)
-    call json_get_or_default(json, "beta", beta, 1.0_rp/ref_value)
+    call json_get_or_lookup_or_default(json, "beta", beta, 1.0_rp/ref_value)
 
     call boussinesq_source_term_init_from_components(this, fields, scalar_name,&
          ref_value, g, beta, coef, start_time, end_time)

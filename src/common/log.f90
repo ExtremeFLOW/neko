@@ -44,6 +44,9 @@ module logger
   !! output log leaves 79 characters for the message.
   integer, public, parameter :: LOG_SIZE = 79
 
+  !> Length of the section header
+  integer, public, parameter :: SEC_HEAD_SIZE = 30
+
   type, public :: log_t
      integer, private :: indent_
      integer, private :: section_id_
@@ -354,8 +357,16 @@ contains
        pre = (30 - len_trim(msg)) / 2
        pos = 30 - (len_trim(msg) + pre)
 
-       write(this%section_header, '(A,A,A)') &
-            repeat('-', pre), trim(msg), repeat('-', pos)
+       if (pre .lt. 0 .or. pos .lt. 0) then
+          pre = 1
+          pos = 1
+          write(this%section_header, '(A,A,A)') &
+               repeat('-', pre), trim(msg(1: SEC_HEAD_SIZE - 2)), &
+               repeat('-', pos)
+       else
+          write(this%section_header, '(A,A,A)') &
+               repeat('-', pre), trim(msg), repeat('-', pos)
+       end if
     end if
 
   end subroutine log_section

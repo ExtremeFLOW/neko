@@ -65,7 +65,7 @@ contains
     ! We assume the material properties are constant
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
-    do i = 1, n
+    do concurrent (i = 1:n)
        c_Xh%h1(i,1,1,1) = 1.0_rp / rho_val
        c_Xh%h2(i,1,1,1) = 0.0_rp
     end do

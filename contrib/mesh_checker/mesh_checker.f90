@@ -42,6 +42,7 @@ program mesh_checker
   character(len=LOG_SIZE) :: log_buf
   integer :: total_size, inlet_size, wall_size, periodic_size
   integer :: outlet_size, symmetry_size, outlet_normal_size
+  integer :: e, f, n_unlabeled_local, n_unlabeled_global
   type(dirichlet_t) :: bdry_mask
   type(field_t) :: bdry_field
   type(file_t) :: bdry_file
@@ -50,7 +51,9 @@ program mesh_checker
   type(coef_t) :: coef
   type(dofmap_t) :: dofmap
   logical :: write_zone_ids
+  logical, allocatable :: is_periodic(:,:)
   real(kind=rp) :: xmin, xmax, ymin, ymax, zmin, zmax
+  logical :: failed
 
   argc = command_argument_count()
 
@@ -76,6 +79,8 @@ program mesh_checker
         write_zone_ids = .true.
      end if
   end do
+
+  failed = .false.
 
   call mesh_file%init(trim(mesh_fname))
   call mesh_file%read(msh)
@@ -110,6 +115,50 @@ program mesh_checker
      write(*,*) ''
      write(*,*) 'Labeled zones: '
   end if
+
+  !
+  ! Identify unlabeled external faces
+  !
+
+  ! First, mark periodic faces in the mesh
+  allocate(is_periodic(2 * msh%gdim, msh%nelv))
+  is_periodic = .false.
+  do i = 1, msh%periodic%size
+     f = msh%periodic%facet_el(i)%x(1)
+     e = msh%periodic%facet_el(i)%x(2)
+     is_periodic(f, e) = .true.
+  end do
+
+  ! Loop through faces and check
+  ! - Not periodic.
+  ! - facet_neigh = 0, so external face.
+  ! - face_type = 0, so not a labeled zone.
+  ! This combo should never occur in a valid mesh.
+  n_unlabeled_local = 0
+  do e = 1, msh%nelv
+     do f = 1, 2 * msh%gdim
+        if (msh%facet_neigh(f, e) == 0 .and. &
+             msh%facet_type(f, e) == 0 .and. &
+             .not. is_periodic(f, e)) then
+           n_unlabeled_local = n_unlabeled_local + 1
+        end if
+     end do
+  end do
+
+  call MPI_Allreduce(n_unlabeled_local, n_unlabeled_global, 1, &
+       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+  if (n_unlabeled_global .gt. 0) then
+     failed = .true.
+     if (pe_rank .eq. 0) then
+        write(*,*) 'Error: Found ', n_unlabeled_global, &
+             ' unlabeled external faces.'
+     end if
+  end if
+
+  !
+  ! Report labeled zones
+  !
 
   do i = 1, size(msh%labeled_zones)
 
@@ -148,9 +197,13 @@ program mesh_checker
   call Xh%free()
   call gs%free()
   call msh%free()
+  deallocate(is_periodic)
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
   call neko_finalize
 
-end program mesh_checker
+  if (failed) then
+     call neko_error("Mesh check failed with one or several errors.")
+  end if
 
+end program mesh_checker

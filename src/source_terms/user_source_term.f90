@@ -39,9 +39,7 @@ module user_source_term
   use json_module, only : json_file
   use field_list, only : field_list_t
   use coefs, only : coef_t
-  use device, only : device_map, device_free
-  use device_math, only : device_add2
-  use field_math, only : field_add2
+  use field_math, only : field_add2, field_rzero
   use dofmap, only : dofmap_t
   use user_intf, only : user_source_term_intf
   use time_state, only : time_state_t
@@ -92,12 +90,13 @@ contains
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: variable_name
 
-    call neko_error("The user fluid source term should be init from components")
+    call neko_error("The user source term should be initialized from " // &
+         "components")
 
   end subroutine user_source_term_init
 
   !> Costructor from components.
-  !! @param fields A list of 3 fields for adding the source values.
+  !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
   !! @param user_proc The procedure user procedure to compute the source term.
   !! @param scheme_name The name of the scheme that owns this source term.
@@ -116,7 +115,7 @@ contains
     this%scheme_name = scheme_name
     this%dof => fields%dof(1)
 
-    call this%user_fields%init(3)
+    call this%user_fields%init(this%fields%size())
 
     do i = 1, this%fields%size()
        allocate(this%user_fields%items(i)%ptr)
@@ -148,10 +147,13 @@ contains
     integer :: i
 
     if (time%t .ge. this%start_time .and. time%t .le. this%end_time) then
-       call this%compute_user_(this%scheme_name, this%fields, time)
+       do i = 1, this%fields%size()
+          call field_rzero(this%user_fields%items(i)%ptr)
+       end do
+
+       call this%compute_user_(this%scheme_name, this%user_fields, time)
 
        do i = 1, this%fields%size()
-          call this%user_fields%items(i)%ptr%init(this%dof)
           call field_add2(this%fields%items(i)%ptr, &
                this%user_fields%items(i)%ptr)
        end do

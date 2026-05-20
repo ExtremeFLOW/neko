@@ -60,6 +60,9 @@ module force_torque
   use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_Allreduce
   use comm, only : NEKO_COMM
   use device, only : device_memcpy, HOST_TO_DEVICE
+  use ale_manager, only : neko_ale
+  use ale_rigid_kinematics, only : pivot_state_t
+  use utils, only : neko_error
 
   implicit none
   private
@@ -78,7 +81,7 @@ module force_torque
      !> Total dynamic viscosity.
      type(field_t), pointer :: mu => null()
 
-     !Masked working arrays
+     ! Masked working arrays
      type(vector_t) :: n1, n2, n3
      type(vector_t) :: r1, r2, r3
      type(vector_t) :: force1, force2, force3
@@ -93,6 +96,17 @@ module force_torque
      type(coef_t), pointer :: coef => null()
      type(dirichlet_t) :: bc
      character(len=80) :: print_format
+     ! Pointer to the live pivot state inside ale_manager
+     type(pivot_state_t), pointer :: pivot_link => null()
+     logical :: moving_center = .false.
+     logical :: update_normals = .false.
+     character(len=64) :: linked_body_name = 'NOT_LINKED'
+     ! Stores the Time=0 offset from the initial pivot
+     real(kind=rp) :: local_offset(3) = 0.0_rp
+     ! Current Pivot Position
+     real(kind=rp), pointer :: body_P(:) => null()
+     ! Current Rotation Matrix
+     real(kind=rp), pointer :: body_R(:,:) => null()
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -113,6 +127,8 @@ module force_torque
      procedure, pass(this) :: free => force_torque_free
      !> Compute the force_torque field.
      procedure, pass(this) :: compute_ => force_torque_compute
+     !> Routine to setup ALE links
+     procedure, private, pass(this) :: ale_link => setup_ale_link
   end type force_torque_t
 
 contains
@@ -124,7 +140,7 @@ contains
     class(case_t), intent(inout), target :: case
     integer :: zone_id
     real(kind=rp), allocatable :: center(:)
-    character(len=:), allocatable :: zone_name, fluid_name
+    character(len=:), allocatable :: zone_name, fluid_name, center_type
     character(len=:), allocatable :: name
     real(kind=rp) :: scale
     logical :: long_print
@@ -138,8 +154,18 @@ contains
     call json_get_or_lookup_or_default(json, 'scale', scale, 1.0_rp)
     call json_get_or_default(json, 'long_print', long_print, .false.)
     call json_get_or_lookup(json, 'center', center)
-    call this%init_common(name, fluid_name, zone_id, zone_name, center, scale, &
-         case%fluid%c_xh, long_print)
+    call json_get_or_default(json, 'center_type', center_type, 'fixed')
+    if (trim(center_type) /= 'fixed' .and. &
+         trim(center_type) /= 'pivot' .and. &
+         trim(center_type) /= 'body_attached') then
+       call neko_error("force_torque: center_type must be 'fixed'"// &
+            ", 'pivot', or 'body_attached'.")
+    end if
+
+    if (allocated(center)) this%center = center
+
+    call this%init_common(name, fluid_name, zone_id, zone_name, this%center, &
+         scale, case%fluid%c_xh, long_print, center_type = center_type)
   end subroutine force_torque_init_from_json
 
   !> Constructor from components, passing controllers.
@@ -235,11 +261,12 @@ contains
   !! @param zone_id The id of the boundary zone.
   !! @param zone_name The name of the boundary zone, to use in the log.
   !! @param center The center of the torque calculation.
+  !! @param center_type The type of center used.
   !! @param scale Normalization factor.
   !! @param coef The SEM coefficients.
   !! @param long_print If true, use a more precise print format.
   subroutine force_torque_init_common(this, name, fluid_name, zone_id, &
-       zone_name, center, scale, coef, long_print)
+       zone_name, center, scale, coef, long_print, center_type)
     class(force_torque_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     real(kind=rp), intent(in) :: center(3)
@@ -249,17 +276,36 @@ contains
     integer, intent(in) :: zone_id
     type(coef_t), target, intent(in) :: coef
     logical, intent(in) :: long_print
+    character(len=*), intent(in), optional :: center_type
+    character(len=:), allocatable :: ctype_str
     integer :: n_pts, glb_n_pts, ierr
+    real(kind=rp) :: avg_r(3)
     character(len=1000) :: log_buf
-
     this%name = name
     this%coef => coef
     this%zone_id = zone_id
-    this%center = center
     this%scale = scale
     this%zone_name = zone_name
 
-    if (long_print ) then
+    if (present(center_type)) then
+       ctype_str = center_type
+    else
+       ctype_str = 'fixed' ! Default behavior
+    end if
+
+    call this%ale_link(zone_id, ctype_str, center)
+
+    if (ctype_str /= 'fixed' .and. .not. this%moving_center) then
+       ctype_str = 'fixed (reverted from ' // ctype_str // ')'
+    end if
+
+    ! Set fixed center if not linked to an ALE body
+    if (.not. this%moving_center) then
+       this%center = center
+    end if
+
+
+    if (long_print) then
        this%print_format = '(I7,E20.10,E20.10,E20.10,E20.10,A)'
     else
        this%print_format = '(I7,E13.5,E13.5,E13.5,E13.5,A)'
@@ -310,28 +356,48 @@ contains
 
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+    ! Calculating avg pos here
+    avg_r(1) = glsum(this%r1%x, n_pts)/glb_n_pts
+    avg_r(2) = glsum(this%r2%x, n_pts)/glb_n_pts
+    avg_r(3) = glsum(this%r3%x, n_pts)/glb_n_pts
     ! Print some information
     call neko_log%section('Force/torque calculation')
-    write(log_buf, '(A,I4,A,A)') 'Zone ', zone_id, '   ', trim(zone_name)
+    write(log_buf, '(A,I4,A,A)') 'Zone ', zone_id, '  ', trim(zone_name)
     call neko_log%message(log_buf)
+
     write(log_buf, '(A,I6, I6)') 'Global number of GLL points in zone: ', &
          glb_n_pts
     call neko_log%message(log_buf)
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Average of zone''s coordinates: ',&
-         glsum(this%r1%x, n_pts)/glb_n_pts, &
-         glsum(this%r2%x, n_pts)/glb_n_pts, &
-         glsum(this%r3%x, n_pts)/glb_n_pts
+
+    write(log_buf, '(A,A)') 'Center Type: ', trim(ctype_str)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,E15.7,E15.7,E15.7)') 'Center for torque calculation: ', &
-         center
+
+    if (trim(ctype_str) == 'pivot' .or. &
+    trim(ctype_str) == 'body_attached') then
+       write(log_buf, '(A,A)') 'Linked to ALE Body movement: ', &
+            trim(this%linked_body_name)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,E15.7,E15.7,E15.7)') &
+            'Initial center for torque calculation: ', this%center
+       call neko_log%message(log_buf)
+    else
+       write(log_buf, '(A,E15.7,E15.7,E15.7)') &
+            'Fixed center for torque calculation: ', this%center
+       call neko_log%message(log_buf)
+    end if
+
+    write(log_buf, '(A,E15.7,E15.7,E15.7)') &
+         'Average of zone''s coordinates: ', avg_r
     call neko_log%message(log_buf)
+
     write(log_buf, '(A,E15.7)') 'Scale: ', scale
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call cadd(this%r1%x, -center(1), n_pts)
-    call cadd(this%r2%x, -center(2), n_pts)
-    call cadd(this%r3%x, -center(3), n_pts)
+
+    call cadd(this%r1%x, -this%center(1), n_pts)
+    call cadd(this%r2%x, -this%center(2), n_pts)
+    call cadd(this%r3%x, -this%center(3), n_pts)
     if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
        call device_memcpy(this%n1%x, this%n1%x_d, n_pts, HOST_TO_DEVICE, &
             .false.)
@@ -385,6 +451,7 @@ contains
     nullify(this%p)
     nullify(this%coef)
     nullify(this%mu)
+    nullify(this%pivot_link)
   end subroutine force_torque_free
 
   !> Compute the force_torque field.
@@ -397,8 +464,59 @@ contains
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
     character(len=1000) :: log_buf
-
+    real(kind=rp) :: rot_offset(3)
     n_pts = this%bc%msk(0)
+
+
+    ! body_attached
+    if (this%moving_center .and. associated(this%body_P)) then
+       if (associated(this%body_R)) then
+          ! R * Offset
+          rot_offset(1) = this%body_R(1,1)*this%local_offset(1) + &
+                          this%body_R(1,2)*this%local_offset(2) + &
+                          this%body_R(1,3)*this%local_offset(3)
+          rot_offset(2) = this%body_R(2,1)*this%local_offset(1) + &
+                          this%body_R(2,2)*this%local_offset(2) + &
+                          this%body_R(2,3)*this%local_offset(3)
+          rot_offset(3) = this%body_R(3,1)*this%local_offset(1) + &
+                          this%body_R(3,2)*this%local_offset(2) + &
+                          this%body_R(3,3)*this%local_offset(3)
+
+          this%center = this%body_P + rot_offset
+       end if
+    end if
+
+    if (this%update_normals) then
+
+       call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
+            this%n1%x, this%n2%x, this%n3%x, n_pts)
+
+       call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
+            this%u%size(), n_pts)
+       call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
+            this%u%size(), n_pts)
+       call masked_gather_copy_0(this%r3%x, this%coef%dof%z, this%bc%msk, &
+            this%u%size(), n_pts)
+
+       call cadd(this%r1%x, -this%center(1), n_pts)
+       call cadd(this%r2%x, -this%center(2), n_pts)
+       call cadd(this%r3%x, -this%center(3), n_pts)
+
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
+          call device_memcpy(this%n1%x, this%n1%x_d, n_pts, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%n2%x, this%n2%x_d, n_pts, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%n3%x, this%n3%x_d, n_pts, &
+               HOST_TO_DEVICE, .true.)
+          call device_memcpy(this%r1%x, this%r1%x_d, n_pts, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%r2%x, this%r2%x_d, n_pts, &
+               HOST_TO_DEVICE, .false.)
+          call device_memcpy(this%r3%x, this%r3%x_d, n_pts, &
+               HOST_TO_DEVICE, .true.)
+       end if
+    end if
 
     call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(s12, temp_indices(2), .false.)
@@ -495,9 +613,9 @@ contains
                this%n1%x_d, &
                this%n2%x_d, &
                this%n3%x_d, &
-               this%mu%x_d, &
+               this%mu_msk%x_d, &
                n_pts)
-          !Overwriting masked s11, s22, s33 as they are no longer needed
+          ! Overwriting masked s11, s22, s33 as they are no longer needed
           call device_vcross(this%s11msk%x_d, this%s22msk%x_d, &
                this%s33msk%x_d, &
                this%r1%x_d, this%r2%x_d, this%r3%x_d, &
@@ -548,5 +666,115 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine force_torque_compute
+
+  !> Routine to configure ALE connectivity for force/torque module
+  subroutine setup_ale_link(this, zone_id, center_type, center_in)
+    class(force_torque_t), intent(inout) :: this
+    integer, intent(in) :: zone_id
+    character(len=*), intent(in) :: center_type
+    real(kind=rp), intent(in) :: center_in(3)
+
+    character(len=128) :: log_buf
+    integer :: i, j, nbodies, nindices
+    logical :: body_found
+    logical :: ale_active
+
+    ale_active = .false.
+    this%moving_center = .false.
+    this%update_normals = .false.
+    this%local_offset = 0.0_rp
+    nullify(this%body_P)
+    nullify(this%body_R)
+
+    ! Check Global Pointer for ALE
+    if (associated(neko_ale)) then
+       if (neko_ale%active) then
+          ale_active = .true.
+          this%update_normals = .true.
+
+          if (trim(center_type) == 'pivot' .or. &
+               trim(center_type) == 'body_attached') then
+
+             body_found = .false.
+             nbodies = neko_ale%config%nbodies
+             i = 1
+             do while (i <= nbodies .and. .not. body_found)
+                if (allocated(neko_ale%config%bodies(i)%zone_indices)) then
+                   nindices = size(neko_ale%config%bodies(i)%zone_indices)
+                   j = 1
+                   do while (j <= nindices .and. .not. body_found)
+                      if (neko_ale%config%bodies(i)%zone_indices(j) &
+                           == zone_id) then
+
+                         ! Body found
+                         this%moving_center = .true.
+                         this%pivot_link => neko_ale%ale_pivot(i)
+                         this%linked_body_name = neko_ale%config%bodies(i)%name
+                         ! body_id = neko_ale%config%bodies(i)%id
+                         body_found = .true.
+
+                         ! Point to Live Data
+                         this%body_P => neko_ale%ale_pivot(i)%pos
+                         this%body_R => neko_ale%body_rot_matrices(:, :, i)
+
+                         ! Calculate local offset (Using Time=0 data)
+                         if (trim(center_type) == 'pivot') then
+                            ! Attached to center -> Offset is 0
+                            this%local_offset = 0.0_rp
+                            this%center = this%body_P ! Initial Position
+                         else
+                            ! Detached from pivot -->
+                            ! offset = JSON_Input - Initial_Pivot
+                            ! Note: we assume center_in is the Time=0 global coord
+                            this%local_offset = center_in - &
+                                 neko_ale%config%bodies(i)%rot_center
+                            ! Set initial position for init_common
+                            this%center = center_in
+                         end if
+
+                      end if
+                      j = j + 1
+                   end do
+                end if
+                i = i + 1
+             end do
+
+             if (.not. body_found) then
+                call neko_log%message(' ')
+                write(log_buf, '(A,I0,A)') 'Warning: Zone ', zone_id, &
+                     ' requested "' // trim(center_type) // &
+                     '" center, but is not registered as an ALE body.'
+
+                call neko_log%message(log_buf)
+
+                call neko_log%message('Reverting to FIXED center ' // &
+                     'using JSON coordinates.')
+
+                this%moving_center = .false.
+             end if
+
+          end if
+       end if
+    end if
+
+    if ((.not. ale_active) .and. (trim(center_type) == 'pivot' .or. &
+         trim(center_type) == 'body_attached')) then
+
+       call neko_log%message(' ')
+
+       write(log_buf, '(A,I0,A)') "Warning: Zone ", zone_id, &
+            " requested '" // trim(center_type) // "' center, " // &
+            "but ALE is not active."
+       call neko_log%message(log_buf)
+
+       call neko_log%message("pivot and body_attached work " // &
+            "only for ALE simulations.")
+
+       call neko_log%message("Reverting to 'fixed' center " // &
+            "using JSON coordinates.")
+
+    end if
+
+  end subroutine setup_ale_link
 
 end module force_torque
