@@ -100,7 +100,6 @@ contains
     call gs_Xh%op(ta3, GS_OP_ADD)
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 
-    !OCL NORECURRENCE
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
     !GCC$ ivdep
