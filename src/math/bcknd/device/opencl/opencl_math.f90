@@ -394,10 +394,10 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_vcross
 
-     real(c_rp) function opencl_glsc3(a_d, b_d, c_d, n, strm) &
+     real(c_xp) function opencl_glsc3(a_d, b_d, c_d, n, strm) &
           bind(c, name = 'opencl_glsc3')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d, strm
        integer(c_int) :: n
@@ -406,26 +406,26 @@ module opencl_math
      subroutine opencl_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm) &
           bind(c, name = 'opencl_glsc3_many')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        integer(c_int) :: j, n
        type(c_ptr), value :: w_d, v_d_d, mult_d, strm
-       real(c_rp) :: h(j)
+       real(c_xp) :: h(j)
      end subroutine opencl_glsc3_many
 
-     real(c_rp) function opencl_glsc2(a_d, b_d, n, strm) &
+     real(c_xp) function opencl_glsc2(a_d, b_d, n, strm) &
           bind(c, name = 'opencl_glsc2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function opencl_glsc2
 
-     real(c_rp) function opencl_glsubnorm2(a_d, b_d, n, strm) &
+     real(c_xp) function opencl_glsubnorm2(a_d, b_d, n, strm) &
           bind(c, name = 'opencl_glsubnorm2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n

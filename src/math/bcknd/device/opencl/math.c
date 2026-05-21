@@ -1197,8 +1197,8 @@ cl_mem bufred_xp_d = NULL;
  * Fortran wrapper glsc3
  * Weighted inner product \f$ a^T b c \f$
  */
-real opencl_glsc3(void *a, void *b, void *c, int *n,
-                  cl_command_queue cmd_queue) {
+real_xp opencl_glsc3(void *a, void *b, void *c, int *n,
+                     cl_command_queue cmd_queue) {
   cl_int err;
   cl_event kern_wait;
   int i;
@@ -1210,16 +1210,16 @@ real opencl_glsc3(void *a, void *b, void *c, int *n,
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  if ( nb > red_s){
-    red_s = nb;
-    if (bufred != NULL) {
-      free(bufred);
-      CL_CHECK(clReleaseMemObject(bufred_d));
+  if (nb > red_xp_s) {
+    red_xp_s = nb;
+    if (bufred_xp != NULL) {
+      free(bufred_xp);
+      CL_CHECK(clReleaseMemObject(bufred_xp_d));
     }
-    bufred = (real *) malloc(nb * sizeof(real));
+    bufred_xp = (real_xp *) malloc(nb * sizeof(real_xp));
 
-    bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
-                              nb * sizeof(real), NULL, &err);
+    bufred_xp_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                                 nb * sizeof(real_xp), NULL, &err);
     CL_CHECK(err);
   }
 
@@ -1229,20 +1229,20 @@ real opencl_glsc3(void *a, void *b, void *c, int *n,
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &bufred_d));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &bufred_xp_d));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
 
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_d, CL_TRUE, 0,
-                               nb * sizeof(real), bufred, 1,
+  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_xp_d, CL_TRUE, 0,
+                               nb * sizeof(real_xp), bufred_xp, 1,
                                &kern_wait, NULL));
 
-  real res = 0.0;
+  real_xp res = 0.0;
   for (i = 0; i < nb; i++) {
-    res += bufred[i];
+    res += bufred_xp[i];
   }
 
   CL_CHECK(clReleaseKernel(kernel));
@@ -1254,8 +1254,8 @@ real opencl_glsc3(void *a, void *b, void *c, int *n,
  * Fortran wrapper for doing a reduction to an array
  * Weighted inner product \f$ w^T v(n,1:j) c \f$
  */
-void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
-                       cl_command_queue cmd_queue){
+void opencl_glsc3_many(real_xp *h, void * w, void *v, void *mult, int *j,
+                       int *n, cl_command_queue cmd_queue){
   int i, k;
   cl_int err;
   cl_event kern_wait;
@@ -1273,16 +1273,16 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
   const size_t local_item_size[2] = {nt, pow2};
   const size_t global_item_size[2] = {nb * nt, pow2};
 
-  if((*j)*nb > red_s) {
-    red_s = (*j)*nb;
-    if (bufred != NULL) {
-      free(bufred);
-      CL_CHECK(clReleaseMemObject(bufred_d));
+  if ((*j) * nb > red_xp_s) {
+    red_xp_s = (*j) * nb;
+    if (bufred_xp != NULL) {
+      free(bufred_xp);
+      CL_CHECK(clReleaseMemObject(bufred_xp_d));
     }
-    bufred = (real *) malloc((*j) * nb * sizeof(real));
+    bufred_xp = (real_xp *) malloc((*j) * nb * sizeof(real_xp));
 
-    bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
-                              (*j) * nb * sizeof(real), NULL, &err);
+    bufred_xp_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                                 (*j) * nb * sizeof(real_xp), NULL, &err);
     CL_CHECK(err);
   }
 
@@ -1292,7 +1292,7 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &w));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &v));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mult));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &bufred_d));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &bufred_xp_d));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), j));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), n));
 
@@ -1300,9 +1300,9 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
                                   global_item_size, local_item_size,
                                   0, NULL, &kern_wait));
 
-  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_d, CL_TRUE, 0,
-                               (*j) * nb * sizeof(real),
-                               bufred, 1, &kern_wait, NULL));
+  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_xp_d, CL_TRUE, 0,
+                               (*j) * nb * sizeof(real_xp),
+                               bufred_xp, 1, &kern_wait, NULL));
 
   for (k = 0; k < (*j); k++) {
     h[k] = 0.0;
@@ -1310,7 +1310,7 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
 
   for (i = 0; i < nb; i++) {
     for (k = 0; k < (*j); k++) {
-        h[k] += bufred[i*(*j)+k];
+        h[k] += bufred_xp[i*(*j)+k];
     }
   }
 
@@ -1321,7 +1321,7 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n,
  * Fortran wrapper glsc2
  * Weighted inner product \f$ a^T b c \f$
  */
-real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
+real_xp opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   cl_int err;
   cl_event kern_wait;
   int i;
@@ -1333,16 +1333,16 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  if (nb > red_s) {
-    red_s = nb;
-    if (bufred != NULL) {
-      free(bufred);
-      CL_CHECK(clReleaseMemObject(bufred_d));
+  if (nb > red_xp_s) {
+    red_xp_s = nb;
+    if (bufred_xp != NULL) {
+      free(bufred_xp);
+      CL_CHECK(clReleaseMemObject(bufred_xp_d));
     }
-    bufred = (real *) malloc(nb * sizeof(real));
+    bufred_xp = (real_xp *) malloc(nb * sizeof(real_xp));
 
-    bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
-                              nb * sizeof(real), NULL, &err);
+    bufred_xp_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                                 nb * sizeof(real_xp), NULL, &err);
     CL_CHECK(err);
   }
 
@@ -1351,19 +1351,20 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &bufred_d));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &bufred_xp_d));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
 
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_d, CL_TRUE, 0,
-                               nb * sizeof(real), bufred, 1, &kern_wait, NULL));
+  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_xp_d, CL_TRUE, 0,
+                               nb * sizeof(real_xp), bufred_xp, 1,
+                               &kern_wait, NULL));
 
-  real res = 0.0;
+  real_xp res = 0.0;
   for (i = 0; i < nb; i++) {
-    res += bufred[i];
+    res += bufred_xp[i];
   }
 
   CL_CHECK(clReleaseEvent(kern_wait));
@@ -1376,7 +1377,7 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
  * Fortran wrapper glsubnorm2
  * Weighted inner product \f$ a^T b c \f$
  */
-real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
+real_xp opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   cl_int err;
   cl_event kern_wait;
   int i;
@@ -1388,16 +1389,16 @@ real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  if (nb > red_s) {
-    red_s = nb;
-    if (bufred != NULL) {
-      free(bufred);
-      CL_CHECK(clReleaseMemObject(bufred_d));
+  if (nb > red_xp_s) {
+    red_xp_s = nb;
+    if (bufred_xp != NULL) {
+      free(bufred_xp);
+      CL_CHECK(clReleaseMemObject(bufred_xp_d));
     }
-    bufred = (real *) malloc(nb * sizeof(real));
+    bufred_xp = (real_xp *) malloc(nb * sizeof(real_xp));
 
-    bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
-                              nb * sizeof(real), NULL, &err);
+    bufred_xp_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                                 nb * sizeof(real_xp), NULL, &err);
     CL_CHECK(err);
   }
 
@@ -1406,19 +1407,20 @@ real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &bufred_d));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &bufred_xp_d));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
 
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_d, CL_TRUE, 0,
-                               nb * sizeof(real), bufred, 1, &kern_wait, NULL));
+  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_xp_d, CL_TRUE, 0,
+                               nb * sizeof(real_xp), bufred_xp, 1,
+                               &kern_wait, NULL));
 
-  real res = 0.0;
+  real_xp res = 0.0;
   for (i = 0; i < nb; i++) {
-    res += bufred[i];
+    res += bufred_xp[i];
   }
 
   CL_CHECK(clReleaseEvent(kern_wait));

@@ -1248,25 +1248,19 @@ contains
     h_xp = 0.0_c_xp
     call cuda_glsc3_many(h_xp, w_d, v_d_d, mult_d, j, n, strm_)
 #elif HAVE_OPENCL
-    call opencl_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm_)
+    h_xp = 0.0_c_xp
+    call opencl_glsc3_many(h_xp, w_d, v_d_d, mult_d, j, n, strm_)
 #else
     call neko_error('No device backend configured')
 #endif
 
 #ifndef HAVE_DEVICE_MPI
     if (pe_size .gt. 1) then
-#if HAVE_HIP || HAVE_CUDA
        call MPI_Allreduce(MPI_IN_PLACE, h_xp, j, &
             MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-#else
-       call MPI_Allreduce(MPI_IN_PLACE, h, j, &
-            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-#endif
     end if
 #endif
-#if HAVE_HIP || HAVE_CUDA
     h = real(h_xp, kind=c_rp)
-#endif
   end subroutine device_glsc3_many
 
   subroutine device_add2s2_many(y_d, x_d_d, a_d, j, n, strm)
