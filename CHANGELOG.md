@@ -2,7 +2,8 @@
 
 ## Develop
 
-- Modified all `gl*` routines in `device_math` to do reductions in extended
+- Modified the additive reduction routines in `device_math` (`glsum`, `glsc2`,
+  `glsc3`, `glsubnorm`, and `glsc3_many`) to do reductions in extended
   precision instead of `rp`. This improves numerical robustness when running
   in single precision.
 - Removed restart limitations on load balancing. We now cache the the balanced

@@ -1245,6 +1245,7 @@ real_xp opencl_glsc3(void *a, void *b, void *c, int *n,
     res += bufred_xp[i];
   }
 
+  CL_CHECK(clReleaseEvent(kern_wait));
   CL_CHECK(clReleaseKernel(kernel));
 
   return res;
@@ -1314,6 +1315,7 @@ void opencl_glsc3_many(real_xp *h, void * w, void *v, void *mult, int *j,
     }
   }
 
+  CL_CHECK(clReleaseEvent(kern_wait));
   CL_CHECK(clReleaseKernel(kernel));
 }
 
