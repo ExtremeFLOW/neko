@@ -33,7 +33,8 @@
 module fluid_scheme_compressible
   use field, only : field_t
   use field_math, only : field_col2, field_col3, &
-       field_cmult2, field_cmult, field_addcol3, field_add2
+       field_cmult2, field_cmult, field_addcol3, field_add2, &
+       field_cfill
 
   use registry, only : neko_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
@@ -44,7 +45,7 @@ module fluid_scheme_compressible
   use space, only : GLL
   use user_intf, only : user_t, user_material_properties_intf, &
        dummy_user_material_properties
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use mpi_f08
   use operators, only : cfl_compressible
   use device, only : device_memcpy, HOST_TO_DEVICE
@@ -384,6 +385,8 @@ contains
     type(user_t), target, intent(in) :: user
     procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     type(time_state_t) :: dummy_time_state
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: const_mu, const_kappa
 
     dummy_mp_ptr => dummy_user_material_properties
 
@@ -404,8 +407,18 @@ contains
             dummy_time_state)
     else
        this%user_material_properties => dummy_user_material_properties
-       this%mu%x = 0.0_rp
-       this%kappa%x = 0.0_rp
+       call json_get_or_lookup_or_default(params, 'case.fluid.mu', const_mu, &
+            0.0_rp)
+       call json_get_or_lookup_or_default(params, 'case.fluid.kappa', &
+            const_kappa, 0.0_rp)
+
+       call field_cfill(this%mu, const_mu)
+       call field_cfill(this%kappa, const_kappa)
+
+       write(log_buf, '(A,ES13.6)') 'mu         :', const_mu
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'kappa      :', const_kappa
+       call neko_log%message(log_buf)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

@@ -94,6 +94,11 @@ contains
     integer :: i
     real(kind=rp) :: Re, Prandtl_number, gamma
 
+    !! Either this or we can also just add mu and kappa to
+    !! the json file under case.fluid
+    !!     "mu": 0.001,
+    !!     "kappa": 0.001917808219178082,
+
     Re = 1000.0_rp
     Prandtl_number = 0.73_rp
     gamma = 1.4_rp
