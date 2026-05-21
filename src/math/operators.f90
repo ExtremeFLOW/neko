@@ -1078,7 +1078,7 @@ contains
   end subroutine runge_kutta
 
   subroutine rotate_cyc_r1(vx, vy, vz, idir, coef)
-    real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
+    real(kind=rp), contiguous, dimension(:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
     type(c_ptr) :: vx_d, vy_d, vz_d
