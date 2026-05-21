@@ -82,9 +82,9 @@ the ideal gas equation of state:
 
 $$p = (\gamma - 1) \left( E - \frac{1}{2} \rho u_i u_i \right).$$
 
-Physical dynamic viscosity and thermal conductivity can be
-specified via the user file `material_properties` interface; if they are not
-specified, they default to zero.
+Physical dynamic viscosity and thermal conductivity can be specified as
+constants in the case file or via the user file `material_properties` interface;
+if they are not specified, they default to zero.
 
 ## Non-dimensionalisation
 A non-dimensional form of the Navier-Stokes equations may be found by defining the Reynolds number
