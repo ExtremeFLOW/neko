@@ -46,7 +46,7 @@ module operators
        opr_xsmm_dudxyz, opr_xsmm_opgrad, &
        opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
-       opr_device_conv1, opr_device_convect_scalar, device_dudxyz, &
+       opr_device_conv1, opr_device_convect_scalar, opr_device_dudxyz, &
        opr_device_lambda2, opr_device_opgrad, opr_device_set_convect_rst, &
        opr_device_rotate_cyc
   use space, only : space_t
@@ -74,22 +74,45 @@ module operators
        lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta, &
        rotate_cyc
 
+  !> Compute derivative of a scalar field along a single direction.
   interface dudxyz
      module procedure dudxyz_r4
-     module procedure dudxyz_field
+     module procedure opr_device_dudxyz
+     module procedure dudxyz_f
   end interface dudxyz
 
+  !> Compute the divergence of a vector field.
+  interface div
+     module procedure div_r4
+     module procedure div_d
+  end interface div
+
+  !> Compute the gradient of a scalar field, multiplied by the mass matrix.
+  interface grad
+     module procedure grad_r4
+     module procedure grad_d
+  end interface grad
+
+  !> Compute CFL condition.
   interface cfl
      module procedure cfl_r4
-     module procedure device_cfl
-     module procedure cfl_field
+     module procedure cfl_d
+     module procedure cfl_f
   end interface cfl
 
+  !> Compute CFL condition for compressible flow.
+  interface cfl_compressible
+     module procedure cfl_compressible_r4
+     module procedure cfl_compressible_d
+     module procedure cfl_compressible_f
+  end interface cfl_compressible
+
+  !> Compute the curl of a vector field.
   interface rotate_cyc
      module procedure rotate_cyc_r1
      module procedure rotate_cyc_r4
      module procedure rotate_cyc_d
-     module procedure rotate_cyc_field
+     module procedure rotate_cyc_f
   end interface rotate_cyc
 
 contains
@@ -102,11 +125,9 @@ contains
   !! @param dt The derivative of t with respect to the chosen direction.
   !! @param coef The SEM coefficients.
   subroutine dudxyz_r4(du, u, dr, ds, dt, coef)
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: du
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(in) :: u, dr, ds, dt
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-         coef%msh%nelv), intent(inout) :: du
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-         coef%msh%nelv), intent(in) :: u, dr, ds, dt
     type(c_ptr) :: du_d, u_d, dr_d, ds_d, dt_d
 
     if (NEKO_BCKND_SX .eq. 1) then
@@ -114,8 +135,8 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_log%deprecated('Operator: dudxyz_r4, implicit device', &
-            'v2.0.0', 'Please call device_dudxyz instead.')
+       call neko_log%deprecated('Operator: dudxyz, implicit device', &
+            'v2.0.0', 'Please call opr_device_dudxyz instead.')
 
        du_d = device_get_ptr(du)
        u_d = device_get_ptr(u)
@@ -123,29 +144,36 @@ contains
        ds_d = device_get_ptr(ds)
        dt_d = device_get_ptr(dt)
 
-       call device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
+       call opr_device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
     else
        call opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     end if
 
   end subroutine dudxyz_r4
 
-  subroutine dudxyz_field(du, u, dr, ds, dt, coef)
-    type(coef_t), intent(in) :: coef
+  !> Compute derivative of a scalar field along a single direction.
+  !! @param du Holds the resulting derivative values.
+  !! @param u The values of the field.
+  !! @param dr The derivative of r with respect to the chosen direction.
+  !! @param ds The derivative of s with respect to the chosen direction.
+  !! @param dt The derivative of t with respect to the chosen direction.
+  !! @param coef The SEM coefficients.
+  subroutine dudxyz_f(du, u, dr, ds, dt, coef)
     type(field_t), intent(inout) :: du
     type(field_t), intent(in) :: u, dr, ds, dt
+    type(coef_t), intent(in) :: coef
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_dudxyz(du%x, u%x, dr%x, ds%x, dt%x, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_dudxyz(du%x, u%x, dr%x, ds%x, dt%x, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_dudxyz(du%x_d, u%x_d, dr%x_d, ds%x_d, dt%x_d, coef)
+       call opr_device_dudxyz(du%x_d, u%x_d, dr%x_d, ds%x_d, dt%x_d, coef)
     else
        call opr_cpu_dudxyz(du%x, u%x, dr%x, ds%x, dt%x, coef)
     end if
 
-  end subroutine dudxyz_field
+  end subroutine dudxyz_f
 
   !> Compute the divergence of a vector field.
   !! @param res Holds the resulting divergence values.
@@ -153,27 +181,27 @@ contains
   !! @param uy The y component  of the vector field.
   !! @param uz The z component  of the vector field.
   !! @param coef The SEM coefficients.
-  subroutine div(res, ux, uy, uz, coef)
+  subroutine div_r4(res, ux, uy, uz, coef)
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: res
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(in) :: ux, uy, uz
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-         coef%msh%nelv), intent(inout) :: res
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-         coef%msh%nelv), intent(in) :: ux, uy, uz
     type(field_t), pointer :: work
     integer :: ind
     type(c_ptr) :: res_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_log%deprecated('Operator: div, implicit device', &
+            'v2.0.0', 'Please call div_d instead.')
        res_d = device_get_ptr(res)
     end if
 
     call neko_scratch_registry%request_field(work, ind, .false.)
 
     ! Get dux / dx
-    call dudxyz_r4(res, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz(res, ux, coef%drdx, coef%dsdx, coef%dtdx, coef)
 
     ! Get duy / dy
-    call dudxyz_r4(work%x, uy, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz(work%x, uy, coef%drdy, coef%dsdy, coef%dtdy, coef)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(res_d, work%x_d, work%size())
     else
@@ -181,7 +209,7 @@ contains
     end if
 
     ! Get dux / dz
-    call dudxyz_r4(work%x, uz, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(work%x, uz, coef%drdz, coef%dsdz, coef%dtdz, coef)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(res_d, work%x_d, work%size())
     else
@@ -190,7 +218,37 @@ contains
 
     call neko_scratch_registry%relinquish_field(ind)
 
-  end subroutine div
+  end subroutine div_r4
+
+  !> Compute the divergence of a vector field.
+  !! @param res Holds the resulting divergence values.
+  !! @param ux The x component  of the vector field.
+  !! @param uy The y component  of the vector field.
+  !! @param uz The z component  of the vector field.
+  !! @param coef The SEM coefficients.
+  subroutine div_d(res_d, ux_d, uy_d, uz_d, coef)
+    type(c_ptr), intent(inout) :: res_d
+    type(c_ptr), intent(in) :: ux_d, uy_d, uz_d
+    type(coef_t), intent(in), target :: coef
+    type(field_t), pointer :: work
+    integer :: ind
+
+    call neko_scratch_registry%request_field(work, ind, .false.)
+
+    ! Get dux / dx
+    call dudxyz(res_d, ux_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+
+    ! Get duy / dy
+    call dudxyz(work%x_d, uy_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call device_add2(res_d, work%x_d, work%size())
+
+    ! Get dux / dz
+    call dudxyz(work%x_d, uz_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call device_add2(res_d, work%x_d, work%size())
+
+    call neko_scratch_registry%relinquish_field(ind)
+
+  end subroutine div_d
 
   !> Compute the gradient of a scalar field.
   !! @param ux Will store the x component of the gradient.
@@ -198,18 +256,35 @@ contains
   !! @param uz Will store the z component of the gradient.
   !! @param u The values of the field.
   !! @param coef The SEM coefficients.
-  subroutine grad(ux, uy, uz, u, coef)
+  subroutine grad_r4(ux, uy, uz, u, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: ux
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: uy
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: uz
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(in) :: u
 
-    call dudxyz_r4(ux, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz_r4(uy, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz_r4(uz, u, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(ux, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz(uy, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz(uz, u, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-  end subroutine grad
+  end subroutine grad_r4
+
+  !> Compute the gradient of a scalar field.
+  !! @param ux Will store the x component of the gradient.
+  !! @param uy Will store the y component of the gradient.
+  !! @param uz Will store the z component of the gradient.
+  !! @param u The values of the field.
+  !! @param coef The SEM coefficients.
+  subroutine grad_d(ux_d, uy_d, uz_d, u_d, coef)
+    type(coef_t), intent(in) :: coef
+    type(c_ptr), intent(inout) :: ux_d, uy_d, uz_d
+    type(c_ptr), intent(in) :: u_d
+
+    call dudxyz(ux_d, u_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(uy_d, u_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(uz_d, u_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+
+  end subroutine grad_d
 
   !> Compute the weak gradient of a scalar field, i.e. the gradient multiplied
   !! by the mass matrix.
@@ -482,11 +557,11 @@ contains
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
   function cfl_r4(dt, u, v, w, Xh, coef, nelv, gdim)
+    real(kind=rp), intent(in) :: dt
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(in) :: u, v, w
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: u, v, w
     real(kind=rp) :: cfl_r4
     integer :: ierr
     type(c_ptr) :: u_d, v_d, w_d
@@ -495,7 +570,7 @@ contains
        cfl_r4 = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: cfl_r4, implicit device', &
-            'v2.0.0', 'Please call device_cfl instead.')
+            'v2.0.0', 'Please call cfl_d instead.')
 
        u_d = device_get_ptr(u)
        v_d = device_get_ptr(v)
@@ -514,48 +589,48 @@ contains
 
   end function cfl_r4
 
-  function device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+  function cfl_d(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+    real(kind=rp), intent(in) :: dt
+    type(c_ptr), intent(in) :: u_d, v_d, w_d
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(in) :: dt
-    type(c_ptr), intent(in) :: u_d, v_d, w_d
-    real(kind=rp) :: device_cfl
+    real(kind=rp) :: cfl_d
     integer :: ierr
 
-    device_cfl = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+    cfl_d = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
 
     if (.not. NEKO_DEVICE_MPI) then
-       call MPI_Allreduce(MPI_IN_PLACE, device_cfl, 1, &
+       call MPI_Allreduce(MPI_IN_PLACE, cfl_d, 1, &
             MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
-  end function device_cfl
+  end function cfl_d
 
-  function cfl_field(dt, u, v, w, Xh, coef, nelv, gdim)
+  function cfl_f(dt, u, v, w, Xh, coef, nelv, gdim)
+    real(kind=rp), intent(in) :: dt
+    type(field_t), intent(in) :: u, v, w
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(in) :: dt
-    type(field_t), intent(in) :: u, v, w
-    real(kind=rp) :: cfl_field
+    real(kind=rp) :: cfl_f
     integer :: ierr
 
     if (NEKO_BCKND_SX .eq. 1) then
-       cfl_field = opr_sx_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv)
+       cfl_f = opr_sx_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       cfl_field = opr_device_cfl(dt, u%x_d, v%x_d, w%x_d, Xh, coef, nelv, gdim)
+       cfl_f = opr_device_cfl(dt, u%x_d, v%x_d, w%x_d, Xh, coef, nelv, gdim)
 
        if (.not. NEKO_DEVICE_MPI) then
-          call MPI_Allreduce(MPI_IN_PLACE, cfl_field, 1, &
+          call MPI_Allreduce(MPI_IN_PLACE, cfl_f, 1, &
                MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
        end if
     else
-       cfl_field = opr_cpu_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv, gdim)
+       cfl_f = opr_cpu_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv, gdim)
     end if
 
 
-  end function cfl_field
+  end function cfl_f
 
   !! Compute the CFL number for compressible flows
   !! @param dt The timestep.
@@ -564,19 +639,58 @@ contains
   !! @param coef The SEM coefficients.
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
-  function cfl_compressible(dt, max_wave_speed, Xh, coef, nelv, gdim)
+  function cfl_compressible_r4(dt, max_wave_speed, Xh, coef, nelv, gdim)
+    real(kind=rp), intent(in) :: dt
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(in) :: max_wave_speed
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: &
-         max_wave_speed
-    real(kind=rp) :: cfl_compressible
+    real(kind=rp) :: cfl_compressible_r4
 
-    cfl_compressible = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
+    cfl_compressible_r4 = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
          Xh, coef, nelv, gdim)
 
-  end function cfl_compressible
+  end function cfl_compressible_r4
+
+  !! Compute the CFL number for compressible flows
+  !! @param dt The timestep.
+  !! @param max_wave_speed The precomputed maximum wave speed field.
+  !! @param Xh The SEM function space.
+  !! @param coef The SEM coefficients.
+  !! @param nelv The total number of elements.
+  !! @param gdim Number of geometric dimensions.
+  function cfl_compressible_d(dt, max_wave_speed, Xh, coef, nelv, gdim)
+    real(kind=rp), intent(in) :: dt
+    type(c_ptr), intent(in) :: max_wave_speed
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: nelv, gdim
+    real(kind=rp) :: cfl_compressible_d
+
+    cfl_compressible_d = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
+         Xh, coef, nelv, gdim)
+
+  end function cfl_compressible_d
+
+  !! Compute the CFL number for compressible flows
+  !! @param dt The timestep.
+  !! @param max_wave_speed The precomputed maximum wave speed field.
+  !! @param Xh The SEM function space.
+  !! @param coef The SEM coefficients.
+  !! @param nelv The total number of elements.
+  !! @param gdim Number of geometric dimensions.
+  function cfl_compressible_f(dt, max_wave_speed, Xh, coef, nelv, gdim)
+    real(kind=rp), intent(in) :: dt
+    type(field_t), intent(in) :: max_wave_speed
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: nelv, gdim
+    real(kind=rp) :: cfl_compressible_f
+
+    cfl_compressible_f = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
+         Xh, coef, nelv, gdim)
+
+  end function cfl_compressible_f
 
   !> Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i
   !! @param s11 Will hold the 1,1 component of the strain rate tensor.
@@ -593,12 +707,12 @@ contains
   subroutine strain_rate(s11, s22, s33, s12, s13, s23, u, v, w, coef)
     type(field_t), intent(in) :: u, v, w !< velocity components
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(inout) :: s11(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
-    real(kind=rp), intent(inout) :: s22(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
-    real(kind=rp), intent(inout) :: s33(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
-    real(kind=rp), intent(inout) :: s12(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
-    real(kind=rp), intent(inout) :: s13(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
-    real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), contiguous, intent(inout) :: s11(:,:,:,:)
+    real(kind=rp), contiguous, intent(inout) :: s22(:,:,:,:)
+    real(kind=rp), contiguous, intent(inout) :: s33(:,:,:,:)
+    real(kind=rp), contiguous, intent(inout) :: s12(:,:,:,:)
+    real(kind=rp), contiguous, intent(inout) :: s13(:,:,:,:)
+    real(kind=rp), contiguous, intent(inout) :: s23(:,:,:,:)
 
     type(c_ptr) :: s11_d, s22_d, s33_d, s12_d, s23_d, s13_d
 
@@ -866,7 +980,7 @@ contains
   end subroutine rotate_cyc_r1
 
   subroutine rotate_cyc_r4(vx, vy, vz, idir, coef)
-    real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
     type(c_ptr) :: vx_d, vy_d, vz_d
@@ -896,7 +1010,7 @@ contains
     end if
   end subroutine rotate_cyc_d
 
-  subroutine rotate_cyc_field(vx, vy, vz, idir, coef)
+  subroutine rotate_cyc_f(vx, vy, vz, idir, coef)
     type(field_t), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
@@ -908,7 +1022,7 @@ contains
           call opr_cpu_rotate_cyc_r4(vx%x, vy%x, vz%x, idir, coef)
        end if
     end if
-  end subroutine rotate_cyc_field
+  end subroutine rotate_cyc_f
 
 
 end module operators

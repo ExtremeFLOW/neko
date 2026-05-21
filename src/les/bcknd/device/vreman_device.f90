@@ -37,7 +37,7 @@ module vreman_device
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
-  use opr_device, only : device_dudxyz
+  use opr_device, only : opr_device_dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use device_math, only : device_col2
@@ -116,17 +116,17 @@ contains
     call neko_scratch_registry%request_field(a33, temp_indices(9), .false.)
 
     ! Compute the derivatives of the velocity (the alpha tensor)
-    call device_dudxyz(a11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
-    call device_dudxyz(a12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
-    call device_dudxyz(a13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call opr_device_dudxyz(a11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call opr_device_dudxyz(a12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call opr_device_dudxyz(a13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call device_dudxyz(a21%x_d, v%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
-    call device_dudxyz(a22%x_d, v%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
-    call device_dudxyz(a23%x_d, v%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call opr_device_dudxyz(a21%x_d, v%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call opr_device_dudxyz(a22%x_d, v%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call opr_device_dudxyz(a23%x_d, v%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call device_dudxyz(a31%x_d, w%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
-    call device_dudxyz(a32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
-    call device_dudxyz(a33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call opr_device_dudxyz(a31%x_d, w%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call opr_device_dudxyz(a32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call opr_device_dudxyz(a33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
@@ -145,9 +145,9 @@ contains
        call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
        call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
 
-       call device_dudxyz(dTdx%x_d, temperature%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
-       call device_dudxyz(dTdy%x_d, temperature%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
-       call device_dudxyz(dTdz%x_d, temperature%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+       call opr_device_dudxyz(dTdx%x_d, temperature%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+       call opr_device_dudxyz(dTdy%x_d, temperature%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+       call opr_device_dudxyz(dTdz%x_d, temperature%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
        call device_vreman_nut_compute_buoy(a11%x_d, a12%x_d, a13%x_d, &
             a21%x_d, a22%x_d, a23%x_d, &

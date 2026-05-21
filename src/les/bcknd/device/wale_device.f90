@@ -37,7 +37,7 @@ module wale_device
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
-  use opr_device, only : device_dudxyz
+  use opr_device, only : opr_device_dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use device_math, only : device_col2
@@ -94,17 +94,17 @@ contains
 
 
     ! Compute the derivatives of the velocity (the alpha tensor)
-    call device_dudxyz(g11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
-    call device_dudxyz(g12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
-    call device_dudxyz(g13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call opr_device_dudxyz(g11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call opr_device_dudxyz(g12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call opr_device_dudxyz(g13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call device_dudxyz(g21%x_d, v%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
-    call device_dudxyz(g22%x_d, v%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
-    call device_dudxyz(g23%x_d, v%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call opr_device_dudxyz(g21%x_d, v%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call opr_device_dudxyz(g22%x_d, v%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call opr_device_dudxyz(g23%x_d, v%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call device_dudxyz(g31%x_d, w%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
-    call device_dudxyz(g32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
-    call device_dudxyz(g33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call opr_device_dudxyz(g31%x_d, w%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call opr_device_dudxyz(g32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call opr_device_dudxyz(g33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
     call coef%gs_h%op(g11, GS_OP_ADD)
     call coef%gs_h%op(g12, GS_OP_ADD)
