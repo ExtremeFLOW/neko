@@ -164,13 +164,21 @@ contains
     call sub3(w3%x, work1%x, work2%x, n)
     !!    BC dependent, Needs to change if cyclic
 
-    call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
-    if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, GS_OP_ADD)
-    if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
-    call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
+    if (allocated(c_Xh%gs_h%interp)) then
+       if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
+       call c_Xh%gs_h%op_h1(w1, GS_OP_ADD)
+       call c_Xh%gs_h%op_h1(w2, GS_OP_ADD)
+       call c_Xh%gs_h%op_h1(w3, GS_OP_ADD)
+       if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
+    else
+       call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
+       if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
+       call c_Xh%gs_h%op(w1, GS_OP_ADD)
+       call c_Xh%gs_h%op(w2, GS_OP_ADD)
+       call c_Xh%gs_h%op(w3, GS_OP_ADD)
+       if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
+       call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
+    end if
 
   end subroutine opr_cpu_curl
 
