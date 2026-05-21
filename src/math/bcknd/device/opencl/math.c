@@ -1333,35 +1333,40 @@ real opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  real * buf = (real *) malloc(nb * sizeof(real));
+  if (nb > red_s) {
+    red_s = nb;
+    if (bufred != NULL) {
+      free(bufred);
+      CL_CHECK(clReleaseMemObject(bufred_d));
+    }
+    bufred = (real *) malloc(nb * sizeof(real));
+
+    bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                              nb * sizeof(real), NULL, &err);
+    CL_CHECK(err);
+  }
 
   cl_kernel kernel = clCreateKernel(math_program, "glsc2_kernel", &err);
   CL_CHECK(err);
 
-  cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
-                                nb * sizeof(real), NULL, &err);
-  CL_CHECK(err);
-
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &buf_d));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &bufred_d));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
 
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-  CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
-                               nb * sizeof(real), buf, 1, &kern_wait, NULL));
+  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_d, CL_TRUE, 0,
+                               nb * sizeof(real), bufred, 1, &kern_wait, NULL));
 
   real res = 0.0;
   for (i = 0; i < nb; i++) {
-    res += buf[i];
+    res += bufred[i];
   }
 
-  free(buf);
   CL_CHECK(clReleaseEvent(kern_wait));
-  CL_CHECK(clReleaseMemObject(buf_d));
   CL_CHECK(clReleaseKernel(kernel));
 
   return res;
@@ -1383,35 +1388,40 @@ real opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
-  real * buf = (real *) malloc(nb * sizeof(real));
+  if (nb > red_s) {
+    red_s = nb;
+    if (bufred != NULL) {
+      free(bufred);
+      CL_CHECK(clReleaseMemObject(bufred_d));
+    }
+    bufred = (real *) malloc(nb * sizeof(real));
+
+    bufred_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
+                              nb * sizeof(real), NULL, &err);
+    CL_CHECK(err);
+  }
 
   cl_kernel kernel = clCreateKernel(math_program, "glsubnorm2_kernel", &err);
   CL_CHECK(err);
 
-  cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
-                                nb * sizeof(real), NULL, &err);
-  CL_CHECK(err);
-
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &buf_d));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &bufred_d));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
 
   CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
                                   &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-  CL_CHECK(clEnqueueReadBuffer(cmd_queue, buf_d, CL_TRUE, 0,
-                               nb * sizeof(real), buf, 1, &kern_wait, NULL));
+  CL_CHECK(clEnqueueReadBuffer(cmd_queue, bufred_d, CL_TRUE, 0,
+                               nb * sizeof(real), bufred, 1, &kern_wait, NULL));
 
   real res = 0.0;
   for (i = 0; i < nb; i++) {
-    res += buf[i];
+    res += bufred[i];
   }
 
-  free(buf);
   CL_CHECK(clReleaseEvent(kern_wait));
-  CL_CHECK(clReleaseMemObject(buf_d));
   CL_CHECK(clReleaseKernel(kernel));
 
   return res;
