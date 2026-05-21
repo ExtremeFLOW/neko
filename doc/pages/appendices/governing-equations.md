@@ -54,12 +54,8 @@ heat capacity, \f$ \lambda_{tot} \f$ is the total thermal conductivity, and \f$ 
 
 ## Compressible Flows
 
-Neko supports compressible flow simulations via the compressible Navier-Stokes
-equations. The current implementation solves the compressible Euler equations
-(inviscid limit). Physical viscosity terms will be added in upcoming updates.
-
-The compressible Euler equations consist of conservation of mass, momentum, and
-energy:
+Neko also supports compressible flow simulations, where the primary quantities
+are advanced through conservation of mass, momentum, and energy:
 
 $$\frac{\partial \rho}{\partial t} + 
   \frac{\partial (\rho u_i)}{\partial x_i} = 0,$$
