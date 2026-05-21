@@ -1203,6 +1203,10 @@ real_xp opencl_glsc3(void *a, void *b, void *c, int *n,
   cl_event kern_wait;
   int i;
 
+  if (*n <= 0) {
+    return 0.0;
+  }
+
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
@@ -1260,6 +1264,13 @@ void opencl_glsc3_many(real_xp *h, void * w, void *v, void *mult, int *j,
   int i, k;
   cl_int err;
   cl_event kern_wait;
+
+  if (*n <= 0) {
+    for (k = 0; k < (*j); k++) {
+      h[k] = 0.0;
+    }
+    return;
+  }
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
@@ -1328,6 +1339,10 @@ real_xp opencl_glsc2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
   cl_event kern_wait;
   int i;
 
+  if (*n <= 0) {
+    return 0.0;
+  }
+
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
@@ -1384,6 +1399,10 @@ real_xp opencl_glsubnorm2(void *a, void *b, int *n, cl_command_queue cmd_queue) 
   cl_event kern_wait;
   int i;
 
+  if (*n <= 0) {
+    return 0.0;
+  }
+
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
@@ -1439,6 +1458,10 @@ real_xp opencl_glsum(void *a, int *n, cl_command_queue cmd_queue) {
   cl_int err;
   cl_event kern_wait;
   int i;
+
+  if (*n <= 0) {
+    return 0.0;
+  }
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
