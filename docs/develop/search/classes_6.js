@@ -33,6 +33,8 @@ var searchData=
   ['gs_5fnbsend_30',['gs_nbsend',['../d6/d38/interfacegs__comm_1_1gs__nbsend.html',1,'gs_comm']]],
   ['gs_5fnbwait_31',['gs_nbwait',['../d3/d94/interfacegs__comm_1_1gs__nbwait.html',1,'gs_comm']]],
   ['gs_5fscatter_32',['gs_scatter',['../d2/df0/interfacegs__bcknd_1_1gs__scatter.html',1,'gs_bcknd']]],
-  ['gs_5fsx_5ft_33',['gs_sx_t',['../db/d5b/structgs__sx_1_1gs__sx__t.html',1,'gs_sx']]],
-  ['gs_5ft_34',['gs_t',['../dd/db8/structgather__scatter_1_1gs__t.html',1,'gather_scatter']]]
+  ['gs_5fshmem_5fbuf_5ft_33',['gs_shmem_buf_t',['../de/d29/structgs__shmem_1_1gs__shmem__buf__t.html',1,'gs_shmem']]],
+  ['gs_5fshmem_5ft_34',['gs_shmem_t',['../d7/dae/structgs__shmem_1_1gs__shmem__t.html',1,'gs_shmem']]],
+  ['gs_5fsx_5ft_35',['gs_sx_t',['../db/d5b/structgs__sx_1_1gs__sx__t.html',1,'gs_sx']]],
+  ['gs_5ft_36',['gs_t',['../dd/db8/structgather__scatter_1_1gs__t.html',1,'gather_scatter']]]
 ];

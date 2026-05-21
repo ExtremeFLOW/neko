@@ -222,6 +222,8 @@ var index =
         ] ],
         [ "Running a simulation", "dc/d3c/performance.html#autotoc_md165", [
           [ "Gather-scatter communication backends", "dc/d3c/performance.html#autotoc_md166", [
+            [ "NVSHMEM backend", "dc/d3c/performance.html#performance-nvshmem-backend", null ],
+            [ "OpenSHMEM backend", "dc/d3c/performance.html#performance-openshmem-backend", null ],
             [ "Coarray Fortran backend", "dc/d3c/performance.html#autotoc_md167", null ]
           ] ]
         ] ]

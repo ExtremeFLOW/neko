@@ -19,5 +19,6 @@ var searchData=
   ['gs_5fdevice_5fshmem_16',['gs_device_shmem',['../d0/d2a/namespacegs__device__shmem.html',1,'']]],
   ['gs_5fmpi_17',['gs_mpi',['../d0/d25/namespacegs__mpi.html',1,'']]],
   ['gs_5fops_18',['gs_ops',['../dd/d18/namespacegs__ops.html',1,'']]],
-  ['gs_5fsx_19',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]]
+  ['gs_5fshmem_19',['gs_shmem',['../de/dce/namespacegs__shmem.html',1,'']]],
+  ['gs_5fsx_20',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]]
 ];

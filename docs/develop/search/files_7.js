@@ -34,5 +34,6 @@ var searchData=
   ['gs_5fnvshmem_2ecu_31',['gs_nvshmem.cu',['../d3/de2/gs__nvshmem_8cu.html',1,'']]],
   ['gs_5fnvshmem_5fkernels_2eh_32',['gs_nvshmem_kernels.h',['../de/df0/gs__nvshmem__kernels_8h.html',1,'']]],
   ['gs_5fops_2ef90_33',['gs_ops.f90',['../d4/d67/gs__ops_8f90.html',1,'']]],
-  ['gs_5fsx_2ef90_34',['gs_sx.f90',['../de/d94/gs__sx_8f90.html',1,'']]]
+  ['gs_5fshmem_2ef90_34',['gs_shmem.F90',['../d2/d33/gs__shmem_8F90.html',1,'']]],
+  ['gs_5fsx_2ef90_35',['gs_sx.f90',['../de/d94/gs__sx_8f90.html',1,'']]]
 ];

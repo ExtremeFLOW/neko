@@ -1,9 +1,18 @@
 <map id="utils::filename_split" name="utils::filename_split">
-<area shape="rect" id="Node000001" title="Extract file name components." alt="" coords="385,45,536,70"/>
-<area shape="rect" id="Node000002" href="$d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313" title="Return the file name with the start counter." alt="" coords="199,5,334,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="371,45,334,39,335,34,372,40"/>
-<area shape="rect" id="Node000004" href="$db/d11/namespacevtkhdf__file.html#afb2879798169ca1979ce2a08b4dfbe18" title="Return the file name with the start counter." alt="" coords="196,69,337,109"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="372,75,338,80,337,75,371,69"/>
-<area shape="rect" id="Node000003" href="$d6/dbe/namespacehdf5__file.html#a95bf02a33958bdd43f371b3bc5ff9026" title="Set the precision for the output (single or double)" alt="" coords="5,5,148,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="186,28,149,28,149,23,186,23"/>
+<area shape="rect" id="Node000001" title="Extract file name components." alt="" coords="653,112,804,137"/>
+<area shape="rect" id="Node000002" href="$dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68" title="Initialize a case from its (loaded) params object." alt="" coords="423,55,605,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="666,111,562,83,563,77,668,106"/>
+<area shape="rect" id="Node000006" href="$d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313" title="Return the file name with the start counter." alt="" coords="447,105,581,145"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="639,127,582,127,582,122,639,122"/>
+<area shape="rect" id="Node000008" href="$db/d11/namespacevtkhdf__file.html#afb2879798169ca1979ce2a08b4dfbe18" title="Return the file name with the start counter." alt="" coords="443,169,585,209"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="673,144,583,171,581,166,671,139"/>
+<area shape="rect" id="Node000003" href="$dd/da8/namespacecase.html#a43da3102124b9a70209d9f4cea65676a" title="Initialize a case from an input file case_file." alt="" coords="188,5,371,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,54,340,33,341,28,440,49"/>
+<area shape="rect" id="Node000005" href="$dd/da8/namespacecase.html#ac5da808aa4acd3a1c5d03c5c7f785e92" title="Initialize a case from a JSON object describing a case." alt="" coords="184,55,375,80"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="409,70,375,70,375,65,409,65"/>
+<area shape="rect" id="Node000004" href="$db/d7a/structcase_1_1case__t.html#a79a12a60ab85399c0d5059d72aaf0e0a" title="Initialize a case from an input file case_file." alt="" coords="5,31,136,56"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="175,33,137,38,136,33,174,28"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="170,57,136,54,137,48,170,52"/>
+<area shape="rect" id="Node000007" href="$d6/dbe/namespacehdf5__file.html#a95bf02a33958bdd43f371b3bc5ff9026" title="Set the precision for the output (single or double)" alt="" coords="208,105,351,145"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="433,127,351,127,351,122,433,122"/>
 </map>

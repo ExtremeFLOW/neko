@@ -1,13 +1,15 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,127,173,152"/>
+<area shape="rect" id="Node000000" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,159,173,184"/>
 <area shape="rect" id="Node000001" href="$d1/d7a/structgs__caf_1_1gs__caf__t.html" title="Gather&#45;scatter communication using Coarray Fortran (F2008). Each image puts directly into the (module..." alt="" coords="255,5,380,31"/>
-<area shape="poly" id="edge67_Node000000_Node000001" title=" " alt="" coords="113,115,161,77,220,41,254,28,256,33,223,46,164,82,116,119"/>
+<area shape="poly" id="edge67_Node000000_Node000001" title=" " alt="" coords="106,146,154,93,185,65,220,41,254,27,256,32,223,46,188,69,157,97,110,150"/>
 <area shape="rect" id="Node000002" href="$dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html" title="Gather&#45;scatter communication using device MPI. The arrays are indexed per PE like send_pe and @ recv_..." alt="" coords="221,55,413,95"/>
-<area shape="poly" id="edge68_Node000000_Node000002" title=" " alt="" coords="148,120,245,93,246,98,149,125"/>
+<area shape="poly" id="edge68_Node000000_Node000002" title=" " alt="" coords="125,150,220,105,252,93,254,98,222,110,127,155"/>
 <area shape="rect" id="Node000003" href="$db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html" title="Gather&#45;scatter communication using NCCL The arrays are indexed per PE like send_pe and @ recv_pe." alt="" coords="246,119,389,159"/>
-<area shape="poly" id="edge69_Node000000_Node000003" title=" " alt="" coords="187,137,246,137,246,142,187,142"/>
+<area shape="poly" id="edge69_Node000000_Node000003" title=" " alt="" coords="187,155,245,147,246,152,188,160"/>
 <area shape="rect" id="Node000004" href="$df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html" title="Gather&#45;scatter communication using device SHMEM. The arrays are indexed per PE like send_pe and @ rec..." alt="" coords="234,183,401,223"/>
-<area shape="poly" id="edge70_Node000000_Node000004" title=" " alt="" coords="149,153,246,181,245,186,148,158"/>
+<area shape="poly" id="edge70_Node000000_Node000004" title=" " alt="" coords="188,182,234,189,233,194,187,188"/>
 <area shape="rect" id="Node000005" href="$d6/d6b/structgs__mpi_1_1gs__mpi__t.html" title="Gather&#45;scatter communication using MPI." alt="" coords="249,248,385,273"/>
-<area shape="poly" id="edge71_Node000000_Node000005" title=" " alt="" coords="116,159,164,197,223,233,256,245,254,250,220,238,161,201,113,163"/>
+<area shape="poly" id="edge71_Node000000_Node000005" title=" " alt="" coords="126,188,171,211,222,233,262,245,261,251,220,238,169,216,124,193"/>
+<area shape="rect" id="Node000006" href="$d7/dae/structgs__shmem_1_1gs__shmem__t.html" title="Gather&#45;scatter communication using OpenSHMEM one&#45;sided puts with per&#45;rank signaling for completion (O..." alt="" coords="225,297,409,323"/>
+<area shape="poly" id="edge72_Node000000_Node000006" title=" " alt="" coords="113,192,160,238,190,262,223,282,253,295,251,300,220,287,187,266,157,242,109,196"/>
 </map>

@@ -345,6 +345,7 @@ var namespaces_dup =
       [ "gs_op_min", "dd/d18/namespacegs__ops.html#adc1310b6876429396e644c02affff7a4", null ],
       [ "gs_op_mul", "dd/d18/namespacegs__ops.html#ae31773b2979489dde7c8c74a2ffaa2e0", null ]
     ] ],
+    [ "gs_shmem", "de/dce/namespacegs__shmem.html", "de/dce/namespacegs__shmem" ],
     [ "gs_sx", "d2/dc3/namespacegs__sx.html", "d2/dc3/namespacegs__sx" ],
     [ "hdf5_file", "d6/dbe/namespacehdf5__file.html", "d6/dbe/namespacehdf5__file" ],
     [ "hex", "d3/da1/namespacehex.html", "d3/da1/namespacehex" ],
@@ -717,6 +718,7 @@ var namespaces_dup =
     [ "schwarz", "d2/d37/namespaceschwarz.html", "d2/d37/namespaceschwarz" ],
     [ "scratch_registry", "d7/dda/namespacescratch__registry.html", "d7/dda/namespacescratch__registry" ],
     [ "shear_stress", "da/dea/namespaceshear__stress.html", "da/dea/namespaceshear__stress" ],
+    [ "shmem", "dc/d8d/namespaceshmem.html", "dc/d8d/namespaceshmem" ],
     [ "sigma", "d6/dcd/namespacesigma.html", "d6/dcd/namespacesigma" ],
     [ "sigma_cpu", "d7/d87/namespacesigma__cpu.html", [
       [ "sigma_compute_cpu", "d7/d87/namespacesigma__cpu.html#a2f73ccb39285d629e58357e91d92d5e6", null ]

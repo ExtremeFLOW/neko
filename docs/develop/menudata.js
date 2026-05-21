@@ -105,7 +105,8 @@ var menudata={children:[
 {text:"z",url:"namespacemembers_vars_z.html#index_z"}]},
 {text:"Enumerator",url:"namespacemembers_eval.html",children:[
 {text:"c",url:"namespacemembers_eval.html#index_c"},
-{text:"h",url:"namespacemembers_eval.html#index_h"}]}]}]},
+{text:"h",url:"namespacemembers_eval.html#index_h"},
+{text:"s",url:"namespacemembers_eval.html#index_s"}]}]}]},
 {text:"Data Types",url:"annotated.html",children:[
 {text:"Data Types List",url:"annotated.html"},
 {text:"Data Type Index",url:"classes.html"},
