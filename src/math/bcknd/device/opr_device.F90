@@ -887,8 +887,8 @@ contains
 
   subroutine opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
        Xh, coef)
-    type(space_t), intent(in) :: Xh
-    type(coef_t), intent(in) :: coef
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
     type(c_ptr), intent(inout) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d
 
 #ifdef HAVE_HIP

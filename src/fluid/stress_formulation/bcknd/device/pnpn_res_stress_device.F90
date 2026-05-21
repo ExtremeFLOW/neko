@@ -266,7 +266,8 @@ contains
 
 
     ! The strain rate tensor
-    call strain_rate(s11, s22, s33, s12, s13, s23,          u_e, v_e, w_e, c_Xh)
+    call strain_rate(s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         u_e%x_d, v_e%x_d, w_e%x_d, c_Xh)
 
 
     ! Gradient of viscosity * 2
