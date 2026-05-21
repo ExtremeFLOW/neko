@@ -616,6 +616,8 @@ contains
     call neko_scratch_registry%request_field(visc_m_z, temp_indices(7), .false.)
     call neko_scratch_registry%request_field(visc_E, temp_indices(8), .false.)
 
+    coef%ifh2 = .false.
+
     ! Density is stabilized only by artificial viscosity.
     call device_copy(coef%h1_d, artificial_visc%x_d, n)
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
