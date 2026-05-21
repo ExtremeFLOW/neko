@@ -901,7 +901,7 @@ extern "C" {
     cuda_redbuf_check_alloc_xp(nb);
 
     if ( *n > 0) {
-      glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
+      glsc3_kernel<real, real_xp><<<nblcks, nthrds, 0, stream>>>
         ((real *) a, (real *) b, (real *) c, (real_xp *) bufred_xp_d, *n);
       CUDA_CHECK(cudaGetLastError());
       reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) bufred_xp_d, nb);
@@ -933,7 +933,7 @@ extern "C" {
     cuda_redbuf_check_alloc_xp((*j)*nb);
 
     if ( *n > 0) {
-      glsc3_many_kernel<real><<<nblcks, nthrds, 0, stream>>>
+      glsc3_many_kernel<real, real_xp><<<nblcks, nthrds, 0, stream>>>
         ((const real *) w, (const real **) v,
          (const real *)mult, (real_xp *)bufred_xp_d, *j, *n);
       CUDA_CHECK(cudaGetLastError());
@@ -960,7 +960,7 @@ extern "C" {
     cuda_redbuf_check_alloc_xp(nb);
 
     if ( *n > 0) {
-      glsc2_kernel<real>
+      glsc2_kernel<real, real_xp>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
                                         (real *) b,
                                         (real_xp *) bufred_xp_d, *n);
@@ -989,7 +989,7 @@ extern "C" {
     cuda_redbuf_check_alloc_xp(nb);
 
     if ( *n > 0) {
-      glsubnorm2_kernel<real>
+      glsubnorm2_kernel<real, real_xp>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
                                         (real *) b,
                                         (real_xp *) bufred_xp_d, *n);
@@ -1016,7 +1016,7 @@ extern "C" {
 
     cuda_redbuf_check_alloc_xp(nb);
     if ( *n > 0) {
-      glsum_kernel<real>
+      glsum_kernel<real, real_xp>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
                                         (real_xp *) bufred_xp_d, *n);
       CUDA_CHECK(cudaGetLastError());

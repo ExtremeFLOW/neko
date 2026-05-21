@@ -843,7 +843,7 @@ extern "C" {
     hip_redbuf_check_alloc_xp(nb);
 
     if (*n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (real *) a, (real *) b,
                          (real *) c, bufred_xp_d, *n);
@@ -880,7 +880,7 @@ extern "C" {
     hip_redbuf_check_alloc_xp((*j)*nb);
 
     if (*n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (const real *) w, (const real **) v,
                          (const real *)mult, bufred_xp_d, *j, *n);
@@ -911,7 +911,7 @@ extern "C" {
     hip_redbuf_check_alloc_xp(nb);
 
     if( *n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (real *) a, (real *) b, bufred_xp_d, *n);
       HIP_CHECK(hipGetLastError());
@@ -940,7 +940,7 @@ extern "C" {
       hip_redbuf_check_alloc_xp(nb);
 
       if (*n > 0) {
-        hipLaunchKernelGGL(HIP_KERNEL_NAME(glsubnorm2_kernel<real>),
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(glsubnorm2_kernel<real, real_xp>),
                            nblcks, nthrds, 0, stream,
                            (real*)a, (real*)b, bufred_xp_d, *n);
         HIP_CHECK(hipGetLastError());
@@ -967,7 +967,7 @@ extern "C" {
 
     hip_redbuf_check_alloc_xp(nb);
     if( *n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (real *) a, bufred_xp_d, *n);
       HIP_CHECK(hipGetLastError());
