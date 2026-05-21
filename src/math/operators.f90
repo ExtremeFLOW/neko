@@ -115,6 +115,12 @@ module operators
      module procedure rotate_cyc_f
   end interface rotate_cyc
 
+  !> Compute the strain rate tensor of a vector field.
+  interface strain_rate
+     module procedure strain_rate_r4
+     module procedure strain_rate_d
+     module procedure strain_rate_f
+  end interface strain_rate
 contains
 
   !> Compute derivative of a scalar field along a single direction.
@@ -536,13 +542,17 @@ contains
     type(c_ptr), optional, intent(inout) :: event
 
     if (NEKO_BCKND_SX .eq. 1) then
-       call opr_sx_curl(w1%x, w2%x, w3%x, u1%x, u2%x, u3%x, work1%x, work2%x, coef)
+       call opr_sx_curl(w1%x, w2%x, w3%x, u1%x, u2%x, u3%x, &
+            work1%x, work2%x, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
-       call opr_xsmm_curl(w1%x, w2%x, w3%x, u1%x, u2%x, u3%x, work1%x, work2%x, coef)
+       call opr_xsmm_curl(w1%x, w2%x, w3%x, u1%x, u2%x, u3%x, &
+            work1%x, work2%x, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef, event)
+       call opr_device_curl(w1, w2, w3, u1, u2, u3, &
+            work1, work2, coef, event)
     else
-       call opr_cpu_curl(w1%x, w2%x, w3%x, u1%x, u2%x, u3%x, work1%x, work2%x, coef)
+       call opr_cpu_curl(w1%x, w2%x, w3%x, u1%x, u2%x, u3%x, &
+            work1%x, work2%x, coef)
     end if
 
   end subroutine curl
@@ -647,8 +657,8 @@ contains
     integer, intent(in) :: nelv, gdim
     real(kind=rp) :: cfl_compressible_r4
 
-    cfl_compressible_r4 = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
-         Xh, coef, nelv, gdim)
+    cfl_compressible_r4 = cfl(dt, max_wave_speed, max_wave_speed, &
+         max_wave_speed, Xh, coef, nelv, gdim)
 
   end function cfl_compressible_r4
 
@@ -667,8 +677,8 @@ contains
     integer, intent(in) :: nelv, gdim
     real(kind=rp) :: cfl_compressible_d
 
-    cfl_compressible_d = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
-         Xh, coef, nelv, gdim)
+    cfl_compressible_d = cfl(dt, max_wave_speed, max_wave_speed, &
+         max_wave_speed, Xh, coef, nelv, gdim)
 
   end function cfl_compressible_d
 
@@ -687,8 +697,8 @@ contains
     integer, intent(in) :: nelv, gdim
     real(kind=rp) :: cfl_compressible_f
 
-    cfl_compressible_f = cfl(dt, max_wave_speed, max_wave_speed, max_wave_speed, &
-         Xh, coef, nelv, gdim)
+    cfl_compressible_f = cfl(dt, max_wave_speed, max_wave_speed, &
+         max_wave_speed, Xh, coef, nelv, gdim)
 
   end function cfl_compressible_f
 
@@ -704,72 +714,182 @@ contains
   !! @param w The z component of velocity.
   !! @param coef The SEM coefficients.
   !! @note Similar to comp_sij in Nek5000.
-  subroutine strain_rate(s11, s22, s33, s12, s13, s23, u, v, w, coef)
-    type(field_t), intent(in) :: u, v, w !< velocity components
-    type(coef_t), intent(in) :: coef
+  subroutine strain_rate_r4(s11, s22, s33, s12, s13, s23, u, v, w, coef)
     real(kind=rp), contiguous, intent(inout) :: s11(:,:,:,:)
     real(kind=rp), contiguous, intent(inout) :: s22(:,:,:,:)
     real(kind=rp), contiguous, intent(inout) :: s33(:,:,:,:)
     real(kind=rp), contiguous, intent(inout) :: s12(:,:,:,:)
     real(kind=rp), contiguous, intent(inout) :: s13(:,:,:,:)
     real(kind=rp), contiguous, intent(inout) :: s23(:,:,:,:)
+    real(kind=rp), contiguous, intent(in) :: u(:,:,:,:), v(:,:,:,:), w(:,:,:,:)
+    type(coef_t), intent(in) :: coef
 
-    type(c_ptr) :: s11_d, s22_d, s33_d, s12_d, s23_d, s13_d
+    type(c_ptr) :: s11_d, s22_d, s33_d, s12_d, s23_d, s13_d, u_d, v_d, w_d
 
     integer :: nelv, lxyz
 
+    nelv = coef%msh%nelv
+    lxyz = coef%Xh%lxyz
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_log%deprecated('Operator: strain_rate_r4, implicit device', &
+            'v2.0.0', 'Please call strain_rate_d instead.')
        s11_d = device_get_ptr(s11)
        s22_d = device_get_ptr(s22)
        s33_d = device_get_ptr(s33)
        s12_d = device_get_ptr(s12)
        s23_d = device_get_ptr(s23)
        s13_d = device_get_ptr(s13)
-    end if
+       u_d = device_get_ptr(u)
+       v_d = device_get_ptr(v)
+       w_d = device_get_ptr(w)
 
-    nelv = u%msh%nelv
-    lxyz = u%Xh%lxyz
-
-    ! we use s11 as a work array here
-    call dudxyz_r4 (s12, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz_r4 (s11, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call dudxyz(s12_d, u_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+       call dudxyz(s11_d, v_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
        call device_add2(s12_d, s11_d, nelv*lxyz)
-    else
-       call add2(s12, s11, nelv*lxyz)
-    end if
 
-    call dudxyz_r4 (s13, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-    call dudxyz_r4 (s11, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call dudxyz(s13_d, u_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+       call dudxyz(s11_d, w_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
        call device_add2(s13_d, s11_d, nelv*lxyz)
-    else
-       call add2(s13, s11, nelv*lxyz)
-    end if
 
-    call dudxyz_r4 (s23, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-    call dudxyz_r4 (s11, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call dudxyz(s23_d, v_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+       call dudxyz(s11_d, w_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
        call device_add2(s23_d, s11_d, nelv*lxyz)
-    else
-       call add2(s23, s11, nelv*lxyz)
-    end if
 
-    call dudxyz_r4 (s11, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz_r4 (s22, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz_r4 (s33, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call dudxyz(s11_d, u_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+       call dudxyz(s22_d, v_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+       call dudxyz(s33_d, w_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
        call device_cmult(s12_d, 0.5_rp, nelv*lxyz)
        call device_cmult(s13_d, 0.5_rp, nelv*lxyz)
        call device_cmult(s23_d, 0.5_rp, nelv*lxyz)
     else
+       call dudxyz(s12, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call dudxyz(s11, v, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call add2(s12, s11, nelv*lxyz)
+
+       call dudxyz(s13, u, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call dudxyz(s11, w, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call add2(s13, s11, nelv*lxyz)
+
+       call dudxyz(s23, v, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call dudxyz(s11, w, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call add2(s23, s11, nelv*lxyz)
+
+       call dudxyz(s11, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call dudxyz(s22, v, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call dudxyz(s33, w, coef%drdz, coef%dsdz, coef%dtdz, coef)
        call cmult(s12, 0.5_rp, nelv*lxyz)
        call cmult(s13, 0.5_rp, nelv*lxyz)
        call cmult(s23, 0.5_rp, nelv*lxyz)
     end if
 
-  end subroutine strain_rate
+  end subroutine strain_rate_r4
+
+  !> Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i
+  !! @param s11_d Will hold the 1,1 component of the strain rate tensor.
+  !! @param s22_d Will hold the 2,2 component of the strain rate tensor.
+  !! @param s33_d Will hold the 3,3 component of the strain rate tensor.
+  !! @param s12_d Will hold the 1,2 component of the strain rate tensor.
+  !! @param s13_d Will hold the 1,3 component of the strain rate tensor.
+  !! @param s23_d Will hold the 2,3 component of the strain rate tensor.
+  !! @param u_d The x component of velocity.
+  !! @param v_d The y component of velocity.
+  !! @param w_d The z component of velocity.
+  !! @param coef The SEM coefficients.
+  !! @note Similar to comp_sij in Nek5000.
+  subroutine strain_rate_d(s11_d, s22_d, s33_d, s12_d, s13_d, s23_d, &
+       u_d, v_d, w_d, coef)
+    type(c_ptr), intent(inout) :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
+    type(c_ptr), intent(in) :: u_d, v_d, w_d
+    type(coef_t), intent(in) :: coef
+
+    integer :: nelv, lxyz
+
+    nelv = coef%msh%nelv
+    lxyz = coef%Xh%lxyz
+
+    call dudxyz(s12_d, u_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(s11_d, v_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call device_add2(s12_d, s11_d, nelv*lxyz)
+
+    call dudxyz(s13_d, u_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call dudxyz(s11_d, w_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call device_add2(s13_d, s11_d, nelv*lxyz)
+
+    call dudxyz(s23_d, v_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call dudxyz(s11_d, w_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call device_add2(s23_d, s11_d, nelv*lxyz)
+
+    call dudxyz(s11_d, u_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(s22_d, v_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(s33_d, w_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+    call device_cmult(s12_d, 0.5_rp, nelv*lxyz)
+    call device_cmult(s13_d, 0.5_rp, nelv*lxyz)
+    call device_cmult(s23_d, 0.5_rp, nelv*lxyz)
+
+  end subroutine strain_rate_d
+
+  !> Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i
+  !! @param s11 Will hold the 1,1 component of the strain rate tensor.
+  !! @param s22 Will hold the 2,2 component of the strain rate tensor.
+  !! @param s33 Will hold the 3,3 component of the strain rate tensor.
+  !! @param s12 Will hold the 1,2 component of the strain rate tensor.
+  !! @param s13 Will hold the 1,3 component of the strain rate tensor.
+  !! @param s23 Will hold the 2,3 component of the strain rate tensor.
+  !! @param u The x component of velocity.
+  !! @param v The y component of velocity.
+  !! @param w The z component of velocity.
+  !! @param coef The SEM coefficients.
+  !! @note Similar to comp_sij in Nek5000.
+  subroutine strain_rate_f(s11, s22, s33, s12, s13, s23, u, v, w, coef)
+    type(field_t), intent(inout) :: s11, s22, s33, s12, s13, s23
+    type(field_t), intent(in) :: u, v, w
+    type(coef_t), intent(in) :: coef
+
+    integer :: n
+    n = coef%Xh%lxyz * coef%msh%nelv
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call dudxyz(s12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+       call dudxyz(s11%x_d, v%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+       call device_add2(s12%x_d, s11%x_d, n)
+
+       call dudxyz(s13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+       call dudxyz(s11%x_d, w%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+       call device_add2(s13%x_d, s11%x_d, n)
+
+       call dudxyz(s23%x_d, v%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+       call dudxyz(s11%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+       call device_add2(s23%x_d, s11%x_d, n)
+
+       call dudxyz(s11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+       call dudxyz(s22%x_d, v%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+       call dudxyz(s33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
+       call device_cmult(s12%x_d, 0.5_rp, n)
+       call device_cmult(s13%x_d, 0.5_rp, n)
+       call device_cmult(s23%x_d, 0.5_rp, n)
+    else
+       call dudxyz(s12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call dudxyz(s11%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call add2(s12%x, s11%x, n)
+
+       call dudxyz(s13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call dudxyz(s11%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call add2(s13%x, s11%x, n)
+
+       call dudxyz(s23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call dudxyz(s11%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call add2(s23%x, s11%x, n)
+
+       call dudxyz(s11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+       call dudxyz(s22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+       call dudxyz(s33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call cmult(s12%x, 0.5_rp, n)
+       call cmult(s13%x, 0.5_rp, n)
+       call cmult(s23%x, 0.5_rp, n)
+    end if
+
+  end subroutine strain_rate_f
 
   !> Compute the Lambda2 field for a given velocity field.
   !! @param lambda2 Holds the computed Lambda2 field.
@@ -865,7 +985,7 @@ contains
     call neko_scratch_registry%request_vector(u1_GL, ind(6), n_GL, .false.)
 
     c1 = 1.0_rp
-    c2 = -dtau/2.
+    c2 = -dtau / 2.0_rp
     c3 = -dtau
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -905,8 +1025,8 @@ contains
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call device_col2(k4%x_d, coef%B_d, n)
 
-       c1 = -dtau/6.
-       c2 = -dtau/3.
+       c1 = -dtau / 6.0_rp
+       c2 = -dtau / 3.0_rp
 
        call device_add5s4(phi%x_d, k1%x_d, k2%x_d, k3%x_d, k4%x_d, &
             c1, c2, c2, c1, n)
@@ -948,13 +1068,12 @@ contains
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
        call col2(k4%x, coef%B, n)
 
-       c1 = -dtau/6.
-       c2 = -dtau/3.
+       c1 = -dtau / 6.0_rp
+       c2 = -dtau / 3.0_rp
        call add5s4(phi%x, k1%x, k2%x, k3%x, k4%x, c1, c2, c2, c1, n)
     end if
 
-    call neko_scratch_registry%relinquish_field(ind(1:5))
-    call neko_scratch_registry%relinquish_vector(ind(6))
+    call neko_scratch_registry%relinquish(ind)
 
   end subroutine runge_kutta
 

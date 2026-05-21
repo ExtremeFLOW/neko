@@ -131,7 +131,8 @@ contains
     call coef%gs_h%op(g33, GS_OP_ADD)
 
     ! Compute components of the strain rate tensor
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
+         u%x, v%x, w%x, coef)
 
     call coef%gs_h%op(s11, GS_OP_ADD)
     call coef%gs_h%op(s22, GS_OP_ADD)
