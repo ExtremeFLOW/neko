@@ -236,8 +236,14 @@ contains
 
   subroutine opr_cpu_lambda2(lambda2, u, v, w, coef)
     type(coef_t), intent(in) :: coef
-    type(field_t), intent(inout) :: lambda2
-    type(field_t), intent(in) :: u, v, w
+    real(kind=rp), intent(inout), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: lambda2
+    real(kind=rp), intent(in), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: u
+    real(kind=rp), intent(in), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: v
+    real(kind=rp), intent(in), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
     integer :: e, i
     real(kind=xp) :: eigen(3), B, C, D, q, r, theta, l2
@@ -247,11 +253,11 @@ contains
 
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
-            u%x(1,1,1,e), coef,e,e)
+            u(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &
-            v%x(1,1,1,e), coef,e,e)
+            v(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &
-            w%x(1,1,1,e), coef,e,e)
+            w(1,1,1,e), coef,e,e)
 
        do i = 1, coef%Xh%lxyz
           s11 = grad(i,1,1)
@@ -303,7 +309,7 @@ contains
                .le. eigen(3) .and. eigen(3) .le. eigen(1))
 
           l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)
-          lambda2%x(i, 1, 1, e) = l2 / real(coef%B(i, 1, 1, e)**2, xp)
+          lambda2(i, 1, 1, e) = l2 / real(coef%B(i, 1, 1, e)**2, xp)
        end do
     end do
 

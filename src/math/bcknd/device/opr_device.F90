@@ -518,26 +518,26 @@ contains
 
   end subroutine device_ortho
 
-  subroutine opr_device_lambda2(lambda2, u, v, w, coef)
+  subroutine opr_device_lambda2(lambda2_d, u_d, v_d, w_d, coef)
     type(coef_t), intent(in) :: coef
-    type(field_t), intent(inout) :: lambda2
-    type(field_t), intent(in) :: u, v, w
+    type(c_ptr), intent(inout) :: lambda2_d
+    type(c_ptr), intent(in) :: u_d, v_d, w_d
 #ifdef HAVE_HIP
-    call hip_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+    call hip_lambda2(lambda2_d, u_d, v_d, w_d, &
          coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
          coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
          coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_CUDA
-    call cuda_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+    call cuda_lambda2(lambda2_d, u_d, v_d, w_d, &
          coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
          coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
          coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_OPENCL
-    call opencl_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+    call opencl_lambda2(lambda2_d, u_d, v_d, w_d, &
          coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &

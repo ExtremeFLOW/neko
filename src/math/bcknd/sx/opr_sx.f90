@@ -82,8 +82,10 @@ module opr_sx
 
      module subroutine opr_sx_lambda2(lambda2, u, v, w, coef)
        type(coef_t), intent(in) :: coef
-       type(field_t), intent(inout) :: lambda2
-       type(field_t), intent(in) :: u, v, w
+       real(kind=rp), intent(inout), &
+            dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: lambda2
+       real(kind=rp), intent(in), &
+            dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: u, v, w
      end subroutine opr_sx_lambda2
 
      module subroutine opr_sx_set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)

@@ -81,7 +81,7 @@ module operators
 
   interface cfl
      module procedure cfl_r4
-     module procedure cfl_d
+     module procedure device_cfl
      module procedure cfl_field
   end interface cfl
 
@@ -297,7 +297,7 @@ contains
   !! @param ee Ending element index, optional, defaults to `nelv`.
   !> @note This needs to be revised... the loop over n1,n2 is probably
   !! unesccssary
-  subroutine cdtp (dtx, x, dr, ds, dt, coef, es, ee)
+  subroutine cdtp(dtx, x, dr, ds, dt, coef, es, ee)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
@@ -500,42 +500,42 @@ contains
        cfl_r4 = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: cfl_r4, implicit device', &
-            'v2.0.0', 'Please call cfl_d instead.')
+            'v2.0.0', 'Please call device_cfl instead.')
 
        u_d = device_get_ptr(u)
        v_d = device_get_ptr(v)
        w_d = device_get_ptr(w)
 
-       cfl_r4 = cfl_d(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
-       return
+       cfl_r4 = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+
+       if (.not. NEKO_DEVICE_MPI) then
+          call MPI_Allreduce(MPI_IN_PLACE, cfl_r4, 1, &
+               MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+       end if
     else
        cfl_r4 = opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
     end if
 
-    if (.not. NEKO_DEVICE_MPI) then
-       call MPI_Allreduce(MPI_IN_PLACE, cfl_r4, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    end if
 
   end function cfl_r4
 
-  function cfl_d(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+  function device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(in) :: dt
     type(c_ptr), intent(in) :: u_d, v_d, w_d
-    real(kind=rp) :: cfl_d
+    real(kind=rp) :: device_cfl
     integer :: ierr
 
-    cfl_d = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
+    device_cfl = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
 
     if (.not. NEKO_DEVICE_MPI) then
-       call MPI_Allreduce(MPI_IN_PLACE, cfl_d, 1, &
+       call MPI_Allreduce(MPI_IN_PLACE, device_cfl, 1, &
             MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
     end if
 
-  end function cfl_d
+  end function device_cfl
 
   function cfl_field(dt, u, v, w, Xh, coef, nelv, gdim)
     type(space_t), intent(in) :: Xh
@@ -549,16 +549,16 @@ contains
     if (NEKO_BCKND_SX .eq. 1) then
        cfl_field = opr_sx_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       cfl_field = cfl_d(dt, u%x_d, v%x_d, w%x_d, Xh, coef, nelv, gdim)
-       return
+       cfl_field = opr_device_cfl(dt, u%x_d, v%x_d, w%x_d, Xh, coef, nelv, gdim)
+
+       if (.not. NEKO_DEVICE_MPI) then
+          call MPI_Allreduce(MPI_IN_PLACE, cfl_field, 1, &
+               MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+       end if
     else
        cfl_field = opr_cpu_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv, gdim)
     end if
 
-    if (.not. NEKO_DEVICE_MPI) then
-       call MPI_Allreduce(MPI_IN_PLACE, cfl_field, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-    end if
 
   end function cfl_field
 
@@ -674,11 +674,11 @@ contains
     type(field_t), intent(in) :: u, v, w
 
     if (NEKO_BCKND_SX .eq. 1) then
-       call opr_sx_lambda2(lambda2, u, v, w, coef)
+       call opr_sx_lambda2(lambda2%x, u%x, v%x, w%x, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_lambda2(lambda2, u, v, w, coef)
+       call opr_device_lambda2(lambda2%x_d, u%x_d, v%x_d, w%x_d, coef)
     else
-       call opr_cpu_lambda2(lambda2, u, v, w, coef)
+       call opr_cpu_lambda2(lambda2%x, u%x, v%x, w%x, coef)
     end if
 
   end subroutine lambda2op
