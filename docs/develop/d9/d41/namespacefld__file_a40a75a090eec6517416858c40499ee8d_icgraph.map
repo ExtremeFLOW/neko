@@ -1,0 +1,7 @@
+<map id="fld_file::fld_file_select_from_field_list" name="fld_file::fld_file_select_from_field_list">
+<area shape="rect" id="Node000001" title="Map a field_list_t to fld file output slots." alt="" coords="173,37,341,77"/>
+<area shape="rect" id="Node000002" href="$d9/d41/namespacefld__file.html#af728bdd7026bc222996b4eef04e0f2a7" title="Write fields to a NEKTON fld file." alt="" coords="7,5,123,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,44,123,38,124,32,160,38"/>
+<area shape="rect" id="Node000003" href="$d9/d41/namespacefld__file.html#aa564624d15abe1c717f6cb6d25814f58" title="Write fields to a NEKTON fld file from a masked array." alt="" coords="5,69,125,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,76,126,82,125,77,159,71"/>
+</map>

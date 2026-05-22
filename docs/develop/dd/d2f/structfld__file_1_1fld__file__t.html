@@ -192,6 +192,15 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:aff7758db5d0ada69183dc66bc1894d05" id="r_aff7758db5d0ada69183dc66bc1894d05"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#aff7758db5d0ada69183dc66bc1894d05">dp_precision</a> = .false.</td></tr>
 <tr class="memdesc:aff7758db5d0ada69183dc66bc1894d05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Precision of output data.  <br /></td></tr>
 <tr class="separator:aff7758db5d0ada69183dc66bc1894d05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fd4dc7919b73dfa310e1c2ab773661b" id="r_a5fd4dc7919b73dfa310e1c2ab773661b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a5fd4dc7919b73dfa310e1c2ab773661b">skip_pressure</a> = .true.</td></tr>
+<tr class="memdesc:a5fd4dc7919b73dfa310e1c2ab773661b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skip writing pressure field.  <br /></td></tr>
+<tr class="separator:a5fd4dc7919b73dfa310e1c2ab773661b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a766a63c4310b02fca651a0aea182e7bb" id="r_a766a63c4310b02fca651a0aea182e7bb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a766a63c4310b02fca651a0aea182e7bb">skip_velocity</a> = .true.</td></tr>
+<tr class="memdesc:a766a63c4310b02fca651a0aea182e7bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skip writing velocity field.  <br /></td></tr>
+<tr class="separator:a766a63c4310b02fca651a0aea182e7bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ff04b0cc98cec08d454ee13c008b46b" id="r_a9ff04b0cc98cec08d454ee13c008b46b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#a9ff04b0cc98cec08d454ee13c008b46b">skip_temperature</a> = .true.</td></tr>
+<tr class="memdesc:a9ff04b0cc98cec08d454ee13c008b46b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skip writing temperature field.  <br /></td></tr>
+<tr class="separator:a9ff04b0cc98cec08d454ee13c008b46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad25c132f9c98df77b1479f7642a4491f" id="r_ad25c132f9c98df77b1479f7642a4491f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html#ad25c132f9c98df77b1479f7642a4491f">write_mesh</a> = .false.</td></tr>
 <tr class="memdesc:ad25c132f9c98df77b1479f7642a4491f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether to write the mesh.  <br /></td></tr>
 <tr class="separator:ad25c132f9c98df77b1479f7642a4491f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -326,7 +335,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -374,7 +383,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -499,7 +508,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -605,7 +614,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -673,7 +682,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -747,7 +756,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -836,7 +845,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>currently limited to double precision data </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -887,7 +896,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>currently limited to double precision data </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -968,7 +977,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -1020,6 +1029,54 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a5fd4dc7919b73dfa310e1c2ab773661b" name="a5fd4dc7919b73dfa310e1c2ab773661b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fd4dc7919b73dfa310e1c2ab773661b">&#9670;&#160;</a></span>skip_pressure</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> fld_file::fld_file_t::skip_pressure = .true.</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9ff04b0cc98cec08d454ee13c008b46b" name="a9ff04b0cc98cec08d454ee13c008b46b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ff04b0cc98cec08d454ee13c008b46b">&#9670;&#160;</a></span>skip_temperature</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> fld_file::fld_file_t::skip_temperature = .true.</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="a766a63c4310b02fca651a0aea182e7bb" name="a766a63c4310b02fca651a0aea182e7bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a766a63c4310b02fca651a0aea182e7bb">&#9670;&#160;</a></span>skip_velocity</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> fld_file::fld_file_t::skip_velocity = .true.</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+
+</div>
+</div>
 <a id="ab6715e33fc0466279e687f333c6e8794" name="ab6715e33fc0466279e687f333c6e8794"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab6715e33fc0466279e687f333c6e8794">&#9670;&#160;</a></span>start_counter</h2>
 
@@ -1056,7 +1113,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcf/fld__file_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d5/dcf/fld__file_8f90_source.html">fld_file.f90</a>.</p>
 
 </div>
 </div>
@@ -1069,7 +1126,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/d41/namespacefld__file.html">fld_file</a></li><li class="navelem"><a class="el" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a></li>
-    <li class="footer">Generated on Thu May 21 2026 04:58:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri May 22 2026 04:52:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

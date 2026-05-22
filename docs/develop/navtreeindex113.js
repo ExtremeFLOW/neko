@@ -1,5 +1,13 @@
 var NAVTREEINDEX113 =
 {
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a77af13b6f885bd953fff03b1afe50d0a":[2,0,99,0,38],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a77af13b6f885bd953fff03b1afe50d0a":[1,0,115,0,38],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a78a0e4bbf8808775dd18c3a5e041d92e":[1,0,115,0,33],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a78a0e4bbf8808775dd18c3a5e041d92e":[2,0,99,0,33],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a8044cfda61d692364d024558944e2fc7":[1,0,115,0,25],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a8044cfda61d692364d024558944e2fc7":[2,0,99,0,25],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a896224ab8a3c1d19a08a816447f1f8f3":[1,0,115,0,27],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a896224ab8a3c1d19a08a816447f1f8f3":[2,0,99,0,27],
 "df/dd9/structdirichlet_1_1dirichlet__t.html#a89812d676f46cff3f93e987aed40a3de":[2,0,99,0,21],
 "df/dd9/structdirichlet_1_1dirichlet__t.html#a89812d676f46cff3f93e987aed40a3de":[1,0,115,0,21],
 "df/dd9/structdirichlet_1_1dirichlet__t.html#a9dc8c42ed6136c62d4df3e3f2a694eba":[1,0,115,0,24],
@@ -241,13 +249,5 @@ var NAVTREEINDEX113 =
 "df/df1/structspalding_1_1spalding__t.html#aac3d1e1f292b9fa9ad78c17106fa0c3a":[2,0,300,0,41],
 "df/df1/structspalding_1_1spalding__t.html#aad20899be2916183196f300c76665a1c":[1,0,352,0,11],
 "df/df1/structspalding_1_1spalding__t.html#aad20899be2916183196f300c76665a1c":[2,0,300,0,11],
-"df/df1/structspalding_1_1spalding__t.html#aafe1e036f56955a3301b03689c29eb93":[2,0,300,0,29],
-"df/df1/structspalding_1_1spalding__t.html#aafe1e036f56955a3301b03689c29eb93":[1,0,352,0,29],
-"df/df1/structspalding_1_1spalding__t.html#ab3c18e9684f1b92453b0d237c96ef324":[2,0,300,0,30],
-"df/df1/structspalding_1_1spalding__t.html#ab3c18e9684f1b92453b0d237c96ef324":[1,0,352,0,30],
-"df/df1/structspalding_1_1spalding__t.html#ab48b23df2ca076c71e4cb176dc777183":[1,0,352,0,42],
-"df/df1/structspalding_1_1spalding__t.html#ab48b23df2ca076c71e4cb176dc777183":[2,0,300,0,42],
-"df/df1/structspalding_1_1spalding__t.html#ab923c1e4c9d107ddf98fd72dd12847b4":[1,0,352,0,40],
-"df/df1/structspalding_1_1spalding__t.html#ab923c1e4c9d107ddf98fd72dd12847b4":[2,0,300,0,40],
-"df/df1/structspalding_1_1spalding__t.html#ac756522c2b8a27ee956b3a5367ac961e":[2,0,300,0,23]
+"df/df1/structspalding_1_1spalding__t.html#aafe1e036f56955a3301b03689c29eb93":[2,0,300,0,29]
 };
