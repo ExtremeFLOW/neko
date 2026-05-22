@@ -34,7 +34,8 @@
 module mesh_conn
   use num_types, only : i4, i8
   use utils, only : neko_error
-  use comm, only : pe_size
+  use comm, only : NEKO_COMM, pe_size
+  use mpi_f08, only : MPI_Allreduce, MPI_LOGICAL, MPI_LOR
 
   implicit none
   private
@@ -119,6 +120,8 @@ module mesh_conn
      logical :: ifhang
      !> Elements with hanging object
      logical, allocatable, dimension(:) :: hang
+     !> Global flag for nonconforming mesh
+     logical :: ifhang_glb
    contains
      procedure, pass(this) :: init => mesh_conn_init
      procedure, pass(this) :: free => mesh_conn_free
@@ -301,6 +304,7 @@ contains
     class(mesh_conn_t), intent(inout) :: this
     integer(i4), intent(in) :: tdim, nel
     logical, dimension(:), optional, intent(in) :: hang
+    integer :: ierr
 
     call this%free()
 
@@ -317,6 +321,9 @@ contains
        this%ifhang = any(hang)
     end if
 
+    call MPI_Allreduce(this%ifhang, this%ifhang_glb, 1, MPI_LOGICAL, MPI_LOR, &
+         NEKO_COMM, ierr)
+
   end subroutine mesh_conn_init
 
   !> Free mesh connectivity information
@@ -331,6 +338,7 @@ contains
     this%nel = 0
     this%ifhang_set = .false.
     this%ifhang = .false.
+    this%ifhang_glb = .false.
 
     if (allocated(this%hang)) deallocate(this%hang)
 
