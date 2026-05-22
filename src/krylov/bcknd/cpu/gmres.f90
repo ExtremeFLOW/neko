@@ -60,7 +60,7 @@ module gmres
      real(kind=xp), allocatable :: s(:)
      real(kind=xp), allocatable :: gam(:)
      real(kind=xp), allocatable :: c(:)
-     !> Per-thread partial-sum buffer for orthogonalization + fused norm.
+     !> Per-thread partial-sum buffer
      real(kind=xp), allocatable :: hp(:,:)
    contains
      procedure, pass(this) :: init => gmres_init
@@ -102,7 +102,7 @@ contains
 
     nthrds = 1
     !$ nthrds = omp_get_max_threads()
-    allocate(this%hp(this%lgmres + 1, nthrds))
+    allocate(this%hp(this%lgmres, nthrds))
 
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
@@ -187,7 +187,7 @@ contains
     integer :: iter, max_iter
     integer :: i, j, k, l, ierr, tid, nthrds
     real(kind=xp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
-    real(kind=xp) :: alpha, lr, alpha2, norm_fac, tmp, ww
+    real(kind=xp) :: alpha, lr, alpha2, norm_fac, tmp, acc
     real(kind=rp) :: temp, rnorm
     logical :: conv
 
@@ -245,32 +245,26 @@ contains
             call gs_h%op(w, n, GS_OP_ADD)
             call blst%apply(w, n)
 
-            ! Fused orthogonalization + post-projection norm with
-            ! constant-trip-count inner loops. Rows 1..j of hp accumulate
-            ! <w, v_l>_mult and row j+1 accumulates <w,w>_mult, so a
-            ! single MPI_Allreduce of length j+1 covers both reductions.
-            ! alpha2 then follows by Pythagoras since {v_l} are mult-
-            ! orthonormal: ||w - sum h_l v_l||^2 = <w,w> - sum h_l^2.
-            !$omp parallel private(i, k, l, tid)
+            ! Classical Gram-Schmidt orthogonalization: accumulate
+            ! <w, v_l>_mult for l=1..j into per-thread columns of hp,
+            ! merge across threads, then one MPI_Allreduce of length j.
+            !$omp parallel private(i, k, l, tid, acc)
             tid = 1
             !$ tid = omp_get_thread_num() + 1
-            do l = 1, j+1
+            do l = 1, j
                hp(l,tid) = 0.0_xp
             end do
             !$omp do
             do i = 0, n-1, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do l = 1, j
-                     !$omp simd
+                     acc = hp(l,tid)
+                     !$omp simd reduction(+:acc)
                      do k = 1, NEKO_BLK_SIZE
-                        hp(l,tid) = hp(l,tid) + &
+                        acc = acc + &
                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
-                  end do
-                  !$omp simd
-                  do k = 1, NEKO_BLK_SIZE
-                     hp(j+1,tid) = hp(j+1,tid) + &
-                          w(i+k)**2 * coef%mult(i+k,1,1,1)
+                     hp(l,tid) = acc
                   end do
                else
                   do l = 1, j
@@ -279,36 +273,30 @@ contains
                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
-                  do k = 1, n - i
-                     hp(j+1,tid) = hp(j+1,tid) + &
-                          w(i+k)**2 * coef%mult(i+k,1,1,1)
-                  end do
                end if
             end do
             !$omp end do
             !$omp end parallel
 
-            ! Cross-thread merge into hp(:, 1), then one Allreduce of j+1.
+            ! Cross-thread merge into hp(:, 1), then one Allreduce of j.
             do k = 2, nthrds
-               do l = 1, j+1
+               do l = 1, j
                   hp(l,1) = hp(l,1) + hp(l,k)
                end do
             end do
-            call MPI_Allreduce(MPI_IN_PLACE, hp(1,1), j+1, &
+            call MPI_Allreduce(MPI_IN_PLACE, hp(1,1), j, &
                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
             do l = 1, j
                h(l,j) = hp(l,1)
             end do
-            ww = hp(j+1,1)
-            alpha2 = ww
-            do l = 1, j
-               alpha2 = alpha2 - h(l,j) * h(l,j)
-            end do
-            if (alpha2 .lt. 0.0_xp) alpha2 = 0.0_xp
 
-            ! Pure AXPY: w = w - sum h(l,j) * v(:,l). No reduction.
-            !$omp parallel do private(k, l, w_plus, tmp)
+            ! Projection w = w - sum h(l,j) v_l, with fused <w,w>_mult
+            ! reduction for the post-projection norm. alpha2 is computed
+            ! directly (not by Pythagoras) so accuracy is preserved when
+            ! the Krylov subspace is becoming invariant.
+            alpha2 = 0.0_xp
+            !$omp parallel do private(k, l, w_plus, tmp) reduction(+:alpha2)
             do i = 0, n-1, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   !$omp simd
@@ -321,9 +309,9 @@ contains
                         w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
                      end do
                   end do
-                  !$omp simd
                   do k = 1, NEKO_BLK_SIZE
                      w(i+k) = w(i+k) + w_plus(k)
+                     alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
                   end do
                else
                   do k = 1, n - i
@@ -332,10 +320,13 @@ contains
                         tmp = tmp - h(l,j) * v(i+k,l)
                      end do
                      w(i+k) = w(i+k) + tmp
+                     alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
                   end do
                end if
             end do
             !$omp end parallel do
+            call MPI_Allreduce(MPI_IN_PLACE, alpha2, 1, &
+                 MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
             alpha = sqrt(alpha2)
             do i = 1, j-1
                temp = h(i,j)
