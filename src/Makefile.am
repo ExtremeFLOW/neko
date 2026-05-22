@@ -22,6 +22,7 @@ neko_fortran_SOURCES = \
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
+	comm/shmem.F90\
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
@@ -32,6 +33,8 @@ neko_fortran_SOURCES = \
 	common/system.f90\
 	common/runtime_statistics.f90\
 	common/user_access_singleton.f90\
+	data_types/host_array.f90\
+	data_types/device_array.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
@@ -57,6 +60,7 @@ neko_fortran_SOURCES = \
 	gs/gs_ops.f90\
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
+	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\

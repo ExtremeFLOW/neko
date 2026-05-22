@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ contains
     class(jacobi_t), intent(inout) :: this
     associate(dof => this%dof, coef => this%coef, gs_h => this%gs_h)
 
-
+      !$omp parallel
       select case (dof%Xh%lx)
       case (14)
          call jacobi_update_lx14(this%d, dof%Xh%dxt, dof%Xh%dyt, dof%Xh%dzt, &
@@ -155,6 +155,7 @@ contains
               coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, &
               dof%msh%dfrmd_el, dof%msh%nelv, dof%Xh%lx)
       end select
+      !$omp end parallel
 
       call col2(this%d, coef%h1, coef%dof%size())
       if (coef%ifh2) call addcol3(this%d, coef%h2, coef%B, coef%dof%size())
@@ -180,12 +181,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx*lx*lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -196,6 +206,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -206,6 +217,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -248,6 +260,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx
 
   subroutine jacobi_update_lx14(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -267,12 +280,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -283,6 +305,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -293,6 +316,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -335,6 +359,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx14
 
   subroutine jacobi_update_lx13(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -354,12 +379,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -370,6 +404,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -380,6 +415,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -422,6 +458,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx13
 
   subroutine jacobi_update_lx12(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -441,12 +478,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -457,6 +503,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -467,6 +514,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -509,6 +557,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx12
 
   subroutine jacobi_update_lx11(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -528,12 +577,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -544,6 +602,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -554,6 +613,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -596,6 +656,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx11
 
   subroutine jacobi_update_lx10(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -615,12 +676,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -631,6 +701,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -641,6 +712,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -683,6 +755,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx10
 
   subroutine jacobi_update_lx9(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -702,12 +775,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -718,6 +800,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -728,6 +811,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -770,6 +854,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx9
 
   subroutine jacobi_update_lx8(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -789,12 +874,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -805,6 +899,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -815,6 +910,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -857,6 +953,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx8
 
   subroutine jacobi_update_lx7(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -876,12 +973,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -892,6 +998,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -902,6 +1009,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -944,6 +1052,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx7
 
   subroutine jacobi_update_lx6(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -963,12 +1072,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -979,6 +1097,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -989,6 +1108,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -1031,6 +1151,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx6
 
   subroutine jacobi_update_lx5(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -1050,12 +1171,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -1066,6 +1196,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -1076,6 +1207,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -1118,6 +1250,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx5
 
   subroutine jacobi_update_lx4(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -1137,12 +1270,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -1153,6 +1295,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -1163,6 +1306,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -1205,6 +1349,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx4
 
   subroutine jacobi_update_lx3(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -1224,12 +1369,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -1240,6 +1394,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -1250,6 +1405,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -1292,6 +1448,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx3
 
   subroutine jacobi_update_lx2(d, dxt, dyt, dzt, G11, G22, G33, &
@@ -1311,12 +1468,21 @@ contains
     logical, intent(in) :: dfrmd_el(n)
     integer :: i, j, k, l, e
 
-    d = 0d0
-
+    !$omp do
     do e = 1, n
+       do k = 1, lx
+          do j = 1, lx
+             !$omp simd
+             do i = 1, lx
+                d(i,j,k,e) = 0.0_rp
+             end do
+          end do
+       end do
+
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G11(l,j,k,e) * dxt(i,l)**2
@@ -1327,6 +1493,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G22(i,l,k,e) * dyt(j,l)**2
@@ -1337,6 +1504,7 @@ contains
        do l = 1, lx
           do k = 1, lx
              do j = 1, lx
+                !$omp simd
                 do i = 1, lx
                    d(i,j,k,e) = d(i,j,k,e) + &
                         G33(i,j,l,e) * dzt(k,l)**2
@@ -1379,6 +1547,7 @@ contains
           end do
        end if
     end do
+    !$omp end do
   end subroutine jacobi_update_lx2
 
 end module jacobi

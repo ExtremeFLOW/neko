@@ -1,0 +1,150 @@
+.\" Manual page for neko
+.TH NEKO 1 "2026-05-22" "Neko" "User Commands"
+.SH NAME
+neko \- portable spectral element flow solver
+.SH SYNOPSIS
+.B neko
+.I case-file
+.br
+.B mpirun
+.RB [ \-n
+.IR N ]
+.B neko
+.I case-file
+.SH DESCRIPTION
+.B neko
+is a portable framework for high-order spectral element flow simulations.
+It solves the incompressible (and compressible) Navier\-Stokes equations on
+unstructured hexahedral meshes and supports execution on CPUs, NEC SX-Aurora
+vector engines, NVIDIA GPUs (CUDA), AMD GPUs (HIP) and OpenCL devices.
+.PP
+The simulation is driven by a single
+.I case-file
+that describes the mesh, the numerical scheme, boundary and initial
+conditions, output, and any simulation components. The case file must have
+either a
+.B .case
+or
+.B .json
+suffix; both are parsed as JSON.
+.PP
+.B neko
+is parallelized with MPI and is normally launched through an MPI runtime such
+as
+.BR mpirun (1),
+.BR mpiexec (1)
+or a batch system launcher (e.g.
+.BR srun (1)).
+When built with OpenMP support, the number of threads per rank is controlled
+via
+.BR OMP_NUM_THREADS .
+.SH ARGUMENTS
+.TP
+.I case-file
+Path to a Neko case description, ending in
+.B .case
+or
+.BR .json .
+Any additional positional arguments are logged at startup but otherwise
+ignored by the solver itself; they are available for user-supplied modules
+linked in via
+.BR makeneko (1).
+.SH ENVIRONMENT
+.TP
+.B NEKO_LOG_LEVEL
+Verbosity of the logger. Higher values produce more output.
+.TP
+.B NEKO_LOG_FILE
+If set, the log is also written to this file in addition to standard output.
+.TP
+.B NEKO_LOG_TAB_SIZE
+Indentation width used by the logger.
+.TP
+.B NEKO_GS_COMM
+Selects the communication backend used by the gather\-scatter kernel
+(e.g. MPI or device\-aware variants).
+.TP
+.B NEKO_GS_STRTGY
+Selects the gather\-scatter strategy.
+.TP
+.B NEKO_GLOBAL_INTERP_EL_FINDER
+Selects the element search algorithm used by the global interpolation
+routines.
+.TP
+.B NEKO_GLOBAL_INTERP_PE_FINDER
+Selects the rank search algorithm used by the global interpolation routines.
+.TP
+.B OMP_NUM_THREADS
+Standard OpenMP variable controlling the number of threads per MPI rank when
+.B neko
+is built with OpenMP support.
+.SH SIGNALS
+.TP
+.B SIGXCPU
+Raised by the batch system when the CPU time limit is approaching. Neko
+catches this signal and performs a clean shutdown at the next time step,
+writing the final checkpoint and statistics.
+.TP
+.B SIGUSR1
+Requests a graceful early termination. The current time step is completed
+and the simulation finalizes normally.
+.TP
+.B SIGUSR2
+Reserved for user-requested actions from within a simulation.
+.SH EXIT STATUS
+.TP
+.B 0
+The simulation completed successfully or was terminated cleanly by a
+time-limit or user signal.
+.TP
+.B non-zero
+An error occurred during initialization, I/O, or the time-stepping loop.
+A diagnostic message is written to standard error.
+.SH FILES
+.TP
+.I <case>.case
+Primary case description (JSON syntax).
+.TP
+.I <case>.nmsh
+Neko native mesh file referenced from the case.
+.TP
+.I <case>.fld , <case>.chkp
+Field and checkpoint output written during the run; exact file names depend
+on the
+.B output
+section of the case file.
+.SH EXAMPLES
+Run a case on a single rank:
+.PP
+.RS
+.B neko tgv.case
+.RE
+.PP
+Run with 8 MPI ranks:
+.PP
+.RS
+.B mpirun -n 8 neko tgv.case
+.RE
+.PP
+Hybrid MPI+OpenMP launch with 4 ranks and 8 threads each:
+.PP
+.RS
+.B OMP_NUM_THREADS=8 mpirun -n 4 neko tgv.case
+.RE
+.SH SEE ALSO
+.BR makeneko (1),
+.BR mpirun (1),
+.BR mpiexec (1),
+.BR srun (1)
+.PP
+Project documentation and user guide:
+.UR https://neko.cfd
+.UE
+.SH AUTHORS
+Neko is developed by the Neko authors. See the
+.B AUTHORS
+file distributed with the source for a complete list of contributors.
+.SH BUGS
+Report bugs at
+.UR https://github.com/ExtremeFLOW/neko/issues
+.UE .

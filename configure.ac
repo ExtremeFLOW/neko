@@ -4,11 +4,13 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
-AC_LANG(Fortran)
+AC_LANG([Fortran])
 AC_PROG_INSTALL
 AC_PROG_SED
 AC_PROG_MAKE_SET
+AC_LANG_PUSH([C])
 LT_INIT([disable-shared])
+AC_LANG_POP([C])
 LT_LANG([Fortran])
 
 AC_ARG_ENABLE(contrib,
@@ -39,7 +41,7 @@ AC_ARG_ENABLE(python, AC_HELP_STRING([--enable-python],
               [enable_python=${enableval}],[enable_python=no])
 
 # Test for a sane fortran environment (^-^)
-AC_LANG(Fortran)
+AC_LANG([Fortran])
 AC_PROG_FC(,90)
 AX_COARRAY
 AX_COARRAY_EVENTS
@@ -51,19 +53,20 @@ AX_MPI([have_mpi=yes], [have_mpi=no])
 if test "x${have_mpi}" != xno; then
    FC="$MPIFC"
    LIBS="$MPILIBS $LIBS"
-   AC_LANG(C)
+   AC_LANG_PUSH([C])
    AX_MPI([have_mpi=yes],[have_mpi=no])
    if  test "x${have_mpi}" != xno; then
        CC="$MPICC"
    else
        AC_MSG_ERROR([Can't find a suitable C MPI compiler])
    fi
-   AC_LANG(C++)
+   AC_LANG_POP([C])
+   AC_LANG_PUSH([C++])
    AX_MPI([have_mpi=yes],[have_mpi=no])
    if  test "x${have_mpi}" != xno; then
        CXX="$MPICXX"
    fi
-   AC_LANG(Fortran)
+   AC_LANG_POP([C++])
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])
 fi
@@ -75,12 +78,12 @@ if test "x${enable_openmp}" != xno; then
    AX_OPENMP([have_openmp=yes], [have_openmp=no])
    if test "x${have_openmp}" != xno; then
       NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $OPENMP_FCFLAGS"
-      AC_LANG(C)
+      AC_LANG_PUSH([C])
       AX_OPENMP([have_openmp=yes], [have_openmp=no])
       if test "x${have_openmp}" != xno; then
          CFLAGS="$CFLAGS $OPENMP_CFLAGS"
       fi
-      AC_LANG(Fortran)
+      AC_LANG_POP([C])
    fi
 fi
 
@@ -330,6 +333,12 @@ else
    AX_HDF5
 fi
 
+# Checks for OpenSHMEM
+if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
+   AX_CRAY_SHMEM
+fi
+
+
 
 # JSON-Fortran
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
@@ -414,6 +423,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/jobctrl/Makefile\
         tests/unit/vtkhdf/Makefile\
         tests/unit/device/Makefile\
+        tests/unit/data_types/Makefile\
         tests/unit/device_math/Makefile\
         tests/unit/mathops/Makefile\
         tests/unit/device_mathops/Makefile\
