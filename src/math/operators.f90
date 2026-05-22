@@ -107,7 +107,7 @@ module operators
      module procedure cfl_compressible_f
   end interface cfl_compressible
 
-  !> Compute the curl of a vector field.
+  !> Apply cyclic boundary condition to a vector field.
   interface rotate_cyc
      module procedure rotate_cyc_r1
      module procedure rotate_cyc_r4
@@ -377,7 +377,7 @@ contains
   !! @param es Starting element index, optional, defaults to 1.
   !! @param ee Ending element index, optional, defaults to `nelv`.
   !> @note This needs to be revised... the loop over n1,n2 is probably
-  !! unesccssary
+  !! unnecessary
   subroutine cdtp(dtx, x, dr, ds, dt, coef, es, ee)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
@@ -1140,6 +1140,5 @@ contains
        end if
     end if
   end subroutine rotate_cyc_f
-
 
 end module operators

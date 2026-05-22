@@ -217,7 +217,7 @@ contains
     call field_col3(work_x, vx, wm_x)
     call field_col3(work_y, vx, wm_y)
     call field_col3(work_z, vx, wm_z)
-    call div(temp%x, work_x%x, work_y%x, work_z%x, coef)
+    call div(temp%x_d, work_x%x_d, work_y%x_d, work_z%x_d, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_addcol3(fx%x_d, coef%B_d, temp%x_d, n)
@@ -229,7 +229,7 @@ contains
     call field_col3(work_x, vy, wm_x)
     call field_col3(work_y, vy, wm_y)
     call field_col3(work_z, vy, wm_z)
-    call div(temp%x, work_x%x, work_y%x, work_z%x, coef)
+    call div(temp%x_d, work_x%x_d, work_y%x_d, work_z%x_d, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_addcol3(fy%x_d, coef%B_d, temp%x_d, n)
@@ -241,7 +241,7 @@ contains
     call field_col3(work_x, vz, wm_x)
     call field_col3(work_y, vz, wm_y)
     call field_col3(work_z, vz, wm_z)
-    call div(temp%x, work_x%x, work_y%x, work_z%x, coef)
+    call div(temp%x_d, work_x%x_d, work_y%x_d, work_z%x_d, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_addcol3(fz%x_d, coef%B_d, temp%x_d, n)

@@ -535,7 +535,7 @@ contains
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, E%x_d, n)
 #endif
-    call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
+    call div(rhs_E%x_d, f_x%x_d, f_y%x_d, f_z%x_d, coef)
 
     call gs%op(rhs_rho_field, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 1, coef)

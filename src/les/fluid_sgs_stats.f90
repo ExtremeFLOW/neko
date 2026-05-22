@@ -50,7 +50,7 @@ module fluid_sgs_stats
      !> Work fields
      type(field_t) :: stats_work
 
-     !> Pointers to the instantenious quantities.
+     !> Pointers to the instantaneous quantities.
      type(field_t), pointer :: nut !< nut
      type(field_t), pointer :: u !< u
      type(field_t), pointer :: v !< v
@@ -145,34 +145,31 @@ contains
   subroutine fluid_sgs_stats_update(this, k)
     class(fluid_sgs_stats_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
-    integer :: n
     type(field_t), pointer :: s11, s22, s33
     type(field_t), pointer :: s12, s13, s23
     integer :: temp_indices(6)
 
+    call neko_scratch_registry%request(s11, temp_indices(1), .false.)
+    call neko_scratch_registry%request(s22, temp_indices(2), .false.)
+    call neko_scratch_registry%request(s33, temp_indices(3), .false.)
+    call neko_scratch_registry%request(s12, temp_indices(4), .false.)
+    call neko_scratch_registry%request(s13, temp_indices(5), .false.)
+    call neko_scratch_registry%request(s23, temp_indices(6), .false.)
+
+    call this%nut_mean%update(k)
+
+    call strain_rate(s11, s22, s33, s12, s13, s23, &
+         this%u, this%v, this%w, this%coef)
+
+    ! form the double sij tensor
+    call field_cmult(s11, 2.0_rp)
+    call field_cmult(s22, 2.0_rp)
+    call field_cmult(s33, 2.0_rp)
+    call field_cmult(s12, 2.0_rp)
+    call field_cmult(s13, 2.0_rp)
+    call field_cmult(s23, 2.0_rp)
+
     associate(stats_work => this%stats_work)
-      n = stats_work%dof%size()
-
-      call neko_scratch_registry%request(s11, temp_indices(1), .false.)
-      call neko_scratch_registry%request(s22, temp_indices(2), .false.)
-      call neko_scratch_registry%request(s33, temp_indices(3), .false.)
-      call neko_scratch_registry%request(s12, temp_indices(4), .false.)
-      call neko_scratch_registry%request(s13, temp_indices(5), .false.)
-      call neko_scratch_registry%request(s23, temp_indices(6), .false.)
-
-      call this%nut_mean%update(k)
-
-      call strain_rate(s11, s22, s33, s12, s13, s23, &
-           this%u, this%v, this%w, this%coef)
-
-      ! form the double sij tensor
-      call field_cmult(s11, 2.0_rp)
-      call field_cmult(s22, 2.0_rp)
-      call field_cmult(s33, 2.0_rp)
-      call field_cmult(s12, 2.0_rp)
-      call field_cmult(s13, 2.0_rp)
-      call field_cmult(s23, 2.0_rp)
-
       call field_col3(stats_work, this%nut, s11)
       call this%uu_sgs%update(k)
       call field_col3(stats_work, this%nut, s22)
@@ -186,9 +183,9 @@ contains
       call field_col3(stats_work, this%nut, s23)
       call this%vw_sgs%update(k)
 
-      call neko_scratch_registry%relinquish_field(temp_indices)
     end associate
 
+    call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine fluid_sgs_stats_update
 
 
