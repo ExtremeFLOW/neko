@@ -707,6 +707,14 @@ contains
     class(bc_t), pointer :: bc_i
     type(non_normal_t), pointer :: bc_j
 
+    ! check solver consistency
+    if (this%dm_Xh%msh%conn%ifhang_glb) then
+       if (this%ale%active) &
+            call neko_error("Nonconforming solver does not support ALE.")
+       if (this%oifs) &
+            call neko_error("Nonconforming solver does not support OIFS.")
+    end if
+
     if (this%freeze) return
 
     n = this%dm_Xh%size()
