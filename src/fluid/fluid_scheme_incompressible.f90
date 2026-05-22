@@ -469,18 +469,36 @@ contains
     logical, intent(in) :: strong
     integer :: i
     class(bc_t), pointer :: b
+    real(rp), parameter :: big = huge(1.0_rp), big_neg = - big
     b => null()
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
 
     call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
-    call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+    if (allocated(this%gs_Xh%interp)) then
+       ! Exclude children from operation
+       call this%gs_Xh%interp%set_children(this%u, big)
+       call this%gs_Xh%interp%set_children(this%v, big)
+       call this%gs_Xh%interp%set_children(this%w, big)
+
+       call this%gs_Xh%gs_op_vector(this%u%x, this%dm_Xh%size(), GS_OP_MIN, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%gs_op_vector(this%v%x, this%dm_Xh%size(), GS_OP_MIN, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%gs_op_vector(this%w%x, this%dm_Xh%size(), GS_OP_MIN, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    else
+       call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    end if
     call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
 
 
@@ -488,13 +506,36 @@ contains
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
 
     call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
-    call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+    if (allocated(this%gs_Xh%interp)) then
+       ! Exclude children from operation
+       call this%gs_Xh%interp%set_children(this%u, big_neg)
+       call this%gs_Xh%interp%set_children(this%v, big_neg)
+       call this%gs_Xh%interp%set_children(this%w, big_neg)
+
+       call this%gs_Xh%gs_op_vector(this%u%x, this%dm_Xh%size(), GS_OP_MAX, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%gs_op_vector(this%v%x, this%dm_Xh%size(), GS_OP_MAX, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%gs_op_vector(this%w%x, this%dm_Xh%size(), GS_OP_MAX, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    else
+       call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    end if
     call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
+
+    if (allocated(this%gs_Xh%interp)) then
+       call this%gs_Xh%op_h1(this%u, GS_OP_ADD)
+       call this%gs_Xh%op_h1(this%v, GS_OP_ADD)
+       call this%gs_Xh%op_h1(this%w, GS_OP_ADD)
+    end if
 
     do i = 1, this%bcs_vel%size()
        b => this%bcs_vel%get(i)
@@ -509,18 +550,42 @@ contains
   subroutine fluid_scheme_bc_apply_prs(this, time)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-
     integer :: i
     class(bc_t), pointer :: b
+    real(rp), parameter :: big = huge(1.0_rp), big_neg = - big
     b => null()
 
     call this%bcs_prs%apply(this%p, time)
-    call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+
+    if (allocated(this%gs_Xh%interp)) then
+       ! Exclude children from operation
+       call this%gs_Xh%interp%set_children(this%p, big)
+
+       call this%gs_Xh%gs_op_vector(this%p%x, this%dm_Xh%size(), GS_OP_MIN, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    else
+       call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    end if
 
     call this%bcs_prs%apply(this%p, time)
-    call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+
+    if (allocated(this%gs_Xh%interp)) then
+       ! Exclude children from operation
+       call this%gs_Xh%interp%set_children(this%p, big_neg)
+
+       call this%gs_Xh%gs_op_vector(this%p%x, this%dm_Xh%size(), GS_OP_MAX, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    else
+       call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    end if
+
+    if (allocated(this%gs_Xh%interp)) then
+       call this%gs_Xh%op_h1(this%p, GS_OP_ADD)
+    end if
 
     do i = 1, this%bcs_prs%size()
        b => this%bcs_prs%get(i)

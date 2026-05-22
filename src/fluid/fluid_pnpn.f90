@@ -756,7 +756,6 @@ contains
               Xh, c_Xh, dm_Xh%size())
       end if
 
-
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -825,13 +824,6 @@ contains
       call this%bc_apply_vel(time, strong = .true.)
       call this%bc_apply_prs(time)
 
-      if (allocated(gs_Xh%interp)) then
-         call gs_Xh%op_h1(u, GS_OP_ADD)
-         call gs_Xh%op_h1(v, GS_OP_ADD)
-         call gs_Xh%op_h1(w, GS_OP_ADD)
-         call gs_Xh%op_h1(p, GS_OP_ADD)
-      end if
-
       ! Update material properties if necessary
       call this%update_material_properties(time)
 
@@ -845,7 +837,6 @@ contains
            this%bc_prs_surface, this%bc_sym_surface,&
            Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
            mu_tot, rho, event)
-
 
       ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
