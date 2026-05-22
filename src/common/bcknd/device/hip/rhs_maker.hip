@@ -97,9 +97,9 @@ extern "C" {
                          void *vlag2, void *wlag1, void *wlag2,
                          void *bfx, void *bfy, void *bfz,
                          void *u, void *v, void *w, void *B,
+                         void *Blag, void *Blaglag,
                          real *rho, real *dt, real *bd2,
-                         real *bd3, real *bd4, int *nbd, int *n,
-                         void *Blag, void *Blaglag) {
+                         real *bd3, real *bd4, int *nbd, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -110,8 +110,8 @@ extern "C" {
                        (real *) vlag2, (real *) wlag1, (real *) wlag2,
                        (real *) bfx, (real *) bfy, (real *) bfz,
                        (real *) u, (real *) v, (real *) w, (real *) B,
-                       *rho, *dt, *bd2, *bd3, *bd4, *nbd, *n,
-                       (real *) Blag, (real *) Blaglag);
+                       (real *) Blag, (real *) Blaglag,
+                       *rho, *dt, *bd2, *bd3, *bd4, *nbd, *n);
     HIP_CHECK(hipGetLastError());
   }
 

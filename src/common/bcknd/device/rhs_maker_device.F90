@@ -109,8 +109,8 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_bdf_hip(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n, &
-          Blag_d, Blaglag_d) bind(c, name = 'rhs_maker_bdf_hip')
+          Blag_d, Blaglag_d, rho, dt, bd2, bd3, bd4, nbd, n) &
+          bind(c, name = 'rhs_maker_bdf_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
@@ -203,8 +203,8 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_bdf_cuda(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n, &
-          Blag_d, Blaglag_d) bind(c, name = 'rhs_maker_bdf_cuda')
+          Blag_d, Blaglag_d, rho, dt, bd2, bd3, bd4, nbd, n) &
+          bind(c, name = 'rhs_maker_bdf_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
@@ -432,13 +432,12 @@ contains
   end subroutine scalar_rhs_maker_ext_device
 
   subroutine rhs_maker_bdf_device(ulag, vlag, wlag, bfx, bfy, bfz, &
-                               u, v, w, B, rho, dt, bd, nbd, n, Blag, Blaglag)
+       u, v, w, B, Blag, Blaglag, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
     type(field_series_t), intent(in) :: ulag, vlag, wlag
-    real(kind=rp), intent(in) :: Blag(n), Blaglag(n)
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
-    real(kind=rp), intent(in) :: B(n)
+    real(kind=rp), intent(in) :: B(n), Blag(n), Blaglag(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
     type(c_ptr) :: bfx_d, bfy_d, bfz_d, B_d, Blag_d, Blaglag_d
 
@@ -453,15 +452,15 @@ contains
                            vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
                            wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
                            bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                           B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n, &
-                           Blag_d, Blaglag_d)
+                           B_d, Blag_d, Blaglag_d, &
+                           rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_CUDA
     call rhs_maker_bdf_cuda(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                             vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
                             wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
                             bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                            B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n, &
-                            Blag_d, Blaglag_d)
+                            B_d, Blag_d, Blaglag_d, &
+                            rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_OPENCL
     call rhs_maker_bdf_opencl(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                               vlag%lf(1)%x_d, vlag%lf(2)%x_d, &

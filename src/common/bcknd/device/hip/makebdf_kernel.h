@@ -49,15 +49,15 @@ __global__ void makebdf_kernel(const T * __restrict__ ulag1,
                                const T * __restrict__ v,
                                const T * __restrict__ w,
                                const T * __restrict__ B,
+                               const T * __restrict__ Blag,
+                               const T * __restrict__ Blaglag,
                                const T rho,
                                const T dt,
                                const T bd2,
                                const T bd3,
                                const T bd4,
                                const int nbd,
-                               const int n,
-                               const T * __restrict__ Blag,
-                               const T * __restrict__ Blaglag) {
+                               const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
