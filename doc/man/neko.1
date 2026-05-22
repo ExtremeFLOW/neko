@@ -53,9 +53,19 @@ linked in via
 .TP
 .B NEKO_LOG_LEVEL
 Verbosity of the logger. Higher values produce more output.
+Common levels are
+.BR 0 " (quiet), " 1 " (info), " 2 " (verbose), " 5
+(log deprecated feature usage) and
+.BR 10 " (debug)."
 .TP
 .B NEKO_LOG_FILE
 If set, the log is also written to this file in addition to standard output.
+.TP
+.B NEKO_DEPRECATION_ERROR
+If set to
+.BR 1 ,
+deprecated features whose configured removal version has been reached are
+treated as fatal errors. If unset, they are reported as warnings.
 .TP
 .B NEKO_LOG_TAB_SIZE
 Indentation width used by the logger.
