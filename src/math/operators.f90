@@ -142,7 +142,7 @@ contains
        call opr_xsmm_dudxyz(du, u, dr, ds, dt, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: dudxyz, implicit device', &
-            'v2.0.0', 'Please call opr_device_dudxyz instead.')
+            '2.0.0', 'Please call opr_device_dudxyz instead.')
 
        du_d = device_get_ptr(du)
        u_d = device_get_ptr(u)
@@ -197,7 +197,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: div, implicit device', &
-            'v2.0.0', 'Please call div_d instead.')
+            '2.0.0', 'Please call div_d instead.')
        res_d = device_get_ptr(res)
     end if
 
@@ -248,7 +248,7 @@ contains
     call dudxyz(work%x_d, uy_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
     call device_add2(res_d, work%x_d, work%size())
 
-    ! Get dux / dz
+    ! Get duz / dz
     call dudxyz(work%x_d, uz_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
     call device_add2(res_d, work%x_d, work%size())
 
@@ -355,7 +355,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: ortho, implicit device', &
-            'v2.0.0', 'Please call device_ortho instead.')
+            '2.0.0', 'Please call device_ortho instead.')
 
        x_d = device_get_ptr(x)
        c = device_glsum(x_d, n) / glb_n_points
@@ -580,22 +580,21 @@ contains
        cfl_r4 = opr_sx_cfl(dt, u, v, w, Xh, coef, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: cfl_r4, implicit device', &
-            'v2.0.0', 'Please call cfl_d instead.')
+            '2.0.0', 'Please call cfl_d instead.')
 
        u_d = device_get_ptr(u)
        v_d = device_get_ptr(v)
        w_d = device_get_ptr(w)
 
        cfl_r4 = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
-
-       if (.not. NEKO_DEVICE_MPI) then
-          call MPI_Allreduce(MPI_IN_PLACE, cfl_r4, 1, &
-               MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-       end if
     else
        cfl_r4 = opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim)
     end if
 
+    if (.not. NEKO_DEVICE_MPI) then
+       call MPI_Allreduce(MPI_IN_PLACE, cfl_r4, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    end if
 
   end function cfl_r4
 
@@ -630,15 +629,14 @@ contains
        cfl_f = opr_sx_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        cfl_f = opr_device_cfl(dt, u%x_d, v%x_d, w%x_d, Xh, coef, nelv, gdim)
-
-       if (.not. NEKO_DEVICE_MPI) then
-          call MPI_Allreduce(MPI_IN_PLACE, cfl_f, 1, &
-               MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-       end if
     else
        cfl_f = opr_cpu_cfl(dt, u%x, v%x, w%x, Xh, coef, nelv, gdim)
     end if
 
+    if (.not. NEKO_DEVICE_MPI) then
+       call MPI_Allreduce(MPI_IN_PLACE, cfl_f, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    end if
 
   end function cfl_f
 
@@ -733,7 +731,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_log%deprecated('Operator: strain_rate_r4, implicit device', &
-            'v2.0.0', 'Please call strain_rate_d instead.')
+            '2.0.0', 'Please call strain_rate_d instead.')
        s11_d = device_get_ptr(s11)
        s22_d = device_get_ptr(s22)
        s33_d = device_get_ptr(s33)
@@ -1086,7 +1084,7 @@ contains
     if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_log%deprecated('Operator: rotate_cyc_r1, implicit device', &
-               'v2.0.0', 'Please call rotate_cyc_d instead.')
+               '2.0.0', 'Please call rotate_cyc_d instead.')
 
           vx_d = device_get_ptr(vx)
           vy_d = device_get_ptr(vy)
@@ -1107,7 +1105,7 @@ contains
     if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_log%deprecated('Operator: rotate_cyc_r4, implicit device', &
-               'v2.0.0', 'Please call rotate_cyc_d instead.')
+               '2.0.0', 'Please call rotate_cyc_d instead.')
 
           vx_d = device_get_ptr(vx)
           vy_d = device_get_ptr(vy)
