@@ -32,6 +32,7 @@
 !
 !> Defines various GMRES methods
 module gmres
+  !$ use omp_lib
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -59,6 +60,8 @@ module gmres
      real(kind=xp), allocatable :: s(:)
      real(kind=xp), allocatable :: gam(:)
      real(kind=xp), allocatable :: c(:)
+     !> Per-thread partial-sum buffer
+     real(kind=xp), allocatable :: hp(:,:)
    contains
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
@@ -77,6 +80,7 @@ contains
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
+    integer :: nthrds
 
     call this%free()
 
@@ -95,6 +99,10 @@ contains
     allocate(this%v(n, this%lgmres))
 
     allocate(this%h(this%lgmres, this%lgmres))
+
+    nthrds = 1
+    !$ nthrds = omp_get_max_threads()
+    allocate(this%hp(this%lgmres, nthrds))
 
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
@@ -155,6 +163,10 @@ contains
        deallocate(this%gam)
     end if
 
+    if (allocated(this%hp)) then
+       deallocate(this%hp)
+    end if
+
     nullify(this%M)
 
   end subroutine gmres_free
@@ -173,10 +185,9 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
-    integer :: i, j, k, l, ierr, blk_size
+    integer :: i, j, k, l, ierr, tid, nthrds
     real(kind=xp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
-    real(kind=xp) :: alpha, lr, alpha2, norm_fac
-    real(kind=xp) :: hl_priv(this%lgmres)
+    real(kind=xp) :: alpha, lr, alpha2, norm_fac, tmp, acc
     real(kind=rp) :: temp, rnorm
     logical :: conv
 
@@ -190,8 +201,11 @@ contains
        max_iter = this%max_iter
     end if
 
+    nthrds = 1
+    !$ nthrds = omp_get_max_threads()
+
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-         v => this%v, s => this%s, gam => this%gam)
+         v => this%v, s => this%s, gam => this%gam, hp => this%hp)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
@@ -231,54 +245,87 @@ contains
             call gs_h%op(w, n, GS_OP_ADD)
             call blst%apply(w, n)
 
+            ! Classical Gram-Schmidt orthogonalization: accumulate
+            ! <w, v_l>_mult for l=1..j into per-thread columns of hp,
+            ! merge across threads, then one MPI_Allreduce of length j.
+            !$omp parallel private(i, k, l, tid, acc)
+            tid = 1
+            !$ tid = omp_get_thread_num() + 1
             do l = 1, j
-               h(l,j) = 0.0_xp
-            end do
-
-            !$omp parallel private(k, l, hl_priv, blk_size)
-            do l = 1, j
-               hl_priv(l) = 0.0_xp
+               hp(l,tid) = 0.0_xp
             end do
             !$omp do
-            do i = 0, n, NEKO_BLK_SIZE
-               blk_size = min(NEKO_BLK_SIZE, n - i)
-               do l = 1, j
-                  do concurrent (k = 1:blk_size)
-                     hl_priv(l) = hl_priv(l) + &
-                          w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+            do i = 0, n-1, NEKO_BLK_SIZE
+               if (i + NEKO_BLK_SIZE .le. n) then
+                  do l = 1, j
+                     acc = hp(l,tid)
+                     !$omp simd reduction(+:acc)
+                     do k = 1, NEKO_BLK_SIZE
+                        acc = acc + &
+                             w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+                     end do
+                     hp(l,tid) = acc
                   end do
-               end do
+               else
+                  do l = 1, j
+                     do k = 1, n - i
+                        hp(l,tid) = hp(l,tid) + &
+                             w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+                     end do
+                  end do
+               end if
             end do
             !$omp end do
-
-            do l = 1, j
-               !$omp atomic
-               h(l,j) = h(l,j) + hl_priv(l)
-            end do
-
             !$omp end parallel
-            call MPI_Allreduce(MPI_IN_PLACE, h(1,j), j, &
+
+            ! Cross-thread merge into hp(:, 1), then one Allreduce of j.
+            do k = 2, nthrds
+               do l = 1, j
+                  hp(l,1) = hp(l,1) + hp(l,k)
+               end do
+            end do
+            call MPI_Allreduce(MPI_IN_PLACE, hp(1,1), j, &
                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
-            alpha2 = 0.0_rp
-            !$omp parallel do private(k, l, w_plus, blk_size) reduction(+:alpha2)
-            do i = 0, n, NEKO_BLK_SIZE
-               blk_size = min(NEKO_BLK_SIZE, n - i)
-               do concurrent (k = 1:blk_size)
-                  w_plus(k) = 0.0_rp
-               end do
-               do l = 1, j
-                  do concurrent (k = 1:blk_size)
-                     w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
+            do l = 1, j
+               h(l,j) = hp(l,1)
+            end do
+
+            ! Projection w = w - sum h(l,j) v_l, with fused <w,w>_mult
+            ! reduction for the post-projection norm. alpha2 is computed
+            ! directly (not by Pythagoras) so accuracy is preserved when
+            ! the Krylov subspace is becoming invariant.
+            alpha2 = 0.0_xp
+            !$omp parallel do private(k, l, w_plus, tmp) reduction(+:alpha2)
+            do i = 0, n-1, NEKO_BLK_SIZE
+               if (i + NEKO_BLK_SIZE .le. n) then
+                  !$omp simd
+                  do k = 1, NEKO_BLK_SIZE
+                     w_plus(k) = 0.0_xp
                   end do
-               end do
-               do k = 1, blk_size
-                  w(i+k) = w(i+k) + w_plus(k)
-                  alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
-               end do
+                  do l = 1, j
+                     !$omp simd
+                     do k = 1, NEKO_BLK_SIZE
+                        w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
+                     end do
+                  end do
+                  do k = 1, NEKO_BLK_SIZE
+                     w(i+k) = w(i+k) + w_plus(k)
+                     alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
+                  end do
+               else
+                  do k = 1, n - i
+                     tmp = 0.0_xp
+                     do l = 1, j
+                        tmp = tmp - h(l,j) * v(i+k,l)
+                     end do
+                     w(i+k) = w(i+k) + tmp
+                     alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
+                  end do
+               end if
             end do
             !$omp end parallel do
-            call MPI_Allreduce(MPI_IN_PLACE,alpha2, 1, &
+            call MPI_Allreduce(MPI_IN_PLACE, alpha2, 1, &
                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
             alpha = sqrt(alpha2)
             do i = 1, j-1
@@ -325,20 +372,32 @@ contains
             c(k) = temp / h(k,k)
          end do
 
-         !$omp parallel do private(k, l, x_plus, blk_size)
-         do i = 0, n, NEKO_BLK_SIZE
-            blk_size = min(NEKO_BLK_SIZE, n - i)
-            do concurrent (k = 1:blk_size)
-               x_plus(k) = 0.0_rp
-            end do
-            do l = 1,j
-               do concurrent (k = 1:blk_size)
-                  x_plus(k) = x_plus(k) + c(l) * z(i+k,l)
+         !$omp parallel do private(k, l, x_plus, tmp)
+         do i = 0, n-1, NEKO_BLK_SIZE
+            if (i + NEKO_BLK_SIZE .le. n) then
+               !$omp simd
+               do k = 1, NEKO_BLK_SIZE
+                  x_plus(k) = 0.0_xp
                end do
-            end do
-            do concurrent (k = 1:blk_size)
-               x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-            end do
+               do l = 1, j
+                  !$omp simd
+                  do k = 1, NEKO_BLK_SIZE
+                     x_plus(k) = x_plus(k) + c(l) * z(i+k,l)
+                  end do
+               end do
+               !$omp simd
+               do k = 1, NEKO_BLK_SIZE
+                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
+               end do
+            else
+               do k = 1, n - i
+                  tmp = 0.0_xp
+                  do l = 1, j
+                     tmp = tmp + c(l) * z(i+k,l)
+                  end do
+                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + tmp
+               end do
+            end if
          end do
          !$omp end parallel do
       end do
