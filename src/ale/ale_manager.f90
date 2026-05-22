@@ -953,6 +953,10 @@ contains
              call phi_file%init('phi_' // &
                   trim(this%config%bodies(body_idx)%name) // '.fld', &
                   precision = rp)
+             select type (ft => phi_file%file_type)
+             type is (fld_file_t)
+                ft%skip_pressure = .false.
+             end select
              call phi_file%write(this%base_shapes(body_idx))
              call phi_file%free()
              call neko_log%message('   phi_' // &
@@ -962,6 +966,10 @@ contains
           ! Total
           if (this%config%nbodies > 1) then
              call neko_log%message("  phi_total.fld saved.")
+             select type (ft => phi_file%file_type)
+             type is (fld_file_t)
+                ft%skip_pressure = .false.
+             end select
              call phi_file%init('phi_total.fld', precision = rp)
              call phi_file%write(this%phi_total)
              call phi_file%free()
@@ -1104,6 +1112,10 @@ contains
              call phi_file%init('phi_' // &
                   trim(this%config%bodies(body_idx)%name) // '.fld', &
                   precision = rp)
+             select type (ft => phi_file%file_type)
+             type is (fld_file_t)
+                ft%skip_pressure = .false.
+             end select
              call phi_file%write(this%base_shapes(body_idx))
              call phi_file%free()
              call neko_log%message('      phi_' // &
@@ -1120,6 +1132,10 @@ contains
 
           call neko_log%message("   phi_total.fld saved.")
           call phi_file%init('phi_total.fld', precision = rp)
+          select type (ft => phi_file%file_type)
+          type is (fld_file_t)
+             ft%skip_pressure = .false.
+          end select
           call phi_file%write(this%phi_total)
           call phi_file%free()
        end if
@@ -1791,6 +1807,7 @@ contains
     select type (ft => out_file%file_type)
     type is (fld_file_t)
        ft%write_mesh = .true.
+       ft%skip_pressure = .false.
        if (NEKO_BCKND_DEVICE .eq. 1) then
           associate(mesh => coef%dof)
             call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
