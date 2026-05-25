@@ -72,7 +72,7 @@ contains
     fu => fields%get_by_index(1)
     fv => fields%get_by_index(2)
 
-    ! Request three scratch fields for gradients
+    ! Request three scratch fields for gradients (used for both u and v)
     call neko_scratch_registry%request_field(dx, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(dy, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(dz, temp_indices(3), .false.)
@@ -96,7 +96,7 @@ contains
        fu%x(i,1,1,1) = fu%x(i,1,1,1) + w_sub%x(i,1,1,1) * deriv
     end do
 
-    ! Compute gradients of v (reuse scratch fields)
+    ! Compute gradients of v 
     call grad(dx%x, dy%x, dz%x, v%x, coef)
 
     call coef%gs_h%op(dx, GS_OP_ADD)
