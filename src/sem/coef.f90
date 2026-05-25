@@ -75,7 +75,7 @@ module coefs
      real(kind=rp), allocatable :: G13(:,:,:,:)
      !> Geometric factors \f$ G_{23} \f$
      real(kind=rp), allocatable :: G23(:,:,:,:)
-     !> Multiplicity
+     !> Multiplicity excluding nonconforming children
      real(kind=rp), allocatable :: mult(:,:,:,:)
      !> Zero for children's nonconforming faces/edges
      real(kind=rp), allocatable :: zero_chld(:,:,:,:)
