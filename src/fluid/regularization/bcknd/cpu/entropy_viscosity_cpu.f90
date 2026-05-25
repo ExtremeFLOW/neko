@@ -33,6 +33,7 @@
 !> CPU backend for entropy viscosity regularization
 module entropy_viscosity_cpu
   use num_types, only : rp
+  use neko_config, only : NEKO_BLK_SIZE
   implicit none
   private
 
@@ -60,14 +61,28 @@ contains
     real(kind=rp), dimension(n), intent(in) :: S, S_lag1, S_lag2, S_lag3
     real(kind=rp), intent(in) :: bdf_coeffs(4)
     real(kind=rp), intent(in) :: dt
-    integer :: i
+    integer :: i, k
 
-    do concurrent (i = 1:n)
-       entropy_residual(i) = (bdf_coeffs(1) * S(i) &
-            - bdf_coeffs(2) * S_lag1(i) &
-            - bdf_coeffs(3) * S_lag2(i) &
-            - bdf_coeffs(4) * S_lag3(i)) / dt
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             entropy_residual(i+k) = (bdf_coeffs(1) * S(i+k) &
+                  - bdf_coeffs(2) * S_lag1(i+k) &
+                  - bdf_coeffs(3) * S_lag2(i+k) &
+                  - bdf_coeffs(4) * S_lag3(i+k)) / dt
+          end do
+       else
+          do k = 1, n - i
+             entropy_residual(i+k) = (bdf_coeffs(1) * S(i+k) &
+                  - bdf_coeffs(2) * S_lag1(i+k) &
+                  - bdf_coeffs(3) * S_lag2(i+k) &
+                  - bdf_coeffs(4) * S_lag3(i+k)) / dt
+          end do
+       end if
     end do
+    !$omp end parallel do
 
   end subroutine entropy_viscosity_compute_residual_cpu
 
@@ -84,11 +99,24 @@ contains
     real(kind=rp), dimension(n), intent(out) :: reg_coeff
     real(kind=rp), dimension(n), intent(in) :: entropy_residual, h
     real(kind=rp), intent(in) :: c_avisc_entropy, n_S
-    integer :: i
+    integer :: i, k
 
-    do concurrent (i = 1:n)
-       reg_coeff(i) = c_avisc_entropy * h(i) * h(i) * entropy_residual(i) / n_S
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             reg_coeff(i+k) = c_avisc_entropy * h(i+k) * h(i+k) * &
+                  entropy_residual(i+k) / n_S
+          end do
+       else
+          do k = 1, n - i
+             reg_coeff(i+k) = c_avisc_entropy * h(i+k) * h(i+k) * &
+                  entropy_residual(i+k) / n_S
+          end do
+       end if
     end do
+    !$omp end parallel do
 
   end subroutine entropy_viscosity_compute_viscosity_cpu
 
@@ -102,11 +130,13 @@ contains
     integer :: i, j, k, el
     real(kind=rp) :: max_visc_el
 
+    !$omp parallel do private(i, j, k, max_visc_el)
     do el = 1, nelv
        max_visc_el = 0.0_rp
 
        do k = 1, lx
           do j = 1, lx
+             !$omp simd reduction(max:max_visc_el)
              do i = 1, lx
                 max_visc_el = max(max_visc_el, reg_coeff(i, j, k, el))
              end do
@@ -115,12 +145,14 @@ contains
 
        do k = 1, lx
           do j = 1, lx
+             !$omp simd
              do i = 1, lx
                 reg_coeff(i, j, k, el) = max_visc_el
              end do
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine entropy_viscosity_apply_element_max_cpu
 
@@ -136,13 +168,25 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: reg_coeff
     real(kind=rp), dimension(n), intent(in) :: h, max_wave_speed
     real(kind=rp), intent(in) :: c_avisc_low
-    integer :: i
+    integer :: i, k
     real(kind=rp) :: low_order_visc
 
-    do concurrent (i = 1:n)
-       low_order_visc = c_avisc_low * h(i) * max_wave_speed(i)
-       reg_coeff(i) = min(reg_coeff(i), low_order_visc)
+    !$omp parallel do private(k, low_order_visc)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd private(low_order_visc)
+          do k = 1, NEKO_BLK_SIZE
+             low_order_visc = c_avisc_low * h(i+k) * max_wave_speed(i+k)
+             reg_coeff(i+k) = min(reg_coeff(i+k), low_order_visc)
+          end do
+       else
+          do k = 1, n - i
+             low_order_visc = c_avisc_low * h(i+k) * max_wave_speed(i+k)
+             reg_coeff(i+k) = min(reg_coeff(i+k), low_order_visc)
+          end do
+       end if
     end do
+    !$omp end parallel do
 
   end subroutine entropy_viscosity_clamp_to_low_order_cpu
 
@@ -156,11 +200,22 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(out) :: reg_coeff
     real(kind=rp), dimension(n), intent(in) :: temp_field, mult_field
-    integer :: i
+    integer :: i, k
 
-    do concurrent (i = 1:n)
-       reg_coeff(i) = temp_field(i) / mult_field(i)
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             reg_coeff(i+k) = temp_field(i+k) / mult_field(i+k)
+          end do
+       else
+          do k = 1, n - i
+             reg_coeff(i+k) = temp_field(i+k) / mult_field(i+k)
+          end do
+       end if
     end do
+    !$omp end parallel do
 
   end subroutine entropy_viscosity_smooth_divide_cpu
 

@@ -45,6 +45,7 @@ module euler_res_cpu
   use scratch_registry, only : neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
+  use neko_config, only : NEKO_BLK_SIZE
   implicit none
   private
 
@@ -79,7 +80,7 @@ contains
     type(gs_t), intent(inout) :: gs
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
-    integer :: n, s, i, j, k
+    integer :: n, s, i, j
     type(field_t), pointer :: k_rho_1, k_rho_2, k_rho_3, k_rho_4, &
          k_m_x_1, k_m_x_2, k_m_x_3, k_m_x_4, &
          k_m_y_1, k_m_y_2, k_m_y_3, k_m_y_4, &
@@ -154,13 +155,9 @@ contains
     ! Loop over Runge-Kutta stages
     do i = 1, s
        ! Copy current solution state to temporary arrays for this RK stage
-       do concurrent (k = 1:n)
-          temp_rho%x(k,1,1,1) = rho_field%x(k,1,1,1)
-          temp_m_x%x(k,1,1,1) = m_x%x(k,1,1,1)
-          temp_m_y%x(k,1,1,1) = m_y%x(k,1,1,1)
-          temp_m_z%x(k,1,1,1) = m_z%x(k,1,1,1)
-          temp_E%x(k,1,1,1) = E%x(k,1,1,1)
-       end do
+       call euler_res_cpu_copy5(temp_rho%x, temp_m_x%x, temp_m_y%x, &
+            temp_m_z%x, temp_E%x, rho_field%x, m_x%x, m_y%x, m_z%x, &
+            E%x, n)
 
        ! Accumulate previous stage contributions using RK coefficients
        do j = 1, i-1
@@ -169,18 +166,9 @@ contains
           k_m_y_ptr => k_m_y%items(j)%ptr%x
           k_m_z_ptr => k_m_z%items(j)%ptr%x
           k_E_ptr => k_E%items(j)%ptr%x
-          do concurrent (k = 1:n)
-             temp_rho%x(k,1,1,1) = temp_rho%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_rho_ptr(k,1,1,1)
-             temp_m_x%x(k,1,1,1) = temp_m_x%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_x_ptr(k,1,1,1)
-             temp_m_y%x(k,1,1,1) = temp_m_y%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_y_ptr(k,1,1,1)
-             temp_m_z%x(k,1,1,1) = temp_m_z%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_z_ptr(k,1,1,1)
-             temp_E%x(k,1,1,1) = temp_E%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_E_ptr(k,1,1,1)
-          end do
+          call euler_res_cpu_axpy5(temp_rho%x, temp_m_x%x, temp_m_y%x, &
+               temp_m_z%x, temp_E%x, k_rho_ptr, k_m_x_ptr, k_m_y_ptr, &
+               k_m_z_ptr, k_E_ptr, dt * rk_scheme%coeffs_A(i, j), n)
        end do
 
        ! Evaluate RHS terms for current stage using intermediate solution values
@@ -199,18 +187,9 @@ contains
        k_m_y_ptr => k_m_y%items(i)%ptr%x
        k_m_z_ptr => k_m_z%items(i)%ptr%x
        k_E_ptr => k_E%items(i)%ptr%x
-       do concurrent (k = 1:n)
-          rho_field%x(k,1,1,1) = rho_field%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_rho_ptr(k,1,1,1)
-          m_x%x(k,1,1,1) = m_x%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_x_ptr(k,1,1,1)
-          m_y%x(k,1,1,1) = m_y%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_y_ptr(k,1,1,1)
-          m_z%x(k,1,1,1) = m_z%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_z_ptr(k,1,1,1)
-          E%x(k,1,1,1) = E%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_E_ptr(k,1,1,1)
-       end do
+       call euler_res_cpu_axpy5(rho_field%x, m_x%x, m_y%x, m_z%x, E%x, &
+            k_rho_ptr, k_m_x_ptr, k_m_y_ptr, k_m_z_ptr, k_E_ptr, &
+            dt * rk_scheme%coeffs_b(i), n)
     end do
 
     call neko_scratch_registry%relinquish_field(tmp_indices)
@@ -248,7 +227,7 @@ contains
     class(Ax_t), intent(inout) :: Ax
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
-    integer :: i, n
+    integer :: n
     type(field_t), pointer :: f_x, f_y, f_z, &
          visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
     integer :: tmp_indices(8)
@@ -265,43 +244,22 @@ contains
     !> m = m - dt * div(rho * u * u^T + p*I)
     ! Compute momentum flux divergences
     ! m_x
-    do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * m_x%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
-       f_y%x(i,1,1,1) = m_x%x(i,1,1,1) * m_y%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
-       f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * m_z%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
-    end do
+    call euler_res_cpu_flux_mx(f_x%x, f_y%x, f_z%x, m_x%x, m_y%x, &
+         m_z%x, rho_field%x, p%x, n)
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_y
-    do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_y%x(i,1,1,1) * m_x%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
-       f_y%x(i,1,1,1) = m_y%x(i,1,1,1) * m_y%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
-       f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * m_z%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
-    end do
+    call euler_res_cpu_flux_my(f_x%x, f_y%x, f_z%x, m_x%x, m_y%x, &
+         m_z%x, rho_field%x, p%x, n)
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_z
-    do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = m_z%x(i,1,1,1) * m_x%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
-       f_y%x(i,1,1,1) = m_z%x(i,1,1,1) * m_y%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
-       f_z%x(i,1,1,1) = m_z%x(i,1,1,1) * m_z%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
-    end do
+    call euler_res_cpu_flux_mz(f_x%x, f_y%x, f_z%x, m_x%x, m_y%x, &
+         m_z%x, rho_field%x, p%x, n)
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
 
     !> E = E - dt * div(u * (E + p))
     ! Compute energy flux divergence
-    do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * u%x(i,1,1,1)
-       f_y%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * v%x(i,1,1,1)
-       f_z%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * w%x(i,1,1,1)
-    end do
+    call euler_res_cpu_flux_E(f_x%x, f_y%x, f_z%x, E%x, p%x, u%x, v%x, &
+         w%x, n)
     call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
 
     ! gs
@@ -312,13 +270,8 @@ contains
     call gs%op(rhs_m_z, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
-    do concurrent (i = 1:rhs_E%dof%size())
-       rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) * coef%mult(i,1,1,1)
-       rhs_m_x%x(i,1,1,1) = rhs_m_x%x(i,1,1,1) * coef%mult(i,1,1,1)
-       rhs_m_y%x(i,1,1,1) = rhs_m_y%x(i,1,1,1) * coef%mult(i,1,1,1)
-       rhs_m_z%x(i,1,1,1) = rhs_m_z%x(i,1,1,1) * coef%mult(i,1,1,1)
-       rhs_E%x(i,1,1,1) = rhs_E%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
+    call euler_res_cpu_scale5(rhs_rho_field%x, rhs_m_x%x, rhs_m_y%x, &
+         rhs_m_z%x, rhs_E%x, coef%mult, rhs_E%dof%size())
 
     call neko_scratch_registry%request_field(visc_rho, tmp_indices(4), .false.)
     call neko_scratch_registry%request_field(visc_m_x, tmp_indices(5), .false.)
@@ -327,9 +280,7 @@ contains
     call neko_scratch_registry%request_field(visc_E, tmp_indices(8), .false.)
 
     ! Set h1 coefficient to the effective viscosity for the Laplacian operator
-    do concurrent (i = 1:n)
-       coef%h1(i,1,1,1) = effective_visc%x(i,1,1,1)
-    end do
+    call euler_res_cpu_set_h1(coef%h1, effective_visc%x, n)
 
     ! Calculate artificial diffusion with variable viscosity
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
@@ -339,9 +290,7 @@ contains
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     ! Reset h1 coefficient back to 1.0 for other operations
-    do concurrent (i = 1:n)
-       coef%h1(i,1,1,1) = 1.0_rp
-    end do
+    call euler_res_cpu_reset_h1(coef%h1, n)
 
     ! gs
     call gs%op(visc_rho, GS_OP_ADD)
@@ -354,20 +303,280 @@ contains
 
     ! Move div to the rhs and apply artificial viscosity
     ! The viscosity coefficient is already included in the Laplacian operator
-    do concurrent (i = 1:n)
-       rhs_rho_field%x(i,1,1,1) = -rhs_rho_field%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
-       rhs_m_x%x(i,1,1,1) = -rhs_m_x%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
-       rhs_m_y%x(i,1,1,1) = -rhs_m_y%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
-       rhs_m_z%x(i,1,1,1) = -rhs_m_z%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
-       rhs_E%x(i,1,1,1) = -rhs_E%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
-    end do
+    call euler_res_cpu_apply_visc(rhs_rho_field%x, rhs_m_x%x, rhs_m_y%x, &
+         rhs_m_z%x, rhs_E%x, visc_rho%x, visc_m_x%x, visc_m_y%x, &
+         visc_m_z%x, visc_E%x, coef%Binv, n)
 
     call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine evaluate_rhs_cpu
+
+  subroutine euler_res_cpu_copy5(y1, y2, y3, y4, y5, x1, x2, x3, x4, x5, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: y1(n), y2(n), y3(n), y4(n), y5(n)
+    real(kind=rp), intent(in) :: x1(n), x2(n), x3(n), x4(n), x5(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             y1(i+k) = x1(i+k)
+             y2(i+k) = x2(i+k)
+             y3(i+k) = x3(i+k)
+             y4(i+k) = x4(i+k)
+             y5(i+k) = x5(i+k)
+          end do
+       else
+          do k = 1, n - i
+             y1(i+k) = x1(i+k)
+             y2(i+k) = x2(i+k)
+             y3(i+k) = x3(i+k)
+             y4(i+k) = x4(i+k)
+             y5(i+k) = x5(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_copy5
+
+  subroutine euler_res_cpu_axpy5(y1, y2, y3, y4, y5, x1, x2, x3, x4, x5, a, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: a
+    real(kind=rp), intent(inout) :: y1(n), y2(n), y3(n), y4(n), y5(n)
+    real(kind=rp), intent(in) :: x1(n), x2(n), x3(n), x4(n), x5(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             y1(i+k) = y1(i+k) + a * x1(i+k)
+             y2(i+k) = y2(i+k) + a * x2(i+k)
+             y3(i+k) = y3(i+k) + a * x3(i+k)
+             y4(i+k) = y4(i+k) + a * x4(i+k)
+             y5(i+k) = y5(i+k) + a * x5(i+k)
+          end do
+       else
+          do k = 1, n - i
+             y1(i+k) = y1(i+k) + a * x1(i+k)
+             y2(i+k) = y2(i+k) + a * x2(i+k)
+             y3(i+k) = y3(i+k) + a * x3(i+k)
+             y4(i+k) = y4(i+k) + a * x4(i+k)
+             y5(i+k) = y5(i+k) + a * x5(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_axpy5
+
+  subroutine euler_res_cpu_flux_mx(f_x, f_y, f_z, m_x, m_y, m_z, rho, p, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: f_x(n), f_y(n), f_z(n)
+    real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             f_x(i+k) = m_x(i+k) * m_x(i+k) / rho(i+k) + p(i+k)
+             f_y(i+k) = m_x(i+k) * m_y(i+k) / rho(i+k)
+             f_z(i+k) = m_x(i+k) * m_z(i+k) / rho(i+k)
+          end do
+       else
+          do k = 1, n - i
+             f_x(i+k) = m_x(i+k) * m_x(i+k) / rho(i+k) + p(i+k)
+             f_y(i+k) = m_x(i+k) * m_y(i+k) / rho(i+k)
+             f_z(i+k) = m_x(i+k) * m_z(i+k) / rho(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_flux_mx
+
+  subroutine euler_res_cpu_flux_my(f_x, f_y, f_z, m_x, m_y, m_z, rho, p, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: f_x(n), f_y(n), f_z(n)
+    real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             f_x(i+k) = m_y(i+k) * m_x(i+k) / rho(i+k)
+             f_y(i+k) = m_y(i+k) * m_y(i+k) / rho(i+k) + p(i+k)
+             f_z(i+k) = m_y(i+k) * m_z(i+k) / rho(i+k)
+          end do
+       else
+          do k = 1, n - i
+             f_x(i+k) = m_y(i+k) * m_x(i+k) / rho(i+k)
+             f_y(i+k) = m_y(i+k) * m_y(i+k) / rho(i+k) + p(i+k)
+             f_z(i+k) = m_y(i+k) * m_z(i+k) / rho(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_flux_my
+
+  subroutine euler_res_cpu_flux_mz(f_x, f_y, f_z, m_x, m_y, m_z, rho, p, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: f_x(n), f_y(n), f_z(n)
+    real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             f_x(i+k) = m_z(i+k) * m_x(i+k) / rho(i+k)
+             f_y(i+k) = m_z(i+k) * m_y(i+k) / rho(i+k)
+             f_z(i+k) = m_z(i+k) * m_z(i+k) / rho(i+k) + p(i+k)
+          end do
+       else
+          do k = 1, n - i
+             f_x(i+k) = m_z(i+k) * m_x(i+k) / rho(i+k)
+             f_y(i+k) = m_z(i+k) * m_y(i+k) / rho(i+k)
+             f_z(i+k) = m_z(i+k) * m_z(i+k) / rho(i+k) + p(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_flux_mz
+
+  subroutine euler_res_cpu_flux_E(f_x, f_y, f_z, E, p, u, v, w, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: f_x(n), f_y(n), f_z(n)
+    real(kind=rp), intent(in) :: E(n), p(n), u(n), v(n), w(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             f_x(i+k) = (E(i+k) + p(i+k)) * u(i+k)
+             f_y(i+k) = (E(i+k) + p(i+k)) * v(i+k)
+             f_z(i+k) = (E(i+k) + p(i+k)) * w(i+k)
+          end do
+       else
+          do k = 1, n - i
+             f_x(i+k) = (E(i+k) + p(i+k)) * u(i+k)
+             f_y(i+k) = (E(i+k) + p(i+k)) * v(i+k)
+             f_z(i+k) = (E(i+k) + p(i+k)) * w(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_flux_E
+
+  subroutine euler_res_cpu_scale5(y1, y2, y3, y4, y5, mult, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: y1(n), y2(n), y3(n), y4(n), y5(n)
+    real(kind=rp), intent(in) :: mult(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             y1(i+k) = y1(i+k) * mult(i+k)
+             y2(i+k) = y2(i+k) * mult(i+k)
+             y3(i+k) = y3(i+k) * mult(i+k)
+             y4(i+k) = y4(i+k) * mult(i+k)
+             y5(i+k) = y5(i+k) * mult(i+k)
+          end do
+       else
+          do k = 1, n - i
+             y1(i+k) = y1(i+k) * mult(i+k)
+             y2(i+k) = y2(i+k) * mult(i+k)
+             y3(i+k) = y3(i+k) * mult(i+k)
+             y4(i+k) = y4(i+k) * mult(i+k)
+             y5(i+k) = y5(i+k) * mult(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_scale5
+
+  subroutine euler_res_cpu_set_h1(h1, effective_visc, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: h1(n)
+    real(kind=rp), intent(in) :: effective_visc(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             h1(i+k) = effective_visc(i+k)
+          end do
+       else
+          do k = 1, n - i
+             h1(i+k) = effective_visc(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_set_h1
+
+  subroutine euler_res_cpu_reset_h1(h1, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: h1(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             h1(i+k) = 1.0_rp
+          end do
+       else
+          do k = 1, n - i
+             h1(i+k) = 1.0_rp
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_reset_h1
+
+  subroutine euler_res_cpu_apply_visc(y1, y2, y3, y4, y5, v1, v2, v3, v4, &
+       v5, Binv, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: y1(n), y2(n), y3(n), y4(n), y5(n)
+    real(kind=rp), intent(in) :: v1(n), v2(n), v3(n), v4(n), v5(n), Binv(n)
+    integer :: i, k
+
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             y1(i+k) = -y1(i+k) - Binv(i+k) * v1(i+k)
+             y2(i+k) = -y2(i+k) - Binv(i+k) * v2(i+k)
+             y3(i+k) = -y3(i+k) - Binv(i+k) * v3(i+k)
+             y4(i+k) = -y4(i+k) - Binv(i+k) * v4(i+k)
+             y5(i+k) = -y5(i+k) - Binv(i+k) * v5(i+k)
+          end do
+       else
+          do k = 1, n - i
+             y1(i+k) = -y1(i+k) - Binv(i+k) * v1(i+k)
+             y2(i+k) = -y2(i+k) - Binv(i+k) * v2(i+k)
+             y3(i+k) = -y3(i+k) - Binv(i+k) * v3(i+k)
+             y4(i+k) = -y4(i+k) - Binv(i+k) * v4(i+k)
+             y5(i+k) = -y5(i+k) - Binv(i+k) * v5(i+k)
+          end do
+       end if
+    end do
+    !$omp end parallel do
+  end subroutine euler_res_cpu_apply_visc
 
 end module euler_res_cpu

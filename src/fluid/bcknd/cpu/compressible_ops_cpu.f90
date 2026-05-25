@@ -33,6 +33,7 @@
 !> CPU implementation of compressible flow operations
 module compressible_ops_cpu
   use num_types, only : rp
+  use neko_config, only : NEKO_BLK_SIZE
   implicit none
   private
 
@@ -50,16 +51,31 @@ contains
     real(kind=rp), intent(in) :: gamma
     real(kind=rp), dimension(n), intent(in) :: u, v, w, p, rho
     real(kind=rp), dimension(n), intent(inout) :: max_wave_speed
-    integer :: i
+    integer :: i, k
     real(kind=rp) :: vel_mag, sound_speed
 
     ! Compute maximum wave speed:
     ! |u| + c = sqrt(u^2 + v^2 + w^2) + sqrt(gamma * p / rho)
-    do concurrent (i = 1:n)
-       vel_mag = sqrt(u(i)*u(i) + v(i)*v(i) + w(i)*w(i))
-       sound_speed = sqrt(gamma * p(i) / rho(i))
-       max_wave_speed(i) = vel_mag + sound_speed
+    !$omp parallel do private(k, vel_mag, sound_speed)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd private(vel_mag, sound_speed)
+          do k = 1, NEKO_BLK_SIZE
+             vel_mag = sqrt(u(i+k)*u(i+k) + v(i+k)*v(i+k) + &
+                  w(i+k)*w(i+k))
+             sound_speed = sqrt(gamma * p(i+k) / rho(i+k))
+             max_wave_speed(i+k) = vel_mag + sound_speed
+          end do
+       else
+          do k = 1, n - i
+             vel_mag = sqrt(u(i+k)*u(i+k) + v(i+k)*v(i+k) + &
+                  w(i+k)*w(i+k))
+             sound_speed = sqrt(gamma * p(i+k) / rho(i+k))
+             max_wave_speed(i+k) = vel_mag + sound_speed
+          end do
+       end if
     end do
+    !$omp end parallel do
 
   end subroutine compressible_ops_cpu_compute_max_wave_speed
 
@@ -70,13 +86,28 @@ contains
     real(kind=rp), intent(in) :: gamma
     real(kind=rp), dimension(n), intent(in) :: p, rho
     real(kind=rp), dimension(n), intent(inout) :: S
-    integer :: i
+    integer :: i, k
+    real(kind=rp) :: inv_gamma_m1
+
+    inv_gamma_m1 = 1.0_rp / (gamma - 1.0_rp)
 
     ! Compute entropy: S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
-    do concurrent (i = 1:n)
-       S(i) = (1.0_rp / (gamma - 1.0_rp)) * rho(i) * &
-            (log(p(i)) - gamma * log(rho(i)))
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             S(i+k) = inv_gamma_m1 * rho(i+k) * &
+                  (log(p(i+k)) - gamma * log(rho(i+k)))
+          end do
+       else
+          do k = 1, n - i
+             S(i+k) = inv_gamma_m1 * rho(i+k) * &
+                  (log(p(i+k)) - gamma * log(rho(i+k)))
+          end do
+       end if
     end do
+    !$omp end parallel do
 
   end subroutine compressible_ops_cpu_compute_entropy
 
@@ -85,13 +116,26 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u, v, w
     real(kind=rp), dimension(n), intent(in) :: m_x, m_y, m_z, rho
-    integer :: i
+    integer :: i, k
 
-    do concurrent (i = 1:n)
-       u(i) = m_x(i) / rho(i)
-       v(i) = m_y(i) / rho(i)
-       w(i) = m_z(i) / rho(i)
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             u(i+k) = m_x(i+k) / rho(i+k)
+             v(i+k) = m_y(i+k) / rho(i+k)
+             w(i+k) = m_z(i+k) / rho(i+k)
+          end do
+       else
+          do k = 1, n - i
+             u(i+k) = m_x(i+k) / rho(i+k)
+             v(i+k) = m_y(i+k) / rho(i+k)
+             w(i+k) = m_z(i+k) / rho(i+k)
+          end do
+       end if
     end do
+    !$omp end parallel do
 
   end subroutine compressible_ops_cpu_update_uvw
 
@@ -103,20 +147,32 @@ contains
     real(kind=rp), dimension(n), intent(in) :: u, v, w, E, rho
     real(kind=rp), intent(in) :: gamma
     real(kind=rp) :: tmp
-    integer :: i
+    integer :: i, k
 
-    do concurrent (i = 1:n)
-       m_x(i) = u(i) * rho(i)
-       m_y(i) = v(i) * rho(i)
-       m_z(i) = w(i) * rho(i)
+    !$omp parallel do private(k, tmp)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd private(tmp)
+          do k = 1, NEKO_BLK_SIZE
+             m_x(i+k) = u(i+k) * rho(i+k)
+             m_y(i+k) = v(i+k) * rho(i+k)
+             m_z(i+k) = w(i+k) * rho(i+k)
+             tmp = 0.5_rp * rho(i+k) * (u(i+k)**2 + v(i+k)**2 + w(i+k)**2)
+             p(i+k) = (gamma - 1.0_rp) * (E(i+k) - tmp)
+             ruvw(i+k) = tmp
+          end do
+       else
+          do k = 1, n - i
+             m_x(i+k) = u(i+k) * rho(i+k)
+             m_y(i+k) = v(i+k) * rho(i+k)
+             m_z(i+k) = w(i+k) * rho(i+k)
+             tmp = 0.5_rp * rho(i+k) * (u(i+k)**2 + v(i+k)**2 + w(i+k)**2)
+             p(i+k) = (gamma - 1.0_rp) * (E(i+k) - tmp)
+             ruvw(i+k) = tmp
+          end do
+       end if
     end do
-
-    !Update p = (gamma - 1) * (E - 0.5 * rho * (u^2 + v^2 + w^2))
-    do concurrent (i = 1:n)
-       tmp = 0.5_rp * rho(i) * (u(i)**2 + v(i)**2 + w(i)**2)
-       p(i) = (gamma - 1.0_rp) * (E(i) - tmp)
-       ruvw(i) = tmp
-    end do
+    !$omp end parallel do
 
   end subroutine compressible_ops_cpu_update_mxyz_p_ruvw
 
@@ -127,15 +183,31 @@ contains
     ! ruvw = 0.5 * rho * (u^2 + v^2 + w^2)
     real(kind=rp), dimension(n), intent(in) :: ruvw
     real(kind=rp), intent(in) :: gamma
-    integer :: i
+    integer :: i, k
+    real(kind=rp) :: inv_gamma_m1
 
+    inv_gamma_m1 = 1.0_rp / (gamma - 1.0_rp)
 
-    do concurrent (i = 1:n)
-       ! Ensure pressure is positive
-       p(i) = max(p(i), 1.0e-12_rp)
-       ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
-       E(i) = p(i) * (1.0_rp / (gamma - 1.0_rp)) + ruvw(i)
+    !$omp parallel do private(k)
+    do i = 0, n - 1, NEKO_BLK_SIZE
+       if (i + NEKO_BLK_SIZE .le. n) then
+          !$omp simd
+          do k = 1, NEKO_BLK_SIZE
+             ! Ensure pressure is positive
+             p(i+k) = max(p(i+k), 1.0e-12_rp)
+             ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
+             E(i+k) = p(i+k) * inv_gamma_m1 + ruvw(i+k)
+          end do
+       else
+          do k = 1, n - i
+             ! Ensure pressure is positive
+             p(i+k) = max(p(i+k), 1.0e-12_rp)
+             ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
+             E(i+k) = p(i+k) * inv_gamma_m1 + ruvw(i+k)
+          end do
+       end if
     end do
+    !$omp end parallel do
   end subroutine compressible_ops_cpu_update_e
 
 end module compressible_ops_cpu
