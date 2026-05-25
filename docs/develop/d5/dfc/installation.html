@@ -121,7 +121,8 @@ $(document).ready(function(){initNavTree('d5/dfc/installation.html','../../'); i
 </ul>
 </li>
 <li class="level1"><a href="#autotoc_md154">Installing using pixi</a></li>
-<li class="level1"><a href="#autotoc_md155">Using a Docker container</a></li>
+<li class="level1"><a href="#autotoc_md155">Installing via FreeBSD ports</a></li>
+<li class="level1"><a href="#autotoc_md156">Using a Docker container</a></li>
 </ul>
 </div>
 <div class="textblock"><p>Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via tools like Spack, pixi, and Docker. What to use comes down to personal preference, but here are some rough guidelines.</p>
@@ -317,6 +318,12 @@ Installing using pixi</h1>
 <p>Running </p><div class="fragment"><div class="line">pixi shell -e python</div>
 </div><!-- fragment --><p> will drop into a shell, which, in addition to Neko, has a Python interpreter with <code>pytest</code>, <code>findent</code>, and <code>flinter</code> installed. Additional packages can be installed manually.</p>
 <h1><a class="anchor" id="autotoc_md155"></a>
+Installing via FreeBSD ports</h1>
+<p>Neko is available in the FreeBSD ports collection under <code>science/neko</code>. The port tracks Neko releases and pulls in all required dependencies (MPI, BLAS/LAPACK, JSON-Fortran, etc.) automatically.</p>
+<p>To install from the ports tree:</p>
+<div class="fragment"><div class="line">cd /usr/ports/science/neko</div>
+<div class="line">make install clean</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md156"></a>
 Using a Docker container</h1>
 <p>Perhaps the easiest way to quickly give Neko a try is using a Docker container. Below we assume that you have Docker up and running on your system. The released container images can be found here: <a href="https://gitlab.com/ExtremeFLOW/neko/container_registry">https://gitlab.com/ExtremeFLOW/neko/container_registry</a>. Select the image with the release you want to use. Here we will use version 0.6.1, but in most cases you will want to simply pick up the latest version available. To the left of every image there is a button with three dots. Click on it to get the full path to the image in the correct format for Docker. For our release this is <code>registry.gitlab.com/extremeflow/neko/release-0.6.1-ubunut20.04-x86_64-gcc-12.3</code>. To get the image on you machine use <code>docker pull</code>:</p>
 <div class="fragment"><div class="line">docker pull registry.gitlab.com/extremeflow/neko/release-0.6.1-ubunut20.04-x86_64-gcc-12.3</div>
@@ -332,7 +339,7 @@ Using a Docker container</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sun May 24 2026 04:54:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon May 25 2026 05:03:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
