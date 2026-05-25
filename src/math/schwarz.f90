@@ -243,6 +243,14 @@ contains
       !   Cred to PFF for this, very clever
       call schwarz_extrude(work1, 0, zero, work2, 0, one, enx, eny, enz, &
            msh%nelv)
+
+      if (allocated(this%gs_schwarz%interp)) then
+         ! Scale children values by 0.25.  This is a hack, based on assumption
+         ! that number of children sharing a parent face is 4. It is not
+         ! accurate, but does not require multiple communication steps.
+         call schwarz_scale(work2, enx, eny, enz, msh%nelv, this%gs_schwarz)
+      end if
+
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work2, this%work2_d, ns, &
               HOST_TO_DEVICE, sync = .false.)
@@ -262,6 +270,13 @@ contains
       ! else
       call schwarz_toreg3d(work1, work2, Xh%lx, msh%nelv)
       ! endif
+
+      if (allocated(this%gs_h%interp)) then
+         ! Scale children values by 0.25.  This is a hack, based on assumption
+         ! that number of children sharing a parent face is 4. It is not
+         ! accurate, but does not require multiple communication steps.
+         call schwarz_scale(work1, Xh%lx, Xh%ly, Xh%lz, msh%nelv, this%gs_h)
+      end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work1, this%work1_d, n, &
@@ -385,6 +400,16 @@ contains
     end do
     !$omp end parallel do
   end subroutine schwarz_toext3d
+
+  !> Scale nonconforming children faces
+  subroutine schwarz_scale(arr, nx, ny, nz, nelv, gs)
+    integer, intent(in) :: nx, ny, nz, nelv
+    real(kind=rp), intent(inout) :: arr(nx, ny, nz, nelv)
+    type(gs_t), intent(inout) :: gs
+
+    call gs%interp%scale_children(arr, 0.25_rp, 0.5_rp)
+
+  end subroutine schwarz_scale
 
   !> Sum values along rows l1, l2 with weights f1, f2 and store along row l1.
   !! Helps us avoid complicated communcation to get neighbor values.
@@ -536,7 +561,7 @@ contains
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
 
          this%gs_schwarz%bcknd%gs_stream = aux_cmd_queue
-         call this%gs_schwarz%gs_op_vector(work1, ns, GS_OP_ADD, this%event)
+         call this%gs_schwarz%op(work1, ns, GS_OP_ADD, this%event)
          call device_event_sync(this%event)
          call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
@@ -545,7 +570,7 @@ contains
 
          call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
-         call this%gs_schwarz%gs_op_vector(work2, ns, GS_OP_ADD, this%event)
+         call this%gs_schwarz%op(work2, ns, GS_OP_ADD, this%event)
          call device_event_sync(this%event)
 
          call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, &
@@ -556,7 +581,7 @@ contains
               this%msh%nelv, aux_cmd_queue)
 
          this%gs_h%bcknd%gs_stream = aux_cmd_queue
-         call this%gs_h%gs_op_vector(e, n, GS_OP_ADD, this%event)
+         call this%gs_h%op(e, n, GS_OP_ADD, this%event)
 
          call this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)
          call device_col2(e_d, this%wt_d, n, aux_cmd_queue)
@@ -573,7 +598,13 @@ contains
          !  exchange interior nodes
          call schwarz_extrude_single(work1, 0, zero, 2, one, &
               enx, eny, enz, this%msh%nelv)
-         call this%gs_schwarz%gs_op_vector(work1, ns, GS_OP_ADD)
+
+         if (allocated(this%gs_schwarz%interp)) then
+            call this%gs_schwarz%op_inv(work1, ns, GS_OP_ADD)
+         else
+            call this%gs_schwarz%op(work1, ns, GS_OP_ADD)
+         end if
+
          call schwarz_extrude_single(work1, 0, one, 2, -one, &
               enx, eny, enz, this%msh%nelv)
 
@@ -582,7 +613,13 @@ contains
          !   Sum overlap region (border excluded)
          call schwarz_extrude(work1, 0, zero, work2, 0, one, &
               enx, eny, enz, this%msh%nelv)
-         call this%gs_schwarz%gs_op_vector(work2, ns, GS_OP_ADD)
+
+         if (allocated(this%gs_schwarz%interp)) then
+            call this%gs_schwarz%op_inv(work2, ns, GS_OP_ADD)
+         else
+            call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
+         end if
+
          call schwarz_extrude(work2, 0, one, work1, 0, -one, &
               enx, eny, enz, this%msh%nelv)
          call schwarz_extrude_single(work2, 2, one, 0, one, &
@@ -591,7 +628,7 @@ contains
          call schwarz_toreg3d(e, work2, this%Xh%lx, this%msh%nelv)
 
          ! sum border nodes
-         call this%gs_h%gs_op_vector(e, n, GS_OP_ADD)
+         call this%gs_h%op(e, n, GS_OP_ADD)
          call this%bclst%apply_scalar(e, n)
 
          call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)

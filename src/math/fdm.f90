@@ -185,63 +185,104 @@ contains
       call plane_space(lmr, lms, lmt, 0, n2, Xh%wx, x, y, z, &
            nx, n2, nz0, nzn, nelv, gdim)
       n = n2 + 1
-      if (gdim .eq. 3) then
-         do e = 1, nelv
-            do j = 2, n2
-               do k = 2, n2
-                  l(1, k, j, e) = lmr(e)
-                  l(n, k, j, e) = lmr(e)
-                  l(k, 1, j, e) = lms(e)
-                  l(k, n, j, e) = lms(e)
-                  l(k, j, 1, e) = lmt(e)
-                  l(k, j, n, e) = lmt(e)
+      if (allocated(this%gs_h%interp)) then
+         ! Scale children values by 0.25.  This is a hack, based on assumption
+         ! that number of children sharing a parent face is 4. It is not
+         ! accurate, but does not require multiple communication steps.
+         if (gdim .eq. 3) then
+            do e = 1, nelv
+               do j = 2, n2
+                  do k = 2, n2
+                     l(1, k, j, e) = lmr(e)
+                     l(n, k, j, e) = lmr(e)
+                     l(k, 1, j, e) = lms(e)
+                     l(k, n, j, e) = lms(e)
+                     l(k, j, 1, e) = lmt(e)
+                     l(k, j, n, e) = lmt(e)
+                  end do
                end do
             end do
-         end do
-         if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                 DEVICE_TO_HOST, sync = .true.)
-         else
-            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-         end if
+            call this%gs_h%interp%scale_children(l, 0.25_rp, 0.5_rp)
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    HOST_TO_DEVICE, sync = .false.)
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+            else
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+            end if
 
-         do e = 1, nelv
-            llr(e) = l(1, 2, 2, e) - lmr(e)
-            lrr(e) = l(n, 2, 2, e) - lmr(e)
-            lls(e) = l(2, 1, 2, e) - lms(e)
-            lrs(e) = l(2, n, 2, e) - lms(e)
-            llt(e) = l(2, 2, 1, e) - lmt(e)
-            lrt(e) = l(2, 2, n, e) - lmt(e)
-         end do
-      else
-         do e = 1, nelv
-            do j = 2, n2
-               l(1, j, 1, e) = lmr(e)
-               l(n, j, 1, e) = lmr(e)
-               l(j, 1, 1, e) = lms(e)
-               l(j, n, 1, e) = lms(e)
+            do e = 1, nelv
+               llr(e) = l(1, 2, 2, e) - lmr(e)
+               lrr(e) = l(n, 2, 2, e) - lmr(e)
+               lls(e) = l(2, 1, 2, e) - lms(e)
+               lrs(e) = l(2, n, 2, e) - lms(e)
+               llt(e) = l(2, 2, 1, e) - lmt(e)
+               lrt(e) = l(2, 2, n, e) - lmt(e)
             end do
-         end do
-
-         if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                 DEVICE_TO_HOST, sync = .true.)
          else
-            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
+            ! no 2D yet
          end if
+      else
+         if (gdim .eq. 3) then
+            do e = 1, nelv
+               do j = 2, n2
+                  do k = 2, n2
+                     l(1, k, j, e) = lmr(e)
+                     l(n, k, j, e) = lmr(e)
+                     l(k, 1, j, e) = lms(e)
+                     l(k, n, j, e) = lms(e)
+                     l(k, j, 1, e) = lmt(e)
+                     l(k, j, n, e) = lmt(e)
+                  end do
+               end do
+            end do
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    HOST_TO_DEVICE, sync = .false.)
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+            else
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+            end if
 
-         do e = 1, nelv
-            llr(e) = l(1, 2, 1, e) - lmr(e)
-            lrr(e) = l(n, 2, 1, e) - lmr(e)
-            lls(e) = l(2, 1, 1, e) - lms(e)
-            lrs(e) = l(2, n, 1, e) - lms(e)
-         end do
+            do e = 1, nelv
+               llr(e) = l(1, 2, 2, e) - lmr(e)
+               lrr(e) = l(n, 2, 2, e) - lmr(e)
+               lls(e) = l(2, 1, 2, e) - lms(e)
+               lrs(e) = l(2, n, 2, e) - lms(e)
+               llt(e) = l(2, 2, 1, e) - lmt(e)
+               lrt(e) = l(2, 2, n, e) - lmt(e)
+            end do
+         else
+            do e = 1, nelv
+               do j = 2, n2
+                  l(1, j, 1, e) = lmr(e)
+                  l(n, j, 1, e) = lmr(e)
+                  l(j, 1, 1, e) = lms(e)
+                  l(j, n, 1, e) = lms(e)
+               end do
+            end do
+
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    HOST_TO_DEVICE, sync = .false.)
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+            else
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+            end if
+
+            do e = 1, nelv
+               llr(e) = l(1, 2, 1, e) - lmr(e)
+               lrr(e) = l(n, 2, 1, e) - lmr(e)
+               lls(e) = l(2, 1, 1, e) - lms(e)
+               lrs(e) = l(2, n, 1, e) - lms(e)
+            end do
+         end if
       end if
     end associate
   end subroutine swap_lengths
