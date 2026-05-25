@@ -71,7 +71,7 @@ module boussinesq_source_term
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => boussinesq_source_term_init_from_json
      !> The constructor from type components.
-     procedure, pass(this) :: init_from_compenents => &
+     procedure, pass(this) :: init_from_components => &
           boussinesq_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => boussinesq_source_term_free
@@ -164,8 +164,7 @@ contains
   end subroutine boussinesq_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
+  !! @param time The time value.
   subroutine boussinesq_source_term_compute(this, time)
     class(boussinesq_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
