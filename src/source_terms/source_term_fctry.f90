@@ -58,7 +58,8 @@ submodule (source_term) source_term_fctry
        "sponge", &
        "field", &
        "hpfrt", &
-       "translation" &
+       "translation", &
+       "subsidence" 
        ]
 
 contains
@@ -121,6 +122,8 @@ contains
        allocate(field_source_term_t::object)
     case ("hpfrt")
        allocate(hpfrt_source_term_t::object)
+    case ("subsidence")
+       allocate(subsidence_source_term_t::object)
     case default
        do i = 1, source_term_registry_size
           if (trim(type_name) .eq. trim(source_term_registry(i)%type_name)) then
