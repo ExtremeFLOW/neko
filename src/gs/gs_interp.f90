@@ -115,8 +115,8 @@ module gs_interp
      procedure(gs_interp_set_r4), pass(this), deferred :: set_children_r4
      generic :: set_children => set_children_fld, set_children_r4
      !> Scale children's nonconforming faces/edges
-     procedure(gs_interp_set_fld), pass(this), deferred :: scale_children_fld
-     procedure(gs_interp_set_r4), pass(this), deferred :: scale_children_r4
+     procedure(gs_interp_scale_fld), pass(this), deferred :: scale_children_fld
+     procedure(gs_interp_scale_r4), pass(this), deferred :: scale_children_r4
      generic :: scale_children => scale_children_fld, scale_children_r4
      !> Remove multiplicity for H1
      procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_h1_fld
@@ -192,6 +192,21 @@ module gs_interp
        real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
        real(rp), intent(in) :: cnst
      end subroutine gs_interp_set_r4
+
+     !> Children's nonconforming face/edge scaling
+     subroutine gs_interp_scale_fld(this, field, cnst_f, cnst_e)
+       import gs_interp_t, field_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       type(field_t), intent(inout) :: field
+       real(rp), intent(in) :: cnst_f, cnst_e
+     end subroutine gs_interp_scale_fld
+
+     subroutine gs_interp_scale_r4(this, vec, cnst_f, cnst_e)
+       import gs_interp_t, rp
+       class(gs_interp_t), intent(inout) :: this
+       real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
+       real(rp), intent(in) :: cnst_f, cnst_e
+     end subroutine gs_interp_scale_r4
   end interface
 
 contains

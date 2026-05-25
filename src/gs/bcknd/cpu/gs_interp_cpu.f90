@@ -900,23 +900,25 @@ contains
 
   !> Scale children's nonconforming faces/edges using field
   !! @param[inout]  field    field for face interpolation
-  !! @param[in]     cnst     constant value
-  subroutine gs_interp_cpu_scale_children_fld(this, field, cnst)
+  !! @param[in]     cnst_f   face constant value
+  !! @param[in]     cnst_e   edge constant value
+  subroutine gs_interp_cpu_scale_children_fld(this, field, cnst_f, cnst_e)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
-    real(rp), intent(in) :: cnst
+    real(rp), intent(in) :: cnst_f, cnst_e
 
-    call this%scale_children_r4(field%x, cnst)
+    call this%scale_children_r4(field%x, cnst_f, cnst_e)
 
   end subroutine gs_interp_cpu_scale_children_fld
 
   !> Scale children's nonconforming faces/edges using vector
-  !! @param[inout]  vec    vector for face interpolation
-  !! @param[in]     cnst   constant value
-  subroutine gs_interp_cpu_scale_children_r4(this, vec, cnst)
+  !! @param[inout]  vec      vector for face interpolation
+  !! @param[in]     cnst_f   face constant value
+  !! @param[in]     cnst_e   edge constant value
+  subroutine gs_interp_cpu_scale_children_r4(this, vec, cnst_f, cnst_e)
     class(gs_interp_cpu_t), intent(inout) :: this
     real(rp), contiguous, dimension(:,  :, :, :), intent(inout) :: vec
-    real(rp), intent(in) :: cnst
+    real(rp), intent(in) :: cnst_f, cnst_e
     integer :: il, jl, itmp
 
     if (this%ifhang) then
@@ -927,7 +929,7 @@ contains
              do jl = this%hang_fcs_off(il), this%hang_fcs_off(il + 1) - 1
                 call face_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
-                this%face_tmp(:, :) = cnst * this%face_tmp(:, :)
+                this%face_tmp(:, :) = cnst_f * this%face_tmp(:, :)
                 call vector_to_face(vec(:, :, :, this%hang_el(il)), &
                      this%face_tmp, this%hang_fcs(jl), this%lx)
              end do
@@ -939,7 +941,7 @@ contains
              do jl = this%hang_edg_off(il), this%hang_edg_off(il + 1) - 1
                 call edge_to_vector(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
-                this%edge_tmp(:) = cnst * this%edge_tmp(:)
+                this%edge_tmp(:) = cnst_e * this%edge_tmp(:)
                 call vector_to_edge(vec(:, :, :, this%hang_el(il)), &
                      this%edge_tmp, this%hang_edg(jl), this%lx)
              end do
