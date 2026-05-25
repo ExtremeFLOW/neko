@@ -95,8 +95,6 @@ contains
     real(kind=rp) :: vertical_dir(3)
     character(len=1024) :: profile_registry_name
 
-   !!! add various checks?
-
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
     call json_get_or_default(json, "vertical_dir", vertical_dir, [0.0_rp, 0.0_rp, 1.0_rp])

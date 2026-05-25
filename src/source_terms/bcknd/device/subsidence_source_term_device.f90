@@ -79,7 +79,6 @@ contains
     call neko_scratch_registry%request_field(dz, tmp_idx(3), .false.)
     call neko_scratch_registry%request_field(deriv, tmp_idx(4), .false.)
 
-    ! ----------------------------- U-component -----------------------------
     ! Compute host gradients for u
     call grad(dx%x, dy%x, dz%x, u%x, coef)
 
@@ -106,7 +105,6 @@ contains
     ! Add to RHS: fu += prod
     call device_add2(fu%x_d, prod%x_d, n)
 
-    ! ----------------------------- V-component -----------------------------
     ! Compute host gradients for v
     call grad(dx%x, dy%x, dz%x, v%x, coef)
 
