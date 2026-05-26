@@ -471,27 +471,27 @@ contains
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
 
-    call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
+    call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
     call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
-    call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
+    call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
 
-    call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
+    call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
     call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
-    call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
+    call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
     do i = 1, this%bcs_vel%size()
        b => this%bcs_vel%get(i)
@@ -581,7 +581,7 @@ contains
     real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
 
-    c = cfl(dt, this%u%x, this%v%x, this%w%x, &
+    c = cfl(dt, this%u, this%v, this%w, &
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
 
   end function fluid_compute_cfl
