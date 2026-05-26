@@ -49,6 +49,7 @@ module case
   use mesh, only : mesh_t
   use mesh_manager, only : mesh_manager_t, mesh_manager_factory
   use amr, only : amr_t
+  use sem, only : sem_t
   use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -76,6 +77,7 @@ module case
      type(mesh_t) :: msh
      class(mesh_manager_t), allocatable :: mesh_manager
      type(amr_t) :: amr
+     type(sem_t) :: sem
      type(json_file) :: params
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
@@ -287,6 +289,15 @@ contains
 
     ! Run user mesh motion routine
     call this%user%mesh_setup(this%msh, this%time)
+
+    !
+    ! Initialise SEM module
+    ! It has to be a first module in AMR reconstruction list
+    !
+    call this%sem%init(this%mesh_manager, this%msh)
+    if (this%amr%ifamr()) then
+       call this%amr%comp_add(this%sem, 'SEM')
+    end if
 
     !
     ! Time control
@@ -659,6 +670,8 @@ contains
        call this%mesh_manager%stop()
        deallocate(this%mesh_manager)
     end if
+
+    call this%sem%free()
 
     call this%msh%free()
 
