@@ -1,0 +1,87 @@
+.\" Manual page for rea2nbin
+.TH REA2NBIN 1 "2026-05-22" "Neko" "User Commands"
+.SH NAME
+rea2nbin \- convert a Nek5000 re2 mesh to Neko's nmsh format
+.SH SYNOPSIS
+.B rea2nbin
+.I re2-file
+.RI [ nmsh-file ]
+.SH DESCRIPTION
+.B rea2nbin
+reads a binary Nek5000 mesh in
+.B .re2
+format and writes the equivalent Neko native mesh in
+.B .nmsh
+format. It is part of the Neko contrib tools and is installed only when
+Neko has been configured with
+.BR --enable-contrib .
+.PP
+The tool is intentionally serial: it must be run on a single MPI rank and
+will abort with an error if launched with more than one rank.
+.PP
+The legacy ASCII
+.B .rea
+format is no longer supported. Such files must first be converted to
+.B .re2
+using Nek5000's own tools (for example
+.BR reatore2 )
+before being passed to
+.BR rea2nbin .
+.SH ARGUMENTS
+.TP
+.I re2-file
+Input mesh file. Must end in
+.BR .re2 .
+.TP
+.I nmsh-file
+Optional output file name. Must end in
+.BR .nmsh .
+When omitted, the output name is derived from
+.I re2-file
+by replacing the
+.B .re2
+suffix with
+.BR .nmsh .
+.SH EXIT STATUS
+.TP
+.B 0
+The mesh was converted successfully.
+.TP
+.B non-zero
+An error occurred. Typical causes include an unsupported input suffix
+(e.g. a legacy
+.B .rea
+file), an invalid output suffix, launching the tool on more than one rank,
+or an I/O failure while reading or writing the mesh.
+.SH EXAMPLES
+Convert a mesh, letting
+.B rea2nbin
+choose the output name:
+.PP
+.RS
+.B rea2nbin box.re2
+.RE
+.PP
+This produces
+.IR box.nmsh .
+.PP
+Convert a mesh with an explicit output name:
+.PP
+.RS
+.B rea2nbin box.re2 cavity.nmsh
+.RE
+.SH SEE ALSO
+.BR neko (1),
+.BR prepart (1)
+.PP
+Project documentation and user guide:
+.UR https://neko.cfd
+.UE
+.SH AUTHORS
+Neko is developed by the Neko authors. See the
+.B AUTHORS
+file distributed with the source for a complete list of contributors.
+.SH BUGS
+Report bugs at
+.UR https://github.com/ExtremeFLOW/neko/issues
+.UE .

@@ -5,6 +5,7 @@ module comm
        MPI_COMM_WORLD, MPI_DOUBLE_PRECISION, MPI_REAL, MPI_Comm_size
   use utils, only : neko_error
   use neko_config
+  use shmem
   !$ use omp_lib
   implicit none
   private
@@ -77,6 +78,9 @@ contains
     integer :: color = 0
     integer :: envvar_len
     character(len=255) :: color_str
+#ifdef HAVE_OPENSHMEM
+    integer :: shmem_ierr
+#endif
 
     pe_rank = -1
     pe_size = 0
@@ -157,6 +161,25 @@ contains
     call neko_comm_nccl_init()
 #endif
 
+#ifdef HAVE_OPENSHMEM
+    ! Setup OpenSHMEM (if requested)
+    if (nthrds .gt. 1) then
+       shmem_ierr = shmem_init_thread(SHMEM_THREAD_MULTIPLE, provided)
+       if (provided .ne. SHMEM_THREAD_MULTIPLE) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call neko_error('Invalid thread support provided by SHMEM')
+          else
+             shmem_ierr = shmem_init_thread(SHMEM_THREAD_SERIALIZED, provided)
+             if (provided .ne. SHMEM_THREAD_SERIALIZED) then
+                call neko_error('Invalid thread support provided by SHMEM')
+             end if
+          end if
+       end if
+    else
+       call shmem_init()
+    end if
+#endif
+
 
   end subroutine comm_init
 
@@ -173,6 +196,10 @@ contains
 
 #ifdef HAVE_NVSHMEM
     call neko_comm_nvshmem_finalize()
+#endif
+
+#ifdef HAVE_OPENSHMEM
+    call shmem_finalize()
 #endif
 
     call MPI_Finalize(ierr)

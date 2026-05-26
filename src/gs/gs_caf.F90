@@ -62,10 +62,13 @@ module gs_caf
   !
   ! The buffer is double-buffered: it is allocated to twice the global
   ! max receive count so that consecutive rounds write to alternating
-  ! halves. This eliminates the need for a back-pressure synchronisation
-  ! before nbsend's puts -- the receiver may still be unpacking the
-  ! previous round, but from a different half, so no overwrite hazard
-  ! exists. gs_caf_buf_size is the size of one half.
+  ! halves. In sync mode this eliminates back-pressure entirely (the
+  ! receiver may still be unpacking the previous round, but from a
+  ! different half, so no overwrite hazard exists). In atomic and event
+  ! modes the same property is used to relax the back-pressure spin to
+  ! a one-round tolerance -- the next overwrite is two rounds away, so
+  ! the receiver only needs to be at most one round behind.
+  ! gs_caf_buf_size is the size of one half.
   !
   ! Multiple gs_caf_t instances may coexist (each carrying its own
   ! offset bookkeeping) provided they are used strictly sequentially
@@ -118,8 +121,11 @@ module gs_caf
 
   !> Gather-scatter communication using Coarray Fortran (F2008).
   !! Each image puts directly into the (module-level) receive coarray on
-  !! the destination image; segment ordering is enforced with `sync images`
-  !! over the union of send and receive peers.
+  !! the destination image. The signaling mode (`NEKO_GS_CAF_SIGNALING`)
+  !! selects how segment ordering is established: `sync` uses `sync
+  !! images` over the union of send and recv peers, `atomic` uses
+  !! per-peer `atomic_define`/`atomic_ref` on `data_ready`/`buf_ready`
+  !! counters, and `event` uses coarray events.
   type, public, extends(gs_comm_t) :: gs_caf_t
      !> Local gathered send buffer (concatenated slabs, one per send peer).
      real(kind=rp), allocatable :: send_buf(:)
@@ -133,7 +139,7 @@ module gs_caf
      integer, allocatable :: send_img(:), recv_img(:)
      !> sync-mode only: image numbers of the union of send and recv peers,
      !! used for the pairwise sync images that bracket the put. Unallocated
-     !! in atomic mode.
+     !! in atomic and event modes.
      integer, allocatable :: sync_img(:)
      !> event-mode only: false on the very first nbsend so the buf_ready
      !! wait is skipped (there are no credits posted yet).
@@ -398,38 +404,37 @@ contains
 #endif
     else
        me_rank = this_image() - 1
+
+       ! Pack all peers up front so the subsequent network waits and
+       ! puts can overlap with each other rather than serialising
+       ! behind per-peer pack work.
        do i = 1, size(this%send_pe)
           dst = this%send_pe(i)
+          off = this%send_offset(i)
+          ndst = this%send_len(i)
+          sp => this%send_dof(dst)%array()
+          do concurrent (j = 1:ndst)
+             this%send_buf(off + j) = u(sp(j))
+          end do
+       end do
+
+       ! Back-pressure, put and signal per peer. With double-buffering
+       ! the half we are about to write last carried round
+       ! (send_count - 2), so we only need the receiver to have
+       ! unpacked through (send_count - 1).
+       do i = 1, size(this%send_pe)
           off = this%send_offset(i)
           ndst = this%send_len(i)
           dimg = this%send_img(i)
           doff = this%dest_offset(i)
 
-          ! Back-pressure: wait for the receiver to have unpacked the
-          ! previous round on this pair. gs_caf_send_count(rank) holds
-          ! the count of rounds we have already completed with that
-          ! peer (across all gs_caf_t instances). The sync memory inside
-          ! the spin is needed on runtimes (notably Fujitsu CAF on
-          ! A64FX) where a bare atomic_ref does not drive the progress
-          ! engine and remote atomic_define writes never become locally
-          ! visible.
           do
-             sync memory
              call atomic_ref(flag, gs_caf_buf_ready(this%send_pe(i)))
-             if (int(flag) .ge. gs_caf_send_count(this%send_pe(i))) exit
+             if (int(flag) .ge. gs_caf_send_count(this%send_pe(i)) - 1) exit
           end do
 
-          sp => this%send_dof(dst)%array()
-          do concurrent (j = 1:ndst)
-             this%send_buf(off + j) = u(sp(j))
-          end do
           gs_caf_recv_buf(half_off + doff + 1 : half_off + doff + ndst)[dimg] &
                = this%send_buf(off + 1 : off + ndst)
-
-          ! Defensive memory fence: the F2008 standard makes the put
-          ! visible before the matching atomic_ref, but real-world
-          ! runtimes have historically had bugs here.
-          sync memory
 
           gs_caf_send_count(this%send_pe(i)) = &
                gs_caf_send_count(this%send_pe(i)) + 1
@@ -480,14 +485,11 @@ contains
 #endif
     else
        ! Atomic mode: spin per-sender on data_ready until the expected
-       ! round count is observed. The sync memory inside the spin drives
-       ! the network progress engine on runtimes that need it (notably
-       ! Fujitsu CAF on A64FX).
+       ! round count is observed.
        do i = 1, size(this%recv_pe)
           gs_caf_recv_count(this%recv_pe(i)) = &
                gs_caf_recv_count(this%recv_pe(i)) + 1
           do
-             sync memory
              call atomic_ref(flag, gs_caf_data_ready(this%recv_pe(i)))
              if (int(flag) .ge. gs_caf_recv_count(this%recv_pe(i))) exit
           end do

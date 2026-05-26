@@ -41,7 +41,9 @@ A number of gather-scatter backends are supported.
 - `NEKO_GS_COMM=MPI`    : Host based MPI
 - `NEKO_GS_COMM=MPIGPU` : Device based MPI
 - `NEKO_GS_COMM=NCCL`   : NCCL/RCCL using its point-to-point interface
-- `NEKO_GS_COMM=SHMEM`  : NVSHMEM based (for NVIDIA GPUs)
+- `NEKO_GS_COMM=SHMEM`  : NVSHMEM based on GPU builds (NVIDIA GPUs);
+  OpenSHMEM based on CPU builds (requires a native OpenSHMEM library,
+  e.g. Cray OpenSHMEMX, enabled at configure time with `--with-openshmem`)
 - `NEKO_GS_COMM=CAF`    : Coarray Fortran (requires a coarray-capable compiler)
 
 ### Coarray Fortran signaling mode details
