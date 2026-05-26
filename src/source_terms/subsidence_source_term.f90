@@ -59,12 +59,14 @@ module subsidence_source_term
      !> Velocity fields
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
-     !> Vertical direction indication
-     real(kind=rp) :: vertical_dir(3)
-      !> Registry name where the w_sub profile is stored
-      character(len=1024) :: profile_registry_name
-      !> Flag to check and retrieve registry entries at first compute
-      logical :: check = .true.
+     !> Registry name and w_sub values
+     character(len=1024) :: profile_registry_name
+     character(len=32) :: method
+     real(kind=rp) :: div_rate
+     real(kind=rp) :: inversion_height
+     real(kind=rp) :: w_max
+     !> Flag to check and retrieve registry entries at first compute
+     logical :: check = .true.
    contains
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => subsidence_source_term_init_from_json
@@ -92,36 +94,46 @@ contains
     character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
     type(json_file) :: interp_subdict
-    real(kind=rp) :: vertical_dir(3)
     character(len=1024) :: profile_registry_name
+    character(len=32) :: method_str
 
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
-    call json_get_or_default(json, "vertical_dir", vertical_dir, [0.0_rp, 0.0_rp, 1.0_rp])
     call json_get_or_default(json, "profile_registry_name", profile_registry_name, "w_sub")
+    
+    call json_get("method", method_str, found)
+    this%method = trim(method_str)
 
-    if (.not. size(vertical_dir) == 3) then
-       call neko_error("Vertical direction must be specified with a three-component &
-        vector (e.g. [0.0, 0.0, 1.0] to set z as vertical).")
-    end if
+    select case (this%method)    
+    case ("linear")
+       call json_param%get("div_rate", this%div_rate, found)
+       if (.not. found) call neko_error("SUBSIDENCE: 'div_rate' missing for linear method")
+    case ("linear_constant")
+       call json_param%get("div_rate", this%div_rate, found)
+       call json_param%get("inversion_height", this%inversion_height, found)
+       if (.not. found) call neko_error("SUBSIDENCE: Missing parameters for linear_constant method")
+    case ("user")
+       call json_param%get("profile_registry_name", this%profile_registry_name, found)
+       if (.not. found) this%profile_registry_name = "w_sub"
+    case default
+       call neko_error("SUBSIDENCE: Unknown method: " // trim(this%method))
+    end select
 
-        call subsidence_source_term_init_from_components(this, fields, coef, &
-          vertical_dir, start_time, end_time, profile_registry_name)
+    call subsidence_source_term_init_from_components(this, fields, coef, &
+      start_time, end_time, profile_registry_name)
 
   end subroutine subsidence_source_term_init_from_json
 
   !> The constructor from type components.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  !! @param vertical_dir The vertical direction vector (e.g. [0,0,1] for z).
   !! @param start_time When to start adding the source term.
   !! @param end_time When to stop adding the source term.
   subroutine subsidence_source_term_init_from_components(this, fields, coef, &
-   vertical_dir, start_time, end_time, profile_registry_name)
+   start_time, end_time, profile_registry_name)
     class(subsidence_source_term_t), intent(inout) :: this
     class(field_list_t), intent(in), target :: fields
     type(coef_t) :: coef
-    real(kind=rp), intent(in) :: vertical_dir(3)
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
     character(len=*), intent(in) :: profile_registry_name
@@ -135,7 +147,6 @@ contains
 
      this%u => neko_registry%get_field("u")
      this%v => neko_registry%get_field("v")
-     this%vertical_dir = vertical_dir
   end subroutine subsidence_source_term_init_from_components
 
   !> Destructor.
@@ -167,10 +178,10 @@ contains
 
      if (NEKO_BCKND_DEVICE .eq. 1) then
        call subsidence_source_term_compute_device(this%u, this%v, this%fields, &
-          this%coef, this%w_sub, this%vertical_dir)
+          this%coef, this%w_sub)
      else
        call subsidence_source_term_compute_cpu(this%u, this%v, this%fields, &
-          this%coef, this%w_sub, this%vertical_dir)
+          this%coef, this%w_sub)
      end if
 
   end subroutine subsidence_source_term_compute

@@ -52,66 +52,47 @@ module subsidence_source_term_cpu
 contains
 
   !> Computes and aggregates subsidence force terms onto the velocity RHS fields.
-  !! The routine computes directional derivatives of `u` and `v` along the
-  !! provided `vertical_dir` and adds w_sub * d(phi)/d(vertical_dir) to the
+  !! The routine computes directional derivatives of `u` and `v`
+  !! and adds w_sub * d(phi)/d(z) to the
   !! corresponding RHS fields in `fields`.
-  subroutine subsidence_source_term_compute_cpu(u, v, fields, coef, w_sub, vertical_dir)
+  !! Note: here z is ALWAYS assumed to be the vertical direction.
+  subroutine subsidence_source_term_compute_cpu(u, v, fields, coef, w_sub)
     type(field_t), intent(in) :: u, v, w_sub
     type(field_list_t), intent(inout) :: fields
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(in) :: vertical_dir(3)
 
     integer :: n, i
     integer :: temp_indices(3)
     type(field_t), pointer :: fu, fv
     type(field_t), pointer :: dx, dy, dz
-    real(kind=rp) :: deriv
 
     n = fields%item_size(1)
 
-    fu => fields%get_by_index(1)
-    fv => fields%get_by_index(2)
+    fu => fields%get_by_indices(1)
+    fv => fields%get_by_indices(2)
 
-    ! Request three scratch fields for gradients (used for both u and v)
+    ! Request scratch fields for gradient components (used for both u and v)
     call neko_scratch_registry%request_field(dx, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(dy, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(dz, temp_indices(3), .false.)
 
-    ! Compute gradients of u
+    ! Compute gradients of u and use only the vertical component
     call grad(dx%x, dy%x, dz%x, u%x, coef)
-
-    call coef%gs_h%op(dx, GS_OP_ADD)
-    call coef%gs_h%op(dy, GS_OP_ADD)
     call coef%gs_h%op(dz, GS_OP_ADD)
-
-    call col2(dx%x, coef%mult, u%dof%size())
-    call col2(dy%x, coef%mult, u%dof%size())
     call col2(dz%x, coef%mult, u%dof%size())
 
     ! Add subsidence contribution to U RHS: fu += w_sub * (d/dz_dir u)
-    do concurrent (i = 1:u%dof%size())
-       deriv = vertical_dir(1) * dx%x(i,1,1,1) + &
-               vertical_dir(2) * dy%x(i,1,1,1) + &
-               vertical_dir(3) * dz%x(i,1,1,1)
-       fu%x(i,1,1,1) = fu%x(i,1,1,1) + w_sub%x(i,1,1,1) * deriv
+    do concurrent (i = 1:n)
+       fu%x(i,1,1,1) = fu%x(i,1,1,1) + w_sub%x(i,1,1,1) * dz%x(i,1,1,1)
     end do
 
-    ! Compute gradients of v 
+    ! Compute only vertical gradient of v
     call grad(dx%x, dy%x, dz%x, v%x, coef)
-
-    call coef%gs_h%op(dx, GS_OP_ADD)
-    call coef%gs_h%op(dy, GS_OP_ADD)
     call coef%gs_h%op(dz, GS_OP_ADD)
-
-    call col2(dx%x, coef%mult, v%dof%size())
-    call col2(dy%x, coef%mult, v%dof%size())
     call col2(dz%x, coef%mult, v%dof%size())
 
     do concurrent (i = 1:v%dof%size())
-       deriv = vertical_dir(1) * dx%x(i,1,1,1) + &
-               vertical_dir(2) * dy%x(i,1,1,1) + &
-               vertical_dir(3) * dz%x(i,1,1,1)
-       fv%x(i,1,1,1) = fv%x(i,1,1,1) + w_sub%x(i,1,1,1) * deriv
+       fv%x(i,1,1,1) = fv%x(i,1,1,1) + w_sub%x(i,1,1,1) * dz%x(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
