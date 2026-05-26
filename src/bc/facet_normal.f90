@@ -154,13 +154,16 @@ contains
     real(kind=rp) :: normal(3), area
 
     m = this%unique_mask(0)
-
+    ! Since apply_surfvec is called outside of the parallel region, we
+    ! need to open a separate parallel region here
+    !$omp parallel do
     do i = 1, m
        k = this%unique_mask(i)
        x(k) = u(k) * this%nx%x(i)
        y(k) = v(k) * this%ny%x(i)
        z(k) = w(k) * this%nz%x(i)
     end do
+    !$omp end parallel do
 
   end subroutine facet_normal_apply_surfvec
 
