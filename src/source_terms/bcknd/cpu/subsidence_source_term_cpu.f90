@@ -68,8 +68,8 @@ contains
 
     n = fields%item_size(1)
 
-    fu => fields%get_by_indices(1)
-    fv => fields%get_by_indices(2)
+    fu => fields%get_by_index(1)
+    fv => fields%get_by_index(2)
 
     ! Request scratch fields for gradient components (used for both u and v)
     call neko_scratch_registry%request_field(dx, temp_indices(1), .false.)
@@ -89,9 +89,9 @@ contains
     ! Compute only vertical gradient of v
     call grad(dx%x, dy%x, dz%x, v%x, coef)
     call coef%gs_h%op(dz, GS_OP_ADD)
-    call col2(dz%x, coef%mult, v%dof%size())
+    call col2(dz%x, coef%mult, n)
 
-    do concurrent (i = 1:v%dof%size())
+    do concurrent (i = 1:n)
        fv%x(i,1,1,1) = fv%x(i,1,1,1) + w_sub%x(i,1,1,1) * dz%x(i,1,1,1)
     end do
 

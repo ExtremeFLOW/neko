@@ -63,8 +63,8 @@ module subsidence_source_term
      character(len=1024) :: profile_registry_name
      character(len=32) :: method
      real(kind=rp) :: div_rate
-     real(kind=rp) :: inversion_height
-     real(kind=rp) :: w_max
+     real(kind=rp) :: w_sub_max
+     real(kind=rp) :: w_sub_max_height
      !> Flag to check and retrieve registry entries at first compute
      logical :: check = .true.
    contains
@@ -93,7 +93,7 @@ contains
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
-    real(kind=rp) :: div_rate, w_sub_max, w_sub_max_height
+    real(kind=rp) :: div_rate = 0.0_rp, w_sub_max = 0.0_rp, w_sub_max_height = 0.0_rp
     type(json_file) :: interp_subdict
     character(len=1024) :: profile_registry_name
     character(len=32) :: method_str
@@ -113,7 +113,7 @@ contains
     case ("user")
        ! No extra properties to collect
     case default
-       call neko_error("SUBSIDENCE: Unknown method: " // trim(this%method))
+       call neko_error("SUBSIDENCE: Unknown method: " // trim(method_str))
     end select
 
     call subsidence_source_term_init_from_components(this, fields, coef, &
@@ -132,7 +132,7 @@ contains
    profile_registry_name)
     class(subsidence_source_term_t), intent(inout) :: this
     class(field_list_t), intent(in), target :: fields
-    type(coef_t) :: coef
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
     character(len=*), intent(in) :: method
