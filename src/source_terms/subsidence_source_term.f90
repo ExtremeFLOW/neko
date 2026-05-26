@@ -93,6 +93,7 @@ contains
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
+    real(kind=rp) :: div_rate, w_sub_max, w_sub_max_height
     type(json_file) :: interp_subdict
     character(len=1024) :: profile_registry_name
     character(len=32) :: method_str
@@ -101,26 +102,23 @@ contains
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
     call json_get_or_default(json, "profile_registry_name", profile_registry_name, "w_sub")
     
-    call json_get("method", method_str, found)
-    this%method = trim(method_str)
+    call json_get(json, "method", method_str)
 
-    select case (this%method)    
+    select case (trim(method_str))    
     case ("linear")
-       call json_param%get("div_rate", this%div_rate, found)
-       if (.not. found) call neko_error("SUBSIDENCE: 'div_rate' missing for linear method")
+       call json_get_or_default(json, "div_rate", div_rate, 1.0e-5_rp)
     case ("linear_constant")
-       call json_param%get("div_rate", this%div_rate, found)
-       call json_param%get("inversion_height", this%inversion_height, found)
-       if (.not. found) call neko_error("SUBSIDENCE: Missing parameters for linear_constant method")
+       call json_get_or_default(json, "w_sub_max", w_sub_max, 1.0e-5_rp)
+       call json_get_or_default(json, "w_sub_max_height", w_sub_max_height, 500.0_rp)
     case ("user")
-       call json_param%get("profile_registry_name", this%profile_registry_name, found)
-       if (.not. found) this%profile_registry_name = "w_sub"
+       ! No extra properties to collect
     case default
        call neko_error("SUBSIDENCE: Unknown method: " // trim(this%method))
     end select
 
     call subsidence_source_term_init_from_components(this, fields, coef, &
-      start_time, end_time, profile_registry_name)
+      start_time, end_time, method_str, div_rate, w_sub_max, w_sub_max_height, &
+      profile_registry_name)
 
   end subroutine subsidence_source_term_init_from_json
 
@@ -130,23 +128,31 @@ contains
   !! @param start_time When to start adding the source term.
   !! @param end_time When to stop adding the source term.
   subroutine subsidence_source_term_init_from_components(this, fields, coef, &
-   start_time, end_time, profile_registry_name)
+   start_time, end_time, method, div_rate, w_sub_max, w_sub_max_height, &
+   profile_registry_name)
     class(subsidence_source_term_t), intent(inout) :: this
     class(field_list_t), intent(in), target :: fields
     type(coef_t) :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
+    character(len=*), intent(in) :: method
+    real(kind=rp), intent(in) :: div_rate
+    real(kind=rp), intent(in) :: w_sub_max
+    real(kind=rp), intent(in) :: w_sub_max_height
     character(len=*), intent(in) :: profile_registry_name
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
 
-     ! Defer retrieval of the `w_sub` profile from the registry until compute
-     this%profile_registry_name = trim(profile_registry_name)
-     this%check = .true.
+    this%method = trim(method)
+    this%div_rate = div_rate
+    this%w_sub_max = w_sub_max
+    this%w_sub_max_height = w_sub_max_height
+    this%profile_registry_name = trim(profile_registry_name)
+    this%check = .true.
 
-     this%u => neko_registry%get_field("u")
-     this%v => neko_registry%get_field("v")
+    this%u => neko_registry%get_field("u")
+    this%v => neko_registry%get_field("v")
   end subroutine subsidence_source_term_init_from_components
 
   !> Destructor.
@@ -164,15 +170,46 @@ contains
   subroutine subsidence_source_term_compute(this, time)
     class(subsidence_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-     ! On first compute, retrieve the user-provided `w_sub` profile from the
-     ! field registry using the configured `profile_registry_name`.
-     if (this%check) then
-       if (.not. neko_registry%field_exists(trim(this%profile_registry_name))) then
-         call neko_error("SUBSIDENCE: No w_sub profile set (searching for " // &
-            trim(this%profile_registry_name) // ") - add it to the registry in your case file")
-       end if
+    integer :: i
+    real(kind=rp) :: z
+    type(field_t), pointer :: w_sub_alloc => null()
 
-       this%w_sub => neko_registry%get_field(trim(this%profile_registry_name))
+     if (this%check) then
+       if (trim(this%method) .eq. "user") then
+          if (.not. neko_registry%field_exists(trim(this%profile_registry_name))) then
+            call neko_error("SUBSIDENCE: No w_sub profile set (searching for " // &
+               trim(this%profile_registry_name) // "). Add it to the registry in your case file")
+          end if
+          this%w_sub => neko_registry%get_field(trim(this%profile_registry_name))
+       else
+          allocate(w_sub_alloc)
+          call w_sub_alloc%init(this%u%gidx, this%u%field_space, this%u%dof)
+          
+          select case (trim(this%method))
+          case ("linear")
+             do i = 1, w_sub_alloc%size()
+                z = w_sub_alloc%dof%z(i,1,1,1)
+                w_sub_alloc%x(i,1,1,1) = this%div_rate * z
+             end do
+             
+          case ("linear_constant")
+             do i = 1, w_sub_alloc%size()
+                z = w_sub_alloc%dof%z(i,1,1,1)
+                if (z .le. this%w_sub_max_height) then
+                   w_sub_alloc%x(i,1,1,1) = (this%w_sub_max / this%w_sub_max_height) * z
+                else
+                   w_sub_alloc%x(i,1,1,1) = this%w_sub_max
+                end if
+             end do
+          end select
+          
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call w_sub_alloc%sync_to_device()
+          end if
+          
+          call neko_registry%add_field(w_sub_alloc, trim(this%profile_registry_name))
+          this%w_sub => neko_registry%get_field(trim(this%profile_registry_name))
+       end if
        this%check = .false.
      end if
 
