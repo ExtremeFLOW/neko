@@ -566,8 +566,6 @@ contains
        end if
     end do
 
-    ! allocate(current_number(current_size), source=0)
-    ! allocate(removal_number(removal_size), source=0)
     read(current_str, *, iostat = iostat_current) &
          current_number(1:current_size)
     read(removal_str, *, iostat = iostat_removal) &
