@@ -61,7 +61,7 @@
 module hsmg
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use math, only : copy, col2, add2
+  use math, only : copy, col2, add2, rone, invcol1
   use utils, only : neko_error
   use precon, only : pc_t, precon_factory, precon_destroy
   use ax_product, only : ax_t, ax_helm_factory
@@ -104,6 +104,7 @@ module hsmg
      type(bc_list_t), pointer :: bclst => null()
      type(schwarz_t), pointer :: schwarz => null()
      type(field_t), pointer :: e => null()
+     type(field_t), pointer :: mult => null()
   end type multigrid_t
 
   type, public, extends(pc_t) :: hsmg_t
@@ -120,6 +121,7 @@ module hsmg
      type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
+     type(field_t) :: mult, mult_mg, mult_crs !< Multiplicity fields
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
@@ -268,6 +270,7 @@ contains
     call coef%msh%all_deformed()
 
     n = coef%dof%size()
+    call this%mult%init(coef%dof, 'mult full')
     call this%e%init(coef%dof, 'work array')
     call this%wf%init(coef%dof, 'work 2')
 
@@ -280,8 +283,20 @@ contains
     call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
     call this%dm_mg%init(coef%msh, this%Xh_mg)
     call this%gs_mg%init(this%dm_mg)
+    call this%mult_mg%init(this%dm_mg, 'mult midl')
     call this%e_mg%init(this%dm_mg, 'work midl')
     call this%c_mg%init(this%gs_mg)
+
+    ! multiplicity
+    i = this%mult%size()
+    call rone(this%mult%x, i)
+    call coef%gs_h%op(this%mult%x, i, GS_OP_ADD)
+    call invcol1(this%mult%x, i)
+
+    i = this%mult_mg%size()
+    call rone(this%mult_mg%x, i)
+    call this%gs_mg%op(this%mult_mg%x, i, GS_OP_ADD)
+    call invcol1(this%mult_mg%x, i)
 
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
@@ -322,13 +337,13 @@ contains
     call this%interp_mid_crs%init(this%Xh_mg, this%Xh_crs)
 
     call hsmg_fill_grid(coef%dof, coef%gs_h, coef%Xh, coef, &
-         this%bclst_reg, this%schwarz, this%e, this%grids, 3)
+         this%bclst_reg, this%schwarz, this%e, this%mult, this%grids, 3)
     call hsmg_fill_grid(this%dm_mg, this%gs_mg, this%Xh_mg, this%c_mg, &
-         this%bclst_mg, this%schwarz_mg, this%e_mg, &
+         this%bclst_mg, this%schwarz_mg, this%e_mg, this%mult_mg, &
          this%grids, 2)
     call hsmg_fill_grid(this%dm_crs, this%gs_crs, this%Xh_crs, &
          this%c_crs, this%bclst_crs, this%schwarz_crs, &
-         this%e_crs, this%grids, 1)
+         this%e_crs, this%mult_crs, this%grids, 1)
 
     call hsmg_set_h(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -338,8 +353,6 @@ contains
 
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
-
-
 
     ! Create a backend specific krylov solver
     if (trim(crs_solver) .eq. 'tamg') then
@@ -384,14 +397,15 @@ contains
   end subroutine hsmg_set_h
 
 
-  subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, schwarz, e, grids, l)
+  subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, schwarz, e, mult, &
+       grids, l)
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(in) :: gs_h
     type(space_t), target, intent(in) :: Xh
     type(coef_t), target, intent(in) :: coef
     type(bc_list_t), target, intent(in) :: bclst
     type(schwarz_t), target, intent(in) :: schwarz
-    type(field_t), target, intent(in) :: e
+    type(field_t), target, intent(in) :: e, mult
     integer, intent(in) :: l
     type(multigrid_t), intent(inout), dimension(l) :: grids
 
@@ -403,6 +417,7 @@ contains
     grids(l)%bclst => bclst
     grids(l)%schwarz => schwarz
     grids(l)%e => e
+    grids(l)%mult => mult
 
   end subroutine hsmg_fill_grid
 
@@ -441,6 +456,9 @@ contains
     call this%e%free()
     call this%e_mg%free()
     call this%e_crs%free()
+    call this%mult%free()
+    call this%mult_mg%free()
+    call this%mult_crs%free()
     call this%wf%free()
 
     call this%gs_crs%free()
@@ -585,14 +603,18 @@ contains
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(3)%schwarz%compute(z, this%r)
        ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
-       call col2(this%r, this%grids(3)%coef%mult, this%grids(3)%dof%size())
+
+       call col2(this%r, this%grids(3)%mult%x, this%grids(3)%dof%size())
+
        !Restrict to middle level
        call this%interp_fine_mid%map(this%w, this%r, &
             this%msh%nelv, this%grids(2)%Xh)
        call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
-       call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
+
+       call col2(this%w, this%grids(2)%mult%x, this%grids(2)%dof%size())
+
        !restrict residual to crs
        call this%interp_mid_crs%map(this%r, this%w, &
             this%msh%nelv, this%grids(1)%Xh)
@@ -704,6 +726,21 @@ contains
     call this%gs_mg%amr_restart(reconstruct, counter, tstep)
     call this%c_mg%amr_restart(reconstruct, counter, tstep)
     call this%e_mg%amr_restart(reconstruct, counter, tstep)
+
+    ! Multiplicity
+    call this%mult%amr_reallocate(reconstruct, counter, tstep)
+    call this%mult_mg%amr_reallocate(reconstruct, counter, tstep)
+
+    il = this%mult%size()
+    call rone(this%mult%x, il)
+    ! this is not perfect
+    call this%grids(3)%gs_h%op(this%mult%x, il, GS_OP_ADD)
+    call invcol1(this%mult%x, il)
+
+    il = this%mult_mg%size()
+    call rone(this%mult_mg%x, il)
+    call this%gs_mg%op(this%mult_mg%x, il, GS_OP_ADD)
+    call invcol1(this%mult_mg%x, il)
 
     ! ax does not require restarting
 

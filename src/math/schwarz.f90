@@ -244,21 +244,14 @@ contains
       call schwarz_extrude(work1, 0, zero, work2, 0, one, enx, eny, enz, &
            msh%nelv)
 
-      if (allocated(this%gs_schwarz%interp)) then
-         ! Scale children values by 0.25.  This is a hack, based on assumption
-         ! that number of children sharing a parent face is 4. It is not
-         ! accurate, but does not require multiple communication steps.
-         call schwarz_scale(work2, enx, eny, enz, msh%nelv, this%gs_schwarz)
-      end if
-
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work2, this%work2_d, ns, &
               HOST_TO_DEVICE, sync = .false.)
-         call this%gs_schwarz%gs_op_vector(work2, ns, GS_OP_ADD)
+         call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
          call device_memcpy(work2, this%work2_d, ns, &
               DEVICE_TO_HOST, sync = .true.)
       else
-         call this%gs_schwarz%gs_op_vector(work2, ns, GS_OP_ADD)
+         call this%gs_schwarz%op(work2, ns, GS_OP_ADD)
       end if
       call schwarz_extrude(work2, 0, one, work1, 0, -one, enx, eny, enz, &
            msh%nelv)
@@ -271,21 +264,14 @@ contains
       call schwarz_toreg3d(work1, work2, Xh%lx, msh%nelv)
       ! endif
 
-      if (allocated(this%gs_h%interp)) then
-         ! Scale children values by 0.25.  This is a hack, based on assumption
-         ! that number of children sharing a parent face is 4. It is not
-         ! accurate, but does not require multiple communication steps.
-         call schwarz_scale(work1, Xh%lx, Xh%ly, Xh%lz, msh%nelv, this%gs_h)
-      end if
-
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(work1, this%work1_d, n, &
               HOST_TO_DEVICE, sync = .false.)
-         call this%gs_h%gs_op_vector(work1, n, GS_OP_ADD)
+         call this%gs_h%op(work1, n, GS_OP_ADD)
          call device_memcpy(work1, this%work1_d, n, &
               DEVICE_TO_HOST, sync = .true.)
       else
-         call this%gs_h%gs_op_vector(work1, n, GS_OP_ADD)
+         call this%gs_h%op(work1, n, GS_OP_ADD)
       end if
 
       k = 1
@@ -400,16 +386,6 @@ contains
     end do
     !$omp end parallel do
   end subroutine schwarz_toext3d
-
-  !> Scale nonconforming children faces
-  subroutine schwarz_scale(arr, nx, ny, nz, nelv, gs)
-    integer, intent(in) :: nx, ny, nz, nelv
-    real(kind=rp), intent(inout) :: arr(nx, ny, nz, nelv)
-    type(gs_t), intent(inout) :: gs
-
-    call gs%interp%scale_children(arr, 0.25_rp, 0.5_rp)
-
-  end subroutine schwarz_scale
 
   !> Sum values along rows l1, l2 with weights f1, f2 and store along row l1.
   !! Helps us avoid complicated communcation to get neighbor values.
