@@ -15,7 +15,7 @@ io/buffer/buffer.lo : io/buffer/buffer.F90 math/vector.lo config/num_types.lo
 io/buffer/buffer_1d.lo : io/buffer/buffer_1d.F90 io/buffer/buffer.lo math/vector.lo config/num_types.lo 
 io/buffer/buffer_4d.lo : io/buffer/buffer_4d.F90 io/buffer/buffer.lo math/vector.lo config/num_types.lo 
 io/buffer/buffer_4d_npar.lo : io/buffer/buffer_4d_npar.F90 io/buffer/buffer.lo math/vector.lo config/num_types.lo 
-common/log.lo : common/log.f90 common/utils.lo comm/comm.lo 
+common/log.lo : common/log.f90 common/utils.lo comm/comm.lo config/neko_config.lo 
 comm/comm.lo : comm/comm.F90 comm/shmem.lo config/neko_config.lo common/utils.lo 
 mesh/curve.lo : mesh/curve.f90 common/utils.lo adt/stack.lo common/structs.lo config/num_types.lo 
 comm/mpi_types.lo : comm/mpi_types.f90 io/format/stl.lo io/format/nmsh.lo io/format/re2.lo comm/comm.lo 
