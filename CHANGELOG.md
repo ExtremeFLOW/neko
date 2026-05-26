@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added subsidence source term (ABL physics)
 - Removed restart limitations on load balancing. We now cache the the balanced
   mesh and read the cache if available. Load balance name pattern updated to
   include partition number.
