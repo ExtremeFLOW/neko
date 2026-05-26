@@ -929,6 +929,13 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
     relative one. It is simply advection that is affected. Useful to perform
     simulations on domains that are moving on a periodic direction.
 
+12. `subsidence`, a source term that models large-scale vertical atmospheric subsidence 
+    by adding a vertical advection contribution to the horizontal velocity components, 
+    defined as \f$ - w_{sub}(z) \frac{\partial u_i}{\partial z} \f$ for \f$ u_i = [u, v] \f$. 
+    The vertical velocity profile \f$ w_{sub}(z) \f$ can be defined analytically or 
+    retrieved from the field registry. It assumes that the \f$ z \f$ axis is normal 
+    to the ground.
+
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
 The volume force \f$ f_i \f$ applied in the selected regions are proportional to the
@@ -1317,6 +1324,91 @@ The parameters for the sponge source term are summarized in the table below:
 | `baseflow_registry_prefix` | Prefix of the base flow fields in `neko_registry`                       | String                            | `"sponge_bf"`     |
 | `dump_fields`              | If `true`, dumps the fringe and baseflow fields for visualization       | Boolean                           | `false`           |
 | `dump_file_name`           | Name of the `fld` file in which to dump the base flow and fringe fields | String ending with `fld`          | `spng_fields.fld` |
+
+
+#### Subsidence
+The subsidence source term introduces large-scale downward (or upward) vertical advection effects on the horizontal velocity components without explicitly resolving the large-scale vertical velocity field in the continuity equation. This is a common setup in idealized atmospheric boundary layer simulations.
+
+The volume force applied to the horizontal components \f$ u \f$ and \f$ v \f$ is defined as:
+
+\f[
+   f_i(x) = - w_{sub}(z) \frac{\partial u_i}{\partial z}, \quad \text{for } u_i \in \{u, v\}
+\f]
+
+where \f$ z \f$ is the vertical height coordinate, and \f$ w_{sub}(z) \f$ is the profile velocity. The profile field is saved into the `neko_registry` under the handle specified by `profile_registry_name`.
+
+The configuration of the vertical velocity profile \f$ w_{sub}(z) \f$ is determined by the `method` keyword. The following options are available:
+
+1. `user`, the profile field is not calculated analytically by the module. Instead, Neko searches the `neko_registry` for an existing field matching the `profile_registry_name`. This allows users to prescribe arbitrary complex profiles directly from their case file (`case.f90`).
+2. `linear`, the vertical velocity varies linearly with height based on a constant large-scale horizontal divergence rate \f$ D \f$:
+   \f[
+      w_{sub}(z) = -D \cdot z
+   \f]
+3. `linear_constant`, the vertical velocity decreases linearly up to a capping inversion height \f$ z_{max} \f$, and remains completely constant at a maximum velocity \f$ w_{max} \f$ above it:
+   \f{eqnarray*}{
+      w_{sub}(z) &=& \frac{w_{max}}{z_{max}} \cdot z, \quad \text{for } z \le z_{max} \\
+      w_{sub}(z) &=& w_{max}, \qquad \quad \text{for } z > z_{max}
+   \f}
+
+Additional keywords are available to configure the subsidence source term:
+
+| Name                    | Description                                                                                     | Admissible values            | Default value |
+| ----------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
+| `method`                | The method used to build or retrieve the profile field.                                         | `user`, `linear`, `linear_constant` | `user`        |
+| `profile_registry_name` | The name string used to register or locate the \f$ w_{sub} \f$ field inside the registry.       | String                       | `"w_sub"`     |
+| `div_rate`              | Large-scale horizontal divergence rate \f$ D \f$ (only used if `method` is `linear`).            | Real                         | \f$ 1.0 \times 10^{-5} \f$ |
+| `w_sub_max`             | Maximum vertical subsidence velocity \f$ w_{max} \f$ (only used if `method` is `linear_constant`).| Real                         | \f$ -1.0 \times 10^{-2} \f$ |
+| `w_sub_max_height`      | Height threshold \f$ z_{max} \f$ for constant velocity (only used if `method` is `linear_constant`).| Real                     | \f$ 500.0 \f$ |
+
+Example of a subsidence source term using the `linear_constant` profile to model a typical capping inversion scenario:
+
+```json
+"source_terms": [
+   {
+      "type": "subsidence",
+      "start_time": 0.0,
+      "method": "linear_constant",
+      "profile_registry_name": "w_sub_profile",
+      "w_sub_max": -0.005,
+      "w_sub_max_height": 600.0
+   }
+]
+```
+
+When `method` is set to `"user"`, the subsidence module completely delegates the creation and initialization of the profile field to the local compilation setup. This is ideal for assigning empirical observation data or custom localized functions. 
+
+To achieve this, one must fetch a reference velocity field (to match the structural degrees of freedom), add a custom handle name to the global `neko_registry` (or the default `w_sub`will be used), and populate the arrays within the `user_initialize` subroutine of your `user.f90` file. Example:
+
+```fortran
+  subroutine user_initialize(t)
+    use num_types, only : rp
+    use time_state, only : time_state_t
+    use field, only : field_t
+    use neko_registry, only : neko_registry
+
+    implicit none
+
+    type(time_state_t), intent(in) :: t
+    type(field_t), pointer :: u, w_sub
+    integer :: i
+    real(kind=rp) :: z
+    real(kind=rp) :: div_rate
+
+    u => neko_registry%get_field("u")
+
+    call neko_registry%add_field(u%dof, "w_sub_custom")
+    w_sub => neko_registry%get_field("w_sub_custom")
+    
+    div_rate = 2.0e-2_rp
+
+    do i = 1, w_sub%size()
+       z = w_sub%dof%z(i,1,1,1)
+       w_sub%x(i,1,1,1) = -div_rate * z
+    end do
+
+  end subroutine user_initialize
+```
+
 
 
 ### Arbitrary Lagrangian-Eulerian Framework {#case-file_fluid-ale}
