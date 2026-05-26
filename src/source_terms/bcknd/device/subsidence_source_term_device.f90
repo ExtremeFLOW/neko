@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the device interface for the `subsidence_source_term_t` type.
+!!> Implements the device interface for the `subsidence_source_term_t` type.
 module subsidence_source_term_device
   use num_types, only : rp
   use field_list, only : field_list_t
@@ -39,8 +39,7 @@ module subsidence_source_term_device
   use coefs, only : coef_t
   use operators, only : grad
   use gs_ops, only : GS_OP_ADD
-  use device_math, only : device_copy, device_cmult, device_add2s2, device_addcol3, &
-       device_add2, device_col2
+  use device_math, only : device_cmult, device_addcol3, device_add2, device_col2
   implicit none
   private
 
@@ -49,23 +48,16 @@ module subsidence_source_term_device
 contains
 
   !> Prepares device arrays and performs device operations to add the subsidence
-  !! source: fu += w_sub * (dir . grad(u)), fv += w_sub * (dir . grad(v)).
-  !! This routine computes gradients on the host (via `grad`), performs the
-  !! gather-scatter and normalization, moves the gradient arrays to device
-  !! scaling (via `device_col2`), and uses device elementwise ops to form and
-  !! add the products. The low-level device kernel is intentionally not
-  !! implemented here.
-  subroutine subsidence_source_term_compute_device(u, v, fields, coef, w_sub, vertical_dir)
+  !! source: fu += w_sub * (du/dz), fv += w_sub * (dv/dz).
+  subroutine subsidence_source_term_compute_device(u, v, fields, coef, w_sub)
     type(field_t), intent(in) :: u, v, w_sub
     type(field_list_t), intent(inout) :: fields
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(in) :: vertical_dir(3)
-
     integer :: n
-    integer :: tmp_idx(5)
+    integer :: tmp_idx(4)
     type(field_t), pointer :: fu, fv
     type(field_t), pointer :: dx, dy, dz
-    type(field_t), pointer :: deriv, prod
+    type(field_t), pointer :: prod
 
     ! RHS fields
     fu => fields%get_by_index(1)
@@ -73,64 +65,36 @@ contains
 
     n = fu%size()
 
-    ! Request scratch fields: dx,dy,dz and a temporary for device work
+    ! Request scratch fields: dx, dy, dz for grad, and prod for device work
     call neko_scratch_registry%request_field(dx, tmp_idx(1), .false.)
     call neko_scratch_registry%request_field(dy, tmp_idx(2), .false.)
     call neko_scratch_registry%request_field(dz, tmp_idx(3), .false.)
-    call neko_scratch_registry%request_field(deriv, tmp_idx(4), .false.)
+    call neko_scratch_registry%request_field(prod, tmp_idx(4), .false.)
 
-    ! Compute host gradients for u
     call grad(dx%x, dy%x, dz%x, u%x, coef)
 
-    ! Gather-scatter and normalize on host
-    call coef%gs_h%op(dx, GS_OP_ADD)
-    call coef%gs_h%op(dy, GS_OP_ADD)
     call coef%gs_h%op(dz, GS_OP_ADD)
-
-    call device_col2(dx%x_d, coef%mult_d, n)
-    call device_col2(dy%x_d, coef%mult_d, n)
     call device_col2(dz%x_d, coef%mult_d, n)
 
-    ! deriv = vertical_dir(1)*dx + vertical_dir(2)*dy + vertical_dir(3)*dz
-    call device_copy(deriv%x_d, dx%x_d, n)
-    call device_cmult(deriv%x_d, vertical_dir(1), n)
-    call device_add2s2(deriv%x_d, dy%x_d, vertical_dir(2), n)
-    call device_add2s2(deriv%x_d, dz%x_d, vertical_dir(3), n)
-
-    ! prod = w_sub * deriv
-    call neko_scratch_registry%request_field(prod, tmp_idx(5), .false.)
+    ! prod = w_sub * (du/dz)
     call device_cmult(prod%x_d, 0.0_rp, n)
-    call device_addcol3(prod%x_d, w_sub%x_d, deriv%x_d, n)
+    call device_addcol3(prod%x_d, w_sub%x_d, dz%x_d, n)
 
     ! Add to RHS: fu += prod
     call device_add2(fu%x_d, prod%x_d, n)
 
-    ! Compute host gradients for v
+    ! Same for v.
     call grad(dx%x, dy%x, dz%x, v%x, coef)
 
-    ! Gather-scatter and normalize on host
-    call coef%gs_h%op(dx, GS_OP_ADD)
-    call coef%gs_h%op(dy, GS_OP_ADD)
     call coef%gs_h%op(dz, GS_OP_ADD)
-
-    call device_col2(dx%x_d, coef%mult_d, n)
-    call device_col2(dy%x_d, coef%mult_d, n)
     call device_col2(dz%x_d, coef%mult_d, n)
 
-    ! deriv = vertical_dir(1)*dx + vertical_dir(2)*dy + vertical_dir(3)*dz
-    call device_copy(deriv%x_d, dx%x_d, n)
-    call device_cmult(deriv%x_d, vertical_dir(1), n)
-    call device_add2s2(deriv%x_d, dy%x_d, vertical_dir(2), n)
-    call device_add2s2(deriv%x_d, dz%x_d, vertical_dir(3), n)
-
-    ! prod = w_sub * deriv (reuse same prod scratch)
     call device_cmult(prod%x_d, 0.0_rp, n)
-    call device_addcol3(prod%x_d, w_sub%x_d, deriv%x_d, n)
+    call device_addcol3(prod%x_d, w_sub%x_d, dz%x_d, n)
 
-    ! Add to RHS: fv += prod
     call device_add2(fv%x_d, prod%x_d, n)
 
-    ! Release scratch
+    ! Release scratch fields back to registry
     call neko_scratch_registry%relinquish_field(tmp_idx)
 
   end subroutine subsidence_source_term_compute_device
