@@ -1,5 +1,7 @@
 var NAVTREEINDEX114 =
 {
+"df/df1/structspalding_1_1spalding__t.html#aac3d1e1f292b9fa9ad78c17106fa0c3a":[2,0,300,0,41],
+"df/df1/structspalding_1_1spalding__t.html#aac3d1e1f292b9fa9ad78c17106fa0c3a":[1,0,352,0,41],
 "df/df1/structspalding_1_1spalding__t.html#aad20899be2916183196f300c76665a1c":[2,0,300,0,11],
 "df/df1/structspalding_1_1spalding__t.html#aad20899be2916183196f300c76665a1c":[1,0,352,0,11],
 "df/df1/structspalding_1_1spalding__t.html#aafe1e036f56955a3301b03689c29eb93":[2,0,300,0,29],
@@ -247,7 +249,5 @@ var NAVTREEINDEX114 =
 "dir_a40e73c31c8e12c33f36558961bd9674.html":[3,0,3,3,0,0,1],
 "dir_a54a76f3f931e6cceee52e3a5311a9de.html":[3,0,3,16,0,1],
 "dir_a753435b69305af25b1972a8c16b18f4.html":[3,0,3,17,0,1,2],
-"dir_a89e409dbd01ad4965150a75b2f35372.html":[3,0,3,20,0],
-"dir_a9823a9d26cde438c507dbaae9f44c0c.html":[3,0,3,11,2,0,1,2],
-"dir_a991fe790c056ae3d4768d74615c5e65.html":[3,0,3,5,0,1,1]
+"dir_a89e409dbd01ad4965150a75b2f35372.html":[3,0,3,20,0]
 };

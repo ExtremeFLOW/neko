@@ -1,21 +1,23 @@
 <map id="utils::filename_tslash_pos" name="utils::filename_tslash_pos">
-<area shape="rect" id="Node000001" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="905,416,1096,441"/>
+<area shape="rect" id="Node000001" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="905,455,1096,480"/>
 <area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a202026073c93db9d9d760198c2029980" title="Extract the base name of a file (without path and suffix)" alt="" coords="676,191,835,216"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="974,408,769,218,773,215,977,404"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="979,446,925,379,855,301,770,218,773,215,859,297,929,376,983,442"/>
 <area shape="rect" id="Node000007" href="$d6/d84/namespaceutils.html#ae668c997744698a4d7aeee2a43969caf" title="Extract the path to a file." alt="" coords="680,95,831,120"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="987,405,938,301,900,238,855,180,817,147,779,122,782,118,821,142,859,176,905,235,943,298,992,402"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="989,442,971,390,942,322,904,248,855,180,818,146,780,122,783,118,821,142,859,176,908,246,947,320,976,389,994,441"/>
 <area shape="rect" id="Node000009" href="$d6/d84/namespaceutils.html#a85683446e8c3ce364595da95f5bf70e9" title="Extract file name components." alt="" coords="680,312,831,337"/>
-<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="967,411,916,381,856,352,817,340,819,335,858,348,919,376,970,406"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="976,447,925,399,892,374,856,352,824,340,826,335,859,348,894,369,928,394,980,443"/>
 <area shape="rect" id="Node000017" href="$db/dba/namespacefluid__sgs__stats__simcomp.html#a8feba69c3c2cb8748a224d918dd76e73" title=" " alt="" coords="659,361,852,416"/>
-<area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="909,416,852,407,853,402,909,411"/>
+<area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="946,453,841,419,842,414,948,448"/>
 <area shape="rect" id="Node000018" href="$dd/dc6/namespacefluid__stats__simcomp.html#a33393df992beab0f7b3d777c40c13ed6" title=" " alt="" coords="673,440,837,495"/>
-<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="907,446,838,457,837,452,906,441"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="891,470,837,470,837,465,891,465"/>
 <area shape="rect" id="Node000019" href="$d6/da1/namespacescalar__sgs__stats__simcomp.html#afbddb09963b8ff897e191ec2f56308d9" title=" " alt="" coords="653,519,857,573"/>
-<area shape="poly" id="edge21_Node000001_Node000019" title=" " alt="" coords="968,451,858,510,832,521,830,516,856,505,965,446"/>
+<area shape="poly" id="edge21_Node000001_Node000019" title=" " alt="" coords="948,487,842,521,841,516,946,482"/>
 <area shape="rect" id="Node000020" href="$d5/df8/namespacescalar__stats__simcomp.html#a2b3aef6d8abf2a19f442e73c8ef5a7fb" title=" " alt="" coords="668,597,843,652"/>
-<area shape="poly" id="edge22_Node000001_Node000020" title=" " alt="" coords="985,454,934,520,898,556,859,588,839,600,837,595,856,584,895,552,930,516,981,451"/>
+<area shape="poly" id="edge22_Node000001_Node000020" title=" " alt="" coords="979,492,927,539,859,588,837,600,835,595,856,584,923,535,976,488"/>
 <area shape="rect" id="Node000021" href="$db/d38/structbp__file_1_1bp__file__t.html#a511271c54588a061da9f6e7670a7f27f" title=" " alt="" coords="691,677,819,717"/>
-<area shape="poly" id="edge23_Node000001_Node000021" title=" " alt="" coords="993,456,975,501,947,558,908,616,885,643,859,667,821,687,819,682,856,662,881,639,904,613,942,555,970,499,988,454"/>
+<area shape="poly" id="edge23_Node000001_Node000021" title=" " alt="" coords="990,494,970,532,941,579,904,626,859,667,821,686,819,681,856,662,900,622,937,575,966,529,985,491"/>
+<area shape="rect" id="Node000022" href="$df/ded/namespaceuser__stats.html#a455eca92ce4a6188c20ad306f983a4c2" title=" " alt="" coords="673,741,837,781"/>
+<area shape="poly" id="edge24_Node000001_Node000022" title=" " alt="" coords="995,494,978,544,951,608,911,674,887,704,859,731,839,743,836,739,856,727,883,700,907,671,946,605,973,542,990,493"/>
 <area shape="rect" id="Node000003" href="$d9/d41/namespacefld__file.html#a28514486225e0924eb710b0c650207a2" title=" " alt="" coords="453,55,575,95"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="725,185,670,147,604,110,575,97,577,92,607,105,673,143,728,180"/>
 <area shape="rect" id="Node000004" href="$d9/d41/namespacefld__file.html#aa1bd6c4e70dd8e0c26e6f112c44f85a0" title=" " alt="" coords="444,119,584,159"/>
