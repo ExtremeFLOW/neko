@@ -382,6 +382,9 @@ neko_fortran_SOURCES = \
 	source_terms/boussinesq_source_term.f90\
 	source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90\
 	source_terms/bcknd/device/boussinesq_source_term_device.f90\
+	source_terms/subsidence_source_term.f90\
+	source_terms/bcknd/cpu/subsidence_source_term_cpu.f90\
+	source_terms/bcknd/device/subsidence_source_term_device.f90\
 	source_terms/hpfrt_source_term.f90\
 	source_terms/source_term_fctry.f90\
 	source_terms/sponge_source_term.f90\
