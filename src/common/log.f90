@@ -580,8 +580,13 @@ contains
 
     is_deprecated = .true.
     do i = 1, current_size
-       is_deprecated = current_number(i) .ge. removal_number(i)
-       if (.not. is_deprecated) exit
+       if (current_number(i) .gt. removal_number(i)) then
+          is_deprecated = .true.
+          exit
+       else if (current_number(i) .lt. removal_number(i)) then
+          is_deprecated = .false.
+          exit
+       end if
     end do
 
   end function is_deprecated
