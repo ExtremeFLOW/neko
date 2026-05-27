@@ -770,7 +770,7 @@ contains
     ! extract faces
     ! NOTICE ORIGINAL ftovec_0l
     do il = 1, nface
-       call face_to_vector(elem, facein(:, :, il), facelist(il), lx)
+       call face_to_vector_zero(elem, facein(:, :, il), facelist(il), lx)
     end do
 
     ! interpolate faces
@@ -786,7 +786,7 @@ contains
     ! put faces back
     ! NOTICE ORIGINAL vectof_addl
     do il = 1, nface
-       call vector_to_face(elem, faceout(:, :, il), facelist(il), lx)
+       call vector_to_face_sum(elem, faceout(:, :, il), facelist(il), lx)
     end do
 
   end subroutine gs_interp_cpu_apply_jt_elem_face
@@ -809,7 +809,7 @@ contains
 
     ! extract edges
     do il = 1, nedge
-       call edge_to_vector(elem, edgein(1, :, il), edgelist(il), lx)
+       call edge_to_vector_zero(elem, edgein(1, :, il), edgelist(il), lx)
     end do
 
     ! interpolate edges
@@ -820,7 +820,7 @@ contains
 
     ! put edges back
     do il = 1, nedge
-       call vector_to_edge(elem, edgeout(1, :, il), edgelist(il), lx)
+       call vector_to_edge_sum(elem, edgeout(1, :, il), edgelist(il), lx)
     end do
 
   end subroutine gs_interp_cpu_apply_jt_elem_edge
@@ -1284,6 +1284,66 @@ contains
 
   end subroutine vector_to_face
 
+  !> Extract face from the hex element setting it to zero; symmetric notation
+  !> @param[in]     elem    element vector
+  !> @param[out]    face    element face
+  !> @param[in]     iface   face number
+  !> @param[in]     nx      1D size
+  pure subroutine face_to_vector_zero(elem, face, iface, nx)
+    integer, intent(in) :: iface, nx
+    real(rp), dimension(nx, nx, nx), intent(inout) :: elem
+    real(rp), dimension(nx, nx), intent(out) :: face
+
+    select case(iface)
+    case(1)
+       face(:, :) = elem(1, :, :)
+       elem(1, :, :) = 0.0_rp
+    case(2)
+       face(:, :) = elem(nx, :, :)
+       elem(nx, :, :) = 0.0_rp
+    case(3)
+       face(:, :) = elem(:, 1, :)
+       elem(:, 1, :) = 0.0_rp
+    case(4)
+       face(:, :) = elem(:, nx, :)
+       elem(:, nx, :) = 0.0_rp
+    case(5)
+       face(:, :) = elem(:, :, 1)
+       elem(:, :, 1) = 0.0_rp
+    case(6)
+       face(:, :) = elem(:, :, nx)
+       elem(:, :, nx) = 0.0_rp
+    end select
+
+  end subroutine face_to_vector_zero
+
+  !> Sum face of the hex element with data; symmetric notation
+  !> @param[out]    elem    element vector
+  !> @param[in]     face    element face
+  !> @param[in]     iface   face number
+  !> @param[in]     nx      1D size
+  pure subroutine vector_to_face_sum(elem, face, iface, nx)
+    integer, intent(in) :: iface, nx
+    real(rp), dimension(nx, nx, nx), intent(out) :: elem
+    real(rp), dimension(nx, nx), intent(in) :: face
+
+    select case(iface)
+    case(1)
+       elem(1, :, :) = elem(1, :, :) + face(:, :)
+    case(2)
+       elem(nx, :, :) = elem(nx, :, :) + face(:, :)
+    case(3)
+       elem(:, 1, :) = elem(:, 1, :) + face(:, :)
+    case(4)
+       elem(:, nx, :) = elem(:, nx, :) + face(:, :)
+    case(5)
+       elem(:, :, 1) = elem(:, :, 1) + face(:, :)
+    case(6)
+       elem(:, :, nx) = elem(:, :, nx) + face(:, :)
+    end select
+
+  end subroutine vector_to_face_sum
+
   !> Extract edge from the hex element; symmetric notation
   !> @param[in]     elem    element vector
   !> @param[out]    edge    element edge
@@ -1361,5 +1421,96 @@ contains
     end select
 
   end subroutine vector_to_edge
+
+
+  !> Extract edge from the hex element setting it to zero; symmetric notation
+  !> @param[in]     elem    element vector
+  !> @param[out]    edge    element edge
+  !> @param[in]     iedge   edge number
+  !> @param[in]     nx      1D size
+  pure subroutine edge_to_vector_zero(elem, edge, iedge, nx)
+    integer, intent(in) :: iedge, nx
+    real(rp), dimension(nx, nx, nx), intent(inout) :: elem
+    real(rp), dimension(nx), intent(out) :: edge
+
+    select case(iedge)
+    case(1)
+       edge(:) = elem(:, 1, 1)
+       elem(:, 1, 1) = 0.0_rp
+    case(2)
+       edge(:) = elem(:, nx, 1)
+       elem(:, nx, 1) = 0.0_rp
+    case(3)
+       edge(:) = elem(:, 1, nx)
+       elem(:, 1, nx) = 0.0_rp
+    case(4)
+       edge(:) = elem(:, nx, nx)
+       elem(:, nx, nx) = 0.0_rp
+    case(5)
+       edge(:) = elem(1, :, 1)
+       elem(1, :, 1) = 0.0_rp
+    case(6)
+       edge(:) = elem(nx, :, 1)
+       elem(nx, :, 1) = 0.0_rp
+    case(7)
+       edge(:) = elem(1, :, nx)
+       elem(1, :, nx) = 0.0_rp
+    case(8)
+       edge(:) = elem(nx, :, nx)
+       elem(nx, :, nx) = 0.0_rp
+    case(9)
+       edge(:) = elem(1, 1, :)
+       elem(1, 1, :) = 0.0_rp
+    case(10)
+       edge(:) = elem(nx, 1, :)
+       elem(nx, 1, :) = 0.0_rp
+    case(11)
+       edge(:) = elem(1, nx, :)
+       elem(1, nx, :) = 0.0_rp
+    case(12)
+       edge(:) = elem(nx, nx, :)
+       elem(nx, nx, :) = 0.0_rp
+    end select
+
+  end subroutine edge_to_vector_zero
+
+  !> Sum edge of the hex element with data; symmetric notation
+  !> @param[out]    elem    element vector
+  !> @param[in]     edge    element edge
+  !> @param[in]     iedge   edge number
+  !> @param[in]     nx      1D size
+  pure subroutine vector_to_edge_sum(elem, edge, iedge, nx)
+    integer, intent(in) :: iedge, nx
+    real(rp), dimension(nx, nx, nx), intent(out) :: elem
+    real(rp), dimension(nx), intent(in) :: edge
+
+    select case(iedge)
+    case(1)
+       elem(:, 1, 1) = elem(:, 1, 1) + edge(:)
+    case(2)
+       elem(:, nx, 1) = elem(:, nx, 1) + edge(:)
+    case(3)
+       elem(:, 1, nx) = elem(:, 1, nx) + edge(:)
+    case(4)
+       elem(:, nx, nx) = elem(:, nx, nx) + edge(:)
+    case(5)
+       elem(1, :, 1) = elem(1, :, 1) + edge(:)
+    case(6)
+       elem(nx, :, 1) = elem(nx, :, 1) + edge(:)
+    case(7)
+       elem(1, :, nx) = elem(1, :, nx) + edge(:)
+    case(8)
+       elem(nx, :, nx) = elem(nx, :, nx) + edge(:)
+    case(9)
+       elem(1, 1, :) = elem(1, 1, :) + edge(:)
+    case(10)
+       elem(nx, 1, :) = elem(nx, 1, :) + edge(:)
+    case(11)
+       elem(1, nx, :) = elem(1, nx, :) + edge(:)
+    case(12)
+       elem(nx, nx, :) = elem(nx, nx, :) + edge(:)
+    end select
+
+  end subroutine vector_to_edge_sum
 
 end module gs_interp_cpu
