@@ -315,6 +315,9 @@ contains
     real(kind=rp), intent(in) :: x1(n), x2(n), x3(n), x4(n), x5(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        y1(i) = x1(i)
@@ -333,6 +336,9 @@ contains
     real(kind=rp), intent(in) :: x1(n), x2(n), x3(n), x4(n), x5(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        y1(i) = y1(i) + a * x1(i)
@@ -350,6 +356,9 @@ contains
     real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        f_x(i) = m_x(i) * m_x(i) / rho(i) + p(i)
@@ -365,6 +374,9 @@ contains
     real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        f_x(i) = m_y(i) * m_x(i) / rho(i)
@@ -380,6 +392,9 @@ contains
     real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        f_x(i) = m_z(i) * m_x(i) / rho(i)
@@ -395,6 +410,9 @@ contains
     real(kind=rp), intent(in) :: E(n), p(n), u(n), v(n), w(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        f_x(i) = (E(i) + p(i)) * u(i)
@@ -410,6 +428,9 @@ contains
     real(kind=rp), intent(in) :: mult(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        y1(i) = y1(i) * mult(i)
@@ -427,6 +448,9 @@ contains
     real(kind=rp), intent(in) :: effective_visc(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        h1(i) = effective_visc(i)
@@ -439,6 +463,9 @@ contains
     real(kind=rp), intent(out) :: h1(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        h1(i) = 1.0_rp
@@ -453,6 +480,9 @@ contains
     real(kind=rp), intent(in) :: v1(n), v2(n), v3(n), v4(n), v5(n), Binv(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        y1(i) = -y1(i) - Binv(i) * v1(i)

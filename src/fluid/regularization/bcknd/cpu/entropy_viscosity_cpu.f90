@@ -62,6 +62,9 @@ contains
     real(kind=rp), intent(in) :: dt
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        entropy_residual(i) = (bdf_coeffs(1) * S(i) &
@@ -88,6 +91,9 @@ contains
     real(kind=rp), intent(in) :: c_avisc_entropy, n_S
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        reg_coeff(i) = c_avisc_entropy * h(i) * h(i) * &
@@ -113,6 +119,9 @@ contains
 
        do k = 1, lx
           do j = 1, lx
+             !OCL NORECURRENCE, NOVREC, NOALIAS
+             !DIR$ CONCURRENT
+             !GCC$ ivdep
              !$omp simd reduction(max:max_visc_el)
              do i = 1, lx
                 max_visc_el = max(max_visc_el, reg_coeff(i, j, k, el))
@@ -122,6 +131,9 @@ contains
 
        do k = 1, lx
           do j = 1, lx
+             !OCL NORECURRENCE, NOVREC, NOALIAS
+             !DIR$ CONCURRENT
+             !GCC$ ivdep
              !$omp simd
              do i = 1, lx
                 reg_coeff(i, j, k, el) = max_visc_el
@@ -148,6 +160,9 @@ contains
     integer :: i
     real(kind=rp) :: low_order_visc
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd private(low_order_visc)
     do i = 1, n
        low_order_visc = c_avisc_low * h(i) * max_wave_speed(i)
@@ -169,6 +184,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: temp_field, mult_field
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        reg_coeff(i) = temp_field(i) / mult_field(i)

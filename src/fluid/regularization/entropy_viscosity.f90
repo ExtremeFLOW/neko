@@ -373,6 +373,9 @@ contains
     real(kind=rp), intent(in) :: u(n), v(n), w(n), S(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        us(i) = u(i) * S(i)
@@ -388,6 +391,9 @@ contains
     real(kind=rp), intent(in) :: div_field(n)
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        entropy_residual(i) = abs(entropy_residual(i) + div_field(i))

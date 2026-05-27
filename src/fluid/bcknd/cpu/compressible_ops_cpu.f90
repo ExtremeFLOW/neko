@@ -55,6 +55,9 @@ contains
 
     ! Compute maximum wave speed:
     ! |u| + c = sqrt(u^2 + v^2 + w^2) + sqrt(gamma * p / rho)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd private(vel_mag, sound_speed)
     do i = 1, n
        vel_mag = sqrt(u(i)*u(i) + v(i)*v(i) + &
@@ -79,6 +82,9 @@ contains
     inv_gamma_m1 = 1.0_rp / (gamma - 1.0_rp)
 
     ! Compute entropy: S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        S(i) = inv_gamma_m1 * rho(i) * &
@@ -95,6 +101,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: m_x, m_y, m_z, rho
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        u(i) = m_x(i) / rho(i)
@@ -115,6 +124,9 @@ contains
     real(kind=rp) :: tmp
     integer :: i
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd private(tmp)
     do i = 1, n
        m_x(i) = u(i) * rho(i)
@@ -140,6 +152,9 @@ contains
 
     inv_gamma_m1 = 1.0_rp / (gamma - 1.0_rp)
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
        ! Ensure pressure is positive
