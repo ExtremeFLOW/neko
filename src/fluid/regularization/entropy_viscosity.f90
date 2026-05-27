@@ -49,7 +49,7 @@ module entropy_viscosity
   use space, only : space_t
   use gather_scatter, only : gs_t
   use gs_ops, only : GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_math, only : device_col3, device_absval, device_glsum
   use entropy_viscosity_cpu, only : entropy_viscosity_compute_residual_cpu, &
@@ -374,48 +374,28 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: us(n), vs(n), ws(n)
     real(kind=rp), intent(in) :: u(n), v(n), w(n), S(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             us(i+k) = u(i+k) * S(i+k)
-             vs(i+k) = v(i+k) * S(i+k)
-             ws(i+k) = w(i+k) * S(i+k)
-          end do
-       else
-          do k = 1, n - i
-             us(i+k) = u(i+k) * S(i+k)
-             vs(i+k) = v(i+k) * S(i+k)
-             ws(i+k) = w(i+k) * S(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       us(i) = u(i) * S(i)
+       vs(i) = v(i) * S(i)
+       ws(i) = w(i) * S(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine entropy_viscosity_col3_vector_cpu
 
   subroutine entropy_viscosity_abs_add_cpu(entropy_residual, div_field, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: entropy_residual(n)
     real(kind=rp), intent(in) :: div_field(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             entropy_residual(i+k) = abs(entropy_residual(i+k) + div_field(i+k))
-          end do
-       else
-          do k = 1, n - i
-             entropy_residual(i+k) = abs(entropy_residual(i+k) + div_field(i+k))
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       entropy_residual(i) = abs(entropy_residual(i) + div_field(i))
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine entropy_viscosity_abs_add_cpu
 
   !> Compute low-order viscosity at point i: c_avisc_low * h * max_wave_speed

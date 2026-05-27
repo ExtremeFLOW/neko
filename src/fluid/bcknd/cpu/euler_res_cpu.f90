@@ -45,7 +45,6 @@ module euler_res_cpu
   use scratch_registry, only : neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
-  use neko_config, only : NEKO_BLK_SIZE
   implicit none
   private
 
@@ -314,30 +313,17 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: y1(n), y2(n), y3(n), y4(n), y5(n)
     real(kind=rp), intent(in) :: x1(n), x2(n), x3(n), x4(n), x5(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             y1(i+k) = x1(i+k)
-             y2(i+k) = x2(i+k)
-             y3(i+k) = x3(i+k)
-             y4(i+k) = x4(i+k)
-             y5(i+k) = x5(i+k)
-          end do
-       else
-          do k = 1, n - i
-             y1(i+k) = x1(i+k)
-             y2(i+k) = x2(i+k)
-             y3(i+k) = x3(i+k)
-             y4(i+k) = x4(i+k)
-             y5(i+k) = x5(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       y1(i) = x1(i)
+       y2(i) = x2(i)
+       y3(i) = x3(i)
+       y4(i) = x4(i)
+       y5(i) = x5(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_copy5
 
   subroutine euler_res_cpu_axpy5(y1, y2, y3, y4, y5, x1, x2, x3, x4, x5, a, n)
@@ -345,207 +331,119 @@ contains
     real(kind=rp), intent(in) :: a
     real(kind=rp), intent(inout) :: y1(n), y2(n), y3(n), y4(n), y5(n)
     real(kind=rp), intent(in) :: x1(n), x2(n), x3(n), x4(n), x5(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             y1(i+k) = y1(i+k) + a * x1(i+k)
-             y2(i+k) = y2(i+k) + a * x2(i+k)
-             y3(i+k) = y3(i+k) + a * x3(i+k)
-             y4(i+k) = y4(i+k) + a * x4(i+k)
-             y5(i+k) = y5(i+k) + a * x5(i+k)
-          end do
-       else
-          do k = 1, n - i
-             y1(i+k) = y1(i+k) + a * x1(i+k)
-             y2(i+k) = y2(i+k) + a * x2(i+k)
-             y3(i+k) = y3(i+k) + a * x3(i+k)
-             y4(i+k) = y4(i+k) + a * x4(i+k)
-             y5(i+k) = y5(i+k) + a * x5(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       y1(i) = y1(i) + a * x1(i)
+       y2(i) = y2(i) + a * x2(i)
+       y3(i) = y3(i) + a * x3(i)
+       y4(i) = y4(i) + a * x4(i)
+       y5(i) = y5(i) + a * x5(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_axpy5
 
   subroutine euler_res_cpu_flux_mx(f_x, f_y, f_z, m_x, m_y, m_z, rho, p, n)
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: f_x(n), f_y(n), f_z(n)
     real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             f_x(i+k) = m_x(i+k) * m_x(i+k) / rho(i+k) + p(i+k)
-             f_y(i+k) = m_x(i+k) * m_y(i+k) / rho(i+k)
-             f_z(i+k) = m_x(i+k) * m_z(i+k) / rho(i+k)
-          end do
-       else
-          do k = 1, n - i
-             f_x(i+k) = m_x(i+k) * m_x(i+k) / rho(i+k) + p(i+k)
-             f_y(i+k) = m_x(i+k) * m_y(i+k) / rho(i+k)
-             f_z(i+k) = m_x(i+k) * m_z(i+k) / rho(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       f_x(i) = m_x(i) * m_x(i) / rho(i) + p(i)
+       f_y(i) = m_x(i) * m_y(i) / rho(i)
+       f_z(i) = m_x(i) * m_z(i) / rho(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_flux_mx
 
   subroutine euler_res_cpu_flux_my(f_x, f_y, f_z, m_x, m_y, m_z, rho, p, n)
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: f_x(n), f_y(n), f_z(n)
     real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             f_x(i+k) = m_y(i+k) * m_x(i+k) / rho(i+k)
-             f_y(i+k) = m_y(i+k) * m_y(i+k) / rho(i+k) + p(i+k)
-             f_z(i+k) = m_y(i+k) * m_z(i+k) / rho(i+k)
-          end do
-       else
-          do k = 1, n - i
-             f_x(i+k) = m_y(i+k) * m_x(i+k) / rho(i+k)
-             f_y(i+k) = m_y(i+k) * m_y(i+k) / rho(i+k) + p(i+k)
-             f_z(i+k) = m_y(i+k) * m_z(i+k) / rho(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       f_x(i) = m_y(i) * m_x(i) / rho(i)
+       f_y(i) = m_y(i) * m_y(i) / rho(i) + p(i)
+       f_z(i) = m_y(i) * m_z(i) / rho(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_flux_my
 
   subroutine euler_res_cpu_flux_mz(f_x, f_y, f_z, m_x, m_y, m_z, rho, p, n)
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: f_x(n), f_y(n), f_z(n)
     real(kind=rp), intent(in) :: m_x(n), m_y(n), m_z(n), rho(n), p(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             f_x(i+k) = m_z(i+k) * m_x(i+k) / rho(i+k)
-             f_y(i+k) = m_z(i+k) * m_y(i+k) / rho(i+k)
-             f_z(i+k) = m_z(i+k) * m_z(i+k) / rho(i+k) + p(i+k)
-          end do
-       else
-          do k = 1, n - i
-             f_x(i+k) = m_z(i+k) * m_x(i+k) / rho(i+k)
-             f_y(i+k) = m_z(i+k) * m_y(i+k) / rho(i+k)
-             f_z(i+k) = m_z(i+k) * m_z(i+k) / rho(i+k) + p(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       f_x(i) = m_z(i) * m_x(i) / rho(i)
+       f_y(i) = m_z(i) * m_y(i) / rho(i)
+       f_z(i) = m_z(i) * m_z(i) / rho(i) + p(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_flux_mz
 
   subroutine euler_res_cpu_flux_E(f_x, f_y, f_z, E, p, u, v, w, n)
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: f_x(n), f_y(n), f_z(n)
     real(kind=rp), intent(in) :: E(n), p(n), u(n), v(n), w(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             f_x(i+k) = (E(i+k) + p(i+k)) * u(i+k)
-             f_y(i+k) = (E(i+k) + p(i+k)) * v(i+k)
-             f_z(i+k) = (E(i+k) + p(i+k)) * w(i+k)
-          end do
-       else
-          do k = 1, n - i
-             f_x(i+k) = (E(i+k) + p(i+k)) * u(i+k)
-             f_y(i+k) = (E(i+k) + p(i+k)) * v(i+k)
-             f_z(i+k) = (E(i+k) + p(i+k)) * w(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       f_x(i) = (E(i) + p(i)) * u(i)
+       f_y(i) = (E(i) + p(i)) * v(i)
+       f_z(i) = (E(i) + p(i)) * w(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_flux_E
 
   subroutine euler_res_cpu_scale5(y1, y2, y3, y4, y5, mult, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: y1(n), y2(n), y3(n), y4(n), y5(n)
     real(kind=rp), intent(in) :: mult(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             y1(i+k) = y1(i+k) * mult(i+k)
-             y2(i+k) = y2(i+k) * mult(i+k)
-             y3(i+k) = y3(i+k) * mult(i+k)
-             y4(i+k) = y4(i+k) * mult(i+k)
-             y5(i+k) = y5(i+k) * mult(i+k)
-          end do
-       else
-          do k = 1, n - i
-             y1(i+k) = y1(i+k) * mult(i+k)
-             y2(i+k) = y2(i+k) * mult(i+k)
-             y3(i+k) = y3(i+k) * mult(i+k)
-             y4(i+k) = y4(i+k) * mult(i+k)
-             y5(i+k) = y5(i+k) * mult(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       y1(i) = y1(i) * mult(i)
+       y2(i) = y2(i) * mult(i)
+       y3(i) = y3(i) * mult(i)
+       y4(i) = y4(i) * mult(i)
+       y5(i) = y5(i) * mult(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_scale5
 
   subroutine euler_res_cpu_set_h1(h1, effective_visc, n)
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: h1(n)
     real(kind=rp), intent(in) :: effective_visc(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             h1(i+k) = effective_visc(i+k)
-          end do
-       else
-          do k = 1, n - i
-             h1(i+k) = effective_visc(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       h1(i) = effective_visc(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_set_h1
 
   subroutine euler_res_cpu_reset_h1(h1, n)
     integer, intent(in) :: n
     real(kind=rp), intent(out) :: h1(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             h1(i+k) = 1.0_rp
-          end do
-       else
-          do k = 1, n - i
-             h1(i+k) = 1.0_rp
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       h1(i) = 1.0_rp
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_reset_h1
 
   subroutine euler_res_cpu_apply_visc(y1, y2, y3, y4, y5, v1, v2, v3, v4, &
@@ -553,30 +451,17 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: y1(n), y2(n), y3(n), y4(n), y5(n)
     real(kind=rp), intent(in) :: v1(n), v2(n), v3(n), v4(n), v5(n), Binv(n)
-    integer :: i, k
+    integer :: i
 
-    !$omp parallel do private(k)
-    do i = 0, n - 1, NEKO_BLK_SIZE
-       if (i + NEKO_BLK_SIZE .le. n) then
-          !$omp simd
-          do k = 1, NEKO_BLK_SIZE
-             y1(i+k) = -y1(i+k) - Binv(i+k) * v1(i+k)
-             y2(i+k) = -y2(i+k) - Binv(i+k) * v2(i+k)
-             y3(i+k) = -y3(i+k) - Binv(i+k) * v3(i+k)
-             y4(i+k) = -y4(i+k) - Binv(i+k) * v4(i+k)
-             y5(i+k) = -y5(i+k) - Binv(i+k) * v5(i+k)
-          end do
-       else
-          do k = 1, n - i
-             y1(i+k) = -y1(i+k) - Binv(i+k) * v1(i+k)
-             y2(i+k) = -y2(i+k) - Binv(i+k) * v2(i+k)
-             y3(i+k) = -y3(i+k) - Binv(i+k) * v3(i+k)
-             y4(i+k) = -y4(i+k) - Binv(i+k) * v4(i+k)
-             y5(i+k) = -y5(i+k) - Binv(i+k) * v5(i+k)
-          end do
-       end if
+    !$omp parallel do simd
+    do i = 1, n
+       y1(i) = -y1(i) - Binv(i) * v1(i)
+       y2(i) = -y2(i) - Binv(i) * v2(i)
+       y3(i) = -y3(i) - Binv(i) * v3(i)
+       y4(i) = -y4(i) - Binv(i) * v4(i)
+       y5(i) = -y5(i) - Binv(i) * v5(i)
     end do
-    !$omp end parallel do
+    !$omp end parallel do simd
   end subroutine euler_res_cpu_apply_visc
 
 end module euler_res_cpu
