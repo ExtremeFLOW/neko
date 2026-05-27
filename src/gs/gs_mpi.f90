@@ -231,8 +231,8 @@ contains
 
     ! Issue recv requests, we will later check that these have finished
     ! in nbwait
-    
-    
+
+
     ! If the MPI library doesn't support MULTIPLE, the master thread
     ! will issue all Irecv's. Otherwise, threads will issue Irecv's
     ! concurrently.
