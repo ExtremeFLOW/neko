@@ -215,7 +215,7 @@ $(document).ready(function(){initNavTree('d0/d58/dong__outflow_8f90_source.html'
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    <span class="comment">!Im actually not sure what to do if one has two dong that share a corner.</span></div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">if</span> (strong_) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>       m = this%msk(0)</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>       <span class="comment">!$omp parallel do private(k, facet, ux, uy, uz, idx, normal_xyz, vn, S0)</span></div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>       <span class="comment">!$omp do</span></div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>       <span class="keywordflow">do</span> i = 1, m</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>          k = this%msk(i)</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>          facet = this%facet(i)</div>
@@ -228,9 +228,9 @@ $(document).ready(function(){initNavTree('d0/d58/dong__outflow_8f90_source.html'
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>          vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>          s0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))</div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>          x(k) = -0.5*(ux*ux+uy*uy+uz*uz)*s0</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>          x(k) = -0.5_rp * (ux*ux+uy*uy+uz*uz) * s0</div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       <span class="comment">!$omp end do</span></div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span><span class="keywordflow">    end if</span></div>
 </div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d5/d79/namespacedong__outflow.html#ad18ffea6bd4b0e0dbfe2dd4548407e05">dong_outflow_apply_scalar</a></div>
@@ -419,7 +419,7 @@ $(document).ready(function(){initNavTree('d0/d58/dong__outflow_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../d0/d58/dong__outflow_8f90.html">dong_outflow.f90</a></li>
-    <li class="footer">Generated on Tue May 26 2026 04:53:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed May 27 2026 05:00:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

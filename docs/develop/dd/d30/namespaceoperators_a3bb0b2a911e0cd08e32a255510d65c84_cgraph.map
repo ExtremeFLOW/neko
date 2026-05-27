@@ -1,6 +1,6 @@
 <map id="operators::opgrad" name="operators::opgrad">
 <area shape="rect" id="Node000001" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="5,119,143,144"/>
-<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="191,62,363,102"/>
+<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#aff4b07360fbf23f86ec7e19ad579632b" title=" " alt="" coords="191,62,363,102"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,116,180,103,181,108,127,121"/>
 <area shape="rect" id="Node000007" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="193,143,361,183"/>
 <area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="143,140,180,145,179,151,143,145"/>

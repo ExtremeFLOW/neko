@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title="Compute the weak_gradient field." alt="" coords="5,111,196,151"/>
 <area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="244,119,381,144"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,129,230,129,230,134,196,134"/>
-<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="429,62,601,102"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#aff4b07360fbf23f86ec7e19ad579632b" title=" " alt="" coords="429,62,601,102"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="365,116,419,103,420,108,366,121"/>
 <area shape="rect" id="Node000008" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="431,143,599,183"/>
 <area shape="poly" id="edge10_Node000002_Node000008" title=" " alt="" coords="382,140,418,145,417,151,381,145"/>

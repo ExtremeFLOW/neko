@@ -1130,7 +1130,13 @@ var annotated_dup =
       [ "opencl_vdot3", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3.html", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3" ]
     ] ],
     [ "operators", "dd/d30/namespaceoperators.html", [
-      [ "rotate_cyc", "de/dad/interfaceoperators_1_1rotate__cyc.html", "de/dad/interfaceoperators_1_1rotate__cyc" ]
+      [ "cfl", "df/d06/interfaceoperators_1_1cfl.html", "df/d06/interfaceoperators_1_1cfl" ],
+      [ "cfl_compressible", "de/dff/interfaceoperators_1_1cfl__compressible.html", "de/dff/interfaceoperators_1_1cfl__compressible" ],
+      [ "div", "d5/d2a/interfaceoperators_1_1div.html", "d5/d2a/interfaceoperators_1_1div" ],
+      [ "dudxyz", "db/d5a/interfaceoperators_1_1dudxyz.html", "db/d5a/interfaceoperators_1_1dudxyz" ],
+      [ "grad", "d6/d09/interfaceoperators_1_1grad.html", "d6/d09/interfaceoperators_1_1grad" ],
+      [ "rotate_cyc", "de/dad/interfaceoperators_1_1rotate__cyc.html", "de/dad/interfaceoperators_1_1rotate__cyc" ],
+      [ "strain_rate", "db/d20/interfaceoperators_1_1strain__rate.html", "db/d20/interfaceoperators_1_1strain__rate" ]
     ] ],
     [ "opr_device", "d3/d4d/namespaceopr__device.html", [
       [ "hip_cdtp", "db/d39/interfaceopr__device_1_1hip__cdtp.html", "db/d39/interfaceopr__device_1_1hip__cdtp" ],

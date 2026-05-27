@@ -61,7 +61,7 @@ var searchData=
   ['map_5finit_5fmesh_58',['map_init_mesh',['../d3/dca/namespacemap.html#ae1138477428064d6e70414cb185d7ff2',1,'map']]],
   ['map_5finit_5fnel_5fnelv_59',['map_init_nel_nelv',['../d3/dca/namespacemap.html#aa13e5d58d9115992dc39d3c1e8ef8feb',1,'map']]],
   ['map_5ft_60',['map_t',['../da/d40/structmap_1_1map__t.html',1,'map']]],
-  ['mapping_5fkernels_2eh_61',['mapping_kernels.h',['../d7/dd0/hip_2mapping__kernels_8h.html',1,'(Global Namespace)'],['../d6/db1/cuda_2mapping__kernels_8h.html',1,'(Global Namespace)']]],
+  ['mapping_5fkernels_2eh_61',['mapping_kernels.h',['../d6/db1/cuda_2mapping__kernels_8h.html',1,'(Global Namespace)'],['../d7/dd0/hip_2mapping__kernels_8h.html',1,'(Global Namespace)']]],
   ['mapping_5fprogram_62',['mapping_program',['../d0/dc0/namespaceopencl__prgm__lib.html#a7df2f6eafc68c811dc231c8bb9c13997',1,'opencl_prgm_lib::mapping_program'],['../d1/df7/prgm__lib_8h.html#a9fc0d244b34a54e228f1c1eaf29f45a5',1,'mapping_program:&#160;prgm_lib.h']]],
   ['mappings_63',['mappings',['../dc/da0/namespacemappings.html',1,'']]],
   ['mappings_2ec_64',['mappings.c',['../dc/d79/mappings_8c.html',1,'']]],

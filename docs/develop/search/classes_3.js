@@ -28,8 +28,10 @@ var searchData=
   ['dirichlet_5ft_25',['dirichlet_t',['../df/dd9/structdirichlet_1_1dirichlet__t.html',1,'dirichlet']]],
   ['dist_5ft_26',['dist_t',['../d6/d4a/structdatadist_1_1dist__t.html',1,'datadist']]],
   ['distdata_5ft_27',['distdata_t',['../d4/ddd/structdistdata_1_1distdata__t.html',1,'distdata']]],
-  ['divergence_5ft_28',['divergence_t',['../db/dc5/structdivergence__simcomp_1_1divergence__t.html',1,'divergence_simcomp']]],
-  ['dofmap_5ft_29',['dofmap_t',['../d0/df0/structdofmap_1_1dofmap__t.html',1,'dofmap']]],
-  ['dong_5foutflow_5ft_30',['dong_outflow_t',['../d0/d88/structdong__outflow_1_1dong__outflow__t.html',1,'dong_outflow']]],
-  ['dynamic_5fsmagorinsky_5ft_31',['dynamic_smagorinsky_t',['../d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html',1,'dynamic_smagorinsky']]]
+  ['div_28',['div',['../d5/d2a/interfaceoperators_1_1div.html',1,'operators']]],
+  ['divergence_5ft_29',['divergence_t',['../db/dc5/structdivergence__simcomp_1_1divergence__t.html',1,'divergence_simcomp']]],
+  ['dofmap_5ft_30',['dofmap_t',['../d0/df0/structdofmap_1_1dofmap__t.html',1,'dofmap']]],
+  ['dong_5foutflow_5ft_31',['dong_outflow_t',['../d0/d88/structdong__outflow_1_1dong__outflow__t.html',1,'dong_outflow']]],
+  ['dudxyz_32',['dudxyz',['../db/d5a/interfaceoperators_1_1dudxyz.html',1,'operators']]],
+  ['dynamic_5fsmagorinsky_5ft_33',['dynamic_smagorinsky_t',['../d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html',1,'dynamic_smagorinsky']]]
 ];

@@ -28,7 +28,7 @@
 <area shape="poly" id="edge33_Node000001_Node000024" title=" " alt="" coords="82,535,85,608,100,710,115,766,136,821,165,872,202,916,215,925,211,930,198,920,160,875,131,823,110,768,95,712,80,608,77,536"/>
 <area shape="rect" id="Node000025" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="229,317,367,343"/>
 <area shape="poly" id="edge34_Node000001_Node000025" title=" " alt="" coords="87,494,104,462,128,424,160,385,198,352,215,343,218,348,202,356,164,388,133,427,108,465,92,496"/>
-<area shape="rect" id="Node000004" href="$d3/d4d/namespaceopr__device.html#a5976c035ccc91cc8b346fc866e476775" title=" " alt="" coords="444,195,651,220"/>
+<area shape="rect" id="Node000004" href="$d3/d4d/namespaceopr__device.html#a1dd0915931c64c27ccfc8e805411216c" title=" " alt="" coords="444,195,651,220"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="358,205,430,205,430,210,358,210"/>
 <area shape="rect" id="Node000009" href="$d9/d5a/namespaceopr__xsmm.html#a57bf41f6f4190d4e8f728bd37db80ec9" title=" " alt="" coords="446,92,649,117"/>
 <area shape="poly" id="edge11_Node000003_Node000009" title=" " alt="" coords="329,192,502,120,504,125,331,197"/>
@@ -58,7 +58,7 @@
 <area shape="poly" id="edge28_Node000021_Node000021" title=" " alt="" coords="262,735,255,725,259,715,273,709,298,707,328,710,340,719,337,724,326,715,298,712,275,714,262,719,260,724,266,732"/>
 <area shape="poly" id="edge30_Node000022_Node000022" title=" " alt="" coords="262,808,255,798,259,788,273,782,298,780,328,784,340,793,337,797,326,789,298,785,275,787,262,792,260,798,266,805"/>
 <area shape="poly" id="edge32_Node000023_Node000023" title=" " alt="" coords="262,882,255,872,259,862,273,856,298,853,328,857,340,866,337,870,326,862,298,859,275,861,262,866,260,871,266,878"/>
-<area shape="rect" id="Node000026" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="461,349,633,389"/>
+<area shape="rect" id="Node000026" href="$d3/d4d/namespaceopr__device.html#aff4b07360fbf23f86ec7e19ad579632b" title=" " alt="" coords="461,349,633,389"/>
 <area shape="poly" id="edge35_Node000025_Node000026" title=" " alt="" coords="367,338,448,351,447,356,366,343"/>
 <area shape="rect" id="Node000029" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="463,450,631,490"/>
 <area shape="poly" id="edge41_Node000025_Node000029" title=" " alt="" coords="368,339,397,352,413,363,423,374,446,399,503,440,500,444,442,403,419,377,409,367,395,356,366,344"/>

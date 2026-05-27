@@ -10,7 +10,5 @@ var structadv__no__dealias_1_1adv__no__dealias__t =
     [ "free", "d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html#a248dc2dea9e9b9c0722f7a0e2a47b988", null ],
     [ "init", "d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html#a0c688c439dc4a10699f9b098f8482a3f", null ],
     [ "recompute_metrics", "d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html#aebd969fe38e1e52bb6bb713d793d23a1", null ],
-    [ "recompute_metrics", "d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html#a3ee2162858daee2f5affa3dfb7139642", null ],
-    [ "temp", "d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html#afb9f891467b35d7352d2392186a163a5", null ],
-    [ "temp_d", "d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html#a7807195198a9b80bcb71897333cb84b8", null ]
+    [ "recompute_metrics", "d9/dd0/structadv__no__dealias_1_1adv__no__dealias__t.html#a3ee2162858daee2f5affa3dfb7139642", null ]
 ];

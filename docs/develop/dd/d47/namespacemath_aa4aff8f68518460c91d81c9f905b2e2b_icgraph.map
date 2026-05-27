@@ -1,141 +1,79 @@
 <map id="math::col2" name="math::col2">
-<area shape="rect" id="Node000001" title="Vector multiplication ." alt="" coords="1341,1201,1432,1226"/>
-<area shape="rect" id="Node000002" href="$d0/d6f/namespacedrag__torque.html#a5067723230fde31368ad47fb10c8da77" title="Calculate drag and torque from array of points." alt="" coords="563,459,738,499"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1383,1187,1381,1056,1371,868,1359,772,1343,685,1321,614,1307,587,1291,567,1263,542,1231,520,1163,487,1089,465,1012,453,935,448,862,450,738,464,738,459,862,445,935,443,1012,447,1090,459,1165,482,1234,516,1266,538,1295,564,1311,584,1325,612,1348,684,1365,772,1376,868,1387,1056,1388,1187"/>
-<area shape="rect" id="Node000004" href="$d1/ded/namespacedeardorff__cpu.html#a24e8f7bcada04c0d05255579eb079bc6" title="Compute eddy viscosity on the CPU." alt="" coords="283,1477,461,1517"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1378,1240,1348,1299,1324,1329,1295,1354,1231,1389,1173,1408,1119,1417,1066,1418,954,1413,890,1414,816,1421,462,1483,461,1478,816,1416,890,1408,954,1407,1066,1413,1118,1412,1171,1403,1228,1384,1292,1350,1320,1326,1343,1296,1374,1238"/>
-<area shape="rect" id="Node000006" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a4413235e5f71141ae47e071699c75afb" title="Compute eddy viscosity on the CPU." alt="" coords="269,486,475,541"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1381,1187,1374,1085,1358,945,1346,875,1331,811,1313,758,1291,723,1267,702,1234,682,1148,646,1042,615,923,588,799,566,678,548,475,525,476,520,679,543,800,561,924,583,1043,609,1150,641,1236,677,1270,698,1295,720,1318,756,1337,809,1352,874,1364,945,1379,1084,1387,1186"/>
-<area shape="rect" id="Node000007" href="$d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad" title="Vector multiplication ." alt="" coords="1103,787,1265,813"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1380,1187,1370,1105,1352,996,1325,893,1309,854,1291,827,1264,810,1266,806,1295,823,1314,851,1330,892,1357,995,1375,1104,1385,1186"/>
-<area shape="rect" id="Node000010" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="1121,837,1247,877"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="1383,1187,1380,1126,1368,1047,1356,1005,1340,963,1319,925,1292,891,1271,876,1246,867,1248,862,1273,872,1295,887,1323,922,1345,961,1361,1003,1373,1046,1386,1126,1389,1186"/>
-<area shape="rect" id="Node000011" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="1112,902,1256,927"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="1382,1187,1377,1135,1363,1068,1351,1033,1336,999,1316,968,1292,941,1275,929,1255,922,1257,917,1277,925,1295,937,1320,965,1341,997,1356,1031,1368,1067,1382,1134,1387,1187"/>
-<area shape="rect" id="Node000012" href="$dd/d49/namespacejacobi.html#a2b15f287f6c23fdb2b2c5b113e9d04dd" title="Update Jacobi preconditioner if the geometry G has changed." alt="" coords="1104,951,1264,977"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="1380,1187,1372,1144,1356,1090,1330,1036,1313,1011,1292,990,1263,974,1266,970,1295,986,1317,1008,1335,1033,1361,1088,1377,1142,1385,1186"/>
-<area shape="rect" id="Node000014" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="1103,1001,1265,1026"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="1377,1188,1366,1154,1349,1113,1324,1073,1292,1039,1264,1025,1267,1020,1295,1035,1328,1070,1353,1111,1371,1152,1382,1186"/>
-<area shape="rect" id="Node000015" href="$dc/d12/namespacematrix__math.html#ad87b2df5d20a59259453c2a781debcf7" title="Vector multiplication ." alt="" coords="1089,1050,1279,1075"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="1371,1190,1340,1138,1318,1112,1292,1090,1266,1078,1269,1073,1295,1086,1322,1108,1344,1135,1376,1187"/>
-<area shape="rect" id="Node000016" href="$d9/d5a/namespaceopr__xsmm.html#a3c3a6364bd6f65b078563a8e1708ec40" title=" " alt="" coords="1100,1100,1268,1140"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="1357,1194,1326,1173,1292,1154,1263,1143,1265,1138,1294,1150,1329,1169,1360,1190"/>
-<area shape="rect" id="Node000017" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="1100,1164,1268,1204"/>
-<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="1327,1207,1268,1199,1269,1194,1328,1202"/>
-<area shape="rect" id="Node000033" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="292,1221,452,1261"/>
-<area shape="poly" id="edge78_Node000001_Node000033" title=" " alt="" coords="1370,1239,1338,1274,1318,1291,1294,1304,1223,1326,1131,1342,1026,1353,914,1358,802,1358,697,1351,604,1338,532,1318,516,1309,507,1298,498,1286,484,1276,451,1261,453,1257,487,1271,502,1282,511,1294,520,1305,534,1314,605,1333,697,1346,802,1352,914,1353,1026,1348,1131,1337,1222,1321,1292,1299,1315,1287,1335,1270,1367,1236"/>
-<area shape="rect" id="Node000035" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="291,1083,453,1138"/>
-<area shape="poly" id="edge69_Node000001_Node000035" title=" " alt="" coords="1328,1220,1186,1225,987,1224,876,1218,761,1207,645,1191,533,1168,444,1141,445,1136,534,1163,646,1186,761,1202,876,1212,988,1218,1186,1220,1327,1215"/>
-<area shape="rect" id="Node000037" href="$d7/d87/namespacesigma__cpu.html#a2f73ccb39285d629e58357e91d92d5e6" title="Compute eddy viscosity on the CPU." alt="" coords="533,1279,768,1305"/>
-<area shape="poly" id="edge70_Node000001_Node000037" title=" " alt="" coords="1356,1235,1327,1251,1294,1263,1225,1278,1155,1290,1013,1303,880,1306,768,1303,768,1298,880,1301,1013,1298,1154,1285,1224,1273,1293,1257,1325,1246,1353,1231"/>
-<area shape="rect" id="Node000043" href="$dd/d73/namespacesmagorinsky__cpu.html#a481f97d45d0f9cdff801d0e0c0e48da8" title="Compute eddy viscosity on the CPU." alt="" coords="259,565,485,605"/>
-<area shape="poly" id="edge71_Node000001_Node000043" title=" " alt="" coords="1381,1187,1372,1095,1355,972,1343,909,1328,853,1311,807,1291,777,1276,766,1251,754,1175,730,1074,706,955,682,702,637,485,604,486,599,702,632,956,676,1075,701,1177,725,1253,749,1279,761,1295,773,1316,805,1333,852,1348,908,1360,971,1377,1094,1386,1187"/>
-<area shape="rect" id="Node000051" href="$d1/d99/namespacemap__2d.html#a40d8a5fef72ef327a069093b75dab4ad" title=" " alt="" coords="1093,1495,1275,1535"/>
-<area shape="poly" id="edge62_Node000001_Node000051" title=" " alt="" coords="1387,1240,1381,1291,1366,1357,1339,1425,1319,1457,1295,1485,1276,1498,1273,1494,1292,1481,1315,1454,1334,1423,1361,1355,1375,1290,1381,1239"/>
-<area shape="rect" id="Node000055" href="$d1/d99/namespacemap__2d.html#a27867ff2e8551191a1d1788f7744850d" title=" " alt="" coords="1098,1431,1270,1471"/>
-<area shape="poly" id="edge66_Node000001_Node000055" title=" " alt="" coords="1383,1240,1372,1278,1355,1325,1330,1372,1295,1414,1266,1433,1264,1428,1292,1410,1325,1369,1350,1323,1367,1277,1377,1239"/>
-<area shape="rect" id="Node000056" href="$db/d94/namespacesource__term__handler.html#ab058c78ea07110188c61387fd573a060" title="Add all the source term to the passed right&#45;hand side fields." alt="" coords="1101,1559,1267,1614"/>
-<area shape="poly" id="edge72_Node000001_Node000056" title=" " alt="" coords="1388,1240,1385,1302,1373,1383,1361,1427,1345,1471,1323,1512,1295,1549,1269,1568,1266,1564,1291,1545,1319,1509,1340,1469,1356,1426,1367,1382,1380,1301,1383,1240"/>
-<area shape="rect" id="Node000057" href="$d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="1106,1639,1262,1679"/>
-<area shape="poly" id="edge73_Node000001_Node000057" title=" " alt="" coords="1386,1240,1376,1327,1358,1443,1331,1554,1315,1598,1295,1628,1280,1641,1263,1649,1261,1645,1277,1636,1291,1625,1310,1596,1326,1553,1353,1442,1370,1326,1380,1240"/>
-<area shape="rect" id="Node000058" href="$dd/d6e/namespacesx__jacobi.html#add1b1766274e20b0a12d2f36627adecb" title=" " alt="" coords="1108,1703,1260,1743"/>
-<area shape="poly" id="edge74_Node000001_Node000058" title=" " alt="" coords="1386,1240,1378,1339,1362,1474,1350,1543,1335,1605,1317,1657,1295,1692,1279,1706,1261,1715,1259,1710,1277,1701,1291,1689,1312,1654,1330,1604,1345,1542,1357,1473,1373,1338,1381,1239"/>
-<area shape="rect" id="Node000060" href="$dc/d1a/namespacetree__amg.html#a3c9a91208564df3f43b555b0c1ed6b62" title="Matrix vector product using the TreeAMG hierarchy structure b=Ax done as vec_out = A * vec_in This is..." alt="" coords="1075,1767,1293,1793"/>
-<area shape="poly" id="edge76_Node000001_Node000060" title=" " alt="" coords="1387,1240,1382,1352,1367,1506,1355,1585,1340,1657,1320,1716,1308,1739,1295,1757,1279,1769,1275,1765,1291,1753,1304,1736,1315,1714,1335,1655,1350,1584,1362,1506,1376,1351,1382,1240"/>
-<area shape="rect" id="Node000061" href="$d3/d0d/namespacevector__math.html#a6b7dd93eaf2a1c5a2530f03f83f5819e" title="Vector multiplication ." alt="" coords="1091,1817,1277,1842"/>
-<area shape="poly" id="edge77_Node000001_Node000061" title=" " alt="" coords="1388,1240,1384,1361,1371,1531,1359,1618,1343,1697,1322,1762,1310,1788,1295,1807,1279,1820,1276,1815,1291,1803,1305,1785,1317,1760,1338,1696,1354,1617,1365,1530,1378,1360,1382,1240"/>
-<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="299,421,445,461"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="549,468,445,454,445,448,550,463"/>
-<area shape="rect" id="Node000005" href="$d2/dee/namespacedeardorff.html#a9017a40fe20a5f853ffcfb15310f07d7" title="Compute eddy viscosity." alt="" coords="34,1445,182,1485"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="269,1488,182,1477,183,1472,269,1482"/>
-<area shape="rect" id="Node000008" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="816,722,1027,777"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1104,787,1026,772,1027,767,1105,782"/>
-<area shape="rect" id="Node000009" href="$da/de3/namespacescalar__scheme.html#a9f1e7d30e723418c67f7d22f72f0ace1" title="Call user material properties routine and update the values of lambda if necessary." alt="" coords="824,801,1019,855"/>
-<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="1090,813,1019,820,1019,815,1090,807"/>
-<area shape="rect" id="Node000013" href="$dd/d49/namespacejacobi.html#a5c43a3d9d05e1ba76322ba2a8f1faea6" title=" " alt="" coords="853,951,989,977"/>
-<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="1090,967,990,967,990,961,1090,961"/>
-<area shape="rect" id="Node000018" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="852,1006,991,1031"/>
-<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="1087,1161,1073,1154,1029,1125,989,1091,932,1034,936,1030,992,1087,1032,1121,1076,1150,1089,1156"/>
-<area shape="rect" id="Node000050" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="822,1171,1021,1197"/>
-<area shape="poly" id="edge61_Node000017_Node000050" title=" " alt="" coords="1086,1187,1021,1187,1021,1181,1086,1181"/>
-<area shape="rect" id="Node000019" href="$dc/d1d/namespacederivative__simcomp.html#a6735c6cf425d5d49e4cc2e303b42828d" title="Compute the derivative field." alt="" coords="571,820,731,860"/>
-<area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="838,1005,814,990,802,976,795,962,789,934,784,907,777,894,766,881,749,868,730,859,732,854,752,864,770,877,782,891,789,905,794,933,800,960,806,973,818,986,841,1000"/>
-<area shape="rect" id="Node000020" href="$dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681" title="Compute the divergence of a vector field." alt="" coords="595,229,707,254"/>
-<area shape="poly" id="edge19_Node000018_Node000020" title=" " alt="" coords="837,1008,814,990,801,969,791,943,779,881,774,806,774,726,777,567,775,499,765,447,742,389,712,334,660,256,664,253,717,331,747,387,771,446,780,499,783,567,779,726,779,806,784,880,796,942,806,967,818,986,841,1004"/>
-<area shape="rect" id="Node000029" href="$dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991" title="Compute the gradient of a scalar field." alt="" coords="590,1381,711,1406"/>
-<area shape="poly" id="edge28_Node000018_Node000029" title=" " alt="" coords="901,1043,859,1095,818,1160,803,1203,799,1240,792,1277,784,1296,770,1318,751,1339,728,1357,683,1383,681,1378,725,1353,747,1335,766,1314,779,1294,787,1275,793,1239,798,1202,814,1158,855,1092,897,1040"/>
-<area shape="poly" id="edge55_Node000018_Node000033" title=" " alt="" coords="905,1044,850,1107,812,1140,769,1168,689,1201,604,1223,523,1236,452,1242,452,1237,522,1230,603,1217,687,1196,767,1163,808,1136,846,1103,901,1041"/>
-<area shape="poly" id="edge36_Node000018_Node000035" title=" " alt="" coords="851,1037,768,1053,454,1102,453,1097,768,1048,850,1032"/>
-<area shape="rect" id="Node000036" href="$dd/d1f/namespacepnpn__res__stress__device.html#a9c09a9089caa70d30de4f4b7b087d19e" title=" " alt="" coords="283,902,461,957"/>
-<area shape="poly" id="edge37_Node000018_Node000036" title=" " alt="" coords="839,1004,814,990,798,973,791,955,783,938,767,925,730,910,691,900,650,894,610,892,531,896,461,908,460,903,530,891,610,886,651,888,692,894,731,905,769,920,787,935,795,953,803,970,818,986,842,999"/>
-<area shape="poly" id="edge38_Node000018_Node000037" title=" " alt="" coords="903,1044,862,1096,818,1160,806,1189,799,1214,790,1238,770,1262,734,1282,732,1277,766,1258,786,1235,794,1213,801,1187,814,1157,858,1093,898,1040"/>
-<area shape="rect" id="Node000039" href="$d4/d88/namespacesigma__device.html#a81c865394c4dff48cad4ebb1d6cbd5ff" title="Compute eddy viscosity on device." alt="" coords="571,1113,731,1153"/>
-<area shape="poly" id="edge40_Node000018_Node000039" title=" " alt="" coords="886,1040,769,1097,719,1116,717,1111,767,1092,884,1036"/>
-<area shape="rect" id="Node000040" href="$dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="569,719,732,745"/>
-<area shape="poly" id="edge42_Node000018_Node000040" title=" " alt="" coords="838,1007,814,990,795,961,786,932,786,904,790,875,793,848,793,820,785,793,766,766,750,753,731,744,733,739,753,749,770,762,790,791,798,819,798,848,795,876,791,904,792,932,799,959,818,986,841,1003"/>
-<area shape="rect" id="Node000046" href="$d7/da8/namespacewale__cpu.html#ae8860c8d1c538c880c01de3ad5137a6c" title="Compute eddy viscosity on the CPU." alt="" coords="264,853,480,878"/>
-<area shape="poly" id="edge58_Node000018_Node000046" title=" " alt="" coords="837,1006,814,990,798,966,791,942,792,895,794,871,792,850,784,829,766,810,737,791,710,780,684,775,657,775,601,789,534,810,520,817,511,825,501,834,486,842,448,855,447,850,484,838,498,830,507,821,517,812,532,806,600,784,657,770,684,769,711,774,740,786,770,806,789,826,798,848,799,871,798,895,796,942,802,964,818,986,840,1002"/>
-<area shape="rect" id="Node000048" href="$dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37" title="Compute eddy viscosity on the device." alt="" coords="561,999,741,1039"/>
-<area shape="poly" id="edge56_Node000018_Node000048" title=" " alt="" coords="838,1021,741,1021,741,1016,838,1016"/>
-<area shape="rect" id="Node000049" href="$d0/d87/namespacewale__device.html#a500b74870423cb69a3ac86bc91974475" title="Compute eddy viscosity on the device." alt="" coords="547,935,754,975"/>
-<area shape="poly" id="edge59_Node000018_Node000049" title=" " alt="" coords="853,1005,735,977,737,972,854,1000"/>
-<area shape="rect" id="Node000021" href="$d9/de3/namespaceadv__no__dealias.html#a74213a43ca17bdb638b479c06df7dac0" title=" " alt="" coords="273,293,471,333"/>
-<area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="588,260,451,296,450,291,587,255"/>
-<area shape="rect" id="Node000022" href="$d8/dec/namespacedivergence__simcomp.html#afd972ea52ff980dd011d6f144b62b137" title="Compute the divergence field." alt="" coords="289,357,455,397"/>
-<area shape="poly" id="edge21_Node000020_Node000022" title=" " alt="" coords="623,265,562,306,486,348,455,360,454,355,484,343,559,302,620,260"/>
-<area shape="rect" id="Node000023" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="271,70,473,125"/>
-<area shape="poly" id="edge22_Node000020_Node000023" title=" " alt="" coords="619,223,558,182,484,140,456,127,458,122,487,135,561,177,622,218"/>
-<area shape="rect" id="Node000024" href="$d1/d20/namespaceeuler__res__cpu.html#a35fa0f8d83814c2e8b72fdcaf50b1372" title="Evaluates the right&#45;hand side of the Euler equations Computes fluxes, divergence terms,..." alt="" coords="283,5,461,45"/>
-<area shape="poly" id="edge23_Node000020_Node000024" title=" " alt="" coords="632,219,608,183,573,140,532,97,484,60,460,47,462,43,487,55,535,93,577,136,612,180,637,215"/>
-<area shape="rect" id="Node000026" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="273,149,471,189"/>
-<area shape="poly" id="edge25_Node000020_Node000026" title=" " alt="" coords="587,228,450,192,451,187,588,223"/>
-<area shape="rect" id="Node000028" href="$df/dbf/namespacetranslation__source__term.html#ae513e3f99bf53a9afe2b658854a0bc85" title="Computes the source term and adds the result to fields." alt="" coords="278,214,466,269"/>
-<area shape="poly" id="edge27_Node000020_Node000028" title=" " alt="" coords="580,244,466,244,466,239,580,239"/>
-<area shape="rect" id="Node000025" href="$d1/d20/namespaceeuler__res__cpu.html#a815d182617a1dd3c49c49b82b22fff44" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="15,5,201,45"/>
-<area shape="poly" id="edge24_Node000024_Node000025" title=" " alt="" coords="269,28,201,28,201,23,269,23"/>
-<area shape="rect" id="Node000027" href="$d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7" title=" " alt="" coords="5,149,211,189"/>
-<area shape="poly" id="edge26_Node000026_Node000027" title=" " alt="" coords="260,172,211,172,211,167,260,167"/>
-<area shape="poly" id="edge29_Node000029_Node000004" title=" " alt="" coords="578,1411,535,1428,521,1437,511,1447,501,1457,487,1468,459,1480,457,1475,484,1463,498,1453,507,1443,517,1433,532,1423,576,1406"/>
-<area shape="rect" id="Node000030" href="$d4/df3/namespacedeardorff__device.html#a073d32e5fcaf956d6de48b3cebe87d00" title="Compute eddy viscosity on the device." alt="" coords="273,1413,471,1453"/>
-<area shape="poly" id="edge30_Node000029_Node000030" title=" " alt="" coords="577,1407,472,1422,471,1416,576,1401"/>
-<area shape="rect" id="Node000031" href="$d6/dbf/namespacegradient__simcomp.html#a1a539519b79721407508897df56a6099" title="Compute the gradient field." alt="" coords="269,1349,475,1389"/>
-<area shape="poly" id="edge32_Node000029_Node000031" title=" " alt="" coords="576,1390,475,1381,475,1376,577,1384"/>
-<area shape="rect" id="Node000032" href="$de/db2/namespacescalar__sgs__stats.html#aaa5dc737689964c97411ef3ac3465ce8" title="Updates all fields with a new sample." alt="" coords="284,1285,460,1325"/>
-<area shape="poly" id="edge33_Node000029_Node000032" title=" " alt="" coords="581,1380,532,1364,484,1340,450,1328,451,1323,486,1335,534,1359,583,1375"/>
-<area shape="poly" id="edge34_Node000029_Node000033" title=" " alt="" coords="576,1385,553,1376,532,1363,514,1341,507,1318,500,1296,484,1275,451,1258,454,1253,487,1271,505,1294,512,1317,518,1339,535,1359,555,1372,578,1380"/>
-<area shape="poly" id="edge31_Node000030_Node000005" title=" " alt="" coords="259,1450,183,1459,182,1454,259,1444"/>
-<area shape="rect" id="Node000034" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="11,1130,205,1155"/>
-<area shape="poly" id="edge35_Node000033_Node000034" title=" " alt="" coords="300,1219,258,1204,140,1158,142,1153,260,1199,302,1214"/>
-<area shape="rect" id="Node000038" href="$d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="285,1165,459,1190"/>
-<area shape="poly" id="edge39_Node000037_Node000038" title=" " alt="" coords="614,1275,554,1243,484,1212,425,1193,427,1188,486,1207,557,1238,616,1270"/>
-<area shape="poly" id="edge41_Node000039_Node000038" title=" " alt="" coords="558,1151,454,1167,453,1162,557,1145"/>
-<area shape="poly" id="edge46_Node000040_Node000003" title=" " alt="" coords="638,707,617,657,584,595,540,530,513,501,484,475,465,464,444,456,446,451,467,459,487,471,517,497,544,527,589,592,622,655,643,705"/>
-<area shape="poly" id="edge43_Node000040_Node000006" title=" " alt="" coords="627,711,484,555,461,543,464,538,487,551,631,707"/>
-<area shape="poly" id="edge47_Node000040_Node000035" title=" " alt="" coords="608,753,570,777,535,810,522,830,514,850,508,886,504,924,488,969,446,1033,402,1085,398,1081,442,1030,483,967,498,923,503,885,509,848,518,828,531,806,566,773,605,748"/>
-<area shape="poly" id="edge48_Node000040_Node000036" title=" " alt="" coords="612,754,573,778,535,810,521,831,513,851,505,871,487,891,462,907,460,903,484,887,500,868,508,849,516,829,531,806,570,774,609,749"/>
-<area shape="rect" id="Node000041" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aad7c438416e36302a7eefa1042cd2529" title="Compute eddy viscosity on the device." alt="" coords="259,709,485,763"/>
-<area shape="poly" id="edge44_Node000040_Node000041" title=" " alt="" coords="555,736,486,737,486,732,555,731"/>
-<area shape="rect" id="Node000042" href="$d8/dc1/namespacefluid__sgs__stats.html#a1c33719c9072a10d856295874f897774" title="Updates all fields with a new sample." alt="" coords="295,788,449,828"/>
-<area shape="poly" id="edge45_Node000040_Node000042" title=" " alt="" coords="591,751,447,791,445,785,589,746"/>
-<area shape="poly" id="edge49_Node000040_Node000043" title=" " alt="" coords="603,716,567,697,532,674,517,659,508,645,499,632,484,620,461,608,463,603,487,615,503,629,512,642,521,656,535,670,570,693,605,711"/>
-<area shape="rect" id="Node000045" href="$dd/d4e/namespacesmagorinsky__device.html#aca81097aab237ed87916a91e70ee0875" title="Compute eddy viscosity on the device." alt="" coords="283,630,461,685"/>
-<area shape="poly" id="edge51_Node000040_Node000045" title=" " alt="" coords="588,718,460,684,461,678,589,713"/>
-<area shape="poly" id="edge53_Node000040_Node000046" title=" " alt="" coords="561,752,535,766,519,784,512,803,504,823,487,842,462,855,460,850,484,838,500,820,507,801,515,781,532,762,558,747"/>
-<area shape="rect" id="Node000044" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="11,601,205,641"/>
-<area shape="poly" id="edge50_Node000043_Node000044" title=" " alt="" coords="245,605,206,611,205,605,245,600"/>
-<area shape="poly" id="edge52_Node000045_Node000044" title=" " alt="" coords="269,646,205,637,206,632,270,641"/>
-<area shape="rect" id="Node000047" href="$d5/d8e/namespacewale.html#a4f65e01baf4d0d403fc12e795d1ab2c2" title="Compute eddy viscosity." alt="" coords="30,917,186,942"/>
-<area shape="poly" id="edge54_Node000046_Node000047" title=" " alt="" coords="296,884,259,892,155,919,154,914,258,887,295,878"/>
-<area shape="poly" id="edge57_Node000048_Node000034" title=" " alt="" coords="547,1026,409,1041,333,1055,259,1073,188,1102,131,1132,129,1128,186,1097,258,1068,332,1049,408,1036,547,1021"/>
-<area shape="poly" id="edge60_Node000049_Node000047" title=" " alt="" coords="534,971,401,978,329,977,258,971,199,959,147,945,148,940,200,954,259,965,330,971,401,972,533,966"/>
-<area shape="rect" id="Node000052" href="$d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="824,1495,1019,1521"/>
-<area shape="poly" id="edge63_Node000051_Node000052" title=" " alt="" coords="1079,1515,1019,1513,1019,1508,1080,1509"/>
-<area shape="rect" id="Node000053" href="$d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="824,1431,1019,1471"/>
-<area shape="poly" id="edge64_Node000051_Node000053" title=" " alt="" coords="1087,1494,1003,1473,1005,1468,1088,1489"/>
-<area shape="rect" id="Node000054" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="840,1545,1003,1570"/>
-<area shape="poly" id="edge65_Node000051_Node000054" title=" " alt="" coords="1080,1534,1001,1547,1000,1542,1079,1529"/>
-<area shape="poly" id="edge67_Node000055_Node000052" title=" " alt="" coords="1085,1475,981,1498,980,1493,1084,1470"/>
-<area shape="poly" id="edge68_Node000055_Node000053" title=" " alt="" coords="1084,1453,1019,1453,1019,1448,1084,1448"/>
-<area shape="rect" id="Node000059" href="$dd/d6e/namespacesx__jacobi.html#a8e0d95bbb8f2b6dc135d59f47b066669" title=" " alt="" coords="831,1710,1011,1735"/>
-<area shape="poly" id="edge75_Node000058_Node000059" title=" " alt="" coords="1094,1725,1012,1725,1012,1720,1094,1720"/>
+<area shape="rect" id="Node000001" title="Vector multiplication ." alt="" coords="547,629,637,654"/>
+<area shape="rect" id="Node000002" href="$d0/d6f/namespacedrag__torque.html#a5067723230fde31368ad47fb10c8da77" title="Calculate drag and torque from array of points." alt="" coords="294,5,469,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="588,615,583,496,569,329,557,244,542,166,522,102,510,78,497,59,484,48,468,39,470,35,487,43,501,56,514,75,527,100,547,165,563,243,574,328,588,496,593,614"/>
+<area shape="rect" id="Node000004" href="$d1/ded/namespacedeardorff__cpu.html#a24e8f7bcada04c0d05255579eb079bc6" title="Compute eddy viscosity on the CPU." alt="" coords="292,69,471,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="587,615,580,508,565,360,553,285,538,217,519,161,497,123,470,104,473,100,501,120,524,159,543,215,558,284,570,359,586,507,592,614"/>
+<area shape="rect" id="Node000006" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a4413235e5f71141ae47e071699c75afb" title="Compute eddy viscosity on the CPU." alt="" coords="278,134,485,189"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="586,615,577,523,559,399,533,280,516,233,497,202,483,190,487,186,501,198,521,231,538,278,564,398,582,522,591,615"/>
+<area shape="rect" id="Node000007" href="$d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad" title="Vector multiplication ." alt="" coords="301,213,462,238"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="585,615,575,532,557,423,531,319,515,279,497,253,480,241,461,233,463,228,483,236,501,249,520,277,536,318,563,422,581,532,591,615"/>
+<area shape="rect" id="Node000010" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="319,263,444,303"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="589,615,586,554,574,474,563,431,546,389,525,351,497,317,472,300,443,290,445,285,474,295,500,313,529,348,551,387,568,429,579,473,591,554,594,615"/>
+<area shape="rect" id="Node000011" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="309,327,453,353"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="588,615,583,562,569,494,557,459,542,425,522,393,497,366,477,353,453,345,455,340,479,348,500,362,526,390,547,422,562,457,574,493,588,561,593,615"/>
+<area shape="rect" id="Node000012" href="$dd/d49/namespacejacobi.html#a2b15f287f6c23fdb2b2c5b113e9d04dd" title="Update Jacobi preconditioner if the geometry G has changed." alt="" coords="301,377,461,402"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="585,615,578,571,562,517,536,462,518,437,497,415,480,405,461,397,463,392,482,400,500,411,522,433,540,459,567,515,583,570,591,615"/>
+<area shape="rect" id="Node000014" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="300,426,463,451"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="582,616,572,581,555,540,530,499,497,465,462,448,464,443,500,461,534,496,559,537,577,579,587,614"/>
+<area shape="rect" id="Node000015" href="$dc/d12/namespacematrix__math.html#ad87b2df5d20a59259453c2a781debcf7" title="Vector multiplication ." alt="" coords="286,475,477,501"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="577,617,546,565,524,538,497,516,472,503,475,498,500,511,527,534,550,562,582,615"/>
+<area shape="rect" id="Node000016" href="$d9/d5a/namespaceopr__xsmm.html#a3c3a6364bd6f65b078563a8e1708ec40" title=" " alt="" coords="297,525,465,565"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="563,622,533,600,498,580,465,567,467,562,500,575,536,595,566,618"/>
+<area shape="rect" id="Node000017" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="297,589,465,629"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="533,635,465,625,466,619,534,630"/>
+<area shape="rect" id="Node000021" href="$d1/d99/namespacemap__2d.html#a40d8a5fef72ef327a069093b75dab4ad" title=" " alt="" coords="291,717,472,757"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="566,665,536,687,500,708,470,720,468,715,498,703,533,683,563,661"/>
+<area shape="rect" id="Node000025" href="$d1/d99/namespacemap__2d.html#a27867ff2e8551191a1d1788f7744850d" title=" " alt="" coords="295,653,467,693"/>
+<area shape="poly" id="edge24_Node000001_Node000025" title=" " alt="" coords="533,653,468,663,467,658,533,648"/>
+<area shape="rect" id="Node000026" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a31cf6435d89a64e387d00dd2d42e019f" title=" " alt="" coords="300,782,463,837"/>
+<area shape="poly" id="edge27_Node000001_Node000026" title=" " alt="" coords="581,668,549,720,527,748,500,772,464,791,461,787,497,767,523,744,545,717,576,665"/>
+<area shape="rect" id="Node000027" href="$d7/d87/namespacesigma__cpu.html#a2f73ccb39285d629e58357e91d92d5e6" title="Compute eddy viscosity on the CPU." alt="" coords="264,861,499,886"/>
+<area shape="poly" id="edge28_Node000001_Node000027" title=" " alt="" coords="589,668,580,709,564,758,538,808,521,830,500,850,479,863,477,858,497,846,517,827,533,805,559,756,575,707,584,667"/>
+<area shape="rect" id="Node000029" href="$dd/d73/namespacesmagorinsky__cpu.html#a481f97d45d0f9cdff801d0e0c0e48da8" title="Compute eddy viscosity on the CPU." alt="" coords="268,911,495,951"/>
+<area shape="poly" id="edge30_Node000001_Node000029" title=" " alt="" coords="592,668,585,717,570,779,543,843,524,873,500,899,482,913,479,908,497,895,519,870,538,841,565,777,580,716,586,667"/>
+<area shape="rect" id="Node000031" href="$db/d94/namespacesource__term__handler.html#ab058c78ea07110188c61387fd573a060" title="Add all the source term to the passed right&#45;hand side fields." alt="" coords="298,975,465,1030"/>
+<area shape="poly" id="edge32_Node000001_Node000031" title=" " alt="" coords="594,668,590,728,577,807,565,849,549,891,528,930,501,965,484,978,466,988,463,983,481,974,497,961,523,927,544,888,560,847,572,806,585,727,588,668"/>
+<area shape="rect" id="Node000032" href="$d5/d6a/namespacegmres__sx.html#ac7e8d806ad2a0c1b84f6ec357d1238ef" title="Standard PCG solve." alt="" coords="303,1055,459,1095"/>
+<area shape="poly" id="edge33_Node000001_Node000032" title=" " alt="" coords="591,668,581,752,562,864,536,972,519,1014,501,1043,482,1058,461,1067,459,1063,479,1053,497,1040,515,1012,531,970,557,863,575,752,585,667"/>
+<area shape="rect" id="Node000033" href="$dd/d6e/namespacesx__jacobi.html#add1b1766274e20b0a12d2f36627adecb" title=" " alt="" coords="305,1119,457,1159"/>
+<area shape="poly" id="edge34_Node000001_Node000033" title=" " alt="" coords="592,668,583,765,567,896,555,963,540,1024,522,1074,501,1108,481,1124,458,1133,456,1128,478,1119,497,1105,517,1072,535,1022,550,962,562,896,578,764,586,667"/>
+<area shape="rect" id="Node000035" href="$dc/d1a/namespacetree__amg.html#a3c9a91208564df3f43b555b0c1ed6b62" title="Matrix vector product using the TreeAMG hierarchy structure b=Ax done as vec_out = A * vec_in This is..." alt="" coords="272,1183,491,1209"/>
+<area shape="poly" id="edge36_Node000001_Node000035" title=" " alt="" coords="593,668,587,777,572,928,560,1005,545,1075,525,1133,501,1172,484,1185,481,1181,497,1169,520,1131,540,1074,555,1004,567,927,581,776,587,667"/>
+<area shape="rect" id="Node000036" href="$d3/d0d/namespacevector__math.html#a6b7dd93eaf2a1c5a2530f03f83f5819e" title="Vector multiplication ." alt="" coords="288,1233,475,1258"/>
+<area shape="poly" id="edge37_Node000001_Node000036" title=" " alt="" coords="593,668,589,786,575,952,563,1037,548,1115,527,1178,515,1203,501,1222,477,1239,474,1234,497,1218,510,1200,522,1176,542,1113,558,1036,570,952,583,786,588,668"/>
+<area shape="rect" id="Node000037" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="301,1283,461,1323"/>
+<area shape="poly" id="edge38_Node000001_Node000037" title=" " alt="" coords="593,668,590,795,577,976,566,1069,550,1154,528,1224,515,1251,501,1272,483,1287,463,1297,460,1292,480,1282,497,1269,511,1249,523,1222,544,1152,560,1068,572,975,584,795,588,668"/>
+<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="38,5,183,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="280,28,184,28,184,23,280,23"/>
+<area shape="rect" id="Node000005" href="$d2/dee/namespacedeardorff.html#a9017a40fe20a5f853ffcfb15310f07d7" title="Compute eddy viscosity." alt="" coords="37,69,185,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="278,92,185,92,185,87,278,87"/>
+<area shape="rect" id="Node000008" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="5,245,216,299"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="294,243,216,257,216,251,293,238"/>
+<area shape="rect" id="Node000009" href="$da/de3/namespacescalar__scheme.html#a9f1e7d30e723418c67f7d22f72f0ace1" title="Call user material properties routine and update the values of lambda if necessary." alt="" coords="13,166,208,221"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="287,217,208,207,209,202,287,212"/>
+<area shape="rect" id="Node000013" href="$dd/d49/namespacejacobi.html#a5c43a3d9d05e1ba76322ba2a8f1faea6" title=" " alt="" coords="43,377,179,402"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="288,392,179,392,179,387,288,387"/>
+<area shape="rect" id="Node000018" href="$db/d5a/interfaceoperators_1_1dudxyz.html#a09aeed57ec3a82e68b48218c8c403ffd" title="Compute derivative of a scalar field along a single direction." alt="" coords="37,479,184,519"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="283,589,263,580,247,568,238,556,229,544,215,533,183,518,186,514,217,528,233,540,242,552,251,564,265,575,285,585"/>
+<area shape="rect" id="Node000019" href="$db/d5a/interfaceoperators_1_1dudxyz.html#ad6ccdb3f34539d2dd3273b0cf92ebadd" title="Compute derivative of a scalar field along a single direction." alt="" coords="37,543,184,583"/>
+<area shape="poly" id="edge18_Node000017_Node000019" title=" " alt="" coords="283,595,184,578,185,573,284,590"/>
+<area shape="rect" id="Node000020" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="11,607,210,633"/>
+<area shape="poly" id="edge19_Node000017_Node000020" title=" " alt="" coords="284,616,210,619,210,613,283,611"/>
+<area shape="rect" id="Node000022" href="$d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="13,722,208,747"/>
+<area shape="poly" id="edge21_Node000021_Node000022" title=" " alt="" coords="277,739,208,738,208,733,277,734"/>
+<area shape="rect" id="Node000023" href="$d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="13,657,208,697"/>
+<area shape="poly" id="edge22_Node000021_Node000023" title=" " alt="" coords="277,717,201,700,202,695,278,712"/>
+<area shape="rect" id="Node000024" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="29,771,192,797"/>
+<area shape="poly" id="edge23_Node000021_Node000024" title=" " alt="" coords="277,758,185,774,185,769,276,753"/>
+<area shape="poly" id="edge25_Node000025_Node000022" title=" " alt="" coords="282,698,168,725,167,719,281,693"/>
+<area shape="poly" id="edge26_Node000025_Node000023" title=" " alt="" coords="282,677,208,679,208,673,282,672"/>
+<area shape="rect" id="Node000028" href="$d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="23,861,198,886"/>
+<area shape="poly" id="edge29_Node000027_Node000028" title=" " alt="" coords="250,876,198,876,198,871,250,871"/>
+<area shape="rect" id="Node000030" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="13,911,208,951"/>
+<area shape="poly" id="edge31_Node000029_Node000030" title=" " alt="" coords="254,933,208,933,208,928,254,928"/>
+<area shape="rect" id="Node000034" href="$dd/d6e/namespacesx__jacobi.html#a8e0d95bbb8f2b6dc135d59f47b066669" title=" " alt="" coords="21,1126,201,1151"/>
+<area shape="poly" id="edge35_Node000033_Node000034" title=" " alt="" coords="291,1141,201,1141,201,1136,291,1136"/>
+<area shape="rect" id="Node000038" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="13,1290,208,1315"/>
+<area shape="poly" id="edge39_Node000037_Node000038" title=" " alt="" coords="288,1305,208,1305,208,1300,288,1300"/>
 </map>

@@ -282,7 +282,7 @@ $(document).ready(function(){initNavTree('d5/dec/field__neumann_8f90_source.html
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="keywordflow">       end if</span></div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       m = this%msk(0)</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       <span class="comment">!$omp parallel do private(k, facet, idx)</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       <span class="comment">!$omp do</span></div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>       <span class="keywordflow">do</span> i = 1, m</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>          k = this%msk(i)</div>
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>          facet = this%facet(i)</div>
@@ -303,7 +303,7 @@ $(document).ready(function(){initNavTree('d5/dec/field__neumann_8f90_source.html
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>                  this%coef%area(idx(1), idx(2), facet, idx(4))</div>
 <div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keywordflow">          end select</span></div>
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>       <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>       <span class="comment">!$omp end do</span></div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
 </div>
@@ -435,7 +435,7 @@ $(document).ready(function(){initNavTree('d5/dec/field__neumann_8f90_source.html
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../d5/dec/field__neumann_8f90.html">field_neumann.f90</a></li>
-    <li class="footer">Generated on Tue May 26 2026 04:53:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed May 27 2026 05:00:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

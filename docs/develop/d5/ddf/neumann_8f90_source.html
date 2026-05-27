@@ -264,7 +264,7 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    m = this%msk(0)</div>
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keywordflow">if</span> (.not. strong_) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>       <span class="comment">!$omp parallel do private(k, facet, idx)</span></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>       <span class="comment">!$omp do</span></div>
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       <span class="keywordflow">do</span> i = 1,m</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>          k = this%msk(i)</div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>          facet = this%facet(i)</div>
@@ -285,7 +285,7 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>                  this%coef%area(idx(1), idx(2), facet, idx(4))</div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="keywordflow">          end select</span></div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       <span class="comment">!$omp end do</span></div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="keywordflow">    end if</span></div>
 </div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/d75/namespaceneumann.html#aab13b69874d22240741b7dc9862750b2">neumann_apply_scalar</a></div>
@@ -535,7 +535,7 @@ $(document).ready(function(){initNavTree('d5/ddf/neumann_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../d5/ddf/neumann_8f90.html">neumann.f90</a></li>
-    <li class="footer">Generated on Tue May 26 2026 04:53:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed May 27 2026 05:00:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,0 +1,8 @@
+<map id="logger::log_deprecated" name="logger::log_deprecated">
+<area shape="rect" id="Node000001" title="Write a deprecation warning to a log." alt="" coords="5,55,176,80"/>
+<area shape="rect" id="Node000002" href="$d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d" title="Compare version strings." alt="" coords="224,29,387,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,55,210,51,210,56,177,60"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="231,79,379,104"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="177,74,218,79,217,84,176,80"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="270,31,263,21,267,11,281,5,305,3,335,6,347,15,344,20,333,11,305,8,283,10,271,15,268,20,275,28"/>
+</map>
