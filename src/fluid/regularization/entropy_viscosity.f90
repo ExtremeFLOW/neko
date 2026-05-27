@@ -145,9 +145,6 @@ contains
     type(time_state_t), intent(in) :: time
     integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
-    integer :: i, n
-
-    n = this%dof%size()
 
     call this%compute_residual(tstep, dt, time%dtlag)
     call this%compute_viscosity(tstep)
@@ -159,7 +156,7 @@ contains
     integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
     real(kind=rp), intent(in) :: dt_lag(10)
-    integer :: i, n
+    integer :: n
     type(field_t), pointer :: us_field, vs_field, ws_field, div_field
     integer :: temp_indices(4)
     real(kind=rp) :: bdf_coeffs(4)
@@ -229,7 +226,7 @@ contains
   subroutine entropy_viscosity_compute_viscosity(this, tstep)
     class(entropy_viscosity_t), intent(inout) :: this
     integer, intent(in) :: tstep
-    integer :: i, n, temp_indices(1)
+    integer :: n, temp_indices(1)
     real(kind=rp) :: S_mean, n_S
     type(field_t), pointer :: temp_field
 
