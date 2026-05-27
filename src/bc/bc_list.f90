@@ -40,6 +40,7 @@ module bc_list
   use, intrinsic :: iso_c_binding, only : c_ptr
   use bc, only : bc_t, bc_ptr_t
   use time_state, only : time_state_t
+  !$ use omp_lib
   implicit none
   private
 
@@ -237,10 +238,12 @@ contains
        call this%apply_scalar_device(x_d, time = time, &
             strong = strong, strm = strm)
     else
+       !$omp parallel
        do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar(x, n, time = time, &
                strong = strong)
        end do
+       !$omp end parallel
     end if
   end subroutine bc_list_apply_scalar_array
 
@@ -276,10 +279,12 @@ contains
        call this%apply_vector_device(x_d, y_d, z_d, time = time, &
             strong = strong, strm = strm)
     else
+       !$omp parallel
        do i = 1, this%size_
           call this%items(i)%ptr%apply_vector(x, y, z, n, time = time, &
                strong = strong)
        end do
+       !$omp end parallel
     end if
 
   end subroutine bc_list_apply_vector_array
@@ -359,10 +364,12 @@ contains
     type(c_ptr), intent(inout), optional :: strm
     integer :: i
 
+    !$omp parallel if (.not. omp_in_parallel())
     do i = 1, this%size_
        call this%items(i)%ptr%apply_scalar_generic(x, time = time, &
             strong = strong, strm = strm)
     end do
+    !$omp end parallel
 
   end subroutine bc_list_apply_scalar_field
 
@@ -384,10 +391,12 @@ contains
     type(c_ptr), intent(inout), optional :: strm
     integer :: i
 
+    !$omp parallel if (.not. omp_in_parallel())
     do i = 1, this%size_
        call this%items(i)%ptr%apply_vector_generic(x, y, z, time = time, &
             strong = strong, strm = strm)
     end do
+    !$omp end parallel
 
   end subroutine bc_list_apply_vector_field
 
