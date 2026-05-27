@@ -535,14 +535,14 @@ contains
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, E%x_d, n)
 #endif
-    call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
+    call div(rhs_E%x_d, f_x%x_d, f_y%x_d, f_z%x_d, coef)
 
     call gs%op(rhs_rho_field, GS_OP_ADD)
-    call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 1, coef)
+    call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 1, coef)
     call gs%op(rhs_m_x, GS_OP_ADD)
     call gs%op(rhs_m_y, GS_OP_ADD)
     call gs%op(rhs_m_z, GS_OP_ADD)
-    call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
+    call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
 
 #ifdef HAVE_HIP
@@ -579,11 +579,11 @@ contains
     call device_rone(coef%h1_d, n)
 
     call gs%op(visc_rho, GS_OP_ADD)
-    call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 1, coef)
+    call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 1, coef)
     call gs%op(visc_m_x, GS_OP_ADD)
     call gs%op(visc_m_y, GS_OP_ADD)
     call gs%op(visc_m_z, GS_OP_ADD)
-    call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 0, coef)
+    call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 
     ! Apply artificial viscosity - the coefficient is already in the Laplacian
