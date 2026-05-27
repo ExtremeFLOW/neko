@@ -625,11 +625,17 @@ A more detailed description of each boundary condition is provided below.
   The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
   the coupled simulation. This should, for the time being, be left as `false`.
 
+  The keyword `order` is `1` by default and defines the interface extrapolation scheme order at every timestep.
+  Generally, you want to keep the order of the extrapolation consistent with your time integration scheme,
+  however, note that a higher order might need help with stabilization, specifically by increasing the number
+  of `Schwarz-like` iterations.
+
   ```json
   {
     "type": "overset_interface",
     "zone_indices": [1, 2],
-    "couple_pressure" : false
+    "couple_pressure" : false,
+    "order" : 3
   }
   ```
 
