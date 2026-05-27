@@ -47,6 +47,7 @@ module subsidence_source_term
   use subsidence_source_term_cpu, only : subsidence_source_term_compute_cpu
   use subsidence_source_term_device, only : &
        subsidence_source_term_compute_device
+  use device, only : HOST_TO_DEVICE
   implicit none
   private
 
@@ -60,8 +61,8 @@ module subsidence_source_term
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
      !> Registry name and w_sub values
-     character(len=1024) :: profile_registry_name
-     character(len=32) :: method
+     character(len=:), allocatable :: profile_registry_name
+     character(len=:), allocatable :: method_str
      real(kind=rp) :: div_rate
      real(kind=rp) :: w_sub_max
      real(kind=rp) :: w_sub_max_height
@@ -95,14 +96,17 @@ contains
     real(kind=rp) :: start_time, end_time
     real(kind=rp) :: div_rate = 0.0_rp, w_sub_max = 0.0_rp, w_sub_max_height = 0.0_rp
     type(json_file) :: interp_subdict
-    character(len=1024) :: profile_registry_name
-    character(len=32) :: method_str
+    character(len=:), allocatable :: profile_registry_name
+    character(len=:), allocatable :: method_str
 
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
+
     call json_get_or_default(json, "profile_registry_name", profile_registry_name, "w_sub")
-    
-    call json_get(json, "method", method_str)
+    this%profile_registry_name = trim(profile_registry_name)
+
+    call json_get_or_default(json, "method", method_str, "user")
+    this%method_str = trim(method_str)
 
     select case (trim(method_str))    
     case ("linear")
@@ -144,7 +148,7 @@ contains
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
 
-    this%method = trim(method)
+   this%method_str = trim(method)
     this%div_rate = div_rate
     this%w_sub_max = w_sub_max
     this%w_sub_max_height = w_sub_max_height
@@ -175,7 +179,7 @@ contains
     type(field_t), pointer :: w_sub_alloc => null()
 
      if (this%check) then
-       if (trim(this%method) .eq. "user") then
+       if (trim(this%method_str) .eq. "user") then
           if (.not. neko_registry%field_exists(trim(this%profile_registry_name))) then
             call neko_error("SUBSIDENCE: No w_sub profile set (searching for " // &
                trim(this%profile_registry_name) // "). Add it to the registry in your case file")
@@ -183,9 +187,9 @@ contains
           this%w_sub => neko_registry%get_field(trim(this%profile_registry_name))
        else
           allocate(w_sub_alloc)
-          call w_sub_alloc%init(this%u%gidx, this%u%field_space, this%u%dof)
+          call w_sub_alloc%init(this%u%dof, trim(this%profile_registry_name))
           
-          select case (trim(this%method))
+          select case (trim(this%method_str))
           case ("linear")
              do i = 1, w_sub_alloc%size()
                 z = w_sub_alloc%dof%z(i,1,1,1)
@@ -204,10 +208,10 @@ contains
           end select
           
           if (NEKO_BCKND_DEVICE .eq. 1) then
-             call w_sub_alloc%sync_to_device()
+             call w_sub_alloc%copy_from(HOST_TO_DEVICE, .true.)
           end if
           
-          call neko_registry%add_field(w_sub_alloc, trim(this%profile_registry_name))
+          call neko_registry%add_field(this%u%dof, trim(this%profile_registry_name))
           this%w_sub => neko_registry%get_field(trim(this%profile_registry_name))
        end if
        this%check = .false.

@@ -41,6 +41,7 @@ submodule (source_term) source_term_fctry
   use translation_source_term, only : translation_source_term_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   use sponge_source_term, only : sponge_source_term_t
+  use subsidence_source_term, only : subsidence_source_term_t
   use field_source_term, only : field_source_term_t
   use hpfrt_source_term, only : hpfrt_source_term_t
   use json_utils, only : json_get
@@ -48,7 +49,7 @@ submodule (source_term) source_term_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=25) :: SOURCE_KNOWN_TYPES(10) = [character(len=25) :: &
+  character(len=25) :: SOURCE_KNOWN_TYPES(11) = [character(len=25) :: &
        "constant", &
        "boussinesq", &
        "coriolis", &
@@ -59,7 +60,7 @@ submodule (source_term) source_term_fctry
        "field", &
        "hpfrt", &
        "translation", &
-       "subsidence" 
+       "subsidence" &
        ]
 
 contains
