@@ -115,7 +115,7 @@ module manager_conn_p4est
      ! The element is marked as hanging if it contains at least one hanging
      ! object.
      ! Hanging vertex
-     !   = -1 - independent,
+     !   = -1 - independent (not hanging),
      !   =  0 - face hanging,
      !   =  1 - edge hanging
      ! Hanging face
@@ -140,25 +140,25 @@ module manager_conn_p4est
      !        and is on the boundary of a full face,
      !   =  4 if the edge is in the middle of a full face.
      !        See the diagram below for clarification.
-     !  o...............o o...............o +---2---+.......o o.......+---3---+
+     !  o...............o o...............o-1---2---1.......o o.......1---3-(-1)
      !  :               : :               : |       |       : :       |       |
      !  :               : :               : 3   2   4       : :       4   3   3
      !  :               : :               : |       |       : :       |       |
-     !  +---4---+       : :       +---4---+ +---4---+       : :       +---4---+
+     !  1---4---0       : :       0---4---1 1---4---0       : :       0---4---1
      !  |       |       : :       |       | :               : :               :
      !  2   0   4       : :       4   1   2 :               : :               :
      !  |       |       : :       |       | :               : :               :
-     !  +---2---+.......o o.......+---3---+ o...............o o...............o
+     !(-1)--2---1.......o o.......1---3-(-1)o...............o o...............o
      !
-     !                     o                  +-------+
+     !                     o                 -1-------+
      !                     :                  |\       \
      !                     :                  1 \       \
      !                     :                  |  +-------+
-     !                     +-------+          +  |       |
+     !                     1-------+          1  |       |
      !                     |\       \         :\ |       |
      !                     0 \       \        : \|       |
      !                     |  +-------+       :  +-------+
-     !                     +  |       |       o
+     !                    -1  |       |       o
      !                      \ |       |
      !                       \|       |
      !                        +-------+
