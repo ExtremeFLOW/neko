@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Submodule containing the mapping based initialization of dofmaps
-submodule (dofmap) dofmap_init
+submodule (dofmap) dofmap_init_m
   use interpolation, only : interpolator_t
 
 contains
@@ -79,4 +79,4 @@ contains
 
   end subroutine dofmap_init_and_map
 
-end submodule dofmap_init
+end submodule dofmap_init_m
