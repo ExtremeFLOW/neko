@@ -272,10 +272,11 @@ contains
   !! buffer. Before each put, wait for the receiver's ack of our
   !! previous round so we never overwrite a buffer the receiver hasn't
   !! consumed yet.
-  subroutine gs_shmem_nbsend(this, u, n, deps, strm)
+  subroutine gs_shmem_nbsend(this, u, n, tag, deps, strm)
     class(gs_shmem_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    integer, intent(in) :: tag
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
     integer :: i, j, dst, base
@@ -326,8 +327,9 @@ contains
   end subroutine gs_shmem_nbsend
 
   !> No-op: receives are completed via remote put-with-signal.
-  subroutine gs_shmem_nbrecv(this)
+  subroutine gs_shmem_nbrecv(this, tag)
     class(gs_shmem_t), intent(inout) :: this
+    integer, intent(in) :: tag
 
   end subroutine gs_shmem_nbrecv
 

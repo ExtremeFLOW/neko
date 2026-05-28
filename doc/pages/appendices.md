@@ -23,6 +23,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
 | `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
 | `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
+| `NEKO_MPI_THREAD_LEVEL`  | Requested MPI (and SHMEM) thread support level                        | Unset         |
 | `NEKO_DEPRECATION_ERROR` | Whether to treat deprecated features as errors (boolean)              | Unset         |
 
 ### Logging level details
@@ -46,6 +47,23 @@ A number of gather-scatter backends are supported.
   OpenSHMEM based on CPU builds (requires a native OpenSHMEM library,
   e.g. Cray OpenSHMEMX, enabled at configure time with `--with-openshmem`)
 - `NEKO_GS_COMM=CAF`    : Coarray Fortran (requires a coarray-capable compiler)
+
+### MPI thread level details
+
+`NEKO_MPI_THREAD_LEVEL` overrides the default thread support requested
+from the MPI runtime (and, when built with `--with-openshmem`, from
+the SHMEM runtime as well). When unset, the level is chosen
+automatically: `MPI_THREAD_MULTIPLE` when running with more than one
+OpenMP thread per rank, falling back to `MPI_THREAD_FUNNELED` on
+host-only backends, and `MPI_Init` otherwise. Device backends require
+`MPI_THREAD_MULTIPLE` under the automatic policy. Setting the variable
+bypasses these heuristics; if the runtime cannot honor the requested
+level, initialisation aborts.
+
+- `NEKO_MPI_THREAD_LEVEL=single`     : `MPI_THREAD_SINGLE` (calls `MPI_Init`).
+- `NEKO_MPI_THREAD_LEVEL=funneled`   : `MPI_THREAD_FUNNELED`.
+- `NEKO_MPI_THREAD_LEVEL=serialized` : `MPI_THREAD_SERIALIZED`.
+- `NEKO_MPI_THREAD_LEVEL=multiple`   : `MPI_THREAD_MULTIPLE`.
 
 ### Coarray Fortran signaling mode details
 
