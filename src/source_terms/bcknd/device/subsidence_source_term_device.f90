@@ -48,22 +48,18 @@ module subsidence_source_term_device
 contains
 
   !> Prepares device arrays and performs device operations to add the subsidence
-  !! source: fu += w_sub * (du/dz), fv += w_sub * (dv/dz).
-  subroutine subsidence_source_term_compute_device(u, v, fields, coef, w_sub)
-    type(field_t), intent(in) :: u, v, w_sub
+  !! source: fu += w_sub * (du/dz), fv += w_sub * (dv/dz), or for scalar
+  !! fields: fs += w_sub * (dT/dz).
+  subroutine subsidence_source_term_compute_device(u, v, scalar, fields, coef, w_sub)
+    type(field_t), pointer, intent(in) :: u, v, w_sub
+    type(field_t), pointer, intent(in) :: scalar
     type(field_list_t), intent(inout) :: fields
     type(coef_t), intent(in) :: coef
     integer :: n
     integer :: tmp_idx(4)
-    type(field_t), pointer :: fu, fv
+    type(field_t), pointer :: fu, fv, fs
     type(field_t), pointer :: dx, dy, dz
     type(field_t), pointer :: prod
-
-    ! RHS fields
-    fu => fields%get_by_index(1)
-    fv => fields%get_by_index(2)
-
-    n = fu%size()
 
     ! Request scratch fields: dx, dy, dz for grad, and prod for device work
     call neko_scratch_registry%request_field(dx, tmp_idx(1), .false.)
@@ -71,28 +67,47 @@ contains
     call neko_scratch_registry%request_field(dz, tmp_idx(3), .false.)
     call neko_scratch_registry%request_field(prod, tmp_idx(4), .false.)
 
-    call grad(dx%x, dy%x, dz%x, u%x, coef)
+    if (associated(scalar)) then
+       fs => fields%get_by_index(1)
+       n = fs%size()
 
-    call coef%gs_h%op(dz, GS_OP_ADD)
-    call device_col2(dz%x_d, coef%mult_d, n)
+       call grad(dx%x, dy%x, dz%x, scalar%x, coef)
 
-    ! prod = w_sub * (du/dz)
-    call device_cmult(prod%x_d, 0.0_rp, n)
-    call device_addcol3(prod%x_d, w_sub%x_d, dz%x_d, n)
+       call coef%gs_h%op(dz, GS_OP_ADD)
+       call device_col2(dz%x_d, coef%mult_d, n)
 
-    ! Add to RHS: fu += prod
-    call device_add2(fu%x_d, prod%x_d, n)
+       call device_cmult(prod%x_d, 0.0_rp, n)
+       call device_addcol3(prod%x_d, w_sub%x_d, dz%x_d, n)
 
-    ! Same for v.
-    call grad(dx%x, dy%x, dz%x, v%x, coef)
+       call device_add2(fs%x_d, prod%x_d, n)
+    else
+       fu => fields%get_by_index(1)
+       fv => fields%get_by_index(2)
+       n = fu%size()
 
-    call coef%gs_h%op(dz, GS_OP_ADD)
-    call device_col2(dz%x_d, coef%mult_d, n)
+       call grad(dx%x, dy%x, dz%x, u%x, coef)
 
-    call device_cmult(prod%x_d, 0.0_rp, n)
-    call device_addcol3(prod%x_d, w_sub%x_d, dz%x_d, n)
+       call coef%gs_h%op(dz, GS_OP_ADD)
+       call device_col2(dz%x_d, coef%mult_d, n)
 
-    call device_add2(fv%x_d, prod%x_d, n)
+       ! prod = w_sub * (du/dz)
+       call device_cmult(prod%x_d, 0.0_rp, n)
+       call device_addcol3(prod%x_d, w_sub%x_d, dz%x_d, n)
+
+       ! Add to RHS: fu += prod
+       call device_add2(fu%x_d, prod%x_d, n)
+
+       ! Same for v.
+       call grad(dx%x, dy%x, dz%x, v%x, coef)
+
+       call coef%gs_h%op(dz, GS_OP_ADD)
+       call device_col2(dz%x_d, coef%mult_d, n)
+
+       call device_cmult(prod%x_d, 0.0_rp, n)
+       call device_addcol3(prod%x_d, w_sub%x_d, dz%x_d, n)
+
+       call device_add2(fv%x_d, prod%x_d, n)
+    end if
 
     ! Release scratch fields back to registry
     call neko_scratch_registry%relinquish_field(tmp_idx)

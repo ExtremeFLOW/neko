@@ -52,14 +52,16 @@ module subsidence_source_term
   private
 
   !> Subsidence source term: applies vertical velocity profile w_sub
-  !! to the fields via w_sub * d(phi)/dz with phi = u,v and w_sub
-  !! prescribed in the case.f90 file.
+  !! to the fields via w_sub * d(phi)/dz with phi = u,v or scalar T, and
+  !! w_sub prescribed in the case.f90 file.
   type, public, extends(source_term_t) :: subsidence_source_term_t
      !> The subsidence vertical velocity profile w_sub(z)
      type(field_t), pointer :: w_sub => null()
-     !> Velocity fields
+     !> Velocity fields for fluid subsidence.
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
+     !> Scalar field for temperature subsidence.
+     type(field_t), pointer :: scalar => null()
      !> Registry name and w_sub values
      character(len=:), allocatable :: profile_registry_name
      character(len=:), allocatable :: method_str
@@ -95,7 +97,6 @@ contains
     character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
     real(kind=rp) :: div_rate = 0.0_rp, w_sub_max = 0.0_rp, w_sub_max_height = 0.0_rp
-    type(json_file) :: interp_subdict
     character(len=:), allocatable :: profile_registry_name
     character(len=:), allocatable :: method_str
 
@@ -122,7 +123,7 @@ contains
 
     call subsidence_source_term_init_from_components(this, fields, coef, &
          start_time, end_time, method_str, div_rate, w_sub_max, w_sub_max_height, &
-         profile_registry_name)
+         profile_registry_name, variable_name)
 
   end subroutine subsidence_source_term_init_from_json
 
@@ -133,7 +134,7 @@ contains
   !! @param end_time When to stop adding the source term.
   subroutine subsidence_source_term_init_from_components(this, fields, coef, &
        start_time, end_time, method, div_rate, w_sub_max, w_sub_max_height, &
-       profile_registry_name)
+       profile_registry_name, variable_name)
     class(subsidence_source_term_t), intent(inout) :: this
     class(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in), target :: coef
@@ -144,6 +145,7 @@ contains
     real(kind=rp), intent(in) :: w_sub_max
     real(kind=rp), intent(in) :: w_sub_max_height
     character(len=*), intent(in) :: profile_registry_name
+    character(len=*), intent(in) :: variable_name
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
@@ -155,8 +157,20 @@ contains
     this%profile_registry_name = trim(profile_registry_name)
     this%check = .true.
 
-    this%u => neko_registry%get_field("u")
-    this%v => neko_registry%get_field("v")
+    if (fields%size() == 1) then
+       ! Scalar subsidence source term for temperature or another scalar.
+       if (.not. neko_registry%field_exists(trim(variable_name))) then
+          call neko_error("SUBSIDENCE: No scalar field found for " // &
+               trim(variable_name))
+       end if
+       this%scalar => neko_registry%get_field(trim(variable_name))
+    else if (fields%size() == 3) then
+       ! Fluid subsidence source term for momentum.
+       this%u => neko_registry%get_field("u")
+       this%v => neko_registry%get_field("v")
+    else
+       call neko_error("SUBSIDENCE: Unexpected number of fields for source term.")
+    end if
   end subroutine subsidence_source_term_init_from_components
 
   !> Destructor.
@@ -167,6 +181,7 @@ contains
     nullify(this%w_sub)
     nullify(this%u)
     nullify(this%v)
+    nullify(this%scalar)
   end subroutine subsidence_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
@@ -176,7 +191,6 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: i
     real(kind=rp) :: z
-    type(field_t), pointer :: w_sub_alloc => null()
 
     if (this%check) then
        if (trim(this%method_str) .eq. "user") then
@@ -186,43 +200,45 @@ contains
           end if
           this%w_sub => neko_registry%get_field(trim(this%profile_registry_name))
        else
-          allocate(w_sub_alloc)
-          call w_sub_alloc%init(this%u%dof, trim(this%profile_registry_name))
+          if (associated(this%u)) then
+             call neko_registry%add_field(this%u%dof, trim(this%profile_registry_name))
+          else
+             call neko_registry%add_field(this%scalar%dof, trim(this%profile_registry_name))
+          end if
+
+          this%w_sub => neko_registry%get_field(trim(this%profile_registry_name))
 
           select case (trim(this%method_str))
           case ("linear")
-             do i = 1, w_sub_alloc%size()
-                z = w_sub_alloc%dof%z(i,1,1,1)
-                w_sub_alloc%x(i,1,1,1) = this%div_rate * z
+             do i = 1, this%w_sub%size()
+                z = this%w_sub%dof%z(i,1,1,1)
+                this%w_sub%x(i,1,1,1) = this%div_rate * z
              end do
 
           case ("linear_constant")
-             do i = 1, w_sub_alloc%size()
-                z = w_sub_alloc%dof%z(i,1,1,1)
+             do i = 1, this%w_sub%size()
+                z = this%w_sub%dof%z(i,1,1,1)
                 if (z .le. this%w_sub_max_height) then
-                   w_sub_alloc%x(i,1,1,1) = (this%w_sub_max / this%w_sub_max_height) * z
+                   this%w_sub%x(i,1,1,1) = (this%w_sub_max / this%w_sub_max_height) * z
                 else
-                   w_sub_alloc%x(i,1,1,1) = this%w_sub_max
+                   this%w_sub%x(i,1,1,1) = this%w_sub_max
                 end if
              end do
           end select
 
           if (NEKO_BCKND_DEVICE .eq. 1) then
-             call w_sub_alloc%copy_from(HOST_TO_DEVICE, .true.)
+             call this%w_sub%copy_from(HOST_TO_DEVICE, .true.)
           end if
-
-          call neko_registry%add_field(this%u%dof, trim(this%profile_registry_name))
-          this%w_sub => neko_registry%get_field(trim(this%profile_registry_name))
        end if
        this%check = .false.
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call subsidence_source_term_compute_device(this%u, this%v, this%fields, &
-            this%coef, this%w_sub)
+       call subsidence_source_term_compute_device(this%u, this%v, this%scalar, &
+            this%fields, this%coef, this%w_sub)
     else
-       call subsidence_source_term_compute_cpu(this%u, this%v, this%fields, &
-            this%coef, this%w_sub)
+       call subsidence_source_term_compute_cpu(this%u, this%v, this%scalar, &
+            this%fields, this%coef, this%w_sub)
     end if
 
   end subroutine subsidence_source_term_compute
