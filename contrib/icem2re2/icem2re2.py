@@ -4,15 +4,17 @@
 Pipeline: .msh --(mshconvert)--> .rea --(pymech)--> .re2
 
 Usage:
-    icem2re2.py input.msh output.re2 --bcs bcs.json [--keep-rea]
+    icem2re2.py input.msh output.re2 --bcs bcs.json \\
+        [--periodic periodic.json] [--keep-rea]
 
-bcs.json maps Fluent zone ids to Nek boundary-condition letters, e.g.:
-    {
-        "13": "v",
-        "14": "W",
-        "15": "W",
-        "16": "o"
-    }
+bcs.json maps non-periodic Fluent zone ids to Nek boundary-condition letters,
+e.g.:
+    {"13": "v", "14": "W", "15": "W", "16": "o"}
+
+periodic.json (optional) declares translational-periodic pairs by zone id.
+mshconvert handles the periodic linkage natively; do NOT list these zones in
+bcs.json:
+    [{"zones": [13, 14], "displacement": [0, 0, 0.05]}]
 """
 
 import argparse
@@ -50,6 +52,41 @@ def load_bcs(path):
     return bcs
 
 
+def load_periodic(path):
+    """Load periodic.json declaring translational-periodic zone pairs.
+
+    JSON shape: a list of objects, each
+        {"zones": [zone_a, zone_b], "displacement": [dx, dy, dz]}
+
+    Zone ids accept decimal or hex (same parsing as bcs.json). Returns a
+    dict shaped for mshconvert.convert(periodic_dx=...):
+        {(zone_a, zone_b): (dx, dy, dz), ...}
+    """
+    with open(path, 'r') as f:
+        raw = json.load(f)
+    if not isinstance(raw, list):
+        sys.exit(f"Error: {path} must be a JSON list of pair objects.")
+    periodic_dx = {}
+    for idx, item in enumerate(raw):
+        if not isinstance(item, dict):
+            sys.exit(f"Error: {path}[{idx}] must be an object with "
+                     "'zones' and 'displacement'.")
+        zones = item.get("zones")
+        disp = item.get("displacement")
+        if not isinstance(zones, list) or len(zones) != 2:
+            sys.exit(f"Error: {path}[{idx}].zones must be a list of two zone ids.")
+        try:
+            zone_pair = tuple(int(z, 0) if isinstance(z, str) else int(z)
+                              for z in zones)
+        except (TypeError, ValueError):
+            sys.exit(f"Error: {path}[{idx}].zones must be integers "
+                     "(decimal or 0x-prefixed hex).")
+        if not isinstance(disp, list) or not all(isinstance(x, (int, float)) for x in disp):
+            sys.exit(f"Error: {path}[{idx}].displacement must be a numeric list.")
+        periodic_dx[zone_pair] = tuple(float(x) for x in disp)
+    return periodic_dx
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog='icem2re2',
@@ -58,6 +95,8 @@ def main():
     parser.add_argument('output_re2', help='Output Neko .re2 file.')
     parser.add_argument('--bcs', required=True,
                         help='JSON file mapping zone ids to Nek BC letters (e.g. {"13":"v"}).')
+    parser.add_argument('--periodic',
+                        help='JSON file declaring translational-periodic zone pairs.')
     parser.add_argument('--keep-rea', action='store_true',
                         help='Keep the intermediate .rea file next to the output.')
     args = parser.parse_args()
@@ -66,8 +105,11 @@ def main():
         sys.exit(f"Error: input mesh not found: {args.input_msh}")
     if not os.path.isfile(args.bcs):
         sys.exit(f"Error: BC file not found: {args.bcs}")
+    if args.periodic and not os.path.isfile(args.periodic):
+        sys.exit(f"Error: periodic file not found: {args.periodic}")
 
     bcs = load_bcs(args.bcs)
+    periodic_dx = load_periodic(args.periodic) if args.periodic else {}
 
     try:
         from mshconvert import convert
@@ -96,7 +138,9 @@ def main():
         shutil.copy2(msh_abs, msh_link)
         os.chdir(workdir)
         print(f"[1/2] Converting {args.input_msh} -> {msh_stem}.rea")
-        convert(msh_basename, bcs=bcs)
+        if periodic_dx:
+            print(f"      Periodic pairs (handled by mshconvert): {periodic_dx}")
+        convert(msh_basename, bcs=bcs, periodic_dx=periodic_dx)
         if not os.path.isfile(rea_tmp):
             sys.exit(f"Error: mshconvert did not produce {rea_tmp}.")
 

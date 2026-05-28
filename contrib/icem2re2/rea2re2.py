@@ -112,6 +112,15 @@ def parse_rea(filename):
     print(f"  Reading {total_bc} boundary conditions...")
     t4 = time.time()
 
+    # mshconvert writes the element+face header with a size-dependent format:
+    #   nel < 1000:           "{elem:3d}{face:3d}"  -> tokens are SPACE-SEPARATED
+    #   1000 <= nel < 1M:     "{elem:Nd}{face:1d}"  -> tokens are CONCATENATED
+    # Detect which by counting tokens before the 5 BC parameter floats.
+    # We don't need to parse iel/iface from the line — they're determined by
+    # the iteration counter (ibc) — so we just skip the right number of leading
+    # tokens before reading the 5 numeric BC params.
+    param_start = 2 if nel < 1000 else 1
+
     for ibc in range(total_bc):
         if ibc % 5000000 == 0 and ibc > 0:
             pct = 100.0 * ibc / total_bc
@@ -135,18 +144,17 @@ def parse_rea(filename):
         data.elem[iel].bcs[0, iface][1] = iel + 1
         data.elem[iel].bcs[0, iface][2] = iface + 1
 
-        # parts layout after stripping BC letter: [iel, iface, p1, p2, p3, p4, p5]
-        # Numeric BC parameters therefore start at parts[2], not parts[1].
-        if bc in ('E', 'e') and len(parts) >= 4:
-            data.elem[iel].bcs[0, iface][3] = float(parts[2])
-            data.elem[iel].bcs[0, iface][4] = float(parts[3])
+        if bc in ('E', 'e') and len(parts) >= param_start + 2:
+            data.elem[iel].bcs[0, iface][3] = float(parts[param_start])
+            data.elem[iel].bcs[0, iface][4] = float(parts[param_start + 1])
             data.elem[iel].bcs[0, iface][5] = 0.0
             data.elem[iel].bcs[0, iface][6] = 0.0
             data.elem[iel].bcs[0, iface][7] = 0.0
         else:
             for ip in range(5):
+                src = ip + param_start
                 try:
-                    data.elem[iel].bcs[0, iface][3 + ip] = float(parts[ip + 2]) if len(parts) > ip + 2 else 0.0
+                    data.elem[iel].bcs[0, iface][3 + ip] = float(parts[src]) if len(parts) > src else 0.0
                 except (ValueError, IndexError):
                     data.elem[iel].bcs[0, iface][3 + ip] = 0.0
 

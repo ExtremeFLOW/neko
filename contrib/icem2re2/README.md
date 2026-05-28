@@ -22,13 +22,16 @@ pip install numpy scipy pymech
 ## Usage
 
 ```
-./icem2re2.py input.msh output.re2 --bcs bcs.json [--keep-rea]
+./icem2re2.py input.msh output.re2 --bcs bcs.json \
+    [--periodic periodic.json] [--keep-rea]
 ```
 
 - `input.msh`  — ANSYS Fluent `.msh` exported from ICEM CFD.
 - `output.re2` — destination Neko `.re2` mesh.
 - `--bcs`      — JSON file mapping Fluent zone ids (integers) to Nek boundary
                  condition letters.
+- `--periodic` — JSON file declaring translational-periodic zone pairs.
+                 See "Periodic boundaries" below.
 - `--keep-rea` — keep the intermediate `.rea` next to `output.re2`.
 
 ### `bcs.json` format
@@ -56,10 +59,50 @@ For example, a zone written as `(13` (hex) in the `.msh` file is zone id
 }
 ```
 
+### Periodic boundaries
+
+Neko encodes periodicity in the mesh itself (the case file says nothing about
+it), so the `.re2` must record, for every periodic face, the partner element
+and face it pairs with. `mshconvert` handles this natively when you pass it the
+zone pairs and their translation vector.
+
+Workflow:
+
+1. In `bcs.json`, **omit** the periodic zones. They are not regular BCs;
+   mshconvert auto-assigns them BC letter `'P'` with the right partner info.
+2. In `periodic.json`, declare the pairs by **zone id** and the translation
+   vector from the first zone to the second. mshconvert then walks node-by-node
+   on each side under that translation to find partners.
+
+Example (zone 13 ↔ zone 14 periodic in *z* with spacing 0.05, plus walls):
+
+```json
+// bcs.json — periodic zones 13 and 14 are NOT listed
+{
+    "12": "v",
+    "15": "o",
+    "16": "W",
+    "17": "W"
+}
+```
+
+```json
+// periodic.json — translation goes from zone 13 to zone 14
+[
+    {"zones": [13, 14], "displacement": [0.0, 0.0, 0.05]}
+]
+```
+
+The two zones must have the same number of nodes; if mshconvert can't find a
+partner for every node under the given translation it'll report it.
+
+Only translational periodicity is supported — rotational is not implemented.
+
 ### Example
 
 ```
 ./icem2re2.py fluent.msh fluent.re2 --bcs bcs.json
+./icem2re2.py fluent.msh fluent.re2 --bcs bcs.json --periodic periodic.json
 ```
 
 ## Installing on your PATH
