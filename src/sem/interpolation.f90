@@ -147,16 +147,16 @@ contains
     class(interpolator_t), intent(inout) :: this
 
     if (c_associated(this%Yh_to_Xh_d)) then
-       call device_unmap(this%Xh_to_Yh, this%Xh_to_Yh_d)
-    end if
-    if (c_associated(this%Yh_to_XhT_d)) then
-       call device_unmap(this%Xh_to_YhT, this%Xh_to_YhT_d)
-    end if
-    if (c_associated(this%Xh_to_Yh_d)) then
        call device_unmap(this%Yh_to_Xh, this%Yh_to_Xh_d)
     end if
-    if (c_associated(this%Xh_to_YhT_d)) then
+    if (c_associated(this%Yh_to_XhT_d)) then
        call device_unmap(this%Yh_to_XhT, this%Yh_to_XhT_d)
+    end if
+    if (c_associated(this%Xh_to_Yh_d)) then
+       call device_unmap(this%Xh_to_Yh, this%Xh_to_Yh_d)
+    end if
+    if (c_associated(this%Xh_to_YhT_d)) then
+       call device_unmap(this%Xh_to_YhT, this%Xh_to_YhT_d)
     end if
 
     if (allocated(this%Xh_to_Yh)) then
