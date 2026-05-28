@@ -5,7 +5,7 @@
 - Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS
   Fluent `.msh` meshes to Neko `.re2` meshes. Requires Python 3 with `numpy`,
   `scipy`, and `pymech`. Supports translational periodic boundaries via
-  `--periodic periodic.json` (face pairs matched geometrically).
+  `--periodic periodic.json`.
 - Enabled 1D stats files in csv format as a possible input to `average_fields_in_time`.
 - Added the possibility to configure interpolation parameters for `probes`.
 - *BREAKING* Changed the user interface of fluid/scalar initial condition
@@ -108,7 +108,6 @@
 - Fix cyclic boundary rotation device bug, which tried to launch kernels
   with zero threads for ranks not containing cyclic boundaries.
 - Change default parameters for tamg and phmg to be less expensive.
-- Added the `icem2re2` utility in `contrib/`, a converter from ICEM/Fluent `.msh` meshes to Neko `.re2` binary meshes.
 
 ### Deprecated features
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
