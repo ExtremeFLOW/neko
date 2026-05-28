@@ -33,17 +33,26 @@ pip install numpy scipy pymech
 
 ### `bcs.json` format
 
-Keys are Fluent zone ids (as they appear in the `.msh` file); values are the
-single-letter Nek BC codes (`v`, `W`, `o`, `P`, …).
+Keys are Fluent zone ids; values are single-character Nek BC codes
+(`v`, `W`, `o`, `P`, …).
+
+Zone ids in Fluent `.msh` files are written in **hexadecimal**. You may give
+the JSON key in either form — both are accepted:
+
+- Hexadecimal, exactly as it appears in the `.msh` (`"0xd"`, `"0x10"`), or
+- Decimal, after converting from hex (`"13"`, `"16"`).
+
+For example, a zone written as `(13` (hex) in the `.msh` file is zone id
+`19` in decimal — write either `"0x13"` or `"19"` in the JSON.
 
 ```json
 {
-    "13": "v",
-    "14": "W",
-    "15": "W",
-    "16": "o",
-    "17": "W",
-    "18": "W"
+    "0xd":  "v",
+    "0xe":  "W",
+    "0xf":  "W",
+    "0x10": "o",
+    "0x11": "W",
+    "0x12": "W"
 }
 ```
 

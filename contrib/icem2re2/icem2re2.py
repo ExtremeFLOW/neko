@@ -33,10 +33,20 @@ def load_bcs(path):
         raw = json.load(f)
     bcs = {}
     for k, v in raw.items():
+        # Accept decimal ("13") or hex ("0xd") zone ids — int(_, 0) auto-detects
+        # the base from the prefix, so users can paste either form.
         try:
-            bcs[int(k)] = v
-        except ValueError:
-            sys.exit(f"Error: zone id '{k}' in {path} is not an integer.")
+            zone = int(k, 0) if isinstance(k, str) else int(k)
+        except (TypeError, ValueError):
+            sys.exit(f"Error: zone id '{k}' in {path} is not an integer "
+                     "(use decimal like \"13\" or hex like \"0xd\").")
+        if not isinstance(v, str):
+            sys.exit(f"Error: BC for zone {k} in {path} must be a string, got {type(v).__name__}.")
+        v_clean = v.strip()
+        if len(v_clean) != 1:
+            sys.exit(f"Error: BC for zone {k} in {path} must be a single character, "
+                     f"got {v!r}.")
+        bcs[zone] = v_clean
     return bcs
 
 

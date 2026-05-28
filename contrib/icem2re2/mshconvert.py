@@ -1,4 +1,18 @@
 #!/usr/bin python
+#
+# This file is derived from `mshconvert.py` in
+# https://github.com/mikaem/tools (mshconvert/), originally authored by
+# Mikael Mortensen. The upstream repository carries no explicit license
+# notice; this file is included here on the assumption that its use in
+# Neko is permitted by the original author. If a formal license is
+# required by Neko's contribution policy, please confirm with the
+# upstream author and add the appropriate SPDX identifier here.
+#
+# Local modifications (icem2re2/Neko port):
+#   - Python 3 compatibility (print(), set, etc.)
+#   - eval() replaced with float() in node-coordinate parsing
+#   - bcs argument plumbed through convert() / scan_fluent_mesh()
+#
 import sys
 import re
 import numpy as np
@@ -273,7 +287,7 @@ def read_zone_nodes(dim, Nmin, Nmax, ifile):
         if readline:
             line = ifile.readline()
         readline = True
-        nodes[:, i - Nmin] = [eval(x) for x in line.split()]
+        nodes[:, i - Nmin] = [float(x) for x in line.split()]
 
 def read_periodic(ifile, periodic_dx):
     """Scan periodic section and create periodic_face_map.
@@ -1497,13 +1511,7 @@ def convert(fluentmesh,
     ofilename = fluentmesh[:-4]
     ifile  = open(fluentmesh, "r")
 
-    if not nodes:
-        # Read all lines of fluent mesh
-        #lines = ifile.readlines()
-        #if len(lines) == 0:
-            #raise IOError("Empty fluent mesh file")
-        
-        #scan_fluent_mesh(lines)
+    if nodes is None:
         scan_fluent_mesh(ifile)
 
     dim = nodes.shape[0]

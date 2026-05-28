@@ -17,21 +17,18 @@ def parse_rea(filename):
     nlines = len(lines)
     print(f"  File loaded: {nlines} lines in {time.time()-t0:.1f}s")
 
-    idx = 0
+    def _seek(marker, start):
+        for j in range(start, nlines):
+            if marker in lines[j]:
+                return j
+        sys.exit(f"ERROR: marker '{marker}' not found in {filename}.")
 
-    while idx < nlines:
-        if 'DIMENSIONAL' in lines[idx]:
-            ndim = int(lines[idx].split()[0])
-            break
-        idx += 1
+    idx = _seek('DIMENSIONAL', 0)
+    ndim = int(lines[idx].split()[0])
     idx += 1
     print(f"  ndim = {ndim}")
 
-    while idx < nlines:
-        if 'MESH DATA' in lines[idx]:
-            break
-        idx += 1
-    idx += 1
+    idx = _seek('MESH DATA', idx) + 1
 
     parts = lines[idx].split()
     nel = abs(int(float(parts[0])))
@@ -50,7 +47,7 @@ def parse_rea(filename):
     print(f"  Allocating HexaData for {nel} elements...")
     data = HexaData(ndim, nel, lr1, var, nbc=1)
     data.wdsz = 8
-    data.endian = 'little'
+    data.endian = sys.byteorder
 
     # mshconvert .rea format is face-grouped:
     #   Line 1: x1 x2 x3 x4  (bottom face x)   Line 4: x5 x6 x7 x8  (top face x)
@@ -84,11 +81,7 @@ def parse_rea(filename):
 
     print(f"  Done reading coordinates in {time.time()-t2:.1f}s")
 
-    while idx < nlines:
-        if 'CURVED SIDE DATA' in lines[idx]:
-            break
-        idx += 1
-    idx += 1
+    idx = _seek('CURVED SIDE DATA', idx) + 1
 
     ncurve = int(lines[idx].split()[0])
     idx += 1
@@ -105,11 +98,15 @@ def parse_rea(filename):
             data.elem[ielem].ccurv[iedge - 1] = ccurve
         idx += 1
 
-    while idx < nlines:
-        if 'FLUID' in lines[idx] and 'BOUNDARY' in lines[idx]:
+    # Locate the FLUID BOUNDARY CONDITIONS section header explicitly.
+    fluid_bc_idx = None
+    for j in range(idx, nlines):
+        if 'FLUID' in lines[j] and 'BOUNDARY' in lines[j]:
+            fluid_bc_idx = j
             break
-        idx += 1
-    idx += 1
+    if fluid_bc_idx is None:
+        sys.exit(f"ERROR: 'FLUID BOUNDARY' section not found in {filename}.")
+    idx = fluid_bc_idx + 1
 
     total_bc = nel * nfaces
     print(f"  Reading {total_bc} boundary conditions...")
@@ -138,16 +135,18 @@ def parse_rea(filename):
         data.elem[iel].bcs[0, iface][1] = iel + 1
         data.elem[iel].bcs[0, iface][2] = iface + 1
 
-        if bc in ('E', 'e') and len(parts) >= 3:
-            data.elem[iel].bcs[0, iface][3] = float(parts[1])
-            data.elem[iel].bcs[0, iface][4] = float(parts[2])
+        # parts layout after stripping BC letter: [iel, iface, p1, p2, p3, p4, p5]
+        # Numeric BC parameters therefore start at parts[2], not parts[1].
+        if bc in ('E', 'e') and len(parts) >= 4:
+            data.elem[iel].bcs[0, iface][3] = float(parts[2])
+            data.elem[iel].bcs[0, iface][4] = float(parts[3])
             data.elem[iel].bcs[0, iface][5] = 0.0
             data.elem[iel].bcs[0, iface][6] = 0.0
             data.elem[iel].bcs[0, iface][7] = 0.0
         else:
             for ip in range(5):
                 try:
-                    data.elem[iel].bcs[0, iface][3 + ip] = float(parts[ip + 1]) if len(parts) > ip + 1 else 0.0
+                    data.elem[iel].bcs[0, iface][3 + ip] = float(parts[ip + 2]) if len(parts) > ip + 2 else 0.0
                 except (ValueError, IndexError):
                     data.elem[iel].bcs[0, iface][3 + ip] = 0.0
 
