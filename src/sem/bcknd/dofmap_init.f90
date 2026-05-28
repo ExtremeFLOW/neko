@@ -39,7 +39,7 @@ contains
   !> Constructor.
   !! @param dof The existing dofmap to initialize from.
   !! @param Xh The SEM function space.
-  subroutine dofmap_init_and_map(this, dof, Xh)
+  module subroutine dofmap_init_and_map(this, dof, Xh)
     class(dofmap_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     type(space_t), intent(in) :: Xh
