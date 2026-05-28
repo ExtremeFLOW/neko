@@ -1356,14 +1356,17 @@ The configuration of the vertical velocity profile \f$ w_{sub}(z) \f$ is determi
       w_{sub}(z) &=& w_{max}, \qquad \quad \text{for } z > z_{max}
    \f}
 
+Note that, when specifying the `div_rate` or `w_sub_max`, a **positive** value indicates a **negative** vertical velocity (proper subsidence), in accordance with meteorological conventions. Also, this implementation assumes that the vertical direction is $z$.
+
+
 Additional keywords are available to configure the subsidence source term:
 
 | Name                    | Description                                                                                     | Admissible values            | Default value |
 | ----------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
 | `method`                | The method used to build or retrieve the profile field.                                         | `user`, `linear`, `linear_constant` | `user`        |
 | `profile_registry_name` | The name string used to register or locate the \f$ w_{sub} \f$ field inside the registry.       | String                       | `"w_sub"`     |
-| `div_rate`              | Large-scale horizontal divergence rate \f$ D \f$ (only used if `method` is `linear`).            | Real                         | \f$ 1.0 \times 10^{-5} \f$ |
-| `w_sub_max`             | Maximum vertical subsidence velocity \f$ w_{max} \f$ (only used if `method` is `linear_constant`).| Real                         | \f$ -1.0 \times 10^{-2} \f$ |
+| `div_rate`              | Large-scale horizontal divergence rate \f$ D \f$ (only used if `method` is `linear`).            | Real                         | \f$ +1.0 \times 10^{-5} \f$ |
+| `w_sub_max`             | Maximum vertical subsidence velocity \f$ w_{max} \f$ (only used if `method` is `linear_constant`).| Real                         | \f$ +1.0 \times 10^{-2} \f$ |
 | `w_sub_max_height`      | Height threshold \f$ z_{max} \f$ for constant velocity (only used if `method` is `linear_constant`).| Real                     | \f$ 500.0 \f$ |
 
 Example of a subsidence source term using the `linear_constant` profile to model a typical capping inversion scenario:
@@ -1375,7 +1378,7 @@ Example of a subsidence source term using the `linear_constant` profile to model
       "start_time": 0.0,
       "method": "linear_constant",
       "profile_registry_name": "w_sub_profile",
-      "w_sub_max": -0.005,
+      "w_sub_max": 0.005,
       "w_sub_max_height": 600.0
    }
 ]
@@ -1405,11 +1408,12 @@ To achieve this, one must fetch a reference velocity field (to match the structu
     call neko_registry%add_field(u%dof, "w_sub_custom")
     w_sub => neko_registry%get_field("w_sub_custom")
     
-    div_rate = 2.0e-2_rp
+    ! positive div_rate = negative vertical velocity (subsidence)
+    div_rate = +2.0e-2_rp
 
     do i = 1, w_sub%size()
        z = w_sub%dof%z(i,1,1,1)
-       w_sub%x(i,1,1,1) = -div_rate * z
+       w_sub%x(i,1,1,1) = +div_rate * z
     end do
 
   end subroutine user_initialize
