@@ -1,0 +1,7 @@
+<map id="vector_series::vector_series_t" name="vector_series::vector_series_t">
+<area shape="rect" id="Node000001" title="Stores a series (sequence) of vectors, logically connected to a base vector, and arranged according t..." alt="" coords="5,196,164,236"/>
+<area shape="rect" id="Node000002" href="$d3/d5b/structvector_1_1vector__t.html" title=" " alt="" coords="23,93,147,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,133,87,196,82,196,82,133"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="57,5,112,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="87,45,87,93,82,93,82,45"/>
+</map>

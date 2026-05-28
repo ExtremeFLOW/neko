@@ -1025,7 +1025,8 @@ var hierarchy =
     [ "time_scheme::time_scheme_t", "de/da4/structtime__scheme_1_1time__scheme__t.html", [
       [ "ab_time_scheme::ab_time_scheme_t", "d2/d88/structab__time__scheme_1_1ab__time__scheme__t.html", null ],
       [ "bdf_time_scheme::bdf_time_scheme_t", "d7/dac/structbdf__time__scheme_1_1bdf__time__scheme__t.html", null ],
-      [ "ext_time_scheme::ext_time_scheme_t", "d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html", null ]
+      [ "ext_time_scheme::ext_time_scheme_t", "d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html", null ],
+      [ "iextm_time_scheme::iextm_time_scheme_t", "d8/dd8/structiextm__time__scheme_1_1iextm__time__scheme__t.html", null ]
     ] ],
     [ "time_state::time_state_t", "d7/d90/structtime__state_1_1time__state__t.html", null ],
     [ "time_step_controller::time_step_controller_t", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html", null ],
@@ -1072,6 +1073,8 @@ var hierarchy =
     [ "fluid_scheme_base::validate_intrf", "d8/d38/interfacefluid__scheme__base_1_1validate__intrf.html", null ],
     [ "vector_list::vector_list_t", "d3/d45/structvector__list_1_1vector__list__t.html", null ],
     [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", null ],
+    [ "vector_series::vector_series_ptr_t", "df/d78/structvector__series_1_1vector__series__ptr__t.html", null ],
+    [ "vector_series::vector_series_t", "d3/dba/structvector__series_1_1vector__series__t.html", null ],
     [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", null ],
     [ "pnpn_residual::vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", null ],
     [ "wall_model::wall_model_allocate", "d6/dee/interfacewall__model_1_1wall__model__allocate.html", null ],

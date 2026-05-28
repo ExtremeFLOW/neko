@@ -20,4 +20,8 @@
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="282,172,248,172,248,167,282,167"/>
 <area shape="rect" id="Node000008" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="39,213,214,253"/>
 <area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="305,232,214,234,214,229,305,226"/>
+<area shape="rect" id="Node000012" href="$d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="33,360,221,400"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="319,404,221,393,221,388,319,399"/>
+<area shape="rect" id="Node000013" href="$d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="29,424,225,464"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="319,425,225,436,225,430,319,420"/>
 </map>

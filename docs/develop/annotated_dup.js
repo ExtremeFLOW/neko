@@ -890,6 +890,9 @@ var annotated_dup =
     [ "identity", "d2/d1a/namespaceidentity.html", [
       [ "ident_t", "d7/d69/structidentity_1_1ident__t.html", "d7/d69/structidentity_1_1ident__t" ]
     ] ],
+    [ "iextm_time_scheme", "d2/d1e/namespaceiextm__time__scheme.html", [
+      [ "iextm_time_scheme_t", "d8/dd8/structiextm__time__scheme_1_1iextm__time__scheme__t.html", "d8/dd8/structiextm__time__scheme_1_1iextm__time__scheme__t" ]
+    ] ],
     [ "import_field_utils", "d3/d9f/namespaceimport__field__utils.html", [
       [ "import_fields", "d8/dde/interfaceimport__field__utils_1_1import__fields.html", "d8/dde/interfaceimport__field__utils_1_1import__fields" ]
     ] ],
@@ -1698,6 +1701,10 @@ var annotated_dup =
     ] ],
     [ "vector_list", "d3/ddd/namespacevector__list.html", [
       [ "vector_list_t", "d3/d45/structvector__list_1_1vector__list__t.html", "d3/d45/structvector__list_1_1vector__list__t" ]
+    ] ],
+    [ "vector_series", "de/dec/namespacevector__series.html", [
+      [ "vector_series_ptr_t", "df/d78/structvector__series_1_1vector__series__ptr__t.html", "df/d78/structvector__series_1_1vector__series__ptr__t" ],
+      [ "vector_series_t", "d3/dba/structvector__series_1_1vector__series__t.html", "d3/dba/structvector__series_1_1vector__series__t" ]
     ] ],
     [ "vreman", "d4/d6e/namespacevreman.html", [
       [ "vreman_t", "de/d91/structvreman_1_1vreman__t.html", "de/d91/structvreman_1_1vreman__t" ]

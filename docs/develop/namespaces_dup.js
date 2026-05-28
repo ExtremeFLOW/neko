@@ -357,6 +357,7 @@ var namespaces_dup =
     [ "hsmg", "dd/dd1/namespacehsmg.html", "dd/dd1/namespacehsmg" ],
     [ "htable", "dc/df5/namespacehtable.html", "dc/df5/namespacehtable" ],
     [ "identity", "d2/d1a/namespaceidentity.html", "d2/d1a/namespaceidentity" ],
+    [ "iextm_time_scheme", "d2/d1e/namespaceiextm__time__scheme.html", "d2/d1e/namespaceiextm__time__scheme" ],
     [ "import_field_utils", "d3/d9f/namespaceimport__field__utils.html", "d3/d9f/namespaceimport__field__utils" ],
     [ "inflow", "d7/d43/namespaceinflow.html", "d7/d43/namespaceinflow" ],
     [ "interpolation", "d9/da0/namespaceinterpolation.html", "d9/da0/namespaceinterpolation" ],
@@ -945,6 +946,7 @@ var namespaces_dup =
       [ "vector_subcol3", "d3/d0d/namespacevector__math.html#ab4bc4dc15b3799233b025018f6d4500a", null ],
       [ "vector_vdot3", "d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6", null ]
     ] ],
+    [ "vector_series", "de/dec/namespacevector__series.html", "de/dec/namespacevector__series" ],
     [ "vreman", "d4/d6e/namespacevreman.html", "d4/d6e/namespacevreman" ],
     [ "vreman_cpu", "d9/da0/namespacevreman__cpu.html", [
       [ "vreman_compute_cpu", "d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7", null ]
