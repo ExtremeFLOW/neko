@@ -145,3 +145,9 @@
 ### Deprecated features
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
   `device_ortho` instead.
+- `operator::tnsr3d` calls with implicit device arrays are deprecated. Please use
+  `device_tnsr3d` instead.
+- `operator::tnsr3d_el_list` calls with implicit device arrays are deprecated. Please use
+  `device_tnsr3d_el_list` instead.
+- `interpolator::map` calls with implicit device arrays are deprecated. Please use
+  device arrays directly.
