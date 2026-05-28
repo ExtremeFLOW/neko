@@ -98,6 +98,8 @@ contains
   subroutine tnsr3d_device(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d
     integer(c_int) :: nu, nv, nelv
+    if (nelv .eq. 0) return
+
 #ifdef HAVE_HIP
     call hip_tnsr3d(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, nelv)
 #elif HAVE_CUDA
@@ -113,6 +115,8 @@ contains
        elements, n_points)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, elements
     integer(c_int) :: nu, nv, n_points
+    if (n_points .eq. 0) return
+
 #ifdef HAVE_HIP
     call hip_tnsr3d_el_list(v_d, nv, u_d, nu, A_d, Bt_d, Ct_d, elements, &
          n_points)
