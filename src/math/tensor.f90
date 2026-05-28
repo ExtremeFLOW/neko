@@ -66,6 +66,7 @@ module tensor
   use tensor_sx, only : tnsr3d_sx, tnsr1_3d_sx, &
        tnsr2d_el_sx, tnsr3d_el_sx
   use tensor_device, only : tnsr3d_device, tnsr3d_el_list_device
+  use logger, only : neko_log
   use num_types, only : rp
   use mxm_wrapper, only : mxm
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, NEKO_BCKND_DEVICE
@@ -210,6 +211,9 @@ contains
                nu, A(1, 1, i), Bt(1, 1, i), Ct(1, 1, i))
        end do
     else if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       call neko_log%deprecated('Tensor: tnsr3d_el_list, implicit device', &
+            '2.0.0', 'Please call tnsr3d_el_list_device instead.')
+
        v_d = device_get_ptr(v)
        u_d = device_get_ptr(u)
        A_d = device_get_ptr(A)
@@ -244,6 +248,9 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call tnsr3d_xsmm(v, nv, u, nu, A, Bt, Ct, nelv)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_log%deprecated('Tensor: tnsr3d, implicit device', &
+            '2.0.0', 'Please call tnsr3d_device instead.')
+
        v_d = device_get_ptr(v)
        u_d = device_get_ptr(u)
        A_d = device_get_ptr(A)
