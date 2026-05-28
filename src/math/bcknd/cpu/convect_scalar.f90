@@ -171,7 +171,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -236,7 +236,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -301,7 +301,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -366,7 +366,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -431,7 +431,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -496,7 +496,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -561,7 +561,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -626,7 +626,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -691,7 +691,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -756,7 +756,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -821,7 +821,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -886,7 +886,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -951,7 +951,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -1016,7 +1016,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -1081,7 +1081,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -1146,7 +1146,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -1211,7 +1211,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
@@ -1276,7 +1276,7 @@ contains
                + ct(i,e) * ut(i,1,1)
        end do
        idx = (e-1) * Xh_GLL%lxyz+1
-       call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
+       call GLL_to_GL%map_host(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)

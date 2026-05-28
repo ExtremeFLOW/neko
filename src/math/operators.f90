@@ -990,7 +990,7 @@ contains
 
        ! Stage 1:
        call device_invcol3(u1%x_d, phi%x_d, coef%B_d, n)
-       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call GLL_to_GL%map(u1_GL%x_d, u1%x_d, nel, Xh_GL)
        call convect_scalar(k1%x, u1_GL%x, conv_k1%items(1)%ptr, &
             conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
@@ -999,7 +999,7 @@ contains
        ! Stage 2:
        call device_add3s2(u1%x_d, phi%x_d, k1%x_d, c1, c2, n)
        call device_invcol2(u1%x_d, coef%B_d, n)
-       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call GLL_to_GL%map(u1_GL%x_d, u1%x_d, nel, Xh_GL)
        call convect_scalar(k2%x, u1_GL%x, conv_k23%items(1)%ptr, &
             conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
@@ -1008,7 +1008,7 @@ contains
        ! Stage 3:
        call device_add3s2(u1%x_d, phi%x_d, k2%x_d, c1, c2, n)
        call device_invcol2(u1%x_d, coef%B_d, n)
-       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call GLL_to_GL%map(u1_GL%x_d, u1%x_d, nel, Xh_GL)
        call convect_scalar(k3%x, u1_GL%x, conv_k23%items(1)%ptr, &
             conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
@@ -1017,7 +1017,7 @@ contains
        ! Stage 4:
        call device_add3s2(u1%x_d, phi%x_d, k3%x_d, c1, c3, n)
        call device_invcol2(u1%x_d, coef%B_d, n)
-       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call GLL_to_GL%map(u1_GL%x_d, u1%x_d, nel, Xh_GL)
        call convect_scalar(k4%x, u1_GL%x, conv_k4%items(1)%ptr, &
             conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
@@ -1033,7 +1033,7 @@ contains
 
        ! Stage 1:
        call invcol3(u1%x, phi%x, coef%B, n)
-       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call GLL_to_GL%map_host(u1_GL%x, u1%x, nel, Xh_GL)
        call convect_scalar(k1%x, u1_GL%x, conv_k1%items(1)%ptr, &
             conv_k1%items(2)%ptr, conv_k1%items(3)%ptr, &
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
@@ -1042,7 +1042,7 @@ contains
        ! Stage 2:
        call add3s2(u1%x, phi%x, k1%x, c1, c2, n)
        call invcol2(u1%x, coef%B, n)
-       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call GLL_to_GL%map_host(u1_GL%x, u1%x, nel, Xh_GL)
        call convect_scalar(k2%x, u1_GL%x, conv_k23%items(1)%ptr, &
             conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
@@ -1051,7 +1051,7 @@ contains
        ! Stage 3:
        call add3s2(u1%x, phi%x, k2%x, c1, c2, n)
        call invcol2(u1%x, coef%B, n)
-       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call GLL_to_GL%map_host(u1_GL%x, u1%x, nel, Xh_GL)
        call convect_scalar(k3%x, u1_GL%x, conv_k23%items(1)%ptr, &
             conv_k23%items(2)%ptr, conv_k23%items(3)%ptr, &
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)
@@ -1060,7 +1060,7 @@ contains
        ! Stage 4:
        call add3s2(u1%x, phi%x, k3%x, c1, c3, n)
        call invcol2(u1%x, coef%B, n)
-       call GLL_to_GL%map(u1_GL%x, u1%x, nel, Xh_GL)
+       call GLL_to_GL%map_host(u1_GL%x, u1%x, nel, Xh_GL)
        call convect_scalar(k4%x, u1_GL%x, conv_k4%items(1)%ptr, &
             conv_k4%items(2)%ptr, conv_k4%items(3)%ptr, &
             Xh_GLL, Xh_GL, coef, coef_GL, GLL_to_GL)

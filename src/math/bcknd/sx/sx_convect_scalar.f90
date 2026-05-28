@@ -38,16 +38,16 @@ submodule (opr_sx) sx_convect_scalar
 contains
 
   module subroutine opr_sx_convect_scalar(du, u, cr, cs, ct, Xh_GLL, Xh_GL, &
-                                          coef_GLL, coef_GL, GLL_to_GL)
+       coef_GLL, coef_GL, GLL_to_GL)
     type(space_t), intent(in) :: Xh_GL
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
     type(coef_t), intent(in) :: coef_GL
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), intent(inout) :: &
-                   du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+         du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: &
-                   u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+         u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: cr(Xh_GL%lxyz, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: cs(Xh_GL%lxyz, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: ct(Xh_GL%lxyz, coef_GL%msh%nelv)
@@ -115,7 +115,7 @@ contains
   end subroutine opr_sx_convect_scalar
 
   subroutine sx_convect_scalar_lx(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                  coef_GLL, GLL_to_GL, nelv, lx)
+       coef_GLL, GLL_to_GL, nelv, lx)
     integer, intent(in) :: nelv, lx
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
@@ -176,18 +176,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_host(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx
 
   subroutine sx_convect_scalar_lx18(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 18
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -249,18 +249,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx18
 
   subroutine sx_convect_scalar_lx17(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 17
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -322,18 +322,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx17
 
   subroutine sx_convect_scalar_lx16(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 16
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -395,18 +395,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx16
 
   subroutine sx_convect_scalar_lx15(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 15
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -468,18 +468,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx15
 
   subroutine sx_convect_scalar_lx14(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 14
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -541,18 +541,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx14
 
   subroutine sx_convect_scalar_lx13(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 13
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -614,18 +614,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx13
 
   subroutine sx_convect_scalar_lx12(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 12
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -687,18 +687,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx12
 
   subroutine sx_convect_scalar_lx11(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 11
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -760,18 +760,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx11
 
   subroutine sx_convect_scalar_lx10(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                    coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 10
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -833,18 +833,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx10
 
   subroutine sx_convect_scalar_lx9(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                   coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 9
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -906,18 +906,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx9
 
   subroutine sx_convect_scalar_lx8(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                   coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 8
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -979,18 +979,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx8
 
   subroutine sx_convect_scalar_lx7(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                   coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 7
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1052,18 +1052,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx7
 
   subroutine sx_convect_scalar_lx6(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                   coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 6
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1125,18 +1125,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx6
 
   subroutine sx_convect_scalar_lx5(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                   coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 5
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1198,18 +1198,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx5
 
   subroutine sx_convect_scalar_lx4(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                   coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 4
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1271,18 +1271,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx4
 
   subroutine sx_convect_scalar_lx3(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                   coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 3
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1344,18 +1344,18 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
   end subroutine sx_convect_scalar_lx3
 
   subroutine sx_convect_scalar_lx2(du, u, cr, cs, ct, dx, dy, dz, Xh_GLL, &
-                                   coef_GLL, GLL_to_GL, nelv)
+       coef_GLL, GLL_to_GL, nelv)
     integer, parameter :: lx = 2
     integer, intent(in) :: nelv
     type(space_t), intent(in) :: Xh_GLL
@@ -1417,11 +1417,11 @@ contains
     do i = 1, lx * lx * lx
        do e = 1, nelv
           ud(i,1,1,e) = ( cr(i,e) * ur(i,1,1,e) &
-                      + cs(i,e) * us(i,1,1,e) &
-                      + ct(i,e) * ut(i,1,1,e) )
+               + cs(i,e) * us(i,1,1,e) &
+               + ct(i,e) * ut(i,1,1,e) )
        end do
     end do
-    call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+    call GLL_to_GL%map_old(du, ud, nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 

@@ -120,15 +120,29 @@ contains
     nel = coef%msh%nelv
     n_GL = nel*this%Xh_GL%lxyz
     n = nel*coef%Xh%lxyz
-    call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%GLL_to_GL%map(this%coef_GL%drdx_d, coef%drdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdx_d, coef%dsdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdx_d, coef%dtdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdy_d, coef%drdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdy_d, coef%dsdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdy_d, coef%dtdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdz_d, coef%drdz_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdz_d, coef%dsdz_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdz_d, coef%dtdz_d, nel, this%Xh_GL)
+    else
+       call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    end if
+
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
          (NEKO_BCKND_XSMM .eq. 1)) then
@@ -261,61 +275,61 @@ contains
     !This is extremely primitive and unoptimized  on the device //Karp
     associate(c_GL => this%coef_GL)
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tx_d, vx%x_d, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%ty_d, vy%x_d, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tz_d, vz%x_d, nel, this%Xh_GL)
 
          call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
               this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call this%GLL_to_GL%map(this%temp_d, this%tbf_d, nel, this%Xh_GLL)
          call device_sub2(fx%x_d, this%temp_d, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
               this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call this%GLL_to_GL%map(this%temp_d, this%tbf_d, nel, this%Xh_GLL)
          call device_sub2(fy%x_d, this%temp_d, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
               this%tx_d, this%ty_d, this%tz_d, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call this%GLL_to_GL%map(this%temp_d, this%tbf_d, nel, this%Xh_GLL)
          call device_sub2(fz%x_d, this%temp_d, n)
 
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 
-         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map_host(this%tx, vx%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map_host(this%ty, vy%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map_host(this%tz, vz%x, nel, this%Xh_GL)
 
          call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
               this%tx, this%ty, this%tz, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call this%GLL_to_GL%map_host(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fx%x, this%temp, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
               this%tx, this%ty, this%tz, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call this%GLL_to_GL%map_host(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fy%x, this%temp, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
               this%tx, this%ty, this%tz, n_GL)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call this%GLL_to_GL%map_host(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fz%x, this%temp, n)
 
       else
          !$omp parallel do private(e, i, idx, tempx, tempy, tempz), &
          !$omp& private(tx, ty, tz, vr, vs, vt, tfx, tfy, tfz)
          do e = 1, coef%msh%nelv
-            call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(tz, vz%x(1,1,1,e), 1, this%Xh_GL)
 
             call opgrad(vr, vs, vt, tx, c_GL, e, e)
             do i = 1, this%Xh_GL%lxyz
@@ -332,9 +346,9 @@ contains
                tfz(i) = tx(i)*vr(i) + ty(i)*vs(i) + tz(i)*vt(i)
             end do
 
-            call this%GLL_to_GL%map(tempx, tfx, 1, this%Xh_GLL)
-            call this%GLL_to_GL%map(tempy, tfy, 1, this%Xh_GLL)
-            call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map_host(tempx, tfx, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map_host(tempy, tfy, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map_host(tempz, tfz, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz+1
             do concurrent (i = 0:this%Xh_GLL%lxyz-1)
@@ -385,12 +399,12 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
 
          ! Map advecting velocity onto the higher-order space
-         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tx_d, vx%x_d, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%ty_d, vy%x_d, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%tz_d, vz%x_d, nel, this%Xh_GL)
 
          ! Map the scalar onto the high-order space
-         call this%GLL_to_GL%map(this%temp, s%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map(this%temp_d, s%x_d, nel, this%Xh_GL)
 
          ! Compute the scalar gradient in the high-order space
          call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
@@ -400,7 +414,7 @@ contains
               this%tx_d, this%ty_d, this%tz_d, n_GL)
 
          ! Map back to the original space (we reuse this%temp)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call this%GLL_to_GL%map(this%temp_d, this%tbf_d, nel, this%Xh_GLL)
 
          ! Update the source term
          call device_sub2(fs%x_d, this%temp_d, n)
@@ -408,12 +422,12 @@ contains
       else if ((NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
 
          ! Map advecting velocity onto the higher-order space
-         call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%ty, vy%x, nel, this%Xh_GL)
-         call this%GLL_to_GL%map(this%tz, vz%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map_host(this%tx, vx%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map_host(this%ty, vy%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map_host(this%tz, vz%x, nel, this%Xh_GL)
 
          ! Map the scalar onto the high-order space
-         call this%GLL_to_GL%map(this%temp, s%x, nel, this%Xh_GL)
+         call this%GLL_to_GL%map_host(this%temp, s%x, nel, this%Xh_GL)
 
          ! Compute the scalar gradient in the high-order space
          call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
@@ -423,7 +437,7 @@ contains
               this%tx, this%ty, this%tz, n_GL)
 
          ! Map back to the original space (we reuse this%temp)
-         call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
+         call this%GLL_to_GL%map_host(this%temp, this%tbf, nel, this%Xh_GLL)
 
          ! Update the source term
          call sub2(fs%x, this%temp, n)
@@ -432,12 +446,12 @@ contains
          !$omp parallel do private (e, i, idx, vx_GL, vy_GL, s_GL, f_GL, temp)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity onto the higher-order space
-            call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
 
             ! Map scalar onto the higher-order space
-            call this%GLL_to_GL%map(s_GL, s%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(s_GL, s%x(1,1,1,e), 1, this%Xh_GL)
 
             ! Gradient of s in the higher-order space
             call opgrad(dsdx, dsdy, dsdz, s_GL, c_GL, e, e)
@@ -448,7 +462,7 @@ contains
             end do
 
             ! Map back the contructed operator to the original space
-            call this%GLL_to_GL%map(temp, f_GL, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map_host(temp, f_GL, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz + 1
 
@@ -513,12 +527,12 @@ contains
          !$omp parallel do private(e, i, flux_GL, total_div_GL, idx)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity and mesh velocity onto the higher-order space
-            call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(wm_x_GL, wm_x%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(wm_y_GL, wm_y%x(1,1,1,e), 1, this%Xh_GL)
-            call this%GLL_to_GL%map(wm_z_GL, wm_z%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(wm_x_GL, wm_x%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(wm_y_GL, wm_y%x(1,1,1,e), 1, this%Xh_GL)
+            call this%GLL_to_GL%map_host(wm_z_GL, wm_z%x(1,1,1,e), 1, this%Xh_GL)
 
             ! x-momentum
             total_div_GL = 0.0_rp
@@ -538,7 +552,7 @@ contains
             total_div_GL = total_div_GL + grad_z
 
             ! Map back the contructed operator to the original space
-            call this%GLL_to_GL%map(temp_x, total_div_GL, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map_host(temp_x, total_div_GL, 1, this%Xh_GLL)
 
             ! y-momentum
             total_div_GL = 0.0_rp
@@ -555,7 +569,7 @@ contains
             total_div_GL = total_div_GL + grad_z
 
             ! Map back the contructed operator to the original space
-            call this%GLL_to_GL%map(temp_y, total_div_GL, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map_host(temp_y, total_div_GL, 1, this%Xh_GLL)
 
             ! z-momentum
             total_div_GL = 0.0_rp
@@ -572,7 +586,7 @@ contains
             total_div_GL = total_div_GL + grad_z
 
             ! Map back the contructed operator to the original space
-            call this%GLL_to_GL%map(temp_z, total_div_GL, 1, this%Xh_GLL)
+            call this%GLL_to_GL%map_host(temp_z, total_div_GL, 1, this%Xh_GLL)
 
             ! Note we add (+) here since the ALE advection term is
             ! - div(u * wm) on the LHS. So on the RHS it will be + div(u * wm)
@@ -599,17 +613,29 @@ contains
     if (.not. moving_boundary) return
 
     nel = coef%msh%nelv
-    call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%GLL_to_GL%map(this%coef_GL%drdx_d, coef%drdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdx_d, coef%dsdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdx_d, coef%dtdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdy_d, coef%drdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdy_d, coef%dsdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdy_d, coef%dtdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdz_d, coef%drdz_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdz_d, coef%dsdz_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdz_d, coef%dtdz_d, nel, this%Xh_GL)
+    else
+       call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
 
-    call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
 
-    call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    end if
 
   end subroutine recompute_metrics_dealias
 

@@ -644,7 +644,7 @@ contains
       call neko_error('No device backend configured')
 #endif
 
-      call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+      call GLL_to_GL%map_device(du_d, ud_d, nelv, Xh_GLL)
       call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
       call device_col2(du_d, coef_GLL%Binv_d, n_GLL)
 

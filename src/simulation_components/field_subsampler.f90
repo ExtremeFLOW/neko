@@ -525,8 +525,8 @@ contains
     integer :: i
 
     do i = 1, this%n_fields
-       call this%interpolator%map(this%fields%x(i), &
-            this%source_fields%x(i), &
+       call this%interpolator%map(this%fields%get(i), &
+            this%source_fields%get(i), &
             this%msh%nelv, this%Xh)
     end do
 
@@ -541,10 +541,11 @@ contains
     type(time_state_t), intent(in) :: time
 
     type(field_t), pointer :: wk
-    integer :: i, n, n_mask, tmp_index
+    integer :: i, n, n_mask, nelv, tmp_index
 
-    n = this%source_fields%items(1)%ptr%dof%size()
+    n = this%source_fields%item_size(1)
     n_mask = this%point_zone%mask%size()
+    nelv = this%msh%nelv
 
     call neko_scratch_registry%request_field(wk, tmp_index, .false.)
 
@@ -563,8 +564,7 @@ contains
        end if
 
        ! Then, map the two different spaces
-       call this%interpolator%map(this%fields%x(i), wk%x, &
-            this%msh%nelv, this%Xh)
+       call this%interpolator%map(this%fields%get(i), wk, nelv, this%Xh)
 
     end do
 

@@ -252,11 +252,11 @@ contains
        call space_interp%init(Xh, prev_Xh)
 
        ! Do the space-to-space interpolation
-       if (present(u)) call space_interp%map(u%x, this%u%x, this%nelv, Xh)
-       if (present(v)) call space_interp%map(v%x, this%v%x, this%nelv, Xh)
-       if (present(w)) call space_interp%map(w%x, this%w%x, this%nelv, Xh)
-       if (present(p)) call space_interp%map(p%x, this%p%x, this%nelv, Xh)
-       if (present(t)) call space_interp%map(t%x, this%t%x, this%nelv, Xh)
+       if (present(u)) call space_interp%map_old(u%x, this%u%x, this%nelv, Xh)
+       if (present(v)) call space_interp%map_old(v%x, this%v%x, this%nelv, Xh)
+       if (present(w)) call space_interp%map_old(w%x, this%w%x, this%nelv, Xh)
+       if (present(p)) call space_interp%map_old(p%x, this%p%x, this%nelv, Xh)
+       if (present(t)) call space_interp%map_old(t%x, this%t%x, this%nelv, Xh)
        if (present(s_target_list)) then
 
           ! If the index list exists, use it as a "mask"
@@ -265,11 +265,11 @@ contains
 
                 ! 0 means we want temperature
                 if (s_index_list(i) .eq. 0) then
-                   call space_interp%map(s_target_list%x(i), &
+                   call space_interp%map_old(s_target_list%x(i), &
                         this%t%x, this%nelv, Xh)
                 else if (s_index_list(i) .ge. 1 .and. &
                      s_index_list(i) .le. this%n_scalars) then
-                   call space_interp%map(s_target_list%x(i), &
+                   call space_interp%map_old(s_target_list%x(i), &
                         this%s(s_index_list(i))%x, this%nelv, Xh)
                 else
                    call neko_error("s_index_list entry out of bounds")
@@ -279,7 +279,7 @@ contains
              ! otherwise, just copy element-to-element
           else
              do i = 1, s_target_list%size()
-                call space_interp%map(s_target_list%x(i), this%s(i)%x, &
+                call space_interp%map_old(s_target_list%x(i), this%s(i)%x, &
                      this%nelv, Xh)
              end do
           end if ! present s_index_list

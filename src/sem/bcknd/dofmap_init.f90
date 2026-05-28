@@ -52,15 +52,15 @@ contains
     if (dof%Xh%lxyz .ne. this%Xh%lxyz) then
        call interpolator%init(this%Xh, dof%Xh)
 
-       call interpolator%map(this%x, &
-            dof%x, &
-            this%msh%nelv, this%Xh)
-       call interpolator%map(this%y, &
-            dof%y, &
-            this%msh%nelv, this%Xh)
-       call interpolator%map(this%z, &
-            dof%z, &
-            this%msh%nelv, this%Xh)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call interpolator%map(this%x_d, dof%x_d, this%msh%nelv, this%Xh)
+          call interpolator%map(this%y_d, dof%y_d, this%msh%nelv, this%Xh)
+          call interpolator%map(this%z_d, dof%z_d, this%msh%nelv, this%Xh)
+       else
+          call interpolator%map_host(this%x, dof%x, this%msh%nelv, this%Xh)
+          call interpolator%map_host(this%y, dof%y, this%msh%nelv, this%Xh)
+          call interpolator%map_host(this%z, dof%z, this%msh%nelv, this%Xh)
+       end if
 
        call interpolator%free()
 
