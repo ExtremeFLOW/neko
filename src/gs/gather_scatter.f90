@@ -1443,6 +1443,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: m, l, op, lo, so, tid
+    type(c_ptr) :: scatter_event
 
     lo = gs%local_facet_offset
     so = -gs%shared_facet_offset
@@ -1454,6 +1455,13 @@ contains
     ! threads (device path) don't collide.
     tid = 0
     !$ tid = omp_get_thread_num()
+
+    ! Resolve the optional event into a non-optional local before opening
+    ! the parallel region. An absent optional dummy must not be captured by
+    ! the region's data-sharing, otherwise the outlined region prologue
+    ! dereferences a null descriptor (segfaults on CCE).
+    scatter_event = C_NULL_PTR
+    if (present(event)) scatter_event = event
 
     !$omp parallel if (NEKO_BCKND_DEVICE .eq. 0)
     call profiler_start_region("gather_scatter", 5)
@@ -1489,17 +1497,10 @@ contains
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region("gs_nbwait", 7)
        call profiler_start_region("gs_scatter_shared", 15)
-       if (present(event)) then
-          call gs%bcknd%scatter(gs%shared_gs, l,&
-               gs%shared_dof_gs, u, n, &
-               gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, gs%shared_blk_off, .true., event)
-       else
-          call gs%bcknd%scatter(gs%shared_gs, l,&
-               gs%shared_dof_gs, u, n, &
-               gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, gs%shared_blk_off, .true., C_NULL_PTR)
-       end if
+       call gs%bcknd%scatter(gs%shared_gs, l,&
+            gs%shared_dof_gs, u, n, &
+            gs%shared_gs_dof, gs%nshared_blks, &
+            gs%shared_blk_len, gs%shared_blk_off, .true., scatter_event)
        call profiler_end_region("gs_scatter_shared", 15)
     end if
 
