@@ -230,9 +230,9 @@ contains
     end if
   end subroutine interpolator_map_host
 
-  !> Interpolates an array to one of Xh or Yh.
-  !! @param x Original array.
-  !! @param y Interpolated array.
+  !> Interpolates a field to one of Xh or Yh.
+  !! @param x Original field.
+  !! @param y Interpolated field.
   !! @param nel Number of elements in the mesh.
   !! @param to_space The space to interpolate to, must be either Xh or Yh.
   subroutine interpolator_map_field(this, y, x, nel, to_space)
