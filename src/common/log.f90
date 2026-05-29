@@ -344,22 +344,20 @@ contains
 
        call this%message('***', NEKO_LOG_DEPRECATION)
 
-       if (is_deprecated(removal_version)) then
-          deprecation_error = ""
-          call get_environment_variable("NEKO_DEPRECATION_ERROR", &
-               deprecation_error)
+       deprecation_error = ""
+       call get_environment_variable("NEKO_DEPRECATION_ERROR", &
+            deprecation_error)
 
-          if (trim(deprecation_error) .eq. "1") then
-             call neko_error('Deprecated feature "' // trim(feature) // &
-                  '" should have been removed in version ' // &
-                  trim(removal_version) // ' (current version: ' // &
-                  trim(NEKO_VERSION) // ').')
-          else
-             call neko_warning('Deprecated feature "' // trim(feature) // &
-                  '" should have been removed in version ' // &
-                  trim(removal_version) // ' (current version: ' // &
-                  trim(NEKO_VERSION) // ').')
-          end if
+       if (trim(deprecation_error) .eq. "1") then
+          call neko_error('Deprecated feature "' // trim(feature) // &
+               '" is scheduled for removal in version: ' // &
+               trim(removal_version) // ' (current version: ' // &
+               trim(NEKO_VERSION) // ').')
+       else if (is_deprecated(removal_version)) then
+          call neko_warning('Deprecated feature "' // trim(feature) // &
+               '" is scheduled for removal in version: ' // &
+               trim(removal_version) // ' (current version: ' // &
+               trim(NEKO_VERSION) // ').')
        end if
     end if
 

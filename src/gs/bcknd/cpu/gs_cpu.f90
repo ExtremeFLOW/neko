@@ -109,7 +109,8 @@ contains
     integer :: i, j, k, blk_len
     real(kind=rp) :: tmp
 
-    do concurrent (i = 1:nb)
+    !$omp do
+    do i = 1, nb
        k = bo(i)
        blk_len = b(i)
        tmp = u(gd(k + 1))
@@ -118,15 +119,20 @@ contains
        end do
        v(dg(k + 1)) = tmp
     end do
+    !$omp end do nowait
 
     if (o .lt. 0) then
-       do concurrent (i = abs(o):m)
+       !$omp do
+       do i = abs(o), m
           v(dg(i)) = u(gd(i))
        end do
+       !$omp end do
     else
-       do concurrent (i = o:m:2)
+       !$omp do
+       do i = o, m, 2
           v(dg(i)) = u(gd(i)) + u(gd(i+1))
        end do
+       !$omp end do
     end if
 
   end subroutine gs_gather_kernel_add
@@ -147,7 +153,8 @@ contains
     integer :: i, j, k, blk_len
     real(kind=rp) :: tmp
 
-    do concurrent (i = 1:nb)
+    !$omp do
+    do i = 1, nb
        k = bo(i)
        blk_len = b(i)
        tmp = u(gd(k + 1))
@@ -156,15 +163,20 @@ contains
        end do
        v(dg(k + 1)) = tmp
     end do
+    !$omp end do nowait
 
     if (o .lt. 0) then
-       do concurrent (i = abs(o):m)
+       !$omp do
+       do i = abs(o), m
           v(dg(i)) = u(gd(i))
        end do
+       !$omp end do nowait
     else
-       do concurrent (i = o:m:2)
+       !$omp do
+       do i = o, m, 2
           v(dg(i)) = u(gd(i)) * u(gd(i+1))
        end do
+       !$omp end do nowait
     end if
 
   end subroutine gs_gather_kernel_mul
@@ -185,7 +197,8 @@ contains
     integer :: i, j, k, blk_len
     real(kind=rp) :: tmp
 
-    do concurrent (i = 1:nb)
+    !$omp do
+    do i = 1, nb
        k = bo(i)
        blk_len = b(i)
        tmp = u(gd(k + 1))
@@ -194,15 +207,20 @@ contains
        end do
        v(dg(k + 1)) = tmp
     end do
+    !$omp end do nowait
 
     if (o .lt. 0) then
-       do concurrent (i = abs(o):m)
+       !$omp do
+       do i = abs(o), m
           v(dg(i)) = u(gd(i))
        end do
+       !$omp end do
     else
-       do concurrent (i = o:m:2)
+       !$omp do
+       do i = o, m, 2
           v(dg(i)) = min(u(gd(i)), u(gd(i+1)))
        end do
+       !$omp end do
     end if
 
   end subroutine gs_gather_kernel_min
@@ -223,7 +241,8 @@ contains
     integer :: i, j, k, blk_len
     real(kind=rp) :: tmp
 
-    do concurrent (i = 1:nb)
+    !$omp do
+    do i = 1, nb
        k = bo(i)
        blk_len = b(i)
        tmp = u(gd(k + 1))
@@ -232,15 +251,20 @@ contains
        end do
        v(dg(k + 1)) = tmp
     end do
+    !$omp end do nowait
 
     if (o .lt. 0) then
-       do concurrent (i = abs(o):m)
+       !$omp do
+       do i = abs(o), m
           v(dg(i)) = u(gd(i))
        end do
+       !$omp end do
     else
-       do concurrent (i = o:m:2)
+       !$omp do
+       do i = o, m, 2
           v(dg(i)) = max(u(gd(i)), u(gd(i+1)))
        end do
+       !$omp end do
     end if
 
   end subroutine gs_gather_kernel_max
@@ -278,7 +302,8 @@ contains
     integer :: i, j, k, blk_len
     real(kind=rp) :: tmp
 
-    do concurrent (i = 1:nb)
+    !$omp do
+    do i = 1, nb
        k = bo(i)
        blk_len = b(i)
        tmp = v(dg(k + 1))
@@ -286,10 +311,13 @@ contains
           u(gd(k + j)) = tmp
        end do
     end do
+    !$omp end do nowait
 
-    do concurrent (i = (bo(nb) + b(nb) + 1):m)
+    !$omp do
+    do i = (bo(nb) + b(nb) + 1), m
        u(gd(i)) = v(dg(i))
     end do
+    !$omp end do
 
   end subroutine gs_scatter_kernel
 
