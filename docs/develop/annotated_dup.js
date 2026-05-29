@@ -752,7 +752,6 @@ var annotated_dup =
       [ "gs_device_shmem_t", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t" ]
     ] ],
     [ "gs_mpi", "d0/d25/namespacegs__mpi.html", [
-      [ "gs_comm_mpi_t", "d7/d9f/structgs__mpi_1_1gs__comm__mpi__t.html", "d7/d9f/structgs__mpi_1_1gs__comm__mpi__t" ],
       [ "gs_mpi_t", "d6/d6b/structgs__mpi_1_1gs__mpi__t.html", "d6/d6b/structgs__mpi_1_1gs__mpi__t" ]
     ] ],
     [ "gs_shmem", "de/dce/namespacegs__shmem.html", [

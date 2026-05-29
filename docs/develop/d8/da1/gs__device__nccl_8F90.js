@@ -9,7 +9,7 @@ var gs__device__nccl_8F90 =
     [ "gs_device_nccl_buf_init", "d8/da1/gs__device__nccl_8F90.html#a7fd02aded867f9843400ccda5550adf1", null ],
     [ "gs_device_nccl_free", "d8/da1/gs__device__nccl_8F90.html#aef31fde09a39eebc0ee90e008cba5bb5", null ],
     [ "gs_device_nccl_init", "d8/da1/gs__device__nccl_8F90.html#a2d4e675b4dbc3a5de103b430b400981c", null ],
-    [ "gs_device_nccl_nbrecv", "d8/da1/gs__device__nccl_8F90.html#a8929fbf00f3912c54319e2a010d45317", null ],
-    [ "gs_device_nccl_nbsend", "d8/da1/gs__device__nccl_8F90.html#a068065dc694cd08a8203d82aeca5db86", null ],
+    [ "gs_device_nccl_nbrecv", "d8/da1/gs__device__nccl_8F90.html#a18ae5f1f047fb4f6f8de381694408b6f", null ],
+    [ "gs_device_nccl_nbsend", "d8/da1/gs__device__nccl_8F90.html#a4a698ddba8ad717a48415e7611189407", null ],
     [ "gs_device_nccl_nbwait", "d8/da1/gs__device__nccl_8F90.html#a6ce3a7bef43ec31cbe113f8073b40abc", null ]
 ];

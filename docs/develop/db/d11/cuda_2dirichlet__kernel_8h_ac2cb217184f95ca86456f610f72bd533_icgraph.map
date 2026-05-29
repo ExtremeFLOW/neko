@@ -507,9 +507,9 @@
 <area shape="poly" id="edge485_Node000001_Node000430" title=" " alt="" coords="1526,20225,1516,20495,1494,20906,1476,21114,1455,21298,1429,21438,1414,21485,1398,21514,1380,21529,1359,21537,1357,21532,1378,21524,1394,21511,1410,21483,1424,21436,1450,21297,1471,21113,1488,20905,1511,20495,1521,20225"/>
 <area shape="rect" id="Node000431" href="$dc/d84/device__mpi_8c.html#a160e97f9db7fb8c3fbcd4d3ca6561ed9" title=" " alt="" coords="1195,21575,1355,21600"/>
 <area shape="poly" id="edge486_Node000001_Node000431" title=" " alt="" coords="1527,20225,1517,20504,1495,20930,1478,21147,1457,21338,1430,21484,1415,21533,1398,21564,1379,21579,1356,21588,1354,21583,1376,21574,1394,21560,1410,21531,1425,21483,1451,21338,1473,21146,1490,20930,1512,20504,1521,20225"/>
-<area shape="rect" id="Node000432" href="$dc/d84/device__mpi_8c.html#aab4e9eeaf731391fb755512de385c2e4" title=" " alt="" coords="1207,21624,1343,21649"/>
+<area shape="rect" id="Node000432" href="$dc/d84/device__mpi_8c.html#a2f70ce85d4f1325a3fbd93f566c385ec" title=" " alt="" coords="1207,21624,1343,21649"/>
 <area shape="poly" id="edge487_Node000001_Node000432" title=" " alt="" coords="1527,20226,1518,20514,1497,20956,1480,21181,1458,21379,1445,21462,1431,21530,1415,21581,1398,21613,1373,21631,1344,21640,1343,21634,1371,21626,1394,21610,1411,21579,1426,21529,1440,21461,1453,21378,1474,21180,1491,20956,1513,20514,1521,20226"/>
-<area shape="rect" id="Node000433" href="$dc/d84/device__mpi_8c.html#a665b1dd9c67f9692d53a529f7224a376" title=" " alt="" coords="1206,21673,1345,21699"/>
+<area shape="rect" id="Node000433" href="$dc/d84/device__mpi_8c.html#a02445fca9ff86bf43938da41aa67f17b" title=" " alt="" coords="1206,21673,1345,21699"/>
 <area shape="poly" id="edge488_Node000001_Node000433" title=" " alt="" coords="1527,20225,1519,20522,1498,20980,1481,21213,1460,21419,1447,21505,1432,21576,1416,21630,1398,21662,1374,21680,1346,21689,1344,21684,1372,21675,1394,21659,1411,21627,1427,21575,1441,21504,1454,21418,1476,21212,1493,20979,1514,20522,1521,20225"/>
 <area shape="rect" id="Node000434" href="$dc/d84/device__mpi_8c.html#a8cdf97a8313a6a354ae7e5a4fc5e5c41" title=" " alt="" coords="1211,21723,1340,21748"/>
 <area shape="poly" id="edge489_Node000001_Node000434" title=" " alt="" coords="1527,20225,1520,20532,1500,21005,1483,21246,1461,21460,1448,21549,1433,21623,1417,21678,1398,21712,1372,21730,1341,21739,1340,21734,1370,21725,1394,21708,1412,21676,1428,21621,1443,21548,1456,21459,1478,21246,1494,21005,1514,20531,1522,20225"/>
@@ -1741,9 +1741,9 @@
 <area shape="poly" id="edge239_Node000221_Node000222" title=" " alt="" coords="1184,18550,1153,18538,1129,18520,1105,18502,1069,18487,1071,18482,1108,18497,1132,18515,1156,18533,1186,18545"/>
 <area shape="rect" id="Node000223" href="$d1/dda/interfacedevice__gradient__jump__penalty_1_1hip__gradient__jump__penalty__finalize.html#a7f7f8f33e7daf949d6787d61f15e2203" title=" " alt="" coords="567,18459,773,18543"/>
 <area shape="poly" id="edge240_Node000222_Node000223" title=" " alt="" coords="867,18477,774,18490,773,18485,867,18472"/>
-<area shape="rect" id="Node000225" href="$d9/dfa/namespacegs__device__mpi.html#a832a9f3cba26a0e8c899d4897e697c69" title="Post non&#45;blocking send operations." alt="" coords="879,18591,1071,18631"/>
+<area shape="rect" id="Node000225" href="$d9/dfa/namespacegs__device__mpi.html#af149a413dba89bc1fed2d20d646cc066" title="Post non&#45;blocking send operations." alt="" coords="879,18591,1071,18631"/>
 <area shape="poly" id="edge242_Node000224_Node000225" title=" " alt="" coords="1204,18663,1154,18653,1068,18634,1069,18629,1155,18647,1205,18658"/>
-<area shape="rect" id="Node000226" href="$de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86" title="Post non&#45;blocking send operations." alt="" coords="896,18655,1055,18695"/>
+<area shape="rect" id="Node000226" href="$de/dcf/namespacegs__device__nccl.html#a4a698ddba8ad717a48415e7611189407" title="Post non&#45;blocking send operations." alt="" coords="896,18655,1055,18695"/>
 <area shape="poly" id="edge243_Node000224_Node000226" title=" " alt="" coords="1205,18678,1055,18678,1055,18673,1205,18673"/>
 <area shape="rect" id="Node000228" href="$d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518" title="Wait for non&#45;blocking operations." alt="" coords="879,18719,1071,18759"/>
 <area shape="poly" id="edge245_Node000227_Node000228" title=" " alt="" coords="1197,18731,1072,18737,1072,18732,1197,18726"/>

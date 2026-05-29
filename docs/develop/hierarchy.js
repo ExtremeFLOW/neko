@@ -353,7 +353,6 @@ var hierarchy =
     ] ],
     [ "gs_comm::gs_comm_free", "dc/dc5/interfacegs__comm_1_1gs__comm__free.html", null ],
     [ "gs_comm::gs_comm_init", "d8/db4/interfacegs__comm_1_1gs__comm__init.html", null ],
-    [ "gs_mpi::gs_comm_mpi_t", "d7/d9f/structgs__mpi_1_1gs__comm__mpi__t.html", null ],
     [ "gs_comm::gs_comm_t", "d5/d1c/structgs__comm_1_1gs__comm__t.html", [
       [ "gs_caf::gs_caf_t", "d1/d7a/structgs__caf_1_1gs__caf__t.html", null ],
       [ "gs_device_mpi::gs_device_mpi_t", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html", null ],

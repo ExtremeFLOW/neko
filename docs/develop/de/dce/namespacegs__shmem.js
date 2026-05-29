@@ -6,7 +6,7 @@ var namespacegs__shmem =
     [ "gs_shmem_buf_init", "de/dce/namespacegs__shmem.html#a02575569cb2555e66adcfd963076e042", null ],
     [ "gs_shmem_free", "de/dce/namespacegs__shmem.html#abea5285732c3076d03c422904ca0bdd4", null ],
     [ "gs_shmem_init", "de/dce/namespacegs__shmem.html#a2414c965e1419dc41de3426d58c20282", null ],
-    [ "gs_shmem_nbrecv", "de/dce/namespacegs__shmem.html#a94aecd3af4da694990f0ca314dafaf9e", null ],
-    [ "gs_shmem_nbsend", "de/dce/namespacegs__shmem.html#af1f65bf9a5f03dde9566c5d769631cd3", null ],
+    [ "gs_shmem_nbrecv", "de/dce/namespacegs__shmem.html#ae22a55e405bd2111f32dcfee5bd97931", null ],
+    [ "gs_shmem_nbsend", "de/dce/namespacegs__shmem.html#a41f0b58b083ddbee03995d77c22ef442", null ],
     [ "gs_shmem_nbwait", "de/dce/namespacegs__shmem.html#af14fb5c1a8a989c6f944016357669085", null ]
 ];

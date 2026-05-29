@@ -104,7 +104,8 @@ $(document).ready(function(){initNavTree('da/dd6/appendices.html','../../'); ini
 <div class="toc"><h3>Table of Contents</h3>
 <ul><li class="level1"><a href="#appendices_env-var">Environmental variable reference</a><ul><li class="level2"><a href="#autotoc_md0">Logging level details</a></li>
 <li class="level2"><a href="#autotoc_md1">Gather-scatter communication backend details</a></li>
-<li class="level2"><a href="#autotoc_md2">Coarray Fortran signaling mode details</a></li>
+<li class="level2"><a href="#autotoc_md2">MPI thread level details</a></li>
+<li class="level2"><a href="#autotoc_md3">Coarray Fortran signaling mode details</a></li>
 </ul>
 </li>
 </ul>
@@ -139,6 +140,8 @@ Environmental variable reference</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_COMM_ID</code>   </td><td class="markdownTableBodyNone">Communicator id for this process (non-negative integer)   </td><td class="markdownTableBodyNone">0    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>NEKO_MPI_THREAD_LEVEL</code>   </td><td class="markdownTableBodyNone">Requested MPI (and SHMEM) thread support level   </td><td class="markdownTableBodyNone">Unset    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>NEKO_DEPRECATION_ERROR</code>   </td><td class="markdownTableBodyNone">Whether to treat deprecated features as errors (boolean)   </td><td class="markdownTableBodyNone">Unset   </td></tr>
 </table>
 <h2><a class="anchor" id="autotoc_md0"></a>
@@ -162,6 +165,15 @@ Gather-scatter communication backend details</h2>
 <li><code>NEKO_GS_COMM=CAF</code> : Coarray Fortran (requires a coarray-capable compiler)</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md2"></a>
+MPI thread level details</h2>
+<p><code>NEKO_MPI_THREAD_LEVEL</code> overrides the default thread support requested from the MPI runtime (and, when built with <code>--with-openshmem</code>, from the SHMEM runtime as well). When unset, the level is chosen automatically: <code>MPI_THREAD_MULTIPLE</code> when running with more than one OpenMP thread per rank, falling back to <code>MPI_THREAD_FUNNELED</code> on host-only backends, and <code>MPI_Init</code> otherwise. Device backends require <code>MPI_THREAD_MULTIPLE</code> under the automatic policy. Setting the variable bypasses these heuristics; if the runtime cannot honor the requested level, initialisation aborts.</p>
+<ul>
+<li><code>NEKO_MPI_THREAD_LEVEL=single</code> : <code>MPI_THREAD_SINGLE</code> (calls <code>MPI_Init</code>).</li>
+<li><code>NEKO_MPI_THREAD_LEVEL=funneled</code> : <code>MPI_THREAD_FUNNELED</code>.</li>
+<li><code>NEKO_MPI_THREAD_LEVEL=serialized</code> : <code>MPI_THREAD_SERIALIZED</code>.</li>
+<li><code>NEKO_MPI_THREAD_LEVEL=multiple</code> : <code>MPI_THREAD_MULTIPLE</code>.</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md3"></a>
 Coarray Fortran signaling mode details</h2>
 <p>When <code>NEKO_GS_COMM=CAF</code>, the per-pair synchronisation strategy is selected by <code>NEKO_GS_CAF_SIGNALING</code>. The mode is bound on the first gather-scatter initialisation and cannot change thereafter. The default (when unset) is <code>sync</code>.</p>
 <ul>
@@ -176,7 +188,7 @@ Coarray Fortran signaling mode details</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Thu May 28 2026 04:57:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri May 29 2026 04:58:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

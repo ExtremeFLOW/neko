@@ -141,12 +141,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2bdc7c541c6dcf0bcf6cc656a46abfcf" id="r_a2bdc7c541c6dcf0bcf6cc656a46abfcf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a2bdc7c541c6dcf0bcf6cc656a46abfcf">free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a2bdc7c541c6dcf0bcf6cc656a46abfcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate Coarray Fortran based communication method. The shared module-level recv coarray is intentionally retained so it can be reused by subsequent <a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html" title="Gather-scatter communication using Coarray Fortran (F2008). Each image puts directly into the (module...">gs_caf_t</a> instances.  <br /></td></tr>
 <tr class="separator:a2bdc7c541c6dcf0bcf6cc656a46abfcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adbf4e76199d4863a6aa39cccbf628924" id="r_adbf4e76199d4863a6aa39cccbf628924"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#adbf4e76199d4863a6aa39cccbf628924">nbsend</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deps</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
-<tr class="memdesc:adbf4e76199d4863a6aa39cccbf628924"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack u into per-peer slabs and put each slab into the remote image's recv_buf. Double buffering means each round writes to a different half of the recv coarray, so no back-pressure synchronisation is needed in sync mode &ndash; the visibility synchronisation in nbwait suffices. Atomic and event modes still use their per-pair signalling.  <br /></td></tr>
-<tr class="separator:adbf4e76199d4863a6aa39cccbf628924"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a653760542f2e6835c2d0b8c013fa31" id="r_a6a653760542f2e6835c2d0b8c013fa31"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a6a653760542f2e6835c2d0b8c013fa31">nbrecv</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a6a653760542f2e6835c2d0b8c013fa31"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op for coarrays: senders push into the receiver's buffer, so the receive side does not need to post anything.  <br /></td></tr>
-<tr class="separator:a6a653760542f2e6835c2d0b8c013fa31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40c3dee3854f7ee8a45758f4309d831d" id="r_a40c3dee3854f7ee8a45758f4309d831d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#a40c3dee3854f7ee8a45758f4309d831d">nbsend</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, u, n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tag</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">deps</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
+<tr class="memdesc:a40c3dee3854f7ee8a45758f4309d831d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack u into per-peer slabs and put each slab into the remote image's recv_buf. Double buffering means each round writes to a different half of the recv coarray, so no back-pressure synchronisation is needed in sync mode &ndash; the visibility synchronisation in nbwait suffices. Atomic and event modes still use their per-pair signalling.  <br /></td></tr>
+<tr class="separator:a40c3dee3854f7ee8a45758f4309d831d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7dc4cbdbb1d61aeee6ee8392e6c0b23" id="r_af7dc4cbdbb1d61aeee6ee8392e6c0b23"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#af7dc4cbdbb1d61aeee6ee8392e6c0b23">nbrecv</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tag</a>)</td></tr>
+<tr class="memdesc:af7dc4cbdbb1d61aeee6ee8392e6c0b23"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op for coarrays: senders push into the receiver's buffer, so the receive side does not need to post anything.  <br /></td></tr>
+<tr class="separator:af7dc4cbdbb1d61aeee6ee8392e6c0b23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb346844ce41f6d261f1a9100c057e7d" id="r_acb346844ce41f6d261f1a9100c057e7d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html#acb346844ce41f6d261f1a9100c057e7d">nbwait</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, u, n, op, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">strm</a>)</td></tr>
 <tr class="memdesc:acb346844ce41f6d261f1a9100c057e7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for all incoming puts and reduce them into u. In sync mode a sync_images bracket pairs with the senders' nbsend; in atomic mode each sender is awaited via its data_ready counter and credited via buf_ready after unpack.  <br /></td></tr>
 <tr class="separator:acb346844ce41f6d261f1a9100c057e7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -458,8 +458,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a6a653760542f2e6835c2d0b8c013fa31" name="a6a653760542f2e6835c2d0b8c013fa31"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a653760542f2e6835c2d0b8c013fa31">&#9670;&#160;</a></span>nbrecv() <span class="overload">[1/2]</span></h2>
+<a id="af7dc4cbdbb1d61aeee6ee8392e6c0b23" name="af7dc4cbdbb1d61aeee6ee8392e6c0b23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af7dc4cbdbb1d61aeee6ee8392e6c0b23">&#9670;&#160;</a></span>nbrecv() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -468,8 +468,18 @@ Public Attributes</h2></td></tr>
           <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) gs_caf::gs_caf_t::nbrecv </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html">gs_caf_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em></td><td>)</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>tag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -502,8 +512,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="adbf4e76199d4863a6aa39cccbf628924" name="adbf4e76199d4863a6aa39cccbf628924"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adbf4e76199d4863a6aa39cccbf628924">&#9670;&#160;</a></span>nbsend() <span class="overload">[1/2]</span></h2>
+<a id="a40c3dee3854f7ee8a45758f4309d831d" name="a40c3dee3854f7ee8a45758f4309d831d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40c3dee3854f7ee8a45758f4309d831d">&#9670;&#160;</a></span>nbsend() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -525,6 +535,12 @@ Public Attributes</h2></td></tr>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
           <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -929,7 +945,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../df/dd5/namespacegs__caf.html">gs_caf</a></li><li class="navelem"><a class="el" href="../../d1/d7a/structgs__caf_1_1gs__caf__t.html">gs_caf_t</a></li>
-    <li class="footer">Generated on Thu May 28 2026 04:57:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri May 29 2026 04:58:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

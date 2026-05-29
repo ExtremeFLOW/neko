@@ -175,8 +175,8 @@ $(document).ready(function(){initNavTree('d8/da1/gs__device__nccl_8F90_source.ht
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>   <span class="keyword">contains</span></div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno"><a class="line" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a141fb02e219aef9a5e9fe3f84a773b8a">   69</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: init =&gt; <a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a2d4e675b4dbc3a5de103b430b400981c">gs_device_nccl_init</a></div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#addaa91ecb082351caaa347aac0982833">   70</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: free =&gt; <a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#aef31fde09a39eebc0ee90e008cba5bb5">gs_device_nccl_free</a></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a3b8f49f0cd0bf40d1b32251cf0b3ecfd">   71</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: nbsend =&gt; <a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86">gs_device_nccl_nbsend</a></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a67b8a013d9a69105dcae04a12e5d2af7">   72</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: nbrecv =&gt; <a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a8929fbf00f3912c54319e2a010d45317">gs_device_nccl_nbrecv</a></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#acd8cc76a3c51d0c2f2c65d15a562c941">   71</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: nbsend =&gt; <a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a4a698ddba8ad717a48415e7611189407">gs_device_nccl_nbsend</a></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno"><a class="line" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#a9666a8e5a250e2bc20f8a79174bc82f3">   72</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: nbrecv =&gt; <a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a18ae5f1f047fb4f6f8de381694408b6f">gs_device_nccl_nbrecv</a></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html#af83d06de7616cc0bc82567b641164045">   73</a></span>     <span class="keywordtype">procedure</span>, pass(this) :: nbwait =&gt; <a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">gs_device_nccl_nbwait</a></div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>  <span class="keyword">end type </span><a class="code hl_struct" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html">gs_device_nccl_t</a></div>
 </div>
@@ -379,111 +379,113 @@ $(document).ready(function(){initNavTree('d8/da1/gs__device__nccl_8F90_source.ht
 <div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#aef31fde09a39eebc0ee90e008cba5bb5">gs_device_nccl_free</a></div>
 <div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
 <div class="foldopen" id="foldopen00262" data-start="" data-end="">
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno"><a class="line" href="../../de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86">  262</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86">gs_device_nccl_nbsend</a>(this, u, n, deps, strm)</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno"><a class="line" href="../../de/dcf/namespacegs__device__nccl.html#a4a698ddba8ad717a48415e7611189407">  262</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a4a698ddba8ad717a48415e7611189407">gs_device_nccl_nbsend</a>(this, u, n, tag, deps, strm)</div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html">gs_device_nccl_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: deps</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keywordtype">type</span>(c_ptr) :: u_d</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    u_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(u)</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405">device_stream_wait_event</a>(this%stream(i), deps, 0)</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../dd/d40/interfacegs__device__nccl_1_1hip__gs__pack.html">hip_gs_pack</a>(u_d, &amp;</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>            this%send_buf%buf_d, &amp;</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>            this%send_buf%dof_d, &amp;</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            this%send_buf%offset(i), &amp;</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            this%send_buf%ndofs(i), &amp;</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            this%stream(i))</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_function" href="../../de/df6/gs_8cu.html#a7ce5d7eddaca70d46e33391af8561115">cuda_gs_pack</a>(u_d, &amp;</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>            this%send_buf%buf_d, &amp;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>            this%send_buf%dof_d, &amp;</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            this%send_buf%offset(i), &amp;</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            this%send_buf%ndofs(i), &amp;</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            this%stream(i))</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;gs_device_nccl: no backend&#39;</span>)</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span><span class="preprocessor"></span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tag</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: deps</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordtype">type</span>(c_ptr) :: u_d</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    u_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(u)</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405">device_stream_wait_event</a>(this%stream(i), deps, 0)</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../dd/d40/interfacegs__device__nccl_1_1hip__gs__pack.html">hip_gs_pack</a>(u_d, &amp;</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>            this%send_buf%buf_d, &amp;</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            this%send_buf%dof_d, &amp;</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            this%send_buf%offset(i), &amp;</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            this%send_buf%ndofs(i), &amp;</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>            this%stream(i))</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_function" href="../../de/df6/gs_8cu.html#a7ce5d7eddaca70d46e33391af8561115">cuda_gs_pack</a>(u_d, &amp;</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>            this%send_buf%buf_d, &amp;</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            this%send_buf%dof_d, &amp;</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            this%send_buf%offset(i), &amp;</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            this%send_buf%ndofs(i), &amp;</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>            this%stream(i))</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;gs_device_nccl: no backend&#39;</span>)</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span><span class="preprocessor"></span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    <span class="comment">! Everything else is done in the wait routine</span></div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="comment">! Everything else is done in the wait routine</span></div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
 </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86">gs_device_nccl_nbsend</a></div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
-<div class="foldopen" id="foldopen00300" data-start="" data-end="">
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno"><a class="line" href="../../de/dcf/namespacegs__device__nccl.html#a8929fbf00f3912c54319e2a010d45317">  300</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a8929fbf00f3912c54319e2a010d45317">gs_device_nccl_nbrecv</a>(this)</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html">gs_device_nccl_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="comment">! Everything is done in the wait routine</span></div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a4a698ddba8ad717a48415e7611189407">gs_device_nccl_nbsend</a></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
+<div class="foldopen" id="foldopen00301" data-start="" data-end="">
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno"><a class="line" href="../../de/dcf/namespacegs__device__nccl.html#a18ae5f1f047fb4f6f8de381694408b6f">  301</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a18ae5f1f047fb4f6f8de381694408b6f">gs_device_nccl_nbrecv</a>(this, tag)</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html">gs_device_nccl_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tag</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a8929fbf00f3912c54319e2a010d45317">gs_device_nccl_nbrecv</a></div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <span class="comment">! Everything is done in the wait routine</span></div>
 <div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
-<div class="foldopen" id="foldopen00309" data-start="" data-end="">
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno"><a class="line" href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">  309</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">gs_device_nccl_nbwait</a>(this, u, n, op, strm)</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html">gs_device_nccl_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    <span class="keywordtype">integer</span> :: op, done_req, i</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <span class="keywordtype">type</span>(c_ptr) :: u_d</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="keywordtype">    real</span>(c_rp) :: rp_dummy</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordtype">integer(c_int)</span> :: nbytes</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    u_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(u)</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    nbytes = c_sizeof(rp_dummy)</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv.html">device_nccl_sendrecv</a>(this%send_buf%buf_d, &amp;</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>            nbytes*this%send_buf%offset(i), &amp;</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>            this%send_buf%ndofs(i), &amp;</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>            this%send_pe(i), &amp;</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>            this%recv_buf%buf_d, &amp;</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>            nbytes*this%recv_buf%offset(i), &amp;</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>            this%recv_buf%ndofs(i), &amp;</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>            this%recv_pe(i), &amp;</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>            nbytes, &amp;</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>            this%stream(i))</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack.html">hip_gs_unpack</a>(u_d, op, &amp;</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>            this%recv_buf%buf_d, &amp;</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>            this%recv_buf%dof_d, &amp;</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>            this%recv_buf%offset(i), &amp;</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>            this%recv_buf%ndofs(i), &amp;</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>            this%stream(i))</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_function" href="../../de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3">cuda_gs_unpack</a>(u_d, op, &amp;</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>            this%recv_buf%buf_d, &amp;</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>            this%recv_buf%dof_d, &amp;</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>            this%recv_buf%offset(i), &amp;</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>            this%recv_buf%ndofs(i), &amp;</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>            this%stream(i))</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;gs_device_mpi: no backend&#39;</span>)</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f">device_event_record</a>(this%event(i), this%stream(i))</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <span class="comment">! Sync non-blocking streams</span></div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="keywordflow">do</span> done_req = 1, <span class="keyword">size</span>(this%recv_pe)</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405">device_stream_wait_event</a>(strm, &amp;</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>            this%event(done_req), 0)</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span> </div>
 </div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">gs_device_nccl_nbwait</a></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a18ae5f1f047fb4f6f8de381694408b6f">gs_device_nccl_nbrecv</a></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span> </div>
+<div class="foldopen" id="foldopen00311" data-start="" data-end="">
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno"><a class="line" href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">  311</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">gs_device_nccl_nbwait</a>(this, u, n, op, strm)</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html">gs_device_nccl_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <span class="keywordtype">integer</span> :: op, done_req, i</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordtype">type</span>(c_ptr) :: u_d</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="keywordtype">    real</span>(c_rp) :: rp_dummy</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    <span class="keywordtype">integer(c_int)</span> :: nbytes</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    u_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(u)</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    nbytes = c_sizeof(rp_dummy)</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv.html">device_nccl_sendrecv</a>(this%send_buf%buf_d, &amp;</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>            nbytes*this%send_buf%offset(i), &amp;</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>            this%send_buf%ndofs(i), &amp;</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>            this%send_pe(i), &amp;</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>            this%recv_buf%buf_d, &amp;</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>            nbytes*this%recv_buf%offset(i), &amp;</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>            this%recv_buf%ndofs(i), &amp;</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>            this%recv_pe(i), &amp;</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>            nbytes, &amp;</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>            this%stream(i))</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span> </div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span><span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack.html">hip_gs_unpack</a>(u_d, op, &amp;</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>            this%recv_buf%buf_d, &amp;</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>            this%recv_buf%dof_d, &amp;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>            this%recv_buf%offset(i), &amp;</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>            this%recv_buf%ndofs(i), &amp;</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>            this%stream(i))</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_function" href="../../de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3">cuda_gs_unpack</a>(u_d, op, &amp;</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>            this%recv_buf%buf_d, &amp;</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>            this%recv_buf%dof_d, &amp;</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>            this%recv_buf%offset(i), &amp;</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>            this%recv_buf%ndofs(i), &amp;</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>            this%stream(i))</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;gs_device_mpi: no backend&#39;</span>)</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span><span class="preprocessor"></span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f">device_event_record</a>(this%event(i), this%stream(i))</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    <span class="comment">! Sync non-blocking streams</span></div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keywordflow">do</span> done_req = 1, <span class="keyword">size</span>(this%recv_pe)</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405">device_stream_wait_event</a>(strm, &amp;</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>            this%event(done_req), 0)</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span> </div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../de/dcf/namespacegs__device__nccl.html">gs_device_nccl</a></div>
+</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">gs_device_nccl_nbwait</a></div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../de/dcf/namespacegs__device__nccl.html">gs_device_nccl</a></div>
 <div class="ttc" id="ags_8cu_html_a18fd2b312917f32020b2915f9eacafa3"><div class="ttname"><a href="../../de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3">cuda_gs_unpack</a></div><div class="ttdeci">void cuda_gs_unpack(real *u_d, int op, real *buf_d, int *dof_d, int offset, int n, cudaStream_t stream)</div><div class="ttdef"><b>Definition</b> <a href="../../de/df6/gs_8cu_source.html#l00132">gs.cu:132</a></div></div>
 <div class="ttc" id="ags_8cu_html_a7ce5d7eddaca70d46e33391af8561115"><div class="ttname"><a href="../../de/df6/gs_8cu.html#a7ce5d7eddaca70d46e33391af8561115">cuda_gs_pack</a></div><div class="ttdeci">void cuda_gs_pack(void *u_d, void *buf_d, void *dof_d, int offset, int n, cudaStream_t stream)</div><div class="ttdef"><b>Definition</b> <a href="../../de/df6/gs_8cu_source.html#l00116">gs.cu:116</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00107">device.F90:107</a></div></div>
@@ -493,8 +495,8 @@ $(document).ready(function(){initNavTree('d8/da1/gs__device__nccl_8F90_source.ht
 <div class="ttc" id="ainterfacegs__device__nccl_1_1hip__gs__unpack_html"><div class="ttname"><a href="../../d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack.html">gs_device_nccl::hip_gs_unpack</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00088">gs_device_nccl.F90:88</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00044">utils.f90:44</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a50dc807442d4f821f0befa31b86f735d"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">comm::pe_size</a></div><div class="ttdeci">integer, public pe_size</div><div class="ttdoc">MPI size of communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00060">comm.F90:60</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00057">comm.F90:57</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a50dc807442d4f821f0befa31b86f735d"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">comm::pe_size</a></div><div class="ttdeci">integer, public pe_size</div><div class="ttdoc">MPI size of communicator.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00061">comm.F90:61</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00058">comm.F90:58</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a00bc2d2b16f268496f2a31bb8cb8017f"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f">device::device_event_record</a></div><div class="ttdeci">subroutine, public device_event_record(event, stream)</div><div class="ttdoc">Record a device event.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l01495">device.F90:1496</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a3f51b2c9ef4bd878a310bd1e1d0d3c80"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">device::host_to_device</a></div><div class="ttdeci">integer, parameter, public host_to_device</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
@@ -507,11 +509,11 @@ $(document).ready(function(){initNavTree('d8/da1/gs__device__nccl_8F90_source.ht
 <div class="ttc" id="anamespacedevice_html_af74b29ebaa45f9d17c541fb736c7dd30"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#af74b29ebaa45f9d17c541fb736c7dd30">device::device_stream_destroy</a></div><div class="ttdeci">subroutine, public device_stream_destroy(stream)</div><div class="ttdoc">Destroy a device stream/command queue.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l01390">device.F90:1391</a></div></div>
 <div class="ttc" id="anamespacegs__comm_html"><div class="ttname"><a href="../../d6/d7c/namespacegs__comm.html">gs_comm</a></div><div class="ttdoc">Defines a gather-scatter communication method.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d75/gs__comm_8f90_source.html#l00034">gs_comm.f90:34</a></div></div>
 <div class="ttc" id="anamespacegs__device__nccl_html"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html">gs_device_nccl</a></div><div class="ttdoc">Defines NCCL based gather-scatter communication.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00034">gs_device_nccl.F90:34</a></div></div>
-<div class="ttc" id="anamespacegs__device__nccl_html_a068065dc694cd08a8203d82aeca5db86"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#a068065dc694cd08a8203d82aeca5db86">gs_device_nccl::gs_device_nccl_nbsend</a></div><div class="ttdeci">subroutine gs_device_nccl_nbsend(this, u, n, deps, strm)</div><div class="ttdoc">Post non-blocking send operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00262">gs_device_nccl.F90:263</a></div></div>
+<div class="ttc" id="anamespacegs__device__nccl_html_a18ae5f1f047fb4f6f8de381694408b6f"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#a18ae5f1f047fb4f6f8de381694408b6f">gs_device_nccl::gs_device_nccl_nbrecv</a></div><div class="ttdeci">subroutine gs_device_nccl_nbrecv(this, tag)</div><div class="ttdoc">Post non-blocking receive operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00301">gs_device_nccl.F90:302</a></div></div>
 <div class="ttc" id="anamespacegs__device__nccl_html_a2d4e675b4dbc3a5de103b430b400981c"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#a2d4e675b4dbc3a5de103b430b400981c">gs_device_nccl::gs_device_nccl_init</a></div><div class="ttdeci">subroutine gs_device_nccl_init(this, send_pe, recv_pe)</div><div class="ttdoc">Initialise NCCL based communication method.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00212">gs_device_nccl.F90:213</a></div></div>
-<div class="ttc" id="anamespacegs__device__nccl_html_a6ce3a7bef43ec31cbe113f8073b40abc"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">gs_device_nccl::gs_device_nccl_nbwait</a></div><div class="ttdeci">subroutine gs_device_nccl_nbwait(this, u, n, op, strm)</div><div class="ttdoc">Wait for non-blocking operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00309">gs_device_nccl.F90:310</a></div></div>
+<div class="ttc" id="anamespacegs__device__nccl_html_a4a698ddba8ad717a48415e7611189407"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#a4a698ddba8ad717a48415e7611189407">gs_device_nccl::gs_device_nccl_nbsend</a></div><div class="ttdeci">subroutine gs_device_nccl_nbsend(this, u, n, tag, deps, strm)</div><div class="ttdoc">Post non-blocking send operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00262">gs_device_nccl.F90:263</a></div></div>
+<div class="ttc" id="anamespacegs__device__nccl_html_a6ce3a7bef43ec31cbe113f8073b40abc"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc">gs_device_nccl::gs_device_nccl_nbwait</a></div><div class="ttdeci">subroutine gs_device_nccl_nbwait(this, u, n, op, strm)</div><div class="ttdoc">Wait for non-blocking operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00311">gs_device_nccl.F90:312</a></div></div>
 <div class="ttc" id="anamespacegs__device__nccl_html_a7fd02aded867f9843400ccda5550adf1"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#a7fd02aded867f9843400ccda5550adf1">gs_device_nccl::gs_device_nccl_buf_init</a></div><div class="ttdeci">subroutine gs_device_nccl_buf_init(this, pe_order, dof_stack, mark_dupes)</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00132">gs_device_nccl.F90:133</a></div></div>
-<div class="ttc" id="anamespacegs__device__nccl_html_a8929fbf00f3912c54319e2a010d45317"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#a8929fbf00f3912c54319e2a010d45317">gs_device_nccl::gs_device_nccl_nbrecv</a></div><div class="ttdeci">subroutine gs_device_nccl_nbrecv(this)</div><div class="ttdoc">Post non-blocking receive operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00300">gs_device_nccl.F90:301</a></div></div>
 <div class="ttc" id="anamespacegs__device__nccl_html_aef31fde09a39eebc0ee90e008cba5bb5"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#aef31fde09a39eebc0ee90e008cba5bb5">gs_device_nccl::gs_device_nccl_free</a></div><div class="ttdeci">subroutine gs_device_nccl_free(this)</div><div class="ttdoc">Deallocate MPI based communication method.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00240">gs_device_nccl.F90:241</a></div></div>
 <div class="ttc" id="anamespacegs__device__nccl_html_aefc2ac685c287cff92cd6de2cde7bc0f"><div class="ttname"><a href="../../de/dcf/namespacegs__device__nccl.html#aefc2ac685c287cff92cd6de2cde7bc0f">gs_device_nccl::gs_device_nccl_buf_free</a></div><div class="ttdeci">subroutine gs_device_nccl_buf_free(this)</div><div class="ttdef"><b>Definition</b> <a href="../../d8/da1/gs__device__nccl_8F90_source.html#l00201">gs_device_nccl.F90:202</a></div></div>
 <div class="ttc" id="anamespacehtable_html"><div class="ttname"><a href="../../dc/df5/namespacehtable.html">htable</a></div><div class="ttdoc">Implements a hash table ADT.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/ddc/htable_8f90_source.html#l00052">htable.f90:52</a></div></div>
@@ -531,7 +533,7 @@ $(document).ready(function(){initNavTree('d8/da1/gs__device__nccl_8F90_source.ht
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../dir_77c81aa14b6219eec0132e0447c94fac.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_bbf3ca66c1b560da8bc9e61fd2cef0aa.html">device</a></li><li class="navelem"><a class="el" href="../../d8/da1/gs__device__nccl_8F90.html">gs_device_nccl.F90</a></li>
-    <li class="footer">Generated on Thu May 28 2026 04:57:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri May 29 2026 04:58:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
