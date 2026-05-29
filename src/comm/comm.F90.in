@@ -143,15 +143,15 @@ contains
           end if
        else if (nthrds .gt. 1) then
           call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierr)
-          if (provided .ne. MPI_THREAD_MULTIPLE) then
-             ! MPI_THREAD_MULTIPLE is required for mt. device backends
+          if (provided .lt. MPI_THREAD_MULTIPLE) then
+             ! MPI_THREAD_MULTIPLE is required for mt. device backends. For
+             ! host backends the gather-scatter MPI calls are issued from the
+             ! OpenMP master thread, so MPI_THREAD_SERIALIZED (or FUNNELED) is
+             ! sufficient as a last resort.
              if (NEKO_BCKND_DEVICE .eq. 1) then
                 call neko_error('Invalid thread support provided by MPI')
-             else
-                call MPI_Init_thread(MPI_THREAD_FUNNELED, provided, ierr)
-                if (provided .ne. MPI_THREAD_FUNNELED) then
-                   call neko_error('Invalid thread support provided by MPI')
-                end if
+             else if (provided .lt. MPI_THREAD_FUNNELED) then
+                call neko_error('Invalid thread support provided by MPI')
              end if
           end if
        else
