@@ -143,5 +143,15 @@
 - Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
+- `operator::dudxyz` calls with implicit device arrays are deprecated. Please
+  use `opr_device_dudxyz` instead.
+- `operator::div` calls with implicit device arrays are deprecated. Please use
+  `div_d` instead.
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
   `device_ortho` instead.
+- `operator::cfl_r4` calls with implicit device arrays are deprecated. Please
+  use `cfl_d` instead.
+- `operator::strain_rate_r4` calls with implicit device arrays are deprecated.
+  Please use `strain_rate_d` instead.
+- `operator::rotate_cyc_r1` and `operator::rotate_cyc_r4` calls with implicit
+  device arrays are deprecated. Please use `rotate_cyc_d` instead.
