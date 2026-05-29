@@ -94,6 +94,7 @@ neko_fortran_SOURCES = \
 	mesh/tri_mesh.f90\
 	mesh/intersection_detector.f90\
 	field/field.f90\
+	field/field_array.f90\
 	field/field_list.f90\
 	field/field_series.f90\
 	field/field_series_list.f90\
