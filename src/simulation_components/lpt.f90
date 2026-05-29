@@ -47,15 +47,16 @@ module lagrangian_particle_tracking
   use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
-  use comm, only : pe_rank, NEKO_COMM
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use tensor, only : trsp
+  use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_Exscan, MPI_Gather, MPI_Gatherv, &
+       MPI_INTEGER, MPI_SUM
   use csv_file, only : csv_file_t
   implicit none
   private
 
   !> A simulation component for passive Lagrangian particle tracking.
-  !! Particles are seeded once, then advected with an explicit Euler update
-  !! using a velocity field interpolated from registered flow fields.
+  !! Particles are redistributed to the rank that owns their current location.
   type, public, extends(simulation_component_t) :: lpt_t
      !> X velocity field.
      type(field_t), pointer :: u => null()
@@ -65,12 +66,8 @@ module lagrangian_particle_tracking
      type(field_t), pointer :: w => null()
      !> Point interpolation helper used to evaluate the carrier velocity.
      type(global_interpolation_t) :: global_interp
-     !> Names of the velocity fields to sample.
-     character(len=80) :: field_names(3)
-     !> Particle coordinates stored on rank 0.
-     type(point_t), allocatable :: particles(:)
-     !> Whether a particle is still active.
-     logical, allocatable :: active(:)
+     !> Particle coordinates local to this MPI rank.
+     real(kind=rp), allocatable :: xyz_particles(:,:)
      !> Optional CSV output file.
      type(file_t) :: output_file
      !> Whether trajectory output is enabled.
@@ -79,10 +76,10 @@ module lagrangian_particle_tracking
      logical :: log = .true.
      !> Time after which tracking should start.
      real(kind=rp) :: start_time = -huge(0.0_rp)
-     !> Number of seeded particles on this rank.
+     !> Number of particles currently local to this rank.
      integer :: n_particles = 0
-     !> Number of particles lost on this rank.
-     integer :: n_lost = 0
+     !> Total number of particles across all ranks.
+     integer :: n_global_particles = 0
    contains
      !> Construct the component from a case-file JSON object.
      procedure, pass(this) :: init => lpt_init_from_json
@@ -94,9 +91,9 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: read_particles_json
      !> Read particle coordinates from a CSV file.
      procedure, private, pass(this) :: read_particles_csv
-     !> Convert particle coordinates to an xyz array.
-     procedure, private, pass(this) :: particles_to_xyz
-     !> Resolve active particles and interpolate the carrier velocity.
+     !> Redistribute particles to the owning MPI rank.
+     procedure, private, pass(this) :: redistribute_particles
+     !> Interpolate the carrier velocity at the local particles.
      procedure, private, pass(this) :: evaluate_velocity
      !> Write a trajectory snapshot.
      procedure, private, pass(this) :: write_output
@@ -116,7 +113,6 @@ contains
     type(json_file) :: interp_subdict
     character(len=:), allocatable :: name
     character(len=:), allocatable :: output_filename
-    character(len=80), allocatable :: field_names_json(:)
 
     call this%free()
 
@@ -127,33 +123,16 @@ contains
     call this%init_base(json, case)
 
     this%name = name
-    this%field_names = [character(len=80) :: "u", "v", "w"]
-    if (json%valid_path("field_names")) then
-       call json_get(json, "field_names", field_names_json)
-       if (size(field_names_json) .ne. 3) then
-          call neko_error("lpt requires exactly three field_names")
-       end if
-       this%field_names = field_names_json
-    end if
-
-    this%u => neko_registry%get_field_by_name(trim(this%field_names(1)))
-    this%v => neko_registry%get_field_by_name(trim(this%field_names(2)))
-    this%w => neko_registry%get_field_by_name(trim(this%field_names(3)))
+    this%u => neko_registry%get_field_by_name("u")
+    this%v => neko_registry%get_field_by_name("v")
+    this%w => neko_registry%get_field_by_name("w")
 
     call this%read_particles_json(json)
 
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &
          params_subdict = interp_subdict)
-
-    block
-      real(kind=rp), allocatable :: xyz(:,:)
-      if (this%n_particles .gt. 0) then
-         call this%particles_to_xyz(xyz)
-         call this%global_interp%find_points(xyz, this%n_particles)
-         deallocate(xyz)
-      end if
-    end block
+    call this%redistribute_particles()
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name) // ".csv")
@@ -170,7 +149,6 @@ contains
     class(lpt_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: coords(:)
-    integer :: i
 
     if (pe_rank .eq. 0) then
        if (json%valid_path("coordinates")) then
@@ -180,24 +158,19 @@ contains
                   "particle")
           end if
           this%n_particles = size(coords) / 3
-          allocate(this%particles(this%n_particles))
-          do i = 1, this%n_particles
-             this%particles(i)%x = real(coords(3*i-2:3*i), &
-                  kind(this%particles(i)%x(1)))
-          end do
+          allocate(this%xyz_particles(3, this%n_particles))
+          this%xyz_particles = reshape(coords, [3, this%n_particles])
        else if (json%valid_path("points_file")) then
           call this%read_particles_csv(json)
        else
           call neko_error("lpt requires either coordinates or points_file")
        end if
-
-       allocate(this%active(this%n_particles))
-       this%active = .true.
     else
        this%n_particles = 0
-       allocate(this%particles(0))
-       allocate(this%active(0))
+       allocate(this%xyz_particles(3, 0))
     end if
+
+    this%n_global_particles = this%n_particles
   end subroutine read_particles_json
 
   !> Read particle coordinates from a three-column CSV file.
@@ -207,7 +180,6 @@ contains
     character(len=:), allocatable :: points_file
     type(file_t) :: file_in
     type(matrix_t) :: mat_in
-    integer :: i
 
     if (pe_rank .ne. 0) return
 
@@ -219,11 +191,8 @@ contains
        this%n_particles = ft%count_lines()
        call mat_in%init(this%n_particles, 3)
        call ft%read(mat_in)
-       allocate(this%particles(this%n_particles))
-       do i = 1, this%n_particles
-          this%particles(i)%x = real(mat_in%x(i,:), &
-               kind(this%particles(i)%x(1)))
-       end do
+       allocate(this%xyz_particles(3, this%n_particles))
+       this%xyz_particles = transpose(mat_in%x)
     class default
        call neko_error("lpt points_file must be a csv file")
     end select
@@ -232,178 +201,152 @@ contains
     call file_in%free()
   end subroutine read_particles_csv
 
-  !> Convert stored particles to an xyz array compatible with interpolation.
-  subroutine particles_to_xyz(this, xyz)
-    class(lpt_t), intent(in) :: this
-    real(kind=rp), allocatable, intent(out) :: xyz(:,:)
-    integer :: i
-
-    allocate(xyz(3, this%n_particles))
-    do i = 1, this%n_particles
-      xyz(:,i) = real(this%particles(i)%x, rp)
-    end do
-  end subroutine particles_to_xyz
-
-  !> Resolve active particles, interpolate their velocity and optionally
-  !! deactivate particles that have left the mesh.
-  subroutine evaluate_velocity(this, particle_ids, xyz, vel, n_active)
+  !> Redistribute particles to the rank that owns their current location.
+  subroutine redistribute_particles(this)
     class(lpt_t), intent(inout) :: this
-    integer, allocatable, intent(out) :: particle_ids(:)
-    real(kind=rp), allocatable, intent(out) :: xyz(:,:)
+    integer :: ierr
+
+    call this%global_interp%find_points_and_redist(this%xyz_particles, &
+         this%n_particles)
+    call MPI_Allreduce(this%n_particles, this%n_global_particles, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+  end subroutine redistribute_particles
+
+  !> Interpolate the carrier velocity at the local particles.
+  subroutine evaluate_velocity(this, vel)
+    class(lpt_t), intent(inout) :: this
     real(kind=rp), allocatable, intent(out) :: vel(:,:)
-    integer, intent(out) :: n_active
-    real(kind=rp), allocatable :: u_vals(:), v_vals(:), w_vals(:)
-    real(kind=rp), allocatable :: trial_xyz(:,:)
-    integer, allocatable :: trial_ids(:)
     logical :: do_interp_on_host
-    integer :: i, j, n_trial
 
-    n_active = 0
-    allocate(particle_ids(0))
-    allocate(xyz(3, 0))
-    allocate(vel(3, 0))
-
-    if (pe_rank .ne. 0) return
+    allocate(vel(3, this%n_particles))
     if (this%n_particles .eq. 0) return
 
-    n_trial = count(this%active)
-    if (n_trial .eq. 0) return
-
-    allocate(trial_ids(n_trial))
-    allocate(trial_xyz(3, n_trial))
-    j = 0
-    do i = 1, this%n_particles
-       if (this%active(i)) then
-          j = j + 1
-          trial_ids(j) = i
-          trial_xyz(:,j) = real(this%particles(i)%x, rp)
-       end if
-    end do
-
-    call this%global_interp%find_points(trial_xyz, n_trial)
-
-    n_active = 0
-    do i = 1, n_trial
-       if (this%global_interp%pe_owner(i) .ge. 0 .and. &
-            this%global_interp%el_owner0(i) .ge. 0) then
-          n_active = n_active + 1
-       else
-          this%active(trial_ids(i)) = .false.
-          this%n_lost = this%n_lost + 1
-       end if
-    end do
-
-    if (n_active .eq. 0) then
-       deallocate(trial_ids)
-       deallocate(trial_xyz)
-       return
-    end if
-
-    deallocate(particle_ids)
-    deallocate(xyz)
-    deallocate(vel)
-    allocate(particle_ids(n_active))
-    allocate(xyz(3, n_active))
-    allocate(vel(3, n_active))
-
-    j = 0
-    do i = 1, n_trial
-       if (this%active(trial_ids(i))) then
-          j = j + 1
-          particle_ids(j) = trial_ids(i)
-          xyz(:,j) = trial_xyz(:,i)
-       end if
-    end do
-
-    call this%global_interp%find_points(xyz, n_active)
-    allocate(u_vals(n_active), v_vals(n_active), w_vals(n_active))
     do_interp_on_host = .false.
-    call this%global_interp%evaluate(u_vals, this%u%x, do_interp_on_host)
-    call this%global_interp%evaluate(v_vals, this%v%x, do_interp_on_host)
-    call this%global_interp%evaluate(w_vals, this%w%x, do_interp_on_host)
-
-    vel(1,:) = u_vals
-    vel(2,:) = v_vals
-    vel(3,:) = w_vals
-
-    deallocate(u_vals)
-    deallocate(v_vals)
-    deallocate(w_vals)
-    deallocate(trial_ids)
-    deallocate(trial_xyz)
+    call this%global_interp%evaluate(vel(1,:), this%u%x, do_interp_on_host)
+    call this%global_interp%evaluate(vel(2,:), this%v%x, do_interp_on_host)
+    call this%global_interp%evaluate(vel(3,:), this%w%x, do_interp_on_host)
   end subroutine evaluate_velocity
 
   !> Advance particles with an explicit Euler update and optionally write them.
   subroutine lpt_compute(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    integer, allocatable :: particle_ids(:)
-    real(kind=rp), allocatable :: xyz(:,:), vel(:,:)
-    integer :: n_active, i
-    type(point_t) :: x_p, u_p
+    real(kind=rp), allocatable :: vel(:,:)
+    integer :: i
+    type(point_t) :: x_p
 
     if (time%t .lt. this%start_time) return
-    write(*,*) "LPT active particles: ", count(this%active), " lost particles: ", &
-         this%n_lost
-    call this%evaluate_velocity(particle_ids, xyz, vel, n_active)
+
+    call this%redistribute_particles()
+    call this%evaluate_velocity(vel)
 
     if (this%output_enabled) then
-       if (this%output_controller%check(time)) then
-          call this%write_output(time, particle_ids, xyz, vel, n_active)
-          call this%output_controller%register_execution()
-       end if
+      if (this%output_controller%check(time)) then
+         call this%write_output(time, vel)
+         call this%output_controller%register_execution()
+      end if
     end if
 
-    if (pe_rank .eq. 0) then
-       do i = 1, n_active
-          x_p%x = real(xyz(:,i), kind(x_p%x(1)))
-          u_p%x = real(vel(:,i), kind(u_p%x(1)))
-          x_p%x = x_p%x + time%dt * u_p%x
-          this%particles(particle_ids(i))%x = x_p%x
-       end do
-    end if
+    do i = 1, this%n_particles
+       this%xyz_particles(:,i) = this%xyz_particles(:,i) + time%dt * vel(:,i)
+    end do
 
-    if (allocated(particle_ids)) deallocate(particle_ids)
-    if (allocated(xyz)) deallocate(xyz)
     if (allocated(vel)) deallocate(vel)
   end subroutine lpt_compute
 
-  !> Write one trajectory snapshot to CSV.
-  subroutine write_output(this, time, particle_ids, xyz, vel, n_active)
+  !> Write one trajectory snapshot to CSV by gathering local particle data to
+  !! rank 0.
+  subroutine write_output(this, time, vel)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    integer, intent(in) :: particle_ids(:)
-    real(kind=rp), intent(in) :: xyz(:,:)
     real(kind=rp), intent(in) :: vel(:,:)
-    integer, intent(in) :: n_active
     type(matrix_t) :: block
+    real(kind=rp), allocatable :: local_data(:,:)
+    real(kind=rp), allocatable :: global_data(:,:)
+    integer, allocatable :: n_local_particles_per_rank(:)
+    integer, allocatable :: particle_offsets(:)
+    integer, allocatable :: recvcounts(:)
+    integer, allocatable :: displs(:)
+    integer :: n_local
+    integer :: particle_offset
+    integer :: total_particles
     integer :: i
+    integer :: ierr
 
-    if (pe_rank .ne. 0) return
-    if (n_active .eq. 0) return
+    n_local = this%n_particles
+    particle_offset = 0
+    call MPI_Exscan(n_local, particle_offset, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM, ierr)
+    if (pe_rank .eq. 0) particle_offset = 0
 
-    call block%init(n_active, 9)
-    do i = 1, n_active
-       block%x(i,1) = time%tstep
-       block%x(i,2) = time%t
-       block%x(i,3) = particle_ids(i)
-       block%x(i,4) = xyz(1,i)
-       block%x(i,5) = xyz(2,i)
-       block%x(i,6) = xyz(3,i)
-       block%x(i,7) = vel(1,i)
-       block%x(i,8) = vel(2,i)
-       block%x(i,9) = vel(3,i)
+    allocate(local_data(9, n_local))
+    do i = 1, n_local
+       local_data(1,i) = real(time%tstep, rp)
+       local_data(2,i) = time%t
+       local_data(3,i) = real(particle_offset + i, rp)
+       local_data(4,i) = this%xyz_particles(1,i)
+       local_data(5,i) = this%xyz_particles(2,i)
+       local_data(6,i) = this%xyz_particles(3,i)
+       local_data(7,i) = vel(1,i)
+       local_data(8,i) = vel(2,i)
+       local_data(9,i) = vel(3,i)
     end do
-    call this%output_file%write(block)
-    call block%free()
+
+    if (pe_rank .eq. 0) then
+       allocate(n_local_particles_per_rank(pe_size))
+    else
+       allocate(n_local_particles_per_rank(0))
+    end if
+    call MPI_Gather(n_local, 1, MPI_INTEGER, n_local_particles_per_rank, 1, &
+         MPI_INTEGER, 0, NEKO_COMM, ierr)
+
+    if (pe_rank .eq. 0) then
+       allocate(particle_offsets(pe_size))
+       allocate(recvcounts(pe_size))
+       allocate(displs(pe_size))
+       particle_offsets = 0
+       recvcounts = 0
+       displs = 0
+
+       total_particles = 0
+       do i = 1, pe_size
+          particle_offsets(i) = total_particles
+          total_particles = total_particles + n_local_particles_per_rank(i)
+          recvcounts(i) = 9 * n_local_particles_per_rank(i)
+          displs(i) = 9 * particle_offsets(i)
+       end do
+
+       allocate(global_data(9, total_particles))
+    else
+       allocate(particle_offsets(0))
+       allocate(recvcounts(0))
+       allocate(displs(0))
+       allocate(global_data(9, 0))
+    end if
+
+    call MPI_Gatherv(local_data, 9 * n_local, MPI_REAL_PRECISION, global_data, &
+         recvcounts, displs, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+
+    if (pe_rank .eq. 0) then
+       call block%init(total_particles, 9)
+       call trsp(block%x, total_particles, global_data, 9)
+       call this%output_file%write(block)
+       call block%free()
+    end if
+
+    deallocate(global_data)
+    deallocate(n_local_particles_per_rank)
+    deallocate(particle_offsets)
+    deallocate(recvcounts)
+    deallocate(displs)
+    deallocate(local_data)
   end subroutine write_output
 
   !> Free the component.
   subroutine lpt_free(this)
     class(lpt_t), intent(inout) :: this
 
-    if (allocated(this%particles)) deallocate(this%particles)
-    if (allocated(this%active)) deallocate(this%active)
+    if (allocated(this%xyz_particles)) deallocate(this%xyz_particles)
     call this%global_interp%free()
     call this%output_file%free()
 
@@ -414,7 +357,7 @@ contains
     this%log = .true.
     this%start_time = -huge(0.0_rp)
     this%n_particles = 0
-    this%n_lost = 0
+    this%n_global_particles = 0
     call this%free_base()
   end subroutine lpt_free
 
@@ -422,23 +365,18 @@ contains
   subroutine log_status(this)
     class(lpt_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf
-    integer :: n_active_global, n_active_local, ierr
 
     if (.not. this%log) return
-
-    n_active_local = count(this%active)
-    call MPI_Allreduce(n_active_local, n_active_global, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
 
     call neko_log%section("Lagrangian particle tracking")
     write(log_buf, '(A,A)') "Name: ", trim(this%name)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,A,", ",A,", ",A)') "Fields: ", &
-         trim(this%field_names(1)), trim(this%field_names(2)), &
-         trim(this%field_names(3))
+    write(log_buf, '(A,I0)') "Global seeded particles: ", &
+         this%n_global_particles
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I0)') "Seeded particles: ", n_active_global
-    call neko_log%message(log_buf)
+    write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
+         this%n_particles
+    if (pe_rank .eq. 0) call neko_log%message(log_buf)
     call neko_log%message("Input supported from doc/pages/user-guide/" // &
          "case-file.md semantics for simcomp JSON; particle seeding here " // &
          "uses coordinates or points_file.")
