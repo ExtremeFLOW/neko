@@ -82,6 +82,8 @@ module mesh_manager
           refine_coarsen
      !> Construct neko mesh type based on mesh manager data
      procedure(mesh_manager_mesh), pass(this), deferred :: mesh_construct
+     !> Save new mesh after refinement
+     procedure(mesh_manager_save), pass(this), deferred :: mesh_save
   end type mesh_manager_t
 
   abstract interface
@@ -134,6 +136,14 @@ module mesh_manager
        type(mesh_t), intent(inout) :: mesh
        logical, intent(in) :: ifnmsh
      end subroutine mesh_manager_mesh
+
+     !> Save new mesh after refinement
+     !! @param[in]   counter      refinement count
+     subroutine mesh_manager_save(this, counter)
+       import mesh_manager_t
+       class(mesh_manager_t), intent(inout) :: this
+       integer, intent(in) :: counter
+     end subroutine mesh_manager_save
   end interface
 
   interface

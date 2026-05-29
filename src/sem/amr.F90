@@ -193,7 +193,7 @@ contains
                    tmp(il)%cmp => this%components(il)%cmp
                 end do
                 deallocate(this%components)
-                call MOVE_ALLOC(tmp, this%components)
+                call move_alloc(tmp, this%components)
              end if
           else
              call neko_warning('Restart component not listed')
@@ -318,6 +318,11 @@ contains
           call this%reconstruct%map_free()
 
           call neko_log%end_section()
+
+          write(log_buf, '(a)') 'Saving new mesh'
+          call neko_log%message(log_buf)
+          ! Refinement counter is updated in solver restart
+          call mesh_manager%mesh_save(this%counter)
        end if
 
        call profiler_end_region("Mesh refine/coarsen", 30)

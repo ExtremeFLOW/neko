@@ -95,6 +95,8 @@ module mesh_manager_p4est
      procedure, pass(this) :: refine_coarsen => p4est_refine_coarsen
      !> Construct neko mesh type based on mesh manager data
      procedure, pass(this) :: mesh_construct => p4est_mesh_construct
+     !> Save new mesh after refinement
+      procedure, pass(this) :: mesh_save => p4est_mesh_save
 #ifdef HAVE_P4EST
      !> The costrucructor from type components.
      procedure, pass(this) :: init_from_component => &
@@ -1832,6 +1834,27 @@ contains
 
   end subroutine p4est_bc_fill
 
+  !> Save new mesh after refinement
+  !! @param[in]   counter      refinement count
+  subroutine p4est_mesh_save(this, counter)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    integer, intent(in) :: counter
+    character(4) :: count_str
+    character(*), parameter :: name = "new_mesh_"
+
+    write(count_str, '(i4.4)') counter
+
+    ! Save connectivity information
+!    call wp4est_cnn_save(name//count_str//'.cnn'//c_null_char)
+    call wp4est_tree_save(name//count_str//'.tree'//c_null_char)
+!    call wp4est_vtk_write(name//count_str//c_null_char)
+
+    ! Save geometry
+    ! NOT FINISHED YET
+!    call this%nmsh_mesh%
+
+  end subroutine p4est_mesh_save
+
 #else
 
   !> Start p4est
@@ -1913,6 +1936,16 @@ contains
     call neko_error('p4est mesh manager must be compiled with p4est support.')
 
   end subroutine p4est_mesh_construct
+
+  !> Save new mesh after refinement
+  !! @param[in]   counter      refinement count
+  subroutine p4est_mesh_save(this, counter)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    integer, intent(in) :: counter
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_mesh_save
 #endif
 
 end module mesh_manager_p4est
