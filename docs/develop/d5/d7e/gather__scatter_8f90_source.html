@@ -1545,72 +1545,73 @@ $(document).ready(function(){initNavTree('d5/d7e/gather__scatter_8f90_source.htm
 <div class="line"><a id="l01443" name="l01443"></a><span class="lineno"> 1443</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
 <div class="line"><a id="l01444" name="l01444"></a><span class="lineno"> 1444</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">optional</span>, <span class="keywordtype">intent(inout)</span> :: event</div>
 <div class="line"><a id="l01445" name="l01445"></a><span class="lineno"> 1445</span>    <span class="keywordtype">integer</span> :: m, l, op, lo, so, tid</div>
-<div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span> </div>
-<div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span>    lo = gs%local_facet_offset</div>
-<div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span>    so = -gs%shared_facet_offset</div>
-<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>    m = gs%nlocal</div>
-<div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span>    l = gs%nshared</div>
-<div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span> </div>
-<div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span>    <span class="comment">! Capture the calling thread id before opening any parallel region; it</span></div>
-<div class="line"><a id="l01453" name="l01453"></a><span class="lineno"> 1453</span>    <span class="comment">! is used as the MPI tag so concurrent gs ops driven from different</span></div>
-<div class="line"><a id="l01454" name="l01454"></a><span class="lineno"> 1454</span>    <span class="comment">! threads (device path) don&#39;t collide.</span></div>
-<div class="line"><a id="l01455" name="l01455"></a><span class="lineno"> 1455</span>    tid = 0</div>
-<div class="line"><a id="l01456" name="l01456"></a><span class="lineno"> 1456</span>    <span class="comment">!$ tid = omp_get_thread_num()</span></div>
-<div class="line"><a id="l01457" name="l01457"></a><span class="lineno"> 1457</span> </div>
-<div class="line"><a id="l01458" name="l01458"></a><span class="lineno"> 1458</span>    <span class="comment">!$omp parallel if (NEKO_BCKND_DEVICE .eq. 0)</span></div>
-<div class="line"><a id="l01459" name="l01459"></a><span class="lineno"> 1459</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gather_scatter&quot;</span>, 5)</div>
-<div class="line"><a id="l01460" name="l01460"></a><span class="lineno"> 1460</span>    <span class="comment">! Gather shared dofs</span></div>
-<div class="line"><a id="l01461" name="l01461"></a><span class="lineno"> 1461</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1 .and. n .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01462" name="l01462"></a><span class="lineno"> 1462</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_nbrecv&quot;</span>, 13)</div>
-<div class="line"><a id="l01463" name="l01463"></a><span class="lineno"> 1463</span>       <span class="keyword">call </span>gs%comm%nbrecv(tid)</div>
-<div class="line"><a id="l01464" name="l01464"></a><span class="lineno"> 1464</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_nbrecv&quot;</span>, 13)</div>
-<div class="line"><a id="l01465" name="l01465"></a><span class="lineno"> 1465</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_gather_shared&quot;</span>, 14)</div>
-<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span>       <span class="keyword">call </span>gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &amp;</div>
-<div class="line"><a id="l01467" name="l01467"></a><span class="lineno"> 1467</span>            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &amp;</div>
-<div class="line"><a id="l01468" name="l01468"></a><span class="lineno"> 1468</span>            gs%shared_blk_off, op, .true.)</div>
-<div class="line"><a id="l01469" name="l01469"></a><span class="lineno"> 1469</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_gather_shared&quot;</span>, 14)</div>
-<div class="line"><a id="l01470" name="l01470"></a><span class="lineno"> 1470</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_nbsend&quot;</span>, 6)</div>
-<div class="line"><a id="l01471" name="l01471"></a><span class="lineno"> 1471</span>       <span class="keyword">call </span>gs%comm%nbsend(gs%shared_gs, l, tid, &amp;</div>
-<div class="line"><a id="l01472" name="l01472"></a><span class="lineno"> 1472</span>            gs%bcknd%gather_event, gs%bcknd%gs_stream)</div>
-<div class="line"><a id="l01473" name="l01473"></a><span class="lineno"> 1473</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_nbsend&quot;</span>, 6)</div>
-<div class="line"><a id="l01474" name="l01474"></a><span class="lineno"> 1474</span> </div>
-<div class="line"><a id="l01475" name="l01475"></a><span class="lineno"> 1475</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01476" name="l01476"></a><span class="lineno"> 1476</span> </div>
-<div class="line"><a id="l01477" name="l01477"></a><span class="lineno"> 1477</span>    <span class="comment">! Gather-scatter local dofs</span></div>
-<div class="line"><a id="l01478" name="l01478"></a><span class="lineno"> 1478</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_local&quot;</span>, 12)</div>
-<div class="line"><a id="l01479" name="l01479"></a><span class="lineno"> 1479</span>    <span class="keyword">call </span>gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &amp;</div>
-<div class="line"><a id="l01480" name="l01480"></a><span class="lineno"> 1480</span>         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &amp;</div>
-<div class="line"><a id="l01481" name="l01481"></a><span class="lineno"> 1481</span>         op, .false.)</div>
-<div class="line"><a id="l01482" name="l01482"></a><span class="lineno"> 1482</span>    <span class="keyword">call </span>gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &amp;</div>
-<div class="line"><a id="l01483" name="l01483"></a><span class="lineno"> 1483</span>         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &amp;</div>
-<div class="line"><a id="l01484" name="l01484"></a><span class="lineno"> 1484</span>         .false., c_null_ptr)</div>
-<div class="line"><a id="l01485" name="l01485"></a><span class="lineno"> 1485</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_local&quot;</span>, 12)</div>
-<div class="line"><a id="l01486" name="l01486"></a><span class="lineno"> 1486</span>    <span class="comment">! Scatter shared dofs</span></div>
-<div class="line"><a id="l01487" name="l01487"></a><span class="lineno"> 1487</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1 .and. n .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01488" name="l01488"></a><span class="lineno"> 1488</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_nbwait&quot;</span>, 7)</div>
-<div class="line"><a id="l01489" name="l01489"></a><span class="lineno"> 1489</span>       <span class="keyword">call </span>gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)</div>
-<div class="line"><a id="l01490" name="l01490"></a><span class="lineno"> 1490</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_nbwait&quot;</span>, 7)</div>
-<div class="line"><a id="l01491" name="l01491"></a><span class="lineno"> 1491</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_scatter_shared&quot;</span>, 15)</div>
-<div class="line"><a id="l01492" name="l01492"></a><span class="lineno"> 1492</span>       <span class="keywordflow">if</span> (<span class="keyword">present</span>(event)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01493" name="l01493"></a><span class="lineno"> 1493</span>          <span class="keyword">call </span>gs%bcknd%scatter(gs%shared_gs, l,&amp;</div>
-<div class="line"><a id="l01494" name="l01494"></a><span class="lineno"> 1494</span>               gs%shared_dof_gs, u, n, &amp;</div>
-<div class="line"><a id="l01495" name="l01495"></a><span class="lineno"> 1495</span>               gs%shared_gs_dof, gs%nshared_blks, &amp;</div>
-<div class="line"><a id="l01496" name="l01496"></a><span class="lineno"> 1496</span>               gs%shared_blk_len, gs%shared_blk_off, .true., event)</div>
-<div class="line"><a id="l01497" name="l01497"></a><span class="lineno"> 1497</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01498" name="l01498"></a><span class="lineno"> 1498</span>          <span class="keyword">call </span>gs%bcknd%scatter(gs%shared_gs, l,&amp;</div>
-<div class="line"><a id="l01499" name="l01499"></a><span class="lineno"> 1499</span>               gs%shared_dof_gs, u, n, &amp;</div>
-<div class="line"><a id="l01500" name="l01500"></a><span class="lineno"> 1500</span>               gs%shared_gs_dof, gs%nshared_blks, &amp;</div>
-<div class="line"><a id="l01501" name="l01501"></a><span class="lineno"> 1501</span>               gs%shared_blk_len, gs%shared_blk_off, .true., c_null_ptr)</div>
-<div class="line"><a id="l01502" name="l01502"></a><span class="lineno"> 1502</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01503" name="l01503"></a><span class="lineno"> 1503</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_scatter_shared&quot;</span>, 15)</div>
-<div class="line"><a id="l01504" name="l01504"></a><span class="lineno"> 1504</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01505" name="l01505"></a><span class="lineno"> 1505</span> </div>
-<div class="line"><a id="l01506" name="l01506"></a><span class="lineno"> 1506</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gather_scatter&quot;</span>, 5)</div>
-<div class="line"><a id="l01507" name="l01507"></a><span class="lineno"> 1507</span>    <span class="comment">!$omp end parallel</span></div>
+<div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span>    <span class="keywordtype">type</span>(c_ptr) :: scatter_event</div>
+<div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span> </div>
+<div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span>    lo = gs%local_facet_offset</div>
+<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>    so = -gs%shared_facet_offset</div>
+<div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span>    m = gs%nlocal</div>
+<div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span>    l = gs%nshared</div>
+<div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span> </div>
+<div class="line"><a id="l01453" name="l01453"></a><span class="lineno"> 1453</span>    <span class="comment">! Capture the calling thread id before opening any parallel region; it</span></div>
+<div class="line"><a id="l01454" name="l01454"></a><span class="lineno"> 1454</span>    <span class="comment">! is used as the MPI tag so concurrent gs ops driven from different</span></div>
+<div class="line"><a id="l01455" name="l01455"></a><span class="lineno"> 1455</span>    <span class="comment">! threads (device path) don&#39;t collide.</span></div>
+<div class="line"><a id="l01456" name="l01456"></a><span class="lineno"> 1456</span>    tid = 0</div>
+<div class="line"><a id="l01457" name="l01457"></a><span class="lineno"> 1457</span>    <span class="comment">!$ tid = omp_get_thread_num()</span></div>
+<div class="line"><a id="l01458" name="l01458"></a><span class="lineno"> 1458</span> </div>
+<div class="line"><a id="l01459" name="l01459"></a><span class="lineno"> 1459</span>    <span class="comment">! Resolve the optional event into a non-optional local before opening</span></div>
+<div class="line"><a id="l01460" name="l01460"></a><span class="lineno"> 1460</span>    <span class="comment">! the parallel region. An absent optional dummy must not be captured by</span></div>
+<div class="line"><a id="l01461" name="l01461"></a><span class="lineno"> 1461</span>    <span class="comment">! the region&#39;s data-sharing, otherwise the outlined region prologue</span></div>
+<div class="line"><a id="l01462" name="l01462"></a><span class="lineno"> 1462</span>    <span class="comment">! dereferences a null descriptor (segfaults on CCE).</span></div>
+<div class="line"><a id="l01463" name="l01463"></a><span class="lineno"> 1463</span>    scatter_event = c_null_ptr</div>
+<div class="line"><a id="l01464" name="l01464"></a><span class="lineno"> 1464</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(event)) scatter_event = event</div>
+<div class="line"><a id="l01465" name="l01465"></a><span class="lineno"> 1465</span> </div>
+<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span>    <span class="comment">!$omp parallel if (NEKO_BCKND_DEVICE .eq. 0)</span></div>
+<div class="line"><a id="l01467" name="l01467"></a><span class="lineno"> 1467</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gather_scatter&quot;</span>, 5)</div>
+<div class="line"><a id="l01468" name="l01468"></a><span class="lineno"> 1468</span>    <span class="comment">! Gather shared dofs</span></div>
+<div class="line"><a id="l01469" name="l01469"></a><span class="lineno"> 1469</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1 .and. n .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01470" name="l01470"></a><span class="lineno"> 1470</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_nbrecv&quot;</span>, 13)</div>
+<div class="line"><a id="l01471" name="l01471"></a><span class="lineno"> 1471</span>       <span class="keyword">call </span>gs%comm%nbrecv(tid)</div>
+<div class="line"><a id="l01472" name="l01472"></a><span class="lineno"> 1472</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_nbrecv&quot;</span>, 13)</div>
+<div class="line"><a id="l01473" name="l01473"></a><span class="lineno"> 1473</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_gather_shared&quot;</span>, 14)</div>
+<div class="line"><a id="l01474" name="l01474"></a><span class="lineno"> 1474</span>       <span class="keyword">call </span>gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &amp;</div>
+<div class="line"><a id="l01475" name="l01475"></a><span class="lineno"> 1475</span>            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &amp;</div>
+<div class="line"><a id="l01476" name="l01476"></a><span class="lineno"> 1476</span>            gs%shared_blk_off, op, .true.)</div>
+<div class="line"><a id="l01477" name="l01477"></a><span class="lineno"> 1477</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_gather_shared&quot;</span>, 14)</div>
+<div class="line"><a id="l01478" name="l01478"></a><span class="lineno"> 1478</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_nbsend&quot;</span>, 6)</div>
+<div class="line"><a id="l01479" name="l01479"></a><span class="lineno"> 1479</span>       <span class="keyword">call </span>gs%comm%nbsend(gs%shared_gs, l, tid, &amp;</div>
+<div class="line"><a id="l01480" name="l01480"></a><span class="lineno"> 1480</span>            gs%bcknd%gather_event, gs%bcknd%gs_stream)</div>
+<div class="line"><a id="l01481" name="l01481"></a><span class="lineno"> 1481</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_nbsend&quot;</span>, 6)</div>
+<div class="line"><a id="l01482" name="l01482"></a><span class="lineno"> 1482</span> </div>
+<div class="line"><a id="l01483" name="l01483"></a><span class="lineno"> 1483</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01484" name="l01484"></a><span class="lineno"> 1484</span> </div>
+<div class="line"><a id="l01485" name="l01485"></a><span class="lineno"> 1485</span>    <span class="comment">! Gather-scatter local dofs</span></div>
+<div class="line"><a id="l01486" name="l01486"></a><span class="lineno"> 1486</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_local&quot;</span>, 12)</div>
+<div class="line"><a id="l01487" name="l01487"></a><span class="lineno"> 1487</span>    <span class="keyword">call </span>gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u, n, &amp;</div>
+<div class="line"><a id="l01488" name="l01488"></a><span class="lineno"> 1488</span>         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &amp;</div>
+<div class="line"><a id="l01489" name="l01489"></a><span class="lineno"> 1489</span>         op, .false.)</div>
+<div class="line"><a id="l01490" name="l01490"></a><span class="lineno"> 1490</span>    <span class="keyword">call </span>gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &amp;</div>
+<div class="line"><a id="l01491" name="l01491"></a><span class="lineno"> 1491</span>         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &amp;</div>
+<div class="line"><a id="l01492" name="l01492"></a><span class="lineno"> 1492</span>         .false., c_null_ptr)</div>
+<div class="line"><a id="l01493" name="l01493"></a><span class="lineno"> 1493</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_local&quot;</span>, 12)</div>
+<div class="line"><a id="l01494" name="l01494"></a><span class="lineno"> 1494</span>    <span class="comment">! Scatter shared dofs</span></div>
+<div class="line"><a id="l01495" name="l01495"></a><span class="lineno"> 1495</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1 .and. n .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01496" name="l01496"></a><span class="lineno"> 1496</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_nbwait&quot;</span>, 7)</div>
+<div class="line"><a id="l01497" name="l01497"></a><span class="lineno"> 1497</span>       <span class="keyword">call </span>gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)</div>
+<div class="line"><a id="l01498" name="l01498"></a><span class="lineno"> 1498</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_nbwait&quot;</span>, 7)</div>
+<div class="line"><a id="l01499" name="l01499"></a><span class="lineno"> 1499</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;gs_scatter_shared&quot;</span>, 15)</div>
+<div class="line"><a id="l01500" name="l01500"></a><span class="lineno"> 1500</span>       <span class="keyword">call </span>gs%bcknd%scatter(gs%shared_gs, l,&amp;</div>
+<div class="line"><a id="l01501" name="l01501"></a><span class="lineno"> 1501</span>            gs%shared_dof_gs, u, n, &amp;</div>
+<div class="line"><a id="l01502" name="l01502"></a><span class="lineno"> 1502</span>            gs%shared_gs_dof, gs%nshared_blks, &amp;</div>
+<div class="line"><a id="l01503" name="l01503"></a><span class="lineno"> 1503</span>            gs%shared_blk_len, gs%shared_blk_off, .true., scatter_event)</div>
+<div class="line"><a id="l01504" name="l01504"></a><span class="lineno"> 1504</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gs_scatter_shared&quot;</span>, 15)</div>
+<div class="line"><a id="l01505" name="l01505"></a><span class="lineno"> 1505</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01506" name="l01506"></a><span class="lineno"> 1506</span> </div>
+<div class="line"><a id="l01507" name="l01507"></a><span class="lineno"> 1507</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&quot;gather_scatter&quot;</span>, 5)</div>
+<div class="line"><a id="l01508" name="l01508"></a><span class="lineno"> 1508</span>    <span class="comment">!$omp end parallel</span></div>
 </div>
-<div class="line"><a id="l01508" name="l01508"></a><span class="lineno"> 1508</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806">gs_op_vector</a></div>
-<div class="line"><a id="l01509" name="l01509"></a><span class="lineno"> 1509</span> </div>
-<div class="line"><a id="l01510" name="l01510"></a><span class="lineno"> 1510</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></div>
+<div class="line"><a id="l01509" name="l01509"></a><span class="lineno"> 1509</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806">gs_op_vector</a></div>
+<div class="line"><a id="l01510" name="l01510"></a><span class="lineno"> 1510</span> </div>
+<div class="line"><a id="l01511" name="l01511"></a><span class="lineno"> 1511</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></div>
 <div class="ttc" id="agather__scatter_8f90_html_a762680d00a8b9d4de7498ece71c4092b"><div class="ttname"><a href="../../d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b">gs_qsort_dofmap</a></div><div class="ttdeci">recursive subroutine gs_qsort_dofmap(dg, gd, n, lo, hi)</div><div class="ttdoc">Sort the dof lists based on the dof to gather-scatter list.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l01204">gather_scatter.f90:1205</a></div></div>
 <div class="ttc" id="agather__scatter_8f90_html_a911f14e18cc5ef3b55e29dbdc6fe5ce2"><div class="ttname"><a href="../../d5/d7e/gather__scatter_8f90.html#a911f14e18cc5ef3b55e29dbdc6fe5ce2">gs_find_blks</a></div><div class="ttdeci">subroutine gs_find_blks(dg, blk_len, blk_off, nblks, n, m)</div><div class="ttdoc">Find blocks sharing dofs in non-facet data.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l01246">gather_scatter.f90:1247</a></div></div>
 <div class="ttc" id="agather__scatter_8f90_html_af8cc5f86931d4ca4f75ac2ddc0b311d8"><div class="ttname"><a href="../../d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8">gs_mapping_add_dof</a></div><div class="ttdeci">integer function gs_mapping_add_dof(map_, dof, max_id)</div><div class="ttdoc">Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu...</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l01189">gather_scatter.f90:1190</a></div></div>
@@ -1708,7 +1709,7 @@ $(document).ready(function(){initNavTree('d5/d7e/gather__scatter_8f90_source.htm
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../d5/d7e/gather__scatter_8f90.html">gather_scatter.f90</a></li>
-    <li class="footer">Generated on Fri May 29 2026 04:58:37 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat May 30 2026 04:48:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

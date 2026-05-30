@@ -246,15 +246,15 @@ $(document).ready(function(){initNavTree('d1/db1/comm_8F90_source.html','../../'
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="keywordflow">          end if</span></div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (nthrds .gt. 1) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>          <span class="keyword">call </span>mpi_init_thread(mpi_thread_multiple, provided, ierr)</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>          <span class="keywordflow">if</span> (provided .ne. mpi_thread_multiple) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>             <span class="comment">! MPI_THREAD_MULTIPLE is required for mt. device backends</span></div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>             <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid thread support provided by MPI&#39;</span>)</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>             <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>                <span class="keyword">call </span>mpi_init_thread(mpi_thread_funneled, provided, ierr)</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>                <span class="keywordflow">if</span> (provided .ne. mpi_thread_funneled) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>                   <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid thread support provided by MPI&#39;</span>)</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="keywordflow">                end if</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>          <span class="keywordflow">if</span> (provided .lt. mpi_thread_multiple) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>             <span class="comment">! MPI_THREAD_MULTIPLE is required for mt. device backends. For</span></div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>             <span class="comment">! host backends the gather-scatter MPI calls are issued from the</span></div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>             <span class="comment">! OpenMP master thread, so MPI_THREAD_SERIALIZED (or FUNNELED) is</span></div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>             <span class="comment">! sufficient as a last resort.</span></div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>             <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid thread support provided by MPI&#39;</span>)</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (provided .lt. mpi_thread_funneled) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid thread support provided by MPI&#39;</span>)</div>
 <div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="keywordflow">             end if</span></div>
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keywordflow">          end if</span></div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>       <span class="keywordflow">else</span></div>
@@ -404,7 +404,7 @@ $(document).ready(function(){initNavTree('d1/db1/comm_8F90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d0537398ec3fe72d8d4f5c6709d28acc.html">comm</a></li><li class="navelem"><a class="el" href="../../d1/db1/comm_8F90.html">comm.F90</a></li>
-    <li class="footer">Generated on Fri May 29 2026 04:58:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat May 30 2026 04:48:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
