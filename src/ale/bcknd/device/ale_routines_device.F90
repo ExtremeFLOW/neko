@@ -356,10 +356,9 @@ contains
     type(field_t), intent(in) :: x_ref, y_ref, z_ref
     type(field_t), intent(in) :: phi
     type(coef_t), intent(in) :: coef
-    type(body_kinematics_t), intent(in), target :: kinematics
-    real(kind=rp), intent(in), target :: inital_pivot_loc(3)
-    real(kind=rp), intent(in), target :: rot_mat(3,3)
-
+    type(body_kinematics_t), intent(in) :: kinematics
+    real(kind=rp), intent(in) :: inital_pivot_loc(3)
+    real(kind=rp), intent(in) :: rot_mat(3,3)
     integer(c_int), target :: n
     type(kinematics_params_t) :: kin_params
 
