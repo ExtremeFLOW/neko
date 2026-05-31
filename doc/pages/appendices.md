@@ -13,16 +13,18 @@ of the code. But can be useful for users and developers alike.
 
 ## Environmental variable reference {#appendices_env-var}
 
-| Name                | Description                                                           | Default value |
-| ------------------- | --------------------------------------------------------------------- | ------------- |
-| `NEKO_AUTOTUNE`     | Force Ax auto-tuning strategy (``'1D'``,``'KSTEP'``)                  | Unset         |
-| `NEKO_LOG_FILE`     | Log file name, uses `stdout` if not set.                              | Unset         |
-| `NEKO_LOG_TAB_SIZE` | Number of spaces added for each level of indentation in the log file. | 1             |
-| `NEKO_LOG_LEVEL`    | Log verbosity level (integer > 0, default: 1)                         | Unset         |
-| `NEKO_GS_STRTGY`    | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
-| `NEKO_GS_COMM`      | Gather-scatter communication backend                                  | Unset         |
-| `NEKO_GS_CAF_SIGNALING` | Coarray Fortran gather-scatter signaling mode                     | Unset         |
-| `NEKO_COMM_ID`      | Communicator id for this process (non-negative integer)               | 0             |
+| Name                     | Description                                                           | Default value |
+| ------------------------ | --------------------------------------------------------------------- | ------------- |
+| `NEKO_AUTOTUNE`          | Force Ax auto-tuning strategy (``'1D'``,``'KSTEP'``)                  | Unset         |
+| `NEKO_LOG_FILE`          | Log file name, uses `stdout` if not set.                              | Unset         |
+| `NEKO_LOG_TAB_SIZE`      | Number of spaces added for each level of indentation in the log file. | 1             |
+| `NEKO_LOG_LEVEL`         | Log verbosity level (integer > 0, default: 1)                         | Unset         |
+| `NEKO_GS_STRTGY`         | Gather-scatter device MPI sync. strategy (0 < integer < 5 )           | Unset         |
+| `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
+| `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
+| `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
+| `NEKO_MPI_THREAD_LEVEL`  | Requested MPI (and SHMEM) thread support level                        | Unset         |
+| `NEKO_DEPRECATION_ERROR` | Whether to treat deprecated features as errors (boolean)              | Unset         |
 
 ### Logging level details
 
@@ -31,7 +33,7 @@ A number of logging levels are supported.
 - `NEKO_LOG_LEVEL=0`   : Quiet mode, minimal logging during execution.
 - `NEKO_LOG_LEVEL=1`   : Default information mode, adding step informations.
 - `NEKO_LOG_LEVEL=2`   : Verbose mode, logging extra details.
-- `NEKO_LOG_LEVEL=5`   : Deprecations trigger errors stopping execution.
+- `NEKO_LOG_LEVEL=5`   : Deprecated features will be logged if used.
 - `NEKO_LOG_LEVEL=10`  : Debug mode.
 
 ### Gather-scatter communication backend details
@@ -45,6 +47,23 @@ A number of gather-scatter backends are supported.
   OpenSHMEM based on CPU builds (requires a native OpenSHMEM library,
   e.g. Cray OpenSHMEMX, enabled at configure time with `--with-openshmem`)
 - `NEKO_GS_COMM=CAF`    : Coarray Fortran (requires a coarray-capable compiler)
+
+### MPI thread level details
+
+`NEKO_MPI_THREAD_LEVEL` overrides the default thread support requested
+from the MPI runtime (and, when built with `--with-openshmem`, from
+the SHMEM runtime as well). When unset, the level is chosen
+automatically: `MPI_THREAD_MULTIPLE` when running with more than one
+OpenMP thread per rank, falling back to `MPI_THREAD_FUNNELED` on
+host-only backends, and `MPI_Init` otherwise. Device backends require
+`MPI_THREAD_MULTIPLE` under the automatic policy. Setting the variable
+bypasses these heuristics; if the runtime cannot honor the requested
+level, initialisation aborts.
+
+- `NEKO_MPI_THREAD_LEVEL=single`     : `MPI_THREAD_SINGLE` (calls `MPI_Init`).
+- `NEKO_MPI_THREAD_LEVEL=funneled`   : `MPI_THREAD_FUNNELED`.
+- `NEKO_MPI_THREAD_LEVEL=serialized` : `MPI_THREAD_SERIALIZED`.
+- `NEKO_MPI_THREAD_LEVEL=multiple`   : `MPI_THREAD_MULTIPLE`.
 
 ### Coarray Fortran signaling mode details
 

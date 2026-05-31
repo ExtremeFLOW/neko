@@ -46,7 +46,8 @@ module user_stats
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use time_based_controller, only : time_based_controller_t
-  use utils, only : NEKO_VARNAME_LEN
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
+       NEKO_VARNAME_LEN
   implicit none
   private
 
@@ -65,6 +66,7 @@ module user_stats
      character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
      !> Output writer.
      type(mean_field_output_t), private :: output
+     logical :: default_fname = .true.
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -109,17 +111,44 @@ contains
     call json_get(json, 'fields', this%field_names)
     call json_get_or_default(json, 'start_time', this%start_time, 0.0_rp)
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
-    call json_get_or_default(json, 'output_file', filename, 'user_stats')
 
-    call user_stats_init_common(this, name, this%start_time, &
-         case%fluid%c_Xh, avg_dir, filename = filename)
+    if (json%valid_path('output_filename')) then
+       call json_get(json, 'output_filename', filename)
+       call user_stats_init_common(this, name, this%start_time, &
+            case%fluid%c_Xh, avg_dir, filename = filename)
+    else
+       call user_stats_init_common(this, name, this%start_time, &
+            case%fluid%c_Xh, avg_dir)
+    end if
+
   end subroutine user_stats_init_from_json
 
   subroutine user_stats_restart(this, time)
     class(user_stats_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-
-    if (time%t .gt. this%time) this%time = time%t
+    character(len=NEKO_FNAME_LEN) :: fname
+    character(len=5) :: prefix, suffix
+    integer :: last_slash_pos
+    real(kind=rp) :: t
+    t = time%t
+    if (t .gt. this%time) this%time = t
+    if (this%default_fname) then
+       fname = this%output%file_%get_base_fname()
+       write (prefix, '(I5)') &
+            this%output%file_%file_type%get_start_counter()
+       call filename_suffix(fname, suffix)
+       last_slash_pos = &
+            filename_tslash_pos(fname)
+       if (last_slash_pos .ne. 0) then
+          fname = &
+               trim(fname(1:last_slash_pos))// &
+               "user_stats"//trim(adjustl(prefix))//"."//suffix
+       else
+          fname = "user_stats"// &
+               trim(adjustl(prefix))//"."//suffix
+       end if
+       call this%output%init_base(fname)
+    end if
   end subroutine user_stats_restart
 
   !> Constructor from components, passing controllers.
@@ -212,13 +241,14 @@ contains
        filename, precision)
     class(user_stats_t), intent(inout) :: this
     character(len=*), intent(in) :: name
-    character(len=*), intent(in) :: filename
+    character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     real(kind=rp), intent(in) :: start_time
     character(len=*), intent(in) :: avg_dir
     type(coef_t), intent(inout) :: coef
     integer :: i
     type(field_t), pointer :: field_to_avg
+    character(len=NEKO_FNAME_LEN) :: stats_fname
 
     character(len=1024) :: unique_name
     unique_name = name // "/"
@@ -226,6 +256,14 @@ contains
     this%name = name
     this%start_time = start_time
     this%time = start_time
+
+    if (present(filename)) then
+       this%default_fname = .false.
+       stats_fname = filename
+    else
+       stats_fname = "user_stats0"
+       this%default_fname = .true.
+    end if
 
     !> Allocate and initialize the mean fields
     allocate(this%mean_fields(this%n_avg_fields))

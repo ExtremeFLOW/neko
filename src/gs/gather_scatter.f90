@@ -64,6 +64,7 @@ module gather_scatter
   use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_free, &
        device_map, device_deassociate
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  !$ use omp_lib, only : omp_get_thread_num
   implicit none
   private
 
@@ -1441,18 +1442,33 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
-    integer :: m, l, op, lo, so
+    integer :: m, l, op, lo, so, tid
+    type(c_ptr) :: scatter_event
 
     lo = gs%local_facet_offset
     so = -gs%shared_facet_offset
     m = gs%nlocal
     l = gs%nshared
 
+    ! Capture the calling thread id before opening any parallel region; it
+    ! is used as the MPI tag so concurrent gs ops driven from different
+    ! threads (device path) don't collide.
+    tid = 0
+    !$ tid = omp_get_thread_num()
+
+    ! Resolve the optional event into a non-optional local before opening
+    ! the parallel region. An absent optional dummy must not be captured by
+    ! the region's data-sharing, otherwise the outlined region prologue
+    ! dereferences a null descriptor (segfaults on CCE).
+    scatter_event = C_NULL_PTR
+    if (present(event)) scatter_event = event
+
+    !$omp parallel if (NEKO_BCKND_DEVICE .eq. 0)
     call profiler_start_region("gather_scatter", 5)
     ! Gather shared dofs
     if (pe_size .gt. 1 .and. n .gt. 0) then
        call profiler_start_region("gs_nbrecv", 13)
-       call gs%comm%nbrecv()
+       call gs%comm%nbrecv(tid)
        call profiler_end_region("gs_nbrecv", 13)
        call profiler_start_region("gs_gather_shared", 14)
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
@@ -1460,7 +1476,7 @@ contains
             gs%shared_blk_off, op, .true.)
        call profiler_end_region("gs_gather_shared", 14)
        call profiler_start_region("gs_nbsend", 6)
-       call gs%comm%nbsend(gs%shared_gs, l, &
+       call gs%comm%nbsend(gs%shared_gs, l, tid, &
             gs%bcknd%gather_event, gs%bcknd%gs_stream)
        call profiler_end_region("gs_nbsend", 6)
 
@@ -1481,22 +1497,15 @@ contains
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region("gs_nbwait", 7)
        call profiler_start_region("gs_scatter_shared", 15)
-       if (present(event)) then
-          call gs%bcknd%scatter(gs%shared_gs, l,&
-               gs%shared_dof_gs, u, n, &
-               gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, gs%shared_blk_off, .true., event)
-       else
-          call gs%bcknd%scatter(gs%shared_gs, l,&
-               gs%shared_dof_gs, u, n, &
-               gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, gs%shared_blk_off, .true., C_NULL_PTR)
-       end if
+       call gs%bcknd%scatter(gs%shared_gs, l,&
+            gs%shared_dof_gs, u, n, &
+            gs%shared_gs_dof, gs%nshared_blks, &
+            gs%shared_blk_len, gs%shared_blk_off, .true., scatter_event)
        call profiler_end_region("gs_scatter_shared", 15)
     end if
 
     call profiler_end_region("gather_scatter", 5)
-
+    !$omp end parallel
   end subroutine gs_op_vector
 
 end module gather_scatter

@@ -388,14 +388,14 @@ contains
          call Ax%compute_vector(this%w1, this%w2, this%w3, &
               this%p1, this%p2, this%p3, coef, x%msh, x%Xh)
 
-         call rotate_cyc(this%w1, this%w2, this%w3, 1, coef)
+         call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
          call gs_h%op(this%w1, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
          call gs_h%op(this%w2, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
          call gs_h%op(this%w3, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call rotate_cyc(this%w1, this%w2, this%w3, 0, coef)
+         call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
          call blstx%apply(this%w1, n)
          call blsty%apply(this%w2, n)

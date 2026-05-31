@@ -1,5 +1,5 @@
 .\" Manual page for neko
-.TH NEKO 1 "2026-05-22" "Neko" "User Commands"
+.TH NEKO 1 "2026-05-28" "Neko" "User Commands"
 .SH NAME
 neko \- portable spectral element flow solver
 .SH SYNOPSIS
@@ -38,6 +38,36 @@ or a batch system launcher (e.g.
 When built with OpenMP support, the number of threads per rank is controlled
 via
 .BR OMP_NUM_THREADS .
+.SH GPU EXECUTION
+When built for GPUs (CUDA, HIP or OpenCL),
+.B neko
+uses one device per MPI rank. Neko does
+.B not
+select or bind devices to ranks itself; it is the user's responsibility to
+ensure that every rank is mapped to a single, distinct device. On multi-GPU
+nodes this is normally arranged through the batch launcher together with a
+small wrapper script that exposes only the node-local device to each rank,
+e.g. by setting
+.B CUDA_VISIBLE_DEVICES
+(NVIDIA) or
+.B ROCR_VISIBLE_DEVICES
+(AMD) to the node-local rank id before starting the solver.
+.PP
+A typical
+.BR srun (1)
+wrapper selects the visible device from the SLURM node-local rank:
+.PP
+.RS
+.nf
+#!/bin/bash
+export ROCR_VISIBLE_DEVICES=$SLURM_LOCALID
+exec "$@"
+.fi
+.RE
+.PP
+Launching more ranks per node than there are devices, without restricting the
+visible devices per rank, oversubscribes the GPUs and is generally not
+supported.
 .SH ARGUMENTS
 .TP
 .I case-file
@@ -53,9 +83,19 @@ linked in via
 .TP
 .B NEKO_LOG_LEVEL
 Verbosity of the logger. Higher values produce more output.
+Common levels are
+.BR 0 " (quiet), " 1 " (info), " 2 " (verbose), " 5
+(log deprecated feature usage) and
+.BR 10 " (debug)."
 .TP
 .B NEKO_LOG_FILE
 If set, the log is also written to this file in addition to standard output.
+.TP
+.B NEKO_DEPRECATION_ERROR
+If set to
+.BR 1 ,
+deprecated features whose configured removal version has been reached are
+treated as fatal errors. If unset, they are reported as warnings.
 .TP
 .B NEKO_LOG_TAB_SIZE
 Indentation width used by the logger.
@@ -73,6 +113,18 @@ routines.
 .TP
 .B NEKO_GLOBAL_INTERP_PE_FINDER
 Selects the rank search algorithm used by the global interpolation routines.
+.TP
+.B NEKO_MPI_THREAD_LEVEL
+Overrides the MPI (and SHMEM) thread support level requested at startup.
+Accepted values are
+.BR single ", " funneled ", " serialized " and " multiple .
+When unset, the level is chosen automatically:
+.B MPI_THREAD_MULTIPLE
+when running with more than one OpenMP thread per rank, falling back to
+.B MPI_THREAD_FUNNELED
+on host-only backends. Device backends require
+.BR MPI_THREAD_MULTIPLE .
+If the runtime cannot honor the requested level, initialization aborts.
 .TP
 .B OMP_NUM_THREADS
 Standard OpenMP variable controlling the number of threads per MPI rank when

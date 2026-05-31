@@ -96,7 +96,7 @@ module gs_comm
   !! @param deps, gather_event (for device aware mpi)
   !! @param strm, device stream to execute operation on
   abstract interface
-     subroutine gs_nbsend(this, u, n, deps, strm)
+     subroutine gs_nbsend(this, u, n, tag, deps, strm)
        import gs_comm_t
        import stack_i4_t
        import c_ptr
@@ -104,6 +104,7 @@ module gs_comm
        class(gs_comm_t), intent(inout) :: this
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(inout) :: u
+       integer, intent(in) :: tag
        type(c_ptr), intent(inout) :: deps
        type(c_ptr), intent(inout) :: strm
      end subroutine gs_nbsend
@@ -113,9 +114,10 @@ module gs_comm
   !> Abstract interface for initiating non-blocking recieve operations
   !! Posts non-blocking recieve of values and puts the values into buffers
   abstract interface
-     subroutine gs_nbrecv(this)
+     subroutine gs_nbrecv(this, tag)
        import gs_comm_t
        class(gs_comm_t), intent(inout) :: this
+       integer, intent(in) :: tag
      end subroutine gs_nbrecv
   end interface
 

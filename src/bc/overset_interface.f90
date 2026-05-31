@@ -45,10 +45,13 @@ module overset_interface
   use math, only : masked_copy_0, copy
   use device_math, only : device_masked_copy_0, device_copy
   use vector, only : vector_t
+  use vector_series, only : vector_series_t
   use vector_list, only : vector_list_t
-  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy
+  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, &
+       vector_add2s2, vector_cmult2
   use device, only : DEVICE_TO_HOST
   use field_dirichlet, only : field_dirichlet_t
+  use iextm_time_scheme, only : iextm_time_scheme_t
   use utils, only : neko_error, nonlinear_index, linear_index
   use stack, only : stack_i4_t
   use json_module, only : json_file
@@ -78,6 +81,9 @@ module overset_interface
      type(vector_t) :: x_interface_dof, y_interface_dof, z_interface_dof
      !> Interpolated scalar values on the interface.
      type(vector_t) :: s_interface
+     type(vector_series_t) :: s_interface_lag
+     integer :: iextm_order = 1
+     integer :: last_tstep = -1
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
@@ -162,6 +168,11 @@ contains
     call json_get(json, "field_name", field_name)
     call json_get_or_default(json, "interpolation.tolerance", tol, -1.0_rp)
     call json_get_or_default(json, "interpolation.padding", pad, -1.0_rp)
+    call json_get_or_default(json, "order", this%iextm_order, 1)
+    if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
+       call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
+    end if
+
     call this%init_from_components(coef, field_name, tol, pad)
     if (allocated(field_name)) deallocate(field_name)
 
@@ -235,6 +246,7 @@ contains
     call this%y_interface_dof%free()
     call this%z_interface_dof%free()
     call this%s_interface%free()
+    call this%s_interface_lag%free()
 
     if (allocated(this%field_name)) then
        deallocate(this%field_name)
@@ -376,6 +388,8 @@ contains
     call this%interface_field%init(1)
     call this%interface_field%assign_to_vector(1, this%s_interface)
 
+    call this%s_interface_lag%init(this%s_interface, this%iextm_order)
+
   end subroutine overset_interface_finalize
 
   !> Update values at the overset interface.
@@ -383,6 +397,9 @@ contains
     class(overset_interface_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(field_t), pointer :: s
+    type(iextm_time_scheme_t) :: time_scheme
+    integer :: nhist, ihist
+    real(kind=rp) :: iextm_coeffs(4)
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -408,6 +425,20 @@ contains
 
     call this%interface_interpolator%evaluate_masked(this%s_interface%x, s%x, &
          this%domain_element_mask, .false.)
+
+    if (time%tstep .ne. this%last_tstep) then
+       this%last_tstep = time%tstep
+
+       call this%s_interface_lag%update()
+
+       nhist = min(time%tstep, this%iextm_order)
+       call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
+
+       call vector_cmult2(this%s_interface, this%s_interface_lag%lv(1), iextm_coeffs(1))
+       do ihist = 2, nhist
+          call vector_add2s2(this%s_interface, this%s_interface_lag%lv(ihist), iextm_coeffs(ihist))
+       end do
+    end if
 
     call vector_masked_scatter_copy(this%bc_s%field_bc%x(:,1,1,1), this%s_interface, &
          this%interface_dof_mask, this%bc_s%dof%size())

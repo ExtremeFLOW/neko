@@ -129,6 +129,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/vector_series.f90\
 	math/vector_list.f90\
 	math/vector_math.f90\
 	registries/registry.f90\
@@ -232,6 +233,7 @@ neko_fortran_SOURCES = \
 	time_schemes/time_scheme.f90\
 	time_schemes/bdf_time_scheme.f90\
 	time_schemes/ext_time_scheme.f90\
+	time_schemes/iextm_time_scheme.f90\
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
 	time_schemes/runge_kutta_scheme.f90\

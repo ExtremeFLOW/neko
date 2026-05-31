@@ -137,8 +137,13 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
-    do concurrent (e = 1:coef%msh%nelv)
-       do concurrent (i = 1:coef%Xh%lxyz)
+    !$omp parallel do private(e, i, beta11, beta12, beta13, beta22, beta23, &
+    !$omp& beta33, b_beta, aijaij)
+    do e = 1, coef%msh%nelv
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       do i = 1, coef%Xh%lxyz
           ! beta_ij = alpha_mi alpha_mj
           beta11 = a11%x(i,1,1,e)**2 + a21%x(i,1,1,e)**2 + a31%x(i,1,1,e)**2
           beta22 = a12%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 + a32%x(i,1,1,e)**2
@@ -166,6 +171,7 @@ contains
                * coef%mult(i,1,1,e)
        end do
     end do
+    !$omp end parallel do
     if (if_corr) then
        temperature => neko_registry%get_field_by_name(scalar_name)
        call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
@@ -180,8 +186,13 @@ contains
           call neko_error("The gravity vector must have at least one nonzero component")
        endif
        call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
-       do concurrent (e = 1:coef%msh%nelv)
-          do concurrent (i = 1:coef%Xh%lxyz)
+       !$omp parallel do private(e, i, j, buoyancy, du_n, du_parallel, &
+       !$omp& sh, shear_sq, ri, correction)
+       do e = 1, coef%msh%nelv
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !GCC$ ivdep
+          do i = 1, coef%Xh%lxyz
 
              ! Buoyancy component (numerator in Ri definition)
              buoyancy = (-g(1) * dTdx%x(i,1,1,e) - &
@@ -201,7 +212,7 @@ contains
              du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
 
              ! Perpendicular (shear) components
-             do concurrent (j = 1:3)
+             do j = 1, 3
                 sh(j) = du_n(j) - du_parallel*n(j)
              end do
 
@@ -219,6 +230,7 @@ contains
              end if
           end do
        end do
+       !$omp end parallel do
        call neko_scratch_registry%relinquish_field(temp_indices_buoy)
     end if
 
