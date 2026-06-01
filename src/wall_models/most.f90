@@ -52,7 +52,7 @@ module most
   use math, only: masked_gather_copy_0
   use device_math, only: device_masked_gather_copy_0
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   implicit none
   private
 
@@ -417,24 +417,24 @@ contains
     call this%q%free()
 
     if (allocated(this%h_x_idx)) then
+       if (c_associated(this%h_x_idx_d)) then
+          call device_unmap(this%h_x_idx, this%h_x_idx_d)
+       end if
        deallocate(this%h_x_idx)
-    end if
-    if (c_associated(this%h_x_idx_d)) then
-       call device_free(this%h_x_idx_d)
     end if
 
     if (allocated(this%h_y_idx)) then
+       if (c_associated(this%h_y_idx_d)) then
+          call device_unmap(this%h_y_idx, this%h_y_idx_d)
+       end if
        deallocate(this%h_y_idx)
-    end if
-    if (c_associated(this%h_y_idx_d)) then
-       call device_free(this%h_y_idx_d)
     end if
 
     if (allocated(this%h_z_idx)) then
+       if (c_associated(this%h_z_idx_d)) then
+          call device_unmap(this%h_z_idx, this%h_z_idx_d)
+       end if
        deallocate(this%h_z_idx)
-    end if
-    if (c_associated(this%h_z_idx_d)) then
-       call device_free(this%h_z_idx_d)
     end if
 
   end subroutine most_free

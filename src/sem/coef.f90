@@ -468,25 +468,33 @@ contains
 
     if (associated(this%Blag) .and. &
          .not. associated(this%Blag, this%B)) then
+       if (c_associated(this%Blag_d) .and. &
+            .not. c_associated(this%Blag_d, this%B_d)) then
+          call device_unmap(this%Blag, this%Blag_d)
+       end if
        deallocate(this%Blag)
     end if
     nullify(this%Blag)
 
     if (associated(this%Blaglag) .and. &
          .not. associated(this%Blaglag, this%B)) then
+       if (c_associated(this%Blaglag_d) .and. &
+            .not. c_associated(this%Blaglag_d, this%B_d)) then
+          call device_unmap(this%Blaglag, this%Blaglag_d)
+       end if
        deallocate(this%Blaglag)
     end if
     nullify(this%Blaglag)
 
     if (c_associated(this%Blag_d) .and. &
          .not. c_associated(this%Blag_d, this%B_d)) then
-       call device_free(this%Blag_d)
+       this%Blag_d = C_NULL_PTR
     end if
     this%Blag_d = C_NULL_PTR
 
     if (c_associated(this%Blaglag_d) .and. &
          .not. c_associated(this%Blaglag_d, this%B_d)) then
-       call device_free(this%Blaglag_d)
+       this%Blaglag_d = C_NULL_PTR
     end if
     this%Blaglag_d = C_NULL_PTR
 
