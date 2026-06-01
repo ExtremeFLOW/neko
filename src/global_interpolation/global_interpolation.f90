@@ -44,7 +44,7 @@ module global_interpolation
   use utils, only : neko_error
   use local_interpolation, only : local_interpolator_t
   use device, only : device_free, device_map, device_memcpy, &
-       device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
+       device_unmap, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr
   use aabb_pe_finder, only : aabb_pe_finder_t
   use aabb_el_finder, only : aabb_el_finder_t
