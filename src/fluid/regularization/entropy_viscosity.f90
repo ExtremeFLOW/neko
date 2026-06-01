@@ -145,9 +145,6 @@ contains
     type(time_state_t), intent(in) :: time
     integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
-    integer :: i, n
-
-    n = this%dof%size()
 
     call this%compute_residual(tstep, dt, time%dtlag)
     call this%compute_viscosity(tstep)
@@ -159,7 +156,7 @@ contains
     integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
     real(kind=rp), intent(in) :: dt_lag(10)
-    integer :: i, n
+    integer :: n
     type(field_t), pointer :: us_field, vs_field, ws_field, div_field
     integer :: temp_indices(4)
     real(kind=rp) :: bdf_coeffs(4)
@@ -202,11 +199,8 @@ contains
        call device_col3(vs_field%x_d, this%v%x_d, this%S%x_d, n)
        call device_col3(ws_field%x_d, this%w%x_d, this%S%x_d, n)
     else
-       do i = 1, n
-          us_field%x(i,1,1,1) = this%u%x(i,1,1,1) * this%S%x(i,1,1,1)
-          vs_field%x(i,1,1,1) = this%v%x(i,1,1,1) * this%S%x(i,1,1,1)
-          ws_field%x(i,1,1,1) = this%w%x(i,1,1,1) * this%S%x(i,1,1,1)
-       end do
+       call entropy_viscosity_col3_vector_cpu(us_field%x, vs_field%x, &
+            ws_field%x, this%u%x, this%v%x, this%w%x, this%S%x, n)
     end if
 
     call div(div_field%x, us_field%x, vs_field%x, ws_field%x, this%coef)
@@ -218,10 +212,7 @@ contains
             sync = .true.)
     end if
 
-    do i = 1, n
-       this%entropy_residual%x(i,1,1,1) = abs(this%entropy_residual%x(i,1,1,1) &
-            + div_field%x(i,1,1,1))
-    end do
+    call entropy_viscosity_abs_add_cpu(this%entropy_residual%x, div_field%x, n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%entropy_residual%x, this%entropy_residual%x_d, &
@@ -235,7 +226,7 @@ contains
   subroutine entropy_viscosity_compute_viscosity(this, tstep)
     class(entropy_viscosity_t), intent(inout) :: this
     integer, intent(in) :: tstep
-    integer :: i, n, temp_indices(1)
+    integer :: n, temp_indices(1)
     real(kind=rp) :: S_mean, n_S
     type(field_t), pointer :: temp_field
 
@@ -375,6 +366,40 @@ contains
     call this%S_lag%update()
 
   end subroutine entropy_viscosity_update_lag
+
+  subroutine entropy_viscosity_col3_vector_cpu(us, vs, ws, u, v, w, S, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: us(n), vs(n), ws(n)
+    real(kind=rp), intent(in) :: u(n), v(n), w(n), S(n)
+    integer :: i
+
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
+       us(i) = u(i) * S(i)
+       vs(i) = v(i) * S(i)
+       ws(i) = w(i) * S(i)
+    end do
+    !$omp end parallel do simd
+  end subroutine entropy_viscosity_col3_vector_cpu
+
+  subroutine entropy_viscosity_abs_add_cpu(entropy_residual, div_field, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: entropy_residual(n)
+    real(kind=rp), intent(in) :: div_field(n)
+    integer :: i
+
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
+       entropy_residual(i) = abs(entropy_residual(i) + div_field(i))
+    end do
+    !$omp end parallel do simd
+  end subroutine entropy_viscosity_abs_add_cpu
 
   !> Compute low-order viscosity at point i: c_avisc_low * h * max_wave_speed
   pure function entropy_viscosity_low_order(this, i) result(visc)
