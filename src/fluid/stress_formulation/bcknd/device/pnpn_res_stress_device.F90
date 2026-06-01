@@ -266,15 +266,15 @@ contains
 
 
     ! The strain rate tensor
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
-         u_e, v_e, w_e, c_Xh)
+    call strain_rate(s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         u_e%x_d, v_e%x_d, w_e%x_d, c_Xh)
 
 
     ! Gradient of viscosity * 2
     !call opgrad(ta1%x, ta2%x, ta3%x, mu%x, c_Xh)
-    call dudxyz(ta1%x, mu%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-    call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+    call dudxyz(ta1%x_d, mu%x_d, c_Xh%drdx_d, c_Xh%dsdx_d, c_Xh%dtdx_d, c_Xh)
+    call dudxyz(ta2%x_d, mu%x_d, c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d, c_Xh)
+    call dudxyz(ta3%x_d, mu%x_d, c_Xh%drdz_d, c_Xh%dsdz_d, c_Xh%dtdz_d, c_Xh)
 
 #ifdef HAVE_HIP
     call pnpn_prs_stress_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
@@ -296,11 +296,11 @@ contains
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #endif
 
-    call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
+    call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 1, c_Xh)
     call gs_Xh%op(ta1, GS_OP_ADD)
     call gs_Xh%op(ta2, GS_OP_ADD)
     call gs_Xh%op(ta3, GS_OP_ADD)
-    call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
+    call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 0, c_Xh)
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)
 

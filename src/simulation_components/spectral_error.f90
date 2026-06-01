@@ -53,6 +53,7 @@ module spectral_error
   use json_utils, only : json_get, json_get_or_default
   use case, only : case_t
   use registry, only : neko_registry
+  use utils, only : NEKO_VARNAME_LEN
 
   use, intrinsic :: iso_c_binding
   implicit none
@@ -118,7 +119,7 @@ contains
     class(case_t), intent(inout), target :: case
 
     character(len=:), allocatable :: name
-    character(len=20) :: fields(3)
+    character(len=NEKO_VARNAME_LEN) :: fields(3)
 
     call json_get_or_default(json, "name", name, "spectral_error")
     this%name = name

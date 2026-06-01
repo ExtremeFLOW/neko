@@ -37,6 +37,8 @@ module time_step_controller
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
+  use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_MIN, MPI_IN_PLACE
   implicit none
   private
 
@@ -45,6 +47,7 @@ module time_step_controller
      logical :: is_variable_dt
      real(kind=rp) :: cfl_trg = 0.0_rp
      real(kind=rp) :: cfl_avg = 0.0_rp
+     real(kind=rp) :: init_dt = huge(0.0_rp)
      real(kind=rp) :: max_dt = 0.0_rp
      real(kind=rp) :: min_dt = 0.0_rp
      integer :: max_update_frequency = 0
@@ -76,6 +79,8 @@ contains
     if (this%is_variable_dt) then
        call json_get_or_lookup_or_default(params, 'target_cfl', &
             this%cfl_trg, 0.4_rp)
+       call json_get_or_lookup_or_default(params, 'timestep', &
+            this%init_dt, huge(0.0_rp))
        call json_get_or_lookup_or_default(params, 'max_timestep', &
             this%max_dt, huge(0.0_rp))
        call json_get_or_lookup_or_default(params, 'min_timestep', &
@@ -107,8 +112,9 @@ contains
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
     real(kind=rp), intent(in) :: cfl
-    real(kind=rp) :: dt_old, scaling_factor
+    real(kind=rp) :: dt_old, scaling_factor, global_min_dt
     character(len=LOG_SIZE) :: log_buf
+    integer :: ierr
 
     ! Check if variable dt is requested
     if (.not. this%is_variable_dt) return
@@ -120,9 +126,10 @@ contains
 
     if (this%dt_last_change .eq. -1) then
 
-       ! set the first dt for desired cfl
-       time%dt = max(min(this%cfl_trg / cfl * time%dt, &
-            this%max_dt), this%min_dt)
+       ! Set the first dt for desired cfl, or use the provided initial dt if it
+       ! is smaller. Then clamp between max and min dt if provided.
+       time%dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
+       time%dt = max(min(time%dt, this%max_dt), this%min_dt)
        this%dt_last_change = 0
        this%cfl_avg = cfl
 
@@ -159,6 +166,19 @@ contains
 
        else
           this%dt_last_change = this%dt_last_change + 1
+       end if
+    end if
+
+    ! If running in mpmd, the new dt is the minimum across simulations
+    if (pe_size .ne. global_pe_size) then
+       global_min_dt = time%dt
+       call MPI_Allreduce(MPI_IN_PLACE, global_min_dt, 1, MPI_REAL_PRECISION, &
+            MPI_MIN, NEKO_GLOBAL_COMM, ierr)
+
+       ! If my dt is larger that the global min, mark a change
+       if (time%dt .gt. global_min_dt) then
+          time%dt = global_min_dt
+          this%dt_last_change = 0
        end if
     end if
 

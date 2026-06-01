@@ -30,6 +30,12 @@ conditions should then be prescribed in the case file as usual. Note also that
 periodic boundaries are directly encoded into the mesh file, and this will
 remain so in the future.
 
+If you already have an `.nmsh` with labeled boundary zones and later decide
+that some of those zones should instead be periodic, Neko also provides the
+`create_periodic_zones` utility under `contrib`. It reads an existing `.nmsh`,
+converts selected pairs of labeled zones into periodic ones, and writes a new
+`.nmsh` while preserving the remaining zone data.
+
 ## Three-dimensional field output
 Neko stores the 3D fields with results in the `.f#####` format, which is the same
 as in Nek5000. The advantage of adopting this format, is that there is a reader

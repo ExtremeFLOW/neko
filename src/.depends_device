@@ -50,6 +50,7 @@ multigrid/bcknd/device/hip/amg_cheby.lo : multigrid/bcknd/device/hip/amg_cheby.h
 krylov/bcknd/device/hip/cheby_aux.lo : krylov/bcknd/device/hip/cheby_aux.hip
 comm/bcknd/device/cuda/nvshmem.lo : comm/bcknd/device/cuda/nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
+device/cuda/nvtx_wrapper.lo : device/cuda/nvtx_wrapper.cu
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
 math/bcknd/device/cuda/mathops.lo : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
 math/bcknd/device/cuda/opr_dudxyz.lo : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h
@@ -114,6 +115,7 @@ math/bcknd/device/opencl/set_convect_rst.lo : math/bcknd/device/opencl/set_conve
 math/bcknd/device/opencl/opr_opgrad.lo : math/bcknd/device/opencl/opr_opgrad.c math/bcknd/device/opencl/opgrad_kernel.cl.h
 math/bcknd/device/opencl/opr_lambda2.lo : math/bcknd/device/opencl/opr_lambda2.c math/bcknd/device/opencl/lambda2_kernel.cl.h
 math/bcknd/device/opencl/opr_cfl.lo : math/bcknd/device/opencl/opr_cfl.c math/bcknd/device/opencl/cfl_kernel.cl.h
+math/bcknd/device/opencl/opr_rotate_cyc.lo : math/bcknd/device/opencl/opr_rotate_cyc.c math/bcknd/device/opencl/rotate_kernel.cl.h
 math/bcknd/device/opencl/ax_helm.lo : math/bcknd/device/opencl/ax_helm.c math/bcknd/device/opencl/ax_helm_kernel.cl.h
 math/bcknd/device/opencl/ax_helm_full.lo : math/bcknd/device/opencl/ax_helm_full.c math/bcknd/device/opencl/ax_helm_full_kernel.cl.h
 krylov/bcknd/device/opencl/pc_jacobi.lo : krylov/bcknd/device/opencl/pc_jacobi.c krylov/bcknd/device/opencl/jacobi_kernel.cl.h
@@ -143,9 +145,15 @@ filter/bcknd/device/hip/mappings.lo : filter/bcknd/device/hip/mappings.hip filte
 filter/bcknd/device/opencl/mappings.lo : filter/bcknd/device/opencl/mappings.c filter/bcknd/device/opencl/mapping_kernels.cl.h
 wall_models/bcknd/device/cuda/wall_models.lo : wall_models/bcknd/device/cuda/wall_models.cu wall_models/bcknd/device/cuda/wall_model_kernels.h
 wall_models/bcknd/device/cuda/spalding.lo : wall_models/bcknd/device/cuda/spalding.cu wall_models/bcknd/device/cuda/spalding_kernel.h
+wall_models/bcknd/device/cuda/cai_sagaut_model_ii.lo : wall_models/bcknd/device/cuda/cai_sagaut_model_ii.cu wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h
 wall_models/bcknd/device/cuda/rough_log_law.lo : wall_models/bcknd/device/cuda/rough_log_law.cu wall_models/bcknd/device/cuda/rough_log_law_kernel.h
+wall_models/bcknd/device/cuda/most.lo : wall_models/bcknd/device/cuda/most.cu wall_models/bcknd/device/cuda/most_kernel.h
+wall_models/bcknd/device/cuda/richardson.lo : wall_models/bcknd/device/cuda/richardson.cu wall_models/bcknd/device/cuda/richardson_kernel.h
 wall_models/bcknd/device/hip/wall_models.lo : wall_models/bcknd/device/hip/wall_models.hip wall_models/bcknd/device/hip/wall_model_kernels.h
 wall_models/bcknd/device/hip/spalding.lo : wall_models/bcknd/device/hip/spalding.hip wall_models/bcknd/device/hip/spalding_kernel.h
+wall_models/bcknd/device/hip/cai_sagaut_model_ii.lo : wall_models/bcknd/device/hip/cai_sagaut_model_ii.hip wall_models/bcknd/device/hip/cai_sagaut_model_ii_kernel.h
 wall_models/bcknd/device/hip/rough_log_law.lo : wall_models/bcknd/device/hip/rough_log_law.hip wall_models/bcknd/device/hip/rough_log_law_kernel.h
+wall_models/bcknd/device/hip/most.lo : wall_models/bcknd/device/hip/most.hip wall_models/bcknd/device/hip/most_kernel.h
+wall_models/bcknd/device/hip/richardson.lo : wall_models/bcknd/device/hip/richardson.hip wall_models/bcknd/device/hip/richardson_kernel.h
+wall_models/bcknd/device/opencl/cai_sagaut_model_ii.lo : wall_models/bcknd/device/opencl/cai_sagaut_model_ii.c wall_models/bcknd/device/opencl/cai_sagaut_model_ii_kernel.cl.h
 multigrid/bcknd/device/cuda/amg_cheby.lo : multigrid/bcknd/device/cuda/amg_cheby.cu
-krylov/bcknd/device/cuda/cheby_aux.lo : krylov/bcknd/device/cuda/cheby_aux.cu

@@ -39,7 +39,6 @@ module filter
   use num_types, only : rp
   use json_module, only : json_file
   use coefs, only : coef_t
-  use json_utils, only : json_get_or_default, json_get
   use field, only : field_t
   implicit none
   private
@@ -73,7 +72,7 @@ module filter
        import filter_t, json_file, coef_t
        class(filter_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
-       type(coef_t), intent(in) :: coef
+       type(coef_t), intent(in), target :: coef
      end subroutine filter_init
   end interface
 
@@ -106,7 +105,7 @@ module filter
      module subroutine filter_factory(object, type_name, json, coef)
        class(filter_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
-       type(coef_t), intent(in) :: coef
+       type(coef_t), intent(in), target :: coef
        type(json_file), intent(inout) :: json
      end subroutine filter_factory
   end interface
@@ -115,9 +114,8 @@ module filter
 
 contains
   !> Constructor for the `filter_t` (base) class.
-  subroutine filter_init_base(this, json, coef)
+  subroutine filter_init_base(this, coef)
     class(filter_t), intent(inout) :: this
-    type(json_file), intent(inout) :: json
     type(coef_t), intent(in), target :: coef
 
     this%coef => coef

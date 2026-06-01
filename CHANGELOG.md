@@ -6,13 +6,50 @@
   Fluent `.msh` meshes to Neko `.re2` meshes. Requires Python 3 with `numpy`,
   `scipy`, and `pymech`. Supports translational periodic boundaries via
   `--periodic periodic.json`.
+- Removed restart limitations on load balancing. We now cache the the balanced
+  mesh and read the cache if available. Load balance name pattern updated to
+  include partition number.
+- Added `host_array_t` and `device_array_t` temporary array types and support
+  for requesting these through `scratch_registry_t`.
+- Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
+- Added the `create_periodic_zones` contrib utility for converting pairs of
+  labeled zones in an existing `.nmsh` mesh into periodic zones.
+  backends. This model is based on the work of [Cai and Sagaut (PoF,
+  2021)](https://doi.org/10.1063/5.0048563).
+- Added hdf5 support for probes and added hdf5 I/O helper routines
+- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`
+  for hip and cuda.
+- Added the `hpfrt` source term for high-pass filter-based stabilization.
+- Added the `data_streamer` simulation component, allowing data streaming
+- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`
+  for hip and cuda.
+- Added the Richardson wall model.
+- Added the variable NEKO_VARNAME_LEN in `common/utils.f90` to set a fixed
+  size for `name` attributes in e.g. `field_t` and `vector_t`.
+- Added the `field_subsampler` simulation component, allowing sampling of
+  fields at a different polynomial order and with masking by `point_zones`.
+- Basic implementation of an overset interface boundary condition is added
+- Modify field_writer and probes to by default output in
+  `case.output_directory`
+- Added MOST wall model and added diagnostics for the wall models.
+- Added the `data_streamer` simulation component, allowing data streaming
+  with ADIOS2.
+- Fixed a bug (mu_msk) in `device_calc_force_array` in `force_torque.f90`.
+- Added MOST wall model and added diagnostics for the wall models.
+- Added ALE framework.
+- Added masked I/O capabilities for the field_writer via the optional
+  `point_zone` JSON keyword.
+- Added the user-defined Neumann boundary conditions for the scalar solver.
+- *BREAKING* Changed the user-defined scalar Dirichlet boundary conditions
+  keyword from `user` to `user_dirichlet`.
+- Add possibility to create mesh and dofmap objects from masked entries.
 - Enabled 1D stats files in csv format as a possible input to `average_fields_in_time`.
 - Added the possibility to configure interpolation parameters for `probes`.
 - *BREAKING* Changed the user interface of fluid/scalar initial condition
   to read interpolation parameters from the `interpolation` JSON subdict
   instead of individual parameters.
 - Added public variables `GLOBAL_INTERP_PAD` and `GLOBAL_INTERP_TOL`
-  in `global_interpolation` as default values for `tolerance` and 
+  in `global_interpolation` as default values for `tolerance` and
   `padding` parameters.
 - Added the possibility to initialize `global_interpolation` from a JSON subdict.
 - Added the `json_get_subdict_or_empty` which seeks a JSON subdict and returns
@@ -32,7 +69,7 @@
   now.
 - Added an AI policy to the contribution guidelines.
 - Added simple support for VTKHDF. For now it can be used for fluid outputs.
-  Simple restarts are supported with fixed mesh and MPI configuration. 
+  Simple restarts are supported with fixed mesh and MPI configuration.
   The VTKHDF output format is still experimental and will change in the future.
 - Added templates for serial and parallel unit tests.
 - Added code review instructions for LLMs in a copilot-friendly location.
@@ -110,5 +147,15 @@
 - Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
+- `operator::dudxyz` calls with implicit device arrays are deprecated. Please
+  use `opr_device_dudxyz` instead.
+- `operator::div` calls with implicit device arrays are deprecated. Please use
+  `div_d` instead.
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
   `device_ortho` instead.
+- `operator::cfl_r4` calls with implicit device arrays are deprecated. Please
+  use `cfl_d` instead.
+- `operator::strain_rate_r4` calls with implicit device arrays are deprecated.
+  Please use `strain_rate_d` instead.
+- `operator::rotate_cyc_r1` and `operator::rotate_cyc_r4` calls with implicit
+  device arrays are deprecated. Please use `rotate_cyc_d` instead.
