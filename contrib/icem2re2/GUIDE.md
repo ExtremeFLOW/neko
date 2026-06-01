@@ -259,21 +259,3 @@ displacement to use in `periodic.json`.
   etc. If your `.msh` mis-declares a periodic surface as a wall (which
   ICEM exports often do), you have to declare the periodicity yourself via
   `periodic.json` — mshconvert won't infer it.
-
-## Running on a supercomputer
-
-A simulation that runs out-of-memory on a workstation may be fine on a
-cluster because the mesh is partitioned across MPI ranks. As a rule of
-thumb for the pressure preconditioner `hsmg`, allow ~2 GB per rank for an
-`O(10^8)` DoF problem. For our 962K elements at polynomial order 5
-(~207 M DoF), 1440 ranks (45 nodes × 32) gives ~140 K DoF per rank, which
-comfortably fits.
-
-If you only have a small workstation for a smoke test, you can shrink
-memory by:
-
-- Dropping `polynomial_order` to 2 (cuts DoF by ~0.42).
-- Switching the pressure preconditioner from `hsmg` to `jacobi` (slow
-  convergence but tiny memory).
-- Removing optional simulation_components like `lambda2` for the
-  smoke-test run.
