@@ -1354,7 +1354,7 @@ contains
        call device_memcpy(other%y, other%y_d, other%ntot, &
             DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(other%z, other%z_d, other%ntot, &
-            DEVICE_TO_HOST, sync =.true.)
+            DEVICE_TO_HOST, sync = .true.)
 
     else
        call masked_gather_copy(other%x, this%x, mask%get(), &

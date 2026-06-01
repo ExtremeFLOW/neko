@@ -637,7 +637,7 @@ contains
 
 
   subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+       fx, fy, fz, Xh, coef, n, dt)
     class(adv_oifs_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z

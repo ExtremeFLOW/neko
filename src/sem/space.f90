@@ -32,7 +32,7 @@
 !
 !> Defines a function space
 module space
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use speclib, only : zwgll, zwgl, dgll, legendre_poly
   use device
@@ -40,7 +40,7 @@ module space
   use utils, only : neko_error
   use fast3d, only : setup_intp
   use tensor, only : trsp1
-  use mxm_wrapper, only: mxm
+  use mxm_wrapper, only : mxm
   use math, only : copy
   use, intrinsic :: iso_c_binding
   implicit none
@@ -284,19 +284,22 @@ contains
        call device_map(s%vinvt, s%vinvt_d, s%lxy)
        call device_map(s%w, s%w_d, s%lxy)
 
-       call device_memcpy(s%dr_inv, s%dr_inv_d, s%lx, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%ds_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%dt_inv, s%dt_inv_d, s%lx, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%wx, s%wx_d, s%lx, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%wy, s%wy_d, s%lx, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%wz, s%wz_d, s%lx, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%dx, s%dx_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%dy, s%dy_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%dz, s%dz_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%dxt, s%dxt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(s%dr_inv, s%dr_inv_d, s%lx, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%ds_inv, s%ds_inv_d, s%lx, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%dt_inv, s%dt_inv_d, s%lx, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%wx, s%wx_d, s%lx, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%wy, s%wy_d, s%lx, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%wz, s%wz_d, s%lx, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%dx, s%dx_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%dy, s%dy_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%dz, s%dz_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%dxt, s%dxt_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(s%v, s%v_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(s%vt, s%vt_d, s%lxy, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(s%vinv, s%vinv_d, s%lxy, HOST_TO_DEVICE, &
@@ -307,7 +310,7 @@ contains
 
        ix = s%lx * 3
        call device_map(s%zg, s%zg_d, ix)
-       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE, sync=.true.)
+       call device_memcpy(s%zg, s%zg_d, ix, HOST_TO_DEVICE, sync = .true.)
     end if
 
 
@@ -389,27 +392,27 @@ contains
        deallocate(s%dt_inv)
     end if
 
-    if(allocated(s%v)) then
+    if (allocated(s%v)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%v, s%v_d)
        deallocate(s%v)
     end if
 
-    if(allocated(s%vt)) then
+    if (allocated(s%vt)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vt, s%vt_d)
        deallocate(s%vt)
     end if
 
-    if(allocated(s%vinv)) then
+    if (allocated(s%vinv)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vinv, s%vinv_d)
        deallocate(s%vinv)
     end if
 
-    if(allocated(s%vinvt)) then
+    if (allocated(s%vinvt)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vinvt, s%vinvt_d)
        deallocate(s%vinvt)
     end if
 
-    if(allocated(s%w)) then
+    if (allocated(s%w)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%w, s%w_d)
        deallocate(s%w)
     end if
@@ -457,7 +460,7 @@ contains
     dx(1) = x(2) - x(1)
     do i = 2, lx - 1
        dx(i) = 0.5*(x(i+1) - x(i-1))
-    enddo
+    end do
     dx(lx) = x(lx) - x(lx-1)
     do i = 1, lx
        dx(i) = 1.0_rp / dx(i)

@@ -500,114 +500,114 @@ contains
        deallocate(this%Binv)
     end if
 
-    if(allocated(this%dxdr)) then
+    if (allocated(this%dxdr)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxdr, this%dxdr_d)
        deallocate(this%dxdr)
     end if
 
-    if(allocated(this%dxds)) then
+    if (allocated(this%dxds)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxds, this%dxds_d)
        deallocate(this%dxds)
     end if
 
-    if(allocated(this%dxdt)) then
+    if (allocated(this%dxdt)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxdt, this%dxdt_d)
        deallocate(this%dxdt)
     end if
 
-    if(allocated(this%dydr)) then
+    if (allocated(this%dydr)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dydr, this%dydr_d)
        deallocate(this%dydr)
     end if
 
-    if(allocated(this%dyds)) then
+    if (allocated(this%dyds)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dyds, this%dyds_d)
        deallocate(this%dyds)
     end if
 
-    if(allocated(this%dydt)) then
+    if (allocated(this%dydt)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dydt, this%dydt_d)
        deallocate(this%dydt)
     end if
 
-    if(allocated(this%dzdr)) then
+    if (allocated(this%dzdr)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzdr, this%dzdr_d)
        deallocate(this%dzdr)
     end if
 
-    if(allocated(this%dzds)) then
+    if (allocated(this%dzds)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzds, this%dzds_d)
        deallocate(this%dzds)
     end if
 
-    if(allocated(this%dzdt)) then
+    if (allocated(this%dzdt)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzdt, this%dzdt_d)
        deallocate(this%dzdt)
     end if
 
-    if(allocated(this%drdx)) then
+    if (allocated(this%drdx)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdx, this%drdx_d)
        deallocate(this%drdx)
     end if
 
-    if(allocated(this%dsdx)) then
+    if (allocated(this%dsdx)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdx, this%dsdx_d)
        deallocate(this%dsdx)
     end if
 
-    if(allocated(this%dtdx)) then
+    if (allocated(this%dtdx)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdx, this%dtdx_d)
        deallocate(this%dtdx)
     end if
 
-    if(allocated(this%drdy)) then
+    if (allocated(this%drdy)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdy, this%drdy_d)
        deallocate(this%drdy)
     end if
 
-    if(allocated(this%dsdy)) then
+    if (allocated(this%dsdy)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdy, this%dsdy_d)
        deallocate(this%dsdy)
     end if
 
-    if(allocated(this%dtdy)) then
+    if (allocated(this%dtdy)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdy, this%dtdy_d)
        deallocate(this%dtdy)
     end if
 
-    if(allocated(this%drdz)) then
+    if (allocated(this%drdz)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdz, this%drdz_d)
        deallocate(this%drdz)
     end if
 
-    if(allocated(this%dsdz)) then
+    if (allocated(this%dsdz)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdz, this%dsdz_d)
        deallocate(this%dsdz)
     end if
 
-    if(allocated(this%dtdz)) then
+    if (allocated(this%dtdz)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdz, this%dtdz_d)
        deallocate(this%dtdz)
     end if
 
-    if(allocated(this%jac)) then
+    if (allocated(this%jac)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%jac, this%jac_d)
        deallocate(this%jac)
     end if
 
-    if(allocated(this%jacinv)) then
+    if (allocated(this%jacinv)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_unmap(this%jacinv, this%jacinv_d)
        end if
        deallocate(this%jacinv)
     end if
 
-    if(allocated(this%h1)) then
+    if (allocated(this%h1)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%h1, this%h1_d)
        deallocate(this%h1)
     end if
 
-    if(allocated(this%h2)) then
+    if (allocated(this%h2)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%h2, this%h2_d)
        deallocate(this%h2)
     end if
@@ -1029,15 +1029,15 @@ contains
     real(kind=rp) :: normal(3)
 
     select case (facet)
-    case(1,2)
+    case (1, 2)
        normal(1) = this%nx(j, k, facet, e)
        normal(2) = this%ny(j, k, facet, e)
        normal(3) = this%nz(j, k, facet, e)
-    case(3,4)
+    case (3, 4)
        normal(1) = this%nx(i, k, facet, e)
        normal(2) = this%ny(i, k, facet, e)
        normal(3) = this%nz(i, k, facet, e)
-    case(5,6)
+    case (5, 6)
        normal(1) = this%nx(i, j, facet, e)
        normal(2) = this%ny(i, j, facet, e)
        normal(3) = this%nz(i, j, facet, e)
@@ -1050,11 +1050,11 @@ contains
     real(kind=rp) :: area
 
     select case (facet)
-    case(1,2)
+    case (1, 2)
        area = this%area(j, k, facet, e)
-    case(3,4)
+    case (3, 4)
        area = this%area(i, k, facet, e)
-    case(5,6)
+    case (5, 6)
        area = this%area(i, j, facet, e)
     end select
   end function coef_get_area

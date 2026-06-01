@@ -554,9 +554,11 @@ contains
        this%seq_io = .true.
 
        ! Build the header
-       write(header_line, '(I0,A,I0)') this%n_global_probes, ",", this%n_fields
+       write(header_line, '(I0, A, I0)') this%n_global_probes, achar(44), &
+            this%n_fields
        do i = 1, this%n_fields
-          header_line = trim(header_line) // "," // trim(this%which_fields(i))
+          header_line = trim(header_line) // achar(44) // &
+               trim(this%which_fields(i))
        end do
        call this%fout%set_header(header_line)
 
@@ -715,8 +717,8 @@ contains
        write (log_buf, *) pe_rank, "/", this%global_interp%pe_owner(i), &
             "/" , this%global_interp%el_owner0(i)
        call neko_log%message(log_buf)
-       write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') &
-            "rst: ", this%global_interp%rst(:,i)
+       write(log_buf, '(A5, "(", F10.6, ",", F10.6, ",", F10.6, ")")') &
+            "rst: ", this%global_interp%rst(:, i)
        call neko_log%message(log_buf)
     end do
   end subroutine probes_debug

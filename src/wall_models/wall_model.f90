@@ -442,7 +442,7 @@ contains
     this%n_nodes = n_nodes
 
     call neko_registry%add_field(this%coef%dof, "sampling_height", &
-         ignore_existing=.true.)
+         ignore_existing = .true.)
 
     h_field => neko_registry%get_field_by_name("sampling_height")
 
