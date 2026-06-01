@@ -38,7 +38,7 @@ module device_jacobi
   use num_types, only : rp
   use device_math, only : device_col2, device_addcol3, device_invcol1,&
        device_col3
-  use device, only : device_map, device_event_create, device_free, &
+  use device, only : device_map, device_event_create, device_unmap, &
        device_event_sync, device_get_ptr, device_event_destroy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
@@ -120,12 +120,10 @@ contains
   subroutine device_jacobi_free(this)
     class(device_jacobi_t), intent(inout) :: this
 
-    if (c_associated(this%d_d)) then
-       call device_free(this%d_d)
-       this%d_d = C_NULL_PTR
-    end if
-
     if (allocated(this%d)) then
+       if (c_associated(this%d_d)) then
+          call device_unmap(this%d, this%d_d)
+       end if
        deallocate(this%d)
     end if
 
