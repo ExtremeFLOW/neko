@@ -100,7 +100,7 @@ contains
        call json_get_or_lookup(json, "reference_temperature", ref_temp)
        call json_get_or_lookup(json, "g", g)
        if (.not. size(g) == 3) then
-          call neko_error("The gravity vector should have 3 components")
+          call neko_error("VREMAN: The gravity vector should have 3 components")
        end if
 
        if (ri_c .le. 0.0_rp) then
@@ -200,7 +200,7 @@ contains
          w_e => neko_registry%get_field_by_name("w_e")
 
          call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+              ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)
 
        end associate
     end if

@@ -32,7 +32,7 @@
 !
 !> Defines a coupled Conjugate Gradient methods
 module cg_cpld
-  use num_types, only: rp
+  use num_types, only: rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -40,7 +40,9 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, glsc2, abscmp
+  use math, only : glsc2, abscmp
+  use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use utils, only : neko_error
   use operators, only : rotate_cyc
   implicit none
@@ -221,16 +223,17 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: i, iter, max_iter
+    integer :: i, iter, max_iter, ierr
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
-    real(kind=rp) :: beta, pap, alpha, alphm, norm_fac
+    real(kind=rp) :: beta, pap, alpha, norm_fac
+    real(kind=xp) :: tmp_xp, r1_xp, r2_xp, r3_xp, mult_xp
 
     if (present(niter)) then
        max_iter = niter
     else
        max_iter = this%max_iter
     end if
-    norm_fac = 1.0_rp / coef%volume
+    norm_fac = 1.0_rp / sqrt(coef%volume)
 
     associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
          z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
@@ -254,7 +257,7 @@ contains
          tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
       end do
 
-      rtr = glsc3(tmp, coef%mult, coef%binv, n)
+      rtr = glsc2(tmp, coef%mult, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -308,18 +311,32 @@ contains
          pap = glsc2(tmp, coef%mult, n)
 
          alpha = rtz1 / pap
-         alphm = -alpha
          do concurrent (i = 1:n)
             x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)
             y%x(i,1,1,1) = y%x(i,1,1,1) + alpha * p2(i)
             z%x(i,1,1,1) = z%x(i,1,1,1) + alpha * p3(i)
-            r1(i) = r1(i) + alphm * w1(i)
-            r2(i) = r2(i) + alphm * w2(i)
-            r3(i) = r3(i) + alphm * w3(i)
-            tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
          end do
 
-         rtr = glsc3(tmp, coef%mult, coef%binv, n)
+         tmp = 0.0_rp
+         tmp_xp = 0.0_xp
+         !$omp parallel do reduction(+:tmp_xp)
+         do i = 1, n
+            r1(i) = r1(i) - alpha * w1(i)
+            r2(i) = r2(i) - alpha * w2(i)
+            r3(i) = r3(i) - alpha * w3(i)
+            r1_xp = real(r1(i), kind=xp)
+            r2_xp = real(r2(i), kind=xp)
+            r3_xp = real(r3(i), kind=xp)
+            mult_xp = real(coef%mult(i,1,1,1), kind=xp)
+            tmp_xp = tmp_xp + &
+                 (r1_xp * r1_xp + r2_xp * r2_xp + r3_xp * r3_xp) * mult_xp
+         end do
+         !$omp end parallel do
+
+         call MPI_Allreduce(MPI_IN_PLACE, tmp_xp, 1, MPI_EXTRA_PRECISION, &
+              MPI_SUM, NEKO_COMM, ierr)
+         rtr = tmp_xp
+
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)

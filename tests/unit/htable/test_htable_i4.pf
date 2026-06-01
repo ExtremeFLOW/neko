@@ -84,7 +84,8 @@ subroutine test_htable_add_i4
   @assertEqual(h5%num_entries(), 6)
   @assertEqual(h6%num_entries(), 6)
 
-  do i = 6, 8
+  ! Insert new keys past the initial occupancy to exercise growth clearly.
+  do i = 7, 8
      key = i
      data_i4 = -i
      data_i8 = int(-i, i8)
@@ -109,6 +110,54 @@ subroutine test_htable_add_i4
   @assertEqual(h6%num_entries(), 8)
 
 end subroutine test_htable_add_i4
+
+@test
+subroutine test_htable_contract_i4
+  use pfunit
+  use htable
+  implicit none
+  type(htable_i4_t) :: h
+  type(htable_iter_i4_t) :: it
+  integer :: key, data_i4, copy_i4
+  integer, pointer :: kp, vp
+
+  call h%init(3, data=data_i4)
+  ! Small requested sizes should round up to the implementation minimum.
+  @assertEqual(h%get_size(), 4)
+
+  key = 2
+  data_i4 = -2
+  call h%set(key, data_i4)
+  data_i4 = -20
+  call h%set(key, data_i4)
+  ! Updating an existing key must overwrite the value without growing entries.
+  @assertEqual(h%num_entries(), 1)
+  copy_i4 = 0
+  @assertEqual(h%get(key, copy_i4), 0)
+  @assertEqual(copy_i4, -20)
+
+  call h%remove(key)
+  data_i4 = -200
+  call h%set(key, data_i4)
+  ! Re-inserting a removed key must work through the tombstone path.
+  @assertEqual(h%num_entries(), 1)
+  copy_i4 = 0
+  @assertEqual(h%get(key, copy_i4), 0)
+  @assertEqual(copy_i4, -200)
+
+  call it%init(h)
+  @assertTrue(it%next())
+  call it%data(copy_i4)
+  @assertEqual(copy_i4, -200)
+  call it%reset()
+  ! Reset should restart iteration from the first valid entry.
+  @assertTrue(it%next())
+  kp => it%key()
+  vp => it%value()
+  @assertEqual(kp, key)
+  @assertEqual(vp, -200)
+
+end subroutine test_htable_contract_i4
 
 @test
 subroutine test_htable_clear_i4
@@ -380,6 +429,7 @@ subroutine test_htable_iter_i4
      kp => it%key()
      di4p=> it%value()
 
+     ! Iterator traversal should expose the same key/value pairs as get().
      data_i4 = -kp
      @assertEqual(data_i4, di4p)
 

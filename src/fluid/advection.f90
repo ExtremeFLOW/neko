@@ -47,6 +47,9 @@ module advection
    contains
      procedure(compute_adv), pass(this), deferred :: compute
      procedure(compute_scalar_adv), pass(this), deferred :: compute_scalar
+     procedure(compute_ale_adv), pass(this), deferred :: compute_ale
+     procedure(advection_recompute_metrics), pass(this), &
+          deferred :: recompute_metrics
      procedure(advection_free), pass(this), deferred :: free
   end type advection_t
 
@@ -136,6 +139,53 @@ module advection
        integer, intent(in) :: n
        real(kind=rp), intent(in), optional :: dt
      end subroutine compute_scalar_adv
+  end interface
+
+  abstract interface
+     !> Add advection operator to the right-hand-side for moving mesh.
+     !! @param this The object.
+     !! @param vx The x component of velocity.
+     !! @param vy The y component of velocity.
+     !! @param vz The z component of velocity.
+     !! @param wm_x The x component of mesh velocity.
+     !! @param wm_y The y component of mesh velocity.
+     !! @param wm_z The z component of mesh velocity.
+     !! @param fx The x component of source term.
+     !! @param fy The y component of source term.
+     !! @param fz The z component of source term.
+     !! @param Xh The function space.
+     !! @param coef The coefficients of the (Xh, mesh) pair.
+     !! @param n Typically the size of the mesh.
+     !! @param dt Current time step used in OIFS method.
+     subroutine compute_ale_adv(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+                                           fx, fy, fz, Xh, coef, n, dt)
+       import :: advection_t
+       import :: coef_t
+       import :: space_t
+       import :: field_t
+       import :: rp
+       class(advection_t), intent(inout) :: this
+       type(field_t), intent(inout) :: vx, vy, vz
+       type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+       type(field_t), intent(inout) :: fx, fy, fz
+       type(space_t), intent(in) :: Xh
+       type(coef_t), intent(in) :: coef
+       integer, intent(in) :: n
+       real(kind=rp), intent(in), optional :: dt
+     end subroutine compute_ale_adv
+  end interface
+
+  abstract interface
+     !> Update any geometry/metric data inside the advection object.
+     !> For eg., in ALE, maps the coef_GLL to coef_GL at each iteration
+     !> for dealiasing.
+     subroutine advection_recompute_metrics(this, coef, moving_boundary)
+       import :: advection_t
+       import :: coef_t
+       class(advection_t), intent(inout) :: this
+       type(coef_t), intent(in) :: coef
+       logical, intent(in) :: moving_boundary
+     end subroutine advection_recompute_metrics
   end interface
 
   abstract interface

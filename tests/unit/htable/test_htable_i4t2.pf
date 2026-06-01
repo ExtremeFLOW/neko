@@ -84,7 +84,8 @@ subroutine test_htable_add_i4t2
   @assertEqual(h5%num_entries(), 6)
   @assertEqual(h6%num_entries(), 6)
 
-  do i = 6, 8
+  ! Insert new keys past the initial occupancy to exercise growth clearly.
+  do i = 7, 8
      key = (/i, i**2/)
      data_i4 = -i
      data_i8 = int(-i, i8)
@@ -109,6 +110,58 @@ subroutine test_htable_add_i4t2
   @assertEqual(h6%num_entries(), 8)
 
 end subroutine test_htable_add_i4t2
+
+@test
+subroutine test_htable_contract_i4t2
+  use pfunit
+  use htable
+  use tuple
+  implicit none
+  type(htable_i4t2_t) :: h
+  type(htable_iter_i4t2_t) :: it
+  type(tuple_i4_t) :: key, key_expected, data_ti4, copy_ti4
+  type(tuple_i4_t), pointer :: kp, vp
+
+  call h%init(3, data=data_ti4)
+  ! Small requested sizes should round up to the implementation minimum.
+  @assertEqual(h%get_size(), 4)
+
+  key = (/2, 4/)
+  data_ti4 = (/-2, -4/)
+  call h%set(key, data_ti4)
+  data_ti4 = (/-20, -40/)
+  call h%set(key, data_ti4)
+  ! Updating an existing key must overwrite the value without growing entries.
+  @assertEqual(h%num_entries(), 1)
+  @assertEqual(h%get(key, copy_ti4), 0)
+  data_ti4 = (/-20, -40/)
+  @assertTrue(copy_ti4 .eq. data_ti4)
+
+  call h%remove(key)
+  data_ti4 = (/-200, -400/)
+  call h%set(key, data_ti4)
+  ! Re-inserting a removed key must work through the tombstone path.
+  @assertEqual(h%num_entries(), 1)
+  @assertEqual(h%get(key, copy_ti4), 0)
+  data_ti4 = (/-200, -400/)
+  @assertTrue(copy_ti4 .eq. data_ti4)
+
+  call it%init(h)
+  @assertTrue(it%next())
+  call it%data(copy_ti4)
+  data_ti4 = (/-200, -400/)
+  @assertTrue(copy_ti4 .eq. data_ti4)
+  call it%reset()
+  ! Reset should restart iteration from the first valid entry.
+  @assertTrue(it%next())
+  kp => it%key()
+  vp => it%value()
+  key_expected = (/2, 4/)
+  @assertTrue(kp .eq. key_expected)
+  data_ti4 = (/-200, -400/)
+  @assertTrue(vp .eq. data_ti4)
+
+end subroutine test_htable_contract_i4t2
 
 @test
 subroutine test_htable_clear_i4t2
@@ -381,6 +434,7 @@ subroutine test_htable_iter_i4t2
   do while(it%next())
      kp => it%key()
      dti4p=> it%value()
+     ! Iterator traversal should expose the same key/value pairs as get().
      data_ti4 = (/-kp%x(1), -kp%x(2)/)
      @assertTrue(data_ti4 .eq. dti4p)
 

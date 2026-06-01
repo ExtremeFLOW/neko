@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
 
 extern "C" {
 
-  /** 
+  /**
    * Fortran wrapper for device hip convective terms
    */
   void hip_opgrad(void *ux, void *uy, void *uz, void *u,
@@ -65,7 +65,7 @@ extern "C" {
                    void *w3, int *nel, int *lx) {
 
     static int autotune[19] = { 0 };
-    
+
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
@@ -79,7 +79,7 @@ extern "C" {
                         (real *) drdy, (real *) dsdy, (real *) dtdy,            \
                         (real *) drdz, (real *) dsdz, (real *) dtdz,            \
                         (real *) w3);                                           \
-    HIP_CHECK(hipGetLastError());                                             
+    HIP_CHECK(hipGetLastError());
 
 
 #define CASE_KSTEP(LX)                                                          \
@@ -91,7 +91,7 @@ extern "C" {
                         (real *) drdy, (real *) dsdy, (real *) dtdy,            \
                         (real *) drdz, (real *) dsdz, (real *) dtdz,            \
                         (real *) w3);                                           \
-    HIP_CHECK(hipGetLastError());                                             
+    HIP_CHECK(hipGetLastError());
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
@@ -108,7 +108,7 @@ extern "C" {
         CASE_KSTEP(LX);                                                         \
       }                                                                         \
       break
-    
+
     switch(*lx) {
       CASE(2);
       CASE(3);
@@ -133,7 +133,7 @@ extern "C" {
         exit(1);
       }
     }
-  } 
+  }
 }
 
 template < const int LX >
@@ -150,18 +150,19 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
   const dim3 nthrds_1d(1024, 1, 1);
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks((*nel), 1, 1);
-  
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
   char *env_value = NULL;
   char neko_log_buf[80];
-  
+
   env_value=getenv("NEKO_AUTOTUNE");
 
   sprintf(neko_log_buf, "Autotune opgrad (lx: %d)", *lx);
   log_section(neko_log_buf);
-  
+
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      CASE_1D(LX);       
+      CASE_1D(LX);
       sprintf(neko_log_buf,"Set by env : 1 (1D)");
       log_message(neko_log_buf);
       log_end_section();
@@ -172,7 +173,7 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
       log_message(neko_log_buf);
       log_end_section();
       return 2;
-    } else {       
+    } else {
        sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
        log_error(neko_log_buf);
     }
@@ -180,27 +181,32 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
 
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
-  
-  HIP_CHECK(hipEventRecord(start,0));
-   
+
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  HIP_CHECK(hipEventRecord(start, stream));
+
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
-  
-  HIP_CHECK(hipEventRecord(stop,0)); 
+
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time1, start, stop));;
-  
-  HIP_CHECK(hipEventRecord(start,0));
-   
+
+  HIP_CHECK(hipEventRecord(start, stream));
+
   for(int i = 0; i < 100; i++) {
      CASE_KSTEP(LX);
    }
-  
-  HIP_CHECK(hipEventRecord(stop,0)); 
+
+  HIP_CHECK(hipEventRecord(stop, stream));
   HIP_CHECK(hipEventSynchronize(stop));
   HIP_CHECK(hipEventElapsedTime(&time2, start, stop));
-  
+
   if(time1 < time2) {
      retval = 1;
   } else {

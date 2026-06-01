@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,14 @@
 !! it on each call.
 module scratch_registry
   use registry_entry, only : registry_entry_t
+  use host_array, only : host_array_t
+  use device_array, only : device_array_t
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
 
+  use math, only : rzero
+  use device_math, only : device_rzero
   use field_math, only : field_rzero
   use vector_math, only : vector_rzero
   use matrix_math, only : matrix_rzero
@@ -50,15 +54,15 @@ module scratch_registry
   private
 
   type, public :: scratch_registry_t
-     !> list of scratch fields
+     !> List of scratch objects
      type(registry_entry_t), private, allocatable :: entries(:)
-     !> Tracks which fields are used
+     !> Tracks which objects are used
      logical, private, allocatable :: inuse(:)
-     !> number of registered fields
+     !> Number of registered objects
      integer, private :: n_entries = 0
-     !> number of fields in use
+     !> Number of objects in use
      integer, private :: n_inuse = 0
-     !> the size the fields array is increased by upon reallocation
+     !> The size the objects array is increased by upon reallocation
      integer, private :: expansion_size = 10
      !> Dofmap
      type(dofmap_t), pointer :: dof => null()
@@ -81,13 +85,21 @@ module scratch_registry
      !> Get value of inuse for a given index
      procedure, pass(this) :: get_inuse
 
-     !> Get a new scratch field
-     procedure, pass(this) :: request_field
-     procedure, pass(this) :: relinquish_field_single
-     procedure, pass(this) :: relinquish_field_multiple
-     !> Free a field for later reuse
-     generic :: relinquish_field => relinquish_field_single, &
-          relinquish_field_multiple
+     !> Get a new scratch host array
+     procedure, pass(this) :: request_host_array
+     procedure, pass(this) :: relinquish_host_array_single
+     procedure, pass(this) :: relinquish_host_array_multiple
+     !> Free a host array for later reuse
+     generic :: relinquish_host_array => relinquish_host_array_single, &
+          relinquish_host_array_multiple
+
+     !> Get a new scratch device array
+     procedure, pass(this) :: request_device_array
+     procedure, pass(this) :: relinquish_device_array_single
+     procedure, pass(this) :: relinquish_device_array_multiple
+     !> Free a device array for later reuse
+     generic :: relinquish_device_array => relinquish_device_array_single, &
+          relinquish_device_array_multiple
 
      !> Get a new scratch vector
      procedure, pass(this) :: request_vector
@@ -105,8 +117,17 @@ module scratch_registry
      generic :: relinquish_matrix => relinquish_matrix_single, &
           relinquish_matrix_multiple
 
+     !> Get a new scratch field
+     procedure, pass(this) :: request_field
+     procedure, pass(this) :: relinquish_field_single
+     procedure, pass(this) :: relinquish_field_multiple
+     !> Free a field for later reuse
+     generic :: relinquish_field => relinquish_field_single, &
+          relinquish_field_multiple
+
      !> Generic request procedure
-     generic :: request => request_field, request_vector, request_matrix
+     generic :: request => request_host_array, request_device_array, &
+          request_vector, request_matrix, request_field
      procedure, pass(this) :: relinquish_single
      procedure, pass(this) :: relinquish_multiple
      !> Generic relinquish procedure
@@ -155,8 +176,8 @@ contains
 
     if (allocated(this%inuse)) then
        if(any(this%inuse)) then
-          call neko_error("scratch_registry::free: "&
-               // "Cannot free scratch registry with in-use entries.")
+          call neko_error("scratch_registry::free: " // &
+               "Cannot free scratch registry with in-use entries.")
        end if
        deallocate(this%inuse)
     end if
@@ -269,55 +290,105 @@ contains
 
   end subroutine expand
 
-  !> Get a field from the registry by assigning it to a pointer
-  !! @param f Pointer to the requested field.
-  !! @param index Index of the field in the registry (for relinquishing later).
-  !! @param clear If true, the field values are set to zero upon request.
-  subroutine request_field(this, f, index, clear)
+  !> Get a host_array from the registry by assigning it to a pointer.
+  !! @param v Pointer to the requested host_array.
+  !! @param index Index of the host array in the registry (for relinquishing later).
+  !! @param n Size of the requested host_array.
+  !! @param clear If true, the host_array values are set to zero upon request.
+  subroutine request_host_array(this, v, index, n, clear)
     class(scratch_registry_t), target, intent(inout) :: this
-    type(field_t), pointer, intent(inout) :: f
+    type(host_array_t), pointer, intent(inout) :: v
     integer, intent(inout) :: index
+    integer, intent(in) :: n
     logical, intent(in) :: clear
-    character(len=10) :: name
 
-    if (.not. associated(this%dof)) then
-       call neko_error("scratch_registry::request_field: "&
-            // "No dofmap assigned to scratch registry.")
-    end if
-
-    associate(n_entries => this%n_entries, n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%entries(index)%is_allocated()) then
-               write(name, "(A3,I0.3)") "wrk", index
-               call this%entries(index)%init_field(this%dof, trim(name))
+            if (.not. entries(index)%is_allocated()) then
+               call entries(index)%init_host_array(n)
                n_entries = n_entries + 1
-            else if (this%entries(index)%get_type() .ne. 'field') then
+            else if (trim(entries(index)%get_type()) .ne. 'host_array') then
                cycle
             end if
 
-            f => this%entries(index)%get_field()
-            if (clear) call field_rzero(f)
+            v => entries(index)%get_host_array()
+            if (v%size() .ne. n) then
+               nullify(v)
+               cycle
+            end if
+
+            if (clear) call rzero(v%x, v%size())
             this%inuse(index) = .true.
             this%n_inuse = this%n_inuse + 1
             return
          end if
       end do
 
-      ! all existing fields in use, we need to expand to add a new one
+      ! all existing host_arrays in use, we need to expand to add a new one
       index = n_entries + 1
       call this%expand()
       n_entries = n_entries + 1
       n_inuse = n_inuse + 1
       this%inuse(n_entries) = .true.
-      write (name, "(A3,I0.3)") "wrk", index
-      call this%entries(n_entries)%init_field(this%dof, trim(name))
-      f => this%entries(n_entries)%get_field()
+      call this%entries(n_entries)%init_host_array(n)
+      v => this%entries(n_entries)%get_host_array()
 
     end associate
-  end subroutine request_field
+  end subroutine request_host_array
+
+  !> Get a device_array from the registry by assigning it to a pointer.
+  !! @param v Pointer to the requested device_array.
+  !! @param index Index of the device_array in the registry (for relinquishing later).
+  !! @param n Size of the requested device_array.
+  !! @param clear If true, the device_array values are set to zero upon request.
+  subroutine request_device_array(this, v, index, n, clear)
+    class(scratch_registry_t), target, intent(inout) :: this
+    type(device_array_t), pointer, intent(inout) :: v
+    integer, intent(inout) :: index
+    integer, intent(in) :: n
+    logical, intent(in) :: clear
+
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
+
+      do index = 1, this%get_size()
+         if (.not. this%inuse(index)) then
+
+            if (.not. entries(index)%is_allocated()) then
+               call entries(index)%init_device_array(n)
+               n_entries = n_entries + 1
+            else if (trim(entries(index)%get_type()) .ne. 'device_array') then
+               cycle
+            end if
+
+            v => entries(index)%get_device_array()
+            if (v%size() .ne. n) then
+               nullify(v)
+               cycle
+            end if
+
+            if (clear) call device_rzero(v%x_d, v%size())
+            this%inuse(index) = .true.
+            this%n_inuse = this%n_inuse + 1
+            return
+         end if
+      end do
+
+      ! all existing device_arrays in use, we need to expand to add a new one
+      index = n_entries + 1
+      call this%expand()
+      n_entries = n_entries + 1
+      n_inuse = n_inuse + 1
+      this%inuse(n_entries) = .true.
+      call this%entries(n_entries)%init_device_array(n)
+      v => this%entries(n_entries)%get_device_array()
+
+    end associate
+  end subroutine request_device_array
 
   !> Get a vector from the registry by assigning it to a pointer.
   !! @param v Pointer to the requested vector.
@@ -331,19 +402,20 @@ contains
     integer, intent(in) :: n
     logical, intent(in) :: clear
 
-    associate(n_entries => this%n_entries, n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%entries(index)%is_allocated()) then
-               call this%entries(index)%init_vector(n)
+            if (.not. entries(index)%is_allocated()) then
+               call entries(index)%init_vector(n)
                n_entries = n_entries + 1
-            else if (trim(this%entries(index)%get_type()) .ne. 'vector') then
+            else if (trim(entries(index)%get_type()) .ne. 'vector') then
                cycle
             end if
 
-            v => this%entries(index)%get_vector()
+            v => entries(index)%get_vector()
             if (v%size() .ne. n) then
                nullify(v)
                cycle
@@ -381,19 +453,20 @@ contains
     integer, intent(in) :: nrows, ncols
     logical, intent(in) :: clear
 
-    associate(n_entries => this%n_entries, n_inuse => this%n_inuse)
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
 
       do index = 1, this%get_size()
          if (.not. this%inuse(index)) then
 
-            if (.not. this%entries(index)%is_allocated()) then
-               call this%entries(index)%init_matrix(nrows, ncols)
+            if (.not. entries(index)%is_allocated()) then
+               call entries(index)%init_matrix(nrows, ncols)
                n_entries = n_entries + 1
-            else if (trim(this%entries(index)%get_type()) .ne. 'matrix') then
+            else if (trim(entries(index)%get_type()) .ne. 'matrix') then
                cycle
             end if
 
-            m => this%entries(index)%get_matrix()
+            m => entries(index)%get_matrix()
             if (m%get_nrows() .ne. nrows .or. &
                  m%get_ncols() .ne. ncols) then
                nullify(m)
@@ -419,38 +492,123 @@ contains
     end associate
   end subroutine request_matrix
 
-  !> Relinquish the use of a field in the registry
-  !! @param index The index of the field to free
-  subroutine relinquish_field_single(this, index)
+
+  !> Get a field from the registry by assigning it to a pointer
+  !! @param f Pointer to the requested field.
+  !! @param index Index of the field in the registry (for relinquishing later).
+  !! @param clear If true, the field values are set to zero upon request.
+  subroutine request_field(this, f, index, clear)
+    class(scratch_registry_t), target, intent(inout) :: this
+    type(field_t), pointer, intent(inout) :: f
+    integer, intent(inout) :: index
+    logical, intent(in) :: clear
+    character(len=10) :: name
+
+    if (.not. associated(this%dof)) then
+       call neko_error("scratch_registry::request_field: "&
+            // "No dofmap assigned to scratch registry.")
+    end if
+
+    associate(entries => this%entries, n_entries => this%n_entries, &
+         n_inuse => this%n_inuse)
+
+      do index = 1, this%get_size()
+         if (.not. this%inuse(index)) then
+
+            if (.not. entries(index)%is_allocated()) then
+               write(name, "(A3,I0.3)") "wrk", index
+               call entries(index)%init_field(this%dof, trim(name))
+               n_entries = n_entries + 1
+            else if (entries(index)%get_type() .ne. 'field') then
+               cycle
+            end if
+
+            f => entries(index)%get_field()
+            if (clear) call field_rzero(f)
+            this%inuse(index) = .true.
+            this%n_inuse = this%n_inuse + 1
+            return
+         end if
+      end do
+
+      ! all existing fields in use, we need to expand to add a new one
+      index = n_entries + 1
+      call this%expand()
+      n_entries = n_entries + 1
+      n_inuse = n_inuse + 1
+      this%inuse(n_entries) = .true.
+      write (name, "(A3,I0.3)") "wrk", index
+      call this%entries(n_entries)%init_field(this%dof, trim(name))
+      f => this%entries(n_entries)%get_field()
+
+    end associate
+  end subroutine request_field
+
+  !> Relinquish the use of a host_array in the registry
+  !! @param index The index of the host_array to free
+  subroutine relinquish_host_array_single(this, index)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: index
 
-    if (trim(this%entries(index)%get_type()) .ne. 'field') then
-       call neko_error("scratch_registry::relinquish_field_single: " &
-            // "Register entry is not a field.")
+    if (trim(this%entries(index)%get_type()) .ne. 'host_array') then
+       call neko_error("scratch_registry::relinquish_host_array_single: " &
+            // "Register entry is not a host_array.")
     end if
 
     this%inuse(index) = .false.
     this%n_inuse = this%n_inuse - 1
-  end subroutine relinquish_field_single
+  end subroutine relinquish_host_array_single
 
-  !> Relinquish the use of multiple fields in the registry
-  !! @param indices The indices of the fields to free
-  subroutine relinquish_field_multiple(this, indices)
+  !> Relinquish the use of multiple host_arrays in the registry
+  !! @param indices The indices of the host_arrays to free
+  subroutine relinquish_host_array_multiple(this, indices)
     class(scratch_registry_t), target, intent(inout) :: this
     integer, intent(inout) :: indices(:)
     integer :: i
 
     do i = 1, size(indices)
-       if (trim(this%entries(indices(i))%get_type()) .ne. 'field') then
-          call neko_error("scratch_registry::relinquish_field_single: " &
-               // "Register entry is not a field.")
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'host_array') then
+          call neko_error("scratch_registry::relinquish_host_array_single: " &
+               // "Register entry is not a host_array.")
        end if
 
        this%inuse(indices(i)) = .false.
     end do
     this%n_inuse = this%n_inuse - size(indices)
-  end subroutine relinquish_field_multiple
+  end subroutine relinquish_host_array_multiple
+
+  !> Relinquish the use of a device_array in the registry
+  !! @param index The index of the device_array to free
+  subroutine relinquish_device_array_single(this, index)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: index
+
+    if (trim(this%entries(index)%get_type()) .ne. 'device_array') then
+       call neko_error("scratch_registry::relinquish_device_array_single: " &
+            // "Register entry is not a device_array.")
+    end if
+
+    this%inuse(index) = .false.
+    this%n_inuse = this%n_inuse - 1
+  end subroutine relinquish_device_array_single
+
+  !> Relinquish the use of multiple device_arrays in the registry
+  !! @param indices The indices of the device_arrays to free
+  subroutine relinquish_device_array_multiple(this, indices)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'device_array') then
+          call neko_error("scratch_registry::relinquish_device_array_single: " &
+               // "Register entry is not a device_array.")
+       end if
+
+       this%inuse(indices(i)) = .false.
+    end do
+    this%n_inuse = this%n_inuse - size(indices)
+  end subroutine relinquish_device_array_multiple
 
   !> Relinquish the use of a vector in the registry
   !! @param index The index of the vector to free
@@ -517,6 +675,39 @@ contains
     end do
     this%n_inuse = this%n_inuse - size(indices)
   end subroutine relinquish_matrix_multiple
+
+  !> Relinquish the use of a field in the registry
+  !! @param index The index of the field to free
+  subroutine relinquish_field_single(this, index)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: index
+
+    if (trim(this%entries(index)%get_type()) .ne. 'field') then
+       call neko_error("scratch_registry::relinquish_field_single: " &
+            // "Register entry is not a field.")
+    end if
+
+    this%inuse(index) = .false.
+    this%n_inuse = this%n_inuse - 1
+  end subroutine relinquish_field_single
+
+  !> Relinquish the use of multiple fields in the registry
+  !! @param indices The indices of the fields to free
+  subroutine relinquish_field_multiple(this, indices)
+    class(scratch_registry_t), target, intent(inout) :: this
+    integer, intent(inout) :: indices(:)
+    integer :: i
+
+    do i = 1, size(indices)
+       if (trim(this%entries(indices(i))%get_type()) .ne. 'field') then
+          call neko_error("scratch_registry::relinquish_field_single: " &
+               // "Register entry is not a field.")
+       end if
+
+       this%inuse(indices(i)) = .false.
+    end do
+    this%n_inuse = this%n_inuse - size(indices)
+  end subroutine relinquish_field_multiple
 
   !> Relinquish the use of an object in the registry
   !! @param index The index of the object to free

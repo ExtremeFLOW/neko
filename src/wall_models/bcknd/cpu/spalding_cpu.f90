@@ -44,22 +44,24 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine spalding_compute_cpu(u, v, w, ind_r, ind_s, ind_t, ind_e, &
-       n_x, n_y, n_z, nu, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+       n_x, n_y, n_z, nu, rho_w, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
        kappa, B, tstep)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
+    real(kind=rp), dimension(n_nodes), intent(in) :: rho_w
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h, nu
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     real(kind=rp), intent(in) :: kappa, B
     integer :: i
-    real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess
+    real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess, rho
 
     do i=1, n_nodes
        ! Sample the velocity
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       rho = rho_w(i)
 
        ! Project on tangential direction
        normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)
@@ -81,9 +83,9 @@ contains
        utau = solve_cpu(magu, h(i), guess, nu(i), kappa, B)
 
        ! Distribute according to the velocity vector
-       tau_x(i) = -utau**2 * ui / magu
-       tau_y(i) = -utau**2 * vi / magu
-       tau_z(i) = -utau**2 * wi / magu
+       tau_x(i) = -rho*utau**2 * ui / magu
+       tau_y(i) = -rho*utau**2 * vi / magu
+       tau_z(i) = -rho*utau**2 * wi / magu
     end do
 
   end subroutine spalding_compute_cpu

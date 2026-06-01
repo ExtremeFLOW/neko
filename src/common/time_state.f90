@@ -34,7 +34,6 @@
 module time_state
   use num_types, only : rp
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
-  use checkpoint, only : chkp_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup, json_get_or_default, &
        json_get_or_lookup_or_default
@@ -57,7 +56,6 @@ module time_state
           time_state_init_from_components
      procedure, pass(this) :: init_from_json => time_state_init_from_json
      procedure, pass(this) :: reset => time_state_reset
-     procedure, pass(this) :: restart => time_state_restart
      procedure, pass(this) :: status => time_state_status
      procedure, pass(this) :: is_done => time_state_is_done
   end type time_state_t
@@ -122,28 +120,24 @@ contains
 
   end subroutine time_state_reset
 
-  !> Restart time state
-  subroutine time_state_restart(this, chkp)
-    class(time_state_t), intent(inout) :: this
-    type(chkp_t), intent(in) :: chkp
-
-    this%t = chkp%t
-    this%dtlag = chkp%dtlag
-    this%tlag = chkp%tlag
-  end subroutine time_state_restart
-
   !> Write status banner
   subroutine time_state_status(this)
     class(time_state_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf
-    character(len=38) :: log_fmt
+    character(len=64) :: log_fmt
     real(kind=rp) :: t_prog
+    integer :: time_digits, time_width, pad_width
 
     t_prog = 100.0_rp * (this%t - this%start_time) / &
          (this%end_time - this%start_time)
 
-    write(log_fmt, '(A,I2,A)') &
-         '(A7,1X,I10,1X,A4,E15.7,', LOG_SIZE - 50, 'X,A2,F6.2,A3)'
+    time_digits = precision(this%t)
+    time_width = time_digits + 8
+    pad_width = max(1, LOG_SIZE - (34 + time_width) - 1)
+
+    write(log_fmt, '(A,I0,A,I0,A,I0,A,I0,A)') &
+         '(A7,1X,I10,1X,A4,ES', time_width, '.', time_digits, ',', &
+         pad_width, 'X,A2,F6.2,A3)'
     write(log_buf, log_fmt) 'Step = ', this%tstep, 't = ', this%t, &
          '[ ', t_prog, '% ]'
 

@@ -14,6 +14,8 @@ check: scratch_registry_test
 scratch_registry_test_TESTS := test_field_scratch_registry.pf\
 	test_vector_scratch_registry.pf\
 	test_matrix_scratch_registry.pf\
+	test_host_scratch_registry.pf\
+	test_device_scratch_registry.pf\
 	test_scratch_registry.pf
 
 scratch_registry_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@

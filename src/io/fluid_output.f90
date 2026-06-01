@@ -184,7 +184,6 @@ contains
     class(fluid_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        associate(fields => this%fluid%items)
@@ -200,6 +199,9 @@ contains
     select type (ft => this%file_%file_type)
        ! Only fld files have the option to write the mesh at command
     type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
        ft%write_mesh = this%always_write_mesh
        call ft%write(this%fluid, t)
     class default

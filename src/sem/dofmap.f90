@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 module dofmap
   use neko_config, only : NEKO_BCKND_DEVICE
   use mesh, only : mesh_t
+  use mask, only : mask_t
   use space, only : space_t, GLL
   use tuple, only : tuple_i4_t, tuple4_i4_t
   use num_types, only : i4, i8, rp, xp
@@ -42,11 +43,13 @@ module dofmap
   use fast3d, only : fd_weights_full
   use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
   use device
-  use math, only : add3, copy, rone, rzero
+  use math, only : add3, copy, rone, rzero, masked_gather_copy
+  use device_math, only : device_masked_gather_copy_aligned, device_copy
   use element, only : element_t
   use quad, only : quad_t
   use hex, only : hex_t
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use interpolation, only : interpolator_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -59,6 +62,7 @@ module dofmap
      integer, private :: ntot !< Local number of dofs
 
      type(mesh_t), pointer :: msh
+     type(mesh_t), allocatable :: msh_subset
      type(space_t), pointer :: Xh
 
      !
@@ -70,11 +74,15 @@ module dofmap
 
    contains
      !> Constructor.
-     procedure, pass(this) :: init => dofmap_init
+     procedure, pass(this) :: init_from_mesh => dofmap_init
+     procedure, pass(this) :: init_from_dof => dofmap_init_and_map
+     generic :: init => init_from_mesh, init_from_dof
      !> Destructor.
      procedure, pass(this) :: free => dofmap_free
      !> Return the local number of degrees of freedom, lx*ly*lz*nelv
      procedure, pass(this) :: size => dofmap_size
+     !> Initialize a new dofmap based on a mask
+     procedure, pass(this) :: subset_by_mask => dofmap_subset_by_mask
      !> Return the global number of degrees of freedom, lx*ly*lz*glb_nelv
      procedure, pass(this) :: global_size => dofmap_global_size
   end type dofmap_t
@@ -151,6 +159,49 @@ contains
 
   end subroutine dofmap_init
 
+  !> Constructor.
+  !! @param dof The existing dofmap to initialize from.
+  !! @param Xh The SEM function space.
+  subroutine dofmap_init_and_map(this, dof, Xh)
+    class(dofmap_t) :: this
+    type(dofmap_t), target, intent(inout) :: dof
+    type(space_t), target, intent(inout) :: Xh
+    type(interpolator_t) :: interpolator
+
+    ! Initialize as usual
+    call this%init_from_mesh(dof%msh, Xh)
+
+    ! Interpolate if needed
+    if (dof%Xh%lxyz .ne. this%Xh%lxyz) then
+       call interpolator%init(this%Xh, dof%Xh)
+
+       call interpolator%map(this%x, &
+            dof%x, &
+            this%msh%nelv, this%Xh)
+       call interpolator%map(this%y, &
+            dof%y, &
+            this%msh%nelv, this%Xh)
+       call interpolator%map(this%z, &
+            dof%z, &
+            this%msh%nelv, this%Xh)
+
+       call interpolator%free()
+
+    else
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_copy(this%x_d, dof%x_d, this%ntot)
+          call device_copy(this%y_d, dof%y_d, this%ntot)
+          call device_copy(this%z_d, dof%z_d, this%ntot)
+       else
+          call copy(this%x, dof%x, this%ntot)
+          call copy(this%y, dof%y, this%ntot)
+          call copy(this%z, dof%z, this%ntot)
+       end if
+
+    end if
+
+  end subroutine dofmap_init_and_map
+
   !> Destructor.
   subroutine dofmap_free(this)
     class(dofmap_t), intent(inout) :: this
@@ -186,6 +237,11 @@ contains
 
     nullify(this%msh)
     nullify(this%Xh)
+
+    if (allocated(this%msh_subset)) then
+       call this%msh_subset%free()
+       deallocate(this%msh_subset)
+    end if
 
   end subroutine dofmap_free
 
@@ -245,6 +301,7 @@ contains
     num_dofs_edges(3) = int(Xh%lz - 2, i8)
     edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
+    !$omp parallel do private(i,j,k,global_id,edge,edge_id,shared_dof)
     do i = 1, msh%nelv
 
        select type (ep => msh%elements(i)%e)
@@ -557,6 +614,7 @@ contains
        end select
 
     end do
+    !$omp end parallel do
   end subroutine dofmap_number_edges
 
   !> Assign numbers to dofs on faces
@@ -583,6 +641,7 @@ contains
     num_dofs_faces(2) = int((Xh%lx - 2) * (Xh%lz - 2), i8)
     num_dofs_faces(3) = int((Xh%lx - 2) * (Xh%ly - 2), i8)
 
+    !$omp parallel do private(i,j,k,global_id,face,face_order,facet_id, shared_dof)
     do i = 1, msh%nelv
 
        !
@@ -593,10 +652,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
-       do concurrent (j = 2:(Xh%ly - 1), k = 2:(Xh%lz -1))
-          this%dof(1, j, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, j, k, Xh%lz, Xh%ly)
-          this%shared_dof(1, j, k, i) = shared_dof
+       do k = 2, Xh%lz - 1
+          do j = 2, Xh%ly - 1
+             this%dof(1, j, k, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, j, k, Xh%lz, Xh%ly)
+             this%shared_dof(1, j, k, i) = shared_dof
+          end do
        end do
 
        call msh%elements(i)%e%facet_id(face, 2)
@@ -604,10 +665,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
-       do concurrent (j = 2:(Xh%ly - 1), k = 2:(Xh%lz -1))
-          this%dof(Xh%lx, j, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, j, k, Xh%lz, Xh%ly)
-          this%shared_dof(Xh%lx, j, k, i) = shared_dof
+       do k = 2, Xh%lz - 1
+          do j = 2, Xh%ly - 1
+             this%dof(Xh%lx, j, k, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, j, k, Xh%lz, Xh%ly)
+             this%shared_dof(Xh%lx, j, k, i) = shared_dof
+          end do
        end do
 
 
@@ -619,10 +682,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%lz - 1))
-          this%dof(j, 1, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, 1, k, i) = shared_dof
+       do k = 2, Xh%lz - 1
+          do j = 2, Xh%lx - 1
+             this%dof(j, 1, k, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, k, j, Xh%lz, Xh%lx)
+             this%shared_dof(j, 1, k, i) = shared_dof
+          end do
        end do
 
        call msh%elements(i)%e%facet_id(face, 4)
@@ -630,10 +695,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%lz - 1))
-          this%dof(j, Xh%ly, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, Xh%ly, k, i) = shared_dof
+       do k = 2, Xh%lz - 1
+          do j = 2, Xh%lx - 1
+             this%dof(j, Xh%ly, k, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, k, j, Xh%lz, Xh%lx)
+             this%shared_dof(j, Xh%ly, k, i) = shared_dof
+          end do
        end do
 
 
@@ -645,10 +712,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%ly - 1))
-          this%dof(j, k, 1, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%ly, Xh%lx)
-          this%shared_dof(j, k, 1, i) = shared_dof
+       do k = 2, Xh%ly - 1
+          do j = 2, Xh%lx - 1
+             this%dof(j, k, 1, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, k, j, Xh%ly, Xh%lx)
+             this%shared_dof(j, k, 1, i) = shared_dof
+          end do
        end do
 
        call msh%elements(i)%e%facet_id(face, 6)
@@ -656,12 +725,15 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%ly - 1))
-          this%dof(j, k, Xh%lz, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, k, Xh%lz, i) = shared_dof
+       do k = 2, Xh%ly - 1
+          do j = 2, Xh%lx - 1
+             this%dof(j, k, Xh%lz, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, k, j, Xh%lz, Xh%lx)
+             this%shared_dof(j, k, Xh%lz, i) = shared_dof
+          end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine dofmap_number_faces
 
@@ -741,10 +813,13 @@ contains
        n_edge = 4
     end if
 
+    !$omp parallel do
     do i = 1, msh%nelv
        call dofmap_xyzlin(Xh, msh, msh%elements(i)%e, this%x(1,1,1,i), &
             this%y(1,1,1,i), this%z(1,1,1,i))
     end do
+    !$omp end parallel do
+
     do i = 1, msh%curve%size
        midpoint = .false.
        el_idx = msh%curve%curve_el(i)%el_idx
@@ -862,6 +937,7 @@ contains
     end if
   end subroutine dofmap_xyzlin
 
+  !OCL SERIAL
   subroutine dofmap_xyzquad(Xh, msh, element, x, y, z, curve_type, curve_data)
     type(mesh_t), pointer, intent(in) :: msh
     type(space_t), intent(in) :: Xh
@@ -937,6 +1013,8 @@ contains
     call Xh3%free()
   end subroutine dofmap_xyzquad
 
+
+  !OCL SERIAL
   !> Extend faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and edges
@@ -1051,6 +1129,7 @@ contains
 
   end subroutine gh_face_extend_3d
 
+  !OCL SERIAL
   !> Extend 2D faces into interior via gordon hall
   !! gh_type:  1 - vertex only
   !!           2 - vertex and faces
@@ -1203,6 +1282,7 @@ contains
     end if
   end subroutine arc_surface
 
+  !OCL SERIAL
   subroutine compute_h(h, zgml, gdim, lx)
     integer, intent(in) :: lx, gdim
     real(kind=rp), intent(inout) :: h(lx, 3, 2)
@@ -1230,5 +1310,61 @@ contains
     end if
 
   end subroutine compute_h
+
+  !> Generate/Initialize a new dofmap object based on a mask
+  !! @note Assumes that all points in an element are marked in by the mask.
+  !! @param other The new dofmap to be initialized.
+  !! @param mask the mask type defining the elements to be included.
+  subroutine dofmap_subset_by_mask(this, other, mask)
+    class(dofmap_t), intent(inout) :: this
+    class(dofmap_t), intent(inout) :: other
+    type(mask_t), intent(in) :: mask
+    integer :: i
+
+    ! Initialize the mesh subset_mesh in this
+    ! Deallocate any previously allocated mesh subset
+    if (allocated(this%msh_subset)) then
+       call this%msh_subset%free()
+       deallocate(this%msh_subset)
+    end if
+
+    allocate(this%msh_subset)
+    call this%msh%subset_by_mask(this%msh_subset, mask, &
+         this%Xh%lx, this%Xh%ly, this%Xh%lz)
+
+    ! Initialize the other dofmap
+    call other%init(this%msh_subset, this%Xh)
+
+    ! Overwrite dofmap in case it has been updated and
+    ! the mesh has not.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_masked_gather_copy_aligned(other%x_d, &
+            this%x_d, mask%get_d(), &
+            this%size(), mask%size())
+       call device_masked_gather_copy_aligned(other%y_d, &
+            this%y_d, mask%get_d(), &
+            this%size(), mask%size())
+       call device_masked_gather_copy_aligned(other%z_d, &
+            this%z_d, mask%get_d(), &
+            this%size(), mask%size())
+
+       ! Sync with host
+       call device_memcpy(other%x, other%x_d, other%ntot, &
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(other%y, other%y_d, other%ntot, &
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(other%z, other%z_d, other%ntot, &
+            DEVICE_TO_HOST, sync =.true.)
+
+    else
+       call masked_gather_copy(other%x, this%x, mask%get(), &
+            this%size(), mask%size())
+       call masked_gather_copy(other%y, this%y, mask%get(), &
+            this%size(), mask%size())
+       call masked_gather_copy(other%z, this%z, mask%get(), &
+            this%size(), mask%size())
+    end if
+
+  end subroutine dofmap_subset_by_mask
 
 end module dofmap

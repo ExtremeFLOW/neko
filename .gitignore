@@ -61,6 +61,7 @@ src/.libs/libneko.la
 src/.libs/libneko.lai
 src/api/neko.h
 src/python/pyneko/intf.py
+share/man/man1
 
 # Ignore temporary files
 *~
@@ -95,3 +96,9 @@ install
 
 # Mac
 .DS_Store
+
+# Codex
+.codex
+
+# Directory to stash temporary files during development
+.temp
