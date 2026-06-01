@@ -231,9 +231,15 @@ contains
          this%proj_w%bb(1, this%proj_w%m), x_u, x_v, x_w, &
          coef, coef%msh, coef%Xh)
 
-    call gs_h%gs_op_vector(this%proj_u%bb(1, this%proj_u%m), n, GS_OP_ADD)
-    call gs_h%gs_op_vector(this%proj_v%bb(1, this%proj_v%m), n, GS_OP_ADD)
-    call gs_h%gs_op_vector(this%proj_w%bb(1, this%proj_w%m), n, GS_OP_ADD)
+    if (allocated(gs_h%interp)) then
+       call gs_h%op(this%proj_u%bb(:, this%proj_u%m), n, GS_OP_ADD)
+       call gs_h%op(this%proj_v%bb(:, this%proj_v%m), n, GS_OP_ADD)
+       call gs_h%op(this%proj_w%bb(:, this%proj_w%m), n, GS_OP_ADD)
+    else
+       call gs_h%gs_op_vector(this%proj_u%bb(1, this%proj_u%m), n, GS_OP_ADD)
+       call gs_h%gs_op_vector(this%proj_v%bb(1, this%proj_v%m), n, GS_OP_ADD)
+       call gs_h%gs_op_vector(this%proj_w%bb(1, this%proj_w%m), n, GS_OP_ADD)
+    end if
 
     call bclst_u%apply_scalar(this%proj_u%bb(1, this%proj_u%m), n)
     call bclst_v%apply_scalar(this%proj_v%bb(1, this%proj_v%m), n)

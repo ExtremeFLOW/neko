@@ -197,7 +197,6 @@ contains
             HOST_TO_DEVICE, sync = .false.)
     end if
 
-
   end subroutine projection_init
 
   subroutine projection_free(this)
@@ -356,7 +355,13 @@ contains
     end if
 
     call Ax%compute(this%bb(1, this%m), x, coef, coef%msh, coef%Xh)
-    call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
+
+    if (allocated(gs_h%interp)) then
+       call gs_h%op(this%bb(:, this%m), n, GS_OP_ADD)
+    else
+       call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
+    end if
+
     call bclst%apply_scalar(this%bb(1, this%m), n)
 
     call proj_ortho(this, coef, n)
@@ -401,7 +406,13 @@ contains
       ! Recompute B = A_new * X using the new mesh metrics
       do i = 1, this%m
          call Ax%compute(bb(1,i), xx(1,i), coef, coef%msh, coef%Xh)
-         call gs_h%gs_op_vector(bb(1,i), n, GS_OP_ADD)
+
+         if (allocated(gs_h%interp)) then
+            call gs_h%op(bb(:, i), n, GS_OP_ADD)
+         else
+            call gs_h%gs_op_vector(bb(1,i), n, GS_OP_ADD)
+         end if
+
          call blst%apply_scalar(bb(1,i), n)
       end do
 
@@ -449,7 +460,13 @@ contains
       ! Recompute B = A_new * X using the new mesh metrics
       do i = 1, this%m
          call Ax%compute(this%bb(1,i), this%xx(1,i), coef, coef%msh, coef%Xh)
-         call gs_h%gs_op_vector(this%bb(1,i), n, GS_OP_ADD)
+
+         if (allocated(gs_h%interp)) then
+            call gs_h%op(this%bb(:, i), n, GS_OP_ADD)
+         else
+            call gs_h%gs_op_vector(this%bb(1,i), n, GS_OP_ADD)
+         end if
+
          call blst%apply_scalar(this%bb(1,i), n)
       end do
 
