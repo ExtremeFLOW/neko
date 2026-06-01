@@ -5,6 +5,20 @@ binary mesh.
 
 Pipeline: `.msh` → `.rea` (via `mshconvert.py`) → `.re2` (via `pymech`).
 
+## Attribution & license
+
+- `mshconvert.py` is **derived from** [`mikaem/tools`](https://github.com/mikaem/tools)
+  by Mikael Mortensen. The upstream repository carries **no explicit license
+  notice**; it is included here on the assumption that its use in Neko is
+  permitted by the original author. Local changes: a Python-3 compatibility
+  port, `eval()` → `float()` in node-coordinate parsing (security fix), and BC
+  plumbing through `convert()` / `scan_fluent_mesh()`. If Neko's contribution
+  policy requires a formal license, please confirm with the upstream author and
+  add an appropriate SPDX identifier.
+- `rea2re2.py` and `icem2re2.py` are original to this contribution.
+- `pymech` is a third-party dependency (BSD-3-Clause), installed via `pip` — it
+  is not vendored here.
+
 ## Requirements
 
 Python 3 with:
