@@ -59,10 +59,10 @@ module ale_manager
        point_tracker_t, body_kinematics_t, &
        init_pivot_state, update_pivot_location, &
        compute_body_kinematics_built_in, ab_integrate_point_pos
-  use ale_routines_cpu, only : compute_stiffness_ale_cpu, &
-       add_kinematics_to_mesh_velocity_cpu, update_ale_mesh_cpu
-  use ale_routines_device, only : compute_stiffness_ale_device, &
-       add_kinematics_to_mesh_velocity_device, update_ale_mesh_device
+  use ale_routines_cpu, only : add_kinematics_to_mesh_velocity_cpu, &
+       update_ale_mesh_cpu, compute_cheap_dist_v2_cpu
+  use ale_routines_device, only : add_kinematics_to_mesh_velocity_device, &
+       update_ale_mesh_device, compute_cheap_dist_device
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_HIP, NEKO_BCKND_CUDA
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
@@ -981,11 +981,6 @@ contains
        ! Compute Stiffness
        call compute_stiffness_ale(coef, this%config)
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(coef%h1, coef%h1_d, n, HOST_TO_DEVICE, .false.)
-          call device_memcpy(coef%h2, coef%h2_d, n, HOST_TO_DEVICE, .true.)
-       end if
-
        ! Output Stiffness if requested (for diagnostic)
        if (this%config%if_output_stiffness) then
           rhs_field%x = coef%h1
@@ -1282,11 +1277,158 @@ contains
   subroutine compute_stiffness_ale(coef, params)
     type(coef_t), intent(inout) :: coef
     type(ale_config_t), intent(in) :: params
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compute_stiffness_ale_device(coef, params)
-    else
-       call compute_stiffness_ale_cpu(coef, params)
+    integer :: i, n, b, ierr
+    integer, allocatable :: cheap_map(:)
+    integer :: n_cheap, map_idx
+    real(kind=rp) :: x, y, z
+    real(kind=rp) :: raw_dist, body_stiff_val, max_added_stiff
+    real(kind=rp) :: cx, cy, cz
+    real(kind=rp) :: arg, decay, gain, norm_dist
+    real(kind=rp) :: sample_start_time, sample_end_time, sample_time
+    type(field_t), allocatable :: dist_fields(:)
+    character(len=128) :: log_buf
+
+    n = coef%dof%size()
+
+    ! Check how many bodies need cheap_dist and create map
+    allocate(cheap_map(params%nbodies))
+    cheap_map = 0
+    n_cheap = 0
+
+    do b = 1, params%nbodies
+       if (trim(params%bodies(b)%stiff_geom%type) == 'cheap_dist') then
+          n_cheap = n_cheap + 1
+          cheap_map(b) = n_cheap
+       end if
+    end do
+
+    ! Allocate and Compute cheap_dist only for required bodies
+    if (n_cheap > 0) then
+       allocate(dist_fields(n_cheap))
+
+       do b = 1, params%nbodies
+          map_idx = cheap_map(b)
+          if (map_idx > 0) then
+
+             call dist_fields(map_idx)%init(coef%dof, "tmp_cheap_dist")
+
+             call neko_log%message(' ')
+             call neko_log%message(" Start: cheap dist calculation " // &
+                  "for body '" // trim(params%bodies(b)%name) // "'")
+
+             call MPI_Barrier(NEKO_COMM, ierr)
+             sample_start_time = MPI_WTIME()
+
+             if (NEKO_BCKND_DEVICE .eq. 1) then
+                call compute_cheap_dist_device(dist_fields(map_idx), coef, &
+                     coef%msh, params%bodies(b)%zone_indices, copy_to_host = .true.)
+             else
+                call compute_cheap_dist_v2_cpu(dist_fields(map_idx), coef, &
+                     coef%msh, params%bodies(b)%zone_indices)
+             end if
+
+             call MPI_Barrier(NEKO_COMM, ierr)
+             sample_end_time = MPI_WTIME()
+             sample_time = sample_end_time - sample_start_time
+
+             write(log_buf, '(A, A, A, ES11.4, A)') "    cheap dist for '", &
+                  trim(params%bodies(b)%name), "' took ", sample_time, " (s)"
+             call neko_log%message(log_buf)
+          end if
+       end do
     end if
+    call neko_log%message(' ')
+
+    ! Build stiffness field on Host
+    select case (trim(params%stiffness_type))
+    case ('built-in')
+
+       do concurrent (i = 1:n)
+          x = coef%dof%x(i, 1, 1, 1)
+          y = coef%dof%y(i, 1, 1, 1)
+          z = coef%dof%z(i, 1, 1, 1)
+
+          max_added_stiff = 0.0_rp
+
+          ! Loop over bodies, calculate local contribution
+          do b = 1, params%nbodies
+             gain = params%bodies(b)%stiff_geom%gain
+             if (trim(params%bodies(b)%stiff_geom%type) == 'cheap_dist') then
+                decay = params%bodies(b)%stiff_geom%stiff_dist
+             else
+                decay = params%bodies(b)%stiff_geom%radius
+             end if
+
+             ! Geometry Center
+             cx = params%bodies(b)%stiff_geom%center(1)
+             cy = params%bodies(b)%stiff_geom%center(2)
+             cz = params%bodies(b)%stiff_geom%center(3)
+
+             raw_dist = huge(0.0_rp)
+
+             ! Calculate Distance
+             select case (trim(params%bodies(b)%stiff_geom%type))
+             case ('sphere')
+                raw_dist = sqrt((x - cx)**2 + (y - cy)**2 + (z - cz)**2)
+
+             case ('cylinder')
+                ! Distance to Z-axis centered at (cx, cy)
+                raw_dist = sqrt((x - cx)**2 + (y - cy)**2)
+
+             case ('box')
+                ! ToDO
+
+             case ('cheap_dist')
+                map_idx = cheap_map(b)
+                if (map_idx > 0) then
+                   raw_dist = dist_fields(map_idx)%x(i, 1, 1, 1)
+                end if
+             end select
+
+             ! Apply Profile
+             body_stiff_val = 0.0_rp
+             select case (trim(params%bodies(b)%stiff_geom%decay_profile))
+             case ('gaussian')
+                ! exp( -(r/decay)^2 )
+                arg = -(raw_dist**2) / (decay**2)
+                arg = arg * params%bodies(b)%stiff_geom%cutoff_coef
+                body_stiff_val = gain * exp(arg)
+
+             case ('tanh')
+                ! Tanh profile
+                norm_dist = (raw_dist / decay)
+                norm_dist = norm_dist * params%bodies(b)%stiff_geom%cutoff_coef
+                body_stiff_val = gain * (1.0_rp - tanh(norm_dist))
+             end select
+
+             if (body_stiff_val > max_added_stiff) then
+                max_added_stiff = body_stiff_val
+             end if
+          end do
+
+          coef%h1(i, 1, 1, 1) = 1.0_rp + max_added_stiff
+          coef%h2(i, 1, 1, 1) = 0.0_rp
+       end do
+
+    case default
+       call neko_error("ALE Manager: Unknown stiffness type")
+    end select
+
+    coef%ifh2 = .false.
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(coef%h1, coef%h1_d, n, HOST_TO_DEVICE, .false.)
+       call device_memcpy(coef%h2, coef%h2_d, n, HOST_TO_DEVICE, .true.)
+    end if
+
+    if (allocated(dist_fields)) then
+       do i = 1, size(dist_fields)
+          call dist_fields(i)%free()
+       end do
+       deallocate(dist_fields)
+    end if
+    if (allocated(cheap_map)) deallocate(cheap_map)
+
   end subroutine compute_stiffness_ale
 
   ! Adds kinematics to mesh velocity.
