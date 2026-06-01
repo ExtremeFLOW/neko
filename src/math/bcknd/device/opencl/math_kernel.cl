@@ -34,12 +34,6 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __APPLE__
-typedef real real_xp;
-#else
-typedef double real_xp;
-#endif
-
 /**
  * Device kernel for masked copy
  */
