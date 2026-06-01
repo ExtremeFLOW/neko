@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS
+  Fluent `.msh` meshes to Neko `.re2` meshes. Requires Python 3 with `numpy`,
+  `scipy`, and `pymech`. Supports translational periodic boundaries via
+  `--periodic periodic.json`.
 - Removed restart limitations on load balancing. We now cache the the balanced
   mesh and read the cache if available. Load balance name pattern updated to
   include partition number.
