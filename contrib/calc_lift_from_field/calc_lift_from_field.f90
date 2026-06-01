@@ -149,7 +149,7 @@ program calc_lift_from_field
 
      if(pe_rank .eq. 0) write(*,*) 'Total drag'
 
-     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+     call strain_rate(s11, s22, s33, s12, s13, s23, u, v, w, coef)
      call drag_torque_zone(dgtq,field_data%t_counter, msh%labeled_zones(zone_id), center,&
           s11%x, s22%x, s33%x, s12%x, s13%x, s23%x,&
           p, coef, visc)

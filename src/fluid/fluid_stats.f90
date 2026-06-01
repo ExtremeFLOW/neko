@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ module fluid_stats
   use device_math, only : device_col3, device_col2, device_cfill, &
        device_invcol2, device_addcol3
   use num_types, only : rp
-  use math, only : invers2, col2, addcol3, col3, copy, subcol3
+  use math, only : col2, addcol3, col3, copy, subcol3
   use operators, only : opgrad
   use coefs, only : coef_t
   use field, only : field_t
@@ -719,7 +719,8 @@ contains
   ! Convert computed weak gradients to strong.
   subroutine fluid_stats_make_strong_grad(this)
     class(fluid_stats_t) :: this
-    integer :: n
+    integer :: n, i
+    real(kind=rp) :: wrk, wrk_sqr
 
     if (this%n_stats .eq. 11) return
 
@@ -748,25 +749,29 @@ contains
 
 
     else
-       call invers2(this%stats_work%x, this%coef%B, n)
-       call col2(this%pdudx%mf%x, this%stats_work%x, n)
-       call col2(this%pdudy%mf%x, this%stats_work%x, n)
-       call col2(this%pdudz%mf%x, this%stats_work%x, n)
-       call col2(this%pdvdx%mf%x, this%stats_work%x, n)
-       call col2(this%pdvdy%mf%x, this%stats_work%x, n)
-       call col2(this%pdvdz%mf%x, this%stats_work%x, n)
-       call col2(this%pdwdx%mf%x, this%stats_work%x, n)
-       call col2(this%pdwdy%mf%x, this%stats_work%x, n)
-       call col2(this%pdwdz%mf%x, this%stats_work%x, n)
+       do concurrent (i = 1:n)
+          wrk = 1.0_rp / this%coef%B(i,1,1,1)
+          this%pdudx%mf%x(i,1,1,1) = this%pdudx%mf%x(i,1,1,1) * wrk
+          this%pdudy%mf%x(i,1,1,1) = this%pdudy%mf%x(i,1,1,1) * wrk
+          this%pdudz%mf%x(i,1,1,1) = this%pdudz%mf%x(i,1,1,1) * wrk
 
-       call col2(this%stats_work%x, this%stats_work%x, n)
-       call col2(this%e11%mf%x, this%stats_work%x, n)
-       call col2(this%e22%mf%x, this%stats_work%x, n)
-       call col2(this%e33%mf%x, this%stats_work%x, n)
-       call col2(this%e12%mf%x, this%stats_work%x, n)
-       call col2(this%e13%mf%x, this%stats_work%x, n)
-       call col2(this%e23%mf%x, this%stats_work%x, n)
+          this%pdvdx%mf%x(i,1,1,1) = this%pdvdx%mf%x(i,1,1,1) * wrk
+          this%pdvdy%mf%x(i,1,1,1) = this%pdvdy%mf%x(i,1,1,1) * wrk
+          this%pdvdz%mf%x(i,1,1,1) = this%pdvdz%mf%x(i,1,1,1) * wrk
 
+          this%pdwdx%mf%x(i,1,1,1) = this%pdwdx%mf%x(i,1,1,1) * wrk
+          this%pdwdy%mf%x(i,1,1,1) = this%pdwdy%mf%x(i,1,1,1) * wrk
+          this%pdwdz%mf%x(i,1,1,1) = this%pdwdz%mf%x(i,1,1,1) * wrk
+
+          wrk_sqr = wrk * wrk
+          this%e11%mf%x(i,1,1,1) = this%e11%mf%x(i,1,1,1) * wrk_sqr
+          this%e22%mf%x(i,1,1,1) = this%e22%mf%x(i,1,1,1) * wrk_sqr
+          this%e33%mf%x(i,1,1,1) = this%e33%mf%x(i,1,1,1) * wrk_sqr
+
+          this%e12%mf%x(i,1,1,1) = this%e12%mf%x(i,1,1,1) * wrk_sqr
+          this%e13%mf%x(i,1,1,1) = this%e13%mf%x(i,1,1,1) * wrk_sqr
+          this%e23%mf%x(i,1,1,1) = this%e23%mf%x(i,1,1,1) * wrk_sqr
+       end do
     end if
 
   end subroutine fluid_stats_make_strong_grad
@@ -783,7 +788,8 @@ contains
     type(field_list_t), intent(in), optional :: skewness_tensor
     type(field_list_t), intent(inout), optional :: mean_vel_grad
     type(field_list_t), intent(in), optional :: dissipation_tensor
-    integer :: n
+    integer :: n, i
+    real(kind=rp) :: wrk
 
     if (present(mean)) then
        n = mean%item_size(1)
@@ -883,25 +889,21 @@ contains
           call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
                this%w_mean%mf%x, this%coef)
        end if
-       call invers2(this%stats_work%x, this%coef%B,n)
-       call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(2)%ptr%x, this%dudy%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(3)%ptr%x, this%dudz%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(4)%ptr%x, this%dvdx%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(5)%ptr%x, this%dvdy%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(6)%ptr%x, this%dvdz%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(7)%ptr%x, this%dwdx%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(8)%ptr%x, this%dwdy%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(9)%ptr%x, this%dwdz%x, &
-            this%stats_work%x, n)
+
+       do concurrent (i = 1:n)
+          wrk = 1.0_rp / this%coef%B(i,1,1,1)
+          mean_vel_grad%items(1)%ptr%x(i,1,1,1) = this%dudx%x(i,1,1,1) * wrk
+          mean_vel_grad%items(2)%ptr%x(i,1,1,1) = this%dudy%x(i,1,1,1) * wrk
+          mean_vel_grad%items(3)%ptr%x(i,1,1,1) = this%dudz%x(i,1,1,1) * wrk
+
+          mean_vel_grad%items(4)%ptr%x(i,1,1,1) = this%dvdx%x(i,1,1,1) * wrk
+          mean_vel_grad%items(5)%ptr%x(i,1,1,1) = this%dvdy%x(i,1,1,1) * wrk
+          mean_vel_grad%items(6)%ptr%x(i,1,1,1) = this%dvdz%x(i,1,1,1) * wrk
+
+          mean_vel_grad%items(7)%ptr%x(i,1,1,1) = this%dwdx%x(i,1,1,1) * wrk
+          mean_vel_grad%items(8)%ptr%x(i,1,1,1) = this%dwdy%x(i,1,1,1) * wrk
+          mean_vel_grad%items(9)%ptr%x(i,1,1,1) = this%dwdz%x(i,1,1,1) * wrk
+       end do
 
     end if
 

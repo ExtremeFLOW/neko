@@ -34,10 +34,12 @@
 !! @details Various utility functions
 module utils
   use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
+  use iso_c_binding
   implicit none
   private
 
   integer, parameter :: NEKO_FNAME_LEN = 1024
+  integer, parameter :: NEKO_VARNAME_LEN = 256
 
   interface neko_error
      module procedure neko_error_plain, neko_error_msg
@@ -48,8 +50,16 @@ module utils
        filename_suffix_pos, filename_tslash_pos, filename_split, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
-       neko_type_registration_error
+       neko_type_registration_error, NEKO_VARNAME_LEN, mkdir
 
+  interface
+     function c_mkdir(path, mode) bind(C, name="mkdir")
+       import :: c_char, c_int
+       character(kind=c_char), dimension(*) :: path
+       integer(c_int), value :: mode
+       integer(c_int) :: c_mkdir
+     end function c_mkdir
+  end interface
 
 contains
 
@@ -146,6 +156,42 @@ contains
     new_fname = trim(fname(1:suffix_pos))//new_suffix
 
   end subroutine filename_chsuffix
+
+  !> Recursively create a directory and all parent directories if they do not
+  !! exist. This should be safer than the
+  !! `execute_command_line('mkdir -p ' // path)` approach, which can be used to
+  !! execute arbitrary code if `path` is not properly sanitized.
+  !! @param path The path of the directory to create.
+  !! @param mode The octal mode to create the directory with, will adjust by
+  !! umask.
+  recursive subroutine mkdir(path, mode)
+    character(len=*), intent(in) :: path
+    integer, intent(in), optional :: mode
+    integer :: slash_pos, i, path_len
+    character(kind=c_char), allocatable :: c_path(:)
+    integer(c_int) :: dir_mode, ierr
+
+    if (present(mode)) then
+       dir_mode = int(mode, kind=c_int)
+    else
+       dir_mode = int(o'777', kind=c_int)
+    end if
+
+    slash_pos = scan(path, '/', back = .true.)
+    if (slash_pos .gt. 0) then
+       call mkdir(trim(path(1:slash_pos-1)), dir_mode)
+    end if
+
+    path_len = len_trim(path)
+    allocate(c_path(path_len + 1))
+    do i = 1, path_len
+       c_path(i) = path(i:i)
+    end do
+    c_path(path_len + 1) = c_null_char
+
+    ierr = c_mkdir(c_path, dir_mode)
+    deallocate(c_path)
+  end subroutine mkdir
 
   !> Extracts the index of a field file. For example, "myfield.f00045"
   !! will return `45`. If the suffix of the file name is invalid, returns

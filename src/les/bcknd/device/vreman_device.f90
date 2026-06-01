@@ -116,17 +116,17 @@ contains
     call neko_scratch_registry%request_field(a33, temp_indices(9), .false.)
 
     ! Compute the derivatives of the velocity (the alpha tensor)
-    call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(a11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(a12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(a13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call dudxyz (a21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(a21%x_d, v%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(a22%x_d, v%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(a23%x_d, v%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call dudxyz (a31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(a31%x_d, w%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(a32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(a33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
@@ -141,13 +141,19 @@ contains
     if (if_corr) then
        temperature => neko_registry%get_field_by_name(scalar_name)
 
-       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
-       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
-       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
+       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), &
+            .false.)
+       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), &
+            .false.)
+       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), &
+            .false.)
 
-       call dudxyz(dTdx%x, temperature%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-       call dudxyz(dTdy%x, temperature%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-       call dudxyz(dTdz%x, temperature%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+       call dudxyz(dTdx%x_d, temperature%x_d, coef%drdx_d, coef%dsdx_d, &
+            coef%dtdx_d, coef)
+       call dudxyz(dTdy%x_d, temperature%x_d, coef%drdy_d, coef%dsdy_d, &
+            coef%dtdy_d, coef)
+       call dudxyz(dTdz%x_d, temperature%x_d, coef%drdz_d, coef%dsdz_d, &
+            coef%dtdz_d, coef)
 
        call device_vreman_nut_compute_buoy(a11%x_d, a12%x_d, a13%x_d, &
             a21%x_d, a22%x_d, a23%x_d, &

@@ -114,12 +114,14 @@ contains
     m = this%msk(0)
 
     if (strong_) then
-       do concurrent (i = 1:m)
+       !$omp do
+       do i = 1, m
           k = this%msk(i)
           x(k) = this%x(1)
           y(k) = this%x(2)
           z(k) = this%x(3)
        end do
+       !$omp end do
     end if
   end subroutine inflow_apply_vector
 

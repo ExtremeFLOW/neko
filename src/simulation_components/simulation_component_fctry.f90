@@ -33,6 +33,8 @@
 !
 !> Defines a factory subroutine for simulation components.
 submodule (simulation_component) simulation_component_fctry
+  use boundary_operation, only : boundary_operation_t
+  use boundary_flux, only : boundary_flux_t
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
@@ -50,11 +52,15 @@ submodule (simulation_component) simulation_component_fctry
   use divergence_simcomp, only : divergence_t
   use derivative_simcomp, only : derivative_t
   use spectral_error, only : spectral_error_t
+  use data_streamer_simcomp, only : data_streamer_simcomp_t
+  use field_subsampler, only : field_subsampler_t
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(16) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(20) = [character(len=20) :: &
+       "boundary_operation", &
+       "boundary_flux", &
        "lambda2", &
        "probes", &
        "les_model", &
@@ -70,7 +76,9 @@ submodule (simulation_component) simulation_component_fctry
        "weak_grad", &
        "force_torque", &
        "user_stats", &
-       "spectral_error"]
+       "spectral_error", &
+       "data_streamer", &
+       "field_subsampler"]
 
 contains
 
@@ -115,6 +123,10 @@ contains
     end if
 
     select case (trim(type_name))
+    case ("boundary_operation")
+       allocate(boundary_operation_t::object)
+    case ("boundary_flux")
+       allocate(boundary_flux_t::object)
     case ("lambda2")
        allocate(lambda2_t::object)
     case ("probes")
@@ -147,6 +159,10 @@ contains
        allocate(user_stats_t::object)
     case ("spectral_error")
        allocate(spectral_error_t::object)
+    case ("data_streamer")
+       allocate(data_streamer_simcomp_t::object)
+    case ("field_subsampler")
+       allocate(field_subsampler_t::object)
     case default
        do i = 1, simcomp_registry_size
           if (trim(type_name) == &

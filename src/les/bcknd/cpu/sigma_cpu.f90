@@ -133,8 +133,14 @@ contains
     call coef%gs_h%op(g32, GS_OP_ADD)
     call coef%gs_h%op(g33, GS_OP_ADD)
 
-    do concurrent (e = 1:coef%msh%nelv)
-       do concurrent (i = 1:coef%Xh%lxyz)
+    !$omp parallel do private(e, i, sigG11, sigG12, sigG13, sigG22, sigG23, &
+    !$omp& sigG33, sigma1, sigma2, sigma3, Invariant1, Invariant2, Invariant3, &
+    !$omp& alpha1, alpha2, alpha3, Dsigma, tmp1)
+    do e = 1, coef%msh%nelv
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       do i = 1, coef%Xh%lxyz
           ! G_ij = g^t g = g_mi g_mj
           sigG11 = g11%x(i,1,1,e)**2 + g21%x(i,1,1,e)**2 + g31%x(i,1,1,e)**2
           sigG22 = g12%x(i,1,1,e)**2 + g22%x(i,1,1,e)**2 + g32%x(i,1,1,e)**2
@@ -268,6 +274,7 @@ contains
 
        end do
     end do
+    !$omp end parallel do
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())

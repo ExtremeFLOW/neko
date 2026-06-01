@@ -65,17 +65,26 @@ contains
     ! We assume the material properties are constant
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
     do i = 1, n
        c_Xh%h1(i,1,1,1) = 1.0_rp / rho_val
        c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
+    !$omp end parallel do
     c_Xh%ifh2 = .false.
 
     call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
     ! ta = f / rho - wa * mu / rho * B
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1,n
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho_val &
             - ((wa1%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho_val &
@@ -83,6 +92,7 @@ contains
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val &
             - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
     end do
+    !$omp end parallel do
 
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -90,11 +100,16 @@ contains
     call gs_Xh%op(ta3, GS_OP_ADD)
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1,n
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
     end do
+    !$omp end parallel do
 
     call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
@@ -102,37 +117,59 @@ contains
 
     call Ax%compute(p_res%x, p%x, c_Xh, p%msh, p%Xh)
 
-    do concurrent (i = 1:n)
+    !$omp parallel private (i)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1,n
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
             + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
     end do
+    !$omp end do
 
     !
     ! Surface velocity terms
     !
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1,n
        wa1%x(i,1,1,1) = 0.0_rp
        wa2%x(i,1,1,1) = 0.0_rp
        wa3%x(i,1,1,1) = 0.0_rp
     end do
+    !$omp end do
+    !$omp end parallel
 
     call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x,&
          n)
 
     dtbd = bd / dt
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
        ta1%x(i,1,1,1) = 0.0_rp
        ta2%x(i,1,1,1) = 0.0_rp
        ta3%x(i,1,1,1) = 0.0_rp
     end do
+    !$omp end parallel do
 
     call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1,n
        p_res%x(i,1,1,1) = p_res%x(i,1,1,1) &
             - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))&
             - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
     end do
+    !$omp end parallel do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
@@ -161,10 +198,15 @@ contains
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
        c_Xh%h1(i,1,1,1) = mu_val
        c_Xh%h2(i,1,1,1) = rho_val * bd / dt
     end do
+    !$omp end parallel do
     c_Xh%ifh2 = .true.
 
     call Ax%compute(u_res%x, u%x, c_Xh, msh, Xh)
@@ -176,11 +218,16 @@ contains
 
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
        u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
     end do
+    !$omp end parallel do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 

@@ -48,7 +48,8 @@ module nmsh_file
        MPI_MODE_WRONLY, MPI_MODE_CREATE, MPI_MODE_RDONLY, MPI_INFO_NULL, &
        MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
        MPI_File_write_at_all, MPI_File_read_at_all, MPI_INTEGER, MPI_SUM, &
-       MPI_Exscan, MPI_Barrier, MPI_Type_size, MPI_Allreduce, MPI_File_sync
+       MPI_MAX, MPI_Exscan, MPI_Barrier, MPI_Type_size, MPI_Allreduce, &
+       MPI_File_sync, MPI_Sendrecv, MPI_Get_count
   use logger, only : neko_log, LOG_SIZE
   implicit none
 
@@ -71,8 +72,6 @@ contains
     class(*), target, intent(inout) :: data
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
-    type(nmsh_zone_t), allocatable :: nmsh_zone(:)
-    type(nmsh_curve_el_t), allocatable :: nmsh_curve(:)
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
     type(MPI_File) :: fh
@@ -80,7 +79,6 @@ contains
     integer :: i, j, ierr, element_offset
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
     integer :: nelv, gdim, nzones, ncurves
-    integer :: el_idx, el_idx_glb
     type(point_t), target :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
@@ -173,45 +171,8 @@ contains
        call MPI_File_read_at_all(fh, mpi_offset, &
             nzones, 1, MPI_INTEGER, status, ierr)
        if (nzones .gt. 0) then
-          allocate(nmsh_zone(nzones))
-
-          !>
-          !!@todo Fix the parallel reading in this part, let each rank read
-          !!a piece and pass the pieces around, filtering out matching zones
-          !!in the local mesh.
-          !!
           mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8)
-          call MPI_File_read_at_all(fh, mpi_offset, &
-               nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
-
-          do i = 1, nzones
-             el_idx_glb = nmsh_zone(i)%e
-             if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
-                select case (nmsh_zone(i)%type)
-                case (5)
-                   call msh%mark_periodic_facet(nmsh_zone(i)%f, el_idx, &
-                        nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, &
-                        nmsh_zone(i)%glb_pt_ids)
-                case (7)
-                   call msh%mark_labeled_facet(nmsh_zone(i)%f, el_idx, &
-                        nmsh_zone(i)%p_f)
-                end select
-             end if
-          end do
-          !Apply facets, important that marking is finished
-          do i = 1, nzones
-             el_idx_glb = nmsh_zone(i)%e
-             if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
-                select case (nmsh_zone(i)%type)
-                case (5)
-                   call msh%apply_periodic_facet(nmsh_zone(i)%f, el_idx, &
-                        nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, &
-                        nmsh_zone(i)%glb_pt_ids)
-                end select
-             end if
-          end do
-
-          deallocate(nmsh_zone)
+          call nmsh_file_read_zones(fh, mpi_offset, nzones, msh)
        end if
        call neko_log%message('Reading deformation data')
 
@@ -221,23 +182,9 @@ contains
             ncurves, 1, MPI_INTEGER, status, ierr)
 
        if (ncurves .gt. 0) then
-
-          allocate(nmsh_curve(ncurves))
           mpi_offset = mpi_el_offset + int(2 * MPI_INTEGER_SIZE, i8) + &
                int(nzones, i8)*int(nmsh_zone_size, i8)
-          call MPI_File_read_at_all(fh, mpi_offset, &
-               nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
-
-          do i = 1, ncurves
-             el_idx_glb = nmsh_curve(i)%e
-             if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
-                call msh%mark_curve_element(el_idx, &
-                     nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
-             end if
-
-          end do
-
-          deallocate(nmsh_curve)
+          call nmsh_file_read_curves(fh, mpi_offset, ncurves, msh)
        end if
 
        call MPI_File_close(fh, ierr)
@@ -265,15 +212,13 @@ contains
     type(mesh_t), pointer, intent(inout) :: msh
     type(nmsh_hex_t), allocatable :: nmsh_hex(:)
     type(nmsh_quad_t), allocatable :: nmsh_quad(:)
-    type(nmsh_zone_t), allocatable :: nmsh_zone(:)
-    type(nmsh_curve_el_t), allocatable :: nmsh_curve(:)
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
     integer :: i, j, ierr, element_offset, id
     integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size
-    integer :: nelv, gdim, nzones, ncurves, ids(4)
-    integer :: el_idx_glb, el_idx
+    integer :: nelv, gdim, nzones, ncurves
+    integer :: el_idx
     type(point_t) :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
@@ -331,58 +276,9 @@ contains
     call MPI_File_read_at_all(fh, mpi_offset, &
          nzones, 1, MPI_INTEGER, status, ierr)
     if (nzones .gt. 0) then
-       allocate(nmsh_zone(nzones))
-
-       !>
-       !!@todo Fix the parallel reading in this part, let each rank read
-       !!a piece and pass the pieces around, filtering out matching zones
-       !!in the local mesh.
-       !!
        mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8)
-       call MPI_File_read_at_all(fh, mpi_offset, &
-            nmsh_zone, nzones, MPI_NMSH_ZONE, status, ierr)
+       call nmsh_file_read_zones_2d(fh, mpi_offset, nzones, msh)
 
-       do i = 1, nzones
-          el_idx_glb = nmsh_zone(i)%e
-          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
-             select case (nmsh_zone(i)%type)
-             case (5)
-                nmsh_zone(i)%glb_pt_ids(3) = nmsh_zone(i)%glb_pt_ids(1) + &
-                     msh%glb_nelv * 8
-                nmsh_zone(i)%glb_pt_ids(4) = nmsh_zone(i)%glb_pt_ids(2) + &
-                     msh%glb_nelv * 8
-                if (nmsh_zone(i)%f .eq. 1 .or. nmsh_zone(i)%f .eq. 2) then
-                   ids(1) = nmsh_zone(i)%glb_pt_ids(1)
-                   ids(2) = nmsh_zone(i)%glb_pt_ids(3)
-                   ids(3) = nmsh_zone(i)%glb_pt_ids(4)
-                   ids(4) = nmsh_zone(i)%glb_pt_ids(2)
-                else
-                   ids(1) = nmsh_zone(i)%glb_pt_ids(1)
-                   ids(2) = nmsh_zone(i)%glb_pt_ids(2)
-                   ids(3) = nmsh_zone(i)%glb_pt_ids(4)
-                   ids(4) = nmsh_zone(i)%glb_pt_ids(3)
-                end if
-                nmsh_zone(i)%glb_pt_ids = ids
-                call msh%mark_periodic_facet(nmsh_zone(i)%f, el_idx, &
-                     nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, ids)
-             case (7)
-                call msh%mark_labeled_facet(nmsh_zone(i)%f, el_idx, &
-                     nmsh_zone(i)%p_f)
-             end select
-          end if
-       end do
-       !Apply facets, important that marking is finished
-       do i = 1, nzones
-          el_idx_glb = nmsh_zone(i)%e
-          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
-             select case (nmsh_zone(i)%type)
-             case (5)
-                call msh%apply_periodic_facet(nmsh_zone(i)%f, el_idx, &
-                     nmsh_zone(i)%p_f, nmsh_zone(i)%p_e, &
-                     nmsh_zone(i)%glb_pt_ids)
-             end select
-          end if
-       end do
        !Do the same for extruded 3d points
        do el_idx = 1, nelv
           call msh%elements(el_idx)%e%facet_order(glb_pt_ids,5)
@@ -400,8 +296,6 @@ contains
           call msh%apply_periodic_facet(5, el_idx, &
                6, el_idx, glb_pt_ids%x)
        end do
-
-       deallocate(nmsh_zone)
     end if
 
     mpi_offset = mpi_el_offset + &
@@ -410,23 +304,10 @@ contains
          ncurves, 1, MPI_INTEGER, status, ierr)
 
     if (ncurves .gt. 0) then
-
-       allocate(nmsh_curve(ncurves))
        mpi_offset = mpi_el_offset + &
             int(2*MPI_INTEGER_SIZE, i8) + &
             int(nzones, i8)*int(nmsh_zone_size, i8)
-       call MPI_File_read_at_all(fh, mpi_offset, &
-            nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
-
-       do i = 1, ncurves
-          el_idx_glb = nmsh_curve(i)%e
-          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
-             call msh%mark_curve_element(el_idx, &
-                  nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
-          end if
-       end do
-
-       deallocate(nmsh_curve)
+       call nmsh_file_read_curves(fh, mpi_offset, ncurves, msh)
     end if
 
     call MPI_File_close(fh, ierr)
@@ -436,6 +317,319 @@ contains
     call neko_log%end_section()
 
   end subroutine nmsh_file_read_2d
+
+  !> Read zone data in chunks and ring-pass between ranks,
+  !! avoiding storage of the full zone list on every rank.
+  !! Uses two ring traversals: first marks all matching facets on every
+  !! rank, then applies periodic facets (apply must follow mark globally
+  !! since apply mutates point ids that mark reads via get_facet_ids).
+  subroutine nmsh_file_read_zones(fh, base_offset, nzones, msh)
+    type(MPI_File), intent(inout) :: fh
+    integer(kind=MPI_OFFSET_KIND), intent(in) :: base_offset
+    integer, intent(in) :: nzones
+    type(mesh_t), intent(inout) :: msh
+    type(nmsh_zone_t), allocatable :: zone_send(:), zone_recv(:)
+    type(linear_dist_t) :: dist
+    type(MPI_Status) :: status
+    integer(kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer :: nmsh_zone_size, nlocal, max_recv, n_recv
+    integer :: i, ierr, src, dst, step, el_idx, el_idx_glb
+
+    call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
+
+    dist = linear_dist_t(nzones, pe_rank, pe_size, NEKO_COMM)
+    nlocal = dist%num_local()
+
+    allocate(zone_send(nlocal))
+
+    mpi_offset = base_offset + &
+         int(dist%start_idx(), i8) * int(nmsh_zone_size, i8)
+    call MPI_File_read_at_all(fh, mpi_offset, &
+         zone_send, nlocal, MPI_NMSH_ZONE, status, ierr)
+
+    call MPI_Allreduce(nlocal, max_recv, 1, MPI_INTEGER, MPI_MAX, &
+         NEKO_COMM, ierr)
+    allocate(zone_recv(max_recv))
+
+    ! Mark pass: process local chunk
+    do i = 1, nlocal
+       el_idx_glb = zone_send(i)%e
+       if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+          select case (zone_send(i)%type)
+          case (5)
+             call msh%mark_periodic_facet(zone_send(i)%f, el_idx, &
+                  zone_send(i)%p_f, zone_send(i)%p_e, &
+                  zone_send(i)%glb_pt_ids)
+          case (7)
+             call msh%mark_labeled_facet(zone_send(i)%f, el_idx, &
+                  zone_send(i)%p_f)
+          end select
+       end if
+    end do
+
+    ! Mark pass: ring-shift through all other ranks
+    do step = 1, pe_size - 1
+       src = modulo(pe_rank - step + pe_size, pe_size)
+       dst = modulo(pe_rank + step, pe_size)
+       call MPI_Sendrecv(zone_send, nlocal, MPI_NMSH_ZONE, dst, 0, &
+            zone_recv, max_recv, MPI_NMSH_ZONE, src, 0, &
+            NEKO_COMM, status, ierr)
+       call MPI_Get_count(status, MPI_NMSH_ZONE, n_recv, ierr)
+       do i = 1, n_recv
+          el_idx_glb = zone_recv(i)%e
+          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+             select case (zone_recv(i)%type)
+             case (5)
+                call msh%mark_periodic_facet(zone_recv(i)%f, el_idx, &
+                     zone_recv(i)%p_f, zone_recv(i)%p_e, &
+                     zone_recv(i)%glb_pt_ids)
+             case (7)
+                call msh%mark_labeled_facet(zone_recv(i)%f, el_idx, &
+                     zone_recv(i)%p_f)
+             end select
+          end if
+       end do
+    end do
+
+    ! Apply pass (periodic only): process local chunk first
+    do i = 1, nlocal
+       el_idx_glb = zone_send(i)%e
+       if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+          if (zone_send(i)%type .eq. 5) then
+             call msh%apply_periodic_facet(zone_send(i)%f, el_idx, &
+                  zone_send(i)%p_f, zone_send(i)%p_e, &
+                  zone_send(i)%glb_pt_ids)
+          end if
+       end if
+    end do
+
+    ! Apply pass: ring-shift through all other ranks
+    do step = 1, pe_size - 1
+       src = modulo(pe_rank - step + pe_size, pe_size)
+       dst = modulo(pe_rank + step, pe_size)
+       call MPI_Sendrecv(zone_send, nlocal, MPI_NMSH_ZONE, dst, 1, &
+            zone_recv, max_recv, MPI_NMSH_ZONE, src, 1, &
+            NEKO_COMM, status, ierr)
+       call MPI_Get_count(status, MPI_NMSH_ZONE, n_recv, ierr)
+       do i = 1, n_recv
+          el_idx_glb = zone_recv(i)%e
+          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+             if (zone_recv(i)%type .eq. 5) then
+                call msh%apply_periodic_facet(zone_recv(i)%f, el_idx, &
+                     zone_recv(i)%p_f, zone_recv(i)%p_e, &
+                     zone_recv(i)%glb_pt_ids)
+             end if
+          end if
+       end do
+    end do
+
+    deallocate(zone_send)
+    deallocate(zone_recv)
+
+  end subroutine nmsh_file_read_zones
+
+  !> Compute the extruded periodic point ids for the 2D thin-slab path.
+  !! Pure function of the zone fields; safe to invoke independently from
+  !! the mark and apply ring passes.
+  pure subroutine nmsh_file_extrude_periodic_ids(f, glb_pt_ids, glb_nelv, ids)
+    integer, intent(in) :: f
+    integer, intent(in) :: glb_pt_ids(4)
+    integer, intent(in) :: glb_nelv
+    integer, intent(out) :: ids(4)
+    integer :: pt(4)
+
+    pt(1) = glb_pt_ids(1)
+    pt(2) = glb_pt_ids(2)
+    pt(3) = glb_pt_ids(1) + glb_nelv * 8
+    pt(4) = glb_pt_ids(2) + glb_nelv * 8
+
+    if (f .eq. 1 .or. f .eq. 2) then
+       ids(1) = pt(1)
+       ids(2) = pt(3)
+       ids(3) = pt(4)
+       ids(4) = pt(2)
+    else
+       ids(1) = pt(1)
+       ids(2) = pt(2)
+       ids(3) = pt(4)
+       ids(4) = pt(3)
+    end if
+  end subroutine nmsh_file_extrude_periodic_ids
+
+  !> Read zone data in chunks and ring-pass between ranks for the
+  !! 2D thin-slab path. Two ring traversals as in nmsh_file_read_zones,
+  !! but periodic entries also need their glb_pt_ids reordered to
+  !! account for the extruded layer.
+  subroutine nmsh_file_read_zones_2d(fh, base_offset, nzones, msh)
+    type(MPI_File), intent(inout) :: fh
+    integer(kind=MPI_OFFSET_KIND), intent(in) :: base_offset
+    integer, intent(in) :: nzones
+    type(mesh_t), intent(inout) :: msh
+    type(nmsh_zone_t), allocatable :: zone_send(:), zone_recv(:)
+    type(linear_dist_t) :: dist
+    type(MPI_Status) :: status
+    integer(kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer :: nmsh_zone_size, nlocal, max_recv, n_recv
+    integer :: i, ierr, src, dst, step, el_idx, el_idx_glb
+    integer :: ids(4)
+
+    call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
+
+    dist = linear_dist_t(nzones, pe_rank, pe_size, NEKO_COMM)
+    nlocal = dist%num_local()
+
+    allocate(zone_send(nlocal))
+
+    mpi_offset = base_offset + &
+         int(dist%start_idx(), i8) * int(nmsh_zone_size, i8)
+    call MPI_File_read_at_all(fh, mpi_offset, &
+         zone_send, nlocal, MPI_NMSH_ZONE, status, ierr)
+
+    call MPI_Allreduce(nlocal, max_recv, 1, MPI_INTEGER, MPI_MAX, &
+         NEKO_COMM, ierr)
+    allocate(zone_recv(max_recv))
+
+    ! Mark pass: process local chunk. We recompute the extruded ids on
+    ! demand rather than storing them back into zone_send, so the buffer
+    ! we ring-shift always carries the original on-disk values.
+    do i = 1, nlocal
+       el_idx_glb = zone_send(i)%e
+       if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+          select case (zone_send(i)%type)
+          case (5)
+             call nmsh_file_extrude_periodic_ids(zone_send(i)%f, &
+                  zone_send(i)%glb_pt_ids, msh%glb_nelv, ids)
+             call msh%mark_periodic_facet(zone_send(i)%f, el_idx, &
+                  zone_send(i)%p_f, zone_send(i)%p_e, ids)
+          case (7)
+             call msh%mark_labeled_facet(zone_send(i)%f, el_idx, &
+                  zone_send(i)%p_f)
+          end select
+       end if
+    end do
+
+    ! Mark pass: ring-shift through all other ranks
+    do step = 1, pe_size - 1
+       src = modulo(pe_rank - step + pe_size, pe_size)
+       dst = modulo(pe_rank + step, pe_size)
+       call MPI_Sendrecv(zone_send, nlocal, MPI_NMSH_ZONE, dst, 0, &
+            zone_recv, max_recv, MPI_NMSH_ZONE, src, 0, &
+            NEKO_COMM, status, ierr)
+       call MPI_Get_count(status, MPI_NMSH_ZONE, n_recv, ierr)
+       do i = 1, n_recv
+          el_idx_glb = zone_recv(i)%e
+          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+             select case (zone_recv(i)%type)
+             case (5)
+                call nmsh_file_extrude_periodic_ids(zone_recv(i)%f, &
+                     zone_recv(i)%glb_pt_ids, msh%glb_nelv, ids)
+                call msh%mark_periodic_facet(zone_recv(i)%f, el_idx, &
+                     zone_recv(i)%p_f, zone_recv(i)%p_e, ids)
+             case (7)
+                call msh%mark_labeled_facet(zone_recv(i)%f, el_idx, &
+                     zone_recv(i)%p_f)
+             end select
+          end if
+       end do
+    end do
+
+    ! Apply pass (periodic only): local chunk
+    do i = 1, nlocal
+       el_idx_glb = zone_send(i)%e
+       if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+          if (zone_send(i)%type .eq. 5) then
+             call nmsh_file_extrude_periodic_ids(zone_send(i)%f, &
+                  zone_send(i)%glb_pt_ids, msh%glb_nelv, ids)
+             call msh%apply_periodic_facet(zone_send(i)%f, el_idx, &
+                  zone_send(i)%p_f, zone_send(i)%p_e, ids)
+          end if
+       end if
+    end do
+
+    ! Apply pass: ring-shift through all other ranks
+    do step = 1, pe_size - 1
+       src = modulo(pe_rank - step + pe_size, pe_size)
+       dst = modulo(pe_rank + step, pe_size)
+       call MPI_Sendrecv(zone_send, nlocal, MPI_NMSH_ZONE, dst, 1, &
+            zone_recv, max_recv, MPI_NMSH_ZONE, src, 1, &
+            NEKO_COMM, status, ierr)
+       call MPI_Get_count(status, MPI_NMSH_ZONE, n_recv, ierr)
+       do i = 1, n_recv
+          el_idx_glb = zone_recv(i)%e
+          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+             if (zone_recv(i)%type .eq. 5) then
+                call nmsh_file_extrude_periodic_ids(zone_recv(i)%f, &
+                     zone_recv(i)%glb_pt_ids, msh%glb_nelv, ids)
+                call msh%apply_periodic_facet(zone_recv(i)%f, el_idx, &
+                     zone_recv(i)%p_f, zone_recv(i)%p_e, ids)
+             end if
+          end if
+       end do
+    end do
+
+    deallocate(zone_send)
+    deallocate(zone_recv)
+
+  end subroutine nmsh_file_read_zones_2d
+
+  !> Read curve element data in chunks and ring-pass between ranks,
+  !! avoiding storage of the full curve list on every rank.
+  subroutine nmsh_file_read_curves(fh, base_offset, ncurves, msh)
+    type(MPI_File), intent(inout) :: fh
+    integer(kind=MPI_OFFSET_KIND), intent(in) :: base_offset
+    integer, intent(in) :: ncurves
+    type(mesh_t), intent(inout) :: msh
+    type(nmsh_curve_el_t), allocatable :: curve_send(:), curve_recv(:)
+    type(linear_dist_t) :: dist
+    type(MPI_Status) :: status
+    integer(kind=MPI_OFFSET_KIND) :: mpi_offset
+    integer :: nmsh_curve_size, nlocal, max_recv, n_recv
+    integer :: i, ierr, src, dst, step, el_idx, el_idx_glb
+
+    call MPI_Type_size(MPI_NMSH_CURVE, nmsh_curve_size, ierr)
+
+    dist = linear_dist_t(ncurves, pe_rank, pe_size, NEKO_COMM)
+    nlocal = dist%num_local()
+
+    allocate(curve_send(nlocal))
+
+    mpi_offset = base_offset + &
+         int(dist%start_idx(), i8) * int(nmsh_curve_size, i8)
+    call MPI_File_read_at_all(fh, mpi_offset, &
+         curve_send, nlocal, MPI_NMSH_CURVE, status, ierr)
+
+    call MPI_Allreduce(nlocal, max_recv, 1, MPI_INTEGER, MPI_MAX, &
+         NEKO_COMM, ierr)
+    allocate(curve_recv(max_recv))
+
+    do i = 1, nlocal
+       el_idx_glb = curve_send(i)%e
+       if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+          call msh%mark_curve_element(el_idx, &
+               curve_send(i)%curve_data, curve_send(i)%type)
+       end if
+    end do
+
+    do step = 1, pe_size - 1
+       src = modulo(pe_rank - step + pe_size, pe_size)
+       dst = modulo(pe_rank + step, pe_size)
+       call MPI_Sendrecv(curve_send, nlocal, MPI_NMSH_CURVE, dst, 0, &
+            curve_recv, max_recv, MPI_NMSH_CURVE, src, 0, &
+            NEKO_COMM, status, ierr)
+       call MPI_Get_count(status, MPI_NMSH_CURVE, n_recv, ierr)
+       do i = 1, n_recv
+          el_idx_glb = curve_recv(i)%e
+          if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
+             call msh%mark_curve_element(el_idx, &
+                  curve_recv(i)%curve_data, curve_recv(i)%type)
+          end if
+       end do
+    end do
+
+    deallocate(curve_send)
+    deallocate(curve_recv)
+
+  end subroutine nmsh_file_read_curves
 
 
   !> Write a mesh from to a binary Neko nmsh file
