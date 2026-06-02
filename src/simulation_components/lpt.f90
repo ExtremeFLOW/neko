@@ -33,6 +33,7 @@
 !> Implements `lpt_t`. (Lagrangian Particle Tracking)
 module lagrangian_particle_tracking
   use num_types, only : rp
+  use neko_config, only : NEKO_BCKND_DEVICE
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
@@ -49,15 +50,18 @@ module lagrangian_particle_tracking
   use file, only : file_t
   use matrix, only : matrix_t
   use tensor, only : trsp
+  use device, only : device_map, device_memcpy, HOST_TO_DEVICE
   use mesh, only : mesh_t
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_Exscan, MPI_Gather, &
-       MPI_Gatherv, MPI_INTEGER, MPI_SUM, MPI_MIN, MPI_MAX
+       MPI_Gatherv, MPI_INTEGER, MPI_SUM, MPI_MIN, MPI_MAX, MPI_Request, &
+       MPI_Isend, MPI_Irecv, MPI_Waitall, MPI_STATUSES_IGNORE
   use csv_file, only : csv_file_t
   implicit none
   private
 
   real(kind=rp), parameter :: LPT_PERIODIC_TOL = 1.0e-8_rp
+  integer, parameter :: LPT_VEL_HISTORY_LEN = 2
 
   !> A simulation component for passive Lagrangian particle tracking.
   !! Particles are redistributed to the rank that owns their current location.
@@ -72,6 +76,9 @@ module lagrangian_particle_tracking
      type(global_interpolation_t) :: global_interp
      !> Particle coordinates local to this MPI rank.
      real(kind=rp), allocatable :: xyz_particles(:,:)
+     !> Lagged carrier velocities, kept with each particle for multistep time
+     !! integration.
+     real(kind=rp), allocatable :: vel_particles_lag(:,:,:)
      !> Optional CSV output file.
      type(file_t) :: output_file
      !> Whether trajectory output is enabled.
@@ -137,6 +144,8 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: evaluate_velocity
      !> Write a trajectory snapshot.
      procedure, private, pass(this) :: write_output
+     !> Redistribute lagged per-particle data with the interpolation ownership.
+     procedure, private, pass(this) :: redistribute_velocity_history
      !> Emit a short setup summary.
      procedure, private, pass(this) :: log_status
   end type lpt_t
@@ -212,6 +221,9 @@ contains
        allocate(this%xyz_particles(3, 0))
     end if
 
+    allocate(this%vel_particles_lag(3, LPT_VEL_HISTORY_LEN, this%n_particles))
+    this%vel_particles_lag = 0.0_rp
+
     this%n_global_particles = this%n_particles
   end subroutine read_particles_json
 
@@ -246,14 +258,153 @@ contains
   !> Redistribute particles to the rank that owns their current location.
   subroutine redistribute_particles(this)
     class(lpt_t), intent(inout) :: this
+    real(kind=rp), allocatable :: vel_particles_lag_local(:,:,:)
     integer :: ierr
 
     call this%wrap_particles_periodic()
-    call this%global_interp%find_points_and_redist(this%xyz_particles, &
-         this%n_particles)
+    call this%global_interp%find_points(this%xyz_particles, this%n_particles)
+    call this%redistribute_velocity_history(vel_particles_lag_local)
+
+    this%n_particles = this%global_interp%n_points_local
+
+    if (allocated(this%xyz_particles)) deallocate(this%xyz_particles)
+    allocate(this%xyz_particles(3, this%n_particles))
+    this%xyz_particles = this%global_interp%xyz_local
+
+    call this%global_interp%free_points()
+    this%global_interp%n_points = this%n_particles
+    allocate(this%global_interp%pe_owner(this%n_particles))
+    allocate(this%global_interp%el_owner0(this%n_particles))
+    allocate(this%global_interp%xyz(3, this%n_particles))
+    allocate(this%global_interp%rst(3, this%n_particles))
+    this%global_interp%pe_owner = this%global_interp%pe_rank
+    this%global_interp%el_owner0 = this%global_interp%el_owner0_local
+    this%global_interp%xyz = this%global_interp%xyz_local
+    this%global_interp%rst = this%global_interp%rst_local
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%global_interp%el_owner0, &
+            this%global_interp%el_owner0_d, this%n_particles)
+       call device_memcpy(this%global_interp%el_owner0, &
+            this%global_interp%el_owner0_d, this%n_particles, HOST_TO_DEVICE, &
+            sync = .true.)
+    end if
+    this%global_interp%all_points_local = .true.
+
+    call move_alloc(vel_particles_lag_local, this%vel_particles_lag)
     call MPI_Allreduce(this%n_particles, this%n_global_particles, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine redistribute_particles
+
+  !> Redistribute the lagged per-particle velocities to the owning rank,
+  !! matching the ordering produced by `global_interpolation_t`.
+  subroutine redistribute_velocity_history(this, vel_particles_lag_local)
+    class(lpt_t), intent(inout) :: this
+    real(kind=rp), allocatable, intent(out) :: vel_particles_lag_local(:,:,:)
+    real(kind=rp), allocatable :: sendbuf(:)
+    real(kind=rp), allocatable :: recvbuf(:)
+    integer, allocatable :: send_offsets(:)
+    integer, allocatable :: recv_offsets(:)
+    type(MPI_Request), allocatable :: requests(:)
+    integer, pointer :: point_ids(:)
+    integer :: rank
+    integer :: i
+    integer :: j
+    integer :: idx
+    integer :: n_local
+    integer :: nreq
+    integer :: ierr
+
+    n_local = this%global_interp%n_points_local
+    allocate(vel_particles_lag_local(3, LPT_VEL_HISTORY_LEN, n_local))
+    vel_particles_lag_local = 0.0_rp
+
+    if (this%n_particles .eq. 0 .and. n_local .eq. 0) return
+
+    allocate(send_offsets(0:pe_size - 1))
+    allocate(recv_offsets(0:pe_size - 1))
+    send_offsets = 0
+    recv_offsets = 0
+
+    do rank = 0, pe_size - 1
+       send_offsets(rank) = 3 * LPT_VEL_HISTORY_LEN * &
+            this%global_interp%n_points_offset_pe(rank)
+       recv_offsets(rank) = 3 * LPT_VEL_HISTORY_LEN * &
+            this%global_interp%n_points_offset_pe_local(rank)
+    end do
+
+    allocate(sendbuf(3 * LPT_VEL_HISTORY_LEN * this%n_particles))
+    sendbuf = 0.0_rp
+    idx = 0
+    do rank = 0, pe_size - 1
+       if (this%global_interp%n_points_pe(rank) .le. 0) cycle
+       point_ids => this%global_interp%points_at_pe(rank)%array()
+       do i = 1, this%global_interp%n_points_pe(rank)
+          do j = 1, LPT_VEL_HISTORY_LEN
+             sendbuf(idx + 1:idx + 3) = &
+                  this%vel_particles_lag(:, j, point_ids(i))
+             idx = idx + 3
+          end do
+       end do
+    end do
+
+    allocate(recvbuf(3 * LPT_VEL_HISTORY_LEN * n_local))
+    recvbuf = 0.0_rp
+
+    nreq = 0
+    do rank = 0, pe_size - 1
+       if (rank .ne. pe_rank .and. this%global_interp%n_points_pe_local(rank) .gt. 0) then
+          nreq = nreq + 1
+       end if
+       if (rank .ne. pe_rank .and. this%global_interp%n_points_pe(rank) .gt. 0) then
+          nreq = nreq + 1
+       end if
+    end do
+    allocate(requests(max(1, nreq)))
+
+    idx = 0
+    do rank = 0, pe_size - 1
+       if (rank .eq. pe_rank) cycle
+       if (this%global_interp%n_points_pe_local(rank) .gt. 0) then
+          idx = idx + 1
+          call MPI_Irecv(recvbuf(recv_offsets(rank) + 1), &
+               3 * LPT_VEL_HISTORY_LEN * this%global_interp%n_points_pe_local(rank), &
+               MPI_REAL_PRECISION, rank, 0, NEKO_COMM, requests(idx), ierr)
+       end if
+    end do
+
+    do rank = 0, pe_size - 1
+       if (this%global_interp%n_points_pe(rank) .le. 0) cycle
+       if (rank .eq. pe_rank) then
+          recvbuf(recv_offsets(rank) + 1:recv_offsets(rank) + &
+               3 * LPT_VEL_HISTORY_LEN * this%global_interp%n_points_pe(rank)) = &
+               sendbuf(send_offsets(rank) + 1:send_offsets(rank) + &
+               3 * LPT_VEL_HISTORY_LEN * this%global_interp%n_points_pe(rank))
+       else
+          idx = idx + 1
+          call MPI_Isend(sendbuf(send_offsets(rank) + 1), &
+               3 * LPT_VEL_HISTORY_LEN * this%global_interp%n_points_pe(rank), &
+               MPI_REAL_PRECISION, rank, 0, NEKO_COMM, requests(idx), ierr)
+       end if
+    end do
+
+    if (nreq .gt. 0) then
+      call MPI_Waitall(nreq, requests, MPI_STATUSES_IGNORE, ierr)
+    end if
+
+    idx = 0
+    do i = 1, n_local
+       do j = 1, LPT_VEL_HISTORY_LEN
+          vel_particles_lag_local(:, j, i) = recvbuf(idx + 1:idx + 3)
+          idx = idx + 3
+       end do
+    end do
+
+    deallocate(recvbuf)
+    deallocate(sendbuf)
+    deallocate(send_offsets)
+    deallocate(recv_offsets)
+    deallocate(requests)
+  end subroutine redistribute_velocity_history
 
   !> Initialize periodic wrapping from the mesh periodic facet pairs.
   subroutine init_periodic_wrap(this, msh, dm_Xh)
@@ -377,18 +528,27 @@ contains
     call this%global_interp%evaluate(vel(3,:), this%w%x, do_interp_on_host)
   end subroutine evaluate_velocity
 
-  !> Advance particles with an explicit Euler update and optionally write them.
+  !> Advance particles with the fluid scheme's explicit multistep coefficients
+  !! and optionally write them.
   subroutine lpt_compute(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     real(kind=rp), allocatable :: vel(:,:)
     integer :: i
-    type(point_t) :: x_p
+    integer :: j
+    integer :: nadv
 
     if (time%t .lt. this%start_time) return
 
     call this%redistribute_particles()
     call this%evaluate_velocity(vel)
+    nadv = this%case%fluid%ext_bdf%nadv
+
+    if (nadv .gt. 1 .and. all(this%vel_particles_lag .eq. 0.0_rp)) then
+       do j = 1, LPT_VEL_HISTORY_LEN
+          this%vel_particles_lag(:, j, :) = vel
+       end do
+    end if
 
     if (this%output_enabled) then
       if (this%output_controller%check(time)) then
@@ -398,8 +558,19 @@ contains
     end if
 
     do i = 1, this%n_particles
-       this%xyz_particles(:,i) = this%xyz_particles(:,i) + time%dt * vel(:,i)
+       this%xyz_particles(:, i) = this%xyz_particles(:, i) + time%dt * &
+            this%case%fluid%ext_bdf%advection_coeffs%x(1) * vel(:, i)
+       do j = 2, nadv
+          this%xyz_particles(:, i) = this%xyz_particles(:, i) + time%dt * &
+               this%case%fluid%ext_bdf%advection_coeffs%x(j) * &
+               this%vel_particles_lag(:, j - 1, i)
+       end do
     end do
+
+    do j = LPT_VEL_HISTORY_LEN, 2, -1
+       this%vel_particles_lag(:, j, :) = this%vel_particles_lag(:, j - 1, :)
+    end do
+    this%vel_particles_lag(:, 1, :) = vel
 
     if (allocated(vel)) deallocate(vel)
   end subroutine lpt_compute
@@ -497,6 +668,7 @@ contains
     class(lpt_t), intent(inout) :: this
 
     if (allocated(this%xyz_particles)) deallocate(this%xyz_particles)
+    if (allocated(this%vel_particles_lag)) deallocate(this%vel_particles_lag)
     if (allocated(this%periodic_map_el)) deallocate(this%periodic_map_el)
     if (allocated(this%periodic_map_facet)) deallocate(this%periodic_map_facet)
     if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
