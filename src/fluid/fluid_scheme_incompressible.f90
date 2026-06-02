@@ -367,13 +367,19 @@ contains
 
     do i = 1, this%bcs_vel%size()
        bc => this%bcs_vel%get(i)
-       call bc%free()
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
     end do
     call this%bcs_vel%free()
 
     do i = 1, this%bcs_prs%size()
        bc => this%bcs_prs%get(i)
-       call bc%free()
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
     end do
     call this%bcs_prs%free()
 
