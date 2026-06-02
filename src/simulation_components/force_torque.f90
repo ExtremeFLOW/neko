@@ -525,8 +525,8 @@ contains
     call neko_scratch_registry%request_field(s23, temp_indices(5), .false.)
     call neko_scratch_registry%request_field(s33, temp_indices(6), .false.)
 
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, &
-         s13%x, s23%x, this%u, this%v, this%w, this%coef)
+    call strain_rate(s11, s22, s33, s12, s13, s23, &
+         this%u, this%v, this%w, this%coef)
 
     ! On the CPU we can actually just use the original subroutines...
     if (NEKO_BCKND_DEVICE .eq. 0) then

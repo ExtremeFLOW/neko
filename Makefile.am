@@ -23,6 +23,11 @@ CLEANFILES = *.mod\
 
 
 bin_SCRIPTS = makeneko
+
+dist_man_MANS = \
+	doc/man/neko.1\
+	doc/man/makeneko.1
+
 EXTRA_DIST = \
 	makeneko.in\
 	regen.sh\
@@ -146,7 +151,6 @@ EXTRA_DIST = \
 	tests/integration/tests/test_cylinder/reflog2_opencl_sp.csv\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch\
-	patches/cce_openmp.patch\
 	patches/cce_stack.patch\
 	patches/cce_time_state.patch
 

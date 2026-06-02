@@ -331,10 +331,11 @@ contains
   !! half of the recv coarray, so no back-pressure synchronisation is
   !! needed in sync mode -- the visibility synchronisation in nbwait
   !! suffices. Atomic and event modes still use their per-pair signalling.
-  subroutine gs_nbsend_caf(this, u, n, deps, strm)
+  subroutine gs_nbsend_caf(this, u, n, tag, deps, strm)
     class(gs_caf_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    integer, intent(in) :: tag
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
 #ifdef HAVE_COARRAY
@@ -449,8 +450,9 @@ contains
 
   !> No-op for coarrays: senders push into the receiver's buffer, so
   !! the receive side does not need to post anything.
-  subroutine gs_nbrecv_caf(this)
+  subroutine gs_nbrecv_caf(this, tag)
     class(gs_caf_t), intent(inout) :: this
+    integer, intent(in) :: tag
   end subroutine gs_nbrecv_caf
 
   !> Wait for all incoming puts and reduce them into u. In sync mode a

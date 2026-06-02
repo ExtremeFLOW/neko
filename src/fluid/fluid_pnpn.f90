@@ -551,21 +551,21 @@ contains
     if (allocated(chkp%previous_mesh%elements) &
          .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
 
-       call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
+       call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
        call this%gs_Xh%op(this%u, GS_OP_ADD)
        call this%gs_Xh%op(this%v, GS_OP_ADD)
        call this%gs_Xh%op(this%w, GS_OP_ADD)
        call this%gs_Xh%op(this%p, GS_OP_ADD)
-       call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
+       call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
        do i = 1, this%ulag%size()
-          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
-               this%wlag%lf(i)%x, 1, this%c_Xh)
+          call rotate_cyc(this%ulag%lf(i), this%vlag%lf(i), &
+               this%wlag%lf(i), 1, this%c_Xh)
           call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
-          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
-               this%wlag%lf(i)%x, 0, this%c_Xh)
+          call rotate_cyc(this%ulag%lf(i), this%vlag%lf(i), &
+               this%wlag%lf(i), 0, this%c_Xh)
        end do
     end if
 
@@ -879,14 +879,14 @@ contains
               mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
               real(dt, kind=rp), dm_Xh%size())
 
-         call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
+         call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
          call gs_Xh%op(u_res, GS_OP_ADD, event)
          call device_event_sync(event)
          call gs_Xh%op(v_res, GS_OP_ADD, event)
          call device_event_sync(event)
          call gs_Xh%op(w_res, GS_OP_ADD, event)
          call device_event_sync(event)
-         call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
+         call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
          ! Set residual to zero at strong velocity boundaries.
          call this%bclst_vel_res%apply(u_res, v_res, w_res, time)

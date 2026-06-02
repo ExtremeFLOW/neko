@@ -43,6 +43,7 @@ module mean_field_output
   use mean_field, only : mean_field_t
   use output, only : output_t
   use matrix, only : matrix_t
+  use fld_file, only : fld_file_t
   implicit none
   private
 
@@ -135,6 +136,12 @@ contains
     end if
 
     call this%init_base(fname)
+    select type (ft => this%file_%file_type)
+    type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
+    end select
 
     call this%fields%init(n_fields)
     this%n_fields = n_fields

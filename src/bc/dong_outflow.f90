@@ -116,7 +116,7 @@ contains
     !Im actually not sure what to do if one has two dong that share a corner.
     if (strong_) then
        m = this%msk(0)
-       !$omp parallel do private(k, facet, ux, uy, uz, idx, normal_xyz, vn, S0)
+       !$omp do
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
@@ -129,9 +129,9 @@ contains
           vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
           S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
 
-          x(k) = -0.5*(ux*ux+uy*uy+uz*uz)*S0
+          x(k) = -0.5_rp * (ux*ux+uy*uy+uz*uz) * S0
        end do
-       !$omp end parallel do
+       !$omp end do
     end if
   end subroutine dong_outflow_apply_scalar
 
