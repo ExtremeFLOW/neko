@@ -79,7 +79,7 @@ contains
     type(gs_t), intent(inout) :: gs
     class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
     real(kind=rp), intent(in) :: dt
-    integer :: n, s, i, j, k
+    integer :: n, s, i, j, l
     type(field_t), pointer :: k_rho_1, k_rho_2, k_rho_3, k_rho_4, &
          k_m_x_1, k_m_x_2, k_m_x_3, k_m_x_4, &
          k_m_y_1, k_m_y_2, k_m_y_3, k_m_y_4, &
@@ -154,13 +154,18 @@ contains
     ! Loop over Runge-Kutta stages
     do i = 1, s
        ! Copy current solution state to temporary arrays for this RK stage
-       do concurrent (k = 1:n)
-          temp_rho%x(k,1,1,1) = rho_field%x(k,1,1,1)
-          temp_m_x%x(k,1,1,1) = m_x%x(k,1,1,1)
-          temp_m_y%x(k,1,1,1) = m_y%x(k,1,1,1)
-          temp_m_z%x(k,1,1,1) = m_z%x(k,1,1,1)
-          temp_E%x(k,1,1,1) = E%x(k,1,1,1)
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       !$omp parallel do simd
+       do l = 1, n
+          temp_rho%x(l,1,1,1) = rho_field%x(l,1,1,1)
+          temp_m_x%x(l,1,1,1) = m_x%x(l,1,1,1)
+          temp_m_y%x(l,1,1,1) = m_y%x(l,1,1,1)
+          temp_m_z%x(l,1,1,1) = m_z%x(l,1,1,1)
+          temp_E%x(l,1,1,1) = E%x(l,1,1,1)
        end do
+       !$omp end parallel do simd
 
        ! Accumulate previous stage contributions using RK coefficients
        do j = 1, i-1
@@ -169,18 +174,24 @@ contains
           k_m_y_ptr => k_m_y%items(j)%ptr%x
           k_m_z_ptr => k_m_z%items(j)%ptr%x
           k_E_ptr => k_E%items(j)%ptr%x
-          do concurrent (k = 1:n)
-             temp_rho%x(k,1,1,1) = temp_rho%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_rho_ptr(k,1,1,1)
-             temp_m_x%x(k,1,1,1) = temp_m_x%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_x_ptr(k,1,1,1)
-             temp_m_y%x(k,1,1,1) = temp_m_y%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_y_ptr(k,1,1,1)
-             temp_m_z%x(k,1,1,1) = temp_m_z%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_m_z_ptr(k,1,1,1)
-             temp_E%x(k,1,1,1) = temp_E%x(k,1,1,1) &
-                  + dt * rk_scheme%coeffs_A(i, j) * k_E_ptr(k,1,1,1)
+
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !GCC$ ivdep
+          !$omp parallel do simd
+          do l = 1, n
+             temp_rho%x(l,1,1,1) = temp_rho%x(l,1,1,1) + &
+                  dt * rk_scheme%coeffs_A(i, j) * k_rho_ptr(l,1,1,1)
+             temp_m_x%x(l,1,1,1) = temp_m_x%x(l,1,1,1) + &
+                  dt * rk_scheme%coeffs_A(i, j) * k_m_x_ptr(l,1,1,1)
+             temp_m_y%x(l,1,1,1) = temp_m_y%x(l,1,1,1) + &
+                  dt * rk_scheme%coeffs_A(i, j) * k_m_y_ptr(l,1,1,1)
+             temp_m_z%x(l,1,1,1) = temp_m_z%x(l,1,1,1) + &
+                  dt * rk_scheme%coeffs_A(i, j) * k_m_z_ptr(l,1,1,1)
+             temp_E%x(l,1,1,1) = temp_E%x(l,1,1,1) + &
+                  dt * rk_scheme%coeffs_A(i, j) * k_E_ptr(l,1,1,1)
           end do
+          !$omp end parallel do simd
        end do
 
        ! Evaluate RHS terms for current stage using intermediate solution values
@@ -199,18 +210,24 @@ contains
        k_m_y_ptr => k_m_y%items(i)%ptr%x
        k_m_z_ptr => k_m_z%items(i)%ptr%x
        k_E_ptr => k_E%items(i)%ptr%x
-       do concurrent (k = 1:n)
-          rho_field%x(k,1,1,1) = rho_field%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_rho_ptr(k,1,1,1)
-          m_x%x(k,1,1,1) = m_x%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_x_ptr(k,1,1,1)
-          m_y%x(k,1,1,1) = m_y%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_y_ptr(k,1,1,1)
-          m_z%x(k,1,1,1) = m_z%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_m_z_ptr(k,1,1,1)
-          E%x(k,1,1,1) = E%x(k,1,1,1) &
-               + dt * rk_scheme%coeffs_b(i) * k_E_ptr(k,1,1,1)
+
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       !$omp parallel do simd
+       do l = 1, n
+          rho_field%x(l,1,1,1) = rho_field%x(l,1,1,1) + &
+               dt * rk_scheme%coeffs_b(i) * k_rho_ptr(l,1,1,1)
+          m_x%x(l,1,1,1) = m_x%x(l,1,1,1) + &
+               dt * rk_scheme%coeffs_b(i) * k_m_x_ptr(l,1,1,1)
+          m_y%x(l,1,1,1) = m_y%x(l,1,1,1) + &
+               dt * rk_scheme%coeffs_b(i) * k_m_y_ptr(l,1,1,1)
+          m_z%x(l,1,1,1) = m_z%x(l,1,1,1) + &
+               dt * rk_scheme%coeffs_b(i) * k_m_z_ptr(l,1,1,1)
+          E%x(l,1,1,1) = E%x(l,1,1,1) + &
+               dt * rk_scheme%coeffs_b(i) * k_E_ptr(l,1,1,1)
        end do
+       !$omp end parallel do simd
     end do
 
     call neko_scratch_registry%relinquish_field(tmp_indices)
@@ -265,43 +282,66 @@ contains
     !> m = m - dt * div(rho * u * u^T + p*I)
     ! Compute momentum flux divergences
     ! m_x
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * m_x%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
+            rho_field%x(i,1,1,1) + p%x(i,1,1,1)
        f_y%x(i,1,1,1) = m_x%x(i,1,1,1) * m_y%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
+            rho_field%x(i,1,1,1)
        f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * m_z%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
+            rho_field%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_y
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        f_x%x(i,1,1,1) = m_y%x(i,1,1,1) * m_x%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
+            rho_field%x(i,1,1,1)
        f_y%x(i,1,1,1) = m_y%x(i,1,1,1) * m_y%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
+            rho_field%x(i,1,1,1) + p%x(i,1,1,1)
        f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * m_z%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
+            rho_field%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_z
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        f_x%x(i,1,1,1) = m_z%x(i,1,1,1) * m_x%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
+            rho_field%x(i,1,1,1)
        f_y%x(i,1,1,1) = m_z%x(i,1,1,1) * m_y%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1)
+            rho_field%x(i,1,1,1)
        f_z%x(i,1,1,1) = m_z%x(i,1,1,1) * m_z%x(i,1,1,1) / &
-            rho_field%x(i, 1, 1, 1) + p%x(i,1,1,1)
+            rho_field%x(i,1,1,1) + p%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
 
     !> E = E - dt * div(u * (E + p))
     ! Compute energy flux divergence
-    do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * u%x(i,1,1,1)
-       f_y%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * v%x(i,1,1,1)
-       f_z%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * w%x(i,1,1,1)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
+       f_x%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * &
+            u%x(i,1,1,1)
+       f_y%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * &
+            v%x(i,1,1,1)
+       f_z%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * &
+            w%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
     call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
 
     ! gs
@@ -312,13 +352,19 @@ contains
     call gs%op(rhs_m_z, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
-    do concurrent (i = 1:rhs_E%dof%size())
-       rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) * coef%mult(i,1,1,1)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
+       rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) * &
+            coef%mult(i,1,1,1)
        rhs_m_x%x(i,1,1,1) = rhs_m_x%x(i,1,1,1) * coef%mult(i,1,1,1)
        rhs_m_y%x(i,1,1,1) = rhs_m_y%x(i,1,1,1) * coef%mult(i,1,1,1)
        rhs_m_z%x(i,1,1,1) = rhs_m_z%x(i,1,1,1) * coef%mult(i,1,1,1)
        rhs_E%x(i,1,1,1) = rhs_E%x(i,1,1,1) * coef%mult(i,1,1,1)
     end do
+    !$omp end parallel do simd
 
     call neko_scratch_registry%request_field(visc_rho, tmp_indices(4), .false.)
     call neko_scratch_registry%request_field(visc_m_x, tmp_indices(5), .false.)
@@ -327,9 +373,14 @@ contains
     call neko_scratch_registry%request_field(visc_E, tmp_indices(8), .false.)
 
     ! Set h1 coefficient to the effective viscosity for the Laplacian operator
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        coef%h1(i,1,1,1) = effective_visc%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
 
     ! Calculate artificial diffusion with variable viscosity
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
@@ -339,9 +390,14 @@ contains
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     ! Reset h1 coefficient back to 1.0 for other operations
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        coef%h1(i,1,1,1) = 1.0_rp
     end do
+    !$omp end parallel do simd
 
     ! gs
     call gs%op(visc_rho, GS_OP_ADD)
@@ -354,18 +410,23 @@ contains
 
     ! Move div to the rhs and apply artificial viscosity
     ! The viscosity coefficient is already included in the Laplacian operator
-    do concurrent (i = 1:n)
-       rhs_rho_field%x(i,1,1,1) = -rhs_rho_field%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
-       rhs_m_x%x(i,1,1,1) = -rhs_m_x%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
-       rhs_m_y%x(i,1,1,1) = -rhs_m_y%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
-       rhs_m_z%x(i,1,1,1) = -rhs_m_z%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
-       rhs_E%x(i,1,1,1) = -rhs_E%x(i,1,1,1) &
-            - coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
+       rhs_rho_field%x(i,1,1,1) = -rhs_rho_field%x(i,1,1,1) - &
+            coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)
+       rhs_m_x%x(i,1,1,1) = -rhs_m_x%x(i,1,1,1) - &
+            coef%Binv(i,1,1,1) * visc_m_x%x(i,1,1,1)
+       rhs_m_y%x(i,1,1,1) = -rhs_m_y%x(i,1,1,1) - &
+            coef%Binv(i,1,1,1) * visc_m_y%x(i,1,1,1)
+       rhs_m_z%x(i,1,1,1) = -rhs_m_z%x(i,1,1,1) - &
+            coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
+       rhs_E%x(i,1,1,1) = -rhs_E%x(i,1,1,1) - &
+            coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
 
     call neko_scratch_registry%relinquish_field(tmp_indices)
   end subroutine evaluate_rhs_cpu
