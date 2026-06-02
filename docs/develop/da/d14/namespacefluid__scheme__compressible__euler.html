@@ -127,6 +127,8 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a00d33ca9c9cdb3e1d3d1feac5b18c49e" id="r_a00d33ca9c9cdb3e1d3d1feac5b18c49e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d14/namespacefluid__scheme__compressible__euler.html#a00d33ca9c9cdb3e1d3d1feac5b18c49e">compute_h</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a00d33ca9c9cdb3e1d3d1feac5b18c49e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copied from les_model_compute_delta in <a class="el" href="../../df/dcc/les__model_8f90.html">les_model.f90</a> TODO: move to a separate module Compute characteristic mesh size h.  <br /></td></tr>
 <tr class="separator:a00d33ca9c9cdb3e1d3d1feac5b18c49e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ed0a58abc20bb58ae606591044b2098" id="r_a9ed0a58abc20bb58ae606591044b2098"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d14/namespacefluid__scheme__compressible__euler.html#a9ed0a58abc20bb58ae606591044b2098">compute_h_cpu</a> (h, x, y, z, lx, ly, lz, nelv)</td></tr>
+<tr class="separator:a9ed0a58abc20bb58ae606591044b2098"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca908fa31ad19dbeee97865ad2e168e3" id="r_aca908fa31ad19dbeee97865ad2e168e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d14/namespacefluid__scheme__compressible__euler.html#aca908fa31ad19dbeee97865ad2e168e3">fluid_scheme_compressible_euler_restart</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, chkp)</td></tr>
 <tr class="memdesc:aca908fa31ad19dbeee97865ad2e168e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart the simulation from saved state.  <br /></td></tr>
 <tr class="separator:aca908fa31ad19dbeee97865ad2e168e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,7 +166,81 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00501">501</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00500">500</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9ed0a58abc20bb58ae606591044b2098" name="a9ed0a58abc20bb58ae606591044b2098"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ed0a58abc20bb58ae606591044b2098">&#9670;&#160;</a></span>compute_h_cpu()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> fluid_scheme_compressible_euler::compute_h_cpu </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(lx, ly, lz, nelv), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">out</a>)&#160;</td>
+          <td class="paramname"><em>h</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(lx, ly, lz, nelv), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(lx, ly, lz, nelv), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(lx, ly, lz, nelv), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>ly</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>nelv</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00522">522</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
 
 </div>
 </div>
@@ -198,7 +274,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00240">240</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00239">239</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
 
 </div>
 </div>
@@ -288,7 +364,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00163">163</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
 
 </div>
 </div>
@@ -334,7 +410,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00569">569</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00571">571</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
 
 </div>
 </div>
@@ -386,7 +462,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00393">393</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00392">392</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
 
 </div>
 </div>
@@ -448,7 +524,7 @@ Functions/Subroutines</h2></td></tr>
 <p>Update entropy lag series for entropy viscosity</p>
 <p>Update maximum wave speed for CFL computation</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00274">274</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00273">273</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
 
 </div>
 </div>
@@ -486,7 +562,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00574">574</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html#l00576">576</a> of file <a class="el" href="../../d9/daf/fluid__scheme__compressible__euler_8f90_source.html">fluid_scheme_compressible_euler.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -506,7 +582,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/d14/namespacefluid__scheme__compressible__euler.html">fluid_scheme_compressible_euler</a></li>
-    <li class="footer">Generated on Mon Jun 1 2026 05:12:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jun 2 2026 05:05:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

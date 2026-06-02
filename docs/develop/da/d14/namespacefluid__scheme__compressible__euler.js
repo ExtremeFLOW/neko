@@ -2,6 +2,7 @@ var namespacefluid__scheme__compressible__euler =
 [
     [ "fluid_scheme_compressible_euler_t", "da/d12/structfluid__scheme__compressible__euler_1_1fluid__scheme__compressible__euler__t.html", "da/d12/structfluid__scheme__compressible__euler_1_1fluid__scheme__compressible__euler__t" ],
     [ "compute_h", "da/d14/namespacefluid__scheme__compressible__euler.html#a00d33ca9c9cdb3e1d3d1feac5b18c49e", null ],
+    [ "compute_h_cpu", "da/d14/namespacefluid__scheme__compressible__euler.html#a9ed0a58abc20bb58ae606591044b2098", null ],
     [ "fluid_scheme_compressible_euler_free", "da/d14/namespacefluid__scheme__compressible__euler.html#a8dad927b203ef821821b94823a86ce96", null ],
     [ "fluid_scheme_compressible_euler_init", "da/d14/namespacefluid__scheme__compressible__euler.html#a2a8b84832e23c62118a759cae9f9c0af", null ],
     [ "fluid_scheme_compressible_euler_restart", "da/d14/namespacefluid__scheme__compressible__euler.html#aca908fa31ad19dbeee97865ad2e168e3", null ],

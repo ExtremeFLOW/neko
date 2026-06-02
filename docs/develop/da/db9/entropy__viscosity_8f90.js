@@ -1,7 +1,9 @@
 var entropy__viscosity_8f90 =
 [
     [ "entropy_viscosity::entropy_viscosity_t", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html", "da/d80/structentropy__viscosity_1_1entropy__viscosity__t" ],
+    [ "entropy_viscosity_abs_add_cpu", "da/db9/entropy__viscosity_8f90.html#a2137cf7cecdea93e85c6ad0426e486d0", null ],
     [ "entropy_viscosity_apply_element_max", "da/db9/entropy__viscosity_8f90.html#a044170f89b565dcfee9bc8618bf2431a", null ],
+    [ "entropy_viscosity_col3_vector_cpu", "da/db9/entropy__viscosity_8f90.html#a38f4b542c4afb59639d9d5866555ea06", null ],
     [ "entropy_viscosity_compute", "da/db9/entropy__viscosity_8f90.html#a86aa3e0d14155b6e8187d1b94dd4198d", null ],
     [ "entropy_viscosity_compute_residual", "da/db9/entropy__viscosity_8f90.html#a829906b2ecb74b192bc9e759fdfe420d", null ],
     [ "entropy_viscosity_compute_viscosity", "da/db9/entropy__viscosity_8f90.html#a7c66cb381c6418f63ea5d9b8e9191df7", null ],
