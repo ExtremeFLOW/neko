@@ -38,6 +38,7 @@ module lagrangian_particle_tracking
   use registry, only : neko_registry
   use field, only : field_t
   use case, only : case_t
+  use dofmap, only : dofmap_t
   use json_utils, only : json_get, json_get_or_default, &
        json_get_subdict_or_empty
   use time_state, only : time_state_t
@@ -48,12 +49,15 @@ module lagrangian_particle_tracking
   use file, only : file_t
   use matrix, only : matrix_t
   use tensor, only : trsp
+  use mesh, only : mesh_t
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_Exscan, MPI_Gather, MPI_Gatherv, &
-       MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_Exscan, MPI_Gather, &
+       MPI_Gatherv, MPI_INTEGER, MPI_SUM, MPI_MIN, MPI_MAX
   use csv_file, only : csv_file_t
   implicit none
   private
+
+  real(kind=rp), parameter :: LPT_PERIODIC_TOL = 1.0e-8_rp
 
   !> A simulation component for passive Lagrangian particle tracking.
   !! Particles are redistributed to the rank that owns their current location.
@@ -74,12 +78,42 @@ module lagrangian_particle_tracking
      logical :: output_enabled = .false.
      !> Whether to emit informational logs.
      logical :: log = .true.
+     !> Whether periodic wrapping is active.
+     logical :: periodic_enabled = .false.
      !> Time after which tracking should start.
      real(kind=rp) :: start_time = -huge(0.0_rp)
      !> Number of particles currently local to this rank.
      integer :: n_particles = 0
      !> Total number of particles across all ranks.
      integer :: n_global_particles = 0
+     !> Number of unique periodic translation directions.
+     integer :: n_periodic_dirs = 0
+     !> Translation vectors from the low to the high periodic boundary.
+     real(kind=rp) :: periodic_shift(3, 3) = 0.0_rp
+     !> Unit vectors associated with the periodic translations.
+     real(kind=rp) :: periodic_dir(3, 3) = 0.0_rp
+     !> Low-side coordinate along each periodic direction.
+     real(kind=rp) :: periodic_min(3) = 0.0_rp
+     !> High-side coordinate along each periodic direction.
+     real(kind=rp) :: periodic_max(3) = 0.0_rp
+     !> Period length along each periodic direction.
+     real(kind=rp) :: periodic_len(3) = 0.0_rp
+     !> Number of local periodic facet transforms.
+     integer :: n_periodic_maps = 0
+     !> Owning element for each local periodic facet transform.
+     integer, allocatable :: periodic_map_el(:)
+     !> Local facet index for each periodic transform.
+     integer, allocatable :: periodic_map_facet(:)
+     !> Number of facet points for each transform (2 in 2D, 4 in 3D).
+     integer, allocatable :: periodic_map_npts(:)
+     !> Source facet centers.
+     real(kind=rp), allocatable :: periodic_src_center(:,:)
+     !> Source facet bases: tangent 1, tangent 2, inward normal.
+     real(kind=rp), allocatable :: periodic_src_basis(:,:,:)
+     !> Target facet centers.
+     real(kind=rp), allocatable :: periodic_tgt_center(:,:)
+     !> Target facet bases: tangent 1, tangent 2, inward normal.
+     real(kind=rp), allocatable :: periodic_tgt_basis(:,:,:)
    contains
      !> Construct the component from a case-file JSON object.
      procedure, pass(this) :: init => lpt_init_from_json
@@ -91,6 +125,12 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: read_particles_json
      !> Read particle coordinates from a CSV file.
      procedure, private, pass(this) :: read_particles_csv
+     !> Initialize periodic wrapping metadata from the mesh.
+     procedure, private, pass(this) :: init_periodic_wrap
+     !> Build local cyclic facet transforms from periodic facet pairings.
+     procedure, private, pass(this) :: init_periodic_maps
+     !> Wrap local particles back into the periodic domain.
+     procedure, private, pass(this) :: wrap_particles_periodic
      !> Redistribute particles to the owning MPI rank.
      procedure, private, pass(this) :: redistribute_particles
      !> Interpolate the carrier velocity at the local particles.
@@ -132,6 +172,8 @@ contains
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &
          params_subdict = interp_subdict)
+    call this%init_periodic_wrap(case%fluid%msh, case%fluid%dm_Xh)
+    call this%init_periodic_maps(case%fluid%msh)
     call this%redistribute_particles()
 
     call json_get_or_default(json, "output_filename", output_filename, &
@@ -206,11 +248,119 @@ contains
     class(lpt_t), intent(inout) :: this
     integer :: ierr
 
+    call this%wrap_particles_periodic()
     call this%global_interp%find_points_and_redist(this%xyz_particles, &
          this%n_particles)
     call MPI_Allreduce(this%n_particles, this%n_global_particles, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine redistribute_particles
+
+  !> Initialize periodic wrapping from the mesh periodic facet pairs.
+  subroutine init_periodic_wrap(this, msh, dm_Xh)
+    class(lpt_t), intent(inout) :: this
+    type(mesh_t), intent(in), target :: msh
+    type(dofmap_t), intent(in) :: dm_Xh
+    integer :: i
+    integer :: idx
+    integer :: ierr
+    real(kind=rp) :: local_min(3)
+    real(kind=rp) :: local_max(3)
+    real(kind=rp) :: global_min(3)
+    real(kind=rp) :: global_max(3)
+
+    this%periodic_enabled = .false.
+    this%n_periodic_dirs = 0
+    this%periodic_shift = 0.0_rp
+    this%periodic_dir = 0.0_rp
+    this%periodic_min = 0.0_rp
+    this%periodic_max = 0.0_rp
+    this%periodic_len = 0.0_rp
+
+    if (msh%periodic%size .eq. 0) return
+
+    if (msh%nelv .gt. 0) then
+       local_min(1) = minval(dm_Xh%x)
+       local_max(1) = maxval(dm_Xh%x)
+       local_min(2) = minval(dm_Xh%y)
+       local_max(2) = maxval(dm_Xh%y)
+       local_min(3) = minval(dm_Xh%z)
+       local_max(3) = maxval(dm_Xh%z)
+    else
+       local_min = huge(0.0_rp)
+       local_max = -huge(0.0_rp)
+    end if
+
+    call MPI_Allreduce(local_min, global_min, 3, MPI_REAL_PRECISION, MPI_MIN, &
+         NEKO_COMM, ierr)
+    call MPI_Allreduce(local_max, global_max, 3, MPI_REAL_PRECISION, MPI_MAX, &
+         NEKO_COMM, ierr)
+
+    do i = 1, msh%periodic%size
+       idx = lpt_periodic_dir_from_facet(msh%gdim, msh%periodic%facet_el(i)%x(1))
+       if (idx .eq. 0) then
+          cycle
+       end if
+       if (this%periodic_len(idx) .le. 0.0_rp) then
+          this%n_periodic_dirs = max(this%n_periodic_dirs, idx)
+          this%periodic_dir(:, idx) = 0.0_rp
+          this%periodic_dir(idx, idx) = 1.0_rp
+          this%periodic_min(idx) = global_min(idx)
+          this%periodic_max(idx) = global_max(idx)
+          this%periodic_len(idx) = global_max(idx) - global_min(idx)
+          this%periodic_shift(:, idx) = 0.0_rp
+          this%periodic_shift(idx, idx) = this%periodic_len(idx)
+       end if
+    end do
+
+    this%periodic_enabled = this%n_periodic_dirs .gt. 0
+  end subroutine init_periodic_wrap
+
+  !> Wrap particles back into the periodic domain before the ownership search.
+  subroutine wrap_particles_periodic(this)
+    class(lpt_t), intent(inout) :: this
+    integer :: i
+    integer :: j
+    integer :: k
+    integer :: n_iters
+    real(kind=rp) :: coord
+
+    if (this%n_particles .eq. 0) return
+
+    if (this%n_periodic_maps .gt. 0) then
+       if (allocated(this%global_interp%el_owner0_local)) then
+          do i = 1, this%n_particles
+             do n_iters = 1, 3
+                do k = 1, this%n_periodic_maps
+                   if (this%global_interp%el_owner0_local(i) .eq. &
+                        this%periodic_map_el(k)) then
+                      call lpt_apply_periodic_map_if_needed(this, i, k)
+                   end if
+                end do
+             end do
+          end do
+       end if
+    end if
+
+    if (.not. this%periodic_enabled) return
+
+    do i = 1, this%n_particles
+       do j = 1, this%n_periodic_dirs
+          coord = dot_product(this%xyz_particles(:, i), this%periodic_dir(:, j))
+
+          do while (coord .lt. this%periodic_min(j) - LPT_PERIODIC_TOL)
+             this%xyz_particles(:, i) = this%xyz_particles(:, i) + &
+                  this%periodic_shift(:, j)
+             coord = coord + this%periodic_len(j)
+          end do
+
+          do while (coord .gt. this%periodic_max(j) + LPT_PERIODIC_TOL)
+             this%xyz_particles(:, i) = this%xyz_particles(:, i) - &
+                  this%periodic_shift(:, j)
+             coord = coord - this%periodic_len(j)
+          end do
+       end do
+    end do
+  end subroutine wrap_particles_periodic
 
   !> Interpolate the carrier velocity at the local particles.
   subroutine evaluate_velocity(this, vel)
@@ -347,6 +497,13 @@ contains
     class(lpt_t), intent(inout) :: this
 
     if (allocated(this%xyz_particles)) deallocate(this%xyz_particles)
+    if (allocated(this%periodic_map_el)) deallocate(this%periodic_map_el)
+    if (allocated(this%periodic_map_facet)) deallocate(this%periodic_map_facet)
+    if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
+    if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
+    if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
+    if (allocated(this%periodic_tgt_center)) deallocate(this%periodic_tgt_center)
+    if (allocated(this%periodic_tgt_basis)) deallocate(this%periodic_tgt_basis)
     call this%global_interp%free()
     call this%output_file%free()
 
@@ -355,9 +512,17 @@ contains
     this%w => null()
     this%output_enabled = .false.
     this%log = .true.
+    this%periodic_enabled = .false.
     this%start_time = -huge(0.0_rp)
     this%n_particles = 0
     this%n_global_particles = 0
+    this%n_periodic_dirs = 0
+    this%periodic_shift = 0.0_rp
+    this%periodic_dir = 0.0_rp
+    this%periodic_min = 0.0_rp
+    this%periodic_max = 0.0_rp
+    this%periodic_len = 0.0_rp
+    this%n_periodic_maps = 0
     call this%free_base()
   end subroutine lpt_free
 
@@ -374,6 +539,16 @@ contains
     write(log_buf, '(A,I0)') "Global seeded particles: ", &
          this%n_global_particles
     call neko_log%message(log_buf)
+    if (this%periodic_enabled) then
+       write(log_buf, '(A,I0)') "Periodic wrap directions: ", &
+            this%n_periodic_dirs
+       call neko_log%message(log_buf)
+    end if
+    if (this%n_periodic_maps .gt. 0) then
+       write(log_buf, '(A,I0)') "Periodic facet transforms: ", &
+            this%n_periodic_maps
+       call neko_log%message(log_buf)
+    end if
     write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
          this%n_particles
     if (pe_rank .eq. 0) call neko_log%message(log_buf)
@@ -382,5 +557,321 @@ contains
          "uses coordinates or points_file.")
     call neko_log%end_section()
   end subroutine log_status
+
+  !> Map a periodic facet number to its Cartesian wrap direction.
+  integer function lpt_periodic_dir_from_facet(gdim, facet) result(idx)
+    integer, intent(in) :: gdim
+    integer, intent(in) :: facet
+
+    idx = 0
+    select case (facet)
+    case (1, 2)
+       idx = 1
+    case (3, 4)
+       idx = 2
+    case (5, 6)
+       if (gdim .eq. 3) idx = 3
+    end select
+  end function lpt_periodic_dir_from_facet
+
+  !> Build local periodic facet transforms, including cyclic mappings.
+  subroutine init_periodic_maps(this, msh)
+    class(lpt_t), intent(inout) :: this
+    type(mesh_t), intent(in) :: msh
+    integer :: n_local
+    integer :: n_global
+    integer :: i
+    integer :: j
+    integer :: idx
+    integer :: ierr
+    integer :: max_local
+    integer, allocatable :: counts(:)
+    integer, allocatable :: displs(:)
+    integer, allocatable :: local_meta(:)
+    integer, allocatable :: global_meta(:)
+    integer, allocatable :: padded_meta(:)
+    integer, allocatable :: gathered_meta(:)
+    real(kind=rp), allocatable :: local_geom(:)
+    real(kind=rp), allocatable :: global_geom(:)
+    real(kind=rp), allocatable :: padded_geom(:)
+    real(kind=rp), allocatable :: gathered_geom(:)
+    real(kind=rp) :: src_pts(3, 4)
+    real(kind=rp) :: tgt_pts(3, 4)
+    real(kind=rp) :: src_centroid(3)
+    real(kind=rp) :: tgt_centroid(3)
+    integer :: match_idx
+    integer :: npts
+
+    this%n_periodic_maps = 0
+    if (allocated(this%periodic_map_el)) deallocate(this%periodic_map_el)
+    if (allocated(this%periodic_map_facet)) deallocate(this%periodic_map_facet)
+    if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
+    if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
+    if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
+    if (allocated(this%periodic_tgt_center)) deallocate(this%periodic_tgt_center)
+    if (allocated(this%periodic_tgt_basis)) deallocate(this%periodic_tgt_basis)
+
+    n_local = msh%periodic%size
+    if (n_local .eq. 0) return
+
+    allocate(counts(pe_size))
+    allocate(displs(pe_size))
+    call MPI_Allgather(n_local, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, &
+         NEKO_COMM, ierr)
+    displs(1) = 0
+    do i = 2, pe_size
+       displs(i) = displs(i - 1) + counts(i - 1)
+    end do
+    n_global = sum(counts)
+    max_local = max(1, maxval(counts))
+
+    allocate(local_meta(10 * n_local))
+    allocate(local_geom(15 * n_local))
+    do i = 1, n_local
+       npts = merge(4, 2, msh%gdim .eq. 3)
+       local_meta(10 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(2)
+       local_meta(10 * (i - 1) + 2) = msh%periodic%facet_el(i)%x(1)
+       local_meta(10 * (i - 1) + 3) = npts
+       local_meta(10 * (i - 1) + 4:10 * (i - 1) + 7) = msh%periodic%org_ids(i)%x
+       local_meta(10 * (i - 1) + 8:10 * (i - 1) + 10) = 0
+
+       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
+            msh%periodic%facet_el(i)%x(1), src_pts, src_centroid)
+       local_geom(15 * (i - 1) + 1:15 * (i - 1) + 12) = reshape(src_pts, [12])
+       local_geom(15 * (i - 1) + 13:15 * (i - 1) + 15) = src_centroid
+    end do
+
+    allocate(padded_meta(10 * max_local))
+    allocate(padded_geom(15 * max_local))
+    padded_meta = 0
+    padded_geom = 0.0_rp
+    if (n_local .gt. 0) then
+       padded_meta(1:10 * n_local) = local_meta
+       padded_geom(1:15 * n_local) = local_geom
+    end if
+
+    allocate(gathered_meta(10 * max_local * pe_size))
+    allocate(gathered_geom(15 * max_local * pe_size))
+    call MPI_Allgather(padded_meta, 10 * max_local, MPI_INTEGER, gathered_meta, &
+         10 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
+    call MPI_Allgather(padded_geom, 15 * max_local, MPI_REAL_PRECISION, &
+         gathered_geom, 15 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
+
+    allocate(global_meta(10 * n_global))
+    allocate(global_geom(15 * n_global))
+    idx = 0
+    do i = 1, pe_size
+       if (counts(i) .gt. 0) then
+          global_meta(10 * idx + 1:10 * (idx + counts(i))) = &
+               gathered_meta(10 * max_local * (i - 1) + 1: &
+               10 * max_local * (i - 1) + 10 * counts(i))
+          global_geom(15 * idx + 1:15 * (idx + counts(i))) = &
+               gathered_geom(15 * max_local * (i - 1) + 1: &
+               15 * max_local * (i - 1) + 15 * counts(i))
+          idx = idx + counts(i)
+       end if
+    end do
+
+    allocate(this%periodic_map_el(n_local))
+    allocate(this%periodic_map_facet(n_local))
+    allocate(this%periodic_map_npts(n_local))
+    allocate(this%periodic_src_center(3, n_local))
+    allocate(this%periodic_src_basis(3, 3, n_local))
+    allocate(this%periodic_tgt_center(3, n_local))
+    allocate(this%periodic_tgt_basis(3, 3, n_local))
+
+    do i = 1, n_local
+       match_idx = 0
+       do j = 1, n_global
+          if (lpt_same_point_ids(global_meta(10 * (j - 1) + 4:10 * (j - 1) + 7), &
+               msh%periodic%p_ids(i)%x, local_meta(10 * (i - 1) + 3))) then
+             match_idx = j
+             exit
+          end if
+       end do
+       if (match_idx .eq. 0) cycle
+
+       npts = local_meta(10 * (i - 1) + 3)
+       src_pts = reshape(local_geom(15 * (i - 1) + 1:15 * (i - 1) + 12), [3, 4])
+       src_centroid = local_geom(15 * (i - 1) + 13:15 * (i - 1) + 15)
+       call lpt_reorder_facet_points( &
+            global_meta(10 * (match_idx - 1) + 4:10 * (match_idx - 1) + 7), &
+            reshape(global_geom(15 * (match_idx - 1) + 1:15 * (match_idx - 1) + 12), [3, 4]), &
+            msh%periodic%p_ids(i)%x, npts, tgt_pts)
+       tgt_centroid = global_geom(15 * (match_idx - 1) + 13:15 * (match_idx - 1) + 15)
+
+       idx = this%n_periodic_maps + 1
+       this%n_periodic_maps = idx
+       this%periodic_map_el(idx) = msh%periodic%facet_el(i)%x(2)
+       this%periodic_map_facet(idx) = msh%periodic%facet_el(i)%x(1)
+       this%periodic_map_npts(idx) = npts
+       call lpt_build_facet_basis(src_pts, src_centroid, npts, &
+            this%periodic_src_center(:, idx), this%periodic_src_basis(:, :, idx))
+       call lpt_build_facet_basis(tgt_pts, tgt_centroid, npts, &
+            this%periodic_tgt_center(:, idx), this%periodic_tgt_basis(:, :, idx))
+    end do
+
+    deallocate(local_meta)
+    deallocate(global_meta)
+    deallocate(local_geom)
+    deallocate(global_geom)
+    deallocate(padded_meta)
+    deallocate(gathered_meta)
+    deallocate(padded_geom)
+    deallocate(gathered_geom)
+    deallocate(counts)
+    deallocate(displs)
+  end subroutine init_periodic_maps
+
+  subroutine lpt_apply_periodic_map_if_needed(this, i_particle, i_map)
+    class(lpt_t), intent(inout) :: this
+    integer, intent(in) :: i_particle
+    integer, intent(in) :: i_map
+    real(kind=rp) :: rel(3)
+    real(kind=rp) :: xi(3)
+
+    rel = this%xyz_particles(:, i_particle) - this%periodic_src_center(:, i_map)
+    if (this%periodic_map_npts(i_map) .eq. 4) then
+       xi(1) = dot_product(rel, this%periodic_src_basis(:, 1, i_map))
+       xi(2) = dot_product(rel, this%periodic_src_basis(:, 2, i_map))
+       xi(3) = dot_product(rel, this%periodic_src_basis(:, 3, i_map))
+       if (xi(3) .lt. -LPT_PERIODIC_TOL) then
+          this%xyz_particles(:, i_particle) = this%periodic_tgt_center(:, i_map) + &
+               xi(1) * this%periodic_tgt_basis(:, 1, i_map) + &
+               xi(2) * this%periodic_tgt_basis(:, 2, i_map) + &
+               xi(3) * this%periodic_tgt_basis(:, 3, i_map)
+       end if
+    else
+       xi(1) = dot_product(rel, this%periodic_src_basis(:, 1, i_map))
+       xi(2) = dot_product(rel, this%periodic_src_basis(:, 3, i_map))
+       if (xi(2) .lt. -LPT_PERIODIC_TOL) then
+          this%xyz_particles(:, i_particle) = this%periodic_tgt_center(:, i_map) + &
+               xi(1) * this%periodic_tgt_basis(:, 1, i_map) + &
+               xi(2) * this%periodic_tgt_basis(:, 3, i_map)
+       end if
+    end if
+  end subroutine lpt_apply_periodic_map_if_needed
+
+  logical function lpt_same_point_ids(ids_a, ids_b, npts) result(match)
+    integer, intent(in) :: ids_a(4)
+    integer, intent(in) :: ids_b(4)
+    integer, intent(in) :: npts
+    integer :: i
+    integer :: j
+
+    match = .true.
+    do i = 1, npts
+       if (.not. any(ids_a(i) .eq. ids_b(1:npts))) then
+          match = .false.
+          return
+       end if
+    end do
+  end function lpt_same_point_ids
+
+  subroutine lpt_reorder_facet_points(ids_in, pts_in, ids_target, npts, pts_out)
+    integer, intent(in) :: ids_in(4)
+    real(kind=rp), intent(in) :: pts_in(3, 4)
+    integer, intent(in) :: ids_target(4)
+    integer, intent(in) :: npts
+    real(kind=rp), intent(out) :: pts_out(3, 4)
+    integer :: i
+    integer :: j
+
+    pts_out = 0.0_rp
+    do i = 1, npts
+       do j = 1, npts
+          if (ids_in(j) .eq. ids_target(i)) then
+             pts_out(:, i) = pts_in(:, j)
+             exit
+          end if
+       end do
+    end do
+  end subroutine lpt_reorder_facet_points
+
+  subroutine lpt_get_facet_points(msh, el, facet, pts, el_centroid)
+    type(mesh_t), intent(in) :: msh
+    integer, intent(in) :: el
+    integer, intent(in) :: facet
+    real(kind=rp), intent(out) :: pts(3, 4)
+    real(kind=rp), intent(out) :: el_centroid(3)
+    type(point_t) :: centroid
+    integer, dimension(4, 6) :: face_nodes = reshape([ &
+         1,5,7,3, &
+         2,6,8,4, &
+         1,2,6,5, &
+         3,4,8,7, &
+         1,2,4,3, &
+         5,6,8,7], [4, 6])
+    integer, dimension(2, 4) :: edge_nodes = reshape([ &
+         1,3, &
+         2,4, &
+         1,2, &
+         3,4], [2, 4])
+    integer :: i
+
+    pts = 0.0_rp
+    centroid = msh%elements(el)%e%centroid()
+    el_centroid = real(centroid%x, rp)
+    if (msh%gdim .eq. 3) then
+       do i = 1, 4
+          pts(:, i) = real(msh%elements(el)%e%pts(face_nodes(i, facet))%p%x, rp)
+       end do
+    else
+       do i = 1, 2
+          pts(:, i) = real(msh%elements(el)%e%pts(edge_nodes(i, facet))%p%x, rp)
+       end do
+    end if
+  end subroutine lpt_get_facet_points
+
+  subroutine lpt_build_facet_basis(pts, el_centroid, npts, center, basis)
+    real(kind=rp), intent(in) :: pts(3, 4)
+    real(kind=rp), intent(in) :: el_centroid(3)
+    integer, intent(in) :: npts
+    real(kind=rp), intent(out) :: center(3)
+    real(kind=rp), intent(out) :: basis(3, 3)
+    real(kind=rp) :: v1(3)
+    real(kind=rp) :: v2(3)
+    real(kind=rp) :: n(3)
+
+    center = 0.0_rp
+    basis = 0.0_rp
+    center = sum(pts(:, 1:npts), dim = 2) / real(npts, rp)
+
+    v1 = pts(:, 2) - pts(:, 1)
+    call lpt_normalize(v1)
+    basis(:, 1) = v1
+
+    if (npts .eq. 4) then
+       v2 = pts(:, 4) - pts(:, 1)
+       n = lpt_cross(v1, v2)
+       call lpt_normalize(n)
+       if (dot_product(el_centroid - center, n) .lt. 0.0_rp) n = -n
+       basis(:, 3) = n
+       basis(:, 2) = lpt_cross(n, v1)
+       call lpt_normalize(basis(:, 2))
+    else
+       n = el_centroid - center
+       call lpt_normalize(n)
+       basis(:, 3) = n
+    end if
+  end subroutine lpt_build_facet_basis
+
+  function lpt_cross(a, b) result(c)
+    real(kind=rp), intent(in) :: a(3)
+    real(kind=rp), intent(in) :: b(3)
+    real(kind=rp) :: c(3)
+
+    c(1) = a(2) * b(3) - a(3) * b(2)
+    c(2) = a(3) * b(1) - a(1) * b(3)
+    c(3) = a(1) * b(2) - a(2) * b(1)
+  end function lpt_cross
+
+  subroutine lpt_normalize(v)
+    real(kind=rp), intent(inout) :: v(3)
+    real(kind=rp) :: vnorm
+
+    vnorm = norm2(v)
+    if (vnorm .gt. LPT_PERIODIC_TOL) v = v / vnorm
+  end subroutine lpt_normalize
 
 end module lagrangian_particle_tracking
