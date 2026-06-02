@@ -42,13 +42,12 @@ module dofmap
   use utils, only : neko_error, neko_warning
   use fast3d, only : fd_weights_full
   use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
-  use device
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use math, only : add3, copy, rone, rzero, masked_gather_copy
   use device_math, only : device_masked_gather_copy_aligned, device_copy
   use element, only : element_t
   use quad, only : quad_t
   use hex, only : hex_t
-  use interpolation, only : interpolator_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -87,6 +86,14 @@ module dofmap
      procedure, pass(this) :: global_size => dofmap_global_size
   end type dofmap_t
 
+  interface
+     module subroutine dofmap_init_and_map(this, dof, Xh)
+       class(dofmap_t), intent(inout) :: this
+       type(dofmap_t), intent(in) :: dof
+       type(space_t), intent(in) :: Xh
+     end subroutine dofmap_init_and_map
+  end interface
+
 contains
 
   !> Constructor.
@@ -94,8 +101,8 @@ contains
   !! @param Xh The SEM function space.
   subroutine dofmap_init(this, msh, Xh)
     class(dofmap_t) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    type(space_t), target, intent(inout) :: Xh
+    type(mesh_t), target, intent(in) :: msh
+    type(space_t), target, intent(in) :: Xh
 
     if ((msh%gdim .eq. 3 .and. Xh%lz .eq. 1) .or. &
          (msh%gdim .eq. 2 .and. Xh%lz .gt. 1)) then
@@ -159,52 +166,24 @@ contains
 
   end subroutine dofmap_init
 
-  !> Constructor.
-  !! @param dof The existing dofmap to initialize from.
-  !! @param Xh The SEM function space.
-  subroutine dofmap_init_and_map(this, dof, Xh)
-    class(dofmap_t) :: this
-    type(dofmap_t), target, intent(inout) :: dof
-    type(space_t), target, intent(inout) :: Xh
-    type(interpolator_t) :: interpolator
-
-    ! Initialize as usual
-    call this%init_from_mesh(dof%msh, Xh)
-
-    ! Interpolate if needed
-    if (dof%Xh%lxyz .ne. this%Xh%lxyz) then
-       call interpolator%init(this%Xh, dof%Xh)
-
-       call interpolator%map(this%x, &
-            dof%x, &
-            this%msh%nelv, this%Xh)
-       call interpolator%map(this%y, &
-            dof%y, &
-            this%msh%nelv, this%Xh)
-       call interpolator%map(this%z, &
-            dof%z, &
-            this%msh%nelv, this%Xh)
-
-       call interpolator%free()
-
-    else
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_copy(this%x_d, dof%x_d, this%ntot)
-          call device_copy(this%y_d, dof%y_d, this%ntot)
-          call device_copy(this%z_d, dof%z_d, this%ntot)
-       else
-          call copy(this%x, dof%x, this%ntot)
-          call copy(this%y, dof%y, this%ntot)
-          call copy(this%z, dof%z, this%ntot)
-       end if
-
-    end if
-
-  end subroutine dofmap_init_and_map
-
   !> Destructor.
   subroutine dofmap_free(this)
     class(dofmap_t), intent(inout) :: this
+
+    !
+    ! Cleanup the device (if present)
+    !
+    if (c_associated(this%x_d)) then
+       call device_unmap(this%x, this%x_d)
+    end if
+
+    if (c_associated(this%y_d)) then
+       call device_unmap(this%y, this%y_d)
+    end if
+
+    if (c_associated(this%z_d)) then
+       call device_unmap(this%z, this%z_d)
+    end if
 
     if (allocated(this%dof)) then
        deallocate(this%dof)
@@ -234,20 +213,6 @@ contains
        deallocate(this%msh_subset)
     end if
 
-    !
-    ! Cleanup the device (if present)
-    !
-    if (c_associated(this%x_d)) then
-       call device_free(this%x_d)
-    end if
-
-    if (c_associated(this%y_d)) then
-       call device_free(this%y_d)
-    end if
-
-    if (c_associated(this%z_d)) then
-       call device_free(this%z_d)
-    end if
 
   end subroutine dofmap_free
 

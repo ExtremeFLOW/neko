@@ -159,3 +159,9 @@
   Please use `strain_rate_d` instead.
 - `operator::rotate_cyc_r1` and `operator::rotate_cyc_r4` calls with implicit
   device arrays are deprecated. Please use `rotate_cyc_d` instead.
+- `operator::tnsr3d` calls with implicit device arrays are deprecated. Please use
+  `device_tnsr3d` instead.
+- `operator::tnsr3d_el_list` calls with implicit device arrays are deprecated. Please use
+  `device_tnsr3d_el_list` instead.
+- `interpolator::map` calls with implicit device arrays are deprecated. Please use
+  device arrays directly.

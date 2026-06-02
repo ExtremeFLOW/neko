@@ -162,15 +162,27 @@ contains
     n_GL = nel*this%Xh_GL%lxyz
     n = nel*coef%Xh%lxyz
 
-    call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%GLL_to_GL%map(this%coef_GL%drdx_d, coef%drdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdx_d, coef%dsdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdx_d, coef%dtdx_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdy_d, coef%drdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdy_d, coef%dsdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdy_d, coef%dtdy_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdz_d, coef%drdz_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdz_d, coef%dsdz_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdz_d, coef%dtdz_d, nel, this%Xh_GL)
+    else
+       call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    end if
 
 
     allocate(this%cx(n_GL))
@@ -232,9 +244,15 @@ contains
 
     ! Initializing the convecting fields
     ! Map the velocity fields from GLL space to GL space
-    call this%GLL_to_GL%map(this%cx, this%ulag%f%x, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%cy, this%vlag%f%x, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%cz, this%wlag%f%x, nel, this%Xh_GL)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%GLL_to_GL%map(this%cx_d, this%ulag%f%x_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%cy_d, this%vlag%f%x_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%cz_d, this%wlag%f%x_d, nel, this%Xh_GL)
+    else
+       call this%GLL_to_GL%map_host(this%cx, this%ulag%f%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map_host(this%cy, this%vlag%f%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map_host(this%cz, this%wlag%f%x, nel, this%Xh_GL)
+    end if
 
     ! Set the convecting field in the rst format
     call set_convect_rst(this%cr_GL, this%cs_GL, this%ct_GL, &
@@ -246,9 +264,15 @@ contains
     call this%convt_GL%init(this%ct_GL, 3)
 
     ! Repeat for previous time-steps
-    call this%GLL_to_GL%map(this%cx, this%ulag%lf(1)%x, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%cy, this%vlag%lf(1)%x, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%cz, this%wlag%lf(1)%x, nel, this%Xh_GL)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%GLL_to_GL%map(this%cx_d, this%ulag%lf(1)%x_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%cy_d, this%vlag%lf(1)%x_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%cz_d, this%wlag%lf(1)%x_d, nel, this%Xh_GL)
+    else
+       call this%GLL_to_GL%map_host(this%cx, this%ulag%lf(1)%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map_host(this%cy, this%vlag%lf(1)%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map_host(this%cz, this%wlag%lf(1)%x, nel, this%Xh_GL)
+    end if
 
     call set_convect_rst(this%cr_GL, this%cs_GL, this%ct_GL, &
          this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
@@ -257,9 +281,15 @@ contains
     this%convs_GL%lf(1) = this%cs_GL
     this%convt_GL%lf(1) = this%ct_GL
 
-    call this%GLL_to_GL%map(this%cx, this%ulag%lf(2)%x, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%cy, this%vlag%lf(2)%x, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%cz, this%wlag%lf(2)%x, nel, this%Xh_GL)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%GLL_to_GL%map(this%cx_d, this%ulag%lf(2)%x_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%cy_d, this%vlag%lf(2)%x_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%cz_d, this%wlag%lf(2)%x_d, nel, this%Xh_GL)
+    else
+       call this%GLL_to_GL%map_host(this%cx, this%ulag%lf(2)%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map_host(this%cy, this%vlag%lf(2)%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map_host(this%cz, this%wlag%lf(2)%x, nel, this%Xh_GL)
+    end if
 
     call set_convect_rst(this%cr_GL, this%cs_GL, this%ct_GL, &
          this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
@@ -387,9 +417,15 @@ contains
     call this%convs_GL%update()
     call this%convt_GL%update()
 
-    call this%GLL_to_GL%map(this%cx, u%x, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%cy, v%x, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%cz, w%x, nel, this%Xh_GL)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%GLL_to_GL%map(this%cx_d, u%x_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%cy_d, v%x_d, nel, this%Xh_GL)
+       call this%GLL_to_GL%map(this%cz_d, w%x_d, nel, this%Xh_GL)
+    else
+       call this%GLL_to_GL%map_host(this%cx, u%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map_host(this%cy, v%x, nel, this%Xh_GL)
+       call this%GLL_to_GL%map_host(this%cz, w%x, nel, this%Xh_GL)
+    end if
 
     call set_convect_rst(this%cr_GL, this%cs_GL, this%ct_GL, &
          this%cx, this%cy, this%cz, this%Xh_GL, this%coef_GL)
@@ -637,7 +673,7 @@ contains
 
 
   subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+       fx, fy, fz, Xh, coef, n, dt)
     class(adv_oifs_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z

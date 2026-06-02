@@ -50,6 +50,7 @@ neko_fortran_SOURCES = \
 	sem/cpr.f90\
 	common/time_interpolator.f90\
 	sem/interpolation.f90\
+	sem/bcknd/dofmap_init.f90\
 	sem/point_interpolator.f90\
 	sem/bcknd/device/device_coef.F90\
 	sem/bcknd/device/device_local_interpolation.F90\

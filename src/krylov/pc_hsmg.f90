@@ -494,7 +494,7 @@ contains
        call device_col2(this%r_d, this%grids(3)%coef%mult_d, &
             this%grids(3)%dof%size())
        !Restrict to middle level
-       call this%interp_fine_mid%map(this%e%x, this%r, &
+       call this%interp_fine_mid%map(this%e%x_d, this%r_d, &
             this%msh%nelv, this%grids(2)%Xh)
        call this%grids(2)%gs_h%op(this%e%x, &
             this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
@@ -508,7 +508,7 @@ contains
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
             this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%wf%x, this%w, this%msh%nelv, &
+       call this%interp_mid_crs%map(this%wf%x_d, this%w_d, this%msh%nelv, &
             this%grids(1)%Xh)
        !Crs solve
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
@@ -553,11 +553,11 @@ contains
        end if
        !$omp end parallel
 
-       call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
+       call this%interp_mid_crs%map(this%w_d, this%grids(1)%e%x_d, &
             this%msh%nelv, this%grids(2)%Xh)
        call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
 
-       call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
+       call this%interp_fine_mid%map(this%w_d, this%grids(2)%e%x_d, &
             this%msh%nelv, this%grids(3)%Xh)
        call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
        call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), &
@@ -575,14 +575,14 @@ contains
        call col2(this%r, this%grids(3)%coef%mult, &
             this%grids(3)%dof%size())
        !Restrict to middle level
-       call this%interp_fine_mid%map(this%w, this%r, &
+       call this%interp_fine_mid%map_host(this%w, this%r, &
             this%msh%nelv, this%grids(2)%Xh)
        call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
        call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%r, this%w, &
+       call this%interp_mid_crs%map_host(this%r, this%w, &
             this%msh%nelv, this%grids(1)%Xh)
        !Crs solve
 
@@ -606,11 +606,11 @@ contains
             this%grids(1)%dof%size())
 
 
-       call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
+       call this%interp_mid_crs%map_host(this%w, this%grids(1)%e%x, &
             this%msh%nelv, this%grids(2)%Xh)
        call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%size())
 
-       call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
+       call this%interp_fine_mid%map_host(this%w, this%grids(2)%e%x, &
             this%msh%nelv, this%grids(3)%Xh)
        call add2(z, this%w, this%grids(3)%dof%size())
        call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), GS_OP_ADD)

@@ -408,7 +408,7 @@ contains
        end do
     end do
 #endif
-    call GLL_to_GL%map(du, ud, coef_GL%msh%nelv, Xh_GLL)
+    call GLL_to_GL%map_host(du, ud, coef_GL%msh%nelv, Xh_GLL)
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
   end subroutine opr_xsmm_convect_scalar
