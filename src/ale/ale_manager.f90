@@ -80,7 +80,7 @@ module ale_manager
   use device_math, only : device_glmin, device_copy
   use field_math, only : field_rzero, field_add2, &
        field_cmult
-  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST, device_sync
   use operators, only : rotate_cyc
   use fld_file_output, only : fld_file_output_t
   use, intrinsic :: iso_c_binding, only : c_associated
@@ -1667,22 +1667,23 @@ contains
 
        if (c_associated(coef%dof%x_d)) then
           call device_memcpy(coef%dof%x, coef%dof%x_d, &
-              size(coef%dof%x), HOST_TO_DEVICE, .false.)
+              size(coef%dof%x), HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(coef%dof%y, coef%dof%y_d, &
-              size(coef%dof%y), HOST_TO_DEVICE, .false.)
+              size(coef%dof%y), HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(coef%dof%z, coef%dof%z_d, &
-              size(coef%dof%z), HOST_TO_DEVICE, .false.)
+              size(coef%dof%z), HOST_TO_DEVICE, sync = .false.)
        end if
 
        if (c_associated(coef%Blag_d)) then
           call device_memcpy(coef%Blag, coef%Blag_d, size(coef%Blag), &
-               HOST_TO_DEVICE, .false.)
+               HOST_TO_DEVICE, sync = .false.)
        end if
 
        if (c_associated(coef%Blaglag_d)) then
           call device_memcpy(coef%Blaglag, coef%Blaglag_d, &
-               size(coef%Blaglag), HOST_TO_DEVICE, .true.)
+               size(coef%Blaglag), HOST_TO_DEVICE, sync = .false.)
        end if
+       call device_sync()
     end if
 
     ! Restarting from a different polynomial order
@@ -1718,17 +1719,17 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (c_associated(coef%Blag_d)) then
              call device_memcpy(coef%Blag, coef%Blag_d, n, &
-                   HOST_TO_DEVICE, .false.)
+                   HOST_TO_DEVICE, sync = .false.)
           end if
           if (c_associated(coef%Blaglag_d)) then
              call device_memcpy(coef%Blaglag, coef%Blaglag_d, n, &
-                   HOST_TO_DEVICE, .true.)
+                   HOST_TO_DEVICE, sync = .false.)
           end if
+          call device_sync()
        end if
     end if
 
     call adv%recompute_metrics(coef, .true.)
-
   end subroutine sync_chkp
 
   subroutine set_pivot_basis_for_checkpoint(this, body_idx)
