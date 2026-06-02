@@ -77,11 +77,12 @@ module ale_manager
        dummy_user_ale_mesh_velocity, dummy_user_ale_rigid_kinematics, &
        dummy_user_ale_base_shapes
   use math, only : glmin, pi, copy
-  use device_math, only : device_glmin
+  use device_math, only : device_glmin, device_copy
   use field_math, only : field_rzero, field_add2, &
        field_cmult
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use operators, only : rotate_cyc
+  use fld_file_output, only : fld_file_output_t
   use, intrinsic :: iso_c_binding, only : c_associated
   implicit none
   private
@@ -1790,20 +1791,20 @@ contains
     class(ale_manager_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: json
-
-    logical :: mesh_preview_active
+    type(fld_file_output_t) :: fout
+    type(field_t) :: dummy_field
+    type(time_state_t) :: t_state
+    type(file_t) :: out_file
     real(kind=rp) :: t_start
     real(kind=rp) :: t_end
     real(kind=rp) :: dt
-    integer :: output_freq
-    integer :: step, n_steps, file_index
-    type(time_state_t) :: t_state
-    type(file_t) :: out_file
-    character(len=128) :: log_buf
-    type(field_t) :: dummy_field
-    integer :: nadv, nadv_sim
     real(kind=rp) :: min_jac
+    integer :: output_freq
+    integer :: step, n_steps
+    integer :: nadv, nadv_sim
     integer :: n
+    logical :: mesh_preview_active
+    character(len=128) :: log_buf
 
     mesh_preview_active = .false.
 
@@ -1827,8 +1828,6 @@ contains
     call neko_log%section("ALE Mesh Preview")
     call neko_log%message("Executing mesh motion preview...")
 
-
-
     n_steps = int((t_end - t_start) / dt)
     call json_get(json, 'case.numerics.time_order', nadv_sim)
 
@@ -1844,9 +1843,18 @@ contains
     call neko_log%message(log_buf)
     call neko_log%message('')
 
-    ! Setup Dummy Field for Output
+    ! Setup dummy field for output
     call dummy_field%init(coef%dof, "mesh_preview")
     call field_rzero(dummy_field)
+
+    call fout%init(rp, "mesh_preview", 1)
+    call fout%fields%assign_to_field(1, dummy_field)
+    select type (ft => fout%file_%file_type)
+    type is (fld_file_t)
+       ft%write_mesh = .true.
+       ft%skip_pressure = .false.
+    end select
+
 
     ! Time Loop Setup
     step = 0
@@ -1856,15 +1864,16 @@ contains
     t_state%tstep = 0
     t_state%dtlag = dt
     n = coef%dof%size()
-    file_index = -2
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        min_jac = device_glmin(coef%jac_d, n)
     else
        min_jac = glmin(coef%jac, n)
     end if
-    call save_mesh_preview_step(coef, dummy_field, out_file, t_state, step, &
-         file_index)
+
+    call sync_mesh_preview_step(coef, dummy_field)
+    call fout%sample(t_state%t)
+
     write(log_buf, '(A,I0, A,ES23.15, A,ES18.11)') &
          "Initial Mesh and Mass matrix saved!  Step: ", step, " | Time:", &
          t_state%t, " | Min Jac: ", min_jac
@@ -1887,14 +1896,14 @@ contains
           min_jac = glmin(coef%jac, n)
        end if
 
-       if (min_jac <= 0.0_rp) then
+       if (min_jac .le. 0.0_rp) then
           write(log_buf, '(A, ES18.11, A, ES23.15)') &
                "Negative Jacobian detected (", min_jac, ") at t = ", &
                t_state%t
           call neko_log%message(log_buf)
 
-          call save_mesh_preview_step(coef, dummy_field, out_file, &
-               t_state, step, file_index)
+          call sync_mesh_preview_step(coef, dummy_field)
+          call fout%sample(t_state%t)
 
           write(log_buf, '(A,I0, A,ES23.15, A,ES18.11)') &
                "Mesh and Mass matrix saved!  Step: ", step, " | Time:", &
@@ -1904,10 +1913,11 @@ contains
           call neko_error("ALE Mesh Preview Aborted: Negative Jacobian found.")
        end if
 
-       if (mod(step, output_freq) == 0) then
+       if (mod(step, output_freq) .eq. 0) then
 
-          call save_mesh_preview_step(coef, dummy_field, out_file, t_state, &
-               step, file_index)
+          call sync_mesh_preview_step(coef, dummy_field)
+          call fout%sample(t_state%t)
+
           write(log_buf, '(A,I0, A,ES23.15, A,ES18.11)') &
                "Mesh and Mass matrix saved!  Step: ", step, " | Time:", &
                t_state%t, " | Min Jac:", min_jac
@@ -1920,53 +1930,38 @@ contains
     end do
 
     call dummy_field%free()
+    call fout%free()
     call neko_log%end_section()
     call neko_log%message("Mesh preview complete.")
     call neko_error("ALE Mesh Preview Finished Successfully.")
 
   end subroutine mesh_preview
 
-  subroutine save_mesh_preview_step(coef, dummy_field, out_file, t_state, &
-       step, file_index)
+  subroutine sync_mesh_preview_step(coef, dummy_field)
+    type(fld_file_output_t) :: fout
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: dummy_field
-    type(file_t), intent(inout) :: out_file
-    type(time_state_t), intent(in) :: t_state
-    integer, intent(in) :: step
-    integer, intent(inout) :: file_index
     integer :: n
 
     n = coef%dof%size()
-    file_index = file_index + 1
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(coef%B, coef%B_d, n, DEVICE_TO_HOST, .true.)
+       call device_copy(dummy_field%x_d, coef%B_d, n)
+    else
+       call copy(dummy_field%x, coef%B, n)
     end if
-    call copy(dummy_field%x, coef%B, n)
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       associate(mesh => coef%dof)
+         call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
+            DEVICE_TO_HOST, sync = .false.)
+         call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
+            DEVICE_TO_HOST, sync = .false.)
+         call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
+            DEVICE_TO_HOST, sync = .false.)
+       end associate
+    end if
 
-
-    call out_file%init("mesh_preview.fld")
-    select type (ft => out_file%file_type)
-    type is (fld_file_t)
-       ft%write_mesh = .true.
-       ft%skip_pressure = .false.
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          associate(mesh => coef%dof)
-            call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
-               DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
-               DEVICE_TO_HOST, sync = .false.)
-            call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
-               DEVICE_TO_HOST, sync = .true.)
-          end associate
-       end if
-    end select
-
-    call out_file%set_counter(file_index)
-    call out_file%write(dummy_field, t = t_state%t)
-    call out_file%free()
-
-  end subroutine save_mesh_preview_step
+  end subroutine sync_mesh_preview_step
 
   ! Asign a tracker point to a body. The tracker moves with body's
   ! rigid motion.
