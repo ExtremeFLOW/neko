@@ -76,6 +76,8 @@ module lagrangian_particle_tracking
      type(global_interpolation_t) :: global_interp
      !> Particle coordinates local to this MPI rank.
      real(kind=rp), allocatable :: xyz_particles(:,:)
+     !> Stable particle ids that travel with the particle during redistribution.
+     integer, allocatable :: particle_ids(:)
      !> Lagged carrier velocities, kept with each particle for multistep time
      !! integration.
      real(kind=rp), allocatable :: vel_particles_lag(:,:,:)
@@ -144,6 +146,8 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: evaluate_velocity
      !> Write a trajectory snapshot.
      procedure, private, pass(this) :: write_output
+     !> Redistribute per-particle ids with the interpolation ownership.
+     procedure, private, pass(this) :: redistribute_particle_ids
      !> Redistribute lagged per-particle data with the interpolation ownership.
      procedure, private, pass(this) :: redistribute_velocity_history
      !> Emit a short setup summary.
@@ -200,6 +204,7 @@ contains
     class(lpt_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: coords(:)
+    integer :: i
 
     if (pe_rank .eq. 0) then
        if (json%valid_path("coordinates")) then
@@ -220,6 +225,11 @@ contains
        this%n_particles = 0
        allocate(this%xyz_particles(3, 0))
     end if
+
+    allocate(this%particle_ids(this%n_particles))
+    do i = 1, this%n_particles
+       this%particle_ids(i) = i
+    end do
 
     allocate(this%vel_particles_lag(3, LPT_VEL_HISTORY_LEN, this%n_particles))
     this%vel_particles_lag = 0.0_rp
@@ -258,11 +268,13 @@ contains
   !> Redistribute particles to the rank that owns their current location.
   subroutine redistribute_particles(this)
     class(lpt_t), intent(inout) :: this
+    integer, allocatable :: particle_ids_local(:)
     real(kind=rp), allocatable :: vel_particles_lag_local(:,:,:)
     integer :: ierr
 
     call this%wrap_particles_periodic()
     call this%global_interp%find_points(this%xyz_particles, this%n_particles)
+    call this%redistribute_particle_ids(particle_ids_local)
     call this%redistribute_velocity_history(vel_particles_lag_local)
 
     this%n_particles = this%global_interp%n_points_local
@@ -290,10 +302,110 @@ contains
     end if
     this%global_interp%all_points_local = .true.
 
+    call move_alloc(particle_ids_local, this%particle_ids)
     call move_alloc(vel_particles_lag_local, this%vel_particles_lag)
     call MPI_Allreduce(this%n_particles, this%n_global_particles, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine redistribute_particles
+
+  !> Redistribute stable particle ids to the owning rank, matching the
+  !! ordering produced by `global_interpolation_t`.
+  subroutine redistribute_particle_ids(this, particle_ids_local)
+    class(lpt_t), intent(inout) :: this
+    integer, allocatable, intent(out) :: particle_ids_local(:)
+    integer, allocatable :: sendbuf(:)
+    integer, allocatable :: recvbuf(:)
+    integer, allocatable :: send_offsets(:)
+    integer, allocatable :: recv_offsets(:)
+    type(MPI_Request), allocatable :: requests(:)
+    integer, pointer :: point_ids(:)
+    integer :: rank
+    integer :: i
+    integer :: idx
+    integer :: n_local
+    integer :: nreq
+    integer :: ierr
+
+    n_local = this%global_interp%n_points_local
+    allocate(particle_ids_local(n_local))
+    particle_ids_local = 0
+
+    if (this%n_particles .eq. 0 .and. n_local .eq. 0) return
+
+    allocate(send_offsets(0:pe_size - 1))
+    allocate(recv_offsets(0:pe_size - 1))
+    send_offsets = 0
+    recv_offsets = 0
+
+    do rank = 0, pe_size - 1
+       send_offsets(rank) = this%global_interp%n_points_offset_pe(rank)
+       recv_offsets(rank) = this%global_interp%n_points_offset_pe_local(rank)
+    end do
+
+    allocate(sendbuf(this%n_particles))
+    sendbuf = 0
+    idx = 0
+    do rank = 0, pe_size - 1
+       if (this%global_interp%n_points_pe(rank) .le. 0) cycle
+       point_ids => this%global_interp%points_at_pe(rank)%array()
+       do i = 1, this%global_interp%n_points_pe(rank)
+          idx = idx + 1
+          sendbuf(idx) = this%particle_ids(point_ids(i))
+       end do
+    end do
+
+    allocate(recvbuf(n_local))
+    recvbuf = 0
+
+    nreq = 0
+    do rank = 0, pe_size - 1
+       if (rank .ne. pe_rank .and. this%global_interp%n_points_pe_local(rank) .gt. 0) then
+          nreq = nreq + 1
+       end if
+       if (rank .ne. pe_rank .and. this%global_interp%n_points_pe(rank) .gt. 0) then
+          nreq = nreq + 1
+       end if
+    end do
+    allocate(requests(max(1, nreq)))
+
+    idx = 0
+    do rank = 0, pe_size - 1
+       if (rank .eq. pe_rank) cycle
+       if (this%global_interp%n_points_pe_local(rank) .gt. 0) then
+          idx = idx + 1
+          call MPI_Irecv(recvbuf(recv_offsets(rank) + 1), &
+               this%global_interp%n_points_pe_local(rank), MPI_INTEGER, rank, 0, &
+               NEKO_COMM, requests(idx), ierr)
+       end if
+    end do
+
+    do rank = 0, pe_size - 1
+       if (this%global_interp%n_points_pe(rank) .le. 0) cycle
+       if (rank .eq. pe_rank) then
+          recvbuf(recv_offsets(rank) + 1:recv_offsets(rank) + &
+               this%global_interp%n_points_pe(rank)) = &
+               sendbuf(send_offsets(rank) + 1:send_offsets(rank) + &
+               this%global_interp%n_points_pe(rank))
+       else
+          idx = idx + 1
+          call MPI_Isend(sendbuf(send_offsets(rank) + 1), &
+               this%global_interp%n_points_pe(rank), MPI_INTEGER, rank, 0, &
+               NEKO_COMM, requests(idx), ierr)
+       end if
+    end do
+
+    if (nreq .gt. 0) then
+       call MPI_Waitall(nreq, requests, MPI_STATUSES_IGNORE, ierr)
+    end if
+
+    particle_ids_local = recvbuf
+
+    deallocate(recvbuf)
+    deallocate(sendbuf)
+    deallocate(send_offsets)
+    deallocate(recv_offsets)
+    deallocate(requests)
+  end subroutine redistribute_particle_ids
 
   !> Redistribute the lagged per-particle velocities to the owning rank,
   !! matching the ordering produced by `global_interpolation_t`.
@@ -585,26 +697,20 @@ contains
     real(kind=rp), allocatable :: local_data(:,:)
     real(kind=rp), allocatable :: global_data(:,:)
     integer, allocatable :: n_local_particles_per_rank(:)
-    integer, allocatable :: particle_offsets(:)
     integer, allocatable :: recvcounts(:)
     integer, allocatable :: displs(:)
     integer :: n_local
-    integer :: particle_offset
     integer :: total_particles
     integer :: i
     integer :: ierr
 
     n_local = this%n_particles
-    particle_offset = 0
-    call MPI_Exscan(n_local, particle_offset, 1, MPI_INTEGER, MPI_SUM, &
-         NEKO_COMM, ierr)
-    if (pe_rank .eq. 0) particle_offset = 0
 
     allocate(local_data(9, n_local))
     do i = 1, n_local
        local_data(1,i) = real(time%tstep, rp)
        local_data(2,i) = time%t
-       local_data(3,i) = real(particle_offset + i, rp)
+       local_data(3,i) = real(this%particle_ids(i), rp)
        local_data(4,i) = this%xyz_particles(1,i)
        local_data(5,i) = this%xyz_particles(2,i)
        local_data(6,i) = this%xyz_particles(3,i)
@@ -622,24 +728,20 @@ contains
          MPI_INTEGER, 0, NEKO_COMM, ierr)
 
     if (pe_rank .eq. 0) then
-       allocate(particle_offsets(pe_size))
        allocate(recvcounts(pe_size))
        allocate(displs(pe_size))
-       particle_offsets = 0
        recvcounts = 0
        displs = 0
 
        total_particles = 0
        do i = 1, pe_size
-          particle_offsets(i) = total_particles
           total_particles = total_particles + n_local_particles_per_rank(i)
           recvcounts(i) = 9 * n_local_particles_per_rank(i)
-          displs(i) = 9 * particle_offsets(i)
+          displs(i) = 9 * (total_particles - n_local_particles_per_rank(i))
        end do
 
        allocate(global_data(9, total_particles))
     else
-       allocate(particle_offsets(0))
        allocate(recvcounts(0))
        allocate(displs(0))
        allocate(global_data(9, 0))
@@ -657,7 +759,6 @@ contains
 
     deallocate(global_data)
     deallocate(n_local_particles_per_rank)
-    deallocate(particle_offsets)
     deallocate(recvcounts)
     deallocate(displs)
     deallocate(local_data)
@@ -668,6 +769,7 @@ contains
     class(lpt_t), intent(inout) :: this
 
     if (allocated(this%xyz_particles)) deallocate(this%xyz_particles)
+    if (allocated(this%particle_ids)) deallocate(this%particle_ids)
     if (allocated(this%vel_particles_lag)) deallocate(this%vel_particles_lag)
     if (allocated(this%periodic_map_el)) deallocate(this%periodic_map_el)
     if (allocated(this%periodic_map_facet)) deallocate(this%periodic_map_facet)
