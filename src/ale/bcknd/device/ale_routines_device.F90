@@ -142,7 +142,7 @@ contains
 
     call cfill(dist_field%x, huge(0.0_rp), n)
 
-    if (size(zone_indices) > 0) then
+    if (size(zone_indices) .gt. 0) then
        call bc_wall%init_from_components(coef)
        do k = 1, size(zone_indices)
           z_idx = zone_indices(k)
@@ -163,7 +163,7 @@ contains
     ipass = 1
     done = .false.
 
-    do while (ipass <= max_pass .and. .not. done)
+    do while ((ipass .le. max_pass) .and. .not. done)
 
        change_vec(1) = 0
        call device_memcpy(change_vec, nchange_d, 1, HOST_TO_DEVICE, .true.)
@@ -182,7 +182,7 @@ contains
 
        call coef%gs_h%gs_op_vector(dist_field%x, n, GS_OP_MIN)
 
-       if (glimax(change_vec, 1) == 0) done = .true.
+       if (glimax(change_vec, 1) .eq. 0) done = .true.
        ipass = ipass + 1
     end do
 

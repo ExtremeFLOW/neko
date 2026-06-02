@@ -316,7 +316,7 @@ contains
           call json_get(bc_subdict, 'zone_indices', zone_indices)
 
           moving_ = .false.
-          if (trim(bc_type) == 'no_slip') then
+          if (trim(bc_type) .eq. 'no_slip') then
              call json_get_or_default(bc_subdict, 'moving', moving_, .false.)
           end if
 
@@ -348,7 +348,7 @@ contains
     if (json%valid_path('case.fluid.ale.solver.mesh_stiffness.type')) then
        call json%get('case.fluid.ale.solver.mesh_stiffness.type', tmp_str)
        this%config%stiffness_type = tmp_str
-       if (.not. (trim(tmp_str) == 'built-in')) then
+       if (.not. (trim(tmp_str) .eq. 'built-in')) then
           call neko_error("ALE: stiffness_type must be 'built-in'")
        end if
     end if
@@ -458,7 +458,7 @@ contains
              case ('smooth_step')
                 call json_get_or_default(body_sub, 'rotation.axis', &
                    tmp_int, 3)
-                if (tmp_int >= 1 .and. tmp_int <= 3) then
+                if (tmp_int .ge. 1 .and. tmp_int .le. 3) then
                    this%config%bodies(i)%rotation_axis = tmp_int
                 else
                    call neko_error("ALE: rotation.axis must be (integer) " // &
@@ -594,7 +594,7 @@ contains
           call neko_log%message(' ')
 
           ! Logging Oscillation
-          has_builtin_osc = any(abs(this%config%bodies(i)%osc_amp) > 0.0_rp)
+          has_builtin_osc = any(abs(this%config%bodies(i)%osc_amp) .gt. 0.0_rp)
 
           if (has_builtin_osc) then
              if (has_user_rigid_kin .or. has_user_mesh_vel) then
@@ -629,7 +629,7 @@ contains
           has_builtin_rot = (trim(this%config%bodies(i)%rotation_type) &
              /= 'user')
 
-          if (trim(this%config%bodies(i)%rotation_type) == 'user') then
+          if (trim(this%config%bodies(i)%rotation_type) .eq. 'user') then
 
              call neko_log%message('   Rotation Type: User-defined')
 
@@ -640,19 +640,19 @@ contains
              select case (trim(this%config%bodies(i)%rotation_type))
              case ('harmonic')
                 is_rot_active = any(abs(this%config%bodies(i)%rot_amp_degree) &
-                   > 0.0_rp)
+                   .gt. 0.0_rp)
              case ('ramp')
                 is_rot_active = any(abs(this%config%bodies(i)%ramp_omega0) &
-                   > 0.0_rp)
+                   .gt. 0.0_rp)
              case ('smooth_step')
                 is_rot_active = &
-                     (abs(this%config%bodies(i)%target_rot_angle_deg) > 0.0_rp)
+                     (abs(this%config%bodies(i)%target_rot_angle_deg) .gt. 0.0_rp)
              end select
 
              if (is_rot_active) then
                 ! Harmonic
                 if (trim(this%config%bodies(i)%rotation_type) &
-                     == 'harmonic') then
+                     .eq. 'harmonic') then
                    if (has_user_rigid_kin .or. has_user_mesh_vel) then
                       call neko_log%message('   Rotation     : ' // &
                            'Theta(t) = Amp*sin(2*pi*Freq*t) + User')
@@ -669,7 +669,7 @@ contains
 
                    ! Ramp
                 elseif (trim(this%config%bodies(i)%rotation_type) &
-                     == 'ramp') then
+                     .eq. 'ramp') then
                    if (has_user_rigid_kin .or. has_user_mesh_vel) then
                       call neko_log%message('   Rotation     : ' // &
                            'Omega(t) = Omega0*(1 - exp(-4.6*t/t0)) + User')
@@ -686,7 +686,7 @@ contains
 
                    ! Smooth Step
                 elseif (trim(this%config%bodies(i)%rotation_type) &
-                   == 'smooth_step') then
+                   .eq. 'smooth_step') then
                    if (has_user_rigid_kin .or. has_user_mesh_vel) then
                       call neko_log%message('   Rotation     : ' // &
                            'Smooth Step Control + User')
@@ -731,7 +731,7 @@ contains
        call neko_error("ALE: No 'ale bodies' found in case file!")
     end if
 
-    if (this%config%nbodies > 1 .and. (.not. import_base_shapes)) then
+    if (this%config%nbodies .gt. 1 .and. (.not. import_base_shapes)) then
        call this%phi_total%init(coef%dof, "phi_total")
        call field_rzero(this%phi_total)
     end if
@@ -741,8 +741,8 @@ contains
        z = moving_zone_ids(i)
        found_zone = .false.
        j = 1
-       do while ((.not. found_zone) .and. (j <= this%config%nbodies))
-          if (any(this%config%bodies(j)%zone_indices == z)) then
+       do while ((.not. found_zone) .and. (j .le. this%config%nbodies))
+          if (any(this%config%bodies(j)%zone_indices .eq. z)) then
              found_zone = .true.
           end if
           j = j + 1
@@ -762,8 +762,8 @@ contains
           do i = 1, size(this%config%bodies(j)%zone_indices)
              z = this%config%bodies(j)%zone_indices(i)
              found_zone = .false.
-             if (n_moving_zones > 0) then
-                if (any(moving_zone_ids(1:n_moving_zones) == z)) then
+             if (n_moving_zones .gt. 0) then
+                if (any(moving_zone_ids(1:n_moving_zones) .eq. z)) then
                    found_zone = .true.
                 end if
              end if
@@ -786,7 +786,7 @@ contains
 
              do k = j + 1, this%config%nbodies
                 if (allocated(this%config%bodies(k)%zone_indices)) then
-                   if (any(this%config%bodies(k)%zone_indices == z)) then
+                   if (any(this%config%bodies(k)%zone_indices .eq. z)) then
                       write(log_buf_l, '(A,I0,A,A,A,A,A)') &
                            "ALE: zone index ", z, &
                            " is assigned to multiple bodies ('", &
@@ -883,7 +883,7 @@ contains
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
-    if (this%config%nbodies == 0) return
+    if (this%config%nbodies .eq. 0) return
 
     if (import_base_shapes) then
        call neko_log%message(" ")
@@ -940,7 +940,7 @@ contains
        call this%user_ale_base_shapes(this%base_shapes)
 
        ! Compute phi_total (Sum of all user shapes)
-       if (this%config%nbodies > 1) then
+       if (this%config%nbodies .gt. 1) then
           call field_rzero(this%phi_total)
           do body_idx = 1, this%config%nbodies
              call field_add2(this%phi_total, this%base_shapes(body_idx), n)
@@ -965,7 +965,7 @@ contains
           end do
 
           ! Total
-          if (this%config%nbodies > 1) then
+          if (this%config%nbodies .gt. 1) then
              call neko_log%message("  phi_total.fld saved.")
              select type (ft => phi_file%file_type)
              type is (fld_file_t)
@@ -1079,7 +1079,7 @@ contains
 
           ! Update Total Phi
           ! phi_total should be between 0 and 1.
-          if (this%config%nbodies > 1) then
+          if (this%config%nbodies .gt. 1) then
              call field_add2(this%phi_total, this%base_shapes(body_idx), n)
           end if
 
@@ -1119,7 +1119,7 @@ contains
           end if
        end do
 
-       if (this%config%if_output_phi .and. (this%config%nbodies > 1)) then
+       if (this%config%if_output_phi .and. (this%config%nbodies .gt. 1)) then
 
           if (NEKO_BCKND_DEVICE .eq. 1) then
              call device_memcpy(this%phi_total%x, this%phi_total%x_d, n, &
@@ -1297,7 +1297,7 @@ contains
     n_cheap = 0
 
     do b = 1, params%nbodies
-       if (trim(params%bodies(b)%stiff_geom%type) == 'cheap_dist') then
+       if (trim(params%bodies(b)%stiff_geom%type) .eq. 'cheap_dist') then
           n_cheap = n_cheap + 1
           cheap_map(b) = n_cheap
        end if
@@ -1309,7 +1309,7 @@ contains
 
        do b = 1, params%nbodies
           map_idx = cheap_map(b)
-          if (map_idx > 0) then
+          if (map_idx .gt. 0) then
 
              call dist_fields(map_idx)%init(coef%dof, "tmp_cheap_dist")
 
@@ -1354,7 +1354,7 @@ contains
           ! Loop over bodies, calculate local contribution
           do b = 1, params%nbodies
              gain = params%bodies(b)%stiff_geom%gain
-             if (trim(params%bodies(b)%stiff_geom%type) == 'cheap_dist') then
+             if (trim(params%bodies(b)%stiff_geom%type) .eq. 'cheap_dist') then
                 decay = params%bodies(b)%stiff_geom%stiff_dist
              else
                 decay = params%bodies(b)%stiff_geom%radius
@@ -1381,7 +1381,7 @@ contains
 
              case ('cheap_dist')
                 map_idx = cheap_map(b)
-                if (map_idx > 0) then
+                if (map_idx .gt. 0) then
                    raw_dist = dist_fields(map_idx)%x(i, 1, 1, 1)
                 end if
              end select
@@ -1402,7 +1402,7 @@ contains
                 body_stiff_val = gain * (1.0_rp - tanh(norm_dist))
              end select
 
-             if (body_stiff_val > max_added_stiff) then
+             if (body_stiff_val .gt. max_added_stiff) then
                 max_added_stiff = body_stiff_val
              end if
           end do
@@ -1581,7 +1581,7 @@ contains
        handle_1 = this%ghost_handles(1, i)
        handle_2 = this%ghost_handles(2, i)
 
-       if (handle_1 > 0 .and. handle_1 <= this%n_trackers) then
+       if ((handle_1 .gt. 0) .and. (handle_1 .le. this%n_trackers)) then
           this%trackers(handle_1)%pos = &
                this%global_basis_pos(offset_base + 1 : offset_base + 3)
 
@@ -1590,7 +1590,7 @@ contains
               this%global_basis_vel_lag(offset_base + 1 : offset_base + 3, :)
        end if
 
-       if (handle_2 > 0 .and. handle_2 <= this%n_trackers) then
+       if ((handle_2 .gt. 0) .and. (handle_2 .le. this%n_trackers)) then
           this%trackers(handle_2)%pos = &
                this%global_basis_pos(offset_base + 4 : offset_base + 6)
 
@@ -1773,11 +1773,11 @@ contains
     integer :: k
 
     do k = 1, n
-       if (arr(k) == val) return
+       if (arr(k) .eq. val) return
     end do
 
     allocate(tmp(n + 1))
-    if (n > 0) tmp(1:n) = arr(1:n)
+    if (n .gt. 0) tmp(1:n) = arr(1:n)
     tmp(n + 1) = val
 
     if (allocated(arr)) deallocate(arr)
@@ -1979,7 +1979,7 @@ contains
     if (.not. allocated(this%trackers)) then
        allocate(this%trackers(30))
        this%n_trackers = 0
-    elseif (this%n_trackers >= size(this%trackers)) then
+    elseif (this%n_trackers .ge. size(this%trackers)) then
        allocate(tmp(size(this%trackers) + 30))
        tmp(1:size(this%trackers)) = this%trackers
        deallocate(this%trackers)
@@ -1998,7 +1998,7 @@ contains
     integer, intent(in) :: handle
     real(kind=rp) :: pos(3)
 
-    if (handle > 0 .and. handle <= this%n_trackers) then
+    if (handle .gt. 0 .and. handle .le. this%n_trackers) then
        pos = this%trackers(handle)%pos
     else
        pos = 0.0_rp
@@ -2172,9 +2172,9 @@ contains
 
     if (allocated(this%trackers)) then
        do t = 1, this%n_trackers
-          if (this%trackers(t)%body_id == this%config%bodies(body_idx)%id) then
-             if (t == this%ghost_handles(1, body_idx) .or. &
-                  t == this%ghost_handles(2, body_idx)) then
+          if (this%trackers(t)%body_id .eq. this%config%bodies(body_idx)%id) then
+             if (t .eq. this%ghost_handles(1, body_idx) .or. &
+                  t .eq. this%ghost_handles(2, body_idx)) then
 
                 ! Calculate the Arm vector (r) at current step
                 rel_pos = this%trackers(t)%pos - kin_object%center
@@ -2190,7 +2190,7 @@ contains
                 ! Total velocity
                 p_vel = kin_object%vel_trans + v_tan
 
-                if (time_s%tstep > 0) then
+                if (time_s%tstep .gt. 0) then
                    call ab_integrate_point_pos(this%trackers(t)%pos, &
                         this%trackers(t)%vel_lag, p_vel, time_s, nadv)
                 end if
@@ -2255,7 +2255,7 @@ contains
     if (json%valid_path('case.fluid.ale.solver.mesh_stiffness.type')) then
        call json%get('case.fluid.ale.solver.mesh_stiffness.type', tmp_str)
        this%config%stiffness_type = tmp_str
-       if (.not. (trim(tmp_str) == 'built-in')) then
+       if (.not. (trim(tmp_str) .eq. 'built-in')) then
           call neko_error("ALE: stiffness_type must be 'built-in'")
        end if
     end if

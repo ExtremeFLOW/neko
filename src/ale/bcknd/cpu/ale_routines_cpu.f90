@@ -84,7 +84,7 @@ contains
     !d = huge(0.0_rp)
     call cfill(d, huge(0.0_rp), n)
 
-    if (size(zone_indices) > 0) then
+    if (size(zone_indices) .gt. 0) then
        call bc_wall%init_from_components(coef)
        do k = 1, size(zone_indices)
           z_idx = zone_indices(k)
@@ -101,7 +101,7 @@ contains
 
     ipass = 1
     done = .false.
-    do while (ipass <= max_pass .and. .not. done)
+    do while ((ipass .le. max_pass) .and. .not. done)
        nchange = 0
        do e = 1, nel
           do k = 1, lz
@@ -119,14 +119,14 @@ contains
                    do kk = k0, k1
                       do jj = j0, j1
                          do ii = i0, i1
-                            if (ii == i .and. jj == j .and. kk == k) cycle
+                            if ((ii .eq. i) .and. (jj .eq. j) .and. (kk .eq. k)) cycle
                             x2 = coef%dof%x(ii, jj, kk, e)
                             y2 = coef%dof%y(ii, jj, kk, e)
                             z2 = coef%dof%z(ii, jj, kk, e)
                             dtmp = d4(ii, jj, kk, e) + &
                                  sqrt((x1 - x2)**2 + &
                                  (y1 - y2)**2 + (z1 - z2)**2)
-                            if (dtmp < d4(i, j, k, e)) then
+                            if (dtmp .lt. d4(i, j, k, e)) then
                                d4(i, j, k, e) = dtmp
                                nchange = nchange + 1
                             end if
@@ -139,7 +139,7 @@ contains
        end do
        call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
        change_vec(1) = nchange
-       if (glimax(change_vec, 1) == 0) done = .true.
+       if (glimax(change_vec, 1) .eq. 0) done = .true.
        ipass = ipass + 1
     end do
   end subroutine compute_cheap_dist_cpu
@@ -176,7 +176,7 @@ contains
 
     call cfill(dist_field%x, huge(0.0_rp), n)
 
-    if (size(zone_indices) > 0) then
+    if (size(zone_indices) .gt. 0) then
        call bc_wall%init_from_components(coef)
        do k = 1, size(zone_indices)
           z_idx = zone_indices(k)
@@ -193,14 +193,14 @@ contains
 
     ipass = 1
     done = .false.
-    do while (ipass <= max_pass .and. .not. done)
+    do while ((ipass .le. max_pass) .and. .not. done)
        nchange = 0
 
        do e = 1, nel
           iter = 1
           element_changed_ever = .false.
           changed_local = .true.
-          do while (changed_local .and. iter <= local_iters)
+          do while (changed_local .and. (iter .le. local_iters))
 
              changed_local = .false.
              do k = 1, lz
@@ -218,7 +218,7 @@ contains
                       do kk = k0, k1
                          do jj = j0, j1
                             do ii = i0, i1
-                               if (ii == i .and. jj == j .and. kk == k) cycle
+                               if ((ii .eq. i) .and. (jj .eq. j) .and. (kk .eq. k)) cycle
 
                                x2 = coef%dof%x(ii, jj, kk, e)
                                y2 = coef%dof%y(ii, jj, kk, e)
@@ -228,7 +228,7 @@ contains
                                     sqrt((x1 - x2)**2 + &
                                     (y1 - y2)**2 + (z1 - z2)**2)
 
-                               if (dtmp < dist_field%x(i, j, k, e)) then
+                               if (dtmp .lt. dist_field%x(i, j, k, e)) then
                                   dist_field%x(i, j, k, e) = dtmp
                                   changed_local = .true.
                                end if
@@ -249,7 +249,7 @@ contains
        call coef%gs_h%gs_op_vector(dist_field%x, n, GS_OP_MIN)
        change_vec(1) = nchange
 
-       if (glimax(change_vec, 1) == 0) done = .true.
+       if (glimax(change_vec, 1) .eq. 0) done = .true.
        ipass = ipass + 1
     end do
 
@@ -285,7 +285,7 @@ contains
          ! for points on the wall (phi=1) we do this to avoid any
          ! numeric error due to computation of rotation matrix.
          ! It ensures, the walls are always where they need to be!
-         if ( abs(phi%x(i, 1, 1, 1) - 1.0_rp) < 1e-6_rp ) then
+         if ( abs(phi%x(i, 1, 1, 1) - 1.0_rp) .lt. 1e-6_rp ) then
 
             rx = x(i, 1, 1, 1) - kinematics%center(1)
             ry = y(i, 1, 1, 1) - kinematics%center(2)
