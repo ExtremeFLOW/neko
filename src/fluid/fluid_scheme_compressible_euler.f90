@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ module fluid_scheme_compressible_euler
   use bc_list, only : bc_list_t
   use bc, only : bc_t
   use utils, only : neko_error, neko_type_error
-  use logger, only : LOG_SIZE
+  use logger, only : LOG_SIZE, neko_log
   use time_state, only : time_state_t
   use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
        compressible_ops_cpu_update_mxyz_p_ruvw, &
@@ -229,8 +229,10 @@ contains
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
     call this%rk_scheme%init(rk_order)
 
+    call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
+    call neko_log%end_section()
 
   end subroutine fluid_scheme_compressible_euler_init
 

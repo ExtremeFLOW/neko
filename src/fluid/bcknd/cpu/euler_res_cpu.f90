@@ -30,9 +30,10 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> This module implements CPU-based residual calculations for the Euler equations.
-!? It handles the time advancement of primitive variables using Runge-Kutta methods
-!? and evaluates the right-hand side terms of the Euler equations including artificial viscosity.
+!> This implements CPU-based residual calculations for the Euler equations.
+!! It handles the time advancement of primitive variables using
+!! Runge-Kutta methods and evaluates the right-hand side terms of the
+!! Euler equations including artificial viscosity.
 module euler_res_cpu
   use euler_residual, only : euler_rhs_t
   use field, only : field_t
@@ -151,13 +152,17 @@ contains
     call k_E%assign(3, k_E_3)
     call k_E%assign(4, k_E_4)
 
-    ! Loop over Runge-Kutta stages
+    ! Loop over Runge-Kutta stages. One parallel region per stage covers
+    ! both the initial copy and all (i-1) accumulation sweeps.
     do i = 1, s
+       !$omp parallel private(j, l, k_rho_ptr)  &
+       !$omp& private(k_m_x_ptr, k_m_y_ptr, k_m_z_ptr, k_E_ptr)
+
        ! Copy current solution state to temporary arrays for this RK stage
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
        !GCC$ ivdep
-       !$omp parallel do simd
+       !$omp do simd
        do l = 1, n
           temp_rho%x(l,1,1,1) = rho_field%x(l,1,1,1)
           temp_m_x%x(l,1,1,1) = m_x%x(l,1,1,1)
@@ -165,9 +170,12 @@ contains
           temp_m_z%x(l,1,1,1) = m_z%x(l,1,1,1)
           temp_E%x(l,1,1,1) = E%x(l,1,1,1)
        end do
-       !$omp end parallel do simd
+       !$omp end do simd
 
-       ! Accumulate previous stage contributions using RK coefficients
+       ! Accumulate previous stage contributions using RK coefficients.
+       ! Each thread independently sets its private k_*_ptr aliases before
+       ! the worksharing loop; the implicit barrier at end of !$omp do simd
+       ! synchronises threads between j iterations.
        do j = 1, i-1
           k_rho_ptr => k_rho%items(j)%ptr%x
           k_m_x_ptr => k_m_x%items(j)%ptr%x
@@ -178,7 +186,7 @@ contains
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
           !GCC$ ivdep
-          !$omp parallel do simd
+          !$omp do simd
           do l = 1, n
              temp_rho%x(l,1,1,1) = temp_rho%x(l,1,1,1) + &
                   dt * rk_scheme%coeffs_A(i, j) * k_rho_ptr(l,1,1,1)
@@ -191,8 +199,9 @@ contains
              temp_E%x(l,1,1,1) = temp_E%x(l,1,1,1) + &
                   dt * rk_scheme%coeffs_A(i, j) * k_E_ptr(l,1,1,1)
           end do
-          !$omp end parallel do simd
+          !$omp end do simd
        end do
+       !$omp end parallel
 
        ! Evaluate RHS terms for current stage using intermediate solution values
        call evaluate_rhs_cpu(k_rho%items(i)%ptr, k_m_x%items(i)%ptr, &
@@ -203,7 +212,9 @@ contains
             coef, gs, h, effective_visc)
     end do
 
-    ! Update the solution
+    ! Update the solution. Single parallel region covers all s stages.
+    !$omp parallel default(shared) private(i, l, k_rho_ptr) &
+    !$omp& private(k_m_x_ptr, k_m_y_ptr, k_m_z_ptr, k_E_ptr)
     do i = 1, s
        k_rho_ptr => k_rho%items(i)%ptr%x
        k_m_x_ptr => k_m_x%items(i)%ptr%x
@@ -214,7 +225,7 @@ contains
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
        !GCC$ ivdep
-       !$omp parallel do simd
+       !$omp do simd
        do l = 1, n
           rho_field%x(l,1,1,1) = rho_field%x(l,1,1,1) + &
                dt * rk_scheme%coeffs_b(i) * k_rho_ptr(l,1,1,1)
@@ -227,8 +238,9 @@ contains
           E%x(l,1,1,1) = E%x(l,1,1,1) + &
                dt * rk_scheme%coeffs_b(i) * k_E_ptr(l,1,1,1)
        end do
-       !$omp end parallel do simd
+       !$omp end do simd
     end do
+    !$omp end parallel
 
     call neko_scratch_registry%relinquish_field(tmp_indices)
 
@@ -274,6 +286,15 @@ contains
     call neko_scratch_registry%request_field(f_x, tmp_indices(1), .false.)
     call neko_scratch_registry%request_field(f_y, tmp_indices(2), .false.)
     call neko_scratch_registry%request_field(f_z, tmp_indices(3), .false.)
+
+    ! Hoisted from below so the mult and h1=effective_visc sweeps can be
+    ! fused into one !$omp parallel do simd (registry calls are not
+    ! thread-safe so they cannot sit between two !$omp do constructs).
+    call neko_scratch_registry%request_field(visc_rho, tmp_indices(4), .false.)
+    call neko_scratch_registry%request_field(visc_m_x, tmp_indices(5), .false.)
+    call neko_scratch_registry%request_field(visc_m_y, tmp_indices(6), .false.)
+    call neko_scratch_registry%request_field(visc_m_z, tmp_indices(7), .false.)
+    call neko_scratch_registry%request_field(visc_E, tmp_indices(8), .false.)
 
     !> rho = rho - dt * div(m)
     ! Compute density flux divergence
@@ -352,6 +373,10 @@ contains
     call gs%op(rhs_m_z, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
+
+    ! Apply multiplicity to the inviscid RHS and set h1 to the effective
+    ! viscosity for the Laplacian. Fused: one fork-join instead of two, and
+    ! coef%mult / effective_visc share L1.
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
     !GCC$ ivdep
@@ -363,21 +388,6 @@ contains
        rhs_m_y%x(i,1,1,1) = rhs_m_y%x(i,1,1,1) * coef%mult(i,1,1,1)
        rhs_m_z%x(i,1,1,1) = rhs_m_z%x(i,1,1,1) * coef%mult(i,1,1,1)
        rhs_E%x(i,1,1,1) = rhs_E%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-    !$omp end parallel do simd
-
-    call neko_scratch_registry%request_field(visc_rho, tmp_indices(4), .false.)
-    call neko_scratch_registry%request_field(visc_m_x, tmp_indices(5), .false.)
-    call neko_scratch_registry%request_field(visc_m_y, tmp_indices(6), .false.)
-    call neko_scratch_registry%request_field(visc_m_z, tmp_indices(7), .false.)
-    call neko_scratch_registry%request_field(visc_E, tmp_indices(8), .false.)
-
-    ! Set h1 coefficient to the effective viscosity for the Laplacian operator
-    !OCL NORECURRENCE, NOVREC, NOALIAS
-    !DIR$ CONCURRENT
-    !GCC$ ivdep
-    !$omp parallel do simd
-    do i = 1, n
        coef%h1(i,1,1,1) = effective_visc%x(i,1,1,1)
     end do
     !$omp end parallel do simd
@@ -389,17 +399,8 @@ contains
     call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
-    ! Reset h1 coefficient back to 1.0 for other operations
-    !OCL NORECURRENCE, NOVREC, NOALIAS
-    !DIR$ CONCURRENT
-    !GCC$ ivdep
-    !$omp parallel do simd
-    do i = 1, n
-       coef%h1(i,1,1,1) = 1.0_rp
-    end do
-    !$omp end parallel do simd
-
-    ! gs
+    ! gs. h1=1.0 reset is deferred into the final accumulation below; safe
+    ! because nothing here (gs%op, rotate_cyc) reads coef%h1.
     call gs%op(visc_rho, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 1, coef)
     call gs%op(visc_m_x, GS_OP_ADD)
@@ -408,8 +409,9 @@ contains
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 
-    ! Move div to the rhs and apply artificial viscosity
-    ! The viscosity coefficient is already included in the Laplacian operator
+    ! Move div to the rhs, apply artificial viscosity, and reset h1 to 1.
+    ! The viscosity coefficient is already included in the Laplacian operator.
+    ! Fused: one fork-join instead of two, and coef%Binv stays in L1.
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
     !GCC$ ivdep
@@ -425,6 +427,7 @@ contains
             coef%Binv(i,1,1,1) * visc_m_z%x(i,1,1,1)
        rhs_E%x(i,1,1,1) = -rhs_E%x(i,1,1,1) - &
             coef%Binv(i,1,1,1) * visc_E%x(i,1,1,1)
+       coef%h1(i,1,1,1) = 1.0_rp
     end do
     !$omp end parallel do simd
 
