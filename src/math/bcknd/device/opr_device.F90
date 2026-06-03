@@ -50,8 +50,7 @@ module opr_device
   public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
        opr_device_conv1, opr_device_convect_scalar, opr_device_curl, &
        opr_device_cfl, opr_device_lambda2, opr_device_set_convect_rst, &
-       opr_device_rotate_cyc_r1, opr_device_rotate_cyc_r4, &
-       device_ortho
+       opr_device_rotate_cyc, device_ortho
 
 #ifdef HAVE_HIP
   interface
@@ -444,20 +443,10 @@ module opr_device
 
 contains
 
-  subroutine opr_device_dudxyz(du, u, dr, ds, dt, coef)
+  subroutine opr_device_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, &
-         coef%Xh%lz, coef%msh%nelv), intent(inout) :: du
-    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, &
-         coef%Xh%lz, coef%msh%nelv), intent(in) :: u, dr, ds, dt
-    type(c_ptr) :: du_d, u_d, dr_d, ds_d, dt_d
-
-    du_d = device_get_ptr(du)
-    u_d = device_get_ptr(u)
-
-    dr_d = device_get_ptr(dr)
-    ds_d = device_get_ptr(ds)
-    dt_d = device_get_ptr(dt)
+    type(c_ptr), intent(inout) :: du_d
+    type(c_ptr), intent(in) :: u_d, dr_d, ds_d, dt_d
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
@@ -479,19 +468,10 @@ contains
 
   end subroutine opr_device_dudxyz
 
-  subroutine opr_device_opgrad(ux, uy, uz, u, coef)
-    type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
-    type(c_ptr) :: ux_d, uy_d, uz_d, u_d
-
-    ux_d = device_get_ptr(ux)
-    uy_d = device_get_ptr(uy)
-    uz_d = device_get_ptr(uz)
-
-    u_d = device_get_ptr(u)
+  subroutine opr_device_opgrad(ux_d, uy_d, uz_d, u_d, coef)
+    type(coef_t), intent(in), target :: coef
+    type(c_ptr), intent(inout) :: ux_d, uy_d, uz_d
+    type(c_ptr), intent(in) :: u_d
 
     associate(Xh => coef%Xh, msh => coef%msh)
 #ifdef HAVE_HIP
@@ -538,26 +518,26 @@ contains
 
   end subroutine device_ortho
 
-  subroutine opr_device_lambda2(lambda2, u, v, w, coef)
+  subroutine opr_device_lambda2(lambda2_d, u_d, v_d, w_d, coef)
     type(coef_t), intent(in) :: coef
-    type(field_t), intent(inout) :: lambda2
-    type(field_t), intent(in) :: u, v, w
+    type(c_ptr), intent(inout) :: lambda2_d
+    type(c_ptr), intent(in) :: u_d, v_d, w_d
 #ifdef HAVE_HIP
-    call hip_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+    call hip_lambda2(lambda2_d, u_d, v_d, w_d, &
          coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
          coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
          coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_CUDA
-    call cuda_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+    call cuda_lambda2(lambda2_d, u_d, v_d, w_d, &
          coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
          coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
          coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_OPENCL
-    call opencl_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+    call opencl_lambda2(lambda2_d, u_d, v_d, w_d, &
          coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
          coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
          coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
@@ -568,21 +548,10 @@ contains
 #endif
   end subroutine opr_device_lambda2
 
-  subroutine opr_device_cdtp(dtx, x, dr, ds, dt, coef)
-    type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
-    type(c_ptr) :: dtx_d, x_d, dr_d, ds_d, dt_d
-
-    dtx_d = device_get_ptr(dtx)
-    x_d = device_get_ptr(x)
-
-    dr_d = device_get_ptr(dr)
-    ds_d = device_get_ptr(ds)
-    dt_d = device_get_ptr(dt)
+  subroutine opr_device_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, coef)
+    type(coef_t), intent(in), target :: coef
+    type(c_ptr), intent(inout) :: dtx_d, x_d
+    type(c_ptr), intent(in) :: dr_d, ds_d, dt_d
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
@@ -604,25 +573,14 @@ contains
 
   end subroutine opr_device_cdtp
 
-  subroutine opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
+  subroutine opr_device_conv1(du_d, u_d, vx_d, vy_d, vz_d, Xh, coef, nelv, gdim)
     type(space_t), intent(in) :: Xh
-    type(coef_t), intent(in) :: coef
+    type(coef_t), intent(in), target :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
-    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
-    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
-    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
-    real(kind=rp), intent(in), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
-    type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
+    type(c_ptr), intent(inout) :: du_d
+    type(c_ptr), intent(in) :: u_d, vx_d, vy_d, vz_d
 
-    du_d = device_get_ptr(du)
-    u_d = device_get_ptr(u)
-
-    vx_d = device_get_ptr(vx)
-    vy_d = device_get_ptr(vy)
-    vz_d = device_get_ptr(vz)
-
-    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+    associate(msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
       call hip_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
            Xh%dx_d, Xh%dy_d, Xh%dz_d, &
@@ -838,20 +796,20 @@ contains
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
 
     if (present(event)) then
-       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
        call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
        call device_event_sync(event)
        call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
        call device_event_sync(event)
        call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
        call device_event_sync(event)
-       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
     else
-       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
        call c_Xh%gs_h%op(w1, GS_OP_ADD)
        call c_Xh%gs_h%op(w2, GS_OP_ADD)
        call c_Xh%gs_h%op(w3, GS_OP_ADD)
-       if(c_Xh%cyclic) call opr_device_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
+       if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
     end if
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
@@ -862,18 +820,13 @@ contains
 
   end subroutine opr_device_curl
 
-  function opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim) result(cfl)
+  function opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim) result(cfl)
     type(space_t) :: Xh
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
+    type(c_ptr), intent(in) :: u_d, v_d, w_d
     real(kind=rp) :: cfl
-    type(c_ptr) :: u_d, v_d, w_d
-
-    u_d = device_get_ptr(u)
-    v_d = device_get_ptr(v)
-    w_d = device_get_ptr(w)
 
 #ifdef HAVE_HIP
     cfl = hip_cfl(dt, u_d, v_d, w_d, &
@@ -902,16 +855,12 @@ contains
 #endif
   end function opr_device_cfl
 
-  subroutine opr_device_rotate_cyc_r1(vx, vy, vz, idir, coef)
-    type(coef_t) :: coef
-    integer :: idir, ncyc
-    real(rp), dimension(coef%Xh%lx*coef%Xh%ly*coef%Xh%lz*coef%msh%nelv) :: &
-         vx, vy, vz
-    type(c_ptr) :: vx_d, vy_d, vz_d
+  subroutine opr_device_rotate_cyc(vx_d, vy_d, vz_d, idir, coef)
+    type(c_ptr), intent(inout) :: vx_d, vy_d, vz_d
+    integer, intent(in) :: idir
+    type(coef_t), intent(in) :: coef
+    integer :: ncyc
 
-    vx_d = device_get_ptr(vx)
-    vy_d = device_get_ptr(vy)
-    vz_d = device_get_ptr(vz)
     ncyc = coef%cyc_msk(0) - 1
 
     if (ncyc .le. 0) return
@@ -934,47 +883,13 @@ contains
 #else
     call neko_error('No device backend configured for rotate_cyc')
 #endif
-  end subroutine opr_device_rotate_cyc_r1
-
-  subroutine opr_device_rotate_cyc_r4(vx, vy, vz, idir, coef)
-    type(coef_t) :: coef
-    integer :: idir, ncyc
-    real(rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: &
-         vx, vy, vz
-    type(c_ptr) :: vx_d, vy_d, vz_d
-
-    vx_d = device_get_ptr(vx)
-    vy_d = device_get_ptr(vy)
-    vz_d = device_get_ptr(vz)
-    ncyc = coef%cyc_msk(0) - 1
-
-    if (ncyc .le. 0) return
-
-#ifdef HAVE_HIP
-    call hip_rotate_cyc(vx_d, vy_d, vz_d, &
-         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
-         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
-         ncyc, idir)
-#elif HAVE_CUDA
-    call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
-         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
-         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
-         ncyc, idir)
-#elif HAVE_OPENCL
-    call opencl_rotate_cyc(vx_d, vy_d, vz_d, &
-         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
-         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
-         ncyc, idir)
-#else
-    call neko_error('No device backend configured for rotate_cyc')
-#endif
-  end subroutine opr_device_rotate_cyc_r4
+  end subroutine opr_device_rotate_cyc
 
   subroutine opr_device_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &
        Xh, coef)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    type(c_ptr) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d
+    type(c_ptr), intent(inout) :: cr_d, cs_d, ct_d, cx_d, cy_d, cz_d
 
 #ifdef HAVE_HIP
     call hip_set_convect_rst(cr_d, cs_d, ct_d, cx_d, cy_d, cz_d, &

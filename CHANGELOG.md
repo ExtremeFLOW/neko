@@ -6,6 +6,10 @@
   `glsc3`, `glsubnorm`, and `glsc3_many`) to do reductions in extended
   precision instead of `rp`. This improves numerical robustness when running
   in single precision.
+- Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS
+  Fluent `.msh` meshes to Neko `.re2` meshes. Requires Python 3 with `numpy`,
+  `scipy`, and `pymech`. Supports translational periodic boundaries via
+  `--periodic periodic.json`.
 - Removed restart limitations on load balancing. We now cache the the balanced
   mesh and read the cache if available. Load balance name pattern updated to
   include partition number.
@@ -147,5 +151,15 @@
 - Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
+- `operator::dudxyz` calls with implicit device arrays are deprecated. Please
+  use `opr_device_dudxyz` instead.
+- `operator::div` calls with implicit device arrays are deprecated. Please use
+  `div_d` instead.
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
   `device_ortho` instead.
+- `operator::cfl_r4` calls with implicit device arrays are deprecated. Please
+  use `cfl_d` instead.
+- `operator::strain_rate_r4` calls with implicit device arrays are deprecated.
+  Please use `strain_rate_d` instead.
+- `operator::rotate_cyc_r1` and `operator::rotate_cyc_r4` calls with implicit
+  device arrays are deprecated. Please use `rotate_cyc_d` instead.

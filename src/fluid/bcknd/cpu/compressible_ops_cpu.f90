@@ -55,11 +55,17 @@ contains
 
     ! Compute maximum wave speed:
     ! |u| + c = sqrt(u^2 + v^2 + w^2) + sqrt(gamma * p / rho)
-    do concurrent (i = 1:n)
-       vel_mag = sqrt(u(i)*u(i) + v(i)*v(i) + w(i)*w(i))
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd private(vel_mag, sound_speed)
+    do i = 1, n
+       vel_mag = sqrt(u(i)*u(i) + v(i)*v(i) + &
+            w(i)*w(i))
        sound_speed = sqrt(gamma * p(i) / rho(i))
        max_wave_speed(i) = vel_mag + sound_speed
     end do
+    !$omp end parallel do simd
 
   end subroutine compressible_ops_cpu_compute_max_wave_speed
 
@@ -71,12 +77,20 @@ contains
     real(kind=rp), dimension(n), intent(in) :: p, rho
     real(kind=rp), dimension(n), intent(inout) :: S
     integer :: i
+    real(kind=rp) :: inv_gamma_m1
+
+    inv_gamma_m1 = 1.0_rp / (gamma - 1.0_rp)
 
     ! Compute entropy: S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
-    do concurrent (i = 1:n)
-       S(i) = (1.0_rp / (gamma - 1.0_rp)) * rho(i) * &
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
+       S(i) = inv_gamma_m1 * rho(i) * &
             (log(p(i)) - gamma * log(rho(i)))
     end do
+    !$omp end parallel do simd
 
   end subroutine compressible_ops_cpu_compute_entropy
 
@@ -87,11 +101,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: m_x, m_y, m_z, rho
     integer :: i
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        u(i) = m_x(i) / rho(i)
        v(i) = m_y(i) / rho(i)
        w(i) = m_z(i) / rho(i)
     end do
+    !$omp end parallel do simd
 
   end subroutine compressible_ops_cpu_update_uvw
 
@@ -105,18 +124,19 @@ contains
     real(kind=rp) :: tmp
     integer :: i
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd private(tmp)
+    do i = 1, n
        m_x(i) = u(i) * rho(i)
        m_y(i) = v(i) * rho(i)
        m_z(i) = w(i) * rho(i)
-    end do
-
-    !Update p = (gamma - 1) * (E - 0.5 * rho * (u^2 + v^2 + w^2))
-    do concurrent (i = 1:n)
        tmp = 0.5_rp * rho(i) * (u(i)**2 + v(i)**2 + w(i)**2)
        p(i) = (gamma - 1.0_rp) * (E(i) - tmp)
        ruvw(i) = tmp
     end do
+    !$omp end parallel do simd
 
   end subroutine compressible_ops_cpu_update_mxyz_p_ruvw
 
@@ -128,14 +148,21 @@ contains
     real(kind=rp), dimension(n), intent(in) :: ruvw
     real(kind=rp), intent(in) :: gamma
     integer :: i
+    real(kind=rp) :: inv_gamma_m1
 
+    inv_gamma_m1 = 1.0_rp / (gamma - 1.0_rp)
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        ! Ensure pressure is positive
        p(i) = max(p(i), 1.0e-12_rp)
        ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
-       E(i) = p(i) * (1.0_rp / (gamma - 1.0_rp)) + ruvw(i)
+       E(i) = p(i) * inv_gamma_m1 + ruvw(i)
     end do
+    !$omp end parallel do simd
   end subroutine compressible_ops_cpu_update_e
 
 end module compressible_ops_cpu

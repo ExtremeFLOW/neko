@@ -333,6 +333,12 @@ else
    AX_HDF5
 fi
 
+# Checks for OpenSHMEM
+if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
+   AX_CRAY_SHMEM
+fi
+
+
 
 # JSON-Fortran
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])

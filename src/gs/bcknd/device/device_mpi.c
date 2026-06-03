@@ -39,9 +39,6 @@
 
 #include <stdlib.h>
 #include <mpi.h>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 #include <comm/comm.h>
 
@@ -56,27 +53,17 @@ void device_mpi_free_reqs(void **reqs) {
 }
 
 void device_mpi_isend(void *buf_d, int offset, int nbytes, int rank,
-		      void *vreqs, int i) {
+		      int tag, void *vreqs, int i) {
   MPI_Request *reqs = vreqs;
-#ifdef _OPENMP
-  int tid = omp_get_thread_num();
-#else
-  int tid = 0;
-#endif
   void *buf = (char *)buf_d + offset; // Adjust pointer to the correct offset
-  MPI_Isend(buf, nbytes, MPI_BYTE, rank, tid, NEKO_COMM, &reqs[i-1]);
+  MPI_Isend(buf, nbytes, MPI_BYTE, rank, tag, NEKO_COMM, &reqs[i-1]);
 }
 
 void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
-		      void *vreqs, int i) {
+		      int tag, void *vreqs, int i) {
   MPI_Request *reqs = vreqs;
-#ifdef _OPENMP
-  int tid = omp_get_thread_num();
-#else
-  int tid = 0;
-#endif
   void *buf = (char *)buf_d + offset; // Adjust pointer to the correct offset
-  MPI_Irecv(buf, nbytes, MPI_BYTE, rank, tid, NEKO_COMM, &reqs[i-1]);
+  MPI_Irecv(buf, nbytes, MPI_BYTE, rank, tag, NEKO_COMM, &reqs[i-1]);
 }
 
 int device_mpi_test(void *vreqs, int i) {
