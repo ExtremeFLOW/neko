@@ -133,6 +133,7 @@ contains
     type(json_file) :: interp_subdict
     character(len=:), allocatable :: name
     character(len=:), allocatable :: output_filename
+    real(kind=rp), allocatable :: vel(:,:)
 
     call this%free()
 
@@ -163,6 +164,11 @@ contains
          trim(output_filename), &
          header = "tstep,time,particle_id,x,y,z,u,v,w", overwrite = .true.)
     this%output_enabled = .true.
+    if (case%time%t .ge. this%start_time) then
+       call this%evaluate_velocity(vel)
+       call this%write_output(case%time, vel)
+       if (allocated(vel)) deallocate(vel)
+    end if
 
     call this%log_status()
   end subroutine lpt_init_from_json
