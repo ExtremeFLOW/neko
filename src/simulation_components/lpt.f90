@@ -33,7 +33,6 @@
 !> Implements `lpt_t`. (Lagrangian Particle Tracking)
 module lagrangian_particle_tracking
   use num_types, only : rp
-  use neko_config, only : NEKO_BCKND_DEVICE
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
@@ -45,18 +44,18 @@ module lagrangian_particle_tracking
        json_get_subdict_or_empty
   use time_state, only : time_state_t
   use global_interpolation, only : global_interpolation_t
+  use glb_intrp_comm, only : glb_intrp_comm_t
   use point, only : point_t
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
+  use stack, only : stack_i4_t
   use tensor, only : trsp
-  use device, only : device_map, device_memcpy, HOST_TO_DEVICE
   use mesh, only : mesh_t
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_Exscan, MPI_Gather, &
-       MPI_Gatherv, MPI_INTEGER, MPI_SUM, MPI_MIN, MPI_MAX, MPI_Request, &
-       MPI_Isend, MPI_Irecv, MPI_Waitall, MPI_STATUSES_IGNORE
+  use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_Gather, &
+       MPI_Gatherv, MPI_INTEGER, MPI_SUM, MPI_MIN, MPI_MAX
   use csv_file, only : csv_file_t
   implicit none
   private
@@ -67,105 +66,57 @@ module lagrangian_particle_tracking
   !> A simulation component for passive Lagrangian particle tracking.
   !! Particles are redistributed to the rank that owns their current location.
   type, public, extends(simulation_component_t) :: lpt_t
-     !> X velocity field.
      type(field_t), pointer :: u => null()
-     !> Y velocity field.
      type(field_t), pointer :: v => null()
-     !> Z velocity field.
      type(field_t), pointer :: w => null()
-     !> Point interpolation helper used to evaluate the carrier velocity.
      type(global_interpolation_t) :: global_interp
-     !> Particle coordinates local to this MPI rank.
      real(kind=rp), allocatable :: xyz_particles(:,:)
-     !> Stable particle ids that travel with the particle during redistribution.
      integer, allocatable :: particle_ids(:)
-     !> Lagged carrier velocities, kept with each particle for multistep time
-     !! integration.
      real(kind=rp), allocatable :: vel_particles_lag(:,:,:)
-     !> Optional CSV output file.
      type(file_t) :: output_file
-     !> Whether trajectory output is enabled.
      logical :: output_enabled = .false.
-     !> Whether to emit informational logs.
      logical :: log = .true.
-     !> Whether periodic wrapping is active.
      logical :: periodic_enabled = .false.
-     !> Whether rotational periodic wrapping around the z-axis is active.
      logical :: rotational_periodic_enabled = .false.
-     !> Time after which tracking should start.
      real(kind=rp) :: start_time = -huge(0.0_rp)
-     !> Number of particles currently local to this rank.
      integer :: n_particles = 0
-     !> Total number of particles across all ranks.
      integer :: n_global_particles = 0
-     !> Number of unique periodic translation directions.
      integer :: n_periodic_dirs = 0
-     !> Translation vectors from the low to the high periodic boundary.
      real(kind=rp) :: periodic_shift(3, 3) = 0.0_rp
-     !> Unit vectors associated with the periodic translations.
      real(kind=rp) :: periodic_dir(3, 3) = 0.0_rp
-     !> Low-side coordinate along each periodic direction.
      real(kind=rp) :: periodic_min(3) = 0.0_rp
-     !> High-side coordinate along each periodic direction.
      real(kind=rp) :: periodic_max(3) = 0.0_rp
-     !> Period length along each periodic direction.
      real(kind=rp) :: periodic_len(3) = 0.0_rp
-     !> Minimum polar angle of the rotationally periodic sector.
      real(kind=rp) :: rotational_theta_min = 0.0_rp
-     !> Maximum polar angle of the rotationally periodic sector.
      real(kind=rp) :: rotational_theta_max = 0.0_rp
-     !> Angular period of the rotationally periodic sector.
      real(kind=rp) :: rotational_theta_len = 0.0_rp
-     !> Number of temporary periodic debug messages still allowed.
-     integer :: periodic_debug_logs_remaining = 3
-     !> Number of local periodic facet transforms.
      integer :: n_periodic_maps = 0
-     !> Owning element for each local periodic facet transform.
-     integer, allocatable :: periodic_map_el(:)
-     !> Local facet index for each periodic transform.
-     integer, allocatable :: periodic_map_facet(:)
-     !> Number of facet points for each transform (2 in 2D, 4 in 3D).
      integer, allocatable :: periodic_map_npts(:)
-     !> Source facet centers.
      real(kind=rp), allocatable :: periodic_src_center(:,:)
-     !> Source facet bases: tangent 1, tangent 2, inward normal.
      real(kind=rp), allocatable :: periodic_src_basis(:,:,:)
-     !> Source facet tangent-coordinate bounds in the local facet basis.
      real(kind=rp), allocatable :: periodic_src_bounds_min(:,:)
-     !> Source facet tangent-coordinate bounds in the local facet basis.
      real(kind=rp), allocatable :: periodic_src_bounds_max(:,:)
-     !> Target facet centers.
      real(kind=rp), allocatable :: periodic_tgt_center(:,:)
-     !> Target facet bases: tangent 1, tangent 2, inward normal.
      real(kind=rp), allocatable :: periodic_tgt_basis(:,:,:)
    contains
-     !> Construct the component from a case-file JSON object.
      procedure, pass(this) :: init => lpt_init_from_json
-     !> Free the component.
      procedure, pass(this) :: free => lpt_free
-     !> Advance particles and write output.
      procedure, pass(this) :: compute_ => lpt_compute
-     !> Build initial particle coordinates from the case file.
      procedure, private, pass(this) :: read_particles_json
-     !> Read particle coordinates from a CSV file.
      procedure, private, pass(this) :: read_particles_csv
-     !> Initialize periodic wrapping metadata from the mesh.
      procedure, private, pass(this) :: init_periodic_wrap
-     !> Build local cyclic facet transforms from periodic facet pairings.
      procedure, private, pass(this) :: init_periodic_maps
-     !> Wrap local particles back into the periodic domain.
      procedure, private, pass(this) :: wrap_particles_periodic
-     !> Redistribute particles to the owning MPI rank.
+     procedure, private, pass(this) :: init_rotational_periodic_wrap
+     procedure, private, pass(this) :: init_translational_periodic_wrap
+     procedure, private, pass(this) :: wrap_particles_rotational
+     procedure, private, pass(this) :: wrap_particles_translational
      procedure, private, pass(this) :: redistribute_particles
-     !> Interpolate the carrier velocity at the local particles.
      procedure, private, pass(this) :: evaluate_velocity
-     !> Write a trajectory snapshot.
      procedure, private, pass(this) :: write_output
-     !> Redistribute per-particle ids with the interpolation ownership.
+     procedure, private, pass(this) :: init_particle_redist_comm
      procedure, private, pass(this) :: redistribute_particle_ids
-     !> Redistribute lagged per-particle data with the interpolation ownership.
      procedure, private, pass(this) :: redistribute_velocity_history
-     !> Emit a short setup summary.
      procedure, private, pass(this) :: log_status
   end type lpt_t
 
@@ -284,281 +235,121 @@ contains
   !> Redistribute particles to the rank that owns their current location.
   subroutine redistribute_particles(this)
     class(lpt_t), intent(inout) :: this
+    integer :: n_particles_old
     integer, allocatable :: particle_ids_local(:)
     real(kind=rp), allocatable :: vel_particles_lag_local(:,:,:)
     integer :: ierr
 
+    n_particles_old = this%n_particles
     call this%wrap_particles_periodic()
-    call this%global_interp%find_points(this%xyz_particles, this%n_particles)
-    call this%redistribute_particle_ids(particle_ids_local)
-    call this%redistribute_velocity_history(vel_particles_lag_local)
-
-    this%n_particles = this%global_interp%n_points_local
-
-    if (allocated(this%xyz_particles)) deallocate(this%xyz_particles)
-    allocate(this%xyz_particles(3, this%n_particles))
-    this%xyz_particles = this%global_interp%xyz_local
-
-    call this%global_interp%free_points()
-    this%global_interp%n_points = this%n_particles
-    allocate(this%global_interp%pe_owner(this%n_particles))
-    allocate(this%global_interp%el_owner0(this%n_particles))
-    allocate(this%global_interp%xyz(3, this%n_particles))
-    allocate(this%global_interp%rst(3, this%n_particles))
-    this%global_interp%pe_owner = this%global_interp%pe_rank
-    this%global_interp%el_owner0 = this%global_interp%el_owner0_local
-    this%global_interp%xyz = this%global_interp%xyz_local
-    this%global_interp%rst = this%global_interp%rst_local
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%global_interp%el_owner0, &
-            this%global_interp%el_owner0_d, this%n_particles)
-       call device_memcpy(this%global_interp%el_owner0, &
-            this%global_interp%el_owner0_d, this%n_particles, HOST_TO_DEVICE, &
-            sync = .true.)
-    end if
-    this%global_interp%all_points_local = .true.
-
+    call this%global_interp%find_points_and_redist(this%xyz_particles, &
+         this%n_particles)
+    call this%redistribute_particle_ids(n_particles_old, particle_ids_local)
+    call this%redistribute_velocity_history(n_particles_old, &
+         vel_particles_lag_local)
     call move_alloc(particle_ids_local, this%particle_ids)
     call move_alloc(vel_particles_lag_local, this%vel_particles_lag)
     call MPI_Allreduce(this%n_particles, this%n_global_particles, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine redistribute_particles
 
-  !> Redistribute stable particle ids to the owning rank, matching the
-  !! ordering produced by `global_interpolation_t`.
-  subroutine redistribute_particle_ids(this, particle_ids_local)
+  subroutine init_particle_redist_comm(this, redist_comm, n_comp)
     class(lpt_t), intent(inout) :: this
-    integer, allocatable, intent(out) :: particle_ids_local(:)
-    integer, allocatable :: sendbuf(:)
-    integer, allocatable :: recvbuf(:)
-    integer, allocatable :: send_offsets(:)
-    integer, allocatable :: recv_offsets(:)
-    type(MPI_Request), allocatable :: requests(:)
+    type(glb_intrp_comm_t), intent(inout) :: redist_comm
+    integer, intent(in) :: n_comp
+    type(stack_i4_t) :: send_pe
+    type(stack_i4_t) :: recv_pe
     integer, pointer :: point_ids(:)
     integer :: rank
     integer :: i
-    integer :: idx
-    integer :: n_local
-    integer :: nreq
-    integer :: ierr
 
-    n_local = this%global_interp%n_points_local
+    call send_pe%init()
+    call recv_pe%init()
+    call redist_comm%init_dofs(this%global_interp%pe_size)
+
+    do rank = 0, pe_size - 1
+       if (this%global_interp%n_points_pe(rank) .gt. 0) then
+          call send_pe%push(rank)
+          point_ids => this%global_interp%points_at_pe(rank)%array()
+          do i = 1, this%global_interp%n_points_pe(rank)
+             call lpt_push_comp_range(redist_comm%send_dof(rank), &
+                  n_comp * (point_ids(i) - 1), n_comp)
+          end do
+       end if
+       if (this%global_interp%n_points_pe_local(rank) .gt. 0) then
+          call recv_pe%push(rank)
+          do i = 1, this%global_interp%n_points_pe_local(rank)
+             call lpt_push_comp_range(redist_comm%recv_dof(rank), n_comp * &
+                  (this%global_interp%n_points_offset_pe_local(rank) + i - 1), &
+                  n_comp)
+          end do
+       end if
+    end do
+
+    call redist_comm%init(send_pe, recv_pe, NEKO_COMM)
+    call send_pe%free()
+    call recv_pe%free()
+  end subroutine init_particle_redist_comm
+
+  subroutine redistribute_particle_ids(this, n_particles_old, particle_ids_local)
+    class(lpt_t), intent(inout) :: this
+    integer, intent(in) :: n_particles_old
+    integer, allocatable, intent(out) :: particle_ids_local(:)
+    type(glb_intrp_comm_t) :: redist_comm
+    real(kind=rp), allocatable :: sendbuf(:)
+    real(kind=rp), allocatable :: recvbuf(:)
+    integer :: n_local
+
+    n_local = this%n_particles
     allocate(particle_ids_local(n_local))
     particle_ids_local = 0
 
-    if (this%n_particles .eq. 0 .and. n_local .eq. 0) return
+    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
-    allocate(send_offsets(0:pe_size - 1))
-    allocate(recv_offsets(0:pe_size - 1))
-    send_offsets = 0
-    recv_offsets = 0
-
-    do rank = 0, pe_size - 1
-       send_offsets(rank) = this%global_interp%n_points_offset_pe(rank)
-       recv_offsets(rank) = this%global_interp%n_points_offset_pe_local(rank)
-    end do
-
-    allocate(sendbuf(this%n_particles))
-    sendbuf = 0
-    idx = 0
-    do rank = 0, pe_size - 1
-       if (this%global_interp%n_points_pe(rank) .le. 0) cycle
-       point_ids => this%global_interp%points_at_pe(rank)%array()
-       do i = 1, this%global_interp%n_points_pe(rank)
-          idx = idx + 1
-          sendbuf(idx) = this%particle_ids(point_ids(i))
-       end do
-    end do
-
+    call this%init_particle_redist_comm(redist_comm, 1)
+    allocate(sendbuf(n_particles_old))
     allocate(recvbuf(n_local))
-    recvbuf = 0
-
-    nreq = 0
-    do rank = 0, pe_size - 1
-       if (rank .ne. pe_rank .and. this%global_interp%n_points_pe_local(rank) .gt. 0) then
-          nreq = nreq + 1
-       end if
-       if (rank .ne. pe_rank .and. this%global_interp%n_points_pe(rank) .gt. 0) then
-          nreq = nreq + 1
-       end if
-    end do
-    allocate(requests(max(1, nreq)))
-
-    idx = 0
-    do rank = 0, pe_size - 1
-       if (rank .eq. pe_rank) cycle
-       if (this%global_interp%n_points_pe_local(rank) .gt. 0) then
-          idx = idx + 1
-          call MPI_Irecv(recvbuf(recv_offsets(rank) + 1), &
-               this%global_interp%n_points_pe_local(rank), MPI_INTEGER, rank, 0, &
-               NEKO_COMM, requests(idx), ierr)
-       end if
-    end do
-
-    do rank = 0, pe_size - 1
-       if (this%global_interp%n_points_pe(rank) .le. 0) cycle
-       if (rank .eq. pe_rank) then
-          recvbuf(recv_offsets(rank) + 1:recv_offsets(rank) + &
-               this%global_interp%n_points_pe(rank)) = &
-               sendbuf(send_offsets(rank) + 1:send_offsets(rank) + &
-               this%global_interp%n_points_pe(rank))
-       else
-          idx = idx + 1
-          call MPI_Isend(sendbuf(send_offsets(rank) + 1), &
-               this%global_interp%n_points_pe(rank), MPI_INTEGER, rank, 0, &
-               NEKO_COMM, requests(idx), ierr)
-       end if
-    end do
-
-    if (nreq .gt. 0) then
-       call MPI_Waitall(nreq, requests, MPI_STATUSES_IGNORE, ierr)
-    end if
-
-    particle_ids_local = recvbuf
-
-    deallocate(recvbuf)
-    deallocate(sendbuf)
-    deallocate(send_offsets)
-    deallocate(recv_offsets)
-    deallocate(requests)
+    sendbuf = real(this%particle_ids, rp)
+    recvbuf = 0.0_rp
+    call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
+    particle_ids_local = nint(recvbuf)
+    call redist_comm%free()
   end subroutine redistribute_particle_ids
 
-  !> Redistribute the lagged per-particle velocities to the owning rank,
-  !! matching the ordering produced by `global_interpolation_t`.
-  subroutine redistribute_velocity_history(this, vel_particles_lag_local)
+  subroutine redistribute_velocity_history(this, n_particles_old, &
+       vel_particles_lag_local)
     class(lpt_t), intent(inout) :: this
+    integer, intent(in) :: n_particles_old
     real(kind=rp), allocatable, intent(out) :: vel_particles_lag_local(:,:,:)
+    type(glb_intrp_comm_t) :: redist_comm
     real(kind=rp), allocatable :: sendbuf(:)
     real(kind=rp), allocatable :: recvbuf(:)
-    integer, allocatable :: send_offsets(:)
-    integer, allocatable :: recv_offsets(:)
-    type(MPI_Request), allocatable :: requests(:)
-    integer, pointer :: point_ids(:)
-    integer :: rank
-    integer :: i
-    integer :: j
-    integer :: idx
     integer :: n_local
-    integer :: nreq
-    integer :: ierr
 
-    n_local = this%global_interp%n_points_local
+    n_local = this%n_particles
     allocate(vel_particles_lag_local(3, LPT_VEL_HISTORY_LEN, n_local))
     vel_particles_lag_local = 0.0_rp
 
-    if (this%n_particles .eq. 0 .and. n_local .eq. 0) return
+    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
-    allocate(send_offsets(0:pe_size - 1))
-    allocate(recv_offsets(0:pe_size - 1))
-    send_offsets = 0
-    recv_offsets = 0
-
-    do rank = 0, pe_size - 1
-       send_offsets(rank) = 3 * LPT_VEL_HISTORY_LEN * &
-            this%global_interp%n_points_offset_pe(rank)
-       recv_offsets(rank) = 3 * LPT_VEL_HISTORY_LEN * &
-            this%global_interp%n_points_offset_pe_local(rank)
-    end do
-
-    allocate(sendbuf(3 * LPT_VEL_HISTORY_LEN * this%n_particles))
-    sendbuf = 0.0_rp
-    idx = 0
-    do rank = 0, pe_size - 1
-       if (this%global_interp%n_points_pe(rank) .le. 0) cycle
-       point_ids => this%global_interp%points_at_pe(rank)%array()
-       do i = 1, this%global_interp%n_points_pe(rank)
-          do j = 1, LPT_VEL_HISTORY_LEN
-             sendbuf(idx + 1:idx + 3) = &
-                  this%vel_particles_lag(:, j, point_ids(i))
-             idx = idx + 3
-          end do
-       end do
-    end do
-
+    call this%init_particle_redist_comm(redist_comm, &
+         3 * LPT_VEL_HISTORY_LEN)
+    allocate(sendbuf(3 * LPT_VEL_HISTORY_LEN * n_particles_old))
     allocate(recvbuf(3 * LPT_VEL_HISTORY_LEN * n_local))
+    sendbuf = reshape(this%vel_particles_lag, [size(sendbuf)])
     recvbuf = 0.0_rp
-
-    nreq = 0
-    do rank = 0, pe_size - 1
-       if (rank .ne. pe_rank .and. this%global_interp%n_points_pe_local(rank) .gt. 0) then
-          nreq = nreq + 1
-       end if
-       if (rank .ne. pe_rank .and. this%global_interp%n_points_pe(rank) .gt. 0) then
-          nreq = nreq + 1
-       end if
-    end do
-    allocate(requests(max(1, nreq)))
-
-    idx = 0
-    do rank = 0, pe_size - 1
-       if (rank .eq. pe_rank) cycle
-       if (this%global_interp%n_points_pe_local(rank) .gt. 0) then
-          idx = idx + 1
-          call MPI_Irecv(recvbuf(recv_offsets(rank) + 1), &
-               3 * LPT_VEL_HISTORY_LEN * this%global_interp%n_points_pe_local(rank), &
-               MPI_REAL_PRECISION, rank, 0, NEKO_COMM, requests(idx), ierr)
-       end if
-    end do
-
-    do rank = 0, pe_size - 1
-       if (this%global_interp%n_points_pe(rank) .le. 0) cycle
-       if (rank .eq. pe_rank) then
-          recvbuf(recv_offsets(rank) + 1:recv_offsets(rank) + &
-               3 * LPT_VEL_HISTORY_LEN * this%global_interp%n_points_pe(rank)) = &
-               sendbuf(send_offsets(rank) + 1:send_offsets(rank) + &
-               3 * LPT_VEL_HISTORY_LEN * this%global_interp%n_points_pe(rank))
-       else
-          idx = idx + 1
-          call MPI_Isend(sendbuf(send_offsets(rank) + 1), &
-               3 * LPT_VEL_HISTORY_LEN * this%global_interp%n_points_pe(rank), &
-               MPI_REAL_PRECISION, rank, 0, NEKO_COMM, requests(idx), ierr)
-       end if
-    end do
-
-    if (nreq .gt. 0) then
-      call MPI_Waitall(nreq, requests, MPI_STATUSES_IGNORE, ierr)
-    end if
-
-    idx = 0
-    do i = 1, n_local
-       do j = 1, LPT_VEL_HISTORY_LEN
-          vel_particles_lag_local(:, j, i) = recvbuf(idx + 1:idx + 3)
-          idx = idx + 3
-       end do
-    end do
-
-    deallocate(recvbuf)
-    deallocate(sendbuf)
-    deallocate(send_offsets)
-    deallocate(recv_offsets)
-    deallocate(requests)
+    call redist_comm%sendrecv(sendbuf, recvbuf, size(sendbuf), size(recvbuf))
+    vel_particles_lag_local = reshape(recvbuf, shape(vel_particles_lag_local))
+    call redist_comm%free()
   end subroutine redistribute_velocity_history
 
   !> Initialize periodic wrapping from the mesh periodic facet pairs.
+  !! For cyclic sectors, the angular extent is inferred directly from the mesh.
   subroutine init_periodic_wrap(this, msh, dm_Xh, coef)
     class(lpt_t), intent(inout) :: this
     type(mesh_t), intent(in), target :: msh
     type(dofmap_t), intent(in) :: dm_Xh
     type(coef_t), intent(in) :: coef
-    integer :: i
-    integer :: idx
-    integer :: ierr
-    integer :: j
-    real(kind=rp) :: local_min(3)
-    real(kind=rp) :: local_max(3)
-    real(kind=rp) :: global_min(3)
-    real(kind=rp) :: global_max(3)
-    real(kind=rp) :: theta_src
-    real(kind=rp) :: theta_tgt
-    real(kind=rp) :: theta_delta
-    real(kind=rp) :: theta_local
-    real(kind=rp) :: theta_min
-    real(kind=rp) :: theta_max
-    real(kind=rp) :: radius_src
-    real(kind=rp) :: radius_tgt
-    real(kind=rp) :: pi
-    integer :: n_rot_maps
-
     this%periodic_enabled = .false.
     this%rotational_periodic_enabled = .false.
     this%n_periodic_dirs = 0
@@ -573,77 +364,90 @@ contains
 
     if (msh%periodic%size .eq. 0) return
 
-    if (coef%cyclic .and. msh%gdim .ge. 2) then
-       pi = acos(-1.0_rp)
-       if (msh%nelv .gt. 0) then
-          theta_min = minval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
-               2.0_rp * pi, 2.0_rp * pi))
-          theta_max = maxval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
-               2.0_rp * pi, 2.0_rp * pi))
-       else
-          theta_min = huge(0.0_rp)
-          theta_max = -huge(0.0_rp)
-       end if
+    call this%init_rotational_periodic_wrap(msh, dm_Xh, coef)
+    if (this%rotational_periodic_enabled) return
 
-       call MPI_Allreduce(theta_min, this%rotational_theta_min, 1, &
-            MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
-       call MPI_Allreduce(theta_max, this%rotational_theta_max, 1, &
-            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+    call this%init_translational_periodic_wrap(msh, dm_Xh)
+  end subroutine init_periodic_wrap
 
-       this%rotational_theta_len = this%rotational_theta_max - &
-            this%rotational_theta_min
-       if (this%rotational_theta_len .gt. LPT_PERIODIC_TOL) then
-          this%rotational_periodic_enabled = .true.
-          return
-       end if
+  !> Wrap particles back into the periodic domain before the ownership search.
+  subroutine wrap_particles_periodic(this)
+    class(lpt_t), intent(inout) :: this
+    integer :: i
+    integer :: k
+    integer :: n_iters
+    logical :: mapped
+
+    if (this%n_particles .eq. 0) return
+
+    if (this%rotational_periodic_enabled) then
+       call this%wrap_particles_rotational()
+       return
     end if
 
     if (this%n_periodic_maps .gt. 0) then
-       pi = acos(-1.0_rp)
+       do i = 1, this%n_particles
+          do n_iters = 1, 3
+             mapped = .false.
+             do k = 1, this%n_periodic_maps
+                if (lpt_apply_periodic_map_if_needed(this, i, k)) then
+                   mapped = .true.
+                   exit
+                end if
+             end do
+             if (.not. mapped) exit
+          end do
+       end do
+    end if
+
+    call this%wrap_particles_translational()
+  end subroutine wrap_particles_periodic
+
+  subroutine init_rotational_periodic_wrap(this, msh, dm_Xh, coef)
+    class(lpt_t), intent(inout) :: this
+    type(mesh_t), intent(in) :: msh
+    type(dofmap_t), intent(in) :: dm_Xh
+    type(coef_t), intent(in) :: coef
+    real(kind=rp) :: theta_min
+    real(kind=rp) :: theta_max
+    real(kind=rp) :: pi
+    integer :: ierr
+
+    if (.not. coef%cyclic .or. msh%gdim .lt. 2) return
+
+    pi = acos(-1.0_rp)
+    if (msh%nelv .gt. 0) then
+       theta_min = minval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
+            2.0_rp * pi, 2.0_rp * pi))
+       theta_max = maxval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
+            2.0_rp * pi, 2.0_rp * pi))
+    else
        theta_min = huge(0.0_rp)
        theta_max = -huge(0.0_rp)
-        theta_delta = -1.0_rp
-       n_rot_maps = 0
-       do i = 1, this%n_periodic_maps
-          if (msh%gdim .lt. 2) exit
-          theta_src = atan2(this%periodic_src_center(2, i), &
-               this%periodic_src_center(1, i))
-          theta_tgt = atan2(this%periodic_tgt_center(2, i), &
-               this%periodic_tgt_center(1, i))
-          radius_src = norm2(this%periodic_src_center(1:2, i))
-          radius_tgt = norm2(this%periodic_tgt_center(1:2, i))
-          if (abs(radius_src - radius_tgt) .gt. 100.0_rp * LPT_PERIODIC_TOL * &
-               max(1.0_rp, radius_src, radius_tgt)) cycle
-          if (msh%gdim .eq. 3) then
-             if (abs(this%periodic_src_center(3, i) - &
-                  this%periodic_tgt_center(3, i)) .gt. &
-                  100.0_rp * LPT_PERIODIC_TOL) cycle
-          end if
-
-          theta_src = modulo(theta_src + 2.0_rp * pi, 2.0_rp * pi)
-          theta_tgt = modulo(theta_tgt + 2.0_rp * pi, 2.0_rp * pi)
-          radius_src = modulo(theta_tgt - theta_src + 2.0_rp * pi, 2.0_rp * pi)
-          if (radius_src .gt. pi) radius_src = 2.0_rp * pi - radius_src
-          if (radius_src .le. 100.0_rp * LPT_PERIODIC_TOL) cycle
-
-          theta_min = min(theta_min, min(theta_src, theta_tgt))
-          theta_max = max(theta_max, max(theta_src, theta_tgt))
-          if (theta_delta .lt. 0.0_rp) then
-             theta_delta = radius_src
-          else if (abs(radius_src - theta_delta) .gt. &
-               100.0_rp * LPT_PERIODIC_TOL) then
-             return
-          end if
-          n_rot_maps = n_rot_maps + 1
-       end do
-       if (coef%cyclic .and. n_rot_maps .gt. 0 .and. theta_delta .gt. 0.0_rp) then
-          this%rotational_periodic_enabled = .true.
-          this%rotational_theta_min = theta_min
-          this%rotational_theta_max = theta_max
-          this%rotational_theta_len = theta_delta
-          return
-       end if
     end if
+
+    call MPI_Allreduce(theta_min, this%rotational_theta_min, 1, &
+         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+    call MPI_Allreduce(theta_max, this%rotational_theta_max, 1, &
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+
+    this%rotational_theta_len = this%rotational_theta_max - &
+         this%rotational_theta_min
+    this%rotational_periodic_enabled = &
+         this%rotational_theta_len .gt. LPT_PERIODIC_TOL
+  end subroutine init_rotational_periodic_wrap
+
+  subroutine init_translational_periodic_wrap(this, msh, dm_Xh)
+    class(lpt_t), intent(inout) :: this
+    type(mesh_t), intent(in) :: msh
+    type(dofmap_t), intent(in) :: dm_Xh
+    integer :: i
+    integer :: idx
+    integer :: ierr
+    real(kind=rp) :: local_min(3)
+    real(kind=rp) :: local_max(3)
+    real(kind=rp) :: global_min(3)
+    real(kind=rp) :: global_max(3)
 
     if (msh%nelv .gt. 0) then
        local_min(1) = minval(dm_Xh%x)
@@ -664,111 +468,51 @@ contains
 
     do i = 1, msh%periodic%size
        idx = lpt_periodic_dir_from_facet(msh%gdim, msh%periodic%facet_el(i)%x(1))
-       if (idx .eq. 0) then
-          cycle
-       end if
-       if (this%periodic_len(idx) .le. 0.0_rp) then
-          this%n_periodic_dirs = max(this%n_periodic_dirs, idx)
-          this%periodic_dir(:, idx) = 0.0_rp
-          this%periodic_dir(idx, idx) = 1.0_rp
-          this%periodic_min(idx) = global_min(idx)
-          this%periodic_max(idx) = global_max(idx)
-          this%periodic_len(idx) = global_max(idx) - global_min(idx)
-          this%periodic_shift(:, idx) = 0.0_rp
-          this%periodic_shift(idx, idx) = this%periodic_len(idx)
-       end if
-    end do
-
-    do i = 1, this%n_periodic_dirs
-       if (this%periodic_len(i) .le. 0.0_rp) cycle
-       do j = 1, this%n_periodic_maps
-          if (lpt_periodic_dir_from_facet(msh%gdim, this%periodic_map_facet(j)) .ne. i) cycle
-          if (abs(dot_product(this%periodic_tgt_center(:, j) - &
-               this%periodic_src_center(:, j), this%periodic_dir(:, i)) - &
-               this%periodic_shift(i, i)) .gt. &
-               100.0_rp * LPT_PERIODIC_TOL * max(1.0_rp, this%periodic_len(i))) then
-             this%periodic_enabled = .false.
-             this%n_periodic_dirs = 0
-             this%periodic_shift = 0.0_rp
-             this%periodic_dir = 0.0_rp
-             this%periodic_min = 0.0_rp
-             this%periodic_max = 0.0_rp
-             this%periodic_len = 0.0_rp
-             return
-          end if
-       end do
+       if (idx .eq. 0 .or. this%periodic_len(idx) .gt. 0.0_rp) cycle
+       this%n_periodic_dirs = max(this%n_periodic_dirs, idx)
+       this%periodic_dir(:, idx) = 0.0_rp
+       this%periodic_dir(idx, idx) = 1.0_rp
+       this%periodic_min(idx) = global_min(idx)
+       this%periodic_max(idx) = global_max(idx)
+       this%periodic_len(idx) = global_max(idx) - global_min(idx)
+       this%periodic_shift(:, idx) = 0.0_rp
+       this%periodic_shift(idx, idx) = this%periodic_len(idx)
     end do
 
     this%periodic_enabled = this%n_periodic_dirs .gt. 0
-  end subroutine init_periodic_wrap
+  end subroutine init_translational_periodic_wrap
 
-  !> Wrap particles back into the periodic domain before the ownership search.
-  subroutine wrap_particles_periodic(this)
+  subroutine wrap_particles_rotational(this)
+    class(lpt_t), intent(inout) :: this
+    integer :: i
+    real(kind=rp) :: radius
+    real(kind=rp) :: theta
+    real(kind=rp) :: pi
+
+    pi = acos(-1.0_rp)
+    do i = 1, this%n_particles
+       radius = norm2(this%xyz_particles(1:2, i))
+       theta = modulo(atan2(this%xyz_particles(2, i), &
+            this%xyz_particles(1, i)) + 2.0_rp * pi, 2.0_rp * pi)
+
+       do while (theta .lt. this%rotational_theta_min - LPT_PERIODIC_TOL)
+          theta = theta + this%rotational_theta_len
+       end do
+
+       do while (theta .gt. this%rotational_theta_max + LPT_PERIODIC_TOL)
+          theta = theta - this%rotational_theta_len
+       end do
+
+       this%xyz_particles(1, i) = radius * cos(theta)
+       this%xyz_particles(2, i) = radius * sin(theta)
+    end do
+  end subroutine wrap_particles_rotational
+
+  subroutine wrap_particles_translational(this)
     class(lpt_t), intent(inout) :: this
     integer :: i
     integer :: j
-    integer :: k
-    integer :: n_iters
     real(kind=rp) :: coord
-    real(kind=rp) :: radius
-    real(kind=rp) :: theta_before
-    real(kind=rp) :: theta
-    real(kind=rp) :: pi
-    logical :: mapped
-    character(len=LOG_SIZE) :: log_buf
-
-    if (this%n_particles .eq. 0) return
-
-    if (this%rotational_periodic_enabled) then
-       pi = acos(-1.0_rp)
-       do i = 1, this%n_particles
-          radius = norm2(this%xyz_particles(1:2, i))
-          theta_before = atan2(this%xyz_particles(2, i), this%xyz_particles(1, i))
-          theta = modulo(theta_before + 2.0_rp * pi, 2.0_rp * pi)
-
-          do while (theta .lt. this%rotational_theta_min - LPT_PERIODIC_TOL)
-             theta = theta + this%rotational_theta_len
-          end do
-
-          do while (theta .gt. this%rotational_theta_max + LPT_PERIODIC_TOL)
-             theta = theta - this%rotational_theta_len
-          end do
-
-          this%xyz_particles(1, i) = radius * cos(theta)
-          this%xyz_particles(2, i) = radius * sin(theta)
-          if (this%log .and. this%periodic_debug_logs_remaining .gt. 0) then
-             if (abs(theta - modulo(theta_before + 2.0_rp * pi, 2.0_rp * pi)) &
-                  .gt. LPT_PERIODIC_TOL) then
-                write(log_buf, '(A,I0,A,3(ES13.5,A),ES13.5,A,ES13.5)') &
-                     'LPT rotational wrap particle ', i, ': theta_before=', &
-                     modulo(theta_before + 2.0_rp * pi, 2.0_rp * pi), &
-                     ', theta_after=', theta, ', theta_min=', &
-                     this%rotational_theta_min, ', theta_max=', &
-                     this%rotational_theta_max, ', theta_len=', &
-                     this%rotational_theta_len
-                call neko_log%message(log_buf)
-                this%periodic_debug_logs_remaining = &
-                     this%periodic_debug_logs_remaining - 1
-             end if
-          end if
-       end do
-       return
-    end if
-
-    if (this%n_periodic_maps .gt. 0) then
-       do i = 1, this%n_particles
-          do n_iters = 1, 3
-             mapped = .false.
-             do k = 1, this%n_periodic_maps
-                if (lpt_apply_periodic_map_if_needed(this, i, k)) then
-                   mapped = .true.
-                   exit
-                end if
-             end do
-             if (.not. mapped) exit
-          end do
-       end do
-    end if
 
     if (.not. this%periodic_enabled) return
 
@@ -789,7 +533,7 @@ contains
           end do
        end do
     end do
-  end subroutine wrap_particles_periodic
+  end subroutine wrap_particles_translational
 
   !> Interpolate the carrier velocity at the local particles.
   subroutine evaluate_velocity(this, vel)
@@ -937,8 +681,6 @@ contains
     if (allocated(this%xyz_particles)) deallocate(this%xyz_particles)
     if (allocated(this%particle_ids)) deallocate(this%particle_ids)
     if (allocated(this%vel_particles_lag)) deallocate(this%vel_particles_lag)
-    if (allocated(this%periodic_map_el)) deallocate(this%periodic_map_el)
-    if (allocated(this%periodic_map_facet)) deallocate(this%periodic_map_facet)
     if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
     if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
     if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
@@ -954,11 +696,12 @@ contains
     this%w => null()
     this%output_enabled = .false.
     this%log = .true.
-    this%periodic_enabled = .false.
-    this%rotational_periodic_enabled = .false.
     this%start_time = -huge(0.0_rp)
     this%n_particles = 0
     this%n_global_particles = 0
+    this%n_periodic_maps = 0
+    this%periodic_enabled = .false.
+    this%rotational_periodic_enabled = .false.
     this%n_periodic_dirs = 0
     this%periodic_shift = 0.0_rp
     this%periodic_dir = 0.0_rp
@@ -968,8 +711,6 @@ contains
     this%rotational_theta_min = 0.0_rp
     this%rotational_theta_max = 0.0_rp
     this%rotational_theta_len = 0.0_rp
-    this%periodic_debug_logs_remaining = 3
-    this%n_periodic_maps = 0
     call this%free_base()
   end subroutine lpt_free
 
@@ -1007,9 +748,6 @@ contains
     write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
          this%n_particles
     if (pe_rank .eq. 0) call neko_log%message(log_buf)
-    call neko_log%message("Input supported from doc/pages/user-guide/" // &
-         "case-file.md semantics for simcomp JSON; particle seeding here " // &
-         "uses coordinates or points_file.")
     call neko_log%end_section()
   end subroutine log_status
 
@@ -1041,7 +779,6 @@ contains
     integer :: ierr
     integer :: max_local
     integer, allocatable :: counts(:)
-    integer, allocatable :: displs(:)
     integer, allocatable :: local_meta(:)
     integer, allocatable :: global_meta(:)
     integer, allocatable :: padded_meta(:)
@@ -1058,8 +795,6 @@ contains
     integer :: npts
 
     this%n_periodic_maps = 0
-    if (allocated(this%periodic_map_el)) deallocate(this%periodic_map_el)
-    if (allocated(this%periodic_map_facet)) deallocate(this%periodic_map_facet)
     if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
     if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
     if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
@@ -1072,13 +807,8 @@ contains
     if (n_local .eq. 0) return
 
     allocate(counts(pe_size))
-    allocate(displs(pe_size))
     call MPI_Allgather(n_local, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, &
          NEKO_COMM, ierr)
-    displs(1) = 0
-    do i = 2, pe_size
-       displs(i) = displs(i - 1) + counts(i - 1)
-    end do
     n_global = sum(counts)
     max_local = max(1, maxval(counts))
 
@@ -1129,8 +859,6 @@ contains
        end if
     end do
 
-    allocate(this%periodic_map_el(n_local))
-    allocate(this%periodic_map_facet(n_local))
     allocate(this%periodic_map_npts(n_local))
     allocate(this%periodic_src_center(3, n_local))
     allocate(this%periodic_src_basis(3, 3, n_local))
@@ -1161,8 +889,6 @@ contains
 
        idx = this%n_periodic_maps + 1
        this%n_periodic_maps = idx
-       this%periodic_map_el(idx) = msh%periodic%facet_el(i)%x(2)
-       this%periodic_map_facet(idx) = msh%periodic%facet_el(i)%x(1)
        this%periodic_map_npts(idx) = npts
        call lpt_build_facet_basis(src_pts, src_centroid, npts, &
             this%periodic_src_center(:, idx), this%periodic_src_basis(:, :, idx))
@@ -1183,7 +909,6 @@ contains
     deallocate(padded_geom)
     deallocate(gathered_geom)
     deallocate(counts)
-    deallocate(displs)
   end subroutine init_periodic_maps
 
   logical function lpt_apply_periodic_map_if_needed(this, i_particle, i_map) result(mapped)
@@ -1233,7 +958,6 @@ contains
     integer, intent(in) :: ids_b(4)
     integer, intent(in) :: npts
     integer :: i
-    integer :: j
 
     match = .true.
     do i = 1, npts
@@ -1362,6 +1086,17 @@ contains
        bounds_max(2) = 0.0_rp
     end if
   end subroutine lpt_get_facet_bounds
+
+  subroutine lpt_push_comp_range(s, offset, n_comp)
+    type(stack_i4_t), intent(inout) :: s
+    integer, intent(in) :: offset
+    integer, intent(in) :: n_comp
+    integer :: i
+
+    do i = 1, n_comp
+       call s%push(offset + i)
+    end do
+  end subroutine lpt_push_comp_range
 
   function lpt_cross(a, b) result(c)
     real(kind=rp), intent(in) :: a(3)
