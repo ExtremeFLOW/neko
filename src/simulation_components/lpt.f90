@@ -50,6 +50,7 @@ module lagrangian_particle_tracking
   use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
+  use math, only : add2s2
   use stack, only : stack_i4_t
   use tensor, only : trsp
   use mesh, only : mesh_t
@@ -556,6 +557,7 @@ contains
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     real(kind=rp), allocatable :: vel(:,:)
+    real(kind=rp) :: dtc
     integer :: i
     integer :: j
     integer :: nadv
@@ -579,13 +581,16 @@ contains
       end if
     end if
 
-    do i = 1, this%n_particles
-       this%xyz_particles(:, i) = this%xyz_particles(:, i) + time%dt * &
-            this%case%fluid%ext_bdf%advection_coeffs%x(1) * vel(:, i)
-       do j = 2, nadv
-          this%xyz_particles(:, i) = this%xyz_particles(:, i) + time%dt * &
-               this%case%fluid%ext_bdf%advection_coeffs%x(j) * &
-               this%vel_particles_lag(:, j - 1, i)
+    dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(1)
+    do i = 1, 3
+       call add2s2(this%xyz_particles(i, :), vel(i, :), dtc, this%n_particles)
+    end do
+
+    do j = 2, nadv
+       dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(j)
+       do i = 1, 3
+          call add2s2(this%xyz_particles(i, :), this%vel_particles_lag(i, j - 1, :), &
+               dtc, this%n_particles)
        end do
     end do
 
