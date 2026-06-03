@@ -604,7 +604,7 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_d
+    real(kind=dp) :: cfl_d
     integer :: ierr
 
     cfl_d = opr_device_cfl(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
@@ -617,12 +617,12 @@ contains
   end function cfl_d
 
   function cfl_f(dt, u, v, w, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     type(field_t), intent(in) :: u, v, w
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_f
+    real(kind=dp) :: cfl_f
     integer :: ierr
 
     if (NEKO_BCKND_SX .eq. 1) then
@@ -668,13 +668,12 @@ contains
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
   function cfl_compressible_d(dt, max_wave_speed, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     type(c_ptr), intent(in) :: max_wave_speed
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_compressible_d
->>>>>>> 6586f0023c5449d8ddae125c80cfe21b4b8f5c57
+    real(kind=dp) :: cfl_compressible_d
 
     cfl_compressible_d = cfl(dt, max_wave_speed, max_wave_speed, &
          max_wave_speed, Xh, coef, nelv, gdim)
@@ -689,12 +688,12 @@ contains
   !! @param nelv The total number of elements.
   !! @param gdim Number of geometric dimensions.
   function cfl_compressible_f(dt, max_wave_speed, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     type(field_t), intent(in) :: max_wave_speed
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp) :: cfl_compressible_f
+    real(kind=dp) :: cfl_compressible_f
 
     cfl_compressible_f = cfl(dt, max_wave_speed, max_wave_speed, &
          max_wave_speed, Xh, coef, nelv, gdim)
