@@ -39,6 +39,7 @@ module lagrangian_particle_tracking
   use registry, only : neko_registry
   use field, only : field_t
   use case, only : case_t
+  use coefs, only : coef_t
   use dofmap, only : dofmap_t
   use json_utils, only : json_get, json_get_or_default, &
        json_get_subdict_or_empty
@@ -89,6 +90,8 @@ module lagrangian_particle_tracking
      logical :: log = .true.
      !> Whether periodic wrapping is active.
      logical :: periodic_enabled = .false.
+     !> Whether rotational periodic wrapping around the z-axis is active.
+     logical :: rotational_periodic_enabled = .false.
      !> Time after which tracking should start.
      real(kind=rp) :: start_time = -huge(0.0_rp)
      !> Number of particles currently local to this rank.
@@ -107,6 +110,14 @@ module lagrangian_particle_tracking
      real(kind=rp) :: periodic_max(3) = 0.0_rp
      !> Period length along each periodic direction.
      real(kind=rp) :: periodic_len(3) = 0.0_rp
+     !> Minimum polar angle of the rotationally periodic sector.
+     real(kind=rp) :: rotational_theta_min = 0.0_rp
+     !> Maximum polar angle of the rotationally periodic sector.
+     real(kind=rp) :: rotational_theta_max = 0.0_rp
+     !> Angular period of the rotationally periodic sector.
+     real(kind=rp) :: rotational_theta_len = 0.0_rp
+     !> Number of temporary periodic debug messages still allowed.
+     integer :: periodic_debug_logs_remaining = 3
      !> Number of local periodic facet transforms.
      integer :: n_periodic_maps = 0
      !> Owning element for each local periodic facet transform.
@@ -119,6 +130,10 @@ module lagrangian_particle_tracking
      real(kind=rp), allocatable :: periodic_src_center(:,:)
      !> Source facet bases: tangent 1, tangent 2, inward normal.
      real(kind=rp), allocatable :: periodic_src_basis(:,:,:)
+     !> Source facet tangent-coordinate bounds in the local facet basis.
+     real(kind=rp), allocatable :: periodic_src_bounds_min(:,:)
+     !> Source facet tangent-coordinate bounds in the local facet basis.
+     real(kind=rp), allocatable :: periodic_src_bounds_max(:,:)
      !> Target facet centers.
      real(kind=rp), allocatable :: periodic_tgt_center(:,:)
      !> Target facet bases: tangent 1, tangent 2, inward normal.
@@ -185,8 +200,9 @@ contains
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &
          params_subdict = interp_subdict)
-    call this%init_periodic_wrap(case%fluid%msh, case%fluid%dm_Xh)
     call this%init_periodic_maps(case%fluid%msh)
+    call this%init_periodic_wrap(case%fluid%msh, case%fluid%dm_Xh, &
+         case%fluid%c_Xh)
     call this%redistribute_particles()
 
     call json_get_or_default(json, "output_filename", output_filename, &
@@ -519,27 +535,115 @@ contains
   end subroutine redistribute_velocity_history
 
   !> Initialize periodic wrapping from the mesh periodic facet pairs.
-  subroutine init_periodic_wrap(this, msh, dm_Xh)
+  subroutine init_periodic_wrap(this, msh, dm_Xh, coef)
     class(lpt_t), intent(inout) :: this
     type(mesh_t), intent(in), target :: msh
     type(dofmap_t), intent(in) :: dm_Xh
+    type(coef_t), intent(in) :: coef
     integer :: i
     integer :: idx
     integer :: ierr
+    integer :: j
     real(kind=rp) :: local_min(3)
     real(kind=rp) :: local_max(3)
     real(kind=rp) :: global_min(3)
     real(kind=rp) :: global_max(3)
+    real(kind=rp) :: theta_src
+    real(kind=rp) :: theta_tgt
+    real(kind=rp) :: theta_delta
+    real(kind=rp) :: theta_local
+    real(kind=rp) :: theta_min
+    real(kind=rp) :: theta_max
+    real(kind=rp) :: radius_src
+    real(kind=rp) :: radius_tgt
+    real(kind=rp) :: pi
+    integer :: n_rot_maps
 
     this%periodic_enabled = .false.
+    this%rotational_periodic_enabled = .false.
     this%n_periodic_dirs = 0
     this%periodic_shift = 0.0_rp
     this%periodic_dir = 0.0_rp
     this%periodic_min = 0.0_rp
     this%periodic_max = 0.0_rp
     this%periodic_len = 0.0_rp
+    this%rotational_theta_min = 0.0_rp
+    this%rotational_theta_max = 0.0_rp
+    this%rotational_theta_len = 0.0_rp
 
     if (msh%periodic%size .eq. 0) return
+
+    if (coef%cyclic .and. msh%gdim .ge. 2) then
+       pi = acos(-1.0_rp)
+       if (msh%nelv .gt. 0) then
+          theta_min = minval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
+               2.0_rp * pi, 2.0_rp * pi))
+          theta_max = maxval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
+               2.0_rp * pi, 2.0_rp * pi))
+       else
+          theta_min = huge(0.0_rp)
+          theta_max = -huge(0.0_rp)
+       end if
+
+       call MPI_Allreduce(theta_min, this%rotational_theta_min, 1, &
+            MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+       call MPI_Allreduce(theta_max, this%rotational_theta_max, 1, &
+            MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+
+       this%rotational_theta_len = this%rotational_theta_max - &
+            this%rotational_theta_min
+       if (this%rotational_theta_len .gt. LPT_PERIODIC_TOL) then
+          this%rotational_periodic_enabled = .true.
+          return
+       end if
+    end if
+
+    if (this%n_periodic_maps .gt. 0) then
+       pi = acos(-1.0_rp)
+       theta_min = huge(0.0_rp)
+       theta_max = -huge(0.0_rp)
+        theta_delta = -1.0_rp
+       n_rot_maps = 0
+       do i = 1, this%n_periodic_maps
+          if (msh%gdim .lt. 2) exit
+          theta_src = atan2(this%periodic_src_center(2, i), &
+               this%periodic_src_center(1, i))
+          theta_tgt = atan2(this%periodic_tgt_center(2, i), &
+               this%periodic_tgt_center(1, i))
+          radius_src = norm2(this%periodic_src_center(1:2, i))
+          radius_tgt = norm2(this%periodic_tgt_center(1:2, i))
+          if (abs(radius_src - radius_tgt) .gt. 100.0_rp * LPT_PERIODIC_TOL * &
+               max(1.0_rp, radius_src, radius_tgt)) cycle
+          if (msh%gdim .eq. 3) then
+             if (abs(this%periodic_src_center(3, i) - &
+                  this%periodic_tgt_center(3, i)) .gt. &
+                  100.0_rp * LPT_PERIODIC_TOL) cycle
+          end if
+
+          theta_src = modulo(theta_src + 2.0_rp * pi, 2.0_rp * pi)
+          theta_tgt = modulo(theta_tgt + 2.0_rp * pi, 2.0_rp * pi)
+          radius_src = modulo(theta_tgt - theta_src + 2.0_rp * pi, 2.0_rp * pi)
+          if (radius_src .gt. pi) radius_src = 2.0_rp * pi - radius_src
+          if (radius_src .le. 100.0_rp * LPT_PERIODIC_TOL) cycle
+
+          theta_min = min(theta_min, min(theta_src, theta_tgt))
+          theta_max = max(theta_max, max(theta_src, theta_tgt))
+          if (theta_delta .lt. 0.0_rp) then
+             theta_delta = radius_src
+          else if (abs(radius_src - theta_delta) .gt. &
+               100.0_rp * LPT_PERIODIC_TOL) then
+             return
+          end if
+          n_rot_maps = n_rot_maps + 1
+       end do
+       if (coef%cyclic .and. n_rot_maps .gt. 0 .and. theta_delta .gt. 0.0_rp) then
+          this%rotational_periodic_enabled = .true.
+          this%rotational_theta_min = theta_min
+          this%rotational_theta_max = theta_max
+          this%rotational_theta_len = theta_delta
+          return
+       end if
+    end if
 
     if (msh%nelv .gt. 0) then
        local_min(1) = minval(dm_Xh%x)
@@ -575,6 +679,26 @@ contains
        end if
     end do
 
+    do i = 1, this%n_periodic_dirs
+       if (this%periodic_len(i) .le. 0.0_rp) cycle
+       do j = 1, this%n_periodic_maps
+          if (lpt_periodic_dir_from_facet(msh%gdim, this%periodic_map_facet(j)) .ne. i) cycle
+          if (abs(dot_product(this%periodic_tgt_center(:, j) - &
+               this%periodic_src_center(:, j), this%periodic_dir(:, i)) - &
+               this%periodic_shift(i, i)) .gt. &
+               100.0_rp * LPT_PERIODIC_TOL * max(1.0_rp, this%periodic_len(i))) then
+             this%periodic_enabled = .false.
+             this%n_periodic_dirs = 0
+             this%periodic_shift = 0.0_rp
+             this%periodic_dir = 0.0_rp
+             this%periodic_min = 0.0_rp
+             this%periodic_max = 0.0_rp
+             this%periodic_len = 0.0_rp
+             return
+          end if
+       end do
+    end do
+
     this%periodic_enabled = this%n_periodic_dirs .gt. 0
   end subroutine init_periodic_wrap
 
@@ -586,22 +710,64 @@ contains
     integer :: k
     integer :: n_iters
     real(kind=rp) :: coord
+    real(kind=rp) :: radius
+    real(kind=rp) :: theta_before
+    real(kind=rp) :: theta
+    real(kind=rp) :: pi
+    logical :: mapped
+    character(len=LOG_SIZE) :: log_buf
 
     if (this%n_particles .eq. 0) return
 
-    if (this%n_periodic_maps .gt. 0) then
-       if (allocated(this%global_interp%el_owner0_local)) then
-          do i = 1, this%n_particles
-             do n_iters = 1, 3
-                do k = 1, this%n_periodic_maps
-                   if (this%global_interp%el_owner0_local(i) .eq. &
-                        this%periodic_map_el(k)) then
-                      call lpt_apply_periodic_map_if_needed(this, i, k)
-                   end if
-                end do
-             end do
+    if (this%rotational_periodic_enabled) then
+       pi = acos(-1.0_rp)
+       do i = 1, this%n_particles
+          radius = norm2(this%xyz_particles(1:2, i))
+          theta_before = atan2(this%xyz_particles(2, i), this%xyz_particles(1, i))
+          theta = modulo(theta_before + 2.0_rp * pi, 2.0_rp * pi)
+
+          do while (theta .lt. this%rotational_theta_min - LPT_PERIODIC_TOL)
+             theta = theta + this%rotational_theta_len
           end do
-       end if
+
+          do while (theta .gt. this%rotational_theta_max + LPT_PERIODIC_TOL)
+             theta = theta - this%rotational_theta_len
+          end do
+
+          this%xyz_particles(1, i) = radius * cos(theta)
+          this%xyz_particles(2, i) = radius * sin(theta)
+          if (this%log .and. this%periodic_debug_logs_remaining .gt. 0) then
+             if (abs(theta - modulo(theta_before + 2.0_rp * pi, 2.0_rp * pi)) &
+                  .gt. LPT_PERIODIC_TOL) then
+                write(log_buf, '(A,I0,A,3(ES13.5,A),ES13.5,A,ES13.5)') &
+                     'LPT rotational wrap particle ', i, ': theta_before=', &
+                     modulo(theta_before + 2.0_rp * pi, 2.0_rp * pi), &
+                     ', theta_after=', theta, ', theta_min=', &
+                     this%rotational_theta_min, ', theta_max=', &
+                     this%rotational_theta_max, ', theta_len=', &
+                     this%rotational_theta_len
+                call neko_log%message(log_buf)
+                this%periodic_debug_logs_remaining = &
+                     this%periodic_debug_logs_remaining - 1
+             end if
+          end if
+       end do
+       return
+    end if
+
+    if (this%n_periodic_maps .gt. 0) then
+       do i = 1, this%n_particles
+          do n_iters = 1, 3
+             mapped = .false.
+             do k = 1, this%n_periodic_maps
+                if (lpt_apply_periodic_map_if_needed(this, i, k)) then
+                   mapped = .true.
+                   exit
+                end if
+             end do
+             if (.not. mapped) exit
+          end do
+       end do
     end if
 
     if (.not. this%periodic_enabled) return
@@ -776,6 +942,8 @@ contains
     if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
     if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
     if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
+    if (allocated(this%periodic_src_bounds_min)) deallocate(this%periodic_src_bounds_min)
+    if (allocated(this%periodic_src_bounds_max)) deallocate(this%periodic_src_bounds_max)
     if (allocated(this%periodic_tgt_center)) deallocate(this%periodic_tgt_center)
     if (allocated(this%periodic_tgt_basis)) deallocate(this%periodic_tgt_basis)
     call this%global_interp%free()
@@ -787,6 +955,7 @@ contains
     this%output_enabled = .false.
     this%log = .true.
     this%periodic_enabled = .false.
+    this%rotational_periodic_enabled = .false.
     this%start_time = -huge(0.0_rp)
     this%n_particles = 0
     this%n_global_particles = 0
@@ -796,6 +965,10 @@ contains
     this%periodic_min = 0.0_rp
     this%periodic_max = 0.0_rp
     this%periodic_len = 0.0_rp
+    this%rotational_theta_min = 0.0_rp
+    this%rotational_theta_max = 0.0_rp
+    this%rotational_theta_len = 0.0_rp
+    this%periodic_debug_logs_remaining = 3
     this%n_periodic_maps = 0
     call this%free_base()
   end subroutine lpt_free
@@ -816,6 +989,14 @@ contains
     if (this%periodic_enabled) then
        write(log_buf, '(A,I0)') "Periodic wrap directions: ", &
             this%n_periodic_dirs
+       call neko_log%message(log_buf)
+    end if
+    if (this%rotational_periodic_enabled) then
+       write(log_buf, '(A,3(ES13.5,A),ES13.5)') &
+            "Rotational periodic sector: theta_min=", &
+            this%rotational_theta_min, ", theta_max=", &
+            this%rotational_theta_max, ", theta_len=", &
+            this%rotational_theta_len, ""
        call neko_log%message(log_buf)
     end if
     if (this%n_periodic_maps .gt. 0) then
@@ -882,6 +1063,8 @@ contains
     if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
     if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
     if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
+    if (allocated(this%periodic_src_bounds_min)) deallocate(this%periodic_src_bounds_min)
+    if (allocated(this%periodic_src_bounds_max)) deallocate(this%periodic_src_bounds_max)
     if (allocated(this%periodic_tgt_center)) deallocate(this%periodic_tgt_center)
     if (allocated(this%periodic_tgt_basis)) deallocate(this%periodic_tgt_basis)
 
@@ -951,6 +1134,8 @@ contains
     allocate(this%periodic_map_npts(n_local))
     allocate(this%periodic_src_center(3, n_local))
     allocate(this%periodic_src_basis(3, 3, n_local))
+    allocate(this%periodic_src_bounds_min(2, n_local))
+    allocate(this%periodic_src_bounds_max(2, n_local))
     allocate(this%periodic_tgt_center(3, n_local))
     allocate(this%periodic_tgt_basis(3, 3, n_local))
 
@@ -981,6 +1166,10 @@ contains
        this%periodic_map_npts(idx) = npts
        call lpt_build_facet_basis(src_pts, src_centroid, npts, &
             this%periodic_src_center(:, idx), this%periodic_src_basis(:, :, idx))
+       call lpt_get_facet_bounds(src_pts, this%periodic_src_center(:, idx), &
+            this%periodic_src_basis(:, :, idx), npts, &
+            this%periodic_src_bounds_min(:, idx), &
+            this%periodic_src_bounds_max(:, idx))
        call lpt_build_facet_basis(tgt_pts, tgt_centroid, npts, &
             this%periodic_tgt_center(:, idx), this%periodic_tgt_basis(:, :, idx))
     end do
@@ -997,34 +1186,47 @@ contains
     deallocate(displs)
   end subroutine init_periodic_maps
 
-  subroutine lpt_apply_periodic_map_if_needed(this, i_particle, i_map)
+  logical function lpt_apply_periodic_map_if_needed(this, i_particle, i_map) result(mapped)
     class(lpt_t), intent(inout) :: this
     integer, intent(in) :: i_particle
     integer, intent(in) :: i_map
     real(kind=rp) :: rel(3)
     real(kind=rp) :: xi(3)
 
+    mapped = .false.
     rel = this%xyz_particles(:, i_particle) - this%periodic_src_center(:, i_map)
     if (this%periodic_map_npts(i_map) .eq. 4) then
        xi(1) = dot_product(rel, this%periodic_src_basis(:, 1, i_map))
        xi(2) = dot_product(rel, this%periodic_src_basis(:, 2, i_map))
        xi(3) = dot_product(rel, this%periodic_src_basis(:, 3, i_map))
-       if (xi(3) .lt. -LPT_PERIODIC_TOL) then
+       if (xi(1) .ge. this%periodic_src_bounds_min(1, i_map) - &
+            LPT_PERIODIC_TOL .and. &
+            xi(1) .le. this%periodic_src_bounds_max(1, i_map) + &
+            LPT_PERIODIC_TOL .and. &
+            xi(2) .ge. this%periodic_src_bounds_min(2, i_map) - &
+            LPT_PERIODIC_TOL .and. &
+            xi(2) .le. this%periodic_src_bounds_max(2, i_map) + &
+            LPT_PERIODIC_TOL .and. xi(3) .lt. -LPT_PERIODIC_TOL) then
           this%xyz_particles(:, i_particle) = this%periodic_tgt_center(:, i_map) + &
                xi(1) * this%periodic_tgt_basis(:, 1, i_map) + &
                xi(2) * this%periodic_tgt_basis(:, 2, i_map) + &
                xi(3) * this%periodic_tgt_basis(:, 3, i_map)
+          mapped = .true.
        end if
     else
        xi(1) = dot_product(rel, this%periodic_src_basis(:, 1, i_map))
        xi(2) = dot_product(rel, this%periodic_src_basis(:, 3, i_map))
-       if (xi(2) .lt. -LPT_PERIODIC_TOL) then
+       if (xi(1) .ge. this%periodic_src_bounds_min(1, i_map) - &
+            LPT_PERIODIC_TOL .and. &
+            xi(1) .le. this%periodic_src_bounds_max(1, i_map) + &
+            LPT_PERIODIC_TOL .and. xi(2) .lt. -LPT_PERIODIC_TOL) then
           this%xyz_particles(:, i_particle) = this%periodic_tgt_center(:, i_map) + &
                xi(1) * this%periodic_tgt_basis(:, 1, i_map) + &
                xi(2) * this%periodic_tgt_basis(:, 3, i_map)
+          mapped = .true.
        end if
     end if
-  end subroutine lpt_apply_periodic_map_if_needed
+  end function lpt_apply_periodic_map_if_needed
 
   logical function lpt_same_point_ids(ids_a, ids_b, npts) result(match)
     integer, intent(in) :: ids_a(4)
@@ -1129,6 +1331,37 @@ contains
        basis(:, 3) = n
     end if
   end subroutine lpt_build_facet_basis
+
+  subroutine lpt_get_facet_bounds(pts, center, basis, npts, bounds_min, bounds_max)
+    real(kind=rp), intent(in) :: pts(3, 4)
+    real(kind=rp), intent(in) :: center(3)
+    real(kind=rp), intent(in) :: basis(3, 3)
+    integer, intent(in) :: npts
+    real(kind=rp), intent(out) :: bounds_min(2)
+    real(kind=rp), intent(out) :: bounds_max(2)
+    real(kind=rp) :: rel(3)
+    real(kind=rp) :: xi1
+    real(kind=rp) :: xi2
+    integer :: i
+
+    bounds_min = huge(0.0_rp)
+    bounds_max = -huge(0.0_rp)
+    do i = 1, npts
+       rel = pts(:, i) - center
+       xi1 = dot_product(rel, basis(:, 1))
+       bounds_min(1) = min(bounds_min(1), xi1)
+       bounds_max(1) = max(bounds_max(1), xi1)
+       if (npts .eq. 4) then
+          xi2 = dot_product(rel, basis(:, 2))
+          bounds_min(2) = min(bounds_min(2), xi2)
+          bounds_max(2) = max(bounds_max(2), xi2)
+       end if
+    end do
+    if (npts .eq. 2) then
+       bounds_min(2) = 0.0_rp
+       bounds_max(2) = 0.0_rp
+    end if
+  end subroutine lpt_get_facet_bounds
 
   function lpt_cross(a, b) result(c)
     real(kind=rp), intent(in) :: a(3)
