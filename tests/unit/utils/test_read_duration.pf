@@ -58,6 +58,13 @@ contains
 
     @assertEqual(0, ierr)
     @assertEqual(45296.0_rp, runtime, NEKO_EPS)
+
+    runtime = -1.0_rp
+    call read_duration('25:00:00', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(90000.0_rp, runtime, NEKO_EPS)
+
   end subroutine parse_hh_mm_ss
 
   @test
@@ -70,6 +77,13 @@ contains
 
     @assertEqual(0, ierr)
     @assertEqual(330.0_rp, runtime, NEKO_EPS)
+
+    runtime = -1.0_rp
+    call read_duration('90:00', runtime, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(5400.0_rp, runtime, NEKO_EPS)
+
   end subroutine parse_mm_ss
 
   @test
