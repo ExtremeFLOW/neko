@@ -117,6 +117,14 @@ module cuda_intf
   end interface
 
   interface
+     integer(c_int) function cudaDeviceReset() &
+          bind(c, name = 'cudaDeviceReset')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function cudaDeviceReset
+  end interface
+
+  interface
      integer(c_int) function cudaGetDeviceProperties(prop, device) &
           bind(c, name = 'cudaGetDeviceProperties')
        use, intrinsic :: iso_c_binding
@@ -313,17 +321,17 @@ contains
     end if
 
     if (cudaDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
-        .ne. cudaSuccess) then
+         .ne. cudaSuccess) then
        call neko_error('Error retrieving stream priority range')
     end if
 
     if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
-        .ne. cudaSuccess) then
+         .ne. cudaSuccess) then
        call neko_error('Error creating main stream')
     end if
 
     if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
-        .ne. cudaSuccess) then
+         .ne. cudaSuccess) then
        call neko_error('Error creating aux stream')
     end if
   end subroutine cuda_init
@@ -331,6 +339,7 @@ contains
   subroutine cuda_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    integer(c_int) :: ierr
 
     if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying main stream')
@@ -339,6 +348,10 @@ contains
     if (cudaStreamDestroy(aux_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying aux stream')
     end if
+
+    ! Best-effort context teardown to release runtime-owned allocations.
+    ierr = cudaDeviceSynchronize()
+    ierr = cudaDeviceReset()
   end subroutine cuda_finalize
 
   subroutine cuda_device_name(name)
