@@ -72,6 +72,7 @@ contains
     real(kind=rp) :: limit_sec
     integer :: ierr
 
+    limit_sec = 0.0_rp
     call read_duration(limit_str, limit_sec)
     call jobctrl_set_time_limit_sec(int(limit_sec))
 
