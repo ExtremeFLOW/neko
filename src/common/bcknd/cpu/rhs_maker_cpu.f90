@@ -43,9 +43,13 @@ contains
     integer :: i, n
 
     n = uu%dof%size()
-
+    !$omp parallel private(i)
     if (nab .eq. 3) then
-       do concurrent (i = 1:n)
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       !$omp do
+       do i = 1, n
           u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + &
                ab(2) * uulag%lf(1)%x(i,1,1,1) + ab(3) * uulag%lf(2)%x(i,1,1,1)
           v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + &
@@ -53,13 +57,20 @@ contains
           w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + &
                ab(2) * wwlag%lf(1)%x(i,1,1,1) + ab(3) * wwlag%lf(2)%x(i,1,1,1)
        end do
+       !$omp end do
     else
-       do concurrent (i = 1:n)
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       !$omp do
+       do i = 1, n
           u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + ab(2) * uulag%lf(1)%x(i,1,1,1)
           v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + ab(2) * vvlag%lf(1)%x(i,1,1,1)
           w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + ab(2) * wwlag%lf(1)%x(i,1,1,1)
        end do
+       !$omp end do
     end if
+    !$omp end parallel
 
   end subroutine rhs_maker_sumab_cpu
 
@@ -79,7 +90,12 @@ contains
     call neko_scratch_registry%request_field(temp2, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(temp3, temp_indices(3), .false.)
 
-    do concurrent (i = 1:n)
+    !$omp parallel private(i)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        temp1%x(i,1,1,1) = ext_coeffs(2) * fx_lag%x(i,1,1,1) + &
             ext_coeffs(3) * fx_laglag%x(i,1,1,1)
        temp2%x(i,1,1,1) = ext_coeffs(2) * fy_lag%x(i,1,1,1) + &
@@ -87,8 +103,13 @@ contains
        temp3%x(i,1,1,1) = ext_coeffs(2) * fz_lag%x(i,1,1,1) + &
             ext_coeffs(3) * fz_laglag%x(i,1,1,1)
     end do
+    !$omp end do
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        fx_laglag%x(i,1,1,1) = fx_lag%x(i,1,1,1)
        fy_laglag%x(i,1,1,1) = fy_lag%x(i,1,1,1)
        fz_laglag%x(i,1,1,1) = fz_lag%x(i,1,1,1)
@@ -96,13 +117,19 @@ contains
        fy_lag%x(i,1,1,1) = fy(i)
        fz_lag%x(i,1,1,1) = fz(i)
     end do
+    !$omp end do
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        fx(i) = (ext_coeffs(1) * fx(i) + temp1%x(i,1,1,1)) * rho
        fy(i) = (ext_coeffs(1) * fy(i) + temp2%x(i,1,1,1)) * rho
        fz(i) = (ext_coeffs(1) * fz(i) + temp3%x(i,1,1,1)) * rho
     end do
-
+    !$omp end do
+    !$omp end parallel
     call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine rhs_maker_ext_cpu
@@ -120,19 +147,36 @@ contains
 
     call neko_scratch_registry%request_field(temp1, temp_index, .false.)
 
-    do concurrent (i = 1:n)
+    !$omp parallel private(i)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        temp1%x(i,1,1,1) = ext_coeffs(2) * fs_lag%x(i,1,1,1) + &
             ext_coeffs(3) * fs_laglag%x(i,1,1,1)
     end do
+    !$omp end do
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        fs_laglag%x(i,1,1,1) = fs_lag%x(i,1,1,1)
        fs_lag%x(i,1,1,1) = fs(i)
     end do
+    !$omp end do
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        fs(i) = (ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)) * rho
     end do
+    !$omp end do
+    !$omp end parallel
 
     call neko_scratch_registry%relinquish_field(temp_index)
   end subroutine scalar_rhs_maker_ext_cpu
@@ -154,15 +198,25 @@ contains
     call neko_scratch_registry%request_field(tb2, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(tb3, temp_indices(3), .false.)
 
-    do concurrent (i = 1:n)
+    !$omp parallel private(ilag, i)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        tb1%x(i,1,1,1) = u%x(i,1,1,1) * B(i) * bd(2)
        tb2%x(i,1,1,1) = v%x(i,1,1,1) * B(i) * bd(2)
        tb3%x(i,1,1,1) = w%x(i,1,1,1) * B(i) * bd(2)
     end do
+    !$omp end do
 
     do ilag = 2, nbd
        if (ilag .eq. 2) then
-          do concurrent (i = 1:n)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !GCC$ ivdep
+          !$omp do
+          do i = 1, n
              tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + &
                   (ulag%lf(ilag-1)%x(i,1,1,1) * Blag(i) * bd(ilag+1))
              tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + &
@@ -170,8 +224,13 @@ contains
              tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + &
                   (wlag%lf(ilag-1)%x(i,1,1,1) * Blag(i) * bd(ilag+1))
           end do
+          !$omp end do
        else if (ilag .eq. 3) then
-          do concurrent (i = 1:n)
+          !OCL NORECURRENCE, NOVREC, NOALIAS
+          !DIR$ CONCURRENT
+          !GCC$ ivdep
+          !$omp do
+          do i = 1, n
              tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + &
                   (ulag%lf(ilag-1)%x(i,1,1,1) * Blaglag(i) * bd(ilag+1))
              tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + &
@@ -179,14 +238,21 @@ contains
              tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + &
                   (wlag%lf(ilag-1)%x(i,1,1,1) * Blaglag(i) * bd(ilag+1))
           end do
+          !$omp end do
        end if
     end do
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        bfx(i) = bfx(i) + tb1%x(i,1,1,1) * (rho / dt)
        bfy(i) = bfy(i) + tb2%x(i,1,1,1) * (rho / dt)
        bfz(i) = bfz(i) + tb3%x(i,1,1,1) * (rho / dt)
     end do
+    !$omp end do
+    !$omp end parallel
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
@@ -205,20 +271,37 @@ contains
 
     call neko_scratch_registry%request_field(temp1, temp_indices, .false.)
 
-    do concurrent (i = 1:n)
+    !$omp parallel private(i, ilag)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        temp1%x(i,1,1,1) = s%x(i,1,1,1) * B(i) * bd(2)
     end do
+    !$omp end do
 
     do ilag = 2, nbd
-       do concurrent (i = 1:n)
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       !$omp do
+       do i = 1, n
           temp1%x(i,1,1,1) = temp1%x(i,1,1,1) + &
                (s_lag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
        end do
+       !$omp end do
     end do
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, n
        fs(i) = fs(i) + temp1%x(i,1,1,1) * (rho / dt)
     end do
+    !$omp end do
+    !$omp end parallel
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine scalar_rhs_maker_bdf_cpu
@@ -231,11 +314,16 @@ contains
     real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
     integer :: i
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
        bf_x(i) = bf_x(i) + phi_x(i) * (rho / dt)
        bf_y(i) = bf_y(i) + phi_y(i) * (rho / dt)
        bf_z(i) = bf_z(i) + phi_z(i) * (rho / dt)
     end do
+    !$omp end parallel do
 
   end subroutine rhs_maker_oifs_cpu
 
@@ -246,11 +334,15 @@ contains
     real(kind=rp), intent(inout) :: phi_s(n)
     integer :: i
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
        bf_s(i) = bf_s(i) + phi_s(i) * (rho / dt)
     end do
+    !$omp end parallel do
 
   end subroutine scalar_rhs_maker_oifs_cpu
 
 end module rhs_maker_cpu
-

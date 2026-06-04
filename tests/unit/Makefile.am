@@ -20,6 +20,7 @@ SUBDIRS = tuple\
 	  signal\
 	  jobctrl\
 	  device\
+	  data_types\
 	  device_math\
 	  mathops\
 	  device_mathops\
@@ -42,6 +43,7 @@ SUBDIRS = tuple\
 	  templates/serial
 
 TESTS = device/device_test\
+	data_types/data_types_test\
 	tuple/tuple_test\
 	stack/stack_test\
 	point/point_test\
@@ -105,6 +107,8 @@ EXTRA_DIST = \
 	global_interpolation/test_glob_interp_par.pf\
 	mean_field/test_mean_field_parallel.pf\
 	device/test_device.pf\
+	data_types/test_host_array_types.pf\
+	data_types/test_device_array_types.pf\
 	uset/test_uset_i4.pf\
 	uset/test_uset_r8.pf\
 	uset/test_uset_i8.pf\
@@ -149,6 +153,8 @@ EXTRA_DIST = \
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\
 	scratch_registry/test_matrix_scratch_registry.pf\
+	scratch_registry/test_host_scratch_registry.pf\
+	scratch_registry/test_device_scratch_registry.pf\
 	fast3d/test_fd_weights_full.pf\
 	fast3d/test_setup_intp.pf\
 	time_scheme/test_bdf.pf\

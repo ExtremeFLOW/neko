@@ -108,10 +108,12 @@ contains
     m = this%msk(0)
 
     if (strong_) then
+       !$omp do
        do i = 1, m
           k = this%msk(i)
           x(k) = 0d0
        end do
+       !$omp end do
     end if
 
   end subroutine zero_dirichlet_apply_scalar
@@ -136,12 +138,14 @@ contains
 
     if (strong_) then
        m = this%msk(0)
-       do concurrent (i = 1:m)
+       !$omp do
+       do i = 1, m
           k = this%msk(i)
           x(k) = 0d0
           y(k) = 0d0
           z(k) = 0d0
        end do
+       !$omp end do
     end if
 
   end subroutine zero_dirichlet_apply_vector

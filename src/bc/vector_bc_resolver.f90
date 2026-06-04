@@ -1448,9 +1448,9 @@ contains
     character(len=:), allocatable :: field_name_
 
     if (present(field_name)) then
-      field_name_ = trim(field_name)
+       field_name_ = trim(field_name)
     else
-      field_name_ = 'bc_resolver_normal_component'
+       field_name_ = 'bc_resolver_normal_component'
     end if
 
     call neko_scratch_registry%request_field(normal_component_field, &
@@ -1484,10 +1484,10 @@ contains
     allocate(mixed_lut(dof_size))
     mixed_lut = 0
     if (this%mixed_dof_mask%is_set()) then
-      mixed_mask_values => this%mixed_dof_mask%get()
-      do i = 1, mixed_mask_size
-        mixed_lut(mixed_mask_values(i)) = i
-      end do
+       mixed_mask_values => this%mixed_dof_mask%get()
+       do i = 1, mixed_mask_size
+          mixed_lut(mixed_mask_values(i)) = i
+       end do
     end if
 
     do i = 1, this%bcs%size()

@@ -282,11 +282,11 @@ contains
       end if
       c_Xh%ifh2 = .true.
 
-      call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
+      call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
       call gs_Xh%op(u_res, GS_OP_ADD)
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
-      call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
+      call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
       call vel_resolver%apply(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()

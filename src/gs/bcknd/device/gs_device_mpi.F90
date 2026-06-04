@@ -140,21 +140,21 @@ module gs_device_mpi
   end interface
 
   interface
-     subroutine device_mpi_isend(buf_d, offset, nbytes, rank, reqs, i) &
+     subroutine device_mpi_isend(buf_d, offset, nbytes, rank, tag, reqs, i) &
           bind(c, name = 'device_mpi_isend')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: offset, nbytes, rank, i
+       integer(c_int), value :: offset, nbytes, rank, tag, i
        type(c_ptr), value :: buf_d, reqs
      end subroutine device_mpi_isend
   end interface
 
   interface
-     subroutine device_mpi_irecv(buf_d, offset, nbytes, rank, reqs, i) &
+     subroutine device_mpi_irecv(buf_d, offset, nbytes, rank, tag, reqs, i) &
           bind(c, name = 'device_mpi_irecv')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: offset, nbytes, rank, i
+       integer(c_int), value :: offset, nbytes, rank, tag, i
        type(c_ptr), value :: buf_d, reqs
      end subroutine device_mpi_irecv
   end interface
@@ -332,10 +332,11 @@ contains
   end subroutine gs_device_mpi_free
 
   !> Post non-blocking send operations
-  subroutine gs_device_mpi_nbsend(this, u, n, deps, strm)
+  subroutine gs_device_mpi_nbsend(this, u, n, tag, deps, strm)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    integer, intent(in) :: tag
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
     integer :: i
@@ -366,7 +367,7 @@ contains
        do i = 1, size(this%send_pe)
           call device_mpi_isend(this%send_buf%buf_d, &
                rp*this%send_buf%offset(i), &
-               rp*this%send_buf%ndofs(i), this%send_pe(i), &
+               rp*this%send_buf%ndofs(i), this%send_pe(i), tag, &
                this%send_buf%reqs, i)
        end do
 
@@ -398,7 +399,7 @@ contains
           call device_sync(this%stream(i))
           call device_mpi_isend(this%send_buf%buf_d, &
                rp*this%send_buf%offset(i), &
-               rp*this%send_buf%ndofs(i), this%send_pe(i), &
+               rp*this%send_buf%ndofs(i), this%send_pe(i), tag, &
                this%send_buf%reqs, i)
        end do
     end if
@@ -406,13 +407,14 @@ contains
   end subroutine gs_device_mpi_nbsend
 
   !> Post non-blocking receive operations
-  subroutine gs_device_mpi_nbrecv(this)
+  subroutine gs_device_mpi_nbrecv(this, tag)
     class(gs_device_mpi_t), intent(inout) :: this
+    integer, intent(in) :: tag
     integer :: i
 
     do i = 1, size(this%recv_pe)
        call device_mpi_irecv(this%recv_buf%buf_d, rp*this%recv_buf%offset(i), &
-            rp*this%recv_buf%ndofs(i), this%recv_pe(i), &
+            rp*this%recv_buf%ndofs(i), this%recv_pe(i), tag, &
             this%recv_buf%reqs, i)
     end do
 

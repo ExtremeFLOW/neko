@@ -131,7 +131,8 @@ contains
     call coef%gs_h%op(g33, GS_OP_ADD)
 
     ! Compute components of the strain rate tensor
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
+         u%x, v%x, w%x, coef)
 
     call coef%gs_h%op(s11, GS_OP_ADD)
     call coef%gs_h%op(s22, GS_OP_ADD)
@@ -141,8 +142,14 @@ contains
     call coef%gs_h%op(s23, GS_OP_ADD)
 
 
-    do concurrent(e = 1:coef%msh%nelv)
-       do concurrent(i = 1:coef%Xh%lxyz)
+    !$omp parallel do private(e, i, gsqr_11, gsqr_12, gsqr_13, gsqr_21, &
+    !$omp& gsqr_22, gsqr_23, gsqr_31, gsqr_32, gsqr_33, sd11, sd22, sd33, &
+    !$omp& sd12, sd13, sd23, Sdij_Sdij, Sij_Sij, OP_wale)
+    do e = 1, coef%msh%nelv
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       do i = 1, coef%Xh%lxyz
           ! gij^2 = g_ik * g_kj
           gsqr_11 = g11%x(i,1,1,e)*g11%x(i,1,1,e) + &
                g12%x(i,1,1,e)*g21%x(i,1,1,e) + &
@@ -196,6 +203,7 @@ contains
           nut%x(i,1,1,e) = c_w**2 * delta%x(i,1,1,e)**2 * OP_wale * coef%mult(i,1,1,e)
        end do
     end do
+    !$omp end parallel do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine wale_compute_cpu
