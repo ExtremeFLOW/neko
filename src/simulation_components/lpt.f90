@@ -242,6 +242,7 @@ contains
   !> Redistribute particles to the rank that owns their current location.
   subroutine redistribute_particles(this)
     class(lpt_t), intent(inout) :: this
+    type(glb_intrp_comm_t) :: redist_comm
     integer :: n_particles_old
     integer, allocatable :: particle_ids_local(:)
     real(kind=rp), allocatable :: vel_particles_lag_local(:,:,:)
@@ -251,19 +252,21 @@ contains
     call this%wrap_particles_periodic()
     call this%global_interp%find_points_and_redist(this%xyz_particles, &
          this%n_particles)
-    call this%redistribute_particle_ids(n_particles_old, particle_ids_local)
-    call this%redistribute_velocity_history(n_particles_old, &
+    call this%init_particle_redist_comm(redist_comm)
+    call this%redistribute_particle_ids(redist_comm, n_particles_old, &
+         particle_ids_local)
+    call this%redistribute_velocity_history(redist_comm, n_particles_old, &
          vel_particles_lag_local)
+    call redist_comm%free()
     call move_alloc(particle_ids_local, this%particle_ids)
     call move_alloc(vel_particles_lag_local, this%vel_particles_lag)
     call MPI_Allreduce(this%n_particles, this%n_global_particles, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine redistribute_particles
 
-  subroutine init_particle_redist_comm(this, redist_comm, n_comp)
+  subroutine init_particle_redist_comm(this, redist_comm)
     class(lpt_t), intent(inout) :: this
     type(glb_intrp_comm_t), intent(inout) :: redist_comm
-    integer, intent(in) :: n_comp
     type(stack_i4_t) :: send_pe
     type(stack_i4_t) :: recv_pe
     integer, pointer :: point_ids(:)
@@ -279,16 +282,14 @@ contains
           call send_pe%push(rank)
           point_ids => this%global_interp%points_at_pe(rank)%array()
           do i = 1, this%global_interp%n_points_pe(rank)
-             call lpt_push_comp_range(redist_comm%send_dof(rank), &
-                  n_comp * (point_ids(i) - 1), n_comp)
+             call redist_comm%send_dof(rank)%push(point_ids(i))
           end do
        end if
        if (this%global_interp%n_points_pe_local(rank) .gt. 0) then
           call recv_pe%push(rank)
           do i = 1, this%global_interp%n_points_pe_local(rank)
-             call lpt_push_comp_range(redist_comm%recv_dof(rank), n_comp * &
-                  (this%global_interp%n_points_offset_pe_local(rank) + i - 1), &
-                  n_comp)
+             call redist_comm%recv_dof(rank)%push( &
+                  this%global_interp%n_points_offset_pe_local(rank) + i)
           end do
        end if
     end do
@@ -298,11 +299,12 @@ contains
     call recv_pe%free()
   end subroutine init_particle_redist_comm
 
-  subroutine redistribute_particle_ids(this, n_particles_old, particle_ids_local)
+  subroutine redistribute_particle_ids(this, redist_comm, n_particles_old, &
+       particle_ids_local)
     class(lpt_t), intent(inout) :: this
+    type(glb_intrp_comm_t), intent(inout) :: redist_comm
     integer, intent(in) :: n_particles_old
     integer, allocatable, intent(out) :: particle_ids_local(:)
-    type(glb_intrp_comm_t) :: redist_comm
     real(kind=rp), allocatable :: sendbuf(:)
     real(kind=rp), allocatable :: recvbuf(:)
     integer :: n_local
@@ -313,25 +315,25 @@ contains
 
     if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
-    call this%init_particle_redist_comm(redist_comm, 1)
     allocate(sendbuf(n_particles_old))
     allocate(recvbuf(n_local))
     sendbuf = real(this%particle_ids, rp)
     recvbuf = 0.0_rp
     call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
     particle_ids_local = nint(recvbuf)
-    call redist_comm%free()
   end subroutine redistribute_particle_ids
 
-  subroutine redistribute_velocity_history(this, n_particles_old, &
+  subroutine redistribute_velocity_history(this, redist_comm, n_particles_old, &
        vel_particles_lag_local)
     class(lpt_t), intent(inout) :: this
+    type(glb_intrp_comm_t), intent(inout) :: redist_comm
     integer, intent(in) :: n_particles_old
     real(kind=rp), allocatable, intent(out) :: vel_particles_lag_local(:,:,:)
-    type(glb_intrp_comm_t) :: redist_comm
     real(kind=rp), allocatable :: sendbuf(:)
     real(kind=rp), allocatable :: recvbuf(:)
     integer :: n_local
+    integer :: i
+    integer :: j
 
     n_local = this%n_particles
     allocate(vel_particles_lag_local(3, LPT_VEL_HISTORY_LEN, n_local))
@@ -339,15 +341,16 @@ contains
 
     if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
-    call this%init_particle_redist_comm(redist_comm, &
-         3 * LPT_VEL_HISTORY_LEN)
-    allocate(sendbuf(3 * LPT_VEL_HISTORY_LEN * n_particles_old))
-    allocate(recvbuf(3 * LPT_VEL_HISTORY_LEN * n_local))
-    sendbuf = reshape(this%vel_particles_lag, [size(sendbuf)])
-    recvbuf = 0.0_rp
-    call redist_comm%sendrecv(sendbuf, recvbuf, size(sendbuf), size(recvbuf))
-    vel_particles_lag_local = reshape(recvbuf, shape(vel_particles_lag_local))
-    call redist_comm%free()
+    allocate(sendbuf(n_particles_old))
+    allocate(recvbuf(n_local))
+    do j = 1, LPT_VEL_HISTORY_LEN
+       do i = 1, 3
+          sendbuf = this%vel_particles_lag(i, j, :)
+          recvbuf = 0.0_rp
+          call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
+          vel_particles_lag_local(i, j, :) = recvbuf
+       end do
+    end do
   end subroutine redistribute_velocity_history
 
   !> Initialize periodic wrapping from the mesh periodic facet pairs.
