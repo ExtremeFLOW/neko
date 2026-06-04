@@ -33,6 +33,7 @@
 !> Implementation of the adaptive mesh refinement workflow
 module amr
   use num_types, only : i4, i8, rp, dp
+  use comm, only : NEKO_COMM
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
   use utils, only : neko_error, neko_warning
@@ -47,6 +48,7 @@ module amr
   use mesh_manager, only : mesh_manager_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_LOGICAL, MPI_LOR
 
   implicit none
   private
@@ -272,7 +274,7 @@ contains
     type(time_state_t), intent(in) :: time
     integer, allocatable, dimension(:) :: ref_mark
     logical :: ifrefine, ifmod
-    integer :: nelt
+    integer :: nelt, ierr
     character(len=LOG_SIZE) :: log_buf
 
     select type(transfer => this%reconstruct%transfer)
@@ -285,6 +287,10 @@ contains
     ref_mark(:) = AMR_RM_NONE
     ifrefine = .false.
     call user%amr_refine_flag(time, ref_mark, ifrefine)
+
+    ! Global test
+    call MPI_Allreduce(MPI_IN_PLACE, ifrefine, 1, MPI_LOGICAL, MPI_LOR, &
+         NEKO_COMM, ierr)
 
     if (ifrefine) then
        call neko_log%begin()
