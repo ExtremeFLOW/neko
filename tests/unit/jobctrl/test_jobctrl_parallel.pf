@@ -15,18 +15,39 @@ contains
     type(mesh_t) :: m ! Dummy type to avoid link issues
     integer :: ierr
 
-     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
-     pe_rank = this%getProcessRank()
-     pe_size = this%getNumProcesses()
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
 
-     call jobctrl_init()
-     call jobctrl_set_time_limit(3)
-     call sleep(1)
-     @assertFalse(signal_timeout())
-     call sleep(3)
-     @assertTrue(signal_timeout())
+    call jobctrl_init()
+    call jobctrl_set_time_limit(3)
+    call sleep(1)
+    @assertFalse(signal_timeout())
+    call sleep(3)
+    @assertTrue(signal_timeout())
 
-   end subroutine test_jobctrl_set_time_limit
+  end subroutine test_jobctrl_set_time_limit
+
+  @test(npes=[1])
+  subroutine test_jobctrl_set_time_limit_str(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(mesh_t) :: m ! Dummy type to avoid link issues
+    integer :: ierr, limit_abs, hh, mm, ss
+    character(len=32) :: limit_str
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call jobctrl_init()
+    call jobctrl_set_time_limit('00:00:03')
+    call sleep(1)
+    @assertFalse(signal_timeout())
+    call sleep(3)
+    @assertTrue(signal_timeout())
+
+  end subroutine test_jobctrl_set_time_limit_str
 
 end module test_jobctrl_parallel
