@@ -15,7 +15,9 @@ module test_coupled_bc_resolver
   use scratch_registry, only : neko_scratch_registry
   use dirichlet, only : dirichlet_t
   use bc_list, only : bc_list_t
-  use bc, only : bc_t, BC_TYPES
+  use symmetry, only : symmetry_t
+  use non_normal, only : non_normal_t
+  use bc, only : bc_t
   use vector_bc_resolver, only : coupled_vector_bc_resolver_t
   implicit none
 
@@ -55,13 +57,16 @@ contains
     type(coef_t) :: coef
     type(dofmap_t) :: dof
     type(gs_t) :: gs
-    type(dirichlet_t) :: bcs(6)
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
     type(bc_list_t) :: bclst
     class(bc_t), pointer :: bc_ptr
     integer :: zone_idx, i, j
     integer, dimension(9) :: face1_dofs, face1_dofmap
     integer :: center_idx, top_edge_idx
     type(coupled_vector_bc_resolver_t) :: bc_resolver
+    real(kind=rp) :: tangential_value(3)
 
 
     pe_rank = this%getProcessRank()
@@ -86,13 +91,14 @@ contains
        call mesh%labeled_zones(zone_idx)%finalize()
     end do
 
-    ! Create a bc for each of the 6 zones
+    tangential_value = 0.0_rp
+
+    ! Create a BC for each zone: symmetry on face 1, Dirichlet elsewhere.
     call bclst%init(6)
-    do zone_idx = 1, 6
-       call bcs(zone_idx)%init_from_components(coef, real(zone_idx, rp))
-       call bcs(zone_idx)%mark_labeled_zone(zone_idx)
-       call bcs(zone_idx)%finalize()
-       call bclst%append(bcs(zone_idx))
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    do zone_idx = 2, 6
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, zone_idx, &
+            real(zone_idx, rp))
     end do
 
     ! Verify the setup is correct.
@@ -104,27 +110,9 @@ contains
        @assertEqual(zone_idx, bc_ptr%zone_indices(1))
     end do
 
-    ! Keep constraints and bc_type aligned. The resolver classifies faces and
-    ! nodes by bc_type, while the mixed BC application uses the local-basis
-    ! constraints stored on the BC object.
-    do zone_idx = 1, 6
-       bc_ptr => bclst%get_by_zone_index(zone_idx)
-       bc_ptr%constraints = .true.
-       bc_ptr%bc_type = BC_TYPES%DIRICHLET
-    end do
-
-    ! Init and mark but not finalize
     call bc_resolver%init(coef)
     call bc_resolver%mark(bclst)
-
-    bc_ptr => bclst%get_by_zone_index(1)
-    ! Constrain the normal component on face 1. This should mark it as class 2.
-    ! The rest are class zero as full dirichlet.
-    bc_ptr%constraints(2) = .false.
-    bc_ptr%constraints(3) = .false.
-    bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
-
-    call bc_resolver%finalize()
+    call bc_resolver%finalize(.true.)
 
     ! Find face-1 indices in the resolved mixed-node mask.
     face1_dofmap = 0
@@ -161,17 +149,24 @@ contains
     @assertEqual(0.0_rp, bc_resolver%n%x(3, center_idx), tolerance=1e-10)
 
     call bc_resolver%free()
+    call bclst%free()
+    do zone_idx = 1, 6
+       call dirichlet_bcs(zone_idx)%free()
+       call symmetry_bcs(zone_idx)%free()
+       call non_normal_bcs(zone_idx)%free()
+    end do
 
-    ! Set class 3 on the top face
-    bc_ptr => bclst%get_by_zone_index(6)
-    bc_ptr%constraints(1) = .false.
-    bc_ptr%constraints(2) = .true.
-    bc_ptr%constraints(3) = .true.
-    bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
-
+    ! Set class 3 on the top face while keeping face 1 as symmetry.
+    call bclst%init(6)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    do zone_idx = 2, 5
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, zone_idx, &
+            real(zone_idx, rp))
+    end do
+    call append_non_normal_bc(bclst, non_normal_bcs(6), coef, 6, tangential_value)
     call bc_resolver%init(coef)
     call bc_resolver%mark(bclst)
-    call bc_resolver%finalize()
+    call bc_resolver%finalize(.true.)
 
     face1_dofmap = 0
     do i = 1, size(face1_dofs)
@@ -206,19 +201,22 @@ contains
     @assertEqual(0.0_rp, bc_resolver%n%x(3, top_edge_idx), tolerance=1e-10)
 
     call bc_resolver%free()
+    call bclst%free()
+    do zone_idx = 1, 6
+       call dirichlet_bcs(zone_idx)%free()
+       call symmetry_bcs(zone_idx)%free()
+       call non_normal_bcs(zone_idx)%free()
+    end do
 
     ! Set class 2 on all faces.
+    call bclst%init(6)
     do zone_idx = 1, 6
-       bc_ptr => bclst%get_by_zone_index(zone_idx)
-       bc_ptr%constraints(1) = .true.
-       bc_ptr%constraints(2) = .false.
-       bc_ptr%constraints(3) = .false.
-       bc_ptr%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
+       call append_symmetry_bc(bclst, symmetry_bcs(zone_idx), coef, zone_idx)
     end do
 
     call bc_resolver%init(coef)
     call bc_resolver%mark(bclst)
-    call bc_resolver%finalize()
+    call bc_resolver%finalize(.true.)
 
     face1_dofmap = 0
     do i = 1, size(face1_dofs)
@@ -304,7 +302,9 @@ contains
 
     call bclst%free()
     do zone_idx = 1, 6
-       call bcs(zone_idx)%free()
+       call dirichlet_bcs(zone_idx)%free()
+       call symmetry_bcs(zone_idx)%free()
+       call non_normal_bcs(zone_idx)%free()
     end do
     call neko_scratch_registry%free()
     call coef%free()
@@ -315,5 +315,43 @@ contains
     call bc_resolver%free()
 
   end subroutine test_single_element
+
+  subroutine append_dirichlet_bc(bclst, bc, coef, zone_idx, value)
+    type(bc_list_t), intent(inout) :: bclst
+    type(dirichlet_t), intent(inout), target :: bc
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: zone_idx
+    real(kind=rp), intent(in) :: value
+
+    call bc%init_from_components(coef, value)
+    call bc%mark_labeled_zone(zone_idx)
+    call bc%finalize()
+    call bclst%append(bc)
+  end subroutine append_dirichlet_bc
+
+  subroutine append_symmetry_bc(bclst, bc, coef, zone_idx)
+    type(bc_list_t), intent(inout) :: bclst
+    type(symmetry_t), intent(inout), target :: bc
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: zone_idx
+
+    call bc%init_from_components(coef)
+    call bc%mark_labeled_zone(zone_idx)
+    call bc%finalize()
+    call bclst%append(bc)
+  end subroutine append_symmetry_bc
+
+  subroutine append_non_normal_bc(bclst, bc, coef, zone_idx, value)
+    type(bc_list_t), intent(inout) :: bclst
+    type(non_normal_t), intent(inout), target :: bc
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: zone_idx
+    real(kind=rp), intent(in) :: value(3)
+
+    call bc%init_from_components(coef, value)
+    call bc%mark_labeled_zone(zone_idx)
+    call bc%finalize()
+    call bclst%append(bc)
+  end subroutine append_non_normal_bc
 
 end module test_coupled_bc_resolver
