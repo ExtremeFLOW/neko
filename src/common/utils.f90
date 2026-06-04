@@ -35,6 +35,7 @@
 module utils
   use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
   use iso_c_binding
+  use num_types, only: rp, dp
   implicit none
   private
 
@@ -478,8 +479,8 @@ contains
     end if
 
     total_whole = int(parsed_seconds, kind=i64)
-    frac_seconds = parsed_seconds - real(total_whole, kind=rp)
-    if (frac_seconds .lt. 0.0_rp) frac_seconds = 0.0_rp
+    frac_seconds = parsed_seconds - real(total_whole, kind=dp)
+    if (frac_seconds .lt. 0.0_dp) frac_seconds = 0.0_dp
 
     days = total_whole / 86400_i64
     total_whole = total_whole - 86400_i64 * days
@@ -488,9 +489,9 @@ contains
     minutes = total_whole / 60_i64
     seconds_whole = total_whole - 60_i64 * minutes
 
-    second_value = real(seconds_whole, kind=rp) + frac_seconds
-    if (second_value .ge. 60.0_rp) then
-       second_value = second_value - 60.0_rp
+    second_value = real(seconds_whole, kind=dp) + frac_seconds
+    if (second_value .ge. 60.0_dp) then
+       second_value = second_value - 60.0_dp
        minutes = minutes + 1_i64
        if (minutes .ge. 60_i64) then
           minutes = minutes - 60_i64
@@ -507,17 +508,17 @@ contains
        runtime_values(1) = real(days, kind=rp)
        runtime_values(2) = real(hours, kind=rp)
        runtime_values(3) = real(minutes, kind=rp)
-       runtime_values(4) = second_value
+       runtime_values(4) = real(second_value, kind=rp)
     case (3)
        runtime_values(1) = real(days * 24_i64 + hours, kind=rp)
        runtime_values(2) = real(minutes, kind=rp)
-       runtime_values(3) = second_value
+       runtime_values(3) = real(second_value, kind=rp)
     case (2)
        runtime_values(1) = real((days * 24_i64 + hours) * 60_i64 + &
             minutes, kind=rp)
-       runtime_values(2) = second_value
+       runtime_values(2) = real(second_value, kind=rp)
     case (1)
-       runtime_values(1) = parsed_seconds
+       runtime_values(1) = real(parsed_seconds, kind=rp)
     end select
   end subroutine read_duration_components
 
@@ -564,7 +565,7 @@ contains
        end if
 
        time_string = time_string(sep + 1:)
-       parsed_seconds = parsed_seconds + real(86400 * read_int, kind=rp)
+       parsed_seconds = parsed_seconds + real(86400 * read_int, kind=dp)
     end if
 
     ! Read the hours.
@@ -579,7 +580,7 @@ contains
        end if
 
        time_string = time_string(sep + 1:)
-       parsed_seconds = parsed_seconds + real(3600 * read_int, kind=rp)
+       parsed_seconds = parsed_seconds + real(3600 * read_int, kind=dp)
     end if
 
     ! Read the minutes.
@@ -594,13 +595,13 @@ contains
        end if
 
        time_string = time_string(sep + 1:)
-       parsed_seconds = parsed_seconds + real(60 * read_int, kind=rp)
+       parsed_seconds = parsed_seconds + real(60 * read_int, kind=dp)
     end if
 
     ! Read the seconds.
     read(time_string, *, iostat=ios) read_real
-    if (ios .ne. 0 .or. read_real .lt. 0.0_rp .or. &
-         (has_minutes .and. read_real .ge. 60.0_rp)) then
+    if (ios .ne. 0 .or. read_real .lt. 0.0_dp .or. &
+         (has_minutes .and. read_real .ge. 60.0_dp)) then
        call set_error_or_throw( &
             'Error parsing duration: Invalid seconds value', ierr)
        return
