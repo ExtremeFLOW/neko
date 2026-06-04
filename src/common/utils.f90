@@ -609,6 +609,8 @@ contains
 
     parsed_seconds = parsed_seconds + read_real
     runtime_seconds = parsed_seconds
+
+    if (allocated(time_string)) deallocate(time_string)
   end function read_duration_internal
 
   !> Raise parser error or set ierr, depending on call mode.
