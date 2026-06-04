@@ -32,11 +32,11 @@
 !
 !> Implements type spectral_error_t.
 module spectral_error
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use coefs, only : coef_t
   use field_list, only : field_list_t
-  use math, only : rzero, copy
+  use math, only : rzero, copy, add3s2
   use file, only : file_t, file_free
   use time_state, only : time_state_t
   use tensor, only : tnsr3d
@@ -46,14 +46,15 @@ module spectral_error
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
   use comm, only : pe_rank
-  use utils, only : NEKO_FNAME_LEN, neko_error
+  use utils, only : NEKO_FNAME_LEN, NEKO_VARNAME_LEN, neko_error, neko_warning
   use field_writer, only : field_writer_t
   use simulation_component, only : simulation_component_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use case, only : case_t
   use registry, only : neko_registry
-  use utils, only : NEKO_VARNAME_LEN
+  use vector_list, only : vector_list_t
+  use scratch_registry, only : neko_scratch_registry
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding
   implicit none
@@ -66,15 +67,27 @@ module spectral_error
   !! formally only gives an indication of the error.
   type, public, extends(simulation_component_t) :: spectral_error_t
      !> Pointers to main fields
-     type(field_t), pointer :: u => null()
-     type(field_t), pointer :: v => null()
-     type(field_t), pointer :: w => null()
+     type(field_list_t) :: field
      !> Transformed fields
-     type(field_t), pointer :: u_hat => null()
-     type(field_t), pointer :: v_hat => null()
-     type(field_t), pointer :: w_hat => null()
-     !> Working field - Consider making this a simple array
-     type(field_t) :: wk
+     type(field_list_t) :: field_hat
+     !> Spectral error indicator per element
+     type(vector_list_t) :: eind
+     !> Fit coefficients per element
+     type(vector_list_t) :: sig
+     !> Averaged spectral error indicator per element
+     type(vector_list_t) :: eind_av
+     !> Averaged fit coefficients per element
+     type(vector_list_t) :: sig_av
+     !> Number of fields
+     integer :: nfld
+     !> Vector length
+     integer :: nelv
+     !> Simulation time of the first averaging step
+     real(dp) :: time_start
+     !> Simulation time of previous averaging step
+     real(dp) :: time_previous
+     !> Restart file name
+     character(:), allocatable :: restart_file
      !> Configuration of spectral error calculation
      real(kind=rp) :: SERI_SMALL = 1.e-14
      !> used for ratios
@@ -88,25 +101,25 @@ module spectral_error
      integer :: SERI_NP_MAX = 4
      !> last modes skipped
      integer :: SERI_ELR = 0
-     !> spectral error indicator per element
-     real(kind=rp), allocatable :: eind_u(:), eind_v(:), eind_w(:)
-     !> fit coeficients per element
-     real(kind=rp), allocatable :: sig_u(:), sig_v(:), sig_w(:)
-     !> List to write the spectral error indicator as a field
-     type(field_list_t) :: speri_l
-     !> File to write
-     type(file_t) :: mf_speri
-     !> Field writer controller for the output
-     type(field_writer_t) :: writer
    contains
      !> Constructor.
      procedure, pass(this) :: init => spectral_error_init
      !> Destructor.
      procedure, pass(this) :: free => spectral_error_free
-     !> Compute the indicator (called according to the simcomp controller).
+     !> Compute the indicator.
      procedure, pass(this) :: compute_ => spectral_error_compute
-     !> Calculate the indicator.
-     procedure, pass(this) :: get_indicators => spectral_error_get_indicators
+     !> Restart the simcomp.
+     procedure, pass(this) :: restart_ => spectral_error_restart
+     !> Set start simulation time for averaging
+     procedure, pass(this) :: set_time_start => spectral_error_set_time_start
+     !> Set previous simulation time for averaging
+     procedure, pass(this) :: set_time_previous => &
+          spectral_error_set_time_previous
+     !> Get averaging time
+     procedure, pass(this) :: get_collect_time => &
+          spectral_error_get_collect_time
+     !> Reset averaged variables to zero
+     procedure, pass(this) :: average_reset => spectral_error_average_reset
      !> AMR restart
      procedure, pass(this) :: amr_restart => spectral_error_amr_restart
   end type spectral_error_t
@@ -118,51 +131,90 @@ contains
     class(spectral_error_t), intent(inout), target :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
+    character(len=NEKO_VARNAME_LEN), allocatable, dimension(:) :: field_names
+    character(len=:), allocatable :: name, restart_file
+    real(rp) :: start_time
 
-    character(len=:), allocatable :: name
-    character(len=NEKO_VARNAME_LEN) :: fields(3)
+    call this%free()
 
     call json_get_or_default(json, "name", name, "spectral_error")
     this%name = name
-    !> Add keyword "fields" to the json so that the field writer
-    ! picks it up. Will also add those fields to the registry.
-    fields(1) = "u_hat"
-    fields(2) = "v_hat"
-    fields(3) = "w_hat"
-    call json%add("fields", fields)
+    call json_get_or_default(json, "restart_file", restart_file, "no restart")
+    this%restart_file = restart_file
+
+    call json_get(json, "fields", field_names)
+    if (.not. allocated(field_names)) &
+         call neko_error('Spectral error: missing fields')
+
+    call json_get_or_default(json, 'start_time', start_time, 0.0_rp)
 
     call this%init_base(json, case)
-    call this%writer%init(json, case)
 
-    call spectral_error_init_from_components(this, case%fluid%c_Xh)
+    call spectral_error_init_from_components(this, case%fluid%c_Xh, &
+         field_names, start_time)
+
+    deallocate(field_names)
 
   end subroutine spectral_error_init
 
   !> Actual constructor.
   !! @param coef type with all geometrical variables.
-  subroutine spectral_error_init_from_components(this, coef)
+  subroutine spectral_error_init_from_components(this, coef, field_names, &
+       start_time)
     class(spectral_error_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
-    integer :: il, jl, aa
-    character(len=NEKO_FNAME_LEN) :: fname_speri
+    character(len=NEKO_VARNAME_LEN), dimension(:), intent(in) :: field_names
+    real(rp), intent(in) :: start_time
+    integer :: il, jl, nfld
 
-    this%u => neko_registry%get_field("u")
-    this%v => neko_registry%get_field("v")
-    this%w => neko_registry%get_field("w")
-    this%u_hat => neko_registry%get_field("u_hat")
-    this%v_hat => neko_registry%get_field("v_hat")
-    this%w_hat => neko_registry%get_field("w_hat")
+    ! array sizes
+    this%nfld = size(field_names)
+    this%nelv = coef%msh%nelv
 
-    !> Initialize fields and copy data from proper one
-    this%wk = this%u
+    ! allocate pointer space
+    call this%field%init(this%nfld)
+    call this%field_hat%init(this%nfld)
+    call this%eind%init(this%nfld)
+    call this%sig%init(this%nfld)
+    call this%eind_av%init(this%nfld)
+    call this%sig_av%init(this%nfld)
 
-    !> Allocate arrays (Consider moving some to coef)
-    allocate(this%eind_u(coef%msh%nelv))
-    allocate(this%eind_v(coef%msh%nelv))
-    allocate(this%eind_w(coef%msh%nelv))
-    allocate(this%sig_u(coef%msh%nelv))
-    allocate(this%sig_v(coef%msh%nelv))
-    allocate(this%sig_w(coef%msh%nelv))
+    ! add missing fields and vectors to registry
+    do il = 1, this%nfld
+       call neko_registry%add_field(coef%dof, trim(field_names(il))//'_hat', &
+            ignore_existing = .false.)
+       call neko_registry%add_vector(this%nelv, &
+            trim(field_names(il))//'_eind', ignore_existing = .false.)
+       call neko_registry%add_vector(this%nelv, &
+            trim(field_names(il))//'_sig', ignore_existing = .false.)
+       call neko_registry%add_vector(this%nelv, &
+            trim(field_names(il))//'_eind_av', ignore_existing = .false.)
+       call neko_registry%add_vector(this%nelv, &
+            trim(field_names(il))//'_sig_av', ignore_existing = .false.)
+    end do
+
+    ! get pointers
+    do il = 1, this%nfld
+       this%field%items(il)%ptr => &
+            neko_registry%get_field_by_name(trim(field_names(il)))
+       this%field_hat%items(il)%ptr => &
+            neko_registry%get_field_by_name(trim(field_names(il))//'_hat')
+       this%eind%items(il)%ptr => &
+            neko_registry%get_vector_by_name(trim(field_names(il))//'_eind')
+       this%sig%items(il)%ptr => &
+            neko_registry%get_vector_by_name(trim(field_names(il))//'_sig')
+       this%eind_av%items(il)%ptr => &
+            neko_registry%get_vector_by_name(trim(field_names(il))//'_eind_av')
+       this%sig_av%items(il)%ptr => &
+            neko_registry%get_vector_by_name(trim(field_names(il))//'_sig_av')
+    end do
+
+    ! zero averaged variables
+    call this%average_reset()
+
+    ! set start and previous time
+    this%time_start = start_time
+    this%time_previous = this%time_start
 
     !> The following code has been lifted from Adam's implementation
     associate(LX1 => coef%Xh%lx, LY1 => coef%Xh%ly, &
@@ -193,41 +245,20 @@ contains
   subroutine spectral_error_free(this)
     class(spectral_error_t), intent(inout) :: this
 
-    if (allocated(this%eind_u)) then
-       deallocate(this%eind_u)
-    end if
+    this%nfld = 0
+    this%nelv = 0
+    this%time_start = 0.0_dp
+    this%time_previous = 0.0_dp
 
-    if (allocated(this%eind_v)) then
-       deallocate(this%eind_v)
-    end if
+    if (allocated(this%restart_file)) deallocate(this%restart_file)
 
-    if (allocated(this%eind_w)) then
-       deallocate(this%eind_w)
-    end if
+    call this%field%free()
+    call this%field_hat%free()
+    call this%eind%free()
+    call this%sig%free()
+    call this%eind_av%free()
+    call this%sig_av%free()
 
-    if (allocated(this%sig_u)) then
-       deallocate(this%sig_u)
-    end if
-
-    if (allocated(this%sig_v)) then
-       deallocate(this%sig_v)
-    end if
-
-    if (allocated(this%sig_w)) then
-       deallocate(this%sig_w)
-    end if
-
-    call this%wk%free()
-    call this%speri_l%free()
-
-    nullify(this%u)
-    nullify(this%v)
-    nullify(this%w)
-    nullify(this%u_hat)
-    nullify(this%v_hat)
-    nullify(this%w_hat)
-
-    call this%writer%free()
     call this%free_base()
 
     call this%free_amr_base()
@@ -238,39 +269,134 @@ contains
   subroutine spectral_error_compute(this, time)
     class(spectral_error_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: wk
+    integer :: il, idx
+    real(rp) :: alpha, beta
+    real(dp) :: collect, increment
 
-    integer :: e, i, lx, ly, lz, nelv, n
+    ! Check consistency
+    if (this%time_start .gt. this%time_previous) &
+         call neko_error('Spectral error; time_start grater than &
+         &time_previous')
 
+    ! Skip steps wit simulation steps smaller than time_previous
+    if (time%t .le. this%time_previous) return
 
-    call this%get_indicators(this%case%fluid%c_Xh)
+    call neko_scratch_registry%request_field(wk, idx, .false.)
 
-    lx = this%u_hat%Xh%lx
-    ly = this%u_hat%Xh%ly
-    lz = this%u_hat%Xh%lz
-    nelv = this%u_hat%msh%nelv
+    associate(coef => this%case%fluid%c_Xh)
+      ! Generate the field_hat (legendre coeff)
+      do il = 1, this%nfld
+         call transform_to_spec_or_phys(this%field_hat%items(il)%ptr, &
+              this%field%items(il)%ptr, wk, coef, 'spec')
+      end do
 
-    !> Copy the element indicator into all points of the field
-    do e = 1, nelv
-       do i = 1, lx*ly*lx
-          this%u_hat%x(i, 1, 1, e) = this%eind_u(e)
-          this%v_hat%x(i, 1, 1, e) = this%eind_v(e)
-          this%w_hat%x(i, 1, 1, e) = this%eind_w(e)
-       end do
-    end do
+      ! Get the spectral error indicator
+      do il = 1, this%nfld
+         call calculate_indicators(this, coef, this%eind%items(il)%ptr%x, &
+              this%sig%items(il)%ptr%x, this%nelv, coef%Xh%lx, coef%Xh%ly, &
+              coef%Xh%lz, this%field_hat%items(il)%ptr%x)
+      end do
 
-    ! We need this copy to GPU since the field writer does an internal copy
-    ! GPU -> CPU before writing the field files. This overwrites the *_hat
-    ! host arrays that contain the values.
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%u_hat%x, this%u_hat%x_d, lx*ly*lz*nelv, &
-            HOST_TO_DEVICE, sync = .true.)
-       call device_memcpy(this%v_hat%x, this%v_hat%x_d, lx*ly*lz*nelv, &
-            HOST_TO_DEVICE, sync = .true.)
-       call device_memcpy(this%w_hat%x, this%w_hat%x_d, lx*ly*lz*nelv, &
-            HOST_TO_DEVICE, sync = .true.)
-    end if
+      collect = time%t - this%time_start
+      increment = time%t - this%time_previous
+      this%time_previous = time%t
+      if (collect .gt. 0.0_dp) then
+         beta = real(increment / collect, rp)
+      else
+         beta = 1.0_rp
+      end if
+      alpha = 1.0_rp - beta
+
+      ! Get time averages
+      do il = 1, this%nfld
+         call add3s2(this%eind_av%items(il)%ptr%x, &
+              this%eind_av%items(il)%ptr%x, this%eind%items(il)%ptr%x, &
+              alpha, beta, this%nelv)
+      end do
+      do il = 1, this%nfld
+         call add3s2(this%sig_av%items(il)%ptr%x, &
+              this%sig_av%items(il)%ptr%x, this%sig%items(il)%ptr%x, &
+              alpha, beta, this%nelv)
+      end do
+
+    end associate
+
+    call neko_scratch_registry%relinquish_field(idx)
 
   end subroutine spectral_error_compute
+
+  !> Restart the simcomp.
+  subroutine spectral_error_restart(this, time)
+    class(spectral_error_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    if (trim(this%restart_file) .eq. "no restart") then
+       if (time%t .gt. this%time_start) then
+          this%time_start = time%t
+          this%time_previous = this%time_start
+       end if
+    else
+       call neko_error('Spectral error restart not done yet')
+       this%time_previous = time%t
+    end if
+  end subroutine spectral_error_restart
+
+  !> Set start simulation time for averaging
+  subroutine spectral_error_set_time_start(this, time)
+    class(spectral_error_t), intent(inout) :: this
+    real(dp), intent(in) :: time
+
+    this%time_start = time
+    if (this%time_start .gt. this%time_previous) &
+         call neko_warning('Spectral error; time_start grater than &
+         &time_previous')
+
+  end subroutine spectral_error_set_time_start
+
+  !> Set previous simulation time for averaging
+  subroutine spectral_error_set_time_previous(this, time)
+    class(spectral_error_t), intent(inout) :: this
+    real(dp), intent(in) :: time
+
+    this%time_previous = time
+    if (this%time_start .gt. this%time_previous) &
+         call neko_warning('Spectral error; time_start grater than &
+         &time_previous')
+
+  end subroutine spectral_error_set_time_previous
+
+  !> Get averaging time
+  pure function spectral_error_get_collect_time(this) result(time)
+    class(spectral_error_t), intent(in) :: this
+    real(dp) :: time
+
+    time = this%time_previous - this%time_start
+
+  end function spectral_error_get_collect_time
+
+  !> Reset averaged variables to zero
+  subroutine spectral_error_average_reset(this)
+    class(spectral_error_t), intent(inout) :: this
+    integer :: il
+
+    ! Reset averaged variables
+    do il = 1, this%nfld
+       if (associated(this%eind_av%items(il)%ptr)) then
+          if (allocated(this%eind_av%items(il)%ptr%x)) then
+             this%eind_av%items(il)%ptr%x(:) = 0.0_rp
+          end if
+       end if
+    end do
+    do il = 1, this%nfld
+       if (associated(this%sig_av%items(il)%ptr)) then
+          if (allocated(this%sig_av%items(il)%ptr%x)) then
+             this%sig_av%items(il)%ptr%x(:) = 0.0_rp
+          end if
+       end if
+    end do
+
+  end subroutine spectral_error_average_reset
 
   !> Transform a field u to u_hat into physical or spectral space
   !! the result of the transformation is in u_hat.
@@ -322,47 +448,6 @@ contains
 
   end subroutine transform_to_spec_or_phys
 
-  !> Transform and get the spectral error indicators
-  !! @param coef type coef for mesh parameters and space
-  subroutine spectral_error_get_indicators(this, coef)
-    class(spectral_error_t), intent(inout) :: this
-    type(coef_t), intent(inout) :: coef
-    integer :: i
-
-    ! Generate the uvwhat field (legendre coeff)
-    call transform_to_spec_or_phys(this%u_hat, this%u, this%wk, coef, 'spec')
-    call transform_to_spec_or_phys(this%v_hat, this%v, this%wk, coef, 'spec')
-    call transform_to_spec_or_phys(this%w_hat, this%w, this%wk, coef, 'spec')
-
-    ! Get the spectral error indicator
-    call calculate_indicators(this, coef, this%eind_u, this%sig_u, &
-         coef%msh%nelv, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-         this%u_hat%x)
-    call calculate_indicators(this, coef, this%eind_v, this%sig_v, &
-         coef%msh%nelv, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-         this%v_hat%x)
-    call calculate_indicators(this, coef, this%eind_w, this%sig_w, &
-         coef%msh%nelv, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
-         this%w_hat%x)
-
-  end subroutine spectral_error_get_indicators
-
-  !> Write error indicators in a field file.
-  !! @param t Current simulation time.
-  subroutine spectral_error_write(this, t)
-    class(spectral_error_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-
-    integer i, e
-    integer lx, ly, lz, nelv
-
-    !> Write the file
-    !! Remember that the list is already ponting to the fields
-    !! that were just modified.
-    call this%mf_speri%write(this%speri_l, t)
-
-  end subroutine spectral_error_write
-
   !> Wrapper for old fortran 77 subroutines
   !! @param coef coef type
   !! @param eind spectral indicator
@@ -396,7 +481,6 @@ contains
     call speri_var(this, eind, sig, var, lnelt, xa, xb, LX1, LY1, LZ1)
 
   end subroutine calculate_indicators
-
 
   !> Calculate the indicator in a specified variable
   !! @param est spectral indicator
@@ -722,6 +806,7 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
+    integer :: il
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
@@ -733,34 +818,55 @@ contains
 
     ! These should be already restarted, but AMR restart prevents
     ! recursive restarting, so it is safe to call it here
-    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, tstep)
-    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, tstep)
-    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, tstep)
+    call this%field%amr_restart(reconstruct, counter, tstep)
 
-    ! These I reallocate here assuming former values do not matter???
-    if (associated(this%u_hat)) &
-         call this%u_hat%amr_reallocate(reconstruct, counter, tstep)
-    if (associated(this%v_hat)) &
-         call this%v_hat%amr_reallocate(reconstruct, counter, tstep)
-    if (associated(this%w_hat)) &
-         call this%w_hat%amr_reallocate(reconstruct, counter, tstep)
-    call this%wk%amr_reallocate(reconstruct, counter, tstep)
+    ! These I reallocate here assuming former values do not matter
+    call this%field_hat%amr_reallocate(reconstruct, counter, tstep)
 
-    ! reallocate arrays
+    ! Reallocate arrays
     if (reconstruct%nold .ne. reconstruct%nnew) then
-       if (allocated(this%eind_u)) deallocate(this%eind_u)
-       if (allocated(this%eind_v)) deallocate(this%eind_v)
-       if (allocated(this%eind_w)) deallocate(this%eind_w)
-       if (allocated(this%sig_u)) deallocate(this%sig_u)
-       if (allocated(this%sig_v)) deallocate(this%sig_v)
-       if (allocated(this%sig_w)) deallocate(this%sig_w)
-       allocate(this%eind_u(reconstruct%nnew), this%eind_v(reconstruct%nnew), &
-            this%eind_w(reconstruct%nnew), this%sig_u(reconstruct%nnew), &
-            this%sig_v(reconstruct%nnew), this%sig_w(reconstruct%nnew))
+
+       this%nelv = reconstruct%nnew
+
+       do il = 1, this%nfld
+          if (associated(this%eind%items(il)%ptr)) then
+             if (allocated(this%eind%items(il)%ptr%x)) then
+                deallocate(this%eind%items(il)%ptr%x)
+                allocate(this%eind%items(il)%ptr%x(reconstruct%nnew))
+             end if
+          end if
+       end do
+       do il = 1, this%nfld
+          if (associated(this%sig%items(il)%ptr)) then
+             if (allocated(this%sig%items(il)%ptr%x)) then
+                deallocate(this%sig%items(il)%ptr%x)
+                allocate(this%sig%items(il)%ptr%x(reconstruct%nnew))
+             end if
+          end if
+       end do
+       do il = 1, this%nfld
+          if (associated(this%eind_av%items(il)%ptr)) then
+             if (allocated(this%eind_av%items(il)%ptr%x)) then
+                deallocate(this%eind_av%items(il)%ptr%x)
+                allocate(this%eind_av%items(il)%ptr%x(reconstruct%nnew))
+             end if
+          end if
+       end do
+       do il = 1, this%nfld
+          if (associated(this%sig_av%items(il)%ptr)) then
+             if (allocated(this%sig_av%items(il)%ptr%x)) then
+                deallocate(this%sig_av%items(il)%ptr%x)
+                allocate(this%sig_av%items(il)%ptr%x(reconstruct%nnew))
+             end if
+          end if
+       end do
     end if
 
-    ! Writer does not seem to be used????
-    ! call this%writer%amr_restart(reconstruct, counter, tstep)
+    ! Reset averaging time
+    this%time_start = this%time_previous
+
+    ! Reset averaged variables
+    call this%average_reset()
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 
