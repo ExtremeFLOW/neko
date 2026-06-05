@@ -325,6 +325,223 @@ contains
     call recv_pe%free()
   end subroutine init_particle_redist_comm
 
+
+  !> Interpolate the carrier velocity at the local particles.
+  subroutine evaluate_velocity(this, vel)
+    class(lpt_t), intent(inout) :: this
+    real(kind=rp), allocatable, intent(out) :: vel(:,:)
+    logical :: do_interp_on_host
+
+    allocate(vel(3, this%particles%n))
+    if (this%particles%n .eq. 0) return
+
+    do_interp_on_host = .false.
+    call this%global_interp%evaluate(vel(1,:), this%u%x, do_interp_on_host)
+    call this%global_interp%evaluate(vel(2,:), this%v%x, do_interp_on_host)
+    call this%global_interp%evaluate(vel(3,:), this%w%x, do_interp_on_host)
+  end subroutine evaluate_velocity
+
+  !> Advance particles with the fluid scheme's explicit multistep coefficients
+  !! and optionally write them.
+  subroutine lpt_compute(this, time)
+    class(lpt_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=rp), allocatable :: vel(:,:)
+    real(kind=rp) :: dtc
+    integer :: i
+    integer :: j
+    integer :: nadv
+
+    if (time%t .lt. this%start_time) return
+
+    call this%redistribute_particles()
+    call this%evaluate_velocity(vel)
+    nadv = this%case%fluid%ext_bdf%nadv
+
+    if (nadv .gt. 1 .and. all(this%particles%vel_lag .eq. 0.0_rp)) then
+       do j = 1, LPT_VEL_HISTORY_LEN
+          this%particles%vel_lag(:, j, :) = vel
+       end do
+    end if
+
+    if (this%output_enabled) then
+      if (this%output_controller%check(time)) then
+         call this%write_output(time, vel)
+         call this%output_controller%register_execution()
+      end if
+    end if
+
+    dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(1)
+    do i = 1, 3
+       call add2s2(this%particles%xyz(i, :), vel(i, :), dtc, this%particles%n)
+    end do
+
+    do j = 2, nadv
+       dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(j)
+       do i = 1, 3
+          call add2s2(this%particles%xyz(i, :), this%particles%vel_lag(i, j - 1, :), &
+               dtc, this%particles%n)
+       end do
+    end do
+
+    do j = LPT_VEL_HISTORY_LEN, 2, -1
+       this%particles%vel_lag(:, j, :) = this%particles%vel_lag(:, j - 1, :)
+    end do
+    this%particles%vel_lag(:, 1, :) = vel
+
+    if (allocated(vel)) deallocate(vel)
+  end subroutine lpt_compute
+
+  !> Write one trajectory snapshot to CSV by gathering local particle data to
+  !! rank 0.
+  subroutine write_output(this, time, vel)
+    class(lpt_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=rp), intent(in) :: vel(:,:)
+    type(matrix_t) :: block
+    real(kind=rp), allocatable :: local_data(:,:)
+    real(kind=rp), allocatable :: global_data(:,:)
+    integer, allocatable :: n_local_particles_per_rank(:)
+    integer, allocatable :: recvcounts(:)
+    integer, allocatable :: displs(:)
+    integer :: n_local
+    integer :: total_particles
+    integer :: i
+    integer :: ierr
+
+    n_local = this%particles%n
+
+    allocate(local_data(9, n_local))
+    do i = 1, n_local
+       local_data(1,i) = real(time%tstep, rp)
+       local_data(2,i) = time%t
+       local_data(3,i) = real(this%particles%ids(i), rp)
+       local_data(4,i) = this%particles%xyz(1,i)
+       local_data(5,i) = this%particles%xyz(2,i)
+       local_data(6,i) = this%particles%xyz(3,i)
+       local_data(7,i) = vel(1,i)
+       local_data(8,i) = vel(2,i)
+       local_data(9,i) = vel(3,i)
+    end do
+
+    if (pe_rank .eq. 0) then
+       allocate(n_local_particles_per_rank(pe_size))
+    else
+       allocate(n_local_particles_per_rank(0))
+    end if
+    call MPI_Gather(n_local, 1, MPI_INTEGER, n_local_particles_per_rank, 1, &
+         MPI_INTEGER, 0, NEKO_COMM, ierr)
+
+    if (pe_rank .eq. 0) then
+       allocate(recvcounts(pe_size))
+       allocate(displs(pe_size))
+       recvcounts = 0
+       displs = 0
+
+       total_particles = 0
+       do i = 1, pe_size
+          total_particles = total_particles + n_local_particles_per_rank(i)
+          recvcounts(i) = 9 * n_local_particles_per_rank(i)
+          displs(i) = 9 * (total_particles - n_local_particles_per_rank(i))
+       end do
+
+       allocate(global_data(9, total_particles))
+    else
+       allocate(recvcounts(0))
+       allocate(displs(0))
+       allocate(global_data(9, 0))
+    end if
+
+    call MPI_Gatherv(local_data, 9 * n_local, MPI_REAL_PRECISION, global_data, &
+         recvcounts, displs, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+
+    if (pe_rank .eq. 0) then
+       call block%init(total_particles, 9)
+       call trsp(block%x, total_particles, global_data, 9)
+       call this%output_file%write(block)
+       call block%free()
+    end if
+
+    deallocate(global_data)
+    deallocate(n_local_particles_per_rank)
+    deallocate(recvcounts)
+    deallocate(displs)
+    deallocate(local_data)
+  end subroutine write_output
+
+  !> Free the component.
+  subroutine lpt_free(this)
+    class(lpt_t), intent(inout) :: this
+
+    call this%particles%free()
+    if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
+    if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
+    if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
+    if (allocated(this%periodic_src_bounds_min)) deallocate(this%periodic_src_bounds_min)
+    if (allocated(this%periodic_src_bounds_max)) deallocate(this%periodic_src_bounds_max)
+    if (allocated(this%periodic_tgt_center)) deallocate(this%periodic_tgt_center)
+    if (allocated(this%periodic_tgt_basis)) deallocate(this%periodic_tgt_basis)
+    call this%global_interp%free()
+    call this%output_file%free()
+
+    this%u => null()
+    this%v => null()
+    this%w => null()
+    this%output_enabled = .false.
+    this%log = .true.
+    this%start_time = -huge(0.0_rp)
+    this%n_periodic_maps = 0
+    this%periodic_enabled = .false.
+    this%rotational_periodic_enabled = .false.
+    this%n_periodic_dirs = 0
+    this%periodic_shift = 0.0_rp
+    this%periodic_dir = 0.0_rp
+    this%periodic_min = 0.0_rp
+    this%periodic_max = 0.0_rp
+    this%periodic_len = 0.0_rp
+    this%rotational_theta_min = 0.0_rp
+    this%rotational_theta_max = 0.0_rp
+    this%rotational_theta_len = 0.0_rp
+    call this%free_base()
+  end subroutine lpt_free
+
+  !> Emit a setup summary.
+  subroutine log_status(this)
+    class(lpt_t), intent(in) :: this
+    character(len=LOG_SIZE) :: log_buf
+
+    if (.not. this%log) return
+
+    call neko_log%section("Lagrangian particle tracking")
+    write(log_buf, '(A,A)') "Name: ", trim(this%name)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,I0)') "Global seeded particles: ", &
+         this%particles%n_global
+    call neko_log%message(log_buf)
+    if (this%periodic_enabled) then
+       write(log_buf, '(A,I0)') "Periodic wrap directions: ", &
+            this%n_periodic_dirs
+       call neko_log%message(log_buf)
+    end if
+    if (this%rotational_periodic_enabled) then
+       write(log_buf, '(A,3(ES13.5,A),ES13.5)') &
+            "Rotational periodic sector: theta_min=", &
+            this%rotational_theta_min, ", theta_max=", &
+            this%rotational_theta_max, ", theta_len=", &
+            this%rotational_theta_len, ""
+       call neko_log%message(log_buf)
+    end if
+    if (this%n_periodic_maps .gt. 0) then
+       write(log_buf, '(A,I0)') "Periodic facet transforms: ", &
+            this%n_periodic_maps
+       call neko_log%message(log_buf)
+    end if
+    write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
+         this%particles%n
+    if (pe_rank .eq. 0) call neko_log%message(log_buf)
+    call neko_log%end_section()
+  end subroutine log_status
+
   subroutine redistribute_particle_ids(this, redist_comm, n_particles_old, &
        particle_ids_local)
     class(lpt_t), intent(inout) :: this
@@ -570,222 +787,6 @@ contains
        end do
     end do
   end subroutine wrap_particles_translational
-
-  !> Interpolate the carrier velocity at the local particles.
-  subroutine evaluate_velocity(this, vel)
-    class(lpt_t), intent(inout) :: this
-    real(kind=rp), allocatable, intent(out) :: vel(:,:)
-    logical :: do_interp_on_host
-
-    allocate(vel(3, this%particles%n))
-    if (this%particles%n .eq. 0) return
-
-    do_interp_on_host = .false.
-    call this%global_interp%evaluate(vel(1,:), this%u%x, do_interp_on_host)
-    call this%global_interp%evaluate(vel(2,:), this%v%x, do_interp_on_host)
-    call this%global_interp%evaluate(vel(3,:), this%w%x, do_interp_on_host)
-  end subroutine evaluate_velocity
-
-  !> Advance particles with the fluid scheme's explicit multistep coefficients
-  !! and optionally write them.
-  subroutine lpt_compute(this, time)
-    class(lpt_t), intent(inout) :: this
-    type(time_state_t), intent(in) :: time
-    real(kind=rp), allocatable :: vel(:,:)
-    real(kind=rp) :: dtc
-    integer :: i
-    integer :: j
-    integer :: nadv
-
-    if (time%t .lt. this%start_time) return
-
-    call this%redistribute_particles()
-    call this%evaluate_velocity(vel)
-    nadv = this%case%fluid%ext_bdf%nadv
-
-    if (nadv .gt. 1 .and. all(this%particles%vel_lag .eq. 0.0_rp)) then
-       do j = 1, LPT_VEL_HISTORY_LEN
-          this%particles%vel_lag(:, j, :) = vel
-       end do
-    end if
-
-    if (this%output_enabled) then
-      if (this%output_controller%check(time)) then
-         call this%write_output(time, vel)
-         call this%output_controller%register_execution()
-      end if
-    end if
-
-    dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(1)
-    do i = 1, 3
-       call add2s2(this%particles%xyz(i, :), vel(i, :), dtc, this%particles%n)
-    end do
-
-    do j = 2, nadv
-       dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(j)
-       do i = 1, 3
-          call add2s2(this%particles%xyz(i, :), this%particles%vel_lag(i, j - 1, :), &
-               dtc, this%particles%n)
-       end do
-    end do
-
-    do j = LPT_VEL_HISTORY_LEN, 2, -1
-       this%particles%vel_lag(:, j, :) = this%particles%vel_lag(:, j - 1, :)
-    end do
-    this%particles%vel_lag(:, 1, :) = vel
-
-    if (allocated(vel)) deallocate(vel)
-  end subroutine lpt_compute
-
-  !> Write one trajectory snapshot to CSV by gathering local particle data to
-  !! rank 0.
-  subroutine write_output(this, time, vel)
-    class(lpt_t), intent(inout) :: this
-    type(time_state_t), intent(in) :: time
-    real(kind=rp), intent(in) :: vel(:,:)
-    type(matrix_t) :: block
-    real(kind=rp), allocatable :: local_data(:,:)
-    real(kind=rp), allocatable :: global_data(:,:)
-    integer, allocatable :: n_local_particles_per_rank(:)
-    integer, allocatable :: recvcounts(:)
-    integer, allocatable :: displs(:)
-    integer :: n_local
-    integer :: total_particles
-    integer :: i
-    integer :: ierr
-
-    n_local = this%particles%n
-
-    allocate(local_data(9, n_local))
-    do i = 1, n_local
-       local_data(1,i) = real(time%tstep, rp)
-       local_data(2,i) = time%t
-       local_data(3,i) = real(this%particles%ids(i), rp)
-       local_data(4,i) = this%particles%xyz(1,i)
-       local_data(5,i) = this%particles%xyz(2,i)
-       local_data(6,i) = this%particles%xyz(3,i)
-       local_data(7,i) = vel(1,i)
-       local_data(8,i) = vel(2,i)
-       local_data(9,i) = vel(3,i)
-    end do
-
-    if (pe_rank .eq. 0) then
-       allocate(n_local_particles_per_rank(pe_size))
-    else
-       allocate(n_local_particles_per_rank(0))
-    end if
-    call MPI_Gather(n_local, 1, MPI_INTEGER, n_local_particles_per_rank, 1, &
-         MPI_INTEGER, 0, NEKO_COMM, ierr)
-
-    if (pe_rank .eq. 0) then
-       allocate(recvcounts(pe_size))
-       allocate(displs(pe_size))
-       recvcounts = 0
-       displs = 0
-
-       total_particles = 0
-       do i = 1, pe_size
-          total_particles = total_particles + n_local_particles_per_rank(i)
-          recvcounts(i) = 9 * n_local_particles_per_rank(i)
-          displs(i) = 9 * (total_particles - n_local_particles_per_rank(i))
-       end do
-
-       allocate(global_data(9, total_particles))
-    else
-       allocate(recvcounts(0))
-       allocate(displs(0))
-       allocate(global_data(9, 0))
-    end if
-
-    call MPI_Gatherv(local_data, 9 * n_local, MPI_REAL_PRECISION, global_data, &
-         recvcounts, displs, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
-
-    if (pe_rank .eq. 0) then
-       call block%init(total_particles, 9)
-       call trsp(block%x, total_particles, global_data, 9)
-       call this%output_file%write(block)
-       call block%free()
-    end if
-
-    deallocate(global_data)
-    deallocate(n_local_particles_per_rank)
-    deallocate(recvcounts)
-    deallocate(displs)
-    deallocate(local_data)
-  end subroutine write_output
-
-  !> Free the component.
-  subroutine lpt_free(this)
-    class(lpt_t), intent(inout) :: this
-
-    call this%particles%free()
-    if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
-    if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
-    if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
-    if (allocated(this%periodic_src_bounds_min)) deallocate(this%periodic_src_bounds_min)
-    if (allocated(this%periodic_src_bounds_max)) deallocate(this%periodic_src_bounds_max)
-    if (allocated(this%periodic_tgt_center)) deallocate(this%periodic_tgt_center)
-    if (allocated(this%periodic_tgt_basis)) deallocate(this%periodic_tgt_basis)
-    call this%global_interp%free()
-    call this%output_file%free()
-
-    this%u => null()
-    this%v => null()
-    this%w => null()
-    this%output_enabled = .false.
-    this%log = .true.
-    this%start_time = -huge(0.0_rp)
-    this%n_periodic_maps = 0
-    this%periodic_enabled = .false.
-    this%rotational_periodic_enabled = .false.
-    this%n_periodic_dirs = 0
-    this%periodic_shift = 0.0_rp
-    this%periodic_dir = 0.0_rp
-    this%periodic_min = 0.0_rp
-    this%periodic_max = 0.0_rp
-    this%periodic_len = 0.0_rp
-    this%rotational_theta_min = 0.0_rp
-    this%rotational_theta_max = 0.0_rp
-    this%rotational_theta_len = 0.0_rp
-    call this%free_base()
-  end subroutine lpt_free
-
-  !> Emit a setup summary.
-  subroutine log_status(this)
-    class(lpt_t), intent(in) :: this
-    character(len=LOG_SIZE) :: log_buf
-
-    if (.not. this%log) return
-
-    call neko_log%section("Lagrangian particle tracking")
-    write(log_buf, '(A,A)') "Name: ", trim(this%name)
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,I0)') "Global seeded particles: ", &
-         this%particles%n_global
-    call neko_log%message(log_buf)
-    if (this%periodic_enabled) then
-       write(log_buf, '(A,I0)') "Periodic wrap directions: ", &
-            this%n_periodic_dirs
-       call neko_log%message(log_buf)
-    end if
-    if (this%rotational_periodic_enabled) then
-       write(log_buf, '(A,3(ES13.5,A),ES13.5)') &
-            "Rotational periodic sector: theta_min=", &
-            this%rotational_theta_min, ", theta_max=", &
-            this%rotational_theta_max, ", theta_len=", &
-            this%rotational_theta_len, ""
-       call neko_log%message(log_buf)
-    end if
-    if (this%n_periodic_maps .gt. 0) then
-       write(log_buf, '(A,I0)') "Periodic facet transforms: ", &
-            this%n_periodic_maps
-       call neko_log%message(log_buf)
-    end if
-    write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
-         this%particles%n
-    if (pe_rank .eq. 0) call neko_log%message(log_buf)
-    call neko_log%end_section()
-  end subroutine log_status
 
   !> Map a periodic facet number to its Cartesian wrap direction.
   integer function lpt_periodic_dir_from_facet(gdim, facet) result(idx)
