@@ -15,7 +15,7 @@ module field_array
   private
 
   !> field_array_t, To be able to group fields together
-  type, public :: field_array_t
+  type, public, extends(amr_restart_component_t) :: field_array_t
      type(field_wrapper_t), allocatable :: items(:)
    contains
      !> Constructor. Allocates array and pointers.
@@ -55,6 +55,8 @@ module field_array
      procedure, pass(this) :: name => field_array_name
      !> AMR restart
      procedure, pass(this) :: amr_restart => field_array_amr_restart
+     !> AMR reallocate
+     procedure, pass(this) :: amr_reallocate => field_array_amr_reallocate
   end type field_array_t
 
 contains
@@ -277,5 +279,35 @@ contains
     end if
 
   end subroutine field_array_amr_restart
+
+  !> AMR reallocate; used for arrays not containing valuable data
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     tstep         time step
+  subroutine field_array_amr_reallocate(this, reconstruct, counter, tstep)
+    class(field_array_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter, tstep
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reallocating Field Array'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct fields
+    if (allocated(this%items)) then
+       do il = 1, This%size()
+          if (associated(this%items(il)%field)) &
+               call this%items(il)%field%amr_reallocate(reconstruct, counter, &
+               tstep)
+       end do
+    end if
+
+  end subroutine field_array_amr_reallocate
 
 end module field_array
