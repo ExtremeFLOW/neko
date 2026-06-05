@@ -80,6 +80,8 @@ module spectral_error
      type(vector_list_t) :: sig_av
      !> Number of fields
      integer :: nfld
+     !> Field names
+     character(NEKO_VARNAME_LEN), dimension(:), allocatable :: field_names
      !> Vector length
      integer :: nelv
      !> Simulation time of the first averaging step
@@ -138,9 +140,9 @@ contains
     call this%free()
 
     call json_get_or_default(json, "name", name, "spectral_error")
-    this%name = name
+    this%name = trim(name)
     call json_get_or_default(json, "restart_file", restart_file, "no restart")
-    this%restart_file = restart_file
+    this%restart_file = trim(restart_file)
 
     call json_get(json, "fields", field_names)
     if (.not. allocated(field_names)) &
@@ -170,6 +172,12 @@ contains
     ! array sizes
     this%nfld = size(field_names)
     this%nelv = coef%msh%nelv
+
+    ! save field names
+    allocate(this%field_names(this%nfld))
+    do il = 1, this%nfld
+       this%field_names(il) = trim(field_names(il))
+    end do
 
     ! allocate pointer space
     call this%field%init(this%nfld)
@@ -250,6 +258,7 @@ contains
     this%time_start = 0.0_dp
     this%time_previous = 0.0_dp
 
+    if (allocated(this%field_names)) deallocate(this%field_names)
     if (allocated(this%restart_file)) deallocate(this%restart_file)
 
     call this%field%free()
