@@ -122,7 +122,6 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: redistribute_particles
      procedure, private, pass(this) :: evaluate_velocity
      procedure, private, pass(this) :: write_output
-     procedure, private, pass(this) :: init_particle_redist_comm
      procedure, private, pass(this) :: redistribute_particle_ids
      procedure, private, pass(this) :: redistribute_velocity_history
      procedure, private, pass(this) :: log_status
@@ -278,7 +277,7 @@ contains
     call this%wrap_particles_periodic()
     call this%global_interp%find_points_and_redist(this%particles%xyz, &
          this%particles%n)
-    call this%init_particle_redist_comm(redist_comm)
+    call this%global_interp%init_redist_comm(redist_comm)
     call this%redistribute_particle_ids(redist_comm, n_particles_old, &
          particle_ids_local)
     call this%redistribute_velocity_history(redist_comm, n_particles_old, &
@@ -289,42 +288,6 @@ contains
     call MPI_Allreduce(this%particles%n, this%particles%n_global, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine redistribute_particles
-
-  subroutine init_particle_redist_comm(this, redist_comm)
-    class(lpt_t), intent(inout) :: this
-    type(glb_intrp_comm_t), intent(inout) :: redist_comm
-    type(stack_i4_t) :: send_pe
-    type(stack_i4_t) :: recv_pe
-    integer, pointer :: point_ids(:)
-    integer :: rank
-    integer :: i
-
-    call send_pe%init()
-    call recv_pe%init()
-    call redist_comm%init_dofs(this%global_interp%pe_size)
-
-    do rank = 0, pe_size - 1
-       if (this%global_interp%n_points_pe(rank) .gt. 0) then
-          call send_pe%push(rank)
-          point_ids => this%global_interp%points_at_pe(rank)%array()
-          do i = 1, this%global_interp%n_points_pe(rank)
-             call redist_comm%send_dof(rank)%push(point_ids(i))
-          end do
-       end if
-       if (this%global_interp%n_points_pe_local(rank) .gt. 0) then
-          call recv_pe%push(rank)
-          do i = 1, this%global_interp%n_points_pe_local(rank)
-             call redist_comm%recv_dof(rank)%push( &
-                  this%global_interp%n_points_offset_pe_local(rank) + i)
-          end do
-       end if
-    end do
-
-    call redist_comm%init(send_pe, recv_pe, NEKO_COMM)
-    call send_pe%free()
-    call recv_pe%free()
-  end subroutine init_particle_redist_comm
-
 
   !> Interpolate the carrier velocity at the local particles.
   subroutine evaluate_velocity(this, vel)
