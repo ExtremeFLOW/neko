@@ -511,40 +511,40 @@ contains
          call this%GLL_to_GL%map(this%vt, wm_z%x, nel, this%Xh_GL)
 
          ! --------------------- X-Momentum
-         ! Fx = vx * wm_x
+         ! vx * wm_x
          call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
          call opgrad(this%tz, this%tx, this%ty, this%temp, c_GL)
 
-         ! Fy = vx * wm_y
+         ! vx * wm_y
          call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vs_d, n_GL)
          call opgrad(this%tx, this%tbf, this%ty, this%temp, c_GL)
          call device_add2(this%tz_d, this%tbf_d, n_GL)
 
-         ! Fz = vx * wm_z
+         ! vx * wm_z
          call this%GLL_to_GL%map(this%temp, vx%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vt_d, n_GL)
          call opgrad(this%tx, this%ty, this%tbf, this%temp, c_GL)
          call device_add2(this%tz_d, this%tbf_d, n_GL)
 
-         ! Map strong divergence (tz) back to GLL space and add to RHS
+         ! Map divergence back to GLL space and add to RHS
          call this%GLL_to_GL%map(this%temp, this%tz, nel, this%Xh_GLL)
          call device_add2(fx%x_d, this%temp_d, n)
 
          ! --------------------- Y-Momentum
-         ! Fx = vy * wm_x
+         ! vy * wm_x
          call this%GLL_to_GL%map(this%temp, vy%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
          call opgrad(this%tz, this%tx, this%ty, this%temp, c_GL)
 
-         ! Fy = vy * wm_y
+         ! vy * wm_y
          call this%GLL_to_GL%map(this%temp, vy%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vs_d, n_GL)
          call opgrad(this%tx, this%tbf, this%ty, this%temp, c_GL)
          call device_add2(this%tz_d, this%tbf_d, n_GL)
 
-         ! Fz = vy * wm_z
+         ! vy * wm_z
          call this%GLL_to_GL%map(this%temp, vy%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vt_d, n_GL)
          call opgrad(this%tx, this%ty, this%tbf, this%temp, c_GL)
@@ -554,18 +554,18 @@ contains
          call device_add2(fy%x_d, this%temp_d, n)
 
          ! --------------------- Z-Momentum
-         ! Fx = wz * wm_x
+         ! wz * wm_x
          call this%GLL_to_GL%map(this%temp, vz%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vr_d, n_GL)
          call opgrad(this%tz, this%tx, this%ty, this%temp, c_GL)
 
-         ! Fy = wz * wm_y
+         ! wz * wm_y
          call this%GLL_to_GL%map(this%temp, vz%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vs_d, n_GL)
          call opgrad(this%tx, this%tbf, this%ty, this%temp, c_GL)
          call device_add2(this%tz_d, this%tbf_d, n_GL)
 
-         ! Fz = wz * wm_z
+         ! wz * wm_z
          call this%GLL_to_GL%map(this%temp, vz%x, nel, this%Xh_GL)
          call device_col3(this%temp_d, this%temp_d, this%vt_d, n_GL)
          call opgrad(this%tx, this%ty, this%tbf, this%temp, c_GL)
