@@ -342,8 +342,7 @@ contains
       n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
       ! Use the compressible CFL function with precomputed maximum wave speed
-      c = cfl_compressible(dt, max_wave_speed%x, Xh, c_Xh, &
-           msh%nelv, msh%gdim)
+      c = cfl_compressible(dt, max_wave_speed%x, Xh, c_Xh, msh%nelv, msh%gdim)
     end associate
 
   end function fluid_scheme_compressible_compute_cfl
