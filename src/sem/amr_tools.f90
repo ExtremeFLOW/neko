@@ -52,6 +52,8 @@ module amr_tools
   implicit none
   private
 
+  integer, parameter, public :: AMR_OP_MAX = 1, AMR_OP_ELEN = 2
+
   !> Type for spectral error indicator operations
   type, public, extends(amr_restart_component_t) :: amr_spectral_error_t
      !> Pointer to the spectral error indicator simcomp
@@ -83,8 +85,6 @@ module amr_tools
      !> Vector list pointing to averaged error vectors used to get refinement
      !! mark
      type(vector_list_t) :: eind_av_ref
-     !> Operator applied to fields
-     character(:), allocatable :: opr
      !> Number of fields for stability monitoring
      integer :: nfld_mntr
      !> Field names used for refinement mark assessment
@@ -102,6 +102,11 @@ module amr_tools
      procedure, pass(this) :: sample => amr_spectral_error_sample
      !> Checkpoint averaged fields to the disc
      procedure, pass(this) :: checkpoint => amr_spectral_error_checkpoint
+     !> Get averaging time
+     procedure, pass(this) :: get_collect_time => &
+          amr_spectral_error_get_collect_time
+     !> Get combined averaged error indicator
+      procedure, pass(this) :: err_av_get => amr_spectral_error_err_av_get
      !> AMR restart
      procedure, pass(this) :: amr_restart => amr_spectral_error_amr_restart
   end type amr_spectral_error_t
@@ -111,15 +116,12 @@ contains
   !> Initialise spectral error indicator type
   !! @param[in]   msh            Mesh
   !! @param[in]   fld_name_ref   List of fields for refinement mark assessment
-  !! @param[in]   opr            Operator applied
   !! @param[in]   fld_name_mntr  List of fields for stability monitoring
-  subroutine amr_spectral_error_init(this, msh, fld_name_ref, opr, &
-       fld_name_mntr)
+  subroutine amr_spectral_error_init(this, msh, fld_name_ref, fld_name_mntr)
     class(amr_spectral_error_t), intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     character(len=NEKO_VARNAME_LEN), dimension(:), optional, intent(in) :: &
          fld_name_ref, fld_name_mntr
-    character(len=*), optional, intent(in) :: opr
     integer :: il, jl, n_simcomps, lx
     type(field_t) :: fld_tmp
     logical :: found
@@ -138,6 +140,8 @@ contains
 
     ! Number of fields in simcomp
     this%nfld_smp = this%simcomp_spectral%nfld
+    ! Array length
+    this%nelv = this%simcomp_spectral%nelv
 
     ! minimal mesh
     this%msh => msh
@@ -218,11 +222,6 @@ contains
                   &mapped')
           end do
        end if
-       if (present(opr)) then
-          this%opr = trim(opr)
-       else
-          this%opr = 'max'
-       end if
     end if
 
     ! Fields used for stability monitoring
@@ -287,7 +286,6 @@ contains
     this%nfld_mntr = 0
 
     if (allocated(this%field_names_ref)) deallocate(this%field_names_ref)
-    if (allocated(this%opr)) deallocate(this%opr)
     if (allocated(this%field_names_mntr)) deallocate(this%field_names_mntr)
 
     call this%gs_Xh%free()
@@ -354,6 +352,55 @@ contains
     call this%eind_av_file%sample(time)
 
   end subroutine amr_spectral_error_checkpoint
+
+  !> Get averaging time
+  pure function amr_spectral_error_get_collect_time(this) result(time)
+    class(amr_spectral_error_t), intent(in) :: this
+    real(dp) :: time
+
+    time = this%simcomp_spectral%get_collect_time()
+
+  end function amr_spectral_error_get_collect_time
+
+  !> Get combined averaged error indicator
+  !! @param[in]     opr      operator
+  !! @param[out]    errind   combined averaged error indicator
+  !! @param[in]     nelv     number of elements
+  subroutine amr_spectral_error_err_av_get(this, opr, errind, nelv)
+    class(amr_spectral_error_t), intent(in) :: this
+    integer, intent(in) :: opr, nelv
+    real(rp), dimension(nelv), intent(out) :: errind
+    integer :: il, jl
+    real(rp) :: rtmp
+    real(rp), parameter :: nbig = -huge(0.0_rp)
+
+    if (nelv .ne. this%nelv) call neko_error('AMR tools; &
+         &inconsistent number of elements')
+
+    select case(opr)
+    case (AMR_OP_MAX)
+       ! take max from all the listed fields
+       do il = 1, this%nelv
+          rtmp = nbig
+          do jl = 1, this%nfld_ref
+             rtmp = max(rtmp, this%eind_av_ref%items(jl)%ptr%x(il))
+          end do
+          errind(il) = rtmp
+       end do
+    case (AMR_OP_ELEN)
+       ! Euclidean length of vector
+       do il = 1, this%nelv
+          rtmp = 0.0_rp
+          do jl = 1, this%nfld_ref
+             rtmp = rtmp + this%eind_av_ref%items(jl)%ptr%x(il)**2
+          end do
+          errind(il) = sqrt(rtmp)
+       end do
+    case default
+       call neko_error('AMR tools; wrong operator')
+    end select
+
+  end subroutine amr_spectral_error_err_av_get
 
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
