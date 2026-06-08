@@ -74,6 +74,21 @@ module coefs
      !> Geometric factors \f$ G_{23} \f$
      real(kind=rp), allocatable :: G23(:,:,:,:)
 
+     !> Compressed geometric factors \f$ G_{11} \f$
+     real(kind=rp), allocatable :: G11_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{22} \f$
+     real(kind=rp), allocatable :: G22_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{33} \f$
+     real(kind=rp), allocatable :: G33_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{12} \f$
+     real(kind=rp), allocatable :: G12_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{13} \f$
+     real(kind=rp), allocatable :: G13_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{23} \f$
+     real(kind=rp), allocatable :: G23_compressed(:,:,:,:)
+     !> Compressed geometric factors lookup indices
+     real(kind=rp), allocatable :: compression_inds(:)
+
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      !> generate mapping data between element and reference element
      !! \f$ dx/dr, dy/dr, dz/dr \f$
@@ -358,6 +373,8 @@ contains
 
     call coef_generate_geo(this)
 
+    call coef_generate_geo_compressed(this)
+
     call coef_generate_area_and_normal(this)
 
     call coef_generate_mass(this)
@@ -453,6 +470,30 @@ contains
 
     if (allocated(this%G23)) then
        deallocate(this%G23)
+    end if
+
+    if (allocated(this%G11_compressed)) then
+       deallocate(this%G11_compressed)
+    end if
+
+    if (allocated(this%G22_compressed)) then
+       deallocate(this%G22_compressed)
+    end if
+
+    if (allocated(this%G33_compressed)) then
+       deallocate(this%G33_compressed)
+    end if
+
+    if (allocated(this%G12_compressed)) then
+       deallocate(this%G12_compressed)
+    end if
+
+    if (allocated(this%G13_compressed)) then
+       deallocate(this%G13_compressed)
+    end if
+
+    if (allocated(this%G23_compressed)) then
+       deallocate(this%G23_compressed)
     end if
 
     if (allocated(this%mult)) then
@@ -1089,6 +1130,33 @@ contains
     end if
 
   end subroutine coef_generate_geo
+
+  !> Compute compressed versions of mappings Gij
+  !! @note This could be faster if it ran on device (among other algorithmic modifications)
+  subroutine coef_generate_geo_compressed(c)
+    type(coef_t), intent(inout) :: c
+    integer :: e, m, i, ntot, m_max
+
+    ! First step, allocate full-size lookup structure for entire mesh
+    allocate(c%compression_inds(this%msh%nelv))
+
+    ! Second step, loop over all elements, compute compression mapping
+    ! loop over e elements
+    !  loop over m compression mapping size
+    !   loop over i ntot
+    !    sum into difference
+    !   if difference <= tol
+    !    c%compression_inds(e) = m
+    !    break
+    !  mapping_size = mapping_size + 1
+    !  c%compression_inds(e) = mapping_size
+
+    ! Third step, allocate and fill Gij_compressed objects
+    ! loop over e elements
+    !  loop over i ntot
+    !   G11_compressed(i,1,1,e) = G11(i,1,1,c%compression_inds(e))
+
+  end subroutine coef_generate_geo_compressed
 
   !> Generate mass matrix B for the given mesh and space
   !! @note This is also a stapleholder, we need to go through the coef class properly.
