@@ -118,9 +118,7 @@ module opencl_intf
        type(c_ptr), value :: platforms
        integer(c_int) :: num_platforms
      end function clGetPlatformIDs
-  end interface
 
-  interface
      integer(c_int) function clGetDeviceIDs(platform, device_type, &
           num_entries, devices, num_devices) bind(c, name = 'clGetDeviceIDs')
        use, intrinsic :: iso_c_binding
@@ -131,9 +129,7 @@ module opencl_intf
        type(c_ptr), value :: devices
        integer(c_int) :: num_devices
      end function clGetDeviceIDs
-  end interface
 
-  interface
      type (c_ptr) function clCreateContext(properties, num_devices, devices, &
           pfn_notify, user_data, ierr) bind(c, name = 'clCreateContext')
        use, intrinsic :: iso_c_binding
@@ -145,9 +141,7 @@ module opencl_intf
        type(c_ptr), value :: user_data
        integer(c_int) :: ierr
      end function clCreateContext
-  end interface
 
-  interface
      type(c_ptr) function clCreateCommandQueue(context, device, &
           properties, ierr) bind(c, name = 'clCreateCommandQueue')
        use, intrinsic :: iso_c_binding
@@ -157,9 +151,7 @@ module opencl_intf
        integer(c_int64_t), value :: properties
        integer(c_int) :: ierr
      end function clCreateCommandQueue
-  end interface
 
-  interface
      type(c_ptr) function clCreateBuffer(context, flags, size, host_ptr, ierr) &
           bind(c, name = 'clCreateBuffer')
        use, intrinsic :: iso_c_binding
@@ -170,9 +162,7 @@ module opencl_intf
        type(c_ptr), value :: host_ptr
        integer(c_int) :: ierr
      end function clCreateBuffer
-  end interface
 
-  interface
      type(c_ptr) function clCreateUserEvent(context, ierr) &
           bind(c, name = 'clCreateUserEvent')
        use, intrinsic :: iso_c_binding
@@ -180,9 +170,7 @@ module opencl_intf
        type(c_ptr), value :: context
        integer(c_int) :: ierr
      end function clCreateUserEvent
-  end interface
 
-  interface
      integer(c_int) function clEnqueueReadBuffer(queue, buffer, blocking_read, &
           offset, size, ptr, num_events_in_wait_list, event_wait_list, event) &
           bind(c, name = 'clEnqueueReadBuffer')
@@ -198,9 +186,7 @@ module opencl_intf
        type(c_ptr), value :: event_wait_list
        type(c_ptr), value :: event
      end function clEnqueueReadBuffer
-  end interface
 
-  interface
      integer(c_int) function clEnqueueWriteBuffer(queue, buffer, &
           blocking_write, offset, size, ptr, num_events_in_wait_list, &
           event_wait_list, event) bind(c, name = 'clEnqueueWriteBuffer')
@@ -216,9 +202,7 @@ module opencl_intf
        type(c_ptr), value :: event_wait_list
        type(c_ptr), value :: event
      end function clEnqueueWriteBuffer
-  end interface
 
-  interface
      integer(c_int) function clEnqueueCopyBuffer(queue, src_buffer, &
           dst_buffer, src_offset, dst_offset, size, num_events_in_wait_list, &
           event_wait_list, event) bind(c, name = 'clEnqueueCopyBuffer')
@@ -234,9 +218,7 @@ module opencl_intf
        type(c_ptr), value :: event_wait_list
        type(c_ptr), value :: event
      end function clEnqueueCopyBuffer
-  end interface
 
-  interface
      integer(c_int) function clEnqueueFillBuffer(queue, buffer, &
           pattern, pattern_size, offset, size, num_events_in_wait_list, &
           event_wait_list, event) bind(c, name = 'clEnqueueFillBuffer')
@@ -252,9 +234,7 @@ module opencl_intf
        type(c_ptr), value :: event_wait_list
        type(c_ptr), value :: event
      end function clEnqueueFillBuffer
-  end interface
 
-  interface
      integer(c_int) function clEnqueueMarkerWithWaitList &
           (queue, num_events_in_wait_list, event_wait_list, event) &
           bind(c, name = 'clEnqueueMarkerWithWaitList')
@@ -265,9 +245,7 @@ module opencl_intf
        type(c_ptr), value :: event_wait_list
        type(c_ptr), value :: event
      end function clEnqueueMarkerWithWaitList
-  end interface
 
-  interface
      integer(c_int) function clEnqueueMarker(cmd_queue, event) &
           bind(c, name = 'clEnqueueMarker')
        use, intrinsic :: iso_c_binding
@@ -275,18 +253,14 @@ module opencl_intf
        type(c_ptr), value :: cmd_queue
        type(c_ptr), value :: event
      end function clEnqueueMarker
-  end interface
 
-  interface
      integer(c_int) function clEnqueueBarrier(cmd_queue) &
           bind(c, name = 'clEnqueueBarrier')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: cmd_queue
      end function clEnqueueBarrier
-  end interface
 
-  interface
      integer(c_int) function clEnqueueWaitForEvents(queue, &
           num_events, event_list) bind(c, name = 'clEnqueueWaitForEvents')
        use, intrinsic :: iso_c_binding
@@ -295,9 +269,7 @@ module opencl_intf
        integer(c_int), value :: num_events
        type(c_ptr), value :: event_list
      end function clEnqueueWaitForEvents
-  end interface
 
-  interface
      integer(c_int) function clWaitForEvents(num_events, event_list) &
           bind(c, name = 'clWaitForEvents')
        use, intrinsic :: iso_c_binding
@@ -305,9 +277,7 @@ module opencl_intf
        integer(c_int), value :: num_events
        type(c_ptr), value :: event_list
      end function clWaitForEvents
-  end interface
 
-  interface
      integer(c_int) function clSetUserEventStatus(event, status) &
           bind(c, name = 'clSetUserEventStatus')
        use, intrinsic :: iso_c_binding
@@ -315,9 +285,7 @@ module opencl_intf
        type(c_ptr), value :: event
        integer(c_int), value :: status
      end function clSetUserEventStatus
-  end interface
 
-  interface
      integer(c_int) function clGetDeviceInfo(device, param_name, &
           param_value_size, param_value, param_value_size_ret) &
           bind(c, name = 'clGetDeviceInfo')
@@ -329,72 +297,56 @@ module opencl_intf
        type(c_ptr), value :: param_value
        type(c_ptr), value :: param_value_size_ret
      end function clGetDeviceInfo
-  end interface
 
-  interface
      integer(c_int) function clReleaseContext(context) &
           bind(c, name = 'clReleaseContext')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: context
      end function clReleaseContext
-  end interface
 
-  interface
      integer(c_int) function clReleaseCommandQueue(queue) &
           bind(c, name = 'clReleaseCommandQueue')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
      end function clReleaseCommandQueue
-  end interface
 
-  interface
      integer(c_int) function clReleaseDevice(device) &
           bind(c, name = 'clReleaseDevice')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: device
      end function clReleaseDevice
-  end interface
 
-  interface
      integer(c_int) function clReleaseProgram(prgm) &
           bind(c, name = 'clReleaseProgram')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: prgm
      end function clReleaseProgram
-  end interface
 
-  interface
      integer(c_int) function clReleaseMemObject(ptr_d) &
           bind(c, name = 'clReleaseMemObject')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_d
      end function clReleaseMemObject
-  end interface
 
-  interface
      integer(c_int) function clReleaseEvent(event) &
           bind(c, name = 'clReleaseEvent')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
      end function clReleaseEvent
-  end interface
 
-  interface
      integer(c_int) function clFlush(cmd_queue) &
           bind(c, name = 'clFlush')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: cmd_queue
      end function clFlush
-  end interface
 
-  interface
      integer(c_int) function clFinish(cmd_queue) &
           bind(c, name = 'clFinish')
        use, intrinsic :: iso_c_binding

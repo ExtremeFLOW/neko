@@ -35,7 +35,7 @@ data_types/device_array.lo : data_types/device_array.f90 common/utils.lo math/bc
 math/mxm_wrapper.lo : math/mxm_wrapper.F90 common/utils.lo config/num_types.lo 
 sem/speclib.lo : sem/speclib.f90 common/utils.lo math/math.lo config/num_types.lo 
 qoi/drag_torque.lo : qoi/drag_torque.f90 comm/comm.lo math/bcknd/device/device_math.lo config/neko_config.lo common/utils.lo config/num_types.lo sem/space.lo math/math.lo mesh/facet_zone.lo sem/coef.lo field/field.lo 
-sem/local_interpolation.lo : sem/local_interpolation.f90 config/neko_config.lo math/bcknd/device/device_math.lo math/bcknd/cpu/tensor_cpu.lo device/device.lo field/field_list.lo field/field.lo common/utils.lo math/fast3d.lo sem/speclib.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo 
+sem/local_interpolation.lo : sem/local_interpolation.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo field/field_list.lo field/field.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo 
 math/math.lo : math/math.f90 common/utils.lo comm/comm.lo config/num_types.lo 
 math/mathops.lo : math/mathops.f90 config/num_types.lo 
 math/fast3d.lo : math/fast3d.f90 math/math.lo sem/speclib.lo config/num_types.lo 
@@ -286,7 +286,7 @@ fluid/flow_ic.lo : fluid/flow_ic.f90 math/operators.lo field/field_list.lo sem/s
 fluid/advection.lo : fluid/advection.f90 time_schemes/time_scheme_controller.lo field/field_series.lo sem/coef.lo field/field.lo sem/space.lo config/num_types.lo 
 fluid/advection_fctry.lo : fluid/advection_fctry.f90 fluid/bcknd/advection/adv_dummy.lo fluid/bcknd/advection/adv_oifs.lo fluid/bcknd/advection/adv_no_dealias.lo fluid/bcknd/advection/adv_dealias.lo common/json_utils.lo fluid/advection.lo 
 fluid/bcknd/advection/adv_dealias.lo : fluid/bcknd/advection/adv_dealias.f90 device/device.lo sem/interpolation.lo math/operators.lo common/utils.lo config/neko_config.lo math/bcknd/device/device_math.lo sem/coef.lo field/field.lo sem/space.lo math/math.lo config/num_types.lo fluid/advection.lo 
-fluid/bcknd/advection/adv_no_dealias.lo : fluid/bcknd/advection/adv_no_dealias.f90 registries/scratch_registry.lo device/device.lo math/operators.lo config/neko_config.lo math/bcknd/device/device_math.lo sem/coef.lo field/field.lo sem/space.lo math/field_math.lo math/math.lo config/num_types.lo fluid/advection.lo 
+fluid/bcknd/advection/adv_no_dealias.lo : fluid/bcknd/advection/adv_no_dealias.f90 registries/scratch_registry.lo math/operators.lo config/neko_config.lo math/bcknd/device/device_math.lo sem/coef.lo field/field.lo sem/space.lo math/field_math.lo math/math.lo config/num_types.lo fluid/advection.lo 
 fluid/bcknd/advection/adv_oifs.lo : fluid/bcknd/advection/adv_oifs.f90 math/bcknd/device/device_math.lo device/device.lo time_schemes/time_scheme_controller.lo field/field_list.lo field/field_series.lo common/time_interpolator.lo sem/interpolation.lo config/neko_config.lo math/operators.lo math/math.lo sem/coef.lo field/field.lo sem/space.lo config/num_types.lo fluid/advection.lo 
 fluid/bcknd/advection/adv_dummy.lo : fluid/bcknd/advection/adv_dummy.f90 sem/coef.lo field/field.lo sem/space.lo config/num_types.lo fluid/advection.lo 
 fluid/bcknd/cpu/pnpn_res_cpu.lo : fluid/bcknd/cpu/pnpn_res_cpu.f90 math/math.lo sem/space.lo config/num_types.lo mesh/mesh.lo registries/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo 
