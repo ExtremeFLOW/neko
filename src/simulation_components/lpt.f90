@@ -779,11 +779,9 @@ contains
     integer :: ierr
     integer :: max_local
     integer, allocatable :: counts(:)
-    integer, allocatable :: local_meta(:)
     integer, allocatable :: global_meta(:)
     integer, allocatable :: padded_meta(:)
     integer, allocatable :: gathered_meta(:)
-    real(kind=rp), allocatable :: local_geom(:)
     real(kind=rp), allocatable :: global_geom(:)
     real(kind=rp), allocatable :: padded_geom(:)
     real(kind=rp), allocatable :: gathered_geom(:)
@@ -812,46 +810,38 @@ contains
     n_global = sum(counts)
     max_local = max(1, maxval(counts))
 
-    allocate(local_meta(10 * n_local))
-    allocate(local_geom(15 * n_local))
-    do i = 1, n_local
-       npts = merge(4, 2, msh%gdim .eq. 3)
-       local_meta(10 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(2)
-       local_meta(10 * (i - 1) + 2) = msh%periodic%facet_el(i)%x(1)
-       local_meta(10 * (i - 1) + 3) = npts
-       local_meta(10 * (i - 1) + 4:10 * (i - 1) + 7) = msh%periodic%org_ids(i)%x
-       local_meta(10 * (i - 1) + 8:10 * (i - 1) + 10) = 0
-
-       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
-            msh%periodic%facet_el(i)%x(1), src_pts, src_centroid)
-       local_geom(15 * (i - 1) + 1:15 * (i - 1) + 12) = reshape(src_pts, [12])
-       local_geom(15 * (i - 1) + 13:15 * (i - 1) + 15) = src_centroid
-    end do
-
-    allocate(padded_meta(10 * max_local))
+    allocate(padded_meta(7 * max_local))
     allocate(padded_geom(15 * max_local))
     padded_meta = 0
     padded_geom = 0.0_rp
-    if (n_local .gt. 0) then
-       padded_meta(1:10 * n_local) = local_meta
-       padded_geom(1:15 * n_local) = local_geom
-    end if
+    do i = 1, n_local
+       npts = merge(4, 2, msh%gdim .eq. 3)
+       padded_meta(7 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(1)
+       padded_meta(7 * (i - 1) + 2) = msh%periodic%facet_el(i)%x(2)
+       padded_meta(7 * (i - 1) + 3) = npts
+       padded_meta(7 * (i - 1) + 4:7 * (i - 1) + 7) = msh%periodic%org_ids(i)%x
 
-    allocate(gathered_meta(10 * max_local * pe_size))
+       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
+            msh%periodic%facet_el(i)%x(1), src_pts, src_centroid)
+       padded_geom(15 * (i - 1) + 1:15 * (i - 1) + 12) = reshape(src_pts, [12])
+       padded_geom(15 * (i - 1) + 13:15 * (i - 1) + 15) = src_centroid
+    end do
+
+    allocate(gathered_meta(7 * max_local * pe_size))
     allocate(gathered_geom(15 * max_local * pe_size))
-    call MPI_Allgather(padded_meta, 10 * max_local, MPI_INTEGER, gathered_meta, &
-         10 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
+    call MPI_Allgather(padded_meta, 7 * max_local, MPI_INTEGER, gathered_meta, &
+         7 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
     call MPI_Allgather(padded_geom, 15 * max_local, MPI_REAL_PRECISION, &
          gathered_geom, 15 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
 
-    allocate(global_meta(10 * n_global))
+    allocate(global_meta(7 * n_global))
     allocate(global_geom(15 * n_global))
     idx = 0
     do i = 1, pe_size
        if (counts(i) .gt. 0) then
-          global_meta(10 * idx + 1:10 * (idx + counts(i))) = &
-               gathered_meta(10 * max_local * (i - 1) + 1: &
-               10 * max_local * (i - 1) + 10 * counts(i))
+          global_meta(7 * idx + 1:7 * (idx + counts(i))) = &
+               gathered_meta(7 * max_local * (i - 1) + 1: &
+               7 * max_local * (i - 1) + 7 * counts(i))
           global_geom(15 * idx + 1:15 * (idx + counts(i))) = &
                gathered_geom(15 * max_local * (i - 1) + 1: &
                15 * max_local * (i - 1) + 15 * counts(i))
@@ -870,19 +860,20 @@ contains
     do i = 1, n_local
        match_idx = 0
        do j = 1, n_global
-          if (lpt_same_point_ids(global_meta(10 * (j - 1) + 4:10 * (j - 1) + 7), &
-               msh%periodic%p_ids(i)%x, local_meta(10 * (i - 1) + 3))) then
+          if (global_meta(7 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1) &
+               .and. global_meta(7 * (j - 1) + 2) .eq. &
+               msh%periodic%p_facet_el(i)%x(2)) then
              match_idx = j
              exit
           end if
        end do
        if (match_idx .eq. 0) cycle
 
-       npts = local_meta(10 * (i - 1) + 3)
-       src_pts = reshape(local_geom(15 * (i - 1) + 1:15 * (i - 1) + 12), [3, 4])
-       src_centroid = local_geom(15 * (i - 1) + 13:15 * (i - 1) + 15)
+       npts = merge(4, 2, msh%gdim .eq. 3)
+       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
+            msh%periodic%facet_el(i)%x(1), src_pts, src_centroid)
        call lpt_reorder_facet_points( &
-            global_meta(10 * (match_idx - 1) + 4:10 * (match_idx - 1) + 7), &
+            global_meta(7 * (match_idx - 1) + 4:7 * (match_idx - 1) + 7), &
             reshape(global_geom(15 * (match_idx - 1) + 1:15 * (match_idx - 1) + 12), [3, 4]), &
             msh%periodic%p_ids(i)%x, npts, tgt_pts)
        tgt_centroid = global_geom(15 * (match_idx - 1) + 13:15 * (match_idx - 1) + 15)
@@ -900,9 +891,7 @@ contains
             this%periodic_tgt_center(:, idx), this%periodic_tgt_basis(:, :, idx))
     end do
 
-    deallocate(local_meta)
     deallocate(global_meta)
-    deallocate(local_geom)
     deallocate(global_geom)
     deallocate(padded_meta)
     deallocate(gathered_meta)
@@ -952,21 +941,6 @@ contains
        end if
     end if
   end function lpt_apply_periodic_map_if_needed
-
-  logical function lpt_same_point_ids(ids_a, ids_b, npts) result(match)
-    integer, intent(in) :: ids_a(4)
-    integer, intent(in) :: ids_b(4)
-    integer, intent(in) :: npts
-    integer :: i
-
-    match = .true.
-    do i = 1, npts
-       if (.not. any(ids_a(i) .eq. ids_b(1:npts))) then
-          match = .false.
-          return
-       end if
-    end do
-  end function lpt_same_point_ids
 
   subroutine lpt_reorder_facet_points(ids_in, pts_in, ids_target, npts, pts_out)
     integer, intent(in) :: ids_in(4)
