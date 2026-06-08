@@ -189,7 +189,7 @@ contains
 
     select case (trim(type))
     case ("symmetry")
-       if ((scheme%full_stress_formulation)) then
+       if (scheme%full_stress_formulation) then
           allocate(symmetry_t::object)
        else
           allocate(symmetry_aligned_t::object)
@@ -199,7 +199,7 @@ contains
     case ("no_slip")
        allocate(no_slip_t::object)
     case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
-       if ((scheme%full_stress_formulation)) then
+       if (scheme%full_stress_formulation) then
           allocate(non_normal_t::object)
        else
           allocate(non_normal_aligned_t::object)
