@@ -105,6 +105,8 @@ module amr_tools
      !> Get averaging time
      procedure, pass(this) :: get_collect_time => &
           amr_spectral_error_get_collect_time
+     !> Reset averaged variables
+     procedure, pass(this) :: reset_average => amr_spectral_error_reset_average
      !> Get combined averaged error indicator
       procedure, pass(this) :: err_av_get => amr_spectral_error_err_av_get
      !> AMR restart
@@ -361,6 +363,16 @@ contains
     time = this%simcomp_spectral%get_collect_time()
 
   end function amr_spectral_error_get_collect_time
+
+  !> Reset averaged variables
+  subroutine amr_spectral_error_reset_average(this)
+    class(amr_spectral_error_t), intent(inout) :: this
+    real(dp) :: time
+
+    this%simcomp_spectral%time_start = this%simcomp_spectral%time_previous
+    call this%simcomp_spectral%average_reset()
+
+  end subroutine amr_spectral_error_reset_average
 
   !> Get combined averaged error indicator
   !! @param[in]     opr      operator
