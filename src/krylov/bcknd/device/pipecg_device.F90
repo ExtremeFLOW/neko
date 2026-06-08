@@ -255,79 +255,78 @@ contains
     call this%ksp_free()
 
     if (allocated(this%p)) then
+       if (c_associated(this%p_d)) then
+          call device_unmap(this%p, this%p_d)
+       end if
        deallocate(this%p)
     end if
     if (allocated(this%q)) then
+       if (c_associated(this%q_d)) then
+          call device_unmap(this%q, this%q_d)
+       end if
        deallocate(this%q)
     end if
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
     end if
     if (allocated(this%s)) then
+       if (c_associated(this%s_d)) then
+          call device_unmap(this%s, this%s_d)
+       end if
        deallocate(this%s)
     end if
     if (allocated(this%u)) then
+       if (allocated(this%u_d)) then
+          do i = 1, DEVICE_PIPECG_P_SPACE
+             if (c_associated(this%u_d(i))) then
+                call device_unmap(this%u(:,i), this%u_d(i))
+             end if
+          end do
+       end if
        deallocate(this%u)
     end if
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
     if (allocated(this%z)) then
+       if (c_associated(this%z_d)) then
+          call device_unmap(this%z, this%z_d)
+       end if
        deallocate(this%z)
     end if
     if (allocated(this%mi)) then
+       if (c_associated(this%mi_d)) then
+          call device_unmap(this%mi, this%mi_d)
+       end if
        deallocate(this%mi)
     end if
     if (allocated(this%ni)) then
+       if (c_associated(this%ni_d)) then
+          call device_unmap(this%ni, this%ni_d)
+       end if
        deallocate(this%ni)
     end if
     if (allocated(this%alpha)) then
+       if (c_associated(this%alpha_d)) then
+          call device_unmap(this%alpha, this%alpha_d)
+       end if
        deallocate(this%alpha)
     end if
     if (allocated(this%beta)) then
+       if (c_associated(this%beta_d)) then
+          call device_unmap(this%beta, this%beta_d)
+       end if
        deallocate(this%beta)
     end if
 
-
-    if (c_associated(this%p_d)) then
-       call device_free(this%p_d)
-    end if
-    if (c_associated(this%q_d)) then
-       call device_free(this%q_d)
-    end if
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
-    end if
-    if (c_associated(this%s_d)) then
-       call device_free(this%s_d)
-    end if
     if (c_associated(this%u_d_d)) then
        call device_free(this%u_d_d)
-    end if
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-    if (c_associated(this%z_d)) then
-       call device_free(this%z_d)
-    end if
-    if (c_associated(this%mi_d)) then
-       call device_free(this%mi_d)
-    end if
-    if (c_associated(this%ni_d)) then
-       call device_free(this%ni_d)
-    end if
-    if (c_associated(this%alpha_d)) then
-       call device_free(this%alpha_d)
-    end if
-    if (c_associated(this%beta_d)) then
-       call device_free(this%beta_d)
-    end if
-    if (allocated(this%u_d)) then
-       do i = 1, DEVICE_PIPECG_P_SPACE
-          if (c_associated(this%u_d(i))) then
-             call device_free(this%u_d(i))
-          end if
-       end do
     end if
 
     nullify(this%M)
