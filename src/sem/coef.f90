@@ -373,7 +373,7 @@ contains
 
     call coef_generate_geo(this)
 
-    call coef_generate_geo_compressed(this)
+    ! call coef_generate_geo_compressed(this)
 
     call coef_generate_area_and_normal(this)
 
@@ -1131,30 +1131,70 @@ contains
 
   end subroutine coef_generate_geo
 
-  !> Compute compressed versions of mappings Gij
+  !> Compute processor-local compressed versions of mappings Gij
   !! @note This could be faster if it ran on device (among other algorithmic modifications)
   subroutine coef_generate_geo_compressed(c)
     type(coef_t), intent(inout) :: c
     integer :: e, m, i, ntot, m_max
+    real(kind=rp) :: ctol = 1.0E-7_rp
+    real(kind=rp) :: diff = 0.0_rp
 
     ! First step, allocate full-size lookup structure for entire mesh
     allocate(c%compression_inds(this%msh%nelv))
 
     ! Second step, loop over all elements, compute compression mapping
-    ! loop over e elements
-    !  loop over m compression mapping size
-    !   loop over i ntot
-    !    sum into difference
-    !   if difference <= tol
-    !    c%compression_inds(e) = m
-    !    break
-    !  mapping_size = mapping_size + 1
-    !  c%compression_inds(e) = mapping_size
+    ! First entry must be itself to get started
+    m_max = 1
+    c%compression_inds(1) = 1
+
+    ! Loop over elements
+    ntot = c%dof%size()
+    do e = 1, c%msh%nelv
+       ! Loop over possible compression candidates
+       do m = 1, m_max
+          diff = 0.0_rp
+          ! Loop over quadrature points
+          do i = 1, ntot
+             ! diff += abs( \| G(i,:,:,e) - G(i,:,:,m) \|_fro )
+             diff = diff +     abs(G11(i,1,1,e) - G11(i,1,1,m))
+                         + 2.0*abs(G12(i,1,1,e) - G12(i,1,1,m))
+                         + 2.0*abs(G13(i,1,1,e) - G13(i,1,1,m))
+                         +     abs(G22(i,1,1,e) - G22(i,1,1,m))
+                         + 2.0*abs(G23(i,1,1,e) - G23(i,1,1,m))
+                         +     abs(G33(i,1,1,e) - G33(i,1,1,m))
+          end do
+
+          ! match is found
+          if ( diff <= ctol ) then
+             c%compression_inds(e) = m
+             exit
+          end if
+       end do
+
+       ! never found a match
+       if ( diff > ctol ) then
+          m_max = m_max + 1
+          c%compression_inds(e) = m_max
+       end if
+    end do
 
     ! Third step, allocate and fill Gij_compressed objects
-    ! loop over e elements
-    !  loop over i ntot
-    !   G11_compressed(i,1,1,e) = G11(i,1,1,c%compression_inds(e))
+    allocate(c%G11_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
+    allocate(c%G22_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
+    allocate(c%G33_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
+    allocate(c%G12_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
+    allocate(c%G13_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
+    allocate(c%G23_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
+    do e = 1, c%msh%nelv
+       do i = 1, ntot
+          c%G11_compressed(i,1,1,e) = c%G11(i,1,1,c%compression_inds(e))
+          c%G22_compressed(i,1,1,e) = c%G22(i,1,1,c%compression_inds(e))
+          c%G33_compressed(i,1,1,e) = c%G33(i,1,1,c%compression_inds(e))
+          c%G12_compressed(i,1,1,e) = c%G12(i,1,1,c%compression_inds(e))
+          c%G13_compressed(i,1,1,e) = c%G13(i,1,1,c%compression_inds(e))
+          c%G23_compressed(i,1,1,e) = c%G23(i,1,1,c%compression_inds(e))
+       end do
+    end do
 
   end subroutine coef_generate_geo_compressed
 
