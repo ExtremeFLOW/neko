@@ -476,6 +476,10 @@ contains
        deallocate(this%G11_compressed)
     end if
 
+    if (allocated(this%compression_inds)) then
+       deallocate(this%compression_inds)
+    end if
+
     if (allocated(this%G22_compressed)) then
        deallocate(this%G22_compressed)
     end if
@@ -1132,20 +1136,23 @@ contains
   end subroutine coef_generate_geo
 
   !> Compute processor-local compressed versions of mappings Gij
-  !! @note This could be faster if it ran on device (among other algorithmic modifications)
+  !! @note This could be faster with various tweaks
   subroutine coef_generate_geo_compressed(c)
     type(coef_t), intent(inout) :: c
     integer :: e, m, i, ntot, m_max
+    integer, allocatable :: c_inds_rev(:) ! reverse compression indices map
     real(kind=rp) :: ctol = 1.0E-7_rp
     real(kind=rp) :: diff = 0.0_rp
 
     ! First step, allocate full-size lookup structure for entire mesh
-    allocate(c%compression_inds(this%msh%nelv))
+    allocate(c%compression_inds(c%msh%nelv))
+    allocate(c_inds_rev(c%msh%nelv))
 
     ! Second step, loop over all elements, compute compression mapping
     ! First entry must be itself to get started
     m_max = 1
     c%compression_inds(1) = 1
+    c_inds_rev(1) = 1
 
     ! Loop over elements
     ntot = c%dof%size()
@@ -1155,16 +1162,16 @@ contains
           diff = 0.0_rp
           ! Loop over quadrature points
           do i = 1, ntot
-             ! diff += abs( \| G(i,:,:,e) - G(i,:,:,m) \|_fro )
-             diff = diff +     abs(G11(i,1,1,e) - G11(i,1,1,m))
-                         + 2.0*abs(G12(i,1,1,e) - G12(i,1,1,m))
-                         + 2.0*abs(G13(i,1,1,e) - G13(i,1,1,m))
-                         +     abs(G22(i,1,1,e) - G22(i,1,1,m))
-                         + 2.0*abs(G23(i,1,1,e) - G23(i,1,1,m))
-                         +     abs(G33(i,1,1,e) - G33(i,1,1,m))
+             ! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_fro )
+             diff = diff +     abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &
+                         + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
+                         + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
+                         +     abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
+                         + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
+                         +     abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
           end do
 
-          ! match is found
+          ! match is found; mapping(e) is redundant
           if ( diff <= ctol ) then
              c%compression_inds(e) = m
              exit
@@ -1175,26 +1182,29 @@ contains
        if ( diff > ctol ) then
           m_max = m_max + 1
           c%compression_inds(e) = m_max
+          c_inds_rev(m_max) = e
        end if
     end do
 
     ! Third step, allocate and fill Gij_compressed objects
-    allocate(c%G11_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
-    allocate(c%G22_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
-    allocate(c%G33_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
-    allocate(c%G12_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
-    allocate(c%G13_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
-    allocate(c%G23_compressed(this%Xh%lx, this%Xh%ly, this%Xh%lz, m_max))
-    do e = 1, c%msh%nelv
+    allocate(c%G11_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G22_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G33_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G12_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G13_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G23_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    do m = 1, m_max
        do i = 1, ntot
-          c%G11_compressed(i,1,1,e) = c%G11(i,1,1,c%compression_inds(e))
-          c%G22_compressed(i,1,1,e) = c%G22(i,1,1,c%compression_inds(e))
-          c%G33_compressed(i,1,1,e) = c%G33(i,1,1,c%compression_inds(e))
-          c%G12_compressed(i,1,1,e) = c%G12(i,1,1,c%compression_inds(e))
-          c%G13_compressed(i,1,1,e) = c%G13(i,1,1,c%compression_inds(e))
-          c%G23_compressed(i,1,1,e) = c%G23(i,1,1,c%compression_inds(e))
+          c%G11_compressed(i,1,1,m) = c%G11(i,1,1,c_inds_rev(m))
+          c%G22_compressed(i,1,1,m) = c%G22(i,1,1,c_inds_rev(m))
+          c%G33_compressed(i,1,1,m) = c%G33(i,1,1,c_inds_rev(m))
+          c%G12_compressed(i,1,1,m) = c%G12(i,1,1,c_inds_rev(m))
+          c%G13_compressed(i,1,1,m) = c%G13(i,1,1,c_inds_rev(m))
+          c%G23_compressed(i,1,1,m) = c%G23(i,1,1,c_inds_rev(m))
        end do
     end do
+
+    deallocate(c_inds_rev)
 
   end subroutine coef_generate_geo_compressed
 
