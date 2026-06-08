@@ -1172,9 +1172,9 @@ contains
     type(coef_t), intent(in) :: coef
     type(time_state_t), intent(in) :: time_s
     integer :: i, n
-    type(body_kinematics_t) :: kin
+    type(body_kinematics_t) :: current_kin
     real(kind=rp) :: rot_mat(3,3)
-    real(kind=rp) :: rot_center(3)
+    real(kind=rp) :: initial_rot_center(3)
 
     if (.not. this%active) return
     if (.not. this%has_moving_boundary) return
@@ -1186,8 +1186,8 @@ contains
 
     do i = 1, this%config%nbodies
        ! Compute kinematics for built-in motions
-       ! "kin" will be like solid body kinematics at current time
-       call compute_body_kinematics_built_in(kin, &
+       ! "current_kin" will be like solid body kinematics at current time
+       call compute_body_kinematics_built_in(current_kin, &
             this%config%bodies(i), time_s)
 
        ! User modifier (Superposition or Override)
@@ -1195,26 +1195,26 @@ contains
             dummy_user_ale_rigid_kinematics)) then
           call this%user_ale_rigid_kinematics(this%config%bodies(i)%id, &
                time_s, &
-               kin%vel_trans, &
-               kin%vel_ang)
+               current_kin%vel_trans, &
+               current_kin%vel_ang)
        end if
 
-       kin%center = this%ale_pivot(i)%pos
-       this%ale_pivot(i)%vel = kin%vel_trans
+       current_kin%center = this%ale_pivot(i)%pos
+       this%ale_pivot(i)%vel = current_kin%vel_trans
 
        this%body_kin(i)%center = this%ale_pivot(i)%pos
-       this%body_kin(i)%vel_trans = kin%vel_trans
-       this%body_kin(i)%vel_ang = kin%vel_ang
+       this%body_kin(i)%vel_trans = current_kin%vel_trans
+       this%body_kin(i)%vel_ang = current_kin%vel_ang
 
        ! Compute rotation matrix at current time
        call this%compute_rotation_matrix(i, time_s)
        rot_mat = this%body_rot_matrices(:,:,i)
-       rot_center = this%config%bodies(i)%rot_center
+       initial_rot_center = this%config%bodies(i)%rot_center
 
        ! Accumulate contribution from each body and add to mesh velocity
        call add_kinematics_to_mesh_velocity(this%wm_x, this%wm_y, &
             this%wm_z, this%x_ref, this%y_ref, this%z_ref , &
-            this%base_shapes(i), coef, kin, rot_mat, rot_center)
+            this%base_shapes(i), coef, current_kin, rot_mat, initial_rot_center)
 
        ! For checkpointing
        call this%prep_checkpoint(i)
