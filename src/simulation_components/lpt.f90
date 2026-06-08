@@ -583,7 +583,7 @@ contains
     call this%init_rotational_periodic_wrap(msh, dm_Xh, coef)
     if (this%rotational_periodic_enabled) return
 
-    call this%init_translational_periodic_wrap(msh, dm_Xh)
+    call this%init_translational_periodic_wrap(msh)
   end subroutine init_periodic_wrap
 
   !> Wrap particles back into the periodic domain before the ownership search.
@@ -653,46 +653,62 @@ contains
          this%rotational_theta_len .gt. LPT_PERIODIC_TOL
   end subroutine init_rotational_periodic_wrap
 
-  subroutine init_translational_periodic_wrap(this, msh, dm_Xh)
+  subroutine init_translational_periodic_wrap(this, msh)
     class(lpt_t), intent(inout) :: this
     type(mesh_t), intent(in) :: msh
-    type(dofmap_t), intent(in) :: dm_Xh
     integer :: i
+    integer :: j
     integer :: idx
-    integer :: ierr
-    real(kind=rp) :: local_min(3)
-    real(kind=rp) :: local_max(3)
-    real(kind=rp) :: global_min(3)
-    real(kind=rp) :: global_max(3)
+    real(kind=rp) :: normal(3)
+    real(kind=rp) :: shift(3)
+    real(kind=rp) :: signed_shift
+    real(kind=rp) :: proj_src
+    real(kind=rp) :: proj_tgt
 
-    if (msh%nelv .gt. 0) then
-       local_min(1) = minval(dm_Xh%x)
-       local_max(1) = maxval(dm_Xh%x)
-       local_min(2) = minval(dm_Xh%y)
-       local_max(2) = maxval(dm_Xh%y)
-       local_min(3) = minval(dm_Xh%z)
-       local_max(3) = maxval(dm_Xh%z)
-    else
-       local_min = huge(0.0_rp)
-       local_max = -huge(0.0_rp)
-    end if
+    if (msh%periodic%size .eq. 0 .or. this%n_periodic_maps .eq. 0) return
 
-    call MPI_Allreduce(local_min, global_min, 3, MPI_REAL_PRECISION, MPI_MIN, &
-         NEKO_COMM, ierr)
-    call MPI_Allreduce(local_max, global_max, 3, MPI_REAL_PRECISION, MPI_MAX, &
-         NEKO_COMM, ierr)
+    do i = 1, this%n_periodic_maps
+       normal = this%periodic_src_basis(:, 3, i)
+       call lpt_normalize(normal)
+       if (norm2(normal) .le. LPT_PERIODIC_TOL) cycle
 
-    do i = 1, msh%periodic%size
-       idx = lpt_periodic_dir_from_facet(msh%gdim, msh%periodic%facet_el(i)%x(1))
-       if (idx .eq. 0 .or. this%periodic_len(idx) .gt. 0.0_rp) cycle
-       this%n_periodic_dirs = max(this%n_periodic_dirs, idx)
-       this%periodic_dir(:, idx) = 0.0_rp
-       this%periodic_dir(idx, idx) = 1.0_rp
-       this%periodic_min(idx) = global_min(idx)
-       this%periodic_max(idx) = global_max(idx)
-       this%periodic_len(idx) = global_max(idx) - global_min(idx)
-       this%periodic_shift(:, idx) = 0.0_rp
-       this%periodic_shift(idx, idx) = this%periodic_len(idx)
+       idx = 0
+       do j = 1, this%n_periodic_dirs
+          if (abs(dot_product(normal, this%periodic_dir(:, j))) .gt. &
+               1.0_rp - 1.0e-6_rp) then
+             idx = j
+             if (dot_product(normal, this%periodic_dir(:, j)) .lt. 0.0_rp) then
+                normal = -normal
+             end if
+             exit
+          end if
+       end do
+
+       if (idx .eq. 0) then
+          if (this%n_periodic_dirs .ge. 3) cycle
+          idx = this%n_periodic_dirs + 1
+          this%n_periodic_dirs = idx
+          this%periodic_dir(:, idx) = normal
+          this%periodic_min(idx) = huge(0.0_rp)
+          this%periodic_max(idx) = -huge(0.0_rp)
+       end if
+
+       proj_src = dot_product(this%periodic_src_center(:, i), &
+            this%periodic_dir(:, idx))
+       proj_tgt = dot_product(this%periodic_tgt_center(:, i), &
+            this%periodic_dir(:, idx))
+       this%periodic_min(idx) = min(this%periodic_min(idx), proj_src, proj_tgt)
+       this%periodic_max(idx) = max(this%periodic_max(idx), proj_src, proj_tgt)
+
+       shift = this%periodic_tgt_center(:, i) - this%periodic_src_center(:, i)
+       signed_shift = dot_product(shift, this%periodic_dir(:, idx))
+       if (abs(signed_shift) .le. LPT_PERIODIC_TOL) cycle
+
+       if (signed_shift .lt. 0.0_rp) shift = -shift
+       if (abs(signed_shift) .gt. this%periodic_len(idx)) then
+          this%periodic_shift(:, idx) = shift
+          this%periodic_len(idx) = abs(signed_shift)
+       end if
     end do
 
     this%periodic_enabled = this%n_periodic_dirs .gt. 0
@@ -750,22 +766,6 @@ contains
        end do
     end do
   end subroutine wrap_particles_translational
-
-  !> Map a periodic facet number to its Cartesian wrap direction.
-  integer function lpt_periodic_dir_from_facet(gdim, facet) result(idx)
-    integer, intent(in) :: gdim
-    integer, intent(in) :: facet
-
-    idx = 0
-    select case (facet)
-    case (1, 2)
-       idx = 1
-    case (3, 4)
-       idx = 2
-    case (5, 6)
-       if (gdim .eq. 3) idx = 3
-    end select
-  end function lpt_periodic_dir_from_facet
 
   !> Build local periodic facet transforms, including cyclic mappings.
   subroutine init_periodic_maps(this, msh)
