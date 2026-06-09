@@ -1163,12 +1163,12 @@ contains
           ! Loop over quadrature points
           do i = 1, ntot
              ! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_fro )
-             diff = diff +     abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &
+             diff = diff + abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &
                          + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
                          + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
-                         +     abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
+                         + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
                          + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
-                         +     abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
+                         + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
           end do
 
           ! match is found; mapping(e) is redundant
