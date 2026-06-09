@@ -44,8 +44,7 @@ module tree_amg_smoother
   use scalar_bc_resolver, only : scalar_bc_resolver_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
-  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
-       device_deassociate
+  use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -126,24 +125,23 @@ contains
   !> free cheby data
   subroutine amg_cheby_free(this)
     class(amg_cheby_t), intent(inout), target :: this
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_deassociate(this%d)
-       call device_deassociate(this%w)
-       call device_deassociate(this%r)
-    end if
     if (allocated(this%d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%d_d)) then
+          call device_unmap(this%d, this%d_d)
+       end if
        deallocate(this%d)
     end if
     if (allocated(this%w)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
     if (allocated(this%r)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
-    end if
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_free(this%d_d)
-       call device_free(this%w_d)
-       call device_free(this%r_d)
     end if
   end subroutine amg_cheby_free
 

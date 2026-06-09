@@ -64,18 +64,14 @@ module cuda_intf
        type(c_ptr) :: ptr_d
        integer(c_size_t), value :: s
      end function cudaMalloc
-  end interface
 
-  interface
      integer(c_int) function cudaFree(ptr_d) &
           bind(c, name = 'cudaFree')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_d
      end function cudaFree
-  end interface
 
-  interface
      integer(c_int) function cudaMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name = 'cudaMemcpy')
        use, intrinsic :: iso_c_binding
@@ -84,9 +80,7 @@ module cuda_intf
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function cudaMemcpy
-  end interface
 
-  interface
      integer(c_int) function cudaMemcpyAsync(ptr_dst, ptr_src, s, dir, stream) &
           bind(c, name = 'cudaMemcpyAsync')
        use, intrinsic :: iso_c_binding
@@ -95,9 +89,7 @@ module cuda_intf
        integer(c_size_t), value :: s
        integer(c_int), value :: dir
      end function cudaMemcpyAsync
-  end interface
 
-  interface
      integer(c_int) function cudaMemsetAsync(ptr, v, s, stream) &
           bind(c, name = 'cudaMemsetAsync')
        use, intrinsic :: iso_c_binding
@@ -106,17 +98,19 @@ module cuda_intf
        integer(c_int), value :: v
        integer(c_size_t), value :: s
      end function cudaMemsetAsync
-  end interface
 
-  interface
      integer(c_int) function cudaDeviceSynchronize() &
           bind(c, name = 'cudaDeviceSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
      end function cudaDeviceSynchronize
-  end interface
 
-  interface
+     integer(c_int) function cudaDeviceReset() &
+          bind(c, name = 'cudaDeviceReset')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function cudaDeviceReset
+
      integer(c_int) function cudaGetDeviceProperties(prop, device) &
           bind(c, name = 'cudaGetDeviceProperties')
        use, intrinsic :: iso_c_binding
@@ -124,18 +118,14 @@ module cuda_intf
        type(c_ptr), value :: prop
        integer(c_int), value :: device
      end function cudaGetDeviceProperties
-  end interface
 
-  interface
      integer(c_int) function cudaStreamCreate(stream) &
           bind(c, name = 'cudaStreamCreate')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: stream
      end function cudaStreamCreate
-  end interface
 
-  interface
      integer(c_int) function cudaStreamCreateWithFlags(stream, flags) &
           bind(c, name = 'cudaStreamCreateWithFlags')
        use, intrinsic :: iso_c_binding
@@ -143,9 +133,7 @@ module cuda_intf
        type(c_ptr) :: stream
        integer(c_int), value :: flags
      end function cudaStreamCreateWithFlags
-  end interface
 
-  interface
      integer(c_int) function cudaStreamCreateWithPriority(stream, flags, prio) &
           bind(c, name = 'cudaStreamCreateWithPriority')
        use, intrinsic :: iso_c_binding
@@ -153,27 +141,21 @@ module cuda_intf
        type(c_ptr) :: stream
        integer(c_int), value :: flags, prio
      end function cudaStreamCreateWithPriority
-  end interface
 
-  interface
      integer(c_int) function cudaStreamDestroy(steam) &
           bind(c, name = 'cudaStreamDestroy')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: steam
      end function cudaStreamDestroy
-  end interface
 
-  interface
      integer(c_int) function cudaStreamSynchronize(stream) &
           bind(c, name = 'cudaStreamSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: stream
      end function cudaStreamSynchronize
-  end interface
 
-  interface
      integer(c_int) function cudaStreamWaitEvent(stream, event, flags) &
           bind(c, name = 'cudaStreamWaitEvent')
        use, intrinsic :: iso_c_binding
@@ -181,9 +163,7 @@ module cuda_intf
        type(c_ptr), value :: stream, event
        integer(c_int), value :: flags
      end function cudaStreamWaitEvent
-  end interface
 
-  interface
      integer(c_int) function cudaDeviceGetStreamPriorityRange &
           (low_prio, high_prio) &
           bind(c, name = 'cudaDeviceGetStreamPriorityRange')
@@ -191,43 +171,33 @@ module cuda_intf
        implicit none
        integer(c_int) :: low_prio, high_prio
      end function cudaDeviceGetStreamPriorityRange
-  end interface
 
-  interface
      integer(c_int) function cudaProfilerStart() &
           bind(c, name = 'cudaProfilerStart')
        use, intrinsic :: iso_c_binding
        implicit none
      end function cudaProfilerStart
-  end interface
 
-  interface
      integer(c_int) function cudaProfilerStop() &
           bind(c, name = 'cudaProfilerStop')
        use, intrinsic :: iso_c_binding
        implicit none
      end function cudaProfilerStop
-  end interface
 
-  interface
      integer(c_int) function cudaEventCreate(event) &
           bind(c, name = 'cudaEventCreate')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: event
      end function cudaEventCreate
-  end interface
 
-  interface
      integer(c_int) function cudaEventDestroy(event) &
           bind(c, name = 'cudaEventDestroy')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
      end function cudaEventDestroy
-  end interface
 
-  interface
      integer(c_int) function cudaEventCreateWithFlags(event, flags) &
           bind(c, name = 'cudaEventCreateWithFlags')
        use, intrinsic :: iso_c_binding
@@ -235,45 +205,35 @@ module cuda_intf
        type(c_ptr) :: event
        integer(c_int), value :: flags
      end function cudaEventCreateWithFlags
-  end interface
 
-  interface
      integer(c_int) function cudaEventRecord(event, stream) &
           bind(c, name = 'cudaEventRecord')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event, stream
      end function cudaEventRecord
-  end interface
 
-  interface
      integer(c_int) function cudaEventSynchronize(event) &
           bind(c, name = 'cudaEventSynchronize')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
      end function cudaEventSynchronize
-  end interface
 
-  interface
      integer(c_int) function cudaGetDeviceCount(device_count) &
           bind(c, name = 'cudaGetDeviceCount')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: device_count
      end function cudaGetDeviceCount
-  end interface
 
-  interface
      integer(c_int) function cudaGetDevice(device) &
           bind(c, name = 'cudaGetDevice')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: device
      end function cudaGetDevice
-  end interface
 
-  interface
      integer(c_int) function cudaSetDevice(device) &
           bind(c, name = 'cudaSetDevice')
        use, intrinsic :: iso_c_binding
@@ -313,17 +273,17 @@ contains
     end if
 
     if (cudaDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
-        .ne. cudaSuccess) then
+         .ne. cudaSuccess) then
        call neko_error('Error retrieving stream priority range')
     end if
 
     if (cudaStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
-        .ne. cudaSuccess) then
+         .ne. cudaSuccess) then
        call neko_error('Error creating main stream')
     end if
 
     if (cudaStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
-        .ne. cudaSuccess) then
+         .ne. cudaSuccess) then
        call neko_error('Error creating aux stream')
     end if
   end subroutine cuda_init
@@ -331,6 +291,7 @@ contains
   subroutine cuda_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    integer(c_int) :: ierr
 
     if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying main stream')
@@ -339,6 +300,10 @@ contains
     if (cudaStreamDestroy(aux_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying aux stream')
     end if
+
+    ! Best-effort context teardown to release runtime-owned allocations.
+    ierr = cudaDeviceSynchronize()
+    ierr = cudaDeviceReset()
   end subroutine cuda_finalize
 
   subroutine cuda_device_name(name)
