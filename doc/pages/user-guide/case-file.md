@@ -361,6 +361,7 @@ The compressible solver supports the following boundary conditions:
 | density_value      | Dirichlet condition for density           |
 | pressure_value     | Dirichlet condition for pressure          |
 | no_slip            | Zero velocity wall                        |
+| slip               | A slip wall                               |
 | symmetry           | Symmetry plane                            |
 | outflow            | Pressure outlet (zero gradient)           |
 | normal_outflow     | Normal outflow condition                  |
@@ -437,9 +438,9 @@ It is possible to assign specific names to the boundary conditions through the
 `name` keyword. Boundary conditions can then be retireved in the code by using
 the name or the `zone_index` where it is applied.
 
-The default name of the boundary conditions is given by the `<variable>_bc_<zone_index>`
-pattern. i.e., the pressure boundary condition that applies in zone index 5 can be
-retrieved by the `pressure_bc_5` name.
+The default name of the boundary conditions is given by the
+`<variable>_bc_<zone_index>` pattern. i.e., the pressure boundary condition that
+applies in zone index 5 can be retrieved by the `pressure_bc_5` name.
 
 #### Available conditions
 The conditions to apply is specified by `type` keyword inside each of the JSON
@@ -506,11 +507,11 @@ A more detailed description of each boundary condition is provided below.
   setting a homogeneous Neumann condition for the surface-normal velocity
   component, but fixes the values of the surface-parallel components. The latter
   values are prescribed in the boundary condition's JSON. There are two
-  alternative ways to do the latter. One is to simply provide a `value` vector.
-  This vector is defined in global Cartesian coordinates and internally
-  projection onto the local basis. Afterwards, the local tangential values are
-  enforced. This works both in the axis-aligned and in the fully general
-  mixed-boundary implementation.
+  alternative ways to do the tangential components. One is to simply provide a
+  `value` vector. This vector is defined in global Cartesian coordinates and
+  internally a projection onto the local basis is performed. Afterwards, the
+  local tangential values are enforced. This works both in the axis-aligned and
+  in the fully general mixed-boundary implementation.
 
   ```json
   {

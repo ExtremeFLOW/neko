@@ -55,7 +55,7 @@ module non_normal_aligned
 
   !> Axis-aligned mixed Dirichlet condition in the non-normal direction.
   !! @warning Only works for axis-aligned plane boundaries.
-  !! @details Since `dirichlet_t`currently only supports constant values,
+  !! @details Since `dirichlet_t` currently only supports constant values,
   !! we store the values separately in vectors, and use the nested `dirichlet_t`
   !! only for its mask.
   type, public, extends(bc_t) :: non_normal_aligned_t
