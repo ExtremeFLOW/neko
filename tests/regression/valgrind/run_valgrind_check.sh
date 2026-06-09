@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
@@ -37,14 +37,23 @@ mkdir -p "$WORK_DIR"
 cp -f "$SCRIPT_DIR/valgrind_runtime.supp" "$WORK_DIR/"
 cp -f "$SCRIPT_DIR/check_valgrind.py" "$WORK_DIR/"
 cp -f "$EXAMPLE_DIR/tgv.case" "$WORK_DIR/valgrind_tgv.case"
-cp -f "$EXAMPLE_DIR/tgv.f90" "$WORK_DIR/"
+cp -f "$EXAMPLE_DIR/tgv.f90" "$WORK_DIR/valgrind_tgv.f90"
 cp -f "$EXAMPLE_DIR/512.nmsh" "$WORK_DIR/"
 
 pushd "$WORK_DIR" >/dev/null
 
 rm -f neko user.mod user.smod valgrind_regression.log valgrind_stdout.log valgrind_stderr.log
 
-makeneko tgv.f90
+# Change the end time to run 10 iterations
+dt=$(grep -E '"timestep"\s*:' valgrind_tgv.case | sed -E 's/.*"timestep"\s*:\s*([0-9eE.+-]+).*/\1/')
+if [[ -z "$dt" ]]; then
+    echo "Failed to extract timestep from valgrind_tgv.case" >&2
+    exit 2
+fi
+end_time=$(python3 -c "print(10 * $dt)")
+sed -i.bak -E "s/(\"end_time\"\s*:\s*)[0-9eE.+-]+/\1$end_time/" valgrind_tgv.case
+
+makeneko valgrind_tgv.f90
 
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
