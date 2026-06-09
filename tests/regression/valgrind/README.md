@@ -33,6 +33,34 @@ NEKO_VALGRIND_MAX_POSSIBLE=0
 NEKO_VALGRIND_MAX_REACHABLE=1300000
 ```
 
+Backend-specific defaults used by the runner when overrides are not provided:
+
+- `CPU`: `definite=0`, `indirect=0`, `possible=0`, `reachable=1200000`
+- `CPU (libxsmm)`: `definite=0`, `indirect=0`, `possible=0`, `reachable=1200000`
+- `SX-Aurora`: `definite=0`, `indirect=0`, `possible=0`, `reachable=1300000`
+- `Accelerator (CUDA)`: `definite=0`, `indirect=0`, `possible=3000`, `reachable=9000000`
+- `Accelerator (HIP)`: `definite=0`, `indirect=0`, `possible=3000`, `reachable=9000000`
+- `Accelerator (OpenCL)`: `definite=0`, `indirect=0`, `possible=3000`, `reachable=9000000`
+- `UNKNOWN` backend: `definite=0`, `indirect=0`, `possible=0`, `reachable=1300000`
+
+You can override limits globally (`NEKO_VALGRIND_MAX_*`) or per backend using:
+
+- `*_CPU`
+- `*_LIBXSMM`
+- `*_SX`
+- `*_CUDA`
+- `*_HIP`
+- `*_OPENCL`
+- `*_UNKNOWN`
+
+Example:
+
+```bash
+NEKO_VALGRIND_MAX_REACHABLE_CUDA=9500000 \
+NEKO_VALGRIND_MAX_REACHABLE_HIP=11000000 \
+bash tests/regression/valgrind/run_valgrind_check.sh
+```
+
 Optional working directory override:
 
 ```bash

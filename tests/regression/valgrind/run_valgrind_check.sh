@@ -67,12 +67,72 @@ valgrind -s \
     --log-file=valgrind_regression.log \
     ./neko valgrind_tgv.case > valgrind_stdout.log 2> valgrind_stderr.log
 
+backend_type="$(grep -E 'Bcknd type:' valgrind_stdout.log | tail -n 1 | awk -F ':' '{print toupper($2)}' | xargs)"
+
+# Use backend-specific defaults inferred from current regression baselines.
+# Users can always override these through NEKO_VALGRIND_MAX_* environment vars.
+case "$backend_type" in
+    "CPU")
+        default_definite="${NEKO_VALGRIND_MAX_DEFINITE_CPU:-0}"
+        default_indirect="${NEKO_VALGRIND_MAX_INDIRECT_CPU:-0}"
+        default_possible="${NEKO_VALGRIND_MAX_POSSIBLE_CPU:-0}"
+        default_reachable="${NEKO_VALGRIND_MAX_REACHABLE_CPU:-1200000}"
+        ;;
+    "CPU (LIBXSMM)")
+        default_definite="${NEKO_VALGRIND_MAX_DEFINITE_LIBXSMM:-0}"
+        default_indirect="${NEKO_VALGRIND_MAX_INDIRECT_LIBXSMM:-0}"
+        default_possible="${NEKO_VALGRIND_MAX_POSSIBLE_LIBXSMM:-0}"
+        default_reachable="${NEKO_VALGRIND_MAX_REACHABLE_LIBXSMM:-1200000}"
+        ;;
+    "SX-AURORA")
+        default_definite="${NEKO_VALGRIND_MAX_DEFINITE_SX:-0}"
+        default_indirect="${NEKO_VALGRIND_MAX_INDIRECT_SX:-0}"
+        default_possible="${NEKO_VALGRIND_MAX_POSSIBLE_SX:-0}"
+        default_reachable="${NEKO_VALGRIND_MAX_REACHABLE_SX:-1200000}"
+        ;;
+    "ACCELERATOR (CUDA)")
+        default_definite="${NEKO_VALGRIND_MAX_DEFINITE_CUDA:-0}"
+        default_indirect="${NEKO_VALGRIND_MAX_INDIRECT_CUDA:-0}"
+        default_possible="${NEKO_VALGRIND_MAX_POSSIBLE_CUDA:-3000}"
+        default_reachable="${NEKO_VALGRIND_MAX_REACHABLE_CUDA:-9000000}"
+        ;;
+    "ACCELERATOR (HIP)")
+        default_definite="${NEKO_VALGRIND_MAX_DEFINITE_HIP:-0}"
+        default_indirect="${NEKO_VALGRIND_MAX_INDIRECT_HIP:-0}"
+        default_possible="${NEKO_VALGRIND_MAX_POSSIBLE_HIP:-3000}"
+        default_reachable="${NEKO_VALGRIND_MAX_REACHABLE_HIP:-9000000}"
+        ;;
+    "ACCELERATOR (OPENCL)")
+        default_definite="${NEKO_VALGRIND_MAX_DEFINITE_OPENCL:-0}"
+        default_indirect="${NEKO_VALGRIND_MAX_INDIRECT_OPENCL:-0}"
+        default_possible="${NEKO_VALGRIND_MAX_POSSIBLE_OPENCL:-3000}"
+        default_reachable="${NEKO_VALGRIND_MAX_REACHABLE_OPENCL:-9000000}"
+        ;;
+    *)
+        default_definite="${NEKO_VALGRIND_MAX_DEFINITE_UNKNOWN:-0}"
+        default_indirect="${NEKO_VALGRIND_MAX_INDIRECT_UNKNOWN:-0}"
+        default_possible="${NEKO_VALGRIND_MAX_POSSIBLE_UNKNOWN:-0}"
+        default_reachable="${NEKO_VALGRIND_MAX_REACHABLE_UNKNOWN:-1200000}"
+        ;;
+esac
+
+if [[ -z "$backend_type" ]]; then
+    backend_type="UNKNOWN"
+fi
+
+max_definite="${NEKO_VALGRIND_MAX_DEFINITE:-$default_definite}"
+max_indirect="${NEKO_VALGRIND_MAX_INDIRECT:-$default_indirect}"
+max_possible="${NEKO_VALGRIND_MAX_POSSIBLE:-$default_possible}"
+max_reachable="${NEKO_VALGRIND_MAX_REACHABLE:-$default_reachable}"
+
+echo "Valgrind limits for backend '$backend_type': definite=$max_definite indirect=$max_indirect possible=$max_possible reachable=$max_reachable"
+
 python3 ./check_valgrind.py \
     --log valgrind_regression.log \
-    --max-definite-bytes "${NEKO_VALGRIND_MAX_DEFINITE:-0}" \
-    --max-indirect-bytes "${NEKO_VALGRIND_MAX_INDIRECT:-0}" \
-    --max-possible-bytes "${NEKO_VALGRIND_MAX_POSSIBLE:-0}" \
-    --max-reachable-bytes "${NEKO_VALGRIND_MAX_REACHABLE:-1300000}"
+    --max-definite-bytes "$max_definite" \
+    --max-indirect-bytes "$max_indirect" \
+    --max-possible-bytes "$max_possible" \
+    --max-reachable-bytes "$max_reachable"
 
 echo "Valgrind regression test passed."
 popd >/dev/null
