@@ -629,9 +629,14 @@ contains
     real(kind=rp), allocatable :: padded_center(:)
     real(kind=rp), allocatable :: gathered_center(:)
     real(kind=rp), allocatable :: global_center(:)
+    real(kind=rp), allocatable :: padded_vertex(:)
+    real(kind=rp), allocatable :: gathered_vertex(:)
+    real(kind=rp), allocatable :: global_vertex(:)
     real(kind=rp) :: src_pts(3, 4)
     real(kind=rp) :: src_center(3)
     real(kind=rp) :: tgt_center(3)
+    real(kind=rp) :: src_vertex(3)
+    real(kind=rp) :: tgt_vertex(3)
     real(kind=rp) :: shift(3)
     real(kind=rp) :: proj_src
     real(kind=rp) :: proj_tgt
@@ -649,30 +654,38 @@ contains
 
     allocate(padded_meta(3 * max_local))
     allocate(padded_center(3 * max_local))
+    allocate(padded_vertex(3 * max_local))
     padded_meta = 0
     padded_center = 0.0_rp
+    padded_vertex = 0.0_rp
 
     do i = 1, n_local
        call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
             msh%periodic%facet_el(i)%x(1), src_pts)
        src_center = sum(src_pts(:, 1:npts), dim = 2) / real(npts, rp)
+       src_vertex = src_pts(:, 1)
 
        padded_meta(3 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(1)
        padded_meta(3 * (i - 1) + 2) = msh%elements( &
             msh%periodic%facet_el(i)%x(2))%e%id()
        padded_meta(3 * (i - 1) + 3) = i
        padded_center(3 * (i - 1) + 1:3 * i) = src_center
+       padded_vertex(3 * (i - 1) + 1:3 * i) = src_vertex
     end do
 
     allocate(gathered_meta(3 * max_local * pe_size))
     allocate(gathered_center(3 * max_local * pe_size))
+    allocate(gathered_vertex(3 * max_local * pe_size))
     call MPI_Allgather(padded_meta, 3 * max_local, MPI_INTEGER, gathered_meta, &
          3 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
     call MPI_Allgather(padded_center, 3 * max_local, MPI_REAL_PRECISION, &
          gathered_center, 3 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
+    call MPI_Allgather(padded_vertex, 3 * max_local, MPI_REAL_PRECISION, &
+         gathered_vertex, 3 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
 
     allocate(global_meta(3 * n_global))
     allocate(global_center(3 * n_global))
+    allocate(global_vertex(3 * n_global))
     idx = 0
     do i = 1, pe_size
        if (counts(i) .gt. 0) then
@@ -682,6 +695,9 @@ contains
           global_center(3 * idx + 1:3 * (idx + counts(i))) = &
                gathered_center(3 * max_local * (i - 1) + 1: &
                3 * max_local * (i - 1) + 3 * counts(i))
+          global_vertex(3 * idx + 1:3 * (idx + counts(i))) = &
+               gathered_vertex(3 * max_local * (i - 1) + 1: &
+               3 * max_local * (i - 1) + 3 * counts(i))
           idx = idx + counts(i)
        end if
     end do
@@ -690,6 +706,7 @@ contains
        call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
             msh%periodic%facet_el(i)%x(1), src_pts)
        src_center = sum(src_pts(:, 1:npts), dim = 2) / real(npts, rp)
+       src_vertex = src_pts(:, 1)
 
        match_idx = 0
        do j = 1, n_global
@@ -703,7 +720,8 @@ contains
        if (match_idx .eq. 0) cycle
 
        tgt_center = global_center(3 * (match_idx - 1) + 1:3 * match_idx)
-       shift = tgt_center - src_center
+       tgt_vertex = global_vertex(3 * (match_idx - 1) + 1:3 * match_idx)
+       shift = tgt_vertex - src_vertex
        if (norm2(shift) .le. LPT_PERIODIC_TOL) cycle
 
        dir = shift
@@ -744,10 +762,13 @@ contains
     end do
 
     deallocate(global_center)
+    deallocate(global_vertex)
     deallocate(global_meta)
     deallocate(gathered_center)
+    deallocate(gathered_vertex)
     deallocate(gathered_meta)
     deallocate(padded_center)
+    deallocate(padded_vertex)
     deallocate(padded_meta)
     deallocate(counts)
 
