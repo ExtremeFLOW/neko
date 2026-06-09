@@ -1,5 +1,5 @@
-# Runtime-only suppressions for clean-exit leak audits in unsteady_mixer.
-# These entries target OpenMPI/hwloc/libevent/CUDA initialization allocations
+# Runtime-only suppressions for clean-exit leak audits in the Valgrind TGV regression.
+# These entries target OpenMPI/hwloc/libevent/CUDA initialisation allocations
 # that persist at process teardown and are outside project ownership.
 
 {

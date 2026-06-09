@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added a Valgrind-based regression test suite under `tests/regression/valgrind`
+  for detecting memory leaks in a minimal TGV run.
 - Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS
   Fluent `.msh` meshes to Neko `.re2` meshes. Requires Python 3 with `numpy`,
   `scipy`, and `pymech`. Supports translational periodic boundaries via

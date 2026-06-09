@@ -53,7 +53,10 @@ fi
 end_time=$(python3 -c "print(10 * $dt)")
 sed -i.bak -E "s/(\"end_time\"\s*:\s*)[0-9eE.+-]+/\1$end_time/" valgrind_tgv.case
 
-makeneko valgrind_tgv.f90
+makeneko valgrind_tgv.f90 || {
+    echo "makeneko failed to compile valgrind_tgv.f90; see above for errors." >&2
+    exit 2
+}
 
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
@@ -66,6 +69,17 @@ valgrind -s \
     --suppressions=valgrind_runtime.supp \
     --log-file=valgrind_regression.log \
     ./neko valgrind_tgv.case > valgrind_stdout.log 2> valgrind_stderr.log
+valgrind_exit=$?
+
+if [[ $valgrind_exit -ne 0 ]]; then
+    echo "Neko exited with status $valgrind_exit under Valgrind; check valgrind_stderr.log for details." >&2
+    exit 2
+fi
+
+if [[ ! -s valgrind_regression.log ]]; then
+    echo "Valgrind did not produce a log file; check valgrind_stderr.log for details." >&2
+    exit 2
+fi
 
 backend_type="$(grep -E 'Bcknd type:' valgrind_stdout.log | tail -n 1 | awk -F ':' '{print toupper($2)}' | xargs)"
 

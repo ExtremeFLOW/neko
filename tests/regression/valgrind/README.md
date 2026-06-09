@@ -37,11 +37,11 @@ Backend-specific defaults used by the runner when overrides are not provided:
 
 - `CPU`: `definite=0`, `indirect=0`, `possible=0`, `reachable=1200000`
 - `CPU (libxsmm)`: `definite=0`, `indirect=0`, `possible=0`, `reachable=1200000`
-- `SX-Aurora`: `definite=0`, `indirect=0`, `possible=0`, `reachable=1300000`
+- `SX-Aurora`: `definite=0`, `indirect=0`, `possible=0`, `reachable=1200000`
 - `Accelerator (CUDA)`: `definite=0`, `indirect=0`, `possible=3000`, `reachable=9000000`
 - `Accelerator (HIP)`: `definite=0`, `indirect=0`, `possible=3000`, `reachable=9000000`
 - `Accelerator (OpenCL)`: `definite=0`, `indirect=0`, `possible=3000`, `reachable=9000000`
-- `UNKNOWN` backend: `definite=0`, `indirect=0`, `possible=0`, `reachable=1300000`
+- `UNKNOWN` backend: `definite=0`, `indirect=0`, `possible=0`, `reachable=1200000`
 
 You can override limits globally (`NEKO_VALGRIND_MAX_*`) or per backend using:
 
