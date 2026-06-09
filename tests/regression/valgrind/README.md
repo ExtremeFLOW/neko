@@ -10,7 +10,7 @@ run without coupling to the example-validation suite.
 - `valgrind` available on `PATH`
 - `python3` available on `PATH`
 - a runtime environment that already exposes all required shared libraries for
-	the generated `neko` executable
+  the generated `neko` executable
 
 The script does not assume any particular installation layout for external
 dependencies. Library paths and any other runtime environment setup must be

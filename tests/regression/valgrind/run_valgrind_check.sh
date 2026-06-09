@@ -148,5 +148,10 @@ python3 ./check_valgrind.py \
     --max-possible-bytes "$max_possible" \
     --max-reachable-bytes "$max_reachable"
 
+if [[ $? -ne 0 ]]; then
+    echo "Valgrind regression test failed; see above for details." >&2
+    exit 2
+fi
+
 echo "Valgrind regression test passed."
 popd >/dev/null
