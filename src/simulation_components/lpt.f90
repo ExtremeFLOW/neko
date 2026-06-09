@@ -620,23 +620,16 @@ contains
     integer :: n_local
     integer :: n_global
     integer :: max_local
-    integer :: npts
     integer :: match_idx
     integer, allocatable :: counts(:)
     integer, allocatable :: padded_meta(:)
     integer, allocatable :: gathered_meta(:)
     integer, allocatable :: global_meta(:)
-    real(kind=rp), allocatable :: padded_center(:)
-    real(kind=rp), allocatable :: gathered_center(:)
-    real(kind=rp), allocatable :: global_center(:)
-    real(kind=rp), allocatable :: padded_vertex(:)
-    real(kind=rp), allocatable :: gathered_vertex(:)
-    real(kind=rp), allocatable :: global_vertex(:)
-    real(kind=rp) :: src_pts(3, 4)
-    real(kind=rp) :: src_center(3)
-    real(kind=rp) :: tgt_center(3)
-    real(kind=rp) :: src_vertex(3)
-    real(kind=rp) :: tgt_vertex(3)
+    real(kind=rp), allocatable :: padded_rep(:)
+    real(kind=rp), allocatable :: gathered_rep(:)
+    real(kind=rp), allocatable :: global_rep(:)
+    real(kind=rp) :: src_rep(3)
+    real(kind=rp) :: tgt_rep(3)
     real(kind=rp) :: shift(3)
     real(kind=rp) :: proj_src
     real(kind=rp) :: proj_tgt
@@ -645,73 +638,55 @@ contains
     if (msh%periodic%size .eq. 0) return
 
     n_local = msh%periodic%size
-    npts = merge(4, 2, msh%gdim .eq. 3)
     allocate(counts(pe_size))
     call MPI_Allgather(n_local, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, &
          NEKO_COMM, ierr)
     n_global = sum(counts)
     max_local = max(1, maxval(counts))
 
-    allocate(padded_meta(3 * max_local))
-    allocate(padded_center(3 * max_local))
-    allocate(padded_vertex(3 * max_local))
+    allocate(padded_meta(2 * max_local))
+    allocate(padded_rep(3 * max_local))
     padded_meta = 0
-    padded_center = 0.0_rp
-    padded_vertex = 0.0_rp
+    padded_rep = 0.0_rp
 
     do i = 1, n_local
-       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
-            msh%periodic%facet_el(i)%x(1), src_pts)
-       src_center = sum(src_pts(:, 1:npts), dim = 2) / real(npts, rp)
-       src_vertex = src_pts(:, 1)
+       call lpt_get_periodic_rep_point(msh, i, src_rep)
 
-       padded_meta(3 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(1)
-       padded_meta(3 * (i - 1) + 2) = msh%elements( &
+       padded_meta(2 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(1)
+       padded_meta(2 * (i - 1) + 2) = msh%elements( &
             msh%periodic%facet_el(i)%x(2))%e%id()
-       padded_meta(3 * (i - 1) + 3) = i
-       padded_center(3 * (i - 1) + 1:3 * i) = src_center
-       padded_vertex(3 * (i - 1) + 1:3 * i) = src_vertex
+       padded_rep(3 * (i - 1) + 1:3 * i) = src_rep
     end do
 
-    allocate(gathered_meta(3 * max_local * pe_size))
-    allocate(gathered_center(3 * max_local * pe_size))
-    allocate(gathered_vertex(3 * max_local * pe_size))
-    call MPI_Allgather(padded_meta, 3 * max_local, MPI_INTEGER, gathered_meta, &
-         3 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
-    call MPI_Allgather(padded_center, 3 * max_local, MPI_REAL_PRECISION, &
-         gathered_center, 3 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
-    call MPI_Allgather(padded_vertex, 3 * max_local, MPI_REAL_PRECISION, &
-         gathered_vertex, 3 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
+    allocate(gathered_meta(2 * max_local * pe_size))
+    allocate(gathered_rep(3 * max_local * pe_size))
+    call MPI_Allgather(padded_meta, 2 * max_local, MPI_INTEGER, gathered_meta, &
+         2 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
+    call MPI_Allgather(padded_rep, 3 * max_local, MPI_REAL_PRECISION, &
+         gathered_rep, 3 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
 
-    allocate(global_meta(3 * n_global))
-    allocate(global_center(3 * n_global))
-    allocate(global_vertex(3 * n_global))
+    allocate(global_meta(2 * n_global))
+    allocate(global_rep(3 * n_global))
     idx = 0
     do i = 1, pe_size
        if (counts(i) .gt. 0) then
-          global_meta(3 * idx + 1:3 * (idx + counts(i))) = &
-               gathered_meta(3 * max_local * (i - 1) + 1: &
-               3 * max_local * (i - 1) + 3 * counts(i))
-          global_center(3 * idx + 1:3 * (idx + counts(i))) = &
-               gathered_center(3 * max_local * (i - 1) + 1: &
-               3 * max_local * (i - 1) + 3 * counts(i))
-          global_vertex(3 * idx + 1:3 * (idx + counts(i))) = &
-               gathered_vertex(3 * max_local * (i - 1) + 1: &
+          global_meta(2 * idx + 1:2 * (idx + counts(i))) = &
+               gathered_meta(2 * max_local * (i - 1) + 1: &
+               2 * max_local * (i - 1) + 2 * counts(i))
+          global_rep(3 * idx + 1:3 * (idx + counts(i))) = &
+               gathered_rep(3 * max_local * (i - 1) + 1: &
                3 * max_local * (i - 1) + 3 * counts(i))
           idx = idx + counts(i)
        end if
     end do
 
     do i = 1, msh%periodic%size
-       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
-            msh%periodic%facet_el(i)%x(1), src_pts)
-       src_center = sum(src_pts(:, 1:npts), dim = 2) / real(npts, rp)
-       src_vertex = src_pts(:, 1)
+       call lpt_get_periodic_rep_point(msh, i, src_rep)
 
        match_idx = 0
        do j = 1, n_global
-          if (global_meta(3 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1) &
-               .and. global_meta(3 * (j - 1) + 2) .eq. &
+          if (global_meta(2 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1) &
+               .and. global_meta(2 * (j - 1) + 2) .eq. &
                msh%periodic%p_facet_el(i)%x(2)) then
              match_idx = j
              exit
@@ -719,56 +694,40 @@ contains
        end do
        if (match_idx .eq. 0) cycle
 
-       tgt_center = global_center(3 * (match_idx - 1) + 1:3 * match_idx)
-       tgt_vertex = global_vertex(3 * (match_idx - 1) + 1:3 * match_idx)
-       shift = tgt_vertex - src_vertex
+       tgt_rep = global_rep(3 * (match_idx - 1) + 1:3 * match_idx)
+       shift = tgt_rep - src_rep
        if (norm2(shift) .le. LPT_PERIODIC_TOL) cycle
 
        dir = shift
        call lpt_normalize(dir)
-       proj_src = dot_product(src_center, dir)
-       proj_tgt = dot_product(tgt_center, dir)
+       proj_src = dot_product(src_rep, dir)
+       proj_tgt = dot_product(tgt_rep, dir)
        idx = 0
        do j = 1, this%n_periodic_dirs
           if (abs(dot_product(dir, this%periodic_dir(:, j))) .gt. &
                1.0_rp - 1.0e-6_rp) then
              idx = j
-             if (dot_product(dir, this%periodic_dir(:, j)) .lt. 0.0_rp) then
-                dir = -dir
-                shift = -shift
-                proj_src = -proj_src
-                proj_tgt = -proj_tgt
-             end if
              exit
           end if
        end do
 
-       if (idx .eq. 0) then
-          if (this%n_periodic_dirs .ge. 3) cycle
-          idx = this%n_periodic_dirs + 1
-          this%n_periodic_dirs = idx
-          this%periodic_dir(:, idx) = dir
-          this%periodic_min(idx) = min(proj_src, proj_tgt)
-          this%periodic_max(idx) = max(proj_src, proj_tgt)
-          this%periodic_shift(:, idx) = shift
-          this%periodic_len(idx) = norm2(shift)
-          cycle
-       end if
+       if (idx .ne. 0) cycle
 
-       proj_src = dot_product(src_center, this%periodic_dir(:, idx))
-       proj_tgt = dot_product(tgt_center, this%periodic_dir(:, idx))
-       this%periodic_min(idx) = min(this%periodic_min(idx), proj_src, proj_tgt)
-       this%periodic_max(idx) = max(this%periodic_max(idx), proj_src, proj_tgt)
+       if (this%n_periodic_dirs .ge. 3) cycle
+       idx = this%n_periodic_dirs + 1
+       this%n_periodic_dirs = idx
+       this%periodic_dir(:, idx) = dir
+       this%periodic_min(idx) = min(proj_src, proj_tgt)
+       this%periodic_max(idx) = max(proj_src, proj_tgt)
+       this%periodic_shift(:, idx) = shift
+       this%periodic_len(idx) = norm2(shift)
     end do
 
-    deallocate(global_center)
-    deallocate(global_vertex)
+    deallocate(global_rep)
     deallocate(global_meta)
-    deallocate(gathered_center)
-    deallocate(gathered_vertex)
+    deallocate(gathered_rep)
     deallocate(gathered_meta)
-    deallocate(padded_center)
-    deallocate(padded_vertex)
+    deallocate(padded_rep)
     deallocate(padded_meta)
     deallocate(counts)
 
@@ -828,11 +787,16 @@ contains
     end do
   end subroutine wrap_particles_translational
 
-  subroutine lpt_get_facet_points(msh, el, facet, pts)
+  subroutine lpt_get_periodic_rep_point(msh, i_periodic, pt)
     type(mesh_t), intent(in) :: msh
-    integer, intent(in) :: el
-    integer, intent(in) :: facet
-    real(kind=rp), intent(out) :: pts(3, 4)
+    integer, intent(in) :: i_periodic
+    real(kind=rp), intent(out) :: pt(3)
+    integer :: el
+    integer :: facet
+    integer :: i
+    integer :: irep
+    integer :: npts
+    integer :: rep_pid
     integer, dimension(4, 6) :: face_nodes = reshape([ &
          1,5,7,3, &
          2,6,8,4, &
@@ -845,19 +809,27 @@ contains
          2,4, &
          1,2, &
          3,4], [2, 4])
-    integer :: i
 
-    pts = 0.0_rp
+    el = msh%periodic%facet_el(i_periodic)%x(2)
+    facet = msh%periodic%facet_el(i_periodic)%x(1)
+    npts = merge(4, 2, msh%gdim .eq. 3)
+
+    irep = 1
+    rep_pid = huge(0)
+    do i = 1, npts
+       if (msh%periodic%p_ids(i_periodic)%x(i) .gt. 0 .and. &
+            msh%periodic%p_ids(i_periodic)%x(i) .lt. rep_pid) then
+          rep_pid = msh%periodic%p_ids(i_periodic)%x(i)
+          irep = i
+       end if
+    end do
+
     if (msh%gdim .eq. 3) then
-       do i = 1, 4
-          pts(:, i) = real(msh%elements(el)%e%pts(face_nodes(i, facet))%p%x, rp)
-       end do
+       pt = real(msh%elements(el)%e%pts(face_nodes(irep, facet))%p%x, rp)
     else
-       do i = 1, 2
-          pts(:, i) = real(msh%elements(el)%e%pts(edge_nodes(i, facet))%p%x, rp)
-       end do
+       pt = real(msh%elements(el)%e%pts(edge_nodes(irep, facet))%p%x, rp)
     end if
-  end subroutine lpt_get_facet_points
+  end subroutine lpt_get_periodic_rep_point
 
   subroutine lpt_normalize(v)
     real(kind=rp), intent(inout) :: v(3)
