@@ -45,13 +45,11 @@ module lagrangian_particle_tracking
   use time_state, only : time_state_t
   use global_interpolation, only : global_interpolation_t
   use glb_intrp_comm, only : glb_intrp_comm_t
-  use point, only : point_t
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
   use math, only : add2s2
-  use stack, only : stack_i4_t
   use tensor, only : trsp
   use mesh, only : mesh_t
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
@@ -98,14 +96,6 @@ module lagrangian_particle_tracking
      real(kind=rp) :: rotational_theta_min = 0.0_rp
      real(kind=rp) :: rotational_theta_max = 0.0_rp
      real(kind=rp) :: rotational_theta_len = 0.0_rp
-     integer :: n_periodic_maps = 0
-     integer, allocatable :: periodic_map_npts(:)
-     real(kind=rp), allocatable :: periodic_src_center(:,:)
-     real(kind=rp), allocatable :: periodic_src_basis(:,:,:)
-     real(kind=rp), allocatable :: periodic_src_bounds_min(:,:)
-     real(kind=rp), allocatable :: periodic_src_bounds_max(:,:)
-     real(kind=rp), allocatable :: periodic_tgt_center(:,:)
-     real(kind=rp), allocatable :: periodic_tgt_basis(:,:,:)
    contains
      procedure, pass(this) :: init => lpt_init_from_json
      procedure, pass(this) :: free => lpt_free
@@ -113,7 +103,6 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: read_particles_json
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: init_periodic_wrap
-     procedure, private, pass(this) :: init_periodic_maps
      procedure, private, pass(this) :: wrap_particles_periodic
      procedure, private, pass(this) :: init_rotational_periodic_wrap
      procedure, private, pass(this) :: init_translational_periodic_wrap
@@ -192,7 +181,6 @@ contains
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &
          params_subdict = interp_subdict)
-    call this%init_periodic_maps(case%fluid%msh)
     call this%init_periodic_wrap(case%fluid%msh, case%fluid%dm_Xh, &
          case%fluid%c_Xh)
     call this%redistribute_particles()
@@ -437,13 +425,6 @@ contains
     class(lpt_t), intent(inout) :: this
 
     call this%particles%free()
-    if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
-    if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
-    if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
-    if (allocated(this%periodic_src_bounds_min)) deallocate(this%periodic_src_bounds_min)
-    if (allocated(this%periodic_src_bounds_max)) deallocate(this%periodic_src_bounds_max)
-    if (allocated(this%periodic_tgt_center)) deallocate(this%periodic_tgt_center)
-    if (allocated(this%periodic_tgt_basis)) deallocate(this%periodic_tgt_basis)
     call this%global_interp%free()
     call this%output_file%free()
 
@@ -453,7 +434,6 @@ contains
     this%output_enabled = .false.
     this%log = .true.
     this%start_time = -huge(0.0_rp)
-    this%n_periodic_maps = 0
     this%periodic_enabled = .false.
     this%rotational_periodic_enabled = .false.
     this%n_periodic_dirs = 0
@@ -492,11 +472,6 @@ contains
             this%rotational_theta_min, ", theta_max=", &
             this%rotational_theta_max, ", theta_len=", &
             this%rotational_theta_len, ""
-       call neko_log%message(log_buf)
-    end if
-    if (this%n_periodic_maps .gt. 0) then
-       write(log_buf, '(A,I0)') "Periodic facet transforms: ", &
-            this%n_periodic_maps
        call neko_log%message(log_buf)
     end if
     write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
@@ -589,31 +564,12 @@ contains
   !> Wrap particles back into the periodic domain before the ownership search.
   subroutine wrap_particles_periodic(this)
     class(lpt_t), intent(inout) :: this
-    integer :: i
-    integer :: k
-    integer :: n_iters
-    logical :: mapped
 
     if (this%particles%n .eq. 0) return
 
     if (this%rotational_periodic_enabled) then
        call this%wrap_particles_rotational()
        return
-    end if
-
-    if (this%n_periodic_maps .gt. 0) then
-       do i = 1, this%particles%n
-          do n_iters = 1, 3
-             mapped = .false.
-             do k = 1, this%n_periodic_maps
-                if (lpt_apply_periodic_map_if_needed(this, i, k)) then
-                   mapped = .true.
-                   exit
-                end if
-             end do
-             if (.not. mapped) exit
-          end do
-       end do
     end if
 
     call this%wrap_particles_translational()
@@ -659,26 +615,110 @@ contains
     integer :: i
     integer :: j
     integer :: idx
-    real(kind=rp) :: normal(3)
+    integer :: ierr
+    integer :: n_local
+    integer :: n_global
+    integer :: max_local
+    integer :: npts
+    integer :: match_idx
+    integer, allocatable :: counts(:)
+    integer, allocatable :: padded_meta(:)
+    integer, allocatable :: gathered_meta(:)
+    integer, allocatable :: global_meta(:)
+    real(kind=rp), allocatable :: padded_center(:)
+    real(kind=rp), allocatable :: gathered_center(:)
+    real(kind=rp), allocatable :: global_center(:)
+    real(kind=rp) :: src_pts(3, 4)
+    real(kind=rp) :: src_center(3)
+    real(kind=rp) :: tgt_center(3)
     real(kind=rp) :: shift(3)
-    real(kind=rp) :: signed_shift
     real(kind=rp) :: proj_src
     real(kind=rp) :: proj_tgt
+    real(kind=rp) :: dir(3)
 
-    if (msh%periodic%size .eq. 0 .or. this%n_periodic_maps .eq. 0) return
+    if (msh%periodic%size .eq. 0) return
 
-    do i = 1, this%n_periodic_maps
-       normal = this%periodic_src_basis(:, 3, i)
-       call lpt_normalize(normal)
-       if (norm2(normal) .le. LPT_PERIODIC_TOL) cycle
+    n_local = msh%periodic%size
+    npts = merge(4, 2, msh%gdim .eq. 3)
+    allocate(counts(pe_size))
+    call MPI_Allgather(n_local, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, &
+         NEKO_COMM, ierr)
+    n_global = sum(counts)
+    max_local = max(1, maxval(counts))
 
+    allocate(padded_meta(3 * max_local))
+    allocate(padded_center(3 * max_local))
+    padded_meta = 0
+    padded_center = 0.0_rp
+
+    do i = 1, n_local
+       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
+            msh%periodic%facet_el(i)%x(1), src_pts)
+       src_center = sum(src_pts(:, 1:npts), dim = 2) / real(npts, rp)
+
+       padded_meta(3 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(1)
+       padded_meta(3 * (i - 1) + 2) = msh%elements( &
+            msh%periodic%facet_el(i)%x(2))%e%id()
+       padded_meta(3 * (i - 1) + 3) = i
+       padded_center(3 * (i - 1) + 1:3 * i) = src_center
+    end do
+
+    allocate(gathered_meta(3 * max_local * pe_size))
+    allocate(gathered_center(3 * max_local * pe_size))
+    call MPI_Allgather(padded_meta, 3 * max_local, MPI_INTEGER, gathered_meta, &
+         3 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
+    call MPI_Allgather(padded_center, 3 * max_local, MPI_REAL_PRECISION, &
+         gathered_center, 3 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
+
+    allocate(global_meta(3 * n_global))
+    allocate(global_center(3 * n_global))
+    idx = 0
+    do i = 1, pe_size
+       if (counts(i) .gt. 0) then
+          global_meta(3 * idx + 1:3 * (idx + counts(i))) = &
+               gathered_meta(3 * max_local * (i - 1) + 1: &
+               3 * max_local * (i - 1) + 3 * counts(i))
+          global_center(3 * idx + 1:3 * (idx + counts(i))) = &
+               gathered_center(3 * max_local * (i - 1) + 1: &
+               3 * max_local * (i - 1) + 3 * counts(i))
+          idx = idx + counts(i)
+       end if
+    end do
+
+    do i = 1, msh%periodic%size
+       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
+            msh%periodic%facet_el(i)%x(1), src_pts)
+       src_center = sum(src_pts(:, 1:npts), dim = 2) / real(npts, rp)
+
+       match_idx = 0
+       do j = 1, n_global
+          if (global_meta(3 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1) &
+               .and. global_meta(3 * (j - 1) + 2) .eq. &
+               msh%periodic%p_facet_el(i)%x(2)) then
+             match_idx = j
+             exit
+          end if
+       end do
+       if (match_idx .eq. 0) cycle
+
+       tgt_center = global_center(3 * (match_idx - 1) + 1:3 * match_idx)
+       shift = tgt_center - src_center
+       if (norm2(shift) .le. LPT_PERIODIC_TOL) cycle
+
+       dir = shift
+       call lpt_normalize(dir)
+       proj_src = dot_product(src_center, dir)
+       proj_tgt = dot_product(tgt_center, dir)
        idx = 0
        do j = 1, this%n_periodic_dirs
-          if (abs(dot_product(normal, this%periodic_dir(:, j))) .gt. &
+          if (abs(dot_product(dir, this%periodic_dir(:, j))) .gt. &
                1.0_rp - 1.0e-6_rp) then
              idx = j
-             if (dot_product(normal, this%periodic_dir(:, j)) .lt. 0.0_rp) then
-                normal = -normal
+             if (dot_product(dir, this%periodic_dir(:, j)) .lt. 0.0_rp) then
+                dir = -dir
+                shift = -shift
+                proj_src = -proj_src
+                proj_tgt = -proj_tgt
              end if
              exit
           end if
@@ -688,28 +728,27 @@ contains
           if (this%n_periodic_dirs .ge. 3) cycle
           idx = this%n_periodic_dirs + 1
           this%n_periodic_dirs = idx
-          this%periodic_dir(:, idx) = normal
-          this%periodic_min(idx) = huge(0.0_rp)
-          this%periodic_max(idx) = -huge(0.0_rp)
+          this%periodic_dir(:, idx) = dir
+          this%periodic_min(idx) = min(proj_src, proj_tgt)
+          this%periodic_max(idx) = max(proj_src, proj_tgt)
+          this%periodic_shift(:, idx) = shift
+          this%periodic_len(idx) = norm2(shift)
+          cycle
        end if
 
-       proj_src = dot_product(this%periodic_src_center(:, i), &
-            this%periodic_dir(:, idx))
-       proj_tgt = dot_product(this%periodic_tgt_center(:, i), &
-            this%periodic_dir(:, idx))
+       proj_src = dot_product(src_center, this%periodic_dir(:, idx))
+       proj_tgt = dot_product(tgt_center, this%periodic_dir(:, idx))
        this%periodic_min(idx) = min(this%periodic_min(idx), proj_src, proj_tgt)
        this%periodic_max(idx) = max(this%periodic_max(idx), proj_src, proj_tgt)
-
-       shift = this%periodic_tgt_center(:, i) - this%periodic_src_center(:, i)
-       signed_shift = dot_product(shift, this%periodic_dir(:, idx))
-       if (abs(signed_shift) .le. LPT_PERIODIC_TOL) cycle
-
-       if (signed_shift .lt. 0.0_rp) shift = -shift
-       if (abs(signed_shift) .gt. this%periodic_len(idx)) then
-          this%periodic_shift(:, idx) = shift
-          this%periodic_len(idx) = abs(signed_shift)
-       end if
     end do
+
+    deallocate(global_center)
+    deallocate(global_meta)
+    deallocate(gathered_center)
+    deallocate(gathered_meta)
+    deallocate(padded_center)
+    deallocate(padded_meta)
+    deallocate(counts)
 
     this%periodic_enabled = this%n_periodic_dirs .gt. 0
   end subroutine init_translational_periodic_wrap
@@ -767,208 +806,11 @@ contains
     end do
   end subroutine wrap_particles_translational
 
-  !> Build local periodic facet transforms, including cyclic mappings.
-  subroutine init_periodic_maps(this, msh)
-    class(lpt_t), intent(inout) :: this
-    type(mesh_t), intent(in) :: msh
-    integer :: n_local
-    integer :: n_global
-    integer :: i
-    integer :: j
-    integer :: idx
-    integer :: ierr
-    integer :: max_local
-    integer, allocatable :: counts(:)
-    integer, allocatable :: global_meta(:)
-    integer, allocatable :: padded_meta(:)
-    integer, allocatable :: gathered_meta(:)
-    real(kind=rp), allocatable :: global_geom(:)
-    real(kind=rp), allocatable :: padded_geom(:)
-    real(kind=rp), allocatable :: gathered_geom(:)
-    real(kind=rp) :: src_pts(3, 4)
-    real(kind=rp) :: tgt_pts(3, 4)
-    real(kind=rp) :: src_centroid(3)
-    real(kind=rp) :: tgt_centroid(3)
-    integer :: match_idx
-    integer :: npts
-
-    this%n_periodic_maps = 0
-    if (allocated(this%periodic_map_npts)) deallocate(this%periodic_map_npts)
-    if (allocated(this%periodic_src_center)) deallocate(this%periodic_src_center)
-    if (allocated(this%periodic_src_basis)) deallocate(this%periodic_src_basis)
-    if (allocated(this%periodic_src_bounds_min)) deallocate(this%periodic_src_bounds_min)
-    if (allocated(this%periodic_src_bounds_max)) deallocate(this%periodic_src_bounds_max)
-    if (allocated(this%periodic_tgt_center)) deallocate(this%periodic_tgt_center)
-    if (allocated(this%periodic_tgt_basis)) deallocate(this%periodic_tgt_basis)
-
-    n_local = msh%periodic%size
-    if (n_local .eq. 0) return
-
-    allocate(counts(pe_size))
-    call MPI_Allgather(n_local, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, &
-         NEKO_COMM, ierr)
-    n_global = sum(counts)
-    max_local = max(1, maxval(counts))
-
-    allocate(padded_meta(7 * max_local))
-    allocate(padded_geom(15 * max_local))
-    padded_meta = 0
-    padded_geom = 0.0_rp
-    do i = 1, n_local
-       npts = merge(4, 2, msh%gdim .eq. 3)
-       padded_meta(7 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(1)
-       padded_meta(7 * (i - 1) + 2) = msh%periodic%facet_el(i)%x(2)
-       padded_meta(7 * (i - 1) + 3) = npts
-       padded_meta(7 * (i - 1) + 4:7 * (i - 1) + 7) = msh%periodic%org_ids(i)%x
-
-       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
-            msh%periodic%facet_el(i)%x(1), src_pts, src_centroid)
-       padded_geom(15 * (i - 1) + 1:15 * (i - 1) + 12) = reshape(src_pts, [12])
-       padded_geom(15 * (i - 1) + 13:15 * (i - 1) + 15) = src_centroid
-    end do
-
-    allocate(gathered_meta(7 * max_local * pe_size))
-    allocate(gathered_geom(15 * max_local * pe_size))
-    call MPI_Allgather(padded_meta, 7 * max_local, MPI_INTEGER, gathered_meta, &
-         7 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
-    call MPI_Allgather(padded_geom, 15 * max_local, MPI_REAL_PRECISION, &
-         gathered_geom, 15 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
-
-    allocate(global_meta(7 * n_global))
-    allocate(global_geom(15 * n_global))
-    idx = 0
-    do i = 1, pe_size
-       if (counts(i) .gt. 0) then
-          global_meta(7 * idx + 1:7 * (idx + counts(i))) = &
-               gathered_meta(7 * max_local * (i - 1) + 1: &
-               7 * max_local * (i - 1) + 7 * counts(i))
-          global_geom(15 * idx + 1:15 * (idx + counts(i))) = &
-               gathered_geom(15 * max_local * (i - 1) + 1: &
-               15 * max_local * (i - 1) + 15 * counts(i))
-          idx = idx + counts(i)
-       end if
-    end do
-
-    allocate(this%periodic_map_npts(n_local))
-    allocate(this%periodic_src_center(3, n_local))
-    allocate(this%periodic_src_basis(3, 3, n_local))
-    allocate(this%periodic_src_bounds_min(2, n_local))
-    allocate(this%periodic_src_bounds_max(2, n_local))
-    allocate(this%periodic_tgt_center(3, n_local))
-    allocate(this%periodic_tgt_basis(3, 3, n_local))
-
-    do i = 1, n_local
-       match_idx = 0
-       do j = 1, n_global
-          if (global_meta(7 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1) &
-               .and. global_meta(7 * (j - 1) + 2) .eq. &
-               msh%periodic%p_facet_el(i)%x(2)) then
-             match_idx = j
-             exit
-          end if
-       end do
-       if (match_idx .eq. 0) cycle
-
-       npts = merge(4, 2, msh%gdim .eq. 3)
-       call lpt_get_facet_points(msh, msh%periodic%facet_el(i)%x(2), &
-            msh%periodic%facet_el(i)%x(1), src_pts, src_centroid)
-       call lpt_reorder_facet_points( &
-            global_meta(7 * (match_idx - 1) + 4:7 * (match_idx - 1) + 7), &
-            reshape(global_geom(15 * (match_idx - 1) + 1:15 * (match_idx - 1) + 12), [3, 4]), &
-            msh%periodic%p_ids(i)%x, npts, tgt_pts)
-       tgt_centroid = global_geom(15 * (match_idx - 1) + 13:15 * (match_idx - 1) + 15)
-
-       idx = this%n_periodic_maps + 1
-       this%n_periodic_maps = idx
-       this%periodic_map_npts(idx) = npts
-       call lpt_build_facet_basis(src_pts, src_centroid, npts, &
-            this%periodic_src_center(:, idx), this%periodic_src_basis(:, :, idx))
-       call lpt_get_facet_bounds(src_pts, this%periodic_src_center(:, idx), &
-            this%periodic_src_basis(:, :, idx), npts, &
-            this%periodic_src_bounds_min(:, idx), &
-            this%periodic_src_bounds_max(:, idx))
-       call lpt_build_facet_basis(tgt_pts, tgt_centroid, npts, &
-            this%periodic_tgt_center(:, idx), this%periodic_tgt_basis(:, :, idx))
-    end do
-
-    deallocate(global_meta)
-    deallocate(global_geom)
-    deallocate(padded_meta)
-    deallocate(gathered_meta)
-    deallocate(padded_geom)
-    deallocate(gathered_geom)
-    deallocate(counts)
-  end subroutine init_periodic_maps
-
-  logical function lpt_apply_periodic_map_if_needed(this, i_particle, i_map) result(mapped)
-    class(lpt_t), intent(inout) :: this
-    integer, intent(in) :: i_particle
-    integer, intent(in) :: i_map
-    real(kind=rp) :: rel(3)
-    real(kind=rp) :: xi(3)
-
-    mapped = .false.
-    rel = this%particles%xyz(:, i_particle) - this%periodic_src_center(:, i_map)
-    if (this%periodic_map_npts(i_map) .eq. 4) then
-       xi(1) = dot_product(rel, this%periodic_src_basis(:, 1, i_map))
-       xi(2) = dot_product(rel, this%periodic_src_basis(:, 2, i_map))
-       xi(3) = dot_product(rel, this%periodic_src_basis(:, 3, i_map))
-       if (xi(1) .ge. this%periodic_src_bounds_min(1, i_map) - &
-            LPT_PERIODIC_TOL .and. &
-            xi(1) .le. this%periodic_src_bounds_max(1, i_map) + &
-            LPT_PERIODIC_TOL .and. &
-            xi(2) .ge. this%periodic_src_bounds_min(2, i_map) - &
-            LPT_PERIODIC_TOL .and. &
-            xi(2) .le. this%periodic_src_bounds_max(2, i_map) + &
-            LPT_PERIODIC_TOL .and. xi(3) .lt. -LPT_PERIODIC_TOL) then
-          this%particles%xyz(:, i_particle) = this%periodic_tgt_center(:, i_map) + &
-               xi(1) * this%periodic_tgt_basis(:, 1, i_map) + &
-               xi(2) * this%periodic_tgt_basis(:, 2, i_map) + &
-               xi(3) * this%periodic_tgt_basis(:, 3, i_map)
-          mapped = .true.
-       end if
-    else
-       xi(1) = dot_product(rel, this%periodic_src_basis(:, 1, i_map))
-       xi(2) = dot_product(rel, this%periodic_src_basis(:, 3, i_map))
-       if (xi(1) .ge. this%periodic_src_bounds_min(1, i_map) - &
-            LPT_PERIODIC_TOL .and. &
-            xi(1) .le. this%periodic_src_bounds_max(1, i_map) + &
-            LPT_PERIODIC_TOL .and. xi(2) .lt. -LPT_PERIODIC_TOL) then
-          this%particles%xyz(:, i_particle) = this%periodic_tgt_center(:, i_map) + &
-               xi(1) * this%periodic_tgt_basis(:, 1, i_map) + &
-               xi(2) * this%periodic_tgt_basis(:, 3, i_map)
-          mapped = .true.
-       end if
-    end if
-  end function lpt_apply_periodic_map_if_needed
-
-  subroutine lpt_reorder_facet_points(ids_in, pts_in, ids_target, npts, pts_out)
-    integer, intent(in) :: ids_in(4)
-    real(kind=rp), intent(in) :: pts_in(3, 4)
-    integer, intent(in) :: ids_target(4)
-    integer, intent(in) :: npts
-    real(kind=rp), intent(out) :: pts_out(3, 4)
-    integer :: i
-    integer :: j
-
-    pts_out = 0.0_rp
-    do i = 1, npts
-       do j = 1, npts
-          if (ids_in(j) .eq. ids_target(i)) then
-             pts_out(:, i) = pts_in(:, j)
-             exit
-          end if
-       end do
-    end do
-  end subroutine lpt_reorder_facet_points
-
-  subroutine lpt_get_facet_points(msh, el, facet, pts, el_centroid)
+  subroutine lpt_get_facet_points(msh, el, facet, pts)
     type(mesh_t), intent(in) :: msh
     integer, intent(in) :: el
     integer, intent(in) :: facet
     real(kind=rp), intent(out) :: pts(3, 4)
-    real(kind=rp), intent(out) :: el_centroid(3)
-    type(point_t) :: centroid
     integer, dimension(4, 6) :: face_nodes = reshape([ &
          1,5,7,3, &
          2,6,8,4, &
@@ -984,8 +826,6 @@ contains
     integer :: i
 
     pts = 0.0_rp
-    centroid = msh%elements(el)%e%centroid()
-    el_centroid = real(centroid%x, rp)
     if (msh%gdim .eq. 3) then
        do i = 1, 4
           pts(:, i) = real(msh%elements(el)%e%pts(face_nodes(i, facet))%p%x, rp)
@@ -996,91 +836,6 @@ contains
        end do
     end if
   end subroutine lpt_get_facet_points
-
-  subroutine lpt_build_facet_basis(pts, el_centroid, npts, center, basis)
-    real(kind=rp), intent(in) :: pts(3, 4)
-    real(kind=rp), intent(in) :: el_centroid(3)
-    integer, intent(in) :: npts
-    real(kind=rp), intent(out) :: center(3)
-    real(kind=rp), intent(out) :: basis(3, 3)
-    real(kind=rp) :: v1(3)
-    real(kind=rp) :: v2(3)
-    real(kind=rp) :: n(3)
-
-    center = 0.0_rp
-    basis = 0.0_rp
-    center = sum(pts(:, 1:npts), dim = 2) / real(npts, rp)
-
-    v1 = pts(:, 2) - pts(:, 1)
-    call lpt_normalize(v1)
-    basis(:, 1) = v1
-
-    if (npts .eq. 4) then
-       v2 = pts(:, 4) - pts(:, 1)
-       n = lpt_cross(v1, v2)
-       call lpt_normalize(n)
-       if (dot_product(el_centroid - center, n) .lt. 0.0_rp) n = -n
-       basis(:, 3) = n
-       basis(:, 2) = lpt_cross(n, v1)
-       call lpt_normalize(basis(:, 2))
-    else
-       n = el_centroid - center
-       call lpt_normalize(n)
-       basis(:, 3) = n
-    end if
-  end subroutine lpt_build_facet_basis
-
-  subroutine lpt_get_facet_bounds(pts, center, basis, npts, bounds_min, bounds_max)
-    real(kind=rp), intent(in) :: pts(3, 4)
-    real(kind=rp), intent(in) :: center(3)
-    real(kind=rp), intent(in) :: basis(3, 3)
-    integer, intent(in) :: npts
-    real(kind=rp), intent(out) :: bounds_min(2)
-    real(kind=rp), intent(out) :: bounds_max(2)
-    real(kind=rp) :: rel(3)
-    real(kind=rp) :: xi1
-    real(kind=rp) :: xi2
-    integer :: i
-
-    bounds_min = huge(0.0_rp)
-    bounds_max = -huge(0.0_rp)
-    do i = 1, npts
-       rel = pts(:, i) - center
-       xi1 = dot_product(rel, basis(:, 1))
-       bounds_min(1) = min(bounds_min(1), xi1)
-       bounds_max(1) = max(bounds_max(1), xi1)
-       if (npts .eq. 4) then
-          xi2 = dot_product(rel, basis(:, 2))
-          bounds_min(2) = min(bounds_min(2), xi2)
-          bounds_max(2) = max(bounds_max(2), xi2)
-       end if
-    end do
-    if (npts .eq. 2) then
-       bounds_min(2) = 0.0_rp
-       bounds_max(2) = 0.0_rp
-    end if
-  end subroutine lpt_get_facet_bounds
-
-  subroutine lpt_push_comp_range(s, offset, n_comp)
-    type(stack_i4_t), intent(inout) :: s
-    integer, intent(in) :: offset
-    integer, intent(in) :: n_comp
-    integer :: i
-
-    do i = 1, n_comp
-       call s%push(offset + i)
-    end do
-  end subroutine lpt_push_comp_range
-
-  function lpt_cross(a, b) result(c)
-    real(kind=rp), intent(in) :: a(3)
-    real(kind=rp), intent(in) :: b(3)
-    real(kind=rp) :: c(3)
-
-    c(1) = a(2) * b(3) - a(3) * b(2)
-    c(2) = a(3) * b(1) - a(1) * b(3)
-    c(3) = a(1) * b(2) - a(2) * b(1)
-  end function lpt_cross
 
   subroutine lpt_normalize(v)
     real(kind=rp), intent(inout) :: v(3)
