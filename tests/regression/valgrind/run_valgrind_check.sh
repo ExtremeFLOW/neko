@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 WORK_DIR="${1:-$SCRIPT_DIR/workdir}"
+EXAMPLE_DIR="$REPO_ROOT/examples/tgv"
 
 if ! command -v valgrind >/dev/null 2>&1; then
     echo "Skipping valgrind regression test: valgrind not found in PATH."
@@ -21,11 +22,11 @@ if ! command -v makeneko >/dev/null 2>&1; then
 fi
 
 for file in \
-    "$SCRIPT_DIR/tgv.f90" \
-    "$SCRIPT_DIR/valgrind_tgv.case.template" \
     "$SCRIPT_DIR/valgrind_runtime.supp" \
     "$SCRIPT_DIR/check_valgrind.py" \
-    "$REPO_ROOT/examples/tgv/512.nmsh"; do
+    "$EXAMPLE_DIR/tgv.f90" \
+    "$EXAMPLE_DIR/tgv.case" \
+    "$EXAMPLE_DIR/512.nmsh"; do
     if [[ ! -f "$file" ]]; then
         echo "Required file not found: $file" >&2
         exit 2
@@ -33,11 +34,11 @@ for file in \
 done
 
 mkdir -p "$WORK_DIR"
-cp -f "$SCRIPT_DIR/tgv.f90" "$WORK_DIR/"
-cp -f "$SCRIPT_DIR/valgrind_tgv.case.template" "$WORK_DIR/valgrind_tgv.case"
 cp -f "$SCRIPT_DIR/valgrind_runtime.supp" "$WORK_DIR/"
 cp -f "$SCRIPT_DIR/check_valgrind.py" "$WORK_DIR/"
-cp -f "$REPO_ROOT/examples/tgv/512.nmsh" "$WORK_DIR/"
+cp -f "$EXAMPLE_DIR/tgv.case" "$WORK_DIR/valgrind_tgv.case"
+cp -f "$EXAMPLE_DIR/tgv.f90" "$WORK_DIR/"
+cp -f "$EXAMPLE_DIR/512.nmsh" "$WORK_DIR/"
 
 pushd "$WORK_DIR" >/dev/null
 
