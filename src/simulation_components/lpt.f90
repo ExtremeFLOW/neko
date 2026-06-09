@@ -315,13 +315,6 @@ contains
        end do
     end if
 
-    if (this%output_enabled) then
-      if (this%output_controller%check(time)) then
-         call this%write_output(time, vel)
-         call this%output_controller%register_execution()
-      end if
-    end if
-
     dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(1)
     do i = 1, 3
        call add2s2(this%particles%xyz(i, :), vel(i, :), dtc, this%particles%n)
@@ -340,7 +333,15 @@ contains
     end do
     this%particles%vel_lag(:, 1, :) = vel
 
+    if (this%output_enabled) then
+      if (this%output_controller%check(time)) then
+         call this%write_output(time, vel)
+         call this%output_controller%register_execution()
+      end if
+    end if
+
     if (allocated(vel)) deallocate(vel)
+
   end subroutine lpt_compute
 
   !> Write one trajectory snapshot to CSV by gathering local particle data to
