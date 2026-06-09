@@ -2,6 +2,7 @@ var namespacehip__intf =
 [
     [ "hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
     [ "hipdevicegetstreampriorityrange", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange" ],
+    [ "hipdevicereset", "df/dd3/interfacehip__intf_1_1hipdevicereset.html", "df/dd3/interfacehip__intf_1_1hipdevicereset" ],
     [ "hipdevicesynchronize", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize" ],
     [ "hipeventcreate", "d7/d1a/interfacehip__intf_1_1hipeventcreate.html", "d7/d1a/interfacehip__intf_1_1hipeventcreate" ],
     [ "hipeventcreatewithflags", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags.html", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags" ],

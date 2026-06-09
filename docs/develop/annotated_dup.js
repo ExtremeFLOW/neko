@@ -222,6 +222,7 @@ var annotated_dup =
     ] ],
     [ "cuda_intf", "db/d9a/namespacecuda__intf.html", [
       [ "cudadevicegetstreampriorityrange", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange.html", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange" ],
+      [ "cudadevicereset", "d5/d22/interfacecuda__intf_1_1cudadevicereset.html", "d5/d22/interfacecuda__intf_1_1cudadevicereset" ],
       [ "cudadevicesynchronize", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize.html", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize" ],
       [ "cudaeventcreate", "d9/de3/interfacecuda__intf_1_1cudaeventcreate.html", "d9/de3/interfacecuda__intf_1_1cudaeventcreate" ],
       [ "cudaeventcreatewithflags", "d5/d17/interfacecuda__intf_1_1cudaeventcreatewithflags.html", "d5/d17/interfacecuda__intf_1_1cudaeventcreatewithflags" ],
@@ -770,6 +771,7 @@ var annotated_dup =
     [ "hip_intf", "d0/d4e/namespacehip__intf.html", [
       [ "hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
       [ "hipdevicegetstreampriorityrange", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange" ],
+      [ "hipdevicereset", "df/dd3/interfacehip__intf_1_1hipdevicereset.html", "df/dd3/interfacehip__intf_1_1hipdevicereset" ],
       [ "hipdevicesynchronize", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize" ],
       [ "hipeventcreate", "d7/d1a/interfacehip__intf_1_1hipeventcreate.html", "d7/d1a/interfacehip__intf_1_1hipeventcreate" ],
       [ "hipeventcreatewithflags", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags.html", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags" ],

@@ -180,7 +180,7 @@ $(document).ready(function(){initNavTree('d0/da2/fdm_8f90_source.html','../../')
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a></div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#adec73ed737365037d57f1f2d17eb7dc6">vlmax</a></div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/dbe/namespacedevice.html">device</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#aa9a4bafe299e99210e33e7e3c46b4233">glb_cmd_queue</a>, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, &amp;</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       <a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>, <a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device_free</a></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>       <a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>, <a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>, <a class="code hl_interface" href="../../db/d56/interfacedevice_1_1device__unmap.html">device_unmap</a></div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/d5b/namespacefast3d.html">fast3d</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4">semhat</a></div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d8c/namespacetensor.html">tensor</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da">trsp</a></div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#a110c7afa5e1784685763cdc65455b7cb">row_zero</a></div>
@@ -696,114 +696,113 @@ $(document).ready(function(){initNavTree('d0/da2/fdm_8f90_source.html','../../')
 <div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d85/structfdm_1_1fdm__t.html">fdm_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span> </div>
 <div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%s)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>       <span class="keyword">deallocate</span>(this%s)</div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span> </div>
-<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>       <span class="keyword">deallocate</span>(this%d)</div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span> </div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_lr)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>       <span class="keyword">deallocate</span>(this%len_lr)</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span> </div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_ls)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>       <span class="keyword">deallocate</span>(this%len_ls)</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span> </div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_lt)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>       <span class="keyword">deallocate</span>(this%len_lt)</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span> </div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_mr)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>       <span class="keyword">deallocate</span>(this%len_mr)</div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span> </div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_ms)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>       <span class="keyword">deallocate</span>(this%len_ms)</div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span> </div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_mt)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>       <span class="keyword">deallocate</span>(this%len_mt)</div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span> </div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_rr)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>       <span class="keyword">deallocate</span>(this%len_rr)</div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span> </div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_rs)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>       <span class="keyword">deallocate</span>(this%len_rs)</div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span> </div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_rt)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>       <span class="keyword">deallocate</span>(this%len_rt)</div>
-<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span> </div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%swplen)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>       <span class="keyword">deallocate</span>(this%swplen)</div>
-<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span> </div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>    <span class="keyword">nullify</span>(this%Xh)</div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>    <span class="keyword">nullify</span>(this%dof)</div>
-<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>    <span class="keyword">nullify</span>(this%gs_h)</div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>    <span class="keyword">nullify</span>(this%msh)</div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span> </div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>    <span class="keywordflow">if</span> (c_associated(this%s_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>       <span class="keyword">call </span>device_free(this%s_d)</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>          <span class="keyword">call </span>device_unmap(this%s, this%s_d)</div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>       <span class="keyword">deallocate</span>(this%s)</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%d)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>          <span class="keyword">call </span>device_unmap(this%d, this%d_d)</div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>       <span class="keyword">deallocate</span>(this%d)</div>
+<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span> </div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_lr)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>       <span class="keyword">deallocate</span>(this%len_lr)</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span> </div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_ls)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>       <span class="keyword">deallocate</span>(this%len_ls)</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span> </div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_lt)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>       <span class="keyword">deallocate</span>(this%len_lt)</div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span> </div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_mr)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>       <span class="keyword">deallocate</span>(this%len_mr)</div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span> </div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_ms)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>       <span class="keyword">deallocate</span>(this%len_ms)</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span> </div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_mt)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>       <span class="keyword">deallocate</span>(this%len_mt)</div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span> </div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_rr)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>       <span class="keyword">deallocate</span>(this%len_rr)</div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span> </div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_rs)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>       <span class="keyword">deallocate</span>(this%len_rs)</div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span> </div>
+<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%len_rt)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>       <span class="keyword">deallocate</span>(this%len_rt)</div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span> </div>
+<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%swplen)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>       <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>          <span class="keyword">call </span>device_unmap(this%swplen, this%swplen_d)</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>       <span class="keyword">deallocate</span>(this%swplen)</div>
 <div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>    <span class="keywordflow">if</span> (c_associated(this%d_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>       <span class="keyword">call </span>device_free(this%d_d)</div>
-<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>    <span class="keywordflow">if</span> (c_associated(this%swplen_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>       <span class="keyword">call </span>device_free(this%swplen_d)</div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span> </div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span> </div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>    <span class="keyword">nullify</span>(this%Xh)</div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>    <span class="keyword">nullify</span>(this%dof)</div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>    <span class="keyword">nullify</span>(this%gs_h)</div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>    <span class="keyword">nullify</span>(this%msh)</div>
+<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span> </div>
 </div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4c/namespacefdm.html#a64e85f5d3be390e220059491298872d1">fdm_free</a></div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span> </div>
-<div class="foldopen" id="foldopen00636" data-start="" data-end="">
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno"><a class="line" href="../../d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b">  636</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b">fdm_compute</a>(this, e, r, stream)</div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d85/structfdm_1_1fdm__t.html">fdm_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension((this%Xh%lx + 2)**3, this%msh%nelv)</span>, &amp;</div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>         <span class="keywordtype">intent(inout)</span> :: e, r</div>
-<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">optional</span> :: stream</div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>    <span class="keywordtype">type</span>(c_ptr) :: strm</div>
-<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span> </div>
-<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(stream)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>       strm = stream</div>
-<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>       strm = glb_cmd_queue</div>
-<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span> </div>
-<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>    <span class="keywordflow">if</span> (neko_bcknd_sx .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>       <span class="keyword">call </span>fdm_do_fast_sx(e, r, this%s, this%d, &amp;</div>
-<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)</div>
-<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (neko_bcknd_xsmm .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>       <span class="keyword">call </span>fdm_do_fast_xsmm(e, r, this%s, this%d, &amp;</div>
-<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)</div>
-<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>       <span class="keyword">call </span>fdm_do_fast_device(e, r, this%s, this%d, &amp;</div>
-<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>            this%Xh%lx+2, this%msh%gdim, this%msh%nelv, strm)</div>
-<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>       <span class="keyword">call </span>fdm_do_fast_cpu(e, r, this%s, this%d, &amp;</div>
-<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)</div>
-<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span> </div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4c/namespacefdm.html#a64e85f5d3be390e220059491298872d1">fdm_free</a></div>
+<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span> </div>
+<div class="foldopen" id="foldopen00635" data-start="" data-end="">
+<div class="line"><a id="l00635" name="l00635"></a><span class="lineno"><a class="line" href="../../d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b">  635</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b">fdm_compute</a>(this, e, r, stream)</div>
+<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../de/d85/structfdm_1_1fdm__t.html">fdm_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension((this%Xh%lx + 2)**3, this%msh%nelv)</span>, &amp;</div>
+<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>         <span class="keywordtype">intent(inout)</span> :: e, r</div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">optional</span> :: stream</div>
+<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>    <span class="keywordtype">type</span>(c_ptr) :: strm</div>
+<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span> </div>
+<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(stream)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>       strm = stream</div>
+<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>       strm = glb_cmd_queue</div>
+<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span> </div>
+<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>    <span class="keywordflow">if</span> (neko_bcknd_sx .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>       <span class="keyword">call </span>fdm_do_fast_sx(e, r, this%s, this%d, &amp;</div>
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)</div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (neko_bcknd_xsmm .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>       <span class="keyword">call </span>fdm_do_fast_xsmm(e, r, this%s, this%d, &amp;</div>
+<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)</div>
+<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>       <span class="keyword">call </span>fdm_do_fast_device(e, r, this%s, this%d, &amp;</div>
+<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>            this%Xh%lx+2, this%msh%gdim, this%msh%nelv, strm)</div>
+<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>       <span class="keyword">call </span>fdm_do_fast_cpu(e, r, this%s, this%d, &amp;</div>
+<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>            this%Xh%lx+2, this%msh%gdim, this%msh%nelv)</div>
+<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span> </div>
 </div>
-<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b">fdm_compute</a></div>
+<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b">fdm_compute</a></div>
+<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span> </div>
 <div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span> </div>
-<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span> </div>
-<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d4c/namespacefdm.html">fdm</a></div>
+<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d4c/namespacefdm.html">fdm</a></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00077">device.F90:77</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
+<div class="ttc" id="ainterfacedevice_1_1device__unmap_html"><div class="ttname"><a href="../../db/d56/interfacedevice_1_1device__unmap.html">device::device_unmap</a></div><div class="ttdoc">Unmap a Fortran array from a device (deassociate and free)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00083">device.F90:83</a></div></div>
 <div class="ttc" id="ainterfacefdm_1_1sygv_html"><div class="ttname"><a href="../../d3/d46/interfacefdm_1_1sygv.html">fdm::sygv</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00104">fdm.f90:104</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00044">utils.f90:44</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00058">comm.F90:58</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a3f51b2c9ef4bd878a310bd1e1d0d3c80"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">device::host_to_device</a></div><div class="ttdeci">integer, parameter, public host_to_device</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
-<div class="ttc" id="anamespacedevice_html_a79e3ce634472f542b8d135571f7a36e0"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device::device_free</a></div><div class="ttdeci">subroutine, public device_free(x_d)</div><div class="ttdoc">Deallocate memory on the device.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00224">device.F90:225</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a7c3556984ffad14469de7accab5bc84b"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device::device_to_host</a></div><div class="ttdeci">integer, parameter, public device_to_host</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00047">device.F90:47</a></div></div>
 <div class="ttc" id="anamespacedevice_html_aa9a4bafe299e99210e33e7e3c46b4233"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#aa9a4bafe299e99210e33e7e3c46b4233">device::glb_cmd_queue</a></div><div class="ttdeci">type(c_ptr), bind(C), public glb_cmd_queue</div><div class="ttdoc">Global command queue.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00051">device.F90:51</a></div></div>
 <div class="ttc" id="anamespacedofmap_html"><div class="ttname"><a href="../../dd/dd2/namespacedofmap.html">dofmap</a></div><div class="ttdoc">Defines a mapping of the degrees of freedom.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00035">dofmap.f90:35</a></div></div>
@@ -822,7 +821,7 @@ $(document).ready(function(){initNavTree('d0/da2/fdm_8f90_source.html','../../')
 <div class="ttc" id="anamespacefdm_html_a44dfc3864c487c0445e167df75091904"><div class="ttname"><a href="../../d3/d4c/namespacefdm.html#a44dfc3864c487c0445e167df75091904">fdm::fdm_setup_fast</a></div><div class="ttdeci">subroutine fdm_setup_fast(this, ah, bh, nl, n)</div><div class="ttdoc">Setup the arrays s, d needed for the fast evaluation of the system.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00337">fdm.f90:338</a></div></div>
 <div class="ttc" id="anamespacefdm_html_a4e4c35e30cb7a09ac9f75e02ca5c6acb"><div class="ttname"><a href="../../d3/d4c/namespacefdm.html#a4e4c35e30cb7a09ac9f75e02ca5c6acb">fdm::fdm_init</a></div><div class="ttdeci">subroutine fdm_init(this, xh, dof, gs_h)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00110">fdm.f90:111</a></div></div>
 <div class="ttc" id="anamespacefdm_html_a52aacbda9eb0bf09006ddf147fab77d1"><div class="ttname"><a href="../../d3/d4c/namespacefdm.html#a52aacbda9eb0bf09006ddf147fab77d1">fdm::qp_sygv</a></div><div class="ttdeci">subroutine qp_sygv(a, b, lam, n, lx, bw, lbw)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00460">fdm.f90:461</a></div></div>
-<div class="ttc" id="anamespacefdm_html_a560a8542a9618d26c701bad9968ba30b"><div class="ttname"><a href="../../d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b">fdm::fdm_compute</a></div><div class="ttdeci">subroutine fdm_compute(this, e, r, stream)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00636">fdm.f90:637</a></div></div>
+<div class="ttc" id="anamespacefdm_html_a560a8542a9618d26c701bad9968ba30b"><div class="ttname"><a href="../../d3/d4c/namespacefdm.html#a560a8542a9618d26c701bad9968ba30b">fdm::fdm_compute</a></div><div class="ttdeci">subroutine fdm_compute(this, e, r, stream)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00635">fdm.f90:636</a></div></div>
 <div class="ttc" id="anamespacefdm_html_a64e85f5d3be390e220059491298872d1"><div class="ttname"><a href="../../d3/d4c/namespacefdm.html#a64e85f5d3be390e220059491298872d1">fdm::fdm_free</a></div><div class="ttdeci">subroutine fdm_free(this)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00568">fdm.f90:569</a></div></div>
 <div class="ttc" id="anamespacefdm_html_a7a6bab2aaecfd6ec540e3af45b8ddcdd"><div class="ttname"><a href="../../d3/d4c/namespacefdm.html#a7a6bab2aaecfd6ec540e3af45b8ddcdd">fdm::dp_sygv</a></div><div class="ttdeci">subroutine dp_sygv(a, b, lam, n, lx, bw, lbw)</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00452">fdm.f90:453</a></div></div>
 <div class="ttc" id="anamespacefdm_html_a80707a7089b9f914dc2b50b342672817"><div class="ttname"><a href="../../d3/d4c/namespacefdm.html#a80707a7089b9f914dc2b50b342672817">fdm::generalev</a></div><div class="ttdeci">subroutine generalev(a, b, lam, n, lx)</div><div class="ttdoc">Solve the generalized eigenvalue problem /$ A x = lam B x/$ A – symm. B – symm., pos....</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da2/fdm_8f90_source.html#l00432">fdm.f90:433</a></div></div>
@@ -862,7 +861,7 @@ $(document).ready(function(){initNavTree('d0/da2/fdm_8f90_source.html','../../')
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../d0/da2/fdm_8f90.html">fdm.f90</a></li>
-    <li class="footer">Generated on Mon Jun 8 2026 05:07:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jun 9 2026 04:54:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

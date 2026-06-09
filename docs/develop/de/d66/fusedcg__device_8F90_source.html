@@ -151,7 +151,7 @@ $(document).ready(function(){initNavTree('de/d66/fusedcg__device_8F90_source.htm
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/d73/namespacedevice__math.html">device_math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268">device_rzero</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a">device_copy</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#abb89ff66f95f255dc98c0fe714d8ddbf">device_glsc3</a></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/dbe/namespacedevice.html">device</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>, <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80">host_to_device</a>, <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>, &amp;</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>       <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0">device_free</a>, <a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9">device_alloc</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479">device_event_create</a>, &amp;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9">device_event_sync</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141">device_event_destroy</a></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9">device_event_sync</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141">device_event_destroy</a>, <a class="code hl_interface" href="../../db/d56/interfacedevice_1_1device__unmap.html">device_unmap</a></div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a></div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keywordtype">use </span>mpi_f08, <span class="keywordtype">only</span> : mpi_allreduce, mpi_in_place, mpi_sum</div>
@@ -389,181 +389,176 @@ $(document).ready(function(){initNavTree('de/d66/fusedcg__device_8F90_source.htm
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keyword">call </span>this%ksp_free()</div>
 <div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span> </div>
 <div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%w)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       <span class="keyword">deallocate</span>(this%w)</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%r)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>       <span class="keyword">deallocate</span>(this%r)</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%z)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>       <span class="keyword">deallocate</span>(this%z)</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       <span class="keywordflow">if</span> (c_associated(this%w_d)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>          <span class="keyword">call </span>device_unmap(this%w, this%w_d)</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>       <span class="keyword">deallocate</span>(this%w)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%r)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>       <span class="keywordflow">if</span> (c_associated(this%r_d)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          <span class="keyword">call </span>device_unmap(this%r, this%r_d)</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>       <span class="keyword">deallocate</span>(this%r)</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%alpha)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>       <span class="keyword">deallocate</span>(this%alpha)</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%p)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>       <span class="keyword">deallocate</span>(this%p)</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%z)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>       <span class="keywordflow">if</span> (c_associated(this%z_d)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>          <span class="keyword">call </span>device_unmap(this%z, this%z_d)</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>       <span class="keyword">deallocate</span>(this%z)</div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keywordflow">if</span> (c_associated(this%w_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>       <span class="keyword">call </span>device_free(this%w_d)</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keywordflow">if</span> (c_associated(this%r_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>       <span class="keyword">call </span>device_free(this%r_d)</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span> </div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%alpha)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>       <span class="keywordflow">if</span> (c_associated(this%alpha_d)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>          <span class="keyword">call </span>device_unmap(this%alpha, this%alpha_d)</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>       <span class="keyword">deallocate</span>(this%alpha)</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="keywordflow">if</span> (c_associated(this%z_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>       <span class="keyword">call </span>device_free(this%z_d)</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordflow">if</span> (c_associated(this%alpha_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>       <span class="keyword">call </span>device_free(this%alpha_d)</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%p_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>       <span class="keywordflow">do</span> i = 1, <a class="code hl_variable" href="../../dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7">device_fusedcg_p_space</a></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>          <span class="keywordflow">if</span> (c_associated(this%p_d(i))) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>             <span class="keyword">call </span>device_free(this%p_d(i))</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span> </div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <span class="keywordflow">if</span> (c_associated(this%p_d_d)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>       <span class="keyword">call </span>device_free(this%p_d_d)</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    <span class="keyword">nullify</span>(this%M)</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    <span class="keywordflow">if</span> (c_associated(this%gs_event)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>       <span class="keyword">call </span>device_event_destroy(this%gs_event)</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%p)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>       <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%p_d)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>          <span class="keywordflow">do</span> i = 1, <a class="code hl_variable" href="../../dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7">device_fusedcg_p_space</a></div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>             <span class="keywordflow">if</span> (c_associated(this%p_d(i))) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>                <span class="keyword">call </span>device_unmap(this%p(:,i), this%p_d(i))</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="keywordflow">             end if</span></div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>       <span class="keyword">deallocate</span>(this%p)</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    <span class="keywordflow">if</span> (c_associated(this%p_d_d)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>       <span class="keyword">call </span>device_free(this%p_d_d)</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <span class="keyword">nullify</span>(this%M)</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordflow">if</span> (c_associated(this%gs_event)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>       <span class="keyword">call </span>device_event_destroy(this%gs_event)</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
 </div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a239efd69a0c3289d4e1ede8b248ed9d4">fusedcg_device_free</a></div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span> </div>
-<div class="foldopen" id="foldopen00329" data-start="" data-end="">
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno"><a class="line" href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">  329</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">fusedcg_device_solve</a>(this, Ax, x, f, n, coef, blst, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dc/d03/structfusedcg__device_1_1fusedcg__device__t.html">fusedcg_device_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: ax</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: f</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blst</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="keywordtype">type</span>(ksp_monitor_t) :: ksp_results</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <span class="keywordtype">integer</span> :: iter, max_iter, ierr, i, p_cur, p_prev</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span><span class="keywordtype">    real</span>(kind=rp) :: rnorm, rtr, norm_fac, rtz1, rtz2</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span><span class="keywordtype">    real</span>(kind=rp) :: pap, beta</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordtype">type</span>(c_ptr) :: f_d</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    f_d = device_get_ptr(f)</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span> </div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(niter)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>       max_iter = niter</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>       max_iter = ksp_max_iter</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    norm_fac = 1.0_rp / sqrt(coef%volume)</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a239efd69a0c3289d4e1ede8b248ed9d4">fusedcg_device_free</a></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
+<div class="foldopen" id="foldopen00324" data-start="" data-end="">
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno"><a class="line" href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">  324</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">fusedcg_device_solve</a>(this, Ax, x, f, n, coef, blst, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dc/d03/structfusedcg__device_1_1fusedcg__device__t.html">fusedcg_device_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: ax</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: f</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blst</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <span class="keywordtype">type</span>(ksp_monitor_t) :: ksp_results</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="keywordtype">integer</span> :: iter, max_iter, ierr, i, p_cur, p_prev</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span><span class="keywordtype">    real</span>(kind=rp) :: rnorm, rtr, norm_fac, rtz1, rtz2</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span><span class="keywordtype">    real</span>(kind=rp) :: pap, beta</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="keywordtype">type</span>(c_ptr) :: f_d</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    f_d = device_get_ptr(f)</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span> </div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(niter)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>       max_iter = niter</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>       max_iter = ksp_max_iter</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    norm_fac = 1.0_rp / sqrt(coef%volume)</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    associate(w =&gt; this%w, r =&gt; this%r, p =&gt; this%p, z =&gt; this%z, &amp;</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>         alpha =&gt; this%alpha, alpha_d =&gt; this%alpha_d, &amp;</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>         w_d =&gt; this%w_d, r_d =&gt; this%r_d, z_d =&gt; this%z_d, &amp;</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>         p_d =&gt; this%p_d, p_d_d =&gt; this%p_d_d)</div>
 <div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    associate(w =&gt; this%w, r =&gt; this%r, p =&gt; this%p, z =&gt; this%z, &amp;</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>         alpha =&gt; this%alpha, alpha_d =&gt; this%alpha_d, &amp;</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>         w_d =&gt; this%w_d, r_d =&gt; this%r_d, z_d =&gt; this%z_d, &amp;</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>         p_d =&gt; this%p_d, p_d_d =&gt; this%p_d_d)</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span> </div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>      rtz1 = 1.0_rp</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>      p_prev = <a class="code hl_variable" href="../../dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7">device_fusedcg_p_space</a></div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>      p_cur = 1</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>      <span class="keyword">call </span>device_rzero(x%x_d, n)</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>      <span class="keyword">call </span>device_rzero(p_d(1), n)</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>      <span class="keyword">call </span>device_copy(r_d, f_d, n)</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>      rtr = device_glsc3(r_d, coef%mult_d, r_d, n)</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>      rnorm = sqrt(rtr)*norm_fac</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>      ksp_results%res_start = rnorm</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>      ksp_results%res_final = rnorm</div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>      ksp_results%iter = 0</div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>      <span class="keywordflow">if</span>(abscmp(rnorm, 0.0_rp)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>         ksp_results%converged = .true.</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>         <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span> </div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>      <span class="keyword">call </span>this%monitor_start(<span class="stringliteral">&#39;FusedCG&#39;</span>)</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>      <span class="keywordflow">do</span> iter = 1, max_iter</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>         <span class="keyword">call </span>this%M%solve(z, r, n)</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>         rtz2 = rtz1</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>         rtz1 = device_glsc3(r_d, coef%mult_d, z_d, n)</div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>         beta = rtz1 / rtz2</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>         <span class="keywordflow">if</span> (iter .eq. 1) beta = 0.0_rp</div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>         <span class="keyword">call </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6">device_fusedcg_update_p</a>(p_d(p_cur), z_d, p_d(p_prev), beta, n)</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>      rtz1 = 1.0_rp</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>      p_prev = <a class="code hl_variable" href="../../dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7">device_fusedcg_p_space</a></div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>      p_cur = 1</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>      <span class="keyword">call </span>device_rzero(x%x_d, n)</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>      <span class="keyword">call </span>device_rzero(p_d(1), n)</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>      <span class="keyword">call </span>device_copy(r_d, f_d, n)</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span> </div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>      rtr = device_glsc3(r_d, coef%mult_d, r_d, n)</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>      rnorm = sqrt(rtr)*norm_fac</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>      ksp_results%res_start = rnorm</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>      ksp_results%res_final = rnorm</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>      ksp_results%iter = 0</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>      <span class="keywordflow">if</span>(abscmp(rnorm, 0.0_rp)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>         ksp_results%converged = .true.</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>         <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>      <span class="keyword">call </span>this%monitor_start(<span class="stringliteral">&#39;FusedCG&#39;</span>)</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>      <span class="keywordflow">do</span> iter = 1, max_iter</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>         <span class="keyword">call </span>this%M%solve(z, r, n)</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>         rtz2 = rtz1</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>         rtz1 = device_glsc3(r_d, coef%mult_d, z_d, n)</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>         beta = rtz1 / rtz2</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>         <span class="keywordflow">if</span> (iter .eq. 1) beta = 0.0_rp</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>         <span class="keyword">call </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6">device_fusedcg_update_p</a>(p_d(p_cur), z_d, p_d(p_prev), beta, n)</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span> </div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>         <span class="keyword">call </span>ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>         <span class="keyword">call </span>gs_h%op(w, n, gs_op_add, this%gs_event)</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>         <span class="keyword">call </span>device_event_sync(this%gs_event)</div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>         <span class="keyword">call </span>blst%apply(w, n)</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span> </div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>         <span class="keyword">call </span>ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>         <span class="keyword">call </span>gs_h%op(w, n, gs_op_add, this%gs_event)</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>         <span class="keyword">call </span>device_event_sync(this%gs_event)</div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>         <span class="keyword">call </span>blst%apply(w, n)</div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span> </div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>         pap = device_glsc3(w_d, coef%mult_d, this%p_d(p_cur), n)</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span> </div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>         alpha(p_cur) = rtz1 / pap</div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>         rtr = <a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646">device_fusedcg_part2</a>(r_d, coef%mult_d, w_d, &amp;</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>              alpha_d, alpha(p_cur), p_cur, n)</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>         rnorm = sqrt(rtr)*norm_fac</div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>         <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>         <span class="keywordflow">if</span> ((p_cur .eq. <a class="code hl_variable" href="../../dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7">device_fusedcg_p_space</a>) .or. &amp;</div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342">device_fusedcg_update_x</a>(x%x_d, p_d_d, alpha_d, p_cur, n)</div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>            p_prev = p_cur</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>            p_cur = 1</div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>            <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol) <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>         <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>            p_prev = p_cur</div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>            p_cur = p_cur + 1</div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>      <span class="keyword">call </span>this%monitor_stop()</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>      ksp_results%res_final = rnorm</div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>      ksp_results%iter = iter</div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>      ksp_results%converged = this%is_converged(iter, rnorm)</div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span> </div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span> </div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>         pap = device_glsc3(w_d, coef%mult_d, this%p_d(p_cur), n)</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span> </div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>         alpha(p_cur) = rtz1 / pap</div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>         rtr = <a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646">device_fusedcg_part2</a>(r_d, coef%mult_d, w_d, &amp;</div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>              alpha_d, alpha(p_cur), p_cur, n)</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>         rnorm = sqrt(rtr)*norm_fac</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>         <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>         <span class="keywordflow">if</span> ((p_cur .eq. <a class="code hl_variable" href="../../dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7">device_fusedcg_p_space</a>) .or. &amp;</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342">device_fusedcg_update_x</a>(x%x_d, p_d_d, alpha_d, p_cur, n)</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>            p_prev = p_cur</div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>            p_cur = 1</div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>            <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol) <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>         <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>            p_prev = p_cur</div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>            p_cur = p_cur + 1</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>      <span class="keyword">call </span>this%monitor_stop()</div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>      ksp_results%res_final = rnorm</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>      ksp_results%iter = iter</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>      ksp_results%converged = this%is_converged(iter, rnorm)</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span> </div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span> </div>
 </div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">fusedcg_device_solve</a></div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span> </div>
-<div class="foldopen" id="foldopen00417" data-start="" data-end="">
-<div class="line"><a id="l00417" name="l00417"></a><span class="lineno"><a class="line" href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">  417</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">fusedcg_device_solve_coupled</a>(this, Ax, x, y, z, fx, fy, fz, &amp;</div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>       n, coef, blstx, blsty, blstz, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dc/d03/structfusedcg__device_1_1fusedcg__device__t.html">fusedcg_device_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: ax</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: y</div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: z</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fx</div>
-<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fy</div>
-<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fz</div>
-<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstx</div>
-<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blsty</div>
-<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstz</div>
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>    <span class="keywordtype">type</span>(ksp_monitor_t), <span class="keywordtype">dimension(3)</span> :: ksp_results</div>
-<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span> </div>
-<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>    ksp_results(1) = this%solve(ax, x, fx, n, coef, blstx, gs_h, niter)</div>
-<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>    ksp_results(2) = this%solve(ax, y, fy, n, coef, blsty, gs_h, niter)</div>
-<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>    ksp_results(3) = this%solve(ax, z, fz, n, coef, blstz, gs_h, niter)</div>
-<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span> </div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">fusedcg_device_solve</a></div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span> </div>
+<div class="foldopen" id="foldopen00412" data-start="" data-end="">
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno"><a class="line" href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">  412</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">fusedcg_device_solve_coupled</a>(this, Ax, x, y, z, fx, fy, fz, &amp;</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>       n, coef, blstx, blsty, blstz, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dc/d03/structfusedcg__device_1_1fusedcg__device__t.html">fusedcg_device_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: ax</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: y</div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: z</div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fx</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fy</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fz</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstx</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blsty</div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstz</div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>    <span class="keywordtype">type</span>(ksp_monitor_t), <span class="keywordtype">dimension(3)</span> :: ksp_results</div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span> </div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>    ksp_results(1) = this%solve(ax, x, fx, n, coef, blstx, gs_h, niter)</div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    ksp_results(2) = this%solve(ax, y, fy, n, coef, blsty, gs_h, niter)</div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>    ksp_results(3) = this%solve(ax, z, fz, n, coef, blstz, gs_h, niter)</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span> </div>
 </div>
-<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">fusedcg_device_solve_coupled</a></div>
-<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span> </div>
-<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d04/namespacefusedcg__device.html">fusedcg_device</a></div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">fusedcg_device_solve_coupled</a></div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span> </div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d04/namespacefusedcg__device.html">fusedcg_device</a></div>
 <div class="ttc" id="acuda_2spalding__kernel_8h_html_a54a3eb1a5c6e2b00e208c5c32948b133"><div class="ttname"><a href="../../d1/dca/cuda_2spalding__kernel_8h.html#a54a3eb1a5c6e2b00e208c5c32948b133">solve</a></div><div class="ttdeci">__device__ T solve(const T u, const T y, const T guess, const T nu, const T kappa, const T B)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/dca/cuda_2spalding__kernel_8h_source.html#l00126">spalding_kernel.h:126</a></div></div>
 <div class="ttc" id="afusedcg__aux_8hip_html_a0f309cac69abed9947b6106bc7708310"><div class="ttname"><a href="../../db/df7/fusedcg__aux_8hip.html#a0f309cac69abed9947b6106bc7708310">hip_fusedcg_update_x</a></div><div class="ttdeci">void hip_fusedcg_update_x(void *x, void *p, void *alpha, int *p_cur, int *n)</div><div class="ttdef"><b>Definition</b> <a href="../../db/df7/fusedcg__aux_8hip_source.html#l00072">fusedcg_aux.hip:72</a></div></div>
 <div class="ttc" id="afusedcg__aux_8hip_html_a115cf98ddf6ab441ca3e3806db6d1945"><div class="ttname"><a href="../../db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945">hip_fusedcg_part2</a></div><div class="ttdeci">real hip_fusedcg_part2(void *a, void *b, void *c, void *alpha_d, real *alpha, int *p_cur, int *n)</div><div class="ttdef"><b>Definition</b> <a href="../../db/df7/fusedcg__aux_8hip_source.html#l00086">fusedcg_aux.hip:86</a></div></div>
@@ -571,6 +566,7 @@ $(document).ready(function(){initNavTree('de/d66/fusedcg__device_8F90_source.htm
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00107">device.F90:107</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00077">device.F90:77</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00071">device.F90:71</a></div></div>
+<div class="ttc" id="ainterfacedevice_1_1device__unmap_html"><div class="ttname"><a href="../../db/d56/interfacedevice_1_1device__unmap.html">device::device_unmap</a></div><div class="ttdoc">Unmap a Fortran array from a device (deassociate and free)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00083">device.F90:83</a></div></div>
 <div class="ttc" id="ainterfacefusedcg__device_1_1cuda__fusedcg__part2_html"><div class="ttname"><a href="../../d5/d78/interfacefusedcg__device_1_1cuda__fusedcg__part2.html">fusedcg_device::cuda_fusedcg_part2</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00103">fusedcg_device.F90:103</a></div></div>
 <div class="ttc" id="ainterfacefusedcg__device_1_1cuda__fusedcg__update__p_html"><div class="ttname"><a href="../../d9/d8f/interfacefusedcg__device_1_1cuda__fusedcg__update__p.html">fusedcg_device::cuda_fusedcg_update_p</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00081">fusedcg_device.F90:81</a></div></div>
 <div class="ttc" id="ainterfacefusedcg__device_1_1cuda__fusedcg__update__x_html"><div class="ttname"><a href="../../df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x.html">fusedcg_device::cuda_fusedcg_update_x</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00093">fusedcg_device.F90:93</a></div></div>
@@ -598,11 +594,11 @@ $(document).ready(function(){initNavTree('de/d66/fusedcg__device_8F90_source.htm
 <div class="ttc" id="anamespacefusedcg__device_html"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html">fusedcg_device</a></div><div class="ttdoc">Defines a fused Conjugate Gradient method for accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00034">fusedcg_device.F90:34</a></div></div>
 <div class="ttc" id="anamespacefusedcg__device_html_a239efd69a0c3289d4e1ede8b248ed9d4"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#a239efd69a0c3289d4e1ede8b248ed9d4">fusedcg_device::fusedcg_device_free</a></div><div class="ttdeci">subroutine fusedcg_device_free(this)</div><div class="ttdoc">Deallocate a pipelined PCG solver.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00264">fusedcg_device.F90:265</a></div></div>
 <div class="ttc" id="anamespacefusedcg__device_html_a37d7ee87c969306b6428c008592d4646"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646">fusedcg_device::device_fusedcg_part2</a></div><div class="ttdeci">real(kind=rp) function device_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, p_cur, n)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00176">fusedcg_device.F90:178</a></div></div>
-<div class="ttc" id="anamespacefusedcg__device_html_a563eb61d5a3f2499dc6e2e8f51ac375d"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">fusedcg_device::fusedcg_device_solve_coupled</a></div><div class="ttdeci">type(ksp_monitor_t) function, dimension(3) fusedcg_device_solve_coupled(this, ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</div><div class="ttdoc">Pipelined PCG solve coupled solve.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00417">fusedcg_device.F90:419</a></div></div>
+<div class="ttc" id="anamespacefusedcg__device_html_a563eb61d5a3f2499dc6e2e8f51ac375d"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#a563eb61d5a3f2499dc6e2e8f51ac375d">fusedcg_device::fusedcg_device_solve_coupled</a></div><div class="ttdeci">type(ksp_monitor_t) function, dimension(3) fusedcg_device_solve_coupled(this, ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</div><div class="ttdoc">Pipelined PCG solve coupled solve.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00412">fusedcg_device.F90:414</a></div></div>
 <div class="ttc" id="anamespacefusedcg__device_html_a57400999ef9bfe9a038fd940583c5dd7"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7">fusedcg_device::device_fusedcg_p_space</a></div><div class="ttdeci">integer, parameter device_fusedcg_p_space</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00056">fusedcg_device.F90:56</a></div></div>
 <div class="ttc" id="anamespacefusedcg__device_html_a6c565ca5074aeb3779af13900552a342"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#a6c565ca5074aeb3779af13900552a342">fusedcg_device::device_fusedcg_update_x</a></div><div class="ttdeci">subroutine device_fusedcg_update_x(x_d, p_d, alpha, p_cur, n)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00164">fusedcg_device.F90:165</a></div></div>
 <div class="ttc" id="anamespacefusedcg__device_html_aaf3371e04ce1c1d8d6dc528f00043aed"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#aaf3371e04ce1c1d8d6dc528f00043aed">fusedcg_device::fusedcg_device_init</a></div><div class="ttdeci">subroutine fusedcg_device_init(this, n, max_iter, m, rel_tol, abs_tol, monitor)</div><div class="ttdoc">Initialise a fused PCG solver.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00201">fusedcg_device.F90:203</a></div></div>
-<div class="ttc" id="anamespacefusedcg__device_html_abfce590eb7c6404bf4f2f3f7422cf080"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">fusedcg_device::fusedcg_device_solve</a></div><div class="ttdeci">type(ksp_monitor_t) function fusedcg_device_solve(this, ax, x, f, n, coef, blst, gs_h, niter)</div><div class="ttdoc">Pipelined PCG solve.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00329">fusedcg_device.F90:330</a></div></div>
+<div class="ttc" id="anamespacefusedcg__device_html_abfce590eb7c6404bf4f2f3f7422cf080"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#abfce590eb7c6404bf4f2f3f7422cf080">fusedcg_device::fusedcg_device_solve</a></div><div class="ttdeci">type(ksp_monitor_t) function fusedcg_device_solve(this, ax, x, f, n, coef, blst, gs_h, niter)</div><div class="ttdoc">Pipelined PCG solve.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00324">fusedcg_device.F90:325</a></div></div>
 <div class="ttc" id="anamespacefusedcg__device_html_ad32400ca22c2ca83585ebf9245ff0ae6"><div class="ttname"><a href="../../dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6">fusedcg_device::device_fusedcg_update_p</a></div><div class="ttdeci">subroutine device_fusedcg_update_p(p_d, z_d, po_d, beta, n)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d66/fusedcg__device_8F90_source.html#l00151">fusedcg_device.F90:152</a></div></div>
 <div class="ttc" id="anamespacegather__scatter_html"><div class="ttname"><a href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></div><div class="ttdoc">Gather-scatter.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00034">gather_scatter.f90:34</a></div></div>
 <div class="ttc" id="anamespacekrylov_html"><div class="ttname"><a href="../../db/d6d/namespacekrylov.html">krylov</a></div><div class="ttdoc">Implements the base abstract type for Krylov solvers plus helper types.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00034">krylov.f90:34</a></div></div>
@@ -631,7 +627,7 @@ $(document).ready(function(){initNavTree('de/d66/fusedcg__device_8F90_source.htm
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_5b344269ce3b5a4183603946c5547674.html">device</a></li><li class="navelem"><a class="el" href="../../de/d66/fusedcg__device_8F90.html">fusedcg_device.F90</a></li>
-    <li class="footer">Generated on Mon Jun 8 2026 05:07:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jun 9 2026 04:54:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
