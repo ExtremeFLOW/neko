@@ -123,6 +123,12 @@ EXTRA_DIST = \
 	tests/reframe/src/rocm_select_gpu_device.sh\
 	tests/reframe/src/tgv.case.template\
 	tests/reframe/src/tgv.f90\
+	tests/regression/valgrind/README.md\
+	tests/regression/valgrind/run_valgrind_check.sh\
+	tests/regression/valgrind/check_valgrind.py\
+	tests/regression/valgrind/valgrind_runtime.supp\
+	tests/regression/valgrind/valgrind_tgv.case.template\
+	tests/regression/valgrind/tgv.f90\
 	tests/integration/default_cpu_launcher.sh\
 	tests/integration/default_cuda_launcher.sh\
 	tests/integration/conftest.py\
