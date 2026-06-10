@@ -8,14 +8,20 @@ FC = @FC@
 %.o : %.F90
 	$(FC) -c $(FFLAGS) $<
 
+mesh_fixture.o : ../fixtures/mesh_fixture.f90
+	$(FC) -c $(FFLAGS) -o mesh_fixture.o $<
+mesh_fixture.mod : mesh_fixture.o
+
 
 check: bc_suite
 
 
 bc_suite_TESTS := test_bc.pf
-bc_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+bc_suite_OTHER_LIBRARIES = mesh_fixture.o -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,bc_suite))
 bc_suite.inc: Makefile
+test_bc.o: mesh_fixture.o
+bc_suite: mesh_fixture.o
 
 distclean:
 clean:
