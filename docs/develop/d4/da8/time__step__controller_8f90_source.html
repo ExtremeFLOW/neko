@@ -145,7 +145,7 @@ $(document).ready(function(){initNavTree('d4/da8/time__step__controller_8f90_sou
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/da8/namespacejson__utils.html">json_utils</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>, <a class="code hl_interface" href="../../d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html">json_get_or_lookup_or_default</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d8/d92/namespacetime__state.html">time_state</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a6f12f8d4e58022c341882f61ff607fe6">global_pe_size</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a18e98b3ee477514f502cf3a518062ecb">neko_global_comm</a>, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span>mpi_f08, <span class="keywordtype">only</span> : mpi_min, mpi_in_place</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span>mpi_f08, <span class="keywordtype">only</span> : mpi_min, mpi_in_place, mpi_allreduce</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
@@ -315,7 +315,7 @@ $(document).ready(function(){initNavTree('d4/da8/time__step__controller_8f90_sou
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d4/da8/time__step__controller_8f90.html">time_step_controller.f90</a></li>
-    <li class="footer">Generated on Tue Jun 9 2026 04:54:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jun 10 2026 05:02:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
