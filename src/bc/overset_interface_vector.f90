@@ -491,7 +491,7 @@ contains
        nhist = min(time%tstep, this%iextm_order)
        call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
 
-       ! Perfrom the extrapolation using the lag arrays
+       ! Perform the extrapolation using the lag arrays
        call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), &
             iextm_coeffs(1))
        call vector_cmult2(this%v_interface, this%v_interface_lag%lv(1), &

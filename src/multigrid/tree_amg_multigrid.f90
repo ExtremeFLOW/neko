@@ -280,7 +280,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
-       ! Zero out the initial guess becuase we do not handle null
+       ! Zero out the initial guess because we do not handle null
        ! spaces very well...
        call device_rzero(this%wrk(0)%x_d, n)
        call device_copy(this%wrk(0)%b_d, r_d, n)
@@ -292,7 +292,7 @@ contains
        end do
        call device_copy(z_d, this%wrk(0)%x_d, n)
     else
-       ! Zero out the initial guess becuase we do not handle null
+       ! Zero out the initial guess because we do not handle null
        ! spaces very well...
        call rzero(this%wrk(0)%x, n)
        call copy(this%wrk(0)%b, r, n)
