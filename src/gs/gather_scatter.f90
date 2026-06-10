@@ -40,8 +40,10 @@ module gather_scatter
   use gs_cpu, only : gs_cpu_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
-       GS_COMM_NVSHMEM
+       GS_COMM_NVSHMEM, GS_COMM_OPENSHMEM, GS_COMM_CAF
   use gs_mpi, only : gs_mpi_t
+  use gs_shmem, only : gs_shmem_t
+  use gs_caf, only : gs_caf_t
   use gs_interp, only : gs_interp_t
   use gs_interp_cpu, only : gs_interp_cpu_t
   use gs_device_mpi, only : gs_device_mpi_t
@@ -61,11 +63,12 @@ module gather_scatter
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use profiler, only : profiler_start_region, profiler_end_region
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_free, &
-       device_map, device_deassociate
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_map, &
+       device_unmap
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  !$ use omp_lib, only : omp_get_thread_num
   implicit none
   private
 
@@ -120,7 +123,8 @@ module gather_scatter
   public :: GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
 
   ! Expose available gather-scatter comm. backends
-  public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM
+  public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM, &
+       GS_COMM_OPENSHMEM, GS_COMM_CAF
 
 contains
 
@@ -137,6 +141,8 @@ contains
     integer :: i, j, ierr, bcknd_, comm_bcknd_
     integer(i8) :: glb_nshared, glb_nlocal
     logical :: use_device_mpi, use_device_nccl, use_device_shmem, use_host_mpi
+    logical :: use_host_shmem
+    logical :: use_caf
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
     integer :: strtgy(4) = [int(B'00'), int(B'01'), int(B'10'), int(B'11')]
@@ -155,6 +161,9 @@ contains
     use_device_nccl = .false.
     use_device_shmem = .false.
     use_host_mpi = .false.
+    use_host_shmem = .false.
+    use_caf = .false.
+
     ! Check if a comm-backend is requested via env. variables
     call get_environment_variable("NEKO_GS_COMM", env_gscomm, env_len)
     if (env_len .gt. 0) then
@@ -165,7 +174,13 @@ contains
        else if (env_gscomm(1:env_len) .eq. "NCCL") then
           use_device_nccl = .true.
        else if (env_gscomm(1:env_len) .eq. "SHMEM") then
-          use_device_shmem = .true.
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             use_device_shmem = .true.
+          else
+             use_host_shmem = .true.
+          end if
+       else if (env_gscomm(1:env_len) .eq. "CAF") then
+          use_caf = .true.
        else
           call neko_error('Unknown Gather-scatter comm. backend')
        end if
@@ -181,6 +196,10 @@ contains
        comm_bcknd_ = GS_COMM_NCCL
     else if (use_device_shmem) then
        comm_bcknd_ = GS_COMM_NVSHMEM
+    else if (use_host_shmem) then
+       comm_bcknd_ = GS_COMM_OPENSHMEM
+    else if (use_caf) then
+       comm_bcknd_ = GS_COMM_CAF
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
@@ -203,6 +222,12 @@ contains
     case (GS_COMM_NVSHMEM)
        call neko_log%message('Comm         :      NVSHMEM')
        allocate(gs_device_shmem_t::gs%comm)
+    case (GS_COMM_OPENSHMEM)
+       call neko_log%message('Comm         :    OpenSHMEM')
+       allocate(gs_shmem_t::gs%comm)
+    case (GS_COMM_CAF)
+       call neko_log%message('Comm         :          CAF')
+       allocate(gs_caf_t::gs%comm)
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select
@@ -323,8 +348,7 @@ contains
                    strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
                 end do
 
-                call device_deassociate(tmp)
-                call device_free(tmp_d)
+                call device_unmap(tmp, tmp_d)
                 deallocate(tmp)
 
                 c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
@@ -1502,18 +1526,33 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
-    integer :: m, l, op, lo, so
+    integer :: m, l, op, lo, so, tid
+    type(c_ptr) :: scatter_event
 
     lo = gs%local_facet_offset
     so = -gs%shared_facet_offset
     m = gs%nlocal
     l = gs%nshared
 
+    ! Capture the calling thread id before opening any parallel region; it
+    ! is used as the MPI tag so concurrent gs ops driven from different
+    ! threads (device path) don't collide.
+    tid = 0
+    !$ tid = omp_get_thread_num()
+
+    ! Resolve the optional event into a non-optional local before opening
+    ! the parallel region. An absent optional dummy must not be captured by
+    ! the region's data-sharing, otherwise the outlined region prologue
+    ! dereferences a null descriptor (segfaults on CCE).
+    scatter_event = C_NULL_PTR
+    if (present(event)) scatter_event = event
+
+    !$omp parallel if (NEKO_BCKND_DEVICE .eq. 0)
     call profiler_start_region("gather_scatter", 5)
     ! Gather shared dofs
     if (pe_size .gt. 1 .and. n .gt. 0) then
        call profiler_start_region("gs_nbrecv", 13)
-       call gs%comm%nbrecv()
+       call gs%comm%nbrecv(tid)
        call profiler_end_region("gs_nbrecv", 13)
        call profiler_start_region("gs_gather_shared", 14)
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
@@ -1521,7 +1560,7 @@ contains
             gs%shared_blk_off, op, .true.)
        call profiler_end_region("gs_gather_shared", 14)
        call profiler_start_region("gs_nbsend", 6)
-       call gs%comm%nbsend(gs%shared_gs, l, &
+       call gs%comm%nbsend(gs%shared_gs, l, tid, &
             gs%bcknd%gather_event, gs%bcknd%gs_stream)
        call profiler_end_region("gs_nbsend", 6)
 
@@ -1545,22 +1584,15 @@ contains
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region("gs_nbwait", 7)
        call profiler_start_region("gs_scatter_shared", 15)
-       if (present(event)) then
-          call gs%bcknd%scatter(gs%shared_gs, l,&
-               gs%shared_dof_gs, u, n, &
-               gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, gs%shared_blk_off, .true., event)
-       else
-          call gs%bcknd%scatter(gs%shared_gs, l,&
-               gs%shared_dof_gs, u, n, &
-               gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, gs%shared_blk_off, .true., C_NULL_PTR)
-       end if
+       call gs%bcknd%scatter(gs%shared_gs, l,&
+            gs%shared_dof_gs, u, n, &
+            gs%shared_gs_dof, gs%nshared_blks, &
+            gs%shared_blk_len, gs%shared_blk_off, .true., scatter_event)
        call profiler_end_region("gs_scatter_shared", 15)
     end if
 
     call profiler_end_region("gather_scatter", 5)
-
+    !$omp end parallel
   end subroutine gs_op_vector
 
   !> AMR restart

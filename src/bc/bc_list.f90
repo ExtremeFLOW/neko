@@ -43,6 +43,7 @@ module bc_list
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
+  !$ use omp_lib
   implicit none
   private
 
@@ -235,6 +236,7 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
+    logical :: strong_
     type(c_ptr) :: x_d
     integer :: i
 
@@ -245,10 +247,30 @@ contains
        call this%apply_scalar_device(x_d, time = time, &
             strong = strong, strm = strm)
     else
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar(x, n, time = time, &
-               strong = strong)
-       end do
+       ! Resolve strong into a concrete, always-present local before opening
+       ! the parallel region. CCE's outlined region prologue dereferences a
+       ! null descriptor for any absent optional dummy referenced inside the
+       ! region, and it does not treat an unallocated allocatable as not
+       ! present, so optionals must not be forwarded into the region. time
+       ! cannot be given a meaningful concrete default, so we branch on
+       ! present(time) outside the region instead.
+       strong_ = .true.
+       if (present(strong)) strong_ = strong
+
+       if (present(time)) then
+          !$omp parallel
+          do i = 1, this%size_
+             call this%items(i)%ptr%apply_scalar(x, n, time = time, &
+                  strong = strong_)
+          end do
+          !$omp end parallel
+       else
+          !$omp parallel
+          do i = 1, this%size_
+             call this%items(i)%ptr%apply_scalar(x, n, strong = strong_)
+          end do
+          !$omp end parallel
+       end if
     end if
   end subroutine bc_list_apply_scalar_array
 
@@ -270,6 +292,7 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
+    logical :: strong_
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
@@ -284,10 +307,30 @@ contains
        call this%apply_vector_device(x_d, y_d, z_d, time = time, &
             strong = strong, strm = strm)
     else
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector(x, y, z, n, time = time, &
-               strong = strong)
-       end do
+       ! Resolve strong into a concrete, always-present local before opening
+       ! the parallel region. CCE's outlined region prologue dereferences a
+       ! null descriptor for any absent optional dummy referenced inside the
+       ! region, and it does not treat an unallocated allocatable as not
+       ! present, so optionals must not be forwarded into the region. time
+       ! cannot be given a meaningful concrete default, so we branch on
+       ! present(time) outside the region instead.
+       strong_ = .true.
+       if (present(strong)) strong_ = strong
+
+       if (present(time)) then
+          !$omp parallel
+          do i = 1, this%size_
+             call this%items(i)%ptr%apply_vector(x, y, z, n, time = time, &
+                  strong = strong_)
+          end do
+          !$omp end parallel
+       else
+          !$omp parallel
+          do i = 1, this%size_
+             call this%items(i)%ptr%apply_vector(x, y, z, n, strong = strong_)
+          end do
+          !$omp end parallel
+       end if
     end if
 
   end subroutine bc_list_apply_vector_array
@@ -365,12 +408,37 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
+    logical :: strong_
+    type(c_ptr) :: strm_
     integer :: i
 
-    do i = 1, this%size_
-       call this%items(i)%ptr%apply_scalar_generic(x, time = time, &
-            strong = strong, strm = strm)
-    end do
+    ! Resolve strong and strm into concrete, always-present locals before
+    ! opening the parallel region. CCE's outlined region prologue dereferences
+    ! a null descriptor for any absent optional dummy referenced inside the
+    ! region, and it does not treat an unallocated allocatable as not present,
+    ! so optionals must not be forwarded into the region. time cannot be given
+    ! a meaningful concrete default, so we branch on present(time) outside the
+    ! region instead.
+    strong_ = .true.
+    if (present(strong)) strong_ = strong
+    strm_ = glb_cmd_queue
+    if (present(strm)) strm_ = strm
+
+    if (present(time)) then
+       !$omp parallel if (.not. omp_in_parallel())
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar_generic(x, time = time, &
+               strong = strong_, strm = strm_)
+       end do
+       !$omp end parallel
+    else
+       !$omp parallel if (.not. omp_in_parallel())
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar_generic(x, &
+               strong = strong_, strm = strm_)
+       end do
+       !$omp end parallel
+    end if
 
   end subroutine bc_list_apply_scalar_field
 
@@ -390,12 +458,37 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
+    logical :: strong_
+    type(c_ptr) :: strm_
     integer :: i
 
-    do i = 1, this%size_
-       call this%items(i)%ptr%apply_vector_generic(x, y, z, time = time, &
-            strong = strong, strm = strm)
-    end do
+    ! Resolve strong and strm into concrete, always-present locals before
+    ! opening the parallel region. CCE's outlined region prologue dereferences
+    ! a null descriptor for any absent optional dummy referenced inside the
+    ! region, and it does not treat an unallocated allocatable as not present,
+    ! so optionals must not be forwarded into the region. time cannot be given
+    ! a meaningful concrete default, so we branch on present(time) outside the
+    ! region instead.
+    strong_ = .true.
+    if (present(strong)) strong_ = strong
+    strm_ = glb_cmd_queue
+    if (present(strm)) strm_ = strm
+
+    if (present(time)) then
+       !$omp parallel if (.not. omp_in_parallel())
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector_generic(x, y, z, time = time, &
+               strong = strong_, strm = strm_)
+       end do
+       !$omp end parallel
+    else
+       !$omp parallel if (.not. omp_in_parallel())
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector_generic(x, y, z, &
+               strong = strong_, strm = strm_)
+       end do
+       !$omp end parallel
+    end if
 
   end subroutine bc_list_apply_vector_field
 

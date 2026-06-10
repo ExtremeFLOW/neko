@@ -376,7 +376,7 @@ contains
     call neko_log%message(log_buf)
 
     if (trim(ctype_str) == 'pivot' .or. &
-    trim(ctype_str) == 'body_attached') then
+         trim(ctype_str) == 'body_attached') then
        write(log_buf, '(A,A)') 'Linked to ALE Body movement: ', &
             trim(this%linked_body_name)
        call neko_log%message(log_buf)
@@ -480,14 +480,14 @@ contains
        if (associated(this%body_R)) then
           ! R * Offset
           rot_offset(1) = this%body_R(1,1)*this%local_offset(1) + &
-                          this%body_R(1,2)*this%local_offset(2) + &
-                          this%body_R(1,3)*this%local_offset(3)
+               this%body_R(1,2)*this%local_offset(2) + &
+               this%body_R(1,3)*this%local_offset(3)
           rot_offset(2) = this%body_R(2,1)*this%local_offset(1) + &
-                          this%body_R(2,2)*this%local_offset(2) + &
-                          this%body_R(2,3)*this%local_offset(3)
+               this%body_R(2,2)*this%local_offset(2) + &
+               this%body_R(2,3)*this%local_offset(3)
           rot_offset(3) = this%body_R(3,1)*this%local_offset(1) + &
-                          this%body_R(3,2)*this%local_offset(2) + &
-                          this%body_R(3,3)*this%local_offset(3)
+               this%body_R(3,2)*this%local_offset(2) + &
+               this%body_R(3,3)*this%local_offset(3)
 
           this%center = this%body_P + rot_offset
        end if
@@ -532,8 +532,8 @@ contains
     call neko_scratch_registry%request_field(s23, temp_indices(5), .false.)
     call neko_scratch_registry%request_field(s33, temp_indices(6), .false.)
 
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, &
-         s13%x, s23%x, this%u, this%v, this%w, this%coef)
+    call strain_rate(s11, s22, s33, s12, s13, s23, &
+         this%u, this%v, this%w, this%coef)
 
     ! On the CPU we can actually just use the original subroutines...
     if (NEKO_BCKND_DEVICE .eq. 0) then

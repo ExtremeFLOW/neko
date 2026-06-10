@@ -383,6 +383,24 @@ Note that the full viscous stress tensor requires the equations for the 3
 velocity components to be solved in a coupled manner. Therefore, the `coupled_cg`
 (or `fused_coupled_cg`) solver should be used for velocity.
 
+### Schwarz iterations
+This feature is enabled by setting the `schwarz_iterations` keyword inside
+the `fluid` group to an integer larger than zero. In this case, each fluid
+timestep solves for velocity and pressure multiple times.
+
+The total number of passes is `1 + schwarz_iterations`. This feature is often
+needed to increase the stability of solutions when using `overset_interface`
+boundary conditions, i.e., when there are multiple coupled simulations running
+in tandem.
+
+@note In each sub-step, the right-hand-side and forcing terms that are intended
+to operate at the beginning or end of a real timestep are frozen. However, the
+boundary conditions are re-applied at each sub-step. This is the intended
+behaviour for overset boundaries, but functionalities such as user Dirichlet
+will also be called multiple times. Note that the `t` and `tstep` variables are
+only updated across real timesteps. Therefore, if your user conditions depend
+on these variables, they remain valid.
+
 ### Boundary conditions {#case-file_fluid-boundary-conditions}
 The optional `boundary_conditions` keyword can be used to specify boundary
 conditions. The reason for it being optional, is that periodic boundary
@@ -607,11 +625,17 @@ A more detailed description of each boundary condition is provided below.
   The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
   the coupled simulation. This should, for the time being, be left as `false`.
 
+  The keyword `order` is `1` by default and defines the interface extrapolation scheme order at every timestep.
+  Generally, you want to keep the order of the extrapolation consistent with your time integration scheme,
+  however, note that a higher order might need help with stabilization, specifically by increasing the number
+  of `Schwarz-like` iterations.
+
   ```json
   {
     "type": "overset_interface",
     "zone_indices": [1, 2],
-    "couple_pressure" : false
+    "couple_pressure" : false,
+    "order" : 3
   }
   ```
 

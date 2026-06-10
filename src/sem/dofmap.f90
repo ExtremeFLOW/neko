@@ -218,14 +218,23 @@ contains
     end if
 
     if (allocated(this%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%x, this%x_d)
+       end if
        deallocate(this%x)
     end if
 
     if (allocated(this%y)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%y, this%y_d)
+       end if
        deallocate(this%y)
     end if
 
     if (allocated(this%z)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%z, this%z_d)
+       end if
        deallocate(this%z)
     end if
 
@@ -235,21 +244,6 @@ contains
     if (allocated(this%msh_subset)) then
        call this%msh_subset%free()
        deallocate(this%msh_subset)
-    end if
-
-    !
-    ! Cleanup the device (if present)
-    !
-    if (c_associated(this%x_d)) then
-       call device_free(this%x_d)
-    end if
-
-    if (c_associated(this%y_d)) then
-       call device_free(this%y_d)
-    end if
-
-    if (c_associated(this%z_d)) then
-       call device_free(this%z_d)
     end if
 
     call this%free_amr_base()
@@ -1167,7 +1161,7 @@ contains
        call device_memcpy(other%y, other%y_d, other%ntot, &
             DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(other%z, other%z_d, other%ntot, &
-            DEVICE_TO_HOST, sync =.true.)
+            DEVICE_TO_HOST, sync = .true.)
 
     else
        call masked_gather_copy(other%x, this%x, mask%get(), &

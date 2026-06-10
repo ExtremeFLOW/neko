@@ -207,7 +207,7 @@ contains
          nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
       if (strong_) then
-         !$omp parallel do private(k, facet, idx)
+         !$omp do
          do i = 1, m
             k = this%msk(i)
             facet = this%facet(i)
@@ -230,7 +230,7 @@ contains
                     this%delta, this%uinf(3))
             end select
          end do
-         !$omp end parallel do
+         !$omp end do
       end if
     end associate
   end subroutine blasius_apply_vector

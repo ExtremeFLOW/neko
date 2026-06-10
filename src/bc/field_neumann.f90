@@ -199,7 +199,7 @@ contains
        end if
 
        m = this%msk(0)
-       !$omp parallel do private(k, facet, idx)
+       !$omp do
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
@@ -220,7 +220,7 @@ contains
                   this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
-       !$omp end parallel do
+       !$omp end do
     end if
 
   end subroutine field_neumann_apply_scalar

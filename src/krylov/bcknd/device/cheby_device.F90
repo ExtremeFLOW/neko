@@ -210,30 +210,27 @@ contains
     call this%ksp_free()
 
     if (allocated(this%d)) then
+       if (c_associated(this%d_d)) then
+          call device_unmap(this%d, this%d_d)
+       end if
        deallocate(this%d)
     end if
 
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
 
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
     end if
 
     nullify(this%M)
-
-    if (c_associated(this%d_d)) then
-       call device_free(this%d_d)
-    end if
-
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
-    end if
 
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)

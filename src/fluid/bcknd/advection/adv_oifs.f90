@@ -45,12 +45,12 @@ module adv_oifs
   use field_series, only : field_series_t
   use field_list, only : field_list_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use device, only : device_map, device_free
+  use device, only : device_map, device_unmap
   use device_math, only : device_addcol3s2, device_rzero
   use utils, only : neko_error
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use amr_reconstruct, only : amr_reconstruct_t
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -354,22 +354,22 @@ contains
     nullify(this%ct_k4)
 
     if (allocated(this%cx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cx, this%cx_d)
+       end if
        deallocate(this%cx)
     end if
     if (allocated(this%cy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cy, this%cy_d)
+       end if
        deallocate(this%cy)
     end if
     if (allocated(this%cz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cz, this%cz_d)
+       end if
        deallocate(this%cz)
-    end if
-    if (c_associated(this%cx_d)) then
-       call device_free(this%cx_d)
-    end if
-    if (c_associated(this%cy_d)) then
-       call device_free(this%cy_d)
-    end if
-    if (c_associated(this%cz_d)) then
-       call device_free(this%cz_d)
     end if
 
     call this%free_amr_base()
@@ -643,7 +643,7 @@ contains
   end subroutine recompute_metrics_oifs
 
   subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-                                           fx, fy, fz, Xh, coef, n, dt)
+       fx, fy, fz, Xh, coef, n, dt)
     class(adv_oifs_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z

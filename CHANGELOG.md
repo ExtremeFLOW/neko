@@ -2,6 +2,15 @@
 
 ## Develop
 
+- Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS
+  Fluent `.msh` meshes to Neko `.re2` meshes. Requires Python 3 with `numpy`,
+  `scipy`, and `pymech`. Supports translational periodic boundaries via
+  `--periodic periodic.json`.
+- Removed restart limitations on load balancing. We now cache the the balanced
+  mesh and read the cache if available. Load balance name pattern updated to
+  include partition number.
+- Added `host_array_t` and `device_array_t` temporary array types and support
+  for requesting these through `scratch_registry_t`.
 - Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
 - Added the `create_periodic_zones` contrib utility for converting pairs of
   labeled zones in an existing `.nmsh` mesh into periodic zones.
@@ -138,5 +147,15 @@
 - Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
+- `operator::dudxyz` calls with implicit device arrays are deprecated. Please
+  use `opr_device_dudxyz` instead.
+- `operator::div` calls with implicit device arrays are deprecated. Please use
+  `div_d` instead.
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
   `device_ortho` instead.
+- `operator::cfl_r4` calls with implicit device arrays are deprecated. Please
+  use `cfl_d` instead.
+- `operator::strain_rate_r4` calls with implicit device arrays are deprecated.
+  Please use `strain_rate_d` instead.
+- `operator::rotate_cyc_r1` and `operator::rotate_cyc_r4` calls with implicit
+  device arrays are deprecated. Please use `rotate_cyc_d` instead.

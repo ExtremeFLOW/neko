@@ -45,7 +45,7 @@ module case
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
   use file, only : file_t
-  use utils, only : neko_error, mkdir
+  use utils, only : neko_error, mkdir, filename_split, NEKO_FNAME_LEN
   use mesh, only : mesh_t
   use mesh_manager, only : mesh_manager_t, mesh_manager_factory
   use amr, only : amr_t
@@ -66,7 +66,7 @@ module case
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
-  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
+  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER, MPI_LOGICAL
   use registry, only : neko_registry, neko_const_registry
   use vector, only : vector_t
 
@@ -154,13 +154,14 @@ contains
     logical :: scalar = .false.
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
-    logical :: found, logical_val
+    logical :: found, logical_val, load_balance
     logical :: temperature_found = .false.
     integer :: integer_val, var_type
     real(kind=rp) :: real_val
     real(kind=rp), allocatable :: real_vals(:)
     type(vector_t), pointer :: vec
-    character(len = :), allocatable :: string_val, name, file_format
+    character(len=:), allocatable :: string_val, name, file_format
+    character(len=NEKO_FNAME_LEN) :: lb_file, lb_name, lb_path, lb_ext
     integer :: output_dir_len
     integer :: precision, layout
     type(json_file) :: scalar_params, numerics_params, meshmng_params
@@ -218,18 +219,10 @@ contains
     end if
 
     !
-    ! Load mesh and start mesh manager
+    ! Start mesh manager, load mesh and perform load balancing if requested
     !
-    call json_get_or_default(this%params, 'case.mesh_file', string_val, &
-         'no mesh')
-    if (trim(string_val) .eq. 'no mesh') then
-       call neko_error('The mesh_file keyword could not be found in the .' // &
-            'case file. Often caused by incorrectly formatted json.')
-    end if
-    call msh_file%init(string_val)
-
-    ! Check if there is a specified mesh manager
     if (this%params%valid_path('case.mesh_manager')) then
+       ! Check if there is a specified mesh manager
        call json_get(this%params, 'case.mesh_manager', meshmng_params)
        call neko_log%section("Mesh manager")
        ! Check load balancing flag
@@ -247,6 +240,14 @@ contains
        ! from mesh manager. This would work if element ordering in mesh manager
        ! and mesh file are the same.
        call this%mesh_manager%elm_dst_copy()
+       ! Read mesh file
+       call json_get_or_default(this%params, 'case.mesh_file', string_val, &
+            'no mesh')
+       if (trim(string_val) .eq. 'no mesh') then
+          call neko_error('The mesh_file keyword could not be found in the &
+               &.case file. Often caused by incorrectly formatted json.')
+       end if
+       call msh_file%init(string_val)
        call msh_file%read(this%mesh_manager%nmsh_mesh)
        ! apply data read from the mesh file to mesh manager structures
        call this%mesh_manager%mesh_file_apply()
@@ -260,28 +261,64 @@ contains
             this%mesh_manager%mesh%tdim, lx)
        call neko_log%end_section()
     else
-
-       call msh_file%read(this%msh)
-
-       !
-       ! Load Balancing
-       !
+       ! No mesh manager; load mesh and perform load balancing if requested
+       call json_get_or_default(this%params, 'case.mesh_file', string_val, &
+            'no mesh')
        call json_get_or_default(this%params, 'case.load_balancing', &
-            logical_val, .false.)
+            load_balance, .false.)
 
-       if (pe_size .gt. 1 .and. logical_val) then
-          call neko_log%section('Load Balancing')
-          call parmetis_partmeshkway(this%msh, parts)
-          call redist_mesh(this%msh, parts)
+       if (trim(string_val) .eq. 'no mesh') then
+          call neko_error('The mesh_file keyword could not be found in the &
+               &.case file. Often caused by incorrectly formatted json.')
+       end if
 
-          ! store the balanced mesh (for e.g. restarts)
-          string_val = trim(string_val(1:scan(trim(string_val), &
-               '.', back = .true.) - 1)) // '_lb.nmsh'
+       if (pe_rank .eq. 0) then
+          inquire(file = trim(string_val), exist = found)
+       end if
+       call MPI_Bcast(found, 1, MPI_LOGICAL, 0, NEKO_COMM)
+
+       if (.not. found) then
+          call neko_error('The mesh file ' // trim(string_val) // &
+               ' does not exist.')
+       end if
+
+       if (.not. load_balance .or. pe_size .eq. 1) then
+          if (load_balance) then
+             call neko_log%message('Load balancing requested but only one ' // &
+                  'MPI rank found, ignoring.')
+          end if
+
           call msh_file%init(string_val)
-          call msh_file%write(this%msh)
+          call msh_file%read(this%msh)
 
-          ! make sure no AMR operation would be executed
-          call this%amr%free()
+       else if (load_balance) then
+          call neko_log%section('Load Balancing')
+
+          call filename_split(trim(string_val), lb_path, lb_name, lb_ext)
+          write(lb_file, '(A,A,A,I0,A)') &
+               trim(lb_path), trim(lb_name), "_lb_", pe_size, trim(lb_ext)
+
+          if (pe_rank .eq. 0) then
+             inquire(file = trim(lb_file), exist = found)
+          end if
+          call MPI_Bcast(found, 1, MPI_LOGICAL, 0, NEKO_COMM)
+
+          if (found) then
+             call neko_log%message('Reading balanced mesh')
+             call msh_file%init(lb_file)
+             call msh_file%read(this%msh)
+          else
+             call msh_file%init(string_val)
+             call msh_file%read(this%msh)
+
+             call neko_log%message('Performing load balancing with ParMETIS')
+             call parmetis_partmeshkway(this%msh, parts)
+             call redist_mesh(this%msh, parts)
+
+             ! store the balanced mesh (for e.g. restarts)
+             call msh_file%init(lb_file)
+             call msh_file%write(this%msh)
+          end if
 
           call neko_log%end_section()
        end if
