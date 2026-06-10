@@ -199,6 +199,7 @@ contains
     padded_meta = 0
     padded_center = 0.0_rp
 
+    ! collect meta data from periodic facets
     do i = 1, n_local
        call lpt_get_periodic_center(msh, i, src_center)
 
@@ -208,6 +209,7 @@ contains
        padded_center(3 * (i - 1) + 1:3 * i) = src_center
     end do
 
+    ! broadcast meta data to all ranks
     allocate(gathered_meta(2 * max_local * pe_size))
     allocate(gathered_center(3 * max_local * pe_size))
     call MPI_Allgather(padded_meta, 2 * max_local, MPI_INTEGER, gathered_meta, &
@@ -215,6 +217,7 @@ contains
     call MPI_Allgather(padded_center, 3 * max_local, MPI_REAL_PRECISION, &
          gathered_center, 3 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
 
+    ! reorganise the data to global arrays of size n_global
     allocate(global_meta(2 * n_global))
     allocate(global_center(3 * n_global))
     idx = 0
@@ -230,9 +233,13 @@ contains
        end if
     end do
 
+    ! cycle through the periodic facets and identify unique periodic directions
+    ! and their extents by matching the facet pairs and comparing their centers
     do i = 1, msh%periodic%size
+       ! get the center of the facet (averaged over the pair)
        call lpt_get_periodic_center(msh, i, src_center)
 
+       ! find whether there is a match facet from the global list
        match_idx = 0
        do j = 1, n_global
           if (global_meta(2 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1) &
@@ -244,16 +251,19 @@ contains
        end do
        if (match_idx .eq. 0) cycle
 
+       ! fetch the target facet center and compute the shift
        tgt_center = global_center(3 * (match_idx - 1) + 1:3 * match_idx)
        shift = tgt_center - src_center
        if (norm2(shift) .le. LPT_PERIODIC_TOL) cycle
 
+       ! compute the direction and projection
        dir = shift
        call lpt_normalize(dir)
        proj_src = dot_product(src_center, dir)
        proj_tgt = dot_product(tgt_center, dir)
        idx = 0
 
+       ! identfy whether the direction is a unique one
        do j = 1, this%n_periodic_dirs
           if (abs(dot_product(dir, this%periodic_dir(:, j))) .gt. &
                1.0_rp - 1.0e-6_rp) then
@@ -264,6 +274,8 @@ contains
 
        if (idx .ne. 0) cycle
 
+       ! if unique, add it to the list of periodic directions
+       ! with its extent and shift
        if (this%n_periodic_dirs .ge. 3) cycle
        idx = this%n_periodic_dirs + 1
        this%n_periodic_dirs = idx
