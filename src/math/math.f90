@@ -111,7 +111,7 @@ module math
        pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
        masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp, &
-       math_dstepf, math_stepf, cwrap, lambert_w0
+       math_dstepf, math_stepf, cwrap, lambert_w0, sqrt_inplace, power
 
 contains
 
@@ -1871,4 +1871,33 @@ contains
     end if
   end function math_dstepf
 
+  !> Sqrt a vector \f$ a = sqrt(a) \f$
+  subroutine sqrt_inplace(a, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer :: i
+
+    !$omp parallel do
+    do i = 1, n
+       a(i) = sqrt(a(i))
+    end do
+    !$omp end parallel do
+
+  end subroutine sqrt_inplace
+
+  !> Return the power of a vector \f$ a^p \f$
+  pure function power(a, p, n) result(ap)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: a
+    real(kind=rp), intent(in) :: p
+    real(kind=rp), dimension(n) :: ap
+    integer :: i
+
+    !$omp parallel do
+    do i = 1, n
+       ap(i) = a(i)**p
+    end do
+    !$omp end parallel do
+
+  end function power
 end module math

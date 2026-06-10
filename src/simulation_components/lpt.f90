@@ -47,7 +47,8 @@ module lagrangian_particle_tracking
   use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
-  use math, only : add2s2
+  use math, only : add2s2, cfill, cmult2, col2, col3, invcol2, sqrt_inplace, &
+                   power, sub3, vdot3, cmult, cadd2
   use ab_time_scheme, only : ab_time_scheme_t
   use tensor, only : trsp
   use lpt_periodic_bc, only : lpt_periodic_bc_t
@@ -83,6 +84,8 @@ module lagrangian_particle_tracking
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
      type(field_t), pointer :: w => null()
+     type(field_t), pointer :: mu_fluid => null()
+     type(field_t), pointer :: rho_fluid => null()
      integer :: time_order, lag_len
      integer :: history_len = 0
      logical :: inertia = .false.
@@ -101,19 +104,25 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: redistribute_particles
      procedure, private, pass(this) :: evaluate_velocity
+     procedure, private, pass(this) :: evaluate_acceleration
      procedure, private, pass(this) :: ODE_integrate_ab_3c
      procedure, private, pass(this) :: write_output
      procedure, private, pass(this) :: redistribute_particle_ids
-     procedure, private, pass(this) :: redistribute_velocity_history
+     procedure, private, pass(this) :: redistribute_particle_field
+     procedure, private, pass(this) :: redistribute_particle_scalar
+     procedure, private, pass(this) :: redistribute_lags
      procedure, private, pass(this) :: log_status
   end type lpt_t
 
 contains
 
-  subroutine particles_init(this, xyz, vel, time_order)
+  subroutine particles_init(this, xyz, vel, diameter, density, time_order)
     class(particles_t), intent(inout) :: this
     real(kind=rp), intent(in) :: xyz(:,:)
     real(kind=rp), intent(in) :: vel(:,:)
+    real(kind=rp), intent(in) :: diameter(:)
+    real(kind=rp), intent(in) :: density(:)
+
     integer, intent(in) :: time_order
     integer :: i
 
@@ -131,9 +140,15 @@ contains
     allocate(this%vel(3, this%n))
     allocate(this%ids(this%n))
     allocate(this%vel_lag(3, this%lag_len, this%n))
+    allocate(this%acc_lag(3, this%lag_len, this%n))
+    allocate(this%d(this%n))
+    allocate(this%rho(this%n))
     this%xyz = xyz
     this%vel = vel
     this%vel_lag = 0.0_rp
+    this%acc_lag = 0.0_rp
+    this%d = diameter
+    this%rho = density
     do i = 1, this%n
        this%ids(i) = i
     end do
@@ -146,6 +161,9 @@ contains
     if (allocated(this%ids)) deallocate(this%ids)
     if (allocated(this%vel)) deallocate(this%vel)
     if (allocated(this%vel_lag)) deallocate(this%vel_lag)
+    if (allocated(this%acc_lag)) deallocate(this%acc_lag)
+    if (allocated(this%d)) deallocate(this%d)
+    if (allocated(this%rho)) deallocate(this%rho)
     this%n = 0
     this%n_global = 0
   end subroutine particles_free
@@ -177,7 +195,10 @@ contains
     call json_get(json, "inertia", this%inertia)
 
     if (this%inertia) then
-       call neko_error("particle inertia is not yet implemented")
+       this%mu_fluid => neko_registry%get_field_by_name( &
+                        case%fluid%name // "_mu")
+       this%rho_fluid => neko_registry%get_field_by_name( &
+                        case%fluid%name // "_rho")
     end if
     this%u => neko_registry%get_field_by_name("u")
     this%v => neko_registry%get_field_by_name("v")
@@ -194,7 +215,7 @@ contains
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name) // ".csv")
-    call this%output_file%init(this%case%output_directory // &
+    call this%output_file%init(case%output_directory // &
          trim(output_filename), &
          header = "tstep,time,particle_id,x,y,z,u,v,w", overwrite = .true.)
 
@@ -211,8 +232,12 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: coords(:)
     real(kind=rp), allocatable :: vels(:)
+    real(kind=rp), allocatable :: diams(:)
+    real(kind=rp), allocatable :: densities(:)
     real(kind=rp), allocatable :: empty_xyz(:,:)
     real(kind=rp), allocatable :: empty_vel(:,:)
+    real(kind=rp), allocatable :: empty_diams(:)
+    real(kind=rp), allocatable :: empty_densities(:)
 
     if (pe_rank .eq. 0) then
        if (json%valid_path("coordinates")) then
@@ -227,13 +252,24 @@ contains
                 call neko_error("lpt velocities must contain 3 values per " // &
                      "particle")
              end if
+             call json_get(json, "diameters", diams)
+             call json_get(json, "densities", densities)
           else
              allocate(vels(size(coords)))
+             allocate(diams(size(coords)/3))
+             allocate(densities(size(coords)/3))
              vels = 0.0_rp
+             diams = 0.0_rp
+             densities = 0.0_rp
           end if
           call this%particles%init(reshape(coords, [3, size(coords) / 3]), &
                                    reshape(vels, [3, size(vels) / 3]), &
+                                   diams, densities, &
                                    this%time_order)
+          deallocate(coords)
+          deallocate(vels)
+          deallocate(diams)
+          deallocate(densities)
        else if (json%valid_path("points_file")) then
           call this%read_particles_csv(json)
        else
@@ -242,7 +278,14 @@ contains
     else
        allocate(empty_xyz(3, 0))
        allocate(empty_vel(3, 0))
-       call this%particles%init(empty_xyz, empty_vel, this%time_order)
+       allocate(empty_diams(0))
+       allocate(empty_densities(0))
+       call this%particles%init(empty_xyz, empty_vel, empty_diams, &
+                                empty_densities, this%time_order)
+       deallocate(empty_xyz)
+       deallocate(empty_vel)
+       deallocate(empty_diams)
+       deallocate(empty_densities)
     end if
   end subroutine read_particles_json
 
@@ -255,6 +298,8 @@ contains
     type(matrix_t) :: mat_in
     real(kind=rp), allocatable :: coords(:,:)
     real(kind=rp), allocatable :: vels(:,:)
+    real(kind=rp), allocatable :: diams(:)
+    real(kind=rp), allocatable :: densities(:)
 
     if (pe_rank .ne. 0) return
 
@@ -263,12 +308,19 @@ contains
 
     select type (ft => file_in%file_type)
     type is (csv_file_t)
-       call mat_in%init(ft%count_lines(), 6)
+       call mat_in%init(ft%count_lines(), 8)
        call ft%read(mat_in)
        coords = mat_in%x(:, 1:3)
        vels = mat_in%x(:, 4:6)
+       diams = mat_in%x(:, 7)
+       densities = mat_in%x(:, 8)
        call this%particles%init(transpose(coords), &
-                                transpose(vels), this%time_order)
+                                transpose(vels), &
+                                diams, densities, this%time_order)
+       deallocate(coords)
+       deallocate(vels)
+       deallocate(diams)
+       deallocate(densities)
     class default
        call neko_error("lpt points_file must be a csv file")
     end select
@@ -283,7 +335,11 @@ contains
     type(glb_intrp_comm_t) :: redist_comm
     integer :: n_particles_old
     integer, allocatable :: particle_ids_local(:)
+    real(kind=rp), allocatable :: vel_local(:,:)
+    real(kind=rp), allocatable :: d_local(:)
+    real(kind=rp), allocatable :: rho_local(:)
     real(kind=rp), allocatable :: vel_particles_lag_local(:,:,:)
+    real(kind=rp), allocatable :: acc_particles_lag_local(:,:,:)
     integer :: ierr
 
     n_particles_old = this%particles%n
@@ -293,11 +349,27 @@ contains
     call this%global_interp%init_redist_comm(redist_comm)
     call this%redistribute_particle_ids(redist_comm, n_particles_old, &
          particle_ids_local)
-    call this%redistribute_velocity_history(redist_comm, n_particles_old, &
-         vel_particles_lag_local)
+    call this%redistribute_lags(redist_comm, n_particles_old, &
+         this%particles%vel_lag, vel_particles_lag_local)
+    if (this%inertia) then
+       call this%redistribute_particle_field(redist_comm, n_particles_old, &
+            this%particles%vel, vel_local)
+       call this%redistribute_particle_scalar(redist_comm, n_particles_old, &
+            this%particles%d, d_local)
+       call this%redistribute_particle_scalar(redist_comm, n_particles_old, &
+            this%particles%rho, rho_local)
+       call this%redistribute_lags(redist_comm, n_particles_old, &
+            this%particles%acc_lag, acc_particles_lag_local)
+    end if
     call redist_comm%free()
     call move_alloc(particle_ids_local, this%particles%ids)
     call move_alloc(vel_particles_lag_local, this%particles%vel_lag)
+    if (this%inertia) then
+       call move_alloc(vel_local, this%particles%vel)
+       call move_alloc(d_local, this%particles%d)
+       call move_alloc(rho_local, this%particles%rho)
+       call move_alloc(acc_particles_lag_local, this%particles%acc_lag)
+    end if
     call MPI_Allreduce(this%particles%n, this%particles%n_global, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine redistribute_particles
@@ -305,21 +377,109 @@ contains
   !> Interpolate the carrier velocity at the local particles.
   subroutine evaluate_velocity(this, vel_fluid)
     class(lpt_t), intent(inout) :: this
-    real(kind=rp), allocatable, intent(out) :: vel_fluid(:,:)
+    real(kind=rp), intent(out) :: vel_fluid(:,:)
+    real(kind=rp), allocatable :: vel_x(:), vel_y(:), vel_z(:)
     logical :: do_interp_on_host
 
-    allocate(vel_fluid(3, this%particles%n))
     if (this%particles%n .eq. 0) return
 
+    allocate(vel_x(this%particles%n))
+    allocate(vel_y(this%particles%n))
+    allocate(vel_z(this%particles%n))
+
     do_interp_on_host = .false.
-    call this%global_interp%evaluate(vel_fluid(1,:), this%u%x, &
+    call this%global_interp%evaluate(vel_x, this%u%x, &
          do_interp_on_host)
-    call this%global_interp%evaluate(vel_fluid(2,:), this%v%x, &
+    call this%global_interp%evaluate(vel_y, this%v%x, &
          do_interp_on_host)
-    call this%global_interp%evaluate(vel_fluid(3,:), this%w%x, &
+    call this%global_interp%evaluate(vel_z, this%w%x, &
          do_interp_on_host)
 
+    vel_fluid(1,:) = vel_x
+    vel_fluid(2,:) = vel_y
+    vel_fluid(3,:) = vel_z
+    deallocate(vel_x)
+    deallocate(vel_y)
+    deallocate(vel_z)
+
   end subroutine evaluate_velocity
+
+  !> Estimate the local particile acceleration
+  subroutine evaluate_acceleration(this, vel_fluid, acceleration)
+    class(lpt_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: vel_fluid(:,:)
+    real(kind=rp), allocatable, intent(out) :: acceleration(:,:)
+    real(kind=rp), allocatable :: tau_p(:), Re_p(:), f(:)
+    real(kind=rp), allocatable :: rho_fluid_local(:), mu_fluid_local(:)
+    real(kind=rp), allocatable :: nu_fluid_local(:)
+    real(kind=rp), allocatable :: vel_rel(:,:), vel_rel_mag(:)
+    real(kind=rp), allocatable :: wa(:)
+    integer :: n
+    integer :: i
+    logical :: do_interp_on_host
+
+    if (this%particles%n .eq. 0) return
+    n = this%particles%n
+    allocate(acceleration(3, n))
+    allocate(tau_p(n))
+    allocate(Re_p(n))
+    allocate(f(n))
+    allocate(rho_fluid_local(n))
+    allocate(mu_fluid_local(n))
+    allocate(nu_fluid_local(n))
+    allocate(vel_rel(3, n))
+    allocate(vel_rel_mag(n))
+    allocate(wa(n))
+    
+    do_interp_on_host = .false.
+    call this%global_interp%evaluate(mu_fluid_local, this%mu_fluid%x, &
+         do_interp_on_host)
+    call this%global_interp%evaluate(rho_fluid_local, this%rho_fluid%x, &
+         do_interp_on_host)
+    call col3(nu_fluid_local, mu_fluid_local, rho_fluid_local, n)
+
+    ! compute the time scale
+    call cfill(tau_p, 1.0_rp/18.0_rp, n)
+    call col2(tau_p, this%particles%rho, n)
+    call invcol2(tau_p, mu_fluid_local, n)
+    call col2(tau_p, this%particles%d, n)
+    call col2(tau_p, this%particles%d, n)
+
+    ! compute the particle Reynolds number
+    call sub3(vel_rel, vel_fluid, this%particles%vel, 3*n)
+    call vdot3(vel_rel_mag, vel_rel(1,:), vel_rel(2,:), vel_rel(3,:), &
+                            vel_rel(1,:), vel_rel(2,:), vel_rel(3,:), n)
+    call sqrt_inplace(vel_rel_mag, n)
+    call col3(Re_p, vel_rel_mag, this%particles%d, n)
+    call invcol2(Re_p, nu_fluid_local, n)
+    
+    ! compute f
+    wa = power(Re_p, 0.687_rp, n)
+    call cmult(wa, 0.15_rp, n)
+    call cadd2(f, wa, 1.0_rp, n)
+
+    ! assemble compute the acceleration
+    do i = 1, 3
+         call col3(acceleration(i,:), vel_rel(i,:), f, n)
+         call invcol2(acceleration(i,:), tau_p, n)
+    end do
+    write(*,*) "vel_rel", minval(vel_rel)
+    write(*,*) "Re_p", minval(Re_p)
+    write(*,*) "f", minval(f)
+    write(*,*) "acceleration", minval(acceleration)
+    write(*,*) "tau_p", minval(tau_p)
+
+    deallocate(tau_p)
+    deallocate(Re_p)
+    deallocate(f)
+    deallocate(rho_fluid_local)
+    deallocate(mu_fluid_local)
+    deallocate(nu_fluid_local)
+    deallocate(vel_rel)
+    deallocate(vel_rel_mag)
+    deallocate(wa)
+
+  end subroutine evaluate_acceleration
 
   !> Advance particles with local Adams-Bashforth coefficients and optionally
   !! write them.
@@ -327,32 +487,45 @@ contains
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     real(kind=rp), allocatable :: vel_fluid(:,:)
-    real(kind=rp), allocatable :: vel(:,:)
-    integer :: i
+    real(kind=rp), allocatable :: acceleration(:,:)
+    real(kind=rp), allocatable :: vel_rhs(:,:)
     integer :: j
-    integer :: nadv
 
     if (time%t .lt. this%start_time) return
 
     call this%redistribute_particles()
+    allocate(vel_fluid(3, this%particles%n))
     call this%evaluate_velocity(vel_fluid)
 
     ! set the particle velocity
     if (this%inertia) then
-       call neko_error("particle inertia is not yet implemented")
+       call this%evaluate_acceleration(vel_fluid, acceleration)
+       call this%ODE_integrate_ab_3c(time, this%particles%vel, &
+            acceleration, this%particles%acc_lag, this%particles%n)
     else
        this%particles%vel = vel_fluid
     end if
 
+    allocate(vel_rhs(3, this%particles%n))
+    vel_rhs = this%particles%vel
+
     call this%ODE_integrate_ab_3c(time, this%particles%xyz, &
-         this%particles%vel, this%particles%vel_lag, this%particles%n)
+         vel_rhs, this%particles%vel_lag, this%particles%n)
 
     ! update lags
     if (this%lag_len .gt. 0) then
        do j = this%lag_len, 2, -1
-          this%particles%vel_lag(:, j, :) = this%particles%vel_lag(:, j - 1, :)
+          this%particles%vel_lag(:, j, :) = &
+          this%particles%vel_lag(:, j - 1, :)
+          if (this%inertia) then
+             this%particles%acc_lag(:, j, :) = &
+             this%particles%acc_lag(:, j - 1, :)
+          end if
        end do
-       this%particles%vel_lag(:, 1, :) = this%particles%vel
+       this%particles%vel_lag(:, 1, :) = vel_rhs
+       if (this%inertia) then
+          this%particles%acc_lag(:, 1, :) = acceleration
+       end if
        this%history_len = min(this%history_len + 1, this%lag_len)
     end if
 
@@ -364,7 +537,9 @@ contains
       end if
     end if
 
-    if (allocated(vel)) deallocate(vel)
+    if (allocated(vel_fluid)) deallocate(vel_fluid)
+    if (allocated(vel_rhs)) deallocate(vel_rhs)
+    if (allocated(acceleration)) deallocate(acceleration)
 
   end subroutine lpt_compute
 
@@ -559,14 +734,17 @@ contains
     recvbuf = 0.0_rp
     call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
     particle_ids_local = nint(recvbuf)
+    deallocate(sendbuf)
+    deallocate(recvbuf)
   end subroutine redistribute_particle_ids
 
-  subroutine redistribute_velocity_history(this, redist_comm, n_particles_old, &
-       vel_particles_lag_local)
+  subroutine redistribute_lags(this, redist_comm, n_particles_old, &
+                               lag_old, lag_local)
     class(lpt_t), intent(inout) :: this
     type(glb_intrp_comm_t), intent(inout) :: redist_comm
     integer, intent(in) :: n_particles_old
-    real(kind=rp), allocatable, intent(out) :: vel_particles_lag_local(:,:,:)
+    real(kind=rp), allocatable, intent(in) :: lag_old(:,:,:)
+    real(kind=rp), allocatable, intent(out) :: lag_local(:,:,:)
     real(kind=rp), allocatable :: sendbuf(:)
     real(kind=rp), allocatable :: recvbuf(:)
     integer :: n_local
@@ -574,8 +752,8 @@ contains
     integer :: j
 
     n_local = this%particles%n
-    allocate(vel_particles_lag_local(3, this%lag_len, n_local))
-    vel_particles_lag_local = 0.0_rp
+    allocate(lag_local(3, this%lag_len, n_local))
+    lag_local = 0.0_rp
 
     if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
@@ -583,12 +761,71 @@ contains
     allocate(recvbuf(n_local))
     do j = 1, this%lag_len
        do i = 1, 3
-          sendbuf = this%particles%vel_lag(i, j, :)
+          sendbuf = lag_old(i, j, :)
           recvbuf = 0.0_rp
           call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-          vel_particles_lag_local(i, j, :) = recvbuf
+          lag_local(i, j, :) = recvbuf
        end do
     end do
-  end subroutine redistribute_velocity_history
+    deallocate(sendbuf)
+    deallocate(recvbuf)
+  end subroutine redistribute_lags
+
+  subroutine redistribute_particle_field(this, redist_comm, n_particles_old, &
+       field_old, field_local)
+    class(lpt_t), intent(inout) :: this
+    type(glb_intrp_comm_t), intent(inout) :: redist_comm
+    integer, intent(in) :: n_particles_old
+    real(kind=rp), allocatable, intent(in) :: field_old(:,:)
+    real(kind=rp), allocatable, intent(out) :: field_local(:,:)
+    real(kind=rp), allocatable :: sendbuf(:)
+    real(kind=rp), allocatable :: recvbuf(:)
+    integer :: n_local
+    integer :: i
+
+    n_local = this%particles%n
+    allocate(field_local(3, n_local))
+    field_local = 0.0_rp
+
+    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
+
+    allocate(sendbuf(n_particles_old))
+    allocate(recvbuf(n_local))
+    do i = 1, 3
+       sendbuf = field_old(i, :)
+       recvbuf = 0.0_rp
+       call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
+       field_local(i, :) = recvbuf
+    end do
+    deallocate(sendbuf)
+    deallocate(recvbuf)
+  end subroutine redistribute_particle_field
+
+  subroutine redistribute_particle_scalar(this, redist_comm, n_particles_old, &
+       scalar_old, scalar_local)
+    class(lpt_t), intent(inout) :: this
+    type(glb_intrp_comm_t), intent(inout) :: redist_comm
+    integer, intent(in) :: n_particles_old
+    real(kind=rp), allocatable, intent(in) :: scalar_old(:)
+    real(kind=rp), allocatable, intent(out) :: scalar_local(:)
+    real(kind=rp), allocatable :: sendbuf(:)
+    real(kind=rp), allocatable :: recvbuf(:)
+    integer :: n_local
+
+    n_local = this%particles%n
+    allocate(scalar_local(n_local))
+    scalar_local = 0.0_rp
+
+    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
+
+    allocate(sendbuf(n_particles_old))
+    allocate(recvbuf(n_local))
+    sendbuf = scalar_old
+    recvbuf = 0.0_rp
+    call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
+    scalar_local = recvbuf
+    deallocate(sendbuf)
+    deallocate(recvbuf)
+  end subroutine redistribute_particle_scalar
 
 end module lagrangian_particle_tracking
