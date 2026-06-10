@@ -104,7 +104,8 @@ contains
           if (this%map_1d%dir_el(e) .eq. 2) then
              do i = 1, lx
                 do k = 1, lx
-                   this%idx_2d(j*lxy+k+lx*(i-1)) = linear_index(k,1,i,e,lx,lx,lx)
+                   this%idx_2d(j * lxy + k + lx * (i - 1)) = &
+                        linear_index(k, 1, i, e, lx, lx, lx)
                 end do
              end do
           end if

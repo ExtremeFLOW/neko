@@ -160,7 +160,8 @@ contains
 
   end function qabscmp
 
-  !> Return single precision relative comparison \f$ | x - y |<= \epsilon*|y| \f$
+  !> Return single precision relative comparison
+  !! \f$ | x - y |<= \epsilon*|y| \f$
   pure function srelcmp(x, y, eps)
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
@@ -174,7 +175,8 @@ contains
 
   end function srelcmp
 
-  !> Return double precision relative comparison \f$ | x - y |/|y| < \epsilon \f$
+  !> Return double precision relative comparison
+  !! \f$ | x - y |/|y| < \epsilon \f$
   pure function drelcmp(x, y, eps)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y

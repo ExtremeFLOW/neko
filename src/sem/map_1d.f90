@@ -1,5 +1,6 @@
 
-!> Creates a 1d GLL point map along a specified direction based on the connectivity in the mesh.
+!> Creates a 1d GLL point map along a specified direction based on
+!! the connectivity in the mesh.
 module map_1d
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
@@ -30,9 +31,11 @@ module map_1d
      integer, allocatable :: dir_el(:)
      !> Checks which level an element belongs to.
      integer, allocatable :: el_lvl(:)
-     !> Checks which level or id in the 1D GLL mapping each point in the dofmap is.
+     !> Checks which level or id in the 1D GLL mapping each point in
+     !! the dofmap is.
      integer, allocatable :: pt_lvl(:, :, :, :)
-     !> Number of elements stacked on top of eachother in the specified direction
+     !> Number of elements stacked on top of each other in the
+     !! specified direction
      integer :: n_el_lvls
      !> Number of total gll levels
      integer :: n_gll_lvls
