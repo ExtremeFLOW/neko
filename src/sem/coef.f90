@@ -264,7 +264,7 @@ contains
   !> Allocate all arrays
   subroutine coef_allocate_all(this)
     type(coef_t), target, intent(inout) :: this
-    integer :: n, m, ncyc
+    integer :: n, m
 
     !>@todo Be clever and try to avoid allocating zeroed geom. factors
     allocate(this%G11(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
@@ -318,13 +318,6 @@ contains
 
     allocate(this%mult(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%zero_chld(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
-
-    ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
-    allocate(this%cyc_msk(0:ncyc))
-    if (ncyc .gt. 0) then
-       allocate(this%R11(ncyc))
-       allocate(this%R12(ncyc))
-    end if
 
     !
     ! Setup device memory (if present)
@@ -384,17 +377,37 @@ contains
        call device_map(this%ny, this%ny_d, m)
        call device_map(this%nz, this%nz_d, m)
 
-       ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
+    end if
 
+    ! Allocate arrays related to cyclic BC
+    call coef_allocate_cyclic(this)
+
+  end subroutine coef_allocate_all
+
+  !> Allocate arrays related to cyclic BC
+  subroutine coef_allocate_cyclic(this)
+    type(coef_t), intent(inout) :: this
+    integer :: ncyc
+
+    ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
+    allocate(this%cyc_msk(0:ncyc))
+    if (ncyc .gt. 0) then
+       allocate(this%R11(ncyc))
+       allocate(this%R12(ncyc))
+    end if
+
+    !
+    ! Setup device memory (if present)
+    !
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%cyc_msk, this%cyc_msk_d, ncyc+1)
        if (ncyc .gt. 0) then
           call device_map(this%R11, this%R11_d, ncyc)
           call device_map(this%R12, this%R12_d, ncyc)
        end if
-
     end if
 
-  end subroutine coef_allocate_all
+  end subroutine coef_allocate_cyclic
 
   !> Calculate all geometrical coefficients
   subroutine coef_fill_all(this)
@@ -498,7 +511,7 @@ contains
 
   end subroutine coef_free
 
-  !> Allocate arrays
+  !> Deallocate arrays
   subroutine coef_deallocate_all(this)
     type(coef_t), target, intent(inout) :: this
 
@@ -715,6 +728,15 @@ contains
        deallocate(this%nz)
     end if
 
+    ! Deallocate arrays related to cyclic BC
+    call coef_deallocate_cyclic(this)
+
+  end subroutine coef_deallocate_all
+
+  !> Deallocate arrays related to cyclic BC
+  subroutine coef_deallocate_cyclic(this)
+    type(coef_t), intent(inout) :: this
+
     if (allocated(this%cyc_msk)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_unmap(this%cyc_msk, this%cyc_msk_d)
@@ -732,7 +754,7 @@ contains
        deallocate(this%R12)
     end if
 
-  end subroutine coef_deallocate_all
+  end subroutine coef_deallocate_cyclic
 
   subroutine coef_generate_dxyzdrst(c)
     type(coef_t), intent(inout) :: c
@@ -1472,6 +1494,7 @@ contains
     type(amr_reconstruct_t), intent(inout) :: reconstruct
     integer, intent(in) :: counter, tstep
     character(len=LOG_SIZE) :: log_buf
+    integer :: ncyc_new, ncyc_old
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
@@ -1515,6 +1538,14 @@ contains
           ! Reallocate all arrays
           call coef_deallocate_all(this)
           call coef_allocate_all(this)
+       else
+          ! cyclic BC must be updated even though element number did not change
+          ncyc_new = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
+          ncyc_old = this%cyc_msk(0) - 1
+          if (ncyc_new .ne. ncyc_old) then
+             call coef_deallocate_cyclic(this)
+             call coef_allocate_cyclic(this)
+          end if
        end if
 
        ! Fill all data
