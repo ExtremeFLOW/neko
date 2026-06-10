@@ -87,7 +87,7 @@ module coefs
      !> Compressed geometric factors \f$ G_{23} \f$
      real(kind=rp), allocatable :: G23_compressed(:,:,:,:)
      !> Compressed geometric factors lookup indices
-     real(kind=rp), allocatable :: compression_inds(:)
+     integer, allocatable :: compression_inds(:)
 
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      !> generate mapping data between element and reference element
@@ -1139,7 +1139,7 @@ contains
   !! @note This could be faster with various tweaks
   subroutine coef_generate_geo_compressed(c)
     type(coef_t), intent(inout) :: c
-    integer :: e, m, i, ntot, m_max
+    integer :: e, m, i, lxyz, m_max
     integer, allocatable :: c_inds_rev(:) ! reverse compression indices map
     real(kind=rp) :: ctol = 1.0E-7_rp
     real(kind=rp) :: diff = 0.0_rp
@@ -1152,17 +1152,18 @@ contains
     ! First entry must be itself to get started
     m_max = 1
     c%compression_inds(1) = 1
+    c_inds_rev = 0
     c_inds_rev(1) = 1
 
-    ! Loop over elements
-    ntot = c%dof%size()
-    do e = 1, c%msh%nelv
+    ! Loop over elements, but skip first
+    lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
+    do e = 2, c%msh%nelv
        ! Loop over possible compression candidates
        do m = 1, m_max
           diff = 0.0_rp
           ! Loop over quadrature points
-          do i = 1, ntot
-             ! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_fro )
+          do i = 1, lxyz
+             ! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_l1 )
              diff = diff + abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &
                          + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
                          + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
@@ -1186,6 +1187,10 @@ contains
        end if
     end do
 
+    write(*,*)
+    write(*,*) '------Mapping Compression-----'
+    write(*,*) 'Compressed from ', c%msh%nelv, ' to ', m_max
+
     ! Third step, allocate and fill Gij_compressed objects
     allocate(c%G11_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
     allocate(c%G22_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
@@ -1194,7 +1199,7 @@ contains
     allocate(c%G13_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
     allocate(c%G23_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
     do m = 1, m_max
-       do i = 1, ntot
+       do i = 1, lxyz
           c%G11_compressed(i,1,1,m) = c%G11(i,1,1,c_inds_rev(m))
           c%G22_compressed(i,1,1,m) = c%G22(i,1,1,c_inds_rev(m))
           c%G33_compressed(i,1,1,m) = c%G33(i,1,1,c_inds_rev(m))
