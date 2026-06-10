@@ -18,6 +18,8 @@ module test_bc_resolver
        vector_bc_resolver_components
   implicit none
 
+  real(kind=rp), parameter :: test_tol = 1000.0_rp * epsilon(1.0_rp)
+
   @TestCase
   type, extends(MPITestCase) :: test_bc_resolver_case
    contains
@@ -43,6 +45,24 @@ contains
        call device_finalize
     end if
   end subroutine tearDown
+
+  !> Verify that the parallel test fixture itself is wired correctly. This
+  !! keeps the original smoke coverage for the duplicated communicator and
+  !! pFUnit MPI test case setup.
+  @test(npes=[1])
+  subroutine test_template_passes(this)
+    class(test_bc_resolver_case), intent(inout) :: this
+    integer :: ierr, comm_size
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
+
+    @assertEqual(0, ierr)
+    @assertEqual(1, pe_size)
+    @assertEqual(1, comm_size)
+    @assertTrue(pe_rank >= 0)
+  end subroutine test_template_passes
 
   !> Verify that the segregated vector resolver marks a Dirichlet condition
   !! on all components when no component selector is supplied. The test applies
@@ -79,15 +99,15 @@ contains
 
     face1_dofs = [1, 4, 7, 10, 13, 16, 19, 22, 25]
     do i = 1, size(face1_dofs)
-       @assertEqual(0.0_rp, x(face1_dofs(i)), tolerance=1e-12)
-       @assertEqual(0.0_rp, y(face1_dofs(i)), tolerance=1e-12)
-       @assertEqual(0.0_rp, z(face1_dofs(i)), tolerance=1e-12)
+       @assertEqual(0.0_rp, x(face1_dofs(i)), tolerance=test_tol)
+       @assertEqual(0.0_rp, y(face1_dofs(i)), tolerance=test_tol)
+       @assertEqual(0.0_rp, z(face1_dofs(i)), tolerance=test_tol)
     end do
 
     ! The element center does not lie on the marked face.
-    @assertEqual(1.0_rp, x(14), tolerance=1e-12)
-    @assertEqual(2.0_rp, y(14), tolerance=1e-12)
-    @assertEqual(3.0_rp, z(14), tolerance=1e-12)
+    @assertEqual(1.0_rp, x(14), tolerance=test_tol)
+    @assertEqual(2.0_rp, y(14), tolerance=test_tol)
+    @assertEqual(3.0_rp, z(14), tolerance=test_tol)
 
     deallocate(x, y, z)
     call resolver%free()
@@ -129,14 +149,14 @@ contains
 
     face1_dofs = [1, 4, 7, 10, 13, 16, 19, 22, 25]
     do i = 1, size(face1_dofs)
-       @assertEqual(1.0_rp, x(face1_dofs(i)), tolerance=1e-12)
-       @assertEqual(0.0_rp, y(face1_dofs(i)), tolerance=1e-12)
-       @assertEqual(3.0_rp, z(face1_dofs(i)), tolerance=1e-12)
+       @assertEqual(1.0_rp, x(face1_dofs(i)), tolerance=test_tol)
+       @assertEqual(0.0_rp, y(face1_dofs(i)), tolerance=test_tol)
+       @assertEqual(3.0_rp, z(face1_dofs(i)), tolerance=test_tol)
     end do
 
-    @assertEqual(1.0_rp, x(14), tolerance=1e-12)
-    @assertEqual(2.0_rp, y(14), tolerance=1e-12)
-    @assertEqual(3.0_rp, z(14), tolerance=1e-12)
+    @assertEqual(1.0_rp, x(14), tolerance=test_tol)
+    @assertEqual(2.0_rp, y(14), tolerance=test_tol)
+    @assertEqual(3.0_rp, z(14), tolerance=test_tol)
 
     deallocate(x, y, z)
     call resolver%free()
@@ -184,10 +204,10 @@ contains
 
     call resolver%apply(x, y, z, dof_size)
 
-    @assertEqual(0.0_rp, x(13), tolerance=1e-12)
-    @assertEqual(2.0_rp, y(13), tolerance=1e-12)
-    @assertEqual(3.0_rp, z(13), tolerance=1e-12)
-    @assertEqual(1.0_rp, x(14), tolerance=1e-12)
+    @assertEqual(0.0_rp, x(13), tolerance=test_tol)
+    @assertEqual(2.0_rp, y(13), tolerance=test_tol)
+    @assertEqual(3.0_rp, z(13), tolerance=test_tol)
+    @assertEqual(1.0_rp, x(14), tolerance=test_tol)
 
     deallocate(x, y, z)
     call resolver%free()

@@ -23,6 +23,8 @@ module test_coupled_bc_resolver
   use utils, only : linear_index
   implicit none
 
+  real(kind=rp), parameter :: test_tol = 1000.0_rp * epsilon(1.0_rp)
+
   @TestCase
   type, extends(MPITestCase) :: test_coupled_bc_resolver_case
    contains
@@ -131,12 +133,12 @@ contains
     @assertTrue(center_idx > 0)
     @assertEqual(1, bc_resolver%mixed_dof_mask%size())
 
-    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(2, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(3, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(4, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(5, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(6, 1), tolerance=1e-12)
+    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(2, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(3, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(4, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(5, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(6, 1), tolerance=test_tol)
 
     ! All nodes are constrained except for the one in the center of the cube.
     @assertEqual(26, bc_resolver%dirichlet_dof_mask%size() + bc_resolver%mixed_dof_mask%size())
@@ -146,9 +148,9 @@ contains
     ! by edge and corner treatment because that only runs on mixed
     ! nodes, and here the nodes will be marked as class 0.
 
-    @assertEqual(-1.0_rp, bc_resolver%n%x(1, center_idx), tolerance=1e-10)
-    @assertEqual(0.0_rp, bc_resolver%n%x(2, center_idx), tolerance=1e-10)
-    @assertEqual(0.0_rp, bc_resolver%n%x(3, center_idx), tolerance=1e-10)
+    @assertEqual(-1.0_rp, bc_resolver%n%x(1, center_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%n%x(2, center_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%n%x(3, center_idx), tolerance=test_tol)
 
     call bc_resolver%free()
     call bclst%free()
@@ -183,24 +185,24 @@ contains
     center_idx = face1_dofmap(5)
     top_edge_idx = face1_dofmap(8)
 
-    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(2, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(3, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(4, 1), tolerance=1e-12)
-    @assertEqual(0.0_rp, bc_resolver%face_type(5, 1), tolerance=1e-12)
-    @assertEqual(3.0_rp, bc_resolver%face_type(6, 1), tolerance=1e-12)
+    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(2, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(3, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(4, 1), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%face_type(5, 1), tolerance=test_tol)
+    @assertEqual(3.0_rp, bc_resolver%face_type(6, 1), tolerance=test_tol)
 
     ! Only face-1 nodes that retain class 2 survive in the mixed mask here:
     ! the face center and the top-edge midpoint shared with face 6.
     @assertTrue(center_idx > 0)
     @assertTrue(top_edge_idx > 0)
     @assertEqual(2, count(face1_dofmap > 0))
-    @assertEqual(-1.0_rp, bc_resolver%n%x(1, center_idx), tolerance=1e-10)
-    @assertEqual(0.0_rp, bc_resolver%n%x(2, center_idx), tolerance=1e-10)
-    @assertEqual(0.0_rp, bc_resolver%n%x(3, center_idx), tolerance=1e-10)
-    @assertEqual(-1.0_rp, bc_resolver%n%x(1, top_edge_idx), tolerance=1e-10)
-    @assertEqual(0.0_rp, bc_resolver%n%x(2, top_edge_idx), tolerance=1e-10)
-    @assertEqual(0.0_rp, bc_resolver%n%x(3, top_edge_idx), tolerance=1e-10)
+    @assertEqual(-1.0_rp, bc_resolver%n%x(1, center_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%n%x(2, center_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%n%x(3, center_idx), tolerance=test_tol)
+    @assertEqual(-1.0_rp, bc_resolver%n%x(1, top_edge_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%n%x(2, top_edge_idx), tolerance=test_tol)
+    @assertEqual(0.0_rp, bc_resolver%n%x(3, top_edge_idx), tolerance=test_tol)
 
     call bc_resolver%free()
     call bclst%free()
@@ -231,12 +233,12 @@ contains
        @assertTrue(face1_dofmap(i) > 0)
     end do
 
-    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=1e-12)
-    @assertEqual(2.0_rp, bc_resolver%face_type(2, 1), tolerance=1e-12)
-    @assertEqual(2.0_rp, bc_resolver%face_type(3, 1), tolerance=1e-12)
-    @assertEqual(2.0_rp, bc_resolver%face_type(4, 1), tolerance=1e-12)
-    @assertEqual(2.0_rp, bc_resolver%face_type(5, 1), tolerance=1e-12)
-    @assertEqual(2.0_rp, bc_resolver%face_type(6, 1), tolerance=1e-12)
+    @assertEqual(2.0_rp, bc_resolver%face_type(1, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_resolver%face_type(2, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_resolver%face_type(3, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_resolver%face_type(4, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_resolver%face_type(5, 1), tolerance=test_tol)
+    @assertEqual(2.0_rp, bc_resolver%face_type(6, 1), tolerance=test_tol)
 
     ! With all faces set to class 2, every node on face 1 is mixed
     ! and is rebuilt by the edge/corner logic:
@@ -255,41 +257,41 @@ contains
     do i = 1, size(face1_dofmap)
        select case (face1_dofs(i))
        case (1)
-          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        case (4)
-          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        case (7)
-          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        case (10)
-          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        case (13)
-          @assertEqual(-1.0_rp, bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp, bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        case (16)
-          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        case (19)
-          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        case (22)
-          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(0.0_rp, bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(2.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        case (25)
-          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=1e-10)
-          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=1e-10)
+          @assertEqual(-1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(1, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(2, face1_dofmap(i)), tolerance=test_tol)
+          @assertEqual(1.0_rp / sqrt(3.0_rp), bc_resolver%n%x(3, face1_dofmap(i)), tolerance=test_tol)
        end select
     end do
 
@@ -366,19 +368,19 @@ contains
     call bc_resolver%apply(x, y, z, dof_size)
 
     ! Face 1 has normal (-1, 0, 0), so a symmetry condition kills only x.
-    @assertEqual(0.0_rp, x(face_center), tolerance=1e-12)
-    @assertEqual(5.0_rp, y(face_center), tolerance=1e-12)
-    @assertEqual(6.0_rp, z(face_center), tolerance=1e-12)
+    @assertEqual(0.0_rp, x(face_center), tolerance=test_tol)
+    @assertEqual(5.0_rp, y(face_center), tolerance=test_tol)
+    @assertEqual(6.0_rp, z(face_center), tolerance=test_tol)
 
     ! A node on a Dirichlet face is fully constrained in Cartesian space.
-    @assertEqual(0.0_rp, x(2), tolerance=1e-12)
-    @assertEqual(0.0_rp, y(2), tolerance=1e-12)
-    @assertEqual(0.0_rp, z(2), tolerance=1e-12)
+    @assertEqual(0.0_rp, x(2), tolerance=test_tol)
+    @assertEqual(0.0_rp, y(2), tolerance=test_tol)
+    @assertEqual(0.0_rp, z(2), tolerance=test_tol)
 
     ! Interior nodes are outside the resolved boundary masks.
-    @assertEqual(4.0_rp, x(interior), tolerance=1e-12)
-    @assertEqual(5.0_rp, y(interior), tolerance=1e-12)
-    @assertEqual(6.0_rp, z(interior), tolerance=1e-12)
+    @assertEqual(4.0_rp, x(interior), tolerance=test_tol)
+    @assertEqual(5.0_rp, y(interior), tolerance=test_tol)
+    @assertEqual(6.0_rp, z(interior), tolerance=test_tol)
 
     deallocate(x, y, z)
     call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
@@ -437,12 +439,12 @@ contains
     call bc_resolver%apply(x, y, z, dof_size)
 
     ! Face 1 has normal (-1, 0, 0), so only the x/normal component remains.
-    @assertEqual(4.0_rp, x(face_center), tolerance=1e-12)
-    @assertEqual(0.0_rp, y(face_center), tolerance=1e-12)
-    @assertEqual(0.0_rp, z(face_center), tolerance=1e-12)
-    @assertEqual(4.0_rp, x(interior), tolerance=1e-12)
-    @assertEqual(5.0_rp, y(interior), tolerance=1e-12)
-    @assertEqual(6.0_rp, z(interior), tolerance=1e-12)
+    @assertEqual(4.0_rp, x(face_center), tolerance=test_tol)
+    @assertEqual(0.0_rp, y(face_center), tolerance=test_tol)
+    @assertEqual(0.0_rp, z(face_center), tolerance=test_tol)
+    @assertEqual(4.0_rp, x(interior), tolerance=test_tol)
+    @assertEqual(5.0_rp, y(interior), tolerance=test_tol)
+    @assertEqual(6.0_rp, z(interior), tolerance=test_tol)
 
     deallocate(x, y, z)
     call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
@@ -761,9 +763,9 @@ contains
   subroutine assert_basis_equal(a, b)
     real(kind=rp), intent(in) :: a(3), b(3)
 
-    @assertEqual(a(1), b(1), tolerance=1e-10)
-    @assertEqual(a(2), b(2), tolerance=1e-10)
-    @assertEqual(a(3), b(3), tolerance=1e-10)
+    @assertEqual(a(1), b(1), tolerance=test_tol)
+    @assertEqual(a(2), b(2), tolerance=test_tol)
+    @assertEqual(a(3), b(3), tolerance=test_tol)
   end subroutine assert_basis_equal
 
 end module test_coupled_bc_resolver
