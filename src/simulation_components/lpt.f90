@@ -48,6 +48,7 @@ module lagrangian_particle_tracking
   use file, only : file_t
   use matrix, only : matrix_t
   use math, only : add2s2
+  use ab_time_scheme, only : ab_time_scheme_t
   use tensor, only : trsp
   use lpt_periodic_bc, only : lpt_periodic_bc_t
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
@@ -57,12 +58,11 @@ module lagrangian_particle_tracking
   implicit none
   private
 
-  integer, parameter :: LPT_VEL_HISTORY_LEN = 2
-
   type, private :: particles_t
      real(kind=rp), allocatable :: xyz(:,:)
      integer, allocatable :: ids(:)
      real(kind=rp), allocatable :: vel_lag(:,:,:)
+     integer :: time_order, lag_len
      integer :: n = 0
      integer :: n_global = 0
    contains
@@ -76,6 +76,9 @@ module lagrangian_particle_tracking
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
      type(field_t), pointer :: w => null()
+     integer :: time_order, lag_len
+     integer :: history_len = 0
+     logical :: inertia = .false.
      type(global_interpolation_t) :: global_interp
      type(lpt_periodic_bc_t) :: periodic_bc
      type(particles_t) :: particles
@@ -99,9 +102,10 @@ module lagrangian_particle_tracking
 
 contains
 
-  subroutine particles_init(this, xyz)
+  subroutine particles_init(this, xyz, time_order)
     class(particles_t), intent(inout) :: this
     real(kind=rp), intent(in) :: xyz(:,:)
+    integer, intent(in) :: time_order
     integer :: i
 
     if (size(xyz, 1) .ne. 3) then
@@ -112,9 +116,11 @@ contains
 
     this%n = size(xyz, 2)
     this%n_global = this%n
+    this%time_order = time_order
+    this%lag_len = time_order - 1
     allocate(this%xyz(3, this%n))
     allocate(this%ids(this%n))
-    allocate(this%vel_lag(3, LPT_VEL_HISTORY_LEN, this%n))
+    allocate(this%vel_lag(3, this%lag_len, this%n))
     this%xyz = xyz
     this%vel_lag = 0.0_rp
     do i = 1, this%n
@@ -153,6 +159,15 @@ contains
     call this%init_base(json, case)
 
     this%name = name
+    this%time_order = case%fluid%ext_bdf%advection_time_order
+
+    this%lag_len = this%time_order - 1
+
+    call json_get(json, "inertia", this%inertia)
+
+    if (this%inertia) then
+       call neko_error("particle inertia is not yet implemented")
+    end if
     this%u => neko_registry%get_field_by_name("u")
     this%v => neko_registry%get_field_by_name("v")
     this%w => neko_registry%get_field_by_name("w")
@@ -195,7 +210,8 @@ contains
              call neko_error("lpt coordinates must contain 3 values per " // &
                   "particle")
           end if
-          call this%particles%init(reshape(coords, [3, size(coords) / 3]))
+          call this%particles%init(reshape(coords, [3, size(coords) / 3]), &
+               this%time_order)
        else if (json%valid_path("points_file")) then
           call this%read_particles_csv(json)
        else
@@ -203,7 +219,7 @@ contains
        end if
     else
        allocate(empty_xyz(3, 0))
-       call this%particles%init(empty_xyz)
+       call this%particles%init(empty_xyz, this%time_order)
     end if
   end subroutine read_particles_json
 
@@ -224,7 +240,7 @@ contains
     type is (csv_file_t)
        call mat_in%init(ft%count_lines(), 3)
        call ft%read(mat_in)
-       call this%particles%init(transpose(mat_in%x))
+       call this%particles%init(transpose(mat_in%x), this%time_order)
     class default
        call neko_error("lpt points_file must be a csv file")
     end select
@@ -268,17 +284,24 @@ contains
     if (this%particles%n .eq. 0) return
 
     do_interp_on_host = .false.
-    call this%global_interp%evaluate(vel(1,:), this%u%x, do_interp_on_host)
-    call this%global_interp%evaluate(vel(2,:), this%v%x, do_interp_on_host)
-    call this%global_interp%evaluate(vel(3,:), this%w%x, do_interp_on_host)
+    if (.not. this%inertia) then
+       call this%global_interp%evaluate(vel(1,:), this%u%x, do_interp_on_host)
+       call this%global_interp%evaluate(vel(2,:), this%v%x, do_interp_on_host)
+       call this%global_interp%evaluate(vel(3,:), this%w%x, do_interp_on_host)
+    else
+       call neko_error("particle inertia is not yet implemented, so velocity " // &
+            "evaluation is not implemented for inertial particles")
+    end if
   end subroutine evaluate_velocity
 
-  !> Advance particles with the fluid scheme's explicit multistep coefficients
-  !! and optionally write them.
+  !> Advance particles with local Adams-Bashforth coefficients and optionally
+  !! write them.
   subroutine lpt_compute(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    type(ab_time_scheme_t) :: ab_scheme
     real(kind=rp), allocatable :: vel(:,:)
+    real(kind=rp) :: ab_coeffs(4), dt_history(10)
     real(kind=rp) :: dtc
     integer :: i
     integer :: j
@@ -288,32 +311,43 @@ contains
 
     call this%redistribute_particles()
     call this%evaluate_velocity(vel)
-    nadv = this%case%fluid%ext_bdf%nadv
 
-    if (nadv .gt. 1 .and. all(this%particles%vel_lag .eq. 0.0_rp)) then
-       do j = 1, LPT_VEL_HISTORY_LEN
-          this%particles%vel_lag(:, j, :) = vel
-       end do
-    end if
+    ! set up AB coefficients based on the history length available
+    nadv = this%time_order
+    nadv = min(nadv, this%history_len + 1)
 
-    dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(1)
+    dt_history = 0.0_rp
+    dt_history(1) = time%dt
+    dt_history(2) = time%dtlag(1)
+    dt_history(3) = time%dtlag(2)
+    call ab_scheme%compute_coeffs(ab_coeffs, dt_history, nadv)
+
+    ! contribution from the current velocity
+    dtc = time%dt * ab_coeffs(1)
     do i = 1, 3
        call add2s2(this%particles%xyz(i, :), vel(i, :), dtc, this%particles%n)
     end do
 
+    ! contribution from the lagged velocities
     do j = 2, nadv
-       dtc = time%dt * this%case%fluid%ext_bdf%advection_coeffs%x(j)
+       dtc = time%dt * ab_coeffs(j)
        do i = 1, 3
-          call add2s2(this%particles%xyz(i, :), this%particles%vel_lag(i, j - 1, :), &
+          call add2s2(this%particles%xyz(i, :), &
+               this%particles%vel_lag(i, j - 1, :), &
                dtc, this%particles%n)
        end do
     end do
 
-    do j = LPT_VEL_HISTORY_LEN, 2, -1
-       this%particles%vel_lag(:, j, :) = this%particles%vel_lag(:, j - 1, :)
-    end do
-    this%particles%vel_lag(:, 1, :) = vel
+    ! update lags
+    if (this%lag_len .gt. 0) then
+       do j = this%lag_len, 2, -1
+          this%particles%vel_lag(:, j, :) = this%particles%vel_lag(:, j - 1, :)
+       end do
+       this%particles%vel_lag(:, 1, :) = vel
+       this%history_len = min(this%history_len + 1, this%lag_len)
+    end if
 
+    ! output if enabled
     if (this%output_enabled) then
       if (this%output_controller%check(time)) then
          call this%write_output(time, vel)
@@ -417,6 +451,7 @@ contains
     this%output_enabled = .false.
     this%log = .true.
     this%start_time = -huge(0.0_rp)
+    this%history_len = 0
     call this%free_base()
   end subroutine lpt_free
 
@@ -489,14 +524,14 @@ contains
     integer :: j
 
     n_local = this%particles%n
-    allocate(vel_particles_lag_local(3, LPT_VEL_HISTORY_LEN, n_local))
+    allocate(vel_particles_lag_local(3, this%lag_len, n_local))
     vel_particles_lag_local = 0.0_rp
 
     if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
     allocate(sendbuf(n_particles_old))
     allocate(recvbuf(n_local))
-    do j = 1, LPT_VEL_HISTORY_LEN
+    do j = 1, this%lag_len
        do i = 1, 3
           sendbuf = this%particles%vel_lag(i, j, :)
           recvbuf = 0.0_rp
