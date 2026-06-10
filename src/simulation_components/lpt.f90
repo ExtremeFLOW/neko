@@ -48,7 +48,7 @@ module lagrangian_particle_tracking
   use file, only : file_t
   use matrix, only : matrix_t
   use math, only : add2s2, cfill, cmult2, col2, col3, invcol2, sqrt_inplace, &
-                   power, sub3, vdot3, cmult, cadd2
+                   power, sub3, vdot3, cmult, cadd2, invcol3
   use ab_time_scheme, only : ab_time_scheme_t
   use tensor, only : trsp
   use lpt_periodic_bc, only : lpt_periodic_bc_t
@@ -420,7 +420,7 @@ write(*,*) "lpt time order: ", this%time_order
          do_interp_on_host)
     call this%global_interp%evaluate(rho_fluid_local, this%rho_fluid%x, &
          do_interp_on_host)
-    call col3(nu_fluid_local, mu_fluid_local, rho_fluid_local, n)
+    call invcol3(nu_fluid_local, mu_fluid_local, rho_fluid_local, n)
 
     ! compute the time scale
     call cfill(tau_p, 1.0_rp/18.0_rp, n)
@@ -466,6 +466,8 @@ write(*,*) "lpt time order: ", this%time_order
     allocate(vel_fluid(3, this%particles%n))
     allocate(acceleration(3, this%particles%n))
     call this%evaluate_velocity(vel_fluid, this%particles%n)
+    allocate(vel_rhs(3, this%particles%n))
+    vel_rhs = this%particles%vel
 
     ! set the particle velocity
     if (this%inertia) then
@@ -474,10 +476,8 @@ write(*,*) "lpt time order: ", this%time_order
             acceleration, this%particles%acc_lag, this%particles%n)
     else
        this%particles%vel = vel_fluid
+       vel_rhs = this%particles%vel
     end if
-
-    allocate(vel_rhs(3, this%particles%n))
-    vel_rhs = this%particles%vel
 
     call this%ODE_integrate_ab_3c(time, this%particles%xyz, &
          vel_rhs, this%particles%vel_lag, this%particles%n)
