@@ -59,12 +59,19 @@ module lagrangian_particle_tracking
   private
 
   type, private :: particles_t
+     ! general particle info
      real(kind=rp), allocatable :: xyz(:,:)
      integer, allocatable :: ids(:)
-     real(kind=rp), allocatable :: vel_lag(:,:,:)
+     real(kind=rp), allocatable :: vel_lag(:,:,:) ! velocity lags
      integer :: time_order, lag_len
      integer :: n = 0
      integer :: n_global = 0
+     ! inertia-specific info
+     logical :: inertia = .false.
+     real(kind=rp), allocatable :: vel(:,:)
+     real(kind=rp), allocatable :: d(:) ! diameter of particles
+     real(kind=rp), allocatable :: rho(:) ! density of particles
+     real(kind=rp), allocatable :: acc_lag(:,:,:) ! accelaration lags
    contains
      procedure, pass(this) :: init => particles_init
      procedure, pass(this) :: free => particles_free
@@ -102,9 +109,10 @@ module lagrangian_particle_tracking
 
 contains
 
-  subroutine particles_init(this, xyz, time_order)
+  subroutine particles_init(this, xyz, vel, time_order)
     class(particles_t), intent(inout) :: this
     real(kind=rp), intent(in) :: xyz(:,:)
+    real(kind=rp), intent(in) :: vel(:,:)
     integer, intent(in) :: time_order
     integer :: i
 
@@ -119,9 +127,11 @@ contains
     this%time_order = time_order
     this%lag_len = time_order - 1
     allocate(this%xyz(3, this%n))
+    allocate(this%vel(3, this%n))
     allocate(this%ids(this%n))
     allocate(this%vel_lag(3, this%lag_len, this%n))
     this%xyz = xyz
+    this%vel = vel
     this%vel_lag = 0.0_rp
     do i = 1, this%n
        this%ids(i) = i
@@ -133,6 +143,7 @@ contains
 
     if (allocated(this%xyz)) deallocate(this%xyz)
     if (allocated(this%ids)) deallocate(this%ids)
+    if (allocated(this%vel)) deallocate(this%vel)
     if (allocated(this%vel_lag)) deallocate(this%vel_lag)
     this%n = 0
     this%n_global = 0
@@ -148,7 +159,6 @@ contains
     type(json_file) :: interp_subdict
     character(len=:), allocatable :: name
     character(len=:), allocatable :: output_filename
-    real(kind=rp), allocatable :: vel(:,:)
 
     call this%free()
 
@@ -186,12 +196,10 @@ contains
     call this%output_file%init(this%case%output_directory // &
          trim(output_filename), &
          header = "tstep,time,particle_id,x,y,z,u,v,w", overwrite = .true.)
+
+    ! output at the initialisation
     this%output_enabled = .true.
-    if (case%time%t .ge. this%start_time) then
-       call this%evaluate_velocity(vel)
-       call this%write_output(case%time, vel)
-       if (allocated(vel)) deallocate(vel)
-    end if
+    call this%write_output(case%time)
 
     call this%log_status()
   end subroutine lpt_init_from_json
@@ -201,7 +209,9 @@ contains
     class(lpt_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: coords(:)
+    real(kind=rp), allocatable :: vels(:)
     real(kind=rp), allocatable :: empty_xyz(:,:)
+    real(kind=rp), allocatable :: empty_vel(:,:)
 
     if (pe_rank .eq. 0) then
        if (json%valid_path("coordinates")) then
@@ -210,8 +220,19 @@ contains
              call neko_error("lpt coordinates must contain 3 values per " // &
                   "particle")
           end if
+          if (this%inertia) then
+             call json_get(json, "velocities", vels)
+             if (mod(size(vels), 3) .ne. 0) then
+                call neko_error("lpt velocities must contain 3 values per " // &
+                     "particle")
+             end if
+          else
+             allocate(vels(size(coords)))
+             vels = 0.0_rp
+          end if
           call this%particles%init(reshape(coords, [3, size(coords) / 3]), &
-               this%time_order)
+                                   reshape(vels, [3, size(vels) / 3]), &
+                                   this%time_order)
        else if (json%valid_path("points_file")) then
           call this%read_particles_csv(json)
        else
@@ -219,7 +240,8 @@ contains
        end if
     else
        allocate(empty_xyz(3, 0))
-       call this%particles%init(empty_xyz, this%time_order)
+       allocate(empty_vel(3, 0))
+       call this%particles%init(empty_xyz, empty_vel, this%time_order)
     end if
   end subroutine read_particles_json
 
@@ -230,6 +252,8 @@ contains
     character(len=:), allocatable :: points_file
     type(file_t) :: file_in
     type(matrix_t) :: mat_in
+    real(kind=rp), allocatable :: coords(:,:)
+    real(kind=rp), allocatable :: vels(:,:)
 
     if (pe_rank .ne. 0) return
 
@@ -238,9 +262,12 @@ contains
 
     select type (ft => file_in%file_type)
     type is (csv_file_t)
-       call mat_in%init(ft%count_lines(), 3)
+       call mat_in%init(ft%count_lines(), 6)
        call ft%read(mat_in)
-       call this%particles%init(transpose(mat_in%x), this%time_order)
+       coords = mat_in%x(:, 1:3)
+       vels = mat_in%x(:, 4:6)
+       call this%particles%init(transpose(coords), &
+                                transpose(vels), this%time_order)
     class default
        call neko_error("lpt points_file must be a csv file")
     end select
@@ -275,23 +302,22 @@ contains
   end subroutine redistribute_particles
 
   !> Interpolate the carrier velocity at the local particles.
-  subroutine evaluate_velocity(this, vel)
+  subroutine evaluate_velocity(this, vel_fluid)
     class(lpt_t), intent(inout) :: this
-    real(kind=rp), allocatable, intent(out) :: vel(:,:)
+    real(kind=rp), allocatable, intent(out) :: vel_fluid(:,:)
     logical :: do_interp_on_host
 
-    allocate(vel(3, this%particles%n))
+    allocate(vel_fluid(3, this%particles%n))
     if (this%particles%n .eq. 0) return
 
     do_interp_on_host = .false.
-    if (.not. this%inertia) then
-       call this%global_interp%evaluate(vel(1,:), this%u%x, do_interp_on_host)
-       call this%global_interp%evaluate(vel(2,:), this%v%x, do_interp_on_host)
-       call this%global_interp%evaluate(vel(3,:), this%w%x, do_interp_on_host)
-    else
-       call neko_error("particle inertia is not yet implemented, so velocity " // &
-            "evaluation is not implemented for inertial particles")
-    end if
+    call this%global_interp%evaluate(vel_fluid(1,:), this%u%x, &
+         do_interp_on_host)
+    call this%global_interp%evaluate(vel_fluid(2,:), this%v%x, &
+         do_interp_on_host)
+    call this%global_interp%evaluate(vel_fluid(3,:), this%w%x, &
+         do_interp_on_host)
+
   end subroutine evaluate_velocity
 
   !> Advance particles with local Adams-Bashforth coefficients and optionally
@@ -300,6 +326,7 @@ contains
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(ab_time_scheme_t) :: ab_scheme
+    real(kind=rp), allocatable :: vel_fluid(:,:)
     real(kind=rp), allocatable :: vel(:,:)
     real(kind=rp) :: ab_coeffs(4), dt_history(10)
     real(kind=rp) :: dtc
@@ -310,7 +337,7 @@ contains
     if (time%t .lt. this%start_time) return
 
     call this%redistribute_particles()
-    call this%evaluate_velocity(vel)
+    call this%evaluate_velocity(vel_fluid)
 
     ! set up AB coefficients based on the history length available
     nadv = this%time_order
@@ -322,10 +349,18 @@ contains
     dt_history(3) = time%dtlag(2)
     call ab_scheme%compute_coeffs(ab_coeffs, dt_history, nadv)
 
+    ! set the particle velocity
+    if (this%inertia) then
+       call neko_error("particle inertia is not yet implemented")
+    else
+       this%particles%vel = vel_fluid
+    end if
+
     ! contribution from the current velocity
     dtc = time%dt * ab_coeffs(1)
     do i = 1, 3
-       call add2s2(this%particles%xyz(i, :), vel(i, :), dtc, this%particles%n)
+       call add2s2(this%particles%xyz(i, :), &
+                   this%particles%vel(i, :), dtc, this%particles%n)
     end do
 
     ! contribution from the lagged velocities
@@ -343,14 +378,14 @@ contains
        do j = this%lag_len, 2, -1
           this%particles%vel_lag(:, j, :) = this%particles%vel_lag(:, j - 1, :)
        end do
-       this%particles%vel_lag(:, 1, :) = vel
+       this%particles%vel_lag(:, 1, :) = this%particles%vel
        this%history_len = min(this%history_len + 1, this%lag_len)
     end if
 
     ! output if enabled
     if (this%output_enabled) then
       if (this%output_controller%check(time)) then
-         call this%write_output(time, vel)
+         call this%write_output(time)
          call this%output_controller%register_execution()
       end if
     end if
@@ -361,10 +396,9 @@ contains
 
   !> Write one trajectory snapshot to CSV by gathering local particle data to
   !! rank 0.
-  subroutine write_output(this, time, vel)
+  subroutine write_output(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    real(kind=rp), intent(in) :: vel(:,:)
     type(matrix_t) :: block
     real(kind=rp), allocatable :: local_data(:,:)
     real(kind=rp), allocatable :: global_data(:,:)
@@ -386,9 +420,9 @@ contains
        local_data(4,i) = this%particles%xyz(1,i)
        local_data(5,i) = this%particles%xyz(2,i)
        local_data(6,i) = this%particles%xyz(3,i)
-       local_data(7,i) = vel(1,i)
-       local_data(8,i) = vel(2,i)
-       local_data(9,i) = vel(3,i)
+       local_data(7,i) = this%particles%vel(1,i)
+       local_data(8,i) = this%particles%vel(2,i)
+       local_data(9,i) = this%particles%vel(3,i)
     end do
 
     if (pe_rank .eq. 0) then
