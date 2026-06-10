@@ -38,8 +38,6 @@ module lagrangian_particle_tracking
   use registry, only : neko_registry
   use field, only : field_t
   use case, only : case_t
-  use coefs, only : coef_t
-  use dofmap, only : dofmap_t
   use json_utils, only : json_get, json_get_or_default, &
        json_get_subdict_or_empty
   use time_state, only : time_state_t
@@ -51,15 +49,14 @@ module lagrangian_particle_tracking
   use matrix, only : matrix_t
   use math, only : add2s2
   use tensor, only : trsp
-  use mesh, only : mesh_t
+  use lpt_periodic_bc, only : lpt_periodic_bc_t
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_Gather, &
-       MPI_Gatherv, MPI_INTEGER, MPI_SUM, MPI_MIN, MPI_MAX
+  use mpi_f08, only : MPI_Allreduce, MPI_Gather, MPI_Gatherv, &
+       MPI_INTEGER, MPI_SUM
   use csv_file, only : csv_file_t
   implicit none
   private
 
-  real(kind=rp), parameter :: LPT_PERIODIC_TOL = 1.0e-8_rp
   integer, parameter :: LPT_VEL_HISTORY_LEN = 2
 
   type, private :: particles_t
@@ -80,34 +77,18 @@ module lagrangian_particle_tracking
      type(field_t), pointer :: v => null()
      type(field_t), pointer :: w => null()
      type(global_interpolation_t) :: global_interp
+     type(lpt_periodic_bc_t) :: periodic_bc
      type(particles_t) :: particles
      type(file_t) :: output_file
      logical :: output_enabled = .false.
      logical :: log = .true.
-     logical :: periodic_enabled = .false.
-     logical :: rotational_periodic_enabled = .false.
      real(kind=rp) :: start_time = -huge(0.0_rp)
-     integer :: n_periodic_dirs = 0
-     real(kind=rp) :: periodic_shift(3, 3) = 0.0_rp
-     real(kind=rp) :: periodic_dir(3, 3) = 0.0_rp
-     real(kind=rp) :: periodic_min(3) = 0.0_rp
-     real(kind=rp) :: periodic_max(3) = 0.0_rp
-     real(kind=rp) :: periodic_len(3) = 0.0_rp
-     real(kind=rp) :: rotational_theta_min = 0.0_rp
-     real(kind=rp) :: rotational_theta_max = 0.0_rp
-     real(kind=rp) :: rotational_theta_len = 0.0_rp
    contains
      procedure, pass(this) :: init => lpt_init_from_json
      procedure, pass(this) :: free => lpt_free
      procedure, pass(this) :: compute_ => lpt_compute
      procedure, private, pass(this) :: read_particles_json
      procedure, private, pass(this) :: read_particles_csv
-     procedure, private, pass(this) :: init_periodic_wrap
-     procedure, private, pass(this) :: wrap_particles_periodic
-     procedure, private, pass(this) :: init_rotational_periodic_wrap
-     procedure, private, pass(this) :: init_translational_periodic_wrap
-     procedure, private, pass(this) :: wrap_particles_rotational
-     procedure, private, pass(this) :: wrap_particles_translational
      procedure, private, pass(this) :: redistribute_particles
      procedure, private, pass(this) :: evaluate_velocity
      procedure, private, pass(this) :: write_output
@@ -181,7 +162,7 @@ contains
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &
          params_subdict = interp_subdict)
-    call this%init_periodic_wrap(case%fluid%msh, case%fluid%dm_Xh, &
+    call this%periodic_bc%init(case%fluid%msh, case%fluid%dm_Xh, &
          case%fluid%c_Xh)
     call this%redistribute_particles()
 
@@ -262,7 +243,7 @@ contains
     integer :: ierr
 
     n_particles_old = this%particles%n
-    call this%wrap_particles_periodic()
+    call this%periodic_bc%wrap(this%particles%xyz, this%particles%n)
     call this%global_interp%find_points_and_redist(this%particles%xyz, &
          this%particles%n)
     call this%global_interp%init_redist_comm(redist_comm)
@@ -427,6 +408,7 @@ contains
 
     call this%particles%free()
     call this%global_interp%free()
+    call this%periodic_bc%free()
     call this%output_file%free()
 
     this%u => null()
@@ -435,17 +417,6 @@ contains
     this%output_enabled = .false.
     this%log = .true.
     this%start_time = -huge(0.0_rp)
-    this%periodic_enabled = .false.
-    this%rotational_periodic_enabled = .false.
-    this%n_periodic_dirs = 0
-    this%periodic_shift = 0.0_rp
-    this%periodic_dir = 0.0_rp
-    this%periodic_min = 0.0_rp
-    this%periodic_max = 0.0_rp
-    this%periodic_len = 0.0_rp
-    this%rotational_theta_min = 0.0_rp
-    this%rotational_theta_max = 0.0_rp
-    this%rotational_theta_len = 0.0_rp
     call this%free_base()
   end subroutine lpt_free
 
@@ -462,17 +433,17 @@ contains
     write(log_buf, '(A,I0)') "Global seeded particles: ", &
          this%particles%n_global
     call neko_log%message(log_buf)
-    if (this%periodic_enabled) then
+    if (this%periodic_bc%periodic_enabled) then
        write(log_buf, '(A,I0)') "Periodic wrap directions: ", &
-            this%n_periodic_dirs
+            this%periodic_bc%n_periodic_dirs
        call neko_log%message(log_buf)
     end if
-    if (this%rotational_periodic_enabled) then
+    if (this%periodic_bc%rotational_periodic_enabled) then
        write(log_buf, '(A,3(ES13.5,A),ES13.5)') &
             "Rotational periodic sector: theta_min=", &
-            this%rotational_theta_min, ", theta_max=", &
-            this%rotational_theta_max, ", theta_len=", &
-            this%rotational_theta_len, ""
+            this%periodic_bc%rotational_theta_min, ", theta_max=", &
+            this%periodic_bc%rotational_theta_max, ", theta_len=", &
+            this%periodic_bc%rotational_theta_len, ""
        call neko_log%message(log_buf)
     end if
     write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
@@ -534,322 +505,5 @@ contains
        end do
     end do
   end subroutine redistribute_velocity_history
-
-  !> Initialize periodic wrapping from the mesh periodic facet pairs.
-  !! For cyclic sectors, the angular extent is inferred directly from the mesh.
-  subroutine init_periodic_wrap(this, msh, dm_Xh, coef)
-    class(lpt_t), intent(inout) :: this
-    type(mesh_t), intent(in), target :: msh
-    type(dofmap_t), intent(in) :: dm_Xh
-    type(coef_t), intent(in) :: coef
-    this%periodic_enabled = .false.
-    this%rotational_periodic_enabled = .false.
-    this%n_periodic_dirs = 0
-    this%periodic_shift = 0.0_rp
-    this%periodic_dir = 0.0_rp
-    this%periodic_min = 0.0_rp
-    this%periodic_max = 0.0_rp
-    this%periodic_len = 0.0_rp
-    this%rotational_theta_min = 0.0_rp
-    this%rotational_theta_max = 0.0_rp
-    this%rotational_theta_len = 0.0_rp
-
-    if (msh%periodic%size .eq. 0) return
-
-    call this%init_rotational_periodic_wrap(msh, dm_Xh, coef)
-    if (this%rotational_periodic_enabled) return
-
-    call this%init_translational_periodic_wrap(msh)
-  end subroutine init_periodic_wrap
-
-  !> Wrap particles back into the periodic domain before the ownership search.
-  subroutine wrap_particles_periodic(this)
-    class(lpt_t), intent(inout) :: this
-
-    if (this%particles%n .eq. 0) return
-
-    if (this%rotational_periodic_enabled) then
-       call this%wrap_particles_rotational()
-       return
-    end if
-
-    call this%wrap_particles_translational()
-  end subroutine wrap_particles_periodic
-
-  subroutine init_rotational_periodic_wrap(this, msh, dm_Xh, coef)
-    class(lpt_t), intent(inout) :: this
-    type(mesh_t), intent(in) :: msh
-    type(dofmap_t), intent(in) :: dm_Xh
-    type(coef_t), intent(in) :: coef
-    real(kind=rp) :: theta_min
-    real(kind=rp) :: theta_max
-    real(kind=rp) :: pi
-    integer :: ierr
-
-    if (.not. coef%cyclic .or. msh%gdim .lt. 2) return
-
-    pi = acos(-1.0_rp)
-    if (msh%nelv .gt. 0) then
-       theta_min = minval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
-            2.0_rp * pi, 2.0_rp * pi))
-       theta_max = maxval(modulo(atan2(dm_Xh%y, dm_Xh%x) + &
-            2.0_rp * pi, 2.0_rp * pi))
-    else
-       theta_min = huge(0.0_rp)
-       theta_max = -huge(0.0_rp)
-    end if
-
-    call MPI_Allreduce(theta_min, this%rotational_theta_min, 1, &
-         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
-    call MPI_Allreduce(theta_max, this%rotational_theta_max, 1, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
-
-    this%rotational_theta_len = this%rotational_theta_max - &
-         this%rotational_theta_min
-    this%rotational_periodic_enabled = &
-         this%rotational_theta_len .gt. LPT_PERIODIC_TOL
-  end subroutine init_rotational_periodic_wrap
-
-  subroutine init_translational_periodic_wrap(this, msh)
-    class(lpt_t), intent(inout) :: this
-    type(mesh_t), intent(in) :: msh
-    integer :: i
-    integer :: j
-    integer :: idx
-    integer :: ierr
-    integer :: n_local
-    integer :: n_global
-    integer :: max_local
-    integer :: match_idx
-    integer, allocatable :: counts(:)
-    integer, allocatable :: padded_meta(:)
-    integer, allocatable :: gathered_meta(:)
-    integer, allocatable :: global_meta(:)
-    real(kind=rp), allocatable :: padded_center(:)
-    real(kind=rp), allocatable :: gathered_center(:)
-    real(kind=rp), allocatable :: global_center(:)
-    real(kind=rp) :: src_center(3)
-    real(kind=rp) :: tgt_center(3)
-    real(kind=rp) :: shift(3)
-    real(kind=rp) :: proj_src
-    real(kind=rp) :: proj_tgt
-    real(kind=rp) :: dir(3)
-
-    if (msh%periodic%size .eq. 0) return
-
-    n_local = msh%periodic%size
-    allocate(counts(pe_size))
-    call MPI_Allgather(n_local, 1, MPI_INTEGER, counts, 1, MPI_INTEGER, &
-         NEKO_COMM, ierr)
-    n_global = sum(counts)
-    max_local = max(1, maxval(counts))
-
-    allocate(padded_meta(2 * max_local))
-    allocate(padded_center(3 * max_local))
-    padded_meta = 0
-    padded_center = 0.0_rp
-
-    ! collect meta data from periodic facets
-    do i = 1, n_local
-       call lpt_get_periodic_center(msh, i, src_center)
-
-       padded_meta(2 * (i - 1) + 1) = msh%periodic%facet_el(i)%x(1)
-       padded_meta(2 * (i - 1) + 2) = msh%elements( &
-            msh%periodic%facet_el(i)%x(2))%e%id()
-       padded_center(3 * (i - 1) + 1:3 * i) = src_center
-    end do
-
-    ! broadcast meta data to all ranks
-    allocate(gathered_meta(2 * max_local * pe_size))
-    allocate(gathered_center(3 * max_local * pe_size))
-    call MPI_Allgather(padded_meta, 2 * max_local, MPI_INTEGER, gathered_meta, &
-         2 * max_local, MPI_INTEGER, NEKO_COMM, ierr)
-    call MPI_Allgather(padded_center, 3 * max_local, MPI_REAL_PRECISION, &
-         gathered_center, 3 * max_local, MPI_REAL_PRECISION, NEKO_COMM, ierr)
-
-    ! reorganise the data to global arrays of size n_global
-    allocate(global_meta(2 * n_global))
-    allocate(global_center(3 * n_global))
-    idx = 0
-    do i = 1, pe_size
-       if (counts(i) .gt. 0) then
-          global_meta(2 * idx + 1:2 * (idx + counts(i))) = &
-               gathered_meta(2 * max_local * (i - 1) + 1: &
-               2 * max_local * (i - 1) + 2 * counts(i))
-          global_center(3 * idx + 1:3 * (idx + counts(i))) = &
-               gathered_center(3 * max_local * (i - 1) + 1: &
-               3 * max_local * (i - 1) + 3 * counts(i))
-          idx = idx + counts(i)
-       end if
-    end do
-
-    ! cycle through the periodic facets and identify unique periodic directions 
-    ! and their extents by matching the facet pairs and comparing their centers
-    do i = 1, msh%periodic%size
-       ! get the center of the facet (averaged over the pair)
-       call lpt_get_periodic_center(msh, i, src_center)
-
-       ! find whether there is a match facet from the global list
-       match_idx = 0
-       do j = 1, n_global
-          if (global_meta(2 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1) &
-               .and. global_meta(2 * (j - 1) + 2) .eq. &
-               msh%periodic%p_facet_el(i)%x(2)) then
-             match_idx = j
-             exit
-          end if
-       end do
-       if (match_idx .eq. 0) cycle
-
-       ! fetch the target facet center and compute the shift
-       tgt_center = global_center(3 * (match_idx - 1) + 1:3 * match_idx)
-       shift = tgt_center - src_center
-       if (norm2(shift) .le. LPT_PERIODIC_TOL) cycle
-
-       ! compute the direction and projection
-       dir = shift
-       call lpt_normalize(dir)
-       proj_src = dot_product(src_center, dir)
-       proj_tgt = dot_product(tgt_center, dir)
-       idx = 0
-
-       ! identfy whether the direction is a unique one
-       do j = 1, this%n_periodic_dirs
-          if (abs(dot_product(dir, this%periodic_dir(:, j))) .gt. &
-               1.0_rp - 1.0e-6_rp) then
-             idx = j
-             exit
-          end if
-       end do
-
-       if (idx .ne. 0) cycle
-
-       ! if unique, add it to the list of periodic directions
-       ! with its extent and shift
-       if (this%n_periodic_dirs .ge. 3) cycle
-       idx = this%n_periodic_dirs + 1
-       this%n_periodic_dirs = idx
-       this%periodic_dir(:, idx) = dir
-       this%periodic_min(idx) = min(proj_src, proj_tgt)
-       this%periodic_max(idx) = max(proj_src, proj_tgt)
-       this%periodic_shift(:, idx) = shift
-       this%periodic_len(idx) = norm2(shift)
-    end do
-
-    deallocate(global_center)
-    deallocate(global_meta)
-    deallocate(gathered_center)
-    deallocate(gathered_meta)
-    deallocate(padded_center)
-    deallocate(padded_meta)
-    deallocate(counts)
-
-    this%periodic_enabled = this%n_periodic_dirs .gt. 0
-  end subroutine init_translational_periodic_wrap
-
-  subroutine wrap_particles_rotational(this)
-    class(lpt_t), intent(inout) :: this
-    integer :: i
-    real(kind=rp) :: radius
-    real(kind=rp) :: theta
-    real(kind=rp) :: pi
-
-    pi = acos(-1.0_rp)
-    do i = 1, this%particles%n
-       radius = norm2(this%particles%xyz(1:2, i))
-       theta = modulo(atan2(this%particles%xyz(2, i), &
-            this%particles%xyz(1, i)) + 2.0_rp * pi, 2.0_rp * pi)
-
-       do while (theta .lt. this%rotational_theta_min - LPT_PERIODIC_TOL)
-          theta = theta + this%rotational_theta_len
-       end do
-
-       do while (theta .gt. this%rotational_theta_max + LPT_PERIODIC_TOL)
-          theta = theta - this%rotational_theta_len
-       end do
-
-       this%particles%xyz(1, i) = radius * cos(theta)
-       this%particles%xyz(2, i) = radius * sin(theta)
-    end do
-  end subroutine wrap_particles_rotational
-
-  subroutine wrap_particles_translational(this)
-    class(lpt_t), intent(inout) :: this
-    integer :: i
-    integer :: j
-    real(kind=rp) :: coord
-
-    if (.not. this%periodic_enabled) return
-
-    do i = 1, this%particles%n
-       do j = 1, this%n_periodic_dirs
-          coord = dot_product(this%particles%xyz(:, i), this%periodic_dir(:, j))
-
-          do while (coord .lt. this%periodic_min(j) - LPT_PERIODIC_TOL)
-             this%particles%xyz(:, i) = this%particles%xyz(:, i) + &
-                  this%periodic_shift(:, j)
-             coord = coord + this%periodic_len(j)
-          end do
-
-          do while (coord .gt. this%periodic_max(j) + LPT_PERIODIC_TOL)
-             this%particles%xyz(:, i) = this%particles%xyz(:, i) - &
-                  this%periodic_shift(:, j)
-             coord = coord - this%periodic_len(j)
-          end do
-       end do
-    end do
-  end subroutine wrap_particles_translational
-
-  subroutine lpt_get_facet_points(msh, el, facet, pts)
-    type(mesh_t), intent(in) :: msh
-    integer, intent(in) :: el
-    integer, intent(in) :: facet
-    real(kind=rp), intent(out) :: pts(3, 4)
-    integer, dimension(4, 6) :: face_nodes = reshape([ &
-         1,5,7,3, &
-         2,6,8,4, &
-         1,2,6,5, &
-         3,4,8,7, &
-         1,2,4,3, &
-         5,6,8,7], [4, 6])
-    integer, dimension(2, 4) :: edge_nodes = reshape([ &
-         1,3, &
-         2,4, &
-         1,2, &
-         3,4], [2, 4])
-    integer :: i
-
-    pts = 0.0_rp
-    if (msh%gdim .eq. 3) then
-       do i = 1, 4
-          pts(:, i) = real(msh%elements(el)%e%pts(face_nodes(i, facet))%p%x, rp)
-       end do
-    else
-       do i = 1, 2
-          pts(:, i) = real(msh%elements(el)%e%pts(edge_nodes(i, facet))%p%x, rp)
-       end do
-    end if
-  end subroutine lpt_get_facet_points
-
-  subroutine lpt_get_periodic_center(msh, i_periodic, pt)
-    type(mesh_t), intent(in) :: msh
-    integer, intent(in) :: i_periodic
-    real(kind=rp), intent(out) :: pt(3)
-    integer :: npts
-    real(kind=rp) :: pts(3, 4)
-
-    npts = merge(4, 2, msh%gdim .eq. 3)
-    call lpt_get_facet_points(msh, msh%periodic%facet_el(i_periodic)%x(2), &
-         msh%periodic%facet_el(i_periodic)%x(1), pts)
-    pt = sum(pts(:, 1:npts), dim = 2) / real(npts, rp)
-  end subroutine lpt_get_periodic_center
-
-  subroutine lpt_normalize(v)
-    real(kind=rp), intent(inout) :: v(3)
-    real(kind=rp) :: vnorm
-
-    vnorm = norm2(v)
-    if (vnorm .gt. LPT_PERIODIC_TOL) v = v / vnorm
-  end subroutine lpt_normalize
 
 end module lagrangian_particle_tracking
