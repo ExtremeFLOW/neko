@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module element
-  use num_types
+  use num_types, only : dp
   use entity, only : entity_t
   use tuple, only : tuple_t
   use point, only : point_ptr, point_t

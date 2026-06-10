@@ -33,9 +33,9 @@
 !> Implements an Octree
 !! @details Fast search/lookup of points
 module octree
-  use num_types
-  use point
-  use utils
+  use num_types, only : dp
+  use point, only : point_t
+  use utils, only : neko_error
   implicit none
   private
 

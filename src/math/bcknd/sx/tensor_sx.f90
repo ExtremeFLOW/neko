@@ -1,7 +1,7 @@
 !> Tensor operations SX-Aurora backend
 module tensor_sx
-  use num_types
-  use mxm_wrapper
+  use num_types, only : rp
+  use mxm_wrapper, only : mxm
   implicit none
   private
 

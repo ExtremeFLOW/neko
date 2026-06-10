@@ -32,9 +32,9 @@
 !
 !> Generic Gather-scatter backend for CPUs
 module gs_cpu
-  use num_types
-  use gs_bcknd
-  use gs_ops
+  use num_types, only : rp
+  use gs_bcknd, only : gs_bcknd_t
+  use gs_ops, only : GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private

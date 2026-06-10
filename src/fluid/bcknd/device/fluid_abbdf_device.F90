@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module rhs_maker_device
-  use rhs_maker
-  use device
-  use utils
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_ext_t, rhs_maker_bdf_t, &
+       field_series_t
+  use device, only : device_get_ptr
   use, intrinsic :: iso_c_binding
   implicit none
   private

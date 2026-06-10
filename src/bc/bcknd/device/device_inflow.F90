@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_inflow
-  use num_types
-  use utils
+  use num_types, only : c_rp
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
   private
 
@@ -95,4 +95,3 @@ contains
   end subroutine device_inflow_apply_vector
 
 end module device_inflow
-
