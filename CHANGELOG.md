@@ -4,8 +4,8 @@
 
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
-- Added the Richardson wall model.
-- Added the `caisagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL
+- Added a Valgrind-based regression test suite under `tests/regression/valgrind`
+  for detecting memory leaks in a minimal TGV run.
 - Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS
   Fluent `.msh` meshes to Neko `.re2` meshes. Requires Python 3 with `numpy`,
   `scipy`, and `pymech`. Supports translational periodic boundaries via
