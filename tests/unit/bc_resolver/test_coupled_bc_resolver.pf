@@ -6,7 +6,8 @@ module test_coupled_bc_resolver
   use device, only : device_init, device_finalize
   use neko_config, only : NEKO_BCKND_DEVICE
   use neko_mpi_types, only : neko_mpi_types_init
-  use mesh_fixture, only : single_reference_element_mesh
+  use mesh_fixture, only : single_reference_element_mesh, &
+       two_adjacent_unit_hex_mesh
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use coefs, only : coef_t
@@ -19,6 +20,7 @@ module test_coupled_bc_resolver
   use non_normal, only : non_normal_t
   use bc, only : bc_t
   use vector_bc_resolver, only : coupled_vector_bc_resolver_t
+  use utils, only : linear_index
   implicit none
 
   @TestCase
@@ -316,6 +318,318 @@ contains
 
   end subroutine test_single_element
 
+  !> Verify the homogeneous apply path for a symmetry boundary condition.
+  !! The resolver should remove only the normal velocity component on the
+  !! resolved mixed node while leaving tangential components intact. Dirichlet
+  !! nodes on the other faces are also checked to make sure they are zeroed in
+  !! Cartesian space before the mixed-node projection is applied.
+  @test(npes=[1])
+  subroutine test_coupled_apply_symmetry(this)
+    class(test_coupled_bc_resolver_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_resolver_t) :: bc_resolver
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: zone_idx, dof_size
+    integer, parameter :: face_center = 13
+    integer, parameter :: interior = 14
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(6)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    do zone_idx = 2, 6
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, real(zone_idx, rp))
+    end do
+
+    call bc_resolver%init(coef)
+    call bc_resolver%mark(bclst)
+    call bc_resolver%finalize(.true.)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 4.0_rp
+    y = 5.0_rp
+    z = 6.0_rp
+
+    call bc_resolver%apply(x, y, z, dof_size)
+
+    ! Face 1 has normal (-1, 0, 0), so a symmetry condition kills only x.
+    @assertEqual(0.0_rp, x(face_center), tolerance=1e-12)
+    @assertEqual(5.0_rp, y(face_center), tolerance=1e-12)
+    @assertEqual(6.0_rp, z(face_center), tolerance=1e-12)
+
+    ! A node on a Dirichlet face is fully constrained in Cartesian space.
+    @assertEqual(0.0_rp, x(2), tolerance=1e-12)
+    @assertEqual(0.0_rp, y(2), tolerance=1e-12)
+    @assertEqual(0.0_rp, z(2), tolerance=1e-12)
+
+    ! Interior nodes are outside the resolved boundary masks.
+    @assertEqual(4.0_rp, x(interior), tolerance=1e-12)
+    @assertEqual(5.0_rp, y(interior), tolerance=1e-12)
+    @assertEqual(6.0_rp, z(interior), tolerance=1e-12)
+
+    deallocate(x, y, z)
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_resolver%free()
+  end subroutine test_coupled_apply_symmetry
+
+  !> Verify the homogeneous apply path for a non-normal boundary condition.
+  !! The coupled resolver treats class-3 nodes by preserving the normal
+  !! component and removing the two tangential components. With face 1 normal
+  !! (-1, 0, 0), this means x survives and y/z are zeroed on the resolved
+  !! mixed node.
+  @test(npes=[1])
+  subroutine test_coupled_apply_non_normal(this)
+    class(test_coupled_bc_resolver_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_resolver_t) :: bc_resolver
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    real(kind=rp) :: tangential_value(3)
+    integer :: zone_idx, dof_size
+    integer, parameter :: face_center = 13
+    integer, parameter :: interior = 14
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    tangential_value = [0.0_rp, 0.0_rp, 0.0_rp]
+    call bclst%init(6)
+    call append_non_normal_bc(bclst, non_normal_bcs(1), coef, 1, &
+         tangential_value)
+    do zone_idx = 2, 6
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, real(zone_idx, rp))
+    end do
+
+    call bc_resolver%init(coef)
+    call bc_resolver%mark(bclst)
+    call bc_resolver%finalize(.true.)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 4.0_rp
+    y = 5.0_rp
+    z = 6.0_rp
+
+    call bc_resolver%apply(x, y, z, dof_size)
+
+    ! Face 1 has normal (-1, 0, 0), so only the x/normal component remains.
+    @assertEqual(4.0_rp, x(face_center), tolerance=1e-12)
+    @assertEqual(0.0_rp, y(face_center), tolerance=1e-12)
+    @assertEqual(0.0_rp, z(face_center), tolerance=1e-12)
+    @assertEqual(4.0_rp, x(interior), tolerance=1e-12)
+    @assertEqual(5.0_rp, y(interior), tolerance=1e-12)
+    @assertEqual(6.0_rp, z(interior), tolerance=1e-12)
+
+    deallocate(x, y, z)
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_resolver%free()
+  end subroutine test_coupled_apply_non_normal
+
+  !> Verify that finalize propagates resolved masks and local basis vectors
+  !! back into each mixed boundary condition. In this setup a class-2 symmetry
+  !! face and a class-3 non-normal face meet on an edge, while the remaining
+  !! faces are Dirichlet. The resolved BC-local supports should contain only
+  !! nodes whose globally reduced type still matches the BC type.
+  @test(npes=[1])
+  subroutine test_mixed_bc_basis_propagated(this)
+    class(test_coupled_bc_resolver_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_resolver_t) :: bc_resolver
+    real(kind=rp) :: tangential_value(3)
+    integer :: zone_idx, i, global_idx, resolver_idx
+    integer :: symmetry_size, non_normal_size
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    tangential_value = [0.0_rp, 0.0_rp, 0.0_rp]
+    call bclst%init(6)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    do zone_idx = 2, 5
+       call append_dirichlet_bc(bclst, dirichlet_bcs(zone_idx), coef, &
+            zone_idx, real(zone_idx, rp))
+    end do
+    call append_non_normal_bc(bclst, non_normal_bcs(6), coef, 6, &
+         tangential_value)
+
+    call bc_resolver%init(coef)
+    call bc_resolver%mark(bclst)
+    call bc_resolver%finalize(.true.)
+
+    symmetry_size = symmetry_bcs(1)%resolved_msk%size()
+    non_normal_size = non_normal_bcs(6)%resolved_msk%size()
+
+    @assertEqual(2, symmetry_size)
+    @assertEqual(1, non_normal_size)
+    @assertEqual(symmetry_size, size(symmetry_bcs(1)%n%x, 2))
+    @assertEqual(non_normal_size, size(non_normal_bcs(6)%n%x, 2))
+
+    ! Every BC-local basis vector should be copied from the global resolver
+    ! entry for the same resolved dof.
+    do i = 1, symmetry_bcs(1)%resolved_msk%size()
+       global_idx = symmetry_bcs(1)%resolved_msk%get(i)
+       resolver_idx = find_mask_index(bc_resolver%mixed_dof_mask, global_idx)
+       @assertTrue(resolver_idx > 0)
+       call assert_basis_equal(symmetry_bcs(1)%n%x(:, i), &
+            bc_resolver%n%x(:, resolver_idx))
+       call assert_basis_equal(symmetry_bcs(1)%t1%x(:, i), &
+            bc_resolver%t1%x(:, resolver_idx))
+       call assert_basis_equal(symmetry_bcs(1)%t2%x(:, i), &
+            bc_resolver%t2%x(:, resolver_idx))
+    end do
+
+    do i = 1, non_normal_bcs(6)%resolved_msk%size()
+       global_idx = non_normal_bcs(6)%resolved_msk%get(i)
+       resolver_idx = find_mask_index(bc_resolver%mixed_dof_mask, global_idx)
+       @assertTrue(resolver_idx > 0)
+       call assert_basis_equal(non_normal_bcs(6)%n%x(:, i), &
+            bc_resolver%n%x(:, resolver_idx))
+       call assert_basis_equal(non_normal_bcs(6)%t1%x(:, i), &
+            bc_resolver%t1%x(:, resolver_idx))
+       call assert_basis_equal(non_normal_bcs(6)%t2%x(:, i), &
+            bc_resolver%t2%x(:, resolver_idx))
+    end do
+
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_resolver%free()
+  end subroutine test_mixed_bc_basis_propagated
+
+  !> Verify that finalize(rebuild_mask=.false.) reuses the already resolved
+  !! masks while rebuilding a valid basis. The mask sizes and representative
+  !! normal vector must be unchanged after the second finalize call.
+  @test(npes=[1])
+  subroutine test_finalize_rebuild_false(this)
+    class(test_coupled_bc_resolver_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_resolver_t) :: bc_resolver
+    integer :: zone_idx, mixed_size, dirichlet_size, center_idx
+    real(kind=rp) :: normal_before(3)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_reference_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(6)
+    do zone_idx = 1, 6
+       call append_symmetry_bc(bclst, symmetry_bcs(zone_idx), coef, zone_idx)
+    end do
+
+    call bc_resolver%init(coef)
+    call bc_resolver%mark(bclst)
+    call bc_resolver%finalize(.true.)
+
+    mixed_size = bc_resolver%mixed_dof_mask%size()
+    dirichlet_size = bc_resolver%dirichlet_dof_mask%size()
+    center_idx = find_mask_index(bc_resolver%mixed_dof_mask, 13)
+    @assertTrue(center_idx > 0)
+    normal_before = bc_resolver%n%x(:, center_idx)
+
+    call bc_resolver%finalize(.false.)
+
+    @assertEqual(mixed_size, bc_resolver%mixed_dof_mask%size())
+    @assertEqual(dirichlet_size, bc_resolver%dirichlet_dof_mask%size())
+    center_idx = find_mask_index(bc_resolver%mixed_dof_mask, 13)
+    @assertTrue(center_idx > 0)
+    call assert_basis_equal(normal_before, bc_resolver%n%x(:, center_idx))
+
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_resolver%free()
+  end subroutine test_finalize_rebuild_false
+
+  !> Verify that shared-node gather-scatter resolution keeps the most
+  !! restrictive boundary type across adjacent elements. A symmetry face on
+  !! one element and a Dirichlet face on the neighboring element meet at shared
+  !! nodes; those shared dofs should become fully constrained rather than mixed.
+  @test(npes=[1])
+  subroutine test_two_element_shared_face(this)
+    class(test_coupled_bc_resolver_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(coef_t) :: coef
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(dirichlet_t) :: dirichlet_bcs(6)
+    type(symmetry_t) :: symmetry_bcs(6)
+    type(non_normal_t) :: non_normal_bcs(6)
+    type(bc_list_t) :: bclst
+    type(coupled_vector_bc_resolver_t) :: bc_resolver
+    integer :: shared_idx, symmetry_center
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_two_element_case(mesh, Xh, dof, gs, coef)
+
+    call bclst%init(2)
+    call append_symmetry_bc(bclst, symmetry_bcs(1), coef, 1)
+    call append_dirichlet_bc(bclst, dirichlet_bcs(2), coef, 2, 0.0_rp)
+
+    call bc_resolver%init(coef)
+    call bc_resolver%mark(bclst)
+    call bc_resolver%finalize(.true.)
+
+    ! Element 1 face 2 and element 2 face 1 are geometrically coincident in
+    ! the two-hex fixture. The Dirichlet classification should win there after
+    ! GS_OP_MIN propagation.
+    shared_idx = linear_index(3, 2, 2, 1, 3, 3, 3)
+    @assertTrue(find_mask_index(bc_resolver%dirichlet_dof_mask, shared_idx) > 0)
+    @assertEqual(0, find_mask_index(bc_resolver%mixed_dof_mask, shared_idx))
+
+    ! A symmetry face-center away from the shared Dirichlet face remains mixed.
+    symmetry_center = linear_index(1, 2, 2, 1, 3, 3, 3)
+    @assertTrue(find_mask_index(bc_resolver%mixed_dof_mask, symmetry_center) > 0)
+
+    call free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    call free_reference_case(mesh, Xh, dof, gs, coef)
+    call bc_resolver%free()
+  end subroutine test_two_element_shared_face
+
   subroutine append_dirichlet_bc(bclst, bc, coef, zone_idx, value)
     type(bc_list_t), intent(inout) :: bclst
     type(dirichlet_t), intent(inout), target :: bc
@@ -353,5 +667,103 @@ contains
     call bc%finalize()
     call bclst%append(bc)
   end subroutine append_non_normal_bc
+
+  subroutine init_reference_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    integer :: zone_idx
+
+    call single_reference_element_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call neko_scratch_registry%init(dof = dof)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    do zone_idx = 1, 6
+       call mesh%mark_labeled_facet(zone_idx, 1, zone_idx)
+       call mesh%labeled_zones(zone_idx)%finalize()
+    end do
+  end subroutine init_reference_case
+
+  subroutine init_two_element_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+
+    call two_adjacent_unit_hex_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call neko_scratch_registry%init(dof = dof)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    ! Zone 1 is the exterior x-min face of element 1. Zone 2 deliberately
+    ! marks the matching x-max face of element 1 and x-min face of element 2,
+    ! giving the resolver shared nodes with competing BC classifications.
+    call mesh%mark_labeled_facet(1, 1, 1)
+    call mesh%labeled_zones(1)%finalize()
+    call mesh%mark_labeled_facet(2, 1, 2)
+    call mesh%mark_labeled_facet(1, 2, 2)
+    call mesh%labeled_zones(2)%finalize()
+  end subroutine init_two_element_case
+
+  subroutine free_reference_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+
+    call neko_scratch_registry%free()
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call mesh%free()
+  end subroutine free_reference_case
+
+  subroutine free_bc_objects(bclst, dirichlet_bcs, symmetry_bcs, non_normal_bcs)
+    type(bc_list_t), intent(inout) :: bclst
+    type(dirichlet_t), intent(inout) :: dirichlet_bcs(6)
+    type(symmetry_t), intent(inout) :: symmetry_bcs(6)
+    type(non_normal_t), intent(inout) :: non_normal_bcs(6)
+    integer :: zone_idx
+
+    call bclst%free()
+    do zone_idx = 1, 6
+       call dirichlet_bcs(zone_idx)%free()
+       call symmetry_bcs(zone_idx)%free()
+       call non_normal_bcs(zone_idx)%free()
+    end do
+  end subroutine free_bc_objects
+
+  integer function find_mask_index(msk, value) result(mask_idx)
+    use mask, only : mask_t
+    type(mask_t), intent(in) :: msk
+    integer, intent(in) :: value
+    integer :: i
+
+    mask_idx = 0
+    do i = 1, msk%size()
+       if (msk%get(i) .eq. value) then
+          mask_idx = i
+          return
+       end if
+    end do
+  end function find_mask_index
+
+  subroutine assert_basis_equal(a, b)
+    real(kind=rp), intent(in) :: a(3), b(3)
+
+    @assertEqual(a(1), b(1), tolerance=1e-10)
+    @assertEqual(a(2), b(2), tolerance=1e-10)
+    @assertEqual(a(3), b(3), tolerance=1e-10)
+  end subroutine assert_basis_equal
 
 end module test_coupled_bc_resolver

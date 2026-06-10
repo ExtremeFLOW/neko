@@ -1,10 +1,21 @@
 module test_bc_resolver
   use mpi
   use pfunit
+  use num_types, only : rp
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use device, only : device_init, device_finalize
   use neko_config, only : NEKO_BCKND_DEVICE
   use neko_mpi_types, only : neko_mpi_types_init
+  use mesh_fixture, only : single_reference_element_mesh
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t
+  use dirichlet, only : dirichlet_t
+  use scalar_bc_resolver, only : scalar_bc_resolver_t
+  use vector_bc_resolver, only : segregated_vector_bc_resolver_t, &
+       vector_bc_resolver_components
   implicit none
 
   @TestCase
@@ -33,20 +44,201 @@ contains
     end if
   end subroutine tearDown
 
-  !> Verify that the parallel test template is wired correctly.
+  !> Verify that the segregated vector resolver marks a Dirichlet condition
+  !! on all components when no component selector is supplied. The test applies
+  !! a single face boundary condition to a vector field and checks that the
+  !! face values are zeroed in x, y, and z while an interior node is untouched.
   @test(npes=[1])
-  subroutine test_template_passes(this)
+  subroutine test_segregated_all_components(this)
     class(test_bc_resolver_case), intent(inout) :: this
-    integer :: ierr, comm_size
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(dirichlet_t) :: bc
+    type(segregated_vector_bc_resolver_t) :: resolver
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: face1_dofs(9), dof_size, i
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
-    call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
 
-    @assertEqual(0, ierr)
-    @assertEqual(1, pe_size)
-    @assertEqual(1, comm_size)
-    @assertTrue(pe_rank >= 0)
-  end subroutine test_template_passes
+    call init_single_face_case(mesh, Xh, dof, gs, coef)
+    call init_dirichlet_face(bc, coef, 1)
+    call resolver%init(coef)
+    call resolver%mark(bc)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 1.0_rp
+    y = 2.0_rp
+    z = 3.0_rp
+
+    call resolver%apply(x, y, z, dof_size)
+
+    face1_dofs = [1, 4, 7, 10, 13, 16, 19, 22, 25]
+    do i = 1, size(face1_dofs)
+       @assertEqual(0.0_rp, x(face1_dofs(i)), tolerance=1e-12)
+       @assertEqual(0.0_rp, y(face1_dofs(i)), tolerance=1e-12)
+       @assertEqual(0.0_rp, z(face1_dofs(i)), tolerance=1e-12)
+    end do
+
+    ! The element center does not lie on the marked face.
+    @assertEqual(1.0_rp, x(14), tolerance=1e-12)
+    @assertEqual(2.0_rp, y(14), tolerance=1e-12)
+    @assertEqual(3.0_rp, z(14), tolerance=1e-12)
+
+    deallocate(x, y, z)
+    call resolver%free()
+    call bc%free()
+    call free_single_face_case(mesh, Xh, dof, gs, coef)
+  end subroutine test_segregated_all_components
+
+  !> Verify that the segregated vector resolver respects the optional component
+  !! selector. The Dirichlet face is marked for the y component only, so applying
+  !! the resolver must zero y on the face and leave x and z unchanged.
+  @test(npes=[1])
+  subroutine test_segregated_one_component(this)
+    class(test_bc_resolver_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(dirichlet_t) :: bc
+    type(segregated_vector_bc_resolver_t) :: resolver
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: face1_dofs(9), dof_size, i
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_single_face_case(mesh, Xh, dof, gs, coef)
+    call init_dirichlet_face(bc, coef, 1)
+    call resolver%init(coef)
+    call resolver%mark(bc, 'y')
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 1.0_rp
+    y = 2.0_rp
+    z = 3.0_rp
+
+    call resolver%apply(x, y, z, dof_size)
+
+    face1_dofs = [1, 4, 7, 10, 13, 16, 19, 22, 25]
+    do i = 1, size(face1_dofs)
+       @assertEqual(1.0_rp, x(face1_dofs(i)), tolerance=1e-12)
+       @assertEqual(0.0_rp, y(face1_dofs(i)), tolerance=1e-12)
+       @assertEqual(3.0_rp, z(face1_dofs(i)), tolerance=1e-12)
+    end do
+
+    @assertEqual(1.0_rp, x(14), tolerance=1e-12)
+    @assertEqual(2.0_rp, y(14), tolerance=1e-12)
+    @assertEqual(3.0_rp, z(14), tolerance=1e-12)
+
+    deallocate(x, y, z)
+    call resolver%free()
+    call bc%free()
+    call free_single_face_case(mesh, Xh, dof, gs, coef)
+  end subroutine test_segregated_one_component
+
+  !> Verify that the public component accessor returns the scalar resolvers
+  !! owned by a segregated vector resolver. The test then marks only the
+  !! x-component resolver through the returned pointer and checks that vector
+  !! application uses that component-local mask.
+  @test(npes=[1])
+  subroutine test_components_accessor(this)
+    class(test_bc_resolver_case), intent(inout) :: this
+    type(mesh_t) :: mesh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(dirichlet_t) :: bc
+    type(segregated_vector_bc_resolver_t), target :: resolver
+    type(scalar_bc_resolver_t), pointer :: rx, ry, rz
+    real(kind=rp), allocatable :: x(:), y(:), z(:)
+    integer :: dof_size
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call init_single_face_case(mesh, Xh, dof, gs, coef)
+    call init_dirichlet_face(bc, coef, 1)
+    call resolver%init(coef)
+    call vector_bc_resolver_components(resolver, rx, ry, rz)
+
+    @assertTrue(associated(rx))
+    @assertTrue(associated(ry))
+    @assertTrue(associated(rz))
+
+    call rx%mark(bc)
+
+    dof_size = dof%size()
+    allocate(x(dof_size), y(dof_size), z(dof_size))
+    x = 1.0_rp
+    y = 2.0_rp
+    z = 3.0_rp
+
+    call resolver%apply(x, y, z, dof_size)
+
+    @assertEqual(0.0_rp, x(13), tolerance=1e-12)
+    @assertEqual(2.0_rp, y(13), tolerance=1e-12)
+    @assertEqual(3.0_rp, z(13), tolerance=1e-12)
+    @assertEqual(1.0_rp, x(14), tolerance=1e-12)
+
+    deallocate(x, y, z)
+    call resolver%free()
+    call bc%free()
+    call free_single_face_case(mesh, Xh, dof, gs, coef)
+  end subroutine test_components_accessor
+
+  subroutine init_single_face_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    integer :: zone_idx
+
+    call single_reference_element_mesh(mesh)
+    call Xh%init(GLL, 3, 3, 3)
+    call dof%init(mesh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+
+    ! Keep the labeled-zone setup identical to the coupled resolver tests:
+    ! zone i maps to face i of the single reference hexahedron.
+    do zone_idx = 1, 6
+       call mesh%mark_labeled_facet(zone_idx, 1, zone_idx)
+       call mesh%labeled_zones(zone_idx)%finalize()
+    end do
+  end subroutine init_single_face_case
+
+  subroutine free_single_face_case(mesh, Xh, dof, gs, coef)
+    type(mesh_t), intent(inout) :: mesh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+
+    call coef%free()
+    call gs%free()
+    call dof%free()
+    call Xh%free()
+    call mesh%free()
+  end subroutine free_single_face_case
+
+  subroutine init_dirichlet_face(bc, coef, zone_idx)
+    type(dirichlet_t), intent(inout), target :: bc
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: zone_idx
+
+    call bc%init_from_components(coef, 0.0_rp)
+    call bc%mark_labeled_zone(zone_idx)
+    call bc%finalize()
+  end subroutine init_dirichlet_face
 
 end module test_bc_resolver

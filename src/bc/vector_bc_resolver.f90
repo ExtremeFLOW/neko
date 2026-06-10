@@ -576,8 +576,6 @@ contains
     end if
 
     call this%rebuild_basis()
-
-    call this%debug_output()
   end subroutine coupled_vector_bc_resolver_finalize
 
   !> Rebuild the resolved masks and local constraint flags.
