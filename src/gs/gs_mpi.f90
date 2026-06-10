@@ -264,7 +264,6 @@ contains
     type(c_ptr), intent(inout) :: strm
     integer :: i, j, k, src, off, nsrc, ierr
     integer :: op
-    integer, pointer :: sp(:)
     integer :: nreqs
     logical :: sends_done
 
