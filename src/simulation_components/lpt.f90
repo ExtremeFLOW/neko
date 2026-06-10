@@ -189,6 +189,7 @@ contains
 
     this%name = name
     this%time_order = case%fluid%ext_bdf%advection_time_order
+write(*,*) "lpt time order: ", this%time_order
 
     this%lag_len = this%time_order - 1
 
@@ -375,17 +376,14 @@ contains
   end subroutine redistribute_particles
 
   !> Interpolate the carrier velocity at the local particles.
-  subroutine evaluate_velocity(this, vel_fluid)
+  subroutine evaluate_velocity(this, vel_fluid, n)
     class(lpt_t), intent(inout) :: this
-    real(kind=rp), intent(out) :: vel_fluid(:,:)
-    real(kind=rp), allocatable :: vel_x(:), vel_y(:), vel_z(:)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: vel_fluid(3,n)
+    real(kind=rp) :: vel_x(n), vel_y(n), vel_z(n)
     logical :: do_interp_on_host
 
     if (this%particles%n .eq. 0) return
-
-    allocate(vel_x(this%particles%n))
-    allocate(vel_y(this%particles%n))
-    allocate(vel_z(this%particles%n))
 
     do_interp_on_host = .false.
     call this%global_interp%evaluate(vel_x, this%u%x, &
@@ -398,38 +396,24 @@ contains
     vel_fluid(1,:) = vel_x
     vel_fluid(2,:) = vel_y
     vel_fluid(3,:) = vel_z
-    deallocate(vel_x)
-    deallocate(vel_y)
-    deallocate(vel_z)
 
   end subroutine evaluate_velocity
 
   !> Estimate the local particile acceleration
-  subroutine evaluate_acceleration(this, vel_fluid, acceleration)
+  subroutine evaluate_acceleration(this, vel_fluid, acceleration, n)
     class(lpt_t), intent(inout) :: this
+    integer, intent(in) :: n
     real(kind=rp), intent(in) :: vel_fluid(:,:)
-    real(kind=rp), allocatable, intent(out) :: acceleration(:,:)
-    real(kind=rp), allocatable :: tau_p(:), Re_p(:), f(:)
-    real(kind=rp), allocatable :: rho_fluid_local(:), mu_fluid_local(:)
-    real(kind=rp), allocatable :: nu_fluid_local(:)
-    real(kind=rp), allocatable :: vel_rel(:,:), vel_rel_mag(:)
-    real(kind=rp), allocatable :: wa(:)
-    integer :: n
+    real(kind=rp), intent(out) :: acceleration(3,n)
+    real(kind=rp) :: tau_p(n), Re_p(n), f(n), rho_fluid_local(n)
+    real(kind=rp) :: mu_fluid_local(n),  nu_fluid_local(n)
+    real(kind=rp):: vel_rel(3, n), vel_rel_mag(n)
+    real(kind=rp):: wa(n)
+
     integer :: i
     logical :: do_interp_on_host
 
     if (this%particles%n .eq. 0) return
-    n = this%particles%n
-    allocate(acceleration(3, n))
-    allocate(tau_p(n))
-    allocate(Re_p(n))
-    allocate(f(n))
-    allocate(rho_fluid_local(n))
-    allocate(mu_fluid_local(n))
-    allocate(nu_fluid_local(n))
-    allocate(vel_rel(3, n))
-    allocate(vel_rel_mag(n))
-    allocate(wa(n))
     
     do_interp_on_host = .false.
     call this%global_interp%evaluate(mu_fluid_local, this%mu_fluid%x, &
@@ -463,21 +447,6 @@ contains
          call col3(acceleration(i,:), vel_rel(i,:), f, n)
          call invcol2(acceleration(i,:), tau_p, n)
     end do
-    write(*,*) "vel_rel", minval(vel_rel)
-    write(*,*) "Re_p", minval(Re_p)
-    write(*,*) "f", minval(f)
-    write(*,*) "acceleration", minval(acceleration)
-    write(*,*) "tau_p", minval(tau_p)
-
-    deallocate(tau_p)
-    deallocate(Re_p)
-    deallocate(f)
-    deallocate(rho_fluid_local)
-    deallocate(mu_fluid_local)
-    deallocate(nu_fluid_local)
-    deallocate(vel_rel)
-    deallocate(vel_rel_mag)
-    deallocate(wa)
 
   end subroutine evaluate_acceleration
 
@@ -495,11 +464,12 @@ contains
 
     call this%redistribute_particles()
     allocate(vel_fluid(3, this%particles%n))
-    call this%evaluate_velocity(vel_fluid)
+    allocate(acceleration(3, this%particles%n))
+    call this%evaluate_velocity(vel_fluid, this%particles%n)
 
     ! set the particle velocity
     if (this%inertia) then
-       call this%evaluate_acceleration(vel_fluid, acceleration)
+       call this%evaluate_acceleration(vel_fluid, acceleration, this%particles%n)
        call this%ODE_integrate_ab_3c(time, this%particles%vel, &
             acceleration, this%particles%acc_lag, this%particles%n)
     else
@@ -558,6 +528,8 @@ contains
     integer :: j
     integer :: nadv
 
+    if (n .eq. 0) return
+
     ! set up AB coefficients based on the history length available
     nadv = this%time_order
     nadv = min(nadv, this%history_len + 1)
@@ -571,15 +543,14 @@ contains
     ! contribution from the current velocity
     dtc = time%dt * ab_coeffs(1)
     do i = 1, 3
-       call add2s2(solution(i, :), rhs(i, :), dtc, this%particles%n)
+       call add2s2(solution(i, :), rhs(i, :), dtc, n)
     end do
 
     ! contribution from the lagged velocities
     do j = 2, nadv
        dtc = time%dt * ab_coeffs(j)
        do i = 1, 3
-          call add2s2(solution(i, :), rhslags(i, j - 1, :), &
-                      dtc, this%particles%n)
+          call add2s2(solution(i, :), rhslags(i, j - 1, :), dtc, n)
        end do
     end do
 
