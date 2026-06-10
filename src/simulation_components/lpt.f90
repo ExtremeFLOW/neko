@@ -101,6 +101,7 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: redistribute_particles
      procedure, private, pass(this) :: evaluate_velocity
+     procedure, private, pass(this) :: ODE_integrate_ab_3c
      procedure, private, pass(this) :: write_output
      procedure, private, pass(this) :: redistribute_particle_ids
      procedure, private, pass(this) :: redistribute_velocity_history
@@ -325,11 +326,8 @@ contains
   subroutine lpt_compute(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    type(ab_time_scheme_t) :: ab_scheme
     real(kind=rp), allocatable :: vel_fluid(:,:)
     real(kind=rp), allocatable :: vel(:,:)
-    real(kind=rp) :: ab_coeffs(4), dt_history(10)
-    real(kind=rp) :: dtc
     integer :: i
     integer :: j
     integer :: nadv
@@ -339,16 +337,6 @@ contains
     call this%redistribute_particles()
     call this%evaluate_velocity(vel_fluid)
 
-    ! set up AB coefficients based on the history length available
-    nadv = this%time_order
-    nadv = min(nadv, this%history_len + 1)
-
-    dt_history = 0.0_rp
-    dt_history(1) = time%dt
-    dt_history(2) = time%dtlag(1)
-    dt_history(3) = time%dtlag(2)
-    call ab_scheme%compute_coeffs(ab_coeffs, dt_history, nadv)
-
     ! set the particle velocity
     if (this%inertia) then
        call neko_error("particle inertia is not yet implemented")
@@ -356,22 +344,8 @@ contains
        this%particles%vel = vel_fluid
     end if
 
-    ! contribution from the current velocity
-    dtc = time%dt * ab_coeffs(1)
-    do i = 1, 3
-       call add2s2(this%particles%xyz(i, :), &
-                   this%particles%vel(i, :), dtc, this%particles%n)
-    end do
-
-    ! contribution from the lagged velocities
-    do j = 2, nadv
-       dtc = time%dt * ab_coeffs(j)
-       do i = 1, 3
-          call add2s2(this%particles%xyz(i, :), &
-               this%particles%vel_lag(i, j - 1, :), &
-               dtc, this%particles%n)
-       end do
-    end do
+    call this%ODE_integrate_ab_3c(time, this%particles%xyz, &
+         this%particles%vel, this%particles%vel_lag, this%particles%n)
 
     ! update lags
     if (this%lag_len .gt. 0) then
@@ -393,6 +367,48 @@ contains
     if (allocated(vel)) deallocate(vel)
 
   end subroutine lpt_compute
+
+  !> Performing ODE integration by Adam-Bashforth scheme
+  subroutine ODE_integrate_ab_3c(this, time, solution, rhs, rhslags, n)
+    class(lpt_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=rp), intent(inout) :: solution(:,:)
+    real(kind=rp), intent(in) :: rhs(:,:)
+    real(kind=rp), intent(in) :: rhslags(:,:,:)
+    integer, intent(in) :: n
+    type(ab_time_scheme_t) :: ab_scheme
+    real(kind=rp) :: ab_coeffs(4), dt_history(10)
+    real(kind=rp) :: dtc
+    integer :: i
+    integer :: j
+    integer :: nadv
+
+    ! set up AB coefficients based on the history length available
+    nadv = this%time_order
+    nadv = min(nadv, this%history_len + 1)
+
+    dt_history = 0.0_rp
+    dt_history(1) = time%dt
+    dt_history(2) = time%dtlag(1)
+    dt_history(3) = time%dtlag(2)
+    call ab_scheme%compute_coeffs(ab_coeffs, dt_history, nadv)
+
+    ! contribution from the current velocity
+    dtc = time%dt * ab_coeffs(1)
+    do i = 1, 3
+       call add2s2(solution(i, :), rhs(i, :), dtc, this%particles%n)
+    end do
+
+    ! contribution from the lagged velocities
+    do j = 2, nadv
+       dtc = time%dt * ab_coeffs(j)
+       do i = 1, 3
+          call add2s2(solution(i, :), rhslags(i, j - 1, :), &
+                      dtc, this%particles%n)
+       end do
+    end do
+
+  end subroutine ODE_integrate_ab_3c
 
   !> Write one trajectory snapshot to CSV by gathering local particle data to
   !! rank 0.
