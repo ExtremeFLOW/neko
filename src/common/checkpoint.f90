@@ -81,8 +81,10 @@ module checkpoint
      type(field_series_list_t) :: scalar_lags
 
      !> Multi-scalar ABX fields
-     type(field_ptr_t), allocatable :: scalar_abx1(:) !< ABX1 fields for each scalar
-     type(field_ptr_t), allocatable :: scalar_abx2(:) !< ABX2 fields for each scalar
+     type(field_ptr_t), allocatable :: scalar_abx1(:) !< ABX1 fields
+     !! for each scalar
+     type(field_ptr_t), allocatable :: scalar_abx2(:) !< ABX2 fields
+     !! for each scalar
 
      real(kind=dp) :: t = 0d0 !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
@@ -335,8 +337,9 @@ contains
             call this%wm_x%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%wm_y%copy_from(HOST_TO_DEVICE, sync = .false.)
             call this%wm_z%copy_from(HOST_TO_DEVICE, sync = .false.)
-            if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) .and. &
-                associated(this%wm_z_lag)) then
+            if (associated(this%wm_x_lag) .and. &
+                 associated(this%wm_y_lag) .and. &
+                 associated(this%wm_z_lag)) then
                call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
                     sync = .false.)
                call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, &

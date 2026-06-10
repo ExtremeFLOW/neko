@@ -53,7 +53,8 @@ module overset_interface_vector
   use vector, only : vector_t
   use vector_list, only : vector_list_t
   use vector_series, only: vector_series_t
-  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, vector_add2s2, &
+  use vector_math, only : vector_masked_gather_copy, &
+       vector_masked_scatter_copy, vector_add2s2, &
        vector_cmult2
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
@@ -102,7 +103,8 @@ module overset_interface_vector
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
-     procedure(morph_overset_interface), nopass, pointer :: morph_interface => null()
+     procedure(morph_overset_interface), nopass, pointer :: &
+          morph_interface => null()
 
    contains
      !> Constructor.
@@ -131,9 +133,11 @@ module overset_interface_vector
      !> Build the masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
      !> Gather the dofs at the interface.
-     procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
+     procedure, pass(this), private :: gather_interface_dofs_ => &
+          gather_interface_dofs_
      !> Set up the interpolator.
-     procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
+     procedure, pass(this), private :: setup_interpolator_ => &
+          setup_interpolator_
 
   end type overset_interface_vector_t
 
@@ -352,7 +356,8 @@ contains
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
-               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), strm) ! adperez: change the masks used here
+               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), &
+               strm) ! adperez: change the masks used here
           call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, &
                this%bc_v%msk_d, this%bc_v%dof%size(), this%msk(0), strm)
           call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
@@ -389,9 +394,12 @@ contains
     call this%build_masks_()
 
     !> Gather the interface boundary points
-    call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
-    call this%y_interface_dof%init(this%interface_dof_mask%size(), 'y_interface')
-    call this%z_interface_dof%init(this%interface_dof_mask%size(), 'z_interface')
+    call this%x_interface_dof%init(this%interface_dof_mask%size(), &
+         'x_interface')
+    call this%y_interface_dof%init(this%interface_dof_mask%size(), &
+         'y_interface')
+    call this%z_interface_dof%init(this%interface_dof_mask%size(), &
+         'z_interface')
     call this%gather_interface_dofs_()
 
     !> Initialize the interpolator and find the points
@@ -462,9 +470,12 @@ contains
     w => neko_registry%get_field("w")
 
     !> Interpolate the values
-    call this%interface_interpolator%evaluate_masked(this%u_interface%x, u%x, this%domain_element_mask, .false.)
-    call this%interface_interpolator%evaluate_masked(this%v_interface%x, v%x, this%domain_element_mask, .false.)
-    call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
+    call this%interface_interpolator%evaluate_masked(this%u_interface%x, &
+         u%x, this%domain_element_mask, .false.)
+    call this%interface_interpolator%evaluate_masked(this%v_interface%x, &
+         v%x, this%domain_element_mask, .false.)
+    call this%interface_interpolator%evaluate_masked(this%w_interface%x, &
+         w%x, this%domain_element_mask, .false.)
 
     !> If this is the first substep, then we do the extrapolation
     if (time%tstep .ne. this%last_tstep) then
@@ -481,24 +492,33 @@ contains
        call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
 
        ! Perfrom the extrapolation using the lag arrays
-       call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), iextm_coeffs(1))
-       call vector_cmult2(this%v_interface, this%v_interface_lag%lv(1), iextm_coeffs(1))
-       call vector_cmult2(this%w_interface, this%w_interface_lag%lv(1), iextm_coeffs(1))
+       call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), &
+            iextm_coeffs(1))
+       call vector_cmult2(this%v_interface, this%v_interface_lag%lv(1), &
+            iextm_coeffs(1))
+       call vector_cmult2(this%w_interface, this%w_interface_lag%lv(1), &
+            iextm_coeffs(1))
        do ihist = 2, nhist
-          call vector_add2s2(this%u_interface, this%u_interface_lag%lv(ihist), iextm_coeffs(ihist))
-          call vector_add2s2(this%v_interface, this%v_interface_lag%lv(ihist), iextm_coeffs(ihist))
-          call vector_add2s2(this%w_interface, this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%u_interface, &
+               this%u_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%v_interface, &
+               this%v_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%w_interface, &
+               this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
        end do
 
     end if
 
 
     !> Scatter them to the bc fields
-    call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), this%u_interface, &
+    call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), &
+         this%u_interface, &
          this%interface_dof_mask, this%bc_u%dof%size())
-    call vector_masked_scatter_copy(this%bc_v%field_bc%x(:,1,1,1), this%v_interface, &
+    call vector_masked_scatter_copy(this%bc_v%field_bc%x(:,1,1,1), &
+         this%v_interface, &
          this%interface_dof_mask, this%bc_v%dof%size())
-    call vector_masked_scatter_copy(this%bc_w%field_bc%x(:,1,1,1), this%w_interface, &
+    call vector_masked_scatter_copy(this%bc_w%field_bc%x(:,1,1,1), &
+         this%w_interface, &
          this%interface_dof_mask, this%bc_w%dof%size())
 
 

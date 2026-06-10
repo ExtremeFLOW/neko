@@ -51,7 +51,8 @@ module user_stats
   implicit none
   private
 
-  !> A simulation component that computes the averages of fields in the registry.
+  !> A simulation component that computes the averages of fields in
+  !! the registry.
   type, public, extends(simulation_component_t) :: user_stats_t
 
      !> When to start averaging.
