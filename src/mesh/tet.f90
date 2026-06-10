@@ -39,10 +39,10 @@ module tet
   implicit none
   private
 
-  integer, public, parameter :: NEKO_TET_NPTS = 4  !< Number of points
-  integer, public, parameter :: NEKO_TET_NFCS = 4  !< Number of faces
+  integer, public, parameter :: NEKO_TET_NPTS = 4 !< Number of points
+  integer, public, parameter :: NEKO_TET_NFCS = 4 !< Number of faces
   integer, public, parameter :: NEKO_TET_NEDS = 6 !< Number of edges
-  integer, public, parameter :: NEKO_TET_GDIM = 3  !< Geometric dimension
+  integer, public, parameter :: NEKO_TET_GDIM = 3 !< Geometric dimension
 
 
   !> Tetrahedral element
@@ -90,10 +90,10 @@ module tet
   !! @endverbatim
   !! @note Local node numbering (points)
   integer, parameter, dimension(3, 4) :: face_nodes = reshape((/1,3,4,&
-                                                                2,3,4,&
-                                                                1,2,4,&
-                                                                1,2,3/),&
-                                                                (/3,4/))
+       2,3,4,&
+       1,2,4,&
+       1,2,3/),&
+       (/3,4/))
 
   !> Edge node ids
   !! @details
@@ -112,12 +112,12 @@ module tet
   !!
   !! @endverbatim
   integer, parameter, dimension(2, 6) :: edge_nodes = reshape((/1,2,&
-                                                                1,3,&
-                                                                2,3,&
-                                                                3,4,&
-                                                                1,4,&
-                                                                2,4/),&
-                                                                (/2,6/))
+       1,3,&
+       2,3,&
+       3,4,&
+       1,4,&
+       2,4/),&
+       (/2,6/))
 
 contains
 

@@ -54,7 +54,7 @@ module octree
   end type oct_t
 
   !> Defines an octree
-  type, public ::  octree_t
+  type, public :: octree_t
      type(oct_t), pointer :: root => null()
    contains
      procedure, pass(t) :: init => octree_init
