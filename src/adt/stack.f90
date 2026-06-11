@@ -258,7 +258,6 @@ contains
     class(*), intent(in) :: data !< Arbitrary typed data (same type as stack)
     class(*), allocatable :: tmp(:)
     integer :: i
-    !DIR$ OPTIMIZE(-hscalar0)
 
     if (this%top_ .eq. this%size_) then
        this%size_ = ishft(this%size_, 1)
