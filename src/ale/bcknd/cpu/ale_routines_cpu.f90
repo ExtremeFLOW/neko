@@ -119,7 +119,8 @@ contains
                    do kk = k0, k1
                       do jj = j0, j1
                          do ii = i0, i1
-                            if ((ii .eq. i) .and. (jj .eq. j) .and. (kk .eq. k)) cycle
+                            if ((ii .eq. i) .and. (jj .eq. j) .and. &
+                                 (kk .eq. k)) cycle
                             x2 = coef%dof%x(ii, jj, kk, e)
                             y2 = coef%dof%y(ii, jj, kk, e)
                             z2 = coef%dof%z(ii, jj, kk, e)
@@ -218,7 +219,8 @@ contains
                       do kk = k0, k1
                          do jj = j0, j1
                             do ii = i0, i1
-                               if ((ii .eq. i) .and. (jj .eq. j) .and. (kk .eq. k)) cycle
+                               if ((ii .eq. i) .and. (jj .eq. j) .and. &
+                                    (kk .eq. k)) cycle
 
                                x2 = coef%dof%x(ii, jj, kk, e)
                                y2 = coef%dof%y(ii, jj, kk, e)
