@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added new math operator for device. device_masked_copy_aligned, which performs
+  a masked copy of data from one field to another, for a point zone mask.
 - Added a Valgrind-based regression test suite under `tests/regression/valgrind`
   for detecting memory leaks in a minimal TGV run.
 - Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS
