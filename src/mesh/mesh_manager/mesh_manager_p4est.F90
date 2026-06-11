@@ -650,7 +650,7 @@ contains
 
     !call MPI_Barrier(NEKO_COMM, ierr)
     t_end = MPI_WTIME()
-    write(log_buf, '(A,F9.6)') &
+    write(log_buf, '(A,ES15.7)') &
          'Mesh manager initialisation (including file reading) time (s): ', &
          t_end - t_start
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
