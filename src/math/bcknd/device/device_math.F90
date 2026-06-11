@@ -113,11 +113,11 @@ contains
     end if
 
 #if HAVE_HIP
-    call hip_masked_copy(a_d, b_d, mask_d, n, n_mask, strm_)
+    call hip_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_CUDA
-    call cuda_masked_copy(a_d, b_d, mask_d, n, n_mask, strm_)
+    call cuda_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm_)
 #elif HAVE_OPENCL
-    call opencl_masked_copy(a_d, b_d, mask_d, n, n_mask, strm_)
+    call opencl_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm_)
 #else
     call neko_error('no device backend configured')
 #endif

@@ -210,7 +210,7 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
  * Device kernel for masked copy
  */
 template< typename T >
-__global__ void masked_copy_kernel(T * __restrict__ a,
+__global__ void masked_copy_kernel_0(T * __restrict__ a,
                                    T * __restrict__ b,
                                    int * __restrict__ mask,
                                    const int n,

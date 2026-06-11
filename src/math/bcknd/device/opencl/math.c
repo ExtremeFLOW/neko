@@ -60,14 +60,14 @@ void opencl_copy(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 /** Fortran wrapper for masked copy
  * Copy a vector \f$ a(mask) = b(mask) \f$
  */
-void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m,
+void opencl_masked_copy_0(void *a, void *b, void *mask, int *n, int *m,
                         cl_command_queue cmd_queue) {
   cl_int err;
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
-  cl_kernel kernel = clCreateKernel(math_program, "masked_copy_kernel", &err);
+  cl_kernel kernel = clCreateKernel(math_program, "masked_copy_kernel_0", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
@@ -128,7 +128,7 @@ void opencl_masked_gather_copy_aligned(void *a, void *b, void *mask, int *n,
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
-  cl_kernel kernel = clCreateKernel(math_program, 
+  cl_kernel kernel = clCreateKernel(math_program,
     "masked_gather_copy_aligned_kernel", &err);
   CL_CHECK(err);
 

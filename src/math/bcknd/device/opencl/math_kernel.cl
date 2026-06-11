@@ -37,7 +37,7 @@
 /**
  * Device kernel for masked copy
  */
-__kernel void masked_copy_kernel(__global real* __restrict__ a,
+__kernel void masked_copy_kernel_0(__global real* __restrict__ a,
                                  __global real* __restrict__ b,
                                  __global int* __restrict__ mask,
                                  const int n, const int n_mask) {
