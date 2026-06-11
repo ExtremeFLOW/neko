@@ -88,6 +88,8 @@ module lagrangian_particle_tracking
      integer :: time_order, lag_len
      integer :: history_len = 0
      logical :: inertia = .false.
+     type(time_state_t) :: lpt_time
+     logical :: lpt_time_initialized = .false.
      type(global_interpolation_t) :: global_interp
      type(lpt_periodic_bc_t) :: periodic_bc
      type(lpt_redistribute_t) :: redistributor
@@ -104,6 +106,7 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: evaluate_velocity
      procedure, private, pass(this) :: evaluate_acceleration
+     procedure, private, pass(this) :: sync_time_controller
      procedure, private, pass(this) :: ODE_integrate_ab_3c
      procedure, private, pass(this) :: write_output
      procedure, private, pass(this) :: log_status
@@ -111,14 +114,14 @@ module lagrangian_particle_tracking
 
 contains
 
-  subroutine particles_init(this, xyz, vel, diameter, density, time_order)
+  subroutine particles_init(this, xyz, time_order, vel, diameter, density)
     class(particles_t), intent(inout) :: this
     real(kind=rp), intent(in) :: xyz(:,:)
-    real(kind=rp), intent(in) :: vel(:,:)
-    real(kind=rp), intent(in) :: diameter(:)
-    real(kind=rp), intent(in) :: density(:)
-
     integer, intent(in) :: time_order
+    real(kind=rp), intent(in), optional :: vel(:,:)
+    real(kind=rp), intent(in), optional :: diameter(:)
+    real(kind=rp), intent(in), optional :: density(:)
+
     integer :: i
 
     if (size(xyz, 1) .ne. 3) then
@@ -139,11 +142,23 @@ contains
     allocate(this%d(this%n))
     allocate(this%rho(this%n))
     this%xyz = xyz
-    this%vel = vel
+    if (present(vel)) then
+       this%vel = vel
+    else
+       this%vel = 0.0_rp
+    end if
     this%vel_lag = 0.0_rp
     this%acc_lag = 0.0_rp
-    this%d = diameter
-    this%rho = density
+    if (present(diameter)) then
+       this%d = diameter
+    else
+       this%d = 0.0_rp
+    end if
+    if (present(density)) then
+       this%rho = density
+    else
+       this%rho = 0.0_rp
+    end if
     do i = 1, this%n
        this%ids(i) = i
     end do
@@ -184,7 +199,6 @@ contains
 
     this%name = name
     this%time_order = case%fluid%ext_bdf%advection_time_order
-write(*,*) "lpt time order: ", this%time_order
 
     this%lag_len = this%time_order - 1
     call this%redistributor%init(this%lag_len)
@@ -213,6 +227,7 @@ write(*,*) "lpt time order: ", this%time_order
          this%particles%ids, this%particles%vel_lag, this%particles%vel, &
          this%particles%d, this%particles%rho, this%particles%acc_lag, &
          this%particles%n, this%particles%n_global)
+    call this%sync_time_controller(case%time)
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name) // ".csv")
@@ -264,9 +279,9 @@ write(*,*) "lpt time order: ", this%time_order
              densities = 0.0_rp
           end if
           call this%particles%init(reshape(coords, [3, size(coords) / 3]), &
+                                   this%time_order, &
                                    reshape(vels, [3, size(vels) / 3]), &
-                                   diams, densities, &
-                                   this%time_order)
+                                   diams, densities)
           deallocate(coords)
           deallocate(vels)
           deallocate(diams)
@@ -281,8 +296,8 @@ write(*,*) "lpt time order: ", this%time_order
        allocate(empty_vel(3, 0))
        allocate(empty_diams(0))
        allocate(empty_densities(0))
-       call this%particles%init(empty_xyz, empty_vel, empty_diams, &
-                                empty_densities, this%time_order)
+       call this%particles%init(empty_xyz, this%time_order, empty_vel, empty_diams, &
+                                empty_densities)
        deallocate(empty_xyz)
        deallocate(empty_vel)
        deallocate(empty_diams)
@@ -309,19 +324,27 @@ write(*,*) "lpt time order: ", this%time_order
 
     select type (ft => file_in%file_type)
     type is (csv_file_t)
-       call mat_in%init(ft%count_lines(), 8)
-       call ft%read(mat_in)
-       coords = mat_in%x(:, 1:3)
-       vels = mat_in%x(:, 4:6)
-       diams = mat_in%x(:, 7)
-       densities = mat_in%x(:, 8)
-       call this%particles%init(transpose(coords), &
-                                transpose(vels), &
-                                diams, densities, this%time_order)
-       deallocate(coords)
-       deallocate(vels)
-       deallocate(diams)
-       deallocate(densities)
+       if (this%inertia) then
+          call mat_in%init(ft%count_lines(), 8)
+          call ft%read(mat_in)
+          coords = mat_in%x(:, 1:3)
+          vels = mat_in%x(:, 4:6)
+          diams = mat_in%x(:, 7)
+          densities = mat_in%x(:, 8)
+          call this%particles%init(transpose(coords), this%time_order, &
+                                   transpose(vels), &
+                                   diams, densities)
+          deallocate(coords)
+          deallocate(vels)
+          deallocate(diams)
+          deallocate(densities)
+       else
+          call mat_in%init(ft%count_lines(), 3)
+          call ft%read(mat_in)
+          coords = mat_in%x(:, 1:3)
+          call this%particles%init(transpose(coords), this%time_order)
+          deallocate(coords)
+       end if
     class default
        call neko_error("lpt points_file must be a csv file")
     end select
@@ -416,6 +439,8 @@ write(*,*) "lpt time order: ", this%time_order
     integer :: j
 
     if (time%t .lt. this%start_time) return
+    call this%sync_time_controller(time)
+    if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
 
     call this%redistributor%redistribute_particles(this%global_interp, &
          this%periodic_bc, this%inertia, this%particles%xyz, &
@@ -472,6 +497,45 @@ write(*,*) "lpt time order: ", this%time_order
 
   end subroutine lpt_compute
 
+  !> Build an LPT-local time-step history from the times at which LPT runs.
+  subroutine sync_time_controller(this, time)
+    class(lpt_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=rp) :: dt_local
+    real(kind=rp) :: t_ref
+    integer :: i
+
+    if (.not. this%lpt_time_initialized) then
+       this%lpt_time = time
+       t_ref = time%t
+       if (this%start_time .gt. time%t) t_ref = this%start_time
+       this%lpt_time%t = t_ref
+       this%lpt_time%tlag = t_ref
+       this%lpt_time%dt = 0.0_rp
+       this%lpt_time%dtlag = 0.0_rp
+       this%lpt_time_initialized = .true.
+       return
+    end if
+
+    dt_local = time%t - this%lpt_time%t
+    if (abs(dt_local) .le. epsilon(1.0_rp)) then
+       this%lpt_time%t = time%t
+       this%lpt_time%tstep = time%tstep
+       this%lpt_time%dt = 0.0_rp
+       return
+    end if
+
+    do i = size(this%lpt_time%dtlag), 2, -1
+       this%lpt_time%dtlag(i) = this%lpt_time%dtlag(i - 1)
+       this%lpt_time%tlag(i) = this%lpt_time%tlag(i - 1)
+    end do
+    this%lpt_time%dtlag(1) = this%lpt_time%dt
+    this%lpt_time%tlag(1) = this%lpt_time%t
+    this%lpt_time%dt = dt_local
+    this%lpt_time%t = time%t
+    this%lpt_time%tstep = time%tstep
+  end subroutine sync_time_controller
+
   !> Performing ODE integration by Adam-Bashforth scheme
   subroutine ODE_integrate_ab_3c(this, time, solution, rhs, rhslags, n)
     class(lpt_t), intent(inout) :: this
@@ -494,20 +558,20 @@ write(*,*) "lpt time order: ", this%time_order
     nadv = min(nadv, this%history_len + 1)
 
     dt_history = 0.0_rp
-    dt_history(1) = time%dt
-    dt_history(2) = time%dtlag(1)
-    dt_history(3) = time%dtlag(2)
+    dt_history(1) = this%lpt_time%dt
+    dt_history(2) = this%lpt_time%dtlag(1)
+    dt_history(3) = this%lpt_time%dtlag(2)
     call ab_scheme%compute_coeffs(ab_coeffs, dt_history, nadv)
 
     ! contribution from the current velocity
-    dtc = time%dt * ab_coeffs(1)
+    dtc = this%lpt_time%dt * ab_coeffs(1)
     do i = 1, 3
        call add2s2(solution(i, :), rhs(i, :), dtc, n)
     end do
 
     ! contribution from the lagged velocities
     do j = 2, nadv
-       dtc = time%dt * ab_coeffs(j)
+       dtc = this%lpt_time%dt * ab_coeffs(j)
        do i = 1, 3
           call add2s2(solution(i, :), rhslags(i, j - 1, :), dtc, n)
        end do
@@ -608,6 +672,8 @@ write(*,*) "lpt time order: ", this%time_order
     this%log = .true.
     this%start_time = -huge(0.0_rp)
     this%history_len = 0
+    call this%lpt_time%reset()
+    this%lpt_time_initialized = .false.
     call this%free_base()
   end subroutine lpt_free
 
