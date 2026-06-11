@@ -321,8 +321,8 @@ contains
   end subroutine fusedcg_device_free
 
   !> Pipelined PCG solve
-  function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, &
-       niter) result(ksp_results)
+  function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x

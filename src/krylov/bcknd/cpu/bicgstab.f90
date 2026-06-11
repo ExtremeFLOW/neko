@@ -152,8 +152,8 @@ contains
   end subroutine bicgstab_free
 
   !> Bi-Conjugate Gradient Stabilized method solve
-  function bicgstab_solve(this, Ax, x, f, n, coef, blst, gs_h, &
-       niter) result(ksp_results)
+  function bicgstab_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(bicgstab_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
