@@ -126,6 +126,12 @@ contains
       call move_alloc(d_local, d)
       call move_alloc(rho_local, rho)
       call move_alloc(acc_particles_lag_local, acc_lag)
+    else
+      if (allocated(vel)) deallocate(vel)
+      if (allocated(acc)) deallocate(acc)
+      if (allocated(d)) deallocate(d)
+      if (allocated(rho)) deallocate(rho)
+      if (allocated(acc_lag)) deallocate(acc_lag)
     end if
 
     call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
