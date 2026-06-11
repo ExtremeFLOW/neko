@@ -203,7 +203,7 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
 }
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with BC style mask
  */
 template< typename T >
 __global__ void masked_copy_kernel_0(T * __restrict__ a,
@@ -221,7 +221,7 @@ __global__ void masked_copy_kernel_0(T * __restrict__ a,
 }
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with point zone style mask
  */
 template< typename T >
 __global__ void masked_copy_kernel_aligned(T * __restrict__ a,

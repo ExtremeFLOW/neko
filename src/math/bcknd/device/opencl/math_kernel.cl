@@ -35,7 +35,7 @@
 */
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with BC style mask
  */
 __kernel void masked_copy_kernel_0(__global real* __restrict__ a,
                                  __global real* __restrict__ b,
@@ -51,7 +51,7 @@ __kernel void masked_copy_kernel_0(__global real* __restrict__ a,
 }
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with point zone style mask
  */
 __kernel void masked_copy_kernel_aligned(__global real* __restrict__ a,
                                  __global real* __restrict__ b,

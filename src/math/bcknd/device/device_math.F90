@@ -98,6 +98,7 @@ contains
   end subroutine device_copy
 
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
+  !! @note Mask is BC style, 1-based, size present in index 0.
   subroutine device_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask
@@ -124,6 +125,7 @@ contains
   end subroutine device_masked_copy_0
 
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
+  !! @note Mask is Point Zone style, 0-based, matching device native arrays.
   subroutine device_masked_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, n_mask

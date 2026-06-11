@@ -59,6 +59,7 @@ void opencl_copy(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 
 /** Fortran wrapper for masked copy
  * Copy a vector \f$ a(mask) = b(mask) \f$
+ * Mask is BC style.
  */
 void opencl_masked_copy_0(void *a, void *b, void *mask, int *n, int *m,
                         cl_command_queue cmd_queue) {

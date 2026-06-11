@@ -63,6 +63,7 @@ extern "C" {
 
   /** Fortran wrapper for masked copy
    * Copy a vector \f$ a(mask) = b(mask) \f$
+   * Mask is BC style
    */
   void cuda_masked_copy_0(void *a, void *b, void *mask,
                         int *n, int *m, cudaStream_t strm) {
@@ -78,6 +79,7 @@ extern "C" {
   
   /** Fortran wrapper for masked copy
    * Copy a vector \f$ a(mask) = b(mask) \f$
+   * Mask is Point Zone style.
    */
   void cuda_masked_copy_aligned(void *a, void *b, void *mask,
                         int *n, int *m, cudaStream_t strm) {
