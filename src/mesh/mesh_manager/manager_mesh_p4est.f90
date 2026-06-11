@@ -75,6 +75,8 @@ module manager_mesh_p4est
      procedure, pass(this) :: free_data => manager_mesh_free_data_p4est
      !> Free mesh type
      procedure, pass(this) :: free => manager_mesh_free_p4est
+     !> Provide element refinement level
+     procedure, pass(this) :: element_level => manager_mesh_element_level_p4est
   end type manager_mesh_p4est_t
 
   ! connectivity parameter arrays
@@ -264,5 +266,20 @@ contains
     if (allocated(this%family)) deallocate(this%family)
 
   end subroutine manager_mesh_free_p4est
+
+  !> Provide element refinement level
+  !! @param[in]   nelv            local number of elements
+  !! @param[out]  element_level   element refinement level
+  subroutine manager_mesh_element_level_p4est(this, nelv, element_level)
+    class(manager_mesh_p4est_t), intent(inout) :: this
+    integer, intent(in) :: nelv
+    integer, dimension(nelv), intent(out) :: element_level
+
+    if (nelv .ne. this%nelt) call neko_error('Inconsistent array sizes; &
+         &p4est%element_level')
+
+    element_level(:) = this%level(:)
+
+  end subroutine manager_mesh_element_level_p4est
 
 end module manager_mesh_p4est

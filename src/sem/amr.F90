@@ -272,7 +272,7 @@ contains
     type(mesh_t), intent(inout) :: mesh
     type(user_t), intent(in) :: user
     type(time_state_t), intent(in) :: time
-    integer, allocatable, dimension(:) :: ref_mark
+    integer, allocatable, dimension(:) :: ref_level, ref_mark
     logical :: ifrefine, ifmod
     integer :: nelt, ierr
     character(len=LOG_SIZE) :: log_buf
@@ -283,10 +283,11 @@ contains
     end select
 
     ! get refinement information
-    allocate(ref_mark(nelt))
+    allocate(ref_level(nelt), ref_mark(nelt))
+    call mesh_manager%mesh%element_level(nelt, ref_level)
     ref_mark(:) = AMR_RM_NONE
     ifrefine = .false.
-    call user%amr_refine_flag(time, ref_mark, ifrefine)
+    call user%amr_refine_flag(time, nelt, ref_level, ref_mark, ifrefine)
 
     ! Global test
     call MPI_Allreduce(MPI_IN_PLACE, ifrefine, 1, MPI_LOGICAL, MPI_LOR, &

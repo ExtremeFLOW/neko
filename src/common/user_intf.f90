@@ -188,13 +188,17 @@ module user_intf
 
   !> Abstract interface for setting refinement flag
   !! @param[in]   time        The time state.
+  !! @param[in]   nelv        Local element number
+  !! @param[in]   ref_level   Element refinement level
   !! @param[out]  ref_mark    Element refinement flag
   !! @param[out]  ifrefine    Refinement flag
   abstract interface
-     subroutine user_amr_refine_flag(time, ref_mark, ifrefine)
+     subroutine user_amr_refine_flag(time, nelv, ref_level, ref_mark, ifrefine)
        import time_state_t
        type(time_state_t), intent(in) :: time
-       integer, dimension(:), intent(inout) :: ref_mark
+       integer, intent(in) :: nelv
+       integer, dimension(nelv), intent(in) :: ref_level
+       integer, dimension(nelv), intent(inout) :: ref_mark
        logical, intent(inout) :: ifrefine
      end subroutine user_amr_refine_flag
   end interface
@@ -512,9 +516,12 @@ contains
     logical, intent(inout) :: find_interface
   end subroutine dummy_morph_overset_interface
 
-  subroutine dummy_user_amr_refine_flag(time, ref_mark, ifrefine)
+  subroutine dummy_user_amr_refine_flag(time, nelv, ref_level, ref_mark, &
+       ifrefine)
     type(time_state_t), intent(in) :: time
-    integer, dimension(:), intent(inout) :: ref_mark
+    integer, intent(in) :: nelv
+    integer, dimension(nelv), intent(in) :: ref_level
+    integer, dimension(nelv), intent(inout) :: ref_mark
     logical, intent(inout) :: ifrefine
     ifrefine = .false.
   end subroutine dummy_user_amr_refine_flag
