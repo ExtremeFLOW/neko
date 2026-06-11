@@ -38,6 +38,8 @@ module lagrangian_particle_tracking
   use registry, only : neko_registry
   use field, only : field_t
   use case, only : case_t
+  use mesh, only : mesh_t
+  use coefs, only : coef_t
   use json_utils, only : json_get, json_get_or_default, &
        json_get_subdict_or_empty
   use time_state, only : time_state_t
@@ -46,6 +48,7 @@ module lagrangian_particle_tracking
   use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
+  use vector, only : vector_t
   use math, only : add2s2, cfill, cmult2, col2, col3, invcol2, sqrt_inplace, &
                    power, sub3, vdot3, cmult, cadd2, invcol3
   use ab_time_scheme, only : ab_time_scheme_t
@@ -85,9 +88,14 @@ module lagrangian_particle_tracking
      type(field_t), pointer :: w => null()
      type(field_t), pointer :: mu_fluid => null()
      type(field_t), pointer :: rho_fluid => null()
+     type(mesh_t), pointer :: msh => null()
+     type(coef_t), pointer :: coef => null()
      integer :: time_order, lag_len
      integer :: history_len = 0
      logical :: inertia = .false.
+     logical :: elastic_wall_enabled = .false.
+     integer, allocatable :: wall_zone_indices(:)
+     logical, allocatable :: wall_facet_mask(:, :)
      type(time_state_t) :: lpt_time
      logical :: lpt_time_initialized = .false.
      type(global_interpolation_t) :: global_interp
@@ -108,6 +116,11 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: evaluate_acceleration
      procedure, private, pass(this) :: sync_time_controller
      procedure, private, pass(this) :: ODE_integrate_ab_3c
+     procedure, private, pass(this) :: handle_elastic_wall_collisions
+     procedure, private, pass(this) :: init_wall_facet_mask
+     procedure, private, pass(this) :: identify_wall_facet
+     procedure, private, pass(this) :: wall_facet_normal
+     procedure, private, nopass :: reflect_vector
      procedure, private, pass(this) :: write_output
      procedure, private, pass(this) :: log_status
   end type lpt_t
@@ -188,6 +201,7 @@ contains
     type(json_file) :: interp_subdict
     character(len=:), allocatable :: name
     character(len=:), allocatable :: output_filename
+    real(kind=rp), allocatable :: vel_fluid(:,:)
 
     call this%free()
 
@@ -199,6 +213,8 @@ contains
 
     this%name = name
     this%time_order = case%fluid%ext_bdf%advection_time_order
+    this%msh => case%fluid%msh
+    this%coef => case%fluid%c_Xh
 
     this%lag_len = this%time_order - 1
     call this%redistributor%init(this%lag_len)
@@ -215,6 +231,15 @@ contains
     this%v => neko_registry%get_field_by_name("v")
     this%w => neko_registry%get_field_by_name("w")
 
+    if (json%valid_path("wall_zone_indices")) then
+       call json_get(json, "wall_zone_indices", this%wall_zone_indices)
+       if (.not. this%inertia .and. size(this%wall_zone_indices) .gt. 0) then
+          call neko_error("lpt wall_zone_indices requires inertia = true")
+       end if
+       this%elastic_wall_enabled = size(this%wall_zone_indices) .gt. 0
+       if (this%elastic_wall_enabled) call this%init_wall_facet_mask()
+    end if
+
     call this%read_particles_json(json)
 
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
@@ -227,6 +252,12 @@ contains
          this%particles%ids, this%particles%vel_lag, this%particles%vel, &
          this%particles%d, this%particles%rho, this%particles%acc_lag, &
          this%particles%n, this%particles%n_global)
+    if (.not. this%inertia .and. this%particles%n .gt. 0) then
+       allocate(vel_fluid(3, this%particles%n))
+       call this%evaluate_velocity(vel_fluid, this%particles%n)
+       this%particles%vel = vel_fluid
+       deallocate(vel_fluid)
+    end if
     call this%sync_time_controller(case%time)
 
     call json_get_or_default(json, "output_filename", output_filename, &
@@ -436,6 +467,7 @@ contains
     real(kind=rp), allocatable :: vel_fluid(:,:)
     real(kind=rp), allocatable :: acceleration(:,:)
     real(kind=rp), allocatable :: vel_rhs(:,:)
+    real(kind=rp), allocatable :: xyz_old(:,:)
     integer :: j
 
     if (time%t .lt. this%start_time) return
@@ -449,6 +481,8 @@ contains
          this%particles%n, this%particles%n_global)
     allocate(vel_fluid(3, this%particles%n))
     allocate(acceleration(3, this%particles%n))
+    allocate(xyz_old(3, this%particles%n))
+    xyz_old = this%particles%xyz
     call this%evaluate_velocity(vel_fluid, this%particles%n)
     allocate(vel_rhs(3, this%particles%n))
     vel_rhs = this%particles%vel
@@ -458,13 +492,11 @@ contains
        call this%evaluate_acceleration(vel_fluid, acceleration, this%particles%n)
        call this%ODE_integrate_ab_3c(time, this%particles%vel, &
             acceleration, this%particles%acc_lag, this%particles%n)
-    else
-       this%particles%vel = vel_fluid
-       vel_rhs = this%particles%vel
     end if
 
     call this%ODE_integrate_ab_3c(time, this%particles%xyz, &
          vel_rhs, this%particles%vel_lag, this%particles%n)
+    call this%handle_elastic_wall_collisions(xyz_old, vel_rhs, acceleration)
 
     ! update lags
     if (this%lag_len .gt. 0) then
@@ -483,6 +515,10 @@ contains
        this%history_len = min(this%history_len + 1, this%lag_len)
     end if
 
+    if (.not. this%inertia) then
+       this%particles%vel = vel_fluid
+    end if
+
     ! output if enabled
     if (this%output_enabled) then
       if (this%output_controller%check(time)) then
@@ -494,6 +530,7 @@ contains
     if (allocated(vel_fluid)) deallocate(vel_fluid)
     if (allocated(vel_rhs)) deallocate(vel_rhs)
     if (allocated(acceleration)) deallocate(acceleration)
+    if (allocated(xyz_old)) deallocate(xyz_old)
 
   end subroutine lpt_compute
 
@@ -578,6 +615,222 @@ contains
     end do
 
   end subroutine ODE_integrate_ab_3c
+
+  subroutine init_wall_facet_mask(this)
+    class(lpt_t), intent(inout) :: this
+    integer :: i
+    integer :: j
+    integer :: facet
+    integer :: el
+    integer :: zone_id
+
+    if (allocated(this%wall_facet_mask)) deallocate(this%wall_facet_mask)
+    allocate(this%wall_facet_mask(2 * this%msh%gdim, this%msh%nelv))
+    this%wall_facet_mask = .false.
+
+    do i = 1, size(this%wall_zone_indices)
+       zone_id = this%wall_zone_indices(i)
+       if (zone_id .lt. 1 .or. zone_id .gt. size(this%msh%labeled_zones)) then
+          call neko_error("lpt wall_zone_indices contains an invalid zone id")
+       end if
+
+       do j = 1, this%msh%labeled_zones(zone_id)%size
+          facet = this%msh%labeled_zones(zone_id)%facet_el(j)%x(1)
+          el = this%msh%labeled_zones(zone_id)%facet_el(j)%x(2)
+          this%wall_facet_mask(facet, el) = .true.
+       end do
+    end do
+  end subroutine init_wall_facet_mask
+
+  !> Restore particles that crossed a configured wall zone and reflect their
+  !! velocity history about the wall normal for a purely elastic collision.
+  subroutine handle_elastic_wall_collisions(this, xyz_old, vel_rhs, acceleration)
+    class(lpt_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: xyz_old(:, :)
+    real(kind=rp), intent(inout) :: vel_rhs(:, :)
+    real(kind=rp), intent(inout) :: acceleration(:, :)
+    type(matrix_t) :: rst_new
+    type(vector_t) :: x_t
+    type(vector_t) :: y_t
+    type(vector_t) :: z_t
+    type(vector_t) :: resx
+    type(vector_t) :: resy
+    type(vector_t) :: resz
+    integer, allocatable :: el_list(:)
+    integer :: i
+    integer :: j
+    integer :: facet
+    integer :: el
+    integer :: el_mesh
+    real(kind=rp) :: normal(3)
+
+    if (.not. this%inertia) return
+    if (.not. this%elastic_wall_enabled) return
+    if (this%particles%n .eq. 0) return
+    allocate(el_list(this%particles%n))
+    call rst_new%init(3, this%particles%n)
+    call x_t%init(this%particles%n)
+    call y_t%init(this%particles%n)
+    call z_t%init(this%particles%n)
+    call resx%init(this%particles%n)
+    call resy%init(this%particles%n)
+    call resz%init(this%particles%n)
+
+    do i = 1, this%particles%n
+       el_list(i) = this%global_interp%el_owner0_local(i)
+       x_t%x(i) = this%particles%xyz(1, i)
+       y_t%x(i) = this%particles%xyz(2, i)
+       z_t%x(i) = this%particles%xyz(3, i)
+    end do
+
+    call this%global_interp%rst_finder%find(rst_new, x_t, y_t, z_t, el_list, &
+         this%particles%n, resx, resy, resz)
+
+    do i = 1, this%particles%n
+       el = el_list(i)
+       if (el .lt. 0) cycle
+       el_mesh = el + 1
+       if (el_mesh .gt. this%msh%nelv) cycle
+
+       facet = this%identify_wall_facet(this%global_interp%rst_local(:, i), &
+            rst_new%x(:, i), el_mesh)
+       if (facet .eq. 0) cycle
+
+       call this%wall_facet_normal(el_mesh, facet, normal)
+       if (norm2(normal) .le. epsilon(1.0_rp)) cycle
+
+       this%particles%xyz(:, i) = xyz_old(:, i)
+       call reflect_vector(this%particles%vel(:, i), normal)
+       call reflect_vector(vel_rhs(:, i), normal)
+       do j = 1, this%lag_len
+          call reflect_vector(this%particles%vel_lag(:, j, i), normal)
+       end do
+
+      !  call reflect_vector(acceleration(:, i), normal)
+      !  do j = 1, this%lag_len
+      !     call reflect_vector(this%particles%acc_lag(:, j, i), normal)
+      !  end do
+    end do
+
+    if (allocated(el_list)) deallocate(el_list)
+    call rst_new%free()
+    call x_t%free()
+    call y_t%free()
+    call z_t%free()
+    call resx%free()
+    call resy%free()
+    call resz%free()
+  end subroutine handle_elastic_wall_collisions
+
+  !> Return the wall facet crossed by a particle, or 0 if none matched.
+  integer function identify_wall_facet(this, rst_old, rst_new, el) result(facet)
+    class(lpt_t), intent(in) :: this
+    real(kind=rp), intent(in) :: rst_old(3)
+    real(kind=rp), intent(in) :: rst_new(3)
+    integer, intent(in) :: el
+    real(kind=rp), parameter :: tol = 1.0e-8_rp
+    real(kind=rp) :: severity
+    real(kind=rp) :: best_severity
+
+    facet = 0
+    best_severity = 0.0_rp
+
+    severity = max((-1.0_rp - rst_new(1)), 0.0_rp)
+    if (this%wall_facet_mask(1, el) .and. severity .gt. tol .and. &
+         rst_new(1) .le. rst_old(1) + tol .and. severity .gt. best_severity) then
+       if (this%wall_facet_mask(1, el)) then
+          facet = 1
+          best_severity = severity
+       end if
+    end if
+
+    severity = max((rst_new(1) - 1.0_rp), 0.0_rp)
+    if (this%wall_facet_mask(2, el) .and. severity .gt. tol .and. &
+         rst_new(1) .ge. rst_old(1) - tol .and. severity .gt. best_severity) then
+      if (this%wall_facet_mask(2, el)) then
+         facet = 2
+         best_severity = severity
+      end if
+    end if
+
+    severity = max((-1.0_rp - rst_new(2)), 0.0_rp)
+    if (this%wall_facet_mask(3, el) .and. severity .gt. tol .and. &
+         rst_new(2) .le. rst_old(2) + tol .and. severity .gt. best_severity) then
+       if (this%wall_facet_mask(3, el)) then
+          facet = 3
+          best_severity = severity
+       end if
+    end if
+
+    severity = max((rst_new(2) - 1.0_rp), 0.0_rp)
+    if (this%wall_facet_mask(4, el) .and. severity .gt. tol .and. &
+         rst_new(2) .ge. rst_old(2) - tol .and. severity .gt. best_severity) then
+       if (this%wall_facet_mask(4, el)) then
+          facet = 4
+          best_severity = severity
+       end if
+    end if
+
+    if (this%msh%gdim .eq. 3) then
+       severity = max((-1.0_rp - rst_new(3)), 0.0_rp)
+       if (this%wall_facet_mask(5, el) .and. severity .gt. tol .and. &
+            rst_new(3) .le. rst_old(3) + tol .and. severity .gt. best_severity) then
+          if (this%wall_facet_mask(5, el)) then
+             facet = 5
+             best_severity = severity
+          end if
+       end if
+
+       severity = max((rst_new(3) - 1.0_rp), 0.0_rp)
+       if (this%wall_facet_mask(6, el) .and. severity .gt. tol .and. &
+            rst_new(3) .ge. rst_old(3) - tol .and. severity .gt. best_severity) then
+          if (this%wall_facet_mask(6, el)) then
+             facet = 6
+          end if
+       end if
+    end if
+  end function identify_wall_facet
+
+  !> Use the face-center SEM normal as the reflection normal.
+  subroutine wall_facet_normal(this, el, facet, normal)
+    class(lpt_t), intent(in) :: this
+    integer, intent(in) :: el
+    integer, intent(in) :: facet
+    real(kind=rp), intent(out) :: normal(3)
+    integer :: ic
+    integer :: jc
+    integer :: kc
+
+    ic = max(1, (this%coef%Xh%lx + 1) / 2)
+    jc = max(1, (this%coef%Xh%ly + 1) / 2)
+    kc = max(1, (this%coef%Xh%lz + 1) / 2)
+
+    select case (facet)
+    case (1, 2)
+       normal = this%coef%get_normal(1, jc, kc, el, facet)
+    case (3, 4)
+       normal = this%coef%get_normal(ic, 1, kc, el, facet)
+    case (5, 6)
+       normal = this%coef%get_normal(ic, jc, 1, el, facet)
+    case default
+       normal = 0.0_rp
+    end select
+  end subroutine wall_facet_normal
+
+  pure subroutine reflect_vector(vec, normal)
+    real(kind=rp), intent(inout) :: vec(3)
+    real(kind=rp), intent(in) :: normal(3)
+    real(kind=rp) :: nhat(3)
+    real(kind=rp) :: nmag
+    real(kind=rp) :: vn
+
+    nmag = norm2(normal)
+    if (nmag .le. epsilon(1.0_rp)) return
+
+    nhat = normal / nmag
+    vn = dot_product(vec, nhat)
+    vec = vec - 2.0_rp * vn * nhat
+  end subroutine reflect_vector
 
   !> Write one trajectory snapshot to CSV by gathering local particle data to
   !! rank 0.
@@ -668,6 +921,11 @@ contains
     this%u => null()
     this%v => null()
     this%w => null()
+    this%msh => null()
+    this%coef => null()
+    if (allocated(this%wall_zone_indices)) deallocate(this%wall_zone_indices)
+    if (allocated(this%wall_facet_mask)) deallocate(this%wall_facet_mask)
+    this%elastic_wall_enabled = .false.
     this%output_enabled = .false.
     this%log = .true.
     this%start_time = -huge(0.0_rp)
@@ -701,6 +959,11 @@ contains
             this%periodic_bc%rotational_theta_min, ", theta_max=", &
             this%periodic_bc%rotational_theta_max, ", theta_len=", &
             this%periodic_bc%rotational_theta_len, ""
+       call neko_log%message(log_buf)
+    end if
+    if (this%elastic_wall_enabled) then
+       write(log_buf, '(A,I0)') "Elastic wall zones configured: ", &
+            size(this%wall_zone_indices)
        call neko_log%message(log_buf)
     end if
     write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
