@@ -1,6 +1,7 @@
 var utils_8f90 =
 [
     [ "utils::neko_error", "d7/d83/interfaceutils_1_1neko__error.html", "d7/d83/interfaceutils_1_1neko__error" ],
+    [ "utils::read_duration", "dd/d91/interfaceutils_1_1read__duration.html", "dd/d91/interfaceutils_1_1read__duration" ],
     [ "utils::c_mkdir", "d2/daa/interfaceutils_1_1c__mkdir.html", "d2/daa/interfaceutils_1_1c__mkdir" ],
     [ "concat_string_array", "df/d80/utils_8f90.html#a1118aac17fca960a9444986355db28ad", null ],
     [ "extract_fld_file_index", "df/d80/utils_8f90.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0", null ],
@@ -20,6 +21,10 @@ var utils_8f90 =
     [ "neko_type_registration_error", "df/d80/utils_8f90.html#a131a6b98b16e65151cc8b92283a40337", null ],
     [ "neko_warning", "df/d80/utils_8f90.html#a8de91e60607d8bf98d265d9e9a90f88f", null ],
     [ "nonlinear_index", "df/d80/utils_8f90.html#acd2a2375ca2ed5c299af5a955f53389b", null ],
+    [ "read_duration_components", "df/d80/utils_8f90.html#aa2f53102f9f232b5e7a51f4496153803", null ],
+    [ "read_duration_internal", "df/d80/utils_8f90.html#a931836197cc78152e442216f5559cdd6", null ],
+    [ "read_duration_scalar", "df/d80/utils_8f90.html#a5961faf717d6d00d0a3151dee289917d", null ],
+    [ "set_error_or_throw", "df/d80/utils_8f90.html#a2069613a5a5c8fc7b28e3ff311f82ecf", null ],
     [ "split_string", "df/d80/utils_8f90.html#a2de13cdec1ab133b6f0545f467a5abcc", null ],
     [ "neko_fname_len", "df/d80/utils_8f90.html#a76ff64218112fb6d5a8a02d15b2628e7", null ],
     [ "neko_varname_len", "df/d80/utils_8f90.html#ac6d1705f20d3a1fce16eb7a745d88eb3", null ]

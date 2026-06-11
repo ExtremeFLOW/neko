@@ -2,6 +2,7 @@ var namespaceutils =
 [
     [ "c_mkdir", "d2/daa/interfaceutils_1_1c__mkdir.html", "d2/daa/interfaceutils_1_1c__mkdir" ],
     [ "neko_error", "d7/d83/interfaceutils_1_1neko__error.html", "d7/d83/interfaceutils_1_1neko__error" ],
+    [ "read_duration", "dd/d91/interfaceutils_1_1read__duration.html", "dd/d91/interfaceutils_1_1read__duration" ],
     [ "concat_string_array", "d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad", null ],
     [ "extract_fld_file_index", "d6/d84/namespaceutils.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0", null ],
     [ "filename_chsuffix", "d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692", null ],
@@ -20,6 +21,10 @@ var namespaceutils =
     [ "neko_type_registration_error", "d6/d84/namespaceutils.html#a131a6b98b16e65151cc8b92283a40337", null ],
     [ "neko_warning", "d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f", null ],
     [ "nonlinear_index", "d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b", null ],
+    [ "read_duration_components", "d6/d84/namespaceutils.html#aa2f53102f9f232b5e7a51f4496153803", null ],
+    [ "read_duration_internal", "d6/d84/namespaceutils.html#a931836197cc78152e442216f5559cdd6", null ],
+    [ "read_duration_scalar", "d6/d84/namespaceutils.html#a5961faf717d6d00d0a3151dee289917d", null ],
+    [ "set_error_or_throw", "d6/d84/namespaceutils.html#a2069613a5a5c8fc7b28e3ff311f82ecf", null ],
     [ "split_string", "d6/d84/namespaceutils.html#a2de13cdec1ab133b6f0545f467a5abcc", null ],
     [ "neko_fname_len", "d6/d84/namespaceutils.html#a76ff64218112fb6d5a8a02d15b2628e7", null ],
     [ "neko_varname_len", "d6/d84/namespaceutils.html#ac6d1705f20d3a1fce16eb7a745d88eb3", null ]

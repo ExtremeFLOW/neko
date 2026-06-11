@@ -801,6 +801,7 @@ var hierarchy =
       [ "re2::re2v2_xyz_t", "d9/df1/structre2_1_1re2v2__xyz__t.html", null ]
     ] ],
     [ "rea::rea_t", "d1/db3/structrea_1_1rea__t.html", null ],
+    [ "utils::read_duration", "dd/d91/interfaceutils_1_1read__duration.html", null ],
     [ "regularization::reg_compute", "d3/d52/interfaceregularization_1_1reg__compute.html", null ],
     [ "regularization::reg_free", "d4/d81/interfaceregularization_1_1reg__free.html", null ],
     [ "regularization::reg_init", "d1/dbb/interfaceregularization_1_1reg__init.html", null ],
