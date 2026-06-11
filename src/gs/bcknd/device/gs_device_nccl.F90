@@ -39,6 +39,7 @@ module gs_device_nccl
   use htable, only : htable_i4_t
   use device
   use utils, only : neko_error
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated, c_int
@@ -370,11 +371,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine gs_device_nccl_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine gs_device_nccl_amr_restart(this, reconstruct, counter, time)
     class(gs_device_nccl_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('device_nccl; Nothing done for AMR reconstruction')
 

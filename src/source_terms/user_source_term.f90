@@ -166,26 +166,27 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine user_source_term_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine user_source_term_amr_restart(this, reconstruct, counter, time)
     class(user_source_term_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return
 
     this%counter = counter
 
-    call this%amr_restart_base(reconstruct, counter, tstep)
+    call this%amr_restart_base(reconstruct, counter, time)
 
     ! reconstruct dof; No problem, as AMR restart prevents recursive
     ! reconstructions
     if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-         counter, tstep)
+         counter, time)
 
     ! reallocate fields
-    call this%user_fields%amr_reallocate(reconstruct, counter, tstep)
+    call this%user_fields%amr_reallocate(reconstruct, counter, time)
 
   end subroutine user_source_term_amr_restart
 

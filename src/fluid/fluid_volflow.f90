@@ -475,11 +475,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine fluid_vol_flow_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine fluid_vol_flow_amr_restart(this, reconstruct, counter, time)
     class(fluid_volflow_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -491,10 +492,10 @@ contains
        log_buf = 'Volume flow'
        call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
-       call this%u_vol%amr_restart(reconstruct, counter, tstep)
-       call this%v_vol%amr_restart(reconstruct, counter, tstep)
-       call this%w_vol%amr_restart(reconstruct, counter, tstep)
-       call this%p_vol%amr_restart(reconstruct, counter, tstep)
+       call this%u_vol%amr_restart(reconstruct, counter, time)
+       call this%v_vol%amr_restart(reconstruct, counter, time)
+       call this%w_vol%amr_restart(reconstruct, counter, time)
+       call this%p_vol%amr_restart(reconstruct, counter, time)
 
        call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
     end if

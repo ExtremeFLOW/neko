@@ -44,6 +44,7 @@ module gs_caf
   use, intrinsic :: iso_fortran_env, only : atomic_int_kind
 #endif
   use utils, only : neko_error
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
@@ -562,11 +563,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine gs_caf_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine gs_caf_amr_restart(this, reconstruct, counter, time)
     class(gs_caf_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return

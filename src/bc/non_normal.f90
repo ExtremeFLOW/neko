@@ -40,6 +40,7 @@ module non_normal
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding
   implicit none
@@ -146,11 +147,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine non_normal_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine non_normal_amr_restart(this, reconstruct, counter, time)
     class(non_normal_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: il
 
@@ -173,11 +175,11 @@ contains
        ! reconstruct dofmap; No problem, as AMR restart prevents recursive
        ! reconstructions
        if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
        ! reconstruct coef; No problem, as AMR restart prevents recursive
        ! reconstructions
        if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           ! added utils module; could be removed
@@ -197,9 +199,9 @@ contains
             allocated(this%bc_y%zone_indices) .or. &
             allocated(this%bc_z%zone_indices)) &
             call neko_error('Non normal:: component zone_indices allocated')
-       call this%bc_x%amr_restart(reconstruct, counter, tstep)
-       call this%bc_y%amr_restart(reconstruct, counter, tstep)
-       call this%bc_z%amr_restart(reconstruct, counter, tstep)
+       call this%bc_x%amr_restart(reconstruct, counter, time)
+       call this%bc_y%amr_restart(reconstruct, counter, time)
+       call this%bc_z%amr_restart(reconstruct, counter, time)
 
        this%iffinalised = .false.
 
@@ -222,11 +224,11 @@ contains
        ! reconstruct dofmap; No problem, as AMR restart prevents recursive
        ! reconstructions
        if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
        ! reconstruct coef; No problem, as AMR restart prevents recursive
        ! reconstructions
        if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           ! added utils module; could be removed
@@ -246,9 +248,9 @@ contains
             allocated(this%bc_y%zone_indices) .or. &
             allocated(this%bc_z%zone_indices)) &
             call neko_error('Non normal:: component zone_indices allocated')
-       call this%bc_x%amr_restart(reconstruct, counter, tstep)
-       call this%bc_y%amr_restart(reconstruct, counter, tstep)
-       call this%bc_z%amr_restart(reconstruct, counter, tstep)
+       call this%bc_x%amr_restart(reconstruct, counter, time)
+       call this%bc_y%amr_restart(reconstruct, counter, time)
+       call this%bc_z%amr_restart(reconstruct, counter, time)
 
        this%iffinalised = .false.
 

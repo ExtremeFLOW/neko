@@ -78,6 +78,7 @@ module fdm
   use tensor, only : trsp
   use math, only : rzero, row_zero
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
@@ -712,11 +713,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine fdm_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine fdm_amr_restart(this, reconstruct, counter, time)
     class(fdm_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: lx, nl, n, nelv, gdim
     real(kind=rp), dimension(:), allocatable :: ah, bh, ch, dh, zh, dph, jph, &
@@ -734,12 +736,12 @@ contains
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
     if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
-         tstep)
+         time)
 
     ! reconstruct gs; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
     if (associated(this%gs_h)) call this%gs_h%amr_restart(reconstruct, &
-         counter, tstep)
+         counter, time)
 
     ! reallocate arrays
     lx = this%Xh%lx

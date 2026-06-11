@@ -41,6 +41,7 @@ module registry
   use utils, only : neko_error
   use json_module, only : json_file
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
 
@@ -903,11 +904,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine registry_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine registry_amr_restart(this, reconstruct, counter, time)
     class(registry_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: il
     type(field_t), pointer :: fld
@@ -924,7 +926,7 @@ contains
     do il = 1, this%n_entries()
        if (this%entries(il)%get_type() .eq. 'field') then
           fld => this%entries(il)%get_field()
-          call fld%amr_restart(reconstruct, counter, tstep)
+          call fld%amr_restart(reconstruct, counter, time)
        end if
     end do
 

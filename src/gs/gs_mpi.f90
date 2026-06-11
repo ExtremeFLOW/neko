@@ -370,11 +370,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine gs_mpi_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine gs_mpi_amr_restart(this, reconstruct, counter, time)
     class(gs_mpi_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     integer :: il
 
     ! Was this component already restarted?

@@ -42,6 +42,7 @@ module cg_sx
   use bc_list, only : bc_list_t
   use math, only : glsc3, add2s1, abscmp
   use utils, only : neko_error ! added for amr
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
@@ -240,11 +241,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine sx_cg_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine sx_cg_amr_restart(this, reconstruct, counter, time)
     class(sx_cg_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('CG_SX: nothing done for AMR reconstruction')
 

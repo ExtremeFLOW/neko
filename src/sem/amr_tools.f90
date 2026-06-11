@@ -46,6 +46,7 @@ module amr_tools
   use field_array, only : field_array_t
   use fld_file, only : fld_file_t
   use fld_file_output, only : fld_file_output_t
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
 
@@ -417,21 +418,22 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine amr_spectral_error_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine amr_spectral_error_amr_restart(this, reconstruct, counter, time)
     class(amr_spectral_error_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     this%nelv = this%simcomp_spectral%nelv
 
     ! Reconstruct minimal mesh and communicator
-    call this%dm_Xh%amr_restart(reconstruct, counter, tstep)
-    call this%gs_Xh%amr_restart(reconstruct, counter, tstep)
+    call this%dm_Xh%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%amr_restart(reconstruct, counter, time)
 
     ! instantaneous and averaged fields for visualisation
-    call this%eind_in_fld%amr_reallocate(reconstruct, counter, tstep)
-    call this%eind_av_fld%amr_reallocate(reconstruct, counter, tstep)
+    call this%eind_in_fld%amr_reallocate(reconstruct, counter, time)
+    call this%eind_av_fld%amr_reallocate(reconstruct, counter, time)
 
   end subroutine amr_spectral_error_amr_restart
 

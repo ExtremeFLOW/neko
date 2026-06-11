@@ -33,6 +33,7 @@
 !> Abstract type for AMR restart component
 module amr_restart_component
   use utils, only : neko_error, neko_warning
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
 
   implicit none
@@ -61,12 +62,13 @@ module amr_restart_component
      !> Restart the component
      !! @param[inout]  reconstruct   data reconstruction type
      !! @param[in]     counter       restart counter
-     !! @param[in]     tstep         time step
-     subroutine amr_restart_comp(this, reconstruct, counter, tstep)
-       import amr_restart_component_t, amr_reconstruct_t
+     !! @param[in]     time          time state
+     subroutine amr_restart_comp(this, reconstruct, counter, time)
+       import amr_restart_component_t, amr_reconstruct_t, time_state_t
        class(amr_restart_component_t), intent(inout) :: this
        type(amr_reconstruct_t), intent(inout) :: reconstruct
-       integer, intent(in) :: counter, tstep
+       integer, intent(in) :: counter
+       type(time_state_t), intent(in) :: time
      end subroutine amr_restart_comp
   end interface
 

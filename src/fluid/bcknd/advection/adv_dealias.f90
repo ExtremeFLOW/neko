@@ -47,6 +47,7 @@ module adv_dealias
   use device, only : device_map, device_get_ptr, device_unmap
   use utils, only : neko_error
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
@@ -637,11 +638,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine adv_dealias_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine adv_dealias_amr_restart(this, reconstruct, counter, time)
     class(adv_dealias_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -655,11 +657,11 @@ contains
     ! reconstruct coef_GLL; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
     if (associated(this%coef_GLL)) call this%coef_GLL%amr_restart(reconstruct, &
-         counter, tstep)
+         counter, time)
 
     if (associated(this%coef_GLL)) then
        ! reallocate coef_GL
-       call this%coef_GL%amr_restart(reconstruct, counter, tstep)
+       call this%coef_GL%amr_restart(reconstruct, counter, time)
        ! fill coef_GL data
        call init_dealias_data(this)
 

@@ -34,6 +34,7 @@
 module field_series
   use field, only : field_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   implicit none
@@ -147,11 +148,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine field_series_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine field_series_amr_restart(this, reconstruct, counter, time)
     class(field_series_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: il
 
@@ -165,11 +167,11 @@ contains
 
     ! reconstruct reference fields; It is safe to call it here, as AMR restart
     ! prevents recursive reconstructions
-    if (associated(this%f)) call this%f%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%f)) call this%f%amr_restart(reconstruct, counter, time)
 
     ! reconstruct field series data
     do il = 1, this%len
-       call this%lf(il)%amr_restart(reconstruct, counter, tstep)
+       call this%lf(il)%amr_restart(reconstruct, counter, time)
     end do
 
   end subroutine field_series_amr_restart

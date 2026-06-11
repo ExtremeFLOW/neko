@@ -158,11 +158,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine no_slip_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine no_slip_amr_restart(this, reconstruct, counter, time)
     class(no_slip_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -174,12 +175,12 @@ contains
     log_buf = 'No slip'
     call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
 
-    call this%zero_dirichlet_t%amr_restart(reconstruct, counter, tstep)
+    call this%zero_dirichlet_t%amr_restart(reconstruct, counter, time)
 
     if (this%is_moving) then
-       call this%wx%amr_restart(reconstruct, counter, tstep)
-       call this%wy%amr_restart(reconstruct, counter, tstep)
-       call this%wz%amr_restart(reconstruct, counter, tstep)
+       call this%wx%amr_restart(reconstruct, counter, time)
+       call this%wy%amr_restart(reconstruct, counter, time)
+       call this%wz%amr_restart(reconstruct, counter, time)
     end if
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)

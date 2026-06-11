@@ -36,6 +36,7 @@ module device_identity
   use device_math
   use precon, only : pc_t
   use num_types, only : rp
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
@@ -75,11 +76,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine device_ident_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine device_ident_amr_restart(this, reconstruct, counter, time)
     class(device_ident_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return

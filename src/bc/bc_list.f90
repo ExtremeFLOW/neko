@@ -530,11 +530,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine bc_list_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine bc_list_amr_restart(this, reconstruct, counter, time)
     class(bc_list_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: il
 
@@ -548,7 +549,7 @@ contains
        call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
        do il = 1, this%size_
           if (associated(this%items(il)%ptr)) &
-               call this%items(il)%ptr%amr_restart(reconstruct, counter, tstep)
+               call this%items(il)%ptr%amr_restart(reconstruct, counter, time)
        end do
        call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
     end if

@@ -202,12 +202,13 @@ module user_intf
   !> Abstract interface for adaptive mesh refinement related operations
   !! @param[inout]  reconstruct    field/vector reconstruction tools
   !! @param[in]     counter        refinement/coarsening counter
-  !! @param[in]     tstep          simulation time step
+  !! @param[in]     time           time state
   abstract interface
-     subroutine user_amr_reconstruct(reconstruct, counter, tstep)
-       import amr_reconstruct_t
+     subroutine user_amr_reconstruct(reconstruct, counter, time)
+       import amr_reconstruct_t, time_state_t
        type(amr_reconstruct_t), intent(inout) :: reconstruct
-       integer, intent(in) :: counter, tstep
+       integer, intent(in) :: counter
+       type(time_state_t), intent(in) :: time
      end subroutine user_amr_reconstruct
   end interface
 
@@ -518,9 +519,10 @@ contains
     ifrefine = .false.
   end subroutine dummy_user_amr_refine_flag
 
-  subroutine dummy_user_amr_reconstruct(reconstruct, counter, tstep)
+  subroutine dummy_user_amr_reconstruct(reconstruct, counter, time)
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
   end subroutine dummy_user_amr_reconstruct
 
 end module user_intf

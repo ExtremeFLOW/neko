@@ -654,11 +654,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine field_subsampler_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine field_subsampler_amr_restart(this, reconstruct, counter, time)
     class(field_subsampler_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     call neko_error('Nothing done for AMR reconstruction')

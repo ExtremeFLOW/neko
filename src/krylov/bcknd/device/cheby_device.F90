@@ -48,6 +48,7 @@ module cheby_device
        device_sub3, device_cmult, device_add2
   use device
   use utils, only : neko_error ! added for amr
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, &
        C_NULL_PTR, c_associated
@@ -507,11 +508,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine cheby_device_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine cheby_device_amr_restart(this, reconstruct, counter, time)
     class(cheby_device_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('CHEBY_DEV: nothing done for AMR reconstruction')
 

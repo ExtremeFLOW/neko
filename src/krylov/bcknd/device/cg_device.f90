@@ -45,6 +45,7 @@ module cg_device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1
   use utils, only : neko_error ! added for amr
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
@@ -269,11 +270,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine cg_device_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine cg_device_amr_restart(this, reconstruct, counter, time)
     class(cg_device_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('CG_DEV: nothing done for AMR reconstruction')
 

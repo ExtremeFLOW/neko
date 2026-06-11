@@ -81,6 +81,7 @@ module projection
   use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
   use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wtime
@@ -898,11 +899,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine projection_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine projection_amr_restart(this, reconstruct, counter, time)
     class(projection_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: il, ntot
 
@@ -917,7 +919,7 @@ contains
     call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
 
     ! postpone activation and reset projection
-    this%activ_step = tstep + this%activ_init
+    this%activ_step = time%tstep + this%activ_init
     this%m = 0
     this%proj_m = 0
     ntot = reconstruct%nnew * reconstruct%lxyz

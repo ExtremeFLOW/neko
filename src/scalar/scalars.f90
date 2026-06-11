@@ -319,11 +319,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine scalars_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine scalars_amr_restart(this, reconstruct, counter, time)
     class(scalars_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     integer :: il
     character(len=LOG_SIZE) :: log_buf
 
@@ -339,7 +340,7 @@ contains
 
     do il = 1, size(this%scalar_fields(:))
        call this%scalar_fields(il)%scalar%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
     end do
 
   end subroutine scalars_amr_restart

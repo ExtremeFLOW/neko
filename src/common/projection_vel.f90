@@ -46,6 +46,7 @@ module projection_vel
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use time_step_controller, only : time_step_controller_t
   use projection, only : projection_t, proj_ortho
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
@@ -254,11 +255,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine projection_vel_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine projection_vel_amr_restart(this, reconstruct, counter, time)
     class(projection_vel_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -271,12 +273,12 @@ contains
     log_buf = 'Velocity projection'
     call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
     ! postpone activation
-    this%activ_step = tstep + this%activ_init
+    this%activ_step = time%tstep + this%activ_init
 
     ! reset component
-    call this%proj_u%amr_restart(reconstruct, counter, tstep)
-    call this%proj_v%amr_restart(reconstruct, counter, tstep)
-    call this%proj_w%amr_restart(reconstruct, counter, tstep)
+    call this%proj_u%amr_restart(reconstruct, counter, time)
+    call this%proj_v%amr_restart(reconstruct, counter, time)
+    call this%proj_w%amr_restart(reconstruct, counter, time)
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 

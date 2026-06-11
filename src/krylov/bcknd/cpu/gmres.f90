@@ -46,6 +46,7 @@ module gmres
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
@@ -446,11 +447,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine gmres_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine gmres_amr_restart(this, reconstruct, counter, time)
     class(gmres_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: ntot
 

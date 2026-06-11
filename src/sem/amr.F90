@@ -244,19 +244,19 @@ contains
        do il = 1, this%ncomponents
           if (associated(this%components(il)%cmp)) &
                call this%components(il)%cmp%amr_restart(this%reconstruct, &
-               this%counter, time%tstep)
+               this%counter, time)
        end do
     end if
 
     ! registries
-    call neko_registry%amr_restart(this%reconstruct, this%counter, time%tstep)
+    call neko_registry%amr_restart(this%reconstruct, this%counter, time)
     call neko_scratch_registry%amr_restart(this%reconstruct, this%counter, &
-         time%tstep)
+         time)
 
     ! let user reconstruct fields
     write(log_buf, '(a)') 'Restarting user space'
     call neko_log%section(log_buf)
-    call user%amr_reconstruct(this%reconstruct, this%counter, time%tstep)
+    call user%amr_reconstruct(this%reconstruct, this%counter, time)
     call neko_log%end_section()
 
   end subroutine amr_restart

@@ -49,6 +49,7 @@ module adv_oifs
   use device_math, only : device_addcol3s2, device_rzero
   use utils, only : neko_error
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
@@ -658,11 +659,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine adv_oifs_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine adv_oifs_amr_restart(this, reconstruct, counter, time)
     class(adv_oifs_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     call neko_error('Nothing done for AMR reconstruction')

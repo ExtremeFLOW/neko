@@ -949,11 +949,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine probes_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine probes_amr_restart(this, reconstruct, counter, time)
     class(probes_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     call neko_error('Nothing done for AMR reconstruction')

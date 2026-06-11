@@ -64,6 +64,7 @@ module phmg
        krylov_solver_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding
   implicit none
@@ -608,11 +609,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine phmg_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine phmg_amr_restart(this, reconstruct, counter, time)
     class(phmg_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('PHMG: nothing done for AMR reconstruction')
 

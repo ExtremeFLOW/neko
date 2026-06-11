@@ -542,11 +542,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine overset_interface_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine overset_interface_amr_restart(this, reconstruct, counter, time)
     class(overset_interface_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     write(*,*) 'TESToversetINTERFACE'

@@ -38,6 +38,7 @@ module sem
   use dofmap, only : dofmap_t
   use gather_scatter, only : gs_t
   use gs_ops, only : GS_OP_ADD
+  use time_state, only : time_state_t
   use amr, only : amr_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
@@ -94,11 +95,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine sem_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine sem_amr_restart(this, reconstruct, counter, time)
     class(sem_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?

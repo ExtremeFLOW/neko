@@ -46,6 +46,7 @@ module cacg
   use comm, only : pe_rank, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_SUM
   use mxm_wrapper
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
@@ -380,11 +381,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine cacg_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine cacg_amr_restart(this, reconstruct, counter, time)
     class(cacg_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('CACG: nothing done for AMR reconstruction')
 

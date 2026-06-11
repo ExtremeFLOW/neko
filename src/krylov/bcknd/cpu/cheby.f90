@@ -46,6 +46,7 @@ module cheby
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2, &
        add2s1, add2s2, sub3, cmult, add2
   use utils, only : neko_error ! added for amr
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
@@ -385,11 +386,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine cheby_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine cheby_amr_restart(this, reconstruct, counter, time)
     class(cheby_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('CHEBY: nothing done for AMR reconstruction')
 

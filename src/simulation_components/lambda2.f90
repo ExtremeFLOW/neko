@@ -237,11 +237,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine lambda2_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine lambda2_amr_restart(this, reconstruct, counter, time)
     class(lambda2_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     ! Was this component already restarted?
@@ -254,19 +255,19 @@ contains
 
     ! These should be already restarted, but AMR restart prevents
     ! recursive restarting, so it is safe to call it here
-    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, tstep)
-    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, tstep)
-    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, tstep)
+    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, time)
+    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, time)
+    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, time)
 
     ! These I reallocate here assuming former values do not matter???
     if (associated(this%lambda2)) &
-         call this%lambda2%amr_reallocate(reconstruct, counter, tstep)
+         call this%lambda2%amr_reallocate(reconstruct, counter, time)
     ! not really used
-    !call this%temp1%amr_reallocate(reconstruct, counter, tstep)
-    !call this%temp2%amr_reallocate(reconstruct, counter, tstep)
+    !call this%temp1%amr_reallocate(reconstruct, counter, time)
+    !call this%temp2%amr_reallocate(reconstruct, counter, time)
 
     ! Writer does not seem to be used????
-    ! call this%writer%amr_restart(reconstruct, counter, tstep)
+    ! call this%writer%amr_restart(reconstruct, counter, time)
 
     call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
 

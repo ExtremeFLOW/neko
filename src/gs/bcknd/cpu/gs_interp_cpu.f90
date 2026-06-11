@@ -36,9 +36,10 @@ module gs_interp_cpu
   use mxm_wrapper, only: mxm
   use tensor, only : transpose
   use mesh_conn, only : mesh_conn_t
-  use amr_interpolate, only : amr_interpolate_t, amr_nchildren
   use field, only : field_t
+  use amr_interpolate, only : amr_interpolate_t, amr_nchildren
   use gs_interp, only : gs_interp_t
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
 
   implicit none
@@ -1176,11 +1177,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine gs_interp_cpu_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine gs_interp_cpu_amr_restart(this, reconstruct, counter, time)
     class(gs_interp_cpu_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     ! Was this component already restarted?
     if (this%counter .eq. counter) return

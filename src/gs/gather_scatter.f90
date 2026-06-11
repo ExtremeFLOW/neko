@@ -65,6 +65,7 @@ module gather_scatter
   use profiler, only : profiler_start_region, profiler_end_region
   use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_map, &
        device_unmap
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
@@ -1598,11 +1599,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine gs_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine gs_amr_restart(this, reconstruct, counter, time)
     class(gs_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     integer :: ierr
     integer(i8) :: glb_nlocal, glb_nshared
     character(len=LOG_SIZE) :: log_buf
@@ -1624,7 +1626,7 @@ contains
     ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
     ! recursive reconstructions
     if (associated(this%dofmap)) &
-         call this%dofmap%amr_restart(reconstruct, counter, tstep)
+         call this%dofmap%amr_restart(reconstruct, counter, time)
 
     ! clear space
     if (allocated(this%local_dof_gs)) then
@@ -1645,14 +1647,14 @@ contains
     ! reconstruct comm; for now just clearing stacks and deallocating arrays,
     ! as gs_init_mapping_schedule calls comm%init
     if (allocated(this%comm)) &
-         call this%comm%amr_restart(reconstruct, counter, tstep)
+         call this%comm%amr_restart(reconstruct, counter, time)
 
     ! get new mapping/scheduling
     call gs_init_mapping_schedule(this)
 
     ! reconstruct interpolation
     if (allocated(this%interp)) &
-         call this%interp%amr_restart(reconstruct, counter, tstep)
+         call this%interp%amr_restart(reconstruct, counter, time)
 
     ! Global number of points not needing to be sent over mpi for gs operations
     ! "Internal points"

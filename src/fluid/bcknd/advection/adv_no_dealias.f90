@@ -45,6 +45,7 @@ module adv_no_dealias
   use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
@@ -258,10 +259,15 @@ contains
 
   end subroutine compute_ale_advection_no_dealias
 
-  subroutine adv_no_dealias_amr_restart(this, reconstruct, counter, tstep)
+  !> Restart the component
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine adv_no_dealias_amr_restart(this, reconstruct, counter, time)
     class(adv_no_dealias_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     call neko_error('Nothing done for AMR reconstruction')

@@ -247,22 +247,23 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine source_term_amr_restart_base(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine source_term_amr_restart_base(this, reconstruct, counter, time)
     class(source_term_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     ! No counter checking
 
     ! reconstruct coef; No problem, as AMR restart prevents recursive
     ! reconstructions
     if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-         counter, tstep)
+         counter, time)
 
     ! reconstruct right-hand side fields; No problem, as AMR restart prevents
     ! recursive reconstructions
-    call this%fields%amr_restart(reconstruct, counter, tstep)
+    call this%fields%amr_restart(reconstruct, counter, time)
 
   end subroutine source_term_amr_restart_base
 

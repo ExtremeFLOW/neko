@@ -42,6 +42,7 @@ module device_jacobi
        device_event_sync, device_get_ptr, device_event_destroy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use utils, only : neko_error ! added for amr
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
@@ -202,11 +203,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine device_jacobi_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine device_jacobi_amr_restart(this, reconstruct, counter, time)
     class(device_jacobi_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('JACOBI_DEV: nothing done for AMR reconstruction')
 

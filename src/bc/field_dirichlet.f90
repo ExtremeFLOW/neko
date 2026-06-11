@@ -283,11 +283,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine field_dirichlet_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine field_dirichlet_amr_restart(this, reconstruct, counter, time)
     class(field_dirichlet_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: il
 
@@ -310,11 +311,11 @@ contains
        ! reconstruct dofmap; No problem, as AMR restart prevents recursive
        ! reconstructions
        if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
        ! reconstruct coef; No problem, as AMR restart prevents recursive
        ! reconstructions
        if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           ! added utils module; could be removed
@@ -328,7 +329,7 @@ contains
 !       call this%marked_facet%init()
        call this%marked_facet%clear()
 
-       call this%field_bc%amr_reallocate(reconstruct, counter, tstep)
+       call this%field_bc%amr_reallocate(reconstruct, counter, time)
 
        this%iffinalised = .false.
 
@@ -349,11 +350,11 @@ contains
        ! reconstruct dofmap; No problem, as AMR restart prevents recursive
        ! reconstructions
        if (associated(this%dof)) call this%dof%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
        ! reconstruct coef; No problem, as AMR restart prevents recursive
        ! reconstructions
        if (associated(this%coef)) call this%coef%amr_restart(reconstruct, &
-            counter, tstep)
+            counter, time)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           ! added utils module; could be removed
@@ -367,7 +368,7 @@ contains
 !       call this%marked_facet%init()
        call this%marked_facet%clear()
 
-       call this%field_bc%amr_reallocate(reconstruct, counter, tstep)
+       call this%field_bc%amr_reallocate(reconstruct, counter, time)
 
        this%iffinalised = .false.
 

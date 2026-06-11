@@ -1378,11 +1378,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine fluid_pnpn_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine fluid_pnpn_amr_restart(this, reconstruct, counter, time)
     class(fluid_pnpn_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: il, ntot
 
@@ -1426,11 +1427,11 @@ contains
     if (this%ale%active) call neko_error("AMR does support ALE")
 
     ! Restart base
-    call this%amr_restart_base(reconstruct, counter, tstep)
+    call this%amr_restart_base(reconstruct, counter, time)
 
     ! reconstruct and make continuous pressure
     if (associated(this%p)) then
-       call this%p%amr_restart(reconstruct, counter, tstep)
+       call this%p%amr_restart(reconstruct, counter, time)
        call this%gs_Xh%op_h1(this%p, GS_OP_ADD)
     end if
 
@@ -1441,66 +1442,66 @@ contains
     ! contributions (rhs_marker_***_t) do not require restart
 
     ! Reallocate right hand side
-    call this%p_res%amr_reallocate(reconstruct, counter, tstep)
-    call this%u_res%amr_reallocate(reconstruct, counter, tstep)
-    call this%v_res%amr_reallocate(reconstruct, counter, tstep)
-    call this%w_res%amr_reallocate(reconstruct, counter, tstep)
+    call this%p_res%amr_reallocate(reconstruct, counter, time)
+    call this%u_res%amr_reallocate(reconstruct, counter, time)
+    call this%v_res%amr_reallocate(reconstruct, counter, time)
+    call this%w_res%amr_reallocate(reconstruct, counter, time)
 
     ! Reallocate updates
-    call this%du%amr_reallocate(reconstruct, counter, tstep)
-    call this%dv%amr_reallocate(reconstruct, counter, tstep)
-    call this%dw%amr_reallocate(reconstruct, counter, tstep)
-    call this%dp%amr_reallocate(reconstruct, counter, tstep)
+    call this%du%amr_reallocate(reconstruct, counter, time)
+    call this%dv%amr_reallocate(reconstruct, counter, time)
+    call this%dw%amr_reallocate(reconstruct, counter, time)
+    call this%dp%amr_reallocate(reconstruct, counter, time)
 
     ! Reconstruct time variables
-    call this%abx1%amr_restart(reconstruct, counter, tstep)
+    call this%abx1%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%abx1, GS_OP_ADD)
-    call this%aby1%amr_restart(reconstruct, counter, tstep)
+    call this%aby1%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%aby1, GS_OP_ADD)
-    call this%abz1%amr_restart(reconstruct, counter, tstep)
+    call this%abz1%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%abz1, GS_OP_ADD)
-    call this%abx2%amr_restart(reconstruct, counter, tstep)
+    call this%abx2%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%abx2, GS_OP_ADD)
-    call this%aby2%amr_restart(reconstruct, counter, tstep)
+    call this%aby2%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%aby2, GS_OP_ADD)
-    call this%abz2%amr_restart(reconstruct, counter, tstep)
+    call this%abz2%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%abz2, GS_OP_ADD)
 
     ! Reconstruct advection terms
-    call this%advx%amr_restart(reconstruct, counter, tstep)
+    call this%advx%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%advx, GS_OP_ADD)
-    call this%advy%amr_restart(reconstruct, counter, tstep)
+    call this%advy%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%advy, GS_OP_ADD)
-    call this%advz%amr_restart(reconstruct, counter, tstep)
+    call this%advz%amr_restart(reconstruct, counter, time)
     call this%gs_Xh%op_h1(this%advz, GS_OP_ADD)
 
     ! boundary conditions
-    call this%restart_bcs(reconstruct, counter, tstep)
+    call this%restart_bcs(reconstruct, counter, time)
 
     ! Krylov solvers
-    call this%ksp_vel%amr_restart(reconstruct, counter, tstep)
-    call this%ksp_prs%amr_restart(reconstruct, counter, tstep)
+    call this%ksp_vel%amr_restart(reconstruct, counter, time)
+    call this%ksp_prs%amr_restart(reconstruct, counter, time)
 
     ! Preconditioners
-    call this%pc_vel%amr_restart(reconstruct, counter, tstep)
-    call this%pc_prs%amr_restart(reconstruct, counter, tstep)
+    call this%pc_vel%amr_restart(reconstruct, counter, time)
+    call this%pc_prs%amr_restart(reconstruct, counter, time)
 
     ! Projection space
     if (this%vel_projection_dim .gt. 0) then
        ! activation step updated in the type only
-       call this%proj_vel%amr_restart(reconstruct, counter, tstep)
+       call this%proj_vel%amr_restart(reconstruct, counter, time)
     end if
     if (this%pr_projection_dim .gt. 0) then
        ! activation step updated in the type only
-       call this%proj_prs%amr_restart(reconstruct, counter, tstep)
+       call this%proj_prs%amr_restart(reconstruct, counter, time)
     end if
 
     ! Volume flow
     if (this%forced_flow_rate) &
-         call this%vol_flow%amr_restart(reconstruct, counter, tstep)
+         call this%vol_flow%amr_restart(reconstruct, counter, time)
 
     ! Advection
-    call this%adv%amr_restart(reconstruct, counter, tstep)
+    call this%adv%amr_restart(reconstruct, counter, time)
 
     ! statistics
     ! LEFT FOR FUTURE !!!!!!!
@@ -1539,11 +1540,12 @@ contains
   !> Boundary condition restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine fluid_pnpn_restart_bcs(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine fluid_pnpn_restart_bcs(this, reconstruct, counter, time)
     class(fluid_pnpn_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     class(bc_t), pointer :: bci
     integer :: il, jl, kl, ml, nbc
 
@@ -1552,18 +1554,18 @@ contains
     ! defined zone indices will be reconstructed. The ones without just
     ! deallocated. There is no problem with simply calling all lists, as
     ! AMR restart prevents recursive reconstructions
-    call this%bcs_vel%amr_restart(reconstruct, counter, tstep)
-    call this%bcs_prs%amr_restart(reconstruct, counter, tstep)
+    call this%bcs_vel%amr_restart(reconstruct, counter, time)
+    call this%bcs_prs%amr_restart(reconstruct, counter, time)
 
-    call this%bclst_vel_res%amr_restart(reconstruct, counter, tstep)
-    call this%bclst_du%amr_restart(reconstruct, counter, tstep)
-    call this%bclst_dv%amr_restart(reconstruct, counter, tstep)
-    call this%bclst_dw%amr_restart(reconstruct, counter, tstep)
-    call this%bclst_dp%amr_restart(reconstruct, counter, tstep)
+    call this%bclst_vel_res%amr_restart(reconstruct, counter, time)
+    call this%bclst_du%amr_restart(reconstruct, counter, time)
+    call this%bclst_dv%amr_restart(reconstruct, counter, time)
+    call this%bclst_dw%amr_restart(reconstruct, counter, time)
+    call this%bclst_dp%amr_restart(reconstruct, counter, time)
 
     ! clean facet_normal_t boundaries
-    call this%bc_prs_surface%amr_restart(reconstruct, counter, tstep)
-    call this%bc_sym_surface%amr_restart(reconstruct, counter, tstep)
+    call this%bc_prs_surface%amr_restart(reconstruct, counter, time)
+    call this%bc_sym_surface%amr_restart(reconstruct, counter, time)
 
     ! construct boundary conditions without defined zone indices
     ! velocity

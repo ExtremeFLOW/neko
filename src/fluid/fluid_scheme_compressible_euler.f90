@@ -627,12 +627,13 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
+  !! @param[in]     time          time state
   subroutine fluid_scheme_compressible_euler_amr_restart(this, reconstruct, &
-       counter, tstep)
+       counter, time)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('Nothing done for AMR reconstruction')
 

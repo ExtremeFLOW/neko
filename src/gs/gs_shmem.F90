@@ -45,6 +45,7 @@ module gs_shmem
        shmem_uint64_atomic_set, shmem_uint64_wait_until, &
        shmem_barrier_all, SHMEM_SIGNAL_SET, SHMEM_CMP_GE
 #endif
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
        c_f_pointer, c_associated, c_sizeof, c_size_t, c_int64_t
@@ -406,11 +407,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine gs_shmem_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine gs_shmem_amr_restart(this, reconstruct, counter, time)
     class(gs_shmem_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     integer :: il
 
     ! Was this component already restarted?

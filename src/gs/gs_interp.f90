@@ -35,8 +35,8 @@ module gs_interp
   use num_types, only : i4, i8, rp
   use utils, only : neko_error
   use mesh_conn, only : mesh_conn_t
-  use amr_interpolate, only : amr_interpolate_t, amr_nchildren
   use field, only : field_t
+  use amr_interpolate, only : amr_interpolate_t, amr_nchildren
   use amr_restart_component, only : amr_restart_component_t
 
   implicit none
@@ -364,9 +364,6 @@ contains
   end subroutine gs_interp_free_mult
 
   !> AMR restart
-  !! @param[inout]  reconstruct   data reconstruction type
-  !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
   subroutine gs_interp_amr_restart_base(this)
     class(gs_interp_t), intent(inout) :: this
 

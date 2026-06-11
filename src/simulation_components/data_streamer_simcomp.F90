@@ -231,12 +231,13 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
+  !! @param[in]     time          time state
   subroutine data_streamer_simcomp_amr_restart(this, reconstruct, counter, &
-       tstep)
+       time)
     class(data_streamer_simcomp_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
 
     call neko_error('Nothing done for AMR reconstruction')

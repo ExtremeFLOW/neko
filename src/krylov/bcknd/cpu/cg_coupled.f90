@@ -45,6 +45,7 @@ module cg_cpld
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use utils, only : neko_error
   use operators, only : rotate_cyc
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
@@ -359,11 +360,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine cg_cpld_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine cg_cpld_amr_restart(this, reconstruct, counter, time)
     class(cg_cpld_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 
     call neko_error('CG_CPLD: nothing done for AMR reconstruction')
 

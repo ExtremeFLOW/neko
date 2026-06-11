@@ -89,6 +89,7 @@ module hsmg
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
   use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
@@ -679,11 +680,12 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
-  subroutine hsmg_amr_restart(this, reconstruct, counter, tstep)
+  !! @param[in]     time          time state
+  subroutine hsmg_amr_restart(this, reconstruct, counter, time)
     class(hsmg_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     integer :: il, ntot
     class(bc_t), pointer :: bc_i
@@ -709,25 +711,25 @@ contains
     call this%msh%all_deformed()
 
     ! Reallocate solve and work fields?????????????????????????????
-    call this%e%amr_reallocate(reconstruct, counter, tstep)
-    call this%wf%amr_reallocate(reconstruct, counter, tstep)
+    call this%e%amr_reallocate(reconstruct, counter, time)
+    call this%wf%amr_reallocate(reconstruct, counter, time)
 
     ! one could reach dofmap, gs and coef for fine grid through grids
 
     ! reconstruct coarse levels; dofmap, gs, coef, field
-    call this%dm_crs%amr_restart(reconstruct, counter, tstep)
-    call this%gs_crs%amr_restart(reconstruct, counter, tstep)
-    call this%c_crs%amr_restart(reconstruct, counter, tstep)
-    call this%e_crs%amr_restart(reconstruct, counter, tstep)
+    call this%dm_crs%amr_restart(reconstruct, counter, time)
+    call this%gs_crs%amr_restart(reconstruct, counter, time)
+    call this%c_crs%amr_restart(reconstruct, counter, time)
+    call this%e_crs%amr_restart(reconstruct, counter, time)
 
-    call this%dm_mg%amr_restart(reconstruct, counter, tstep)
-    call this%gs_mg%amr_restart(reconstruct, counter, tstep)
-    call this%c_mg%amr_restart(reconstruct, counter, tstep)
-    call this%e_mg%amr_restart(reconstruct, counter, tstep)
+    call this%dm_mg%amr_restart(reconstruct, counter, time)
+    call this%gs_mg%amr_restart(reconstruct, counter, time)
+    call this%c_mg%amr_restart(reconstruct, counter, time)
+    call this%e_mg%amr_restart(reconstruct, counter, time)
 
     ! Multiplicity
-    call this%mult%amr_reallocate(reconstruct, counter, tstep)
-    call this%mult_mg%amr_reallocate(reconstruct, counter, tstep)
+    call this%mult%amr_reallocate(reconstruct, counter, time)
+    call this%mult_mg%amr_reallocate(reconstruct, counter, time)
 
     il = this%mult%size()
     call rone(this%mult%x, il)
@@ -745,9 +747,9 @@ contains
     ! boundary conditions
     if (this%bclst_ext%size() .gt. 0) then
        ! clean local boundary lists
-       call this%bc_crs%amr_restart(reconstruct, counter, tstep)
-       call this%bc_mg%amr_restart(reconstruct, counter, tstep)
-       call this%bc_reg%amr_restart(reconstruct, counter, tstep)
+       call this%bc_crs%amr_restart(reconstruct, counter, time)
+       call this%bc_mg%amr_restart(reconstruct, counter, time)
+       call this%bc_reg%amr_restart(reconstruct, counter, time)
 
        do il = 1, this%bclst_ext%size()
           bc_i => this%bclst_ext%get(il)
@@ -776,8 +778,8 @@ contains
     end if
 
     ! reconstruct Schwarz; schwarz_crs is never initialised
-    call this%schwarz%amr_restart(reconstruct, counter, tstep)
-    call this%schwarz_mg%amr_restart(reconstruct, counter, tstep)
+    call this%schwarz%amr_restart(reconstruct, counter, time)
+    call this%schwarz_mg%amr_restart(reconstruct, counter, time)
     ! schwarz_crs is never initialised
 
     ! interpolator does not require restarting
@@ -786,8 +788,8 @@ contains
     if (allocated(this%amg_solver)) then
        call neko_error('Hsmg reconstruct:: nothing done for tamg solver.')
     else
-       call this%crs_solver%amr_restart(reconstruct, counter, tstep)
-       call this%pc_crs%amr_restart(reconstruct, counter, tstep)
+       call this%crs_solver%amr_restart(reconstruct, counter, time)
+       call this%pc_crs%amr_restart(reconstruct, counter, time)
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

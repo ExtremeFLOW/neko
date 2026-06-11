@@ -1020,12 +1020,13 @@ contains
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
   !! @param[in]     counter       restart counter
-  !! @param[in]     tstep         time step
+  !! @param[in]     time          time state
   subroutine gradient_jump_penalty_amr_restart(this, reconstruct, counter, &
-       tstep)
+       time)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter, tstep
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
 !    character(len=LOG_SIZE) :: log_buf
     integer :: il
 
@@ -1034,7 +1035,7 @@ contains
 
     this%counter = counter
 
-    call this%amr_restart_base(reconstruct, counter, tstep)
+    call this%amr_restart_base(reconstruct, counter, time)
 
     block
       use utils, only : neko_error
