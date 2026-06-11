@@ -42,7 +42,6 @@ module lagrangian_particle_tracking
        json_get_subdict_or_empty
   use time_state, only : time_state_t
   use global_interpolation, only : global_interpolation_t
-  use glb_intrp_comm, only : glb_intrp_comm_t
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
   use file, only : file_t
@@ -52,9 +51,9 @@ module lagrangian_particle_tracking
   use ab_time_scheme, only : ab_time_scheme_t
   use tensor, only : trsp
   use lpt_periodic_bc, only : lpt_periodic_bc_t
+  use lpt_redistribute, only : lpt_redistribute_t
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Allreduce, MPI_Gather, MPI_Gatherv, &
-       MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_Gather, MPI_Gatherv, MPI_INTEGER
   use csv_file, only : csv_file_t
   implicit none
   private
@@ -91,6 +90,7 @@ module lagrangian_particle_tracking
      logical :: inertia = .false.
      type(global_interpolation_t) :: global_interp
      type(lpt_periodic_bc_t) :: periodic_bc
+     type(lpt_redistribute_t) :: redistributor
      type(particles_t) :: particles
      type(file_t) :: output_file
      logical :: output_enabled = .false.
@@ -102,15 +102,10 @@ module lagrangian_particle_tracking
      procedure, pass(this) :: compute_ => lpt_compute
      procedure, private, pass(this) :: read_particles_json
      procedure, private, pass(this) :: read_particles_csv
-     procedure, private, pass(this) :: redistribute_particles
      procedure, private, pass(this) :: evaluate_velocity
      procedure, private, pass(this) :: evaluate_acceleration
      procedure, private, pass(this) :: ODE_integrate_ab_3c
      procedure, private, pass(this) :: write_output
-     procedure, private, pass(this) :: redistribute_particle_ids
-     procedure, private, pass(this) :: redistribute_particle_field
-     procedure, private, pass(this) :: redistribute_particle_scalar
-     procedure, private, pass(this) :: redistribute_lags
      procedure, private, pass(this) :: log_status
   end type lpt_t
 
@@ -192,6 +187,7 @@ contains
 write(*,*) "lpt time order: ", this%time_order
 
     this%lag_len = this%time_order - 1
+    call this%redistributor%init(this%lag_len)
 
     call json_get(json, "inertia", this%inertia)
 
@@ -212,7 +208,11 @@ write(*,*) "lpt time order: ", this%time_order
          params_subdict = interp_subdict)
     call this%periodic_bc%init(case%fluid%msh, case%fluid%dm_Xh, &
          case%fluid%c_Xh)
-    call this%redistribute_particles()
+    call this%redistributor%redistribute_particles(this%global_interp, &
+         this%periodic_bc, this%inertia, this%particles%xyz, &
+         this%particles%ids, this%particles%vel_lag, this%particles%vel, &
+         this%particles%d, this%particles%rho, this%particles%acc_lag, &
+         this%particles%n, this%particles%n_global)
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name) // ".csv")
@@ -330,51 +330,6 @@ write(*,*) "lpt time order: ", this%time_order
     call file_in%free()
   end subroutine read_particles_csv
 
-  !> Redistribute particles to the rank that owns their current location.
-  subroutine redistribute_particles(this)
-    class(lpt_t), intent(inout) :: this
-    type(glb_intrp_comm_t) :: redist_comm
-    integer :: n_particles_old
-    integer, allocatable :: particle_ids_local(:)
-    real(kind=rp), allocatable :: vel_local(:,:)
-    real(kind=rp), allocatable :: d_local(:)
-    real(kind=rp), allocatable :: rho_local(:)
-    real(kind=rp), allocatable :: vel_particles_lag_local(:,:,:)
-    real(kind=rp), allocatable :: acc_particles_lag_local(:,:,:)
-    integer :: ierr
-
-    n_particles_old = this%particles%n
-    call this%periodic_bc%wrap(this%particles%xyz, this%particles%n)
-    call this%global_interp%find_points_and_redist(this%particles%xyz, &
-         this%particles%n)
-    call this%global_interp%init_redist_comm(redist_comm)
-    call this%redistribute_particle_ids(redist_comm, n_particles_old, &
-         particle_ids_local)
-    call this%redistribute_lags(redist_comm, n_particles_old, &
-         this%particles%vel_lag, vel_particles_lag_local)
-    if (this%inertia) then
-       call this%redistribute_particle_field(redist_comm, n_particles_old, &
-            this%particles%vel, vel_local)
-       call this%redistribute_particle_scalar(redist_comm, n_particles_old, &
-            this%particles%d, d_local)
-       call this%redistribute_particle_scalar(redist_comm, n_particles_old, &
-            this%particles%rho, rho_local)
-       call this%redistribute_lags(redist_comm, n_particles_old, &
-            this%particles%acc_lag, acc_particles_lag_local)
-    end if
-    call redist_comm%free()
-    call move_alloc(particle_ids_local, this%particles%ids)
-    call move_alloc(vel_particles_lag_local, this%particles%vel_lag)
-    if (this%inertia) then
-       call move_alloc(vel_local, this%particles%vel)
-       call move_alloc(d_local, this%particles%d)
-       call move_alloc(rho_local, this%particles%rho)
-       call move_alloc(acc_particles_lag_local, this%particles%acc_lag)
-    end if
-    call MPI_Allreduce(this%particles%n, this%particles%n_global, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-  end subroutine redistribute_particles
-
   !> Interpolate the carrier velocity at the local particles.
   subroutine evaluate_velocity(this, vel_fluid, n)
     class(lpt_t), intent(inout) :: this
@@ -462,7 +417,11 @@ write(*,*) "lpt time order: ", this%time_order
 
     if (time%t .lt. this%start_time) return
 
-    call this%redistribute_particles()
+    call this%redistributor%redistribute_particles(this%global_interp, &
+         this%periodic_bc, this%inertia, this%particles%xyz, &
+         this%particles%ids, this%particles%vel_lag, this%particles%vel, &
+         this%particles%d, this%particles%rho, this%particles%acc_lag, &
+         this%particles%n, this%particles%n_global)
     allocate(vel_fluid(3, this%particles%n))
     allocate(acceleration(3, this%particles%n))
     call this%evaluate_velocity(vel_fluid, this%particles%n)
@@ -639,6 +598,7 @@ write(*,*) "lpt time order: ", this%time_order
     call this%particles%free()
     call this%global_interp%free()
     call this%periodic_bc%free()
+    call this%redistributor%free()
     call this%output_file%free()
 
     this%u => null()
@@ -682,121 +642,5 @@ write(*,*) "lpt time order: ", this%time_order
     if (pe_rank .eq. 0) call neko_log%message(log_buf)
     call neko_log%end_section()
   end subroutine log_status
-
-  subroutine redistribute_particle_ids(this, redist_comm, n_particles_old, &
-       particle_ids_local)
-    class(lpt_t), intent(inout) :: this
-    type(glb_intrp_comm_t), intent(inout) :: redist_comm
-    integer, intent(in) :: n_particles_old
-    integer, allocatable, intent(out) :: particle_ids_local(:)
-    real(kind=rp), allocatable :: sendbuf(:)
-    real(kind=rp), allocatable :: recvbuf(:)
-    integer :: n_local
-
-    n_local = this%particles%n
-    allocate(particle_ids_local(n_local))
-    particle_ids_local = 0
-
-    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
-
-    allocate(sendbuf(n_particles_old))
-    allocate(recvbuf(n_local))
-    sendbuf = real(this%particles%ids, rp)
-    recvbuf = 0.0_rp
-    call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-    particle_ids_local = nint(recvbuf)
-    deallocate(sendbuf)
-    deallocate(recvbuf)
-  end subroutine redistribute_particle_ids
-
-  subroutine redistribute_lags(this, redist_comm, n_particles_old, &
-                               lag_old, lag_local)
-    class(lpt_t), intent(inout) :: this
-    type(glb_intrp_comm_t), intent(inout) :: redist_comm
-    integer, intent(in) :: n_particles_old
-    real(kind=rp), allocatable, intent(in) :: lag_old(:,:,:)
-    real(kind=rp), allocatable, intent(out) :: lag_local(:,:,:)
-    real(kind=rp), allocatable :: sendbuf(:)
-    real(kind=rp), allocatable :: recvbuf(:)
-    integer :: n_local
-    integer :: i
-    integer :: j
-
-    n_local = this%particles%n
-    allocate(lag_local(3, this%lag_len, n_local))
-    lag_local = 0.0_rp
-
-    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
-
-    allocate(sendbuf(n_particles_old))
-    allocate(recvbuf(n_local))
-    do j = 1, this%lag_len
-       do i = 1, 3
-          sendbuf = lag_old(i, j, :)
-          recvbuf = 0.0_rp
-          call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-          lag_local(i, j, :) = recvbuf
-       end do
-    end do
-    deallocate(sendbuf)
-    deallocate(recvbuf)
-  end subroutine redistribute_lags
-
-  subroutine redistribute_particle_field(this, redist_comm, n_particles_old, &
-       field_old, field_local)
-    class(lpt_t), intent(inout) :: this
-    type(glb_intrp_comm_t), intent(inout) :: redist_comm
-    integer, intent(in) :: n_particles_old
-    real(kind=rp), allocatable, intent(in) :: field_old(:,:)
-    real(kind=rp), allocatable, intent(out) :: field_local(:,:)
-    real(kind=rp), allocatable :: sendbuf(:)
-    real(kind=rp), allocatable :: recvbuf(:)
-    integer :: n_local
-    integer :: i
-
-    n_local = this%particles%n
-    allocate(field_local(3, n_local))
-    field_local = 0.0_rp
-
-    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
-
-    allocate(sendbuf(n_particles_old))
-    allocate(recvbuf(n_local))
-    do i = 1, 3
-       sendbuf = field_old(i, :)
-       recvbuf = 0.0_rp
-       call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-       field_local(i, :) = recvbuf
-    end do
-    deallocate(sendbuf)
-    deallocate(recvbuf)
-  end subroutine redistribute_particle_field
-
-  subroutine redistribute_particle_scalar(this, redist_comm, n_particles_old, &
-       scalar_old, scalar_local)
-    class(lpt_t), intent(inout) :: this
-    type(glb_intrp_comm_t), intent(inout) :: redist_comm
-    integer, intent(in) :: n_particles_old
-    real(kind=rp), allocatable, intent(in) :: scalar_old(:)
-    real(kind=rp), allocatable, intent(out) :: scalar_local(:)
-    real(kind=rp), allocatable :: sendbuf(:)
-    real(kind=rp), allocatable :: recvbuf(:)
-    integer :: n_local
-
-    n_local = this%particles%n
-    allocate(scalar_local(n_local))
-    scalar_local = 0.0_rp
-
-    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
-
-    allocate(sendbuf(n_particles_old))
-    allocate(recvbuf(n_local))
-    sendbuf = scalar_old
-    recvbuf = 0.0_rp
-    call redist_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-    scalar_local = recvbuf
-    deallocate(sendbuf)
-    deallocate(recvbuf)
-  end subroutine redistribute_particle_scalar
 
 end module lagrangian_particle_tracking

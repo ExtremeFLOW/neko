@@ -361,6 +361,7 @@ neko_fortran_SOURCES = \
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/lpt_periodic_bc.f90\
+	simulation_components/lpt_redistribute.f90\
 	simulation_components/lpt.f90\
 	simulation_components/curl_simcomp.f90\
 	simulation_components/divergence_simcomp.f90\
