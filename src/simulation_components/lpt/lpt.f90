@@ -109,7 +109,7 @@ module lagrangian_particle_tracking
    contains
      procedure, pass(this) :: init => lpt_init_from_json
      procedure, pass(this) :: free => lpt_free
-     procedure, pass(this) :: compute_ => lpt_compute
+     procedure, pass(this) :: preprocess_ => lpt_compute
      procedure, private, pass(this) :: read_particles_json
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: evaluate_velocity
@@ -201,7 +201,6 @@ contains
     type(json_file) :: interp_subdict
     character(len=:), allocatable :: name
     character(len=:), allocatable :: output_filename
-    real(kind=rp), allocatable :: vel_fluid(:,:)
 
     call this%free()
 
@@ -252,12 +251,6 @@ contains
          this%particles%ids, this%particles%vel_lag, this%particles%vel, &
          this%particles%d, this%particles%rho, this%particles%acc_lag, &
          this%particles%n, this%particles%n_global)
-    if (.not. this%inertia .and. this%particles%n .gt. 0) then
-       allocate(vel_fluid(3, this%particles%n))
-       call this%evaluate_velocity(vel_fluid, this%particles%n)
-       this%particles%vel = vel_fluid
-       deallocate(vel_fluid)
-    end if
     call this%sync_time_controller(case%time)
 
     call json_get_or_default(json, "output_filename", output_filename, &
@@ -474,6 +467,9 @@ contains
     call this%sync_time_controller(time)
     if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
 
+    ! Now we are ahead of the fluid time-stepping towards n+1.
+    ! Velocity field is at n, and all particle states are at n.
+    ! First get the fluid velocity at the particle positions at n.
     call this%redistributor%redistribute_particles(this%global_interp, &
          this%periodic_bc, this%inertia, this%particles%xyz, &
          this%particles%ids, this%particles%vel_lag, this%particles%vel, &
@@ -485,17 +481,24 @@ contains
     xyz_old = this%particles%xyz
     call this%evaluate_velocity(vel_fluid, this%particles%n)
     allocate(vel_rhs(3, this%particles%n))
-    vel_rhs = this%particles%vel
 
-    ! set the particle velocity
+    ! compute/set the particle velocity
     if (this%inertia) then
+       ! set the RHS of the dx/dt = v based on info from n (and later lags).
+       vel_rhs = this%particles%vel
        call this%evaluate_acceleration(vel_fluid, acceleration, this%particles%n)
        call this%ODE_integrate_ab_3c(time, this%particles%vel, &
             acceleration, this%particles%acc_lag, this%particles%n)
+    else
+       this%particles%vel = vel_fluid
+       vel_rhs = this%particles%vel
     end if
 
+    ! compute the particlepositions
     call this%ODE_integrate_ab_3c(time, this%particles%xyz, &
          vel_rhs, this%particles%vel_lag, this%particles%n)
+
+    ! handle the wall collisions
     call this%handle_elastic_wall_collisions(xyz_old, vel_rhs, acceleration)
 
     ! update lags
@@ -513,10 +516,6 @@ contains
           this%particles%acc_lag(:, 1, :) = acceleration
        end if
        this%history_len = min(this%history_len + 1, this%lag_len)
-    end if
-
-    if (.not. this%inertia) then
-       this%particles%vel = vel_fluid
     end if
 
     ! output if enabled
