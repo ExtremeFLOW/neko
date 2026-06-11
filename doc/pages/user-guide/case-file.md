@@ -141,17 +141,19 @@ represented as a subobject inside the `constants` object and should containt two
 entries: `name` and `value`. Here is an example:
 
 ```json
-"constants":
-[
-  {
-    "name": "const1",
-    "value": 3.5
-  },
-  {
-    "name": "vector1",
-    "value": [1, 0, 1]
-  }
-]
+{
+  "constants":
+  [
+    {
+      "name": "const1",
+      "value": 3.5
+    },
+    {
+      "name": "vector1",
+      "value": [1, 0, 1]
+    }
+  ]
+}
 ```
 
 Other parameters in the case file that require a scalar or array entry, can
@@ -163,20 +165,22 @@ a simulation with both [fluid](@ref case-file_fluid) and [scalar](@ref
 case-file_scalar) solvers active, the following could be used.
 
 ```json
-"constants":
-[
+{
+  "constants":
+  [
+    {
+      "name": "common_output_value",
+      "value": 10
+    }
+  ],
+  "fluid":
   {
-    "name": "common_output_value",
-    "value": 10
+    "output_value": "common_output_value"
+  },
+  "scalar":
+  {
+    "output_value": "common_output_value"
   }
-],
-"fluid":
-{
-  "output_value": "common_output_value"
-},
-"scalar":
-{
-  "output_value": "common_output_value"
 }
 ```
 The advantage is that this guarantees that the fluid and scalar output will be
@@ -1125,16 +1129,18 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "constant",
-             "value": [2.0, 0.0, 0.0]
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "constant",
+                "value": [2.0, 0.0, 0.0]
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1145,18 +1151,20 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "field",
-             "file_name": "my_field0.f00016",
-             "mesh_file_name": "my_field0.f00000",
-             "interpolate": true
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "field",
+                "file_name": "my_field0.f00016",
+                "mesh_file_name": "my_field0.f00000",
+                "interpolate": true
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1168,15 +1176,17 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "user"
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "user"
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1855,11 +1865,13 @@ If the eddy diffusivity field is associated to the eddy viscosity field by a coe
 And the corresponding setting could be done by the following:
 
 ```json
-"alphat":{
+{
+  "alphat": {
     "nut_dependency": true,
     "nut_field": "nut",
     "Pr_t": 0.7
-},
+  }
+}
 ```
 
 Otherwise one could have some SGS models providing an eddy diffusivity field, and the
@@ -1867,10 +1879,12 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 `temperature_alphat`:
 
 ```json
-"alphat":{
+{
+  "alphat": {
     "nut_dependency": false,
     "alphat_field": "temperature_alphat"
-},
+  }
+}
 ```
 
 ### Boundary conditions
