@@ -33,6 +33,8 @@ documented and up to date.
 - hemi, One of the original cases from Nek5000.
 - immersed_bunny, shows usage of Brinkman source term to simulate an immersed
   boundary.
+- immersed_urban_stl, smoke test for a GIS-derived urban STL using a Brinkman
+  boundary mesh.
 - immersed_zones, Brinkman source term for immersed zones in a flow.
 - lid, A typical lid-driven cavity case.
 - oscillating_cylinder, Setup of the Arbitrary Lagrangian-Eulerian (ALE)
