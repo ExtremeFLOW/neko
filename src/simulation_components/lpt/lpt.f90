@@ -215,6 +215,7 @@ contains
     call json_get_or_default(json, "start_time", this%start_time, &
          -huge(0.0_rp))
     call this%init_base(json, case)
+    this%preprocess_controller = this%compute_controller
 
     this%name = name
     this%time_order = case%fluid%ext_bdf%advection_time_order
