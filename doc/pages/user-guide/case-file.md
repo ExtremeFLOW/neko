@@ -88,7 +88,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
-| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 Some additional practical comments are provided regarding the output triggered
@@ -116,7 +116,9 @@ checkpoint file, with the filename called `joblimit#####.chkp`. This is done so
 that the user is at least provided a restart file, and none of the computer time
 spent on the simulation is wasted. Generally, however, it is recommended to
 have `output_at_end` set to `true` in tandem with `job_timelimit`, so that what
-exactly gets written is controlled by the case file settings.
+exactly gets written is controlled by the case file settings. Note that the time
+format is flexible. For example, `1-01:00:00` and `25:00:00` are both valid ways
+to specify a 25-hour time limit.
 
 ### Constants
 The `constants` array allows the user to define parameters that are global to
