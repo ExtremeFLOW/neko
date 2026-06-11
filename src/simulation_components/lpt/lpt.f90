@@ -72,6 +72,7 @@ module lagrangian_particle_tracking
      ! inertia-specific info
      logical :: inertia = .false.
      real(kind=rp), allocatable :: vel(:,:)
+     real(kind=rp), allocatable :: acc(:,:)
      real(kind=rp), allocatable :: d(:) ! diameter of particles
      real(kind=rp), allocatable :: rho(:) ! density of particles
      real(kind=rp), allocatable :: acc_lag(:,:,:) ! accelaration lags
@@ -109,7 +110,8 @@ module lagrangian_particle_tracking
    contains
      procedure, pass(this) :: init => lpt_init_from_json
      procedure, pass(this) :: free => lpt_free
-     procedure, pass(this) :: preprocess_ => lpt_compute
+     procedure, pass(this) :: preprocess_ => lpt_preprocess
+     procedure, pass(this) :: compute_ => lpt_compute
      procedure, private, pass(this) :: read_particles_json
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: evaluate_velocity
@@ -117,6 +119,7 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: sync_time_controller
      procedure, private, pass(this) :: ODE_integrate_ab_3c
      procedure, private, pass(this) :: handle_elastic_wall_collisions
+     procedure, private, pass(this) :: update_current_rhs
      procedure, private, pass(this) :: init_wall_facet_mask
      procedure, private, pass(this) :: identify_wall_facet
      procedure, private, pass(this) :: wall_facet_normal
@@ -149,6 +152,7 @@ contains
     this%lag_len = time_order - 1
     allocate(this%xyz(3, this%n))
     allocate(this%vel(3, this%n))
+    allocate(this%acc(3, this%n))
     allocate(this%ids(this%n))
     allocate(this%vel_lag(3, this%lag_len, this%n))
     allocate(this%acc_lag(3, this%lag_len, this%n))
@@ -160,6 +164,7 @@ contains
     else
        this%vel = 0.0_rp
     end if
+    this%acc = 0.0_rp
     this%vel_lag = 0.0_rp
     this%acc_lag = 0.0_rp
     if (present(diameter)) then
@@ -183,6 +188,7 @@ contains
     if (allocated(this%xyz)) deallocate(this%xyz)
     if (allocated(this%ids)) deallocate(this%ids)
     if (allocated(this%vel)) deallocate(this%vel)
+    if (allocated(this%acc)) deallocate(this%acc)
     if (allocated(this%vel_lag)) deallocate(this%vel_lag)
     if (allocated(this%acc_lag)) deallocate(this%acc_lag)
     if (allocated(this%d)) deallocate(this%d)
@@ -249,9 +255,10 @@ contains
     call this%redistributor%redistribute_particles(this%global_interp, &
          this%periodic_bc, this%inertia, this%particles%xyz, &
          this%particles%ids, this%particles%vel_lag, this%particles%vel, &
-         this%particles%d, this%particles%rho, this%particles%acc_lag, &
-         this%particles%n, this%particles%n_global)
+         this%particles%acc, this%particles%d, this%particles%rho, &
+         this%particles%acc_lag, this%particles%n, this%particles%n_global)
     call this%sync_time_controller(case%time)
+    call this%update_current_rhs()
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name) // ".csv")
@@ -452,13 +459,34 @@ contains
 
   end subroutine evaluate_acceleration
 
-  !> Advance particles with local Adams-Bashforth coefficients and optionally
-  !! write them.
-  subroutine lpt_compute(this, time)
+  !> Refresh the particle RHS using the current fluid solution.
+  subroutine update_current_rhs(this)
+    class(lpt_t), intent(inout) :: this
+    real(kind=rp), allocatable :: vel_fluid(:,:)
+
+    call this%redistributor%redistribute_particles(this%global_interp, &
+         this%periodic_bc, this%inertia, this%particles%xyz, &
+         this%particles%ids, this%particles%vel_lag, this%particles%vel, &
+         this%particles%acc, this%particles%d, this%particles%rho, &
+         this%particles%acc_lag, this%particles%n, this%particles%n_global)
+
+    allocate(vel_fluid(3, this%particles%n))
+    call this%evaluate_velocity(vel_fluid, this%particles%n)
+
+    if (this%inertia) then
+       call this%evaluate_acceleration(vel_fluid, this%particles%acc, &
+            this%particles%n)
+    else
+       this%particles%vel = vel_fluid
+    end if
+
+    if (allocated(vel_fluid)) deallocate(vel_fluid)
+  end subroutine update_current_rhs
+
+  !> Advance particles with local Adams-Bashforth coefficients only.
+  subroutine lpt_preprocess(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    real(kind=rp), allocatable :: vel_fluid(:,:)
-    real(kind=rp), allocatable :: acceleration(:,:)
     real(kind=rp), allocatable :: vel_rhs(:,:)
     real(kind=rp), allocatable :: xyz_old(:,:)
     integer :: j
@@ -467,70 +495,65 @@ contains
     call this%sync_time_controller(time)
     if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
 
-    ! Now we are ahead of the fluid time-stepping towards n+1.
-    ! Velocity field is at n, and all particle states are at n.
-    ! First get the fluid velocity at the particle positions at n.
-    call this%redistributor%redistribute_particles(this%global_interp, &
-         this%periodic_bc, this%inertia, this%particles%xyz, &
-         this%particles%ids, this%particles%vel_lag, this%particles%vel, &
-         this%particles%d, this%particles%rho, this%particles%acc_lag, &
-         this%particles%n, this%particles%n_global)
-    allocate(vel_fluid(3, this%particles%n))
-    allocate(acceleration(3, this%particles%n))
     allocate(xyz_old(3, this%particles%n))
     xyz_old = this%particles%xyz
-    call this%evaluate_velocity(vel_fluid, this%particles%n)
     allocate(vel_rhs(3, this%particles%n))
 
-    ! compute/set the particle velocity
+    ! Advance the particle state from the previously stored RHS.
     if (this%inertia) then
-       ! set the RHS of the dx/dt = v based on info from n (and later lags).
        vel_rhs = this%particles%vel
-       call this%evaluate_acceleration(vel_fluid, acceleration, this%particles%n)
        call this%ODE_integrate_ab_3c(time, this%particles%vel, &
-            acceleration, this%particles%acc_lag, this%particles%n)
+            this%particles%acc, this%particles%acc_lag, this%particles%n)
     else
-       this%particles%vel = vel_fluid
        vel_rhs = this%particles%vel
     end if
 
-    ! compute the particlepositions
+    ! Advance the coordinates using the velocity history available at step
+    ! entry, before the fluid solve refreshes the current RHS.
     call this%ODE_integrate_ab_3c(time, this%particles%xyz, &
          vel_rhs, this%particles%vel_lag, this%particles%n)
 
-    ! handle the wall collisions
-    call this%handle_elastic_wall_collisions(xyz_old, vel_rhs, acceleration)
+    ! Handle the wall collisions with the pre-step RHS.
+    call this%handle_elastic_wall_collisions(xyz_old, vel_rhs, &
+         this%particles%acc)
 
-    ! update lags
+    ! Update lag histories for the next Adams-Bashforth step.
     if (this%lag_len .gt. 0) then
        do j = this%lag_len, 2, -1
           this%particles%vel_lag(:, j, :) = &
-          this%particles%vel_lag(:, j - 1, :)
+               this%particles%vel_lag(:, j - 1, :)
           if (this%inertia) then
              this%particles%acc_lag(:, j, :) = &
-             this%particles%acc_lag(:, j - 1, :)
+                  this%particles%acc_lag(:, j - 1, :)
           end if
        end do
        this%particles%vel_lag(:, 1, :) = vel_rhs
        if (this%inertia) then
-          this%particles%acc_lag(:, 1, :) = acceleration
+          this%particles%acc_lag(:, 1, :) = this%particles%acc
        end if
        this%history_len = min(this%history_len + 1, this%lag_len)
     end if
 
-    ! output if enabled
-    if (this%output_enabled) then
-      if (this%output_controller%check(time)) then
-         call this%write_output(time)
-         call this%output_controller%register_execution()
-      end if
-    end if
-
-    if (allocated(vel_fluid)) deallocate(vel_fluid)
     if (allocated(vel_rhs)) deallocate(vel_rhs)
-    if (allocated(acceleration)) deallocate(acceleration)
     if (allocated(xyz_old)) deallocate(xyz_old)
 
+  end subroutine lpt_preprocess
+
+  !> Refresh particle/fluid coupling after the fluid step and emit output.
+  subroutine lpt_compute(this, time)
+    class(lpt_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    if (time%t .lt. this%start_time) return
+
+    call this%update_current_rhs()
+
+    if (this%output_enabled) then
+       if (this%output_controller%check(time)) then
+          call this%write_output(time)
+          call this%output_controller%register_execution()
+       end if
+    end if
   end subroutine lpt_compute
 
   !> Build an LPT-local time-step history from the times at which LPT runs.

@@ -70,7 +70,7 @@ contains
 
   !> Redistribute particles to the rank that owns their current location.
   subroutine redistribute_particles(this, global_interp, periodic_bc, inertia, &
-       xyz, ids, vel_lag, vel, d, rho, acc_lag, n, n_global)
+       xyz, ids, vel_lag, vel, acc, d, rho, acc_lag, n, n_global)
     class(lpt_redistribute_t), intent(inout) :: this
     type(global_interpolation_t), intent(inout) :: global_interp
     type(lpt_periodic_bc_t), intent(inout) :: periodic_bc
@@ -79,6 +79,7 @@ contains
     integer, allocatable, intent(inout) :: ids(:)
     real(kind=rp), allocatable, intent(inout) :: vel_lag(:, :, :)
     real(kind=rp), allocatable, intent(inout) :: vel(:, :)
+    real(kind=rp), allocatable, intent(inout) :: acc(:, :)
     real(kind=rp), allocatable, intent(inout) :: d(:)
     real(kind=rp), allocatable, intent(inout) :: rho(:)
     real(kind=rp), allocatable, intent(inout) :: acc_lag(:, :, :)
@@ -88,6 +89,7 @@ contains
     integer :: n_particles_old
     integer, allocatable :: particle_ids_local(:)
     real(kind=rp), allocatable :: vel_local(:, :)
+    real(kind=rp), allocatable :: acc_local(:, :)
     real(kind=rp), allocatable :: d_local(:)
     real(kind=rp), allocatable :: rho_local(:)
     real(kind=rp), allocatable :: vel_particles_lag_local(:, :, :)
@@ -105,6 +107,8 @@ contains
     if (inertia) then
        call this%redistribute_particle_field(redist_comm, vel, &
             n_particles_old, n, vel_local)
+       call this%redistribute_particle_field(redist_comm, acc, &
+            n_particles_old, n, acc_local)
        call this%redistribute_particle_scalar(redist_comm, d, &
             n_particles_old, n, d_local)
        call this%redistribute_particle_scalar(redist_comm, rho, &
@@ -118,6 +122,7 @@ contains
     call move_alloc(vel_particles_lag_local, vel_lag)
     if (inertia) then
       call move_alloc(vel_local, vel)
+      call move_alloc(acc_local, acc)
       call move_alloc(d_local, d)
       call move_alloc(rho_local, rho)
       call move_alloc(acc_particles_lag_local, acc_lag)
