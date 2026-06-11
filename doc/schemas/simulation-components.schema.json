@@ -421,19 +421,22 @@
           "$ref": "urn:neko:schema:simcomps:curl#/$defs/simulationComponent"
         },
         {
-          "$ref": "urn:neko:schema:simcomps:div#/$defs/simulationComponent"
+          "$ref": "urn:neko:schema:simcomps:divergence#/$defs/simulationComponent"
         },
         {
-          "$ref": "urn:neko:schema:simcomps:grad#/$defs/simulationComponent"
+          "$ref": "urn:neko:schema:simcomps:gradient#/$defs/simulationComponent"
         },
         {
-          "$ref": "urn:neko:schema:simcomps:weak_grad#/$defs/simulationComponent"
+          "$ref": "urn:neko:schema:simcomps:weak_gradient#/$defs/simulationComponent"
         },
         {
           "$ref": "urn:neko:schema:simcomps:derivative#/$defs/simulationComponent"
         },
         {
           "$ref": "urn:neko:schema:simcomps:boundary_operation#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:boundary_flux#/$defs/simulationComponent"
         },
         {
           "$ref": "urn:neko:schema:simcomps:probes#/$defs/simulationComponent"

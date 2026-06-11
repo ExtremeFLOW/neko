@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:neko:schema:simcomps:weak_grad",
+  "$id": "urn:neko:schema:simcomps:boundary_flux",
   "$defs": {
     "simulationComponent": {
       "allOf": [
@@ -8,21 +8,25 @@
           "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
         },
         {
-          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFieldWriterOptions"
-        },
-        {
           "type": "object",
           "required": [
-            "field"
+            "zone_indices",
+            "field_names"
           ],
           "properties": {
             "type": {
-              "const": "weak_grad"
+              "const": "boundary_flux"
             },
-            "field": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            "zone_indices": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArrayOrRef"
             },
-            "computed_field": {
+            "field_names": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields3"
+            },
+            "log": {
+              "type": "boolean"
+            },
+            "output_filename": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
             }
           },

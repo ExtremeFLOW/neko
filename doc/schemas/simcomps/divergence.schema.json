@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:neko:schema:simcomps:grad",
+  "$id": "urn:neko:schema:simcomps:divergence",
   "$defs": {
     "simulationComponent": {
       "allOf": [
@@ -13,14 +13,14 @@
         {
           "type": "object",
           "required": [
-            "field"
+            "fields"
           ],
           "properties": {
             "type": {
-              "const": "grad"
+              "const": "divergence"
             },
-            "field": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            "fields": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields3"
             },
             "computed_field": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"

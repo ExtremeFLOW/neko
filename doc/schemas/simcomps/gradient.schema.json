@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:neko:schema:simcomps:div",
+  "$id": "urn:neko:schema:simcomps:gradient",
   "$defs": {
     "simulationComponent": {
       "allOf": [
@@ -13,14 +13,14 @@
         {
           "type": "object",
           "required": [
-            "fields"
+            "field"
           ],
           "properties": {
             "type": {
-              "const": "div"
+              "const": "gradient"
             },
-            "fields": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields3"
+            "field": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
             },
             "computed_field": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
