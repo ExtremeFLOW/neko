@@ -95,15 +95,18 @@ contains
     call this%init_translational(msh)
   end subroutine lpt_periodic_bc_init
 
-  subroutine lpt_periodic_bc_wrap(this, xyz, n)
+  subroutine lpt_periodic_bc_wrap(this, xyz, n, vel, vel_lag, acc_lag)
     class(lpt_periodic_bc_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: xyz(:, :)
     integer, intent(in) :: n
+    real(kind=rp), intent(inout), optional :: vel(:, :)
+    real(kind=rp), intent(inout), optional :: vel_lag(:, :, :)
+    real(kind=rp), intent(inout), optional :: acc_lag(:, :, :)
 
     if (n .eq. 0) return
 
     if (this%rotational_periodic_enabled) then
-       call this%wrap_rotational(xyz, n)
+       call this%wrap_rotational(xyz, n, vel, vel_lag, acc_lag)
        return
     end if
 
@@ -297,19 +300,28 @@ contains
     this%periodic_enabled = this%n_periodic_dirs .gt. 0
   end subroutine lpt_periodic_bc_init_translational
 
-  subroutine lpt_periodic_bc_wrap_rotational(this, xyz, n)
+  subroutine lpt_periodic_bc_wrap_rotational(this, xyz, n, vel, vel_lag, &
+       acc_lag)
     class(lpt_periodic_bc_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: xyz(:, :)
     integer, intent(in) :: n
+    real(kind=rp), intent(inout), optional :: vel(:, :)
+    real(kind=rp), intent(inout), optional :: vel_lag(:, :, :)
+    real(kind=rp), intent(inout), optional :: acc_lag(:, :, :)
     integer :: i
+    integer :: j
     real(kind=rp) :: radius
+    real(kind=rp) :: theta_old
     real(kind=rp) :: theta
+    real(kind=rp) :: dtheta
     real(kind=rp) :: pi
 
     pi = acos(-1.0_rp)
     do i = 1, n
        radius = norm2(xyz(1:2, i))
-       theta = modulo(atan2(xyz(2, i), xyz(1, i)) + 2.0_rp * pi, 2.0_rp * pi)
+       theta_old = modulo(atan2(xyz(2, i), xyz(1, i)) + 2.0_rp * pi, &
+            2.0_rp * pi)
+       theta = theta_old
 
        do while (theta .lt. this%rotational_theta_min - LPT_PERIODIC_TOL)
           theta = theta + this%rotational_theta_len
@@ -319,8 +331,22 @@ contains
           theta = theta - this%rotational_theta_len
        end do
 
+       dtheta = theta - theta_old
        xyz(1, i) = radius * cos(theta)
        xyz(2, i) = radius * sin(theta)
+       if (abs(dtheta) .le. LPT_PERIODIC_TOL) cycle
+
+       if (present(vel)) call lpt_rotate_vector_xy(vel(:, i), dtheta)
+       if (present(vel_lag)) then
+          do j = 1, size(vel_lag, 2)
+             call lpt_rotate_vector_xy(vel_lag(:, j, i), dtheta)
+          end do
+       end if
+       if (present(acc_lag)) then
+          do j = 1, size(acc_lag, 2)
+             call lpt_rotate_vector_xy(acc_lag(:, j, i), dtheta)
+          end do
+       end if
     end do
   end subroutine lpt_periodic_bc_wrap_rotational
 
@@ -402,5 +428,22 @@ contains
     vnorm = norm2(v)
     if (vnorm .gt. LPT_PERIODIC_TOL) v = v / vnorm
   end subroutine lpt_normalize
+
+  subroutine lpt_rotate_vector_xy(vec, theta)
+    real(kind=rp), intent(inout) :: vec(3)
+    real(kind=rp), intent(in) :: theta
+    real(kind=rp) :: x_old
+    real(kind=rp) :: y_old
+    real(kind=rp) :: cos_theta
+    real(kind=rp) :: sin_theta
+
+    x_old = vec(1)
+    y_old = vec(2)
+    cos_theta = cos(theta)
+    sin_theta = sin(theta)
+
+    vec(1) = cos_theta * x_old - sin_theta * y_old
+    vec(2) = sin_theta * x_old + cos_theta * y_old
+  end subroutine lpt_rotate_vector_xy
 
 end module lpt_periodic_bc

@@ -95,7 +95,7 @@ contains
     integer :: ierr
 
     n_particles_old = n
-    call periodic_bc%wrap(xyz, n)
+    call periodic_bc%wrap(xyz, n, vel, vel_lag, acc_lag)
     call global_interp%find_points_and_redist(xyz, n)
     call global_interp%init_redist_comm(redist_comm)
     call this%redistribute_particle_ids(redist_comm, ids, n_particles_old, n, &
