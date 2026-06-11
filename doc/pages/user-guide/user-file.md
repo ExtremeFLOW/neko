@@ -294,14 +294,15 @@ Enabling user defined initial conditions for the fluid and/or scalar is done by
 setting the `initial_condition.type` to `"user"` in the relevant sections of the
 case file, `case.fluid` and/or `case.scalar`.
 
-```.json
-
-"case": {
+```json
+{
+  "case": {
     "fluid": {
-        "initial_condition": {
-            "type": "user"
-        }
+      "initial_condition": {
+        "type": "user"
+      }
     }
+  }
 }
 ```
 
@@ -369,17 +370,18 @@ Enabling user defined source terms for the fluid and/or scalar is done by adding
 JSON Objects to the `case.fluid.source_terms` and/or `case.scalar.source_terms`
 lists.
 
-```.json
-
-"case": {
+```json
+{
+  "case": {
     "fluid": {
-        "source_terms":
-        [
-            {
-                "type": "user"
-            }
-        ]
+      "source_terms":
+      [
+        {
+          "type": "user"
+        }
+      ]
     }
+  }
 }
 ```
 
