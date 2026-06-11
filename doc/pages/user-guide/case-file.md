@@ -101,7 +101,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
-| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 Some additional practical comments are provided regarding the output triggered
@@ -129,7 +129,9 @@ checkpoint file, with the filename called `joblimit#####.chkp`. This is done so
 that the user is at least provided a restart file, and none of the computer time
 spent on the simulation is wasted. Generally, however, it is recommended to
 have `output_at_end` set to `true` in tandem with `job_timelimit`, so that what
-exactly gets written is controlled by the case file settings.
+exactly gets written is controlled by the case file settings. Note that the time
+format is flexible. For example, `1-01:00:00` and `25:00:00` are both valid ways
+to specify a 25-hour time limit.
 
 ### Constants
 The `constants` array allows the user to define parameters that are global to
@@ -396,6 +398,24 @@ Note that the full viscous stress tensor requires the equations for the 3
 velocity components to be solved in a coupled manner. Therefore, the `coupled_cg`
 (or `fused_coupled_cg`) solver should be used for velocity.
 
+### Schwarz iterations
+This feature is enabled by setting the `schwarz_iterations` keyword inside
+the `fluid` group to an integer larger than zero. In this case, each fluid
+timestep solves for velocity and pressure multiple times.
+
+The total number of passes is `1 + schwarz_iterations`. This feature is often
+needed to increase the stability of solutions when using `overset_interface`
+boundary conditions, i.e., when there are multiple coupled simulations running
+in tandem.
+
+@note In each sub-step, the right-hand-side and forcing terms that are intended
+to operate at the beginning or end of a real timestep are frozen. However, the
+boundary conditions are re-applied at each sub-step. This is the intended
+behaviour for overset boundaries, but functionalities such as user Dirichlet
+will also be called multiple times. Note that the `t` and `tstep` variables are
+only updated across real timesteps. Therefore, if your user conditions depend
+on these variables, they remain valid.
+
 ### Boundary conditions {#case-file_fluid-boundary-conditions}
 The optional `boundary_conditions` keyword can be used to specify boundary
 conditions. The reason for it being optional, is that periodic boundary
@@ -550,6 +570,13 @@ A more detailed description of each boundary condition is provided below.
    * The `spalding`model requires specifying `kappa` and `B`, which are the
      log-law constants. This model is suitable for smooth walls.
 
+   * The `cai_sagaut_model_ii` model is a smooth-wall explicit algebraic wall
+     model defined as Model-II of Cai and Sagaut (DOI: `10.1063/5.0048563`). It
+     uses the same `kappa` and `B` parameters as `spalding`, and also accepts
+     optional blending parameters `p` and `s`, which default to the paper
+     calibration values `1.138` and `217.8`. The main advantage of this model
+     is that it is explicit.
+
    * The `rough_log_law` model requires specifying `kappa` and `B`, which are
      the log-law constants, and `z0`, which is the characteristic roughness
      height.
@@ -571,7 +598,7 @@ A more detailed description of each boundary condition is provided below.
   ```json
   {
     "type": "wall_model",
-    "model": "spalding",
+    "model": "cai_sagaut_model_ii",
     "kappa": 0.41,
     "B": 5.2,
     "zone_indices": [1, 2],
@@ -613,11 +640,17 @@ A more detailed description of each boundary condition is provided below.
   The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
   the coupled simulation. This should, for the time being, be left as `false`.
 
+  The keyword `order` is `1` by default and defines the interface extrapolation scheme order at every timestep.
+  Generally, you want to keep the order of the extrapolation consistent with your time integration scheme,
+  however, note that a higher order might need help with stabilization, specifically by increasing the number
+  of `Schwarz-like` iterations.
+
   ```json
   {
     "type": "overset_interface",
     "zone_indices": [1, 2],
-    "couple_pressure" : false
+    "couple_pressure" : false,
+    "order" : 3
   }
   ```
 

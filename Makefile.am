@@ -23,6 +23,11 @@ CLEANFILES = *.mod\
 
 
 bin_SCRIPTS = makeneko
+
+dist_man_MANS = \
+	doc/man/neko.1\
+	doc/man/makeneko.1
+
 EXTRA_DIST = \
 	makeneko.in\
 	regen.sh\
@@ -118,6 +123,10 @@ EXTRA_DIST = \
 	tests/reframe/src/rocm_select_gpu_device.sh\
 	tests/reframe/src/tgv.case.template\
 	tests/reframe/src/tgv.f90\
+	tests/regression/valgrind/README.md\
+	tests/regression/valgrind/run_valgrind_check.sh\
+	tests/regression/valgrind/check_valgrind.py\
+	tests/regression/valgrind/valgrind_runtime.supp\
 	tests/integration/default_cpu_launcher.sh\
 	tests/integration/default_cuda_launcher.sh\
 	tests/integration/conftest.py\
@@ -145,7 +154,9 @@ EXTRA_DIST = \
 	tests/integration/tests/test_cylinder/reflog2_opencl_dp.csv\
 	tests/integration/tests/test_cylinder/reflog2_opencl_sp.csv\
 	patches/nvhpc_bge.patch\
-	patches/json-fortran71.patch
+	patches/json-fortran71.patch\
+	patches/cce_stack.patch\
+	patches/cce_time_state.patch
 
 if ENABLE_FLINT
 lint:

@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,8 @@ module adv_dealias
   use utils, only : neko_error
   use operators, only : opgrad
   use interpolation, only : interpolator_t
-  use device, only : device_map, device_get_ptr, device_free
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use device, only : device_map, device_get_ptr, device_unmap
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -160,61 +160,53 @@ contains
     class(adv_dealias_t), intent(inout) :: this
 
     if (allocated(this%temp)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%temp, this%temp_d)
+       end if
        deallocate(this%temp)
     end if
 
     if (allocated(this%tbf)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%tbf, this%tbf_d)
+       end if
        deallocate(this%tbf)
     end if
     if (allocated(this%tx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%tx, this%tx_d)
+       end if
        deallocate(this%tx)
     end if
     if (allocated(this%ty)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%ty, this%ty_d)
+       end if
        deallocate(this%ty)
     end if
     if (allocated(this%tz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%tz, this%tz_d)
+       end if
        deallocate(this%tz)
     end if
     if (allocated(this%vr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%vr, this%vr_d)
+       end if
        deallocate(this%vr)
     end if
     if (allocated(this%vs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%vs, this%vs_d)
+       end if
        deallocate(this%vs)
     end if
     if (allocated(this%vt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%vt, this%vt_d)
+       end if
        deallocate(this%vt)
-    end if
-
-    if (c_associated(this%temp_d)) then
-       call device_free(this%temp_d)
-    end if
-
-    if (c_associated(this%tbf_d)) then
-       call device_free(this%tbf_d)
-    end if
-
-    if (c_associated(this%tx_d)) then
-       call device_free(this%tx_d)
-    end if
-
-    if (c_associated(this%ty_d)) then
-       call device_free(this%ty_d)
-    end if
-
-    if (c_associated(this%tz_d)) then
-       call device_free(this%tz_d)
-    end if
-
-    if (c_associated(this%vr_d)) then
-       call device_free(this%vr_d)
-    end if
-
-    if (c_associated(this%vs_d)) then
-       call device_free(this%vs_d)
-    end if
-
-    if (c_associated(this%vt_d)) then
-       call device_free(this%vt_d)
     end if
 
     call this%coef_GL%free()
@@ -310,7 +302,8 @@ contains
          call sub2(fz%x, this%temp, n)
 
       else
-         !$omp parallel do private(e, i, idx)
+         !$omp parallel do private(e, i, idx, tempx, tempy, tempz), &
+         !$omp& private(tx, ty, tz, vr, vs, vt, tfx, tfy, tfz)
          do e = 1, coef%msh%nelv
             call this%GLL_to_GL%map(tx, vx%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(ty, vy%x(1,1,1,e), 1, this%Xh_GL)
@@ -428,7 +421,7 @@ contains
          call sub2(fs%x, this%temp, n)
 
       else
-         !$omp parallel do private (e, i, idx)
+         !$omp parallel do private (e, i, idx, vx_GL, vy_GL, s_GL, f_GL, temp)
          do e = 1, coef%msh%nelv
             ! Map advecting velocity onto the higher-order space
             call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)

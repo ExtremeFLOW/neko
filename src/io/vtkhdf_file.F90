@@ -36,7 +36,7 @@ module vtkhdf_file
   use generic_file, only : generic_file_t
   use checkpoint, only : chkp_t
   use utils, only : neko_error, neko_warning, filename_split, &
-       nonlinear_index, linear_index
+       nonlinear_index, linear_index, mkdir
   use mesh, only : mesh_t
   use field, only : field_t
   use field_list, only : field_list_t
@@ -806,14 +806,10 @@ contains
        write(ext_fname, '(A,I0,".h5")') trim(ext_path), counter
        write(src_pattern, '(A,".data/%b.h5")') trim(main_name)
 
-       if (pe_rank .eq. 0) inquire(file = trim(ext_path), exist = exists)
-       call MPI_Bcast(exists, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
-       if (.not. exists) then
-          if (pe_rank .eq. 0) then
-             call execute_command_line("mkdir -p '" // trim(ext_path) // "'")
-          end if
-          call MPI_Barrier(NEKO_COMM, ierr)
+       if (pe_rank .eq. 0) then
+          call mkdir(trim(ext_path))
        end if
+       call MPI_Barrier(NEKO_COMM, ierr)
 
        call h5pcreate_f(H5P_FILE_ACCESS_F, ext_plist_id, ierr)
        call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)

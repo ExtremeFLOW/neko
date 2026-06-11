@@ -15,18 +15,27 @@ contains
     type(mesh_t) :: m ! Dummy type to avoid link issues
     integer :: ierr
 
-     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
-     pe_rank = this%getProcessRank()
-     pe_size = this%getNumProcesses()
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
 
-     call jobctrl_init()
-     call jobctrl_set_time_limit(3)
-     call sleep(1)
-     @assertFalse(signal_timeout())
-     call sleep(3)
-     @assertTrue(signal_timeout())
+    call jobctrl_init()
 
-   end subroutine test_jobctrl_set_time_limit
+    ! Test integer version of the time limit
+    call jobctrl_set_time_limit(3)
+    call sleep(1)
+    @assertFalse(signal_timeout(), message = "Int early timeout")
+    call sleep(3)
+    @assertTrue(signal_timeout(), message = "Int late timeout")
+
+    ! Test string version of time limit, time is still running in the background
+    call jobctrl_set_time_limit('00:00:06')
+    call sleep(1)
+    @assertFalse(signal_timeout(), message = "Str early timeout")
+    call sleep(3)
+    @assertTrue(signal_timeout(), message = "Str late timeout")
+
+  end subroutine test_jobctrl_set_time_limit
 
 end module test_jobctrl_parallel

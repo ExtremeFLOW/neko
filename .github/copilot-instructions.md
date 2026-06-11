@@ -42,6 +42,9 @@ The list of criteria to check are:
   may be called `free_base` or similar, always with a `free_` prefix.
 - If a type has both a destructor (`free` or similar) and a constructor (`init`
   or similar), the constructor must begin by calling the destructor.
+- If a map is established between a Fortran pointer and a device pointer, the
+  link must be severed by calling `device_unmap` before the pointer is nullified
+  or deallocated. This applies to both local variables and type components.
 - Pay attention to object ownership when `pointer` or `allocatable` components
   are involved. Make sure ownership is correctly handled.
 - Make sure types are fully instantiated in the `init` routines. If there are

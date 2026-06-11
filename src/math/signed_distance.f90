@@ -138,11 +138,13 @@ contains
   end subroutine signed_distance_field_tri_mesh
 
   !> @brief Signed distance function
-  !! @deprecated This routine is deprecated and will be removed in the future.
   !! @details This routine computes the signed distance function for the
   !! boundary mesh, to a given point (x, y, z). The algorithm is a
   !! brute force approach, where we compute the signed distance to each
   !! element in the mesh, and return the minimum distance.
+  !!
+  !! @note This routine is here for completeness, and is not optimized for
+  !! performance. It is recommended to use the AABB tree version for large meshes.
   !!
   !! @param p Point
   !! @param mesh Boundary mesh

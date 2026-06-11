@@ -211,7 +211,8 @@ contains
     if (t .gt. this%time) this%time = t
     if (this%default_fname) then
        fname = this%stats_output%file_%get_base_fname()
-       write (prefix, '(I5)') this%stats_output%file_%get_counter()
+       write (prefix, '(I5)') &
+            this%stats_output%file_%file_type%get_start_counter()
        call filename_suffix(fname, suffix)
        last_slash_pos = &
             filename_tslash_pos(fname)

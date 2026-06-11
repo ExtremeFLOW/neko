@@ -1,5 +1,7 @@
 module test_scratch_registry
   use pfunit
+  use host_array, only : host_array_t
+  use device_array, only : device_array_t
   use field, only : field_t
   use vector, only : vector_t
   use matrix, only : matrix_t
@@ -12,8 +14,8 @@ module test_scratch_registry
   use matrix_math, only : matrix_cfill
   use scratch_registry, only : scratch_registry_t
   use num_types, only : rp
-  use device, only : DEVICE_TO_HOST, device_init, &
-       device_finalize
+  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy, &
+       device_init, device_finalize
   use comm, only : pe_rank, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
@@ -365,6 +367,96 @@ contains
     call scratch%relinquish(index3)
     call scratch%free()
   end subroutine test_srtch_reg_combo
+
+  @test
+  subroutine test_srtch_reg_mixed_host_dev(this)
+    class(test_scratch_reg), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dm
+    type(scratch_registry_t), target :: scratch
+    type(field_t), pointer :: f1
+    type(vector_t), pointer :: v2
+    type(matrix_t), pointer :: m3
+    type(host_array_t), pointer :: h4
+    type(device_array_t), pointer :: d5
+    type(field_t), pointer :: f6
+    real(kind=rp), allocatable :: dtmp(:)
+    integer :: i
+    integer :: indices(6)
+    integer, parameter :: LX = 2
+
+    call test_srtch_reg_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call dm%init(msh, Xh)
+
+    call scratch%init(2, 2, dm)
+
+    call scratch%request(f1, indices(1), .false.)
+    call scratch%request(v2, indices(2), 42, .false.)
+    call scratch%request(m3, indices(3), 42, 42, .false.)
+    call scratch%request(h4, indices(4), 12, .false.)
+
+    call field_cfill(f1, 1.0_rp)
+    call vector_cfill(v2, 2.0_rp)
+    call matrix_cfill(m3, 3.0_rp)
+    h4%x = 4.0_rp
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call scratch%request(d5, indices(5), 7, .false.)
+       allocate(dtmp(7))
+       dtmp = 5.0_rp
+       call device_memcpy(dtmp, d5%x_d, d5%size(), HOST_TO_DEVICE, sync=.true.)
+    end if
+
+    call scratch%request(f6, indices(6), .false.)
+    call field_cfill(f6, 6.0_rp)
+
+    call f1%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call v2%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call m3%copy_from(DEVICE_TO_HOST, sync = .false.)
+    call f6%copy_from(DEVICE_TO_HOST, sync = .true.)
+
+    @assertEqual(f1%x(1, 1, 1, 1), 1.0_rp)
+    @assertEqual(v2%x(1), 2.0_rp)
+    @assertEqual(m3%x(1, 1), 3.0_rp)
+    @assertEqual(h4%x(1), 4.0_rp)
+    @assertEqual(f6%x(1, 1, 1, 1), 6.0_rp)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       dtmp = 0.0_rp
+       call device_memcpy(dtmp, d5%x_d, d5%size(), DEVICE_TO_HOST, sync=.true.)
+       do i = 1, size(dtmp)
+          @assertEqual(dtmp(i), 5.0_rp)
+       end do
+
+       @assertEqual(indices(5), 5)
+       @assertEqual(indices(6), 6)
+       @assertEqual(scratch%get_n_entries(), 6)
+       @assertEqual(scratch%get_n_inuse(), 6)
+    else
+       @assertEqual(indices(6), 5)
+       @assertEqual(scratch%get_n_entries(), 5)
+       @assertEqual(scratch%get_n_inuse(), 5)
+    end if
+
+    @assertEqual(indices(1), 1)
+    @assertEqual(indices(2), 2)
+    @assertEqual(indices(3), 3)
+    @assertEqual(indices(4), 4)
+    @assertEqual(scratch%get_size(), 6)
+
+    call scratch%relinquish(indices(1))
+    call scratch%relinquish(indices(2))
+    call scratch%relinquish(indices(3))
+    call scratch%relinquish(indices(4))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call scratch%relinquish(indices(5))
+       deallocate(dtmp)
+    end if
+    call scratch%relinquish(indices(6))
+    call scratch%free()
+  end subroutine test_srtch_reg_mixed_host_dev
 
   @test
   subroutine test_srtch_reg_array_indices(this)

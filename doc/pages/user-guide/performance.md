@@ -64,15 +64,14 @@ To enable load balancing (mesh partitioning) during a simulation, set
 the `load_balancing` option to `true` (see \ref case-file). Runtime
 load balancing will partition the mesh (in parallel) before the
 time-stepping loop starts, and it will also save the balanced mesh
-with an additional `_lb` in the filename.
+with an additional `_lb_<nparts>` in the filename.
 
-@note Since mesh partitioning is non-deterministic, care has to be
-taken when restarting a simulation such that one does not i) restart
-with load balancing enabled and ii) use the original unbalanced
-mesh. The suggested workflow is to run the first simulation with load
-balancing enabled, and for all subsequent restarts, turn off load
-balancing and use the balanced mesh with the additional `_lb` in the
-filename.
+The load balancing is robust against restarts as it will check for the load
+balanced mesh before performing the partitioning. If the load balanced mesh is
+found, it will be used instead of the original mesh, and no partitioning will be
+performed. It should be noted that a simulation restarted on a different number
+of MPI ranks will trigger a new load balancing, and the balanced mesh will be
+saved with the corresponding number of ranks in the filename.
 
  ### Parameters
 
@@ -122,3 +121,115 @@ Finally, achieved performance depends on many factors, for example,
 the interconnect; it is therefore advisable to invest time in
 establishing a performance baseline the first time a new machine is
 used.
+
+### Gather-scatter communication backends
+
+The dominant communication pattern in spectral element methods is the
+gather-scatter (gs) operation that assembles partial element-local
+contributions across element boundaries. Neko ships several
+implementations of the off-process gs exchange, and the right choice
+depends on the host/accelerator combination and the interconnect.
+
+The active backend can be selected at runtime via the `NEKO_GS_COMM`
+environment variable. If the variable is unset, a sensible default is
+chosen based on the build configuration (device-aware MPI when device
+MPI is available, host MPI otherwise). The supported values are:
+
+| `NEKO_GS_COMM` | Backend | Requirement | Typical use |
+|---|---|---|---|
+| `MPI` | Host MPI (`gs_mpi`) | None | CPU runs, fallback for any system |
+| `MPIGPU` | Device-aware MPI (`gs_device_mpi`) | `--enable-device-mpi`, GPU build | NVIDIA / AMD GPUs with GPU-aware MPI |
+| `NCCL` | NCCL/RCCL (`gs_device_nccl`) | `--with-nccl=...` | Multi-GPU runs where NCCL outperforms MPI |
+| `SHMEM` | NVSHMEM (`gs_device_shmem`) on GPU builds, OpenSHMEM (`gs_shmem`) on CPU builds | `--with-nvshmem=...` (GPU) or `--with-openshmem` (CPU, Cray) | NVIDIA GPUs with NVSHMEM-capable interconnect; CPU systems with a native OpenSHMEM (e.g. Cray OpenSHMEMX) |
+| `CAF` | Coarray Fortran (`gs_caf`) | Coarray-capable Fortran compiler | Systems with a tuned coarray runtime |
+
+@note `MPIGPU` and `NCCL` require Neko to be built with GPU support
+and the corresponding optional dependency. `SHMEM` picks the device
+backend on GPU builds and the host backend on CPU builds, depending on
+which of NVSHMEM / OpenSHMEM is present at configure time.
+
+The backend can also be selected programmatically by passing the
+`comm_bcknd` argument to `gs%init`, using the constants `GS_COMM_MPI`,
+`GS_COMM_MPIGPU`, `GS_COMM_NCCL`, `GS_COMM_NVSHMEM`,
+`GS_COMM_OPENSHMEM`, or `GS_COMM_CAF` exposed by the `gather_scatter`
+module. The environment variable wins when both are present.
+
+#### NVSHMEM backend {#performance-nvshmem-backend}
+
+The NVSHMEM backend (`NEKO_GS_COMM=SHMEM` on CUDA builds) keeps the
+entire exchange on the GPU: a fused CUDA kernel
+(`cuda_gs_pack_and_push`) packs the gathered shared dofs straight
+from the device-resident solution buffer and issues
+`nvshmemx_{float,double}_put_signal_nbi_block` to deliver each
+neighbour's slice into the remote receive buffer together with a
+per-sender completion signal. A `cuda_gs_unpack` kernel applies the
+gather-scatter operation back into `u` on the device. The host never
+sees the payload, so the backend is most effective on builds without
+GPU-aware MPI or where NCCL/MPI go through host staging.
+
+Each neighbour is driven on its own high-priority CUDA stream, with a
+CUDA event recorded after the unpack so the caller's stream can wait
+for completion -- this lets the receives complete out of order and
+overlaps with the local gs work in `gs%bcknd`. Per-pair
+`notifyDone`/`notifyReady` uint64 counters (allocated symmetrically
+via `cudamalloc_nvshmem`) handle the double-buffered handshake so a
+fast sender cannot overwrite a receive buffer the consumer has not
+yet drained.
+
+The backend is gated on `HAVE_CUDA` and `HAVE_NVSHMEM`. It is enabled
+at configure time with `--with-nvshmem=DIR`, which requires a working
+CUDA toolchain; non-CUDA builds and CUDA builds without NVSHMEM are
+unaffected.
+
+@note NVSHMEM requires a launcher and interconnect that support the
+NVSHMEM transport (typically Slingshot, InfiniBand with GDR, or
+NVLink).
+
+#### OpenSHMEM backend {#performance-openshmem-backend}
+
+The OpenSHMEM backend (`NEKO_GS_COMM=SHMEM` on CPU builds) uses
+one-sided `shmem_putmem_signal_nbi` (OpenSHMEM 1.5) to deliver each
+neighbour's contribution directly into a symmetric receive buffer
+together with a per-sender completion signal. Receivers wait on
+`shmem_signal_wait_until` per source rank and acknowledge the round
+with `shmem_uint64_atomic_set`, which the sender consults before
+overwriting the buffer on the next call. The handshake is therefore
+fully per-pair and avoids any global barrier inside the gs op.
+
+The backend is gated on the autoconf macro `HAVE_OPENSHMEM`. It is
+currently wired up for Cray systems via `--with-openshmem` (selecting
+either Cray OpenSHMEMX or Cray SHMEM, whichever is loaded in the
+build environment); builds without a native OpenSHMEM library are
+unaffected.
+
+@note The OpenSHMEM backend allocates symmetric send and receive
+buffers sized to the global maximum total send / receive count, plus
+two symmetric `uint64` arrays of length `pe_size` per gs instance for
+the data and ack signals. Per-rank slot indexing avoids the slot
+exchange a neighbour-list scheme would require. Multiple `gs_t`
+objects can coexist provided they are used strictly sequentially --
+no overlapping nbsend / nbwait windows across instances.
+
+#### Coarray Fortran backend
+
+The CAF backend (`NEKO_GS_COMM=CAF`) uses one-sided coarray puts
+directly into a symmetric receive buffer, with a runtime-selectable
+synchronisation strategy controlled by `NEKO_GS_CAF_SIGNALING`:
+
+| `NEKO_GS_CAF_SIGNALING` | Standard | Mechanism | Notes |
+|---|---|---|---|
+| `sync` (default) | F2008 | `sync images` over the union of neighbour pairs, with a double-buffered receive coarray so only one rendezvous is needed per gs op | Most portable; works on every coarray-capable compiler |
+| `atomic` | F2008 | Per-pair atomic counters via `atomic_define`/`atomic_ref` and a busy-wait spin | Avoids the image-set barrier; trade-off depends on the relative cost of pairwise atomics versus `sync images` on the target runtime |
+| `event` | F2018 | F2018 events (`event post`/`event wait`) | Lowest theoretical overhead; requires a runtime that implements F2018 event semantics |
+
+The signaling mode is bound on the first gs initialisation and cannot
+be changed thereafter. If the chosen mode requires a feature
+unavailable in the build (e.g. `event` on a compiler without F2018
+events), Neko aborts with a clear error.
+
+@note The CAF backend allocates a symmetric receive coarray sized to
+the global maximum total receive count (doubled for the buffer
+parity), shared by all gs instances. The buffer is grown on demand and
+retained for the program lifetime. Multiple `gs_t` objects can coexist
+provided they are used strictly sequentially -- no overlapping
+nbsend/nbwait windows across instances.
