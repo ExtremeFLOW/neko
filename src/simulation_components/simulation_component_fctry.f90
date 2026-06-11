@@ -69,11 +69,11 @@ submodule (simulation_component) simulation_component_fctry
        "fluid_sgs_stats", &
        "scalar_stats", &
        "scalar_sgs_stats", &
-       "grad", &
-       "div", &
+       "gradient", &
+       "divergence", &
        "curl", &
        "derivative", &
-       "weak_grad", &
+       "weak_gradient", &
        "force_torque", &
        "user_stats", &
        "spectral_error", &
