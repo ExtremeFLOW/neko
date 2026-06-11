@@ -300,7 +300,10 @@ contains
     ! Try to find a real array
     call json%get(name, val, found)
     ! The value is retrieved from the JSON keyword, we are done
-    if (found) return
+    if (found) then
+       nullify(vec_ptr)
+       return
+    end if
 
     ! Finding an array failed. Check if it is a string, otherwise error.
     ! If found is false here, json_get will emit the correct error.
@@ -316,6 +319,8 @@ contains
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = real(vec_ptr%x, kind=sp)
+
+    nullify(vec_ptr)
   end subroutine json_get_or_lookup_real_array
 
   !> Sampe as `json_get_or_lookup_real_array`, but for double precision.
@@ -335,7 +340,10 @@ contains
     ! Try to find a real array
     call json%get(name, val, found)
     ! The value is retrieved from the JSON keyword, we are done
-    if (found) return
+    if (found) then
+       nullify(vec_ptr)
+       return
+    end if
 
     ! Finding an array failed. Check if it is a string, otherwise error.
     ! If found is false here, json_get will emit the correct error.
@@ -351,6 +359,8 @@ contains
     ! Retrieve the array from the registry
     vec_ptr => neko_const_registry%get_vector(reg_name)
     val = real(vec_ptr%x, kind=dp)
+
+    nullify(vec_ptr)
   end subroutine json_get_or_lookup_double_array
 
   !> Retrieves an int array either from the json or from the corresponding vector

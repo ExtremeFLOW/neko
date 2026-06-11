@@ -45,7 +45,10 @@ contains
 
     ! See scalar.name in the case file, makes sure that we only
     ! run this for the scalar field.
-    if (scheme_name .ne. 'temperature') return
+    if (scheme_name .ne. 'temperature') then
+       nullify(s)
+       return
+    end if
 
     s => fields%items(1)%ptr
 
@@ -72,6 +75,8 @@ contains
           end do
        end do
     end do
+
+    nullify(s)
 
   end subroutine initial_conditions
 
@@ -101,6 +106,8 @@ contains
        call field_cmult2(rhs_u, v, Ta2Pr)
        call field_cmult2(rhs_v, u, Ta2Pr)
        call field_cmult2(rhs_w, s, rapr)
+
+       nullify(u, v, w, s, rhs_u, rhs_v, rhs_w)
     end if
   end subroutine source_term
 end module user

@@ -66,6 +66,9 @@ contains
     end do
 
     call field_rzero(p)
+
+    nullify(dof, u, v, w, p)
+
   end subroutine initial_conditions
 
   function tgv_ic(x, y, z) result(uvw)
@@ -93,6 +96,8 @@ contains
     call neko_simcomps%simcomps(1)%simcomp%compute(time)
     call user_calc_quantities(time)
 
+    nullify(u)
+
   end subroutine user_initialize
 
   ! User-defined routine called at the end of every time step
@@ -104,7 +109,10 @@ contains
     real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo, e3
     type(coef_t), pointer :: coef
 
-    if (mod(time%tstep, 50) .ne. 0) return
+    if (mod(time%tstep, 50) .ne. 0) then
+       nullify(omega_x, omega_y, omega_z, u, v, w, coef)
+       return
+    end if
 
     coef => neko_user_access%case%fluid%c_Xh
     u => neko_registry%get_field('u')
@@ -165,6 +173,8 @@ contains
        write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
             'POST: t:', time%t, ' Ekin:', e1, ' enst:', e2
     end if
+
+    nullify(omega_x, omega_y, omega_z, u, v, w, coef)
 
   end subroutine user_calc_quantities
 

@@ -496,6 +496,9 @@ contains
     call richardson_log_diagnostics(this%Ri_b, this%L_ob, &
          this%utau, this%magu, this%ti, this%ts, this%q, &
          this%n_nodes, this%bc_value)
+
+    nullify(u, v, w, temp)
+
   end subroutine richardson_compute
 
   subroutine richardson_log_diagnostics(Ri_b, L_ob, utau, magu, &

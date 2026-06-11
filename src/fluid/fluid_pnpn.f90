@@ -461,6 +461,8 @@ contains
 
     call neko_log%end_section()
 
+    nullify(bc_i, vel_bc)
+
   end subroutine fluid_pnpn_init
 
   subroutine fluid_pnpn_restart(this, chkp)
@@ -945,6 +947,9 @@ contains
       call this%ale%update_mesh_velocity(c_Xh, time)
 
     end associate
+
+    nullify(bc_i, bc_j)
+
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
 
@@ -1205,6 +1210,8 @@ contains
        deallocate(zone_indices)
     end if
 
+    nullify(bc_i, bc_object)
+
   end subroutine fluid_pnpn_setup_bcs
 
   !> Write a field with boundary condition specifications
@@ -1343,6 +1350,9 @@ contains
     call bdry_file%write(bdry_field)
 
     call neko_scratch_registry%relinquish_field(temp_index)
+
+    nullify(bdry_field, bci)
+
   end subroutine fluid_pnpn_write_boundary_conditions
 
 end module fluid_pnpn

@@ -443,6 +443,8 @@ contains
     call vector_masked_scatter_copy(this%bc_s%field_bc%x(:,1,1,1), this%s_interface, &
          this%interface_dof_mask, this%bc_s%dof%size())
 
+    nullify(s)
+
   end subroutine overset_interface_update
 
   !===================
