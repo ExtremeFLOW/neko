@@ -77,7 +77,7 @@ void opencl_masked_copy_0(void *a, void *b, void *mask, int *n, int *m,
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
-  const int nb = ((*n) + 256 - 1) / 256;
+  const int nb = ((*m) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
@@ -107,7 +107,7 @@ void opencl_masked_copy_aligned(void *a, void *b, void *mask, int *n, int *m,
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
-  const int nb = ((*n) + 256 - 1) / 256;
+  const int nb = ((*m) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
