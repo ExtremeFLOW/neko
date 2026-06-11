@@ -75,6 +75,21 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
   }
+  
+  /** Fortran wrapper for masked copy
+   * Copy a vector \f$ a(mask) = b(mask) \f$
+   */
+  void cuda_masked_copy_aligned(void *a, void *b, void *mask,
+                        int *n, int *m, cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_copy_kernel_aligned<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, (real*) b,(int*) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
 
   /** Fortran wrapper for masked gather copy
    * Copy a vector \f$ a(i) = b(mask(i)) \f$

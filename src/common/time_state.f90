@@ -150,7 +150,10 @@ contains
   !> Check if the simulation is done
   pure function time_state_is_done(this) result(is_done)
     class(time_state_t), intent(in) :: this
+    character(len=100) :: s
     logical :: is_done
+
+    write(s,*) this%t
 
     is_done = this%t - this%start_time .ge. this%end_time - this%start_time &
          .and. this%tstep .gt. 0

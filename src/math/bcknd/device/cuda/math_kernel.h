@@ -225,6 +225,24 @@ __global__ void masked_copy_kernel_0(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for masked copy
+ */
+template< typename T >
+__global__ void masked_copy_kernel_aligned(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,
+                                   const int n,
+                                   const int n_mask) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[mask[i]] = b[mask[i]];
+  }
+}
+
+/**
  * Device kernel for cfill_mask
  */
 template <typename T>
