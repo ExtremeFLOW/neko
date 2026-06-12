@@ -599,7 +599,7 @@ contains
   end function cfl_r4
 
   function cfl_d(dt, u_d, v_d, w_d, Xh, coef, nelv, gdim)
-    real(kind=rp), intent(in) :: dt
+    real(kind=dp), intent(in) :: dt
     type(c_ptr), intent(in) :: u_d, v_d, w_d
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
