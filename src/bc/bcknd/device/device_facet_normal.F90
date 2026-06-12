@@ -69,6 +69,17 @@ module device_facet_normal
        type(c_ptr), value  :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
      end subroutine opencl_facet_normal_apply_surfvec
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_facet_normal_apply_surfvec(msk, facet, x, y, z, u, v, w, &
+                                                nx, ny, nz, area, lx, m) &
+          bind(c, name='metal_facet_normal_apply_surfvec')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value  :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
+     end subroutine metal_facet_normal_apply_surfvec
+  end interface
 #endif
 
   public :: device_facet_normal_apply_surfvec
@@ -88,6 +99,9 @@ contains
                                          nx, ny, nz, area, lx, m)
 #elif HAVE_OPENCL
     call opencl_facet_normal_apply_surfvec(msk, facet, x, y, z, u, v, w, &
+                                         nx, ny, nz, area, lx, m)
+#elif HAVE_METAL
+    call metal_facet_normal_apply_surfvec(msk, facet, x, y, z, u, v, w, &
                                          nx, ny, nz, area, lx, m)
 #else
     call neko_error('No device backend configured')

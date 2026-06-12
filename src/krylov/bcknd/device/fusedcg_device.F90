@@ -144,6 +144,40 @@ module fusedcg_device
        integer(c_int) :: n, p_cur
      end function hip_fusedcg_part2
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_fusedcg_update_p(p_d, z_d, po_d, beta, n) &
+          bind(c, name='metal_fusedcg_update_p')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: p_d, z_d, po_d
+       real(c_rp) :: beta
+       integer(c_int) :: n
+     end subroutine metal_fusedcg_update_p
+  end interface
+
+  interface
+     subroutine metal_fusedcg_update_x(x_d, p_d, alpha, p_cur, n) &
+          bind(c, name='metal_fusedcg_update_x')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: x_d, p_d, alpha
+       integer(c_int) :: p_cur, n
+     end subroutine metal_fusedcg_update_x
+  end interface
+
+  interface
+     real(c_rp) function metal_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, &
+          p_cur, n) bind(c, name='metal_fusedcg_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, alpha_d
+       real(c_rp) :: alpha
+       integer(c_int) :: n, p_cur
+     end function metal_fusedcg_part2
+  end interface
 #endif
 
 contains
@@ -156,6 +190,8 @@ contains
     call hip_fusedcg_update_p(p_d, z_d, po_d, beta, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_update_p(p_d, z_d, po_d, beta, n)
+#elif HAVE_METAL
+    call metal_fusedcg_update_p(p_d, z_d, po_d, beta, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -168,6 +204,8 @@ contains
     call hip_fusedcg_update_x(x_d, p_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_update_x(x_d, p_d, alpha, p_cur, n)
+#elif HAVE_METAL
+    call metal_fusedcg_update_x(x_d, p_d, alpha, p_cur, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -184,6 +222,8 @@ contains
     res = hip_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     res = cuda_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, p_cur, n)
+#elif HAVE_METAL
+    res = metal_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, p_cur, n)
 #else
     call neko_error('No device backend configured')
 #endif

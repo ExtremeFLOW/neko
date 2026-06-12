@@ -73,6 +73,19 @@ module device_inhom_dirichlet
      end subroutine opencl_inhom_dirichlet_apply_vector
   end interface
 
+#elif HAVE_METAL
+  interface
+     subroutine metal_inhom_dirichlet_apply_vector(msk, x, y, z, &
+          bla_x, bla_y, bla_z, m, strm) &
+          bind(c, name='metal_inhom_dirichlet_apply_vector')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, y, z, bla_x, bla_y, bla_z, strm
+     end subroutine metal_inhom_dirichlet_apply_vector
+  end interface
+
 #endif
 
 #ifdef HAVE_HIP
@@ -108,6 +121,17 @@ module device_inhom_dirichlet
        type(c_ptr), value :: msk, x, bla_x, strm
      end subroutine opencl_inhom_dirichlet_apply_scalar
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
+          bind(c, name='metal_inhom_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, bla_x, strm
+     end subroutine metal_inhom_dirichlet_apply_scalar
+  end interface
 #endif
 
 contains
@@ -127,6 +151,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_inhom_dirichlet_apply_vector(msk, x, y, z, &
          bla_x, bla_y, bla_z, m, strm)
+#elif HAVE_METAL
+    call metal_inhom_dirichlet_apply_vector(msk, x, y, z, &
+         bla_x, bla_y, bla_z, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -144,6 +171,8 @@ contains
     call cuda_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm)
 #elif HAVE_OPENCL
     call opencl_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm)
+#elif HAVE_METAL
+    call metal_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif

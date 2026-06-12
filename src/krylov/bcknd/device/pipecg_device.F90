@@ -138,6 +138,31 @@ module pipecg_device
        integer(c_int) :: p_cur, n, p_space
      end subroutine hip_cg_update_xp
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_pipecg_vecops(p_d, q_d, r_d, s_d, u_d1, u_d2, &
+          w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
+          bind(c, name='metal_pipecg_vecops')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: p_d, q_d, r_d, s_d, u_d1, u_d2
+       type(c_ptr), value :: w_d, ni_d, mi_d, z_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: alpha, beta, reduction(3)
+     end subroutine metal_pipecg_vecops
+  end interface
+
+  interface
+     subroutine metal_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
+          p_cur, p_space, n) &
+          bind(c, name='metal_cg_update_xp')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
+       integer(c_int) :: p_cur, n, p_space
+     end subroutine metal_cg_update_xp
+  end interface
 #endif
 
 contains
@@ -154,6 +179,9 @@ contains
 #elif HAVE_CUDA
     call cuda_pipecg_vecops(p_d, q_d, r_d,&
          s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+#elif HAVE_METAL
+    call metal_pipecg_vecops(p_d, q_d, r_d,&
+         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -167,6 +195,8 @@ contains
     call hip_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n)
 #elif HAVE_CUDA
     call cuda_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n)
+#elif HAVE_METAL
+    call metal_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n)
 #else
     call neko_error('No device backend configured')
 #endif

@@ -33,7 +33,7 @@
 !> Gather-scatter
 module gather_scatter
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_HIP, &
-       NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, NEKO_DEVICE_MPI
+       NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL, NEKO_DEVICE_MPI
   use gs_bcknd, only : gs_bcknd_t, GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
   use gs_device, only : gs_device_t
   use gs_sx, only : gs_sx_t
@@ -280,6 +280,8 @@ contains
           bcknd_str = '        cuda'
        else if (NEKO_BCKND_OPENCL .eq. 1) then
           bcknd_str = '      opencl'
+       else if (NEKO_BCKND_METAL .eq. 1) then
+          bcknd_str = '       metal'
        end if
     case (GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)

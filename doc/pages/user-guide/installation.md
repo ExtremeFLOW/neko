@@ -142,6 +142,7 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-hip=DIR`                | Compile with HIP backend                      |
 | `--with-cuda=DIR`               | Compile with CUDA backend                     |
 | `--with-opencl=DIR`             | Compile with OpenCL backend                   |
+| `--with-metal`                  | Compile with Metal backend (macOS only)       |
 | `--with-nvtx=DIR`               | Compile with support for NVTX                 |
 | `--with-roctx=DIR`              | Compile with support for ROCTX                |
 | `--with-nccl=DIR`               | Compiler with support for NCCL                |
@@ -186,6 +187,18 @@ $ ./configure  --with-hip=/opt/rocm/hip
 ```shell
 $ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc
 ```
+
+#### Compiling Neko for Apple Silicon GPUs
+To compile Neko for Apple Silicon GPUs (macOS only)
+* Make sure you have Xcode with the Metal shader compiler installed (since Xcode 26 the Metal toolchain is a separate download, install via `xcodebuild -downloadComponent MetalToolchain`)
+* Configure Neko to use Metal using the `--with-metal` argument to `configure`, e.g.:
+```shell
+$ ./configure --with-metal --enable-real=sp
+```
+* The Objective-C compiler and flags can be passed using `OBJC` and `OBJCFLAGS`, respectively (defaults to `clang`)
+* Build using `make && make install`
+
+@note Apple GPUs do not support double precision; the Metal backend requires Neko to be configured with single precision (`--enable-real=sp`).
 
 @note More examples, and instructions for specific machines can be found on Neko's [user discussions](https://github.com/ExtremeFLOW/neko/discussions) pages.
 

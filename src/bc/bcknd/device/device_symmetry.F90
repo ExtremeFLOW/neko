@@ -69,6 +69,17 @@ module device_symmetry
        type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
      end subroutine opencl_symmetry_apply_vector
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+          x, y, z, m, n, l, strm) &
+          bind(c, name='metal_symmetry_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, l
+       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
+     end subroutine metal_symmetry_apply_vector
+  end interface
 #endif
 
 contains
@@ -84,6 +95,8 @@ contains
     call cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
 #elif HAVE_OPENCL
     call opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
+#elif HAVE_METAL
+    call metal_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
 #else
     call neko_error('No device backend configured')
 #endif

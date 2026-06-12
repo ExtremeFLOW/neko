@@ -32,7 +32,7 @@
 !
 !> Defines various GMRES methods
 module gmres_device
-  use neko_config, only : NEKO_BCKND_OPENCL
+  use neko_config, only : NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -107,6 +107,18 @@ module gmres_device
        integer(c_int) :: j, n
      end function cuda_gmres_part2
   end interface
+#elif HAVE_METAL
+
+  interface
+     real(c_rp) function metal_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n) &
+          bind(c, name = 'metal_gmres_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: h_d, w_d, v_d_d, mult_d
+       integer(c_int) :: j, n
+     end function metal_gmres_part2
+  end interface
 #endif
 
 contains
@@ -120,6 +132,8 @@ contains
     alpha = hip_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n)
 #elif HAVE_CUDA
     alpha = cuda_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n)
+#elif HAVE_METAL
+    alpha = metal_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -399,7 +413,7 @@ contains
             call device_event_sync(this%gs_event)
             call blst%apply_scalar(w, n)
 
-            if (NEKO_BCKND_OPENCL .eq. 1) then
+            if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
                do i = 1, j
                   h(i,j) = device_glsc3(w_d, v_d(i), coef%mult_d, n)
 
@@ -466,7 +480,7 @@ contains
             c(k) = temp / h(k,k)
          end do
 
-         if (NEKO_BCKND_OPENCL .eq. 1) then
+         if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
             do i = 1, j
                call device_add2s2(x_d, this%z_d(i), c(i), n)
             end do

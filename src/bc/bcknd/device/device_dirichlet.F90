@@ -109,6 +109,30 @@ module device_dirichlet
        type(c_ptr), value :: msk, x, y, z, strm
      end subroutine opencl_dirichlet_apply_vector
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_dirichlet_apply_scalar(msk, x, g, m, strm) &
+          bind(c, name='metal_dirichlet_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       real(c_rp) :: g
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, strm
+     end subroutine metal_dirichlet_apply_scalar
+  end interface
+
+  interface
+     subroutine metal_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
+          bind(c, name='metal_dirichlet_apply_vector')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       real(c_rp) :: g
+       integer(c_int) :: m
+       type(c_ptr), value :: msk, x, y, z, strm
+     end subroutine metal_dirichlet_apply_vector
+  end interface
 #endif
 
   public :: device_dirichlet_apply_scalar, device_dirichlet_apply_vector
@@ -126,6 +150,8 @@ contains
     call cuda_dirichlet_apply_scalar(msk, x, g, m, strm)
 #elif HAVE_OPENCL
     call opencl_dirichlet_apply_scalar(msk, x, g, m, strm)
+#elif HAVE_METAL
+    call metal_dirichlet_apply_scalar(msk, x, g, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -143,6 +169,8 @@ contains
     call cuda_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
 #elif HAVE_OPENCL
     call opencl_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
+#elif HAVE_METAL
+    call metal_dirichlet_apply_vector(msk, x, y, z, g, m, strm)
 #else
     call neko_error('No device backend configured')
 #endif
