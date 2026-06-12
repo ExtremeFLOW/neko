@@ -192,7 +192,7 @@ contains
     character(len=*), intent(in) :: field_name
     real(kind=rp), intent(in), optional :: tol, pad
     logical, intent(in), optional :: log
-   character(len=256) :: log_buf
+    character(len=256) :: log_buf
 
     call this%init_base(coef)
 
@@ -418,7 +418,7 @@ contains
     type(vector_t), pointer :: error
     integer :: ind(1)
     logical :: clear_scratch = .false.
-   character(len=256) :: log_buf
+    character(len=256) :: log_buf
     character(len=12) :: step_str
 
     !> Change the coordinates of the interface if set up by the user

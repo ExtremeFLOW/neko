@@ -452,7 +452,7 @@ contains
     type(vector_t), pointer :: error
     integer :: ind(1)
     logical :: clear_scratch = .false.
-     character(len=256) :: log_buf
+    character(len=256) :: log_buf
     character(len=12) :: step_str
 
     !> Change the coordinates of the interface if set up by the user
