@@ -136,7 +136,7 @@ var index =
             [ "curl", "d3/d84/simcomps.html#simcomp_curl", null ],
             [ "divergence", "d3/d84/simcomps.html#simcomp_divergence", null ]
           ] ],
-          [ "gradient", "d3/d84/simcomps.html#simcomp_gradient", null ],
+          [ "grad", "d3/d84/simcomps.html#simcomp_gradient", null ],
           [ "weak_gradient", "d3/d84/simcomps.html#simcomp_weak_gradient", null ],
           [ "lambda2", "d3/d84/simcomps.html#simcomp_lambda2", null ],
           [ "boundary_operation", "d3/d84/simcomps.html#simcomp_boundary_operation", null ],

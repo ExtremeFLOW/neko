@@ -110,7 +110,7 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 <li class="level3"><a href="#simcomp_divergence">divergence</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#simcomp_gradient">gradient</a></li>
+<li class="level2"><a href="#simcomp_gradient">grad</a></li>
 <li class="level2"><a href="#simcomp_weak_gradient">weak_gradient</a></li>
 <li class="level2"><a href="#simcomp_lambda2">lambda2</a></li>
 <li class="level2"><a href="#simcomp_boundary_operation">boundary_operation</a></li>
@@ -146,7 +146,7 @@ List of simulation components</h1>
 <ul>
 <li>Differential operators<ul>
 <li>Computation of the curl of a vector field <a class="el" href="../../d3/d84/simcomps.html#simcomp_curl">curl</a></li>
-<li>Computation of the gradient of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_gradient">gradient</a></li>
+<li>Computation of the gradient of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_gradient">grad</a></li>
 <li>Computation of the weak gradient of a field <a class="el" href="../../d3/d84/simcomps.html#simcomp_weak_gradient">weak_gradient</a></li>
 <li>Computation of the derivative of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_derivative">derivative</a></li>
 <li>Computation of the divergence of a vector field <a class="el" href="../../d3/d84/simcomps.html#simcomp_divergence">divergence</a></li>
@@ -199,8 +199,8 @@ derivative</h3>
 curl</h3>
 <p>Takes a list of three field names from the <code>fields</code> keyword, and computes the curl. By default, registers the result in <code>curl_x</code>, <code>curl_y</code> and <code>curl_z</code>.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;curl&quot;</div>
-<div class="line">  &quot;name&quot;: &quot;curl&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;curl&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;curl&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
 <div class="line">  &quot;computed_field&quot;: &quot;vorticity&quot;</div>
 <div class="line">}</div>
@@ -208,32 +208,32 @@ curl</h3>
 divergence</h3>
 <p>Takes a list of three field names from the <code>fields</code> keyword, and computes the divergence. By default, registers the result in <code>div</code>.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;divergence&quot;</div>
-<div class="line">  &quot;name&quot;: &quot;divergence&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;divergence&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;divergence&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
 <div class="line">  &quot;computed_field&quot;: &quot;continuity&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_gradient"></a>
-gradient</h2>
+grad</h2>
 <p>Computes the gradient of a field. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>grad_[field]_x</code>, <code>grad_[field]_y</code>, <code>grad_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;gradient&quot;</div>
-<div class="line">  &quot;name&quot;: &quot;gradient&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;gradient&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;gradient&quot;,</div>
 <div class="line">  &quot;field&quot;: &quot;u&quot;,</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_weak_gradient"></a>
 weak_gradient</h2>
 <p>Computes the weak gradient of a field. The weak gradient is value of the gradient multiplied by the local value of the mass matrix. This is how a gradient term appears in the weak formulation of the governing equations. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>weak_grad_[field]_x</code>, <code>weak_grad_[field]_y</code>, <code>weak_grad_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;weak_gradient&quot;</div>
-<div class="line">  &quot;name&quot;: &quot;weak_gradient&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;weak_gradient&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;weak_gradient&quot;,</div>
 <div class="line">  &quot;field&quot;: &quot;u&quot;,</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_lambda2"></a>
 lambda2</h2>
 <p>Computes \( \lambda_2 \) for the velocity field and stores it in the normal output files as the first unused field. This means that \( \lambda_2 \) can be found in the temperature field in then fld files if running without a scalar and s1 if neko is run with one scalar. To output in a different <code>fld</code> series, use the <code>"output_filename"</code> parameter.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;lambda2&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;lambda2&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;lambda2&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_boundary_operation"></a>
@@ -426,8 +426,8 @@ force_torque</h2>
 <div class="line">  &quot;center_type&quot;: &quot;fixed&quot;,</div>
 <div class="line">  &quot;center&quot;: [0.0, 0.0, 0.0],</div>
 <div class="line">  &quot;zone_name&quot;: &quot;some chosen name, optional&quot;,</div>
-<div class="line">  &quot;scale&quot;: 1.0</div>
-<div class="line">  &quot;long_print&quot; : false</div>
+<div class="line">  &quot;scale&quot;: 1.0,</div>
+<div class="line">  &quot;long_print&quot; : false,</div>
 <div class="line">  &quot;compute_control&quot; : &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot; : 10</div>
 <div class="line">}</div>
@@ -507,14 +507,14 @@ les_model</h2>
 <li><code>false</code>: the default option, disable the extrapolation. In this case, the estimation of the eddy viscosity is of first order, while circumvent the risk of unstable extrapolation.</li>
 </ul>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;les_model&quot;</div>
-<div class="line">  &quot;name&quot;: &quot;les_model&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;les_model&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;les_model&quot;,</div>
 <div class="line">  &quot;model&quot;: &quot;smagorinsky&quot;,</div>
 <div class="line">  &quot;delta_type&quot;: &quot;pointwise&quot;,</div>
 <div class="line">  &quot;output_control&quot; : &quot;never&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><p class="startli">Please also note that for the dynamic Smagorinsky model, one needs to specify the test filter in the following way for the Boyd filter as the test filter (one could also use "nonBoyd" as the option): </p><div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;les_model&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;les_model&quot;,</div>
 <div class="line">  &quot;model&quot;: &quot;dynamic_smagorinsky&quot;,</div>
 <div class="line">  &quot;test_filter&quot;: {</div>
 <div class="line">     &quot;filter&quot;: {</div>
@@ -543,7 +543,7 @@ Spectral error indicator</h2>
 <p>Computes the spectral error indicator as developed by Mavriplis (1989) (<a href="https://doi.org/10.1007/978-3-663-13975-1_34">https://doi.org/10.1007/978-3-663-13975-1_34</a>). This is an a posteriori error measure, based on the local properties of the spectral solution. This method formally only gives an indication of the error.</p>
 <p>The spectral error indicator is computed for the 3 velocity fields, resulting in 3 additional fields appended to the field files.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;spectral_error&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;spectral_error&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;spectral_error&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_data_streamer"></a>
@@ -587,7 +587,7 @@ Field subsampler</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Jun 11 2026 05:04:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jun 12 2026 05:08:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

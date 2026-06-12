@@ -164,6 +164,7 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
+<p>An initial JSON Schema for the case file is available in <code>doc/schemas/</code>. The schema is split logically by case-object substructure (see below), with dedicated files for <code>time</code>, <code>numerics</code>, <code>fluid</code>, <code>scalar</code>, <code>source_terms</code>, <code>point_zones</code>, and <code>simulation_components</code>, plus a shared <code>doc/schemas/common.schema.json</code> for reusable definitions. The simulation-component schema is further split into per-component files under <code>doc/schemas/simcomps/</code>. The helper <code>contrib/validate_case_schema.py</code> can be used to validate case files against that schema. Since some shipped example files use <code>//</code> comments and trailing commas, the helper parses the input using a JSON5-compatible frontend before applying the schema.</p>
 <h1><a class="anchor" id="autotoc_md73"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
@@ -243,32 +244,36 @@ The case object</h1>
 <h2><a class="anchor" id="autotoc_md76"></a>
 Constants</h2>
 <p>The <code>constants</code> array allows the user to define parameters that are global to the case file, and can be referred to when setting the values of other parameters. Two types of parameters can be defined: scalars and arrays. Each is represented as a subobject inside the <code>constants</code> object and should containt two entries: <code>name</code> and <code>value</code>. Here is an example:</p>
-<div class="fragment"><div class="line">&quot;constants&quot;:</div>
-<div class="line">[</div>
-<div class="line">  {</div>
-<div class="line">    &quot;name&quot;: &quot;const1&quot;,</div>
-<div class="line">    &quot;value&quot;: 3.5</div>
-<div class="line">  },</div>
-<div class="line">  {</div>
-<div class="line">    &quot;name&quot;: &quot;vector1&quot;,</div>
-<div class="line">    &quot;value&quot;: [1, 0, 1]</div>
-<div class="line">  }</div>
-<div class="line">]</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;constants&quot;:</div>
+<div class="line">  [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;name&quot;: &quot;const1&quot;,</div>
+<div class="line">      &quot;value&quot;: 3.5</div>
+<div class="line">    },</div>
+<div class="line">    {</div>
+<div class="line">      &quot;name&quot;: &quot;vector1&quot;,</div>
+<div class="line">      &quot;value&quot;: [1, 0, 1]</div>
+<div class="line">    }</div>
+<div class="line">  ]</div>
+<div class="line">}</div>
 </div><!-- fragment --><p>Other parameters in the case file that require a scalar or array entry, can instead be defined as a string, pointing to the name of the corresponding parameter in the <code>constants</code> object. As an example, recall that output frequency is controlled by the keyword <code>output_value</code>. It is a plausible scenario that the frequency is the same for multiple solvers, simulation components, etc. Assuming a simulation with both <a class="el" href="../../dd/d33/case-file.html#case-file_fluid">fluid</a> and [scalar](<a class="el" href="../../dd/d33/case-file.html#case-file_scalar">Scalar</a>) solvers active, the following could be used.</p>
-<div class="fragment"><div class="line">&quot;constants&quot;:</div>
-<div class="line">[</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;constants&quot;:</div>
+<div class="line">  [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;name&quot;: &quot;common_output_value&quot;,</div>
+<div class="line">      &quot;value&quot;: 10</div>
+<div class="line">    }</div>
+<div class="line">  ],</div>
+<div class="line">  &quot;fluid&quot;:</div>
 <div class="line">  {</div>
-<div class="line">    &quot;name&quot;: &quot;common_output_value&quot;,</div>
-<div class="line">    &quot;value&quot;: 10</div>
+<div class="line">    &quot;output_value&quot;: &quot;common_output_value&quot;</div>
+<div class="line">  },</div>
+<div class="line">  &quot;scalar&quot;:</div>
+<div class="line">  {</div>
+<div class="line">    &quot;output_value&quot;: &quot;common_output_value&quot;</div>
 <div class="line">  }</div>
-<div class="line">],</div>
-<div class="line">&quot;fluid&quot;:</div>
-<div class="line">{</div>
-<div class="line">  &quot;output_value&quot;: &quot;common_output_value&quot;</div>
-<div class="line">},</div>
-<div class="line">&quot;scalar&quot;:</div>
-<div class="line">{</div>
-<div class="line">  &quot;output_value&quot;: &quot;common_output_value&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> The advantage is that this guarantees that the fluid and scalar output will be in sync, and if one wants to change the frequency only does that in one place in the case file. Another use case is demonstrated in the <code>hemi</code> example, where the freestream velocity is defined under <code>constants</code> and then used to setup both initial and boundary conditions.</p>
 <p>Under the hood, Neko stores the constants in an object called <code>neko_const_registry</code>, which is of the type <code>registry_t</code> (same as <code>neko_registry</code>). The object is accessible in the <a class="el" href="../../d6/def/user-file.html">user file</a>.</p>
@@ -279,7 +284,7 @@ Time control</h2>
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>start_time</code>   </td><td class="markdownTableBodyNone">Start time at which the simulation is initiated.   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>start_time</code>   </td><td class="markdownTableBodyNone">Start time at which the simulation is initiated.   </td><td class="markdownTableBodyNone">Non-negative reals   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>end_time</code>   </td><td class="markdownTableBodyNone">Final time after which the simulation is stopped.   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -289,13 +294,13 @@ Time control</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>max_timestep</code>   </td><td class="markdownTableBodyNone">Maximum time-step size when variable time step is activated   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>huge</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>min_timestep</code>   </td><td class="markdownTableBodyNone">Minimum time-step size when variable time step is activated   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>min_timestep</code>   </td><td class="markdownTableBodyNone">Minimum time-step size when variable time step is activated   </td><td class="markdownTableBodyNone">Non-negative reals   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>target_cfl</code>   </td><td class="markdownTableBodyNone">The desired CFL number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>0.4</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>min_update_frequency</code>   </td><td class="markdownTableBodyNone">The maximum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>huge</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>min_update_frequency</code>   </td><td class="markdownTableBodyNone">The maximum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>huge</code>    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -305,7 +310,7 @@ Time control</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>cfl_deviation_tolerance</code>   </td><td class="markdownTableBodyNone">The tolerance of the deviation from the target CFL number   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.2</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>cfl_max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>cfl_max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>cfl_running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>   </td></tr>
 </table>
@@ -917,48 +922,54 @@ Sponge</h3>
 <details >
 <summary >
 <b><u>Example code snippet</u></b></summary>
-<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
-<div class="line">   {</div>
-<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
-<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
-<div class="line">      &quot;baseflow&quot;: {</div>
-<div class="line">          &quot;method&quot;: &quot;constant&quot;,</div>
-<div class="line">          &quot;value&quot;: [2.0, 0.0, 0.0]</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">   &quot;source_terms&quot;: [</div>
+<div class="line">      {</div>
+<div class="line">         &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">         &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">         &quot;baseflow&quot;: {</div>
+<div class="line">             &quot;method&quot;: &quot;constant&quot;,</div>
+<div class="line">             &quot;value&quot;: [2.0, 0.0, 0.0]</div>
+<div class="line">         }</div>
 <div class="line">      }</div>
-<div class="line">   }</div>
-<div class="line">]</div>
+<div class="line">   ]</div>
+<div class="line">}</div>
 </div><!-- fragment --> </details>
 </li>
 <li><code>field</code>, where the velocity fields are retrieved from an <code>fld</code> file. Uses the same parameters as the field initial condition. <dl class="section note"><dt>Note</dt><dd>The same parameters as the <code>field</code> initial condition apply here.</dd></dl>
 <details >
 <summary >
 <b><u>Example code snippet</u></b></summary>
-<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
-<div class="line">   {</div>
-<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
-<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
-<div class="line">      &quot;baseflow&quot;: {</div>
-<div class="line">          &quot;method&quot;: &quot;field&quot;,</div>
-<div class="line">          &quot;file_name&quot;: &quot;my_field0.f00016&quot;,</div>
-<div class="line">          &quot;mesh_file_name&quot;: &quot;my_field0.f00000&quot;,</div>
-<div class="line">          &quot;interpolate&quot;: true</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">   &quot;source_terms&quot;: [</div>
+<div class="line">      {</div>
+<div class="line">         &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">         &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">         &quot;baseflow&quot;: {</div>
+<div class="line">             &quot;method&quot;: &quot;field&quot;,</div>
+<div class="line">             &quot;file_name&quot;: &quot;my_field0.f00016&quot;,</div>
+<div class="line">             &quot;mesh_file_name&quot;: &quot;my_field0.f00000&quot;,</div>
+<div class="line">             &quot;interpolate&quot;: true</div>
+<div class="line">         }</div>
 <div class="line">      }</div>
-<div class="line">   }</div>
-<div class="line">]</div>
+<div class="line">   ]</div>
+<div class="line">}</div>
 </div><!-- fragment --> </details>
 </li>
 <li><code>user</code>, where the velocity field is set according to what is defined in the user file. Useful for setting velocity fields manually. In this case, the base flow fields must be created and added to the <code>neko_registry</code> (see fortran code snippet below). <details >
 <summary >
 <b><u>Example code snippet</u></b></summary>
-<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
-<div class="line">   {</div>
-<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
-<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
-<div class="line">      &quot;baseflow&quot;: {</div>
-<div class="line">          &quot;method&quot;: &quot;user&quot;</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">   &quot;source_terms&quot;: [</div>
+<div class="line">      {</div>
+<div class="line">         &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">         &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">         &quot;baseflow&quot;: {</div>
+<div class="line">             &quot;method&quot;: &quot;user&quot;</div>
+<div class="line">         }</div>
 <div class="line">      }</div>
-<div class="line">   }</div>
-<div class="line">]</div>
+<div class="line">   ]</div>
+<div class="line">}</div>
 </div><!-- fragment --> </details>
 </li>
 </ol>
@@ -1651,16 +1662,20 @@ Material properties</h2>
 <h2><a class="anchor" id="autotoc_md102"></a>
 Turbulence modelling</h2>
 <p>The user could choose to either relate the eddy diffusivity field to the eddy viscosity field in the Fluid, or model the eddy diffusivity field by some particular SGS models, by setting up the <code>nut_dependency</code> entry. If the eddy diffusivity field is associated to the eddy viscosity field by a coefficient <code>Pr_t</code>, the eddy viscosity values will be divided by it to produce eddy diffusivity. And the corresponding setting could be done by the following:</p>
-<div class="fragment"><div class="line">&quot;alphat&quot;:{</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;alphat&quot;: {</div>
 <div class="line">    &quot;nut_dependency&quot;: true,</div>
 <div class="line">    &quot;nut_field&quot;: &quot;nut&quot;,</div>
 <div class="line">    &quot;Pr_t&quot;: 0.7</div>
-<div class="line">},</div>
+<div class="line">  }</div>
+<div class="line">}</div>
 </div><!-- fragment --><p>Otherwise one could have some SGS models providing an eddy diffusivity field, and the user could set it up by the following manner to include an eddy diffusivity field called <code>temperature_alphat</code>:</p>
-<div class="fragment"><div class="line">&quot;alphat&quot;:{</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;alphat&quot;: {</div>
 <div class="line">    &quot;nut_dependency&quot;: false,</div>
 <div class="line">    &quot;alphat_field&quot;: &quot;temperature_alphat&quot;</div>
-<div class="line">},</div>
+<div class="line">  }</div>
+<div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="autotoc_md103"></a>
 Boundary conditions</h2>
 <p>The boundary conditions for the scalar are specified through the <code>boundary_conditions</code> keyword, which follows the same format as the fluid, for specifying the type of the condition and where it is applied. Four types of conditions are available for the scalar:</p>
@@ -1754,7 +1769,7 @@ Simulation components</h1>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html">separate page of the manual</a>.</p>
 <h1><a class="anchor" id="autotoc_md109"></a>
 Point zones</h1>
-<p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
+<p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Three predefined geometric shapes are selectable from the case file: boxes, spheres, and cylinders.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html">separate page of the manual</a>.</p>
 <h1><a class="anchor" id="autotoc_md110"></a>
@@ -1775,7 +1790,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Jun 11 2026 05:04:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jun 12 2026 05:08:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
