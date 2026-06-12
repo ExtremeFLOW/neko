@@ -149,6 +149,16 @@ contains
           call this%init_from_components(sname, coef, &
                start_time, hom_dir, alphat_field, filename)
        end if
+    else if (sname_provided) then
+       if (nut_dependency) then
+          call this%init_from_components(sname, coef, &
+               start_time, hom_dir, nut_field, pr_turb, &
+               "scalar_sgs_stats_"//trim(sname) // "0")
+       else
+          call this%init_from_components(sname, coef, &
+               start_time, hom_dir, alphat_field, &
+               "scalar_sgs_stats_"//trim(sname) // "0")
+       end if
     else
        if (nut_dependency) then
           call this%init_from_components(sname, coef, &
