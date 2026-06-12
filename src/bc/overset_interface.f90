@@ -59,7 +59,7 @@ module overset_interface
   use field, only : field_t
   use logger, only : neko_log, LOG_SIZE
   use scratch_registry, only : neko_scratch_registry
-   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
   implicit none
@@ -89,7 +89,7 @@ module overset_interface
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
-   integer :: n_int_tot = 0
+     integer :: n_int_tot = 0
      logical :: find_interface = .false.
      logical :: setup = .false.
      logical :: log = .false.
@@ -401,8 +401,8 @@ contains
 
     call this%s_interface_lag%init(this%s_interface, this%iextm_order)
 
-       call MPI_Allreduce(this%s_interface%size(), this%n_int_tot, 1, MPI_INTEGER, &
-          MPI_SUM, NEKO_GLOBAL_COMM)
+    call MPI_Allreduce(this%s_interface%size(), this%n_int_tot, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_GLOBAL_COMM)
 
   end subroutine overset_interface_finalize
 
@@ -445,14 +445,14 @@ contains
     call this%interface_interpolator%evaluate_masked(this%s_interface%x, s%x, &
          this%domain_element_mask, .false.)
 
-      if (this%log) then
+    if (this%log) then
        call neko_scratch_registry%request_vector(error, ind(1), this%s_interface%size(), &
             clear_scratch)
        call vector_masked_gather_copy(error, s%x(:,1,1,1), this%interface_dof_mask, &
             this%dof%size())
        call vector_add2s2(error, this%s_interface, -1.0_rp)
        s_int_norm = sqrt(vector_glsc2(error, error)) / &
-           sqrt(real(this%n_int_tot, kind=rp))
+            sqrt(real(this%n_int_tot, kind=rp))
        call neko_scratch_registry%relinquish(ind)
 
        write(log_buf, '(A,E15.7)') trim(this%name) // ' rmse = ', s_int_norm
