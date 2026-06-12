@@ -59,15 +59,16 @@ void opencl_copy(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 
 /** Fortran wrapper for masked copy
  * Copy a vector \f$ a(mask) = b(mask) \f$
+ * Mask is BC style.
  */
-void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m,
+void opencl_masked_copy_0(void *a, void *b, void *mask, int *n, int *m,
                         cl_command_queue cmd_queue) {
   cl_int err;
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
-  cl_kernel kernel = clCreateKernel(math_program, "masked_copy_kernel", &err);
+  cl_kernel kernel = clCreateKernel(math_program, "masked_copy_kernel_0", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
@@ -76,7 +77,37 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m,
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
 
-  const int nb = ((*n) + 256 - 1) / 256;
+  const int nb = ((*m) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+
+}
+
+/** Fortran wrapper for masked copy
+ * Copy a vector \f$ a(mask) = b(mask) \f$
+ */
+void opencl_masked_copy_aligned(void *a, void *b, void *mask, int *n, int *m,
+                        cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "masked_copy_kernel_aligned", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), m));
+
+  const int nb = ((*m) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
@@ -128,7 +159,7 @@ void opencl_masked_gather_copy_aligned(void *a, void *b, void *mask, int *n,
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
-  cl_kernel kernel = clCreateKernel(math_program, 
+  cl_kernel kernel = clCreateKernel(math_program,
     "masked_gather_copy_aligned_kernel", &err);
   CL_CHECK(err);
 

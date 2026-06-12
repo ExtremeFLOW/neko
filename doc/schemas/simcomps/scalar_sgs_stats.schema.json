@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:scalar_sgs_stats",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "alphat"
+          ],
+          "properties": {
+            "type": {
+              "const": "scalar_sgs_stats"
+            },
+            "field": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "start_time": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            },
+            "avg_direction": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompAvgDirection"
+            },
+            "output_filename": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "alphat": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompAlphat"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}
