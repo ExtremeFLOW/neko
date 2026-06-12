@@ -486,35 +486,35 @@ contains
     call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
 
     if (this%log) then
-      !> Evaluate errors so far. The metric we use is the RMS error
-      call neko_scratch_registry%request_vector(error, ind(2), this%u_interface%size(), clear_scratch)
-      !> u
-      !! Get my local values
-      call vector_masked_gather_copy(error, u%x(:,1,1,1), this%interface_dof_mask, &
+       !> Evaluate errors so far. The metric we use is the RMS error
+       call neko_scratch_registry%request_vector(error, ind(2), this%u_interface%size(), clear_scratch)
+       !> u
+       !! Get my local values
+       call vector_masked_gather_copy(error, u%x(:,1,1,1), this%interface_dof_mask, &
             this%dof%size())
-      !! Substract the values from the other domain
-      call vector_add2s2(error, this%u_interface, -1.0_rp)
-      !! Get the L2 norm of the error
-      u_int_norm = sqrt(vector_glsc2(error, error)) &
-         / sqrt(real(this%u_interface%size(), kind=rp))
-      !> v
-      call vector_masked_gather_copy(error, v%x(:,1,1,1), this%interface_dof_mask, &
+       !! Substract the values from the other domain
+       call vector_add2s2(error, this%u_interface, -1.0_rp)
+       !! Get the L2 norm of the error
+       u_int_norm = sqrt(vector_glsc2(error, error)) &
+            / sqrt(real(this%u_interface%size(), kind=rp))
+       !> v
+       call vector_masked_gather_copy(error, v%x(:,1,1,1), this%interface_dof_mask, &
             this%dof%size())
-      call vector_add2s2(error, this%v_interface, -1.0_rp)
-      v_int_norm = sqrt(vector_glsc2(error, error)) &
-         / sqrt(real(this%u_interface%size(), kind=rp))
-      !> w
-      call vector_masked_gather_copy(error, w%x(:,1,1,1), this%interface_dof_mask, &
+       call vector_add2s2(error, this%v_interface, -1.0_rp)
+       v_int_norm = sqrt(vector_glsc2(error, error)) &
+            / sqrt(real(this%u_interface%size(), kind=rp))
+       !> w
+       call vector_masked_gather_copy(error, w%x(:,1,1,1), this%interface_dof_mask, &
             this%dof%size())
-      call vector_add2s2(error, this%w_interface, -1.0_rp)
-      w_int_norm = sqrt(vector_glsc2(error, error)) &
-         / sqrt(real(this%u_interface%size(), kind=rp))  
-      call neko_scratch_registry%relinquish(ind)
-      
+       call vector_add2s2(error, this%w_interface, -1.0_rp)
+       w_int_norm = sqrt(vector_glsc2(error, error)) &
+            / sqrt(real(this%u_interface%size(), kind=rp))
+       call neko_scratch_registry%relinquish(ind)
+
        !> Log the errors on a single line
        write(log_buf, '(A,E15.7,A,E15.7,A,E15.7)') 'Interface rmse: u = ', &
-          u_int_norm, ', v = ', v_int_norm, ', w = ', w_int_norm
-      call neko_log%message(log_buf)
+            u_int_norm, ', v = ', v_int_norm, ', w = ', w_int_norm
+       call neko_log%message(log_buf)
     end if
 
 

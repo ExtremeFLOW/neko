@@ -48,7 +48,7 @@ module overset_interface
   use vector_series, only : vector_series_t
   use vector_list, only : vector_list_t
   use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, &
-     vector_add2s2, vector_cmult2, vector_glsc2
+       vector_add2s2, vector_cmult2, vector_glsc2
   use device, only : DEVICE_TO_HOST
   use field_dirichlet, only : field_dirichlet_t
   use iextm_time_scheme, only : iextm_time_scheme_t
@@ -58,7 +58,7 @@ module overset_interface
   use json_utils, only : json_get, json_get_or_default
   use field, only : field_t
   use logger, only : neko_log, LOG_SIZE
-   use scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
@@ -91,7 +91,7 @@ module overset_interface
      type(global_interpolation_settings_t) :: interpolation_settings
      logical :: find_interface = .false.
      logical :: setup = .false.
-       logical :: log = .false.
+     logical :: log = .false.
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
@@ -185,12 +185,12 @@ contains
 
   !> Constructor from components
   !! @param[in] coef The SEM coefficients.
-   subroutine overset_interface_init_from_components(this, coef, field_name, tol, pad, log)
+  subroutine overset_interface_init_from_components(this, coef, field_name, tol, pad, log)
     class(overset_interface_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: field_name
     real(kind=rp), intent(in), optional :: tol, pad
-      logical, intent(in), optional :: log
+    logical, intent(in), optional :: log
     character(len=LOG_SIZE) :: log_buf
 
     call this%init_base(coef)
@@ -410,11 +410,11 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
-      real(kind=rp) :: s_int_norm
-      type(vector_t), pointer :: error
-      integer :: ind(1)
-      logical :: clear_scratch = .false.
-      character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: s_int_norm
+    type(vector_t), pointer :: error
+    integer :: ind(1)
+    logical :: clear_scratch = .false.
+    character(len=LOG_SIZE) :: log_buf
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
