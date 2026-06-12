@@ -442,6 +442,9 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE, this%ifcomm, 1, MPI_LOGICAL, MPI_LOR, &
          NEKO_COMM, ierr)
 
+    ! if communication is required we have to flag mesh change as well
+    if (this%ifcomm) ifchange = .true.
+
     if (allocated(rmap)) deallocate(rmap)
     if (allocated(cmap)) deallocate(cmap)
 
