@@ -226,6 +226,7 @@ contains
 
     t = time%t
     if (t .gt. this%time) this%time = t
+
     fname = this%stats_output%file_%get_base_fname()
     write (prefix, '(I5)') &
          this%stats_output%file_%file_type%get_start_counter()
