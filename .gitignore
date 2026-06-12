@@ -61,6 +61,7 @@ src/.libs/libneko.la
 src/.libs/libneko.lai
 src/api/neko.h
 src/python/pyneko/intf.py
+share/man/man1
 
 # Ignore temporary files
 *~

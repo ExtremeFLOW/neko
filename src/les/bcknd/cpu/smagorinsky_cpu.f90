@@ -89,7 +89,8 @@ contains
     call neko_scratch_registry%request_field(s23, temp_indices(6), .false.)
 
     ! Compute the strain rate tensor
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
+         u%x, v%x, w%x, coef)
 
     call coef%gs_h%op(s11, GS_OP_ADD)
     call coef%gs_h%op(s22, GS_OP_ADD)
@@ -98,8 +99,12 @@ contains
     call coef%gs_h%op(s13, GS_OP_ADD)
     call coef%gs_h%op(s23, GS_OP_ADD)
 
-    do concurrent (e = 1:coef%msh%nelv)
-       do concurrent (i = 1:coef%Xh%lxyz)
+    !$omp parallel do private(e, i, s_abs)
+    do e = 1, coef%msh%nelv
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       do i = 1, coef%Xh%lxyz
           s_abs = sqrt(2.0_rp * (s11%x(i,1,1,e)*s11%x(i,1,1,e) + &
                s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
                s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &
@@ -111,6 +116,7 @@ contains
                * coef%mult(i,1,1,e)
        end do
     end do
+    !$omp end parallel do
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())

@@ -36,7 +36,6 @@ module opr_cpu
   use space, only : space_t
   use coefs, only : coef_t
   use math, only : sub3, copy, rzero, PI
-  use field, only : field_t
   use gather_scatter, only : GS_OP_ADD
   use interpolation, only : interpolator_t
   use mathops, only : opcolv
@@ -125,52 +124,60 @@ module opr_cpu
 contains
 
   subroutine opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
-    type(field_t), intent(inout) :: w1
-    type(field_t), intent(inout) :: w2
-    type(field_t), intent(inout) :: w3
-    type(field_t), intent(in) :: u1
-    type(field_t), intent(in) :: u2
-    type(field_t), intent(in) :: u3
-    type(field_t), intent(inout) :: work1
-    type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: c_Xh
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: w1
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: w2
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: w3
+    real(kind=rp), intent(in), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: u1
+    real(kind=rp), intent(in), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: u2
+    real(kind=rp), intent(in), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: u3
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: work1
+    real(kind=rp), intent(inout), &
+         dimension(c_Xh%Xh%lx, c_Xh%Xh%ly, c_Xh%Xh%lz, c_Xh%msh%nelv) :: work2
     integer :: gdim, n
 
-    n = w1%dof%size()
+    n = c_Xh%dof%size()
     gdim = c_Xh%msh%gdim
 
     !     this%work1=dw/dy ; this%work2=dv/dz
-    call opr_cpu_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+    call opr_cpu_dudxyz(work1, u3, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     if (gdim .eq. 3) then
-       call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, &
+       call opr_cpu_dudxyz(work2, u2, c_Xh%drdz, c_Xh%dsdz, &
             c_Xh%dtdz, c_Xh)
-       call sub3(w1%x, work1%x, work2%x, n)
+       call sub3(w1, work1, work2, n)
     else
-       call copy(w1%x, work1%x, n)
+       call copy(w1, work1, n)
     end if
     !     this%work1=du/dz ; this%work2=dw/dx
     if (gdim .eq. 3) then
-       call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+       call opr_cpu_dudxyz(work1, u1, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+       call opr_cpu_dudxyz(work2, u3, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call sub3(w2, work1, work2, n)
     else
-       call rzero(work1%x, n)
-       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-       call sub3(w2%x, work1%x, work2%x, n)
+       call rzero(work1, n)
+       call opr_cpu_dudxyz(work2, u3, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call sub3(w2, work1, work2, n)
     end if
     !     this%work1=dv/dx ; this%work2=du/dy
-    call opr_cpu_dudxyz(work1%x, u2%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
-    call opr_cpu_dudxyz(work2%x, u1%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
-    call sub3(w3%x, work1%x, work2%x, n)
+    call opr_cpu_dudxyz(work1, u2, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+    call opr_cpu_dudxyz(work2, u1, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+    call sub3(w3, work1, work2, n)
     !!    BC dependent, Needs to change if cyclic
 
-    call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
-    if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 1, c_Xh)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, GS_OP_ADD)
-    if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1%x, w2%x, w3%x, 0, c_Xh)
-    call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
+    call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
+    if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_Xh)
+    call c_Xh%gs_h%op(w1, n, GS_OP_ADD)
+    call c_Xh%gs_h%op(w2, n, GS_OP_ADD)
+    call c_Xh%gs_h%op(w3, n, GS_OP_ADD)
+    if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_Xh)
+    call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)
 
   end subroutine opr_cpu_curl
 
@@ -186,6 +193,8 @@ contains
     integer :: i, j, k, e
     cfl = 0d0
     if (gdim .eq. 3) then
+       !$omp parallel do reduction(max:cfl) private(e, k, j, i, ur, us, ut, &
+       !$omp& cflr, cfls, cflt, cflm)
        do e = 1, nelv
           do k = 1, Xh%lz
              do j = 1, Xh%ly
@@ -213,7 +222,10 @@ contains
              end do
           end do
        end do
+       !$omp end parallel do
     else
+       !$omp parallel do reduction(max:cfl) private(e, j, i, ur, us, &
+       !$omp& cflr, cfls, cflm)
        do e = 1, nelv
           do j = 1, Xh%ly
              do i = 1, Xh%lx
@@ -231,13 +243,20 @@ contains
              end do
           end do
        end do
+       !$omp end parallel do
     end if
   end function opr_cpu_cfl
 
   subroutine opr_cpu_lambda2(lambda2, u, v, w, coef)
     type(coef_t), intent(in) :: coef
-    type(field_t), intent(inout) :: lambda2
-    type(field_t), intent(in) :: u, v, w
+    real(kind=rp), intent(inout), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: lambda2
+    real(kind=rp), intent(in), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: u
+    real(kind=rp), intent(in), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: v
+    real(kind=rp), intent(in), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
     integer :: e, i
     real(kind=xp) :: eigen(3), B, C, D, q, r, theta, l2
@@ -247,11 +266,11 @@ contains
 
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
-            u%x(1,1,1,e), coef,e,e)
+            u(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &
-            v%x(1,1,1,e), coef,e,e)
+            v(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &
-            w%x(1,1,1,e), coef,e,e)
+            w(1,1,1,e), coef,e,e)
 
        do i = 1, coef%Xh%lxyz
           s11 = grad(i,1,1)
@@ -303,7 +322,7 @@ contains
                .le. eigen(3) .and. eigen(3) .le. eigen(1))
 
           l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)
-          lambda2%x(i, 1, 1, e) = l2 / real(coef%B(i, 1, 1, e)**2, xp)
+          lambda2(i, 1, 1, e) = l2 / real(coef%B(i, 1, 1, e)**2, xp)
        end do
     end do
 

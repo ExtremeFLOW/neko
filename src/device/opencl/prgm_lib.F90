@@ -56,6 +56,9 @@ module opencl_prgm_lib
   !> Device Velocity gradient kernels
   type(c_ptr), public, bind(c) :: opgrad_program = C_NULL_PTR
 
+  !> Device cyclic boundary rotation kernels
+  type(c_ptr), public, bind(c) :: rotate_program = C_NULL_PTR
+
   !> Device Gather-Scatter kernels
   type(c_ptr), public, bind(c) :: gs_program = C_NULL_PTR
 
@@ -218,6 +221,13 @@ contains
           call neko_error('Failed to release program')
        end if
        opgrad_program = C_NULL_PTR
+    end if
+
+    if (c_associated(rotate_program)) then
+       if (clReleaseProgram(rotate_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       rotate_program = C_NULL_PTR
     end if
 
     if (c_associated(gs_program)) then

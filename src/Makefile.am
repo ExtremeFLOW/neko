@@ -22,6 +22,7 @@ neko_fortran_SOURCES = \
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
+	comm/shmem.F90\
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
@@ -32,6 +33,8 @@ neko_fortran_SOURCES = \
 	common/system.f90\
 	common/runtime_statistics.f90\
 	common/user_access_singleton.f90\
+	data_types/host_array.f90\
+	data_types/device_array.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
@@ -57,6 +60,7 @@ neko_fortran_SOURCES = \
 	gs/gs_ops.f90\
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
+	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
@@ -90,6 +94,7 @@ neko_fortran_SOURCES = \
 	mesh/tri_mesh.f90\
 	mesh/intersection_detector.f90\
 	field/field.f90\
+	field/field_array.f90\
 	field/field_list.f90\
 	field/field_series.f90\
 	field/field_series_list.f90\
@@ -125,6 +130,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/vector_series.f90\
 	math/vector_list.f90\
 	math/vector_math.f90\
 	registries/registry.f90\
@@ -231,6 +237,7 @@ neko_fortran_SOURCES = \
 	time_schemes/time_scheme.f90\
 	time_schemes/bdf_time_scheme.f90\
 	time_schemes/ext_time_scheme.f90\
+	time_schemes/iextm_time_scheme.f90\
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
 	time_schemes/runge_kutta_scheme.f90\
@@ -616,6 +623,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/opr_lambda2.c\
 	math/bcknd/device/opencl/opr_cfl.c\
+	math/bcknd/device/opencl/opr_rotate_cyc.c\
 	math/bcknd/device/opencl/ax_helm.c\
 	math/bcknd/device/opencl/ax_helm_full.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
@@ -866,6 +874,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/set_convect_rst_kernel.cl\
 	math/bcknd/device/opencl/lambda2_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
+	math/bcknd/device/opencl/rotate_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	fluid/bcknd/device/opencl/euler_res_kernel.cl\

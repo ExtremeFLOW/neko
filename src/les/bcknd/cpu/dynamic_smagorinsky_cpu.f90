@@ -109,7 +109,8 @@ contains
     call neko_scratch_registry%request_field(s_abs, temp_indices(7), .false.)
 
     ! Compute the strain rate tensor
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
+         u%x, v%x, w%x, coef)
 
     call coef%gs_h%op(s11%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s22%x, s11%dof%size(), GS_OP_ADD)
@@ -118,7 +119,11 @@ contains
     call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
 
-    do concurrent (i = 1:u%dof%size())
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, u%dof%size()
        s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
        s22%x(i,1,1,1) = s22%x(i,1,1,1) * coef%mult(i,1,1,1)
        s33%x(i,1,1,1) = s33%x(i,1,1,1) * coef%mult(i,1,1,1)
@@ -126,8 +131,13 @@ contains
        s13%x(i,1,1,1) = s13%x(i,1,1,1) * coef%mult(i,1,1,1)
        s23%x(i,1,1,1) = s23%x(i,1,1,1) * coef%mult(i,1,1,1)
     end do
+    !$omp end parallel do
 
-    do concurrent (i = 1:u%dof%size())
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, u%dof%size()
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
             s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
             s33%x(i,1,1,1)*s33%x(i,1,1,1)) + &
@@ -135,13 +145,18 @@ contains
             s13%x(i,1,1,1)*s13%x(i,1,1,1) + &
             s23%x(i,1,1,1)*s23%x(i,1,1,1)))
     end do
+    !$omp end parallel do
 
     call compute_lij_cpu(lij, u, v, w, test_filter, u%dof%size())
     call compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, &
          s_abs, test_filter, delta, u%dof%size())
     call compute_num_den_cpu(num, den, lij, mij, alpha, u%dof%size())
 
-    do concurrent (i =1:u%dof%size())
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, u%dof%size()
        if (den%x(i,1,1,1) .gt. 0.0_rp) then
           c_dyn%x(i,1,1,1) = 0.5_rp * (num%x(i,1,1,1)/den%x(i,1,1,1))
        else
@@ -151,6 +166,7 @@ contains
        nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 &
             * s_abs%x(i,1,1,1)
     end do
+    !$omp end parallel do
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call col2(nut%x, coef%mult, nut%dof%size())
@@ -186,7 +202,11 @@ contains
     call test_filter%apply(fw, w)
 
     !! The first term
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
        lij(1)%x(i,1,1,1) = fu%x(i,1,1,1) * fu%x(i,1,1,1)
        lij(2)%x(i,1,1,1) = fv%x(i,1,1,1) * fv%x(i,1,1,1)
        lij(3)%x(i,1,1,1) = fw%x(i,1,1,1) * fw%x(i,1,1,1)
@@ -194,6 +214,7 @@ contains
        lij(5)%x(i,1,1,1) = fu%x(i,1,1,1) * fw%x(i,1,1,1)
        lij(6)%x(i,1,1,1) = fv%x(i,1,1,1) * fw%x(i,1,1,1)
     end do
+    !$omp end parallel do
 
     !! Subtract the second term:
     !! use test filter for the cross terms
@@ -318,7 +339,11 @@ contains
     call sub2(mij(6)%x, fs22%x, n)
 
     !! Lastly multiplied by delta^2
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do private(i, delta2)
+    do i = 1, n
        delta2 = delta%x(i,1,1,1)**2
        mij(1)%x(i,1,1,1) = mij(1)%x(i,1,1,1) * delta2
        mij(2)%x(i,1,1,1) = mij(2)%x(i,1,1,1) * delta2
@@ -327,6 +352,7 @@ contains
        mij(5)%x(i,1,1,1) = mij(5)%x(i,1,1,1) * delta2
        mij(6)%x(i,1,1,1) = mij(6)%x(i,1,1,1) * delta2
     end do
+    !$omp end parallel do
 
   end subroutine compute_mij_cpu
 
@@ -346,7 +372,11 @@ contains
     real(kind=rp), dimension(n) :: num_curr, den_curr
     integer :: i
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
        num_curr(i) = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &
             mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &
             mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &
@@ -360,12 +390,18 @@ contains
             mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &
             mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))
     end do
+    !$omp end parallel do
 
     ! running average over time
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
        num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr(i)
        den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr(i)
     end do
+    !$omp end parallel do
 
   end subroutine compute_num_den_cpu
 

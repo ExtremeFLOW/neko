@@ -47,6 +47,7 @@ module scalar_scheme
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
   use bc_list, only : bc_list_t
+  use bc, only : bc_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use mesh, only : mesh_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -455,6 +456,10 @@ contains
   !> Deallocate a scalar formulation
   subroutine scalar_scheme_free(this)
     class(scalar_scheme_t), intent(inout) :: this
+    class(bc_t), pointer :: bc
+    integer :: i
+
+    bc => null()
 
     nullify(this%Xh)
     nullify(this%dm_Xh)
@@ -478,12 +483,35 @@ contains
 
     call this%source_term%free()
 
+    if (associated(this%f_Xh)) then
+       call this%f_Xh%free()
+       deallocate(this%f_Xh)
+    end if
+
+    do i = 1, this%bcs%size()
+       bc => this%bcs%get(i)
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
+    end do
+
     call this%bcs%free()
     call this%slag%free()
+    call this%material_properties%free()
+
+    if (allocated(this%nut_field_name)) then
+       deallocate(this%nut_field_name)
+    end if
+
+    if (allocated(this%alphat_field_name)) then
+       deallocate(this%alphat_field_name)
+    end if
 
     nullify(this%cp)
     nullify(this%lambda)
     nullify(this%lambda_tot)
+    nullify(bc)
 
   end subroutine scalar_scheme_free
 

@@ -270,6 +270,17 @@ will drop into a shell, which, in addition to Neko, has a Python interpreter
 with `pytest`, `findent`, and `flinter` installed. Additional packages can be
 installed manually.
 
+## Installing via FreeBSD ports
+Neko is available in the FreeBSD ports collection under `science/neko`. The
+port tracks Neko releases and pulls in all required dependencies (MPI,
+BLAS/LAPACK, JSON-Fortran, etc.) automatically.
+
+To install from the ports tree:
+
+```shell
+cd /usr/ports/science/neko
+make install clean
+```
 
 ## Using a Docker container
 Perhaps the easiest way to quickly give Neko a try is using a Docker container.

@@ -289,10 +289,11 @@ contains
   end subroutine gs_device_shmem_free
 
   !> Post non-blocking send operations
-  subroutine gs_device_shmem_nbsend(this, u, n, deps, strm)
+  subroutine gs_device_shmem_nbsend(this, u, n, tag, deps, strm)
     class(gs_device_shmem_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: u
+    integer, intent(in) :: tag
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
     integer :: i
@@ -312,8 +313,9 @@ contains
   end subroutine gs_device_shmem_nbsend
 
   !> Post non-blocking receive operations
-  subroutine gs_device_shmem_nbrecv(this)
+  subroutine gs_device_shmem_nbrecv(this, tag)
     class(gs_device_shmem_t), intent(inout) :: this
+    integer, intent(in) :: tag
     integer :: i
 
     ! We do everything in the "wait" routine below

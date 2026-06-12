@@ -252,11 +252,11 @@ contains
     end if
 
     ! Ensure continuity across elements for initial conditions
-    call rotate_cyc(u%x, v%x, w%x, 1, coef)
+    call rotate_cyc(u, v, w, 1, coef)
     call gs%op(u%x, u%dof%size(), GS_OP_ADD)
     call gs%op(v%x, v%dof%size(), GS_OP_ADD)
     call gs%op(w%x, w%dof%size(), GS_OP_ADD)
-    call rotate_cyc(u%x, v%x, w%x, 0, coef)
+    call rotate_cyc(u, v, w, 0, coef)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(u%x_d, coef%mult_d, u%dof%size())

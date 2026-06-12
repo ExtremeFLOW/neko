@@ -88,7 +88,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
-| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 Some additional practical comments are provided regarding the output triggered
@@ -116,7 +116,9 @@ checkpoint file, with the filename called `joblimit#####.chkp`. This is done so
 that the user is at least provided a restart file, and none of the computer time
 spent on the simulation is wasted. Generally, however, it is recommended to
 have `output_at_end` set to `true` in tandem with `job_timelimit`, so that what
-exactly gets written is controlled by the case file settings.
+exactly gets written is controlled by the case file settings. Note that the time
+format is flexible. For example, `1-01:00:00` and `25:00:00` are both valid ways
+to specify a 25-hour time limit.
 
 ### Constants
 The `constants` array allows the user to define parameters that are global to
@@ -126,17 +128,19 @@ represented as a subobject inside the `constants` object and should containt two
 entries: `name` and `value`. Here is an example:
 
 ```json
-"constants":
-[
-  {
-    "name": "const1",
-    "value": 3.5
-  },
-  {
-    "name": "vector1",
-    "value": [1, 0, 1]
-  }
-]
+{
+  "constants":
+  [
+    {
+      "name": "const1",
+      "value": 3.5
+    },
+    {
+      "name": "vector1",
+      "value": [1, 0, 1]
+    }
+  ]
+}
 ```
 
 Other parameters in the case file that require a scalar or array entry, can
@@ -148,20 +152,22 @@ a simulation with both [fluid](@ref case-file_fluid) and [scalar](@ref
 case-file_scalar) solvers active, the following could be used.
 
 ```json
-"constants":
-[
+{
+  "constants":
+  [
+    {
+      "name": "common_output_value",
+      "value": 10
+    }
+  ],
+  "fluid":
   {
-    "name": "common_output_value",
-    "value": 10
+    "output_value": "common_output_value"
+  },
+  "scalar":
+  {
+    "output_value": "common_output_value"
   }
-],
-"fluid":
-{
-  "output_value": "common_output_value"
-},
-"scalar":
-{
-  "output_value": "common_output_value"
 }
 ```
 The advantage is that this guarantees that the fluid and scalar output will be
@@ -625,11 +631,17 @@ A more detailed description of each boundary condition is provided below.
   The keyword `couple_pressure` is `false` by default and controls whether the pressure BC is also set from
   the coupled simulation. This should, for the time being, be left as `false`.
 
+  The keyword `order` is `1` by default and defines the interface extrapolation scheme order at every timestep.
+  Generally, you want to keep the order of the extrapolation consistent with your time integration scheme,
+  however, note that a higher order might need help with stabilization, specifically by increasing the number
+  of `Schwarz-like` iterations.
+
   ```json
   {
     "type": "overset_interface",
     "zone_indices": [1, 2],
-    "couple_pressure" : false
+    "couple_pressure" : false,
+    "order" : 3
   }
   ```
 
@@ -1104,16 +1116,18 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "constant",
-             "value": [2.0, 0.0, 0.0]
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "constant",
+                "value": [2.0, 0.0, 0.0]
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1124,18 +1138,20 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "field",
-             "file_name": "my_field0.f00016",
-             "mesh_file_name": "my_field0.f00000",
-             "interpolate": true
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "field",
+                "file_name": "my_field0.f00016",
+                "mesh_file_name": "my_field0.f00000",
+                "interpolate": true
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1147,15 +1163,17 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "user"
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "user"
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1834,11 +1852,13 @@ If the eddy diffusivity field is associated to the eddy viscosity field by a coe
 And the corresponding setting could be done by the following:
 
 ```json
-"alphat":{
+{
+  "alphat": {
     "nut_dependency": true,
     "nut_field": "nut",
     "Pr_t": 0.7
-},
+  }
+}
 ```
 
 Otherwise one could have some SGS models providing an eddy diffusivity field, and the
@@ -1846,10 +1866,12 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 `temperature_alphat`:
 
 ```json
-"alphat":{
+{
+  "alphat": {
     "nut_dependency": false,
     "alphat_field": "temperature_alphat"
-},
+  }
+}
 ```
 
 ### Boundary conditions

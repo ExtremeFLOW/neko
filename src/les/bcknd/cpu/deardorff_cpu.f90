@@ -145,7 +145,12 @@ contains
     call col2(a33%x, coef%mult, nut%dof%size())
 
     ! Determine static stability and length scale
-    do concurrent (i = 1:coef%dof%size())
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do private(i, N2, l, s11, s22, s33, s12, s13, s23, &
+    !$omp& shear, buoyancy, dissipation)
+    do i = 1, coef%dof%size()
        ! correct TKE if negative or nearly zero
        if (TKE%x(i,1,1,1) .lt. NEKO_EPS) then
           TKE%x(i,1,1,1) = NEKO_EPS
@@ -199,6 +204,7 @@ contains
        ! Add three source terms together
        TKE_source%x(i,1,1,1) = shear + buoyancy + dissipation
     end do
+    !$omp end parallel do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine deardorff_compute_cpu

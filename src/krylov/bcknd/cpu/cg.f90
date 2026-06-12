@@ -41,8 +41,8 @@ module cg
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, rzero, copy, abscmp
-  use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
+  use math, only : glsc3, abscmp
+  use comm, only : MPI_EXTRA_PRECISION, MPI_REAL_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
@@ -148,9 +148,9 @@ contains
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
-    integer :: iter, max_iter, i, j, k, p_cur, p_prev, blk_size
+    integer :: iter, max_iter, i, j, k, p_cur, p_prev, ierr
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
-    real(kind=rp) :: beta, pap, norm_fac
+    real(kind=rp) :: beta, pap, norm_fac, tmp
 
     if (present(niter)) then
        max_iter = niter
@@ -163,11 +163,19 @@ contains
          z => this%z, alpha => this%alpha)
 
       rtz1 = 1.0_rp
-      call rzero(x%x, n)
-      call rzero(p(1,CG_P_SPACE), n)
-      call copy(r, f, n)
+      rtr = 0.0_rp
+      !$omp parallel do reduction(+:rtr)
+      do i = 1, n
+         x%x(i,1,1,1) = 0.0_rp
+         p(i, CG_P_SPACE) = 0.0_rp
+         r(i) = f(i)
+         rtr = rtr + (r(i) * coef%mult(i,1,1,1) * r(i))
+      end do
+      !$omp end parallel do
 
-      rtr = glsc3(r, coef%mult, r, n)
+      call MPI_Allreduce(MPI_IN_PLACE, rtr, 1, &
+           MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+
       rnorm = sqrt(rtr) * norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -187,9 +195,11 @@ contains
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
+         !$omp parallel do
          do i = 1, n
             p(i,p_cur) = z(i) + beta * p(i,p_prev)
          end do
+         !$omp end parallel do
 
          call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
@@ -204,22 +214,32 @@ contains
 
          if ((p_cur .eq. CG_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
-            !$omp parallel do private(blk_size, j, k, x_plus)
-            do i = 0, n, NEKO_BLK_SIZE
-               blk_size = min(NEKO_BLK_SIZE, n - i)
-               do concurrent (k = 1:blk_size)
-                  x_plus(k) = 0.0_rp
-               end do
-
-               do j = 1, p_cur
-                  do concurrent (k = 1:blk_size)
-                     x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
+            !$omp parallel do private(j, k, x_plus, tmp)
+            do i = 0, n-1, NEKO_BLK_SIZE
+               if (i + NEKO_BLK_SIZE .le. n) then
+                  !$omp simd
+                  do k = 1, NEKO_BLK_SIZE
+                     x_plus(k) = 0.0_rp
                   end do
-               end do
-
-               do concurrent (k = 1:blk_size)
-                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
-               end do
+                  do j = 1, p_cur
+                     !$omp simd
+                     do k = 1, NEKO_BLK_SIZE
+                        x_plus(k) = x_plus(k) + alpha(j) * p(i+k,j)
+                     end do
+                  end do
+                  !$omp simd
+                  do k = 1, NEKO_BLK_SIZE
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
+                  end do
+               else
+                  do k = 1, n - i
+                     tmp = 0.0_rp
+                     do j = 1, p_cur
+                        tmp = tmp + alpha(j) * p(i+k,j)
+                     end do
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + tmp
+                  end do
+               end if
             end do
             !$omp end parallel do
             p_prev = p_cur

@@ -62,12 +62,17 @@ contains
     real(kind=rp), intent(in) :: dt
     integer :: i
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        entropy_residual(i) = (bdf_coeffs(1) * S(i) &
             - bdf_coeffs(2) * S_lag1(i) &
             - bdf_coeffs(3) * S_lag2(i) &
             - bdf_coeffs(4) * S_lag3(i)) / dt
     end do
+    !$omp end parallel do simd
 
   end subroutine entropy_viscosity_compute_residual_cpu
 
@@ -86,9 +91,15 @@ contains
     real(kind=rp), intent(in) :: c_avisc_entropy, n_S
     integer :: i
 
-    do concurrent (i = 1:n)
-       reg_coeff(i) = c_avisc_entropy * h(i) * h(i) * entropy_residual(i) / n_S
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
+       reg_coeff(i) = c_avisc_entropy * h(i) * h(i) * &
+            entropy_residual(i) / n_S
     end do
+    !$omp end parallel do simd
 
   end subroutine entropy_viscosity_compute_viscosity_cpu
 
@@ -102,11 +113,16 @@ contains
     integer :: i, j, k, el
     real(kind=rp) :: max_visc_el
 
+    !$omp parallel do private(i, j, k, max_visc_el)
     do el = 1, nelv
        max_visc_el = 0.0_rp
 
        do k = 1, lx
           do j = 1, lx
+             !OCL NORECURRENCE, NOVREC, NOALIAS
+             !DIR$ CONCURRENT
+             !GCC$ ivdep
+             !$omp simd reduction(max:max_visc_el)
              do i = 1, lx
                 max_visc_el = max(max_visc_el, reg_coeff(i, j, k, el))
              end do
@@ -115,12 +131,17 @@ contains
 
        do k = 1, lx
           do j = 1, lx
+             !OCL NORECURRENCE, NOVREC, NOALIAS
+             !DIR$ CONCURRENT
+             !GCC$ ivdep
+             !$omp simd
              do i = 1, lx
                 reg_coeff(i, j, k, el) = max_visc_el
              end do
           end do
        end do
     end do
+    !$omp end parallel do
 
   end subroutine entropy_viscosity_apply_element_max_cpu
 
@@ -139,10 +160,15 @@ contains
     integer :: i
     real(kind=rp) :: low_order_visc
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd private(low_order_visc)
+    do i = 1, n
        low_order_visc = c_avisc_low * h(i) * max_wave_speed(i)
        reg_coeff(i) = min(reg_coeff(i), low_order_visc)
     end do
+    !$omp end parallel do simd
 
   end subroutine entropy_viscosity_clamp_to_low_order_cpu
 
@@ -158,9 +184,14 @@ contains
     real(kind=rp), dimension(n), intent(in) :: temp_field, mult_field
     integer :: i
 
-    do concurrent (i = 1:n)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        reg_coeff(i) = temp_field(i) / mult_field(i)
     end do
+    !$omp end parallel do simd
 
   end subroutine entropy_viscosity_smooth_divide_cpu
 
