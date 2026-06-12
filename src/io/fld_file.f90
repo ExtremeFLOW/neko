@@ -54,7 +54,9 @@ module fld_file
   use math, only : vlmin, vlmax, sabscmp
   use neko_mpi_types, only : MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE, MPI_INTEGER_SIZE
-  use device, only : device_sync, HOST_TO_DEVICE
+  use device, only : device_sync, device_memcpy, HOST_TO_DEVICE, &
+       DEVICE_TO_HOST
+  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08
   implicit none
   private
@@ -311,6 +313,14 @@ contains
        z%ptr => dof%z(:,1,1,1)
        msh => dof%msh
        Xh => dof%Xh
+       if (this%write_mesh .and. (NEKO_BCKND_DEVICE .eq. 1)) then
+          call device_memcpy(dof%x, dof%x_d, dof%size(), &
+               DEVICE_TO_HOST, sync = .false.)
+          call device_memcpy(dof%y, dof%y_d, dof%size(), &
+               DEVICE_TO_HOST, sync = .false.)
+          call device_memcpy(dof%z, dof%z_d, dof%size(), &
+               DEVICE_TO_HOST, sync = .true.)
+       end if
     end if
 
     if (associated(msh)) then
@@ -743,6 +753,14 @@ contains
        z%ptr => dof%z(:,1,1,1)
        msh => dof%msh
        Xh => dof%Xh
+       if (this%write_mesh .and. (NEKO_BCKND_DEVICE .eq. 1)) then
+          call device_memcpy(dof%x, dof%x_d, dof%size(), &
+               DEVICE_TO_HOST, sync = .false.)
+          call device_memcpy(dof%y, dof%y_d, dof%size(), &
+               DEVICE_TO_HOST, sync = .false.)
+          call device_memcpy(dof%z, dof%z_d, dof%size(), &
+               DEVICE_TO_HOST, sync = .true.)
+       end if
     end if
 
     if (associated(msh)) then

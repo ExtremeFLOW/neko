@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Added `HOST_to_DEVICE` memcpy in `fld_file_write` and `fld_file_write_masked`
+  when new mesh is being written to disk.
 - Added new math operator for device. device_masked_copy_aligned, which performs
   a masked copy of data from one field to another, for a point zone mask.
 - Job control time limits can now be specified by a flexible string format, e.g.
