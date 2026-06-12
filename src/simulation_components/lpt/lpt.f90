@@ -491,13 +491,16 @@ contains
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     real(kind=rp), allocatable :: vel_old(:,:)
+    real(kind=rp), allocatable :: xyz_old(:,:)
     integer :: j
 
     if (time%t .lt. this%start_time) return
     call this%sync_time_controller(time)
     if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
 
+    allocate(xyz_old(3, this%particles%n))
     allocate(vel_old(3, this%particles%n))
+    xyz_old = this%particles%xyz
     vel_old = this%particles%vel
 
     ! Advance the particle state from the previously stored RHS.
@@ -514,9 +517,9 @@ contains
     ! Handle the wall collisions with the pre-step RHS.
     if (this%inertia .and. this%elastic_wall_enabled) then
        call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
-            this%dm_Xh, this%coef, this%wall_facet_mask, &
-            this%particles%xyz, this%particles%vel, this%particles%vel_lag, &
-            vel_old, this%lag_len)
+            this%dm_Xh, this%coef, this%wall_facet_mask, xyz_old, &
+            this%particles%xyz, this%particles%d, this%particles%vel, &
+            this%particles%vel_lag, vel_old, this%lag_len)
     end if
 
     ! Update lag histories for the next Adams-Bashforth step.
@@ -537,6 +540,7 @@ contains
     end if
 
     if (allocated(vel_old)) deallocate(vel_old)
+    if (allocated(xyz_old)) deallocate(xyz_old)
 
   end subroutine lpt_preprocess
 
