@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:time",
+  "$defs": {
+    "time": {
+      "type": "object",
+      "required": [
+        "end_time"
+      ],
+      "properties": {
+        "start_time": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+        },
+        "end_time": {
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        },
+        "timestep": {
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        },
+        "variable_timestep": {
+          "type": "boolean"
+        },
+        "max_timestep": {
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        },
+        "min_timestep": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+        },
+        "target_cfl": {
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        },
+        "max_update_frequency": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"
+        },
+        "min_update_frequency": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"
+        },
+        "running_avg_coeff": {
+          "$ref": "urn:neko:schema:common#/$defs/unitIntervalExclusiveOrRef"
+        },
+        "max_dt_increase_factor": {
+          "$ref": "urn:neko:schema:common#/$defs/greaterThanOneOrRef"
+        },
+        "min_dt_decrease_factor": {
+          "$ref": "urn:neko:schema:common#/$defs/unitIntervalExclusiveOrRef"
+        },
+        "cfl_deviation_tolerance": {
+          "$ref": "urn:neko:schema:common#/$defs/unitIntervalExclusiveOrRef"
+        },
+        "cfl_max_update_frequency": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"
+        },
+        "cfl_running_avg_coeff": {
+          "$ref": "urn:neko:schema:common#/$defs/unitIntervalExclusiveOrRef"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

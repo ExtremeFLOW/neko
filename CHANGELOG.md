@@ -3,6 +3,8 @@
 ## Develop
 
 - Added HIP and CUDA support for ALE.
+- Added new math operator for device. device_masked_copy_aligned, which performs
+  a masked copy of data from one field to another, for a point zone mask.
 - Job control time limits can now be specified by a flexible string format, e.g.
   "30:00" for 30 minutes, "1-00:00:00" for 24 hours, "3600" for 3600 seconds,
   etc.  
