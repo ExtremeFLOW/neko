@@ -410,19 +410,17 @@ contains
     end if
 
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
 
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
-    end if
-
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
     end if
 
     call this%schwarz%free()

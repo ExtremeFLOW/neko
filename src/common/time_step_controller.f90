@@ -37,8 +37,8 @@ module time_step_controller
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
-  use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM
-  use mpi_f08, only : MPI_MIN, MPI_IN_PLACE, MPI_DOUBLE_PRECISION
+  use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_MIN, MPI_IN_PLACE, MPI_Allreduce, MPI_DOUBLE_PRECISION
   implicit none
   private
 

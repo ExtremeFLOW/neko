@@ -155,6 +155,7 @@ contains
   subroutine device_finalize
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%free()
+    call device_event_destroy(glb_cmd_event)
 
 #ifdef HAVE_HIP
     call hip_finalize(glb_cmd_queue, aux_cmd_queue)
@@ -164,7 +165,6 @@ contains
     call opencl_prgm_lib_release
     call opencl_finalize(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
 #endif
-    call device_event_destroy(glb_cmd_event)
 #endif
   end subroutine device_finalize
 

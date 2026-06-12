@@ -123,6 +123,12 @@ module hip_intf
        implicit none
      end function hipDeviceSynchronize
 
+     integer(c_int) function hipDeviceReset() &
+          bind(c, name = 'hipDeviceReset')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function hipDeviceReset
+
      integer(c_int) function hipDeviceGetName(name, len, device) &
           bind(c, name = 'hipDeviceGetName')
        use, intrinsic :: iso_c_binding
@@ -185,7 +191,7 @@ module hip_intf
      end function hipStreamWaitEvent
 
      integer(c_int) function hipDeviceGetStreamPriorityRange(low_prio, &
-                                                             high_prio) &
+          high_prio) &
           bind(c, name = 'hipDeviceGetStreamPriorityRange')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -239,17 +245,17 @@ contains
     integer, intent(inout) :: STRM_LOW_PRIO
 
     if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
-        .ne. hipSuccess) then
+         .ne. hipSuccess) then
        call neko_error('Error retrieving stream priority range')
     end if
 
     if (hipStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
-        .ne. hipSuccess) then
+         .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
 
     if (hipStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
-        .ne. hipSuccess) then
+         .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
   end subroutine hip_init
@@ -257,6 +263,7 @@ contains
   subroutine hip_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    integer(c_int) :: ierr
 
     if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying main stream')
@@ -265,6 +272,10 @@ contains
     if (hipStreamDestroy(aux_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying aux stream')
     end if
+
+    ! Best-effort context teardown to release runtime-owned allocations.
+    ierr = hipDeviceSynchronize()
+    ierr = hipDeviceReset()
   end subroutine hip_finalize
 
   subroutine hip_device_name(name)

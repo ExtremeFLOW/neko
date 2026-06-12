@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ module tree_amg_multigrid
   use tree_amg_smoother, only : amg_cheby_t
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
+  use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE, &
        device_get_ptr
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
@@ -233,14 +233,24 @@ contains
     end if
     if (allocated(this%wrk)) then
        do i = 0, (size(this%wrk)-1)
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_free(this%wrk(i)%r_d)
-             call device_free(this%wrk(i)%b_d)
-             call device_free(this%wrk(i)%x_d)
+          if (allocated(this%wrk(i)%r)) then
+             if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%wrk(i)%r_d)) then
+                call device_unmap(this%wrk(i)%r, this%wrk(i)%r_d)
+             end if
+             deallocate(this%wrk(i)%r)
           end if
-          if (allocated(this%wrk(i)%r)) deallocate(this%wrk(i)%r)
-          if (allocated(this%wrk(i)%b)) deallocate(this%wrk(i)%b)
-          if (allocated(this%wrk(i)%x)) deallocate(this%wrk(i)%x)
+          if (allocated(this%wrk(i)%b)) then
+             if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%wrk(i)%b_d)) then
+                call device_unmap(this%wrk(i)%b, this%wrk(i)%b_d)
+             end if
+             deallocate(this%wrk(i)%b)
+          end if
+          if (allocated(this%wrk(i)%x)) then
+             if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%wrk(i)%x_d)) then
+                call device_unmap(this%wrk(i)%x, this%wrk(i)%x_d)
+             end if
+             deallocate(this%wrk(i)%x)
+          end if
        end do
     end if
   end subroutine tamg_mg_free
@@ -257,7 +267,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d
     type(c_ptr) :: r_d
-    integer :: iter, max_iter
+    integer :: iter, max_iter, i
     logical :: zero_initial_guess
 
     max_iter = this%max_iter
@@ -277,8 +287,15 @@ contains
        call device_copy(z_d, this%wrk(0)%x_d, n)
     else
        ! Zero out the initial guess becuase we do not handle null spaces very well...
-       call rzero(this%wrk(0)%x, n)
-       call copy(this%wrk(0)%b, r, n)
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       !$omp parallel do
+       do i = 1, n
+          this%wrk(0)%x(i) = 0.0_rp
+          this%wrk(0)%b(i) = r(i)
+       end do
+       !$omp end parallel do
        zero_initial_guess = .true.
        ! Call the amg cycle
        do iter = 1, max_iter

@@ -106,7 +106,6 @@ contains
     fields(1) = computed_field // "_x"
     fields(2) = computed_field // "_y"
     fields(3) = computed_field // "_z"
-    write(*,*) fields(1), fields(2), fields(3)
 
     call json%add("fields", fields)
 

@@ -167,110 +167,97 @@ contains
     call this%ksp_free()
 
     if (allocated(this%w1)) then
+       if (c_associated(this%w1_d)) then
+          call device_unmap(this%w1, this%w1_d)
+       end if
        deallocate(this%w1)
     end if
 
     if (allocated(this%w2)) then
+       if (c_associated(this%w2_d)) then
+          call device_unmap(this%w2, this%w2_d)
+       end if
        deallocate(this%w2)
     end if
 
     if (allocated(this%w3)) then
+       if (c_associated(this%w3_d)) then
+          call device_unmap(this%w3, this%w3_d)
+       end if
        deallocate(this%w3)
     end if
 
     if (allocated(this%r1)) then
+       if (c_associated(this%r1_d)) then
+          call device_unmap(this%r1, this%r1_d)
+       end if
        deallocate(this%r1)
     end if
 
     if (allocated(this%r2)) then
+       if (c_associated(this%r2_d)) then
+          call device_unmap(this%r2, this%r2_d)
+       end if
        deallocate(this%r2)
     end if
 
     if (allocated(this%r3)) then
+       if (c_associated(this%r3_d)) then
+          call device_unmap(this%r3, this%r3_d)
+       end if
        deallocate(this%r3)
     end if
 
     if (allocated(this%p1)) then
+       if (c_associated(this%p1_d)) then
+          call device_unmap(this%p1, this%p1_d)
+       end if
        deallocate(this%p1)
     end if
 
     if (allocated(this%p2)) then
+       if (c_associated(this%p2_d)) then
+          call device_unmap(this%p2, this%p2_d)
+       end if
        deallocate(this%p2)
     end if
 
     if (allocated(this%p3)) then
+       if (c_associated(this%p3_d)) then
+          call device_unmap(this%p3, this%p3_d)
+       end if
        deallocate(this%p3)
     end if
 
     if (allocated(this%z1)) then
+       if (c_associated(this%z1_d)) then
+          call device_unmap(this%z1, this%z1_d)
+       end if
        deallocate(this%z1)
     end if
 
     if (allocated(this%z2)) then
+       if (c_associated(this%z2_d)) then
+          call device_unmap(this%z2, this%z2_d)
+       end if
        deallocate(this%z2)
     end if
 
     if (allocated(this%z3)) then
+       if (c_associated(this%z3_d)) then
+          call device_unmap(this%z3, this%z3_d)
+       end if
        deallocate(this%z3)
     end if
 
     if (allocated(this%tmp)) then
+       if (c_associated(this%tmp_d)) then
+          call device_unmap(this%tmp, this%tmp_d)
+       end if
        deallocate(this%tmp)
     end if
 
     nullify(this%M)
-
-    if (c_associated(this%w1_d)) then
-       call device_free(this%w1_d)
-    end if
-
-    if (c_associated(this%w2_d)) then
-       call device_free(this%w2_d)
-    end if
-
-    if (c_associated(this%w3_d)) then
-       call device_free(this%w3_d)
-    end if
-
-    if (c_associated(this%r1_d)) then
-       call device_free(this%r1_d)
-    end if
-
-    if (c_associated(this%r2_d)) then
-       call device_free(this%r2_d)
-    end if
-
-    if (c_associated(this%r3_d)) then
-       call device_free(this%r3_d)
-    end if
-
-    if (c_associated(this%p1_d)) then
-       call device_free(this%p1_d)
-    end if
-
-    if (c_associated(this%p2_d)) then
-       call device_free(this%p2_d)
-    end if
-
-    if (c_associated(this%p3_d)) then
-       call device_free(this%p3_d)
-    end if
-
-    if (c_associated(this%z1_d)) then
-       call device_free(this%z1_d)
-    end if
-
-    if (c_associated(this%z2_d)) then
-       call device_free(this%z2_d)
-    end if
-
-    if (c_associated(this%z3_d)) then
-       call device_free(this%z3_d)
-    end if
-
-    if (c_associated(this%tmp_d)) then
-       call device_free(this%tmp_d)
-    end if
 
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
