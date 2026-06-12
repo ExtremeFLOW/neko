@@ -137,7 +137,7 @@ contains
 
   !> Set the time coefficients
   !! @details Implements all necessary logic to handle
-  !! @param dt Timestep values, first element is the current timestep. 
+  !! @param dt Timestep values, first element is the current timestep.
   !! @note
   !! that `dt` is cast to `rp` when passed down to the time scheme objects,
   !! meaning that although `dt` is forced to double precision, the computation
