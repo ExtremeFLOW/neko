@@ -521,7 +521,7 @@ contains
          vel_rhs, this%particles%vel_lag, this%particles%n)
 
     ! Handle the wall collisions with the pre-step RHS.
-    call this%handle_elastic_wall_collisions(xyz_old, vel_rhs)
+    call this%handle_elastic_wall_collisions(vel_rhs)
 
     ! Update lag histories for the next Adams-Bashforth step.
     if (this%lag_len .gt. 0) then
@@ -673,9 +673,8 @@ contains
   !> Restore particles that crossed a configured wall zone and reflect both
   !! the remaining trajectory and the velocity history for a purely elastic
   !! collision.
-  subroutine handle_elastic_wall_collisions(this, xyz_old, vel_rhs)
+  subroutine handle_elastic_wall_collisions(this, vel_rhs)
     class(lpt_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: xyz_old(:, :)
     real(kind=rp), intent(inout) :: vel_rhs(:, :)
     type(matrix_t) :: rst_new
     type(vector_t) :: x_t
@@ -730,12 +729,11 @@ contains
        call this%reflect_position(this%particles%xyz(:, i), &
             this%global_interp%rst_local(:, i), rst_new%x(:, i), el_mesh, &
             facet)
-
-       call reflect_vector(this%particles%vel(:, i), normal)
        call reflect_vector(vel_rhs(:, i), normal)
        do j = 1, this%lag_len
           call reflect_vector(this%particles%vel_lag(:, j, i), normal)
        end do
+       this%particles%vel(:, i) = vel_rhs(:, i)
     end do
 
     if (allocated(el_list)) deallocate(el_list)
