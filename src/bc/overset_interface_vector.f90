@@ -453,6 +453,7 @@ contains
     integer :: ind(1)
     logical :: clear_scratch = .false.
     character(len=LOG_SIZE) :: log_buf
+    character(len=12) :: step_str
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -517,8 +518,11 @@ contains
        call neko_scratch_registry%relinquish(ind)
 
        !> Log the errors on a single line
-       write(log_buf, '(A,E15.7,A,E15.7,A,E15.7)') trim(this%name) // ' rmse: u = ', &
-            u_int_norm, ', v = ', v_int_norm, ', w = ', w_int_norm
+       write(step_str, '(I12)') time%tstep
+       step_str = adjustl(step_str)
+       write(log_buf, '(A12,A3,3x,A16,1x,A18,A3,A,E15.7,A,E15.7,A,E15.7,A)') &
+            step_str, ' | ', 'interface rmse:', adjustl(trim(this%name)), ' : ', &
+            '(u, v, w) = (', u_int_norm, ', ', v_int_norm, ', ', w_int_norm, ')'
        call neko_log%message(log_buf)
     end if
 
