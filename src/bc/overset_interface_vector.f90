@@ -452,7 +452,7 @@ contains
     type(vector_t), pointer :: error
     integer :: ind(1)
     logical :: clear_scratch = .false.
-    character(len=LOG_SIZE) :: log_buf
+     character(len=256) :: log_buf
     character(len=12) :: step_str
 
     !> Change the coordinates of the interface if set up by the user
@@ -520,9 +520,9 @@ contains
        !> Log the errors on a single line
        write(step_str, '(I12)') time%tstep
        step_str = adjustl(step_str)
-       write(log_buf, '(A12,A3,3x,A16,1x,A18,A3,A,E15.7,A,E15.7,A,E15.7,A)') &
-            step_str, ' | ', 'interface rmse:', adjustl(trim(this%name)), ' : ', &
-            '(u, v, w) = (', u_int_norm, ', ', v_int_norm, ', ', w_int_norm, ')'
+       write(log_buf, '(A12,A3,A15,1x,A12,A2,E10.3,A1,E10.3,A1,E10.3,A1)') &
+            step_str, ' | ', 'interface rmse:', adjustl(trim(this%name)), '=(', &
+            u_int_norm, ',', v_int_norm, ',', w_int_norm, ')'
        call neko_log%message(log_buf)
     end if
 
