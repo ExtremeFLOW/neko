@@ -32,7 +32,7 @@
 !
 module pnpn_res_device
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use operators
+  use operators, only : curl, cdtp, rotate_cyc, opgrad
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
@@ -40,8 +40,8 @@ module pnpn_res_device
   use mesh, only : mesh_t
   use num_types, only : rp, c_rp
   use space, only : space_t
-  use device_math
-  use device_mathops
+  use device_math, only : device_cfill, device_rzero
+  use device_mathops, only : device_opcolv
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use device, only : device_event_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
