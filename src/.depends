@@ -89,7 +89,7 @@ mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 common/utils.lo mesh/tet_me
 mesh/aabb_tree.lo : mesh/aabb_tree.f90 common/utils.lo adt/stack.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo 
 mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo 
 mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo 
-mesh/intersection_detector.lo : mesh/intersection_detector.f90 mesh/search_tree/aabb.lo adt/stack.lo common/utils.lo mesh/point.lo mesh/hex.lo mesh/mesh.lo mesh/aabb_tree.lo config/num_types.lo 
+mesh/intersection_detector.lo : mesh/intersection_detector.f90 adt/stack.lo common/utils.lo mesh/point.lo mesh/hex.lo mesh/mesh.lo mesh/aabb_tree.lo config/num_types.lo 
 field/field.lo : field/field.f90 common/utils.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 
 field/field_array.lo : field/field_array.f90 comm/comm.lo common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo 
 field/field_list.lo : field/field_list.f90 comm/comm.lo common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo 
@@ -254,7 +254,7 @@ simulation_components/user_stats.lo : simulation_components/user_stats.f90 commo
 simulation_components/field_writer.lo : simulation_components/field_writer.f90 common/log.lo common/utils.lo common/time_based_controller.lo common/json_utils.lo io/field_output.lo mesh/point_zone.lo io/fld_file.lo mesh/point_zone_registry.lo case.lo registries/registry.lo common/time_state.lo simulation_components/simulation_component.lo config/num_types.lo 
 common/bcknd/cpu/rhs_maker_cpu.lo : common/bcknd/cpu/rhs_maker_cpu.f90 registries/scratch_registry.lo config/num_types.lo field/field.lo field/field_series.lo common/rhs_maker.lo 
 common/bcknd/sx/rhs_maker_sx.lo : common/bcknd/sx/rhs_maker_sx.f90 registries/scratch_registry.lo config/num_types.lo field/field.lo field/field_series.lo common/rhs_maker.lo 
-common/bcknd/device/rhs_maker_device.lo : common/bcknd/device/rhs_maker_device.F90 config/num_types.lo field/field.lo field/field_series.lo common/utils.lo device/device.lo common/rhs_maker.lo 
+common/bcknd/device/rhs_maker_device.lo : common/bcknd/device/rhs_maker_device.F90 config/num_types.lo field/field.lo field/field_series.lo math/bcknd/device/device_math.lo device/device.lo common/rhs_maker.lo 
 config/neko_config.lo : config/neko_config.f90 
 case.lo : case.f90 math/vector.lo registries/registry.lo comm/comm.lo scalar/scalars.lo mesh/point_zone_registry.lo registries/scratch_registry.lo common/json_utils.lo common/time_state.lo scalar/scalar_scheme.lo scalar/scalar_pnpn.lo common/user_intf.lo common/jobctrl.lo common/log.lo time_schemes/time_scheme_controller.lo common/checkpoint.lo math/math.lo mesh/mesh.lo common/utils.lo io/file.lo scalar/scalar_ic.lo fluid/flow_ic.lo io/output_controller.lo comm/redist.lo comm/parmetis.lo field/mesh_field.lo io/chkp_output.lo io/fluid_output.lo fluid/fluid_scheme_base.lo fluid/fluid_scheme_incompressible.lo fluid/fluid_pnpn.lo config/num_types.lo 
 common/user_intf.lo : common/user_intf.f90 common/time_state.lo bc/bc.lo common/log.lo common/utils.lo common/json_utils.lo config/num_types.lo bc/field_neumann.lo bc/field_dirichlet.lo bc/overset_interface.lo mesh/mesh.lo bc/bc_list.lo sem/coef.lo common/mask.lo math/vector_list.lo field/field_list.lo field/field.lo 
