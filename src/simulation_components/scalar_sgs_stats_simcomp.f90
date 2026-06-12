@@ -44,7 +44,7 @@ module scalar_sgs_stats_simcomp
   use case, only : case_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
-       NEKO_VARNAME_LEN
+       filename_name, NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default, json_get_or_lookup
@@ -148,6 +148,16 @@ contains
        else
           call this%init_from_components(sname, coef, &
                start_time, hom_dir, alphat_field, filename)
+       end if
+    else if (sname_provided) then
+       if (nut_dependency) then
+          call this%init_from_components(sname, coef, &
+               start_time, hom_dir, nut_field, pr_turb, &
+               "scalar_sgs_stats_"//trim(sname) // "0")
+       else
+          call this%init_from_components(sname, coef, &
+               start_time, hom_dir, alphat_field, &
+               "scalar_sgs_stats_"//trim(sname) // "0")
        end if
     else
        if (nut_dependency) then
@@ -290,25 +300,37 @@ contains
     character(len=5) :: prefix, suffix
     integer :: last_slash_pos
     real(kind=rp) :: t
+    character(len=NEKO_FNAME_LEN) :: basename
+    integer :: i
+
     t = time%t
     if (t .gt. this%time) this%time = t
-    if (this%default_fname) then
-       fname = this%stats_output%file_%get_base_fname()
-       write (prefix, '(I5)') &
-            this%stats_output%file_%file_type%get_start_counter()
-       call filename_suffix(fname, suffix)
-       last_slash_pos = &
-            filename_tslash_pos(fname)
-       if (last_slash_pos .ne. 0) then
-          fname = &
-               trim(fname(1:last_slash_pos))// &
-               "scalar_sgs_stats"//trim(adjustl(prefix))//"."//suffix
-       else
-          fname = "scalar_sgs_stats"// &
-               trim(adjustl(prefix))//"."//suffix
-       end if
-       call this%stats_output%init_base(fname)
+
+    fname = this%stats_output%file_%get_base_fname()
+    write (prefix, '(I5)') &
+         this%stats_output%file_%file_type%get_start_counter()
+    call filename_suffix(fname, suffix)
+    call filename_name(fname, basename)
+
+    ! Remove trailing zero if needed
+    i = len(trim(basename))
+    do while (i > 0 .and. basename(i:i) >= '0' .and. basename(i:i) <= '9')
+       i = i - 1
+    end do
+    basename = basename(:i)
+
+    last_slash_pos = &
+         filename_tslash_pos(fname)
+    if (last_slash_pos .ne. 0) then
+       fname = &
+            trim(fname(1:last_slash_pos))// &
+            trim(basename)// &
+            trim(adjustl(prefix))//"."//suffix
+    else
+       fname = trim(basename)// &
+            trim(adjustl(prefix))//"."//suffix
     end if
+    call this%stats_output%init_base(fname)
   end subroutine scalar_sgs_stats_simcomp_restart
 
   !> scalar_sgs_stats, called depending on compute_control and compute_value
