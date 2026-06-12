@@ -62,6 +62,7 @@
 module drag_torque
   use field, only : field_t
   use coefs, only : coef_t
+  use vector, only : vector_t
   use facet_zone, only : facet_zone_t
   use math, only : rzero, col3, vdot3, col2
   use space, only : space_t
@@ -69,6 +70,7 @@ module drag_torque
   use utils, only : nonlinear_index
   use iso_c_binding, only : c_ptr
   use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : HOST_TO_DEVICE
   use device_math, only : device_cmult, device_col2, &
        device_col3, device_vdot3, device_rzero
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
@@ -79,8 +81,8 @@ module drag_torque
   !> Some functions to calculate the lift/drag and torque
   !! Calculation can be done on a zone, a facet, or a point
   !! Currently everything is CPU only
-  public :: drag_torque_zone, drag_torque_facet, drag_torque_pt, setup_normals,&
-       calc_force_array, device_calc_force_array
+  public :: drag_torque_zone, drag_torque_facet, drag_torque_pt, &
+       setup_normals, calc_force_array, device_calc_force_array
 
 contains
   !> Calculate drag and torque over a zone.
@@ -467,7 +469,7 @@ contains
   subroutine setup_normals(coef, mask, facets, n1, n2, n3, n_pts)
     type(coef_t) :: coef
     integer :: n_pts
-    real(kind=rp), dimension(n_pts) :: n1, n2, n3
+    type(vector_t), intent(inout) :: n1, n2, n3
     integer :: mask(0:n_pts), facets(0:n_pts), fid, idx(4)
     real(kind=rp) :: normal(3), area(3)
     integer :: i
@@ -477,10 +479,16 @@ contains
        idx = nonlinear_index(mask(i), coef%Xh%lx, coef%Xh%lx, coef%Xh%lx)
        normal = coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
        area = coef%get_area(idx(1), idx(2), idx(3), idx(4), fid)
-       n1(i) = normal(1)*area(1)
-       n2(i) = normal(2)*area(2)
-       n3(i) = normal(3)*area(3)
+       n1%x(i) = normal(1)*area(1)
+       n2%x(i) = normal(2)*area(2)
+       n3%x(i) = normal(3)*area(3)
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call n1%copy_from(HOST_TO_DEVICE, .false.)
+       call n2%copy_from(HOST_TO_DEVICE, .false.)
+       call n3%copy_from(HOST_TO_DEVICE, .true.)
+    end if
   end subroutine setup_normals
 
 end module drag_torque

@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.
 - Added new math operator for device. device_masked_copy_aligned, which performs
   a masked copy of data from one field to another, for a point zone mask.
 - Job control time limits can now be specified by a flexible string format, e.g.
