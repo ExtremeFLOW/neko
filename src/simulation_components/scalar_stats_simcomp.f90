@@ -222,6 +222,8 @@ contains
     integer :: last_slash_pos
     real(kind=rp) :: t
     character(len=NEKO_FNAME_LEN) :: basename
+    integer :: i
+
     t = time%t
     if (t .gt. this%time) this%time = t
           fname = this%stats_output%file_%get_base_fname()
@@ -229,15 +231,23 @@ contains
                  this%stats_output%file_%file_type%get_start_counter()
           call filename_suffix(fname, suffix)
           call filename_name(fname, basename)
+
+          ! Remove trailing zero if needed
+          i = len(trim(basename))
+          do while (i > 0 .and. basename(i:i) >= '0' .and. basename(i:i) <= '9')
+               i = i - 1
+          end do
+          basename = basename(:i)
+
           last_slash_pos = &
                filename_tslash_pos(fname)
           if (last_slash_pos .ne. 0) then
                fname = &
                     trim(fname(1:last_slash_pos))// &
-                    trim(basename(1:len(trim(basename))-1))// &
+                    trim(basename)// &
                     trim(adjustl(prefix))//"."//suffix
           else
-               fname = trim(basename(1:len(trim(basename))-1))// &
+               fname = trim(basename)// &
                     trim(adjustl(prefix))//"."//suffix
           end if
        call this%stats_output%init_base(fname)
