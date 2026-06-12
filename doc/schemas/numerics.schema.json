@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:numerics",
+  "$defs": {
+    "numerics": {
+      "type": "object",
+      "required": [
+        "time_order",
+        "polynomial_order"
+      ],
+      "properties": {
+        "time_order": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+        },
+        "polynomial_order": {
+          "type": "integer",
+          "minimum": 3
+        },
+        "dealias": {
+          "type": "boolean"
+        },
+        "dealiased_polynomial_order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "oifs": {
+          "type": "boolean"
+        },
+        "oifs_target_cfl": {
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        },
+        "c_avisc_low": {
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        },
+        "c_avisc_entropy": {
+          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
