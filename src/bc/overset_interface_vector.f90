@@ -493,7 +493,7 @@ contains
 
     if (this%log) then
        !> Evaluate errors so far. The metric we use is the RMS error
-       call neko_scratch_registry%request_vector(error, ind(2), this%u_interface%size(), clear_scratch)
+       call neko_scratch_registry%request_vector(error, ind(1), this%u_interface%size(), clear_scratch)
        !> u
        !! Get my local values
        call vector_masked_gather_copy(error, u%x(:,1,1,1), this%interface_dof_mask, &
