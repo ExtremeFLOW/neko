@@ -39,6 +39,7 @@ module lagrangian_particle_tracking
   use field, only : field_t
   use case, only : case_t
   use mesh, only : mesh_t
+  use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use json_utils, only : json_get, json_get_or_default, &
        json_get_subdict_or_empty
@@ -49,6 +50,8 @@ module lagrangian_particle_tracking
   use file, only : file_t
   use matrix, only : matrix_t
   use vector, only : vector_t
+  use point, only : point_t
+  use point_interpolator, only : point_interpolator_t
   use math, only : add2s2, cfill, cmult2, col2, col3, invcol2, sqrt_inplace, &
                    power, sub3, vdot3, cmult, cadd2, invcol3
   use ab_time_scheme, only : ab_time_scheme_t
@@ -90,6 +93,7 @@ module lagrangian_particle_tracking
      type(field_t), pointer :: mu_fluid => null()
      type(field_t), pointer :: rho_fluid => null()
      type(mesh_t), pointer :: msh => null()
+     type(dofmap_t), pointer :: dm_Xh => null()
      type(coef_t), pointer :: coef => null()
      integer :: time_order, lag_len
      integer :: history_len = 0
@@ -123,6 +127,7 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: init_wall_facet_mask
      procedure, private, pass(this) :: identify_wall_facet
      procedure, private, pass(this) :: wall_facet_normal
+     procedure, private, pass(this) :: reflect_position
      procedure, private, nopass :: reflect_vector
      procedure, private, pass(this) :: write_output
      procedure, private, pass(this) :: log_status
@@ -220,6 +225,7 @@ contains
     this%name = name
     this%time_order = case%fluid%ext_bdf%advection_time_order
     this%msh => case%fluid%msh
+    this%dm_Xh => case%fluid%dm_Xh
     this%coef => case%fluid%c_Xh
 
     this%lag_len = this%time_order - 1
@@ -515,8 +521,7 @@ contains
          vel_rhs, this%particles%vel_lag, this%particles%n)
 
     ! Handle the wall collisions with the pre-step RHS.
-    call this%handle_elastic_wall_collisions(xyz_old, vel_rhs, &
-         this%particles%acc)
+    call this%handle_elastic_wall_collisions(xyz_old, vel_rhs)
 
     ! Update lag histories for the next Adams-Bashforth step.
     if (this%lag_len .gt. 0) then
@@ -665,13 +670,13 @@ contains
     end do
   end subroutine init_wall_facet_mask
 
-  !> Restore particles that crossed a configured wall zone and reflect their
-  !! velocity history about the wall normal for a purely elastic collision.
-  subroutine handle_elastic_wall_collisions(this, xyz_old, vel_rhs, acceleration)
+  !> Restore particles that crossed a configured wall zone and reflect both
+  !! the remaining trajectory and the velocity history for a purely elastic
+  !! collision.
+  subroutine handle_elastic_wall_collisions(this, xyz_old, vel_rhs)
     class(lpt_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: xyz_old(:, :)
+    real(kind=rp), intent(inout) :: xyz_old(:, :)
     real(kind=rp), intent(inout) :: vel_rhs(:, :)
-    real(kind=rp), intent(inout) :: acceleration(:, :)
     type(matrix_t) :: rst_new
     type(vector_t) :: x_t
     type(vector_t) :: y_t
@@ -722,17 +727,15 @@ contains
        call this%wall_facet_normal(el_mesh, facet, normal)
        if (norm2(normal) .le. epsilon(1.0_rp)) cycle
 
-       this%particles%xyz(:, i) = xyz_old(:, i)
+       call this%reflect_position(this%particles%xyz(:, i), &
+            this%global_interp%rst_local(:, i), rst_new%x(:, i), el_mesh, &
+            facet)
+
        call reflect_vector(this%particles%vel(:, i), normal)
        call reflect_vector(vel_rhs(:, i), normal)
        do j = 1, this%lag_len
           call reflect_vector(this%particles%vel_lag(:, j, i), normal)
        end do
-
-      !  call reflect_vector(acceleration(:, i), normal)
-      !  do j = 1, this%lag_len
-      !     call reflect_vector(this%particles%acc_lag(:, j, i), normal)
-      !  end do
     end do
 
     if (allocated(el_list)) deallocate(el_list)
@@ -744,6 +747,46 @@ contains
     call resy%free()
     call resz%free()
   end subroutine handle_elastic_wall_collisions
+
+  !> Reflect the post-collision position by mirroring the overshoot in rst and
+  !! interpolating the reflected point back to xyz on the same element.
+  subroutine reflect_position(this, xyz, rst_old, rst_new, el, facet)
+    class(lpt_t), intent(in) :: this
+    real(kind=rp), intent(inout) :: xyz(3)
+    real(kind=rp), intent(in) :: rst_old(3)
+    real(kind=rp), intent(in) :: rst_new(3)
+    integer, intent(in) :: el
+    integer, intent(in) :: facet
+    type(point_interpolator_t) :: interp
+    type(point_t) :: rst_point(1)
+    type(point_t), allocatable :: xyz_ref(:)
+    real(kind=rp) :: collision_rst(3)
+    real(kind=rp) :: reflected_rst(3)
+    real(kind=rp) :: drst(3)
+    real(kind=rp) :: alpha
+    real(kind=rp) :: boundary_value
+    integer :: dim
+
+    reflected_rst = rst_new
+    call facet_rst_info(facet, dim, boundary_value)
+    drst = rst_new - rst_old
+
+    if (abs(drst(dim)) .le. epsilon(1.0_rp)) return
+
+    alpha = (boundary_value - rst_old(dim)) / drst(dim)
+    alpha = max(0.0_rp, min(1.0_rp, alpha))
+    collision_rst = rst_old + alpha * drst
+    reflected_rst = collision_rst + (rst_new - collision_rst)
+    reflected_rst(dim) = 2.0_rp * boundary_value - rst_new(dim)
+
+    call rst_point(1)%init(real(reflected_rst, kind=kind(rst_point(1)%x)))
+    call interp%init(this%dm_Xh%Xh)
+    xyz_ref = interp%interpolate(rst_point, this%dm_Xh%x(:, :, :, el), &
+         this%dm_Xh%y(:, :, :, el), this%dm_Xh%z(:, :, :, el))
+    xyz = real(xyz_ref(1)%x, kind=rp)
+    call interp%free()
+    if (allocated(xyz_ref)) deallocate(xyz_ref)
+  end subroutine reflect_position
 
   !> Return the wall facet crossed by a particle, or 0 if none matched.
   integer function identify_wall_facet(this, rst_old, rst_new, el) result(facet)
@@ -839,6 +882,36 @@ contains
        normal = 0.0_rp
     end select
   end subroutine wall_facet_normal
+
+  pure subroutine facet_rst_info(facet, dim, boundary_value)
+    integer, intent(in) :: facet
+    integer, intent(out) :: dim
+    real(kind=rp), intent(out) :: boundary_value
+
+    select case (facet)
+    case (1)
+       dim = 1
+       boundary_value = -1.0_rp
+    case (2)
+       dim = 1
+       boundary_value = 1.0_rp
+    case (3)
+       dim = 2
+       boundary_value = -1.0_rp
+    case (4)
+       dim = 2
+       boundary_value = 1.0_rp
+    case (5)
+       dim = 3
+       boundary_value = -1.0_rp
+    case (6)
+       dim = 3
+       boundary_value = 1.0_rp
+    case default
+       dim = 1
+       boundary_value = 0.0_rp
+    end select
+  end subroutine facet_rst_info
 
   pure subroutine reflect_vector(vec, normal)
     real(kind=rp), intent(inout) :: vec(3)
@@ -945,6 +1018,7 @@ contains
     this%v => null()
     this%w => null()
     this%msh => null()
+    this%dm_Xh => null()
     this%coef => null()
     if (allocated(this%wall_zone_indices)) deallocate(this%wall_zone_indices)
     if (allocated(this%wall_facet_mask)) deallocate(this%wall_facet_mask)
