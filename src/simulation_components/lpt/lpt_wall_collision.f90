@@ -82,7 +82,7 @@ contains
   !! remaining trajectory together with the current particle velocity and
   !! velocity history for a purely elastic collision.
   subroutine lpt_handle_elastic_wall_collisions(global_interp, msh, dm_Xh, &
-       coef, wall_facet_mask, xyz, vel, vel_lag, vel_rhs, lag_len)
+       coef, wall_facet_mask, xyz, vel, vel_lag, vel_old, lag_len)
     type(global_interpolation_t), intent(inout) :: global_interp
     type(mesh_t), intent(in) :: msh
     type(dofmap_t), intent(inout) :: dm_Xh
@@ -91,7 +91,7 @@ contains
     real(kind=rp), intent(inout) :: xyz(:, :)
     real(kind=rp), intent(inout) :: vel(:, :)
     real(kind=rp), intent(inout) :: vel_lag(:, :, :)
-    real(kind=rp), intent(inout) :: vel_rhs(:, :)
+    real(kind=rp), intent(inout) :: vel_old(:, :)
     integer, intent(in) :: lag_len
     type(matrix_t) :: rst_new
     type(vector_t) :: x_t
@@ -146,11 +146,11 @@ contains
 
        call reflect_position(dm_Xh, xyz(:, i), global_interp%rst_local(:, i), &
             rst_new%x(:, i), el_mesh, facet)
-       call reflect_vector(vel_rhs(:, i), normal)
+       call reflect_vector(vel_old(:, i), normal)
        do j = 1, lag_len
           call reflect_vector(vel_lag(:, j, i), normal)
        end do
-       vel(:, i) = vel_rhs(:, i)
+       vel(:, i) = vel_old(:, i)
     end do
 
     if (allocated(el_list)) deallocate(el_list)

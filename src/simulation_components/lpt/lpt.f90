@@ -490,15 +490,15 @@ contains
   subroutine lpt_preprocess(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    real(kind=rp), allocatable :: vel_rhs(:,:)
+    real(kind=rp), allocatable :: vel_old(:,:)
     integer :: j
 
     if (time%t .lt. this%start_time) return
     call this%sync_time_controller(time)
     if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
 
-    allocate(vel_rhs(3, this%particles%n))
-    vel_rhs = this%particles%vel
+    allocate(vel_old(3, this%particles%n))
+    vel_old = this%particles%vel
 
     ! Advance the particle state from the previously stored RHS.
     if (this%inertia) then
@@ -508,7 +508,7 @@ contains
 
     ! Advance the coordinates using the velocity history available at step
     ! entry, before the fluid solve refreshes the current RHS.
-    call this%ODE_integrate_ab_3c(this%particles%xyz, vel_rhs, &
+    call this%ODE_integrate_ab_3c(this%particles%xyz, vel_old, &
          this%particles%vel_lag, this%particles%n)
 
     ! Handle the wall collisions with the pre-step RHS.
@@ -516,7 +516,7 @@ contains
        call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
             this%dm_Xh, this%coef, this%wall_facet_mask, &
             this%particles%xyz, this%particles%vel, this%particles%vel_lag, &
-            vel_rhs, this%lag_len)
+            vel_old, this%lag_len)
     end if
 
     ! Update lag histories for the next Adams-Bashforth step.
@@ -529,14 +529,14 @@ contains
                   this%particles%acc_lag(:, j - 1, :)
           end if
        end do
-       this%particles%vel_lag(:, 1, :) = vel_rhs
+       this%particles%vel_lag(:, 1, :) = vel_old
        if (this%inertia) then
           this%particles%acc_lag(:, 1, :) = this%particles%acc
        end if
        this%history_len = min(this%history_len + 1, this%lag_len)
     end if
 
-    if (allocated(vel_rhs)) deallocate(vel_rhs)
+    if (allocated(vel_old)) deallocate(vel_old)
 
   end subroutine lpt_preprocess
 
