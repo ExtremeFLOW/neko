@@ -54,7 +54,7 @@ module overset_interface_vector
   use vector_list, only : vector_list_t
   use vector_series, only: vector_series_t
   use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, vector_add2s2, &
-       vector_cmult2
+       vector_cmult2, vector_glsc2
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
@@ -68,6 +68,10 @@ module overset_interface_vector
   use iextm_time_scheme, only : iextm_time_scheme_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   use time_state, only : time_state_t
+  use scratch_registry, only : neko_scratch_registry
+  use logger, only : neko_log, LOG_SIZE
+
+
   implicit none
   private
 
@@ -99,6 +103,7 @@ module overset_interface_vector
      type(global_interpolation_settings_t) :: interpolation_settings
      logical :: find_interface = .false.
      logical :: setup = .false.
+     logical :: log = .false.
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
@@ -147,6 +152,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
     real(kind=rp) :: tol, pad
+    logical :: log
 
     !> Parse the interpolation settings
     call json_get_or_default(json, "interpolation.tolerance", &
@@ -157,17 +163,22 @@ contains
     if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
        call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
     end if
+    call json_get_or_default(json, "log", this%log, .false.)
 
-    call this%init_from_components(coef, tol, pad)
+    call this%init_from_components(coef, tol, pad, log)
 
   end subroutine overset_interface_vector_init
 
   !> Constructor from components
   !! @param[in] coef The SEM coefficients.
-  subroutine overset_interface_vector_init_from_components(this, coef, tol, pad)
+  !! @param[in] tol The tolerance for the interpolation.
+  !! @param[in] pad The padding for the interpolation.
+  !! @param[in] log Whether to log the interpolation.
+  subroutine overset_interface_vector_init_from_components(this, coef, tol, pad, log)
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(in), optional :: tol, pad
+    logical, intent(in), optional :: log
 
     !> This initializes coef, dof, msh, and Xh pointers
     call this%init_base(coef)
@@ -178,6 +189,9 @@ contains
     end if
     if (present(pad)) then
        if (pad .gt. 0.0_rp) this%interpolation_settings%padding = pad
+    end if
+    if (present(log)) then
+       this%log = log
     end if
 
     call this%bc_u%init_from_components(coef, "u")
@@ -429,6 +443,11 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
+    real(kind=rp) :: u_int_norm, v_int_norm, w_int_norm
+    type(vector_t), pointer :: error
+    integer :: ind(1)
+    logical :: clear_scratch = .false.
+    character(len=LOG_SIZE) :: log_buf
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -465,6 +484,39 @@ contains
     call this%interface_interpolator%evaluate_masked(this%u_interface%x, u%x, this%domain_element_mask, .false.)
     call this%interface_interpolator%evaluate_masked(this%v_interface%x, v%x, this%domain_element_mask, .false.)
     call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
+
+    if (this%log) then
+      !> Evaluate errors so far. The metric we use is the RMS error
+      call neko_scratch_registry%request_vector(error, ind(2), this%u_interface%size(), clear_scratch)
+      !> u
+      !! Get my local values
+      call vector_masked_gather_copy(error, u%x(:,1,1,1), this%interface_dof_mask, &
+            this%dof%size())
+      !! Substract the values from the other domain
+      call vector_add2s2(error, this%u_interface, -1.0_rp)
+      !! Get the L2 norm of the error
+      u_int_norm = sqrt(vector_glsc2(error, error)) &
+         / sqrt(real(this%u_interface%size(), kind=rp))
+      !> v
+      call vector_masked_gather_copy(error, v%x(:,1,1,1), this%interface_dof_mask, &
+            this%dof%size())
+      call vector_add2s2(error, this%v_interface, -1.0_rp)
+      v_int_norm = sqrt(vector_glsc2(error, error)) &
+         / sqrt(real(this%u_interface%size(), kind=rp))
+      !> w
+      call vector_masked_gather_copy(error, w%x(:,1,1,1), this%interface_dof_mask, &
+            this%dof%size())
+      call vector_add2s2(error, this%w_interface, -1.0_rp)
+      w_int_norm = sqrt(vector_glsc2(error, error)) &
+         / sqrt(real(this%u_interface%size(), kind=rp))  
+      call neko_scratch_registry%relinquish(ind)
+      
+       !> Log the errors on a single line
+       write(log_buf, '(A,E15.7,A,E15.7,A,E15.7)') 'Interface rmse: u = ', &
+          u_int_norm, ', v = ', v_int_norm, ', w = ', w_int_norm
+      call neko_log%message(log_buf)
+    end if
+
 
     !> If this is the first substep, then we do the extrapolation
     if (time%tstep .ne. this%last_tstep) then

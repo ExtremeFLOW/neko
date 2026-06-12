@@ -48,7 +48,7 @@ module overset_interface
   use vector_series, only : vector_series_t
   use vector_list, only : vector_list_t
   use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, &
-       vector_add2s2, vector_cmult2
+     vector_add2s2, vector_cmult2, vector_glsc2
   use device, only : DEVICE_TO_HOST
   use field_dirichlet, only : field_dirichlet_t
   use iextm_time_scheme, only : iextm_time_scheme_t
@@ -57,6 +57,8 @@ module overset_interface
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use field, only : field_t
+  use logger, only : neko_log, LOG_SIZE
+   use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
@@ -89,6 +91,7 @@ module overset_interface
      type(global_interpolation_settings_t) :: interpolation_settings
      logical :: find_interface = .false.
      logical :: setup = .false.
+       logical :: log = .false.
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
@@ -164,6 +167,7 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: field_name
     real(kind=rp) :: tol, pad
+    logical :: log
 
     call json_get(json, "field_name", field_name)
     call json_get_or_default(json, "interpolation.tolerance", tol, -1.0_rp)
@@ -172,19 +176,21 @@ contains
     if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
        call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
     end if
+    call json_get_or_default(json, "log", log, .false.)
 
-    call this%init_from_components(coef, field_name, tol, pad)
+    call this%init_from_components(coef, field_name, tol, pad, log)
     if (allocated(field_name)) deallocate(field_name)
 
   end subroutine overset_interface_init
 
   !> Constructor from components
   !! @param[in] coef The SEM coefficients.
-  subroutine overset_interface_init_from_components(this, coef, field_name, tol, pad)
+   subroutine overset_interface_init_from_components(this, coef, field_name, tol, pad, log)
     class(overset_interface_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: field_name
     real(kind=rp), intent(in), optional :: tol, pad
+      logical, intent(in), optional :: log
     character(len=LOG_SIZE) :: log_buf
 
     call this%init_base(coef)
@@ -199,6 +205,10 @@ contains
        if (pad .gt. 0.0_rp) then
           this%interpolation_settings%padding = pad
        end if
+    end if
+
+    if (present(log)) then
+       this%log = log
     end if
 
     this%field_name = field_name
@@ -400,6 +410,11 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
+      real(kind=rp) :: s_int_norm
+      type(vector_t), pointer :: error
+      integer :: ind(1)
+      logical :: clear_scratch = .false.
+      character(len=LOG_SIZE) :: log_buf
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -425,6 +440,20 @@ contains
 
     call this%interface_interpolator%evaluate_masked(this%s_interface%x, s%x, &
          this%domain_element_mask, .false.)
+
+    if (this%log) then
+       call neko_scratch_registry%request_vector(error, ind(1), this%s_interface%size(), &
+            clear_scratch)
+       call vector_masked_gather_copy(error, s%x(:,1,1,1), this%interface_dof_mask, &
+            this%dof%size())
+       call vector_add2s2(error, this%s_interface, -1.0_rp)
+       s_int_norm = sqrt(vector_glsc2(error, error)) / &
+            sqrt(real(this%s_interface%size(), kind=rp))
+       call neko_scratch_registry%relinquish(ind)
+
+       write(log_buf, '(A,E15.7)') trim(this%name) // ' rmse = ', s_int_norm
+       call neko_log%message(log_buf)
+    end if
 
     if (time%tstep .ne. this%last_tstep) then
        this%last_tstep = time%tstep
