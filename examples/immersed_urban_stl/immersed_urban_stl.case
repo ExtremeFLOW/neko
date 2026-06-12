@@ -34,11 +34,12 @@
             "pressure_solver": {
                 "type": "gmres",
                 "preconditioner": {
-                    "type": "hsmg"
+                    "type": "phmg"
                 },
-                "projection_space_size": 0,
-                "absolute_tolerance": 1e-6,
-                "max_iterations": 400
+                "projection_space_size": 20,
+                "projection_reorthogonalize_basis": true,
+                "absolute_tolerance": 1e-4,
+                "max_iterations": 800
             },
             "output_control": "never",
             "output_value": 1,
