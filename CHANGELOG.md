@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.
 - Job control time limits can now be specified by a flexible string format, e.g.
   "30:00" for 30 minutes, "1-00:00:00" for 24 hours, "3600" for 3600 seconds,
   etc.  
