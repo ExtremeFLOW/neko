@@ -11,7 +11,7 @@ on:
       - ready_for_review
   workflow_dispatch:
 
-#merge queue trigger
+  #merge queue trigger
   merge_group:
     types:
       - checks_requested
@@ -51,6 +51,9 @@ jobs:
           echo "flint-changed-minimum=$FLINT_CHANGED_FILES_MINIMUM" >> $GITHUB_OUTPUT
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
+
+  # ========================================================================== #
+  # Style and linting checks
 
   linting:
     name: Linting
@@ -102,6 +105,18 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   # ========================================================================== #
+  # Regression checks
+
+  Valgrind:
+    name: Valgrind
+    needs:
+      - prepare
+      - depend
+    uses: ./.github/workflows/check_valgrind.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
+      # ========================================================================== #
   # Determine if the PR is ready
 
   check_complete:
@@ -114,6 +129,7 @@ jobs:
       - depend
       - GNU
       - Intel
+      - Valgrind
       - Nvidia
 
     runs-on: ubuntu-latest
@@ -123,6 +139,7 @@ jobs:
       format_status: ${{ needs.formatting.result }}
       gnu_status: ${{ needs.GNU.result }}
       intel_status: ${{ needs.Intel.result }}
+      valgrind_status: ${{ needs.Valgrind.result }}
       nvidia_status: ${{ needs.Nvidia.result }}
 
     steps:
@@ -153,6 +170,11 @@ jobs:
           if [ "$intel_status" != "success" ]; then
             fail+=("\t- Intel check: $intel_status")
             success=false
+          fi
+
+          # Valgrind is informative-only for now and does not gate PR readiness.
+          if [ "$valgrind_status" != "success" ]; then
+            echo "Optional check did not pass: Valgrind check: $valgrind_status"
           fi
 
           # NVidia check is skipped since the compiler is broken.
