@@ -24,7 +24,7 @@ jobs:
           sudo apt-get install -y openmpi-bin libopenmpi-dev \
             autoconf automake autotools-dev libopenblas-dev make git m4 \
             python3 valgrind
-          echo "os-version=$(lsb_release -ds | tr \" \" -)" >> $GITHUB_OUTPUT
+          echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
       - name: Checkout
         uses: actions/checkout@v4
