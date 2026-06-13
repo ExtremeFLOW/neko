@@ -53,7 +53,6 @@ jobs:
 
       - name: Run valgrind regression test
         id: run-valgrind
-        continue-on-error: true
         run: |
           bash tests/regression/valgrind/run_valgrind_check.sh
 
