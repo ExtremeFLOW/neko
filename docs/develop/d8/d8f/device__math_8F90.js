@@ -44,6 +44,7 @@ var device__math_8F90 =
     [ "device_invcol3", "d8/d8f/device__math_8F90.html#a862aa297d6962c5d7f9ae79f53394886", null ],
     [ "device_masked_atomic_reduction_0", "d8/d8f/device__math_8F90.html#a3aa4f9f27147a991e079ead2abe6ea2d", null ],
     [ "device_masked_copy_0", "d8/d8f/device__math_8F90.html#aa2264c515090187c0a0d5455650201e3", null ],
+    [ "device_masked_copy_aligned", "d8/d8f/device__math_8F90.html#ad4bd5e67ad92f840b4106d1aa3d33986", null ],
     [ "device_masked_gather_copy_0", "d8/d8f/device__math_8F90.html#ab5d60404a08d01766f7d764fd0f144a1", null ],
     [ "device_masked_gather_copy_aligned", "d8/d8f/device__math_8F90.html#a94c783d80179255baecfdfdf2fa94828", null ],
     [ "device_masked_scatter_copy_0", "d8/d8f/device__math_8F90.html#a16a8c1e40bf0241331ba0acac620d57e", null ],

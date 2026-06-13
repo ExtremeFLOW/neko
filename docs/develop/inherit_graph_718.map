@@ -1,3 +1,43 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d9/df0/interfacesource__term_1_1source__term__allocate.html" title="Source term factory. Both constructs and initializes the object." alt="" coords="5,5,160,45"/>
+<area shape="rect" id="Node000000" href="$dc/d0d/structsimulation__component_1_1simulation__component__t.html" title="Base abstract class for simulation components." alt="" coords="5,600,196,640"/>
+<area shape="rect" id="Node000001" href="$d7/df8/structboundary__flux_1_1boundary__flux__t.html" title="A simulation component for total vector flux through labelled zones." alt="" coords="261,5,444,45"/>
+<area shape="poly" id="edge165_Node000000_Node000001" title=" " alt="" coords="103,586,120,468,150,310,169,230,190,157,215,97,242,56,259,42,263,46,246,59,220,99,195,158,174,231,155,311,126,469,109,587"/>
+<area shape="rect" id="Node000002" href="$d0/d23/structboundary__operation_1_1boundary__operation__t.html" title="A simulation component for boundary reductions on labelled zones." alt="" coords="267,69,439,109"/>
+<area shape="poly" id="edge166_Node000000_Node000002" title=" " alt="" coords="99,586,102,494,109,434,121,369,139,302,164,236,198,174,242,119,265,103,268,108,246,123,203,177,169,238,144,304,126,370,115,435,108,495,104,586"/>
+<area shape="rect" id="Node000003" href="$d7/d9c/structcurl__simcomp_1_1curl__t.html" title="A simulation component that computes the curl of a vector field. Added to the field registry as curl_..." alt="" coords="274,134,431,159"/>
+<area shape="poly" id="edge167_Node000000_Node000003" title=" " alt="" coords="99,586,105,502,113,448,125,390,143,330,168,272,201,217,242,170,272,152,275,157,246,174,205,220,173,274,148,332,131,391,118,449,111,503,105,587"/>
+<area shape="rect" id="Node000004" href="$d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html" title=" " alt="" coords="251,184,455,224"/>
+<area shape="poly" id="edge168_Node000000_Node000004" title=" " alt="" coords="102,586,112,514,136,419,154,369,177,320,206,274,242,234,258,222,262,226,246,238,211,277,182,323,159,371,141,421,118,515,107,587"/>
+<area shape="rect" id="Node000005" href="$d4/d59/structderivative__simcomp_1_1derivative__t.html" title="A simulation component that computes a derivative of a field. Wraps the duxyz operator." alt="" coords="275,248,430,288"/>
+<area shape="poly" id="edge169_Node000000_Node000005" title=" " alt="" coords="105,586,119,524,145,447,163,406,185,367,211,330,242,298,274,279,276,284,246,302,215,334,189,370,168,409,150,449,124,526,110,587"/>
+<area shape="rect" id="Node000006" href="$db/dc5/structdivergence__simcomp_1_1divergence__t.html" title="A simulation component that computes the divergence of a vector field. Added to the field registry as..." alt="" coords="272,312,433,352"/>
+<area shape="poly" id="edge170_Node000000_Node000006" title=" " alt="" coords="109,586,126,536,154,476,192,415,216,387,242,362,270,346,273,350,246,366,220,390,197,418,159,479,131,538,114,588"/>
+<area shape="rect" id="Node000007" href="$df/df8/structfield__subsampler_1_1field__subsampler__t.html" title="Implements the field_subsampler_t simulation components, which allows for masking regions of the doma..." alt="" coords="268,376,437,416"/>
+<area shape="poly" id="edge171_Node000000_Node000007" title=" " alt="" coords="115,586,136,549,165,506,200,463,242,426,267,413,269,417,246,430,204,466,169,509,140,552,120,589"/>
+<area shape="rect" id="Node000008" href="$de/d1a/structfield__writer_1_1field__writer__t.html" title="A simulation component that writes a 3d field to a file." alt="" coords="287,440,418,480"/>
+<area shape="poly" id="edge172_Node000000_Node000008" title=" " alt="" coords="126,588,177,538,209,512,243,490,286,472,288,477,245,494,212,516,181,542,130,592"/>
+<area shape="rect" id="Node000009" href="$d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html" title="A simulation component that computes the subgrid&#45;scale contributions to the Reynolds stresses in LES." alt="" coords="250,504,455,544"/>
+<area shape="poly" id="edge173_Node000000_Node000009" title=" " alt="" coords="154,591,243,554,278,542,280,547,245,558,156,596"/>
+<area shape="rect" id="Node000010" href="$d1/d3b/structfluid__stats__simcomp_1_1fluid__stats__simcomp__t.html" title="A simulation component that computes the velocity and pressure statistics up to 4th order...." alt="" coords="265,568,441,608"/>
+<area shape="poly" id="edge174_Node000000_Node000010" title=" " alt="" coords="209,604,264,597,265,602,210,609"/>
+<area shape="rect" id="Node000011" href="$da/d47/structforce__torque_1_1force__torque__t.html" title="A simulation component that computes the force and torque on a given boundary zone." alt="" coords="280,632,425,672"/>
+<area shape="poly" id="edge175_Node000000_Node000011" title=" " alt="" coords="210,631,280,640,280,645,210,637"/>
+<area shape="rect" id="Node000012" href="$de/d99/structgradient__simcomp_1_1gradient__t.html" title="A simulation component that computes the gradient of a field. Wraps the gradient operator." alt="" coords="244,697,461,722"/>
+<area shape="poly" id="edge176_Node000000_Node000012" title=" " alt="" coords="154,643,245,681,289,694,288,699,243,687,152,648"/>
+<area shape="rect" id="Node000013" href="$d6/db3/structlambda2_1_1lambda2__t.html" title=" " alt="" coords="275,746,431,771"/>
+<area shape="poly" id="edge177_Node000000_Node000013" title=" " alt="" coords="133,648,183,691,213,713,245,731,279,743,277,748,243,736,210,717,180,695,129,652"/>
+<area shape="rect" id="Node000014" href="$d1/d3b/structles__simcomp_1_1les__simcomp__t.html" title="A simulation component that drives the computation of the SGS viscosity." alt="" coords="245,795,460,821"/>
+<area shape="poly" id="edge178_Node000000_Node000014" title=" " alt="" coords="123,650,173,717,207,752,245,780,273,793,271,798,243,785,203,756,169,721,119,653"/>
+<area shape="rect" id="Node000015" href="$d7/dd3/structprobes_1_1probes__t.html" title=" " alt="" coords="287,845,418,870"/>
+<area shape="poly" id="edge179_Node000000_Node000015" title=" " alt="" coords="117,652,137,693,165,742,201,790,246,830,266,841,288,848,286,853,264,846,242,834,197,793,160,745,132,696,112,654"/>
+<area shape="rect" id="Node000016" href="$d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html" title="A simulation component that computes the subgrid&#45;scale contributions to the Reynolds stresses in LES." alt="" coords="245,895,461,935"/>
+<area shape="poly" id="edge180_Node000000_Node000016" title=" " alt="" coords="114,652,131,703,158,764,196,826,219,854,246,879,266,892,264,897,242,883,216,858,192,829,153,766,126,705,109,654"/>
+<area shape="rect" id="Node000017" href="$d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html" title="A simulation component that computes the scalar statistics for the skewness, kurtosis,..." alt="" coords="259,959,446,999"/>
+<area shape="poly" id="edge181_Node000000_Node000017" title=" " alt="" coords="110,653,123,716,149,794,167,835,189,875,215,912,246,945,262,956,259,961,242,949,211,916,184,878,162,838,144,796,118,717,104,654"/>
+<area shape="rect" id="Node000018" href="$d9/deb/structspectral__error_1_1spectral__error__t.html" title="Provides tools to calculate the spectral error indicator." alt="" coords="267,1023,439,1063"/>
+<area shape="poly" id="edge182_Node000000_Node000018" title=" " alt="" coords="107,654,117,727,140,823,158,873,181,923,210,968,246,1009,268,1024,265,1028,242,1013,206,972,177,925,153,875,135,824,112,728,102,654"/>
+<area shape="rect" id="Node000019" href="$dd/d8b/structuser__stats_1_1user__stats__t.html" title="A simulation component that computes the averages of fields in the registry." alt="" coords="265,1087,441,1113"/>
+<area shape="poly" id="edge183_Node000000_Node000019" title=" " alt="" coords="105,654,110,739,118,794,130,852,148,912,172,971,205,1025,246,1073,266,1086,263,1090,242,1077,200,1029,168,973,143,914,125,854,112,794,105,740,99,654"/>
+<area shape="rect" id="Node000020" href="$df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html" title="A simulation component that computes the weak gradient of a field. Wraps the opgradient operator." alt="" coords="260,1137,445,1177"/>
+<area shape="poly" id="edge184_Node000000_Node000020" title=" " alt="" coords="104,653,108,746,114,806,126,871,144,939,169,1005,202,1067,246,1122,263,1135,260,1139,242,1126,198,1070,164,1007,139,940,121,872,109,807,102,746,99,654"/>
 </map>

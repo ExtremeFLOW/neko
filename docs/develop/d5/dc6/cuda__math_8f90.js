@@ -1,7 +1,8 @@
 var cuda__math_8f90 =
 [
     [ "cuda_math::cuda_copy", "d6/d40/interfacecuda__math_1_1cuda__copy.html", "d6/d40/interfacecuda__math_1_1cuda__copy" ],
-    [ "cuda_math::cuda_masked_copy", "d0/df3/interfacecuda__math_1_1cuda__masked__copy.html", "d0/df3/interfacecuda__math_1_1cuda__masked__copy" ],
+    [ "cuda_math::cuda_masked_copy_0", "d0/d35/interfacecuda__math_1_1cuda__masked__copy__0.html", "d0/d35/interfacecuda__math_1_1cuda__masked__copy__0" ],
+    [ "cuda_math::cuda_masked_copy_aligned", "dd/dfa/interfacecuda__math_1_1cuda__masked__copy__aligned.html", "dd/dfa/interfacecuda__math_1_1cuda__masked__copy__aligned" ],
     [ "cuda_math::cuda_masked_gather_copy", "d7/df7/interfacecuda__math_1_1cuda__masked__gather__copy.html", "d7/df7/interfacecuda__math_1_1cuda__masked__gather__copy" ],
     [ "cuda_math::cuda_masked_gather_copy_aligned", "d5/df3/interfacecuda__math_1_1cuda__masked__gather__copy__aligned.html", "d5/df3/interfacecuda__math_1_1cuda__masked__gather__copy__aligned" ],
     [ "cuda_math::cuda_face_masked_gather_copy", "d5/d67/interfacecuda__math_1_1cuda__face__masked__gather__copy.html", "d5/d67/interfacecuda__math_1_1cuda__face__masked__gather__copy" ],

@@ -1,7 +1,8 @@
 var opencl__math_8f90 =
 [
     [ "opencl_math::opencl_copy", "d6/d58/interfaceopencl__math_1_1opencl__copy.html", "d6/d58/interfaceopencl__math_1_1opencl__copy" ],
-    [ "opencl_math::opencl_masked_copy", "d1/da7/interfaceopencl__math_1_1opencl__masked__copy.html", "d1/da7/interfaceopencl__math_1_1opencl__masked__copy" ],
+    [ "opencl_math::opencl_masked_copy_0", "db/dc0/interfaceopencl__math_1_1opencl__masked__copy__0.html", "db/dc0/interfaceopencl__math_1_1opencl__masked__copy__0" ],
+    [ "opencl_math::opencl_masked_copy_aligned", "d4/dbc/interfaceopencl__math_1_1opencl__masked__copy__aligned.html", "d4/dbc/interfaceopencl__math_1_1opencl__masked__copy__aligned" ],
     [ "opencl_math::opencl_masked_gather_copy", "d2/df7/interfaceopencl__math_1_1opencl__masked__gather__copy.html", "d2/df7/interfaceopencl__math_1_1opencl__masked__gather__copy" ],
     [ "opencl_math::opencl_masked_gather_copy_aligned", "dc/d54/interfaceopencl__math_1_1opencl__masked__gather__copy__aligned.html", "dc/d54/interfaceopencl__math_1_1opencl__masked__gather__copy__aligned" ],
     [ "opencl_math::opencl_face_masked_gather_copy", "d6/d92/interfaceopencl__math_1_1opencl__face__masked__gather__copy.html", "d6/d92/interfaceopencl__math_1_1opencl__face__masked__gather__copy" ],

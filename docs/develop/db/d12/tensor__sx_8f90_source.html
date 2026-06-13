@@ -108,8 +108,8 @@ $(document).ready(function(){initNavTree('db/d12/tensor__sx_8f90_source.html','.
 <div class="contents">
 <a href="../../db/d12/tensor__sx_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno"><a class="line" href="../../db/de7/namespacetensor__sx.html">    2</a></span><span class="keyword">module</span> <a class="code hl_namespace" href="../../db/de7/namespacetensor__sx.html">tensor_sx</a></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d1/d15/namespacemxm__wrapper.html">mxm_wrapper</a></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d1/d15/namespacemxm__wrapper.html">mxm_wrapper</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>  <span class="keywordtype">private</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
@@ -277,7 +277,7 @@ $(document).ready(function(){initNavTree('db/d12/tensor__sx_8f90_source.html','.
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>          <span class="keywordflow">do</span> ie = 1, nelv</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>             ii = i + nv * (j - 1)</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>             work(ii, ie) = a(i,1) * u(1 + nu * (j - 1), ie) &amp;</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>                          + a(i,2) * u(2 + nu * (j - 1), ie)</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>                  + a(i,2) * u(2 + nu * (j - 1), ie)</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span><span class="keywordflow">    end do</span></div>
@@ -304,7 +304,7 @@ $(document).ready(function(){initNavTree('db/d12/tensor__sx_8f90_source.html','.
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>          <span class="keywordflow">do</span> ie = 1, nelv</div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>             jj = i + nvnv * (j - 1)</div>
 <div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>             v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * ct(1, j) &amp;</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>                       + work2(i + nvnv * (2 - 1),ie) * ct(2, j)</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>                  + work2(i + nvnv * (2 - 1),ie) * ct(2, j)</div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="keywordflow">    end do</span></div>
@@ -332,9 +332,9 @@ $(document).ready(function(){initNavTree('db/d12/tensor__sx_8f90_source.html','.
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>          <span class="keywordflow">do</span> ie = 1, nelv</div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>             ii = i + nv * (j - 1)</div>
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>             work(ii, ie) = a(i,1) * u(1 + nu * (j - 1), ie) &amp;</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>                          + a(i,2) * u(2 + nu * (j - 1), ie) &amp;</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>                          + a(i,3) * u(3 + nu * (j - 1), ie) &amp;</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>                          + a(i,4) * u(4 + nu * (j - 1), ie)</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>                  + a(i,2) * u(2 + nu * (j - 1), ie) &amp;</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>                  + a(i,3) * u(3 + nu * (j - 1), ie) &amp;</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>                  + a(i,4) * u(4 + nu * (j - 1), ie)</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="keywordflow">    end do</span></div>
@@ -361,9 +361,9 @@ $(document).ready(function(){initNavTree('db/d12/tensor__sx_8f90_source.html','.
 <div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>          <span class="keywordflow">do</span> ie = 1, nelv</div>
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>             jj = i + nvnv * (j - 1)</div>
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>             v(jj, ie) = work2(i + nvnv * (1 - 1),ie) * ct(1, j) &amp;</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>                       + work2(i + nvnv * (2 - 1),ie) * ct(2, j) &amp;</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>                       + work2(i + nvnv * (3 - 1),ie) * ct(3, j) &amp;</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>                       + work2(i + nvnv * (4 - 1),ie) * ct(4, j)</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>                  + work2(i + nvnv * (2 - 1),ie) * ct(2, j) &amp;</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>                  + work2(i + nvnv * (3 - 1),ie) * ct(3, j) &amp;</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>                  + work2(i + nvnv * (4 - 1),ie) * ct(4, j)</div>
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="keywordflow">    end do</span></div>
@@ -484,9 +484,9 @@ $(document).ready(function(){initNavTree('db/d12/tensor__sx_8f90_source.html','.
 <div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>             iu = (ie-1)*nununu</div>
 <div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>             ii = i + nv * (j - 1)</div>
 <div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>             work(ii, ie) = a(i,1) * v(1 + nu * (j - 1) + iu) &amp;</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>                          + a(i,2) * v(2 + nu * (j - 1) + iu) &amp;</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>                          + a(i,3) * v(3 + nu * (j - 1) + iu) &amp;</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>                          + a(i,4) * v(4 + nu * (j - 1) + iu)</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>                  + a(i,2) * v(2 + nu * (j - 1) + iu) &amp;</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>                  + a(i,3) * v(3 + nu * (j - 1) + iu) &amp;</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>                  + a(i,4) * v(4 + nu * (j - 1) + iu)</div>
 <div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="keywordflow">    end do</span></div>
@@ -514,9 +514,9 @@ $(document).ready(function(){initNavTree('db/d12/tensor__sx_8f90_source.html','.
 <div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>             iv = (ie-1)*nvnvnv</div>
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>             jj = i + nvnv * (j - 1) + iv</div>
 <div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>             v(jj) = work2(i + nvnv * (1 - 1),ie) * ct(1, j) &amp;</div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>                   + work2(i + nvnv * (2 - 1),ie) * ct(2, j) &amp;</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>                   + work2(i + nvnv * (3 - 1),ie) * ct(3, j) &amp;</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>                   + work2(i + nvnv * (4 - 1),ie) * ct(4, j)</div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>                  + work2(i + nvnv * (2 - 1),ie) * ct(2, j) &amp;</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>                  + work2(i + nvnv * (3 - 1),ie) * ct(3, j) &amp;</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>                  + work2(i + nvnv * (4 - 1),ie) * ct(4, j)</div>
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span><span class="keywordflow">       end do</span></div>
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span><span class="keywordflow">    end do</span></div>
@@ -545,7 +545,7 @@ $(document).ready(function(){initNavTree('db/d12/tensor__sx_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_a37eab83353f81cec631cb1cae63e167.html">sx</a></li><li class="navelem"><a class="el" href="../../db/d12/tensor__sx_8f90.html">tensor_sx.f90</a></li>
-    <li class="footer">Generated on Fri Jun 12 2026 05:08:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Jun 13 2026 05:02:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
