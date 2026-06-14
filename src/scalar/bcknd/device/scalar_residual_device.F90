@@ -38,7 +38,7 @@ module scalar_residual_device
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
-  use num_types, only : rp    
+  use num_types, only : rp
   use, intrinsic :: iso_c_binding
   implicit none
   private

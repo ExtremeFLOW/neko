@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ module device_facet_normal
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value  :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
+       type(c_ptr), value :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
      end subroutine hip_facet_normal_apply_surfvec
   end interface
 #elif HAVE_CUDA
@@ -55,7 +55,7 @@ module device_facet_normal
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value  :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
+       type(c_ptr), value :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
      end subroutine cuda_facet_normal_apply_surfvec
   end interface
 #elif HAVE_OPENCL
@@ -66,7 +66,7 @@ module device_facet_normal
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value  :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
+       type(c_ptr), value :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
      end subroutine opencl_facet_normal_apply_surfvec
   end interface
 #elif HAVE_METAL
@@ -77,7 +77,7 @@ module device_facet_normal
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value  :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
+       type(c_ptr), value :: msk, facet, x, y, z, u, v, w, nx, ny, nz, area
      end subroutine metal_facet_normal_apply_surfvec
   end interface
 #endif
