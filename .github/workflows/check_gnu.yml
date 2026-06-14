@@ -30,17 +30,21 @@ jobs:
       matrix:
         os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15]
         compiler: [gfortran-12, gfortran-13, gfortran-14, gfortran-15]
-        backend: [cpu, cuda, hip, opencl]
+        backend: [cpu, cuda, hip, opencl, metal]
         precision: [sp, dp]
         exclude:
           - os: ubuntu-24.04
             backend: opencl
+          - os: ubuntu-24.04
+            backend: metal
           - os: ubuntu-24.04-arm
             backend: cuda
           - os: ubuntu-24.04-arm
             backend: hip
           - os: ubuntu-24.04-arm
             backend: opencl
+          - os: ubuntu-24.04-arm
+            backend: metal
           - os: ubuntu-24.04-arm
             compiler: gfortran-12
           - os: ubuntu-24.04-arm
