@@ -694,7 +694,6 @@ METAL_OBJS = \
 	filter/bcknd/device/metal/mappings.lo\
 	gs/bcknd/device/metal/gs.lo\
 	sem/bcknd/device/metal/coef.lo\
-	krylov/bcknd/device/metal/pc_jacobi.lo\
 	bc/bcknd/device/metal/dirichlet.lo\
 	bc/bcknd/device/metal/inflow.lo\
 	bc/bcknd/device/metal/zero_dirichlet.lo\
@@ -735,7 +734,6 @@ dist_noinst_DATA = \
 	filter/bcknd/device/metal/mappings.m\
 	gs/bcknd/device/metal/gs.m\
 	sem/bcknd/device/metal/coef.m\
-	krylov/bcknd/device/metal/pc_jacobi.m\
 	bc/bcknd/device/metal/dirichlet.m\
 	bc/bcknd/device/metal/inflow.m\
 	bc/bcknd/device/metal/zero_dirichlet.m\
@@ -773,7 +771,6 @@ METAL_KERNELS = \
 	filter/bcknd/device/metal/mapping_kernels.metal\
 	gs/bcknd/device/metal/gs_kernels.metal\
 	sem/bcknd/device/metal/coef_kernel.metal\
-	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
 	bc/bcknd/device/metal/dirichlet_kernel.metal\
 	bc/bcknd/device/metal/inflow_kernel.metal\
 	bc/bcknd/device/metal/zero_dirichlet_kernel.metal\
@@ -1069,7 +1066,6 @@ EXTRA_DIST = \
 	filter/bcknd/device/metal/mapping_kernels.metal\
 	gs/bcknd/device/metal/gs_kernels.metal\
 	sem/bcknd/device/metal/coef_kernel.metal\
-	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
 	bc/bcknd/device/metal/dirichlet_kernel.metal\
 	bc/bcknd/device/metal/inflow_kernel.metal\
 	bc/bcknd/device/metal/zero_dirichlet_kernel.metal\
