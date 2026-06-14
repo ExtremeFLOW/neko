@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:probes",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "fields",
+            "output_file"
+          ],
+          "properties": {
+            "type": {
+              "const": "probes"
+            },
+            "fields": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields"
+            },
+            "output_file": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "points_file": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "points": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:neko:schema:simulation-components#/$defs/simcompProbesPoint"
+              },
+              "minItems": 1
+            },
+            "append_output": {
+              "type": "boolean"
+            },
+            "interpolation": {
+              "type": "object",
+              "properties": {
+                "tolerance": {
+                  "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                },
+                "padding": {
+                  "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                }
+              },
+              "additionalProperties": true
+            },
+            "start_time": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "points_file"
+              ]
+            },
+            {
+              "required": [
+                "points"
+              ]
+            }
+          ],
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

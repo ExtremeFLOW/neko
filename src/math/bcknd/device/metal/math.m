@@ -175,7 +175,7 @@ void metal_cfill_mask(void *a_ptr, real *c, int *n, void *mask_ptr,
 // Masked copy variants
 // ============================================================================
 
-void metal_masked_copy(void *a_ptr, void *b_ptr, void *mask_ptr,
+void metal_masked_copy_0(void *a_ptr, void *b_ptr, void *mask_ptr,
                        int *n, int *n_mask, void *strm) {
     if (*n_mask < 1) return;
     id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)(strm);
