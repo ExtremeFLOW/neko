@@ -63,6 +63,9 @@ jobs:
             backend: cuda
           - os: macos-15
             backend: hip
+          - os: macos-15
+            backend: metal
+            precision: dp
           - compiler: gfortran-12
             backend: cuda
           - compiler: gfortran-12
@@ -260,6 +263,10 @@ jobs:
 
             ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
 
+          elif [ "$BACKEND" == 'metal' ]; then
+
+            ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-metal
+
           else
 
             echo "Unknown backend '$BACKEND'"
@@ -335,6 +342,12 @@ jobs:
 
               cd releng/neko-*
               ./configure FC=${FC} --enable-real=${RP} --with-opencl
+
+          elif [ ${{ matrix.backend }} == 'opencl' ]; then
+
+              cd releng/neko-*
+              ./configure FC=${FC} --enable-real=${RP} --with-metal              
+              
           else
               echo "Unknown backend ${{ matrix.backend }}"
               exit 1
