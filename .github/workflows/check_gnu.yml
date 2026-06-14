@@ -343,7 +343,7 @@ jobs:
               cd releng/neko-*
               ./configure FC=${FC} --enable-real=${RP} --with-opencl
 
-          elif [ ${{ matrix.backend }} == 'opencl' ]; then
+          elif [ ${{ matrix.backend }} == 'metal' ]; then
 
               cd releng/neko-*
               ./configure FC=${FC} --enable-real=${RP} --with-metal              
