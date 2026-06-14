@@ -62,6 +62,6 @@ jobs:
         with:
           name: valgrind-regression-logs
           path: |
-            tests/regression/valgrind/logs/*.log
+            tests/regression/valgrind/workdir/*.log
           overwrite: true
-          # if-no-files-found: ignore
+          if-no-files-found: error
