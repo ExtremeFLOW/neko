@@ -139,7 +139,11 @@ max_indirect="${NEKO_VALGRIND_MAX_INDIRECT:-$default_indirect}"
 max_possible="${NEKO_VALGRIND_MAX_POSSIBLE:-$default_possible}"
 max_reachable="${NEKO_VALGRIND_MAX_REACHABLE:-$default_reachable}"
 
-echo "Valgrind limits for backend '$backend_type': definite=$max_definite indirect=$max_indirect possible=$max_possible reachable=$max_reachable"
+echo "Valgrind limits for backend '$backend_type'"
+echo "  definitely lost: $max_definite bytes"
+echo "  indirectly lost: $max_indirect bytes"
+echo "  possibly lost:   $max_possible bytes"
+echo "  still reachable: $max_reachable bytes"
 
 python3 ./check_valgrind.py \
     --log valgrind_regression.log \
