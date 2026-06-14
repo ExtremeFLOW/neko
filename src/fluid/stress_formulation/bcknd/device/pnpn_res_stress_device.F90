@@ -319,8 +319,7 @@ contains
          f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #elif HAVE_METAL
-    call neko_error('Stress formulation pressure residual is not &
-         &implemented for Metal')
+    call neko_error('Stress formulation prs res is not implemented for Metal')
 #endif
 
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 1, c_Xh)
@@ -374,11 +373,10 @@ contains
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
+    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d,&
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_METAL
-    call neko_error('Stress formulation pressure residual is not &
-         &implemented for Metal')
+    call neko_error('Stress formulation prs ress is not implemented for Metal')
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
