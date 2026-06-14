@@ -61,9 +61,10 @@ makeneko valgrind_tgv.f90 || {
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
 
-valgrind -s \
+valgrind \
     --leak-check=full \
     --show-leak-kinds=all \
+    --show-error-list=no \
     --undef-value-errors=no \
     --num-callers=20 \
     --suppressions=valgrind_runtime.supp \
