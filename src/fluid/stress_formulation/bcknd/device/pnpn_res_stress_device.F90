@@ -201,24 +201,6 @@ module pnpn_res_stress_device
   end interface
 #elif HAVE_METAL
   interface
-     subroutine pnpn_prs_stress_res_part1_metal(ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, s11_d, s22_d, s33_d, &
-          s12_d, s13_d, s23_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, rho_d, n) &
-          bind(c, name = 'pnpn_prs_stress_res_part1_metal')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
-       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
-       type(c_ptr), value :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
-       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
-       type(c_ptr), value :: B_d, h1_d, rho_d
-       integer(c_int) :: n
-     end subroutine pnpn_prs_stress_res_part1_metal
-  end interface
-
-  interface
      subroutine pnpn_prs_res_part2_metal(p_res_d, wa1_d, wa2_d, wa3_d, n) &
           bind(c, name = 'pnpn_prs_res_part2_metal')
        use, intrinsic :: iso_c_binding
@@ -226,20 +208,6 @@ module pnpn_res_stress_device
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
        integer(c_int) :: n
      end subroutine pnpn_prs_res_part2_metal
-  end interface
-
-  interface
-     subroutine pnpn_prs_stress_res_part3_metal(p_res_d, ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, dtbd, n) &
-          bind(c, name = 'pnpn_prs_stress_res_part3_metal')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: p_res_d, ta1_d, ta2_d, ta3_d
-       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
-       real(c_rp) :: dtbd
-       integer(c_int) :: n
-     end subroutine pnpn_prs_stress_res_part3_metal
   end interface
 
 
@@ -351,11 +319,8 @@ contains
          f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #elif HAVE_METAL
-    call pnpn_prs_stress_res_part1_metal(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, &
-         s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
-         f_x%x_d, f_y%x_d, f_z%x_d, &
-         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
+    call neko_error('Stress formulation pressure residual is not &
+         &implemented for Metal')
 #endif
 
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 1, c_Xh)
@@ -412,8 +377,8 @@ contains
     call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_METAL
-    call pnpn_prs_stress_res_part3_metal(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+    call neko_error('Stress formulation pressure residual is not &
+         &implemented for Metal')
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)

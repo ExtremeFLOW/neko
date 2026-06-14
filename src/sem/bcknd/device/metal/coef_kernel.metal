@@ -41,9 +41,9 @@
 #include <metal_stdlib>
 using namespace metal;
 
-/* ------------------------------------------------------------------ */
-/*  Geometry kernel — compute G11..G33 and multiply by w3              */
-/* ------------------------------------------------------------------ */
+/*
+ * Geometry kernel — compute G11..G33 and multiply by w3
+ */
 
 template <int LX>
 void coef_generate_geo_impl(device float *G11,
@@ -100,9 +100,9 @@ void coef_generate_geo_impl(device float *G11,
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  dxyz kernel — compute dxdr, dydr, dzdr, etc. via matrix multiply   */
-/* ------------------------------------------------------------------ */
+/*
+ * dxyz kernel — compute dxdr, dydr, dzdr, etc. via matrix multiply
+ */
 
 template <int LX>
 void coef_generate_dxyz_impl(device float *dxdr,
@@ -212,9 +212,9 @@ void coef_generate_dxyz_impl(device float *dxdr,
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  drst kernel — compute Jacobian and inverse mapping                 */
-/* ------------------------------------------------------------------ */
+/*
+ * drst kernel — compute Jacobian and inverse mapping
+ */
 
 kernel void coef_generate_drst_kernel(device float *jac[[ buffer(0) ]],
                                       device float *jacinv[[ buffer(1) ]],
@@ -261,9 +261,9 @@ kernel void coef_generate_drst_kernel(device float *jac[[ buffer(0) ]],
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Instantiation macros for geo and dxyz kernels (LX = 2..16)         */
-/* ------------------------------------------------------------------ */
+/*
+ * Instantiation macros for geo and dxyz kernels (LX = 2..16)
+ */
 
 #define INSTANTIATE_GEO(LX)                                                     \
 kernel void coef_generate_geo_kernel_lx##LX(                                    \
@@ -357,9 +357,9 @@ INSTANTIATE_DXYZ(14)
 INSTANTIATE_DXYZ(15)
 INSTANTIATE_DXYZ(16)
 
-/* ------------------------------------------------------------------ */
-/*  Mass matrix kernel — B = Binv = jac * w3                           */
-/* ------------------------------------------------------------------ */
+/*
+ * Mass matrix kernel — B = Binv = jac * w3
+ */
 
 kernel void coef_generate_mass_kernel(device float *B[[ buffer(0) ]],
                                       device float *Binv[[ buffer(1) ]],
@@ -380,9 +380,9 @@ kernel void coef_generate_mass_kernel(device float *B[[ buffer(0) ]],
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Facet area and unit normal kernel                                  */
-/* ------------------------------------------------------------------ */
+/*
+ * Facet area and unit normal kernel
+ */
 
 template <int LX>
 void coef_generate_area_and_normal_impl(device float *area,

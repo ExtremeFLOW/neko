@@ -47,20 +47,22 @@
 #import <Foundation/Foundation.h>
 #include <string.h>
 
-/* ------------------------------------------------------------------ */
-/*  Module-local Metal device and default command queue                */
-/* ------------------------------------------------------------------ */
+/*
+ *  Module-local Metal device and default command queue
+ */
 static id<MTLDevice>       _mtl_device    = nil;
 static id<MTLCommandQueue> _mtl_glb_queue = nil;
 static id<MTLCommandQueue> _mtl_aux_queue = nil;
 
-/* Public accessor so that kernel dispatch code (ax_helm.m, etc.)
- * can reach the device and the default library.                      */
+/*
+ * Public accessor so that kernel dispatch code (ax_helm.m, etc.)
+ * can reach the device and the default library.
+ */
 id<MTLDevice> neko_metal_device(void) { return _mtl_device; }
 
-/* ------------------------------------------------------------------ */
-/*  Embedded Metal shader library                                      */
-/* ------------------------------------------------------------------ */
+/*
+ * Embedded Metal shader library
+ */
 
 /* Generated at build time by xxd -i from neko_kernels.metallib */
 extern const unsigned char neko_kernels_metallib[];
@@ -94,9 +96,9 @@ id<MTLLibrary> neko_metal_library(void)
     return _neko_mtl_library;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Init / finalize                                                    */
-/* ------------------------------------------------------------------ */
+/*
+ * Init / finalize
+ */
 
 void metal_init(void **glb_queue, void **aux_queue)
 {
@@ -126,9 +128,9 @@ void metal_finalize(void *glb_queue, void *aux_queue)
     _mtl_device    = nil;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Device queries                                                     */
-/* ------------------------------------------------------------------ */
+/*
+ * Device queries
+ */
 
 void metal_device_name(char *name, int len)
 {
@@ -147,9 +149,9 @@ int metal_device_count(void)
     return (_mtl_device != nil) ? 1 : (MTLCreateSystemDefaultDevice() ? 1 : 0);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Memory allocation / deallocation                                   */
-/* ------------------------------------------------------------------ */
+/*
+ * Memory allocation / deallocation
+ */
 
 /**
  * Allocate a Metal buffer of \p s bytes.
@@ -176,17 +178,19 @@ int metal_alloc(void **ptr, size_t s)
 int metal_free(void *ptr)
 {
     if (ptr) {
-        /* Transfer ownership back to ARC — ARC releases when buf
-         * goes out of scope. */
+        /*
+         * Transfer ownership back to ARC — ARC releases when buf
+         * goes out of scope.
+         */
         id<MTLBuffer> buf __attribute__((unused)) =
             (__bridge_transfer id<MTLBuffer>)ptr;
     }
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Memcpy                                                             */
-/* ------------------------------------------------------------------ */
+/*
+ * Memcpy
+ */
 
 /**
  * Copy \p s bytes from host memory \p src to Metal buffer \p dst_d.
@@ -223,9 +227,9 @@ int metal_memcpy_dtod(void *dst_d, void *src_d, size_t s)
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Memset                                                             */
-/* ------------------------------------------------------------------ */
+/*
+ * Memset
+ */
 
 int metal_memset(void *buf_d, int value, size_t s)
 {
@@ -234,9 +238,9 @@ int metal_memset(void *buf_d, int value, size_t s)
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Synchronization                                                    */
-/* ------------------------------------------------------------------ */
+/*
+ * Synchronization
+ */
 
 /**
  * Wait until all commands in the default queue have completed.
@@ -264,9 +268,9 @@ int metal_stream_sync(void *queue)
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Streams (command queues)                                           */
-/* ------------------------------------------------------------------ */
+/*
+ * Streams (command queues)
+ */
 
 int metal_stream_create(void **stream)
 {
@@ -285,9 +289,9 @@ int metal_stream_destroy(void *stream)
     return 0;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Events                                                             */
-/* ------------------------------------------------------------------ */
+/*
+ * Events
+ */
 
 int metal_event_create(void **event)
 {
@@ -323,8 +327,10 @@ int metal_event_sync(void *event)
     /* Spin-wait until the GPU signals the event. */
     uint64_t target = e.signaledValue;
     while (e.signaledValue < target) {
-        /* On Apple Silicon this is essentially a no-op since
-         * event_record commits the command buffer. */
+        /*
+         * On Apple Silicon this is essentially a no-op since
+         * event_record commits the command buffer.
+         */
     }
     return 0;
 }

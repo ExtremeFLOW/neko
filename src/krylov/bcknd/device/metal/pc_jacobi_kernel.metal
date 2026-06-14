@@ -41,9 +41,9 @@
 #include <metal_stdlib>
 using namespace metal;
 
-/* ------------------------------------------------------------------ */
-/*  Jacobi kernel — diagonal of the stiffness matrix                   */
-/* ------------------------------------------------------------------ */
+/*
+ * Jacobi kernel — diagonal of the stiffness matrix
+ */
 
 template <int LX>
 void jacobi_impl(device float *du,

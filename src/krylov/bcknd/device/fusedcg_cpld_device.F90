@@ -194,54 +194,6 @@ module fusedcg_cpld_device
        integer(c_int) :: n, p_cur
      end function hip_fusedcg_cpld_part2
   end interface
-#elif HAVE_METAL
-  interface
-     subroutine metal_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
-          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name='metal_fusedcg_cpld_part1')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d
-       integer(c_int) :: n
-     end subroutine metal_fusedcg_cpld_part1
-  end interface
-
-  interface
-     subroutine metal_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-          po1_d, po2_d, po3_d, beta, n) bind(c, name='metal_fusedcg_cpld_update_p')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: p1_d, p2_d, p3_d, z1_d, z2_d, z3_d
-       type(c_ptr), value :: po1_d, po2_d, po3_d
-       real(c_rp) :: beta
-       integer(c_int) :: n
-     end subroutine metal_fusedcg_cpld_update_p
-  end interface
-
-  interface
-     subroutine metal_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, &
-          alpha, p_cur, n) bind(c, name='metal_fusedcg_cpld_update_x')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
-       integer(c_int) :: p_cur, n
-     end subroutine metal_fusedcg_cpld_update_x
-  end interface
-
-  interface
-     real(c_rp) function metal_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
-          c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n) &
-          bind(c, name='metal_fusedcg_cpld_part2')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: a1_d, a2_d, a3_d, b_d
-       type(c_ptr), value :: c1_d, c2_d, c3_d, alpha_d
-       real(c_rp) :: alpha
-       integer(c_int) :: n, p_cur
-     end function metal_fusedcg_cpld_part2
-  end interface
 #endif
 
 contains
@@ -255,8 +207,6 @@ contains
     call hip_fusedcg_cpld_part1(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_part1(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d, n)
-#elif HAVE_METAL
-    call metal_fusedcg_cpld_part1(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -274,9 +224,6 @@ contains
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
          po1_d, po2_d, po3_d, beta, n)
-#elif HAVE_METAL
-    call metal_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-         po1_d, po2_d, po3_d, beta, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -291,9 +238,6 @@ contains
          p1_d, p2_d, p3_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
-         p1_d, p2_d, p3_d, alpha, p_cur, n)
-#elif HAVE_METAL
-    call metal_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
          p1_d, p2_d, p3_d, alpha, p_cur, n)
 #else
     call neko_error('No device backend configured')
@@ -313,9 +257,6 @@ contains
          c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     res = cuda_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
-         c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n)
-#elif HAVE_METAL
-    res = metal_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
          c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n)
 #else
     call neko_error('No device backend configured')

@@ -206,8 +206,10 @@ static void dispatch_ax_helm_vector(int lx, int nelv,
       exit(1);
     }
 
-    /* dxt, dyt, dzt unused — the kstep kernels use dx/dy/dz transposed
-       access patterns directly */
+    /*
+     * dxt, dyt, dzt unused — the kstep kernels use dx/dy/dz transposed
+     * access patterns directly
+     */
     dispatch_ax_helm(*lx, *nelv, w, u, dx, dy, dz, h1,
                      g11, g22, g33, g12, g13, g23);
   }

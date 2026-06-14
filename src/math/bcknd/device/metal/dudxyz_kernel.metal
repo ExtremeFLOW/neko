@@ -41,9 +41,9 @@
 #include <metal_stdlib>
 using namespace metal;
 
-/* ------------------------------------------------------------------ */
-/*  dudxyz — kstep formulation, one element per (LX x LX) threadgroup  */
-/* ------------------------------------------------------------------ */
+/*
+ * dudxyz — kstep formulation, one element per (LX x LX) threadgroup
+ */
 
 template <int LX>
 void dudxyz_kstep_impl(device float *du,

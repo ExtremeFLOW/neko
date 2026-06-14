@@ -658,8 +658,6 @@ if ENABLE_METAL
 # would require AC_PROG_OBJC and libtool lacks an OBJC tag), instead
 # wrap them with libtool via the .m.lo rule and add them to LIBADD
 #
-libneko_la_SOURCES += device/metal/metal_stubs.c
-
 #
 # The embedded shader library is generated at build time and
 # requires the Metal shader compiler (enforced by configure),
@@ -674,10 +672,26 @@ METAL_OBJS = \
 	math/bcknd/device/metal/tensor.lo\
 	math/bcknd/device/metal/opr_cfl.lo\
 	math/bcknd/device/metal/opr_dudxyz.lo\
+	math/bcknd/device/metal/opr_opgrad.lo\
+	math/bcknd/device/metal/opr_cdtp.lo\
+	math/bcknd/device/metal/opr_conv1.lo\
+	math/bcknd/device/metal/set_convect_rst.lo\
+	math/bcknd/device/metal/opr_convect_scalar.lo\
+	math/bcknd/device/metal/opr_lambda2.lo\
+	math/bcknd/device/metal/opr_rotate_cyc.lo\
+	math/bcknd/device/metal/schwarz.lo\
+	math/bcknd/device/metal/fdm.lo\
+	multigrid/bcknd/device/metal/amg_cheby.lo\
+	krylov/bcknd/device/metal/cheby.lo\
+	krylov/bcknd/device/metal/pc_jacobi.lo\
+	scalar/bcknd/device/metal/scalar_residual.lo\
 	math/bcknd/device/metal/mathops.lo\
+	common/bcknd/device/metal/rhs_maker.lo\
 	fluid/bcknd/device/metal/euler_res.lo\
+	fluid/bcknd/device/metal/pnpn_res.lo\
 	fluid/bcknd/device/metal/compressible_ops.lo\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity.lo\
+	filter/bcknd/device/metal/mappings.lo\
 	gs/bcknd/device/metal/gs.lo\
 	sem/bcknd/device/metal/coef.lo\
 	krylov/bcknd/device/metal/pc_jacobi.lo\
@@ -699,10 +713,26 @@ dist_noinst_DATA = \
 	math/bcknd/device/metal/tensor.m\
 	math/bcknd/device/metal/opr_cfl.m\
 	math/bcknd/device/metal/opr_dudxyz.m\
+	math/bcknd/device/metal/opr_opgrad.m\
+	math/bcknd/device/metal/opr_cdtp.m\
+	math/bcknd/device/metal/opr_conv1.m\
+	math/bcknd/device/metal/set_convect_rst.m\
+	math/bcknd/device/metal/opr_convect_scalar.m\
+	math/bcknd/device/metal/opr_lambda2.m\
+	math/bcknd/device/metal/opr_rotate_cyc.m\
+	math/bcknd/device/metal/schwarz.m\
+	math/bcknd/device/metal/fdm.m\
+	multigrid/bcknd/device/metal/amg_cheby.m\
+	krylov/bcknd/device/metal/pc_jacobi.m\
+	krylov/bcknd/device/metal/cheby.m\
+	scalar/bcknd/device/metal/scalar_residual.m\
 	math/bcknd/device/metal/mathops.m\
+	common/bcknd/device/metal/rhs_maker.m\
 	fluid/bcknd/device/metal/euler_res.m\
+	fluid/bcknd/device/metal/pnpn_res.m\
 	fluid/bcknd/device/metal/compressible_ops.m\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity.m\
+	filter/bcknd/device/metal/mappings.m\
 	gs/bcknd/device/metal/gs.m\
 	sem/bcknd/device/metal/coef.m\
 	krylov/bcknd/device/metal/pc_jacobi.m\
@@ -721,10 +751,26 @@ METAL_KERNELS = \
 	math/bcknd/device/metal/tensor_kernel.metal\
 	math/bcknd/device/metal/cfl_kernel.metal\
 	math/bcknd/device/metal/dudxyz_kernel.metal\
+	math/bcknd/device/metal/opgrad_kernel.metal\
+	math/bcknd/device/metal/cdtp_kernel.metal\
+	math/bcknd/device/metal/conv1_kernel.metal\
+	math/bcknd/device/metal/set_convect_rst_kernel.metal\
+	math/bcknd/device/metal/convect_scalar_kernel.metal\
+	math/bcknd/device/metal/lambda2_kernel.metal\
+	math/bcknd/device/metal/rotate_kernel.metal\
+	math/bcknd/device/metal/schwarz_kernel.metal\
+	math/bcknd/device/metal/fdm_kernel.metal\
+	multigrid/bcknd/device/metal/amg_cheby_kernel.metal\
+	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
+	krylov/bcknd/device/metal/cheby_kernel.metal\
+	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
 	math/bcknd/device/metal/mathops_kernel.metal\
+	common/bcknd/device/metal/rhs_maker_kernel.metal\
 	fluid/bcknd/device/metal/euler_res_kernel.metal\
+	fluid/bcknd/device/metal/pnpn_res_kernel.metal\
 	fluid/bcknd/device/metal/compressible_ops_kernel.metal\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity_kernel.metal\
+	filter/bcknd/device/metal/mapping_kernels.metal\
 	gs/bcknd/device/metal/gs_kernels.metal\
 	sem/bcknd/device/metal/coef_kernel.metal\
 	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
@@ -1001,10 +1047,26 @@ EXTRA_DIST = \
 	math/bcknd/device/metal/tensor_kernel.metal\
 	math/bcknd/device/metal/cfl_kernel.metal\
 	math/bcknd/device/metal/dudxyz_kernel.metal\
+	math/bcknd/device/metal/opgrad_kernel.metal\
+	math/bcknd/device/metal/cdtp_kernel.metal\
+	math/bcknd/device/metal/conv1_kernel.metal\
+	math/bcknd/device/metal/set_convect_rst_kernel.metal\
+	math/bcknd/device/metal/convect_scalar_kernel.metal\
+	math/bcknd/device/metal/lambda2_kernel.metal\
+	math/bcknd/device/metal/rotate_kernel.metal\
+	math/bcknd/device/metal/schwarz_kernel.metal\
+	math/bcknd/device/metal/fdm_kernel.metal\
+	multigrid/bcknd/device/metal/amg_cheby_kernel.metal\
+	krylov/bcknd/device/metal/cheby_kernel.metal\
+	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
+	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
 	math/bcknd/device/metal/mathops_kernel.metal\
+	common/bcknd/device/metal/rhs_maker_kernel.metal\
 	fluid/bcknd/device/metal/euler_res_kernel.metal\
+	fluid/bcknd/device/metal/pnpn_res_kernel.metal\
 	fluid/bcknd/device/metal/compressible_ops_kernel.metal\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity_kernel.metal\
+	filter/bcknd/device/metal/mapping_kernels.metal\
 	gs/bcknd/device/metal/gs_kernels.metal\
 	sem/bcknd/device/metal/coef_kernel.metal\
 	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\

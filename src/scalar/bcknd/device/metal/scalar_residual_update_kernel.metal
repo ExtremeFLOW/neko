@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2025, The Neko Authors
+ Copyright (c) 2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,34 +32,22 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * Metal compute kernel for the scalar residual update.
+ *
+ * @note Apple GPUs do not support FP64; all arithmetic uses float.
+ */
+
 #include <metal_stdlib>
 using namespace metal;
 
-kernel void dong_outflow_apply_scalar_kernel(
-        device const int *msk[[ buffer(0) ]],
-        device float *x[[ buffer(1) ]],
-        device const float *normal_x[[ buffer(2) ]],
-        device const float *normal_y[[ buffer(3) ]],
-        device const float *normal_z[[ buffer(4) ]],
-        device const float *u[[ buffer(5) ]],
-        device const float *v[[ buffer(6) ]],
-        device const float *w[[ buffer(7) ]],
-        constant float &uinf[[ buffer(8) ]],
-        constant float &delta[[ buffer(9) ]],
-        constant int &m[[ buffer(10) ]],
-        uint tid [[ thread_position_in_grid ]])
-{
-    const int i = (int)tid;
-    if (i >= m) return;
-    const int k = msk[i + 1] - 1;
-    const float uk = u[k];
-    const float vk = v[k];
-    const float wk = w[k];
-    const float vn = uk * normal_x[i] + vk * normal_y[i] + wk * normal_z[i];
-    // Clamp the argument before tanh: in FP32 tanh is evaluated via exp(), and
-    // exp() overflows to +inf for arguments beyond ~88, yielding inf/inf = NaN.
-    // tanh saturates to +/-1 well within this range, so clamping is exact.
-    const float arg = clamp(vn / (uinf * delta), -20.0f, 20.0f);
-    const float S0 = 0.5f * (1.0f - tanh(arg));
-    x[k] = -0.5f * (uk * uk + vk * vk + wk * wk) * S0;
+/**
+ * Scalar residual update: s_res = -s_res + f_s.
+ */
+kernel void scalar_residual_update_kernel(device float *s_res[[ buffer(0) ]],
+                                          device const float *f_s[[ buffer(1) ]],
+                                          constant int &n[[ buffer(2) ]],
+                                          uint idx [[ thread_position_in_grid ]]) {
+  if (idx >= (uint)n) return;
+  s_res[idx] = (-s_res[idx]) + f_s[idx];
 }

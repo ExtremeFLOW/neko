@@ -240,6 +240,54 @@ void metal_masked_atomic_reduction(void *a_ptr, void *b_ptr, void *mask_ptr,
         }, (NSUInteger)*m);
 }
 
+void metal_masked_scatter_copy_aligned(void *a_ptr, void *b_ptr, void *mask_ptr,
+                                       int *n, int *n_mask, void *strm) {
+    if (*n_mask < 1) return;
+    id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)(strm);
+    dispatch_simple(q, get_pipeline(@"masked_scatter_copy_aligned_kernel"),
+        ^(id<MTLComputeCommandEncoder> enc) {
+            [enc setBuffer:(__bridge id<MTLBuffer>)(a_ptr) offset:0 atIndex:0];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(b_ptr) offset:0 atIndex:1];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(mask_ptr) offset:0 atIndex:2];
+            [enc setBytes:n_mask length:sizeof(int) atIndex:3];
+        }, (NSUInteger)*n_mask);
+}
+
+void metal_face_masked_gather_copy(void *a_ptr, void *b_ptr, void *mask_ptr,
+                                   void *facet_ptr, int *n1, int *n2,
+                                   int *lx, int *ly, int *lz, int *n_mask,
+                                   void *strm) {
+    if (*n_mask < 1) return;
+    id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)(strm);
+    dispatch_simple(q, get_pipeline(@"face_masked_gather_copy_kernel"),
+        ^(id<MTLComputeCommandEncoder> enc) {
+            [enc setBuffer:(__bridge id<MTLBuffer>)(a_ptr) offset:0 atIndex:0];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(b_ptr) offset:0 atIndex:1];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(mask_ptr) offset:0 atIndex:2];
+            [enc setBuffer:(__bridge id<MTLBuffer>)(facet_ptr) offset:0 atIndex:3];
+            [enc setBytes:n1 length:sizeof(int) atIndex:4];
+            [enc setBytes:n2 length:sizeof(int) atIndex:5];
+            [enc setBytes:lx length:sizeof(int) atIndex:6];
+            [enc setBytes:ly length:sizeof(int) atIndex:7];
+            [enc setBytes:lz length:sizeof(int) atIndex:8];
+            [enc setBytes:n_mask length:sizeof(int) atIndex:9];
+        }, (NSUInteger)*n_mask);
+}
+
+void metal_cwrap(void *a_ptr, real *min_val, real *max_val, int *n,
+                 void *strm) {
+    if (*n < 1) return;
+    id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)(strm);
+    float fmin = (float)*min_val, fmax = (float)*max_val;
+    dispatch_simple(q, get_pipeline(@"cwrap_kernel"),
+        ^(id<MTLComputeCommandEncoder> enc) {
+            [enc setBuffer:(__bridge id<MTLBuffer>)(a_ptr) offset:0 atIndex:0];
+            [enc setBytes:&fmin length:sizeof(float) atIndex:1];
+            [enc setBytes:&fmax length:sizeof(float) atIndex:2];
+            [enc setBytes:n length:sizeof(int) atIndex:3];
+        }, (NSUInteger)*n);
+}
+
 // ============================================================================
 // Scalar-vector operations
 // ============================================================================
@@ -381,10 +429,12 @@ void metal_add2s2_many(void *y_ptr, void *x_d_d_ptr, void *a_ptr,
     int p_cur = *j;
     NSUInteger nn = (NSUInteger)*n;
 
-    /* x_d_d_ptr is a Metal buffer whose contents are p_cur device pointers.
+    /*
+     * x_d_d_ptr is a Metal buffer whose contents are p_cur device pointers.
      * a_ptr is a Metal buffer whose contents are p_cur float alpha values.
      * Because Metal shared memory is CPU-visible, we read them on the host
-     * and dispatch one kernel per column.                                   */
+     * and dispatch one kernel per column.
+     */
     id<MTLBuffer> ptrs_buf = (__bridge id<MTLBuffer>)(x_d_d_ptr);
     void **ptrs = (void **)[ptrs_buf contents];
     id<MTLBuffer> alpha_buf = (__bridge id<MTLBuffer>)(a_ptr);
@@ -920,8 +970,10 @@ void metal_glsc3_many(real *h, void *w_ptr, void *v_d_d_ptr,
 
         id<MTLBuffer> buf = get_reduction_buf((int)nblocks);
 
-        /* v_d_d_ptr is a Metal buffer of ncols device pointers.
-         * Dispatch one reduction per column using shared memory access. */
+        /*
+         * v_d_d_ptr is a Metal buffer of ncols device pointers.
+         * Dispatch one reduction per column using shared memory access.
+         */
         id<MTLBuffer> ptrs_buf = (__bridge id<MTLBuffer>)(v_d_d_ptr);
         void **ptrs = (void **)[ptrs_buf contents];
 

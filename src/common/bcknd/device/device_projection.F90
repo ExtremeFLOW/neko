@@ -91,31 +91,6 @@ module device_projection
        real(c_rp) :: nrm
      end subroutine cuda_project_ortho
   end interface
-#elif HAVE_METAL
-  interface
-     subroutine metal_project_on(a_d, b_d, x_d_d, b_d_d, mult_d, x_d, j, n) &
-          bind(c, name = 'metal_project_on')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: a_d, b_d, x_d_d, b_d_d, mult_d, x_d
-       integer(c_int) :: j, n
-     end subroutine metal_project_on
-  end interface
-
-  interface
-     subroutine metal_project_ortho(a_d, b_d, x_d_d, b_d_d, &
-                                   w_d, xm_d, j, n, nrm) &
-          bind(c, name = 'metal_project_ortho')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: a_d, b_d, x_d_d, b_d_d, w_d
-       type(c_ptr), value :: xm_d
-       integer(c_int) :: j, n
-       real(c_rp) :: nrm
-     end subroutine metal_project_ortho
-  end interface
 #endif
 
 contains
@@ -128,8 +103,6 @@ contains
     call hip_project_on(alpha_d, b_d, x_d_d, b_d_d, mult_d, xbar_d, j, n)
 #elif HAVE_CUDA
     call cuda_project_on(alpha_d, b_d, x_d_d, b_d_d, mult_d, xbar_d, j, n)
-#elif HAVE_METAL
-    call metal_project_on(alpha_d, b_d, x_d_d, b_d_d, mult_d, xbar_d, j, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -146,8 +119,6 @@ contains
     call hip_project_ortho(alpha_d, b_d, x_d_d, b_d_d, w_d, xm_d, j, n, nrm)
 #elif HAVE_CUDA
     call cuda_project_ortho(alpha_d, b_d, x_d_d, b_d_d, w_d, xm_d, j, n, nrm)
-#elif HAVE_METAL
-    call metal_project_ortho(alpha_d, b_d, x_d_d, b_d_d, w_d, xm_d, j, n, nrm)
 #else
     call neko_error('No device backend configured')
 #endif

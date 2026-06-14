@@ -41,9 +41,9 @@
 #include <metal_stdlib>
 using namespace metal;
 
-/* ------------------------------------------------------------------ */
-/*  tnsr3d — v = A x Bt x Ct applied to u, one element per group       */
-/* ------------------------------------------------------------------ */
+/*
+ * tnsr3d — v = A x Bt x Ct applied to u, one element per group
+ */
 
 void tnsr3d_impl(device float *v,
                  const int nv,
@@ -134,9 +134,9 @@ INSTANTIATE_TNSR3D(14)
 INSTANTIATE_TNSR3D(15)
 INSTANTIATE_TNSR3D(16)
 
-/* ------------------------------------------------------------------ */
-/*  tnsr3d_el — per-point interpolation matrices, one point per group  */
-/* ------------------------------------------------------------------ */
+/*
+ * tnsr3d_el — per-point interpolation matrices, one point per group
+ */
 
 void tnsr3d_el_impl(device float *v,
                     const int nv,

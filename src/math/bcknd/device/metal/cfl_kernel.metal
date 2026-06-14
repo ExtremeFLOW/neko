@@ -44,9 +44,9 @@ using namespace metal;
 
 #define CFL_CHUNKS 256
 
-/* ------------------------------------------------------------------ */
-/*  CFL kernel — per-element max, one element per threadgroup          */
-/* ------------------------------------------------------------------ */
+/*
+ * CFL kernel — per-element max, one element per threadgroup
+ */
 
 template <int LX>
 void cfl_impl(const float dt,

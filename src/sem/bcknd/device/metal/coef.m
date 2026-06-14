@@ -80,9 +80,9 @@ get_coef_pipeline(const char *name) {
   return pso;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Fortran-callable wrappers                                          */
-/* ------------------------------------------------------------------ */
+/*
+ * Fortran-callable wrappers
+ */
 
 /**
  * Generate geometric factors G11..G33 on the Metal GPU.

@@ -45,9 +45,9 @@
 #include <metal_stdlib>
 using namespace metal;
 
-/* ------------------------------------------------------------------ */
-/*  Template helpers – kstep (non-padded)                              */
-/* ------------------------------------------------------------------ */
+/*
+ * Template helpers – kstep (non-padded)
+ */
 
 template<int LX>
 inline void ax_helm_kstep_impl(
@@ -136,9 +136,9 @@ inline void ax_helm_kstep_impl(
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Template helpers – kstep padded                                    */
-/* ------------------------------------------------------------------ */
+/*
+ * Template helpers – kstep padded
+ */
 
 template<int LX>
 inline void ax_helm_kstep_padded_impl(
@@ -228,9 +228,9 @@ inline void ax_helm_kstep_padded_impl(
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Template helpers – vector kstep (non-padded)                       */
-/* ------------------------------------------------------------------ */
+/*
+ * Template helpers – vector kstep (non-padded)
+ */
 
 template<int LX>
 inline void ax_helm_vector_kstep_impl(
@@ -362,9 +362,9 @@ inline void ax_helm_vector_kstep_impl(
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Template helpers – vector kstep padded                             */
-/* ------------------------------------------------------------------ */
+/*
+ * Template helpers – vector kstep padded
+ */
 
 template<int LX>
 inline void ax_helm_vector_kstep_padded_impl(

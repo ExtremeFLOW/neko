@@ -41,10 +41,10 @@
 #include <metal_stdlib>
 using namespace metal;
 
-/* ------------------------------------------------------------------ */
-/*  Emulated float atomic min / max via compare-and-swap              */
-/*  (Metal only supports atomic_fetch_min/max for integer types)      */
-/* ------------------------------------------------------------------ */
+/*
+ * Emulated float atomic min / max via compare-and-swap
+ * (Metal only supports atomic_fetch_min/max for integer types)
+ */
 
 inline void atomic_float_min(device atomic_float *addr, float val) {
   float old = atomic_load_explicit(addr, memory_order_relaxed);
@@ -66,9 +66,9 @@ inline void atomic_float_max(device atomic_float *addr, float val) {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Gather kernels                                                    */
-/* ------------------------------------------------------------------ */
+/*
+ * Gather kernels
+ */
 
 /**
  * Gather kernel — addition
@@ -232,9 +232,9 @@ kernel void gather_kernel_max(device float *v[[ buffer(0) ]],
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Scatter kernel                                                    */
-/* ------------------------------------------------------------------ */
+/*
+ * Scatter kernel
+ */
 
 /**
  * Scatter kernel — copy gathered values back to DOF space
@@ -271,9 +271,9 @@ kernel void scatter_kernel(device const float *v[[ buffer(0) ]],
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Pack / unpack kernels for MPI communication                       */
-/* ------------------------------------------------------------------ */
+/*
+ * Pack / unpack kernels for MPI communication
+ */
 
 /**
  * Pack send buffer from field
@@ -304,8 +304,10 @@ kernel void gs_unpack_add_kernel(device float *u[[ buffer(0) ]],
   const int idx = dof[tid];
   const float val = buf[tid];
   if (idx < 0) {
-    /* Metal supports atomic_fetch_add_explicit on device float via
-     * metal::atomic<float> reinterpret. Use atomic_float. */
+    /*
+     * Metal supports atomic_fetch_add_explicit on device float via
+     * metal::atomic<float> reinterpret. Use atomic_float.
+     */
     device atomic_float *addr =
         (device atomic_float *)&u[-idx - 1];
     atomic_fetch_add_explicit(addr, val, memory_order_relaxed);

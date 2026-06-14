@@ -154,6 +154,60 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 
 Once configured, to compile and install Neko issue `make` followed by `make install`
 
+#### Compute backends and support tiers {#compute-backends}
+
+Neko's compute kernels are provided by several interchangeable backends,
+selected at configure time. The CPU backend is always available; the remaining
+backends are enabled through their respective optional packages (see the table
+above). The backends share a common interface, so a case runs unmodified
+regardless of the backend it is built against. Their current level of support
+is summarised below.
+
+Support tiers are defined as follows:
+
+- **Tier 0** --- Primary, fully supported backends. Regularly tested and
+  expected to support all features.
+- **Tier 1** --- Supported and maintained, but tested less extensively and may
+  trail Tier 0 in features or performance.
+- **Tier 2** --- Experimental or optional. Under active development or provided
+  as an optional optimisation; feature coverage may be incomplete.
+
+| Backend   | Target hardware                      | Tier   | Notes                                       |
+| --------- | ------------------------------------ | ------ | ------------------------------------------- |
+| CPU       | Any CPU (portable Fortran)           | Tier 0 | Always available; reference implementation  |
+| CUDA      | NVIDIA GPUs                          | Tier 0 |                                             |
+| HIP       | AMD GPUs                            | Tier 0 |                                             |
+| OpenCL    | Cross-vendor GPUs and accelerators   | Tier 1 |                                             |
+| SX-Aurora | NEC SX-Aurora TSUBASA vector engines | Tier 1 |                                             |
+| Metal     | Apple Silicon GPUs (macOS)           | Tier 2 | Single precision only (`--enable-real=sp`)  |
+| libxsmm   | x86 CPUs (JIT small matrix multiply) | Tier 2 | Accelerates the CPU backend                 |
+
+#### Communication backends {#communication-backends}
+
+Neko's gather--scatter layer, which performs the halo exchange between elements
+and MPI ranks, can use several communication backends. The backend is selected
+automatically at runtime (device-aware MPI when available, otherwise host MPI),
+but can be overridden through the `NEKO_GS_COMM` environment variable. The
+supported backends are listed below.
+
+| Backend          | Mechanism / target                              | Compute backends | Enable (configure)            | `NEKO_GS_COMM` |
+| ---------------- | ----------------------------------------------- | ---------------- | ----------------------------- | -------------- |
+| MPI              | Standard MPI on host buffers (default)          | All backends     | always available              | `MPI`          |
+| Device-aware MPI | MPI directly on device buffers (GPUDirect)      | CUDA, HIP        | `--enable-device-mpi`         | `MPIGPU`       |
+| NCCL / RCCL      | Collective comms library on GPUs (NVIDIA / AMD) | CUDA, HIP        | `--with-nccl` / `--with-rccl` | `NCCL`         |
+| NVSHMEM          | NVIDIA OpenSHMEM, one-sided on device buffers   | CUDA             | `--with-nvshmem`              | `SHMEM`        |
+| OpenSHMEM        | Host OpenSHMEM, one-sided                        | CPU              | `--with-openshmem`           | `SHMEM`        |
+| Co-Array Fortran | Fortran coarrays                                | CPU              | coarray-capable compiler      | `CAF`          |
+
+@note Every device backend (CUDA, HIP, OpenCL, Metal) can use host `MPI`, which
+stages data through host memory before the exchange. The device-resident
+backends --- device-aware MPI, NCCL/RCCL and NVSHMEM --- are implemented only
+for CUDA and HIP (NVSHMEM is CUDA-only), so OpenCL and Metal builds fall back to
+host `MPI`.
+
+@note `NEKO_GS_COMM=SHMEM` selects NVSHMEM on a device (GPU) build and host
+OpenSHMEM otherwise.
+
 #### Compiling Neko for CPU or SX-Aurora
 
 For a standard CPU or SX-Aurora build of Neko, simply run the `configure` script as given above, using appropriate compilers and compiler flags, e.g:

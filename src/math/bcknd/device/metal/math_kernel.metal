@@ -144,6 +144,81 @@ kernel void masked_scatter_copy_kernel(device float *a[[ buffer(0) ]],
     a[mask[idx + 1] - 1] = b[idx];
 }
 
+kernel void masked_scatter_copy_aligned_kernel(
+    device float *a[[ buffer(0) ]],
+    device const float *b[[ buffer(1) ]],
+    device const int *mask[[ buffer(2) ]],
+    constant int &n_mask[[ buffer(3) ]],
+    uint idx [[ thread_position_in_grid ]]) {
+    if (idx >= (uint)n_mask) return;
+    a[mask[idx]] = b[idx];
+}
+
+/* Map a 1-based linear dof index to its (i, j, k, e) location, 1-based. */
+static inline void face_gather_nonlinear_index(thread int *index, int idx,
+                                               int lx, int ly, int lz) {
+    const int idx2 = idx - 1;
+    index[3] = idx2 / (lx * ly * lz);
+    index[2] = (idx2 - (lx * ly * lz) * index[3]) / (lx * ly);
+    index[1] = (idx2 - (lx * ly * lz) * index[3] - (lx * ly) * index[2]) / lx;
+    index[0] = (idx2 - (lx * ly * lz) * index[3] - (lx * ly) * index[2]) -
+        lx * index[1];
+    index[0]++;
+    index[1]++;
+    index[2]++;
+    index[3]++;
+}
+
+static inline int face_gather_idx(int i, int j, int k, int l,
+                                  int n1, int n2, int nf) {
+    return ((i) + (n1) * (((j) - 1) + (n2) * (((k) - 1) + (nf) * (((l) - 1))))) - 1;
+}
+
+kernel void face_masked_gather_copy_kernel(
+    device float *a[[ buffer(0) ]],
+    device const float *b[[ buffer(1) ]],
+    device const int *mask[[ buffer(2) ]],
+    device const int *facet[[ buffer(3) ]],
+    constant int &n1[[ buffer(4) ]],
+    constant int &n2[[ buffer(5) ]],
+    constant int &lx[[ buffer(6) ]],
+    constant int &ly[[ buffer(7) ]],
+    constant int &lz[[ buffer(8) ]],
+    constant int &n_mask[[ buffer(9) ]],
+    uint idx [[ thread_position_in_grid ]]) {
+    const int m = (int)idx;
+    if (m >= n_mask) return;
+
+    int index[4];
+    const int f = facet[m + 1];
+    face_gather_nonlinear_index(index, mask[m + 1], lx, ly, lz);
+
+    switch (f) {
+    case 1:
+    case 2:
+        a[m] = b[face_gather_idx(index[1], index[2], f, index[3], n1, n2, 6)];
+        break;
+    case 3:
+    case 4:
+        a[m] = b[face_gather_idx(index[0], index[2], f, index[3], n1, n2, 6)];
+        break;
+    case 5:
+    case 6:
+        a[m] = b[face_gather_idx(index[0], index[1], f, index[3], n1, n2, 6)];
+        break;
+    }
+}
+
+kernel void cwrap_kernel(device float *a[[ buffer(0) ]],
+                         constant float &min_val[[ buffer(1) ]],
+                         constant float &max_val[[ buffer(2) ]],
+                         constant int &n[[ buffer(3) ]],
+                         uint idx [[ thread_position_in_grid ]]) {
+    if (idx >= (uint)n) return;
+    const float l = max_val - min_val;
+    a[idx] = min_val + fmod(fmod(a[idx] - min_val, l) + l, l);
+}
+
 kernel void masked_atomic_reduction_kernel(
     device atomic_float *a[[ buffer(0) ]],
     device const float *b[[ buffer(1) ]],

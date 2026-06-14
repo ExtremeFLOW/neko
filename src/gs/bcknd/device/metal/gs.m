@@ -111,9 +111,9 @@ static void ensure_pipelines(void) {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helper: encode gather kernel arguments                             */
-/* ------------------------------------------------------------------ */
+/*
+ * Helper: encode gather kernel arguments
+ */
 
 static void encode_gather_args(id<MTLComputeCommandEncoder> enc,
                                void *v, int m, int o,
@@ -132,9 +132,9 @@ static void encode_gather_args(id<MTLComputeCommandEncoder> enc,
   [enc setBuffer:(__bridge id<MTLBuffer>)bo offset:0 atIndex:9];
 }
 
-/* ------------------------------------------------------------------ */
-/*  Fortran-callable wrappers                                          */
-/* ------------------------------------------------------------------ */
+/*
+ * Fortran-callable wrappers
+ */
 
 /**
  * Fortran wrapper for device gather kernels
