@@ -172,9 +172,9 @@ jobs:
             success=false
           fi
 
-          # Valgrind is informative-only for now and does not gate PR readiness.
+          # Valgrind check is informational only.
           if [ "$valgrind_status" != "success" ]; then
-            echo "Optional check did not pass: Valgrind check: $valgrind_status"
+            fail+=("\t- Valgrind check: $valgrind_status (informational only)")
           fi
 
           # NVidia check is skipped since the compiler is broken.
@@ -183,11 +183,14 @@ jobs:
           #   success=false
           # fi
 
-          if [ "$success" = false ]; then
+          if [ ${#fail[@]} -ne 0 ]; then
             >&2 echo "The following checks failed:"
             for i in "${fail[@]}"; do
               >&2 printf "$i\n"
             done
+          fi
+
+          if [ "$success" = false ]; then
             exit 1
           fi
           echo "All checks passed"
