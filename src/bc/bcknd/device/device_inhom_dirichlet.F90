@@ -40,7 +40,7 @@ module device_inhom_dirichlet
   interface
      subroutine hip_inhom_dirichlet_apply_vector(msk, x, y, z, &
           bla_x, bla_y, bla_z, m, strm) &
-          bind(c, name='hip_inhom_dirichlet_apply_vector')
+          bind(c, name = 'hip_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -52,7 +52,7 @@ module device_inhom_dirichlet
   interface
      subroutine cuda_inhom_dirichlet_apply_vector(msk, x, y, z, &
           bla_x, bla_y, bla_z, m, strm) &
-          bind(c, name='cuda_inhom_dirichlet_apply_vector')
+          bind(c, name = 'cuda_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -64,7 +64,7 @@ module device_inhom_dirichlet
   interface
      subroutine opencl_inhom_dirichlet_apply_vector(msk, x, y, z, &
           bla_x, bla_y, bla_z, m, strm) &
-          bind(c, name='opencl_inhom_dirichlet_apply_vector')
+          bind(c, name = 'opencl_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -77,7 +77,7 @@ module device_inhom_dirichlet
   interface
      subroutine metal_inhom_dirichlet_apply_vector(msk, x, y, z, &
           bla_x, bla_y, bla_z, m, strm) &
-          bind(c, name='metal_inhom_dirichlet_apply_vector')
+          bind(c, name = 'metal_inhom_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -91,7 +91,7 @@ module device_inhom_dirichlet
 #ifdef HAVE_HIP
   interface
      subroutine hip_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
-          bind(c, name='hip_inhom_dirichlet_apply_scalar')
+          bind(c, name = 'hip_inhom_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -102,7 +102,7 @@ module device_inhom_dirichlet
 #elif HAVE_CUDA
   interface
      subroutine cuda_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
-          bind(c, name='cuda_inhom_dirichlet_apply_scalar')
+          bind(c, name = 'cuda_inhom_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -113,7 +113,7 @@ module device_inhom_dirichlet
 #elif HAVE_OPENCL
   interface
      subroutine opencl_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
-          bind(c, name='opencl_inhom_dirichlet_apply_scalar')
+          bind(c, name = 'opencl_inhom_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -124,7 +124,7 @@ module device_inhom_dirichlet
 #elif HAVE_METAL
   interface
      subroutine metal_inhom_dirichlet_apply_scalar(msk, x, bla_x, m, strm) &
-          bind(c, name='metal_inhom_dirichlet_apply_scalar')
+          bind(c, name = 'metal_inhom_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none

@@ -373,8 +373,8 @@ module rhs_maker_device
 
   interface
      subroutine scalar_rhs_maker_ext_metal(fs_lag_d, fs_laglag_d, fs_d, rho, &
-                                          ext1, ext2, ext3, n) &
-                                          bind(c, name = 'scalar_rhs_maker_ext_metal')
+          ext1, ext2, ext3, n) &
+          bind(c, name = 'scalar_rhs_maker_ext_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d

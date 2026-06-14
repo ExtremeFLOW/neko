@@ -40,7 +40,7 @@ module device_facet_normal
   interface
      subroutine hip_facet_normal_apply_surfvec(msk, facet, x, y, z, u, v, w, &
                                                nx, ny, nz, area, lx, m) &
-          bind(c, name='hip_facet_normal_apply_surfvec')
+          bind(c, name = 'hip_facet_normal_apply_surfvec')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
@@ -51,7 +51,7 @@ module device_facet_normal
   interface
      subroutine cuda_facet_normal_apply_surfvec(msk, facet, x, y, z, u, v, w, &
                                                 nx, ny, nz, area, lx, m) &
-          bind(c, name='cuda_facet_normal_apply_surfvec')
+          bind(c, name = 'cuda_facet_normal_apply_surfvec')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
@@ -62,7 +62,7 @@ module device_facet_normal
   interface
      subroutine opencl_facet_normal_apply_surfvec(msk, facet, x, y, z, u, v, w, &
                                                 nx, ny, nz, area, lx, m) &
-          bind(c, name='opencl_facet_normal_apply_surfvec')
+          bind(c, name = 'opencl_facet_normal_apply_surfvec')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
@@ -73,7 +73,7 @@ module device_facet_normal
   interface
      subroutine metal_facet_normal_apply_surfvec(msk, facet, x, y, z, u, v, w, &
                                                 nx, ny, nz, area, lx, m) &
-          bind(c, name='metal_facet_normal_apply_surfvec')
+          bind(c, name = 'metal_facet_normal_apply_surfvec')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx

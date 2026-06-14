@@ -373,7 +373,8 @@ contains
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL) || defined(HAVE_METAL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+         defined(HAVE_OPENCL) || defined(HAVE_METAL)
          call device_event_record(this%gather_event, strm)
 #endif
 
@@ -455,7 +456,8 @@ contains
        end associate
     end if
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL) || defined(HAVE_METAL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     if (c_associated(event)) then
        call device_event_record(event, this%gs_stream)
     else

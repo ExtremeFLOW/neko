@@ -40,7 +40,7 @@ module device_inflow
 
   interface
      subroutine hip_inflow_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='hip_inflow_apply_vector')
+          bind(c, name = 'hip_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -52,7 +52,7 @@ module device_inflow
 
   interface
      subroutine cuda_inflow_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='cuda_inflow_apply_vector')
+          bind(c, name = 'cuda_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -64,7 +64,7 @@ module device_inflow
 
   interface
      subroutine opencl_inflow_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='opencl_inflow_apply_vector')
+          bind(c, name = 'opencl_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -76,7 +76,7 @@ module device_inflow
 
   interface
      subroutine metal_inflow_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='metal_inflow_apply_vector')
+          bind(c, name = 'metal_inflow_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m

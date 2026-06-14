@@ -41,7 +41,7 @@ module device_dong_outflow
   interface
      subroutine hip_dong_outflow_apply_scalar(msk, x, normal_x, normal_y, &
           normal_z, u, v, w, uinf, delta, m, strm) &
-          bind(c, name='hip_dong_outflow_apply_scalar')
+          bind(c, name = 'hip_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -54,7 +54,7 @@ module device_dong_outflow
   interface
      subroutine cuda_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
           normal_z, u, v, w, uinf, delta, m, strm) &
-          bind(c, name='cuda_dong_outflow_apply_scalar')
+          bind(c, name = 'cuda_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -67,7 +67,7 @@ module device_dong_outflow
   interface
      subroutine opencl_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
           normal_z, u, v, w, uinf, delta, m, strm) &
-          bind(c, name='opencl_dong_outflow_apply_scalar')
+          bind(c, name = 'opencl_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -80,7 +80,7 @@ module device_dong_outflow
   interface
      subroutine metal_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
           normal_z, u, v, w, uinf, delta, m, strm) &
-          bind(c, name='metal_dong_outflow_apply_scalar')
+          bind(c, name = 'metal_dong_outflow_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none

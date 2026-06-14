@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -132,7 +132,8 @@ module device
 contains
 
   subroutine device_init
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL) || defined(HAVE_METAL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%init(64)
 
 #ifdef HAVE_HIP
@@ -156,7 +157,8 @@ contains
   end subroutine device_init
 
   subroutine device_finalize
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL) || defined(HAVE_METAL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%free()
     call device_event_destroy(glb_cmd_event)
 

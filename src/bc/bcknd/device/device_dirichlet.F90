@@ -40,7 +40,7 @@ module device_dirichlet
 #ifdef HAVE_HIP
   interface
      subroutine hip_dirichlet_apply_scalar(msk, x, g, m, strm) &
-          bind(c, name='hip_dirichlet_apply_scalar')
+          bind(c, name = 'hip_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -52,7 +52,7 @@ module device_dirichlet
 
   interface
      subroutine hip_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='hip_dirichlet_apply_vector')
+          bind(c, name = 'hip_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -64,7 +64,7 @@ module device_dirichlet
 #elif HAVE_CUDA
   interface
      subroutine cuda_dirichlet_apply_scalar(msk, x, g, m, strm) &
-          bind(c, name='cuda_dirichlet_apply_scalar')
+          bind(c, name = 'cuda_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -76,7 +76,7 @@ module device_dirichlet
 
   interface
      subroutine cuda_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='cuda_dirichlet_apply_vector')
+          bind(c, name = 'cuda_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -88,7 +88,7 @@ module device_dirichlet
 #elif HAVE_OPENCL
   interface
      subroutine opencl_dirichlet_apply_scalar(msk, x, g, m, strm) &
-          bind(c, name='opencl_dirichlet_apply_scalar')
+          bind(c, name = 'opencl_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -100,7 +100,7 @@ module device_dirichlet
 
   interface
      subroutine opencl_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='opencl_dirichlet_apply_vector')
+          bind(c, name = 'opencl_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -112,7 +112,7 @@ module device_dirichlet
 #elif HAVE_METAL
   interface
      subroutine metal_dirichlet_apply_scalar(msk, x, g, m, strm) &
-          bind(c, name='metal_dirichlet_apply_scalar')
+          bind(c, name = 'metal_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -124,7 +124,7 @@ module device_dirichlet
 
   interface
      subroutine metal_dirichlet_apply_vector(msk, x, y, z, g, m, strm) &
-          bind(c, name='metal_dirichlet_apply_vector')
+          bind(c, name = 'metal_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none

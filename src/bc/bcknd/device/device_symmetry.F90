@@ -40,7 +40,7 @@ module device_symmetry
   interface
      subroutine hip_symmetry_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='hip_symmetry_apply_vector')
+          bind(c, name = 'hip_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
@@ -51,7 +51,7 @@ module device_symmetry
   interface
      subroutine cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='cuda_symmetry_apply_vector')
+          bind(c, name = 'cuda_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
@@ -62,7 +62,7 @@ module device_symmetry
   interface
      subroutine opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='opencl_symmetry_apply_vector')
+          bind(c, name = 'opencl_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
@@ -73,7 +73,7 @@ module device_symmetry
   interface
      subroutine metal_symmetry_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='metal_symmetry_apply_vector')
+          bind(c, name = 'metal_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
