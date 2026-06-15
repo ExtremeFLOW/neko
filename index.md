@@ -21,7 +21,7 @@ title: Home
     <div class="metric">
       <span class="metric-value">Runs on your hardware</span>
       <ul class="metric-list">
-        <li>Built with native CPUs, CUDA, HIP, and OpenCL kernels.</li>
+        <li>Built with native CPUs, CUDA, HIP, OpenCL and Metal kernels.</li>
         <li>Exceptional performance and parallel scaling.</li>
         <li>Device-abstraction layer to facilitate portable code development.</li>
       </ul>
