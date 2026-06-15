@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:spectral_error",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "spectral_error"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

@@ -36,7 +36,7 @@ module runge_kutta_time_scheme
   use time_scheme, only : time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_unmap, device_map, device_memcpy, HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
   implicit none
   private
@@ -164,23 +164,22 @@ contains
     implicit none
     class(runge_kutta_time_scheme_t) :: this
 
-    if (c_associated(this%coeffs_A_d)) then
-       call device_free(this%coeffs_A_d)
-    end if
-    if (c_associated(this%coeffs_b_d)) then
-       call device_free(this%coeffs_b_d)
-    end if
-    if (c_associated(this%coeffs_c_d)) then
-       call device_free(this%coeffs_c_d)
-    end if
-
     if (allocated(this%coeffs_A)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%coeffs_A, this%coeffs_A_d)
+       end if
        deallocate(this%coeffs_A)
     end if
     if (allocated(this%coeffs_b)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%coeffs_b, this%coeffs_b_d)
+       end if
        deallocate(this%coeffs_b)
     end if
     if (allocated(this%coeffs_c)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%coeffs_c, this%coeffs_c_d)
+       end if
        deallocate(this%coeffs_c)
     end if
   end subroutine runge_kutta_scheme_coeffs_free

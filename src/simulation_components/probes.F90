@@ -62,7 +62,7 @@ module probes
   use, intrinsic :: iso_c_binding
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, DEVICE_TO_HOST, device_map, device_free
+  use device, only : device_memcpy, DEVICE_TO_HOST, device_map, device_unmap
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM, &
        MPI_DOUBLE_PRECISION, MPI_Gatherv, MPI_Gather, MPI_Exscan
   implicit none
@@ -554,9 +554,11 @@ contains
        this%seq_io = .true.
 
        ! Build the header
-       write(header_line, '(I0,A,I0)') this%n_global_probes, ",", this%n_fields
+       write(header_line, '(I0, A, I0)') this%n_global_probes, achar(44), &
+            this%n_fields
        do i = 1, this%n_fields
-          header_line = trim(header_line) // "," // trim(this%which_fields(i))
+          header_line = trim(header_line) // achar(44) // &
+               trim(this%which_fields(i))
        end do
        call this%fout%set_header(header_line)
 
@@ -636,10 +638,6 @@ contains
        deallocate(this%xyz)
     end if
 
-    if (allocated(this%out_values)) then
-       deallocate(this%out_values)
-    end if
-
     if (allocated(this%out_vals_trsp)) then
        deallocate(this%out_vals_trsp)
     end if
@@ -662,13 +660,14 @@ contains
        deallocate(this%which_fields)
     end if
 
-    if (allocated(this%out_values_d)) then
-       do i = 1, size(this%out_values_d)
-          if (c_associated(this%out_values_d(i))) then
-             call device_free(this%out_values_d(i))
-          end if
-       end do
-       deallocate(this%out_values_d)
+    if (allocated(this%out_values)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          do i = 1, this%n_fields
+             call device_unmap(this%out_values(:,i), this%out_values_d(i))
+          end do
+       end if
+       if (allocated(this%out_values_d)) deallocate(this%out_values_d)
+       deallocate(this%out_values)
     end if
 
     call this%global_interp%free()
@@ -718,8 +717,8 @@ contains
        write (log_buf, *) pe_rank, "/", this%global_interp%pe_owner(i), &
             "/" , this%global_interp%el_owner0(i)
        call neko_log%message(log_buf)
-       write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') &
-            "rst: ", this%global_interp%rst(:,i)
+       write(log_buf, '(A5, "(", F10.6, ",", F10.6, ",", F10.6, ")")') &
+            "rst: ", this%global_interp%rst(:, i)
        call neko_log%message(log_buf)
     end do
   end subroutine probes_debug

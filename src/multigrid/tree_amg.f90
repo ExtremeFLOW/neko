@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ module tree_amg
   use ax_product, only: ax_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use device, only: device_map, device_free, device_deassociate, &
+  use device, only: device_map, device_unmap, &
        device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
@@ -212,12 +212,6 @@ contains
     class(tamg_lvl_t), intent(inout) :: this
     integer :: i
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_deassociate(this%wrk_in)
-       call device_deassociate(this%wrk_out)
-       call device_deassociate(this%map_f2c)
-       call device_deassociate(this%map_finest2lvl)
-    end if
     if (allocated(this%nodes)) then
        do i = 1, this%nnodes
           call this%nodes(i)%free()
@@ -225,22 +219,28 @@ contains
        deallocate(this%nodes)
     end if
     if (allocated(this%wrk_in)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%wrk_in_d)) then
+          call device_unmap(this%wrk_in, this%wrk_in_d)
+       end if
        deallocate(this%wrk_in)
     end if
     if (allocated(this%wrk_out)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%wrk_out_d)) then
+          call device_unmap(this%wrk_out, this%wrk_out_d)
+       end if
        deallocate(this%wrk_out)
     end if
     if (allocated(this%map_f2c)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%map_f2c_d)) then
+          call device_unmap(this%map_f2c, this%map_f2c_d)
+       end if
        deallocate(this%map_f2c)
     end if
     if (allocated(this%map_finest2lvl)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%map_finest2lvl_d)) then
+          call device_unmap(this%map_finest2lvl, this%map_finest2lvl_d)
+       end if
        deallocate(this%map_finest2lvl)
-    end if
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_free(this%wrk_in_d)
-       call device_free(this%wrk_out_d)
-       call device_free(this%map_f2c_d)
-       call device_free(this%map_finest2lvl_d)
     end if
     this%nnodes = 0
     this%lvl = -1
@@ -401,10 +401,13 @@ contains
 
          !> Map finest level matvec back to output level
          call rzero(vec_out, this%lvl(lvl)%nnodes)
+         !$omp parallel do private(cdof)
          do i = 1, n
             cdof = this%lvl(lvl)%map_finest2lvl(i)
+            !$omp atomic
             vec_out(cdof) = vec_out(cdof) + wrk_out( i )
          end do
+         !$omp end parallel do
        end associate
     end if
   end subroutine tamg_matvec_flat_impl

@@ -61,8 +61,8 @@ module gather_scatter
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_free, &
-       device_map, device_deassociate
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_map, &
+       device_unmap
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   !$ use omp_lib, only : omp_get_thread_num
   implicit none
@@ -327,8 +327,7 @@ contains
                    strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
                 end do
 
-                call device_deassociate(tmp)
-                call device_free(tmp_d)
+                call device_unmap(tmp, tmp_d)
                 deallocate(tmp)
 
                 c%nb_strtgy = strtgy(minloc(strtgy_time, 1))

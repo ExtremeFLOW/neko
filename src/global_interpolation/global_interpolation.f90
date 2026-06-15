@@ -44,7 +44,7 @@ module global_interpolation
   use utils, only : neko_error
   use local_interpolation, only : local_interpolator_t
   use device, only : device_free, device_map, device_memcpy, &
-       device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
+       device_unmap, HOST_TO_DEVICE, DEVICE_TO_HOST, &
        device_get_ptr
   use aabb_pe_finder, only : aabb_pe_finder_t
   use aabb_el_finder, only : aabb_el_finder_t
@@ -431,7 +431,7 @@ contains
        call el_find%init(x, y, z, nelv, Xh, this%padding)
     type is (cartesian_el_finder_t)
        call neko_log%message('Using Cartesian element finder')
-       boxdim = max(lx*int(real(nelv,xp)**(1.0_xp/3.0_xp)),2)
+       boxdim = max(lx*int(real(nelv, xp)**(1.0_xp / 3.0_xp)), 2)
        boxdim = min(boxdim, 300)
        call el_find%init(x, y, z, nelv, Xh, boxdim, this%padding)
     class default
@@ -445,10 +445,10 @@ contains
             nelv, Xh, this%comm, this%padding)
     type is (cartesian_pe_finder_t)
        call neko_log%message('Using Cartesian PE finder')
-       boxdim = lx*int(real(this%glb_nelv,xp)**(1.0_xp/3.0_xp))
-       boxdim = max(boxdim,32)
+       boxdim = lx*int(real(this%glb_nelv, xp)**(1.0_xp / 3.0_xp))
+       boxdim = max(boxdim, 32)
        boxdim = min(boxdim, &
-            int(8.0_xp*(30000.0_xp*this%pe_size)**(1.0_xp/3.0_xp)))
+            int(8.0_xp*(30000.0_xp * this%pe_size)**(1.0_xp / 3.0_xp)))
        call pe_find%init(this%x%x, this%y%x, this%z%x, &
             nelv, Xh, this%comm, boxdim, this%padding)
     class default
@@ -533,10 +533,11 @@ contains
     if (allocated(this%xyz)) deallocate(this%xyz)
     if (allocated(this%rst)) deallocate(this%rst)
     if (allocated(this%pe_owner)) deallocate(this%pe_owner)
-    if (allocated(this%el_owner0)) deallocate(this%el_owner0)
-
-    if (c_associated(this%el_owner0_d)) then
-       call device_free(this%el_owner0_d)
+    if (allocated(this%el_owner0)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_owner0, this%el_owner0_d)
+       end if
+       deallocate(this%el_owner0)
     end if
 
     call this%glb_intrp_comm%free()
@@ -553,10 +554,11 @@ contains
 
     if (allocated(this%xyz_local)) deallocate(this%xyz_local)
     if (allocated(this%rst_local)) deallocate(this%rst_local)
-    if (allocated(this%el_owner0_local)) deallocate(this%el_owner0_local)
-
-    if (c_associated(this%el_owner0_local_d)) then
-       call device_free(this%el_owner0_local_d)
+    if (allocated(this%el_owner0_local)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%el_owner0_local, this%el_owner0_local_d)
+       end if
+       deallocate(this%el_owner0_local)
     end if
 
   end subroutine global_interpolation_free_points_local
@@ -703,7 +705,7 @@ contains
 
     n_point_cand = all_el_candidates%size()
     if (n_point_cand .gt. 1e8) then
-       print *,'Warning, many point candidates on rank', this%pe_rank, &
+       print *, 'Warning, many point candidates on rank', this%pe_rank, &
             'cands:', n_point_cand, &
             'Consider increasing number of ranks'
     end if
@@ -724,10 +726,10 @@ contains
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
-         'Element candidates found, now time for finding rst,time ' // &
+         'Element candidates found, now time for finding rst, time ' // &
          'since start of find_points (s):', time1 - time_start
     call neko_log%message(log_buf)
-    call rst_local_cand%init(3,n_point_cand)
+    call rst_local_cand%init(3, n_point_cand)
     call resx%init(n_point_cand)
     call resy%init(n_point_cand)
     call resz%init(n_point_cand)
@@ -742,8 +744,8 @@ contains
        call y_t%copy_from(HOST_TO_DEVICE,.false.)
 
        call z_t%copy_from(HOST_TO_DEVICE,.false.)
-       call device_map(el_cands, el_cands_d,n_point_cand)
-       call device_memcpy(el_cands, el_cands_d,n_point_cand, &
+       call device_map(el_cands, el_cands_d, n_point_cand)
+       call device_memcpy(el_cands, el_cands_d, n_point_cand, &
             HOST_TO_DEVICE, .true.)
     end if
 
@@ -756,8 +758,7 @@ contains
        call resx%copy_from(DEVICE_TO_HOST,.false.)
        call resy%copy_from(DEVICE_TO_HOST,.false.)
        call resz%copy_from(DEVICE_TO_HOST,.true.)
-       call device_deassociate(el_cands)
-       call device_free(el_cands_d)
+       call device_unmap(el_cands, el_cands_d)
     end if
     call MPI_Barrier(this%comm)
 
@@ -769,11 +770,11 @@ contains
     write(log_buf, '(A)') &
          'Checking validity of points and choosing best candidates.'
     call neko_log%message(log_buf)
-    call MPI_Barrier(this%comm,ierr)
+    call MPI_Barrier(this%comm, ierr)
 
     if (allocated(this%rst_local)) deallocate(this%rst_local)
     if (allocated(this%el_owner0_local)) deallocate(this%el_owner0_local)
-    allocate(this%rst_local(3,this%n_points_local))
+    allocate(this%rst_local(3, this%n_points_local))
     allocate(this%el_owner0_local(this%n_points_local))
     ! Choose the best candidate at this rank
     ii = 0
@@ -787,13 +788,13 @@ contains
        this%el_owner0_local(i) = -1
        do j = 1, n_el_cands(i)
           ii = ii + 1
-          if (rst_cmp(this%rst_local(:,i), rst_local_cand%x(:,ii),&
-               this%xyz_local(:,i), [resx%x(ii),resy%x(ii),resz%x(ii)], &
+          if (rst_cmp(this%rst_local(:, i), rst_local_cand%x(:, ii), &
+               this%xyz_local(:, i), [resx%x(ii), resy%x(ii), resz%x(ii)], &
                this%padding)) then
-             this%rst_local(1,i) = rst_local_cand%x(1,ii)
-             this%rst_local(2,i) = rst_local_cand%x(2,ii)
+             this%rst_local(1, i) = rst_local_cand%x(1, ii)
+             this%rst_local(2, i) = rst_local_cand%x(2, ii)
 
-             this%rst_local(3,i) = rst_local_cand%x(3,ii)
+             this%rst_local(3, i) = rst_local_cand%x(3, ii)
              this%xyz_local(1,i) = resx%x(ii)
              this%xyz_local(2,i) = resy%x(ii)
              this%xyz_local(3,i) = resz%x(ii)
@@ -803,13 +804,13 @@ contains
           !  this%xyz_local(:,i), this%el_owner0_local(i)
        end do
     end do
-    call res%init(3,this%n_points)
+    call res%init(3, this%n_points)
     n_glb_point_cand = sum(this%n_points_pe)
     if (allocated(rst_results)) deallocate(rst_results)
     if (allocated(res_results)) deallocate(res_results)
     if (allocated(el_owner_results)) deallocate(el_owner_results)
-    allocate(rst_results(3,n_glb_point_cand))
-    allocate(res_results(3,n_glb_point_cand))
+    allocate(rst_results(3, n_glb_point_cand))
+    allocate(res_results(3, n_glb_point_cand))
     allocate(el_owner_results(n_glb_point_cand))
     res = 1e2_rp
     this%rst = 1e2
@@ -843,11 +844,11 @@ contains
        do j = 1, this%n_points_pe(glb_intrp_find_back%recv_pe(i))
           point_id = point_ids(j)
           ii = ii + 1
-          if (rst_cmp(this%rst(:,point_id), rst_results(:,ii), &
-               res%x(:,point_id), res_results(:,ii), this%padding) .or. &
+          if (rst_cmp(this%rst(:, point_id), rst_results(:, ii), &
+               res%x(:, point_id), res_results(:, ii), this%padding) .or. &
                this%pe_owner(point_ids(j)) .eq. -1 ) then
-             this%rst(:,point_ids(j)) = rst_results(:,ii)
-             res%x(:,point_ids(j)) = res_results(:,ii)
+             this%rst(:, point_ids(j)) = rst_results(:, ii)
+             res%x(:, point_ids(j)) = res_results(:, ii)
              this%pe_owner(point_ids(j)) = glb_intrp_find_back%recv_pe(i)
              this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
@@ -972,7 +973,7 @@ contains
           end do
        end if
     end do
-    call this%glb_intrp_comm%init(send_pe, recv_pe,this%comm)
+    call this%glb_intrp_comm%init(send_pe, recv_pe, this%comm)
 
     !Initialize working arrays for evaluation
     call this%temp_local%init(this%n_points_local)
@@ -992,7 +993,7 @@ contains
             this%n_points_local, HOST_TO_DEVICE, sync = .true.)
     end if
 
-    call this%check_points(this%x%x,this%y%x, this%z%x)
+    call this%check_points(this%x%x, this%y%x, this%z%x)
 
     !Free stuff
     call send_pe%free()
@@ -1052,15 +1053,15 @@ contains
        xdiff = x_check%x(i)-this%xyz(1,i)
        ydiff = y_check%x(i)-this%xyz(2,i)
        zdiff = z_check%x(i)-this%xyz(3,i)
-       isdiff = norm2(real([xdiff,ydiff,zdiff],xp)) > this%tolerance
+       isdiff = norm2(real([xdiff, ydiff, zdiff], xp)) > this%tolerance
        if (isdiff) then
-          write(*,*) 'Point ', i,'at rank ', this%pe_rank, &
+          write(*, *) 'Point ', i, 'at rank ', this%pe_rank, &
                'with coordinates: ', &
                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
                'Differ from interpolated coords: ', &
                x_check%x(i), y_check%x(i), z_check%x(i), &
                'Actual difference: ', &
-               xdiff, ydiff, zdiff, norm2(real([xdiff,ydiff,zdiff],xp)),&
+               xdiff, ydiff, zdiff, norm2(real([xdiff, ydiff, zdiff], xp)), &
                'Process, element: ', &
                this%pe_owner(i), this%el_owner0(i)+1, &
                'Calculated rst: ', &
@@ -1221,7 +1222,7 @@ contains
     if (allocated(xyz)) then
        deallocate(xyz)
     end if
-    allocate(xyz(3,n_points))
+    allocate(xyz(3, n_points))
 
     call copy(xyz, this%xyz_local, 3*n_points)
     call copy(this%rst, this%rst_local, 3*n_points)
@@ -1276,7 +1277,8 @@ contains
        interp_values = 0.0_rp
        call this%glb_intrp_comm%sendrecv(this%temp_local%x, interp_values, &
             this%n_points_local, this%n_points)
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host .and. this%n_points .gt. 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host .and. &
+            this%n_points .gt. 0) then
           interp_d = device_get_ptr(interp_values)
           call device_memcpy(interp_values, interp_d, &
                this%n_points, HOST_TO_DEVICE, .false.)
@@ -1299,7 +1301,7 @@ contains
   !! @param rst1 distance between xyz(rst1) and the true xyz coordinate
   !! @param rst2 distance between xyz(rst2) and the true xyz coordinate
   !! @param tol Tolerance for how much rst1 and rst2 can over/undershoot [-1,1]
-  function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
+  function rst_cmp(rst1, rst2, res1, res2, tol) result(rst2_better)
     real(kind=rp) :: rst1(3), res1(3)
     real(kind=rp) :: rst2(3), res2(3)
     real(kind=dp) :: tol
@@ -1314,11 +1316,11 @@ contains
             abs(rst2(3)) .le. 1.0_xp+tol) then
           rst2_better = .true.
        else
-          rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)))
+          rst2_better = (norm2(real(res2, xp)) .lt. norm2(real(res1, xp)))
        end if
     else
        !> Else we check rst2 is inside and has a smaller distance
-       rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)) .and.&
+       rst2_better = (norm2(real(res2, xp)) .lt. norm2(real(res1, xp)) .and. &
             abs(rst2(1)) .le. 1.0_xp+tol .and. &
             abs(rst2(2)) .le. 1.0_xp+tol .and. &
             abs(rst2(3)) .le. 1.0_xp+tol)
