@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_symmetry
-  use num_types
-  use utils
+  use num_types, only : c_rp
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
 

@@ -69,11 +69,11 @@ submodule (simulation_component) simulation_component_fctry
        "fluid_sgs_stats", &
        "scalar_stats", &
        "scalar_sgs_stats", &
-       "grad", &
-       "div", &
+       "gradient", &
+       "divergence", &
        "curl", &
        "derivative", &
-       "weak_grad", &
+       "weak_gradient", &
        "force_torque", &
        "user_stats", &
        "spectral_error", &
@@ -138,15 +138,15 @@ contains
        allocate(les_simcomp_t::object)
     case ("field_writer")
        allocate(field_writer_t::object)
-    case ("weak_grad")
+    case ("weak_gradient")
        allocate(weak_gradient_t::object)
-    case ("grad")
+    case ("gradient")
        allocate(gradient_t::object)
     case ("derivative")
        allocate(derivative_t::object)
     case ("curl")
        allocate(curl_t::object)
-    case ("div")
+    case ("divergence")
        allocate(divergence_t::object)
     case ("force_torque")
        allocate(force_torque_t::object)

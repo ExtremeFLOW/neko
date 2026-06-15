@@ -1,0 +1,474 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simulation-components",
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "constRef": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "numberOrRef": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "integerOrRef": {
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "numberArray": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 1
+    },
+    "integerArray": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1
+    },
+    "integerArrayOrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/integerArray"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "vector3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "vector3OrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/vector3"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "simcompComputeControl": {
+      "type": "string",
+      "enum": [
+        "simulationtime",
+        "tsteps",
+        "nsamples",
+        "never",
+        "fluid_output"
+      ]
+    },
+    "simcompOutputControl": {
+      "type": "string",
+      "enum": [
+        "simulationtime",
+        "tsteps",
+        "nsamples",
+        "never",
+        "global"
+      ]
+    },
+    "simcompAvgDirection": {
+      "type": "string",
+      "enum": [
+        "none",
+        "x",
+        "y",
+        "z",
+        "xy",
+        "xz",
+        "yz"
+      ]
+    },
+    "simcompStatsSet": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "full"
+      ]
+    },
+    "simcompBase": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "order": {
+          "$ref": "#/$defs/integerOrRef"
+        },
+        "preprocess_control": {
+          "$ref": "#/$defs/simcompComputeControl"
+        },
+        "preprocess_value": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "compute_control": {
+          "$ref": "#/$defs/simcompComputeControl"
+        },
+        "compute_value": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "output_control": {
+          "$ref": "#/$defs/simcompOutputControl"
+        },
+        "output_value": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "comment": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "is_user": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "simcompFields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      },
+      "minItems": 1
+    },
+    "simcompFields3": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "simcompFieldWriterOptions": {
+      "type": "object",
+      "properties": {
+        "output_filename": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "output_precision": {
+          "type": "string",
+          "enum": [
+            "single",
+            "double"
+          ]
+        },
+        "output_format": {
+          "type": "string",
+          "enum": [
+            "nek5000",
+            "vtkhdf",
+            "adios2"
+          ]
+        },
+        "output_subdivide": {
+          "type": "boolean"
+        },
+        "point_zone": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "simcompProbesPoint": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "file",
+            "points",
+            "line",
+            "plane",
+            "circle",
+            "point_zone"
+          ]
+        },
+        "file_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "coordinates": {
+          "$ref": "#/$defs/numberArray"
+        },
+        "start": {
+          "$ref": "#/$defs/vector3"
+        },
+        "end": {
+          "$ref": "#/$defs/vector3"
+        },
+        "amount": {
+          "$ref": "#/$defs/integerOrRef"
+        },
+        "center": {
+          "$ref": "#/$defs/vector3"
+        },
+        "radius": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "normal": {
+          "$ref": "#/$defs/vector3"
+        },
+        "axis": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "additionalProperties": true
+    },
+    "simcompAlphat": {
+      "type": "object",
+      "required": [
+        "nut_dependency"
+      ],
+      "properties": {
+        "nut_dependency": {
+          "type": "boolean"
+        },
+        "Pr_t": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "nut_field": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "alphat_field": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "nut_dependency": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "Pr_t",
+              "nut_field"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "nut_dependency": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "alphat_field"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "lesDeltaType": {
+      "type": "string",
+      "enum": [
+        "pointwise",
+        "elementwise_average",
+        "elementwise_max"
+      ]
+    },
+    "lesModelCommon": {
+      "type": "object",
+      "required": [
+        "type",
+        "model"
+      ],
+      "properties": {
+        "type": {
+          "const": "les_model"
+        },
+        "model": {
+          "type": "string",
+          "enum": [
+            "smagorinsky",
+            "dynamic_smagorinsky",
+            "vreman",
+            "sigma",
+            "wale",
+            "deardorff"
+          ]
+        },
+        "nut_field": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "delta_type": {
+          "$ref": "#/$defs/lesDeltaType"
+        },
+        "extrapolation": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "lesModelTestFilter": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "elementwise"
+            },
+            "elementwise_filter_type": {
+              "type": "string",
+              "enum": [
+                "Boyd",
+                "nonBoyd"
+              ]
+            },
+            "transfer_function": {
+              "$ref": "#/$defs/numberArray"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "required": [
+            "filter"
+          ],
+          "properties": {
+            "filter": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "elementwise"
+                },
+                "elementwise_filter_type": {
+                  "type": "string",
+                  "enum": [
+                    "Boyd",
+                    "nonBoyd"
+                  ]
+                },
+                "transfer_function": {
+                  "$ref": "#/$defs/numberArray"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "simulationComponent": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "is_user"
+          ],
+          "properties": {
+            "is_user": {
+              "const": true
+            },
+            "type": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": true
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:lambda2#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:spectral_error#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:field_writer#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:curl#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:divergence#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:gradient#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:weak_gradient#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:derivative#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:boundary_operation#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:boundary_flux#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:probes#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:force_torque#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:les_model#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:fluid_stats#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:scalar_stats#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:fluid_sgs_stats#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:scalar_sgs_stats#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:user_stats#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:data_streamer#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:field_subsampler#/$defs/simulationComponent"
+        }
+      ]
+    }
+  }
+}
