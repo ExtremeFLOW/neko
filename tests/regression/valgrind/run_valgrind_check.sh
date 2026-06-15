@@ -61,9 +61,10 @@ makeneko valgrind_tgv.f90 || {
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
 
-valgrind -s \
+valgrind \
     --leak-check=full \
     --show-leak-kinds=all \
+    --show-error-list=no \
     --undef-value-errors=no \
     --num-callers=20 \
     --suppressions=valgrind_runtime.supp \
@@ -139,7 +140,11 @@ max_indirect="${NEKO_VALGRIND_MAX_INDIRECT:-$default_indirect}"
 max_possible="${NEKO_VALGRIND_MAX_POSSIBLE:-$default_possible}"
 max_reachable="${NEKO_VALGRIND_MAX_REACHABLE:-$default_reachable}"
 
-echo "Valgrind limits for backend '$backend_type': definite=$max_definite indirect=$max_indirect possible=$max_possible reachable=$max_reachable"
+echo "Valgrind limits for backend '$backend_type'"
+echo "  definitely lost: $max_definite bytes"
+echo "  indirectly lost: $max_indirect bytes"
+echo "  possibly lost:   $max_possible bytes"
+echo "  still reachable: $max_reachable bytes"
 
 python3 ./check_valgrind.py \
     --log valgrind_regression.log \
