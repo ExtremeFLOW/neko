@@ -107,10 +107,10 @@ neko_fortran_SOURCES = \
 	mesh/mesh_manager/manager_mesh.f90\
 	mesh/mesh_manager/mesh_manager.f90\
 	mesh/mesh_manager/mesh_manager_fctry.f90\
-	mesh/mesh_manager/manager_geom_p4est.f90\
-	mesh/mesh_manager/manager_conn_p4est.f90\
-	mesh/mesh_manager/manager_mesh_p4est.f90\
-	mesh/mesh_manager/mesh_manager_p4est.F90\
+	mesh/mesh_manager/p4est/manager_geom_p4est.f90\
+	mesh/mesh_manager/p4est/manager_conn_p4est.f90\
+	mesh/mesh_manager/p4est/manager_mesh_p4est.f90\
+	mesh/mesh_manager/p4est/mesh_manager_p4est.F90\
 	field/field.f90\
 	field/field_array.f90\
 	field/field_list.f90\
@@ -335,7 +335,7 @@ neko_fortran_SOURCES = \
 	comm/parmetis.F90\
 	comm/redist.f90\
 	comm/mesh_manager_transfer.f90\
-	comm/mesh_manager_transfer_p4est.f90\
+	comm/p4est/mesh_manager_transfer_p4est.f90\
 	krylov/pc_hsmg.f90\
 	common/signal.f90\
 	common/jobctrl.f90\
@@ -489,8 +489,8 @@ endif
 
 if ENABLE_P4EST
 libneko_la_SOURCES += \
-	mesh/mesh_manager/p4est_wrapper.c\
-	mesh/mesh_manager/p8est_lnodes_edge.c
+	mesh/mesh_manager/p4est/p4est_wrapper.c\
+	mesh/mesh_manager/p4est/p8est_lnodes_edge.c
 endif
 
 if ENABLE_HIP
@@ -930,8 +930,8 @@ EXTRA_DIST = \
 
 if ENABLE_P4EST
 EXTRA_DIST += \
-	mesh/mesh_manager/p4est_wrapper.h\
-	mesh/mesh_manager/p8est_lnodes_edge.h
+	mesh/mesh_manager/p4est/p4est_wrapper.h\
+	mesh/mesh_manager/p4est/p8est_lnodes_edge.h
 endif
 
 # Expose the listed headers in the package

@@ -25,7 +25,7 @@
 #include <p8est_extended.h>
 #include <p8est_ghost.h>
 #include <p8est_lnodes.h>
-#include "mesh/mesh_manager/p8est_lnodes_edge.h"
+#include "mesh/mesh_manager/p4est/p8est_lnodes_edge.h"
 
 #define P8EST_LN_E_OFFSET 6
 

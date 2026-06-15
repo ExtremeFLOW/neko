@@ -49,11 +49,11 @@
 #include <p8est_lnodes.h>
 #include <p8est_mesh.h>
 #include <p8est_iterate.h>
-#include "mesh/mesh_manager/p8est_lnodes_edge.h"
+#include "mesh/mesh_manager/p4est/p8est_lnodes_edge.h"
 #endif
 
 #include "sem/amr.h"
-#include "mesh/mesh_manager/p4est_wrapper.h"
+#include "mesh/mesh_manager/p4est/p4est_wrapper.h"
 
 /* Global variables
  *  Notice. I use tree_neko->user_pointer to store ghost quadrants data.
