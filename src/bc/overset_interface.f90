@@ -483,8 +483,8 @@ contains
     s_int_norm = sqrt(vector_glsc2(error, error)) / sqrt(real(this%n_int_tot, kind=rp))
     call neko_scratch_registry%relinquish(ind)
 
-    write(log_buf, '(A12,A3,A10,1x,A18,A3,E15.7)') 'Interface BC', ' | ', &
-         'L2 Error:', adjustl(trim(this%name)), ' = ', s_int_norm
+       write(log_buf, '(A12,A3,A10,1x,E15.7)') 'Interface BC', ' | ', &
+          'L2 Error: ', s_int_norm
     call neko_log%message(log_buf)
 
   end subroutine log_interface_error_

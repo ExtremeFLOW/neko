@@ -563,8 +563,8 @@ contains
     call neko_scratch_registry%relinquish(ind)
 
     !> Log the errors
-    write(log_buf, '(A12,A3,A10,1x,A18,A1,E15.7,A1,E15.7,A1,E15.7,A1)') &
-         'Interface BC', ' | ', 'L2 Error:', adjustl(trim(this%name)), '(', &
+       write(log_buf, '(A12,A3,A10,1x,A1,E15.7,A1,E15.7,A1,E15.7,A1)') &
+          'Interface BC', ' | ', 'L2 Error: ', '(', &
          u_int_norm, ',', v_int_norm, ',', w_int_norm, ')'
     call neko_log%message(log_buf)
 
