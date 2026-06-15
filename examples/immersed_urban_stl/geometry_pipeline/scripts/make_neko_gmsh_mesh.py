@@ -21,11 +21,11 @@ ORIGIN_Y = 6577000.0
 PIPELINE_DIR = Path(__file__).resolve().parents[1]
 DEM_FILE = PIPELINE_DIR / "generated" / "terrain_dem.xyz"
 OUTPUT_FILE = PIPELINE_DIR / "generated" / "urban_terrain.msh"
-NX = 16
-NY = 16
-NZ = 5
+NX = 144
+NY = 144
+NZ = 45
 TOP_Z = 250.0
-VERTICAL_STRETCH = 1.8
+VERTICAL_STRETCH = 2.4
 
 PHYSICAL_NAMES = {
     1: "inlet_xmin",
