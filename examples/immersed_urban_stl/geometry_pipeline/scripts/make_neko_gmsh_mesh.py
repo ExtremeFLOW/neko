@@ -25,7 +25,7 @@ NX = 144
 NY = 144
 NZ = 45
 TOP_Z = 250.0
-VERTICAL_STRETCH = 2.4
+VERTICAL_STRETCH = 1.8
 
 PHYSICAL_NAMES = {
     1: "inlet_xmin",
