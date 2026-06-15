@@ -37,6 +37,8 @@ module adv_dummy
   use space, only : space_t
   use field, only : field_t
   use coefs, only : coef_t
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -59,6 +61,8 @@ module adv_dummy
      procedure, pass(this) :: compute_ale => compute_ale_adv_dummy
      !> Update any metrics needed for the advection computation in ALE.
      procedure, pass(this) :: recompute_metrics => recompute_metrics_dummy_noop
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => adv_dummy_amr_restart
   end type adv_dummy_t
 
 contains
@@ -74,6 +78,8 @@ contains
   !> Destructor.
   subroutine free_adv_dummy(this)
     class(adv_dummy_t), intent(inout) :: this
+
+    call this%free_amr_base()
 
   end subroutine free_adv_dummy
 
@@ -147,4 +153,17 @@ contains
     real(kind=rp), intent(in), optional :: dt
     ! no-op
   end subroutine compute_ale_adv_dummy
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine adv_dummy_amr_restart(this, reconstruct, counter, time)
+    class(adv_dummy_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+  end subroutine adv_dummy_amr_restart
+
 end module adv_dummy

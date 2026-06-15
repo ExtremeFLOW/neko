@@ -44,7 +44,6 @@ module overset_interface_vector
   use dofmap, only : dofmap_t
   use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use utils, only : split_string
   use field, only : field_t
   use field_list, only : field_list_t
   use math, only : masked_copy_0
@@ -60,7 +59,7 @@ module overset_interface_vector
   use vector_math, only : vector_copy
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use overset_interface, only : morph_overset_interface
-  use utils, only : neko_error, nonlinear_index, linear_index
+  use utils, only : neko_error, nonlinear_index, linear_index, split_string
   use stack, only: stack_i4_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
@@ -68,6 +67,8 @@ module overset_interface_vector
   use iextm_time_scheme, only : iextm_time_scheme_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   use time_state, only : time_state_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -134,7 +135,9 @@ module overset_interface_vector
      procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
      !> Set up the interpolator.
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
-
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => &
+          overset_interface_vector_amr_restart
   end type overset_interface_vector_t
 
 contains
@@ -243,6 +246,8 @@ contains
     call this%interface_dof_mask%free()
     call this%domain_element_mask%free()
     call this%free_base()
+
+    call this%free_amr_base()
 
     !if (associated(this%update_)) then
     !   nullify(this%update_)
@@ -604,5 +609,33 @@ contains
          this%x_interface_dof%size())
 
   end subroutine setup_interpolator_
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine overset_interface_vector_amr_restart(this, reconstruct, counter, &
+       time)
+    class(overset_interface_vector_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    write(*,*) 'TESToversetINTERFACEvector'
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Overset interface vector'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine overset_interface_vector_amr_restart
 
 end module overset_interface_vector

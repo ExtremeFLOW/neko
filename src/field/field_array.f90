@@ -40,11 +40,15 @@ module field_array
   use mesh, only : mesh_t
   use utils, only : neko_error
   use comm, only : pe_rank
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
   !> field_array_t, To be able to group fields together
-  type, public :: field_array_t
+  type, public, extends(amr_restart_component_t) :: field_array_t
      type(field_wrapper_t), allocatable :: items(:)
    contains
      !> Constructor. Allocates array and pointers.
@@ -82,6 +86,10 @@ module field_array
      procedure, pass(this) :: internal_dofmap => field_array_internal_dofmap
      !> Get the name for an item in the list.
      procedure, pass(this) :: name => field_array_name
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_array_amr_restart
+     !> AMR reallocate
+     procedure, pass(this) :: amr_reallocate => field_array_amr_reallocate
   end type field_array_t
 
 contains
@@ -169,6 +177,8 @@ contains
        end do
        deallocate(this%items)
     end if
+
+    call this%free_amr_base()
 
   end subroutine field_array_free
 
@@ -272,5 +282,67 @@ contains
 
     result = this%items(i)%field%name
   end function field_array_name
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine field_array_amr_restart(this, reconstruct, counter, time)
+    class(field_array_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reconstructing Field Array'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct fields
+    if (allocated(this%items)) then
+       do il = 1, This%size()
+          if (associated(this%items(il)%field)) &
+               call this%items(il)%field%amr_restart(reconstruct, counter, &
+               time)
+       end do
+    end if
+
+  end subroutine field_array_amr_restart
+
+  !> AMR reallocate; used for arrays not containing valuable data
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine field_array_amr_reallocate(this, reconstruct, counter, time)
+    class(field_array_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reallocating Field Array'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct fields
+    if (allocated(this%items)) then
+       do il = 1, This%size()
+          if (associated(this%items(il)%field)) &
+               call this%items(il)%field%amr_reallocate(reconstruct, counter, &
+               time)
+       end do
+    end if
+
+  end subroutine field_array_amr_reallocate
 
 end module field_array

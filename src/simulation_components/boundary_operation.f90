@@ -42,7 +42,7 @@ module boundary_operation
   use time_state, only : time_state_t
   use coefs, only : coef_t
   use neumann, only : neumann_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use utils, only : neko_error
   use space, only : operator(.ne.)
   use file, only : file_t
@@ -51,6 +51,7 @@ module boundary_operation
        vector_glsum, vector_glmin, vector_glmax, &
        vector_face_masked_gather_copy_0
   use time_based_controller, only : time_based_controller_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -115,6 +116,8 @@ module boundary_operation
      procedure, pass(this) :: free => boundary_operation_free
      !> Compute the requested boundary operations.
      procedure, pass(this) :: compute_ => boundary_operation_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => boundary_operation_amr_restart
   end type boundary_operation_t
 
 contains
@@ -383,6 +386,9 @@ contains
     nullify(this%coef)
 
     call this%free_base()
+
+    call this%free_amr_base()
+
   end subroutine boundary_operation_free
 
   !> Compute and optionally output the requested boundary operations.
@@ -501,5 +507,30 @@ contains
     pad_width = max(0, width - len_trim(text))
     padded = repeat(' ', pad_width) // trim(text)
   end function left_pad
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine boundary_operation_amr_restart(this, reconstruct, counter, time)
+    class(boundary_operation_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Boundary operation'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine boundary_operation_amr_restart
 
 end module boundary_operation

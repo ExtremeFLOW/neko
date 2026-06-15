@@ -57,9 +57,10 @@ module overset_interface
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use field, only : field_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -120,6 +121,8 @@ module overset_interface
      procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
      !> Set up the interpolator.
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => overset_interface_amr_restart
   end type overset_interface_t
 
   abstract interface
@@ -258,6 +261,9 @@ contains
     call this%domain_element_mask%free()
 
     call this%free_base()
+
+    call this%free_amr_base()
+
   end subroutine overset_interface_free
 
   !> Apply scalar.
@@ -532,5 +538,32 @@ contains
          this%x_interface_dof%size())
 
   end subroutine setup_interpolator_
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine overset_interface_amr_restart(this, reconstruct, counter, time)
+    class(overset_interface_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    write(*,*) 'TESToversetINTERFACE'
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Overset interface'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine overset_interface_amr_restart
 
 end module overset_interface

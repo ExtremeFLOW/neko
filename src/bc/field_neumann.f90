@@ -47,6 +47,8 @@ module field_neumann
   use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr
   use time_state, only : time_state_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -84,7 +86,8 @@ module field_neumann
      procedure, pass(this) :: apply_scalar_dev => field_neumann_apply_scalar_dev
      !> Gather flux values at masked points.
      procedure, pass(this), private :: gather_flux => field_neumann_gather_flux
-
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_neumann_amr_restart
   end type field_neumann_t
 
   !> Abstract interface defining a neumann condition on a list of fields.
@@ -146,6 +149,8 @@ contains
     if (associated(this%update)) then
        this%update => null()
     end if
+
+    call this%free_amr_base()
 
   end subroutine field_neumann_free
 
@@ -298,5 +303,32 @@ contains
     call this%flux%init(this%msk(0))
 
   end subroutine field_neumann_finalize
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine field_neumann_amr_restart(this, reconstruct, counter, time)
+    class(field_neumann_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    write(*,*) 'TESTfieldNEUMANN'
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Field Neumann'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine field_neumann_amr_restart
 
 end module field_neumann

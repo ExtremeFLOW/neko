@@ -41,6 +41,9 @@ module device_jacobi
   use device, only : device_map, device_event_create, device_unmap, &
        device_event_sync, device_get_ptr, device_event_destroy
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use utils, only : neko_error ! added for amr
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
@@ -58,6 +61,8 @@ module device_jacobi
      procedure, pass(this) :: free => device_jacobi_free
      procedure, pass(this) :: solve => device_jacobi_solve
      procedure, pass(this) :: update => device_jacobi_update
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => device_jacobi_amr_restart
   end type device_jacobi_t
 
   interface
@@ -134,6 +139,9 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%coef)
+
+    call this%free_amr_base()
+
   end subroutine device_jacobi_free
 
   !> The jacobi preconditioner \f$ J z = r \f$
@@ -191,5 +199,24 @@ contains
       call device_invcol1(this%d_d, dof%size())
     end associate
   end subroutine device_jacobi_update
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine device_jacobi_amr_restart(this, reconstruct, counter, time)
+    class(device_jacobi_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    call neko_error('JACOBI_DEV: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine device_jacobi_amr_restart
 
 end module device_jacobi

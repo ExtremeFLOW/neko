@@ -40,13 +40,16 @@ module bc_list
   use, intrinsic :: iso_c_binding, only : c_ptr
   use bc, only : bc_t, bc_ptr_t
   use time_state, only : time_state_t
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   !$ use omp_lib
   implicit none
   private
 
   !> A list of allocatable @ref `bc_t`.
   !! Follows the standard interface of lists.
-  type, public :: bc_list_t
+  type, public, extends(amr_restart_component_t) :: bc_list_t
      ! The items of the list.
      class(bc_ptr_t), allocatable, private :: items(:)
      !> Number of items in the list that are themselves allocated.
@@ -92,6 +95,8 @@ module bc_list
      procedure, pass(this) :: apply_scalar_field => bc_list_apply_scalar_field
      !> Apply the boundary conditions to a vector field.
      procedure, pass(this) :: apply_vector_field => bc_list_apply_vector_field
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => bc_list_amr_restart
   end type bc_list_t
 
 contains
@@ -132,6 +137,9 @@ contains
 
     this%size_ = 0
     this%capacity = 0
+
+    call this%free_amr_base()
+
   end subroutine bc_list_free
 
   !> Append a condition to the end of the list.
@@ -518,5 +526,34 @@ contains
 
     size = this%size_
   end function bc_list_size
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine bc_list_amr_restart(this, reconstruct, counter, time)
+    class(bc_list_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    if (allocated(this%items) .and. this%size_ .gt. 0) then
+       log_buf = 'Boundary list'
+       call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+       do il = 1, this%size_
+          if (associated(this%items(il)%ptr)) &
+               call this%items(il)%ptr%amr_restart(reconstruct, counter, time)
+       end do
+       call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+    end if
+
+  end subroutine bc_list_amr_restart
 
 end module bc_list

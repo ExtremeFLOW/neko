@@ -39,11 +39,12 @@ module advection
   use json_module, only : json_file
   use field_series, only : field_series_t
   use time_scheme_controller, only : time_scheme_controller_t
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
   !> Base abstract type for computing the advection operator
-  type, public, abstract :: advection_t
+  type, public, abstract, extends(amr_restart_component_t) :: advection_t
    contains
      procedure(compute_adv), pass(this), deferred :: compute
      procedure(compute_scalar_adv), pass(this), deferred :: compute_scalar

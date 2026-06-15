@@ -45,6 +45,8 @@ module cg_cpld
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use utils, only : neko_error
   use operators, only : rotate_cyc
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -68,6 +70,8 @@ module cg_cpld
      procedure, pass(this) :: free => cg_cpld_free
      procedure, pass(this) :: solve => cg_cpld_nop
      procedure, pass(this) :: solve_coupled => cg_cpld_solve
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => cg_cpld_amr_restart
   end type cg_cpld_t
 
 contains
@@ -181,6 +185,8 @@ contains
     end if
 
     nullify(this%M)
+
+    call this%free_amr_base()
 
   end subroutine cg_cpld_free
 
@@ -350,5 +356,24 @@ contains
     ksp_results%iter = iter
     ksp_results%converged = this%is_converged(iter, rnorm)
   end function cg_cpld_solve
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine cg_cpld_amr_restart(this, reconstruct, counter, time)
+    class(cg_cpld_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    call neko_error('CG_CPLD: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine cg_cpld_amr_restart
 
 end module cg_cpld

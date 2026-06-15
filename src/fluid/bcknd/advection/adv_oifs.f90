@@ -47,6 +47,10 @@ module adv_oifs
   use time_scheme_controller, only : time_scheme_controller_t
   use device, only : device_map, device_unmap
   use device_math, only : device_addcol3s2, device_rzero
+  use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
@@ -113,6 +117,8 @@ module adv_oifs
      procedure, pass(this) :: compute_ale => adv_oifs_compute_ale
      !> Update any metrics needed for the advection computation in ALE.
      procedure, pass(this) :: recompute_metrics => recompute_metrics_oifs
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => adv_oifs_amr_restart
   end type adv_oifs_t
 
 contains
@@ -366,6 +372,8 @@ contains
        end if
        deallocate(this%cz)
     end if
+
+    call this%free_amr_base()
 
   end subroutine adv_oifs_free
 
@@ -635,7 +643,6 @@ contains
     ! no-op
   end subroutine recompute_metrics_oifs
 
-
   subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
        fx, fy, fz, Xh, coef, n, dt)
     class(adv_oifs_t), intent(inout) :: this
@@ -648,4 +655,30 @@ contains
     real(kind=rp), intent(in), optional :: dt
     ! no-op
   end subroutine adv_oifs_compute_ale
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine adv_oifs_amr_restart(this, reconstruct, counter, time)
+    class(adv_oifs_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Advection oifs'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine adv_oifs_amr_restart
+
 end module adv_oifs

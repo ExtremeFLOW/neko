@@ -189,12 +189,16 @@ contains
     end if
 
     ! Ensure continuity across elements for initial conditions
-    call gs%op(s%x, n, GS_OP_ADD)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col2(s%x_d, coef%mult_d, n)
+    if (allocated(gs%interp)) then
+       call gs%op_h1(s%x, n, GS_OP_ADD)
     else
-       call col2(s%x, coef%mult, n)
+       call gs%op(s%x, n, GS_OP_ADD)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_col2(s%x_d, coef%mult_d, n)
+       else
+          call col2(s%x, coef%mult, n)
+       end if
     end if
 
   end subroutine set_scalar_ic_common

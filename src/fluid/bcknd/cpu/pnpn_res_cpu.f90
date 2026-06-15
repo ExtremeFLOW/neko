@@ -94,22 +94,41 @@ contains
     end do
     !$omp end parallel do
 
-    call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
-    call gs_Xh%op(ta1, GS_OP_ADD)
-    call gs_Xh%op(ta2, GS_OP_ADD)
-    call gs_Xh%op(ta3, GS_OP_ADD)
-    call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
+    if (allocated(gs_Xh%interp)) then
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       !$omp parallel do
+       do i = 1, n
+          ta1%x(i,1,1,1) = ta1%x(i,1,1,1) / c_Xh%B(i,1,1,1)
+          ta2%x(i,1,1,1) = ta2%x(i,1,1,1) / c_Xh%B(i,1,1,1)
+          ta3%x(i,1,1,1) = ta3%x(i,1,1,1) / c_Xh%B(i,1,1,1)
+       end do
+       !$omp end parallel do
 
-    !OCL NORECURRENCE, NOVREC, NOALIAS
-    !DIR$ CONCURRENT
-    !GCC$ ivdep
-    !$omp parallel do
-    do i = 1,n
-       ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
-       ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
-       ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
-    end do
-    !$omp end parallel do
+       call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
+       call gs_Xh%op_h1(ta1, GS_OP_ADD)
+       call gs_Xh%op_h1(ta2, GS_OP_ADD)
+       call gs_Xh%op_h1(ta3, GS_OP_ADD)
+       call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
+    else
+       call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
+       call gs_Xh%op(ta1, GS_OP_ADD)
+       call gs_Xh%op(ta2, GS_OP_ADD)
+       call gs_Xh%op(ta3, GS_OP_ADD)
+       call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
+
+       !OCL NORECURRENCE, NOVREC, NOALIAS
+       !DIR$ CONCURRENT
+       !GCC$ ivdep
+       !$omp parallel do
+       do i = 1, n
+          ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
+          ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
+          ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
+       end do
+       !$omp end parallel do
+    end if
 
     call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call cdtp(wa2%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)

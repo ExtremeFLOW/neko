@@ -33,7 +33,7 @@
 !> Fluid formulations
 module fluid_scheme_incompressible
   use fluid_scheme_base, only : fluid_scheme_base_t
-  use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX
+  use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
   use num_types, only : rp, i8
@@ -69,6 +69,7 @@ module fluid_scheme_incompressible
   use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
        device_memcpy
   use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -128,6 +129,8 @@ module fluid_scheme_incompressible
      procedure, nopass :: solver_factory => fluid_scheme_solver_factory
      !> Preconditioner factory
      procedure, pass(this) :: precon_factory_ => fluid_scheme_precon_factory
+     !> AMR restart
+     procedure, pass(this) :: amr_restart_base => fluid_scheme_amr_restart_base
   end type fluid_scheme_incompressible_t
 
   interface
@@ -472,32 +475,72 @@ contains
     logical, intent(in) :: strong
     integer :: i
     class(bc_t), pointer :: b
+    real(rp), parameter :: big = huge(1.0_rp), big_neg = - big
     b => null()
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
 
     call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
-    call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
+    if (allocated(this%gs_Xh%interp)) then
+       ! Exclude children from operation
+       call this%gs_Xh%interp%set_children(this%u, big)
+       call this%gs_Xh%interp%set_children(this%v, big)
+       call this%gs_Xh%interp%set_children(this%w, big)
 
+       call this%gs_Xh%gs_op_vector(this%u%x, this%dm_Xh%size(), GS_OP_MIN, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%gs_op_vector(this%v%x, this%dm_Xh%size(), GS_OP_MIN, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%gs_op_vector(this%w%x, this%dm_Xh%size(), GS_OP_MIN, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    else
+       call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    end if
+    call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
 
     call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
-    call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+    if (allocated(this%gs_Xh%interp)) then
+       ! Exclude children from operation
+       call this%gs_Xh%interp%set_children(this%u, big_neg)
+       call this%gs_Xh%interp%set_children(this%v, big_neg)
+       call this%gs_Xh%interp%set_children(this%w, big_neg)
+
+       call this%gs_Xh%gs_op_vector(this%u%x, this%dm_Xh%size(), GS_OP_MAX, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%gs_op_vector(this%v%x, this%dm_Xh%size(), GS_OP_MAX, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%gs_op_vector(this%w%x, this%dm_Xh%size(), GS_OP_MAX, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    else
+       call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    end if
     call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
+
+    if (allocated(this%gs_Xh%interp)) then
+       call this%gs_Xh%op_h1(this%u, GS_OP_ADD)
+       call this%gs_Xh%op_h1(this%v, GS_OP_ADD)
+       call this%gs_Xh%op_h1(this%w, GS_OP_ADD)
+    end if
 
     do i = 1, this%bcs_vel%size()
        b => this%bcs_vel%get(i)
@@ -512,18 +555,42 @@ contains
   subroutine fluid_scheme_bc_apply_prs(this, time)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-
     integer :: i
     class(bc_t), pointer :: b
+    real(rp), parameter :: big = huge(1.0_rp), big_neg = - big
     b => null()
 
     call this%bcs_prs%apply(this%p, time)
-    call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+
+    if (allocated(this%gs_Xh%interp)) then
+       ! Exclude children from operation
+       call this%gs_Xh%interp%set_children(this%p, big)
+
+       call this%gs_Xh%gs_op_vector(this%p%x, this%dm_Xh%size(), GS_OP_MIN, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    else
+       call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    end if
 
     call this%bcs_prs%apply(this%p, time)
-    call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+
+    if (allocated(this%gs_Xh%interp)) then
+       ! Exclude children from operation
+       call this%gs_Xh%interp%set_children(this%p, big_neg)
+
+       call this%gs_Xh%gs_op_vector(this%p%x, this%dm_Xh%size(), GS_OP_MAX, &
+            glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    else
+       call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+    end if
+
+    if (allocated(this%gs_Xh%interp)) then
+       call this%gs_Xh%op_h1(this%p, GS_OP_ADD)
+    end if
 
     do i = 1, this%bcs_prs%size()
        b => this%bcs_prs%get(i)
@@ -729,5 +796,96 @@ contains
             DEVICE_TO_HOST, sync = .false.)
     end if
   end subroutine fluid_scheme_set_material_properties
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine fluid_scheme_amr_restart_base(this, reconstruct, counter, time)
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    integer :: il
+
+    ! reconstruct dofmap
+    call this%dm_Xh%amr_restart(reconstruct, counter, time)
+
+    ! reconstruct gs
+    call this%gs_Xh%amr_restart(reconstruct, counter, time)
+
+    ! reconstruct coef
+    call this%c_Xh%amr_restart(reconstruct, counter, time)
+
+    ! reconstruct and make continuous simulation variables
+    if (associated(this%u)) then
+       call this%u%amr_restart(reconstruct, counter, time)
+       call this%gs_Xh%op_h1(this%u, GS_OP_ADD)
+    end if
+    if (associated(this%v)) then
+       call this%v%amr_restart(reconstruct, counter, time)
+       call this%gs_Xh%op_h1(this%v, GS_OP_ADD)
+    end if
+    if (associated(this%w)) then
+       call this%w%amr_restart(reconstruct, counter, time)
+       call this%gs_Xh%op_h1(this%w, GS_OP_ADD)
+    end if
+
+    ! Reconstruct material properties
+    if (associated(this%rho)) then
+       call this%rho%amr_restart(reconstruct, counter, time)
+       call this%gs_Xh%op_h1(this%rho, GS_OP_ADD)
+    end if
+    if (associated(this%mu)) then
+       call this%mu%amr_restart(reconstruct, counter, time)
+       call this%gs_Xh%op_h1(this%mu, GS_OP_ADD)
+    end if
+    ! This not needed, as material properties link to rho and mu
+    !call this%material_properties%amr_restart(reconstruct, counter, time)
+
+    ! Reconstruct total viscosity; not necessarily updated every step
+    if (associated(this%mu_tot)) then
+       call this%mu_tot%amr_restart(reconstruct, counter, time)
+       call this%gs_Xh%op_h1(this%mu_tot, GS_OP_ADD)
+    end if
+
+    ! global number of points
+    this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
+
+    ! Reallocate right hand side
+    if (associated(this%f_x)) call this%f_x%amr_reallocate(reconstruct, &
+         counter, time)
+    if (associated(this%f_y)) call this%f_y%amr_reallocate(reconstruct, &
+         counter, time)
+    if (associated(this%f_z)) call this%f_z%amr_reallocate(reconstruct, &
+         counter, time)
+
+    ! Reconstruct lag arrays
+    call this%ulag%amr_restart(reconstruct, counter, time)
+    do il = 1, this%ulag%size()
+       call this%gs_Xh%op_h1(this%ulag%lf(il), GS_OP_ADD)
+    end do
+    call this%vlag%amr_restart(reconstruct, counter, time)
+    do il = 1, this%wlag%size()
+       call this%gs_Xh%op_h1(this%vlag%lf(il), GS_OP_ADD)
+    end do
+    call this%wlag%amr_restart(reconstruct, counter, time)
+    do il = 1, this%wlag%size()
+       call this%gs_Xh%op_h1(this%wlag%lf(il), GS_OP_ADD)
+    end do
+
+    ! Reallocate extrapolation velocity
+    if (associated(this%u_e)) call this%u_e%amr_reallocate(reconstruct, &
+         counter, time)
+    if (associated(this%v_e)) call this%v_e%amr_reallocate(reconstruct, &
+         counter, time)
+    if (associated(this%w_e)) call this%w_e%amr_reallocate(reconstruct, &
+         counter, time)
+
+    ! fluid source term
+    call this%source_term%amr_restart(reconstruct, counter, time)
+
+  end subroutine fluid_scheme_amr_restart_base
 
 end module fluid_scheme_incompressible

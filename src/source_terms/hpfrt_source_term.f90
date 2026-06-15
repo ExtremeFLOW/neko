@@ -45,6 +45,7 @@ module hpfrt_source_term
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use utils, only : neko_error
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -81,6 +82,8 @@ module hpfrt_source_term
      procedure, pass(this) :: free => hpfrt_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute_ => hpfrt_source_term_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => hpfrt_source_term_amr_restart
   end type hpfrt_source_term_t
 
 contains
@@ -213,5 +216,30 @@ contains
     call neko_scratch_registry%relinquish_field(work_idx)
 
   end subroutine hpfrt_source_term_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine hpfrt_source_term_amr_restart(this, reconstruct, counter, time)
+    class(hpfrt_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+!    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, time)
+
+    block
+      use utils, only : neko_error
+      call neko_error('Nothing done yet')
+    end block
+
+  end subroutine hpfrt_source_term_amr_restart
 
 end module hpfrt_source_term

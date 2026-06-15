@@ -77,11 +77,15 @@ module fdm
   use fast3d, only : semhat
   use tensor, only : trsp
   use math, only : rzero, row_zero
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  type, public :: fdm_t
+  type, public, extends(amr_restart_component_t) :: fdm_t
      real(kind=rp), allocatable :: s(:,:,:,:)
      real(kind=rp), allocatable :: d(:,:)
      type(c_ptr) :: s_d = C_NULL_PTR
@@ -99,6 +103,8 @@ module fdm
      procedure, pass(this) :: init => fdm_init
      procedure, pass(this) :: free => fdm_free
      procedure, pass(this) :: compute => fdm_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => fdm_amr_restart
   end type fdm_t
 
   interface sygv
@@ -180,63 +186,104 @@ contains
       call plane_space(lmr, lms, lmt, 0, n2, Xh%wx, x, y, z, &
            nx, n2, nz0, nzn, nelv, gdim)
       n = n2 + 1
-      if (gdim .eq. 3) then
-         do e = 1, nelv
-            do j = 2, n2
-               do k = 2, n2
-                  l(1, k, j, e) = lmr(e)
-                  l(n, k, j, e) = lmr(e)
-                  l(k, 1, j, e) = lms(e)
-                  l(k, n, j, e) = lms(e)
-                  l(k, j, 1, e) = lmt(e)
-                  l(k, j, n, e) = lmt(e)
+      if (allocated(this%gs_h%interp)) then
+         ! Scale children values by 0.25.  This is a hack, based on assumption
+         ! that number of children sharing a parent face is 4. It is not
+         ! accurate, but does not require multiple communication steps.
+         if (gdim .eq. 3) then
+            do e = 1, nelv
+               do j = 2, n2
+                  do k = 2, n2
+                     l(1, k, j, e) = lmr(e)
+                     l(n, k, j, e) = lmr(e)
+                     l(k, 1, j, e) = lms(e)
+                     l(k, n, j, e) = lms(e)
+                     l(k, j, 1, e) = lmt(e)
+                     l(k, j, n, e) = lmt(e)
+                  end do
                end do
             end do
-         end do
-         if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                 DEVICE_TO_HOST, sync = .true.)
-         else
-            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-         end if
+            call this%gs_h%interp%scale_children(l, 0.25_rp, 0.5_rp)
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    HOST_TO_DEVICE, sync = .false.)
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+            else
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+            end if
 
-         do e = 1, nelv
-            llr(e) = l(1, 2, 2, e) - lmr(e)
-            lrr(e) = l(n, 2, 2, e) - lmr(e)
-            lls(e) = l(2, 1, 2, e) - lms(e)
-            lrs(e) = l(2, n, 2, e) - lms(e)
-            llt(e) = l(2, 2, 1, e) - lmt(e)
-            lrt(e) = l(2, 2, n, e) - lmt(e)
-         end do
-      else
-         do e = 1, nelv
-            do j = 2, n2
-               l(1, j, 1, e) = lmr(e)
-               l(n, j, 1, e) = lmr(e)
-               l(j, 1, 1, e) = lms(e)
-               l(j, n, 1, e) = lms(e)
+            do e = 1, nelv
+               llr(e) = l(1, 2, 2, e) - lmr(e)
+               lrr(e) = l(n, 2, 2, e) - lmr(e)
+               lls(e) = l(2, 1, 2, e) - lms(e)
+               lrs(e) = l(2, n, 2, e) - lms(e)
+               llt(e) = l(2, 2, 1, e) - lmt(e)
+               lrt(e) = l(2, 2, n, e) - lmt(e)
             end do
-         end do
-
-         if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                 HOST_TO_DEVICE, sync = .false.)
-            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                 DEVICE_TO_HOST, sync = .true.)
          else
-            call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
+            ! no 2D yet
          end if
+      else
+         if (gdim .eq. 3) then
+            do e = 1, nelv
+               do j = 2, n2
+                  do k = 2, n2
+                     l(1, k, j, e) = lmr(e)
+                     l(n, k, j, e) = lmr(e)
+                     l(k, 1, j, e) = lms(e)
+                     l(k, n, j, e) = lms(e)
+                     l(k, j, 1, e) = lmt(e)
+                     l(k, j, n, e) = lmt(e)
+                  end do
+               end do
+            end do
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    HOST_TO_DEVICE, sync = .false.)
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+            else
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+            end if
 
-         do e = 1, nelv
-            llr(e) = l(1, 2, 1, e) - lmr(e)
-            lrr(e) = l(n, 2, 1, e) - lmr(e)
-            lls(e) = l(2, 1, 1, e) - lms(e)
-            lrs(e) = l(2, n, 1, e) - lms(e)
-         end do
+            do e = 1, nelv
+               llr(e) = l(1, 2, 2, e) - lmr(e)
+               lrr(e) = l(n, 2, 2, e) - lmr(e)
+               lls(e) = l(2, 1, 2, e) - lms(e)
+               lrs(e) = l(2, n, 2, e) - lms(e)
+               llt(e) = l(2, 2, 1, e) - lmt(e)
+               lrt(e) = l(2, 2, n, e) - lmt(e)
+            end do
+         else
+            do e = 1, nelv
+               do j = 2, n2
+                  l(1, j, 1, e) = lmr(e)
+                  l(n, j, 1, e) = lmr(e)
+                  l(j, 1, 1, e) = lms(e)
+                  l(j, n, 1, e) = lms(e)
+               end do
+            end do
+
+            if (NEKO_BCKND_DEVICE .eq. 1) then
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    HOST_TO_DEVICE, sync = .false.)
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+               call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+            else
+               call this%gs_h%gs_op_vector(l, this%dof%size(), GS_OP_ADD)
+            end if
+
+            do e = 1, nelv
+               llr(e) = l(1, 2, 1, e) - lmr(e)
+               lrr(e) = l(n, 2, 1, e) - lmr(e)
+               lls(e) = l(2, 1, 1, e) - lms(e)
+               lrs(e) = l(2, n, 1, e) - lms(e)
+            end do
+         end if
       end if
     end associate
   end subroutine swap_lengths
@@ -630,6 +677,8 @@ contains
     nullify(this%gs_h)
     nullify(this%msh)
 
+    call this%free_amr_base()
+
   end subroutine fdm_free
 
   subroutine fdm_compute(this, e, r, stream)
@@ -661,5 +710,87 @@ contains
 
   end subroutine fdm_compute
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine fdm_amr_restart(this, reconstruct, counter, time)
+    class(fdm_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: lx, nl, n, nelv, gdim
+    real(kind=rp), dimension(:), allocatable :: ah, bh, ch, dh, zh, dph, jph, &
+         bgl, zglhat, dgl, jgl, wh
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reconstructing Fast Diagonalization Method'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! dof and gs_h should be already reconstructed
+    ! reconstruct dofmap; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%dof)) call this%dof%amr_restart(reconstruct, counter, &
+         time)
+
+    ! reconstruct gs; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%gs_h)) call this%gs_h%amr_restart(reconstruct, &
+         counter, time)
+
+    ! reallocate arrays
+    lx = this%Xh%lx
+    n = lx - 1 !Polynomnial degree
+    nl = lx + 2 !Schwarz!
+    nelv = this%dof%msh%nelv
+    gdim = this%dof%msh%gdim
+    if (reconstruct%nold .ne. reconstruct%nnew) then
+       if (allocated(this%s)) deallocate(this%s)
+       if (allocated(this%d)) deallocate(this%d)
+       if (allocated(this%swplen)) deallocate(this%swplen)
+       if (allocated(this%len_lr)) deallocate(this%len_lr)
+       if (allocated(this%len_ls)) deallocate(this%len_ls)
+       if (allocated(this%len_lt)) deallocate(this%len_lt)
+       if (allocated(this%len_mr)) deallocate(this%len_mr)
+       if (allocated(this%len_ms)) deallocate(this%len_ms)
+       if (allocated(this%len_mt)) deallocate(this%len_mt)
+       if (allocated(this%len_rr)) deallocate(this%len_rr)
+       if (allocated(this%len_rs)) deallocate(this%len_rs)
+       if (allocated(this%len_rt)) deallocate(this%len_rt)
+       allocate(this%s(nl*nl, 2, gdim, nelv))
+       allocate(this%d(nl**3, nelv))
+       allocate(this%swplen(lx, lx, lx, nelv))
+       allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
+       allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
+       allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
+    end if
+
+    ! Zeroing here enables easier debugging since then
+    ! MPI messages in GS are deterministic
+    call rzero(this%swplen, this%Xh%lxyz * this%dof%msh%nelv)
+
+    ! Reinitialise fdm
+    lx = lx * lx
+    allocate(ah(lx), bh(lx), ch(lx), dh(lx), zh(lx), dph(lx), jph(lx), &
+         bgl(lx), zglhat(lx), dgl(lx), jgl(lx), wh(lx))
+
+    call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
+
+    call swap_lengths(this, this%dof%x, this%dof%y, this%dof%z, nelv, gdim)
+
+    call fdm_setup_fast(this, ah, bh, nl, n)
+
+    deallocate(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, wh)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('Fdm reconstruct:: Nothing done for device.')
+    end if
+
+  end subroutine fdm_amr_restart
 
 end module fdm

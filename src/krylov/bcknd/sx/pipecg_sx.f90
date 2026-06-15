@@ -44,6 +44,9 @@ module pipecg_sx
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Iallreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wait, &
        MPI_Request, MPI_status
+  use utils, only : neko_error ! added for amr
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -63,6 +66,8 @@ module pipecg_sx
      procedure, pass(this) :: free => sx_pipecg_free
      procedure, pass(this) :: solve => sx_pipecg_solve
      procedure, pass(this) :: solve_coupled => sx_pipecg_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => sx_pipecg_amr_restart
   end type sx_pipecg_t
 
 contains
@@ -148,6 +153,7 @@ contains
 
     nullify(this%M)
 
+    call this%free_amr_base()
 
   end subroutine sx_pipecg_free
 
@@ -293,6 +299,23 @@ contains
 
   end function sx_pipecg_solve_coupled
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine sx_pipecg_amr_restart(this, reconstruct, counter, time)
+    class(sx_pipecg_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    call neko_error('PIPECG_SX: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine sx_pipecg_amr_restart
+
 end module pipecg_sx
-
-

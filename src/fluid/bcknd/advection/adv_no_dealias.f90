@@ -43,6 +43,10 @@ module adv_no_dealias
   use neko_config, only : NEKO_BCKND_DEVICE
   use operators, only : conv1, div
   use scratch_registry, only : neko_scratch_registry
+  use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -65,6 +69,8 @@ module adv_no_dealias
      procedure, pass(this) :: compute_ale => compute_ale_advection_no_dealias
      !> Update any metrics needed for the advection computation in ALE.
      procedure, pass(this) :: recompute_metrics => recompute_metrics_no_dealias
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => adv_no_dealias_amr_restart
   end type adv_no_dealias_t
 
 contains
@@ -80,6 +86,8 @@ contains
   !> Destructor
   subroutine free_no_dealias(this)
     class(adv_no_dealias_t), intent(inout) :: this
+
+    call this%free_amr_base()
 
   end subroutine free_no_dealias
 
@@ -250,4 +258,30 @@ contains
     call neko_scratch_registry%relinquish_field(id)
 
   end subroutine compute_ale_advection_no_dealias
+
+  !> Restart the component
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine adv_no_dealias_amr_restart(this, reconstruct, counter, time)
+    class(adv_no_dealias_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Advection no dealias'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine adv_no_dealias_amr_restart
+
 end module adv_no_dealias

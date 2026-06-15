@@ -42,7 +42,7 @@ module boundary_flux
   use time_state, only : time_state_t
   use coefs, only : coef_t
   use neumann, only : neumann_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use utils, only : neko_error
   use file, only : file_t
   use vector, only : vector_t
@@ -52,6 +52,7 @@ module boundary_flux
   use drag_torque, only : setup_normals
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -113,6 +114,8 @@ module boundary_flux
      procedure, pass(this) :: free => boundary_flux_free
      !> Compute the total boundary flux.
      procedure, pass(this) :: compute_ => boundary_flux_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => boundary_flux_amr_restart
   end type boundary_flux_t
 
 contains
@@ -355,6 +358,9 @@ contains
     nullify(this%coef)
 
     call this%free_base()
+
+    call this%free_amr_base()
+
   end subroutine boundary_flux_free
 
   !> Compute and optionally output the total boundary flux.
@@ -418,5 +424,30 @@ contains
     pad_width = max(0, width - len_trim(text))
     padded = repeat(' ', pad_width) // trim(text)
   end function left_pad
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine boundary_flux_amr_restart(this, reconstruct, counter, time)
+    class(boundary_flux_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Probes'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine boundary_flux_amr_restart
 
 end module boundary_flux

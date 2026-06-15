@@ -47,7 +47,9 @@ module lambda2
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t
   use device
-  use utils, only : NEKO_VARNAME_LEN
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use utils, only : NEKO_VARNAME_LEN, neko_error ! just for now
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -88,6 +90,8 @@ module lambda2
      procedure, pass(this) :: free => lambda2_free
      !> Compute the lambda2 field
      procedure, pass(this) :: compute_ => lambda2_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => lambda2_amr_restart
   end type lambda2_t
 
 contains
@@ -215,6 +219,9 @@ contains
     nullify(this%v)
     nullify(this%w)
     nullify(this%lambda2)
+
+    call this%free_amr_base()
+
   end subroutine lambda2_free
 
   !> Compute the lambda2 field.
@@ -226,5 +233,44 @@ contains
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
 
   end subroutine lambda2_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine lambda2_amr_restart(this, reconstruct, counter, time)
+    class(lambda2_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = trim(this%name)
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! These should be already restarted, but AMR restart prevents
+    ! recursive restarting, so it is safe to call it here
+    if (associated(this%u)) call this%u%amr_restart(reconstruct, counter, time)
+    if (associated(this%v)) call this%v%amr_restart(reconstruct, counter, time)
+    if (associated(this%w)) call this%w%amr_restart(reconstruct, counter, time)
+
+    ! These I reallocate here assuming former values do not matter???
+    if (associated(this%lambda2)) &
+         call this%lambda2%amr_reallocate(reconstruct, counter, time)
+    ! not really used
+    !call this%temp1%amr_reallocate(reconstruct, counter, time)
+    !call this%temp2%amr_reallocate(reconstruct, counter, time)
+
+    ! Writer does not seem to be used????
+    ! call this%writer%amr_restart(reconstruct, counter, time)
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine lambda2_amr_restart
 
 end module lambda2

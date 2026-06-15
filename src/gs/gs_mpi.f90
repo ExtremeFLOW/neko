@@ -39,9 +39,12 @@ module gs_mpi
   use mpi_f08, only : MPI_STATUSES_IGNORE, MPI_Status, &
        MPI_Request, MPI_Isend, MPI_IRecv, MPI_Testsome, MPI_Testall, &
        MPI_THREAD_MULTIPLE
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, NEKO_MPI_THREAD_PROVIDED
+  use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION, &
+       NEKO_MPI_THREAD_PROVIDED
   use, intrinsic :: iso_c_binding
   use utils, only : neko_error
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -69,6 +72,8 @@ module gs_mpi
      procedure, pass(this) :: nbsend => gs_nbsend_mpi
      procedure, pass(this) :: nbrecv => gs_nbrecv_mpi
      procedure, pass(this) :: nbwait => gs_nbwait_mpi
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gs_mpi_amr_restart
   end type gs_mpi_t
 
 contains
@@ -111,9 +116,9 @@ contains
 
   end subroutine gs_mpi_init
 
-  !> Deallocate MPI based communication method
-  subroutine gs_mpi_free(this)
-    class(gs_mpi_t), intent(inout) :: this
+  !> Deallocate arrays
+  subroutine gs_mpi_allocate_free(this)
+    type(gs_mpi_t), intent(inout) :: this
 
     if (allocated(this%send_buf)) then
        deallocate(this%send_buf)
@@ -155,8 +160,18 @@ contains
        deallocate(this%recv_statuses)
     end if
 
+  end subroutine gs_mpi_allocate_free
+
+  !> Deallocate MPI based communication method
+  subroutine gs_mpi_free(this)
+    class(gs_mpi_t), intent(inout) :: this
+
+    call gs_mpi_allocate_free(this)
+
     call this%free_order()
     call this%free_dofs()
+
+    call this%free_amr_base()
 
   end subroutine gs_mpi_free
 
@@ -350,5 +365,38 @@ contains
     !$omp barrier
 
   end subroutine gs_nbwait_mpi
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine gs_mpi_amr_restart(this, reconstruct, counter, time)
+    class(gs_mpi_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    ! Just clearing stacks and deallocating arrays, as gs_schedule calls
+    ! comm%init
+
+    ! clearing stacks
+    do il = 0, pe_size - 1
+       call this%send_dof(il)%clear()
+    end do
+    do il = 0, pe_size - 1
+       call this%recv_dof(il)%clear()
+    end do
+
+    call this%free_order()
+
+    call gs_mpi_allocate_free(this)
+
+  end subroutine gs_mpi_amr_restart
 
 end module gs_mpi

@@ -54,12 +54,21 @@ module bc
   use time_state, only : time_state_t
   use field, only : field_t
   use file, only : file_t
+  use amr_restart_component, only : amr_restart_component_t
 
   implicit none
   private
 
   !> Base type for a boundary condition
-  type, public, abstract :: bc_t
+  type, public, abstract, extends(amr_restart_component_t) :: bc_t
+     !> Corresponding zone indices in the mesh type
+     integer, allocatable :: zone_indices(:)
+     !> Boundary type
+     character(len=:), allocatable :: type
+     !> Restriction to facets flag
+     logical :: only_facets = .false.
+     !> Finalisation flag
+     logical :: iffinalised
      !> The linear index of each node in each boundary facet
      integer, allocatable :: msk(:)
      !> A list of facet ids (1 to 6), one for each element in msk
@@ -86,10 +95,8 @@ module bc
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations
      logical :: updated = .false.
-     !!> Name of the bc
+     !> Name of the bc
      character(len=:), allocatable :: name
-     !!> Zone indices where the bc is applied
-     integer, allocatable :: zone_indices(:)
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base
@@ -275,6 +282,17 @@ contains
     nullify(this%dof)
     nullify(this%coef)
 
+    if (allocated(this%zone_indices)) then
+       deallocate(this%zone_indices)
+    end if
+
+    if (allocated(this%type)) then
+       deallocate(this%type)
+    end if
+
+    this%only_facets = .false.
+    this%iffinalised = .false.
+
     if (allocated(this%msk)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_unmap(this%msk, this%msk_d)
@@ -291,10 +309,6 @@ contains
 
     if (allocated(this%name)) then
        deallocate(this%name)
-    end if
-
-    if (allocated(this%zone_indices)) then
-       deallocate(this%zone_indices)
     end if
 
   end subroutine bc_free_base
@@ -442,8 +456,9 @@ contains
     lz = this%Xh%lz
     if ( present(only_facets)) then
        only_facet = only_facets
+       this%only_facets = only_facets
     else
-       only_facet = .false.
+       only_facet = this%only_facets
     end if
     !>@todo add 2D case
 
@@ -570,6 +585,8 @@ contains
        call device_memcpy(this%msk, this%msk_d, n, &
             HOST_TO_DEVICE, sync = .true.)
     end if
+
+    this%iffinalised = .true.
 
     if (.not. allocated(this%name)) then
 ! gives plenty of empty info lines during AMR restart

@@ -36,8 +36,8 @@ module fluid_pnpn
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
   use registry, only : neko_registry
-  use logger, only : neko_log, LOG_SIZE
-  use num_types, only : rp
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use num_types, only : rp, i8 ! added for amr
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
@@ -85,8 +85,11 @@ module fluid_pnpn
   use comm, only : NEKO_COMM
   use ale_manager, only : ale_manager_t
   use field_series, only : field_series_t
+  use math, only : glsum ! added for amr
+  use amr_reconstruct, only : amr_reconstruct_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MAX, MPI_LOR, &
        MPI_INTEGER, MPI_LOGICAL
+
   implicit none
   private
 
@@ -108,7 +111,8 @@ module fluid_pnpn
      !> ALE Manager
      type(ale_manager_t) :: ale
 
-     ! ! Implicit operators, i.e. the left-hand-side of the Helmholz problem.
+     !
+     ! Implicit operators, i.e. the left-hand-side of the Helmholz problem.
      !
 
      ! Coupled Helmholz operator for velocity
@@ -213,6 +217,10 @@ module fluid_pnpn
      !> Write a field with boundary condition specifications.
      procedure, pass(this) :: write_boundary_conditions => &
           fluid_pnpn_write_boundary_conditions
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => fluid_pnpn_amr_restart
+     !> Boundary condition restart
+     procedure, pass(this) :: restart_bcs => fluid_pnpn_restart_bcs
   end type fluid_pnpn_t
 
   interface
@@ -479,22 +487,25 @@ contains
        associate(u => this%u, v => this%v, w => this%w, p => this%p, &
             c_Xh => this%c_Xh, ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag)
-         do concurrent (j = 1:n)
-            u%x(j,1,1,1) = u%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
-            v%x(j,1,1,1) = v%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
-            w%x(j,1,1,1) = w%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
-            p%x(j,1,1,1) = p%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
-         end do
-         do i = 1, this%ulag%size()
+         ! H1 operation includes weighting
+         if (.not. allocated(this%gs_Xh%interp)) then
             do concurrent (j = 1:n)
-               ulag%lf(i)%x(j,1,1,1) = ulag%lf(i)%x(j,1,1,1) &
-                    * c_Xh%mult(j,1,1,1)
-               vlag%lf(i)%x(j,1,1,1) = vlag%lf(i)%x(j,1,1,1) &
-                    * c_Xh%mult(j,1,1,1)
-               wlag%lf(i)%x(j,1,1,1) = wlag%lf(i)%x(j,1,1,1) &
-                    * c_Xh%mult(j,1,1,1)
+               u%x(j,1,1,1) = u%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+               v%x(j,1,1,1) = v%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+               w%x(j,1,1,1) = w%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+               p%x(j,1,1,1) = p%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
             end do
-         end do
+            do i = 1, this%ulag%size()
+               do concurrent (j = 1:n)
+                  ulag%lf(i)%x(j,1,1,1) = ulag%lf(i)%x(j,1,1,1) &
+                       * c_Xh%mult(j,1,1,1)
+                  vlag%lf(i)%x(j,1,1,1) = vlag%lf(i)%x(j,1,1,1) &
+                       * c_Xh%mult(j,1,1,1)
+                  wlag%lf(i)%x(j,1,1,1) = wlag%lf(i)%x(j,1,1,1) &
+                       * c_Xh%mult(j,1,1,1)
+               end do
+            end do
+         end if
        end associate
     end if
 
@@ -552,18 +563,31 @@ contains
          .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
 
        call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
-       call this%gs_Xh%op(this%u, GS_OP_ADD)
-       call this%gs_Xh%op(this%v, GS_OP_ADD)
-       call this%gs_Xh%op(this%w, GS_OP_ADD)
-       call this%gs_Xh%op(this%p, GS_OP_ADD)
+       if (allocated(this%gs_Xh%interp)) then
+          call this%gs_Xh%op_h1(this%u, GS_OP_ADD)
+          call this%gs_Xh%op_h1(this%v, GS_OP_ADD)
+          call this%gs_Xh%op_h1(this%w, GS_OP_ADD)
+          call this%gs_Xh%op_h1(this%p, GS_OP_ADD)
+       else
+          call this%gs_Xh%op(this%u, GS_OP_ADD)
+          call this%gs_Xh%op(this%v, GS_OP_ADD)
+          call this%gs_Xh%op(this%w, GS_OP_ADD)
+          call this%gs_Xh%op(this%p, GS_OP_ADD)
+       end if
        call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
        do i = 1, this%ulag%size()
           call rotate_cyc(this%ulag%lf(i), this%vlag%lf(i), &
                this%wlag%lf(i), 1, this%c_Xh)
-          call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
-          call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
-          call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
+          if (allocated(this%gs_Xh%interp)) then
+             call this%gs_Xh%op_h1(this%ulag%lf(i), GS_OP_ADD)
+             call this%gs_Xh%op_h1(this%vlag%lf(i), GS_OP_ADD)
+             call this%gs_Xh%op_h1(this%wlag%lf(i), GS_OP_ADD)
+          else
+             call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
+             call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
+             call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
+          end if
           call rotate_cyc(this%ulag%lf(i), this%vlag%lf(i), &
                this%wlag%lf(i), 0, this%c_Xh)
        end do
@@ -668,6 +692,8 @@ contains
 
     call this%vol_flow%free()
 
+    call this%free_amr_base()
+
   end subroutine fluid_pnpn_free
 
   !> Advance fluid simulation in time.
@@ -689,6 +715,14 @@ contains
     type(file_t) :: dump_file
     class(bc_t), pointer :: bc_i
     type(non_normal_t), pointer :: bc_j
+
+    ! check solver consistency
+    if (this%dm_Xh%msh%conn%ifhang_glb) then
+       if (this%ale%active) &
+            call neko_error("Nonconforming solver does not support ALE.")
+       if (this%oifs) &
+            call neko_error("Nonconforming solver does not support OIFS.")
+    end if
 
     if (this%freeze) return
 
@@ -739,7 +773,6 @@ contains
               Xh, c_Xh, dm_Xh%size())
       end if
 
-
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -756,7 +789,8 @@ contains
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
-         ! Now, the source terms from the previous time step are added to the RHS.
+         ! Now, the source terms from the previous time step are added to
+         ! the RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), dt, n)
@@ -823,8 +857,8 @@ contains
               Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
               mu_tot, rho, event)
 
-
-         ! De-mean the pressure residual when no strong pressure boundaries present
+         ! De-mean the pressure residual when no strong pressure boundaries
+         ! present
          if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
             call device_ortho(p_res%x_d, this%glb_n_points, n)
          else if (.not. this%prs_dirichlet) then
@@ -836,7 +870,6 @@ contains
 
          ! Set the residual to zero at strong pressure boundaries.
          call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
-
 
          call profiler_end_region('Pressure_residual', 18)
 
@@ -889,7 +922,6 @@ contains
 
          ! Set residual to zero at strong velocity boundaries.
          call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
-
 
          call profiler_end_region('Velocity_residual', 19)
 
@@ -1252,8 +1284,6 @@ contains
 
     call neko_scratch_registry%request_field(bdry_field, temp_index, .true.)
 
-
-
     call bdry_mask%init_from_components(this%c_Xh, 6.0_rp)
     call bdry_mask%mark_zone(this%msh%periodic)
     call bdry_mask%finalize()
@@ -1344,5 +1374,354 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_index)
   end subroutine fluid_pnpn_write_boundary_conditions
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine fluid_pnpn_amr_restart(this, reconstruct, counter, time)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il, ntot
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    if (allocated(this%name)) then
+       log_buf = 'Fluid PnPn: '//trim(this%name)
+    else
+       log_buf = 'Fluid PnPn'
+    end if
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! THIS IS CRITICAL; THE CURRENT STRUCTURE IS NOT THE BEST AS OLD MASS
+    ! MATRIX WILL NOT ALWAYS BE KEPT FOR ALL THE POSSIBLE SOLVERS
+    ! Before reconstructing spaces remove mass matrix from the fields that
+    ! contain it. It is important to properly interpolate them
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('fluid reconstruction; nothing done for device; 1')
+    else
+       ntot = this%dm_Xh%size()
+       do concurrent (il = 1: ntot)
+          this%abx1%x(il, 1, 1, 1) = this%abx1%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby1%x(il, 1, 1, 1) = this%aby1%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz1%x(il, 1, 1, 1) = this%abz1%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abx2%x(il, 1, 1, 1) = this%abx2%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby2%x(il, 1, 1, 1) = this%aby2%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz2%x(il, 1, 1, 1) = this%abz2%x(il, 1, 1, 1) / &
+               this%c_Xh%B(il, 1, 1, 1)
+       end do
+    end if
+
+    ! NOTHING DONE FOR ALE
+    if (this%ale%active) call neko_error("AMR does support ALE")
+
+    ! Restart base
+    call this%amr_restart_base(reconstruct, counter, time)
+
+    ! reconstruct and make continuous pressure
+    if (associated(this%p)) then
+       call this%p%amr_restart(reconstruct, counter, time)
+       call this%gs_Xh%op_h1(this%p, GS_OP_ADD)
+    end if
+
+    ! Cyclic bc flag in c_Xh is set at initialisation step, so cyclic restart
+    ! is performed at c_Xh reconstruction step
+
+    ! Helmholtz operator (Ax_***), residuals (pnpn_***_res_t), rhs
+    ! contributions (rhs_marker_***_t) do not require restart
+
+    ! Reallocate right hand side
+    call this%p_res%amr_reallocate(reconstruct, counter, time)
+    call this%u_res%amr_reallocate(reconstruct, counter, time)
+    call this%v_res%amr_reallocate(reconstruct, counter, time)
+    call this%w_res%amr_reallocate(reconstruct, counter, time)
+
+    ! Reallocate updates
+    call this%du%amr_reallocate(reconstruct, counter, time)
+    call this%dv%amr_reallocate(reconstruct, counter, time)
+    call this%dw%amr_reallocate(reconstruct, counter, time)
+    call this%dp%amr_reallocate(reconstruct, counter, time)
+
+    ! Reconstruct time variables
+    call this%abx1%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%abx1, GS_OP_ADD)
+    call this%aby1%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%aby1, GS_OP_ADD)
+    call this%abz1%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%abz1, GS_OP_ADD)
+    call this%abx2%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%abx2, GS_OP_ADD)
+    call this%aby2%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%aby2, GS_OP_ADD)
+    call this%abz2%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%abz2, GS_OP_ADD)
+
+    ! Reconstruct advection terms
+    call this%advx%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%advx, GS_OP_ADD)
+    call this%advy%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%advy, GS_OP_ADD)
+    call this%advz%amr_restart(reconstruct, counter, time)
+    call this%gs_Xh%op_h1(this%advz, GS_OP_ADD)
+
+    ! boundary conditions
+    call this%restart_bcs(reconstruct, counter, time)
+
+    ! Krylov solvers
+    call this%ksp_vel%amr_restart(reconstruct, counter, time)
+    call this%ksp_prs%amr_restart(reconstruct, counter, time)
+
+    ! Preconditioners
+    call this%pc_vel%amr_restart(reconstruct, counter, time)
+    call this%pc_prs%amr_restart(reconstruct, counter, time)
+
+    ! Projection space
+    if (this%vel_projection_dim .gt. 0) then
+       ! activation step updated in the type only
+       call this%proj_vel%amr_restart(reconstruct, counter, time)
+    end if
+    if (this%pr_projection_dim .gt. 0) then
+       ! activation step updated in the type only
+       call this%proj_prs%amr_restart(reconstruct, counter, time)
+    end if
+
+    ! Volume flow
+    if (this%forced_flow_rate) &
+         call this%vol_flow%amr_restart(reconstruct, counter, time)
+
+    ! Advection
+    call this%adv%amr_restart(reconstruct, counter, time)
+
+    ! statistics
+    ! LEFT FOR FUTURE !!!!!!!
+
+    ! Reconstruct checkpoint
+    ! LEFT FOR FUTURE !!!!!!!
+
+!    call this%write_boundary_conditions()
+
+    ! Add new mass matrix to the fields that require it. Removing it was
+    ! important to properly interpolate them
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('fluid reconstruction; nothing done for device; 2')
+    else
+       ntot = this%dm_Xh%size()
+       do concurrent (il = 1: ntot)
+          this%abx1%x(il, 1, 1, 1) = this%abx1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby1%x(il, 1, 1, 1) = this%aby1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz1%x(il, 1, 1, 1) = this%abz1%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abx2%x(il, 1, 1, 1) = this%abx2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%aby2%x(il, 1, 1, 1) = this%aby2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+          this%abz2%x(il, 1, 1, 1) = this%abz2%x(il, 1, 1, 1) * &
+               this%c_Xh%B(il, 1, 1, 1)
+       end do
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine fluid_pnpn_amr_restart
+
+  !> Boundary condition restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine fluid_pnpn_restart_bcs(this, reconstruct, counter, time)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    class(bc_t), pointer :: bci
+    integer :: il, jl, kl, ml, nbc
+
+        ! start with all the boundary lists
+    ! Notice that not all bc are built based on mesh zones. The ones with
+    ! defined zone indices will be reconstructed. The ones without just
+    ! deallocated. There is no problem with simply calling all lists, as
+    ! AMR restart prevents recursive reconstructions
+    call this%bcs_vel%amr_restart(reconstruct, counter, time)
+    call this%bcs_prs%amr_restart(reconstruct, counter, time)
+
+    call this%bclst_vel_res%amr_restart(reconstruct, counter, time)
+    call this%bclst_du%amr_restart(reconstruct, counter, time)
+    call this%bclst_dv%amr_restart(reconstruct, counter, time)
+    call this%bclst_dw%amr_restart(reconstruct, counter, time)
+    call this%bclst_dp%amr_restart(reconstruct, counter, time)
+
+    ! clean facet_normal_t boundaries
+    call this%bc_prs_surface%amr_restart(reconstruct, counter, time)
+    call this%bc_sym_surface%amr_restart(reconstruct, counter, time)
+
+    ! construct boundary conditions without defined zone indices
+    ! velocity
+    nbc = this%bcs_vel%size()
+    do il = 1, nbc
+       bci => this%bcs_vel%get(il)
+       select type (bci)
+       type is (symmetry_t)
+          ! this bc shows up in bclst_vel_res as well; do not duplicate
+          call this%bc_du%mark_facets(bci%bc_x%marked_facet)
+          call this%bc_dv%mark_facets(bci%bc_y%marked_facet)
+          call this%bc_dw%mark_facets(bci%bc_z%marked_facet)
+
+          call this%bc_sym_surface%mark_facets(bci%marked_facet)
+       type is (non_normal_t)
+          ! this bc shows up in bclst_vel_res only
+          call neko_error('Velocity bc; appended non_normal_t')
+       type is (shear_stress_t)
+          ! appended to all the lists; nothing to do
+       type is (wall_model_bc_t)
+          ! appended to all the lists; nothing to do
+       class default
+          ! present in bcs_vel only
+          if (bci%strong) then
+             call this%bc_vel_res%mark_facets(bci%marked_facet)
+             call this%bc_du%mark_facets(bci%marked_facet)
+             call this%bc_dv%mark_facets(bci%marked_facet)
+             call this%bc_dw%mark_facets(bci%marked_facet)
+
+             call this%bc_prs_surface%mark_facets(bci%marked_facet)
+          end if
+       end select
+
+       ! no non_normal bc in bcs_vel, so check no needed
+       ! mark facets with value 2 in the mesh
+       if (allocated(bci%zone_indices)) then
+          do jl = 1, size(bci%zone_indices)
+             do kl = 1, bci%msh%nelv
+                do ml = 1, 2 * bci%msh%gdim
+                   if (bci%msh%facet_type(ml, kl) .eq. &
+                        - bci%zone_indices(jl)) then
+                      bci%msh%facet_type(ml, kl) = 2
+                   end if
+                end do
+             end do
+          end do
+       else
+          call neko_error('Velocity bc; zones not allocated')
+       end if
+    end do
+
+    ! velocity residual
+    nbc = this%bclst_vel_res%size()
+    ! the last one is bc_vel_res; skip it
+    do il = 1, nbc - 1
+       bci => this%bclst_vel_res%get(il)
+       select type (bci)
+       type is (symmetry_t)
+          ! this bc shows up in bcs_vel as well; already done
+       type is (non_normal_t)
+          ! this bc shows up in bclst_vel_res only
+          call this%bc_du%mark_facets(bci%bc_x%marked_facet)
+          call this%bc_dv%mark_facets(bci%bc_y%marked_facet)
+          call this%bc_dw%mark_facets(bci%bc_z%marked_facet)
+       type is (shear_stress_t)
+          ! appended to all the lists; nothing to do
+       type is (wall_model_bc_t)
+          ! appended to all the lists; nothing to do
+       class default
+          ! present in bcs_vel only
+          call neko_error('Velocity res. bc; appended default')
+       end select
+
+       ! non_normal bc possibly present, so check needed
+       ! mark facets with value 2 in the mesh
+       if (allocated(bci%zone_indices)) then
+          if (trim(bci%type) .ne. "normal_outflow" .and. &
+               trim(bci%type) .ne. "normal_outflow+dong") then
+             do jl = 1, size(bci%zone_indices)
+                do kl = 1, bci%msh%nelv
+                   do ml = 1, 2 * bci%msh%gdim
+                      if (bci%msh%facet_type(ml, kl) .eq. &
+                           - bci%zone_indices(jl)) then
+                         bci%msh%facet_type(ml, kl) = 2
+                      end if
+                   end do
+                end do
+             end do
+          end if
+       else
+          call neko_error('Velocity res. bc; zones not allocated')
+       end if
+    end do
+
+    ! pressure
+    nbc = this%bcs_prs%size()
+    do il = 1, nbc
+       bci => this%bcs_prs%get(il)
+       ! Mark strong bcs in the dummy dp bc to force zero change.
+       if (bci%strong) then
+          call this%bc_dp%mark_facets(bci%marked_facet)
+          ! strong pressure bcs, so mark facets with value 1 in the mesh
+          if (allocated(bci%zone_indices)) then
+             do jl = 1, size(bci%zone_indices)
+                do kl = 1, bci%msh%nelv
+                   do ml = 1, 2 * bci%msh%gdim
+                      if (bci%msh%facet_type(ml, kl) .eq. &
+                           - bci%zone_indices(jl)) then
+                         bci%msh%facet_type(ml, kl) = 1
+                      end if
+                   end do
+                end do
+             end do
+          else
+             call neko_error('Pressure bc; zones not allocated')
+          end if
+       end if
+    end do
+
+    if (.not. this%bc_prs_surface%iffinalised) then
+       call this%bc_prs_surface%finalize()
+    else
+       call neko_error('Pressure surface bc; already finalised')
+    end if
+    if (.not. this%bc_sym_surface%iffinalised) then
+       call this%bc_sym_surface%finalize()
+    else
+       call neko_error('Symmetry surface bc; already finalised')
+    end if
+
+    if (.not. this%bc_vel_res%iffinalised) then
+       call this%bc_vel_res%finalize()
+    else
+       call neko_error('Velocity res. bc; already finalised')
+    end if
+    if (.not. this%bc_du%iffinalised) then
+       call this%bc_du%finalize()
+    else
+       call neko_error('du bc; already finalised')
+    end if
+    if (.not. this%bc_dv%iffinalised) then
+       call this%bc_dv%finalize()
+    else
+       call neko_error('dv bc; already finalised')
+    end if
+    if (.not. this%bc_dw%iffinalised) then
+       call this%bc_dw%finalize()
+    else
+       call neko_error('dw bc; already finalised')
+    end if
+    if (.not. this%bc_dp%iffinalised) then
+       call this%bc_dp%finalize()
+    else
+       call neko_error('dp bc; already finalised')
+    end if
+
+  end subroutine fluid_pnpn_restart_bcs
 
 end module fluid_pnpn

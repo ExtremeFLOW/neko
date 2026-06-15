@@ -43,6 +43,8 @@ module no_slip
   use device_math, only : device_masked_copy_0
   use utils, only : neko_error
   use registry, only : neko_registry
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -58,6 +60,8 @@ module no_slip
      procedure, pass(this) :: apply_vector => no_slip_apply_vector
      procedure, pass(this) :: apply_vector_dev => no_slip_apply_vector_dev
      procedure, pass(this) :: free => no_slip_free
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => no_slip_amr_restart
   end type no_slip_t
 
 contains
@@ -146,6 +150,41 @@ contains
     nullify(this%wx)
     nullify(this%wy)
     nullify(this%wz)
+
+    call this%free_amr_base()
+
   end subroutine no_slip_free
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine no_slip_amr_restart(this, reconstruct, counter, time)
+    class(no_slip_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    ! this is extension of zero_dirichlet_t, so no counter update
+    !this%counter = counter
+
+    log_buf = 'No slip'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    call this%zero_dirichlet_t%amr_restart(reconstruct, counter, time)
+
+    if (this%is_moving) then
+       call this%wx%amr_restart(reconstruct, counter, time)
+       call this%wy%amr_restart(reconstruct, counter, time)
+       call this%wz%amr_restart(reconstruct, counter, time)
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine no_slip_amr_restart
 
 end module no_slip

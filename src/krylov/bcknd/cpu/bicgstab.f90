@@ -43,6 +43,8 @@ module bicgstab
   use math, only : glsc3, rzero, copy, NEKO_EPS, add2s2, x_update, &
        p_update, abscmp
   use utils, only : neko_error
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -64,6 +66,8 @@ module bicgstab
      procedure, pass(this) :: solve => bicgstab_solve
      !> Solve the coupled system.
      procedure, pass(this) :: solve_coupled => bicgstab_solve_coupled
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => bicgstab_amr_restart
   end type bicgstab_t
 
 contains
@@ -148,6 +152,7 @@ contains
 
     nullify(this%M)
 
+    call this%free_amr_base()
 
   end subroutine bicgstab_free
 
@@ -276,6 +281,23 @@ contains
 
   end function bicgstab_solve_coupled
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine bicgstab_amr_restart(this, reconstruct, counter, time)
+    class(bicgstab_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    call neko_error('BICGSTAB: nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine bicgstab_amr_restart
+
 end module bicgstab
-
-

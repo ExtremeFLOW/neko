@@ -56,7 +56,7 @@ module scalar_pnpn
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
-  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG, NEKO_LOG_VERBOSE
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get, json_get_or_default, json_extract_item
@@ -67,6 +67,7 @@ module scalar_pnpn
   use time_step_controller, only : time_step_controller_t
   use time_state, only : time_state_t
   use bc, only : bc_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
@@ -136,6 +137,8 @@ module scalar_pnpn
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
      !> Sync lag field data to registry for checkpointing
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => scalar_pnpn_amr_restart
   end type scalar_pnpn_t
 
   interface
@@ -275,10 +278,13 @@ contains
     n = this%s%dof%size()
 
     ! Lag fields are restored through the checkpoint's fsp mechanism
+    ! H1 operation includes weighting
+    if (.not. allocated(this%gs_Xh%interp)) then
+       call col2(this%s%x, this%c_Xh%mult, n)
+       call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
+       call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
+    end if
 
-    call col2(this%s%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
             n, HOST_TO_DEVICE, sync = .false.)
@@ -294,9 +300,15 @@ contains
             n, HOST_TO_DEVICE, sync = .false.)
     end if
 
-    call this%gs_Xh%op(this%s, GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    if (allocated(this%gs_Xh%interp)) then
+       call this%gs_Xh%op_h1(this%s, GS_OP_ADD)
+       call this%gs_Xh%op_h1(this%slag%lf(1), GS_OP_ADD)
+       call this%gs_Xh%op_h1(this%slag%lf(2), GS_OP_ADD)
+    else
+       call this%gs_Xh%op(this%s, GS_OP_ADD)
+       call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
+       call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    end if
 
   end subroutine scalar_pnpn_restart
 
@@ -343,6 +355,8 @@ contains
     if (allocated(this%makeoifs)) then
        deallocate(this%makeoifs)
     end if
+
+    call this%free_amr_base()
 
   end subroutine scalar_pnpn_free
 
@@ -602,5 +616,31 @@ contains
 
   end subroutine scalar_scheme_apply_strong_bcs
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine scalar_pnpn_amr_restart(this, reconstruct, counter, time)
+    class(scalar_pnpn_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    !call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    if (allocated(this%name)) then
+       log_buf = 'Reconstructing Scalar PnPn: '//trim(this%name)
+    else
+       log_buf = 'Reconstructing Scalar PnPn'
+    end if
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+  end subroutine scalar_pnpn_amr_restart
 
 end module scalar_pnpn

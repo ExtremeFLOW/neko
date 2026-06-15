@@ -49,6 +49,7 @@ module translation_source_term
   use registry, only : neko_registry
   use time_state, only : time_state_t
   use scratch_registry, only : neko_scratch_registry
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -66,6 +67,8 @@ module translation_source_term
      procedure, pass(this) :: free => translation_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute_ => translation_source_term_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => translation_source_term_amr_restart
   end type translation_source_term_t
 
 contains
@@ -134,6 +137,7 @@ contains
     class(translation_source_term_t), intent(inout) :: this
 
     call this%free_base()
+
   end subroutine translation_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
@@ -203,5 +207,31 @@ contains
 
 
   end subroutine translation_source_term_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine translation_source_term_amr_restart(this, reconstruct, counter, &
+       time)
+    class(translation_source_term_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+!    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, time)
+
+    block
+      use utils, only : neko_error
+      call neko_error('Nothing done yet')
+    end block
+
+  end subroutine translation_source_term_amr_restart
 
 end module translation_source_term

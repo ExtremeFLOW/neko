@@ -37,7 +37,7 @@ module field_subsampler
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use logger, only : neko_log, NEKO_LOG_DEBUG
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG, NEKO_LOG_VERBOSE
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
   use math, only : masked_gather_copy
   use device_math, only : device_masked_gather_copy_aligned
@@ -60,7 +60,7 @@ module field_subsampler
   use scratch_registry, only : neko_scratch_registry
   use field_writer, only : field_writer_t
   use math, only : glsum
-
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -142,6 +142,8 @@ module field_subsampler
           field_subsampler_init_from_controllers_properties
      !> Check valid initialization and assignment of variables
      procedure, pass(this) :: check => field_subsampler_check
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_subsampler_amr_restart
   end type field_subsampler_t
 
   !> Abstract interface for the compute() subroutine, which will be assigned
@@ -487,6 +489,8 @@ contains
 
     this%compute_impl => dummy_compute
 
+    call this%free_amr_base()
+
   end subroutine field_subsampler_free
 
   !> Subsample the fields based only on a point zone, no space-to-space
@@ -646,5 +650,30 @@ contains
          point_zone = point_zone)
 
   end subroutine field_subsampler_init_from_controllers_properties
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine field_subsampler_amr_restart(this, reconstruct, counter, time)
+    class(field_subsampler_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Field subsampler'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine field_subsampler_amr_restart
 
 end module field_subsampler

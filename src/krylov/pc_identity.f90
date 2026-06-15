@@ -35,6 +35,8 @@ module identity
   use math, only : copy
   use precon, only : pc_t
   use num_types, only : rp
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -43,6 +45,8 @@ module identity
    contains
      procedure, pass(this) :: solve => ident_solve
      procedure, pass(this) :: update => ident_update
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => ident_amr_restart
   end type ident_t
 
 contains
@@ -60,5 +64,22 @@ contains
   subroutine ident_update(this)
     class(ident_t), intent(inout) :: this
   end subroutine ident_update
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine ident_amr_restart(this, reconstruct, counter, time)
+    class(ident_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine ident_amr_restart
 
 end module identity

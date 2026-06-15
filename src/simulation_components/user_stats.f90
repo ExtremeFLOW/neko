@@ -48,6 +48,8 @@ module user_stats
   use time_based_controller, only : time_based_controller_t
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
        NEKO_VARNAME_LEN
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -88,6 +90,8 @@ module user_stats
      !> Compute the means
      procedure, pass(this) :: compute_ => user_stats_compute
      procedure, pass(this) :: restart_ => user_stats_restart
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => user_stats_amr_restart
   end type user_stats_t
 
 contains
@@ -298,6 +302,8 @@ contains
        deallocate(this%field_names)
     end if
 
+    call this%free_amr_base()
+
   end subroutine user_stats_free
 
   !> Update the running averages.
@@ -316,5 +322,33 @@ contains
     end if
 
   end subroutine user_stats_compute
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine user_stats_amr_restart(this, reconstruct, counter, time)
+    class(user_stats_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    block
+      use utils, only : neko_error
+      call neko_error('Nothing done for AMR reconstruction')
+    end block
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'user_stats'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+!    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine user_stats_amr_restart
 
 end module user_stats

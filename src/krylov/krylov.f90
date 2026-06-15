@@ -45,6 +45,7 @@ module krylov
   use device_identity, only : device_ident_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use logger, only : neko_log, LOG_SIZE
+  use amr_restart_component, only : amr_restart_component_t
   implicit none
   private
 
@@ -70,7 +71,7 @@ module krylov
   end type ksp_monitor_t
 
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
-  type, public, abstract :: ksp_t
+  type, public, abstract, extends(amr_restart_component_t) :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
      real(kind=rp) :: rel_tol !< Relative tolerance
      real(kind=rp) :: abs_tol !< Absolute tolerance

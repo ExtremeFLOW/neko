@@ -31,6 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_compressible_euler
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use comm, only : NEKO_COMM
   use advection, only : advection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
@@ -71,6 +72,7 @@ module fluid_scheme_compressible_euler
        compressible_ops_device_update_e
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -99,6 +101,9 @@ module fluid_scheme_compressible_euler
           => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
      procedure, pass(this), private :: setup_regularization
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => &
+          fluid_scheme_compressible_euler_amr_restart
   end type fluid_scheme_compressible_euler_t
 
   interface
@@ -264,6 +269,8 @@ contains
     end if
 
     call this%bcs_density%free()
+
+    call this%free_amr_base()
 
   end subroutine fluid_scheme_compressible_euler_free
 
@@ -616,5 +623,25 @@ contains
     call reg_json%destroy()
 
   end subroutine setup_regularization
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine fluid_scheme_compressible_euler_amr_restart(this, reconstruct, &
+       counter, time)
+    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+  end subroutine fluid_scheme_compressible_euler_amr_restart
 
 end module fluid_scheme_compressible_euler

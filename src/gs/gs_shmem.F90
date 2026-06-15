@@ -45,6 +45,8 @@ module gs_shmem
        shmem_uint64_atomic_set, shmem_uint64_wait_until, &
        shmem_barrier_all, SHMEM_SIGNAL_SET, SHMEM_CMP_GE
 #endif
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
        c_f_pointer, c_associated, c_sizeof, c_size_t, c_int64_t
   implicit none
@@ -110,6 +112,8 @@ module gs_shmem
      procedure, pass(this) :: nbsend => gs_shmem_nbsend
      procedure, pass(this) :: nbrecv => gs_shmem_nbrecv
      procedure, pass(this) :: nbwait => gs_shmem_nbwait
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gs_shmem_amr_restart
   end type gs_shmem_t
 
 contains
@@ -265,6 +269,8 @@ contains
     call this%free_order()
     call this%free_dofs()
 
+    call this%free_amr_base()
+
   end subroutine gs_shmem_free
 
   !> Pack the gathered shared dofs into the symmetric send buffer and
@@ -397,5 +403,25 @@ contains
     end do
 #endif
   end subroutine gs_shmem_nbwait
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine gs_shmem_amr_restart(this, reconstruct, counter, time)
+    class(gs_shmem_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+  end subroutine gs_shmem_amr_restart
 
 end module gs_shmem

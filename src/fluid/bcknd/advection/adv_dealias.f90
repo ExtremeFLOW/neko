@@ -45,6 +45,10 @@ module adv_dealias
   use operators, only : opgrad
   use interpolation, only : interpolator_t
   use device, only : device_map, device_get_ptr, device_unmap
+  use utils, only : neko_error
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
@@ -97,6 +101,8 @@ module adv_dealias
      procedure, pass(this) :: init => init_dealias
      !> Destructor
      procedure, pass(this) :: free => free_dealias
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => adv_dealias_amr_restart
   end type adv_dealias_t
 
 contains
@@ -117,18 +123,35 @@ contains
 
     call this%coef_GL%init(this%Xh_GL, coef%msh)
 
-    nel = coef%msh%nelv
-    n_GL = nel*this%Xh_GL%lxyz
-    n = nel*coef%Xh%lxyz
-    call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    call init_dealias_data(this)
+    call init_dealias_device(this)
+
+  end subroutine init_dealias
+
+  subroutine init_dealias_data(this)
+    type(adv_dealias_t), target, intent(inout) :: this
+    integer :: nel
+
+    associate( coef => this%coef_GLL)
+      nel = coef%msh%nelv
+      call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
+      call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    end associate
+
+  end subroutine init_dealias_data
+
+  subroutine init_dealias_device(this)
+    type(adv_dealias_t), target, intent(inout) :: this
+    integer :: n_GL
+
+    n_GL = this%coef_GLL%msh%nelv * this%Xh_GL%lxyz
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
          (NEKO_BCKND_XSMM .eq. 1)) then
@@ -153,11 +176,27 @@ contains
        call device_map(this%vt, this%vt_d, n_GL)
     end if
 
-  end subroutine init_dealias
+  end subroutine init_dealias_device
 
   !> Destructor
   subroutine free_dealias(this)
     class(adv_dealias_t), intent(inout) :: this
+
+    call free_dealias_device(this)
+
+    call this%coef_GL%free()
+    call this%GLL_to_GL%free()
+    call this%Xh_GL%free()
+
+    nullify(this%Xh_GLL)
+    nullify(this%coef_GLL)
+
+    call this%free_amr_base()
+
+  end subroutine free_dealias
+
+  subroutine free_dealias_device(this)
+    type(adv_dealias_t), intent(inout) :: this
 
     if (allocated(this%temp)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -209,15 +248,7 @@ contains
        deallocate(this%vt)
     end if
 
-    call this%coef_GL%free()
-    call this%GLL_to_GL%free()
-    call this%Xh_GL%free()
-
-    nullify(this%Xh_GLL)
-    nullify(this%coef_GLL)
-
-  end subroutine free_dealias
-
+  end subroutine free_dealias_device
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
   !! the RHS.
@@ -452,7 +483,6 @@ contains
 
   end subroutine compute_scalar_advection_dealias
 
-
   !!> Add the advection term in ALE framework.
   !! @param this The object.
   !! @param vx The x component of velocity.
@@ -605,5 +635,44 @@ contains
 
   end subroutine recompute_metrics_dealias
 
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine adv_dealias_amr_restart(this, reconstruct, counter, time)
+    class(adv_dealias_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Advection dealias'
+    call neko_log%section(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct coef_GLL; It is safe to call it here, as AMR restart prevents
+    ! recursive reconstructions
+    if (associated(this%coef_GLL)) call this%coef_GLL%amr_restart(reconstruct, &
+         counter, time)
+
+    if (associated(this%coef_GLL)) then
+       ! reallocate coef_GL
+       call this%coef_GL%amr_restart(reconstruct, counter, time)
+       ! fill coef_GL data
+       call init_dealias_data(this)
+
+       if (reconstruct%nold .ne. reconstruct%nnew) then
+          call free_dealias_device(this)
+          call init_dealias_device(this)
+       end if
+    end if
+
+    call neko_log%end_section(lvl = NEKO_LOG_VERBOSE)
+
+  end subroutine adv_dealias_amr_restart
 
 end module adv_dealias

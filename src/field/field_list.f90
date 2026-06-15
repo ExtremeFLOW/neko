@@ -33,18 +33,22 @@
 module field_list
   use, intrinsic :: iso_fortran_env, only : error_unit
   use field, only : field_ptr_t, field_t
-  use iso_c_binding, only : c_ptr
   use num_types, only : rp
   use space, only : space_t
   use dofmap, only : dofmap_t
   use mesh, only : mesh_t
   use utils, only : neko_error
   use comm, only : pe_rank
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
+  use amr_restart_component, only : amr_restart_component_t
+  use iso_c_binding, only : c_ptr
   implicit none
   private
 
   !> field_list_t, To be able to group fields together
-  type, public :: field_list_t
+  type, public, extends(amr_restart_component_t) :: field_list_t
      type(field_ptr_t), allocatable :: items(:)
    contains
      !> Constructor. Allocates array and pointers.
@@ -87,6 +91,10 @@ module field_list
      procedure, pass(this) :: name => field_list_name
      !> Copy all fields to or from the design.
      procedure, pass(this) :: copy_from => field_list_copy_from
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => field_list_amr_restart
+     !> AMR restart
+     procedure, pass(this) :: amr_reallocate => field_list_amr_reallocate
   end type field_list_t
 
 contains
@@ -186,6 +194,8 @@ contains
        end do
        deallocate(this%items)
     end if
+
+    call this%free_amr_base()
 
   end subroutine field_list_free
 
@@ -336,5 +346,66 @@ contains
     call this%items(n)%ptr%copy_from(memdir, sync)
 
   end subroutine field_list_copy_from
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine field_list_amr_restart(this, reconstruct, counter, time)
+    class(field_list_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reconstructing Field List'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct fields
+    if (allocated(this%items)) then
+       do il = 1, This%size()
+          if (associated(this%items(il)%ptr)) &
+               call this%items(il)%ptr%amr_restart(reconstruct, counter, time)
+       end do
+    end if
+
+  end subroutine field_list_amr_restart
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine field_list_amr_reallocate(this, reconstruct, counter, time)
+    class(field_list_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    log_buf = 'Reconstructing Field List'
+    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
+
+    ! reconstruct fields
+    if (allocated(this%items)) then
+       do il = 1, This%size()
+          if (associated(this%items(il)%ptr)) &
+               call this%items(il)%ptr%amr_reallocate(reconstruct, counter, &
+               time)
+       end do
+    end if
+
+  end subroutine field_list_amr_reallocate
 
 end module field_list

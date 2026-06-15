@@ -59,8 +59,8 @@ module gradient_jump_penalty
   use registry, only : neko_registry
   use time_state, only : time_state_t
   use operators, only : dudxyz
+  use amr_reconstruct, only : amr_reconstruct_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
-
   implicit none
   private
 
@@ -149,6 +149,8 @@ module gradient_jump_penalty
           gradient_jump_penalty_compute_single
      !> Perform gradient jump penalty term.
      procedure, pass(this) :: compute_ => gradient_jump_penalty_compute
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gradient_jump_penalty_amr_restart
 
   end type gradient_jump_penalty_t
 
@@ -1014,5 +1016,32 @@ contains
          f_field(:, :, lx, :), lx * lx * nelv)
 
   end subroutine pick_facet_value_hex
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine gradient_jump_penalty_amr_restart(this, reconstruct, counter, &
+       time)
+    class(gradient_jump_penalty_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+!    character(len=LOG_SIZE) :: log_buf
+    integer :: il
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call this%amr_restart_base(reconstruct, counter, time)
+
+    block
+      use utils, only : neko_error
+      call neko_error('Nothing done yet')
+    end block
+
+  end subroutine gradient_jump_penalty_amr_restart
 
 end module gradient_jump_penalty

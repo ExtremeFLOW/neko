@@ -44,6 +44,8 @@ module gs_caf
   use, intrinsic :: iso_fortran_env, only : atomic_int_kind
 #endif
   use utils, only : neko_error
+  use time_state, only : time_state_t
+  use amr_reconstruct, only : amr_reconstruct_t
   implicit none
   private
 
@@ -154,6 +156,8 @@ module gs_caf
      procedure, pass(this) :: nbsend => gs_nbsend_caf
      procedure, pass(this) :: nbrecv => gs_nbrecv_caf
      procedure, pass(this) :: nbwait => gs_nbwait_caf
+     !> AMR restart
+     procedure, pass(this) :: amr_restart => gs_caf_amr_restart
   end type gs_caf_t
 
 contains
@@ -324,6 +328,9 @@ contains
     call this%free_order()
     call this%free_dofs()
 #endif
+
+    call this%free_amr_base()
+
   end subroutine gs_caf_free
 
   !> Pack u into per-peer slabs and put each slab into the remote image's
@@ -552,5 +559,24 @@ contains
     call neko_error("Coarray Fortran support not built")
 #endif
   end subroutine gs_nbwait_caf
+
+  !> AMR restart
+  !! @param[inout]  reconstruct   data reconstruction type
+  !! @param[in]     counter       restart counter
+  !! @param[in]     time          time state
+  subroutine gs_caf_amr_restart(this, reconstruct, counter, time)
+    class(gs_caf_t), intent(inout) :: this
+    type(amr_reconstruct_t), intent(inout) :: reconstruct
+    integer, intent(in) :: counter
+    type(time_state_t), intent(in) :: time
+
+    ! Was this component already restarted?
+    if (this%counter .eq. counter) return
+
+    this%counter = counter
+
+    call neko_error('Nothing done for AMR reconstruction')
+
+  end subroutine gs_caf_amr_restart
 
 end module gs_caf
