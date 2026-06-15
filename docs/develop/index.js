@@ -12,18 +12,21 @@ var index =
             [ "Python (optional)", "d5/dfc/installation.html#deps-python", null ]
           ] ],
           [ "Building Neko", "d5/dfc/installation.html#building-neko", [
+            [ "Compute backends and support tiers", "d5/dfc/installation.html#compute-backends", null ],
+            [ "Communication backends", "d5/dfc/installation.html#communication-backends", null ],
             [ "Compiling Neko for CPU or SX-Aurora", "d5/dfc/installation.html#autotoc_md149", null ],
             [ "Compiling Neko for NVIDIA GPUs", "d5/dfc/installation.html#autotoc_md150", null ],
             [ "Compiling Neko for AMD GPUs", "d5/dfc/installation.html#autotoc_md151", null ],
-            [ "Compiling Neko with a collective communications library", "d5/dfc/installation.html#autotoc_md152", null ]
+            [ "Compiling Neko for Apple Silicon GPUs", "d5/dfc/installation.html#autotoc_md152", null ],
+            [ "Compiling Neko with a collective communications library", "d5/dfc/installation.html#autotoc_md153", null ]
           ] ]
         ] ],
-        [ "Installing via Spack", "d5/dfc/installation.html#autotoc_md153", [
-          [ "Quick start guide with Spack", "d5/dfc/installation.html#autotoc_md154", null ]
+        [ "Installing via Spack", "d5/dfc/installation.html#autotoc_md154", [
+          [ "Quick start guide with Spack", "d5/dfc/installation.html#autotoc_md155", null ]
         ] ],
-        [ "Installing using pixi", "d5/dfc/installation.html#autotoc_md155", null ],
-        [ "Installing via FreeBSD ports", "d5/dfc/installation.html#autotoc_md156", null ],
-        [ "Using a Docker container", "d5/dfc/installation.html#autotoc_md157", null ],
+        [ "Installing using pixi", "d5/dfc/installation.html#autotoc_md156", null ],
+        [ "Installing via FreeBSD ports", "d5/dfc/installation.html#autotoc_md157", null ],
+        [ "Using a Docker container", "d5/dfc/installation.html#autotoc_md158", null ],
         [ "Testing", "d5/d75/testing.html", [
           [ "pFUnit", "d5/d75/testing.html#autotoc_md65", null ],
           [ "Configuring Neko", "d5/d75/testing.html#autotoc_md66", null ],
@@ -98,15 +101,15 @@ var index =
         [ "Runtime statistics", "dd/d33/case-file.html#autotoc_md110", null ]
       ] ],
       [ "User File", "d6/def/user-file.html", [
-        [ "Compiling and running", "d6/def/user-file.html#autotoc_md197", null ],
-        [ "High-level structure", "d6/def/user-file.html#autotoc_md198", null ],
-        [ "Default user functions", "d6/def/user-file.html#autotoc_md199", [
+        [ "Compiling and running", "d6/def/user-file.html#autotoc_md198", null ],
+        [ "High-level structure", "d6/def/user-file.html#autotoc_md199", null ],
+        [ "Default user functions", "d6/def/user-file.html#autotoc_md200", [
           [ "Initializing and finalizing", "d6/def/user-file.html#user-file_init-and-final", null ],
           [ "Computing at every time step", "d6/def/user-file.html#user-file_user-check", null ],
           [ "Setting material properties", "d6/def/user-file.html#user-file_mat-prop", null ],
           [ "Runtime mesh deformation", "d6/def/user-file.html#user-file_user-mesh-setup", null ]
         ] ],
-        [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md200", [
+        [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md201", [
           [ "Fluid and Scalar initial conditions", "d6/def/user-file.html#user-file_user-ic", null ],
           [ "Fluid and scalar source terms", "d6/def/user-file.html#user-file_user-f", null ],
           [ "Dirichlet boundary conditions", "d6/def/user-file.html#user-file_field-dirichlet-update", null ],
@@ -117,7 +120,7 @@ var index =
           [ "Mesh Velocity", "d6/def/user-file.html#user-file_ale-mesh-velocity", null ],
           [ "Custom Base Shapes", "d6/def/user-file.html#user-file_ale-base-shapes", null ]
         ] ],
-        [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md201", [
+        [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md202", [
           [ "Running on GPUs", "d6/def/user-file.html#user-file_tips_running-on-gpus", null ],
           [ "Running in multiple program multiple data (MPMD) mode", "d6/def/user-file.html#user-file_tips_mpmd", [
             [ "Custom GPU kernels", "d6/def/user-file.html#user-file_tips_running-on-gpus-custom-kernels", null ]
@@ -127,11 +130,11 @@ var index =
         ] ]
       ] ],
       [ "Simulation components", "d3/d84/simcomps.html", [
-        [ "What are simulation components?", "d3/d84/simcomps.html#autotoc_md180", null ],
-        [ "Adding simulation components to the case", "d3/d84/simcomps.html#autotoc_md181", null ],
-        [ "List of simulation components", "d3/d84/simcomps.html#autotoc_md182", null ],
-        [ "Controlling execution and file output", "d3/d84/simcomps.html#autotoc_md183", [
-          [ "Differential operators", "d3/d84/simcomps.html#autotoc_md184", [
+        [ "What are simulation components?", "d3/d84/simcomps.html#autotoc_md181", null ],
+        [ "Adding simulation components to the case", "d3/d84/simcomps.html#autotoc_md182", null ],
+        [ "List of simulation components", "d3/d84/simcomps.html#autotoc_md183", null ],
+        [ "Controlling execution and file output", "d3/d84/simcomps.html#autotoc_md184", [
+          [ "Differential operators", "d3/d84/simcomps.html#autotoc_md185", [
             [ "derivative", "d3/d84/simcomps.html#simcomp_derivative", null ],
             [ "curl", "d3/d84/simcomps.html#simcomp_curl", null ],
             [ "divergence", "d3/d84/simcomps.html#simcomp_divergence", null ]
@@ -142,12 +145,12 @@ var index =
           [ "boundary_operation", "d3/d84/simcomps.html#simcomp_boundary_operation", null ],
           [ "boundary_flux", "d3/d84/simcomps.html#simcomp_boundary_flux", null ],
           [ "probes", "d3/d84/simcomps.html#simcomp_probes", [
-            [ "Supported types", "d3/d84/simcomps.html#autotoc_md185", null ],
-            [ "Example usage", "d3/d84/simcomps.html#autotoc_md186", null ]
+            [ "Supported types", "d3/d84/simcomps.html#autotoc_md186", null ],
+            [ "Example usage", "d3/d84/simcomps.html#autotoc_md187", null ]
           ] ],
           [ "field_writer", "d3/d84/simcomps.html#simcomp_field_writer", null ],
           [ "force_torque", "d3/d84/simcomps.html#simcomp_force_torque", [
-            [ "Torque calculation for moving bodies", "d3/d84/simcomps.html#autotoc_md187", null ]
+            [ "Torque calculation for moving bodies", "d3/d84/simcomps.html#autotoc_md188", null ]
           ] ],
           [ "les_model", "d3/d84/simcomps.html#simcomp_les_model", null ],
           [ "User statistics", "d3/d84/simcomps.html#user_stats", null ],
@@ -157,46 +160,46 @@ var index =
         ] ]
       ] ],
       [ "Point zones", "da/dd0/point-zones.html", [
-        [ "What are point zones?", "da/dd0/point-zones.html#autotoc_md170", null ],
-        [ "Predefined geometrical shapes", "da/dd0/point-zones.html#autotoc_md171", [
-          [ "Box", "da/dd0/point-zones.html#autotoc_md172", null ],
-          [ "Sphere", "da/dd0/point-zones.html#autotoc_md173", null ],
-          [ "Cylinder", "da/dd0/point-zones.html#autotoc_md174", null ]
+        [ "What are point zones?", "da/dd0/point-zones.html#autotoc_md171", null ],
+        [ "Predefined geometrical shapes", "da/dd0/point-zones.html#autotoc_md172", [
+          [ "Box", "da/dd0/point-zones.html#autotoc_md173", null ],
+          [ "Sphere", "da/dd0/point-zones.html#autotoc_md174", null ],
+          [ "Cylinder", "da/dd0/point-zones.html#autotoc_md175", null ]
         ] ],
-        [ "Operations on point zones", "da/dd0/point-zones.html#autotoc_md175", [
-          [ "Inversion", "da/dd0/point-zones.html#autotoc_md176", null ],
-          [ "Combination", "da/dd0/point-zones.html#autotoc_md177", null ],
-          [ "Including full element data", "da/dd0/point-zones.html#autotoc_md178", null ]
+        [ "Operations on point zones", "da/dd0/point-zones.html#autotoc_md176", [
+          [ "Inversion", "da/dd0/point-zones.html#autotoc_md177", null ],
+          [ "Combination", "da/dd0/point-zones.html#autotoc_md178", null ],
+          [ "Including full element data", "da/dd0/point-zones.html#autotoc_md179", null ]
         ] ],
-        [ "User-defined geometrical shapes", "da/dd0/point-zones.html#autotoc_md179", null ],
+        [ "User-defined geometrical shapes", "da/dd0/point-zones.html#autotoc_md180", null ],
         [ "Using point zones", "da/dd0/point-zones.html#point-zones_using-point-zones", null ]
       ] ],
       [ "Statistics guide", "df/d8f/statistics-guide.html", [
         [ "Fluid Statistics", "df/d8f/statistics-guide.html#fluid-statistics", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md188", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md189", null ]
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md189", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md190", null ]
         ] ],
-        [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md190", null ],
+        [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md191", null ],
         [ "Scalar Statistics", "df/d8f/statistics-guide.html#scalar-statistics", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md191", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md192", null ]
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md192", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md193", null ]
         ] ],
         [ "Fluid Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#fluid-sgs-statistics", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md193", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md194", null ]
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md194", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md195", null ]
         ] ],
         [ "Scalar Subgrid-Scale (SGS) Statistics", "df/d8f/statistics-guide.html#scalar-sgs-statistics", [
-          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md195", null ],
-          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md196", null ]
+          [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md196", null ],
+          [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md197", null ]
         ] ],
         [ "Note to users", "df/d8f/statistics-guide.html#note-to-users", null ]
       ] ],
       [ "Input-output", "d7/d7f/io.html", [
-        [ "Mesh", "d7/d7f/io.html#autotoc_md158", null ],
-        [ "Three-dimensional field output", "d7/d7f/io.html#autotoc_md159", [
-          [ "Compression of field output", "d7/d7f/io.html#autotoc_md160", null ]
+        [ "Mesh", "d7/d7f/io.html#autotoc_md159", null ],
+        [ "Three-dimensional field output", "d7/d7f/io.html#autotoc_md160", [
+          [ "Compression of field output", "d7/d7f/io.html#autotoc_md161", null ]
         ] ],
-        [ "Checkpoint files", "d7/d7f/io.html#autotoc_md161", null ],
+        [ "Checkpoint files", "d7/d7f/io.html#autotoc_md162", null ],
         [ "VTKHDF output", "d7/d7f/io.html#vtkhdf-output", [
           [ "Prerequisites", "d7/d7f/io.html#vtkhdf-prerequisites", null ],
           [ "Enabling VTKHDF output", "d7/d7f/io.html#vtkhdf-enabling", null ],
@@ -214,18 +217,18 @@ var index =
         ] ]
       ] ],
       [ "Performance guidelines", "dc/d3c/performance.html", [
-        [ "Installation", "dc/d3c/performance.html#autotoc_md162", [
-          [ "Accelerator specific options", "dc/d3c/performance.html#autotoc_md163", null ]
+        [ "Installation", "dc/d3c/performance.html#autotoc_md163", [
+          [ "Accelerator specific options", "dc/d3c/performance.html#autotoc_md164", null ]
         ] ],
-        [ "Simulation setup", "dc/d3c/performance.html#autotoc_md164", [
-          [ "Load balancing", "dc/d3c/performance.html#autotoc_md165", null ],
-          [ "Parameters", "dc/d3c/performance.html#autotoc_md166", null ]
+        [ "Simulation setup", "dc/d3c/performance.html#autotoc_md165", [
+          [ "Load balancing", "dc/d3c/performance.html#autotoc_md166", null ],
+          [ "Parameters", "dc/d3c/performance.html#autotoc_md167", null ]
         ] ],
-        [ "Running a simulation", "dc/d3c/performance.html#autotoc_md167", [
-          [ "Gather-scatter communication backends", "dc/d3c/performance.html#autotoc_md168", [
+        [ "Running a simulation", "dc/d3c/performance.html#autotoc_md168", [
+          [ "Gather-scatter communication backends", "dc/d3c/performance.html#autotoc_md169", [
             [ "NVSHMEM backend", "dc/d3c/performance.html#performance-nvshmem-backend", null ],
             [ "OpenSHMEM backend", "dc/d3c/performance.html#performance-openshmem-backend", null ],
-            [ "Coarray Fortran backend", "dc/d3c/performance.html#autotoc_md169", null ]
+            [ "Coarray Fortran backend", "dc/d3c/performance.html#autotoc_md170", null ]
           ] ]
         ] ]
       ] ],

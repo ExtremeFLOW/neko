@@ -2,6 +2,7 @@ var dir_23179ed14d067dddc96ef717056004fe =
 [
     [ "cuda", "dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html", "dir_4c3596ec6e7f8d381657f6ce7bbe76a2" ],
     [ "hip", "dir_f48359d827d7566deae6b1b647b520e2.html", "dir_f48359d827d7566deae6b1b647b520e2" ],
+    [ "metal", "dir_c77d95920c5f59549c807cdf3e54f0ca.html", "dir_c77d95920c5f59549c807cdf3e54f0ca" ],
     [ "opencl", "dir_a753435b69305af25b1972a8c16b18f4.html", "dir_a753435b69305af25b1972a8c16b18f4" ],
     [ "ax_helm_device.F90", "d1/d46/ax__helm__device_8F90.html", "d1/d46/ax__helm__device_8F90" ],
     [ "ax_helm_full_device.F90", "dd/d4d/ax__helm__full__device_8F90.html", "dd/d4d/ax__helm__full__device_8F90" ],
