@@ -544,6 +544,7 @@ contains
     call neko_scratch_registry%request_vector(error, ind(1), this%u_interface%size(), &
          clear_scratch)
 
+    !> Compute the L2 norm (RMSE in reality) of the error at the interface points
     call vector_masked_gather_copy(error, u%x(:,1,1,1), this%interface_dof_mask, &
          this%dof%size())
     call vector_add2s2(error, this%u_interface, -1.0_rp)
@@ -561,6 +562,7 @@ contains
 
     call neko_scratch_registry%relinquish(ind)
 
+    !> Log the errors
     write(log_buf, '(A12,A3,A10,1x,A18,A1,E15.7,A1,E15.7,A1,E15.7,A1)') &
          'Interface BC', ' | ', 'L2 Error:', adjustl(trim(this%name)), '(', &
          u_int_norm, ',', v_int_norm, ',', w_int_norm, ')'
