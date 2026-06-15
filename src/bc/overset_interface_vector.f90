@@ -141,6 +141,8 @@ module overset_interface_vector
      procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
      !> Set up the interpolator.
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
+     !> Log interface interpolation error diagnostics.
+     procedure, pass(this), private :: log_interface_error_ => log_interface_error_
 
   end type overset_interface_vector_t
 
@@ -448,13 +450,6 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
-    real(kind=rp) :: u_int_norm, v_int_norm, w_int_norm
-    type(vector_t), pointer :: error
-    integer :: ind(1)
-    logical :: clear_scratch = .false.
-    character(len=256) :: log_buf
-    character(len=12) :: step_str
-    character(len=:), allocatable :: output_format
 
 
     !> Change the coordinates of the interface if set up by the user
@@ -494,37 +489,7 @@ contains
     call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
 
     if (this%log) then
-       !> Evaluate errors so far. The metric we use is the RMS error
-       call neko_scratch_registry%request_vector(error, ind(1), this%u_interface%size(), clear_scratch)
-       !> u
-       !! Get my local values
-       call vector_masked_gather_copy(error, u%x(:,1,1,1), this%interface_dof_mask, &
-            this%dof%size())
-       !! Substract the values from the other domain
-       call vector_add2s2(error, this%u_interface, -1.0_rp)
-       !! Get the L2 norm of the error
-       u_int_norm = sqrt(vector_glsc2(error, error)) &
-            / sqrt(real(this%n_int_tot, kind=rp))
-       !> v
-       call vector_masked_gather_copy(error, v%x(:,1,1,1), this%interface_dof_mask, &
-            this%dof%size())
-       call vector_add2s2(error, this%v_interface, -1.0_rp)
-       v_int_norm = sqrt(vector_glsc2(error, error)) &
-            / sqrt(real(this%n_int_tot, kind=rp))
-       !> w
-       call vector_masked_gather_copy(error, w%x(:,1,1,1), this%interface_dof_mask, &
-            this%dof%size())
-       call vector_add2s2(error, this%w_interface, -1.0_rp)
-       w_int_norm = sqrt(vector_glsc2(error, error)) &
-            / sqrt(real(this%n_int_tot, kind=rp))
-       call neko_scratch_registry%relinquish(ind)
-
-       !> Log the errors on a single line
-       output_format = '(A12,A3,A18,1x,I6,3x,E15.9,3x,E15.9)'
-       write(log_buf, output_format) &
-            'Interface BC', ' | ', 'L2 Error: ', adjustl(trim(this%name)), '(', &
-            u_int_norm, ',', v_int_norm, ',', w_int_norm, ')'
-       call neko_log%message(log_buf)
+       call this%log_interface_error_(u, v, w)
     end if
 
 
@@ -565,6 +530,43 @@ contains
 
 
   end subroutine overset_interface_update
+
+  !> Log interface RMSE for each vector component.
+  subroutine log_interface_error_(this, u, v, w)
+    class(overset_interface_vector_t), intent(inout) :: this
+    type(field_t), pointer, intent(in) :: u, v, w
+    real(kind=rp) :: u_int_norm, v_int_norm, w_int_norm
+    type(vector_t), pointer :: error
+    integer :: ind(1)
+    logical :: clear_scratch = .false.
+    character(len=256) :: log_buf
+
+    call neko_scratch_registry%request_vector(error, ind(1), this%u_interface%size(), &
+         clear_scratch)
+
+    call vector_masked_gather_copy(error, u%x(:,1,1,1), this%interface_dof_mask, &
+         this%dof%size())
+    call vector_add2s2(error, this%u_interface, -1.0_rp)
+    u_int_norm = sqrt(vector_glsc2(error, error)) / sqrt(real(this%n_int_tot, kind=rp))
+
+    call vector_masked_gather_copy(error, v%x(:,1,1,1), this%interface_dof_mask, &
+         this%dof%size())
+    call vector_add2s2(error, this%v_interface, -1.0_rp)
+    v_int_norm = sqrt(vector_glsc2(error, error)) / sqrt(real(this%n_int_tot, kind=rp))
+
+    call vector_masked_gather_copy(error, w%x(:,1,1,1), this%interface_dof_mask, &
+         this%dof%size())
+    call vector_add2s2(error, this%w_interface, -1.0_rp)
+    w_int_norm = sqrt(vector_glsc2(error, error)) / sqrt(real(this%n_int_tot, kind=rp))
+
+    call neko_scratch_registry%relinquish(ind)
+
+    write(log_buf, '(A12,A3,A10,1x,A18,A1,E15.7,A1,E15.7,A1,E15.7,A1)') &
+         'Interface BC', ' | ', 'L2 Error:', adjustl(trim(this%name)), '(', &
+         u_int_norm, ',', v_int_norm, ',', w_int_norm, ')'
+    call neko_log%message(log_buf)
+
+  end subroutine log_interface_error_
 
   !===================
   ! Helper subroutines

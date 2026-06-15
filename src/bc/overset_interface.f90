@@ -124,6 +124,8 @@ module overset_interface
      procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
      !> Set up the interpolator.
      procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
+     !> Log interface interpolation error diagnostics.
+     procedure, pass(this), private :: log_interface_error_ => log_interface_error_
   end type overset_interface_t
 
   abstract interface
@@ -414,12 +416,6 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
-    real(kind=rp) :: s_int_norm
-    type(vector_t), pointer :: error
-    integer :: ind(1)
-    logical :: clear_scratch = .false.
-    character(len=256) :: log_buf
-    character(len=12) :: step_str
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -447,20 +443,7 @@ contains
          this%domain_element_mask, .false.)
 
     if (this%log) then
-       call neko_scratch_registry%request_vector(error, ind(1), this%s_interface%size(), &
-            clear_scratch)
-       call vector_masked_gather_copy(error, s%x(:,1,1,1), this%interface_dof_mask, &
-            this%dof%size())
-       call vector_add2s2(error, this%s_interface, -1.0_rp)
-       s_int_norm = sqrt(vector_glsc2(error, error)) / &
-            sqrt(real(this%n_int_tot, kind=rp))
-       call neko_scratch_registry%relinquish(ind)
-
-       write(step_str, '(I12)') time%tstep
-       step_str = adjustl(step_str)
-       write(log_buf, '(A12,A3,3x,A16,1x,A18,A3,E15.7)') step_str, ' | ', &
-            'interface rmse:', adjustl(trim(this%name)), ' = ', s_int_norm
-       call neko_log%message(log_buf)
+       call this%log_interface_error_(s)
     end if
 
     if (time%tstep .ne. this%last_tstep) then
@@ -481,6 +464,30 @@ contains
          this%interface_dof_mask, this%bc_s%dof%size())
 
   end subroutine overset_interface_update
+
+  !> Log interface RMSE for the scalar field.
+  subroutine log_interface_error_(this, s)
+    class(overset_interface_t), intent(inout) :: this
+    type(field_t), pointer, intent(in) :: s
+    real(kind=rp) :: s_int_norm
+    type(vector_t), pointer :: error
+    integer :: ind(1)
+    logical :: clear_scratch = .false.
+    character(len=256) :: log_buf
+
+    call neko_scratch_registry%request_vector(error, ind(1), this%s_interface%size(), &
+         clear_scratch)
+    call vector_masked_gather_copy(error, s%x(:,1,1,1), this%interface_dof_mask, &
+         this%dof%size())
+    call vector_add2s2(error, this%s_interface, -1.0_rp)
+    s_int_norm = sqrt(vector_glsc2(error, error)) / sqrt(real(this%n_int_tot, kind=rp))
+    call neko_scratch_registry%relinquish(ind)
+
+    write(log_buf, '(A12,A3,A10,1x,A18,A3,E15.7)') 'Interface BC', ' | ', &
+         'L2 Error:', adjustl(trim(this%name)), ' = ', s_int_norm
+    call neko_log%message(log_buf)
+
+  end subroutine log_interface_error_
 
   !===================
   ! Helper subroutines
