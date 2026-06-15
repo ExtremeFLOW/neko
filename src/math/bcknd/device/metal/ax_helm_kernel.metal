@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
