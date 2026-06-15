@@ -97,6 +97,7 @@ module lagrangian_particle_tracking
      integer :: time_order, lag_len
      integer :: history_len = 0
      logical :: inertia = .false.
+     real(kind=rp) :: nonlinear_coefficient, nonlinear_exponent
      logical :: elastic_wall_enabled = .false.
      integer, allocatable :: wall_zone_indices(:)
      logical, allocatable :: wall_facet_mask(:, :)
@@ -227,6 +228,10 @@ contains
     call json_get(json, "inertia", this%inertia)
 
     if (this%inertia) then
+       call json_get_or_default(json, "nonlinear_coefficient", &
+            this%nonlinear_coefficient, 0.15_rp)
+       call json_get_or_default(json, "nonlinear_exponent", &
+            this%nonlinear_exponent, 0.687_rp)
        this%mu_fluid => neko_registry%get_field_by_name( &
                         case%fluid%name // "_mu")
        this%rho_fluid => neko_registry%get_field_by_name( &
@@ -450,8 +455,8 @@ contains
     call invcol2(Re_p, nu_fluid_local, n)
     
     ! compute f
-    wa = power(Re_p, 0.687_rp, n)
-    call cmult(wa, 0.15_rp, n)
+    wa = power(Re_p, this%nonlinear_exponent, n)
+    call cmult(wa, this%nonlinear_coefficient, n)
     call cadd2(f, wa, 1.0_rp, n)
 
     ! assemble compute the acceleration
