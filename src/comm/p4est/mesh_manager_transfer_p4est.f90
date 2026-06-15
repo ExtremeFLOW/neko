@@ -561,6 +561,7 @@ contains
                 ! fetched data
                 if (this%crs_fill_map(jl, il) .ge. 0) &
                      call neko_error('CRS: wrong storage position')
+                cmap(1 + jl, il) = cmapl(jl, il)
              end if
           end do
        end do
