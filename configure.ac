@@ -267,6 +267,9 @@ fi
 # Checks for OpenCL backend
 AX_OPENCL
 
+# Checks for Metal backend
+AX_METAL
+
 # Set the NEKO_BCKND variable
 if test "x${have_cuda}" = xyes; then
    AC_SUBST(NEKO_BCKND, "CUDA")
@@ -274,6 +277,8 @@ elif test "x${have_hip}" = xyes; then
    AC_SUBST(NEKO_BCKND, "HIP")
 elif test "x${have_opencl}" = xyes; then
    AC_SUBST(NEKO_BCKND, "OpenCL")
+elif test "x${have_metal}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "Metal")
 elif test "x${is_sx}" = x1; then
    AC_SUBST(NEKO_BCKND, "SX-Aurora")
 else
@@ -351,6 +356,7 @@ AM_CONDITIONAL([ENABLE_ADIOS2_FORTRAN], [test "x${have_adios2_fortran}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
+AM_CONDITIONAL([ENABLE_METAL], [test "x${have_metal}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
 AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
@@ -363,7 +369,8 @@ AC_SUBST(HIP_HIPCC_FLAGS)
 # Set device backend if requested (and found)
 if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
-    test "x${have_opencl}" = xyes); then
+    test "x${have_opencl}" = xyes ||
+    test "x${have_metal}" = xyes); then
     AC_SUBST(device_bcknd, "1")
 else
     AC_SUBST(device_bcknd, "0")

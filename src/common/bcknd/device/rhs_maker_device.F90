@@ -341,6 +341,98 @@ module rhs_maker_device
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_opencl
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine rhs_maker_sumab_metal(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
+          uulag1, uulag2, vvlag1, vvlag2, wwlag1, wwlag2, ab1, ab2, ab3, nab, n)&
+          bind(c, name = 'rhs_maker_sumab_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: u_d, v_d, w_d, uu_d, vv_d, ww_d
+       type(c_ptr), value :: uulag1, uulag2, vvlag1, vvlag2, wwlag1, wwlag2
+       real(c_rp) :: ab1, ab2, ab3
+       integer(c_int) :: nab, n
+     end subroutine rhs_maker_sumab_metal
+  end interface
+
+  interface
+     subroutine rhs_maker_ext_metal(abx1_d, aby1_d, abz1_d, &
+                                     abx2_d, aby2_d, abz2_d, &
+                                     bfx_d, bfy_d, bfz_d, &
+                                     rho, ab1, ab2, ab3, n) &
+                                     bind(c, name = 'rhs_maker_ext_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: abx1_d, aby1_d, abz1_d
+       type(c_ptr), value :: abx2_d, aby2_d, abz2_d
+       type(c_ptr), value :: bfx_d, bfy_d, bfz_d
+       real(c_rp) :: rho, ab1, ab2, ab3
+       integer(c_int) :: n
+     end subroutine rhs_maker_ext_metal
+  end interface
+
+  interface
+     subroutine scalar_rhs_maker_ext_metal(fs_lag_d, fs_laglag_d, fs_d, rho, &
+          ext1, ext2, ext3, n) &
+          bind(c, name = 'scalar_rhs_maker_ext_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d
+       real(c_rp) :: rho, ext1, ext2, ext3
+       integer(c_int) :: n
+     end subroutine scalar_rhs_maker_ext_metal
+  end interface
+
+  interface
+     subroutine rhs_maker_bdf_metal(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
+          wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
+          rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name = 'rhs_maker_bdf_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
+       type(c_ptr), value :: vlag2_d, wlag1_d, wlag2_d
+       type(c_ptr), value :: bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d
+       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
+       integer(c_int) :: nbd, n
+     end subroutine rhs_maker_bdf_metal
+  end interface
+
+  interface
+     subroutine scalar_rhs_maker_bdf_metal(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
+          rho, dt, bd2, bd3, bd4, nbd, n) &
+          bind(c, name = 'scalar_rhs_maker_bdf_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: s_lag_d, s_laglag_d
+       type(c_ptr), value :: fs_d, s_d, B_d
+       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
+       integer(c_int) :: nbd, n
+     end subroutine scalar_rhs_maker_bdf_metal
+  end interface
+
+  interface
+     subroutine rhs_maker_oifs_metal(phi_x_d, phi_y_d, phi_z_d, bf_x_d, &
+          bf_y_d, bf_z_d, rho, dt, n) bind(c, name = 'rhs_maker_oifs_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: bf_x_d, bf_y_d, bf_z_d
+       type(c_ptr), value :: phi_x_d, phi_y_d, phi_z_d
+       reaL(c_rp) :: rho, dt
+       integer(c_int) :: n
+     end subroutine rhs_maker_oifs_metal
+  end interface
+
+  interface
+     subroutine scalar_rhs_maker_oifs_metal(phi_s_d, bf_s_d, rho, dt, n) &
+          bind(c, name = 'scalar_rhs_maker_oifs_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: bf_s_d
+       type(c_ptr), value :: phi_s_d
+       reaL(c_rp) :: rho, dt
+       integer(c_int) :: n
+     end subroutine scalar_rhs_maker_oifs_metal
+  end interface
 #endif
 
 contains
@@ -364,6 +456,11 @@ contains
          uu%dof%size())
 #elif HAVE_OPENCL
     call rhs_maker_sumab_opencl(u%x_d, v%x_d, w%x_d, uu%x_d, vv%x_d, ww%x_d, &
+         uulag%lf(1)%x_d, uulag%lf(2)%x_d, vvlag%lf(1)%x_d, vvlag%lf(2)%x_d, &
+         wwlag%lf(1)%x_d, wwlag%lf(2)%x_d, ab(1), ab(2), ab(3), nab, &
+         uu%dof%size())
+#elif HAVE_METAL
+    call rhs_maker_sumab_metal(u%x_d, v%x_d, w%x_d, uu%x_d, vv%x_d, ww%x_d, &
          uulag%lf(1)%x_d, uulag%lf(2)%x_d, vvlag%lf(1)%x_d, vvlag%lf(2)%x_d, &
          wwlag%lf(1)%x_d, wwlag%lf(2)%x_d, ab(1), ab(2), ab(3), nab, &
          uu%dof%size())
@@ -400,6 +497,11 @@ contains
          fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
          fx_d, fy_d, fz_d, rho, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
+#elif HAVE_METAL
+    call rhs_maker_ext_metal(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
+         fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
+         fx_d, fy_d, fz_d, rho, &
+         ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
 
   end subroutine rhs_maker_ext_device
@@ -423,6 +525,9 @@ contains
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_OPENCL
     call scalar_rhs_maker_ext_opencl(fs_lag%x_d, fs_laglag%x_d, fs_d, rho, &
+         ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
+#elif HAVE_METAL
+    call scalar_rhs_maker_ext_metal(fs_lag%x_d, fs_laglag%x_d, fs_d, rho, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
 
@@ -462,6 +567,12 @@ contains
          wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
          bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
          B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
+#elif HAVE_METAL
+    call rhs_maker_bdf_metal(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
+         vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
+         wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
+         bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
+         B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #endif
 
   end subroutine rhs_maker_bdf_device
@@ -489,6 +600,10 @@ contains
          nbd, n)
 #elif HAVE_OPENCL
     call scalar_rhs_maker_bdf_opencl(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
+         fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
+         nbd, n)
+#elif HAVE_METAL
+    call scalar_rhs_maker_bdf_metal(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
          fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
          nbd, n)
 #endif
@@ -520,6 +635,9 @@ contains
 #elif HAVE_OPENCL
     call rhs_maker_oifs_opencl(phi_x_d, phi_y_d, phi_z_d, &
          bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
+#elif HAVE_METAL
+    call rhs_maker_oifs_metal(phi_x_d, phi_y_d, phi_z_d, &
+         bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
 #endif
 
   end subroutine rhs_maker_oifs_device
@@ -540,6 +658,8 @@ contains
     call scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho, dt, n)
 #elif HAVE_OPENCL
     call scalar_rhs_maker_oifs_opencl(phi_s_d, bf_s_d, rho, dt, n)
+#elif HAVE_METAL
+    call scalar_rhs_maker_oifs_metal(phi_s_d, bf_s_d, rho, dt, n)
 #endif
 
   end subroutine scalar_rhs_maker_oifs_device
