@@ -843,9 +843,9 @@ contains
          ! Do projections only on the actual solutions of the tstep
          ! not intermediate solutions from the subiterations.
          if (iter .eq. 1) then
-         call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-              Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
-              string = 'Pressure')
+            call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
+                 Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
+                 string = 'Pressure')
          end if
 
          call this%pc_prs%update()
@@ -862,8 +862,8 @@ contains
          call profiler_end_region('Pressure_solve', 3)
 
          if (iter .eq. 1) then
-         call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-              this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+            call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
+                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
          end if
 
          ! Update the pressure with the increment. Demean if necessary.
@@ -900,8 +900,8 @@ contains
          call profiler_end_region('Velocity_residual', 19)
 
          if (iter .eq. 1) then
-         call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
-              tstep, c_Xh, n, dt_controller, 'Velocity')
+            call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
+                 tstep, c_Xh, n, dt_controller, 'Velocity')
          end if
 
          call this%pc_vel%update()
@@ -921,9 +921,9 @@ contains
          end if
 
          if (iter .eq. 1) then
-         call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-              this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
-              dt_controller)
+            call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
+                 this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
+                 dt_controller)
          end if
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
