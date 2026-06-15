@@ -267,7 +267,7 @@ contains
          trim(this%name) // ".csv")
     call this%output_file%init(case%output_directory // &
          trim(output_filename), &
-         header = "tstep,time,particle_id,x,y,z,u,v,w", overwrite = .true.)
+         header = "tstep,time,particle_id,x,y,z,u,v,w,d,rho", overwrite = .true.)
 
     ! output at the initialisation
     this%output_enabled = .true.
@@ -660,7 +660,7 @@ contains
 
     n_local = this%particles%n
 
-    allocate(local_data(9, n_local))
+    allocate(local_data(11, n_local))
     do i = 1, n_local
        local_data(1,i) = real(time%tstep, rp)
        local_data(2,i) = time%t
@@ -671,6 +671,8 @@ contains
        local_data(7,i) = this%particles%vel(1,i)
        local_data(8,i) = this%particles%vel(2,i)
        local_data(9,i) = this%particles%vel(3,i)
+       local_data(10,i) = this%particles%d(i)
+       local_data(11,i) = this%particles%rho(i)
     end do
 
     if (pe_rank .eq. 0) then
@@ -690,23 +692,23 @@ contains
        total_particles = 0
        do i = 1, pe_size
           total_particles = total_particles + n_local_particles_per_rank(i)
-          recvcounts(i) = 9 * n_local_particles_per_rank(i)
-          displs(i) = 9 * (total_particles - n_local_particles_per_rank(i))
+          recvcounts(i) = 11 * n_local_particles_per_rank(i)
+          displs(i) = 11 * (total_particles - n_local_particles_per_rank(i))
        end do
 
-       allocate(global_data(9, total_particles))
+       allocate(global_data(11, total_particles))
     else
        allocate(recvcounts(0))
        allocate(displs(0))
-       allocate(global_data(9, 0))
+       allocate(global_data(11, 0))
     end if
 
-    call MPI_Gatherv(local_data, 9 * n_local, MPI_REAL_PRECISION, global_data, &
+    call MPI_Gatherv(local_data, 11 * n_local, MPI_REAL_PRECISION, global_data, &
          recvcounts, displs, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
 
     if (pe_rank .eq. 0) then
-       call block%init(total_particles, 9)
-       call trsp(block%x, total_particles, global_data, 9)
+       call block%init(total_particles, 11)
+       call trsp(block%x, total_particles, global_data, 11)
        call this%output_file%write(block)
        call block%free()
     end if
