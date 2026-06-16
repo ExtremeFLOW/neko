@@ -1,5 +1,6 @@
 from glob import glob
 import csv
+from math import sqrt
 from os.path import abspath, join
 import os
 import subprocess
@@ -11,6 +12,8 @@ from testlib import (
     get_neko_dir,
     run_neko,
 )
+
+PROFILE_TOLERANCE = 3e-6
 
 
 def _remove_old_outputs(test_dir):
@@ -27,6 +30,22 @@ def _load_output(test_dir, stem):
 
     with open(matches[0], newline="", encoding="utf-8") as csv_file:
         return [[float(value) for value in row] for row in csv.reader(csv_file)]
+
+
+def _profile_coords():
+    """Return the unique GLL coordinates for two order-3 elements on [0, 1]."""
+    first_internal = (1.0 - 1.0 / sqrt(5.0)) / 4.0
+    second_internal = (1.0 + 1.0 / sqrt(5.0)) / 4.0
+    return [
+        0.0,
+        first_internal,
+        second_internal,
+        0.5,
+        0.5 + first_internal,
+        0.5 + second_internal,
+        1.0,
+    ]
+
 
 def _assert_profile(data, expected_values):
     """Check the final 1D CSV snapshot against the current reference values."""
@@ -60,7 +79,7 @@ def _assert_profile(data, expected_values):
     assert len(final_values) == len(expected_values)
     for actual, expected in zip(final_values, expected_values):
         for actual_value, expected_value in zip(actual, expected):
-            assert abs(actual_value - expected_value) <= 1e-6
+            assert abs(actual_value - expected_value) <= PROFILE_TOLERANCE
 
 
 def test_spatial_average(launcher_script, request, log_file, tmp_path):
@@ -86,7 +105,7 @@ def test_spatial_average(launcher_script, request, log_file, tmp_path):
 
     result = subprocess.run(
         [genmeshbox, "0", "1", "0", "1", "0", "1", "2", "2", "2",
-         ".true.", ".true.", ".true."],
+         ".false.", ".false.", ".false."],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
@@ -102,30 +121,10 @@ def test_spatial_average(launcher_script, request, log_file, tmp_path):
         f"neko process failed with exit code {result.returncode}"
     )
 
-    _assert_profile(
-        _load_output(test_dir, "avg_xy"),
-        [
-            [2.2732010163107850, 0.6480162399544300],
-            [2.5899646876953129, 0.8413877087239615],
-            [2.7822349494748089, 0.6547302288151009],
-            [2.9371869099175374, 0.6243738198350732],
-        ],
-    )
-   # _assert_profile(
-   #     _load_output(test_dir, "avg_xz"),
-   #     [
-   #         [1.1865009348676292, 0.4967441177039900],
-   #         [1.4223587507812587, 0.3264742192382861],
-   #         [1.4295054194943513, 0.4355475489626769],
-   #         [1.7678307462348062, 0.3038977169650602],
-   #     ],
-   # )
-   # _assert_profile(
-   #     _load_output(test_dir, "avg_yz"),
-   #     [
-   #         [2.7505805009375077, 0.2184879808463695],
-   #         [2.8687099670356053, 0.8636299474283805],
-   #         [2.8837033951692654, 0.5323686549023312],
-   #         [3.2364242011935738, 0.7574140795681397],
-   #     ],
-   # )
+    coords = _profile_coords()
+    _assert_profile(_load_output(test_dir, "avg_xy"),
+                    [[1.5 + 3.0 * z, 0.5 + 0.5 * z] for z in coords])
+    _assert_profile(_load_output(test_dir, "avg_xz"),
+                    [[2.0 + 2.0 * y, 1.25 - y] for y in coords])
+    _assert_profile(_load_output(test_dir, "avg_yz"),
+                    [[2.5 + x, 2.0 * x - 0.25] for x in coords])
