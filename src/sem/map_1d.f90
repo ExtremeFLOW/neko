@@ -7,7 +7,7 @@ module map_1d
   use dofmap, only : dofmap_t
   use gather_scatter, only : GS_OP_ADD
   use mesh, only : mesh_t
-  use device, only : device_memcpy, device_map, device_free, &
+  use device, only : device_memcpy, device_map, device_unmap, &
        HOST_TO_DEVICE, DEVICE_TO_HOST
   use comm, only : pe_size, pe_rank, NEKO_COMM, MPI_REAL_PRECISION
   use coefs, only : coef_t
@@ -241,8 +241,10 @@ contains
           end if
        end do
     end do
-    if (allocated(min_vals)) deallocate(min_vals)
-    if (c_associated(min_vals_d)) call device_free(min_vals_d)
+    if (allocated(min_vals)) then
+       if (c_associated(min_vals_d)) call device_unmap(min_vals, min_vals_d)
+       deallocate(min_vals)
+    end if
     if (allocated(min_temp)) deallocate(min_temp)
     allocate(this%volume_per_gll_lvl(this%n_gll_lvls))
     this%volume_per_gll_lvl = 0.0_rp

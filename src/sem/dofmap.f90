@@ -215,14 +215,23 @@ contains
     end if
 
     if (allocated(this%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%x, this%x_d)
+       end if
        deallocate(this%x)
     end if
 
     if (allocated(this%y)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%y, this%y_d)
+       end if
        deallocate(this%y)
     end if
 
     if (allocated(this%z)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%z, this%z_d)
+       end if
        deallocate(this%z)
     end if
 
@@ -232,21 +241,6 @@ contains
     if (allocated(this%msh_subset)) then
        call this%msh_subset%free()
        deallocate(this%msh_subset)
-    end if
-
-    !
-    ! Cleanup the device (if present)
-    !
-    if (c_associated(this%x_d)) then
-       call device_free(this%x_d)
-    end if
-
-    if (c_associated(this%y_d)) then
-       call device_free(this%y_d)
-    end if
-
-    if (c_associated(this%z_d)) then
-       call device_free(this%z_d)
     end if
 
   end subroutine dofmap_free
@@ -658,10 +652,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
-       do concurrent (j = 2:(Xh%ly - 1), k = 2:(Xh%lz -1))
-          this%dof(1, j, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, j, k, Xh%lz, Xh%ly)
-          this%shared_dof(1, j, k, i) = shared_dof
+       do k = 2, Xh%lz - 1
+          do j = 2, Xh%ly - 1
+             this%dof(1, j, k, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, j, k, Xh%lz, Xh%ly)
+             this%shared_dof(1, j, k, i) = shared_dof
+          end do
        end do
 
        call msh%elements(i)%e%facet_id(face, 2)
@@ -669,10 +665,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
-       do concurrent (j = 2:(Xh%ly - 1), k = 2:(Xh%lz -1))
-          this%dof(Xh%lx, j, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, j, k, Xh%lz, Xh%ly)
-          this%shared_dof(Xh%lx, j, k, i) = shared_dof
+       do k = 2, Xh%lz - 1
+          do j = 2, Xh%ly - 1
+             this%dof(Xh%lx, j, k, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, j, k, Xh%lz, Xh%ly)
+             this%shared_dof(Xh%lx, j, k, i) = shared_dof
+          end do
        end do
 
 
@@ -684,10 +682,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%lz - 1))
-          this%dof(j, 1, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, 1, k, i) = shared_dof
+       do k = 2, Xh%lz - 1
+          do j = 2, Xh%lx - 1
+             this%dof(j, 1, k, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, k, j, Xh%lz, Xh%lx)
+             this%shared_dof(j, 1, k, i) = shared_dof
+          end do
        end do
 
        call msh%elements(i)%e%facet_id(face, 4)
@@ -695,10 +695,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%lz - 1))
-          this%dof(j, Xh%ly, k, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, Xh%ly, k, i) = shared_dof
+       do k = 2, Xh%lz - 1
+          do j = 2, Xh%lx - 1
+             this%dof(j, Xh%ly, k, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, k, j, Xh%lz, Xh%lx)
+             this%shared_dof(j, Xh%ly, k, i) = shared_dof
+          end do
        end do
 
 
@@ -710,10 +712,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%ly - 1))
-          this%dof(j, k, 1, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%ly, Xh%lx)
-          this%shared_dof(j, k, 1, i) = shared_dof
+       do k = 2, Xh%ly - 1
+          do j = 2, Xh%lx - 1
+             this%dof(j, k, 1, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, k, j, Xh%ly, Xh%lx)
+             this%shared_dof(j, k, 1, i) = shared_dof
+          end do
        end do
 
        call msh%elements(i)%e%facet_id(face, 6)
@@ -721,10 +725,12 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
-       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%ly - 1))
-          this%dof(j, k, Xh%lz, i) = &
-               dofmap_facetidx(face_order, face, facet_id, k, j, Xh%lz, Xh%lx)
-          this%shared_dof(j, k, Xh%lz, i) = shared_dof
+       do k = 2, Xh%ly - 1
+          do j = 2, Xh%lx - 1
+             this%dof(j, k, Xh%lz, i) = dofmap_facetidx(face_order, face, &
+                  facet_id, k, j, Xh%lz, Xh%lx)
+             this%shared_dof(j, k, Xh%lz, i) = shared_dof
+          end do
        end do
     end do
     !$omp end parallel do
@@ -1348,7 +1354,7 @@ contains
        call device_memcpy(other%y, other%y_d, other%ntot, &
             DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(other%z, other%z_d, other%ntot, &
-            DEVICE_TO_HOST, sync =.true.)
+            DEVICE_TO_HOST, sync = .true.)
 
     else
        call masked_gather_copy(other%x, this%x, mask%get(), &

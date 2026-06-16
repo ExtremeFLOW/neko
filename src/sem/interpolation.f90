@@ -32,10 +32,10 @@
 !
 !> Routines to interpolate between different spaces
 module interpolation
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device
-  use fast3d
+  use fast3d, only : setup_intp
   use tensor, only : tnsr3d
   use tensor_cpu, only : tnsr3d_cpu
   use space, only : space_t, operator(.eq.), GL, GLL
@@ -93,10 +93,10 @@ contains
 
     call this%free()
 
-    allocate(this%Xh_to_Yh(Yh%lx,Xh%lx))
-    allocate(this%Xh_to_YhT(Xh%lx,Yh%lx))
-    allocate(this%Yh_to_Xh(Xh%lx,Yh%lx))
-    allocate(this%Yh_to_XhT(Yh%lx,Xh%lx))
+    allocate(this%Xh_to_Yh(Yh%lx, Xh%lx))
+    allocate(this%Xh_to_YhT(Xh%lx, Yh%lx))
+    allocate(this%Yh_to_Xh(Xh%lx, Yh%lx))
+    allocate(this%Yh_to_XhT(Yh%lx, Xh%lx))
 
     if (Xh%t .eq. GLL .and. Yh%t .eq. GLL) then
     else if ((Xh%t .eq. GL .and. Yh%t .eq. GLL) .or. &
@@ -118,13 +118,13 @@ contains
        call device_map(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx)
        call device_map(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx)
        call device_memcpy(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, &
-            HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, &
-            HOST_TO_DEVICE, sync=.true.)
+            HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine interpolator_init
@@ -133,28 +133,28 @@ contains
     class(interpolator_t), intent(inout) :: this
 
     if (allocated(this%Xh_to_Yh)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%Xh_to_Yh, this%Xh_Yh_d)
+       end if
        deallocate(this%Xh_to_Yh)
     end if
     if (allocated(this%Xh_to_YhT)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%Xh_to_YhT, this%Xh_YhT_d)
+       end if
        deallocate(this%Xh_to_YhT)
     end if
     if (allocated(this%Yh_to_Xh)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%Yh_to_Xh, this%Yh_Xh_d)
+       end if
        deallocate(this%Yh_to_Xh)
     end if
     if (allocated(this%Yh_to_XhT)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%Yh_to_XhT, this%Yh_XhT_d)
+       end if
        deallocate(this%Yh_to_XhT)
-    end if
-    if (c_associated(this%Yh_Xh_d)) then
-       call device_free(this%Yh_Xh_d)
-    end if
-    if (c_associated(this%Yh_XhT_d)) then
-       call device_free(this%Yh_XhT_d)
-    end if
-    if (c_associated(this%Xh_Yh_d)) then
-       call device_free(this%Xh_Yh_d)
-    end if
-    if (c_associated(this%Xh_YhT_d)) then
-       call device_free(this%Xh_YhT_d)
     end if
 
     nullify(this%Xh)
@@ -175,11 +175,11 @@ contains
     real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d(y, this%Yh%lx, x, &
-            this%Xh%lx,this%Yh_to_XhT, &
+            this%Xh%lx, this%Yh_to_XhT, &
             this%Yh_to_Xh, this%Yh_to_Xh, nel)
     else if (to_space .eq. this%Xh) then
        call tnsr3d(y, this%Xh%lx, x, &
-            this%Yh%lx,this%Yh_to_Xh, &
+            this%Yh%lx, this%Yh_to_Xh, &
             this%Yh_to_XhT, this%Yh_to_XhT, nel)
     else
        call neko_error('Invalid interpolation')
@@ -201,11 +201,11 @@ contains
     real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d_cpu(y, this%Yh%lx, x, &
-            this%Xh%lx,this%Yh_to_XhT, &
+            this%Xh%lx, this%Yh_to_XhT, &
             this%Yh_to_Xh, this%Yh_to_Xh, nel)
     else if (to_space .eq. this%Xh) then
        call tnsr3d_cpu(y, this%Xh%lx, x, &
-            this%Yh%lx,this%Yh_to_Xh, &
+            this%Yh%lx, this%Yh_to_Xh, &
             this%Yh_to_XhT, this%Yh_to_XhT, nel)
     else
        call neko_error('Invalid interpolation')

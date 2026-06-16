@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:boundary_operation",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "zone_indices",
+            "field_name",
+            "operations"
+          ],
+          "properties": {
+            "type": {
+              "const": "boundary_operation"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArrayOrRef"
+            },
+            "field_name": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "integral",
+                  "average",
+                  "min",
+                  "max"
+                ]
+              },
+              "minItems": 1
+            },
+            "log": {
+              "type": "boolean"
+            },
+            "output_filename": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

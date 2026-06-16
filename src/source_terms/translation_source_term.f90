@@ -201,6 +201,10 @@ contains
     ! Release the scratch fields
     call neko_scratch_registry%relinquish_field(tmp_index)
 
+    nullify(u, v, w, fx, fy, fz)
+
+    nullify(work1, work2, work3, work4, work5, work6, work7)
+
 
   end subroutine translation_source_term_compute
 

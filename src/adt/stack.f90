@@ -47,8 +47,8 @@
 !!   stack_nc_t         | nmsh_curve_el_t
 !!   stack_pt_t         | point_t
 module stack
-  use num_types
-  use nmsh
+  use num_types, only : rp, dp, i8
+  use nmsh, only : nmsh_quad_t, nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
   use utils, only : neko_error, neko_warning
   use point, only : point_t
   use structs, only : struct_curve_t

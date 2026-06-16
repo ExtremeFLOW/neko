@@ -1,0 +1,92 @@
+.\" Manual page for prepart
+.TH PREPART 1 "2026-05-22" "Neko" "User Commands"
+.SH NAME
+prepart \- pre-partition a Neko nmsh mesh with ParMETIS
+.SH SYNOPSIS
+.B prepart
+.I nmsh-file
+.I nparts
+.SH DESCRIPTION
+.B prepart
+reads a Neko native mesh
+.RI ( .nmsh )
+and produces a new
+.B .nmsh
+file in which the elements have been reordered according to a ParMETIS
+k-way partitioning into
+.I nparts
+parts. Periodic identifiers, labeled zones and curved-edge information
+attached to the original mesh are preserved and remapped to the new element
+ordering.
+.PP
+Pre-partitioning is useful when the same mesh is reused across many runs
+on a fixed number of ranks: the partitioning cost is paid once, up front,
+and subsequent simulations can load the already-partitioned file directly.
+.PP
+.B prepart
+is part of the Neko contrib tools and is installed only when Neko has been
+configured with
+.B --enable-contrib
+and with ParMETIS support
+.RB ( --with-parmetis ).
+.SH ARGUMENTS
+.TP
+.I nmsh-file
+Input Neko mesh in
+.B .nmsh
+format.
+.TP
+.I nparts
+Number of partitions to produce. Must be a positive integer; in typical use
+it equals the number of MPI ranks intended for the subsequent simulation.
+.SH OUTPUT
+A new mesh file is written in the current directory with the name
+.IR <basename>_<nparts>.nmsh ,
+where
+.I <basename>
+is the input file name with its
+.B .nmsh
+suffix removed. For example, partitioning
+.I box.nmsh
+into 128 parts produces
+.IR box_128.nmsh .
+.SH EXIT STATUS
+.TP
+.B 0
+The mesh was partitioned and written successfully.
+.TP
+.B non-zero
+An error occurred while reading the input mesh, running the ParMETIS
+partitioner, or writing the output mesh.
+.SH EXAMPLES
+Partition a mesh into 64 parts:
+.PP
+.RS
+.B prepart box.nmsh 64
+.RE
+.PP
+This produces
+.IR box_64.nmsh .
+.PP
+.B prepart
+itself can also be launched under MPI to speed up the partitioning step on
+very large meshes:
+.PP
+.RS
+.B mpirun -n 8 prepart box.nmsh 1024
+.RE
+.SH SEE ALSO
+.BR neko (1),
+.BR rea2nbin (1)
+.PP
+Project documentation and user guide:
+.UR https://neko.cfd
+.UE
+.SH AUTHORS
+Neko is developed by the Neko authors. See the
+.B AUTHORS
+file distributed with the source for a complete list of contributors.
+.SH BUGS
+Report bugs at
+.UR https://github.com/ExtremeFLOW/neko/issues
+.UE .

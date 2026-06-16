@@ -34,6 +34,7 @@
 !> Defines a factory subroutine for simulation components.
 submodule (simulation_component) simulation_component_fctry
   use boundary_operation, only : boundary_operation_t
+  use boundary_flux, only : boundary_flux_t
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
@@ -58,8 +59,9 @@ submodule (simulation_component) simulation_component_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(20) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(21) = [character(len=20) :: &
        "boundary_operation", &
+       "boundary_flux", &
        "lambda2", &
        "probes", &
        "les_model", &
@@ -68,11 +70,11 @@ submodule (simulation_component) simulation_component_fctry
        "fluid_sgs_stats", &
        "scalar_stats", &
        "scalar_sgs_stats", &
-       "grad", &
-       "div", &
+       "gradient", &
+       "divergence", &
        "curl", &
        "derivative", &
-       "weak_grad", &
+       "weak_gradient", &
        "force_torque", &
        "spatial_average", &
        "user_stats", &
@@ -125,6 +127,8 @@ contains
     select case (trim(type_name))
     case ("boundary_operation")
        allocate(boundary_operation_t::object)
+    case ("boundary_flux")
+       allocate(boundary_flux_t::object)
     case ("lambda2")
        allocate(lambda2_t::object)
     case ("probes")
@@ -133,15 +137,15 @@ contains
        allocate(les_simcomp_t::object)
     case ("field_writer")
        allocate(field_writer_t::object)
-    case ("weak_grad")
+    case ("weak_gradient")
        allocate(weak_gradient_t::object)
-    case ("grad")
+    case ("gradient")
        allocate(gradient_t::object)
     case ("derivative")
        allocate(derivative_t::object)
     case ("curl")
        allocate(curl_t::object)
-    case ("div")
+    case ("divergence")
        allocate(divergence_t::object)
     case ("force_torque")
        allocate(force_torque_t::object)

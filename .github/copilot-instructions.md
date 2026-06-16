@@ -42,6 +42,9 @@ The list of criteria to check are:
   may be called `free_base` or similar, always with a `free_` prefix.
 - If a type has both a destructor (`free` or similar) and a constructor (`init`
   or similar), the constructor must begin by calling the destructor.
+- If a map is established between a Fortran pointer and a device pointer, the
+  link must be severed by calling `device_unmap` before the pointer is nullified
+  or deallocated. This applies to both local variables and type components.
 - Pay attention to object ownership when `pointer` or `allocatable` components
   are involved. Make sure ownership is correctly handled.
 - Make sure types are fully instantiated in the `init` routines. If there are
@@ -52,3 +55,5 @@ The list of criteria to check are:
   contain any logic to set the type components, but should just read the values
   from the JSON file, validate them, and then call the other constructor with
   the values read from the JSON file.
+- If the new code modifies the case file structure, make sure that the existing
+  json schema files under `doc/schemas` are updated accordingly.

@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ module device
   use opencl_intf
   use cuda_intf
   use hip_intf
+  use metal_intf
   use neko_config, only : NEKO_BCKND_DEVICE
   use htable, only : htable_cptr_t, h_cptr_t
   use utils, only : neko_error
@@ -131,7 +132,8 @@ module device
 contains
 
   subroutine device_init
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%init(64)
 
 #ifdef HAVE_HIP
@@ -140,6 +142,8 @@ contains
     call cuda_init(glb_cmd_queue, aux_cmd_queue, STRM_HIGH_PRIO, STRM_LOW_PRIO)
 #elif HAVE_OPENCL
     call opencl_init(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
+#elif HAVE_METAL
+    call metal_init(glb_cmd_queue, aux_cmd_queue)
 #endif
     call device_event_create(glb_cmd_event, 2)
 #endif
@@ -153,8 +157,10 @@ contains
   end subroutine device_init
 
   subroutine device_finalize
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     call device_addrtbl%free()
+    call device_event_destroy(glb_cmd_event)
 
 #ifdef HAVE_HIP
     call hip_finalize(glb_cmd_queue, aux_cmd_queue)
@@ -163,8 +169,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_prgm_lib_release
     call opencl_finalize(glb_cmd_queue, aux_cmd_queue, prf_cmd_queue)
+#elif HAVE_METAL
+    call metal_finalize(glb_cmd_queue, aux_cmd_queue)
 #endif
-    call device_event_destroy(glb_cmd_event)
 #endif
   end subroutine device_finalize
 
@@ -177,6 +184,8 @@ contains
     call cuda_device_name(name)
 #elif HAVE_OPENCL
     call opencl_device_name(name)
+#elif HAVE_METAL
+    call metal_device_name(name)
 #endif
   end subroutine device_name
 
@@ -188,6 +197,8 @@ contains
     device_count = cuda_device_count()
 #elif HAVE_OPENCL
     device_count = opencl_device_count()
+#elif HAVE_METAL
+    device_count = metal_device_count()
 #else
     device_count = 0
 #endif
@@ -217,6 +228,10 @@ contains
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Memory allocation on device failed')
     end if
+#elif HAVE_METAL
+    if (metalAlloc(x_d, s) .ne. metalSuccess) then
+       call neko_error('Memory allocation on device failed')
+    end if
 #endif
   end subroutine device_alloc
 
@@ -233,6 +248,10 @@ contains
     end if
 #elif HAVE_OPENCL
     if (clReleaseMemObject(x_d) .ne. CL_SUCCESS) then
+       call neko_error('Memory deallocation on device failed')
+    end if
+#elif HAVE_METAL
+    if (metalFree(x_d) .ne. metalSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
 #endif
@@ -273,6 +292,10 @@ contains
     if (clEnqueueFillBuffer(stream, x_d, c_loc(v), c_sizeof(v), 0_i8, &
          s, 0, C_NULL_PTR, C_NULL_PTR) .ne. CL_SUCCESS) then
        call neko_error('Device memset async failed')
+    end if
+#elif HAVE_METAL
+    if (metalMemset(x_d, v, s) .ne. metalSuccess) then
+       call neko_error('Device memset failed')
     end if
 #endif
 
@@ -570,6 +593,24 @@ contains
        else
           call neko_error('Device memcpy failed (invalid direction')
        end if
+    end if
+#elif HAVE_METAL
+    ! Copies are synchronous on unified memory, the @a sync_device
+    ! and @a stream arguments have no effect
+    if (dir .eq. HOST_TO_DEVICE) then
+       if (metalMemcpyHtoD(x_d, ptr_h, s) .ne. metalSuccess) then
+          call neko_error('Device memcpy (host-to-device) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_HOST) then
+       if (metalMemcpyDtoH(ptr_h, x_d, s) .ne. metalSuccess) then
+          call neko_error('Device memcpy (device-to-host) failed')
+       end if
+    else if (dir .eq. DEVICE_TO_DEVICE) then
+       if (metalMemcpyDtoD(ptr_h, x_d, s) .ne. metalSuccess) then
+          call neko_error('Device memcpy (device-to-device) failed')
+       end if
+    else
+       call neko_error('Device memcpy failed (invalid direction')
     end if
 #endif
   end subroutine device_memcpy_common
@@ -1315,6 +1356,10 @@ contains
     if (clFinish(glb_cmd_queue) .ne. CL_SUCCESS) then
        call neko_error('Error during device sync')
     end if
+#elif HAVE_METAL
+    if (metalDeviceSynchronize() .ne. metalSuccess) then
+       call neko_error('Error during device sync')
+    end if
 #endif
   end subroutine device_sync_device
 
@@ -1331,6 +1376,10 @@ contains
     end if
 #elif HAVE_OPENCL
     if (clFinish(stream) .ne. CL_SUCCESS) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_METAL
+    if (metalStreamSynchronize(stream) .ne. metalSuccess) then
        call neko_error('Error during stream sync')
     end if
 #endif
@@ -1366,6 +1415,10 @@ contains
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Error during stream create')
     end if
+#elif HAVE_METAL
+    if (metalStreamCreate(stream) .ne. metalSuccess) then
+       call neko_error('Error during stream create')
+    end if
 #endif
   end subroutine device_stream_create
 
@@ -1383,6 +1436,11 @@ contains
     end if
 #elif HAVE_OPENCL
     call neko_error('Not implemented yet')
+#elif HAVE_METAL
+    ! Metal command queues have no priority, create a plain queue
+    if (metalStreamCreate(stream) .ne. metalSuccess) then
+       call neko_error('Error during stream create (w. priority)')
+    end if
 #endif
   end subroutine device_stream_create_with_priority
 
@@ -1399,6 +1457,10 @@ contains
     end if
 #elif HAVE_OPENCL
     if (clReleaseCommandQueue(stream) .ne. CL_SUCCESS) then
+       call neko_error('Error during stream destroy')
+    end if
+#elif HAVE_METAL
+    if (metalStreamDestroy(stream) .ne. metalSuccess) then
        call neko_error('Error during stream destroy')
     end if
 #endif
@@ -1422,6 +1484,10 @@ contains
        call neko_error('Error during barrier')
     end if
     if (clEnqueueWaitForEvents(stream, 1, c_loc(event)) .ne. CL_SUCCESS) then
+       call neko_error('Error during stream sync')
+    end if
+#elif HAVE_METAL
+    if (metalStreamWaitEvent(stream, event) .ne. metalSuccess) then
        call neko_error('Error during stream sync')
     end if
 #endif
@@ -1472,6 +1538,10 @@ contains
     end if
 #elif HAVE_OPENCL
     event = C_NULL_PTR
+#elif HAVE_METAL
+    if (metalEventCreate(event) .ne. metalSuccess) then
+       call neko_error('Error during event create')
+    end if
 #endif
   end subroutine device_event_create
 
@@ -1487,6 +1557,11 @@ contains
        call neko_error('Error during event destroy')
     end if
 #elif HAVE_OPENCL
+    event = C_NULL_PTR
+#elif HAVE_METAL
+    if (metalEventDestroy(event) .ne. metalSuccess) then
+       call neko_error('Error during event destroy')
+    end if
     event = C_NULL_PTR
 #endif
   end subroutine device_event_destroy
@@ -1507,6 +1582,10 @@ contains
     if (clEnqueueMarker(stream, c_loc(event)) .ne. CL_SUCCESS) then
        call neko_error('Error recording an event')
     end if
+#elif HAVE_METAL
+    if (metalEventRecord(event, stream) .ne. metalSuccess) then
+       call neko_error('Error recording an event')
+    end if
 #endif
   end subroutine device_event_record
 
@@ -1524,6 +1603,12 @@ contains
 #elif HAVE_OPENCL
     if (c_associated(event)) then
        if (clWaitForEvents(1, c_loc(event)) .ne. CL_SUCCESS) then
+          call neko_error('Error during event sync')
+       end if
+    end if
+#elif HAVE_METAL
+    if (c_associated(event)) then
+       if (metalEventSynchronize(event) .ne. metalSuccess) then
           call neko_error('Error during event sync')
        end if
     end if

@@ -35,6 +35,7 @@
 module utils
   use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
   use iso_c_binding
+  use num_types, only: rp, dp
   implicit none
   private
 
@@ -45,12 +46,17 @@ module utils
      module procedure neko_error_plain, neko_error_msg
   end interface neko_error
 
+  interface read_duration
+     module procedure read_duration_scalar
+     module procedure read_duration_components
+  end interface read_duration
+
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_path, filename_name, filename_suffix, &
        filename_suffix_pos, filename_tslash_pos, filename_split, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
-       neko_type_registration_error, NEKO_VARNAME_LEN, mkdir
+       neko_type_registration_error, NEKO_VARNAME_LEN, mkdir, read_duration
 
   interface
      function c_mkdir(path, mode) bind(C, name="mkdir")
@@ -416,4 +422,206 @@ contains
 
   end function concat_string_array
 
+  !> Parse runtime string to total seconds.
+  !! Supported formats are:
+  !! - seconds as an integer or real value (for example "5400" or "5400.0")
+  !! - mm:ss
+  !! - hh:mm:ss
+  !! - dd-hh:mm:ss
+  subroutine read_duration_scalar(runtime_string, runtime_seconds, &
+       ierr)
+    character(len=*), intent(in) :: runtime_string
+    real(kind=rp), intent(inout) :: runtime_seconds
+    integer, optional, intent(out) :: ierr
+    real(kind=dp) :: parsed_seconds
+
+    if (present(ierr)) ierr = 0
+    if (len_trim(runtime_string) .eq. 0) return
+
+    parsed_seconds = read_duration_internal(runtime_string, ierr)
+
+    if (present(ierr)) then
+       if (ierr .ne. 0) return
+    end if
+
+    runtime_seconds = parsed_seconds
+  end subroutine read_duration_scalar
+
+  !> Parse runtime string to components.
+  !! The output array maps to the largest unit available based on size:
+  !! - size 4: [dd, hh, mm, ss]
+  !! - size 3: [hh, mm, ss]
+  !! - size 2: [mm, ss]
+  !! - size 1: [ss]
+  subroutine read_duration_components(runtime_string, runtime_values, ierr)
+    character(len=*), intent(in) :: runtime_string
+    real(kind=rp), intent(inout) :: runtime_values(:)
+    integer, optional, intent(out) :: ierr
+    integer, parameter :: i64 = selected_int_kind(18)
+    integer :: n_values
+    integer(kind=i64) :: total_whole, days, hours, minutes, seconds_whole
+    real(kind=dp) :: parsed_seconds, second_value, frac_seconds
+
+    if (present(ierr)) ierr = 0
+    if (len_trim(runtime_string) .eq. 0) return
+
+    n_values = size(runtime_values)
+    if (n_values .lt. 1 .or. n_values .gt. 4) then
+       call set_error_or_throw( &
+            'Error parsing duration: output array size must be 1 to 4', ierr)
+       return
+    end if
+
+    parsed_seconds = read_duration_internal(runtime_string, ierr)
+
+    if (present(ierr)) then
+       if (ierr .ne. 0) return
+    end if
+
+    total_whole = int(parsed_seconds, kind=i64)
+    frac_seconds = parsed_seconds - real(total_whole, kind=dp)
+    if (frac_seconds .lt. 0.0_dp) frac_seconds = 0.0_dp
+
+    days = total_whole / 86400_i64
+    total_whole = total_whole - 86400_i64 * days
+    hours = total_whole / 3600_i64
+    total_whole = total_whole - 3600_i64 * hours
+    minutes = total_whole / 60_i64
+    seconds_whole = total_whole - 60_i64 * minutes
+
+    second_value = real(seconds_whole, kind=dp) + frac_seconds
+    if (second_value .ge. 60.0_dp) then
+       second_value = second_value - 60.0_dp
+       minutes = minutes + 1_i64
+       if (minutes .ge. 60_i64) then
+          minutes = minutes - 60_i64
+          hours = hours + 1_i64
+          if (hours .ge. 24_i64) then
+             hours = hours - 24_i64
+             days = days + 1_i64
+          end if
+       end if
+    end if
+
+    select case (n_values)
+    case (4)
+       runtime_values(1) = real(days, kind=rp)
+       runtime_values(2) = real(hours, kind=rp)
+       runtime_values(3) = real(minutes, kind=rp)
+       runtime_values(4) = real(second_value, kind=rp)
+    case (3)
+       runtime_values(1) = real(days * 24_i64 + hours, kind=rp)
+       runtime_values(2) = real(minutes, kind=rp)
+       runtime_values(3) = real(second_value, kind=rp)
+    case (2)
+       runtime_values(1) = real((days * 24_i64 + hours) * 60_i64 + &
+            minutes, kind=rp)
+       runtime_values(2) = real(second_value, kind=rp)
+    case (1)
+       runtime_values(1) = real(parsed_seconds, kind=rp)
+    end select
+  end subroutine read_duration_components
+
+  !> Parse runtime string to total seconds.
+  real(kind=dp) function read_duration_internal(runtime_string, ierr) &
+       result(runtime_seconds)
+    character(len=*), intent(in) :: runtime_string
+    integer, optional, intent(out) :: ierr
+    character(len=:), allocatable :: time_string
+    real(kind=dp) :: parsed_seconds, read_real
+    logical :: has_minutes, has_hours, has_days
+    integer :: read_int, ios, sep
+
+    if (present(ierr)) ierr = 0
+
+    runtime_seconds = 0.0_dp
+    time_string = trim(adjustl(runtime_string))
+
+    sep = index(time_string, ':')
+    has_minutes = sep .gt. 0
+    has_hours = .false.
+    if (has_minutes .and. sep .lt. len_trim(time_string)) then
+       has_hours = index(time_string(sep + 1:len_trim(time_string)), ':') &
+            .gt. 0
+    end if
+    has_days = index(time_string, '-') .gt. 0
+
+    if ((has_days .and. .not. has_hours) .or. &
+         (has_hours .and. .not. has_minutes)) then
+       call set_error_or_throw('Error parsing duration: Bad format', ierr)
+       return
+    end if
+
+    parsed_seconds = 0.0_dp
+
+    ! Read the days field.
+    if (has_days) then
+       sep = index(time_string, '-')
+       read(time_string(1:sep - 1), *, iostat=ios) read_int
+       if (ios .ne. 0 .or. read_int .lt. 0) then
+          call set_error_or_throw( &
+               'Error parsing duration: Invalid days value', ierr)
+          return
+       end if
+
+       time_string = time_string(sep + 1:)
+       parsed_seconds = parsed_seconds + real(86400 * read_int, kind=dp)
+    end if
+
+    ! Read the hours.
+    if (has_hours) then
+       sep = index(time_string, ':')
+       read(time_string(1:sep - 1), *, iostat=ios) read_int
+       if (ios .ne. 0 .or. read_int .lt. 0 .or. &
+            (has_days .and. read_int .gt. 23)) then
+          call set_error_or_throw( &
+               'Error parsing duration: Invalid hours value', ierr)
+          return
+       end if
+
+       time_string = time_string(sep + 1:)
+       parsed_seconds = parsed_seconds + real(3600 * read_int, kind=dp)
+    end if
+
+    ! Read the minutes.
+    if (has_minutes) then
+       sep = index(time_string, ':')
+       read(time_string(1:sep - 1), *, iostat=ios) read_int
+       if (ios .ne. 0 .or. read_int .lt. 0 .or. &
+            (has_hours .and. read_int .gt. 59)) then
+          call set_error_or_throw( &
+               'Error parsing duration: Invalid minutes value', ierr)
+          return
+       end if
+
+       time_string = time_string(sep + 1:)
+       parsed_seconds = parsed_seconds + real(60 * read_int, kind=dp)
+    end if
+
+    ! Read the seconds.
+    read(time_string, *, iostat=ios) read_real
+    if (ios .ne. 0 .or. read_real .lt. 0.0_dp .or. &
+         (has_minutes .and. read_real .ge. 60.0_dp)) then
+       call set_error_or_throw( &
+            'Error parsing duration: Invalid seconds value', ierr)
+       return
+    end if
+
+    parsed_seconds = parsed_seconds + read_real
+    runtime_seconds = parsed_seconds
+
+    if (allocated(time_string)) deallocate(time_string)
+  end function read_duration_internal
+
+  !> Raise parser error or set ierr, depending on call mode.
+  subroutine set_error_or_throw(message, ierr)
+    character(len=*), intent(in) :: message
+    integer, optional, intent(out) :: ierr
+
+    if (present(ierr)) then
+       ierr = 1
+    else
+       call neko_error(trim(message))
+    end if
+  end subroutine set_error_or_throw
 end module utils

@@ -32,7 +32,7 @@
 !
 !> Defines various GMRES methods
 module gmres_device
-  use neko_config, only : NEKO_BCKND_OPENCL
+  use neko_config, only : NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -229,76 +229,72 @@ contains
     call this%ksp_free()
 
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
 
     if (allocated(this%c)) then
+       if (c_associated(this%c_d)) then
+          call device_unmap(this%c, this%c_d)
+       end if
        deallocate(this%c)
     end if
 
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
     end if
 
     if (allocated(this%z)) then
+       if (allocated(this%z_d)) then
+          do i = 1, this%m_restart
+             if (c_associated(this%z_d(i))) then
+                call device_unmap(this%z(:,i), this%z_d(i))
+             end if
+          end do
+       end if
        deallocate(this%z)
     end if
 
     if (allocated(this%h)) then
+       if (allocated(this%h_d)) then
+          do i = 1, this%m_restart
+             if (c_associated(this%h_d(i))) then
+                call device_unmap(this%h(:,i), this%h_d(i))
+             end if
+          end do
+       end if
        deallocate(this%h)
     end if
 
     if (allocated(this%v)) then
+       if (allocated(this%v_d)) then
+          do i = 1, this%m_restart
+             if (c_associated(this%v_d(i))) then
+                call device_unmap(this%v(:,i), this%v_d(i))
+             end if
+          end do
+       end if
        deallocate(this%v)
     end if
 
     if (allocated(this%s)) then
+       if (c_associated(this%s_d)) then
+          call device_unmap(this%s, this%s_d)
+       end if
        deallocate(this%s)
     end if
     if (allocated(this%gam)) then
+       if (c_associated(this%gam_d)) then
+          call device_unmap(this%gam, this%gam_d)
+       end if
        deallocate(this%gam)
     end if
 
-    if (allocated(this%v_d)) then
-       do i = 1, this%m_restart
-          if (c_associated(this%v_d(i))) then
-             call device_free(this%v_d(i))
-          end if
-       end do
-    end if
-
-    if (allocated(this%z_d)) then
-       do i = 1, this%m_restart
-          if (c_associated(this%z_d(i))) then
-             call device_free(this%z_d(i))
-          end if
-       end do
-    end if
-    if (allocated(this%h_d)) then
-       do i = 1, this%m_restart
-          if (c_associated(this%h_d(i))) then
-             call device_free(this%h_d(i))
-          end if
-       end do
-    end if
-
-
-
-    if (c_associated(this%gam_d)) then
-       call device_free(this%gam_d)
-    end if
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-    if (c_associated(this%c_d)) then
-       call device_free(this%c_d)
-    end if
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
-    end if
-    if (c_associated(this%s_d)) then
-       call device_free(this%s_d)
-    end if
     if (c_associated(this%z_d_d)) then
        call device_free(this%z_d_d)
     end if
@@ -403,7 +399,7 @@ contains
             call device_event_sync(this%gs_event)
             call blst%apply_scalar(w, n)
 
-            if (NEKO_BCKND_OPENCL .eq. 1) then
+            if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
                do i = 1, j
                   h(i,j) = device_glsc3(w_d, v_d(i), coef%mult_d, n)
 
@@ -470,7 +466,7 @@ contains
             c(k) = temp / h(k,k)
          end do
 
-         if (NEKO_BCKND_OPENCL .eq. 1) then
+         if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
             do i = 1, j
                call device_add2s2(x_d, this%z_d(i), c(i), n)
             end do

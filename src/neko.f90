@@ -110,6 +110,7 @@ module neko
        simulation_component_allocator, simulation_component_allocate, &
        register_simulation_component
   use boundary_operation, only : boundary_operation_t
+  use boundary_flux, only : boundary_flux_t
   use probes, only : probes_t
   use spectral_error, only : spectral_error_t
   use profiler, only : profiler_start, profiler_stop, &
@@ -370,13 +371,15 @@ contains
        write(log_buf(13:), '(a)') 'Accelerator (HIP)'
     else if (NEKO_BCKND_OPENCL .eq. 1) then
        write(log_buf(13:), '(a)') 'Accelerator (OpenCL)'
+    else if (NEKO_BCKND_METAL .eq. 1) then
+       write(log_buf(13:), '(a)') 'Accelerator (Metal)'
     else
        write(log_buf(13:), '(a)') 'CPU'
     end if
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
     if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
-         NEKO_BCKND_OPENCL .eq. 1) then
+         NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
        write(log_buf, '(a)') 'Dev. name : '
        call device_name(log_buf(13:))
        call neko_log%message(log_buf, NEKO_LOG_QUIET)

@@ -3,3 +3,5 @@ rea2nbin_SOURCES = rea2nbin.f90
 rea2nbin_LDADD = $(top_builddir)/src/libneko.la
 rea2nbin_LDFLAGS = $(LDFLAGS) $(LIBS) 
 AM_FCFLAGS = -I@top_builddir@/src
+
+dist_man_MANS = rea2nbin.1

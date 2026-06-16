@@ -32,6 +32,7 @@ test-suite.log
 bc/bc_test
 case_file_utils/case_file_utils_test
 device/device_test
+data_types/data_types_test
 device_math/device_math_suite
 device_mathops/device_mathops_test
 dofmap/dofmap_suite
