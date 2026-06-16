@@ -83,6 +83,13 @@ module map_1d
   !! layout allow a unique stack of element levels in the requested direction.
   !! If an element level remains unassigned, the resulting point levels are not
   !! valid for the volume accumulation or averaging steps.
+  !! @warning The requested 1D mapping direction must not be periodic. The
+  !! propagation uses the mesh gather-scatter connectivity to order element
+  !! levels from the global coordinate minimum to the global coordinate maximum;
+  !! periodic connectivity in that same direction connects those two ends and
+  !! invalidates this ordering assumption. Periodicity in the directions being
+  !! averaged over is not the issue here, only periodicity in the remaining
+  !! profile direction.
   !! @remark Could also be rather easily extended to say polar coordinates
   !! as well (I think). Martin Karp
   type, public :: map_1d_t
@@ -157,6 +164,7 @@ contains
     end if
 
     this%dir = dir
+    this%tol = tol
     this%dof => coef%dof
     this%coef => coef
     this%msh => coef%msh
@@ -190,6 +198,8 @@ contains
        ! we assume elements are stacked on each other...
        ! Check which one of the normalized vectors are closest to dir
        ! If we want to incorporate other directions, we should look here
+
+       ! This follows the point ordering defined in hex.f90
        el_dim(1, :) = abs(this%msh%elements(i)%e%pts(1)%p%x - &
             this%msh%elements(i)%e%pts(2)%p%x)
        el_dim(1, :) = el_dim(1, :)/norm2(el_dim(1, :))
