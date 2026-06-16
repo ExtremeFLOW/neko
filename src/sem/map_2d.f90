@@ -1,4 +1,4 @@
-! Copyright (c) 2026, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-! Copyright (c) 2024-2025, The Neko Authors
 !
 !> Maps a 3D dofmap to a 2D spectral element grid.
 

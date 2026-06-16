@@ -221,7 +221,7 @@ contains
   !! @param output_filename Base name of the output file.
   subroutine spatial_average_init_from_components(this, name, fields, coef, &
        avg_direction, output_filename)
-    class(spatial_average_t), intent(inout) :: this
+    class(spatial_average_t), target, intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: fields(:)
     type(coef_t), target, intent(inout) :: coef
