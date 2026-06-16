@@ -164,6 +164,8 @@ module mesh
      procedure, pass(this) :: generate_conn => mesh_generate_conn
      procedure, pass(this) :: have_point_glb_idx => mesh_have_point_glb_idx
      procedure, pass(this) :: subset_by_mask => mesh_subset_by_mask
+     !> Update element geometry information based on minimal grid
+     procedure, pass(this) :: geometry_update => mesh_geometry_update
 
      !> Check the correct orientation of the rst coordindates.
      procedure, pass(this) :: check_right_handedness => &
@@ -2265,5 +2267,161 @@ contains
     other%is_submesh = .true.
 
   end subroutine mesh_subset_by_mask
+
+  !> Update element geometry information based on minimal grid
+  !! @warning This routine supports midpoints only for 3D hex-based geometry
+  !! @param[in]  lx          element size
+  !! @param[in]  nelv        number of elements
+  !! @param[in]  grid_min    minimal grid
+  subroutine mesh_geometry_update(this, lx, nelv, grid_min_x, grid_min_y, &
+       grid_min_z)
+    class(mesh_t), intent(inout) :: this
+    integer, intent(in) :: lx, nelv
+    real(rp), dimension(lx, lx, lx, nelv), intent(in) :: grid_min_x, &
+         grid_min_y, grid_min_z
+    integer, parameter :: lx_min = 3
+    integer :: il, jl
+    real(dp), dimension(lx_min) :: edge_x, edge_y, edge_z, vec1, vec2, vec3
+    real(dp), dimension(5, 12) :: curve_data
+    integer, dimension(12) :: curve_type
+    real(dp), parameter :: tol = 1.0E-10_rp
+    real(rp) :: lvec1, lvec3
+
+    if (this%gdim .ne. 3) call neko_error('Curvature update supports 3D &
+         &meshes only')
+
+    ! check grid size
+    if (nelv .ne. this%nelv .or. lx .ne. lx_min) &
+         call neko_error('Inconsistent minimal grid array size')
+
+    ! update vertex position
+    do il = 1, this%nelv
+       do jl = 1, this%npts
+          call vertex_to_point(grid_min_x(1:lx_min, 1:lx_min, 1:lx_min, il), &
+               vec1(1), jl, lx_min)
+          call vertex_to_point(grid_min_y(1:lx_min, 1:lx_min, 1:lx_min, il), &
+               vec1(2), jl, lx_min)
+          call vertex_to_point(grid_min_z(1:lx_min, 1:lx_min, 1:lx_min, il), &
+               vec1(3), jl, lx_min)
+          this%elements(il)%e%pts(jl)%p%x(:) = vec1(:)
+       end do
+    end do
+
+    ! update curvature
+    call this%curve%free()
+
+    call this%curve%init(this%nelv)
+
+    do il = 1, this%nelv
+       curve_data(:, :) = 0.0_rp
+       curve_type(:) = 0
+       ! test edge deformation
+       do jl = 1, 12
+          call edge_to_vector(grid_min_x(1:lx_min, 1:lx_min, 1:lx_min, il), &
+               edge_x, jl, lx_min)
+          call edge_to_vector(grid_min_y(1:lx_min, 1:lx_min, 1:lx_min, il), &
+               edge_y, jl, lx_min)
+          call edge_to_vector(grid_min_z(1:lx_min, 1:lx_min, 1:lx_min, il), &
+               edge_z, jl, lx_min)
+          ! middle point shifts and half of the end point shift
+          vec2(1) = edge_x(2) - edge_x(1)
+          vec2(2) = edge_y(2) - edge_y(1)
+          vec2(3) = edge_z(2) - edge_z(1)
+          vec3(1) = (edge_x(3) - edge_x(1)) *0.5_rp
+          vec3(2) = (edge_y(3) - edge_y(1)) *0.5_rp
+          vec3(3) = (edge_z(3) - edge_z(1)) *0.5_rp
+          ! relative vector
+          vec1(:) = vec2(:) - vec3(:)
+          ! lengths
+          lvec1 = sqrt(vec1(1)**2 + vec1(2)**2 + vec1(3)**2)
+          lvec3 = 2.0_rp * sqrt(vec3(1)**2 + vec3(2)**2 + vec3(3)**2)
+          ! SHOULD WE USE DIFFERENT CRITERIA?
+          if(.not. abscmp(lvec1, 0d0, tol)) then
+             curve_type(jl) = 4 ! midpoint only
+             curve_data(1, jl) = edge_x(2)
+             curve_data(2, jl) = edge_y(2)
+             curve_data(3, jl) = edge_z(2)
+          end if
+       end do
+       if (sum(curve_type) .gt. 0) then
+          call this%curve%add_element(il, curve_data, curve_type)
+       end if
+    end do
+
+    call this%curve%finalize()
+    call mesh_generate_flags(this)
+
+  end subroutine mesh_geometry_update
+
+  !> Extract vertex from the hex element; symmetric notation
+  !> @param[in]     elem    element vector
+  !> @param[out]    vert    element vertex
+  !> @param[in]     ivert   vertex number
+  !> @param[in]     nx      1D size
+  pure subroutine vertex_to_point(elem, vert, ivert, nx)
+    integer, intent(in) :: ivert, nx
+    real(rp), dimension(nx, nx, nx), intent(in) :: elem
+    real(rp), intent(out) :: vert
+
+    select case(ivert)
+    case(1)
+       vert = elem(1, 1, 1)
+    case(2)
+       vert = elem(nx, 1, 1)
+    case(3)
+       vert = elem(1, nx, 1)
+    case(4)
+       vert = elem(nx, nx, 1)
+    case(5)
+       vert = elem(1, 1, nx)
+    case(6)
+       vert = elem(nx, 1, nx)
+    case(7)
+       vert = elem(1, nx, nx)
+    case(8)
+       vert = elem(nx, nx, nx)
+    end select
+
+  end subroutine vertex_to_point
+
+  !!!!!!! THIS ROUTINE IS DUPLICATED IN src/gs/bcknd/cpu/gs_interp_cpu.f90
+  !> Extract edge from the hex element; symmetric notation
+  !> @param[in]     elem    element vector
+  !> @param[out]    edge    element edge
+  !> @param[in]     iedge   edge number
+  !> @param[in]     nx      1D size
+  pure subroutine edge_to_vector(elem, edge, iedge, nx)
+    integer, intent(in) :: iedge, nx
+    real(rp), dimension(nx, nx, nx), intent(in) :: elem
+    real(rp), dimension(nx), intent(out) :: edge
+
+    select case(iedge)
+    case(1)
+       edge(:) = elem(:, 1, 1)
+    case(2)
+       edge(:) = elem(:, nx, 1)
+    case(3)
+       edge(:) = elem(:, 1, nx)
+    case(4)
+       edge(:) = elem(:, nx, nx)
+    case(5)
+       edge(:) = elem(1, :, 1)
+    case(6)
+       edge(:) = elem(nx, :, 1)
+    case(7)
+       edge(:) = elem(1, :, nx)
+    case(8)
+       edge(:) = elem(nx, :, nx)
+    case(9)
+       edge(:) = elem(1, 1, :)
+    case(10)
+       edge(:) = elem(nx, 1, :)
+    case(11)
+       edge(:) = elem(1, nx, :)
+    case(12)
+       edge(:) = elem(nx, nx, :)
+    end select
+
+  end subroutine edge_to_vector
 
 end module mesh

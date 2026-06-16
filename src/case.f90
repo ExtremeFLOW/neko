@@ -76,8 +76,8 @@ module case
   type, public :: case_t
      type(mesh_t) :: msh
      class(mesh_manager_t), allocatable :: mesh_manager
-     type(amr_t) :: amr
      type(sem_t) :: sem
+     type(amr_t) :: amr
      type(json_file) :: params
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
@@ -254,11 +254,6 @@ contains
        ! construct neko mesh based on mesh manager data and mesh file input
        call this%mesh_manager%mesh_construct(this%msh, .true.)
 
-       ! initialise adaptive mesh refinement
-       call json_get(this%params, 'case.numerics.polynomial_order', lx)
-       lx = lx + 1 ! add 1 to get number of gll points
-       call this%amr%init(this%mesh_manager%transfer, this%mesh_manager%isamr, &
-            this%mesh_manager%mesh%tdim, lx)
        call neko_log%end_section()
     else
        ! No mesh manager; load mesh and perform load balancing if requested
@@ -329,12 +324,19 @@ contains
 
     !
     ! Initialise SEM module
-    ! It has to be a first module in AMR reconstruction list
     !
-    call this%sem%init(this%mesh_manager, this%msh)
-    if (this%amr%ifamr()) then
-       call this%amr%comp_add(this%sem, 'SEM')
+    if (allocated(this%mesh_manager)) then
+       call json_get(this%params, 'case.numerics.polynomial_order', lx)
+       lx = lx + 1 ! add 1 to get number of gll points
+       call this%sem%init(this%msh, this%mesh_manager, lx)
+    else
+       call this%sem%init(this%msh)
     end if
+
+    !
+    ! Initialise adaptive mesh refinement module
+    !
+    call this%amr%init(this%sem)
 
     !
     ! Time control
@@ -681,6 +683,11 @@ contains
 
     call neko_log%end_section()
 
+    !
+    ! Finalise SEM module
+    !
+    call this%sem%finalise()
+
     call scalar_params%destroy()
     call numerics_params%destroy()
     call json_subdict%destroy()
@@ -702,13 +709,14 @@ contains
     end if
 
     call this%amr%free()
+
+    call this%sem%free()
+
     if (allocated(this%mesh_manager)) then
        call this%mesh_manager%free()
        call this%mesh_manager%stop()
        deallocate(this%mesh_manager)
     end if
-
-    call this%sem%free()
 
     call this%msh%free()
 

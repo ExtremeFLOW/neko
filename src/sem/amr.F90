@@ -36,16 +36,17 @@ module amr
   use comm, only : NEKO_COMM
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_warning, NEKO_FNAME_LEN
   use profiler, only : profiler_start_region, profiler_end_region
+  use file, only : file_t
   use time_state, only : time_state_t
   use user_intf, only : user_t
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use mesh, only : mesh_t
-  use mesh_manager_transfer, only : mesh_manager_transfer_t
   use mesh_manager_transfer_p4est, only : mesh_manager_transfer_p4est_t
   use mesh_manager, only : mesh_manager_t
+  use sem, only : sem_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_LOGICAL, MPI_LOR
@@ -64,14 +65,18 @@ module amr
   type, public :: amr_t
      !> AMR execution flag
      logical :: isamr
-     !> Data reconstruction type
-     type(amr_reconstruct_t) :: reconstruct
      !> Number of components
      integer :: ncomponents
      !> Components list
      class(amr_component_pointer_t), allocatable, dimension(:) :: components
      !> Restart counter
      integer :: counter
+     !> Pointer to SEM discretization data
+     type(sem_t), pointer :: sem => null()
+     !> Data reconstruction tool
+     type(amr_reconstruct_t), pointer :: reconstruct => null()
+     !> File for writing mesh
+     type(file_t) :: mesh_file
    contains
      !> Initialise type
      procedure, pass(this) :: init => amr_init
@@ -89,25 +94,29 @@ module amr
      procedure, pass(this) :: restart => amr_restart
      !> Refine/coarsen
      procedure, pass(this) :: refine_coarsen => amr_refine_coarsen
+     !> Save new mesh to the disc
+     procedure, pass(this) :: mesh_save => amr_mesh_save
   end type amr_t
 
 contains
 
   !> Initialise amr type
-  !! @param[in]  transfer     mesh manager data transfer type
-  !! @param[in]  isamr        AMR execution flag
-  !! @param[in]  gdim         geometrical mesh dimension
-  !! @param[in]  lx           polynomial order + 1
-  subroutine amr_init(this, transfer, isamr, gdim, lx)
+  !! @param[in]  sem          SEM discratization module
+  subroutine amr_init(this, sem)
     class(amr_t), intent(inout) :: this
-    class(mesh_manager_transfer_t), intent(in) :: transfer
-    logical, intent(in) :: isamr
-    integer, intent(in) :: gdim, lx
+    type(sem_t), target, intent(in) :: sem
+    character(len=NEKO_FNAME_LEN) :: file_name
 
     call this%free()
 
-    call this%reconstruct%init(transfer, gdim, lx)
-    this%isamr = isamr
+    this%sem => sem
+    this%isamr = sem%isamr
+
+    if (this%isamr) then
+       this%reconstruct => sem%amr_reconstruct
+       file_name = "test_saving.re2"
+       call this%mesh_file%init(file_name)
+    end if
 
   end subroutine amr_init
 
@@ -115,11 +124,14 @@ contains
   subroutine amr_free(this)
     class(amr_t), intent(inout) :: this
 
-    call this%reconstruct%free()
-    if (allocated(this%components)) deallocate(this%components)
     this%isamr = .false.
     this%ncomponents = 0
     this%counter = 0
+    nullify(this%sem)
+    nullify(this%reconstruct)
+
+    if (allocated(this%components)) deallocate(this%components)
+
   end subroutine amr_free
 
   !> Give AMR execution flag
@@ -239,6 +251,9 @@ contains
     ! update restart counter
     this%counter = this%counter + 1
 
+    ! reconstruct SEM module
+    call this%sem%amr_restart(this%reconstruct, this%counter, time)
+
     ! restart components
     if (allocated(this%components)) then
        do il = 1, this%ncomponents
@@ -277,69 +292,90 @@ contains
     integer :: nelt, ierr
     character(len=LOG_SIZE) :: log_buf
 
-    select type(transfer => this%reconstruct%transfer)
-    type is (mesh_manager_transfer_p4est_t)
-       nelt = transfer%nelt_neko
-    end select
+    ! For AMR mesh manager only
+    if (this%isamr) then
 
-    ! get refinement information
-    allocate(ref_level(nelt), ref_mark(nelt))
-    call mesh_manager%mesh%element_level(nelt, ref_level)
-    ref_mark(:) = AMR_RM_NONE
-    ifrefine = .false.
-    call user%amr_refine_flag(time, nelt, ref_level, ref_mark, ifrefine)
+       select type(transfer => this%reconstruct%transfer)
+       type is (mesh_manager_transfer_p4est_t)
+          nelt = transfer%nelt_neko
+       end select
 
-    ! Global test
-    call MPI_Allreduce(MPI_IN_PLACE, ifrefine, 1, MPI_LOGICAL, MPI_LOR, &
-         NEKO_COMM, ierr)
+       ! get refinement information
+       allocate(ref_level(nelt), ref_mark(nelt))
+       call mesh_manager%mesh%element_level(nelt, ref_level)
+       ref_mark(:) = AMR_RM_NONE
+       ifrefine = .false.
+       call user%amr_refine_flag(time, nelt, ref_level, ref_mark, ifrefine)
 
-    if (ifrefine) then
-       call neko_log%begin()
-       call neko_log%section("Mesh refinement/coarsening")
+       ! Global test
+       call MPI_Allreduce(MPI_IN_PLACE, ifrefine, 1, MPI_LOGICAL, MPI_LOR, &
+            NEKO_COMM, ierr)
 
-       call profiler_start_region("Mesh refine/coarsen", 30)
+       if (ifrefine) then
+          call neko_log%begin()
+          call neko_log%section("Mesh refinement/coarsening")
 
-       ! Perform p4est refinement/coarsening
-       call mesh_manager%refine_coarsen(ref_mark, ifmod)
+          call profiler_start_region("Mesh refine/coarsen", 30)
 
-       if (ifmod) then
-          write(log_buf, '(a)') 'Restarting solver'
-          call neko_log%section(log_buf)
+          ! Perform p4est refinement/coarsening
+          call mesh_manager%refine_coarsen(ref_mark, ifmod)
 
-          ! Reconstruct neko mesh
-          call mesh_manager%mesh_construct(mesh, .false.)
+          if (ifmod) then
+             write(log_buf, '(a)') 'Restarting solver'
+             call neko_log%section(log_buf)
 
-          ! NOT SURE IT SHOULD BE CALLED HERE, AS AT THIS POINT
-          ! DOFMAP IS ALREADY GENERATED AND MESH IS REGENERATED
-          ! BASED ON MANAGER INFORMATION
-          ! Run user mesh motion routine
-          !call this%user%mesh_setup(msh, time)
+             ! Reconstruct neko mesh
+             call mesh_manager%mesh_construct(mesh, .false.)
 
-          ! Get mapping for vector reconstruction
-          call this%reconstruct%map_get()
+             ! NOT SURE IT SHOULD BE CALLED HERE, AS AT THIS POINT
+             ! DOFMAP IS ALREADY GENERATED AND MESH IS REGENERATED
+             ! BASED ON MANAGER INFORMATION
+             ! Run user mesh motion routine
+             !call this%user%mesh_setup(msh, time)
 
-          ! restart solver
-          call this%restart(user, time)
+             ! Get mapping for vector reconstruction
+             call this%reconstruct%map_get()
 
-          ! Free mapping for vector reconstruction
-          call this%reconstruct%map_free()
+             ! restart solver
+             call this%restart(user, time)
+
+             ! Free mapping for vector reconstruction
+             call this%reconstruct%map_free()
+
+             call neko_log%end_section()
+
+             ! save new mesh
+             call this%mesh_save(mesh_manager, mesh)
+          end if
+
+          call profiler_end_region("Mesh refine/coarsen", 30)
 
           call neko_log%end_section()
-
-          write(log_buf, '(a)') 'Saving new mesh'
-          call neko_log%message(log_buf)
-          ! Refinement counter is updated in solver restart
-          call mesh_manager%mesh_save(this%counter)
+          call neko_log%end()
        end if
 
-       call profiler_end_region("Mesh refine/coarsen", 30)
-
-       call neko_log%end_section()
-       call neko_log%end()
+       deallocate(ref_mark)
     end if
 
-    deallocate(ref_mark)
-
   end subroutine amr_refine_coarsen
+
+  subroutine amr_mesh_save(this, mesh_manager, mesh)
+    class(amr_t), intent(inout) :: this
+    class(mesh_manager_t), intent(inout) :: mesh_manager
+    type(mesh_t), intent(inout) :: mesh
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '(a)') 'Saving new mesh'
+    call neko_log%message(log_buf)
+    ! Refinement counter is updated in solver restart
+    ! mesh manager part
+    call mesh_manager%mesh_save(this%counter)
+    ! geometry part
+    call mesh%geometry_update(3, mesh%nelv, this%sem%grid_min%dm_Xh%x, &
+         this%sem%grid_min%dm_Xh%y, this%sem%grid_min%dm_Xh%z)
+    call this%mesh_file%set_counter(this%counter)
+    call this%mesh_file%write(mesh)
+
+  end subroutine amr_mesh_save
 
 end module amr

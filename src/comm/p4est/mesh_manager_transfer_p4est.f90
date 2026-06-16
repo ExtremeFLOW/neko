@@ -165,6 +165,8 @@ module mesh_manager_transfer_p4est
      procedure, pass(this) :: vector_map_free => p4est_vector_map_free
      !> Construct vectors for refinement/coarsening
      procedure, pass(this) :: vector_constr => p4est_vector_constr
+     !> Backward communication for element deformation information
+     procedure, pass(this) :: grid_min_transfer => p4est_grid_min_transfer
   end type mesh_manager_transfer_p4est_t
 
 contains
@@ -258,7 +260,7 @@ contains
        ! backward communication
        ! ref_mark
 
-       call neko_error('Nothing done yet; mark_transfer')
+       call neko_error('Nothing done yet; ref_mark_transfer')
     else
        ! the same distribution
        pref_mark(:) = ref_mark(:)
@@ -1107,5 +1109,34 @@ contains
     end if
 
   end subroutine p4est_vector_constr
+
+  !> Backward communication for element deformation information
+  !! @parameter[in]   grid_min    minimal grid; neko distribution
+  !! @parameter[out]  pgrid_min   minimal grid; p4est distribution
+  subroutine p4est_grid_min_transfer(this, grid_min, pgrid_min)
+    class(mesh_manager_transfer_p4est_t), intent(inout) :: this
+    real(rp), dimension(:, :, :, :), intent(in) :: grid_min
+    real(rp), allocatable, dimension(:, :, :, :), intent(out) :: pgrid_min
+
+    ! check size on neko side
+    if (size(grid_min, 4) .ne. this%nelt_neko .or. size(grid_min, 1) .ne. 3 &
+         .or. size(grid_min, 2) .ne. 3 .or. size(grid_min, 2) .ne. 3) &
+         call neko_error('Inconsistent minimal grid array size')
+
+    ! p4est distribution
+    allocate(pgrid_min(3, 3, 3, this%nelt_mm))
+
+    ! partitioned mesh
+    if (this%ifpartition) then
+       ! backward communication
+       ! grid_min
+
+       call neko_error('Nothing done yet; grid_min_transfer')
+    else
+       ! the same distribution
+       pgrid_min(:, :, :, :) = grid_min(:, :, :, :)
+    end if
+
+  end subroutine p4est_grid_min_transfer
 
 end module mesh_manager_transfer_p4est
