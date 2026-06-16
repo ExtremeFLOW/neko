@@ -623,6 +623,8 @@ contains
     call numerics_params%destroy()
     call json_subdict%destroy()
 
+    nullify(vec)
+
   end subroutine case_init_common
 
   !> Deallocate a case

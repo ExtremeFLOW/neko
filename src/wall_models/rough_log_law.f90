@@ -247,6 +247,8 @@ contains
             this%rho_w%x, this%B, this%z0, tstep)
     end if
 
+    nullify(u, v, w)
+
   end subroutine rough_log_law_compute
 
 
