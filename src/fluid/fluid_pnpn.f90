@@ -469,7 +469,6 @@ contains
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
-    type(field_t) :: u_temp, v_temp, w_temp
     integer :: i, j, n
 
     dtlag = chkp%dtlag
