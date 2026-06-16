@@ -45,6 +45,8 @@ examples/*/*.nek5000
 examples/*/*0.f0*
 *.chkp
 *.lst
+*.metallib
+neko_metallib.c
 m4/libtool.m4
 m4/ltoptions.m4
 m4/ltsugar.m4

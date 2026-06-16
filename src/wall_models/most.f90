@@ -490,6 +490,9 @@ contains
     call most_log_diagnostics(this%Ri_b, this%L_ob, &
          this%utau, this%magu, this%ti, this%ts, this%q, &
          this%n_nodes, this%bc_value)
+
+    nullify(u, v, w, temp, updated_bc_value)
+
   end subroutine most_compute
 
   subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, ts, q, &

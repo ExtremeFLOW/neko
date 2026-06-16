@@ -447,13 +447,14 @@ contains
 
     call neko_log%end_section()
 
+    nullify(bc_i, vel_bc)
+
   end subroutine fluid_pnpn_init
 
   subroutine fluid_pnpn_restart(this, chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
-    type(field_t) :: u_temp, v_temp, w_temp
     integer :: i, j, n
 
     dtlag = chkp%dtlag
@@ -825,9 +826,13 @@ contains
 
          call profiler_end_region('Pressure_residual', 18)
 
-         call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-              Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
-              string = 'Pressure')
+         ! Do projections only on the actual solutions of the tstep
+         ! not intermediate solutions from the subiterations.
+         if (iter .eq. 1) then
+            call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
+                 Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
+                 string = 'Pressure')
+         end if
 
          call this%pc_prs%update()
 
@@ -842,8 +847,10 @@ contains
 
          call profiler_end_region('Pressure_solve', 3)
 
-         call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-              this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+         if (iter .eq. 1) then
+            call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
+                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+         end if
 
          ! Update the pressure with the increment. Demean if necessary.
          call field_add2(p, dp, n)
@@ -878,8 +885,10 @@ contains
 
          call profiler_end_region('Velocity_residual', 19)
 
-         call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
-              tstep, c_Xh, n, dt_controller, 'Velocity')
+         if (iter .eq. 1) then
+            call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
+                 tstep, c_Xh, n, dt_controller, 'Velocity')
+         end if
 
          call this%pc_vel%update()
 
@@ -897,9 +906,11 @@ contains
             ksp_results(4)%name = 'Z-Velocity'
          end if
 
-         call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-              this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
-              dt_controller)
+         if (iter .eq. 1) then
+            call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
+                 this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
+                 dt_controller)
+         end if
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
             call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
@@ -930,6 +941,9 @@ contains
       call this%ale%update_mesh_velocity(c_Xh, time)
 
     end associate
+
+    nullify(bc_i, bc_j)
+
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
 
@@ -1190,6 +1204,8 @@ contains
        deallocate(zone_indices)
     end if
 
+    nullify(bc_i, bc_object)
+
   end subroutine fluid_pnpn_setup_bcs
 
   !> Write a field with boundary condition specifications
@@ -1328,6 +1344,9 @@ contains
     call bdry_file%write(bdry_field)
 
     call neko_scratch_registry%relinquish_field(temp_index)
+
+    nullify(bdry_field, bci)
+
   end subroutine fluid_pnpn_write_boundary_conditions
 
 end module fluid_pnpn

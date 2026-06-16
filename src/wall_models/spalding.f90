@@ -244,5 +244,7 @@ contains
             this%kappa, this%B, tstep)
     end if
 
+    nullify(u, v, w)
+
   end subroutine spalding_compute
 end module spalding

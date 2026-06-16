@@ -147,6 +147,8 @@ contains
             p, coef, start_time, hom_dir, stat_set)
     end if
 
+    nullify(s, u, v, w, p, coef)
+
   end subroutine scalar_stats_simcomp_init_from_json
 
   !> Actual constructor.
