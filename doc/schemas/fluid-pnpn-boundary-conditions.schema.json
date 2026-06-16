@@ -1,0 +1,394 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:fluid-pnpn-boundary-conditions",
+  "$defs": {
+    "wallModelBase": {
+      "type": "object",
+      "required": [
+        "type",
+        "zone_indices",
+        "model",
+        "h_index"
+      ],
+      "properties": {
+        "type": {
+          "const": "wall_model"
+        },
+        "zone_indices": {
+          "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+        },
+        "name": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+        },
+        "h_index": {
+          "$ref": "urn:neko:schema:common#/$defs/integerOrRef"
+        }
+      },
+      "additionalProperties": true
+    },
+    "fluidPnpnBoundaryCondition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "const": "symmetry"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "outflow",
+                "outflow+dong",
+                "outflow+user",
+                "normal_outflow",
+                "normal_outflow+dong",
+                "normal_outflow+user"
+              ]
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "const": "overset_interface"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "couple_pressure": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "const": "velocity_value"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "const": "no_slip"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "moving": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/wallModelBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "kappa",
+                "B"
+              ],
+              "properties": {
+                "model": {
+                  "const": "spalding"
+                },
+                "kappa": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "B": {
+                  "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/wallModelBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "z0"
+              ],
+              "properties": {
+                "model": {
+                  "const": "rough_log_law"
+                },
+                "kappa": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "B": {
+                  "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+                },
+                "z0": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/wallModelBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "z0",
+                "type_of_temp_bc",
+                "scalar_field",
+                "bottom_bc_flux_or_temp",
+                "g"
+              ],
+              "properties": {
+                "model": {
+                  "const": "most"
+                },
+                "kappa": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "Pr": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "z0": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "z0h": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "g": {
+                  "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+                },
+                "scalar_field": {
+                  "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+                },
+                "type_of_temp_bc": {
+                  "type": "string",
+                  "enum": [
+                    "neumann",
+                    "dirichlet"
+                  ]
+                },
+                "bottom_bc_flux_or_temp": {
+                  "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+                },
+                "time_dependent_temp_bc": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/wallModelBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "z0",
+                "type_of_temp_bc",
+                "scalar_field",
+                "bottom_bc_flux_or_temp",
+                "g"
+              ],
+              "properties": {
+                "model": {
+                  "const": "richardson"
+                },
+                "kappa": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "Pr": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "z0": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "z0h": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "g": {
+                  "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+                },
+                "scalar_field": {
+                  "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+                },
+                "type_of_temp_bc": {
+                  "type": "string",
+                  "enum": [
+                    "neumann",
+                    "dirichlet"
+                  ]
+                },
+                "bottom_bc_flux_or_temp": {
+                  "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+                },
+                "time_dependent_temp_bc": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "user_velocity",
+                "user_pressure"
+              ]
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
+              "const": "shear_stress"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices",
+            "delta",
+            "freestream_velocity",
+            "approximation"
+          ],
+          "properties": {
+            "type": {
+              "const": "blasius_profile"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "delta": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "freestream_velocity": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+            },
+            "approximation": {
+              "type": "string",
+              "enum": [
+                "linear",
+                "quadratic",
+                "cubic",
+                "quartic",
+                "sin",
+                "tanh"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

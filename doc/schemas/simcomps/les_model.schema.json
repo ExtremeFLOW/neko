@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:les_model",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFieldWriterOptions"
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/lesModelCommon"
+            },
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "model": {
+                      "const": "smagorinsky"
+                    },
+                    "c_s": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "test_filter"
+                  ],
+                  "properties": {
+                    "model": {
+                      "const": "dynamic_smagorinsky"
+                    },
+                    "test_filter": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/lesModelTestFilter"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "model": {
+                      "const": "vreman"
+                    },
+                    "c": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                    },
+                    "buoyancy_correction": {
+                      "type": "boolean"
+                    },
+                    "scalar_field": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+                    },
+                    "Ri_c": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                    },
+                    "reference_temperature": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                    },
+                    "g": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/vector3OrRef"
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "buoyancy_correction": {
+                            "const": true
+                          }
+                        },
+                        "required": [
+                          "buoyancy_correction"
+                        ]
+                      },
+                      "then": {
+                        "required": [
+                          "scalar_field",
+                          "Ri_c",
+                          "reference_temperature",
+                          "g"
+                        ]
+                      }
+                    }
+                  ],
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "model": {
+                      "const": "sigma"
+                    },
+                    "c": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "model": {
+                      "const": "wale"
+                    },
+                    "c_w": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "T0",
+                    "g"
+                  ],
+                  "properties": {
+                    "model": {
+                      "const": "deardorff"
+                    },
+                    "c_k": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                    },
+                    "T0": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                    },
+                    "g": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/vector3OrRef"
+                    },
+                    "temperature_field": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+                    },
+                    "TKE_field": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+                    },
+                    "temperature_alphat_field": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+                    },
+                    "TKE_alphat_field": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+                    },
+                    "TKE_source_field": {
+                      "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

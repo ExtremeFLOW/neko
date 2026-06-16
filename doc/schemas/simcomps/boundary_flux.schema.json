@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:boundary_flux",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "zone_indices",
+            "field_names"
+          ],
+          "properties": {
+            "type": {
+              "const": "boundary_flux"
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArrayOrRef"
+            },
+            "field_names": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields3"
+            },
+            "log": {
+              "type": "boolean"
+            },
+            "output_filename": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

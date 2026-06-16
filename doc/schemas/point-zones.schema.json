@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:point-zones",
+  "$defs": {
+    "pointZone": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "geometry",
+            "x_bounds",
+            "y_bounds",
+            "z_bounds"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "geometry": {
+              "const": "box"
+            },
+            "x_bounds": {
+              "$ref": "urn:neko:schema:common#/$defs/numberArray"
+            },
+            "y_bounds": {
+              "$ref": "urn:neko:schema:common#/$defs/numberArray"
+            },
+            "z_bounds": {
+              "$ref": "urn:neko:schema:common#/$defs/numberArray"
+            },
+            "invert": {
+              "type": "boolean"
+            },
+            "full_elements": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "geometry",
+            "center",
+            "radius"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "geometry": {
+              "const": "sphere"
+            },
+            "center": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3"
+            },
+            "radius": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "invert": {
+              "type": "boolean"
+            },
+            "full_elements": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "geometry",
+            "start",
+            "end",
+            "radius"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "geometry": {
+              "const": "cylinder"
+            },
+            "start": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3"
+            },
+            "end": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3"
+            },
+            "radius": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "invert": {
+              "type": "boolean"
+            },
+            "full_elements": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}
