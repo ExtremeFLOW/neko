@@ -20,8 +20,12 @@
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="282,172,248,172,248,167,282,167"/>
 <area shape="rect" id="Node000008" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="39,213,214,253"/>
 <area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="305,232,214,234,214,229,305,226"/>
-<area shape="rect" id="Node000012" href="$d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="33,360,221,400"/>
-<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="319,404,221,393,221,388,319,399"/>
-<area shape="rect" id="Node000013" href="$d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="29,424,225,464"/>
-<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="319,425,225,436,225,430,319,420"/>
+<area shape="rect" id="Node000012" href="$d1/da5/namespaceoverset__interface.html#a7d61c39526e32be5660aa9cb6641ef1c" title="Log interface RMSE for the scalar field." alt="" coords="51,303,203,343"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="319,391,295,382,271,370,247,357,202,342,204,337,249,352,273,365,297,378,321,386"/>
+<area shape="rect" id="Node000013" href="$d6/de1/namespaceoverset__interface__vector.html#a39ae73c70e1d995c7ffc543278df54b6" title="Log interface RMSE for each vector component." alt="" coords="35,367,219,407"/>
+<area shape="poly" id="edge12_Node000011_Node000013" title=" " alt="" coords="319,407,219,398,219,392,319,401"/>
+<area shape="rect" id="Node000014" href="$d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="33,431,221,471"/>
+<area shape="poly" id="edge13_Node000011_Node000014" title=" " alt="" coords="319,427,221,440,221,435,319,422"/>
+<area shape="rect" id="Node000015" href="$d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="29,495,225,535"/>
+<area shape="poly" id="edge14_Node000011_Node000015" title=" " alt="" coords="356,440,249,485,211,497,209,492,247,480,354,435"/>
 </map>

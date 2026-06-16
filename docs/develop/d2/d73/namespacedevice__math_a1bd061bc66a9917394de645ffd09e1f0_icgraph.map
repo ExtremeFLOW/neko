@@ -12,20 +12,24 @@
 <area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="749,252,692,266,690,261,748,246"/>
 <area shape="rect" id="Node000010" href="$d4/d50/namespaceale__routines__device.html#a66f122c51f57f4ff2edf95cb0d091599" title=" " alt="" coords="515,327,709,367"/>
 <area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="806,257,764,288,715,318,686,330,684,325,712,313,761,284,803,252"/>
-<area shape="rect" id="Node000013" href="$d3/d0d/namespacevector__math.html#ad2e3b136be995cb9e58faec0d754e15e" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="535,391,689,431"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="823,259,779,321,749,354,715,382,690,395,687,390,712,377,745,350,774,318,818,256"/>
+<area shape="rect" id="Node000013" href="$d3/d0d/namespacevector__math.html#ad2e3b136be995cb9e58faec0d754e15e" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="535,429,689,469"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="819,259,774,318,715,381,682,408,649,431,646,426,679,404,712,377,770,315,815,256"/>
 <area shape="rect" id="Node000003" href="$d0/d10/namespaceboussinesq__source__term.html#aaee9b03347869ec2dc5de2613b67ded0" title="Computes the source term and adds the result to fields." alt="" coords="269,5,460,60"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="497,35,460,35,460,30,497,30"/>
 <area shape="rect" id="Node000006" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="285,145,444,185"/>
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="519,170,444,169,444,163,519,165"/>
 <area shape="rect" id="Node000008" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="277,209,452,249"/>
 <area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="508,230,452,230,452,225,508,224"/>
-<area shape="rect" id="Node000011" href="$dd/db4/namespaceale__manager.html#a9398e331d85c2a8e4c4dd348a0e86e85" title=" " alt="" coords="285,327,445,367"/>
-<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="501,350,445,350,445,345,501,345"/>
-<area shape="rect" id="Node000012" href="$dd/db4/namespaceale__manager.html#af984430ba7e4a8bae68b2ca61d0e9f72" title="Main routine to advance the mesh in time." alt="" coords="5,335,219,360"/>
-<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="271,350,219,350,219,345,271,345"/>
-<area shape="rect" id="Node000014" href="$d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="271,391,459,431"/>
-<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="521,414,459,414,459,409,521,409"/>
-<area shape="rect" id="Node000015" href="$d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="267,455,463,495"/>
-<area shape="poly" id="edge14_Node000013_Node000015" title=" " alt="" coords="523,437,444,458,442,453,522,432"/>
+<area shape="rect" id="Node000011" href="$dd/db4/namespaceale__manager.html#a9398e331d85c2a8e4c4dd348a0e86e85" title=" " alt="" coords="285,301,445,341"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="500,338,445,332,445,327,501,333"/>
+<area shape="rect" id="Node000012" href="$dd/db4/namespaceale__manager.html#af984430ba7e4a8bae68b2ca61d0e9f72" title="Main routine to advance the mesh in time." alt="" coords="5,308,219,333"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="271,323,219,323,219,318,271,318"/>
+<area shape="rect" id="Node000014" href="$d1/da5/namespaceoverset__interface.html#a7d61c39526e32be5660aa9cb6641ef1c" title="Log interface RMSE for the scalar field." alt="" coords="289,365,441,405"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="522,428,440,407,441,402,523,423"/>
+<area shape="rect" id="Node000015" href="$d6/de1/namespaceoverset__interface__vector.html#a39ae73c70e1d995c7ffc543278df54b6" title="Log interface RMSE for each vector component." alt="" coords="273,429,457,469"/>
+<area shape="poly" id="edge14_Node000013_Node000015" title=" " alt="" coords="522,451,457,451,457,446,522,446"/>
+<area shape="rect" id="Node000016" href="$d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="271,493,459,533"/>
+<area shape="poly" id="edge15_Node000013_Node000016" title=" " alt="" coords="523,474,444,495,442,490,522,469"/>
+<area shape="rect" id="Node000017" href="$d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="267,557,463,597"/>
+<area shape="poly" id="edge16_Node000013_Node000017" title=" " alt="" coords="575,479,523,514,464,547,435,559,433,554,461,542,521,509,572,475"/>
 </map>

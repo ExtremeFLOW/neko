@@ -1,7 +1,11 @@
 <map id="vector_math::vector_add2s2" name="vector_math::vector_add2s2">
-<area shape="rect" id="Node000001" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="249,37,403,77"/>
-<area shape="rect" id="Node000002" href="$d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="9,5,197,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,47,197,41,198,36,236,42"/>
-<area shape="rect" id="Node000003" href="$d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="5,69,201,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="236,73,202,78,201,73,235,68"/>
+<area shape="rect" id="Node000001" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="249,101,403,141"/>
+<area shape="rect" id="Node000002" href="$d1/da5/namespaceoverset__interface.html#a7d61c39526e32be5660aa9cb6641ef1c" title="Log interface RMSE for the scalar field." alt="" coords="27,5,179,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="277,97,200,60,169,48,171,43,202,55,279,92"/>
+<area shape="rect" id="Node000003" href="$d6/de1/namespaceoverset__interface__vector.html#a39ae73c70e1d995c7ffc543278df54b6" title="Log interface RMSE for each vector component." alt="" coords="11,69,195,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,111,195,105,196,100,236,106"/>
+<area shape="rect" id="Node000004" href="$d1/da5/namespaceoverset__interface.html#a36693c0ebf4a3f7734e15b2f6d49a3ef" title="Update values at the overset interface." alt="" coords="9,133,197,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="236,137,198,142,197,137,235,132"/>
+<area shape="rect" id="Node000005" href="$d6/de1/namespaceoverset__interface__vector.html#ab7093d47eb4ad24d0377416ce090ff80" title="Update the values at the interfaces." alt="" coords="5,197,201,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="279,150,202,188,171,200,169,195,200,183,277,146"/>
 </map>
