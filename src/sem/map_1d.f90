@@ -213,6 +213,7 @@ contains
        ! 1 corresponds to r, 2 to s, 3 to t and are stored in dir_el
        this%dir_el(i) = maxloc(el_dim(:, this%dir), dim = 1)
     end do
+
     glb_min = glmin(line, n)
     glb_max = glmax(line, n)
 
@@ -234,7 +235,10 @@ contains
     ! When the minimum value has propagated to the highest level this stops.
     ! Only works when the bottom plate of the domain is flat.
     do while (.not. relcmp(glmax(min_vals, n), glb_min, this%tol))
+
+       ! This is the assigned level
        i = i + 1
+
        do e = 1, nelv
           !Sets the value at the bottom of each element to glb_max
           if (this%dir_el(e) .eq. 1) then
@@ -262,23 +266,28 @@ contains
 
        !Make sketchy min as GS_OP_MIN is not supported with device mpi
        min_temp = min_vals
-       if (NEKO_BCKND_DEVICE .eq. 1) &
-            call device_memcpy(min_vals, min_vals_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
-       !Propagates the minumum value along the element boundary.
-       call coef%gs_h%op(min_vals, n, GS_OP_ADD)
-       if (NEKO_BCKND_DEVICE .eq. 1) &
-            call device_memcpy(min_vals, min_vals_d, n, &
-            DEVICE_TO_HOST, sync = .true.)
-       !Obtain average along boundary
 
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(min_vals, min_vals_d, n, HOST_TO_DEVICE, &
+               sync = .false.)
+       end if
+
+       !Propagates the minimum value along the element boundary.
+       call coef%gs_h%op(min_vals, n, GS_OP_ADD)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(min_vals, min_vals_d, n, DEVICE_TO_HOST, &
+               sync = .true.)
+       end if
+
+       !Obtain average along boundary
        call col2(min_vals, coef%mult, n)
        call cmult(min_temp, -1.0_rp, n)
        call add2s1(min_vals, min_temp, 2.0_rp, n)
 
        !Checks the new minimum value on each element
        !Assign this value to all points in this element in min_val
-       !If the element has not already been assinged a level,
+       !If the element has not already been assigned a level,
        !and it has obtained the minval, set el_lvl = i
        do e = 1, nelv
           el_min = minval(min_vals(:, :, :, e))
