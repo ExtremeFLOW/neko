@@ -172,6 +172,7 @@ neko_fortran_SOURCES = \
 	io/fluid_sgs_stats_output.f90\
 	io/scalar_stats_output.f90\
 	io/scalar_sgs_stats_output.f90\
+	io/spatial_average_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	global_interpolation/global_interpolation.f90\
