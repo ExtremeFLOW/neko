@@ -109,10 +109,7 @@ contains
     real(kind=rp) :: vv, sum_e1(1), e1, e2, sum_e2(1), oo, e3
     type(coef_t), pointer :: coef
 
-    if (mod(time%tstep, 50) .ne. 0) then
-       nullify(omega_x, omega_y, omega_z, u, v, w, coef)
-       return
-    end if
+    if (mod(time%tstep, 50) .ne. 0) return
 
     coef => neko_user_access%case%fluid%c_Xh
     u => neko_registry%get_field('u')

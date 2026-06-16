@@ -45,10 +45,7 @@ contains
 
     ! See scalar.name in the case file, makes sure that we only
     ! run this for the scalar field.
-    if (scheme_name .ne. 'temperature') then
-       nullify(s)
-       return
-    end if
+    if (scheme_name .ne. 'temperature') return
 
     s => fields%items(1)%ptr
 

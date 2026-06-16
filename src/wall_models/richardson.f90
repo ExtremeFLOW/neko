@@ -497,7 +497,7 @@ contains
          this%utau, this%magu, this%ti, this%ts, this%q, &
          this%n_nodes, this%bc_value)
 
-    nullify(u, v, w, temp)
+    nullify(u, v, w, temp, updated_bc_value)
 
   end subroutine richardson_compute
 
