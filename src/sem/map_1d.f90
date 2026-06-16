@@ -1,5 +1,38 @@
-
-!> Creates a 1d GLL point map along a specified direction based on the connectivity in the mesh.
+! Copyright (c) 2023-2026, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!
+!> Creates a 1d GLL point map along a specified direction based on the
+!! connectivity in the mesh.
 module map_1d
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
@@ -20,39 +53,73 @@ module map_1d
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  !> Type that encapsulates a mapping from each gll point in the mesh
-  !! to its corresponding (global) GLL point index in one direction.
+
+  !> Map every GLL point in the mesh to a level in one physical direction.
+  !! Can be used to average across the two remaining directions.
+  !! @details
+  !! This type is used to average fields over planes normal to one physical
+  !! direction. The constructor first determines which local tensor-product
+  !! direction (`r`, `s`, or `t`) is most closely aligned with the requested
+  !! physical direction (`x`, `y`, or `z`) for each element. It then assigns a
+  !! one-dimensional element level to each element and expands that element
+  !! level into GLL-point levels along the aligned local direction.
+  !!
+  !! The element-level assignment is based on propagation of the global minimum
+  !! coordinate through the gather-scatter connectivity. Elements whose minimum
+  !! coordinate matches the global minimum are assigned to the first level. On
+  !! each following pass, the current lower face of every element is masked to
+  !! the global maximum, a gather-scatter add exchanges boundary values, and the
+  !! result is converted into an effective boundary minimum. Elements that have
+  !! newly received the global minimum are assigned to the next level. This
+  !! repeats until the propagated minimum reaches the global maximum level.
+  !!
+  !! Once element levels are known, every GLL point receives a global 1D level
+  !! (`pt_lvl`) ordered consistently with the local element orientation. The
+  !! constructor also accumulates `volume_per_gll_lvl`, the quadrature weight
+  !! volume associated with each 1D level. Averaging then sums each field into
+  !! these levels and divides by the corresponding level volume.
+  !!
+  !! The propagation algorithm assumes that the connectivity and coordinate
+  !! layout allow a unique stack of element levels in the requested direction.
+  !! If an element level remains unassigned, the resulting point levels are not
+  !! valid for the volume accumulation or averaging steps.
   !! @remark Could also be rather easily extended to say polar coordinates
-  !! as well ( I think). Martin Karp
+  !! as well (I think). Martin Karp
   type, public :: map_1d_t
-     !> Checks whether the specified direction is in the r,s, or t
-     !! direction for each element.
+     !> Local tensor-product direction aligned with the requested physical
+     !! direction for each element. Values 1, 2, and 3 correspond to `r`, `s`,
+     !! and `t`, respectively.
      integer, allocatable :: dir_el(:)
-     !> Checks which level an element belongs to.
+     !> One-dimensional element level assigned by propagating the global
+     !! minimum coordinate through the mesh connectivity.
      integer, allocatable :: el_lvl(:)
-     !> Checks which level or id in the 1D GLL mapping each point in the dofmap is.
+     !> One-dimensional GLL level for each local point in each element.
+     !! Levels run from 1 to `n_gll_lvls` and are used as row indices in the
+     !! averaged output matrix.
      integer, allocatable :: pt_lvl(:, :, :, :)
-     !> Number of elements stacked on top of eachother in the specified direction
+     !> Number of element levels in the requested physical direction.
      integer :: n_el_lvls
-     !> Number of total gll levels
+     !> Number of total GLL levels in the requested physical direction.
+     !! For a polynomial space with `lx` points per element direction, this is
+     !! `n_el_lvls * lx`.
      integer :: n_gll_lvls
-     !> Dofmap
-     !> Dofmap
+     !> Dofmap that owns the physical coordinates used to build the map.
      type(dofmap_t), pointer :: dof => null()
-     !> SEM coefs
+     !> SEM coefficients that provide quadrature weights and connectivity.
      type(coef_t), pointer :: coef => null()
-     !> Mesh
+     !> Mesh associated with `dof` and `coef`.
      type(mesh_t), pointer :: msh => null()
-     !> The specified direction in which we create the 1D mapping
+     !> Requested physical direction of the 1D mapping.
+     !! Values 1, 2, and 3 correspond to `x`, `y`, and `z`, respectively.
      integer :: dir
-     !> Tolerance for the mesh
+     !> Coordinate comparison tolerance used when identifying propagated levels.
      real(kind=rp) :: tol = 1e-7
-     !> Volume per level in the 1d grid
+     !> Integrated quadrature weight volume associated with each GLL level.
+     !! Used as the denominator when computing plane averages.
      real(kind=rp), allocatable :: volume_per_gll_lvl(:)
    contains
      !> Constructor
      procedure, pass(this) :: init_int => map_1d_init
-
      procedure, pass(this) :: init_char => map_1d_init_char
      generic :: init => init_int, init_char
      !> Destructor
@@ -60,7 +127,6 @@ module map_1d
      !> Average field list along planes
      procedure, pass(this) :: average_planes_fld_lst => &
           map_1d_average_field_list
-
      procedure, pass(this) :: average_planes_vec_ptr => &
           map_1d_average_vector_ptr
      generic :: average_planes => average_planes_fld_lst, average_planes_vec_ptr
@@ -120,8 +186,8 @@ contains
     call MPI_BARRIER(NEKO_COMM)
 
     do i = 1, nelv
-       !store which direction r,s,t corresponds to speciifed direction, x,y,z
-       !we assume elements are stacked on each other...
+       ! Store which direction r,s,t corresponds to specified direction, x,y,z
+       ! we assume elements are stacked on each other...
        ! Check which one of the normalized vectors are closest to dir
        ! If we want to incorporate other directions, we should look here
        el_dim(1, :) = abs(this%msh%elements(i)%e%pts(1)%p%x - &
@@ -142,7 +208,7 @@ contains
 
     i = 1
     this%el_lvl = -1
-    ! Check what the mimum value in each element and put in min_vals
+    ! Check what the minimum value in each element and put in min_vals
     do e = 1, nelv
        el_min = minval(line(:, :, :, e))
        min_vals(:, :, :, e) = el_min
@@ -152,9 +218,10 @@ contains
           if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
     end do
-    ! While loop where at each iteation the global maximum value
+
+    ! While loop where at each iteration the global maximum value
     ! propagates down one level.
-    ! When the minumum value has propagated to the highest level this stops.
+    ! When the minimum value has propagated to the highest level this stops.
     ! Only works when the bottom plate of the domain is flat.
     do while (.not. relcmp(glmax(min_vals, n), glb_min, this%tol))
        i = i + 1
@@ -182,6 +249,7 @@ contains
              end if
           end if
        end do
+
        !Make sketchy min as GS_OP_MIN is not supported with device mpi
        min_temp = min_vals
        if (NEKO_BCKND_DEVICE .eq. 1) &
@@ -198,7 +266,6 @@ contains
        call cmult(min_temp, -1.0_rp, n)
        call add2s1(min_vals, min_temp, 2.0_rp, n)
 
-
        !Checks the new minimum value on each element
        !Assign this value to all points in this element in min_val
        !If the element has not already been assinged a level,
@@ -213,6 +280,7 @@ contains
     end do
     this%n_el_lvls = glimax(this%el_lvl, nelv)
     this%n_gll_lvls = this%n_el_lvls*lx
+
     !Numbers the points in each element based on the element level
     !and its orientation
     do e = 1, nelv
@@ -241,18 +309,23 @@ contains
           end if
        end do
     end do
+
     if (allocated(min_vals)) then
        if (c_associated(min_vals_d)) call device_unmap(min_vals, min_vals_d)
        deallocate(min_vals)
     end if
+
     if (allocated(min_temp)) deallocate(min_temp)
     allocate(this%volume_per_gll_lvl(this%n_gll_lvls))
+
     this%volume_per_gll_lvl = 0.0_rp
+
     do i = 1, n
        this%volume_per_gll_lvl(this%pt_lvl(i, 1, 1, 1)) = &
             this%volume_per_gll_lvl(this%pt_lvl(i, 1, 1, 1)) + &
             coef%B(i, 1, 1, 1)
     end do
+
     call MPI_Allreduce(MPI_IN_PLACE, this%volume_per_gll_lvl, this%n_gll_lvls, &
          MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
@@ -279,6 +352,7 @@ contains
 
   end subroutine map_1d_init_char
 
+  !> Destructor.
   subroutine map_1d_free(this)
     class(map_1d_t) :: this
 
