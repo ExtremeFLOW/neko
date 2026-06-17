@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.3</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.4</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -340,47 +340,50 @@ $(document).ready(function(){initNavTree('d5/ddd/user__stats_8f90_source.html','
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keyword">call </span>this%case%output_controller%add(this%output, &amp;</div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>         this%output_controller%control_value, &amp;</div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>         this%output_controller%control_mode)</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    <span class="keyword">nullify</span>(field_to_avg)</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
 </div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#af579e4cf93d48b369189db20d15c3f3b">user_stats_init_common</a></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
-<div class="foldopen" id="foldopen00284" data-start="" data-end="">
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno"><a class="line" href="../../df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61">  284</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61">user_stats_free</a>(this)</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/d8b/structuser__stats_1_1user__stats__t.html">user_stats_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keyword">call </span>this%free_base()</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%mean_fields)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>       <span class="keywordflow">do</span> i = 1, this%n_avg_fields</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>          <span class="keyword">call </span>this%mean_fields(i)%free()</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>       <span class="keyword">deallocate</span>(this%mean_fields)</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%field_names)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>       <span class="keyword">deallocate</span>(this%field_names)</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#af579e4cf93d48b369189db20d15c3f3b">user_stats_init_common</a></div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
+<div class="foldopen" id="foldopen00287" data-start="" data-end="">
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno"><a class="line" href="../../df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61">  287</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61">user_stats_free</a>(this)</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/d8b/structuser__stats_1_1user__stats__t.html">user_stats_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keyword">call </span>this%free_base()</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span> </div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%mean_fields)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>       <span class="keywordflow">do</span> i = 1, this%n_avg_fields</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>          <span class="keyword">call </span>this%mean_fields(i)%free()</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>       <span class="keyword">deallocate</span>(this%mean_fields)</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%field_names)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>       <span class="keyword">deallocate</span>(this%field_names)</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
 </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61">user_stats_free</a></div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
-<div class="foldopen" id="foldopen00305" data-start="" data-end="">
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno"><a class="line" href="../../df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331">  305</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331">user_stats_compute</a>(this, time)</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/d8b/structuser__stats_1_1user__stats__t.html">user_stats_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span> </div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    <span class="keywordflow">if</span> (time%t .ge. this%start_time) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>       <span class="keywordflow">do</span> i = 1, this%n_avg_fields</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          <span class="keyword">call </span>this%mean_fields(i)%update(time%t - this%time)</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       this%time = time%t</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61">user_stats_free</a></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
+<div class="foldopen" id="foldopen00308" data-start="" data-end="">
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno"><a class="line" href="../../df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331">  308</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331">user_stats_compute</a>(this, time)</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/d8b/structuser__stats_1_1user__stats__t.html">user_stats_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    <span class="keywordflow">if</span> (time%t .ge. this%start_time) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       <span class="keywordflow">do</span> i = 1, this%n_avg_fields</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>          <span class="keyword">call </span>this%mean_fields(i)%update(time%t - this%time)</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>       this%time = time%t</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
 </div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331">user_stats_compute</a></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../df/ded/namespaceuser__stats.html">user_stats</a></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331">user_stats_compute</a></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../df/ded/namespaceuser__stats.html">user_stats</a></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00068">json_utils.f90:68</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00059">json_utils.f90:59</a></div></div>
 <div class="ttc" id="anamespacecase_html"><div class="ttname"><a href="../../dd/da8/namespacecase.html">case</a></div><div class="ttdoc">Defines a simulation case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00034">case.f90:34</a></div></div>
@@ -403,8 +406,8 @@ $(document).ready(function(){initNavTree('d5/ddd/user__stats_8f90_source.html','
 <div class="ttc" id="anamespacetime__based__controller_html"><div class="ttname"><a href="../../d5/d11/namespacetime__based__controller.html">time_based_controller</a></div><div class="ttdoc">Contains the time_based_controller_t type.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/db0/time__based__controller_8f90_source.html#l00034">time_based_controller.f90:34</a></div></div>
 <div class="ttc" id="anamespacetime__state_html"><div class="ttname"><a href="../../d8/d92/namespacetime__state.html">time_state</a></div><div class="ttdoc">Module with things related to the simulation time.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00034">time_state.f90:34</a></div></div>
 <div class="ttc" id="anamespaceuser__stats_html"><div class="ttname"><a href="../../df/ded/namespaceuser__stats.html">user_stats</a></div><div class="ttdoc">Implements the user_stats_t type.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddd/user__stats_8f90_source.html#l00036">user_stats.f90:36</a></div></div>
-<div class="ttc" id="anamespaceuser__stats_html_a198f8ee894c83a524753b82ddfa3ca61"><div class="ttname"><a href="../../df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61">user_stats::user_stats_free</a></div><div class="ttdeci">subroutine user_stats_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddd/user__stats_8f90_source.html#l00284">user_stats.f90:285</a></div></div>
-<div class="ttc" id="anamespaceuser__stats_html_a323eefdace33e6ba125945b61e67b331"><div class="ttname"><a href="../../df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331">user_stats::user_stats_compute</a></div><div class="ttdeci">subroutine user_stats_compute(this, time)</div><div class="ttdoc">Update the running averages.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddd/user__stats_8f90_source.html#l00305">user_stats.f90:306</a></div></div>
+<div class="ttc" id="anamespaceuser__stats_html_a198f8ee894c83a524753b82ddfa3ca61"><div class="ttname"><a href="../../df/ded/namespaceuser__stats.html#a198f8ee894c83a524753b82ddfa3ca61">user_stats::user_stats_free</a></div><div class="ttdeci">subroutine user_stats_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddd/user__stats_8f90_source.html#l00287">user_stats.f90:288</a></div></div>
+<div class="ttc" id="anamespaceuser__stats_html_a323eefdace33e6ba125945b61e67b331"><div class="ttname"><a href="../../df/ded/namespaceuser__stats.html#a323eefdace33e6ba125945b61e67b331">user_stats::user_stats_compute</a></div><div class="ttdeci">subroutine user_stats_compute(this, time)</div><div class="ttdoc">Update the running averages.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddd/user__stats_8f90_source.html#l00308">user_stats.f90:309</a></div></div>
 <div class="ttc" id="anamespaceuser__stats_html_a455eca92ce4a6188c20ad306f983a4c2"><div class="ttname"><a href="../../df/ded/namespaceuser__stats.html#a455eca92ce4a6188c20ad306f983a4c2">user_stats::user_stats_restart</a></div><div class="ttdeci">subroutine user_stats_restart(this, time)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddd/user__stats_8f90_source.html#l00126">user_stats.f90:127</a></div></div>
 <div class="ttc" id="anamespaceuser__stats_html_abe2d464ce80412c64394cbaf9dc664dc"><div class="ttname"><a href="../../df/ded/namespaceuser__stats.html#abe2d464ce80412c64394cbaf9dc664dc">user_stats::user_stats_init_from_controllers_properties</a></div><div class="ttdeci">subroutine user_stats_init_from_controllers_properties(this, name, case, order, preprocess_control, preprocess_value, compute_control, compute_value, output_control, output_value, start_time, coef, avg_dir, filename, precision)</div><div class="ttdoc">Constructor from components, passing properties to the time_based_controller` components in the base ...</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddd/user__stats_8f90_source.html#l00207">user_stats.f90:211</a></div></div>
 <div class="ttc" id="anamespaceuser__stats_html_ace6d205150ecee2db3de6148e2181a8b"><div class="ttname"><a href="../../df/ded/namespaceuser__stats.html#ace6d205150ecee2db3de6148e2181a8b">user_stats::user_stats_init_from_json</a></div><div class="ttdeci">subroutine user_stats_init_from_json(this, json, case)</div><div class="ttdoc">Constructor from json.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/ddd/user__stats_8f90_source.html#l00098">user_stats.f90:99</a></div></div>
@@ -430,7 +433,7 @@ $(document).ready(function(){initNavTree('d5/ddd/user__stats_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_702567638a028346607c31c39047d6bd.html">simulation_components</a></li><li class="navelem"><a class="el" href="../../d5/ddd/user__stats_8f90.html">user_stats.f90</a></li>
-    <li class="footer">Generated on Tue Jun 16 2026 05:17:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jun 17 2026 05:12:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

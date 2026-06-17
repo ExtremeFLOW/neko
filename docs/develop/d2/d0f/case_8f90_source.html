@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.3</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.4</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -734,37 +734,39 @@ $(document).ready(function(){initNavTree('d2/d0f/case_8f90_source.html','../../'
 <div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>    <span class="keyword">call </span>numerics_params%destroy()</div>
 <div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>    <span class="keyword">call </span>json_subdict%destroy()</div>
 <div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span> </div>
-</div>
-<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68">case_init_common</a></div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>    <span class="keyword">nullify</span>(vec)</div>
 <div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span> </div>
-<div class="foldopen" id="foldopen00629" data-start="" data-end="">
-<div class="line"><a id="l00629" name="l00629"></a><span class="lineno"><a class="line" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">  629</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case_free</a>(this)</div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span> </div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%fluid)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>       <span class="keyword">call </span>this%fluid%free()</div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>       <span class="keyword">deallocate</span>(this%fluid)</div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span> </div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%scalars)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>       <span class="keyword">call </span>this%scalars%free()</div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>       <span class="keyword">deallocate</span>(this%scalars)</div>
-<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span> </div>
-<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>    <span class="keyword">call </span>this%msh%free()</div>
-<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span> </div>
-<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>    <span class="keyword">call </span>this%f_out%free()</div>
-<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span> </div>
-<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>    <span class="keyword">call </span>this%output_controller%free()</div>
-<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span> </div>
-<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%output_directory)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>       <span class="keyword">deallocate</span>(this%output_directory)</div>
-<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span> </div>
 </div>
-<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case_free</a></div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68">case_init_common</a></div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span> </div>
+<div class="foldopen" id="foldopen00631" data-start="" data-end="">
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno"><a class="line" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">  631</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case_free</a>(this)</div>
+<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span> </div>
+<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%fluid)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>       <span class="keyword">call </span>this%fluid%free()</div>
+<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>       <span class="keyword">deallocate</span>(this%fluid)</div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span> </div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%scalars)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>       <span class="keyword">call </span>this%scalars%free()</div>
+<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>       <span class="keyword">deallocate</span>(this%scalars)</div>
+<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span> </div>
+<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>    <span class="keyword">call </span>this%msh%free()</div>
+<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span> </div>
+<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>    <span class="keyword">call </span>this%f_out%free()</div>
+<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span> </div>
+<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>    <span class="keyword">call </span>this%output_controller%free()</div>
+<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span> </div>
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%output_directory)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>       <span class="keyword">deallocate</span>(this%output_directory)</div>
+<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span> </div>
-<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a></div>
+</div>
+<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case_free</a></div>
+<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span> </div>
+<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/da8/namespacecase.html">case</a></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfaceflow__ic_1_1set__flow__ic_html"><div class="ttname"><a href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html">flow_ic::set_flow_ic</a></div><div class="ttdef"><b>Definition</b> <a href="../../d9/d91/flow__ic_8f90_source.html#l00067">flow_ic.f90:67</a></div></div>
 <div class="ttc" id="ainterfacejobctrl_1_1jobctrl__set__time__limit_html"><div class="ttname"><a href="../../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html">jobctrl::jobctrl_set_time_limit</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d37/jobctrl_8f90_source.html#l00045">jobctrl.f90:45</a></div></div>
@@ -777,7 +779,7 @@ $(document).ready(function(){initNavTree('d2/d0f/case_8f90_source.html','../../'
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
 <div class="ttc" id="anamespacecase_html"><div class="ttname"><a href="../../dd/da8/namespacecase.html">case</a></div><div class="ttdoc">Defines a simulation case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00034">case.f90:34</a></div></div>
 <div class="ttc" id="anamespacecase_html_a43da3102124b9a70209d9f4cea65676a"><div class="ttname"><a href="../../dd/da8/namespacecase.html#a43da3102124b9a70209d9f4cea65676a">case::case_init_from_file</a></div><div class="ttdeci">subroutine case_init_from_file(this, case_file)</div><div class="ttdoc">Initialize a case from an input file case_file.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00095">case.f90:96</a></div></div>
-<div class="ttc" id="anamespacecase_html_a773475493dad053164ee0e0b110ed853"><div class="ttname"><a href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case::case_free</a></div><div class="ttdeci">subroutine case_free(this)</div><div class="ttdoc">Deallocate a case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00629">case.f90:630</a></div></div>
+<div class="ttc" id="anamespacecase_html_a773475493dad053164ee0e0b110ed853"><div class="ttname"><a href="../../dd/da8/namespacecase.html#a773475493dad053164ee0e0b110ed853">case::case_free</a></div><div class="ttdeci">subroutine case_free(this)</div><div class="ttdoc">Deallocate a case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00631">case.f90:632</a></div></div>
 <div class="ttc" id="anamespacecase_html_ac5da808aa4acd3a1c5d03c5c7f785e92"><div class="ttname"><a href="../../dd/da8/namespacecase.html#ac5da808aa4acd3a1c5d03c5c7f785e92">case::case_init_from_json</a></div><div class="ttdeci">subroutine case_init_from_json(this, case_json)</div><div class="ttdoc">Initialize a case from a JSON object describing a case.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00131">case.f90:132</a></div></div>
 <div class="ttc" id="anamespacecase_html_ac7d52a7009f92ec7c1cf6abf9e33ae68"><div class="ttname"><a href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68">case::case_init_common</a></div><div class="ttdeci">subroutine case_init_common(this)</div><div class="ttdoc">Initialize a case from its (loaded) params object.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0f/case_8f90_source.html#l00145">case.f90:146</a></div></div>
 <div class="ttc" id="anamespacecheckpoint_html"><div class="ttname"><a href="../../d3/d51/namespacecheckpoint.html">checkpoint</a></div><div class="ttdoc">Defines a checkpoint.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/checkpoint_8f90_source.html#l00034">checkpoint.f90:34</a></div></div>
@@ -856,7 +858,7 @@ $(document).ready(function(){initNavTree('d2/d0f/case_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../d2/d0f/case_8f90.html">case.f90</a></li>
-    <li class="footer">Generated on Tue Jun 16 2026 05:17:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jun 17 2026 05:12:17 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

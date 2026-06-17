@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.3</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.4</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -315,9 +315,12 @@ $(document).ready(function(){initNavTree('d8/d12/cai__sagaut__model__ii_8f90_sou
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>            this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, u%msh%nelv, &amp;</div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>            this%kappa, this%B, this%p, this%s)</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keyword">nullify</span>(u, v, w)</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
 </div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dd3/cuda_2cai__sagaut__model__ii__kernel_8h.html#a7f92f0bdb20f646d5598a7c822ea43a2">cai_sagaut_model_ii_compute</a></div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/d21/namespacecai__sagaut__model__ii.html">cai_sagaut_model_ii</a></div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dd3/cuda_2cai__sagaut__model__ii__kernel_8h.html#a7f92f0bdb20f646d5598a7c822ea43a2">cai_sagaut_model_ii_compute</a></div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/d21/namespacecai__sagaut__model__ii.html">cai_sagaut_model_ii</a></div>
 <div class="ttc" id="acuda_2cai__sagaut__model__ii__kernel_8h_html_a7f92f0bdb20f646d5598a7c822ea43a2"><div class="ttname"><a href="../../dc/dd3/cuda_2cai__sagaut__model__ii__kernel_8h.html#a7f92f0bdb20f646d5598a7c822ea43a2">cai_sagaut_model_ii_compute</a></div><div class="ttdeci">__global__ void cai_sagaut_model_ii_compute(const T *__restrict__ u_d, const T *__restrict__ v_d, const T *__restrict__ w_d, const int *__restrict__ ind_r_d, const int *__restrict__ ind_s_d, const int *__restrict__ ind_t_d, const int *__restrict__ ind_e_d, const T *__restrict__ n_x_d, const T *__restrict__ n_y_d, const T *__restrict__ n_z_d, const T *__restrict__ nu_d, const T *__restrict__ rho_w_d, const T *__restrict__ h_d, T *__restrict__ tau_x_d, T *__restrict__ tau_y_d, T *__restrict__ tau_z_d, const int n_nodes, const int lx, const T kappa, const T B, const T p, const T s)</div><div class="ttdef"><b>Definition</b> <a href="../../dc/dd3/cuda_2cai__sagaut__model__ii__kernel_8h_source.html#l00068">cai_sagaut_model_ii_kernel.h:68</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__lookup__or__default_html"><div class="ttname"><a href="../../d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html">json_utils::json_get_or_lookup_or_default</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00080">json_utils.f90:80</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__lookup_html"><div class="ttname"><a href="../../da/d05/interfacejson__utils_1_1json__get__or__lookup.html">json_utils::json_get_or_lookup</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00074">json_utils.f90:74</a></div></div>
@@ -362,7 +365,7 @@ $(document).ready(function(){initNavTree('d8/d12/cai__sagaut__model__ii_8f90_sou
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d19e42ec822a5375dfd47528cb2d7af7.html">wall_models</a></li><li class="navelem"><a class="el" href="../../d8/d12/cai__sagaut__model__ii_8f90.html">cai_sagaut_model_ii.f90</a></li>
-    <li class="footer">Generated on Tue Jun 16 2026 05:17:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jun 17 2026 05:12:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

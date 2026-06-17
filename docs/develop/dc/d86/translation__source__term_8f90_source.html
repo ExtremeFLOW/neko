@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.3</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.4</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -291,11 +291,15 @@ $(document).ready(function(){initNavTree('dc/d86/translation__source__term_8f90_
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="comment">! Release the scratch fields</span></div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(tmp_index)</div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span> </div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keyword">nullify</span>(u, v, w, fx, fy, fz)</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keyword">nullify</span>(work1, work2, work3, work4, work5, work6, work7)</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
 </div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/dbf/namespacetranslation__source__term.html#ae513e3f99bf53a9afe2b658854a0bc85">translation_source_term_compute</a></div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../df/dbf/namespacetranslation__source__term.html">translation_source_term</a></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/dbf/namespacetranslation__source__term.html#ae513e3f99bf53a9afe2b658854a0bc85">translation_source_term_compute</a></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../df/dbf/namespacetranslation__source__term.html">translation_source_term</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__sync_html"><div class="ttname"><a href="../../d0/dbb/interfacedevice_1_1device__sync.html">device::device_sync</a></div><div class="ttdoc">Synchronize a device or stream.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00114">device.F90:114</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__lookup__or__default_html"><div class="ttname"><a href="../../d3/da9/interfacejson__utils_1_1json__get__or__lookup__or__default.html">json_utils::json_get_or_lookup_or_default</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00080">json_utils.f90:80</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__lookup_html"><div class="ttname"><a href="../../da/d05/interfacejson__utils_1_1json__get__or__lookup.html">json_utils::json_get_or_lookup</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00074">json_utils.f90:74</a></div></div>
@@ -338,7 +342,7 @@ $(document).ready(function(){initNavTree('dc/d86/translation__source__term_8f90_
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_5333ab263fff069c320f5b66c5911c96.html">source_terms</a></li><li class="navelem"><a class="el" href="../../dc/d86/translation__source__term_8f90.html">translation_source_term.f90</a></li>
-    <li class="footer">Generated on Tue Jun 16 2026 05:17:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jun 17 2026 05:12:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
