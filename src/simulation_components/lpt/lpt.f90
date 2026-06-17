@@ -126,6 +126,7 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: write_output
      procedure, private, pass(this) :: log_status
   end type lpt_t
+  private :: update_lags
 
 contains
 
@@ -491,6 +492,21 @@ contains
     if (allocated(vel_fluid)) deallocate(vel_fluid)
   end subroutine update_current_rhs
 
+  !> Refresh the particle lags.
+  subroutine update_lags(lags, new_values, lag_len)
+    real(kind=rp), intent(inout) :: lags(:, :, :)
+    real(kind=rp), intent(in) :: new_values(:, :)
+    integer, intent(in) :: lag_len
+    integer :: j
+
+    ! Update lag histories for the next Adams-Bashforth step.
+    do j = lag_len, 2, -1
+       lags(:, j, :) = lags(:, j - 1, :)
+    end do
+    lags(:, 1, :) = new_values
+
+  end subroutine update_lags
+
   !> Advance particles with local Adams-Bashforth coefficients only.
   subroutine lpt_preprocess(this, time)
     class(lpt_t), intent(inout) :: this
@@ -498,6 +514,14 @@ contains
     real(kind=rp), allocatable :: vel_old(:,:)
     real(kind=rp), allocatable :: xyz_old(:,:)
     integer :: j
+   !  real(kind=rp) :: v0(3)
+   !  real(kind=rp) :: x0(3)
+   !  real(kind=rp) :: tau_p
+
+   !  v0(1) = 1.0_rp
+   !  v0(2) = 0.0_rp
+   !  v0(3) = 0.0_rp
+   !  x0 = 0.0_rp
 
     if (time%t .lt. this%start_time) return
     call this%sync_time_controller(time)
@@ -512,34 +536,35 @@ contains
     if (this%inertia) then
        call this%ODE_integrate_ab_3c(this%particles%vel, this%particles%acc, &
             this%particles%acc_lag, this%particles%n)
+      !  if (time%tstep .le. 2) then
+      !     tau_p = 1.0_rp/18.0_rp * this%particles%rho(1) * this%particles%d(1)**2
+      !     this%particles%vel(:,1) = v0 * exp(-time%t/tau_p)
+      !  end if
     end if
 
     ! Advance the coordinates using the velocity history available at step
     ! entry, before the fluid solve refreshes the current RHS.
     call this%ODE_integrate_ab_3c(this%particles%xyz, vel_old, &
          this%particles%vel_lag, this%particles%n)
+   !  if (time%tstep .le. 2) then
+   !     this%particles%xyz(:,1) = x0 + tau_p * v0 * (1.0_rp - exp(-time%t/tau_p))
+   !  end if
 
     ! Handle the wall collisions with the pre-step RHS.
     if (this%inertia .and. this%elastic_wall_enabled) then
        call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
             this%dm_Xh, this%coef, this%wall_facet_mask, xyz_old, &
             this%particles%xyz, this%particles%d, this%particles%vel, &
-            this%particles%vel_lag, vel_old, this%lag_len)
+            this%particles%vel_lag, this%particles%acc_lag, &
+            vel_old, this%particles%acc,this%lag_len)
     end if
 
     ! Update lag histories for the next Adams-Bashforth step.
     if (this%lag_len .gt. 0) then
-       do j = this%lag_len, 2, -1
-          this%particles%vel_lag(:, j, :) = &
-               this%particles%vel_lag(:, j - 1, :)
-          if (this%inertia) then
-             this%particles%acc_lag(:, j, :) = &
-                  this%particles%acc_lag(:, j - 1, :)
-          end if
-       end do
-       this%particles%vel_lag(:, 1, :) = vel_old
+       call update_lags(this%particles%vel_lag, vel_old, this%lag_len)
        if (this%inertia) then
-          this%particles%acc_lag(:, 1, :) = this%particles%acc
+          call update_lags(this%particles%acc_lag, this%particles%acc, &
+               this%lag_len)
        end if
        this%history_len = min(this%history_len + 1, this%lag_len)
     end if

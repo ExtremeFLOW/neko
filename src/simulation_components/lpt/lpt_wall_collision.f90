@@ -80,7 +80,8 @@ contains
   !! remaining trajectory together with the current particle velocity and
   !! velocity history for a purely elastic collision.
   subroutine lpt_handle_elastic_wall_collisions(global_interp, msh, dm_Xh, &
-       coef, wall_facet_mask, xyz_old, xyz, d, vel, vel_lag, vel_old, lag_len)
+       coef, wall_facet_mask, xyz_old, xyz, d, vel, vel_lag, acc_lag, &
+       vel_old, acc, lag_len)
     type(global_interpolation_t), intent(inout) :: global_interp
     type(mesh_t), intent(in) :: msh
     type(dofmap_t), intent(in) :: dm_Xh
@@ -90,8 +91,8 @@ contains
     real(kind=rp), intent(inout) :: xyz(:, :)
     real(kind=rp), intent(in) :: d(:)
     real(kind=rp), intent(inout) :: vel(:, :)
-    real(kind=rp), intent(inout) :: vel_lag(:, :, :)
-    real(kind=rp), intent(inout) :: vel_old(:, :)
+    real(kind=rp), intent(inout) :: vel_lag(:, :, :), acc_lag(:, :, :)
+    real(kind=rp), intent(inout) :: vel_old(:, :), acc(:, :)
     integer, intent(in) :: lag_len
     type(matrix_t) :: rst_new
     type(vector_t) :: x_t
@@ -149,11 +150,13 @@ contains
 
        call wall_facet_center(dm_Xh, el_mesh, facet, wall_point)
        call reflect_position(xyz(:, i), wall_point, normal, radius)
+       call reflect_vector(vel(:, i), normal)
        call reflect_vector(vel_old(:, i), normal)
+       call reflect_vector(acc(:, i), normal)
        do j = 1, lag_len
           call reflect_vector(vel_lag(:, j, i), normal)
+          call reflect_vector(acc_lag(:, j, i), normal)
        end do
-       vel(:, i) = vel_old(:, i)
     end do
 
     if (allocated(el_list)) deallocate(el_list)
