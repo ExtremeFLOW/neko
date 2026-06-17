@@ -179,7 +179,7 @@ contains
   !! @param alphat_field name of the eddy diffusivity field
   !! @param fname name of the outut file
   subroutine scalar_sgs_stats_simcomp_init_from_components_alphat(this, &
-       sname, coef, start_time, hom_dir, alphat_field, fname)
+       name, sname, coef, start_time, hom_dir, alphat_field, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
