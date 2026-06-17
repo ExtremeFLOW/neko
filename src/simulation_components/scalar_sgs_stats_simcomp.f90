@@ -203,6 +203,7 @@ contains
 
     call this%stats%init(coef, sname, alphat_field)
 
+    this%name = name
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then
