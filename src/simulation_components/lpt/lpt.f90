@@ -271,9 +271,17 @@ contains
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name) // ".csv")
-    call this%output_file%init(case%output_directory // &
-         trim(output_filename), &
-         header = "tstep,time,particle_id,x,y,z,u,v,w,d,rho", overwrite = .true.)
+    if (this%inertia) then
+       call this%output_file%init(case%output_directory // &
+            trim(output_filename), &
+            header = "tstep,time,particle_id,x,y,z,u,v,w,d,rho", &
+            overwrite = .true.)
+    else
+       call this%output_file%init(case%output_directory // &
+            trim(output_filename), &
+            header = "tstep,time,particle_id,x,y,z,u,v,w", &
+            overwrite = .true.)
+    end if
 
     ! output at the initialisation
     this%output_enabled = .true.
@@ -687,10 +695,16 @@ contains
     integer :: total_particles
     integer :: i
     integer :: ierr
+    integer :: n_data
 
     n_local = this%particles%n
-
-    allocate(local_data(11, n_local))
+    
+    if (this%inertia) then
+       n_data = 11
+    else
+       n_data = 9
+    end if
+    allocate(local_data(n_data, n_local))
     do i = 1, n_local
        local_data(1,i) = real(time%tstep, rp)
        local_data(2,i) = time%t
@@ -701,8 +715,10 @@ contains
        local_data(7,i) = this%particles%vel(1,i)
        local_data(8,i) = this%particles%vel(2,i)
        local_data(9,i) = this%particles%vel(3,i)
-       local_data(10,i) = this%particles%d(i)
-       local_data(11,i) = this%particles%rho(i)
+       if (this%inertia) then
+          local_data(10,i) = this%particles%d(i)
+          local_data(11,i) = this%particles%rho(i)
+       end if
     end do
 
     if (pe_rank .eq. 0) then
@@ -722,23 +738,24 @@ contains
        total_particles = 0
        do i = 1, pe_size
           total_particles = total_particles + n_local_particles_per_rank(i)
-          recvcounts(i) = 11 * n_local_particles_per_rank(i)
-          displs(i) = 11 * (total_particles - n_local_particles_per_rank(i))
+          recvcounts(i) = n_data * n_local_particles_per_rank(i)
+          displs(i) = n_data * (total_particles - n_local_particles_per_rank(i))
        end do
 
-       allocate(global_data(11, total_particles))
+       allocate(global_data(n_data, total_particles))
     else
        allocate(recvcounts(0))
        allocate(displs(0))
-       allocate(global_data(11, 0))
+       allocate(global_data(n_data, 0))
     end if
 
-    call MPI_Gatherv(local_data, 11 * n_local, MPI_REAL_PRECISION, global_data, &
-         recvcounts, displs, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+    call MPI_Gatherv(local_data, n_data * n_local, MPI_REAL_PRECISION, &
+         global_data, recvcounts, displs, MPI_REAL_PRECISION, 0, &
+         NEKO_COMM, ierr)
 
     if (pe_rank .eq. 0) then
-       call block%init(total_particles, 11)
-       call trsp(block%x, total_particles, global_data, 11)
+       call block%init(total_particles, n_data)
+       call trsp(block%x, total_particles, global_data, n_data)
        call this%output_file%write(block)
        call block%free()
     end if
