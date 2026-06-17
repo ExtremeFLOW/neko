@@ -179,7 +179,7 @@ contains
   !! @param alphat_field name of the eddy diffusivity field
   !! @param fname name of the outut file
   subroutine scalar_sgs_stats_simcomp_init_from_components_alphat(this, &
-       sname, coef, start_time, hom_dir, alphat_field, fname)
+       name, sname, coef, start_time, hom_dir, alphat_field, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
@@ -203,6 +203,7 @@ contains
 
     call this%stats%init(coef, sname, alphat_field)
 
+    this%name = name
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then
@@ -235,7 +236,7 @@ contains
   !! @param pr_turb turbulent Prandtl number
   !! @param fname name of the output file
   subroutine scalar_sgs_stats_simcomp_init_from_components_nut(this, &
-       sname, coef, start_time, hom_dir, nut_field, pr_turb, fname)
+       name, sname, coef, start_time, hom_dir, nut_field, pr_turb, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
     character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
@@ -263,6 +264,7 @@ contains
 
     call this%stats%init(coef, sname, nut_field, pr_turb)
 
+    this%name = name
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then
