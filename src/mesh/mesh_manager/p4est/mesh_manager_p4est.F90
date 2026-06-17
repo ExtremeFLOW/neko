@@ -91,6 +91,8 @@ module mesh_manager_p4est
      procedure, pass(this) :: import => p4est_import
      !> Apply data from nmsh file to mesh manager structures
      procedure, pass(this) :: mesh_file_apply => p4est_mesh_file_apply
+     !> Update mesh file related data
+     procedure, pass(this) :: mesh_file_update => p4est_mesh_file_update
      !> Perform refinement/coarsening on the mesh manager side
      procedure, pass(this) :: refine_coarsen => p4est_refine_coarsen
      !> Construct neko mesh type based on mesh manager data
@@ -645,7 +647,7 @@ contains
     call wp4est_part()
 
 !    call wp4est_cnn_save('test.cnn'//c_null_char)
-!    call wp4est_tree_save('test.tree'//c_null_char)
+!    call wp4est_tree_save('test.p4est'//c_null_char)
 !    call wp4est_vtk_write('test'//c_null_char)
 
     !call MPI_Barrier(NEKO_COMM, ierr)
@@ -1301,6 +1303,85 @@ contains
 
   end subroutine p4est_mesh_file_apply
 
+  !> Update mesh file related data
+  !! @param[in]   mesh     neko mesh type
+  subroutine p4est_mesh_file_update(this, mesh)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    type(mesh_t), intent(in) :: mesh
+    integer :: il, jl, kl
+    ! conversion from circular to symmetric notation
+    integer(i4) , dimension(8), parameter :: cs_cnv = &
+         [1, 2, 4, 3, 5, 6, 8, 7]
+
+    call this%nmsh_mesh%free()
+    call this%elm_dst_copy()
+
+    associate(fmesh => this%nmsh_mesh)
+      ! get element global id and vertices
+      if (fmesh%gdim .eq. 2) then
+         call neko_error('mesh_file_update; nothing done for 2D mesh')
+      else if (fmesh%gdim .eq. 3) then
+         allocate(fmesh%hex(fmesh%nelt))
+         do il = 1, fmesh%nelt
+            fmesh%hex(il)%el_idx = mesh%elements(il)%e%id()
+            do jl = 1, 8
+               fmesh%hex(il)%v(cs_cnv(jl))%v_xyz(:) = &
+                    mesh%elements(il)%e%pts(jl)%p%x(:)
+               fmesh%hex(il)%v(cs_cnv(jl))%v_idx = &
+                    mesh%elements(il)%e%pts(jl)%p%id()
+            end do
+         end do
+      end if
+
+      ! get boundary zones
+      fmesh%nzone = mesh%periodic%size
+      do il = 1, NEKO_MSH_MAX_ZLBLS
+         fmesh%nzone = fmesh%nzone + mesh%labeled_zones(il)%size
+      end do
+      allocate(fmesh%zone(fmesh%nzone))
+
+      jl = 1
+      do il = 1, mesh%periodic%size
+         fmesh%zone(jl)%e = &
+              mesh%elements(mesh%periodic%facet_el(il)%x(2))%e%id()
+         fmesh%zone(jl)%f = mesh%periodic%facet_el(il)%x(1)
+         fmesh%zone(jl)%p_e = mesh%periodic%p_facet_el(il)%x(2)
+         fmesh%zone(jl)%p_f = mesh%periodic%p_facet_el(il)%x(1)
+         fmesh%zone(jl)%glb_pt_ids = mesh%periodic%p_ids(il)%x
+         fmesh%zone(jl)%type = 5
+         jl = jl + 1
+      end do
+
+      do kl = 1, NEKO_MSH_MAX_ZLBLS
+         do il = 1, mesh%labeled_zones(kl)%size
+            fmesh%zone(jl)%e = &
+                 mesh%elements(mesh%labeled_zones(kl)%facet_el(il)%x(2))%e%id()
+            fmesh%zone(jl)%f = mesh%labeled_zones(kl)%facet_el(il)%x(1)
+            fmesh%zone(jl)%p_f = kl
+            fmesh%zone(jl)%type = 7
+            jl = jl + 1
+         end do
+      end do
+
+      ! get curvature information
+      fmesh%ncurve = mesh%curve%size
+      allocate(fmesh%curve(fmesh%ncurve))
+
+      do il = 1, fmesh%ncurve
+         fmesh%curve(il)%type = 0
+      end do
+
+      do il = 1, fmesh%ncurve
+         fmesh%curve(il)%e = &
+              mesh%elements(mesh%curve%curve_el(il)%el_idx)%e%id()
+         fmesh%curve(il)%curve_data = mesh%curve%curve_el(il)%curve_data
+         fmesh%curve(il)%type = mesh%curve%curve_el(il)%curve_type
+      end do
+
+    end associate
+
+  end subroutine p4est_mesh_file_update
+
   !> Perform refinement/coarsening on the mesh manager side
   !! @param  ref_mark     refinement flag
   !! @param[out]  ifmod        mesh modification flag
@@ -1795,6 +1876,11 @@ contains
     integer(i4) :: p_f, p_e ! dummy variables for setting periodic bc
     integer(i4), dimension(4) :: pt_id ! dummy array for setting periodic bc
 
+    ! FOR NOW NO REAL INFORMATION FOR PERIODIC BC
+    p_f = 0
+    p_e = 0
+    pt_id(:) = 0
+
     ! Initialize element boundary condition
     allocate(mesh%facet_type(meshmm%nfcs, meshmm%nelt))
     mesh%facet_type(:, :) = 0
@@ -1839,14 +1925,14 @@ contains
   subroutine p4est_mesh_save(this, counter)
     class(mesh_manager_p4est_t), intent(inout) :: this
     integer, intent(in) :: counter
-    character(4) :: count_str
-    character(*), parameter :: name = "new_mesh_"
+    character(5) :: count_str
+    character(*), parameter :: name = "new_mesh"
 
-    write(count_str, '(i4.4)') counter
+    write(count_str, '(i5.5)') counter
 
     ! Save connectivity information
 !    call wp4est_cnn_save(name//count_str//'.cnn'//c_null_char)
-    call wp4est_tree_save(name//count_str//'.tree'//c_null_char)
+    call wp4est_tree_save(name//count_str//'.p4est'//c_null_char)
 !    call wp4est_vtk_write(name//count_str//c_null_char)
 
     ! Save geometry
@@ -1912,6 +1998,16 @@ contains
     call neko_error('p4est mesh manager must be compiled with p4est support.')
 
   end subroutine p4est_mesh_file_apply
+
+  !> Update mesh file related data
+  !! @param[in]   mesh     neko mesh type
+  subroutine p4est_mesh_file_update(this, mesh)
+    class(mesh_manager_p4est_t), intent(inout) :: this
+    type(mesh_t), intent(in) :: mesh
+
+    call neko_error('p4est mesh manager must be compiled with p4est support.')
+
+  end subroutine p4est_mesh_file_update
 
   !> Perform refinement/coarsening on the mesh manager side
   !! @param  ref_mark     refinement flag

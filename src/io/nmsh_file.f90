@@ -842,6 +842,9 @@ contains
     select type (data)
     type is (mesh_t)
        msh => data
+    type is (nmsh_mesh_t)
+       call nmsh_file_write_raw(this, data)
+       return
     class default
        call neko_error('Invalid output data')
     end select
@@ -1018,5 +1021,99 @@ contains
     end do
 
   end subroutine nmsh_file_write
+
+  !> Load raw nmsh data for mesh manager
+  subroutine nmsh_file_write_raw(file, data)
+    type(nmsh_file_t), intent(inout) :: file
+    type(nmsh_mesh_t), intent(in) :: data
+    integer :: nmsh_quad_size, nmsh_hex_size, nmsh_zone_size, nmsh_curve_size
+    type(MPI_File) :: fh
+    integer :: ierr, il, nzones_glb, nzones_offset, ncurves_glb, ncurves_offset
+    integer (kind=MPI_OFFSET_KIND) :: mpi_offset, mpi_el_offset
+    type(MPI_Status) :: status
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_log%message('Writing a binary Neko file ' // file%get_fname(), &
+         NEKO_LOG_INFO)
+
+    call MPI_Type_size(MPI_NMSH_QUAD, nmsh_quad_size, ierr)
+    call MPI_Type_size(MPI_NMSH_HEX, nmsh_hex_size, ierr)
+    call MPI_Type_size(MPI_NMSH_ZONE, nmsh_zone_size, ierr)
+    call MPI_Type_size(MPI_NMSH_CURVE, nmsh_curve_size, ierr)
+
+    call MPI_File_open(NEKO_COMM, trim(file%get_fname()), &
+         MPI_MODE_WRONLY + MPI_MODE_CREATE, MPI_INFO_NULL, fh, ierr)
+
+    call MPI_File_write_all(fh, data%gnelt, 1, MPI_INTEGER, status, ierr)
+    call MPI_File_write_all(fh, data%gdim, 1, MPI_INTEGER, status, ierr)
+
+    ! write element information
+    if (data%gdim .eq. 2) then
+       call neko_error('nmsh_write; nothing done for 2D mesh')
+    else if (data%gdim .eq. 3) then
+       mpi_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
+            int(data%offset_el, i8) * int(nmsh_hex_size, i8)
+       call MPI_File_write_at_all(fh, mpi_offset, data%hex, &
+            min(data%nelt, max_write_nel), MPI_NMSH_HEX, status, ierr)
+       do il = 1, data%nelt / max_write_nel
+          mpi_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
+               int(data%offset_el+il * max_write_nel, i8) * &
+               int(nmsh_hex_size, i8)
+          call MPI_File_write_at_all(fh, mpi_offset, &
+               data%hex(il * max_write_nel + 1), &
+               min(data%nelt - il * max_write_nel, max_write_nel), &
+               MPI_NMSH_HEX, status, ierr)
+       end do
+       mpi_el_offset = int(2 * MPI_INTEGER_SIZE, i8) + &
+            int(data%gnelt, i8) * int(nmsh_hex_size, i8)
+    else
+       call neko_error('Invalid dimension of mesh')
+    end if
+
+    ! boundary condition zones information
+    call MPI_Allreduce(data%nzone, nzones_glb, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    nzones_offset = 0
+    call MPI_Exscan(data%nzone, nzones_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    mpi_offset = mpi_el_offset
+    call MPI_File_write_at_all(fh, mpi_offset, &
+         nzones_glb, 1, MPI_INTEGER, status, ierr)
+
+    if (nzones_glb .gt. 0) then
+       mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8) + &
+            int(nzones_offset, i8) * int(nmsh_zone_size, i8)
+       call MPI_File_write_at_all(fh, mpi_offset, data%zone, data%nzone, &
+            MPI_NMSH_ZONE, status, ierr)
+    end if
+
+    ! curved edges information
+    call MPI_Allreduce(data%ncurve, ncurves_glb, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    ncurves_offset = 0
+    call MPI_Exscan(data%ncurve, ncurves_offset, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    mpi_offset = mpi_el_offset + int(MPI_INTEGER_SIZE, i8) + &
+         int(nzones_glb, i8) * int(nmsh_zone_size, i8)
+
+    call MPI_File_write_at_all(fh, mpi_offset, &
+         ncurves_glb, 1, MPI_INTEGER, status, ierr)
+
+    if (ncurves_glb .gt. 0) then
+       mpi_offset = mpi_el_offset + int(2*MPI_INTEGER_SIZE, i8) + &
+            int(nzones_glb, i8) * int(nmsh_zone_size, i8) + &
+            int(ncurves_offset, i8) * int(nmsh_curve_size, i8)
+       call MPI_File_write_at_all(fh, mpi_offset, data%curve, data%ncurve, &
+            MPI_NMSH_CURVE, status, ierr)
+    end if
+
+    call MPI_File_sync(fh, ierr)
+    call MPI_File_close(fh, ierr)
+
+  end subroutine nmsh_file_write_raw
 
 end module nmsh_file

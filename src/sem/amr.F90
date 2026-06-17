@@ -114,8 +114,8 @@ contains
 
     if (this%isamr) then
        this%reconstruct => sem%amr_reconstruct
-       file_name = "test_saving.re2"
-       call this%mesh_file%init(file_name)
+       file_name = "new_mesh.nmsh"
+       call this%mesh_file%init(trim(file_name))
     end if
 
   end subroutine amr_init
@@ -370,11 +370,13 @@ contains
     ! Refinement counter is updated in solver restart
     ! mesh manager part
     call mesh_manager%mesh_save(this%counter)
-    ! geometry part
+    ! update geometry information in mesh type
     call mesh%geometry_update(3, mesh%nelv, this%sem%grid_min%dm_Xh%x, &
          this%sem%grid_min%dm_Xh%y, this%sem%grid_min%dm_Xh%z)
+    ! update information in mesh manager
+    call mesh_manager%mesh_file_update(mesh)
     call this%mesh_file%set_counter(this%counter)
-    call this%mesh_file%write(mesh)
+    call this%mesh_file%write(mesh_manager%nmsh_mesh)
 
   end subroutine amr_mesh_save
 

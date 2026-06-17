@@ -77,6 +77,8 @@ module mesh_manager
      procedure(mesh_manager_import), pass(this), deferred :: import
      !> Apply data read from mesh file to mesh manager structures
      procedure(mesh_manager_free), pass(this), deferred :: mesh_file_apply
+     !> Update mesh file related data
+     procedure(mesh_manager_update), pass(this), deferred :: mesh_file_update
      !> Perform refinement/coarsening on the mesh manager side
      procedure(mesh_manager_refine_coarsen), pass(this), deferred :: &
           refine_coarsen
@@ -116,6 +118,14 @@ module mesh_manager
        class(mesh_manager_t), intent(inout) :: this
        logical, intent(in) :: ifcomplete
      end subroutine mesh_manager_import
+
+     !> Update mesh file related data
+     !! @param[in]   mesh     neko mesh type
+     subroutine mesh_manager_update(this, mesh)
+       import mesh_manager_t, mesh_t
+       class(mesh_manager_t), intent(inout) :: this
+       type(mesh_t), intent(in) :: mesh
+     end subroutine mesh_manager_update
 
      !> Perform refinement/coarsening on the mesh manager side
      !! @param[in]   ref_mark     refinement flag
