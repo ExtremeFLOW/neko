@@ -83,13 +83,6 @@ module map_1d
   !! layout allow a unique stack of element levels in the requested direction.
   !! If an element level remains unassigned, the resulting point levels are not
   !! valid for the volume accumulation or averaging steps.
-  !! @warning The requested 1D mapping direction must not be periodic. The
-  !! propagation uses the mesh gather-scatter connectivity to order element
-  !! levels from the global coordinate minimum to the global coordinate maximum;
-  !! periodic connectivity in that same direction connects those two ends and
-  !! invalidates this ordering assumption. Periodicity in the directions being
-  !! averaged over is not the issue here, only periodicity in the remaining
-  !! profile direction.
   !! @remark Could also be rather easily extended to say polar coordinates
   !! as well (I think). Martin Karp
   type, public :: map_1d_t
