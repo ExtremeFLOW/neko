@@ -264,6 +264,7 @@ contains
 
     call this%stats%init(coef, sname, nut_field, pr_turb)
 
+    this%name = name
     this%start_time = start_time
     this%time = start_time
     if (present(fname)) then
