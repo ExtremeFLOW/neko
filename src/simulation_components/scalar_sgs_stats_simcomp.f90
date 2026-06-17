@@ -143,28 +143,28 @@ contains
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (nut_dependency) then
-          call this%init_from_components(sname, coef, &
+          call this%init_from_components(name, sname, coef, &
                start_time, hom_dir, nut_field, pr_turb, filename)
        else
-          call this%init_from_components(sname, coef, &
+          call this%init_from_components(name, sname, coef, &
                start_time, hom_dir, alphat_field, filename)
        end if
     else if (sname_provided) then
        if (nut_dependency) then
-          call this%init_from_components(sname, coef, &
+          call this%init_from_components(name, sname, coef, &
                start_time, hom_dir, nut_field, pr_turb, &
                "scalar_sgs_stats_"//trim(sname) // "0")
        else
-          call this%init_from_components(sname, coef, &
+          call this%init_from_components(name, sname, coef, &
                start_time, hom_dir, alphat_field, &
                "scalar_sgs_stats_"//trim(sname) // "0")
        end if
     else
        if (nut_dependency) then
-          call this%init_from_components(sname, coef, &
+          call this%init_from_components(name, sname, coef, &
                start_time, hom_dir, nut_field, pr_turb)
        else
-          call this%init_from_components(sname, coef, &
+          call this%init_from_components(name, sname, coef, &
                start_time, hom_dir, alphat_field)
        end if
     end if
@@ -181,6 +181,7 @@ contains
   subroutine scalar_sgs_stats_simcomp_init_from_components_alphat(this, &
        name, sname, coef, start_time, hom_dir, alphat_field, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
     character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
@@ -238,6 +239,7 @@ contains
   subroutine scalar_sgs_stats_simcomp_init_from_components_nut(this, &
        name, sname, coef, start_time, hom_dir, nut_field, pr_turb, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
     character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
