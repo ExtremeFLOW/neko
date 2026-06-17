@@ -238,6 +238,7 @@ contains
   subroutine scalar_sgs_stats_simcomp_init_from_components_nut(this, &
        name, sname, coef, start_time, hom_dir, nut_field, pr_turb, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
+    character(len=*), intent(in) :: name
     character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
