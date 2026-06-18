@@ -787,7 +787,8 @@ var hierarchy =
       [ "fluid_stats_output::fluid_stats_output_t", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html", null ],
       [ "mean_field_output::mean_field_output_t", "d3/d08/structmean__field__output_1_1mean__field__output__t.html", null ],
       [ "scalar_sgs_stats_output::scalar_sgs_stats_output_t", "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html", null ],
-      [ "scalar_stats_output::scalar_stats_output_t", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html", null ]
+      [ "scalar_stats_output::scalar_stats_output_t", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html", null ],
+      [ "spatial_average_output::spatial_average_output_t", "d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html", null ]
     ] ],
     [ "parmetis::parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", null ],
     [ "parmetis::parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", null ],
@@ -1013,6 +1014,7 @@ var hierarchy =
       [ "probes::probes_t", "d7/dd3/structprobes_1_1probes__t.html", null ],
       [ "scalar_sgs_stats_simcomp::scalar_sgs_stats_simcomp_t", "d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html", null ],
       [ "scalar_stats_simcomp::scalar_stats_simcomp_t", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html", null ],
+      [ "spatial_average::spatial_average_t", "d2/dd1/structspatial__average_1_1spatial__average__t.html", null ],
       [ "spectral_error::spectral_error_t", "d9/deb/structspectral__error_1_1spectral__error__t.html", null ],
       [ "user_stats::user_stats_t", "dd/d8b/structuser__stats_1_1user__stats__t.html", null ],
       [ "weak_gradient_simcomp::weak_gradient_t", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html", null ]

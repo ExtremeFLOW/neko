@@ -760,6 +760,8 @@ var namespaces_dup =
       [ "spalding_compute_cpu", "da/d2d/namespacespalding__cpu.html#a32a37dba89e5039728d993dea147ff2d", null ]
     ] ],
     [ "spalding_device", "d2/d9a/namespacespalding__device.html", "d2/d9a/namespacespalding__device" ],
+    [ "spatial_average", "da/d3f/namespacespatial__average.html", "da/d3f/namespacespatial__average" ],
+    [ "spatial_average_output", "d2/dd5/namespacespatial__average__output.html", "d2/dd5/namespacespatial__average__output" ],
     [ "speclib", "dd/df0/namespacespeclib.html", [
       [ "dgj", "dd/df0/namespacespeclib.html#a02bd426d1e3aa4ac0f414dffb22dc53d", null ],
       [ "dgjd", "dd/df0/namespacespeclib.html#a3e986289bc7e5c44efc3b8f8035c80cb", null ],

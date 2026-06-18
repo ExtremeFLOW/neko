@@ -1,5 +1,5 @@
 <map id="map_1d::map_1d_t" name="map_1d::map_1d_t">
-<area shape="rect" id="Node000001" title="Type that encapsulates a mapping from each gll point in the mesh to its corresponding (global) GLL po..." alt="" coords="2483,754,2629,779"/>
+<area shape="rect" id="Node000001" title="Map every GLL point in the mesh to a level in one physical direction. Can be used to average across t..." alt="" coords="2483,754,2629,779"/>
 <area shape="rect" id="Node000002" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1817,774,1960,799"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1909,809,1942,844,1962,860,1985,872,2062,896,2094,901,2125,901,2190,892,2271,876,2348,856,2421,829,2530,777,2533,782,2423,834,2349,861,2273,881,2191,898,2126,906,2094,906,2061,902,1983,877,1959,864,1938,848,1905,813"/>
 <area shape="rect" id="Node000031" href="$d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2296,754,2401,779"/>

@@ -1,0 +1,9 @@
+<map id="spatial_average_output::spatial_average_output_sample" name="spatial_average_output::spatial_average_output_sample">
+<area shape="rect" id="Node000001" title="Sample the current fields, spatially average, and write." alt="" coords="5,16,188,71"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="236,31,401,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,41,222,41,222,46,188,46"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="499,5,594,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,32,485,22,486,27,402,37"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="449,55,644,80"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="402,49,436,53,435,58,401,55"/>
+</map>

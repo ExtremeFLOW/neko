@@ -1,6 +1,6 @@
 <map id="map_2d::map_2d_t" name="map_2d::map_2d_t">
 <area shape="rect" id="Node000001" title=" " alt="" coords="2769,373,2916,398"/>
-<area shape="rect" id="Node000002" href="$d6/daf/structmap__1d_1_1map__1d__t.html" title="Type that encapsulates a mapping from each gll point in the mesh to its corresponding (global) GLL po..." alt="" coords="2517,434,2664,459"/>
+<area shape="rect" id="Node000002" href="$d6/daf/structmap__1d_1_1map__1d__t.html" title="Map every GLL point in the mesh to a level in one physical direction. Can be used to average across t..." alt="" coords="2517,434,2664,459"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2677,431,2745,416,2808,395,2810,401,2746,421,2678,436"/>
 <area shape="rect" id="Node000003" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1817,263,1960,289"/>
 <area shape="poly" id="edge56_Node000001_Node000003" title=" " alt="" coords="1970,288,1984,289,2025,290,2060,287,2118,271,2176,253,2212,246,2253,244,2592,244,2631,248,2669,259,2705,275,2738,295,2794,336,2831,371,2827,374,2791,340,2735,299,2702,280,2667,264,2630,253,2592,249,2253,249,2212,252,2178,258,2119,276,2061,292,2025,296,1984,295,1969,293"/>

@@ -1,86 +1,88 @@
 <map id="device_math::device_copy" name="device_math::device_copy">
-<area shape="rect" id="Node000001" title="Copy a vector ." alt="" coords="556,891,751,917"/>
-<area shape="rect" id="Node000002" href="$d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7" title=" " alt="" coords="18,340,223,380"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="650,878,645,794,638,738,626,678,608,615,583,554,549,498,507,449,211,383,212,377,509,444,553,495,587,552,613,614,631,677,643,738,650,794,655,877"/>
-<area shape="rect" id="Node000003" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="284,102,508,127"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="648,878,638,727,614,505,595,390,571,285,542,199,525,166,506,142,490,130,493,125,510,138,529,164,547,197,576,284,600,389,619,504,643,726,653,878"/>
-<area shape="rect" id="Node000004" href="$d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="315,152,477,192"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="648,878,635,739,609,537,589,432,566,337,538,259,523,228,506,206,492,194,476,186,478,181,495,190,510,202,527,226,543,256,571,335,595,431,614,536,640,738,653,878"/>
-<area shape="rect" id="Node000005" href="$db/d3d/namespacecg__cpld__device.html#a4dd7a1a0cb377e19f6c17407064e198b" title="Standard PCG solve." alt="" coords="322,216,470,256"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="647,878,632,750,604,567,585,473,562,387,536,317,521,290,506,270,489,257,469,248,471,243,492,252,510,266,526,287,541,315,567,386,590,472,610,566,638,749,652,877"/>
-<area shape="rect" id="Node000006" href="$d6/d60/namespacecg__device.html#a0e61c9447cf557811c5f8d566bc6ce5d" title="Standard PCG solve." alt="" coords="316,280,476,320"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="646,878,630,761,600,598,581,514,559,438,534,376,506,334,492,322,475,314,477,309,495,318,510,330,538,373,564,436,586,513,606,597,635,761,651,877"/>
-<area shape="rect" id="Node000007" href="$d4/dc5/namespacecheby__device.html#ac74f17f6b4fa300083abdc31f3e98693" title=" " alt="" coords="317,37,475,77"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="648,878,639,718,615,481,597,359,573,246,543,154,525,118,506,91,492,79,475,70,477,66,495,75,510,88,530,115,547,152,578,245,602,358,621,481,644,717,654,877"/>
-<area shape="rect" id="Node000010" href="$dc/d73/namespacecoriolis__source__term__device.html#ab9ae1a837613e57e5a41a0e4e6705f2f" title="Computes the Coriolis source term on the device." alt="" coords="307,651,485,706"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="637,881,616,845,586,802,549,758,506,719,484,706,486,701,510,715,553,754,591,798,620,842,641,878"/>
-<area shape="rect" id="Node000012" href="$d2/d01/namespacedevice__array.html#aab321ebcfc3881cea18f0921f6bdcf43" title="Assignment with deep&#45;copy ownership semantics." alt="" coords="318,459,474,499"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="648,878,638,806,616,707,597,655,574,603,543,555,506,513,491,501,473,493,475,488,494,497,510,509,548,551,578,600,602,653,621,706,644,805,653,878"/>
-<area shape="rect" id="Node000013" href="$d0/d69/namespacedevice__identity.html#a657ba9ae56308ecc16c802275fc26046" title="The (default) naive preconditioner ." alt="" coords="310,523,482,563"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="646,879,633,817,607,735,589,692,566,650,539,611,506,577,481,561,484,556,510,573,543,607,571,647,594,690,612,733,638,816,651,877"/>
-<area shape="rect" id="Node000014" href="$dd/dd2/namespacedofmap.html#a4aa7a87093a0e09c4bb9a111858f084a" title="Constructor." alt="" coords="317,587,475,627"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="643,879,626,828,599,764,559,697,534,667,506,641,474,623,477,618,510,637,538,663,563,694,603,761,631,826,648,877"/>
-<area shape="rect" id="Node000015" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="297,344,495,384"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="650,878,646,788,639,728,627,662,609,593,584,525,550,461,506,405,481,386,484,382,510,401,554,458,589,523,614,592,632,661,644,728,651,788,655,877"/>
-<area shape="rect" id="Node000016" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="313,730,479,755"/>
-<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="632,882,580,825,545,795,507,770,476,758,478,753,509,766,548,791,584,822,636,879"/>
-<area shape="rect" id="Node000024" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="323,780,469,820"/>
-<area shape="poly" id="edge24_Node000001_Node000024" title=" " alt="" coords="617,887,566,861,507,834,469,821,470,816,509,830,568,856,619,882"/>
-<area shape="rect" id="Node000025" href="$d3/dbc/namespacefusedcg__cpld__device.html#ae11b1d1184dbadc1c882e946987c371f" title="Pipelined PCG solve coupled solve." alt="" coords="313,845,479,899"/>
-<area shape="poly" id="edge25_Node000001_Node000025" title=" " alt="" coords="542,893,478,885,479,880,542,888"/>
-<area shape="rect" id="Node000026" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="324,923,468,949"/>
-<area shape="poly" id="edge26_Node000001_Node000026" title=" " alt="" coords="543,920,469,930,468,924,542,915"/>
-<area shape="rect" id="Node000028" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="324,973,468,998"/>
-<area shape="poly" id="edge28_Node000001_Node000028" title=" " alt="" coords="611,925,509,963,461,975,460,970,507,957,609,920"/>
-<area shape="rect" id="Node000029" href="$d0/de4/namespacematrix.html#a36163990dadbd00ca417c0ef70c015be" title="Assignment ." alt="" coords="313,1023,479,1063"/>
-<area shape="poly" id="edge29_Node000001_Node000029" title=" " alt="" coords="629,928,576,970,509,1012,477,1025,475,1020,507,1007,573,966,626,924"/>
-<area shape="rect" id="Node000031" href="$dc/d12/namespacematrix__math.html#a20673dc1052c7361ff17585f456e89e6" title="Copy a matrix ." alt="" coords="299,1087,493,1113"/>
-<area shape="poly" id="edge31_Node000001_Node000031" title=" " alt="" coords="641,930,619,963,590,1004,553,1043,509,1077,482,1090,480,1085,507,1072,549,1040,586,1000,615,960,636,927"/>
-<area shape="rect" id="Node000032" href="$d1/da5/namespaceoverset__interface.html#af3c5c9c51383cd4d1ae15367c142db77" title="Constructor from components." alt="" coords="314,1137,478,1191"/>
-<area shape="poly" id="edge32_Node000001_Node000032" title=" " alt="" coords="644,931,625,973,596,1025,557,1079,510,1126,480,1144,477,1139,506,1122,553,1076,591,1022,620,970,639,928"/>
-<area shape="rect" id="Node000033" href="$d6/de1/namespaceoverset__interface__vector.html#a32f3e7f09da55c2db5e9caa696ec78bf" title="Constructor from components." alt="" coords="300,1215,492,1270"/>
-<area shape="poly" id="edge33_Node000001_Node000033" title=" " alt="" coords="649,931,634,987,607,1060,566,1137,540,1173,510,1205,493,1217,489,1213,506,1201,536,1169,561,1134,602,1058,629,985,644,929"/>
-<area shape="rect" id="Node000034" href="$d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678" title=" " alt="" coords="323,1294,469,1319"/>
-<area shape="poly" id="edge34_Node000001_Node000034" title=" " alt="" coords="653,931,643,1001,620,1097,602,1148,578,1197,547,1243,510,1283,491,1296,470,1303,469,1298,489,1291,506,1279,543,1240,573,1195,597,1146,615,1095,638,1000,648,930"/>
-<area shape="rect" id="Node000035" href="$da/d46/namespacepipecg__device.html#af8b348213f1bde50d210f885ae0dd66a" title="Pipelined PCG solve." alt="" coords="313,1344,479,1384"/>
-<area shape="poly" id="edge35_Node000001_Node000035" title=" " alt="" coords="654,931,646,1009,625,1117,606,1175,582,1232,550,1286,510,1333,481,1351,478,1347,506,1329,545,1282,577,1230,601,1173,619,1115,641,1008,648,930"/>
-<area shape="rect" id="Node000036" href="$dd/d1f/namespacepnpn__res__stress__device.html#a9c09a9089caa70d30de4f4b7b087d19e" title=" " alt="" coords="307,1409,485,1463"/>
-<area shape="poly" id="edge36_Node000001_Node000036" title=" " alt="" coords="655,931,650,1018,643,1078,631,1143,613,1211,587,1278,553,1341,510,1398,487,1416,483,1411,506,1394,549,1338,582,1276,608,1209,626,1142,638,1077,645,1018,649,930"/>
-<area shape="rect" id="Node000037" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="307,1487,485,1542"/>
-<area shape="poly" id="edge37_Node000001_Node000037" title=" " alt="" coords="651,931,634,1046,604,1209,585,1293,562,1369,538,1433,510,1476,486,1495,483,1491,506,1473,533,1430,557,1368,580,1292,599,1208,629,1045,646,930"/>
-<area shape="rect" id="Node000038" href="$d4/ddd/namespacescalar__residual__device.html#a61ac87e1e92ba3510399c69b36a449b7" title=" " alt="" coords="307,1566,485,1621"/>
-<area shape="poly" id="edge38_Node000001_Node000038" title=" " alt="" coords="652,930,637,1060,609,1247,590,1343,567,1431,540,1504,526,1533,510,1555,487,1573,484,1569,506,1552,521,1530,535,1502,562,1430,585,1342,604,1246,632,1060,647,930"/>
-<area shape="rect" id="Node000039" href="$d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="321,1645,471,1685"/>
-<area shape="poly" id="edge39_Node000001_Node000039" title=" " alt="" coords="653,931,641,1075,615,1286,596,1395,573,1495,544,1577,528,1609,510,1634,493,1648,473,1657,470,1653,490,1643,506,1630,523,1606,539,1575,567,1493,591,1394,610,1285,636,1074,648,930"/>
-<area shape="rect" id="Node000040" href="$d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef" title="Assignment ." alt="" coords="315,1709,477,1749"/>
-<area shape="poly" id="edge40_Node000001_Node000040" title=" " alt="" coords="654,931,644,1086,619,1317,601,1436,577,1546,547,1637,529,1672,510,1699,495,1712,478,1721,476,1716,492,1707,506,1696,525,1669,542,1635,572,1545,595,1435,614,1316,638,1086,648,930"/>
-<area shape="rect" id="Node000042" href="$d3/d0d/namespacevector__math.html#a37ffda7f54dcc1310d9db2032117013e" title="Copy a vector ." alt="" coords="301,1774,491,1799"/>
-<area shape="poly" id="edge42_Node000001_Node000042" title=" " alt="" coords="654,931,647,1098,638,1218,625,1349,607,1479,582,1598,567,1651,550,1696,531,1734,510,1763,493,1776,490,1772,506,1759,527,1732,545,1694,562,1649,577,1597,601,1478,620,1348,633,1218,641,1098,649,930"/>
-<area shape="rect" id="Node000008" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="41,5,200,45"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="303,49,200,37,200,32,303,44"/>
-<area shape="rect" id="Node000009" href="$d4/dc5/namespacecheby__device.html#a9e071811daf316169a425a385bf6d80c" title="A chebyshev preconditioner." alt="" coords="41,69,200,109"/>
-<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="303,71,200,83,200,78,303,65"/>
-<area shape="rect" id="Node000011" href="$d3/df3/namespacecoriolis__source__term.html#a0cd413f45f11dc22e38d87256ac9e68e" title="Computes the source term and adds the result to fields." alt="" coords="38,405,203,459"/>
-<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="294,651,282,640,267,619,259,597,258,555,256,513,249,493,234,472,220,460,203,451,205,446,223,456,238,469,254,490,261,512,263,554,264,596,271,616,286,637,297,647"/>
-<area shape="poly" id="edge15_Node000015_Node000002" title=" " alt="" coords="283,365,224,364,224,359,283,360"/>
-<area shape="rect" id="Node000017" href="$d0/d7b/namespacebrinkman__source__term.html#a642671680ad9713699170537d417d410" title="The common constructor using a JSON object." alt="" coords="31,483,211,538"/>
-<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="299,731,282,719,266,698,258,677,256,634,256,592,249,572,234,551,210,533,213,529,238,547,254,569,261,591,262,634,263,676,270,696,286,715,302,727"/>
-<area shape="rect" id="Node000018" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="20,562,221,617"/>
-<area shape="poly" id="edge18_Node000016_Node000018" title=" " alt="" coords="299,730,282,719,264,697,257,674,251,652,234,630,218,619,221,615,238,626,255,649,262,673,269,695,286,715,302,725"/>
-<area shape="rect" id="Node000019" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="24,641,217,695"/>
-<area shape="poly" id="edge19_Node000016_Node000019" title=" " alt="" coords="322,729,283,720,207,698,209,693,285,715,323,724"/>
-<area shape="rect" id="Node000020" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="13,719,228,774"/>
-<area shape="poly" id="edge20_Node000016_Node000020" title=" " alt="" coords="300,747,228,748,228,742,300,741"/>
-<area shape="rect" id="Node000021" href="$d7/dff/namespacefluid__scheme__incompressible.html#a10bd65597fdbf95e50f22222c9699bfd" title="Call user material properties routine and update the values of mu if necessary." alt="" coords="5,798,236,853"/>
-<area shape="poly" id="edge21_Node000016_Node000021" title=" " alt="" coords="320,761,285,771,237,788,201,800,200,795,235,783,283,765,319,756"/>
-<area shape="rect" id="Node000022" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="45,877,197,917"/>
-<area shape="poly" id="edge22_Node000016_Node000022" title=" " alt="" coords="302,760,286,770,275,781,268,792,262,816,256,841,249,854,238,866,219,879,198,887,196,883,216,874,234,862,245,851,251,839,257,815,263,790,271,778,282,766,299,756"/>
-<area shape="rect" id="Node000023" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="36,942,205,997"/>
-<area shape="poly" id="edge23_Node000016_Node000023" title=" " alt="" coords="302,759,286,770,271,789,263,808,262,848,260,889,253,910,238,931,207,953,204,948,234,927,248,908,255,888,256,847,258,807,266,786,282,766,299,754"/>
-<area shape="rect" id="Node000027" href="$dd/dd1/namespacehsmg.html#ab830dd9f45e2e8d9c22e36f8639af6ae" title=" " alt="" coords="37,1021,205,1061"/>
-<area shape="poly" id="edge27_Node000026_Node000027" title=" " alt="" coords="311,951,285,962,271,973,262,985,253,998,237,1010,206,1025,204,1020,235,1006,249,994,258,982,267,970,283,958,309,947"/>
-<area shape="rect" id="Node000030" href="$da/d95/structmatrix_1_1matrix__t.html#a9792ca7b039e419af3db58bf91723c10" title="Assignment ." alt="" coords="15,1086,227,1111"/>
-<area shape="poly" id="edge30_Node000029_Node000030" title=" " alt="" coords="300,1065,185,1089,183,1083,299,1060"/>
-<area shape="rect" id="Node000041" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="17,1717,225,1742"/>
-<area shape="poly" id="edge41_Node000040_Node000041" title=" " alt="" coords="302,1732,225,1732,225,1727,302,1727"/>
+<area shape="rect" id="Node000001" title="Copy a vector ." alt="" coords="556,858,751,884"/>
+<area shape="rect" id="Node000002" href="$d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7" title=" " alt="" coords="18,87,223,127"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="649,845,644,680,636,562,624,435,606,310,581,196,566,146,548,104,528,70,506,45,486,31,465,21,419,10,369,10,320,19,271,34,226,52,155,89,153,85,224,47,269,29,318,14,369,5,419,4,467,16,489,26,510,41,533,67,553,102,571,145,586,194,611,309,629,435,641,562,649,679,654,844"/>
+<area shape="rect" id="Node000003" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="284,56,508,81"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="648,845,638,691,615,465,596,348,572,241,542,154,525,121,506,96,490,83,493,79,510,92,529,118,547,152,577,240,601,347,620,464,644,690,654,844"/>
+<area shape="rect" id="Node000004" href="$d1/db9/namespaceprojection__vel.html#a6231bf620f62e4eb908858383cc21bfb" title=" " alt="" coords="315,106,477,146"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="648,845,635,703,609,497,590,390,567,293,539,213,523,183,506,160,492,148,476,140,478,135,495,144,510,156,528,180,544,211,572,292,595,389,615,496,641,702,653,844"/>
+<area shape="rect" id="Node000005" href="$db/d3d/namespacecg__cpld__device.html#a4dd7a1a0cb377e19f6c17407064e198b" title="Standard PCG solve." alt="" coords="322,170,470,210"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="647,845,633,715,605,528,586,432,563,344,536,272,522,244,506,224,489,210,469,201,471,197,492,206,510,220,526,242,541,270,568,342,591,430,611,527,638,714,652,845"/>
+<area shape="rect" id="Node000006" href="$d6/d60/namespacecg__device.html#a0e61c9447cf557811c5f8d566bc6ce5d" title="Standard PCG solve." alt="" coords="316,234,476,274"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="646,845,630,725,601,558,582,472,559,394,534,330,520,306,506,288,492,276,475,268,478,263,495,272,510,284,525,303,539,328,564,393,587,471,606,557,636,724,652,844"/>
+<area shape="rect" id="Node000007" href="$d4/dc5/namespacecheby__device.html#ac74f17f6b4fa300083abdc31f3e98693" title=" " alt="" coords="317,362,475,402"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="649,845,644,762,636,707,624,647,606,585,581,523,548,466,506,416,492,405,475,396,477,392,494,400,510,412,552,463,586,521,611,583,629,646,641,706,649,762,655,845"/>
+<area shape="rect" id="Node000010" href="$dc/d73/namespacecoriolis__source__term__device.html#ab9ae1a837613e57e5a41a0e4e6705f2f" title="Computes the Coriolis source term on the device." alt="" coords="307,618,485,673"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="637,848,616,812,586,769,549,725,506,687,484,673,486,669,510,682,553,721,591,765,620,809,641,845"/>
+<area shape="rect" id="Node000012" href="$d2/d01/namespacedevice__array.html#aab321ebcfc3881cea18f0921f6bdcf43" title="Assignment with deep&#45;copy ownership semantics." alt="" coords="318,426,474,466"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="648,845,638,773,616,674,597,622,574,570,543,522,506,480,491,469,473,460,475,455,494,464,510,476,548,519,578,567,602,620,621,673,644,772,653,845"/>
+<area shape="rect" id="Node000013" href="$d0/d69/namespacedevice__identity.html#a657ba9ae56308ecc16c802275fc26046" title="The (default) naive preconditioner ." alt="" coords="310,490,482,530"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="646,846,633,784,607,702,589,659,566,617,539,578,506,544,481,528,484,524,510,540,543,575,571,614,594,657,612,701,638,783,651,845"/>
+<area shape="rect" id="Node000014" href="$dd/dd2/namespacedofmap.html#a4aa7a87093a0e09c4bb9a111858f084a" title="Constructor." alt="" coords="317,554,475,594"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="643,846,626,795,599,731,559,665,534,634,506,608,474,590,477,586,510,604,538,631,563,661,603,729,631,794,648,844"/>
+<area shape="rect" id="Node000015" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="297,298,495,338"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="650,845,648,752,643,689,632,620,614,548,588,477,553,410,531,380,506,352,491,340,495,336,510,348,535,376,557,407,593,474,619,546,637,619,648,688,654,752,656,845"/>
+<area shape="rect" id="Node000016" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="313,697,479,722"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="632,850,580,792,545,763,507,737,476,725,478,720,509,733,548,758,584,789,636,846"/>
+<area shape="rect" id="Node000025" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="323,747,469,787"/>
+<area shape="poly" id="edge25_Node000001_Node000025" title=" " alt="" coords="617,854,566,828,507,802,469,788,470,783,509,797,568,823,619,849"/>
+<area shape="rect" id="Node000026" href="$d3/dbc/namespacefusedcg__cpld__device.html#ae11b1d1184dbadc1c882e946987c371f" title="Pipelined PCG solve coupled solve." alt="" coords="313,812,479,866"/>
+<area shape="poly" id="edge26_Node000001_Node000026" title=" " alt="" coords="542,860,478,852,479,847,542,855"/>
+<area shape="rect" id="Node000027" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="324,890,468,916"/>
+<area shape="poly" id="edge27_Node000001_Node000027" title=" " alt="" coords="543,888,469,897,468,892,542,882"/>
+<area shape="rect" id="Node000029" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="324,940,468,965"/>
+<area shape="poly" id="edge29_Node000001_Node000029" title=" " alt="" coords="611,892,509,930,461,942,460,937,507,925,609,887"/>
+<area shape="rect" id="Node000030" href="$d0/de4/namespacematrix.html#a36163990dadbd00ca417c0ef70c015be" title="Assignment ." alt="" coords="313,990,479,1030"/>
+<area shape="poly" id="edge30_Node000001_Node000030" title=" " alt="" coords="629,895,576,937,509,979,477,992,475,987,507,974,573,933,626,891"/>
+<area shape="rect" id="Node000032" href="$dc/d12/namespacematrix__math.html#a20673dc1052c7361ff17585f456e89e6" title="Copy a matrix ." alt="" coords="299,1054,493,1080"/>
+<area shape="poly" id="edge32_Node000001_Node000032" title=" " alt="" coords="641,897,619,931,590,971,553,1011,509,1044,482,1057,480,1052,507,1040,549,1007,586,967,615,928,636,894"/>
+<area shape="rect" id="Node000033" href="$d1/da5/namespaceoverset__interface.html#af3c5c9c51383cd4d1ae15367c142db77" title="Constructor from components." alt="" coords="314,1104,478,1158"/>
+<area shape="poly" id="edge33_Node000001_Node000033" title=" " alt="" coords="644,898,625,940,596,992,557,1046,510,1093,480,1111,477,1106,506,1089,553,1043,591,989,620,937,639,895"/>
+<area shape="rect" id="Node000034" href="$d6/de1/namespaceoverset__interface__vector.html#a32f3e7f09da55c2db5e9caa696ec78bf" title="Constructor from components." alt="" coords="300,1182,492,1237"/>
+<area shape="poly" id="edge34_Node000001_Node000034" title=" " alt="" coords="649,898,634,954,607,1027,566,1104,540,1140,510,1172,493,1184,489,1180,506,1168,536,1137,561,1101,602,1025,629,952,644,896"/>
+<area shape="rect" id="Node000035" href="$d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678" title=" " alt="" coords="323,1261,469,1286"/>
+<area shape="poly" id="edge35_Node000001_Node000035" title=" " alt="" coords="653,898,643,969,620,1064,602,1115,578,1165,547,1211,510,1250,491,1263,470,1270,469,1265,489,1258,506,1246,543,1207,573,1162,597,1113,615,1062,638,968,648,897"/>
+<area shape="rect" id="Node000036" href="$da/d46/namespacepipecg__device.html#af8b348213f1bde50d210f885ae0dd66a" title="Pipelined PCG solve." alt="" coords="313,1311,479,1351"/>
+<area shape="poly" id="edge36_Node000001_Node000036" title=" " alt="" coords="654,898,646,976,625,1084,606,1142,582,1199,550,1253,510,1300,481,1318,478,1314,506,1296,545,1250,577,1197,601,1140,619,1083,641,975,648,898"/>
+<area shape="rect" id="Node000037" href="$dd/d1f/namespacepnpn__res__stress__device.html#a9c09a9089caa70d30de4f4b7b087d19e" title=" " alt="" coords="307,1376,485,1430"/>
+<area shape="poly" id="edge37_Node000001_Node000037" title=" " alt="" coords="655,898,650,986,643,1045,631,1110,613,1178,587,1245,553,1308,510,1365,487,1383,483,1379,506,1361,549,1306,582,1243,608,1176,626,1109,638,1044,645,985,649,898"/>
+<area shape="rect" id="Node000038" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="307,1454,485,1509"/>
+<area shape="poly" id="edge38_Node000001_Node000038" title=" " alt="" coords="651,898,634,1013,604,1177,585,1260,562,1337,538,1400,510,1444,486,1462,483,1458,506,1440,533,1397,557,1335,580,1259,599,1175,629,1013,646,897"/>
+<area shape="rect" id="Node000039" href="$d4/ddd/namespacescalar__residual__device.html#a61ac87e1e92ba3510399c69b36a449b7" title=" " alt="" coords="307,1533,485,1588"/>
+<area shape="poly" id="edge39_Node000001_Node000039" title=" " alt="" coords="652,898,637,1027,609,1214,590,1310,567,1399,540,1472,526,1500,510,1522,487,1541,484,1536,506,1519,521,1497,535,1469,562,1397,585,1309,604,1213,632,1027,647,897"/>
+<area shape="rect" id="Node000040" href="$d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="321,1612,471,1652"/>
+<area shape="poly" id="edge40_Node000001_Node000040" title=" " alt="" coords="653,898,641,1042,615,1253,596,1362,573,1462,544,1544,528,1576,510,1601,493,1615,473,1625,470,1620,490,1611,506,1597,523,1574,539,1542,567,1460,591,1361,610,1252,636,1042,648,897"/>
+<area shape="rect" id="Node000041" href="$d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef" title="Assignment ." alt="" coords="315,1676,477,1716"/>
+<area shape="poly" id="edge41_Node000001_Node000041" title=" " alt="" coords="654,898,644,1053,619,1284,601,1404,577,1513,547,1604,529,1639,510,1666,495,1679,478,1688,476,1683,492,1674,506,1663,525,1637,542,1602,572,1512,595,1403,614,1283,638,1053,648,897"/>
+<area shape="rect" id="Node000043" href="$d3/d0d/namespacevector__math.html#a37ffda7f54dcc1310d9db2032117013e" title="Copy a vector ." alt="" coords="301,1741,491,1766"/>
+<area shape="poly" id="edge43_Node000001_Node000043" title=" " alt="" coords="654,898,647,1065,638,1185,625,1316,607,1446,582,1565,567,1618,550,1663,531,1701,510,1730,493,1743,490,1739,506,1727,527,1699,545,1661,562,1616,577,1564,601,1445,620,1315,633,1185,641,1065,649,898"/>
+<area shape="rect" id="Node000008" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="41,239,200,279"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="302,363,282,352,267,337,258,322,249,307,235,293,199,277,201,272,237,289,254,304,262,319,271,334,286,348,305,358"/>
+<area shape="rect" id="Node000009" href="$d4/dc5/namespacecheby__device.html#a9e071811daf316169a425a385bf6d80c" title="A chebyshev preconditioner." alt="" coords="41,303,200,343"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="303,365,200,343,201,337,304,360"/>
+<area shape="rect" id="Node000011" href="$d3/df3/namespacecoriolis__source__term.html#a0cd413f45f11dc22e38d87256ac9e68e" title="Computes the source term and adds the result to fields." alt="" coords="38,368,203,422"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="294,618,282,608,266,585,259,563,258,520,256,477,249,457,234,436,220,424,203,414,205,410,223,419,238,432,254,454,262,476,263,520,264,562,271,583,286,604,297,614"/>
+<area shape="poly" id="edge15_Node000015_Node000002" title=" " alt="" coords="293,294,282,288,266,274,256,261,234,229,140,129,144,126,238,225,260,257,270,271,286,284,296,290"/>
+<area shape="rect" id="Node000017" href="$d0/d7b/namespacebrinkman__source__term.html#a642671680ad9713699170537d417d410" title="The common constructor using a JSON object." alt="" coords="31,984,211,1038"/>
+<area shape="poly" id="edge17_Node000016_Node000017" title=" " alt="" coords="302,725,286,737,266,765,257,793,257,822,261,851,265,881,265,911,258,942,238,973,212,993,209,989,234,969,253,940,260,911,260,881,256,852,252,822,252,793,261,763,282,733,299,721"/>
+<area shape="rect" id="Node000018" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="20,446,221,501"/>
+<area shape="poly" id="edge18_Node000016_Node000018" title=" " alt="" coords="299,699,282,686,265,665,257,643,256,600,256,556,249,535,234,514,220,502,223,498,238,511,254,533,261,556,262,599,263,642,270,662,286,683,303,694"/>
+<area shape="rect" id="Node000019" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="24,525,217,580"/>
+<area shape="poly" id="edge19_Node000016_Node000019" title=" " alt="" coords="299,697,282,687,271,675,263,663,257,639,251,616,234,593,216,581,219,576,238,589,256,613,262,638,268,661,275,672,286,682,302,692"/>
+<area shape="rect" id="Node000020" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="13,604,228,658"/>
+<area shape="poly" id="edge20_Node000016_Node000020" title=" " alt="" coords="320,696,283,687,202,661,204,656,285,682,322,691"/>
+<area shape="rect" id="Node000021" href="$d7/dff/namespacefluid__scheme__incompressible.html#a10bd65597fdbf95e50f22222c9699bfd" title="Call user material properties routine and update the values of mu if necessary." alt="" coords="5,682,236,737"/>
+<area shape="poly" id="edge21_Node000016_Node000021" title=" " alt="" coords="299,712,236,712,236,707,299,707"/>
+<area shape="rect" id="Node000022" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="45,762,197,802"/>
+<area shape="poly" id="edge22_Node000016_Node000022" title=" " alt="" coords="324,728,285,738,191,764,190,759,283,733,322,723"/>
+<area shape="rect" id="Node000023" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="36,826,205,881"/>
+<area shape="poly" id="edge23_Node000016_Node000023" title=" " alt="" coords="301,728,286,737,269,755,262,775,255,795,238,816,207,834,205,830,234,812,250,793,257,773,265,752,282,733,299,723"/>
+<area shape="rect" id="Node000024" href="$d2/dd5/namespacespatial__average__output.html#a7c9a16eeecdcc358205d80567a127f64" title="Sample the current fields, spatially average, and write." alt="" coords="29,905,212,960"/>
+<area shape="poly" id="edge24_Node000016_Node000024" title=" " alt="" coords="302,726,286,737,271,755,264,774,262,813,260,853,253,874,238,894,214,912,211,908,234,891,248,871,255,852,256,813,258,773,266,753,282,733,299,721"/>
+<area shape="rect" id="Node000028" href="$dd/dd1/namespacehsmg.html#ab830dd9f45e2e8d9c22e36f8639af6ae" title=" " alt="" coords="37,1063,205,1103"/>
+<area shape="poly" id="edge28_Node000027_Node000028" title=" " alt="" coords="312,914,286,929,273,943,266,958,262,988,258,1020,251,1036,238,1052,206,1071,203,1067,234,1048,246,1033,253,1019,257,988,261,956,269,940,282,925,309,910"/>
+<area shape="rect" id="Node000031" href="$da/d95/structmatrix_1_1matrix__t.html#a9792ca7b039e419af3db58bf91723c10" title="Assignment ." alt="" coords="15,1128,227,1153"/>
+<area shape="poly" id="edge31_Node000030_Node000031" title=" " alt="" coords="302,1034,286,1044,270,1061,263,1080,255,1099,238,1117,213,1130,210,1125,234,1113,250,1096,258,1078,266,1058,282,1040,299,1029"/>
+<area shape="rect" id="Node000042" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="17,1684,225,1709"/>
+<area shape="poly" id="edge42_Node000041_Node000042" title=" " alt="" coords="302,1699,225,1699,225,1694,302,1694"/>
 </map>

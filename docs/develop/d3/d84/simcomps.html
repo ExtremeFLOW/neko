@@ -125,6 +125,7 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </li>
 <li class="level2"><a href="#simcomp_les_model">les_model</a></li>
 <li class="level2"><a href="#user_stats">User statistics</a></li>
+<li class="level2"><a href="#simcomp_spatial_average">Spatial average</a></li>
 <li class="level2"><a href="#simcomp_speri">Spectral error indicator</a></li>
 <li class="level2"><a href="#simcomp_data_streamer">Data streamer</a></li>
 <li class="level2"><a href="#simcomp_field_subsampler">Field subsampler</a></li>
@@ -176,7 +177,7 @@ Controlling execution and file output</h1>
 <p>For example, in the <code>tgv</code> example case the <code>curl</code> component is executed once per 50 time steps. The <code>output_</code> parameters are synced to that, and the vorticity fields will be added to the main <code>.fld</code> file. </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;curl&quot;,</div>
 <div class="line">  &quot;name&quot;: &quot;curl&quot;,</div>
-<div class="line">  &quot;field_names&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
+<div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
 <div class="line">  &quot;computed_field&quot;: &quot;vorticity&quot;</div>
 <div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot;: 50</div>
@@ -538,7 +539,17 @@ User statistics</h2>
 <div class="line">  &quot;output_file&quot;: &quot;s_average&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><p>The statistics fields created by this simcomp are accessible from the neko registry and retrievable under the following naming convention: <code>name_in_registry = name_of_simcomp + "/mean_" + name_of_field</code>. Unless specified, the name of the simcomp will default to <code><a class="el" href="../../df/ded/namespaceuser__stats.html" title="Implements the user_stats_t type.">user_stats</a></code>. For example, if <code>"fields": ["s", "my_field"]</code> and <code>"name": "my_stats"</code> then the fields <code>"my_stats/mean_s"</code> and <code>"my_stats/mean_my_field"</code> will be added to the registry.</p>
-<h2><a class="anchor" id="simcomp_speri"></a>
+<h2><a class="anchor" id="simcomp_spatial_average"></a>
+Spatial average</h2>
+<p>Writes the instantaneous spatial average of an arbitrary collection of registry fields. The fields are prescribed via the <code>fields</code> keyword. The <code>avg_direction</code> keyword follows the same semantics as the statistics simcomps: <code>x</code>, <code>y</code>, or <code>z</code> produce a 2D <code>.fld</code> file, while <code>xy</code>, <code>xz</code>, or <code>yz</code> produce a 1D <code>.csv</code> file. The <code>avg_direction</code> keyword is required for this simcomp. The base filename is controlled by <code>output_filename</code> and defaults to <code><a class="el" href="../../da/d3f/namespacespatial__average.html" title="Implements the spatial_average_t type.">spatial_average</a></code>.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;spatial_average&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;spatial_average&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;s&quot;],</div>
+<div class="line">  &quot;avg_direction&quot;: &quot;xz&quot;,</div>
+<div class="line">  &quot;output_filename&quot;: &quot;xz_average&quot;</div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_speri"></a>
 Spectral error indicator</h2>
 <p>Computes the spectral error indicator as developed by Mavriplis (1989) (<a href="https://doi.org/10.1007/978-3-663-13975-1_34">https://doi.org/10.1007/978-3-663-13975-1_34</a>). This is an a posteriori error measure, based on the local properties of the spectral solution. This method formally only gives an indication of the error.</p>
 <p>The spectral error indicator is computed for the 3 velocity fields, resulting in 3 additional fields appended to the field files.</p>
@@ -587,7 +598,7 @@ Field subsampler</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Jun 17 2026 05:12:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jun 18 2026 05:08:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

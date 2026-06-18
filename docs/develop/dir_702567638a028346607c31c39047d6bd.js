@@ -20,6 +20,7 @@ var dir_702567638a028346607c31c39047d6bd =
     [ "simcomp_executor.f90", "d8/d65/simcomp__executor_8f90.html", "d8/d65/simcomp__executor_8f90" ],
     [ "simulation_component.f90", "d9/d55/simulation__component_8f90.html", "d9/d55/simulation__component_8f90" ],
     [ "simulation_component_fctry.f90", "d6/d72/simulation__component__fctry_8f90.html", null ],
+    [ "spatial_average.f90", "d3/d13/spatial__average_8f90.html", "d3/d13/spatial__average_8f90" ],
     [ "spectral_error.f90", "d9/d78/spectral__error_8f90.html", "d9/d78/spectral__error_8f90" ],
     [ "user_stats.f90", "d5/ddd/user__stats_8f90.html", "d5/ddd/user__stats_8f90" ],
     [ "weak_gradient_simcomp.f90", "d9/de6/weak__gradient__simcomp_8f90.html", "d9/de6/weak__gradient__simcomp_8f90" ]

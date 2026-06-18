@@ -154,6 +154,7 @@ var index =
           ] ],
           [ "les_model", "d3/d84/simcomps.html#simcomp_les_model", null ],
           [ "User statistics", "d3/d84/simcomps.html#user_stats", null ],
+          [ "Spatial average", "d3/d84/simcomps.html#simcomp_spatial_average", null ],
           [ "Spectral error indicator", "d3/d84/simcomps.html#simcomp_speri", null ],
           [ "Data streamer", "d3/d84/simcomps.html#simcomp_data_streamer", null ],
           [ "Field subsampler", "d3/d84/simcomps.html#simcomp_field_subsampler", null ]

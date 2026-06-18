@@ -111,7 +111,7 @@ $(document).ready(function(){initNavTree('d8/d8b/namespacemap__1d.html','../../'
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type that encapsulates a mapping from each gll point in the mesh to its corresponding (global) GLL point index in one direction.  <a href="../../d6/daf/structmap__1d_1_1map__1d__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map every GLL point in the mesh to a level in one physical direction. Can be used to average across the two remaining directions.  <a href="../../d6/daf/structmap__1d_1_1map__1d__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -121,12 +121,13 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ac6fcb11181feb6fe3061e7d1601a1d47" id="r_ac6fcb11181feb6fe3061e7d1601a1d47"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d8b/namespacemap__1d.html#ac6fcb11181feb6fe3061e7d1601a1d47">map_1d_init_char</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, coef, dir, tol)</td></tr>
 <tr class="separator:ac6fcb11181feb6fe3061e7d1601a1d47"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b26bff2892e76948ddf2a5b4a356e3f" id="r_a7b26bff2892e76948ddf2a5b4a356e3f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d8b/namespacemap__1d.html#a7b26bff2892e76948ddf2a5b4a356e3f">map_1d_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memdesc:a7b26bff2892e76948ddf2a5b4a356e3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a7b26bff2892e76948ddf2a5b4a356e3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf505a48c9a3fd97acbcbe91578181cb" id="r_abf505a48c9a3fd97acbcbe91578181cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d8b/namespacemap__1d.html#abf505a48c9a3fd97acbcbe91578181cb">map_1d_average_field_list</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">avg_planes</a>, field_list)</td></tr>
 <tr class="memdesc:abf505a48c9a3fd97acbcbe91578181cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes average if field list in two directions and outputs matrix with averaged values avg_planes contains coordinates in first row, avg. of fields in the rest.  <br /></td></tr>
 <tr class="separator:abf505a48c9a3fd97acbcbe91578181cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2c42e09b078f8c0d8d96d5725146457" id="r_ad2c42e09b078f8c0d8d96d5725146457"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d8b/namespacemap__1d.html#ad2c42e09b078f8c0d8d96d5725146457">map_1d_average_vector_ptr</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">avg_planes</a>, vector_ptr)</td></tr>
-<tr class="memdesc:ad2c42e09b078f8c0d8d96d5725146457"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes average if vector_pt in two directions and outputs matrix with averaged values avg_planes contains coordinates in first row, avg. of fields in the rest.  <br /></td></tr>
+<tr class="memdesc:ad2c42e09b078f8c0d8d96d5725146457"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes average of vector_pt in two directions and outputs matrix with averaged values avg_planes contains coordinates in first row, avg. of fields in the rest.  <br /></td></tr>
 <tr class="separator:ad2c42e09b078f8c0d8d96d5725146457"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
@@ -177,7 +178,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00304">304</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00390">390</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -228,7 +229,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00346">346</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00431">431</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -256,7 +257,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00282">282</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00368">368</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -298,7 +299,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00138">138</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -373,7 +374,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00261">261</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00346">346</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -383,7 +384,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d8b/namespacemap__1d.html">map_1d</a></li>
-    <li class="footer">Generated on Wed Jun 17 2026 05:12:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jun 18 2026 05:08:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

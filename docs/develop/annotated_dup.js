@@ -1602,6 +1602,12 @@ var annotated_dup =
     [ "spalding_device", "d2/d9a/namespacespalding__device.html", [
       [ "hip_spalding_compute", "d0/d82/interfacespalding__device_1_1hip__spalding__compute.html", "d0/d82/interfacespalding__device_1_1hip__spalding__compute" ]
     ] ],
+    [ "spatial_average", "da/d3f/namespacespatial__average.html", [
+      [ "spatial_average_t", "d2/dd1/structspatial__average_1_1spatial__average__t.html", "d2/dd1/structspatial__average_1_1spatial__average__t" ]
+    ] ],
+    [ "spatial_average_output", "d2/dd5/namespacespatial__average__output.html", [
+      [ "spatial_average_output_t", "d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html", "d3/dd8/structspatial__average__output_1_1spatial__average__output__t" ]
+    ] ],
     [ "spectral_error", "d0/d29/namespacespectral__error.html", [
       [ "spectral_error_t", "d9/deb/structspectral__error_1_1spectral__error__t.html", "d9/deb/structspectral__error_1_1spectral__error__t" ]
     ] ],
