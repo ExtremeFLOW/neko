@@ -199,6 +199,30 @@ module pnpn_res_stress_device
        integer(c_int) :: n
      end subroutine pnpn_vel_res_update_opencl
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine pnpn_prs_res_part2_metal(p_res_d, wa1_d, wa2_d, wa3_d, n) &
+          bind(c, name = 'pnpn_prs_res_part2_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part2_metal
+  end interface
+
+
+  interface
+     subroutine pnpn_vel_res_update_metal(u_res_d, v_res_d, w_res_d, &
+          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
+          bind(c, name = 'pnpn_vel_res_update_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u_res_d, v_res_d, w_res_d
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       integer(c_int) :: n
+     end subroutine pnpn_vel_res_update_metal
+  end interface
 #endif
 
 contains
@@ -294,6 +318,8 @@ contains
          s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
          f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
+#elif HAVE_METAL
+    call neko_error('Stress formulation prs res is not implemented for Metal')
 #endif
 
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 1, c_Xh)
@@ -318,6 +344,8 @@ contains
     call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
+#elif HAVE_METAL
+    call pnpn_prs_res_part2_metal(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #endif
 
     !
@@ -345,8 +373,10 @@ contains
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
+    call pnpn_prs_stress_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d,&
          wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+#elif HAVE_METAL
+    call neko_error('Stress formulation prs ress is not implemented for Metal')
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -400,6 +430,9 @@ contains
          ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
+#elif HAVE_METAL
+    call pnpn_vel_res_update_metal(u_res%x_d, v_res%x_d, w_res%x_d, &
          ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #endif
 

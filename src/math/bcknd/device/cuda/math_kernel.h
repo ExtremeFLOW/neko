@@ -185,6 +185,9 @@ __global__ void masked_scatter_copy_aligned_kernel(T * __restrict__ a,
   }
 }
 
+#if __CUDA_ARCH__ < 600
+#include <cassert>
+#endif
 
 /**
  * Device kernel for masked atomic update
@@ -199,18 +202,20 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < m; i += str) {
 #if __CUDA_ARCH__ >= 600
+  for (int i = idx; i < m; i += str) 
     atomicAdd( &(a[mask[i+1]-1]), b[i]);
+#else
+  if (idx == 0) 
+    assert(0 && "masked_atomic_reduction_kernel requires compute capability 6.0 or higher.");
 #endif
-  }
 }
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with BC style mask
  */
 template< typename T >
-__global__ void masked_copy_kernel(T * __restrict__ a,
+__global__ void masked_copy_kernel_0(T * __restrict__ a,
                                    T * __restrict__ b,
                                    int * __restrict__ mask,
                                    const int n,
@@ -221,6 +226,24 @@ __global__ void masked_copy_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n_mask; i += str) {
     a[mask[i+1]-1] = b[mask[i+1]-1];
+  }
+}
+
+/**
+ * Device kernel for masked copy with point zone style mask
+ */
+template< typename T >
+__global__ void masked_copy_kernel_aligned(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,
+                                   const int n,
+                                   const int n_mask) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[mask[i]] = b[mask[i]];
   }
 }
 

@@ -40,7 +40,7 @@ module adv_dealias
   use coefs, only : coef_t
   use device_math, only : device_vdot3, device_sub2
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
-       NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
+       NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP, NEKO_BCKND_METAL
   use utils, only : neko_error
   use operators, only : opgrad
   use interpolation, only : interpolator_t
@@ -130,8 +130,8 @@ contains
     call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
     call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
-         (NEKO_BCKND_XSMM .eq. 1)) then
+         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_METAL .eq. 1) .or. &
+         (NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
        allocate(this%temp(n_GL))
        allocate(this%tbf(n_GL))
        allocate(this%tx(n_GL))

@@ -279,6 +279,9 @@ contains
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
+
+    nullify(field_to_avg)
+
   end subroutine user_stats_init_common
 
   !> Destructor.

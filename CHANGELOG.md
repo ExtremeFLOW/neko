@@ -2,6 +2,14 @@
 
 ## Develop
 
+- Added `spatial_average` simcomp for spatially averaging a list of registered
+  fields.
+- Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.
+- Added new math operator for device. device_masked_copy_aligned, which performs
+  a masked copy of data from one field to another, for a point zone mask.
+- Job control time limits can now be specified by a flexible string format, e.g.
+  "30:00" for 30 minutes, "1-00:00:00" for 24 hours, "3600" for 3600 seconds,
+  etc.  
 - Added a Valgrind-based regression test suite under `tests/regression/valgrind`
   for detecting memory leaks in a minimal TGV run.
 - Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS

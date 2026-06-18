@@ -743,6 +743,8 @@ contains
 
     same_name = trim(f1%name) .eq. trim(f2%name)
 
+    nullify(f1, f2)
+
   end function neko_api_user_cb_field_name_at_index
 
 

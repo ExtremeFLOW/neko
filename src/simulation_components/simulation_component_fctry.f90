@@ -40,6 +40,7 @@ submodule (simulation_component) simulation_component_fctry
   use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
   use scalar_stats_simcomp, only : scalar_stats_simcomp_t
   use scalar_sgs_stats_simcomp, only : scalar_sgs_stats_simcomp_t
+  use spatial_average, only : spatial_average_t
   use user_stats, only : user_stats_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
@@ -58,7 +59,7 @@ submodule (simulation_component) simulation_component_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(20) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(21) = [character(len=20) :: &
        "boundary_operation", &
        "boundary_flux", &
        "lambda2", &
@@ -69,12 +70,13 @@ submodule (simulation_component) simulation_component_fctry
        "fluid_sgs_stats", &
        "scalar_stats", &
        "scalar_sgs_stats", &
-       "grad", &
-       "div", &
+       "gradient", &
+       "divergence", &
        "curl", &
        "derivative", &
-       "weak_grad", &
+       "weak_gradient", &
        "force_torque", &
+       "spatial_average", &
        "user_stats", &
        "spectral_error", &
        "data_streamer", &
@@ -135,18 +137,20 @@ contains
        allocate(les_simcomp_t::object)
     case ("field_writer")
        allocate(field_writer_t::object)
-    case ("weak_grad")
+    case ("weak_gradient")
        allocate(weak_gradient_t::object)
-    case ("grad")
+    case ("gradient")
        allocate(gradient_t::object)
     case ("derivative")
        allocate(derivative_t::object)
     case ("curl")
        allocate(curl_t::object)
-    case ("div")
+    case ("divergence")
        allocate(divergence_t::object)
     case ("force_torque")
        allocate(force_torque_t::object)
+    case ("spatial_average")
+       allocate(spatial_average_t::object)
     case ("fluid_stats")
        allocate(fluid_stats_simcomp_t::object)
     case ("fluid_sgs_stats")

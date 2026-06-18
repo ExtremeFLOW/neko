@@ -121,6 +121,30 @@ module cheby_device
        integer(c_int) :: n
      end subroutine cuda_cheby_device_part2
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_cheby_device_part1(d_d, x_d, inv_tha, n, strm) &
+          bind(c, name = 'metal_cheby_part1')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, x_d, strm
+       real(c_rp) :: inv_tha
+       integer(c_int) :: n
+     end subroutine metal_cheby_device_part1
+  end interface
+
+  interface
+     subroutine metal_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
+          bind(c, name = 'metal_cheby_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, w_d, x_d, strm
+       real(c_rp) :: tmp1, tmp2
+       integer(c_int) :: n
+     end subroutine metal_cheby_device_part2
+  end interface
 #endif
 
 contains
@@ -132,6 +156,8 @@ contains
     call hip_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
 #elif HAVE_CUDA
     call cuda_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
 #else !Fallback to device_math for missing device kernels
     call device_cmult( d_d, inv_tha, n)
     call device_add2( x_d, d_d, n)
@@ -148,6 +174,8 @@ contains
     call hip_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
 #elif HAVE_CUDA
     call cuda_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
 #else !Fallback to device_math for missing device kernels
     call device_cmult( d_d, tmp1, n)
     call device_add2s2( d_d, w_d, tmp2, n)

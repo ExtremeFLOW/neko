@@ -199,6 +199,8 @@ contains
          coef%dsdx_d, coef%dsdy_d, coef%dsdz_d, &
          coef%dtdx_d, coef%dtdy_d, coef%dtdz_d, &
          coef%jacinv_d, Xh%w3_d, msh%nelv, Xh%lx)
+#elif HAVE_METAL
+    call neko_error('Stress formulation Ax is not implemented for Metal')
 #endif
 
     if (coef%ifh2) then
@@ -209,8 +211,10 @@ contains
        call cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
             coef%h2_d, coef%B_d, coef%dof%size())
 #elif HAVE_OPENCL
-       call opencl_ax_helm_stress_vector_part2(au_d, av_d, aw_d, &
-            u_d, v_d, w_d, coef%h2_d, coef%B_d, coef%dof%size())
+       call opencl_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, &
+            w_d, coef%h2_d, coef%B_d, coef%dof%size())
+#elif HAVE_METAL
+       call neko_error('Stress formulation Ax is not implemented for Metal')
 #endif
     end if
 

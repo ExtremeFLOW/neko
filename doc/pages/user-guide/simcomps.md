@@ -88,7 +88,7 @@ vorticity fields will be added to the main `.fld` file.
 {
   "type": "curl",
   "name": "curl",
-  "field_names": ["u", "v", "w"],
+  "fields": ["u", "v", "w"],
   "computed_field": "vorticity"
   "compute_control": "tsteps",
   "compute_value": 50
@@ -134,8 +134,8 @@ the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "curl"
-   "name": "curl"
+   "type": "curl",
+   "name": "curl",
    "fields": ["u", "v", "w"],
    "computed_field": "vorticity"
  }
@@ -147,14 +147,14 @@ the divergence.  By default, registers the result in `div`.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "divergence"
-   "name": "divergence"
+   "type": "divergence",
+   "name": "divergence",
    "fields": ["u", "v", "w"],
    "computed_field": "continuity"
  }
  ~~~~~~~~~~~~~~~
 
-### gradient {#simcomp_gradient}
+### grad {#simcomp_gradient}
 Computes the gradient of a field.
 The field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
@@ -163,8 +163,8 @@ value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "gradient"
-   "name": "gradient"
+   "type": "gradient",
+   "name": "gradient",
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
@@ -180,8 +180,8 @@ value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "weak_gradient"
-   "name": "weak_gradient"
+   "type": "weak_gradient",
+   "name": "weak_gradient",
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
@@ -195,7 +195,7 @@ the `"output_filename"` parameter.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "lambda2"
+   "type": "lambda2",
    "name": "lambda2"
  }
  ~~~~~~~~~~~~~~~
@@ -500,8 +500,8 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
    "center_type": "fixed",
    "center": [0.0, 0.0, 0.0],
    "zone_name": "some chosen name, optional",
-   "scale": 1.0
-   "long_print" : false
+   "scale": 1.0,
+   "long_print" : false,
    "compute_control" : "tsteps",
    "compute_value" : 10
  }
@@ -594,8 +594,8 @@ keywords:
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "les_model"
-   "name": "les_model"
+   "type": "les_model",
+   "name": "les_model",
    "model": "smagorinsky",
    "delta_type": "pointwise",
    "output_control" : "never"
@@ -607,7 +607,7 @@ keywords:
  (one could also use "nonBoyd" as the option):
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "les_model"
+   "type": "les_model",
    "model": "dynamic_smagorinsky",
    "test_filter": {
       "filter": {
@@ -658,6 +658,25 @@ For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then
 the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added
 to the registry.
 
+### Spatial average {#simcomp_spatial_average}
+
+Writes the instantaneous spatial average of an arbitrary collection of registry
+fields. The fields are prescribed via the `fields` keyword. The
+`avg_direction` keyword follows the same semantics as the statistics simcomps:
+`x`, `y`, or `z` produce a 2D `.fld` file, while `xy`, `xz`, or `yz` produce a
+1D `.csv` file. The `avg_direction` keyword is required for this simcomp. The
+base filename is controlled by `output_filename` and defaults to `spatial_average`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "spatial_average",
+  "name": "spatial_average",
+  "fields": ["u", "s"],
+  "avg_direction": "xz",
+  "output_filename": "xz_average"
+}
+~~~~~~~~~~~~~~~
+
 ### Spectral error indicator {#simcomp_speri}
 
 Computes the spectral error indicator as developed by Mavriplis (1989)
@@ -670,7 +689,7 @@ in 3 additional fields appended to the field files.
 
 ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "spectral_error"
+   "type": "spectral_error",
    "name": "spectral_error"
  }
  ~~~~~~~~~~~~~~~

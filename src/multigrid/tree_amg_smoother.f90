@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -245,10 +245,15 @@ contains
       rhok = 1.0_rp / s1
 
       ! First iteration
-      do concurrent (i = 1:n)
+      !OCL NORECURRENCE, NOVREC, NOALIAS
+      !DIR$ CONCURRENT
+      !GCC$ ivdep
+      !$omp parallel do
+      do i = 1, n
          d(i) = 1.0_rp/thet * r(i)
          x(i) = x(i) + d(i)
       end do
+      !$omp end parallel do
 
       ! Rest of iterations
       do iter = 2, max_iter
@@ -259,12 +264,18 @@ contains
          tmp2 = 2.0_rp * rhokp1 / delt
          rhok = rhokp1
 
-         do concurrent (i = 1:n)
+         !$omp parallel private(i)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !GCC$ ivdep
+         !$omp do
+         do i = 1, n
             r(i) = r(i) - w(i)
             d(i) = tmp1 * d(i) + tmp2 * r(i)
             x(i) = x(i) + d(i)
          end do
-
+         !$omp end do
+         !$omp end parallel
       end do
     end associate
   end subroutine amg_cheby_solve
@@ -470,13 +481,26 @@ contains
          w = 0.0_rp
          !> w = A x
          call amg%matvec(w, x, this%lvl)
+         !$omp parallel private(i)
          !> r = f - Ax
-         call copy(r, f, n)
-         call sub2(r, w, n)
+         !$omp do
+         do i = 1, n
+            r(i) = f(i) - w(i)
+         end do
+         !$omp end do
          !> r = Dinv * (f - Ax)
-         call col2(r, d, n)
+         !$omp do
+         do i = 1, n
+            r(i) = r(i) * d(i)
+         end do
+         !$omp end do
          !> x = x + omega * Dinv * (f - Ax)
-         call add2s2(x, r, this%omega, n)
+         !$omp do
+         do i = 1, n
+            x(i) = x(i) + this%omega * r(i)
+         end do
+         !$omp end do
+         !$omp end parallel
       end do
     end associate
   end subroutine amg_jacobi_solve

@@ -1,0 +1,356 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:common",
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "constRef": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "numberOrRef": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "positiveNumberOrRef": {
+      "oneOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "nonNegativeNumberOrRef": {
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "integerOrRef": {
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "nonNegativeIntegerOrRef": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "positiveIntegerOrRef": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "unitIntervalExclusiveOrRef": {
+      "oneOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "greaterThanOneOrRef": {
+      "oneOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 1
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "numberArray": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 1
+    },
+    "integerArray": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1
+    },
+    "numberArrayOrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/numberArray"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "integerArrayOrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/integerArray"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "vector3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "vector3OrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/vector3"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "frequencyControl": {
+      "type": "string",
+      "enum": [
+        "simulationtime",
+        "tsteps",
+        "nsamples",
+        "never"
+      ]
+    },
+    "coarseGridSolverType": {
+      "type": "string",
+      "enum": [
+        "cg",
+        "pipecg",
+        "fused_cg",
+        "cacg",
+        "gmres",
+        "cheby",
+        "bicgstab",
+        "tamg"
+      ]
+    },
+    "coarseGridPreconditionerType": {
+      "type": "string",
+      "enum": [
+        "jacobi",
+        "ident"
+      ]
+    },
+    "preconditionerType": {
+      "type": "string",
+      "enum": [
+        "jacobi",
+        "hsmg",
+        "phmg",
+        "ident"
+      ]
+    },
+    "hsmgCoarseGrid": {
+      "type": "object",
+      "properties": {
+        "solver": {
+          "$ref": "#/$defs/coarseGridSolverType"
+        },
+        "preconditioner": {
+          "$ref": "#/$defs/coarseGridPreconditionerType"
+        },
+        "iterations": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        },
+        "monitor": {
+          "type": "boolean"
+        },
+        "levels": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        },
+        "cheby_degree": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        }
+      },
+      "additionalProperties": false
+    },
+    "phmgCoarseGrid": {
+      "type": "object",
+      "properties": {
+        "levels": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        },
+        "iterations": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        },
+        "cheby_degree": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        }
+      },
+      "additionalProperties": false
+    },
+    "identPreconditioner": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "ident"
+        }
+      },
+      "additionalProperties": false
+    },
+    "jacobiPreconditioner": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "jacobi"
+        }
+      },
+      "additionalProperties": false
+    },
+    "hsmgPreconditioner": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "hsmg"
+        },
+        "coarse_grid": {
+          "$ref": "#/$defs/hsmgCoarseGrid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "phmgPreconditioner": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "phmg"
+        },
+        "pcoarsening_schedule": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "smoother_iterations": {
+          "$ref": "#/$defs/positiveIntegerOrRef"
+        },
+        "smoother_cheby_acc": {
+          "type": "string",
+          "enum": [
+            "none",
+            "jacobi",
+            "schwarz"
+          ]
+        },
+        "coarse_grid": {
+          "$ref": "#/$defs/phmgCoarseGrid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "preconditioner": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/identPreconditioner"
+        },
+        {
+          "$ref": "#/$defs/jacobiPreconditioner"
+        },
+        {
+          "$ref": "#/$defs/hsmgPreconditioner"
+        },
+        {
+          "$ref": "#/$defs/phmgPreconditioner"
+        }
+      ]
+    },
+    "linearSolver": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "preconditioner": {
+          "$ref": "#/$defs/preconditioner"
+        },
+        "projection_space_size": {
+          "$ref": "#/$defs/integerOrRef"
+        },
+        "projection_reorthogonalize_basis": {
+          "type": "boolean"
+        },
+        "absolute_tolerance": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "relative_tolerance": {
+          "$ref": "#/$defs/numberOrRef"
+        },
+        "max_iterations": {
+          "$ref": "#/$defs/integerOrRef"
+        },
+        "monitor": {
+          "type": "boolean"
+        },
+        "output_base_shape": {
+          "type": "boolean"
+        },
+        "output_stiffness": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
