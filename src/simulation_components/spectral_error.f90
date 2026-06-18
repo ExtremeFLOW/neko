@@ -37,7 +37,8 @@ module spectral_error
   use coefs, only : coef_t
   use field_list, only : field_list_t
   use math, only : rzero, copy, add3s2
-  use file, only : file_t, file_free
+  use fld_file, only : fld_file_t
+  use fld_file_data, only : fld_file_data_t
   use time_state, only : time_state_t
   use tensor, only : tnsr3d
   use device_math, only : device_copy
@@ -47,7 +48,6 @@ module spectral_error
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
   use comm, only : pe_rank
   use utils, only : NEKO_FNAME_LEN, NEKO_VARNAME_LEN, neko_error, neko_warning
-  use field_writer, only : field_writer_t
   use simulation_component, only : simulation_component_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
@@ -84,6 +84,8 @@ module spectral_error
      character(NEKO_VARNAME_LEN), dimension(:), allocatable :: field_names
      !> Vector length
      integer :: nelv
+     !> Global element offset (required for restart)
+     integer :: offset_el
      !> Simulation time of the first averaging step
      real(dp) :: time_start
      !> Simulation time of previous averaging step
@@ -172,6 +174,7 @@ contains
     ! array sizes
     this%nfld = size(field_names)
     this%nelv = coef%msh%nelv
+    this%offset_el = coef%msh%offset_el
 
     ! save field names
     allocate(this%field_names(this%nfld))
@@ -255,6 +258,7 @@ contains
 
     this%nfld = 0
     this%nelv = 0
+    this%offset_el = 0
     this%time_start = 0.0_dp
     this%time_previous = 0.0_dp
 
@@ -339,6 +343,9 @@ contains
   subroutine spectral_error_restart(this, time)
     class(spectral_error_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    type(fld_file_t) :: fld_file
+    type(fld_file_data_t) :: data
+    integer :: il, jl, lxyz
 
     if (trim(this%restart_file) .eq. "no restart") then
        if (time%t .gt. this%time_start) then
@@ -346,8 +353,26 @@ contains
           this%time_previous = this%time_start
        end if
     else
-       call neko_error('Spectral error restart not done yet')
+       ! Read data from the file
+       call fld_file%init(trim(this%restart_file))
+       call data%init(nelv = this%nelv, offset_el = this%offset_el)
+       call fld_file%read(data)
+       ! We assume all the error indicators are saved as scalars with additional
+       ! field (the last one) for empty refinement flag
+       if (this%nfld + 1 .ne. data%n_scalars) call neko_error('Spectral error &
+            &indicator restart; inconsistent number of fields')
+       ! fill element information
+       lxyz = data%lx * data%ly * data%lz
+       do il = 1, this%nfld
+          do jl = 1, this%nelv
+             this%eind_av%items(il)%ptr%x(jl) = &
+                  data%s(il)%x((jl - 1) * lxyz + 1)
+          end do
+       end do
+
+       this%time_start = data%time
        this%time_previous = time%t
+       call data%free()
     end if
   end subroutine spectral_error_restart
 
@@ -837,6 +862,7 @@ contains
     if (reconstruct%nold .ne. reconstruct%nnew) then
 
        this%nelv = reconstruct%nnew
+       ! offset_el is not updated, as it is useful at initialisation only
 
        do il = 1, this%nfld
           if (associated(this%eind%items(il)%ptr)) then
