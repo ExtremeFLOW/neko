@@ -11,8 +11,6 @@ PATH=/usr/local/neko_install/bin:/usr/local/bin:/opt/homebrew/bin:$PATH
 "$PYTHON" "$HERE/scripts/make_neko_gmsh_mesh.py"
 
 cd "$HERE/generated"
-printf '3\nurban_terrain\n0\n0\nurban_terrain\n' | gmsh2nek
-rea2nbin urban_terrain.re2
 mesh_checker urban_terrain.nmsh
 
 cd "$EXAMPLE"
