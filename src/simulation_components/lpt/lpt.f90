@@ -52,13 +52,12 @@ module lagrangian_particle_tracking
   use math, only : add2s2, cfill, cmult2, col2, col3, invcol2, sqrt_inplace, &
                    power, sub3, vdot3, cmult, cadd2, invcol3
   use ab_time_scheme, only : ab_time_scheme_t
-  use tensor, only : trsp
   use lpt_periodic_bc, only : lpt_periodic_bc_t
   use lpt_redistribute, only : lpt_redistribute_t
   use lpt_wall_collision, only : lpt_handle_elastic_wall_collisions, &
        lpt_init_wall_facet_mask
-  use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Gather, MPI_Gatherv, MPI_INTEGER
+  use lpt_output, only : lpt_output_t
+  use comm, only : pe_rank
   use csv_file, only : csv_file_t
   implicit none
   private
@@ -107,7 +106,7 @@ module lagrangian_particle_tracking
      type(lpt_periodic_bc_t) :: periodic_bc
      type(lpt_redistribute_t) :: redistributor
      type(particles_t) :: particles
-     type(file_t) :: output_file
+     type(lpt_output_t) :: output
      logical :: output_enabled = .false.
      logical :: log = .true.
      real(kind=rp) :: start_time = -huge(0.0_rp)
@@ -207,6 +206,7 @@ contains
     type(json_file) :: interp_subdict
     character(len=:), allocatable :: name
     character(len=:), allocatable :: output_filename
+    character(len=:), allocatable :: output_path
 
     call this%free()
 
@@ -271,17 +271,8 @@ contains
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name) // ".csv")
-    if (this%inertia) then
-       call this%output_file%init(case%output_directory // &
-            trim(output_filename), &
-            header = "tstep,time,particle_id,x,y,z,u,v,w,d,rho", &
-            overwrite = .true.)
-    else
-       call this%output_file%init(case%output_directory // &
-            trim(output_filename), &
-            header = "tstep,time,particle_id,x,y,z,u,v,w", &
-            overwrite = .true.)
-    end if
+    output_path = case%output_directory // trim(output_filename)
+    call this%output%init(output_path, this%inertia)
 
     ! output at the initialisation
     this%output_enabled = .true.
@@ -680,21 +671,13 @@ contains
 
   end subroutine ODE_integrate_ab_3c
 
-  !> Write one trajectory snapshot to CSV by gathering local particle data to
-  !! rank 0.
+  !> Write one trajectory snapshot.
   subroutine write_output(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    type(matrix_t) :: block
     real(kind=rp), allocatable :: local_data(:,:)
-    real(kind=rp), allocatable :: global_data(:,:)
-    integer, allocatable :: n_local_particles_per_rank(:)
-    integer, allocatable :: recvcounts(:)
-    integer, allocatable :: displs(:)
     integer :: n_local
-    integer :: total_particles
     integer :: i
-    integer :: ierr
     integer :: n_data
 
     n_local = this%particles%n
@@ -721,49 +704,7 @@ contains
        end if
     end do
 
-    if (pe_rank .eq. 0) then
-       allocate(n_local_particles_per_rank(pe_size))
-    else
-       allocate(n_local_particles_per_rank(0))
-    end if
-    call MPI_Gather(n_local, 1, MPI_INTEGER, n_local_particles_per_rank, 1, &
-         MPI_INTEGER, 0, NEKO_COMM, ierr)
-
-    if (pe_rank .eq. 0) then
-       allocate(recvcounts(pe_size))
-       allocate(displs(pe_size))
-       recvcounts = 0
-       displs = 0
-
-       total_particles = 0
-       do i = 1, pe_size
-          total_particles = total_particles + n_local_particles_per_rank(i)
-          recvcounts(i) = n_data * n_local_particles_per_rank(i)
-          displs(i) = n_data * (total_particles - n_local_particles_per_rank(i))
-       end do
-
-       allocate(global_data(n_data, total_particles))
-    else
-       allocate(recvcounts(0))
-       allocate(displs(0))
-       allocate(global_data(n_data, 0))
-    end if
-
-    call MPI_Gatherv(local_data, n_data * n_local, MPI_REAL_PRECISION, &
-         global_data, recvcounts, displs, MPI_REAL_PRECISION, 0, &
-         NEKO_COMM, ierr)
-
-    if (pe_rank .eq. 0) then
-       call block%init(total_particles, n_data)
-       call trsp(block%x, total_particles, global_data, n_data)
-       call this%output_file%write(block)
-       call block%free()
-    end if
-
-    deallocate(global_data)
-    deallocate(n_local_particles_per_rank)
-    deallocate(recvcounts)
-    deallocate(displs)
+    call this%output%write(local_data, n_local)
     deallocate(local_data)
   end subroutine write_output
 
@@ -775,7 +716,7 @@ contains
     call this%global_interp%free()
     call this%periodic_bc%free()
     call this%redistributor%free()
-    call this%output_file%free()
+    call this%output%free()
 
     this%u => null()
     this%v => null()
