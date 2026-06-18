@@ -713,7 +713,8 @@ contains
                          else
                             ! Detached from pivot -->
                             ! offset = JSON_Input - Initial_Pivot
-                            ! Note: we assume center_in is the Time=0 global coord
+                            ! Note: we assume center_in is the
+                            ! Time=0 global coord
                             this%local_offset = center_in - &
                                  neko_ale%config%bodies(i)%rot_center
                             ! Set initial position for init_common

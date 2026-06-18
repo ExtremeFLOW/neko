@@ -417,7 +417,8 @@ contains
       end do
       end_time = MPI_WTIME()
       time = end_time - start_time
-      write(msg, '(A, E15.7)') "Projection basis reorthogonalization (s):  ", time
+      write(msg, '(A, E15.7)') &
+           "Projection basis reorthogonalization (s):  ", time
       call neko_log%message(trim(msg))
     end associate
   end subroutine cpu_reorthogonalize_basis
@@ -465,7 +466,8 @@ contains
       end do
       end_time = MPI_WTIME()
       time = end_time - start_time
-      write(msg, '(A, E15.7)') "Projection basis reorthogonalization (s):  ", time
+      write(msg, '(A, E15.7)') &
+           "Projection basis reorthogonalization (s):  ", time
       call neko_log%message(trim(msg))
     end associate
   end subroutine device_reorthogonalize_basis

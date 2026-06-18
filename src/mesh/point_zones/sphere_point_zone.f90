@@ -87,8 +87,8 @@ contains
     call json_get_or_default(json, "invert", invert, .false.)
     call json_get_or_default(json, "full_elements", full_elements, .false.)
 
-    call sphere_point_zone_init_common(this, size, trim(str_read), invert, full_elements, &
-         x0, y0, z0, radius)
+    call sphere_point_zone_init_common(this, size, trim(str_read), invert, &
+         full_elements, x0, y0, z0, radius)
 
   end subroutine sphere_point_zone_init_from_json
 
@@ -101,8 +101,8 @@ contains
   !! @param y0 Sphere center's y-coordinate.
   !! @param z0 Sphere center's z-coordinate.
   !! @param radius Sphere radius.
-  subroutine sphere_point_zone_init_common(this, size, name, invert, full_elements, &
-       x0, y0, z0, radius)
+  subroutine sphere_point_zone_init_common(this, size, name, invert, &
+       full_elements, x0, y0, z0, radius)
     class(sphere_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name

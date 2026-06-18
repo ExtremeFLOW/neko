@@ -292,7 +292,8 @@ contains
 
   !> Get a host_array from the registry by assigning it to a pointer.
   !! @param v Pointer to the requested host_array.
-  !! @param index Index of the host array in the registry (for relinquishing later).
+  !! @param index Index of the host array in the registry (for
+  !! relinquishing later).
   !! @param n Size of the requested host_array.
   !! @param clear If true, the host_array values are set to zero upon request.
   subroutine request_host_array(this, v, index, n, clear)
@@ -342,7 +343,8 @@ contains
 
   !> Get a device_array from the registry by assigning it to a pointer.
   !! @param v Pointer to the requested device_array.
-  !! @param index Index of the device_array in the registry (for relinquishing later).
+  !! @param index Index of the device_array in the registry (for
+  !! relinquishing later).
   !! @param n Size of the requested device_array.
   !! @param clear If true, the device_array values are set to zero upon request.
   subroutine request_device_array(this, v, index, n, clear)

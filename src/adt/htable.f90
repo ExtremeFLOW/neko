@@ -1076,7 +1076,8 @@ contains
     integer :: hash
     select type(k)
     type is (double precision)
-       hash = modulo(floor((2d0 * abs(fraction(k)) - 1d0) * 2**16) + c, this%size)
+       hash = modulo(floor((2d0 * abs(fraction(k)) - 1d0) * 2**16) + c, &
+            this%size)
     class default
        hash = -1
     end select

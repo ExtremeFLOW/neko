@@ -221,7 +221,8 @@ contains
 
   end function point_scalar_mult
 
-  !> Returns the Euclidean distance between two points \f$ \mid p_1 -  p_2 \mid \f$
+  !> Returns the Euclidean distance between two points
+  !! \f$ \mid p_1 -  p_2 \mid \f$
   pure function point_euclid_dist(p1, p2) result(res)
     class(point_t), intent(in) :: p1
     type(point_t), intent(in) :: p2

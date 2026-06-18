@@ -353,7 +353,7 @@ contains
     integer :: lvl
 
     associate(mg => this%phmg_hrchy%lvl, intrp => this%intrp, &
-        msh => this%msh, Ax => this%Ax)
+         msh => this%msh, Ax => this%Ax)
       do lvl = 0, this%nlvls-2
          write(lvl_name, '(I0)') lvl
          call profiler_start_region( "PHMG_level_" // trim(lvl_name))
@@ -379,7 +379,8 @@ contains
            !  Residual  !
            !------------!
            call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
            call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
@@ -435,7 +436,8 @@ contains
            !------------!
            call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
