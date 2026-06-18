@@ -2286,6 +2286,9 @@ contains
     integer, dimension(12) :: curve_type
     real(dp), parameter :: tol = 1.0E-10_rp
     real(rp) :: lvec1, lvec3
+    ! change edge order
+    integer, dimension(12), parameter :: sym_cyc = [1, 3, 5, 7, 4, 2, 8, 6, 9, &
+         10, 12, 11]
 
     if (this%gdim .ne. 3) call neko_error('Curvature update supports 3D &
          &meshes only')
@@ -2337,10 +2340,10 @@ contains
           lvec3 = 2.0_rp * sqrt(vec3(1)**2 + vec3(2)**2 + vec3(3)**2)
           ! SHOULD WE USE DIFFERENT CRITERIA?
           if(.not. abscmp(lvec1, 0d0, tol)) then
-             curve_type(jl) = 4 ! midpoint only
-             curve_data(1, jl) = edge_x(2)
-             curve_data(2, jl) = edge_y(2)
-             curve_data(3, jl) = edge_z(2)
+             curve_type(sym_cyc(jl)) = 4 ! midpoint only
+             curve_data(1, sym_cyc(jl)) = edge_x(2)
+             curve_data(2, sym_cyc(jl)) = edge_y(2)
+             curve_data(3, sym_cyc(jl)) = edge_z(2)
           end if
        end do
        if (sum(curve_type) .gt. 0) then
