@@ -720,7 +720,7 @@ contains
           ! Logging Pivot
           call neko_log%message(' ')
           call neko_log%message('   Pivot Type    : ' // &
-             trim(this%config%bodies(i)%rotation_center_type))
+               trim(this%config%bodies(i)%rotation_center_type))
 
           write(log_buf, '(A,3(ES18.11,1X))') '    Init Pivot:', &
                this%config%bodies(i)%rot_center

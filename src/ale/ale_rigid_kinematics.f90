@@ -199,7 +199,7 @@ contains
     integer, intent(in) :: nadv
 
     call ab_integrate_point_pos(tracker%pos, tracker%vel_lag, &
-          current_vel, time, nadv)
+         current_vel, time, nadv)
 
   end subroutine advance_point_tracker
 

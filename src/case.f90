@@ -426,21 +426,26 @@ contains
              if (trim(string_val) .ne. 'user') then
                 if (trim(this%scalars%scalar_fields(i)%scalar%name) .eq. &
                      'temperature') then
-                   call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
+                   call set_scalar_ic( &
+                        this%scalars%scalar_fields(i)%scalar%s, &
                         this%scalars%scalar_fields(i)%scalar%c_Xh, &
                         this%scalars%scalar_fields(i)%scalar%gs_Xh, &
                         string_val, json_subdict, 0)
                    temperature_found = .true.
                 else
                    if (temperature_found) then
-                      ! if temperature is found, other scalars start from index 1
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
+                      ! If temperature is found, other scalars start
+                      ! from index 1
+                      call set_scalar_ic( &
+                           this%scalars%scalar_fields(i)%scalar%s, &
                            this%scalars%scalar_fields(i)%scalar%c_Xh, &
                            this%scalars%scalar_fields(i)%scalar%gs_Xh, &
                            string_val, json_subdict, i - 1)
                    else
-                      ! if temperature is not found, other scalars start from index 0
-                      call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%s, &
+                      ! If temperature is not found, other scalars
+                      ! start from index 0
+                      call set_scalar_ic( &
+                           this%scalars%scalar_fields(i)%scalar%s, &
                            this%scalars%scalar_fields(i)%scalar%c_Xh, &
                            this%scalars%scalar_fields(i)%scalar%gs_Xh, &
                            string_val, json_subdict, i)

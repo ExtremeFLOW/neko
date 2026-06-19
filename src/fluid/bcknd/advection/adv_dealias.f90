@@ -387,7 +387,8 @@ contains
          ! Compute the scalar gradient in the high-order space
          call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
 
-         ! Compute the convective term, i.e dot the velocity with the scalar grad
+         ! Compute the convective term, i.e dot the velocity with the
+         ! scalar grad
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
               this%tx_d, this%ty_d, this%tz_d, n_GL)
 
@@ -410,7 +411,8 @@ contains
          ! Compute the scalar gradient in the high-order space
          call opgrad(this%vr, this%vs, this%vt, this%temp, c_GL)
 
-         ! Compute the convective term, i.e dot the velocity with the scalar grad
+         ! Compute the convective term, i.e dot the velocity with the
+         ! scalar grad
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
               this%tx, this%ty, this%tz, n_GL)
 
@@ -469,12 +471,12 @@ contains
   !! @param n Typically the size of the mesh.
   !! @param dt Current time-step, not required for this method.
   !! Here, we compute: - div ( u_i * wm ).
-  !! Based on Ho, L.W. A Legendre spectral element method for simulation of incompressible
-  !! unsteady viscous free-surface flows.
+  !! Based on Ho, L.W. A Legendre spectral element method for
+  !! simulation of incompressible unsteady viscous free-surface flows.
   !! Ph.D. thesis, Massachusetts Institute of Technology, 1989.
   !! Note: In Nek5000, dealiasing is not done for this term.
-  subroutine compute_ale_advection_dealias(this, vx, vy, vz, wm_x, wm_y, wm_z, &
-        fx, fy, fz, Xh, coef, n, dt)
+  subroutine compute_ale_advection_dealias(this, vx, vy, vz, &
+       wm_x, wm_y, wm_z, fx, fy, fz, Xh, coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: wm_x, wm_y, wm_z
@@ -569,7 +571,8 @@ contains
       else
          !$omp parallel do private(e, i, flux_GL, total_div_GL, idx)
          do e = 1, coef%msh%nelv
-            ! Map advecting velocity and mesh velocity onto the higher-order space
+            ! Map advecting velocity and mesh velocity onto the
+            ! higher-order space
             call this%GLL_to_GL%map(vx_GL, vx%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(vy_GL, vy%x(1,1,1,e), 1, this%Xh_GL)
             call this%GLL_to_GL%map(vz_GL, vz%x(1,1,1,e), 1, this%Xh_GL)
@@ -581,7 +584,8 @@ contains
             ! This works for now.
             ! --------------------- X-Momentum
             total_div_GL = 0.0_rp
-            ! div(u * wm_*) = d/dx (u * wm_x) + d/dy (u * wm_y) + d/dz (u * wm_z)
+            ! div(u * wm_*) = d/dx (u * wm_x) + d/dy (u * wm_y) +
+            ! d/dz (u * wm_z)
 
             flux_GL = vx_GL * wm_x_GL
             call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
@@ -598,7 +602,8 @@ contains
 
             ! --------------------- Y-Momentum
             total_div_GL = 0.0_rp
-            ! div(v * wm_*) = d/dx (v * wm_x) + d/dy (v * wm_y) + d/dz (v * wm_z)
+            ! div(v * wm_*) = d/dx (v * wm_x) + d/dy (v * wm_y) +
+            ! d/dz (v * wm_z)
 
             flux_GL = vy_GL * wm_x_GL
             call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
@@ -615,7 +620,8 @@ contains
 
             ! --------------------- Z-Momentum
             total_div_GL = 0.0_rp
-            ! div(w * wm_*) = d/dx (w * wm_x) + d/dy (w * wm_y) + d/dz (w * wm_z)
+            ! div(w * wm_*) = d/dx (w * wm_x) + d/dy (w * wm_y) +
+            ! d/dz (w * wm_z)
 
             flux_GL = vz_GL * wm_x_GL
             call opgrad(grad_x, grad_y, grad_z, flux_GL, c_GL, e, e)
@@ -667,6 +673,5 @@ contains
     call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
 
   end subroutine recompute_metrics_dealias
-
 
 end module adv_dealias

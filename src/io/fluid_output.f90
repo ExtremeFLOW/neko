@@ -207,11 +207,11 @@ contains
           if (NEKO_BCKND_DEVICE .eq. 1) then
              associate(mesh => this%fluid%items(2)%ptr%dof)
                call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
-                     DEVICE_TO_HOST, sync = .false.)
+                    DEVICE_TO_HOST, sync = .false.)
                call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
-                     DEVICE_TO_HOST, sync = .false.)
+                    DEVICE_TO_HOST, sync = .false.)
                call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
-                     DEVICE_TO_HOST, sync = .true.)
+                    DEVICE_TO_HOST, sync = .true.)
              end associate
           end if
        end if

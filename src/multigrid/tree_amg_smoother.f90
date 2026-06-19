@@ -96,7 +96,8 @@ contains
 
   !> Initialization of chebyshev
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are
+  !! to be applied
   !! @param max_iter The number of iterations (chebyshev degree)
   subroutine amg_cheby_init(this, n, lvl, max_iter)
     class(amg_cheby_t), intent(inout), target :: this
@@ -398,7 +399,8 @@ contains
 
   !> Initialization of Jacobi (this is expensive...)
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are
+  !! to be applied
   !! @param max_iter The number of iterations
   subroutine amg_jacobi_init(this, n, lvl, max_iter)
     class(amg_jacobi_t), intent(inout), target :: this

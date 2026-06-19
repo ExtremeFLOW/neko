@@ -47,8 +47,8 @@ module overset_interface
   use vector, only : vector_t
   use vector_series, only : vector_series_t
   use vector_list, only : vector_list_t
-  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, &
-       vector_add2s2, vector_cmult2, vector_glsc2
+  use vector_math, only : vector_masked_gather_copy, &
+       vector_masked_scatter_copy, vector_add2s2, vector_cmult2, vector_glsc2
   use device, only : DEVICE_TO_HOST
   use field_dirichlet, only : field_dirichlet_t
   use iextm_time_scheme, only : iextm_time_scheme_t
@@ -96,7 +96,8 @@ module overset_interface
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
-     procedure(morph_overset_interface), nopass, pointer :: morph_interface => null()
+     procedure(morph_overset_interface), nopass, pointer :: &
+          morph_interface => null()
 
    contains
      !> Constructor.
@@ -113,19 +114,24 @@ module overset_interface
      !> (No-op) Apply vector.
      procedure, pass(this) :: apply_vector => overset_interface_apply_vector
      !> (No-op) Apply vector (device).
-     procedure, pass(this) :: apply_vector_dev => overset_interface_apply_vector_dev
+     procedure, pass(this) :: apply_vector_dev => &
+          overset_interface_apply_vector_dev
      !> Apply scalar (device).
-     procedure, pass(this) :: apply_scalar_dev => overset_interface_apply_scalar_dev
+     procedure, pass(this) :: apply_scalar_dev => &
+          overset_interface_apply_scalar_dev
      procedure, pass(this) :: update => overset_interface_update
 
      !> Build domain masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
      !> Gather the dofs at the interface.
-     procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
+     procedure, pass(this), private :: gather_interface_dofs_ => &
+          gather_interface_dofs_
      !> Set up the interpolator.
-     procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
+     procedure, pass(this), private :: setup_interpolator_ => &
+          setup_interpolator_
      !> Log interface interpolation error diagnostics.
-     procedure, pass(this), private :: log_interface_error_ => log_interface_error_
+     procedure, pass(this), private :: log_interface_error_ => &
+          log_interface_error_
   end type overset_interface_t
 
   abstract interface
@@ -142,8 +148,8 @@ module overset_interface
      !!                freedom.
      !! @param[in] time Current simulation time state.
      !! @param[in] bc_name Name of the boundary condition invoking the callback.
-     !! @param[inout] find_interface Set to .true. when interpolation points must
-     !!                              be rediscovered after coordinate changes.
+     !! @param[inout] find_interface Set to .true. when interpolation
+     !! points must be rediscovered after coordinate changes.
      subroutine morph_overset_interface(interface_dof, interface_field, &
           interface_mask, time, bc_name, &
           find_interface)
@@ -188,7 +194,8 @@ contains
 
   !> Constructor from components
   !! @param[in] coef The SEM coefficients.
-  subroutine overset_interface_init_from_components(this, coef, field_name, tol, pad, log)
+  subroutine overset_interface_init_from_components(this, coef, field_name, &
+       tol, pad, log)
     class(overset_interface_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in) :: field_name
@@ -215,7 +222,8 @@ contains
     end if
 
     this%field_name = field_name
-    write (log_buf, '(A,A)') "Coupling overset interface for: ", trim(this%field_name)
+    write (log_buf, '(A,A)') "Coupling overset interface for: ", &
+         trim(this%field_name)
     call neko_log%message(log_buf)
 
     call this%bc_s%init_from_components(coef, this%field_name)
@@ -327,8 +335,8 @@ contains
        end if
 
        if (this%msk(0) .gt. 0) then
-          call device_masked_copy_0(x_d, this%bc_s%field_bc%x_d, this%bc_s%msk_d, &
-               this%bc_s%dof%size(), this%msk(0), strm)
+          call device_masked_copy_0(x_d, this%bc_s%field_bc%x_d, &
+               this%bc_s%msk_d, this%bc_s%dof%size(), this%msk(0), strm)
        end if
     end if
 
@@ -384,9 +392,12 @@ contains
 
     call this%build_masks_()
 
-    call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
-    call this%y_interface_dof%init(this%interface_dof_mask%size(), 'y_interface')
-    call this%z_interface_dof%init(this%interface_dof_mask%size(), 'z_interface')
+    call this%x_interface_dof%init(this%interface_dof_mask%size(), &
+         'x_interface')
+    call this%y_interface_dof%init(this%interface_dof_mask%size(), &
+         'y_interface')
+    call this%z_interface_dof%init(this%interface_dof_mask%size(), &
+         'z_interface')
     call this%gather_interface_dofs_()
 
     call this%setup_interpolator_()
@@ -454,14 +465,16 @@ contains
        nhist = min(time%tstep, this%iextm_order)
        call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
 
-       call vector_cmult2(this%s_interface, this%s_interface_lag%lv(1), iextm_coeffs(1))
+       call vector_cmult2(this%s_interface, this%s_interface_lag%lv(1), &
+            iextm_coeffs(1))
        do ihist = 2, nhist
-          call vector_add2s2(this%s_interface, this%s_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%s_interface, this%s_interface_lag%lv(ihist), &
+               iextm_coeffs(ihist))
        end do
     end if
 
-    call vector_masked_scatter_copy(this%bc_s%field_bc%x(:,1,1,1), this%s_interface, &
-         this%interface_dof_mask, this%bc_s%dof%size())
+    call vector_masked_scatter_copy(this%bc_s%field_bc%x(:,1,1,1), &
+         this%s_interface, this%interface_dof_mask, this%bc_s%dof%size())
 
     nullify(s)
 
