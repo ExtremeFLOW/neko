@@ -289,7 +289,7 @@ $(document).ready(function(){initNavTree('da/d01/ale__rigid__kinematics_8f90_sou
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nadv</div>
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c">ab_integrate_point_pos</a>(tracker%pos, tracker%vel_lag, &amp;</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>          current_vel, time, nadv)</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>         current_vel, time, nadv)</div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
 </div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a2bf9b37c78f6c41adaeca3d64750eac9">advance_point_tracker</a></div>
@@ -310,7 +310,7 @@ $(document).ready(function(){initNavTree('da/d01/ale__rigid__kinematics_8f90_sou
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>       <span class="keywordflow">if</span> (abs(body_conf%osc_amp(i)) &gt; 0.0_rp) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>          w_scalar = body_conf%osc_freq(i) * 2.0_rp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a></div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>          kinematics%vel_trans(i) = body_conf%osc_amp(i) * w_scalar * &amp;</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>                cos(w_scalar * time%t)</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>               cos(w_scalar * time%t)</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordflow">       end if</span></div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
@@ -333,7 +333,7 @@ $(document).ready(function(){initNavTree('da/d01/ale__rigid__kinematics_8f90_sou
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>             <span class="keywordflow">if</span> (t1 &gt; t0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>                tau = (t_curr - t0) / (t1 - t0)</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>                current_omega = target_rad * <a class="code hl_function" href="../../dd/d47/namespacemath.html#abefc115c94206a01926e8f91d989be53">math_dstepf</a>(tau) * &amp;</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>                      (1.0_rp / (t1 - t0))</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>                     (1.0_rp / (t1 - t0))</div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keywordflow">             end if</span></div>
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>          <span class="keywordflow">elseif</span> (t_curr &lt; t2) <span class="keywordflow">then</span> <span class="comment">! Hold</span></div>
 <div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>             current_omega = 0.0_rp</div>
@@ -341,7 +341,7 @@ $(document).ready(function(){initNavTree('da/d01/ale__rigid__kinematics_8f90_sou
 <div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>             <span class="keywordflow">if</span> (t3 &gt; t2) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>                tau = (t_curr - t2) / (t3 - t2)</div>
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>                current_omega = -1.0_rp * target_rad * <a class="code hl_function" href="../../dd/d47/namespacemath.html#abefc115c94206a01926e8f91d989be53">math_dstepf</a>(tau) * &amp;</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>                      (1.0_rp / (t3 - t2))</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>                     (1.0_rp / (t3 - t2))</div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="keywordflow">             end if</span></div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="keywordflow">          end if</span></div>
 <div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>          kinematics%vel_ang(body_conf%rotation_axis) = current_omega</div>
@@ -352,81 +352,82 @@ $(document).ready(function(){initNavTree('da/d01/ale__rigid__kinematics_8f90_sou
 <div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>       <span class="comment">! Journal of Fluid Mechanics 861 (2019): 860-885.</span></div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>       <span class="comment">! and</span></div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>       <span class="comment">! Visbal, Miguel R., and J. S. Shang.</span></div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       <span class="comment">! &quot;Investigation of the flow structure around a rapidly pitching airfoil.&quot;</span></div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>       <span class="comment">! AIAA journal 27.8 (1989): 1044-1051.</span></div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;ramp&#39;</span>)</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>       <span class="keywordflow">do</span> i = 1, 3</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>          <span class="keywordflow">if</span> (body_conf%ramp_t0(i) &gt; 0.0_rp .and. &amp;</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>                abs(body_conf%ramp_omega0(i)) &gt; 0.0_rp) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>             ex_term = exp(-4.6_rp * time%t / body_conf%ramp_t0(i))</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>             kinematics%vel_ang(i) = body_conf%ramp_omega0(i) * &amp;</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>                   (1.0_rp - ex_term)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;harmonic&#39;</span>)</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>       <span class="keywordflow">do</span> i = 1, 3</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          <span class="keywordflow">if</span> (abs(body_conf%rot_amp_degree(i)) &gt; 0.0_rp) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>             amp_scalar = body_conf%rot_amp_degree(i) * (<a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a> / 180.0_rp)</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>             w_scalar = body_conf%rot_freq(i) * 2.0_rp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>             kinematics%vel_ang(i) = w_scalar * amp_scalar * &amp;</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                   cos(w_scalar * time%t)</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keywordflow">    end select</span></div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>       <span class="comment">! &quot;Investigation of the flow structure around a rapidly</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>       <span class="comment">! pitching airfoil.&quot;</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>       <span class="comment">! AIAA journal 27.8 (1989): 1044-1051.</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;ramp&#39;</span>)</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>       <span class="keywordflow">do</span> i = 1, 3</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>          <span class="keywordflow">if</span> (body_conf%ramp_t0(i) &gt; 0.0_rp .and. &amp;</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>               abs(body_conf%ramp_omega0(i)) &gt; 0.0_rp) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>             ex_term = exp(-4.6_rp * time%t / body_conf%ramp_t0(i))</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>             kinematics%vel_ang(i) = body_conf%ramp_omega0(i) * &amp;</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>                  (1.0_rp - ex_term)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;harmonic&#39;</span>)</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>       <span class="keywordflow">do</span> i = 1, 3</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>          <span class="keywordflow">if</span> (abs(body_conf%rot_amp_degree(i)) &gt; 0.0_rp) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>             amp_scalar = body_conf%rot_amp_degree(i) * (<a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a> / 180.0_rp)</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>             w_scalar = body_conf%rot_freq(i) * 2.0_rp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a></div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>             kinematics%vel_ang(i) = w_scalar * amp_scalar * &amp;</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>                  cos(w_scalar * time%t)</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span> </div>
 </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a082cfde8889f407134e0ada3a33e8e8f">compute_body_kinematics_built_in</a></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="foldopen" id="foldopen00291" data-start="" data-end="">
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno"><a class="line" href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659">  291</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659">update_pivot_location</a>(pivot, pivot_loc, pivot_vel, time, &amp;</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>       nadv, body_conf)</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/ddf/structale__rigid__kinematics_1_1pivot__state__t.html">pivot_state_t</a>), <span class="keywordtype">intent(inout)</span> :: pivot</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(out)</span> :: pivot_loc(3)</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: pivot_vel(3)</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nadv</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d9d/structale__rigid__kinematics_1_1ale__body__t.html">ale_body_t</a>), <span class="keywordtype">intent(in)</span> :: body_conf</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: omega_osc(3), trans_disp(3)</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keywordflow">select case</span> (trim(body_conf%rotation_center_type))</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>       <span class="comment">! This mode uses vel_trans to move the pivot by integrating the velocity</span></div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;relative&#39;</span>)</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>       <span class="keywordflow">if</span> (time%tstep &gt; 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c">ab_integrate_point_pos</a>(pivot%pos, pivot%vel_lag, &amp;</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>               pivot_vel, time, nadv)</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>       pivot_loc = pivot%pos</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>       <span class="comment">! Mostly for validation. It&#39;s too restrictive.</span></div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>       <span class="comment">! maybe I remove it totally in future.</span></div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;relative_sin&#39;</span>)</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       omega_osc = body_conf%osc_freq * 2.0_rp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a></div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>       trans_disp(1) = body_conf%osc_amp(1) * sin(omega_osc(1) * time%t)</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>       trans_disp(2) = body_conf%osc_amp(2) * sin(omega_osc(2) * time%t)</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>       trans_disp(3) = body_conf%osc_amp(3) * sin(omega_osc(3) * time%t)</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>       pivot_loc = body_conf%rot_center + trans_disp</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>       pivot%pos = pivot_loc</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a082cfde8889f407134e0ada3a33e8e8f">compute_body_kinematics_built_in</a></div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span> </div>
+<div class="foldopen" id="foldopen00292" data-start="" data-end="">
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno"><a class="line" href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659">  292</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659">update_pivot_location</a>(pivot, pivot_loc, pivot_vel, time, &amp;</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>       nadv, body_conf)</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d6/ddf/structale__rigid__kinematics_1_1pivot__state__t.html">pivot_state_t</a>), <span class="keywordtype">intent(inout)</span> :: pivot</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(out)</span> :: pivot_loc(3)</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: pivot_vel(3)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nadv</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d9d/structale__rigid__kinematics_1_1ale__body__t.html">ale_body_t</a>), <span class="keywordtype">intent(in)</span> :: body_conf</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: omega_osc(3), trans_disp(3)</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keywordflow">select case</span> (trim(body_conf%rotation_center_type))</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>       <span class="comment">! This mode uses vel_trans to move the pivot by integrating the velocity</span></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;relative&#39;</span>)</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>       <span class="keywordflow">if</span> (time%tstep &gt; 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c">ab_integrate_point_pos</a>(pivot%pos, pivot%vel_lag, &amp;</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>               pivot_vel, time, nadv)</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>       pivot_loc = pivot%pos</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>       <span class="comment">! Mostly for validation. It&#39;s too restrictive.</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>       <span class="comment">! maybe I remove it totally in future.</span></div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>    <span class="keywordflow">case</span> (<span class="stringliteral">&#39;relative_sin&#39;</span>)</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>       omega_osc = body_conf%osc_freq * 2.0_rp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a></div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>       trans_disp(1) = body_conf%osc_amp(1) * sin(omega_osc(1) * time%t)</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>       trans_disp(2) = body_conf%osc_amp(2) * sin(omega_osc(2) * time%t)</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>       trans_disp(3) = body_conf%osc_amp(3) * sin(omega_osc(3) * time%t)</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>       pivot_loc = body_conf%rot_center + trans_disp</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>       pivot%pos = pivot_loc</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="keywordflow">    end select</span></div>
 </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659">update_pivot_location</a></div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d1/d65/namespaceale__rigid__kinematics.html">ale_rigid_kinematics</a></div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659">update_pivot_location</a></div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span> </div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d1/d65/namespaceale__rigid__kinematics.html">ale_rigid_kinematics</a></div>
 <div class="ttc" id="anamespaceab__time__scheme_html"><div class="ttname"><a href="../../dc/df5/namespaceab__time__scheme.html">ab_time_scheme</a></div><div class="ttdoc">Adam-Bashforth scheme for time integration.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d46/ab__time__scheme_8f90_source.html#l00061">ab_time_scheme.f90:61</a></div></div>
 <div class="ttc" id="anamespaceale__rigid__kinematics_html"><div class="ttname"><a href="../../d1/d65/namespaceale__rigid__kinematics.html">ale_rigid_kinematics</a></div><div class="ttdoc">Defines data structures and algorithms for configuring, calculating, and time-integrating the rigid-b...</div><div class="ttdef"><b>Definition</b> <a href="../../da/d01/ale__rigid__kinematics_8f90_source.html#l00038">ale_rigid_kinematics.f90:38</a></div></div>
 <div class="ttc" id="anamespaceale__rigid__kinematics_html_a082cfde8889f407134e0ada3a33e8e8f"><div class="ttname"><a href="../../d1/d65/namespaceale__rigid__kinematics.html#a082cfde8889f407134e0ada3a33e8e8f">ale_rigid_kinematics::compute_body_kinematics_built_in</a></div><div class="ttdeci">subroutine, public compute_body_kinematics_built_in(kinematics, body_conf, time)</div><div class="ttdoc">Compute built-in kinematics for a body. Uses inputs from JSON. CPU-only.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d01/ale__rigid__kinematics_8f90_source.html#l00208">ale_rigid_kinematics.f90:209</a></div></div>
 <div class="ttc" id="anamespaceale__rigid__kinematics_html_a257f12f49ce4612c972e7dd418e35f8c"><div class="ttname"><a href="../../d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c">ale_rigid_kinematics::ab_integrate_point_pos</a></div><div class="ttdeci">subroutine, public ab_integrate_point_pos(pos, vel_lag, current_vel, time, nadv)</div><div class="ttdoc">Advance a single point position (x,y,z) from the point's velocity using AB time-integration.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d01/ale__rigid__kinematics_8f90_source.html#l00152">ale_rigid_kinematics.f90:153</a></div></div>
 <div class="ttc" id="anamespaceale__rigid__kinematics_html_a2bf9b37c78f6c41adaeca3d64750eac9"><div class="ttname"><a href="../../d1/d65/namespaceale__rigid__kinematics.html#a2bf9b37c78f6c41adaeca3d64750eac9">ale_rigid_kinematics::advance_point_tracker</a></div><div class="ttdeci">subroutine, public advance_point_tracker(tracker, current_vel, time, nadv)</div><div class="ttdoc">Updates the point tracker's position and velocity history using AB time integration based on the curr...</div><div class="ttdef"><b>Definition</b> <a href="../../da/d01/ale__rigid__kinematics_8f90_source.html#l00195">ale_rigid_kinematics.f90:196</a></div></div>
 <div class="ttc" id="anamespaceale__rigid__kinematics_html_a739218ae2456939a6ceefb1ad4128845"><div class="ttname"><a href="../../d1/d65/namespaceale__rigid__kinematics.html#a739218ae2456939a6ceefb1ad4128845">ale_rigid_kinematics::init_pivot_state</a></div><div class="ttdeci">subroutine, public init_pivot_state(pivot, body_conf)</div><div class="ttdoc">Initialize pivot state.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d01/ale__rigid__kinematics_8f90_source.html#l00142">ale_rigid_kinematics.f90:143</a></div></div>
-<div class="ttc" id="anamespaceale__rigid__kinematics_html_a9dc6bcd441b7b4f7b6134132fd290659"><div class="ttname"><a href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659">ale_rigid_kinematics::update_pivot_location</a></div><div class="ttdeci">subroutine, public update_pivot_location(pivot, pivot_loc, pivot_vel, time, nadv, body_conf)</div><div class="ttdoc">Updates pivot location.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d01/ale__rigid__kinematics_8f90_source.html#l00291">ale_rigid_kinematics.f90:293</a></div></div>
+<div class="ttc" id="anamespaceale__rigid__kinematics_html_a9dc6bcd441b7b4f7b6134132fd290659"><div class="ttname"><a href="../../d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659">ale_rigid_kinematics::update_pivot_location</a></div><div class="ttdeci">subroutine, public update_pivot_location(pivot, pivot_loc, pivot_vel, time, nadv, body_conf)</div><div class="ttdoc">Updates pivot location.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d01/ale__rigid__kinematics_8f90_source.html#l00292">ale_rigid_kinematics.f90:294</a></div></div>
 <div class="ttc" id="anamespacelogger_html"><div class="ttname"><a href="../../d8/da0/namespacelogger.html">logger</a></div><div class="ttdoc">Logging routines.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00034">log.f90:34</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d53/log_8f90_source.html#l00080">log.f90:80</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
 <div class="ttc" id="anamespacemath_html_a1c75995bac3527a6a86559b0555e7ddb"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">math::pi</a></div><div class="ttdeci">real(kind=rp), parameter, public pi</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00076">math.f90:76</a></div></div>
-<div class="ttc" id="anamespacemath_html_abefc115c94206a01926e8f91d989be53"><div class="ttname"><a href="../../dd/d47/namespacemath.html#abefc115c94206a01926e8f91d989be53">math::math_dstepf</a></div><div class="ttdeci">real(kind=rp) function, public math_dstepf(x)</div><div class="ttdoc">Derivative of math_stepf with respect to x: d(stepf)/dx.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l01848">math.f90:1849</a></div></div>
-<div class="ttc" id="anamespacemath_html_accd3b06fc22b453552cc46d0fbf80677"><div class="ttname"><a href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">math::rzero</a></div><div class="ttdeci">subroutine, public rzero(a, n)</div><div class="ttdoc">Zero a real vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00232">math.f90:233</a></div></div>
+<div class="ttc" id="anamespacemath_html_abefc115c94206a01926e8f91d989be53"><div class="ttname"><a href="../../dd/d47/namespacemath.html#abefc115c94206a01926e8f91d989be53">math::math_dstepf</a></div><div class="ttdeci">real(kind=rp) function, public math_dstepf(x)</div><div class="ttdoc">Derivative of math_stepf with respect to x: d(stepf)/dx.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l01850">math.f90:1851</a></div></div>
+<div class="ttc" id="anamespacemath_html_accd3b06fc22b453552cc46d0fbf80677"><div class="ttname"><a href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">math::rzero</a></div><div class="ttdeci">subroutine, public rzero(a, n)</div><div class="ttdoc">Zero a real vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00234">math.f90:235</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespacetime__state_html"><div class="ttname"><a href="../../d8/d92/namespacetime__state.html">time_state</a></div><div class="ttdoc">Module with things related to the simulation time.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/dd6/time__state_8f90_source.html#l00034">time_state.f90:34</a></div></div>
@@ -444,7 +445,7 @@ $(document).ready(function(){initNavTree('da/d01/ale__rigid__kinematics_8f90_sou
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_391bd94a2158f4efe3737861093ee88d.html">ale</a></li><li class="navelem"><a class="el" href="../../da/d01/ale__rigid__kinematics_8f90.html">ale_rigid_kinematics.f90</a></li>
-    <li class="footer">Generated on Thu Jun 18 2026 05:07:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jun 19 2026 05:16:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

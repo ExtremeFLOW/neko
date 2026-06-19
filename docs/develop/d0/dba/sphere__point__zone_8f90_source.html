@@ -187,15 +187,15 @@ $(document).ready(function(){initNavTree('d0/dba/sphere__point__zone_8f90_source
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(json, <span class="stringliteral">&quot;invert&quot;</span>, invert, .false.)</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(json, <span class="stringliteral">&quot;full_elements&quot;</span>, full_elements, .false.)</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d9/dfe/namespacesphere__point__zone.html#aa2c1e85902df89c165c3dd4b39512008">sphere_point_zone_init_common</a>(this, <span class="keyword">size</span>, trim(str_read), invert, full_elements, &amp;</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>         x0, y0, z0, radius)</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d9/dfe/namespacesphere__point__zone.html#aa2c1e85902df89c165c3dd4b39512008">sphere_point_zone_init_common</a>(this, <span class="keyword">size</span>, trim(str_read), invert, &amp;</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>         full_elements, x0, y0, z0, radius)</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
 </div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d9/dfe/namespacesphere__point__zone.html#a5dd7ec1f15f8f73e4cf9fa505e389862">sphere_point_zone_init_from_json</a></div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
 <div class="foldopen" id="foldopen00104" data-start="" data-end="">
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="../../d9/dfe/namespacesphere__point__zone.html#aa2c1e85902df89c165c3dd4b39512008">  104</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/dfe/namespacesphere__point__zone.html#aa2c1e85902df89c165c3dd4b39512008">sphere_point_zone_init_common</a>(this, size, name, invert, full_elements, &amp;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       x0, y0, z0, radius)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="../../d9/dfe/namespacesphere__point__zone.html#aa2c1e85902df89c165c3dd4b39512008">  104</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d9/dfe/namespacesphere__point__zone.html#aa2c1e85902df89c165c3dd4b39512008">sphere_point_zone_init_common</a>(this, size, name, invert, &amp;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>       full_elements, x0, y0, z0, radius)</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html">sphere_point_zone_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: size</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: name</div>
@@ -278,7 +278,7 @@ $(document).ready(function(){initNavTree('d0/dba/sphere__point__zone_8f90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../dir_50e88b1e88c285dbd74227451053c4ad.html">point_zones</a></li><li class="navelem"><a class="el" href="../../d0/dba/sphere__point__zone_8f90.html">sphere_point_zone.f90</a></li>
-    <li class="footer">Generated on Thu Jun 18 2026 05:07:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jun 19 2026 05:16:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

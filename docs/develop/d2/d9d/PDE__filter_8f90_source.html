@@ -323,96 +323,97 @@ $(document).ready(function(){initNavTree('d2/d9d/PDE__filter_8f90_source.html','
 <div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="comment">! set up Helmholtz operators and RHS</span></div>
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>(this%coef%h1_d, (this%r / (2.0_rp * sqrt(3.0_rp)))**2, n)</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>(this%coef%h2_d, 1.0_rp, n)</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>       <span class="comment">! h1 is already negative in its definition</span></div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>       this%coef%h1 = (this%r / (2.0_rp * sqrt(3.0_rp)))**2</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>       <span class="comment">! ax_helm includes the mass matrix in h2</span></div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>       this%coef%h2 = 1.0_rp</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    this%coef%ifh2 = .true.</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="comment">! compute the A(F_in) component of the RHS</span></div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="comment">! (note, to be safe with the inout intent we first copy F_in to the</span></div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="comment">!  temporary d_F_out)</span></div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad">field_copy</a>(d_f_out, f_in)</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keyword">call </span>this%Ax%compute(rhs%x, d_f_out%x, this%coef, this%coef%msh, &amp;</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>         this%coef%Xh)</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span> </div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#aa2bae1e5f8437356c3c44335559bc98c">device_subcol3</a>(rhs%x_d, f_in%x_d, this%coef%B_d, n)</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89">device_cmult</a>(rhs%x_d, -1.0_rp, n)</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>       <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>          <span class="comment">! mass matrix should be included here</span></div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>          rhs%x(i,1,1,1) = f_in%x(i,1,1,1) * this%coef%B(i,1,1,1) &amp;</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>               - rhs%x(i,1,1,1)</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="comment">! gather scatter</span></div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keyword">call </span>this%coef%gs_h%op(rhs, gs_op_add)</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="comment">! set BCs</span></div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keyword">call </span>this%bclst_filt%apply_scalar(rhs%x, n)</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="comment">! Solve Helmholtz equation</span></div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;filter solve&quot;</span>)</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    this%ksp_results(1) = &amp;</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>         this%ksp_filt%solve(this%Ax, d_f_out, rhs%x, n, this%coef, &amp;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>         this%bclst_filt, this%coef%gs_h)</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="comment">! add result</span></div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#ab68b2e2988093e76afe89ebfd50da67e">field_add3</a>(f_out, f_in, d_f_out)</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="comment">! update preconditioner (needed?)</span></div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="keyword">call </span>this%pc_filt%update()</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <span class="comment">! write it all out</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(<span class="stringliteral">&#39;PDE Filter&#39;</span>)</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) <span class="stringliteral">&#39;Iterations:   &#39;</span>, <span class="stringliteral">&#39;Start residual:     &#39;</span>, &amp;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>         <span class="stringliteral">&#39;Final residual:&#39;</span></div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(I11,3x, E15.7,5x, E15.7)&#39;</span>) this%ksp_results%iter, &amp;</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>         this%ksp_results%res_start, this%ksp_results%res_final</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(temp_indices)</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>(this%coef%h1_d, &amp;</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>            (this%r / (2.0_rp * sqrt(3.0_rp)))**2, n)</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>(this%coef%h2_d, 1.0_rp, n)</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>       <span class="comment">! h1 is already negative in its definition</span></div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>       this%coef%h1 = (this%r / (2.0_rp * sqrt(3.0_rp)))**2</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>       <span class="comment">! ax_helm includes the mass matrix in h2</span></div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>       this%coef%h2 = 1.0_rp</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    this%coef%ifh2 = .true.</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="comment">! compute the A(F_in) component of the RHS</span></div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="comment">! (note, to be safe with the inout intent we first copy F_in to the</span></div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    <span class="comment">!  temporary d_F_out)</span></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad">field_copy</a>(d_f_out, f_in)</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keyword">call </span>this%Ax%compute(rhs%x, d_f_out%x, this%coef, this%coef%msh, &amp;</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>         this%coef%Xh)</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#aa2bae1e5f8437356c3c44335559bc98c">device_subcol3</a>(rhs%x_d, f_in%x_d, this%coef%B_d, n)</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89">device_cmult</a>(rhs%x_d, -1.0_rp, n)</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>       <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>          <span class="comment">! mass matrix should be included here</span></div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>          rhs%x(i,1,1,1) = f_in%x(i,1,1,1) * this%coef%B(i,1,1,1) &amp;</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>               - rhs%x(i,1,1,1)</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="comment">! gather scatter</span></div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keyword">call </span>this%coef%gs_h%op(rhs, gs_op_add)</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="comment">! set BCs</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keyword">call </span>this%bclst_filt%apply_scalar(rhs%x, n)</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="comment">! Solve Helmholtz equation</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&quot;filter solve&quot;</span>)</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    this%ksp_results(1) = &amp;</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>         this%ksp_filt%solve(this%Ax, d_f_out, rhs%x, n, this%coef, &amp;</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>         this%bclst_filt, this%coef%gs_h)</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span> </div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <span class="comment">! add result</span></div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d5/de6/namespacefield__math.html#ab68b2e2988093e76afe89ebfd50da67e">field_add3</a>(f_out, f_in, d_f_out)</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="comment">! update preconditioner (needed?)</span></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keyword">call </span>this%pc_filt%update()</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    <span class="comment">! write it all out</span></div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(<span class="stringliteral">&#39;PDE Filter&#39;</span>)</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,A,A)&#39;</span>) <span class="stringliteral">&#39;Iterations:   &#39;</span>, <span class="stringliteral">&#39;Start residual:     &#39;</span>, &amp;</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>         <span class="stringliteral">&#39;Final residual:&#39;</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(I11,3x, E15.7,5x, E15.7)&#39;</span>) this%ksp_results%iter, &amp;</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>         this%ksp_results%res_start, this%ksp_results%res_final</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span> </div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(temp_indices)</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
 </div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d">pde_filter_apply</a></div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="foldopen" id="foldopen00297" data-start="" data-end="">
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno"><a class="line" href="../../d8/da5/namespacepde__filter.html#a655a3cdfba150149fc594d7f6fdd7a0f">  297</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da5/namespacepde__filter.html#a655a3cdfba150149fc594d7f6fdd7a0f">filter_precon_factory</a>(pc, ksp, coef, dof, gs, bclst, pctype)</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <span class="keywordtype">allocatable</span>, <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: ksp</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: dof</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: gs</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: bclst</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordtype">character(len=*)</span> :: pctype</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <span class="keyword">call </span>precon_factory(pc, pctype)</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <span class="keywordflow">select type</span> (pcp =&gt; pc)</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a>)</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../d4/d41/structsx__jacobi_1_1sx__jacobi__t.html">sx_jacobi_t</a>)</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a>)</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span><span class="keywordflow">    end select</span></div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keyword">call </span>ksp%set_pc(pc)</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d">pde_filter_apply</a></div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="foldopen" id="foldopen00298" data-start="" data-end="">
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno"><a class="line" href="../../d8/da5/namespacepde__filter.html#a655a3cdfba150149fc594d7f6fdd7a0f">  298</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da5/namespacepde__filter.html#a655a3cdfba150149fc594d7f6fdd7a0f">filter_precon_factory</a>(pc, ksp, coef, dof, gs, bclst, pctype)</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <span class="keywordtype">allocatable</span>, <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: ksp</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: dof</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: gs</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: bclst</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <span class="keywordtype">character(len=*)</span> :: pctype</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    <span class="keyword">call </span>precon_factory(pc, pctype)</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    <span class="keywordflow">select type</span> (pcp =&gt; pc)</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a>)</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../d4/d41/structsx__jacobi_1_1sx__jacobi__t.html">sx_jacobi_t</a>)</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a>)</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <span class="keyword">call </span>ksp%set_pc(pc)</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
 </div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da5/namespacepde__filter.html#a655a3cdfba150149fc594d7f6fdd7a0f">filter_precon_factory</a></div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d8/da5/namespacepde__filter.html">pde_filter</a></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da5/namespacepde__filter.html#a655a3cdfba150149fc594d7f6fdd7a0f">filter_precon_factory</a></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d8/da5/namespacepde__filter.html">pde_filter</a></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00068">json_utils.f90:68</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00059">json_utils.f90:59</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
@@ -449,7 +450,7 @@ $(document).ready(function(){initNavTree('d2/d9d/PDE__filter_8f90_source.html','
 <div class="ttc" id="anamespacepde__filter_html"><div class="ttname"><a href="../../d8/da5/namespacepde__filter.html">pde_filter</a></div><div class="ttdoc">A PDE based filter.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00036">PDE_filter.f90:36</a></div></div>
 <div class="ttc" id="anamespacepde__filter_html_a1d2ca2d7d14338bcf6f56dda533807ac"><div class="ttname"><a href="../../d8/da5/namespacepde__filter.html#a1d2ca2d7d14338bcf6f56dda533807ac">pde_filter::pde_filter_free</a></div><div class="ttdeci">subroutine pde_filter_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00174">PDE_filter.f90:175</a></div></div>
 <div class="ttc" id="anamespacepde__filter_html_a6314a94823393c31374536edb6b4558c"><div class="ttname"><a href="../../d8/da5/namespacepde__filter.html#a6314a94823393c31374536edb6b4558c">pde_filter::pde_filter_init_from_json</a></div><div class="ttdeci">subroutine pde_filter_init_from_json(this, json, coef)</div><div class="ttdoc">Constructor from json.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00115">PDE_filter.f90:116</a></div></div>
-<div class="ttc" id="anamespacepde__filter_html_a655a3cdfba150149fc594d7f6fdd7a0f"><div class="ttname"><a href="../../d8/da5/namespacepde__filter.html#a655a3cdfba150149fc594d7f6fdd7a0f">pde_filter::filter_precon_factory</a></div><div class="ttdeci">subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)</div><div class="ttdoc">Initialize a Krylov preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00297">PDE_filter.f90:298</a></div></div>
+<div class="ttc" id="anamespacepde__filter_html_a655a3cdfba150149fc594d7f6fdd7a0f"><div class="ttname"><a href="../../d8/da5/namespacepde__filter.html#a655a3cdfba150149fc594d7f6fdd7a0f">pde_filter::filter_precon_factory</a></div><div class="ttdeci">subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)</div><div class="ttdoc">Initialize a Krylov preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00298">PDE_filter.f90:299</a></div></div>
 <div class="ttc" id="anamespacepde__filter_html_ab75503909e84867392a2c5140c9ace08"><div class="ttname"><a href="../../d8/da5/namespacepde__filter.html#ab75503909e84867392a2c5140c9ace08">pde_filter::pde_filter_init_from_components</a></div><div class="ttdeci">subroutine pde_filter_init_from_components(this, coef, r, tol, max_iter, ksp_solver, precon_type)</div><div class="ttdoc">Actual constructor.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00136">PDE_filter.f90:138</a></div></div>
 <div class="ttc" id="anamespacepde__filter_html_aed804b27a5deacc75f58d30f5b2bd65d"><div class="ttname"><a href="../../d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d">pde_filter::pde_filter_apply</a></div><div class="ttdeci">subroutine pde_filter_apply(this, f_out, f_in)</div><div class="ttdoc">Apply the filter.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00209">PDE_filter.f90:210</a></div></div>
 <div class="ttc" id="anamespacepnpn__residual_html"><div class="ttname"><a href="../../db/dea/namespacepnpn__residual.html">pnpn_residual</a></div><div class="ttdoc">Defines Pressure and velocity residuals in the Pn-Pn formulation.</div><div class="ttdef"><b>Definition</b> <a href="../../da/d32/pnpn__res_8f90_source.html#l00034">pnpn_res.f90:34</a></div></div>
@@ -486,7 +487,7 @@ $(document).ready(function(){initNavTree('d2/d9d/PDE__filter_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_8681a82a265081a91d191144ff606af9.html">filter</a></li><li class="navelem"><a class="el" href="../../d2/d9d/PDE__filter_8f90.html">PDE_filter.f90</a></li>
-    <li class="footer">Generated on Thu Jun 18 2026 05:07:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jun 19 2026 05:16:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
