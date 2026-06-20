@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added HIP and CUDA support for ALE.
 - Added `spatial_average` simcomp for spatially averaging a list of registered
   fields.
 - Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.

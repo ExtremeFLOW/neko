@@ -475,34 +475,36 @@ contains
           rot_offset(3) = this%body_R(3,1)*this%local_offset(1) + &
                this%body_R(3,2)*this%local_offset(2) + &
                this%body_R(3,3)*this%local_offset(3)
-
           this%center = this%body_P + rot_offset
        end if
     end if
 
     if (this%update_normals) then
-
        call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
             this%n1, this%n2, this%n3, n_pts)
 
-       call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
-            this%u%size(), n_pts)
-       call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
-            this%u%size(), n_pts)
-       call masked_gather_copy_0(this%r3%x, this%coef%dof%z, this%bc%msk, &
-            this%u%size(), n_pts)
+       if ((NEKO_BCKND_DEVICE .eq. 1) .and. (n_pts .gt. 0)) then
+          call device_masked_gather_copy_0(this%r1%x_d, this%coef%dof%x_d, &
+               this%bc%msk_d, this%u%size(), n_pts)
+          call device_masked_gather_copy_0(this%r2%x_d, this%coef%dof%y_d, &
+               this%bc%msk_d, this%u%size(), n_pts)
+          call device_masked_gather_copy_0(this%r3%x_d, this%coef%dof%z_d, &
+               this%bc%msk_d, this%u%size(), n_pts)
 
-       call cadd(this%r1%x, -this%center(1), n_pts)
-       call cadd(this%r2%x, -this%center(2), n_pts)
-       call cadd(this%r3%x, -this%center(3), n_pts)
+          call device_cadd(this%r1%x_d, -this%center(1), n_pts)
+          call device_cadd(this%r2%x_d, -this%center(2), n_pts)
+          call device_cadd(this%r3%x_d, -this%center(3), n_pts)
+       else
+          call masked_gather_copy_0(this%r1%x, this%coef%dof%x, this%bc%msk, &
+               this%u%size(), n_pts)
+          call masked_gather_copy_0(this%r2%x, this%coef%dof%y, this%bc%msk, &
+               this%u%size(), n_pts)
+          call masked_gather_copy_0(this%r3%x, this%coef%dof%z, this%bc%msk, &
+               this%u%size(), n_pts)
 
-       if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
-          call device_memcpy(this%r1%x, this%r1%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%r2%x, this%r2%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%r3%x, this%r3%x_d, n_pts, &
-               HOST_TO_DEVICE, .true.)
+          call cadd(this%r1%x, -this%center(1), n_pts)
+          call cadd(this%r2%x, -this%center(2), n_pts)
+          call cadd(this%r3%x, -this%center(3), n_pts)
        end if
     end if
 

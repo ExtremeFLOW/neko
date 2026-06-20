@@ -367,7 +367,7 @@ contains
     call this%dw%init(this%dm_Xh, 'dw')
     call this%dp%init(this%dm_Xh, 'dp')
     ! Initialize ALE
-    call this%ale%init(this%c_Xh, params, user)
+    call this%ale%init(this%c_Xh, params, user, chkp)
 
     call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
@@ -440,20 +440,6 @@ contains
     this%chkp%abz1 => this%abz1
     this%chkp%abz2 => this%abz2
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
-
-    ! Add checkpoint data for ALE.
-    if (this%ale%active) then
-       call this%chkp%add_ale(this%c_Xh%dof%x, this%c_Xh%dof%y, &
-            this%c_Xh%dof%z, &
-            this%c_Xh%Blag, this%c_Xh%Blaglag, &
-            this%ale%wm_x, this%ale%wm_y, this%ale%wm_z, &
-            this%ale%wm_x_lag, this%ale%wm_y_lag, &
-            this%ale%wm_z_lag, &
-            this%ale%global_pivot_pos, &
-            this%ale%global_pivot_vel_lag, &
-            this%ale%global_basis_pos, &
-            this%ale%global_basis_vel_lag)
-    end if
 
     !> Set the number of schwarz iterations to perform each time step.
     call json_get_or_default(params, 'case.fluid.schwarz_iterations', &
@@ -570,7 +556,7 @@ contains
        end do
     end if
 
-    call this%ale%set_coef_restart(this%c_Xh, this%adv, chkp%t)
+    call this%ale%sync_chkp(this%c_Xh, this%Xh, this%adv, chkp, this%gs_Xh)
 
 
   end subroutine fluid_pnpn_restart
@@ -782,9 +768,8 @@ contains
          ! For a normal simulation (no moving mesh), Blag and Blaglag
          ! are just the initial B matrix, filled at initialization.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-              u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
-              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n, &
-              c_Xh%Blag, c_Xh%Blaglag)
+              u, v, w, c_Xh%B, c_Xh%Blag, c_Xh%Blaglag, rho%x(1,1,1,1), dt, &
+              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
 
       end if
 

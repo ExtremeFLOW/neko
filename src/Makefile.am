@@ -4,7 +4,7 @@ neko_fortran_SOURCES = \
 	ale/ale_rigid_kinematics.f90\
 	ale/ale_manager.f90\
 	ale/bcknd/cpu/ale_routines_cpu.f90\
-	ale/bcknd/ale_routines_device.F90\
+	ale/bcknd/device/ale_routines_device.F90\
 	api/neko_api.f90\
 	api/neko_api_user.f90\
 	config/num_types.f90\
@@ -476,6 +476,7 @@ endif
 
 if ENABLE_HIP
 libneko_la_SOURCES += \
+    ale/bcknd/device/hip/ale_kinematics.hip\
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
@@ -539,6 +540,7 @@ endif
 
 if ENABLE_CUDA
 libneko_la_SOURCES += \
+    ale/bcknd/device/cuda/ale_kinematics.cu\
 	device/cuda/check.cu\
 	device/cuda/nvtx_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
@@ -882,6 +884,7 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
+    ale/bcknd/device/cuda/ale_kinematics_kernel.h\
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
@@ -932,6 +935,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
+    ale/bcknd/device/hip/ale_kinematics_kernel.h\
 	wall_models/bcknd/device/cuda/most_kernel.h\
 	wall_models/bcknd/device/cuda/richardson_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\

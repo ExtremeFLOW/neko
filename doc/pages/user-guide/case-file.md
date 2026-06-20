@@ -1353,7 +1353,7 @@ The parameters for the sponge source term are summarized in the table below:
 ### Arbitrary Lagrangian-Eulerian Framework {#case-file_fluid-ale}
 Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies.
 
-@note Currently, only the CPU backend of the ALE framework is supported. GPU acceleration for ALE computations will be available in future updates.
+@note Currently, the ALE framework supports CPU backend, as well as HIP and CUDA backends for GPU acceleration.
 
 The `"ale"` block in case file is part of the `"fluid"` object, and has the following high-level structure:
 
@@ -1438,6 +1438,7 @@ Within the `"solver"` block, the parameters of the linear solver used to solve t
 | `monitor`             | Monitor residuals in the linear solver                                    | `true` or `false`              | `false`       |
 | `output_base_shape`   | Enables output of the base shape field \f$ \phi \f$                       | `true` or `false`              | `true`        |
 | `output_stiffness`    | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false`              | `false`       |
+| `import_base_shape`   | Whether to import \f$ \phi \f$ fields from file                       | `true` or `false`                | `false`       |
 
 ##### Output Files and Diagnostics
 If the output flags are enabled, Neko will generate `.fld` files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:
@@ -1446,11 +1447,12 @@ If the output flags are enabled, Neko will generate `.fld` files during the init
 * `phi_total0.f00000`: Generated if `"output_base_shape": true` **and** there is more than one body registered. Contains the sum of all base shapes (\f$ \phi_{total} = \sum \phi_i \f$).
 * `stiffness0.f00000`: Generated if `"output_stiffness": true`. Contains the global spatial mesh stiffness field \f$ h(\mathbf{x}) \f$.
 
-@attention Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
+@note Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
 
 
-@note It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
+@attention It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
 
+@note If the option `import_base_shape` is set to `true`, the Laplace solve will be skipped entirely, and the \f$ \phi \f$ fields are instead loaded from previously computed `.fld` files. When this feature is enabled, the file to be loaded for each body must be specified using the `base_shape_import_file` keyword within the `"bodies"` block.
 
 #### Mesh preview
 
@@ -1487,10 +1489,14 @@ Each individual body object accepts the following general keywords and base kine
 | `rotation`     | Sub-object defining the rotational kinematics applied to the body | JSON object                | -                  |
 | `pivot`        | Sub-object defining the center point for rotational kinematics    | JSON object                | -                  |
 | `stiff_geom`   | Sub-object defining the mesh stiffness region                     | JSON object                | -                  |
+| `base_shape_import_file` | Name of the \f$ \phi \f$ field file to import           | String ending with `f00000` | -                  |
 
-@attention The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
+@note The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
 
-@note If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+@attention If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+
+@note The `base_shape_import_file` keyword is only mandatory if the solver option `"ale.solver.import_base_shape"` is set to `true`. In this case, this keyword should be provided for **every** single registered body.
+
 
 ##### Oscillation
 
@@ -1681,9 +1687,14 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
 
 #### Restarting ALE simulations
 
-Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving `.chkp` files.
+Neko supports checkpointing and restarting for ALE simulations from `.chkp` files. No additional parameters need to be set apart from the usual configuration for saving these files.
 
-@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
+**Restart Capabilities:**
+* **Exact Restart:** Restarting from the same mesh and the same polynomial order is an exact restart.
+* **Different Polynomial Order:** Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in `BDF2` and `BDF3` time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.
+* **Different Mesh:** Restarting from a different mesh is not yet supported for ALE simulations.
+
+@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used as `"restart_file"` to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
