@@ -215,6 +215,64 @@ module compressible_ops_device
        integer(c_int), value :: n
      end subroutine opencl_update_e
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_compute_max_wave_speed(max_wave_speed_d, u_d, v_d, w_d, &
+          gamma, p_d, rho_d, n) &
+          bind(c, name = 'metal_compute_max_wave_speed')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: max_wave_speed_d, u_d, v_d, w_d, p_d, rho_d
+       real(c_rp), value :: gamma
+       integer(c_int), value :: n
+     end subroutine metal_compute_max_wave_speed
+  end interface
+
+  interface
+     subroutine metal_compute_entropy(S_d, p_d, rho_d, gamma, n) &
+          bind(c, name = 'metal_compute_entropy')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: S_d, p_d, rho_d
+       real(c_rp), value :: gamma
+       integer(c_int), value :: n
+     end subroutine metal_compute_entropy
+  end interface
+
+  interface
+     subroutine metal_update_uvw(u_d, v_d, w_d, m_x_d, &
+          m_y_d, m_z_d, rho_d, n) &
+          bind(c, name = 'metal_update_uvw')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d
+       integer(c_int), value :: n
+     end subroutine metal_update_uvw
+  end interface
+
+  interface
+     subroutine metal_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
+          p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n) &
+          bind(c, name = 'metal_update_mxyz_p_ruvw')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d
+       type(c_ptr), value :: p_d, ruvw_d, E_d
+       real(c_rp), value :: gamma
+       integer(c_int), value :: n
+     end subroutine metal_update_mxyz_p_ruvw
+  end interface
+
+  interface
+     subroutine metal_update_e(E_d, p_d, ruvw_d, gamma, n) &
+       bind(c, name = 'metal_update_e')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: p_d, E_d, ruvw_d
+       real(c_rp), value :: gamma
+       integer(c_int), value :: n
+     end subroutine metal_update_e
+  end interface
 #endif
 
   public :: compressible_ops_device_compute_max_wave_speed, &
@@ -238,6 +296,8 @@ contains
     call cuda_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
 #elif HAVE_OPENCL
     call opencl_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
+#elif HAVE_METAL
+    call metal_compute_max_wave_speed(max_wave_speed%x_d, u%x_d, v%x_d, w%x_d, gamma, p%x_d, rho%x_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -256,6 +316,8 @@ contains
     call cuda_compute_entropy(S%x_d, p%x_d, rho%x_d, gamma, n)
 #elif HAVE_OPENCL
     call opencl_compute_entropy(S%x_d, p%x_d, rho%x_d, gamma, n)
+#elif HAVE_METAL
+    call metal_compute_entropy(S%x_d, p%x_d, rho%x_d, gamma, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -275,6 +337,8 @@ contains
     call cuda_update_uvw(u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d, n)
 #elif HAVE_OPENCL
     call opencl_update_uvw(u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d, n)
+#elif HAVE_METAL
+    call metal_update_uvw(u_d, v_d, w_d, m_x_d, m_y_d, m_z_d, rho_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -299,6 +363,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
          p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n)
+#elif HAVE_METAL
+    call metal_update_mxyz_p_ruvw(m_x_d, m_y_d, m_z_d, &
+         p_d, ruvw_d, u_d, v_d, w_d, E_d, rho_d, gamma, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -319,6 +386,8 @@ contains
     call cuda_update_e(E_d, p_d, ruvw_d, gamma, n)
 #elif HAVE_OPENCL
     call opencl_update_e(E_d, p_d, ruvw_d, gamma, n)
+#elif HAVE_METAL
+    call metal_update_e(E_d, p_d, ruvw_d, gamma, n)
 #else
     call neko_error('No device backend configured')
 #endif

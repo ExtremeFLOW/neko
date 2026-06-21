@@ -4,7 +4,7 @@ neko_fortran_SOURCES = \
 	ale/ale_rigid_kinematics.f90\
 	ale/ale_manager.f90\
 	ale/bcknd/cpu/ale_routines_cpu.f90\
-	ale/bcknd/ale_routines_device.F90\
+	ale/bcknd/device/ale_routines_device.F90\
 	api/neko_api.f90\
 	api/neko_api_user.f90\
 	config/num_types.f90\
@@ -22,6 +22,7 @@ neko_fortran_SOURCES = \
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
+	comm/shmem.F90\
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
@@ -32,6 +33,8 @@ neko_fortran_SOURCES = \
 	common/system.f90\
 	common/runtime_statistics.f90\
 	common/user_access_singleton.f90\
+	data_types/host_array.f90\
+	data_types/device_array.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
@@ -57,6 +60,8 @@ neko_fortran_SOURCES = \
 	gs/gs_ops.f90\
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
+	gs/gs_shmem.F90\
+	gs/gs_caf.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
@@ -89,6 +94,7 @@ neko_fortran_SOURCES = \
 	mesh/tri_mesh.f90\
 	mesh/intersection_detector.f90\
 	field/field.f90\
+	field/field_array.f90\
 	field/field_list.f90\
 	field/field_series.f90\
 	field/field_series_list.f90\
@@ -124,6 +130,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	math/vector_series.f90\
 	math/vector_list.f90\
 	math/vector_math.f90\
 	registries/registry.f90\
@@ -165,6 +172,7 @@ neko_fortran_SOURCES = \
 	io/fluid_sgs_stats_output.f90\
 	io/scalar_stats_output.f90\
 	io/scalar_sgs_stats_output.f90\
+	io/spatial_average_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	global_interpolation/global_interpolation.f90\
@@ -227,6 +235,7 @@ neko_fortran_SOURCES = \
 	time_schemes/time_scheme.f90\
 	time_schemes/bdf_time_scheme.f90\
 	time_schemes/ext_time_scheme.f90\
+	time_schemes/iextm_time_scheme.f90\
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
 	time_schemes/runge_kutta_scheme.f90\
@@ -237,6 +246,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
 	simulation_components/boundary_operation.f90\
+	simulation_components/boundary_flux.f90\
 	simulation_components/data_streamer_simcomp.F90\
 	simulation_components/field_subsampler.f90\
 	simulation_components/force_torque.f90\
@@ -244,6 +254,7 @@ neko_fortran_SOURCES = \
 	simulation_components/fluid_sgs_stats_simcomp.f90\
 	simulation_components/scalar_stats_simcomp.f90\
 	simulation_components/scalar_sgs_stats_simcomp.f90\
+	simulation_components/spatial_average.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
@@ -316,12 +327,14 @@ neko_fortran_SOURCES = \
 	device/hip/roctx.F90\
 	device/opencl_intf.F90\
 	device/opencl/prgm_lib.F90\
+	device/metal_intf.F90\
 	device/device.F90\
 	math/field_math.f90\
 	math/bcknd/device/device_math.F90\
 	math/bcknd/device/hip/hip_math.f90\
 	math/bcknd/device/cuda/cuda_math.f90\
 	math/bcknd/device/opencl/opencl_math.f90\
+	math/bcknd/device/metal/metal_math.f90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
 	math/bcknd/device/fdm_device.F90\
@@ -391,6 +404,7 @@ neko_fortran_SOURCES = \
 	filter/bcknd/device/cuda/cuda_mappings.f90\
 	filter/bcknd/device/hip/hip_mappings.f90\
 	filter/bcknd/device/opencl/opencl_mappings.f90\
+	filter/bcknd/device/metal/metal_mappings.f90\
 	source_terms/gradient_jump_penalty.f90\
 	source_terms/bcknd/device/device_gradient_jump_penalty.F90\
 	les/les_model.f90\
@@ -424,8 +438,11 @@ neko_fortran_SOURCES = \
 	wall_models/wall_model.f90\
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/spalding.f90\
+	wall_models/cai_sagaut_model_ii.f90\
 	wall_models/bcknd/cpu/spalding_cpu.f90\
+	wall_models/bcknd/cpu/cai_sagaut_model_ii_cpu.f90\
 	wall_models/bcknd/device/spalding_device.F90\
+	wall_models/bcknd/device/cai_sagaut_model_ii_device.F90\
 	wall_models/rough_log_law.f90\
 	wall_models/bcknd/cpu/rough_log_law_cpu.f90\
 	wall_models/bcknd/device/rough_log_law_device.F90\
@@ -452,12 +469,15 @@ libneko_la_SOURCES = \
 	$(neko_fortran_SOURCES)\
 	$(neko_c_SOURCES)
 
+libneko_la_LIBADD =
+
 if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
 if ENABLE_HIP
 libneko_la_SOURCES += \
+    ale/bcknd/device/hip/ale_kinematics.hip\
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
@@ -511,6 +531,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/hip/deardorff_nut.hip\
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
+	wall_models/bcknd/device/hip/cai_sagaut_model_ii.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
 	wall_models/bcknd/device/hip/most.hip\
 	wall_models/bcknd/device/hip/richardson.hip\
@@ -520,7 +541,9 @@ endif
 
 if ENABLE_CUDA
 libneko_la_SOURCES += \
+    ale/bcknd/device/cuda/ale_kinematics.cu\
 	device/cuda/check.cu\
+	device/cuda/nvtx_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/schwarz.cu\
 	math/bcknd/device/cuda/tensor.cu\
@@ -575,6 +598,7 @@ libneko_la_SOURCES += \
 	comm/bcknd/device/cuda/comm_nvshmem.cu\
 	wall_models/bcknd/device/cuda/wall_model.cu\
 	wall_models/bcknd/device/cuda/spalding.cu\
+	wall_models/bcknd/device/cuda/cai_sagaut_model_ii.cu\
 	wall_models/bcknd/device/cuda/rough_log_law.cu\
 	wall_models/bcknd/device/cuda/most.cu\
 	wall_models/bcknd/device/cuda/richardson.cu\
@@ -602,6 +626,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/opencl/opr_opgrad.c\
 	math/bcknd/device/opencl/opr_lambda2.c\
 	math/bcknd/device/opencl/opr_cfl.c\
+	math/bcknd/device/opencl/opr_rotate_cyc.c\
 	math/bcknd/device/opencl/ax_helm.c\
 	math/bcknd/device/opencl/ax_helm_full.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
@@ -614,6 +639,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	bc/bcknd/device/opencl/dong_outflow.c\
+	wall_models/bcknd/device/opencl/cai_sagaut_model_ii.c\
 	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
 	fluid/stress_formulation/bcknd/device/opencl/pnpn_stress_res.c\
@@ -629,6 +655,144 @@ libneko_la_SOURCES += \
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
+endif
+
+if ENABLE_METAL
+#
+# Objective-C sources can't be added to libneko_la_SOURCES (automake
+# would require AC_PROG_OBJC and libtool lacks an OBJC tag), instead
+# wrap them with libtool via the .m.lo rule and add them to LIBADD
+#
+#
+# The embedded shader library is generated at build time and
+# requires the Metal shader compiler (enforced by configure),
+# hence nodist (it would not be buildable on non-macOS dist hosts)
+#
+nodist_libneko_la_SOURCES = device/metal/neko_metallib.c
+
+METAL_OBJS = \
+	device/metal/metal.lo\
+	math/bcknd/device/metal/math.lo\
+	math/bcknd/device/metal/ax_helm.lo\
+	math/bcknd/device/metal/tensor.lo\
+	math/bcknd/device/metal/opr_cfl.lo\
+	math/bcknd/device/metal/opr_dudxyz.lo\
+	math/bcknd/device/metal/opr_opgrad.lo\
+	math/bcknd/device/metal/opr_cdtp.lo\
+	math/bcknd/device/metal/opr_conv1.lo\
+	math/bcknd/device/metal/set_convect_rst.lo\
+	math/bcknd/device/metal/opr_convect_scalar.lo\
+	math/bcknd/device/metal/opr_lambda2.lo\
+	math/bcknd/device/metal/opr_rotate_cyc.lo\
+	math/bcknd/device/metal/schwarz.lo\
+	math/bcknd/device/metal/fdm.lo\
+	multigrid/bcknd/device/metal/amg_cheby.lo\
+	krylov/bcknd/device/metal/cheby.lo\
+	krylov/bcknd/device/metal/pc_jacobi.lo\
+	scalar/bcknd/device/metal/scalar_residual.lo\
+	math/bcknd/device/metal/mathops.lo\
+	common/bcknd/device/metal/rhs_maker.lo\
+	fluid/bcknd/device/metal/euler_res.lo\
+	fluid/bcknd/device/metal/pnpn_res.lo\
+	fluid/bcknd/device/metal/compressible_ops.lo\
+	fluid/regularization/bcknd/device/metal/entropy_viscosity.lo\
+	filter/bcknd/device/metal/mappings.lo\
+	gs/bcknd/device/metal/gs.lo\
+	sem/bcknd/device/metal/coef.lo\
+	bc/bcknd/device/metal/dirichlet.lo\
+	bc/bcknd/device/metal/inflow.lo\
+	bc/bcknd/device/metal/zero_dirichlet.lo\
+	bc/bcknd/device/metal/symmetry.lo\
+	bc/bcknd/device/metal/facet_normal.lo\
+	bc/bcknd/device/metal/neumann.lo\
+	bc/bcknd/device/metal/inhom_dirichlet.lo\
+	bc/bcknd/device/metal/dong_outflow.lo
+
+libneko_la_LIBADD += $(METAL_OBJS)
+
+dist_noinst_DATA = \
+	device/metal/metal.m\
+	math/bcknd/device/metal/math.m\
+	math/bcknd/device/metal/ax_helm.m\
+	math/bcknd/device/metal/tensor.m\
+	math/bcknd/device/metal/opr_cfl.m\
+	math/bcknd/device/metal/opr_dudxyz.m\
+	math/bcknd/device/metal/opr_opgrad.m\
+	math/bcknd/device/metal/opr_cdtp.m\
+	math/bcknd/device/metal/opr_conv1.m\
+	math/bcknd/device/metal/set_convect_rst.m\
+	math/bcknd/device/metal/opr_convect_scalar.m\
+	math/bcknd/device/metal/opr_lambda2.m\
+	math/bcknd/device/metal/opr_rotate_cyc.m\
+	math/bcknd/device/metal/schwarz.m\
+	math/bcknd/device/metal/fdm.m\
+	multigrid/bcknd/device/metal/amg_cheby.m\
+	krylov/bcknd/device/metal/pc_jacobi.m\
+	krylov/bcknd/device/metal/cheby.m\
+	scalar/bcknd/device/metal/scalar_residual.m\
+	math/bcknd/device/metal/mathops.m\
+	common/bcknd/device/metal/rhs_maker.m\
+	fluid/bcknd/device/metal/euler_res.m\
+	fluid/bcknd/device/metal/pnpn_res.m\
+	fluid/bcknd/device/metal/compressible_ops.m\
+	fluid/regularization/bcknd/device/metal/entropy_viscosity.m\
+	filter/bcknd/device/metal/mappings.m\
+	gs/bcknd/device/metal/gs.m\
+	sem/bcknd/device/metal/coef.m\
+	bc/bcknd/device/metal/dirichlet.m\
+	bc/bcknd/device/metal/inflow.m\
+	bc/bcknd/device/metal/zero_dirichlet.m\
+	bc/bcknd/device/metal/symmetry.m\
+	bc/bcknd/device/metal/facet_normal.m\
+	bc/bcknd/device/metal/neumann.m\
+	bc/bcknd/device/metal/inhom_dirichlet.m\
+	bc/bcknd/device/metal/dong_outflow.m
+
+METAL_KERNELS = \
+	math/bcknd/device/metal/math_kernel.metal\
+	math/bcknd/device/metal/ax_helm_kernel.metal\
+	math/bcknd/device/metal/tensor_kernel.metal\
+	math/bcknd/device/metal/cfl_kernel.metal\
+	math/bcknd/device/metal/dudxyz_kernel.metal\
+	math/bcknd/device/metal/opgrad_kernel.metal\
+	math/bcknd/device/metal/cdtp_kernel.metal\
+	math/bcknd/device/metal/conv1_kernel.metal\
+	math/bcknd/device/metal/set_convect_rst_kernel.metal\
+	math/bcknd/device/metal/convect_scalar_kernel.metal\
+	math/bcknd/device/metal/lambda2_kernel.metal\
+	math/bcknd/device/metal/rotate_kernel.metal\
+	math/bcknd/device/metal/schwarz_kernel.metal\
+	math/bcknd/device/metal/fdm_kernel.metal\
+	multigrid/bcknd/device/metal/amg_cheby_kernel.metal\
+	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
+	krylov/bcknd/device/metal/cheby_kernel.metal\
+	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
+	math/bcknd/device/metal/mathops_kernel.metal\
+	common/bcknd/device/metal/rhs_maker_kernel.metal\
+	fluid/bcknd/device/metal/euler_res_kernel.metal\
+	fluid/bcknd/device/metal/pnpn_res_kernel.metal\
+	fluid/bcknd/device/metal/compressible_ops_kernel.metal\
+	fluid/regularization/bcknd/device/metal/entropy_viscosity_kernel.metal\
+	filter/bcknd/device/metal/mapping_kernels.metal\
+	gs/bcknd/device/metal/gs_kernels.metal\
+	sem/bcknd/device/metal/coef_kernel.metal\
+	bc/bcknd/device/metal/dirichlet_kernel.metal\
+	bc/bcknd/device/metal/inflow_kernel.metal\
+	bc/bcknd/device/metal/zero_dirichlet_kernel.metal\
+	bc/bcknd/device/metal/symmetry_kernel.metal\
+	bc/bcknd/device/metal/facet_normal_kernel.metal\
+	bc/bcknd/device/metal/neumann_kernel.metal\
+	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
+	bc/bcknd/device/metal/dong_outflow_kernel.metal
+
+device/metal/neko_kernels.metallib: $(METAL_KERNELS)
+	$(MKDIR_P) device/metal
+	@XCRUN@ -sdk macosx metal -O2 -o $@ $^
+
+device/metal/neko_metallib.c: device/metal/neko_kernels.metallib
+	cd device/metal && xxd -i neko_kernels.metallib | \
+		$(SED) -e 's/^unsigned/const unsigned/' > neko_metallib.c
+
 endif
 
 if ENABLE_ADIOS2
@@ -662,7 +826,7 @@ if ENABLE_ADIOS2
 io/nek_adios2.lo: io/nek_adios2.cpp
 	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
-libneko_la_LIBADD = \
+libneko_la_LIBADD += \
         io/nek_adios2.lo
 
 #neko_LDADD = \
@@ -687,6 +851,12 @@ if ENABLE_CUDA
 CLEANFILES += @top_builddir@/libtool_cuda
 endif
 
+if ENABLE_METAL
+CLEANFILES += $(METAL_OBJS)\
+	device/metal/neko_kernels.metallib\
+	device/metal/neko_metallib.c
+endif
+
 if ENABLE_OPENCL
 CLEANFILES += \
 	math/bcknd/device/opencl/*.cl.h\
@@ -699,6 +869,7 @@ CLEANFILES += \
 	scalar/bcknd/device/opencl/*.cl.h\
 	sem/bcknd/device/opencl/*.cl.h\
 	source_terms/bcknd/device/opencl/*.cl.h\
+	wall_models/bcknd/device/opencl/*.cl.h\
 	filter/bcknd/device/opencl/*.cl.h\
 	common/bcknd/device/opencl/*.cl.h
 endif
@@ -714,6 +885,7 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
+    ale/bcknd/device/cuda/ale_kinematics_kernel.h\
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
@@ -762,7 +934,9 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/cuda/wall_model_kernel.h\
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
+	wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
+    ale/bcknd/device/hip/ale_kinematics_kernel.h\
 	wall_models/bcknd/device/cuda/most_kernel.h\
 	wall_models/bcknd/device/cuda/richardson_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
@@ -820,6 +994,7 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/hip/wall_model_kernel.h\
 	wall_models/bcknd/device/hip/spalding_kernel.h\
+	wall_models/bcknd/device/hip/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
 	wall_models/bcknd/device/hip/most_kernel.h\
 	wall_models/bcknd/device/hip/richardson_kernel.h\
@@ -832,6 +1007,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/bc_utils.h\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
+	wall_models/bcknd/device/opencl/cai_sagaut_model_ii_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
 	math/bcknd/device/opencl/schwarz_kernel.cl\
 	math/bcknd/device/opencl/tensor_kernel.cl\
@@ -847,6 +1023,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/set_convect_rst_kernel.cl\
 	math/bcknd/device/opencl/lambda2_kernel.cl\
 	math/bcknd/device/opencl/cfl_kernel.cl\
+	math/bcknd/device/opencl/rotate_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
 	fluid/bcknd/device/opencl/euler_res_kernel.cl\
@@ -869,6 +1046,44 @@ EXTRA_DIST = \
 	filter/bcknd/device/opencl/mapping_kernels.cl\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
+	math/bcknd/device/metal/math_kernel.metal\
+	math/bcknd/device/metal/ax_helm_kernel.metal\
+	math/bcknd/device/metal/tensor_kernel.metal\
+	math/bcknd/device/metal/cfl_kernel.metal\
+	math/bcknd/device/metal/dudxyz_kernel.metal\
+	math/bcknd/device/metal/opgrad_kernel.metal\
+	math/bcknd/device/metal/cdtp_kernel.metal\
+	math/bcknd/device/metal/conv1_kernel.metal\
+	math/bcknd/device/metal/set_convect_rst_kernel.metal\
+	math/bcknd/device/metal/convect_scalar_kernel.metal\
+	math/bcknd/device/metal/lambda2_kernel.metal\
+	math/bcknd/device/metal/rotate_kernel.metal\
+	math/bcknd/device/metal/schwarz_kernel.metal\
+	math/bcknd/device/metal/fdm_kernel.metal\
+	multigrid/bcknd/device/metal/amg_cheby_kernel.metal\
+	krylov/bcknd/device/metal/cheby_kernel.metal\
+	krylov/bcknd/device/metal/pc_jacobi_kernel.metal\
+	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
+	math/bcknd/device/metal/mathops_kernel.metal\
+	common/bcknd/device/metal/rhs_maker_kernel.metal\
+	fluid/bcknd/device/metal/euler_res_kernel.metal\
+	fluid/bcknd/device/metal/pnpn_res_kernel.metal\
+	fluid/bcknd/device/metal/compressible_ops_kernel.metal\
+	fluid/regularization/bcknd/device/metal/entropy_viscosity_kernel.metal\
+	filter/bcknd/device/metal/mapping_kernels.metal\
+	gs/bcknd/device/metal/gs_kernels.metal\
+	sem/bcknd/device/metal/coef_kernel.metal\
+	bc/bcknd/device/metal/dirichlet_kernel.metal\
+	bc/bcknd/device/metal/inflow_kernel.metal\
+	bc/bcknd/device/metal/zero_dirichlet_kernel.metal\
+	bc/bcknd/device/metal/symmetry_kernel.metal\
+	bc/bcknd/device/metal/facet_normal_kernel.metal\
+	bc/bcknd/device/metal/neumann_kernel.metal\
+	bc/bcknd/device/metal/inhom_dirichlet_kernel.metal\
+	bc/bcknd/device/metal/dong_outflow_kernel.metal\
+	bc/bcknd/device/metal/bc_utils.h\
+	bc/bcknd/device/metal/bc_shader_utils.h\
+	device/metal/check.h\
 	device/device_config.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
@@ -905,3 +1120,8 @@ libtool_cuda:
 # HIP Build rules
 .hip.lo:
 	$(LIBTOOL) --tag=CC --mode=compile $(HIPCC) @HIP_HIPCC_FLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
+
+# Metal (Objective-C) Build rules
+.m.lo:
+	$(MKDIR_P) $(@D)
+	$(LIBTOOL) --tag=CC --mode=compile $(OBJC) $(DEFS) $(CPPFLAGS) $(OBJCFLAGS) @METAL_OBJCFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<

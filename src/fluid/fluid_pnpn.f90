@@ -94,6 +94,10 @@ module fluid_pnpn
 
   type, public, extends(fluid_scheme_incompressible_t) :: fluid_pnpn_t
 
+     !> Number of schwarz-like iterations to perform each time step.
+     !! Set to 0 for no iterations.
+     integer :: schwarz_iterations = 0
+
      !> The right-hand sides in the linear solves.
      type(field_t) :: p_res, u_res, v_res, w_res
 
@@ -363,7 +367,7 @@ contains
     call this%dw%init(this%dm_Xh, 'dw')
     call this%dp%init(this%dm_Xh, 'dp')
     ! Initialize ALE
-    call this%ale%init(this%c_Xh, params, user)
+    call this%ale%init(this%c_Xh, params, user, chkp)
 
     call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
@@ -437,21 +441,13 @@ contains
     this%chkp%abz2 => this%abz2
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
-    ! Add checkpoint data for ALE.
-    if (this%ale%active) then
-       call this%chkp%add_ale(this%c_Xh%dof%x, this%c_Xh%dof%y, &
-            this%c_Xh%dof%z, &
-            this%c_Xh%Blag, this%c_Xh%Blaglag, &
-            this%ale%wm_x, this%ale%wm_y, this%ale%wm_z, &
-            this%ale%wm_x_lag, this%ale%wm_y_lag, &
-            this%ale%wm_z_lag, &
-            this%ale%global_pivot_pos, &
-            this%ale%global_pivot_vel_lag, &
-            this%ale%global_basis_pos, &
-            this%ale%global_basis_vel_lag)
-    end if
+    !> Set the number of schwarz iterations to perform each time step.
+    call json_get_or_default(params, 'case.fluid.schwarz_iterations', &
+         this%schwarz_iterations, 0)
 
     call neko_log%end_section()
+
+    nullify(bc_i, vel_bc)
 
   end subroutine fluid_pnpn_init
 
@@ -459,7 +455,6 @@ contains
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
-    type(field_t) :: u_temp, v_temp, w_temp
     integer :: i, j, n
 
     dtlag = chkp%dtlag
@@ -543,25 +538,25 @@ contains
     if (allocated(chkp%previous_mesh%elements) &
          .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
 
-       call rotate_cyc(this%u%x, this%v%x, this%w%x, 1, this%c_Xh)
+       call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
        call this%gs_Xh%op(this%u, GS_OP_ADD)
        call this%gs_Xh%op(this%v, GS_OP_ADD)
        call this%gs_Xh%op(this%w, GS_OP_ADD)
        call this%gs_Xh%op(this%p, GS_OP_ADD)
-       call rotate_cyc(this%u%x, this%v%x, this%w%x, 0, this%c_Xh)
+       call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
        do i = 1, this%ulag%size()
-          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
-               this%wlag%lf(i)%x, 1, this%c_Xh)
+          call rotate_cyc(this%ulag%lf(i), this%vlag%lf(i), &
+               this%wlag%lf(i), 1, this%c_Xh)
           call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%vlag%lf(i), GS_OP_ADD)
           call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
-          call rotate_cyc(this%ulag%lf(i)%x, this%vlag%lf(i)%x, &
-               this%wlag%lf(i)%x, 0, this%c_Xh)
+          call rotate_cyc(this%ulag%lf(i), this%vlag%lf(i), &
+               this%wlag%lf(i), 0, this%c_Xh)
        end do
     end if
 
-    call this%ale%set_coef_restart(this%c_Xh, this%adv, chkp%t)
+    call this%ale%sync_chkp(this%c_Xh, this%Xh, this%adv, chkp, this%gs_Xh)
 
 
   end subroutine fluid_pnpn_restart
@@ -676,6 +671,7 @@ contains
     integer :: n
     ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
+    integer :: iter
 
     type(file_t) :: dump_file
     class(bc_t), pointer :: bc_i
@@ -772,9 +768,8 @@ contains
          ! For a normal simulation (no moving mesh), Blag and Blaglag
          ! are just the initial B matrix, filled at initialization.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-              u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
-              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n, &
-              c_Xh%Blag, c_Xh%Blaglag)
+              u, v, w, c_Xh%B, c_Xh%Blag, c_Xh%Blaglag, rho%x(1,1,1,1), dt, &
+              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
 
       end if
 
@@ -795,122 +790,140 @@ contains
       call vlag%update()
       call wlag%update()
 
-      call this%bc_apply_vel(time, strong = .true.)
-      call this%bc_apply_prs(time)
-
       ! Update material properties if necessary
       call this%update_material_properties(time)
 
-      ! Compute pressure residual.
-      call profiler_start_region('Pressure_residual', 18)
-      call prs_res%compute(p, p_res,&
-           u, v, w, &
-           u_e, v_e, w_e, &
-           f_x, f_y, f_z, &
-           c_Xh, gs_Xh, &
-           this%bc_prs_surface, this%bc_sym_surface,&
-           Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
-           mu_tot, rho, event)
+      do iter = 1, 1 + this%schwarz_iterations
+
+         call this%bc_apply_vel(time, strong = .true.)
+         call this%bc_apply_prs(time)
+
+         ! Compute pressure residual.
+         call profiler_start_region('Pressure_residual', 18)
+         call prs_res%compute(p, p_res,&
+              u, v, w, &
+              u_e, v_e, w_e, &
+              f_x, f_y, f_z, &
+              c_Xh, gs_Xh, &
+              this%bc_prs_surface, this%bc_sym_surface,&
+              Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
+              mu_tot, rho, event)
 
 
-      ! De-mean the pressure residual when no strong pressure boundaries present
-      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
-         call device_ortho(p_res%x_d, this%glb_n_points, n)
-      else if (.not. this%prs_dirichlet) then
-         call ortho(p_res%x, this%glb_n_points, n)
-      end if
+         ! De-mean the pressure residual when no strong pressure boundaries present
+         if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
+            call device_ortho(p_res%x_d, this%glb_n_points, n)
+         else if (.not. this%prs_dirichlet) then
+            call ortho(p_res%x, this%glb_n_points, n)
+         end if
 
-      call gs_Xh%op(p_res, GS_OP_ADD, event)
-      call device_event_sync(event)
+         call gs_Xh%op(p_res, GS_OP_ADD, event)
+         call device_event_sync(event)
 
-      ! Set the residual to zero at strong pressure boundaries.
-      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
-
-
-      call profiler_end_region('Pressure_residual', 18)
-
-      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-           Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
-           string = 'Pressure')
-
-      call this%pc_prs%update()
-
-      call profiler_start_region('Pressure_solve', 3)
-
-      ! Solve for the pressure increment.
-      ksp_results(1) = &
-           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-           this%bclst_dp, gs_Xh)
-      ksp_results(1)%name = 'Pressure'
+         ! Set the residual to zero at strong pressure boundaries.
+         call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
 
 
-      call profiler_end_region('Pressure_solve', 3)
+         call profiler_end_region('Pressure_residual', 18)
 
-      call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-           this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+         ! Do projections only on the actual solutions of the tstep
+         ! not intermediate solutions from the subiterations.
+         if (iter .eq. 1) then
+            call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
+                 Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
+                 string = 'Pressure')
+         end if
 
-      ! Update the pressure with the increment. Demean if necessary.
-      call field_add2(p, dp, n)
-      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
-         call device_ortho(p%x_d, this%glb_n_points, n)
-      else if (.not. this%prs_dirichlet) then
-         call ortho(p%x, this%glb_n_points, n)
-      end if
+         call this%pc_prs%update()
 
-      ! Compute velocity residual.
-      call profiler_start_region('Velocity_residual', 19)
-      call vel_res%compute(Ax_vel, u, v, w, &
-           u_res, v_res, w_res, &
-           p, &
-           f_x, f_y, f_z, &
-           c_Xh, msh, Xh, &
-           mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
-           dt, dm_Xh%size())
+         call profiler_start_region('Pressure_solve', 3)
 
-      call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
-      call gs_Xh%op(u_res, GS_OP_ADD, event)
-      call device_event_sync(event)
-      call gs_Xh%op(v_res, GS_OP_ADD, event)
-      call device_event_sync(event)
-      call gs_Xh%op(w_res, GS_OP_ADD, event)
-      call device_event_sync(event)
-      call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
-
-      ! Set residual to zero at strong velocity boundaries.
-      call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+         ! Solve for the pressure increment.
+         ksp_results(1) = &
+              this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+              this%bclst_dp, gs_Xh)
+         ksp_results(1)%name = 'Pressure'
 
 
-      call profiler_end_region('Velocity_residual', 19)
+         call profiler_end_region('Pressure_solve', 3)
 
-      call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
-           tstep, c_Xh, n, dt_controller, 'Velocity')
+         if (iter .eq. 1) then
+            call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
+                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+         end if
 
-      call this%pc_vel%update()
+         ! Update the pressure with the increment. Demean if necessary.
+         call field_add2(p, dp, n)
+         if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
+            call device_ortho(p%x_d, this%glb_n_points, n)
+         else if (.not. this%prs_dirichlet) then
+            call ortho(p%x, this%glb_n_points, n)
+         end if
 
-      call profiler_start_region("Velocity_solve", 4)
-      ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
-           u_res%x, v_res%x, w_res%x, n, c_Xh, &
-           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
-           this%ksp_vel%max_iter)
-      call profiler_end_region("Velocity_solve", 4)
-      if (this%full_stress_formulation) then
-         ksp_results(2)%name = 'Momentum'
-      else
-         ksp_results(2)%name = 'X-Velocity'
-         ksp_results(3)%name = 'Y-Velocity'
-         ksp_results(4)%name = 'Z-Velocity'
-      end if
+         ! Compute velocity residual.
+         call profiler_start_region('Velocity_residual', 19)
+         call vel_res%compute(Ax_vel, u, v, w, &
+              u_res, v_res, w_res, &
+              p, &
+              f_x, f_y, f_z, &
+              c_Xh, msh, Xh, &
+              mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
+              dt, dm_Xh%size())
 
-      call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
-           dt_controller)
+         call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
+         call gs_Xh%op(u_res, GS_OP_ADD, event)
+         call device_event_sync(event)
+         call gs_Xh%op(v_res, GS_OP_ADD, event)
+         call device_event_sync(event)
+         call gs_Xh%op(w_res, GS_OP_ADD, event)
+         call device_event_sync(event)
+         call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
-              du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
-      else
-         call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
-      end if
+         ! Set residual to zero at strong velocity boundaries.
+         call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+
+
+         call profiler_end_region('Velocity_residual', 19)
+
+         if (iter .eq. 1) then
+            call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
+                 tstep, c_Xh, n, dt_controller, 'Velocity')
+         end if
+
+         call this%pc_vel%update()
+
+         call profiler_start_region("Velocity_solve", 4)
+         ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
+              u_res%x, v_res%x, w_res%x, n, c_Xh, &
+              this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
+              this%ksp_vel%max_iter)
+         call profiler_end_region("Velocity_solve", 4)
+         if (this%full_stress_formulation) then
+            ksp_results(2)%name = 'Momentum'
+         else
+            ksp_results(2)%name = 'X-Velocity'
+            ksp_results(3)%name = 'Y-Velocity'
+            ksp_results(4)%name = 'Z-Velocity'
+         end if
+
+         if (iter .eq. 1) then
+            call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
+                 this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
+                 dt_controller)
+         end if
+
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
+                 du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)
+         else
+            call opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)
+         end if
+
+         call fluid_step_info(time, ksp_results, &
+              this%full_stress_formulation, this%strict_convergence, &
+              this%allow_stabilization, iter)
+
+      end do
 
       if (this%forced_flow_rate) then
          ! Horrible mu hack?!
@@ -927,11 +940,10 @@ contains
       ! Returns if .not. ale.
       call this%ale%update_mesh_velocity(c_Xh, time)
 
-      call fluid_step_info(time, ksp_results, &
-           this%full_stress_formulation, this%strict_convergence, &
-           this%allow_stabilization)
-
     end associate
+
+    nullify(bc_i, bc_j)
+
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
 
@@ -1192,6 +1204,8 @@ contains
        deallocate(zone_indices)
     end if
 
+    nullify(bc_i, bc_object)
+
   end subroutine fluid_pnpn_setup_bcs
 
   !> Write a field with boundary condition specifications
@@ -1330,6 +1344,9 @@ contains
     call bdry_file%write(bdry_field)
 
     call neko_scratch_registry%relinquish_field(temp_index)
+
+    nullify(bdry_field, bci)
+
   end subroutine fluid_pnpn_write_boundary_conditions
 
 end module fluid_pnpn

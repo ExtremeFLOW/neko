@@ -34,9 +34,12 @@
 module user_intf
   use field, only : field_t
   use field_list, only : field_list_t
+  use vector_list, only : vector_list_t
+  use mask, only : mask_t
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
+  use overset_interface, only : morph_overset_interface
   use field_dirichlet, only : field_dirichlet_update
   use field_neumann, only : field_neumann_update
   use num_types, only : rp
@@ -223,12 +226,18 @@ module user_intf
      !> Routine to set material properties.
      procedure(user_material_properties_intf), nopass, pointer :: &
           material_properties => null()
+     !> User routine to modify ALE mesh velocity arrays.
      procedure(user_ale_mesh_velocity_intf), nopass, pointer :: &
           ale_mesh_velocity => null()
+     !> User routine to set ALE rigid body kinematics.
      procedure(user_ale_rigid_kinematics_intf), nopass, pointer :: &
           ale_rigid_kinematics => null()
+     !> User routine to set ALE base shapes (smooth blending functions).
      procedure(user_ale_base_shapes_intf), nopass, pointer :: &
           ale_base_shapes => null()
+     !> User routine to morph the overset interface
+     procedure(morph_overset_interface), nopass, pointer :: &
+          morph_interface => null()
    contains
      !> Constructor that points non-associated routines to dummy ones.
      !! Calling a dummy routine causes an error in most cases, but sometimes
@@ -245,7 +254,9 @@ module user_intf
        user_material_properties_intf, user_finalize_intf, &
        user_startup_intf, user_source_term_intf, &
        user_ale_mesh_velocity_intf, user_ale_base_shapes_intf, &
-       user_ale_rigid_kinematics_intf
+       user_ale_rigid_kinematics_intf, &
+       dummy_user_ale_mesh_velocity, dummy_user_ale_base_shapes, &
+       dummy_user_ale_rigid_kinematics, morph_overset_interface
 contains
 
   !> Constructor.
@@ -344,22 +355,36 @@ contains
        write(extensions(n), '(A)') '- Material properties'
     end if
 
-    if (associated(this%ale_mesh_velocity)) then
+    if (.not. associated(this%ale_mesh_velocity)) then
+       this%ale_mesh_velocity => dummy_user_ale_mesh_velocity
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE mesh velocity'
     end if
 
-    if (associated(this%ale_rigid_kinematics)) then
+    if (.not. associated(this%ale_rigid_kinematics)) then
+       this%ale_rigid_kinematics => dummy_user_ale_rigid_kinematics
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE kinematics'
     end if
 
-    if (associated(this%ale_base_shapes)) then
+    if (.not. associated(this%ale_base_shapes)) then
+       this%ale_base_shapes => dummy_user_ale_base_shapes
+    else
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- ALE base shapes'
+    end if
+
+    if (.not. associated(this%morph_interface)) then
+       this%morph_interface => dummy_morph_overset_interface
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Morph overset interface'
     end if
 
     if (user_extended) then
@@ -437,5 +462,36 @@ contains
     type(field_list_t), intent(inout) :: properties
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_material_properties
+
+  subroutine dummy_morph_overset_interface(interface_dof, interface_field, &
+       interface_mask, time, bc_name, &
+       find_interface)
+    type(vector_list_t), intent(inout) :: interface_dof
+    type(vector_list_t), intent(inout) :: interface_field
+    type(mask_t), intent(in) :: interface_mask
+    type(time_state_t), intent(in) :: time
+    character(len=*), intent(in) :: bc_name
+    logical, intent(inout) :: find_interface
+  end subroutine dummy_morph_overset_interface
+
+  subroutine dummy_user_ale_mesh_velocity(wm_x, wm_y, wm_z, coef, &
+       x_ref, y_ref, z_ref, base_shapes, time)
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(in) :: x_ref, y_ref, z_ref
+    type(field_t), intent(in) :: base_shapes(:)
+    type(time_state_t), intent(in) :: time
+  end subroutine dummy_user_ale_mesh_velocity
+
+  subroutine dummy_user_ale_base_shapes(base_shapes)
+    type(field_t), intent(inout) :: base_shapes(:)
+  end subroutine dummy_user_ale_base_shapes
+
+  subroutine dummy_user_ale_rigid_kinematics(body_id, time, vel_trans, vel_ang)
+    integer, intent(in) :: body_id
+    type(time_state_t), intent(in) :: time
+    real(kind=rp), intent(inout) :: vel_trans(3)
+    real(kind=rp), intent(inout) :: vel_ang(3)
+  end subroutine dummy_user_ale_rigid_kinematics
 
 end module user_intf

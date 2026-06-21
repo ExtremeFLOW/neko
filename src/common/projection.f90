@@ -417,7 +417,8 @@ contains
       end do
       end_time = MPI_WTIME()
       time = end_time - start_time
-      write(msg, '(A, E15.7)') "Projection basis reorthogonalization (s):  ", time
+      write(msg, '(A, E15.7)') &
+           "Projection basis reorthogonalization (s):  ", time
       call neko_log%message(trim(msg))
     end associate
   end subroutine cpu_reorthogonalize_basis
@@ -465,7 +466,8 @@ contains
       end do
       end_time = MPI_WTIME()
       time = end_time - start_time
-      write(msg, '(A, E15.7)') "Projection basis reorthogonalization (s):  ", time
+      write(msg, '(A, E15.7)') &
+           "Projection basis reorthogonalization (s):  ", time
       call neko_log%message(trim(msg))
     end associate
   end subroutine device_reorthogonalize_basis
@@ -488,6 +490,7 @@ contains
       call rzero(alpha, this%m)
       this%proj_res = sqrt(glsc3(b, b, coef%mult, n) / coef%volume)
       this%proj_m = this%m
+      !$omp parallel do private(j, k, l, s) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m
@@ -498,6 +501,7 @@ contains
             alpha(k) = alpha(k) + s
          end do
       end do
+      !$omp end parallel do
 
       !First one outside loop to avoid zeroing xbar and bbar
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
@@ -505,6 +509,7 @@ contains
 
       call rzero(work, this%m)
 
+      !$omp parallel do private(j, k, l, s) reduction(+:work)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do l = 0, (j-1)
@@ -526,10 +531,12 @@ contains
             work(k) = work(k) + s
          end do
       end do
+      !$omp end parallel do
 
       call MPI_Allreduce(work, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
+      !$omp parallel do private(j, k, l)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m
@@ -539,6 +546,7 @@ contains
             end do
          end do
       end do
+      !$omp end parallel do
     end associate
   end subroutine cpu_project_on
 
@@ -711,7 +719,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n, this%L), intent(inout) :: xx, bb
     real(kind=rp), dimension(n), intent(in) :: w
-    real(kind=rp) :: nrm, scl1, scl2, c, s
+    real(kind=rp) :: nrm, scl1, scl2, c, s, alpha_m
     real(kind=rp) :: alpha(this%L), beta(this%L)
     integer :: i, j, k, l, h, ierr
 
@@ -722,6 +730,7 @@ contains
       ! AX = B
       ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb
       call rzero(alpha, m)
+      !$omp parallel do private(j, k, l, s, c) reduction(+:alpha)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m !First round CGS
@@ -734,6 +743,7 @@ contains
             alpha(k) = alpha(k) + 0.5_rp * (s + c)
          end do
       end do
+      !$omp end parallel do
 
       call MPI_Allreduce(MPI_IN_PLACE, alpha, this%m, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -741,6 +751,7 @@ contains
       nrm = sqrt(alpha(m)) !Calculate A-norm of new vector
 
 
+      !$omp parallel do private(j, k, l)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m-1
@@ -750,8 +761,10 @@ contains
             end do
          end do
       end do
+      !$omp end parallel do
       call rzero(beta,m)
 
+      !$omp parallel do private(j, k, l, s, c) reduction(+:beta)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m-1
@@ -764,12 +777,14 @@ contains
             beta(k) = beta(k) + 0.5_rp * (s + c)
          end do
       end do
+      !$omp end parallel do
 
       call MPI_Allreduce(MPI_IN_PLACE, beta, this%m-1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
-      alpha(m) = 0.0_rp
+      alpha_m = 0.0_rp
 
+      !$omp parallel do private(j, k, l, s) reduction(+:alpha_m)
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE,n-i+1)
          do k = 1, m-1
@@ -782,8 +797,10 @@ contains
          do l = 0, (j-1)
             s = s + xx(i+l,m) * w(i+l) * bb(i+l,m)
          end do
-         alpha(m) = alpha(m) + s
+         alpha_m = alpha_m + s
       end do
+      !$omp end parallel do
+      alpha(m) = alpha_m
       do k = 1, m-1
          alpha(k) = alpha(k) + beta(k)
       end do
@@ -797,10 +814,12 @@ contains
       if (alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
          !Normalize dx and db
          scl1 = 1.0_rp / alpha(m)
+         !$omp parallel do
          do i = 0, (n - 1)
             xx(1+i,m) = scl1 * xx(1+i,m)
             bb(1+i,m) = scl1 * bb(1+i,m)
          end do
+         !$omp end parallel do
 
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column

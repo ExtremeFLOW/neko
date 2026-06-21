@@ -43,12 +43,19 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_copy
 
-     subroutine opencl_masked_copy(a_d, b_d, mask_d, n, n_mask, strm) &
-          bind(c, name = 'opencl_masked_copy')
+     subroutine opencl_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'opencl_masked_copy_0')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
-     end subroutine opencl_masked_copy
+     end subroutine opencl_masked_copy_0
+
+     subroutine opencl_masked_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'opencl_masked_copy_aligned')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d, strm
+       integer(c_int) :: n, n_mask
+     end subroutine opencl_masked_copy_aligned
 
      subroutine opencl_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm) &
           bind(c, name = 'opencl_masked_gather_copy')
@@ -162,6 +169,17 @@ module opencl_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine opencl_cadd2
+
+     subroutine opencl_cwrap(a_d, min_val, max_val, n, strm) &
+          bind(c, name = 'opencl_cwrap')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: min_val
+       real(c_rp) :: max_val
+       integer(c_int) :: n
+     end subroutine opencl_cwrap
 
      subroutine opencl_cfill(a_d, c, n, strm) &
           bind(c, name = 'opencl_cfill')

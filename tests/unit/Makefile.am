@@ -20,6 +20,7 @@ SUBDIRS = tuple\
 	  signal\
 	  jobctrl\
 	  device\
+	  data_types\
 	  device_math\
 	  mathops\
 	  device_mathops\
@@ -35,12 +36,14 @@ SUBDIRS = tuple\
 	  runge_kutta_scheme\
 	  time_based_controller\
 	  json_utils\
+	  utils\
 	  point_interpolation\
 	  templates/parallel\
 	  boundary_operation\
 	  templates/serial
 
 TESTS = device/device_test\
+	data_types/data_types_test\
 	tuple/tuple_test\
 	stack/stack_test\
 	point/point_test\
@@ -77,6 +80,7 @@ TESTS = device/device_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
 	time_based_controller/time_based_controller_test\
 	json_utils/json_utils_test\
+	utils/read_duration_test\
 	point_interpolation/point_interpolation_test\
 	templates/parallel/parallel_test\
 	boundary_operation/boundary_operation_test\
@@ -102,6 +106,8 @@ EXTRA_DIST = \
 	global_interpolation/test_glob_interp_par.pf\
 	mean_field/test_mean_field_parallel.pf\
 	device/test_device.pf\
+	data_types/test_host_array_types.pf\
+	data_types/test_device_array_types.pf\
 	uset/test_uset_i4.pf\
 	uset/test_uset_r8.pf\
 	uset/test_uset_i8.pf\
@@ -146,6 +152,8 @@ EXTRA_DIST = \
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\
 	scratch_registry/test_matrix_scratch_registry.pf\
+	scratch_registry/test_host_scratch_registry.pf\
+	scratch_registry/test_device_scratch_registry.pf\
 	fast3d/test_fd_weights_full.pf\
 	fast3d/test_setup_intp.pf\
 	time_scheme/test_bdf.pf\
@@ -154,6 +162,7 @@ EXTRA_DIST = \
 	time_scheme_controller/test_time_scheme_controller.pf\
 	runge_kutta_scheme/test_runge_kutta_scheme.pf\
 	json_utils/test_json_utils.pf\
+	utils/test_read_duration.pf\
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test\

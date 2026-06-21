@@ -44,7 +44,7 @@ module fusedcg_device
   use device_math, only : device_rzero, device_copy, device_glsc3
   use device, only : device_memcpy, HOST_TO_DEVICE, device_get_ptr, &
        device_free, device_map, device_alloc, device_event_create, &
-       device_event_sync, device_event_destroy
+       device_event_sync, device_event_destroy, device_unmap
   use utils, only : neko_error
   use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -268,49 +268,44 @@ contains
     call this%ksp_free()
 
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
 
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
     end if
 
 
     if (allocated(this%z)) then
+       if (c_associated(this%z_d)) then
+          call device_unmap(this%z, this%z_d)
+       end if
        deallocate(this%z)
     end if
 
 
     if (allocated(this%alpha)) then
+       if (c_associated(this%alpha_d)) then
+          call device_unmap(this%alpha, this%alpha_d)
+       end if
        deallocate(this%alpha)
     end if
 
     if (allocated(this%p)) then
+       if (allocated(this%p_d)) then
+          do i = 1, DEVICE_FUSEDCG_P_SPACE
+             if (c_associated(this%p_d(i))) then
+                call device_unmap(this%p(:,i), this%p_d(i))
+             end if
+          end do
+       end if
        deallocate(this%p)
-    end if
-
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
-    end if
-
-    if (c_associated(this%z_d)) then
-       call device_free(this%z_d)
-    end if
-
-    if (c_associated(this%alpha_d)) then
-       call device_free(this%alpha_d)
-    end if
-
-    if (allocated(this%p_d)) then
-       do i = 1, DEVICE_FUSEDCG_P_SPACE
-          if (c_associated(this%p_d(i))) then
-             call device_free(this%p_d(i))
-          end if
-       end do
     end if
 
     if (c_associated(this%p_d_d)) then
@@ -326,7 +321,8 @@ contains
   end subroutine fusedcg_device_free
 
   !> Pipelined PCG solve
-  function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x

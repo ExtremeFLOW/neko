@@ -35,9 +35,9 @@
 */
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with BC style mask
  */
-__kernel void masked_copy_kernel(__global real* __restrict__ a,
+__kernel void masked_copy_kernel_0(__global real* __restrict__ a,
                                  __global real* __restrict__ b,
                                  __global int* __restrict__ mask,
                                  const int n, const int n_mask) {
@@ -47,6 +47,22 @@ __kernel void masked_copy_kernel(__global real* __restrict__ a,
 
   for (int i = idx; i < n_mask; i += str) {
     a[mask[i + 1] - 1] = b[mask[i + 1] - 1];
+  }
+}
+
+/**
+ * Device kernel for masked copy with point zone style mask
+ */
+__kernel void masked_copy_kernel_aligned(__global real* __restrict__ a,
+                                 __global real* __restrict__ b,
+                                 __global int* __restrict__ mask,
+                                 const int n, const int n_mask) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[mask[i]] = b[mask[i]];
   }
 }
 
@@ -270,6 +286,23 @@ __kernel void cadd2_kernel(__global real* __restrict__ a,
   const int str = get_global_size(0);
 
   for (int i = idx; i < n; i += str) { a[i] = b[i] + c; }
+}
+
+/**
+ * Device kernel for cwrap
+ */
+__kernel void cwrap_kernel(__global real* __restrict__ a,
+                           const real min_val,
+                           const real max_val,
+                           const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+  const real l = max_val - min_val;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = min_val + fmod(fmod(a[i] - min_val, l) + l, l);
+  }
 }
 
 /**

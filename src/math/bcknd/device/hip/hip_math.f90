@@ -43,12 +43,19 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_copy
 
-     subroutine hip_masked_copy(a_d, b_d, mask_d, n, n_mask, strm) &
-          bind(c, name = 'hip_masked_copy')
+     subroutine hip_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'hip_masked_copy_0')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
-     end subroutine hip_masked_copy
+     end subroutine hip_masked_copy_0
+
+     subroutine hip_masked_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'hip_masked_copy_aligned')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d, strm
+       integer(c_int) :: n, n_mask
+     end subroutine hip_masked_copy_aligned
 
      subroutine hip_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm) &
           bind(c, name = 'hip_masked_gather_copy')
@@ -160,6 +167,17 @@ module hip_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine hip_cadd2
+
+     subroutine hip_cwrap(a_d, min_val, max_val, n, strm) &
+          bind(c, name = 'hip_cwrap')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: min_val
+       real(c_rp) :: max_val
+       integer(c_int) :: n
+     end subroutine hip_cwrap
 
      subroutine hip_cfill(a_d, c, n, strm) &
           bind(c, name = 'hip_cfill')

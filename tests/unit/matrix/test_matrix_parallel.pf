@@ -362,7 +362,7 @@ contains
     type(matrix_t) :: v
 
     call v%init(n, m)
-    v = 1.0_rp
+    v%x = 1.0_rp
     v%x(1, 1) = -3.0_rp
     v%x(n, m) = 7.0_rp
 

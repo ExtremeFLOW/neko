@@ -37,7 +37,8 @@ module field_series_list
   implicit none
   private
 
-  !> A list of field series pointers, used for managing multiple scalar lag fields
+  !> A list of field series pointers, used for managing multiple
+  !! scalar lag fields
   type, public :: field_series_list_t
      type(field_series_ptr_t), allocatable :: items(:)
      integer, private :: n_items = 0

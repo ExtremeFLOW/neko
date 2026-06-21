@@ -1,5 +1,5 @@
 from os.path import join
-from testlib import get_neko, run_neko, configure_nprocs, get_makeneko
+from testlib import get_neko, run_neko, configure_nprocs, get_makeneko, get_genmeshbox
 import subprocess
 import numpy as np
 #from pysemtools.datatypes.field import FieldRegistry
@@ -61,8 +61,9 @@ def test_scalar_stats(launcher_script, request, log_file, tmp_path):
         result.returncode == 0
     ), f"makeneko process failed with exit code {result.returncode}"
 
+    genmeshbox = get_genmeshbox()
     result = subprocess.run(
-        ["genmeshbox", "0", "1", "0", "1", "0", "1", "3", "3", "3",
+        [genmeshbox, "0", "1", "0", "1", "0", "1", "3", "3", "3",
          ".true.", ".true.", ".true."],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,

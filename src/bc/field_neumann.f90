@@ -69,7 +69,8 @@ module field_neumann
      !> Constructor.
      procedure, pass(this) :: init => field_neumann_init
      !> Constructor from components.
-     procedure, pass(this) :: init_from_components => field_neumann_init_from_components
+     procedure, pass(this) :: init_from_components => &
+          field_neumann_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => field_neumann_free
      !> Finalize.
@@ -194,7 +195,7 @@ contains
        end if
 
        m = this%msk(0)
-       !$omp parallel do private(k, facet, idx)
+       !$omp do
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
@@ -215,7 +216,7 @@ contains
                   this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
-       !$omp end parallel do
+       !$omp end do
     end if
 
   end subroutine field_neumann_apply_scalar

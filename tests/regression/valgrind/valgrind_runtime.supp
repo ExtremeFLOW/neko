@@ -1,0 +1,336 @@
+# Runtime-only suppressions for clean-exit leak audits in the Valgrind TGV regression.
+# These entries target OpenMPI/hwloc/libevent/CUDA initialisation allocations
+# that persist at process teardown and are outside project ownership.
+
+{
+   openmpi_ompi_op_init
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:ompi_op_base_op_select
+   fun:ompi_op_init
+   fun:ompi_mpi_init
+   ...
+   fun:__comm_MOD_comm_init
+}
+
+{
+   openmpi_orte_init_hwloc
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect
+   ...
+   fun:hwloc_topology_load
+   ...
+   fun:orte_init
+   fun:ompi_mpi_init
+   ...
+   fun:__comm_MOD_comm_init
+}
+
+{
+   openmpi_orte_init_generic
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect
+   ...
+   fun:orte_init
+   fun:ompi_mpi_init
+   ...
+   fun:__comm_MOD_comm_init
+}
+
+{
+   openmpi_mca_framework_open
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect
+   fun:malloc
+   ...
+   fun:mca_base_framework_open
+   fun:ompi_mpi_init
+   ...
+   fun:__comm_MOD_comm_init
+}
+
+{
+   openmpi_mca_btl_base_select
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:mca_btl_base_select
+   ...
+   fun:ompi_mpi_init
+   ...
+   fun:__comm_MOD_comm_init
+}
+
+{
+   openmpi_libevent_worker
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect
+   ...
+   ...
+   fun:event_base_loop
+   ...
+   fun:start_thread
+   fun:clone
+}
+
+{
+   openmpi_dl_open_worker
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:call_init*
+   fun:_dl_init
+   ...
+   fun:dl_open_worker*
+}
+
+{
+   cuda_cugetprocaddress_malloc
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:cuGetProcAddress_v2
+   ...
+   fun:__cuda_intf_MOD_cuda_init
+}
+
+{
+   cuda_cugetprocaddress_calloc
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   ...
+   fun:cuGetProcAddress_v2
+   ...
+   fun:__cuda_intf_MOD_cuda_init
+}
+
+{
+   openmpi_mpi_file_open_dlopen_scope
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:resize_scopes
+   ...
+   fun:dl_open_worker*
+   ...
+   fun:mca_base_framework_open
+   fun:mca_io_base_file_select
+   fun:ompi_file_open
+   fun:PMPI_File_open
+   fun:MPI_FILE_OPEN
+   fun:mpi_file_open_f08_
+   fun:__nmsh_file_MOD_nmsh_file_read
+}
+
+{
+   openmpi_orte_finalize_generic
+   Memcheck:Leak
+   match-leak-kinds: definite
+   ...
+   fun:orte_finalize
+   fun:ompi_mpi_finalize
+   ...
+   fun:__comm_MOD_comm_free
+}
+
+{
+   cuda_culibraryloaddata_runtime
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   ...
+   fun:cuLibraryLoadData
+   ...
+}
+
+{
+   cuda_cuinit_runtime
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   ...
+   fun:cuInit
+   ...
+   fun:cudaGetDevice
+   ...
+   fun:__cuda_intf_MOD_cuda_init
+}
+
+{
+   openmp_allocate_tls_possible
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   ...
+   fun:GOMP_parallel
+   fun:__comm_MOD_comm_init
+}
+
+{
+   openmp_allocate_tls_possible_generic
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   ...
+   fun:GOMP_parallel
+   fun:__comm_MOD_comm_init
+}
+
+{
+   cuda_cuctxgetdevice_runtime
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   ...
+   fun:cuCtxGetDevice
+   ...
+   fun:cudaGetDevice
+   ...
+   fun:__cuda_intf_MOD_cuda_init
+}
+
+{
+   cuda_cuctxsetcurrent_runtime
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:pthread_setspecific*
+   ...
+   fun:cuCtxSetCurrent
+   ...
+   fun:cudaSetDevice
+   ...
+   fun:__cuda_intf_MOD_cuda_init._omp_fn.1
+}
+
+{
+   cuda_cusparse_call_init_runtime
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libcusparse.so*
+   ...
+   fun:call_init*
+   fun:_dl_init
+}
+
+{
+   cuda_cusolver_call_init_runtime
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libcusolver.so*
+   ...
+   fun:call_init*
+   fun:_dl_init
+}
+
+{
+   cuda_cublaslt_call_init_runtime
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libcublasLt.so*
+   ...
+   fun:call_init*
+   fun:_dl_init
+}
+
+{
+   cuda_cublas_call_init_runtime
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libcublas.so*
+   ...
+   fun:call_init*
+   fun:_dl_init
+}
+
+{
+   cuda_nvjitlink_call_init_runtime
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libnvJitLink.so*
+   ...
+   fun:call_init*
+   fun:_dl_init
+}
+
+{
+   cuda_stdcpp_call_init_runtime
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:*/libstdc++.so*
+   ...
+   fun:call_init*
+   fun:_dl_init
+}
+
+{
+   jsonfortran_all_leaks
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect,possible,reachable
+   fun:malloc
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_all_leaks_any_allocator
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect,possible,reachable
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_value_errors
+   Memcheck:Value8
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_value_errors_4
+   Memcheck:Value4
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_conditional_warnings
+   Memcheck:Cond
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_invalid_read_8
+   Memcheck:Addr8
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}
+
+{
+   jsonfortran_invalid_read_4
+   Memcheck:Addr4
+   ...
+   obj:*/libjsonfortran.so*
+   ...
+}

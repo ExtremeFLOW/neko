@@ -63,14 +63,31 @@ extern "C" {
 
   /** Fortran wrapper for masked copy
    * Copy a vector \f$ a(mask) = b(mask) \f$
+   * Mask is BC style
    */
-  void cuda_masked_copy(void *a, void *b, void *mask,
+  void cuda_masked_copy_0(void *a, void *b, void *mask,
                         int *n, int *m, cudaStream_t strm) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    masked_copy_kernel<real><<<nblcks, nthrds, 0, strm>>>
+    masked_copy_kernel_0<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, (real*) b,(int*) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+  
+  /** Fortran wrapper for masked copy
+   * Copy a vector \f$ a(mask) = b(mask) \f$
+   * Mask is Point Zone style.
+   */
+  void cuda_masked_copy_aligned(void *a, void *b, void *mask,
+                        int *n, int *m, cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_copy_kernel_aligned<real><<<nblcks, nthrds, 0, strm>>>
       ((real *) a, (real*) b,(int*) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
 
@@ -266,6 +283,22 @@ extern "C" {
 
     cadd2_kernel<real><<<nblcks, nthrds, 0, strm>>>
       ((real *) a, (real *) b, *c, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /**
+   * Fortran wrapper for cwrap
+   * Wrap values in a vector to interval [min_val, max_val)
+   */
+  void cuda_cwrap(void *a, real *min_val, real *max_val, int *n,
+                  cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cwrap_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, *min_val, *max_val, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }

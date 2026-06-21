@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 
 submodule (wall_model) wall_model_fctry
   use spalding, only : spalding_t
+  use cai_sagaut_model_ii, only : cai_sagaut_model_ii_t
   use rough_log_law, only : rough_log_law_t
   use most, only : most_t
   use richardson, only : richardson_t
@@ -41,8 +42,9 @@ submodule (wall_model) wall_model_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: WALLM_KNOWN_TYPES(4) = [character(len=20) :: &
+  character(len=20) :: WALLM_KNOWN_TYPES(5) = [character(len=20) :: &
        "spalding", &
+       "cai_sagaut_model_ii", &
        "rough_log_law", &
        "most", &
        "richardson"]
@@ -95,6 +97,8 @@ contains
     select case (trim(type_name) )
     case ("spalding")
        allocate(spalding_t::object)
+    case ("cai_sagaut_model_ii")
+       allocate(cai_sagaut_model_ii_t::object)
     case ("rough_log_law")
        allocate(rough_log_law_t::object)
     case ("most")

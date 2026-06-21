@@ -121,6 +121,30 @@ module cheby_device
        integer(c_int) :: n
      end subroutine cuda_cheby_device_part2
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_cheby_device_part1(d_d, x_d, inv_tha, n, strm) &
+          bind(c, name = 'metal_cheby_part1')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, x_d, strm
+       real(c_rp) :: inv_tha
+       integer(c_int) :: n
+     end subroutine metal_cheby_device_part1
+  end interface
+
+  interface
+     subroutine metal_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, strm) &
+          bind(c, name = 'metal_cheby_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: d_d, w_d, x_d, strm
+       real(c_rp) :: tmp1, tmp2
+       integer(c_int) :: n
+     end subroutine metal_cheby_device_part2
+  end interface
 #endif
 
 contains
@@ -132,6 +156,8 @@ contains
     call hip_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
 #elif HAVE_CUDA
     call cuda_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_cheby_device_part1(d_d, x_d, inv_tha, n, glb_cmd_queue)
 #else !Fallback to device_math for missing device kernels
     call device_cmult( d_d, inv_tha, n)
     call device_add2( x_d, d_d, n)
@@ -148,6 +174,8 @@ contains
     call hip_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
 #elif HAVE_CUDA
     call cuda_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_cheby_device_part2(d_d, w_d, x_d, tmp1, tmp2, n, glb_cmd_queue)
 #else !Fallback to device_math for missing device kernels
     call device_cmult( d_d, tmp1, n)
     call device_add2s2( d_d, w_d, tmp2, n)
@@ -206,30 +234,27 @@ contains
     call this%ksp_free()
 
     if (allocated(this%d)) then
+       if (c_associated(this%d_d)) then
+          call device_unmap(this%d, this%d_d)
+       end if
        deallocate(this%d)
     end if
 
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
 
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
     end if
 
     nullify(this%M)
-
-    if (c_associated(this%d_d)) then
-       call device_free(this%d_d)
-    end if
-
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
-    end if
 
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
@@ -249,16 +274,27 @@ contains
     real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n
 
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
 
+      ! Save current random seed and set a fixed seed
+      call random_seed( size=rnd_n )
+      allocate(saved_seed(rnd_n))
+      allocate(fixed_seed(rnd_n))
+      fixed_seed = 3901
+      call random_seed( get=saved_seed )
+      call random_seed( put=fixed_seed )
+
       do i = 1, n
-         !TODO: replace with a better way to initialize power method
          call random_number(rn)
          d(i) = rn + 10.0_rp
       end do
       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
+
+      ! Restore saved random seed
+      call random_seed( put=saved_seed )
 
       call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
       call blst%apply(d, n)

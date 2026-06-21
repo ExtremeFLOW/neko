@@ -152,7 +152,8 @@ contains
   end subroutine sx_pipecg_free
 
   !> Pipelined PCG solve
-  function sx_pipecg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function sx_pipecg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(sx_pipecg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -294,5 +295,4 @@ contains
   end function sx_pipecg_solve_coupled
 
 end module pipecg_sx
-
 

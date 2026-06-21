@@ -1,13 +1,40 @@
 # Changelog
 
 ## Develop
-- Added hdf5 support for probes and added hdf5 I/O helper routines.
+
+- Added HIP and CUDA support for ALE.
+- Added `spatial_average` simcomp for spatially averaging a list of registered
+  fields.
+- Changed the normal vectors argument type in `setup_normals` to `vector_t` and added copy to device in the routine.
+- Added new math operator for device. device_masked_copy_aligned, which performs
+  a masked copy of data from one field to another, for a point zone mask.
+- Job control time limits can now be specified by a flexible string format, e.g.
+  "30:00" for 30 minutes, "1-00:00:00" for 24 hours, "3600" for 3600 seconds,
+  etc.  
+- Added a Valgrind-based regression test suite under `tests/regression/valgrind`
+  for detecting memory leaks in a minimal TGV run.
+- Added `contrib/icem2re2`, a user-facing utility that converts ICEM/ANSYS
+  Fluent `.msh` meshes to Neko `.re2` meshes. Requires Python 3 with `numpy`,
+  `scipy`, and `pymech`. Supports translational periodic boundaries via
+  `--periodic periodic.json`.
+- Removed restart limitations on load balancing. We now cache the the balanced
+  mesh and read the cache if available. Load balance name pattern updated to
+  include partition number.
+- Added `host_array_t` and `device_array_t` temporary array types and support
+  for requesting these through `scratch_registry_t`.
+- Added the `cai_sagaut_model_ii` wall model with CPU, CUDA, HIP, and OpenCL.
+- Added the `create_periodic_zones` contrib utility for converting pairs of
+  labeled zones in an existing `.nmsh` mesh into periodic zones.
+  backends. This model is based on the work of [Cai and Sagaut (PoF,
+  2021)](https://doi.org/10.1063/5.0048563).
+- Added hdf5 support for probes and added hdf5 I/O helper routines
+- Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`
+  for hip and cuda.
 - Added the `hpfrt` source term for high-pass filter-based stabilization.
 - Added the `data_streamer` simulation component, allowing data streaming
 - Added `device_coef_generate_mass`and `device_coef_generate_area_and_normal`
   for hip and cuda.
 - Added the Richardson wall model.
-- Added the `data_streamer` simulation component, allowing data streaming
 - Added the variable NEKO_VARNAME_LEN in `common/utils.f90` to set a fixed
   size for `name` attributes in e.g. `field_t` and `vector_t`.
 - Added the `field_subsampler` simulation component, allowing sampling of
@@ -131,5 +158,15 @@
 - Change default parameters for tamg and phmg to be less expensive.
 
 ### Deprecated features
+- `operator::dudxyz` calls with implicit device arrays are deprecated. Please
+  use `opr_device_dudxyz` instead.
+- `operator::div` calls with implicit device arrays are deprecated. Please use
+  `div_d` instead.
 - `operator::ortho` calls with implicit device arrays are deprecated. Please use
   `device_ortho` instead.
+- `operator::cfl_r4` calls with implicit device arrays are deprecated. Please
+  use `cfl_d` instead.
+- `operator::strain_rate_r4` calls with implicit device arrays are deprecated.
+  Please use `strain_rate_d` instead.
+- `operator::rotate_cyc_r1` and `operator::rotate_cyc_r4` calls with implicit
+  device arrays are deprecated. Please use `rotate_cyc_d` instead.

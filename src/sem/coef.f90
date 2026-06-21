@@ -42,7 +42,7 @@ module coefs
        chsign, rzero, invers2, glsum, NEKO_EPS
   use mesh, only : mesh_t
   use device_math, only : device_rone, device_invcol1, &
-       device_glsum
+       device_glsum, device_copy
   use device_coef, only : device_coef_generate_geo, &
        device_coef_generate_dxydrst, device_coef_generate_mass, &
        device_coef_generate_area_and_normal
@@ -53,7 +53,6 @@ module coefs
   use comm, only : NEKO_COMM
   use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
-  use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -432,166 +431,228 @@ contains
     class(coef_t), intent(inout), target :: this
 
     if (allocated(this%G11)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G11, this%G11_d)
        deallocate(this%G11)
     end if
 
     if (allocated(this%G22)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G22, this%G22_d)
        deallocate(this%G22)
     end if
 
     if (allocated(this%G33)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G33, this%G33_d)
        deallocate(this%G33)
     end if
 
     if (allocated(this%G12)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G12, this%G12_d)
        deallocate(this%G12)
     end if
 
     if (allocated(this%G13)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G13, this%G13_d)
        deallocate(this%G13)
     end if
 
     if (allocated(this%G23)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G23, this%G23_d)
        deallocate(this%G23)
     end if
 
     if (allocated(this%mult)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%mult, this%mult_d)
        deallocate(this%mult)
     end if
 
     if (associated(this%Blag) .and. &
          .not. associated(this%Blag, this%B)) then
+       if (c_associated(this%Blag_d) .and. &
+            .not. c_associated(this%Blag_d, this%B_d)) then
+          call device_unmap(this%Blag, this%Blag_d)
+       end if
        deallocate(this%Blag)
     end if
     nullify(this%Blag)
 
     if (associated(this%Blaglag) .and. &
          .not. associated(this%Blaglag, this%B)) then
+       if (c_associated(this%Blaglag_d) .and. &
+            .not. c_associated(this%Blaglag_d, this%B_d)) then
+          call device_unmap(this%Blaglag, this%Blaglag_d)
+       end if
        deallocate(this%Blaglag)
     end if
     nullify(this%Blaglag)
 
+    if (c_associated(this%Blag_d) .and. &
+         .not. c_associated(this%Blag_d, this%B_d)) then
+       this%Blag_d = C_NULL_PTR
+    end if
+    this%Blag_d = C_NULL_PTR
+
+    if (c_associated(this%Blaglag_d) .and. &
+         .not. c_associated(this%Blaglag_d, this%B_d)) then
+       this%Blaglag_d = C_NULL_PTR
+    end if
+    this%Blaglag_d = C_NULL_PTR
+
     if (allocated(this%B)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%B, this%B_d)
        deallocate(this%B)
     end if
 
     if (allocated(this%Binv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%Binv, this%Binv_d)
        deallocate(this%Binv)
     end if
 
     if (allocated(this%dxdr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxdr, this%dxdr_d)
        deallocate(this%dxdr)
     end if
 
     if (allocated(this%dxds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxds, this%dxds_d)
        deallocate(this%dxds)
     end if
 
     if (allocated(this%dxdt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxdt, this%dxdt_d)
        deallocate(this%dxdt)
     end if
 
     if (allocated(this%dydr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dydr, this%dydr_d)
        deallocate(this%dydr)
     end if
 
     if (allocated(this%dyds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dyds, this%dyds_d)
        deallocate(this%dyds)
     end if
 
     if (allocated(this%dydt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dydt, this%dydt_d)
        deallocate(this%dydt)
     end if
 
     if (allocated(this%dzdr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzdr, this%dzdr_d)
        deallocate(this%dzdr)
     end if
 
     if (allocated(this%dzds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzds, this%dzds_d)
        deallocate(this%dzds)
     end if
 
     if (allocated(this%dzdt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzdt, this%dzdt_d)
        deallocate(this%dzdt)
     end if
 
     if (allocated(this%drdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdx, this%drdx_d)
        deallocate(this%drdx)
     end if
 
     if (allocated(this%dsdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdx, this%dsdx_d)
        deallocate(this%dsdx)
     end if
 
     if (allocated(this%dtdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdx, this%dtdx_d)
        deallocate(this%dtdx)
     end if
 
     if (allocated(this%drdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdy, this%drdy_d)
        deallocate(this%drdy)
     end if
 
     if (allocated(this%dsdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdy, this%dsdy_d)
        deallocate(this%dsdy)
     end if
 
     if (allocated(this%dtdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdy, this%dtdy_d)
        deallocate(this%dtdy)
     end if
 
     if (allocated(this%drdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdz, this%drdz_d)
        deallocate(this%drdz)
     end if
 
     if (allocated(this%dsdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdz, this%dsdz_d)
        deallocate(this%dsdz)
     end if
 
     if (allocated(this%dtdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdz, this%dtdz_d)
        deallocate(this%dtdz)
     end if
 
     if (allocated(this%jac)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%jac, this%jac_d)
        deallocate(this%jac)
     end if
 
     if (allocated(this%jacinv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%jacinv, this%jacinv_d)
+       end if
        deallocate(this%jacinv)
     end if
 
     if (allocated(this%h1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%h1, this%h1_d)
        deallocate(this%h1)
     end if
 
     if (allocated(this%h2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%h2, this%h2_d)
        deallocate(this%h2)
     end if
 
     if (allocated(this%area)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%area, this%area_d)
        deallocate(this%area)
     end if
 
     if (allocated(this%nx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%nx, this%nx_d)
        deallocate(this%nx)
     end if
 
     if (allocated(this%ny)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%ny, this%ny_d)
        deallocate(this%ny)
     end if
 
     if (allocated(this%nz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%nz, this%nz_d)
        deallocate(this%nz)
     end if
 
     if (allocated(this%cyc_msk)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cyc_msk, this%cyc_msk_d)
+       end if
        deallocate(this%cyc_msk)
     end if
 
     if (allocated(this%R11)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%R11, this%R11_d)
        deallocate(this%R11)
     end if
 
     if (allocated(this%R12)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%R12, this%R12_d)
        deallocate(this%R12)
     end if
 
@@ -600,175 +661,6 @@ contains
     nullify(this%Xh)
     nullify(this%dof)
     nullify(this%gs_h)
-
-    !
-    ! Cleanup the device (if present)
-    !
-
-    if (c_associated(this%G11_d)) then
-       call device_free(this%G11_d)
-    end if
-
-    if (c_associated(this%G22_d)) then
-       call device_free(this%G22_d)
-    end if
-
-    if (c_associated(this%G33_d)) then
-       call device_free(this%G33_d)
-    end if
-
-    if (c_associated(this%G12_d)) then
-       call device_free(this%G12_d)
-    end if
-
-    if (c_associated(this%G13_d)) then
-       call device_free(this%G13_d)
-    end if
-
-    if (c_associated(this%G23_d)) then
-       call device_free(this%G23_d)
-    end if
-
-    if (c_associated(this%dxdr_d)) then
-       call device_Free(this%dxdr_d)
-    end if
-
-    if (c_associated(this%dydr_d)) then
-       call device_Free(this%dydr_d)
-    end if
-
-    if (c_associated(this%dzdr_d)) then
-       call device_Free(this%dzdr_d)
-    end if
-
-    if (c_associated(this%dxds_d)) then
-       call device_Free(this%dxds_d)
-    end if
-
-    if (c_associated(this%dyds_d)) then
-       call device_free(this%dyds_d)
-    end if
-
-    if (c_associated(this%dzds_d)) then
-       call device_free(this%dzds_d)
-    end if
-
-    if (c_associated(this%dxdt_d)) then
-       call device_free(this%dxdt_d)
-    end if
-
-    if (c_associated(this%dydt_d)) then
-       call device_free(this%dydt_d)
-    end if
-
-    if (c_associated(this%dzdt_d)) then
-       call device_free(this%dzdt_d)
-    end if
-
-    if (c_associated(this%drdx_d)) then
-       call device_Free(this%drdx_d)
-    end if
-
-    if (c_associated(this%drdy_d)) then
-       call device_Free(this%drdy_d)
-    end if
-
-    if (c_associated(this%drdz_d)) then
-       call device_Free(this%drdz_d)
-    end if
-
-    if (c_associated(this%dsdx_d)) then
-       call device_Free(this%dsdx_d)
-    end if
-
-    if (c_associated(this%dsdy_d)) then
-       call device_free(this%dsdy_d)
-    end if
-
-    if (c_associated(this%dsdz_d)) then
-       call device_free(this%dsdz_d)
-    end if
-
-    if (c_associated(this%dtdx_d)) then
-       call device_free(this%dtdx_d)
-    end if
-
-    if (c_associated(this%dtdy_d)) then
-       call device_free(this%dtdy_d)
-    end if
-
-    if (c_associated(this%dtdz_d)) then
-       call device_free(this%dtdz_d)
-    end if
-
-    if (c_associated(this%mult_d)) then
-       call device_free(this%mult_d)
-    end if
-
-    if (c_associated(this%h1_d)) then
-       call device_free(this%h1_d)
-    end if
-
-    if (c_associated(this%h2_d)) then
-       call device_free(this%h2_d)
-    end if
-
-    if (c_associated(this%jac_d)) then
-       call device_free(this%jac_d)
-    end if
-
-    if (c_associated(this%jacinv_d)) then
-       call device_free(this%jacinv_d)
-    end if
-
-    if (c_associated(this%Blag_d) .and. &
-         .not. c_associated(this%Blag_d, this%B_d)) then
-       call device_free(this%Blag_d)
-    end if
-    this%Blag_d = C_NULL_PTR
-
-    if (c_associated(this%Blaglag_d) .and. &
-         .not. c_associated(this%Blaglag_d, this%B_d)) then
-       call device_free(this%Blaglag_d)
-    end if
-    this%Blaglag_d = C_NULL_PTR
-
-    if (c_associated(this%B_d)) then
-       call device_free(this%B_d)
-    end if
-
-    if (c_associated(this%Binv_d)) then
-       call device_free(this%Binv_d)
-    end if
-
-    if (c_associated(this%area_d)) then
-       call device_free(this%area_d)
-    end if
-
-    if (c_associated(this%nx_d)) then
-       call device_free(this%nx_d)
-    end if
-
-    if (c_associated(this%ny_d)) then
-       call device_free(this%ny_d)
-    end if
-
-    if (c_associated(this%nz_d)) then
-       call device_Free(this%nz_d)
-    end if
-
-    if (c_associated(this%cyc_msk_d)) then
-       call device_free(this%cyc_msk_d)
-    end if
-
-    if (c_associated(this%R11_d)) then
-       call device_free(this%R11_d)
-    end if
-
-    if (c_associated(this%R12_d)) then
-       call device_free(this%R12_d)
-    end if
-
 
   end subroutine coef_free
 
@@ -1123,7 +1015,7 @@ contains
        ! copy to host only at initialization.
        if (.not. c%coef_metrics_initialized) then
           call device_memcpy(c%Binv, c%Binv_d, ntot, &
-                 DEVICE_TO_HOST, sync = .true.)
+               DEVICE_TO_HOST, sync = .true.)
        end if
     else
        call invcol1(c%Binv, ntot)
@@ -1144,15 +1036,15 @@ contains
     real(kind=rp) :: normal(3)
 
     select case (facet)
-    case(1,2)
+    case (1, 2)
        normal(1) = this%nx(j, k, facet, e)
        normal(2) = this%ny(j, k, facet, e)
        normal(3) = this%nz(j, k, facet, e)
-    case(3,4)
+    case (3, 4)
        normal(1) = this%nx(i, k, facet, e)
        normal(2) = this%ny(i, k, facet, e)
        normal(3) = this%nz(i, k, facet, e)
-    case(5,6)
+    case (5, 6)
        normal(1) = this%nx(i, j, facet, e)
        normal(2) = this%ny(i, j, facet, e)
        normal(3) = this%nz(i, j, facet, e)
@@ -1165,11 +1057,11 @@ contains
     real(kind=rp) :: area
 
     select case (facet)
-    case(1,2)
+    case (1, 2)
        area = this%area(j, k, facet, e)
-    case(3,4)
+    case (3, 4)
        area = this%area(i, k, facet, e)
-    case(5,6)
+    case (5, 6)
        area = this%area(i, j, facet, e)
     end select
   end function coef_get_area
@@ -1221,20 +1113,20 @@ contains
        !$omp do simd
        do i = 1, n
           a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
-            - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+               - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
 
           b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
                - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
           c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
-            - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+               - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
        end do
        !$omp end do simd
        !$omp do simd
        do i = 1, n
           dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
        end do
        !$omp end do simd
        !$omp do
@@ -1259,20 +1151,20 @@ contains
        !$omp do simd
        do i = 1, n
           a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
-            - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+               - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
 
           b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
                - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
 
           c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
-            - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+               - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
        end do
        !$omp end do simd
        !$omp do simd
        do i = 1, n
           dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
        end do
        !$omp end do simd
        !$omp do
@@ -1296,20 +1188,20 @@ contains
        !$omp do simd
        do i = 1, n
           a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &
-            - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
+               - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
 
           b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &
                - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)
 
           c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &
-            - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
+               - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
        end do
        !$omp end do simd
        !$omp do simd
        do i = 1, n
           dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
        end do
        !$omp end do simd
        !$omp do
@@ -1333,7 +1225,7 @@ contains
        !$omp do
        do j = 1, size(coef%nz)
           len = sqrt(coef%nx(j,1,1,1)**2 + &
-            coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
+               coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
           if (len .gt. NEKO_EPS) then
              coef%nx(j,1,1,1) = coef%nx(j,1,1,1) / len
              coef%ny(j,1,1,1) = coef%ny(j,1,1,1) / len
@@ -1477,27 +1369,16 @@ contains
   subroutine coef_update_lagged_mass(this)
     class(coef_t), intent(inout), target :: this
     integer :: n
-    integer(c_size_t) :: n_bytes
 
     ! If this%Blag does not have separate memory, we don't need to update it.
     if (associated(this%Blag, this%B)) return
-
-    this%Blaglag = this%Blag
-    this%Blag = this%B
-
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
-       if (rp .eq. REAL32) then
-          n_bytes = int(n, c_size_t) * 4_c_size_t
-       else
-          n_bytes = int(n, c_size_t) * 8_c_size_t
-       end if
-
-       call device_memcpy(this%Blaglag_d, this%Blag_d, n_bytes, &
-            DEVICE_TO_DEVICE, sync = .false.)
-
-       call device_memcpy(this%Blag_d, this%B_d, n_bytes, &
-            DEVICE_TO_DEVICE, sync = .true.)
+       call device_copy(this%Blaglag_d, this%Blag_d, n)
+       call device_copy(this%Blag_d, this%B_d, n)
+    else
+       this%Blaglag = this%Blag
+       this%Blag = this%B
     end if
 
   end subroutine coef_update_lagged_mass

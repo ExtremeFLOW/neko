@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module rhs_maker_device
-  use rhs_maker
-  use device
-  use utils
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_ext_t, rhs_maker_bdf_t, &
+       field_series_t
+  use device, only : device_get_ptr
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -43,7 +43,7 @@ module rhs_maker_device
      procedure, nopass :: compute_fluid => rhs_maker_sumab_device
   end type rhs_maker_sumab_device_t
 
-  type, public, extends(rhs_maker_ext_t) ::  rhs_maker_ext_device_t
+  type, public, extends(rhs_maker_ext_t) :: rhs_maker_ext_device_t
    contains
      procedure, nopass :: compute_fluid => rhs_maker_ext_device
   end type rhs_maker_ext_device_t
@@ -69,10 +69,10 @@ module rhs_maker_device
 
   interface
      subroutine rhs_maker_ext_hip(abx1_d, aby1_d, abz1_d, &
-                                  abx2_d, aby2_d, abz2_d, &
-                                  bfx_d, bfy_d, bfz_d, &
-                                  rho, ab1, ab2, ab3, n) &
-                                  bind(c, name='rhs_maker_ext_hip')
+          abx2_d, aby2_d, abz2_d, &
+          bfx_d, bfy_d, bfz_d, &
+          rho, ab1, ab2, ab3, n) &
+          bind(c, name='rhs_maker_ext_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
@@ -112,10 +112,10 @@ module rhs_maker_device
 
   interface
      subroutine rhs_maker_ext_cuda(abx1_d, aby1_d, abz1_d, &
-                                   abx2_d, aby2_d, abz2_d, &
-                                   bfx_d, bfy_d, bfz_d, &
-                                   rho, ab1, ab2, ab3, n) &
-                                   bind(c, name='rhs_maker_ext_cuda')
+          abx2_d, aby2_d, abz2_d, &
+          bfx_d, bfy_d, bfz_d, &
+          rho, ab1, ab2, ab3, n) &
+          bind(c, name='rhs_maker_ext_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
@@ -155,10 +155,10 @@ module rhs_maker_device
 
   interface
      subroutine rhs_maker_ext_opencl(abx1_d, aby1_d, abz1_d, &
-                                     abx2_d, aby2_d, abz2_d, &
-                                     bfx_d, bfy_d, bfz_d, &
-                                     rho, ab1, ab2, ab3, n) &
-                                     bind(c, name='rhs_maker_ext_opencl')
+          abx2_d, aby2_d, abz2_d, &
+          bfx_d, bfy_d, bfz_d, &
+          rho, ab1, ab2, ab3, n) &
+          bind(c, name='rhs_maker_ext_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
@@ -213,8 +213,8 @@ contains
   end subroutine rhs_maker_sumab_device
 
   subroutine rhs_maker_ext_device(temp1, temp2, temp3, fx_lag, fy_lag, fz_lag, &
-                           fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
-                           rho, ext_coeffs, n)
+       fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
+       rho, ext_coeffs, n)
     type(field_t), intent(inout) :: temp1, temp2, temp3
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
@@ -229,26 +229,26 @@ contains
 
 #ifdef HAVE_HIP
     call rhs_maker_ext_hip(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
-                           fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-                           fx_d, fy_d, fz_d, rho, &
-                           ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
+         fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
+         fx_d, fy_d, fz_d, rho, &
+         ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_CUDA
     call rhs_maker_ext_cuda(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
-                            fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-                            fx_d, fy_d, fz_d, rho, &
-                            ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
+         fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
+         fx_d, fy_d, fz_d, rho, &
+         ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_OPENCL
     call rhs_maker_ext_opencl(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
-                              fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-                              fx_d, fy_d, fz_d, rho, &
-                              ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
+         fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
+         fx_d, fy_d, fz_d, rho, &
+         ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
 
   end subroutine rhs_maker_ext_device
 
   subroutine rhs_maker_bdf_device(ta1, ta2, ta3, tb1, tb2, tb3, &
-                               ulag, vlag, wlag, bfx, bfy, bfz, &
-                               u, v, w, B, rho, dt, bd, nbd, n)
+       ulag, vlag, wlag, bfx, bfy, bfz, &
+       u, v, w, B, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(inout) :: ta1, ta2, ta3
     type(field_t), intent(in) :: u, v, w
@@ -266,22 +266,22 @@ contains
 
 #ifdef HAVE_HIP
     call rhs_maker_bdf_hip(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
-                           vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
-                           wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
-                           bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                           B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
+         vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
+         wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
+         bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
+         B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_CUDA
     call rhs_maker_bdf_cuda(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
-                            vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
-                            wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
-                            bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                            B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
+         vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
+         wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
+         bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
+         B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_OPENCL
     call rhs_maker_bdf_opencl(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
-                              vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
-                              wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
-                              bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                              B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
+         vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
+         wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
+         bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
+         B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
 #endif
 
   end subroutine rhs_maker_bdf_device
