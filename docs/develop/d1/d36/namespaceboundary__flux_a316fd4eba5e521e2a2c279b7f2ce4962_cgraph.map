@@ -7,9 +7,9 @@
 <area shape="rect" id="Node000003" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="453,37,579,62"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="385,47,439,47,439,52,385,52"/>
 <area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="483,38,476,28,479,18,493,12,516,10,544,14,556,23,552,27,542,19,516,15,494,17,483,22,481,28,487,35"/>
-<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="643,29,807,69"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="643,29,795,69"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="580,47,629,47,629,52,580,52"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="686,30,683,20,689,10,703,5,725,3,749,6,762,13,760,18,747,11,725,8,705,10,693,15,688,21,691,28"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="680,30,678,20,684,11,698,5,719,3,742,6,755,13,753,18,741,11,719,8,699,10,688,15,683,21,686,28"/>
 <area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="465,93,567,118"/>
 <area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="390,108,451,105,451,111,390,113"/>
 <area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89" title="Multiplication by constant c ." alt="" coords="437,143,595,183"/>

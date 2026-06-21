@@ -621,7 +621,7 @@ Mesh Velocity</h2>
 <div class="line">    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(in)</span> :: base_shapes(:)</div>
 <div class="line">    <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
 <div class="line">      </div>
-<div class="line">    <span class="keywordtype">integer</span> :: i</div>
+<div class="line">    <span class="keywordtype">integer</span> :: i, n</div>
 <div class="line"><span class="keywordtype">    real</span>(kind=rp) :: t, x_dist, half_width</div>
 <div class="line"><span class="keywordtype">    real</span>(kind=rp) :: omega_ind</div>
 <div class="line"><span class="keywordtype">    real</span>(kind=rp) :: h_t, arg, u_tanh, uy</div>
@@ -640,6 +640,7 @@ Mesh Velocity</h2>
 <div class="line"><span class="keywordtype">    real</span>(kind=rp) :: sharpness     = 4.0_rp </div>
 <div class="line">      </div>
 <div class="line">    t = time%t</div>
+<div class="line">    n = coef%dof%size()</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">! omega</span></div>
 <div class="line">    omega_ind = indent_freq * 2.0_rp * pi</div>
@@ -648,9 +649,16 @@ Mesh Velocity</h2>
 <div class="line">     </div>
 <div class="line">    half_width = 0.5_rp * indent_width</div>
 <div class="line"> </div>
-<div class="line">    <span class="keywordflow">do</span> i = 1, coef%dof%size()</div>
+<div class="line">    <span class="comment">! Copy mesh velocity from device to host</span></div>
+<div class="line">    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line">       <span class="keyword">call </span>device_memcpy(wm_y%x, wm_y%x_d, n, device_to_host, .true.)</div>
+<div class="line"><span class="keywordflow">    end if</span></div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">do</span> i = 1, n</div>
 <div class="line">               </div>
 <div class="line">       <span class="comment">! Calculate Distance based on INITIAL mesh coordinates</span></div>
+<div class="line">       <span class="comment">! When running on device, x_ref, y_ref, z_ref are copied to host memory during init. </span></div>
+<div class="line">       <span class="comment">! So no need to copy them here.</span></div>
 <div class="line">       x_dist = abs(x_ref%x(i,1,1,1)  - indent_center)</div>
 <div class="line"> </div>
 <div class="line">       <span class="comment">! If distance &gt; half_width, arg becomes positive and tanh goes to 1 -&gt; u_tanh goes to 0</span></div>
@@ -659,6 +667,8 @@ Mesh Velocity</h2>
 <div class="line">        </div>
 <div class="line">       uy  = h_t * u_tanh</div>
 <div class="line"> </div>
+<div class="line">       <span class="comment">! When running on device, base_shapes are copied to host memory during init. </span></div>
+<div class="line">       <span class="comment">! So no need to copy them here.</span></div>
 <div class="line">       <span class="comment">! phi for bottom surface. body_ID = 1, since it&#39;s the first body registered in ale.bodies</span></div>
 <div class="line">       phi_bot = base_shapes(1)%x(i,1,1,1)</div>
 <div class="line"> </div>
@@ -668,6 +678,11 @@ Mesh Velocity</h2>
 <div class="line">       wm_y%x(i,1,1,1) = wm_y%x(i,1,1,1) - ((0.5_rp*uy) * phi_top) + (uy * phi_bot)</div>
 <div class="line">     </div>
 <div class="line"><span class="keywordflow">    end do</span></div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">! Copy mesh velocity from host to device</span></div>
+<div class="line">    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line">       <span class="keyword">call </span>device_memcpy(wm_y%x, wm_y%x_d, n, host_to_device, .true.)</div>
+<div class="line"><span class="keywordflow">    end if</span></div>
 <div class="line">      </div>
 <div class="line">  <span class="keyword">end subroutine </span>user_indentation_motion</div>
 <div class="line"><span class="keyword">end module </span>user</div>
@@ -682,13 +697,22 @@ Custom Base Shapes</h2>
 </blockquote>
 <div class="fragment"><div class="line"><span class="keyword">subroutine </span>user_base_shapes(base_shapes)</div>
 <div class="line">  <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: base_shapes(:)</div>
+<div class="line">  <span class="keywordtype">integer</span> :: n</div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">! Fix the motion of the first ALE body (body_id = 1)</span></div>
-<div class="line">  base_shapes(1) = 0.0_rp</div>
-<div class="line">  </div>
-<div class="line">  <span class="comment">! Apply the motion of the second ALE body (body_id = 2) to the entire domain</span></div>
-<div class="line">  base_shapes(2) = 1.0_rp </div>
-<div class="line">    </div>
+<div class="line">  n = base_shapes(1)%size()</div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line">     <span class="comment">! Fix the motion of the first ALE body (body_id = 1)</span></div>
+<div class="line">     <span class="keyword">call </span>device_cfill(base_shapes(1)%x_d, 0.0_rp, n)  </div>
+<div class="line">     <span class="comment">! Apply the motion of the second ALE body (body_id = 2) to the entire domain</span></div>
+<div class="line">     <span class="keyword">call </span>device_cfill(base_shapes(2)%x_d, 1.0_rp, n)</div>
+<div class="line">  <span class="keywordflow">else</span></div>
+<div class="line">     <span class="comment">! Fix the motion of the first ALE body (body_id = 1)</span></div>
+<div class="line">     <span class="keyword">call </span>cfill(base_shapes(1)%x, 0.0_rp, n)</div>
+<div class="line">     <span class="comment">! Apply the motion of the second ALE body (body_id = 2) to the entire domain</span></div>
+<div class="line">     <span class="keyword">call </span>cfill(base_shapes(2)%x, 1.0_rp, n)</div>
+<div class="line"><span class="keywordflow">  end if</span></div>
+<div class="line"> </div>
 <div class="line"><span class="keyword">end subroutine </span>user_base_shapes</div>
 </div><!-- fragment --><p>The example above will suppress the mesh deformation associated with the first ALE body and apply the rigid body motion of ALE body 2 to the entire domain (including the inlet, outlet, and any other boundaries).</p>
 <dl class="section note"><dt>Note</dt><dd>If this user subroutine is utilized, it is the user's responsibility to verify that the total base shape field ( \( \phi_{total} \)) remains strictly bounded between 0.0 and 1.0.</dd></dl>
@@ -778,14 +802,14 @@ Custom GPU kernels</h3>
 <div class="line"><span class="keyword">end interface</span></div>
 </div><!-- fragment --><p>Furthermore, the CUDA/HIP file must allow for C linkage, hence the routine <code>mydevice_kernel</code> must be inside an <code>extern "C"</code> block.</p>
 <div class="fragment"><div class="line"><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line">  <span class="keywordtype">void</span> <a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">mydevice_kernel</a>(<span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <span class="keywordtype">int</span> *n) {</div>
+<div class="line">  <span class="keywordtype">void</span> <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">mydevice_kernel</a>(<span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <span class="keywordtype">int</span> *n) {</div>
 <div class="line">    <span class="comment">/* Launch the device kernel here */</span></div>
 <div class="line">  }</div>
 <div class="line">}</div>
+<div class="ttc" id="acuda_2ale__kinematics__kernel_8h_html_ad4350b4cac096924ce42615d376f4759"><div class="ttname"><a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ale_add_kinematics_kernel</a></div><div class="ttdeci">__global__ void ale_add_kinematics_kernel(const int n, T *__restrict__ wx, T *__restrict__ wy, T *__restrict__ wz, const T *__restrict__ x_ref, const T *__restrict__ y_ref, const T *__restrict__ z_ref, const T *__restrict__ phi, const T *__restrict__ x, const T *__restrict__ y, const T *__restrict__ z, const kinematics_params_t kin_params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h_source.html#l00052">ale_kinematics_kernel.h:52</a></div></div>
 <div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_a43799c7789aa82c19649dc9f75f8a87f"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a></div><div class="ttdeci">__global__ void T *__restrict__ T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ w</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00048">ax_helm_full_kernel.h:48</a></div></div>
 <div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_a7c8003e3422abb0b6eec11f6ebf6e6fb"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a></div><div class="ttdeci">__global__ void T *__restrict__ T *__restrict__ const T *__restrict__ u</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00046">ax_helm_full_kernel.h:46</a></div></div>
 <div class="ttc" id="acuda_2ax__helm__full__kernel_8h_html_ad44828fa187c7f6962d8ef80a111c535"><div class="ttname"><a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a></div><div class="ttdeci">__global__ void T *__restrict__ T *__restrict__ const T *__restrict__ const T *__restrict__ v</div><div class="ttdef"><b>Definition</b> <a href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h_source.html#l00047">ax_helm_full_kernel.h:47</a></div></div>
-<div class="ttc" id="acuda_2dirichlet__kernel_8h_html_ac2cb217184f95ca86456f610f72bd533"><div class="ttname"><a href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dirichlet_apply_scalar_kernel</a></div><div class="ttdeci">__global__ void dirichlet_apply_scalar_kernel(const int *__restrict__ msk, T *__restrict__ x, const T g, const int m)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d11/cuda_2dirichlet__kernel_8h_source.html#l00042">dirichlet_kernel.h:42</a></div></div>
 </div><!-- fragment --><p> The user defined routine for initial conditions calls the kernel in the following way.</p>
 <div class="fragment"><div class="line"> </div>
 <div class="line"><span class="keyword">subroutine </span>set_velocity(u, v, w, p, params)</div>
@@ -832,7 +856,7 @@ User access to solver internals</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sat Jun 20 2026 04:58:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Jun 21 2026 05:14:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

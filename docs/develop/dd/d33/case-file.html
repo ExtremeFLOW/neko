@@ -657,7 +657,7 @@ MOST wall model</h3>
 </details>
 </li>
 </ul>
-<dl class="section attention"><dt>Attention</dt><dd>This wall model uses a <code>neumann</code> or <code>dirichlet</code> value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">Boundary conditions</a>).</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>This wall model uses a <code>neumann</code> or <code>dirichlet</code> value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">Boundary conditions</a>).</dd></dl>
 <details >
 <summary >
 <b><u>Example code snippet</u></b></summary>
@@ -1129,7 +1129,7 @@ Sponge</h3>
 <h2><a class="anchor" id="case-file_fluid-ale"></a>
 Arbitrary Lagrangian-Eulerian Framework</h2>
 <p>Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies.</p>
-<dl class="section note"><dt>Note</dt><dd>Currently, only the CPU backend of the ALE framework is supported. GPU acceleration for ALE computations will be available in future updates.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Currently, the ALE framework supports CPU backend, as well as HIP and CUDA backends for GPU acceleration.</dd></dl>
 <p>The <code>"ale"</code> block in case file is part of the <code>"fluid"</code> object, and has the following high-level structure:</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;fluid&quot;: {</div>
@@ -1214,7 +1214,9 @@ Solver</h3>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyLeft"><code>output_base_shape</code>   </td><td class="markdownTableBodyLeft">Enables output of the base shape field \( \phi \)   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>true</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyLeft"><code>output_stiffness</code>   </td><td class="markdownTableBodyLeft">Enables output of the computed mesh stiffness field \( h(\mathbf{x}) \)   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>   </td></tr>
+<td class="markdownTableBodyLeft"><code>output_stiffness</code>   </td><td class="markdownTableBodyLeft">Enables output of the computed mesh stiffness field \( h(\mathbf{x}) \)   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>import_base_shape</code>   </td><td class="markdownTableBodyLeft">Whether to import \( \phi \) fields from file   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>   </td></tr>
 </table>
 <h4><a class="anchor" id="autotoc_md91"></a>
 Output Files and Diagnostics</h4>
@@ -1224,8 +1226,9 @@ Output Files and Diagnostics</h4>
 <li><code>phi_total0.f00000</code>: Generated if <code>"output_base_shape": true</code> <b>and</b> there is more than one body registered. Contains the sum of all base shapes ( \( \phi_{total} = \sum \phi_i \)).</li>
 <li><code>stiffness0.f00000</code>: Generated if <code>"output_stiffness": true</code>. Contains the global spatial mesh stiffness field \( h(\mathbf{x}) \).</li>
 </ul>
-<dl class="section attention"><dt>Attention</dt><dd>Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \( \phi_{total} \) is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's <code>absolute_tolerance</code> is set appropriately.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>It is also possible to provide a custom base shape \( \phi \) using a <code>user_ale_base_shapes</code> user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting <code>"output_base_shape": true</code> will still write your custom user shapes to <code>.fld</code> files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found <a class="el" href="../../d6/def/user-file.html#user-file_ale-base-shapes">here</a>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \( \phi_{total} \) is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's <code>absolute_tolerance</code> is set appropriately.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>It is also possible to provide a custom base shape \( \phi \) using a <code>user_ale_base_shapes</code> user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting <code>"output_base_shape": true</code> will still write your custom user shapes to <code>.fld</code> files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found <a class="el" href="../../d6/def/user-file.html#user-file_ale-base-shapes">here</a>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If the option <code>import_base_shape</code> is set to <code>true</code>, the Laplace solve will be skipped entirely, and the \( \phi \) fields are instead loaded from previously computed <code>.fld</code> files. When this feature is enabled, the file to be loaded for each body must be specified using the <code>base_shape_import_file</code> keyword within the <code>"bodies"</code> block.</dd></dl>
 <h3><a class="anchor" id="autotoc_md92"></a>
 Mesh preview</h3>
 <p>One of the available features in the Neko ALE module is the Mesh Preview. This allows users to investigate mesh quality over time <b>without</b> running an expensive full fluid simulation. The preview applies the exact same prescribed motion configured by the user, ensuring the visualized mesh motion perfectly mirrors what will happen during the actual simulation. Enabling this feature generates <code>.fld</code> files named <code>mesh_preview0.f*****</code>, which contain the deformed mesh and the mass matrix.</p>
@@ -1265,10 +1268,13 @@ Bodies</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyLeft"><code>pivot</code>   </td><td class="markdownTableBodyLeft">Sub-object defining the center point for rotational kinematics   </td><td class="markdownTableBodyLeft">JSON object   </td><td class="markdownTableBodyLeft">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyLeft"><code>stiff_geom</code>   </td><td class="markdownTableBodyLeft">Sub-object defining the mesh stiffness region   </td><td class="markdownTableBodyLeft">JSON object   </td><td class="markdownTableBodyLeft">-   </td></tr>
+<td class="markdownTableBodyLeft"><code>stiff_geom</code>   </td><td class="markdownTableBodyLeft">Sub-object defining the mesh stiffness region   </td><td class="markdownTableBodyLeft">JSON object   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>base_shape_import_file</code>   </td><td class="markdownTableBodyLeft">Name of the \( \phi \) field file to import   </td><td class="markdownTableBodyLeft">String ending with <code>f00000</code>   </td><td class="markdownTableBodyLeft">-   </td></tr>
 </table>
-<dl class="section attention"><dt>Attention</dt><dd>The body_ID for ALE bodies is defined based on the order in which they are added to the <code>"bodies"</code> array, not based on their <code>"zone_indices"</code>.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>If multiple moving <code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code> zone IDs are assigned to <code>"zone_indices"</code> of a single ALE body, the code will treat all those boundaries as a unified rigid body.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The body_ID for ALE bodies is defined based on the order in which they are added to the <code>"bodies"</code> array, not based on their <code>"zone_indices"</code>.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>If multiple moving <code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code> zone IDs are assigned to <code>"zone_indices"</code> of a single ALE body, the code will treat all those boundaries as a unified rigid body.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The <code>base_shape_import_file</code> keyword is only mandatory if the solver option <code>"ale.solver.import_base_shape"</code> is set to <code>true</code>. In this case, this keyword should be provided for <b>every</b> single registered body.</dd></dl>
 <h4><a class="anchor" id="autotoc_md94"></a>
 Oscillation</h4>
 <p>The <code>"oscillation"</code> sub-object defines the harmonic translational motion of the body. It takes the following mandatory keywords:</p>
@@ -1463,8 +1469,13 @@ Mesh Stiffness</h4>
 <dl class="section note"><dt>Note</dt><dd>Setting a very large value for <code>gain</code> (e.g., <code>1.0e6</code>) is recommended if the mesh immediately surrounding the body is intended to be fully rigid (i.e., \( \phi_i \approx 1 \)). Conversely, if two moving objects are in close proximity, the <code>gain</code> should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated <code>phi_total0.f00000</code> file, and checking the mesh quality using <code>mesh_preview</code> are highly recommended.</dd></dl>
 <h3><a class="anchor" id="autotoc_md96"></a>
 Restarting ALE simulations</h3>
-<p>Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving <code>.chkp</code> files.</p>
-<dl class="section attention"><dt>Attention</dt><dd>A <code>.chkp</code> file generated from a standard static simulation (i.e., <code>"ale.enabled": false</code>) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an <code>initial_condition</code> for a subsequent ALE simulation. In this case, saving the file in <code>double precision</code> is recommended.</dd></dl>
+<p>Neko supports checkpointing and restarting for ALE simulations from <code>.chkp</code> files. No additional parameters need to be set apart from the usual configuration for saving these files.</p>
+<p><b>Restart Capabilities:</b></p><ul>
+<li><b>Exact Restart:</b> Restarting from the same mesh and the same polynomial order is an exact restart.</li>
+<li><b>Different Polynomial Order:</b> Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in <code>BDF2</code> and <code>BDF3</code> time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.</li>
+<li><b>Different Mesh:</b> Restarting from a different mesh is not yet supported for ALE simulations.</li>
+</ul>
+<dl class="section attention"><dt>Attention</dt><dd>A <code>.chkp</code> file generated from a standard static simulation (i.e., <code>"ale.enabled": false</code>) cannot be used as <code>"restart_file"</code> to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an <code>initial_condition</code> for a subsequent ALE simulation. In this case, saving the file in <code>double precision</code> is recommended.</dd></dl>
 <h1><a class="anchor" id="autotoc_md97"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
@@ -1790,7 +1801,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sat Jun 20 2026 04:58:10 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Jun 21 2026 05:14:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

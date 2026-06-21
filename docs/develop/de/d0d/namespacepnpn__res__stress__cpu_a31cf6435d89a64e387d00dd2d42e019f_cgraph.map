@@ -24,13 +24,13 @@
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="559,53,638,41,805,21,806,26,639,46,560,59"/>
 <area shape="rect" id="Node000006" href="$d6/d10/opr__cdtp_8c.html#a22e607c77c807be3825904a78e958962" title=" " alt="" coords="644,56,744,81"/>
 <area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="591,66,630,66,630,71,591,71"/>
-<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="977,49,1141,89"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="908,27,969,43,968,48,907,32"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1023,49,1020,39,1026,30,1039,24,1059,22,1082,25,1095,32,1092,37,1081,30,1059,27,1041,29,1030,34,1026,40,1028,48"/>
+<area shape="rect" id="Node000005" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="977,49,1129,89"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="908,27,966,43,964,48,907,32"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1017,49,1015,39,1021,30,1034,24,1053,22,1076,25,1088,32,1085,37,1074,30,1053,27,1035,29,1025,34,1021,40,1023,48"/>
 <area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="744,66,964,66,964,71,744,71"/>
 <area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="797,107,929,132"/>
 <area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="738,79,808,100,806,105,737,84"/>
-<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="913,104,968,90,969,95,914,109"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="911,104,964,90,965,95,913,109"/>
 <area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="646,105,742,131"/>
 <area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="589,128,632,122,633,128,589,133"/>
 <area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="649,155,739,180"/>

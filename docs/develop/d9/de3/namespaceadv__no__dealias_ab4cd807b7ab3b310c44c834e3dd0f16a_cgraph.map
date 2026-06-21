@@ -18,13 +18,13 @@
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,46,694,41,904,20,905,26,695,46,647,52"/>
 <area shape="rect" id="Node000006" href="$d1/dc1/opr__conv1_8c.html#ab07cb7910eb3d0e828e2220814aeb52f" title=" " alt="" coords="719,56,829,81"/>
 <area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="647,61,705,63,704,69,647,67"/>
-<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1081,49,1245,89"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1018,28,1073,43,1072,48,1016,33"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1127,49,1124,39,1130,30,1143,24,1163,22,1186,25,1199,32,1196,37,1185,30,1163,27,1145,29,1134,34,1130,40,1132,48"/>
-<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="830,66,1068,66,1068,71,830,71"/>
+<area shape="rect" id="Node000005" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1081,49,1233,89"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1017,28,1069,42,1068,48,1015,33"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1121,49,1119,39,1125,30,1138,24,1157,22,1180,25,1192,32,1189,37,1178,30,1157,27,1139,29,1129,34,1125,40,1127,48"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="829,66,1068,66,1068,71,829,71"/>
 <area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="901,107,1033,132"/>
 <area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="824,79,906,101,904,106,823,84"/>
-<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="1017,104,1072,90,1073,95,1018,109"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="1015,104,1068,90,1069,95,1017,109"/>
 <area shape="rect" id="Node000009" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="695,112,853,137"/>
 <area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="645,122,681,122,681,127,645,127"/>
 </map>

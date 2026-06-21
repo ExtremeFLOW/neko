@@ -1,0 +1,11 @@
+<map id="user_intf::dummy_user_ale_mesh_velocity" name="user_intf::dummy_user_ale_mesh_velocity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="281,77,452,117"/>
+<area shape="rect" id="Node000002" href="$dd/db4/namespaceale__manager.html#aeb40eb6b82f696a5696324c68d7f9501" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="5,5,233,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="309,74,233,45,190,33,191,28,234,39,311,69"/>
+<area shape="rect" id="Node000003" href="$d7/da0/structuser__intf_1_1user__t.html#acce1164ad09d873988b2931b92d5013c" title="Constructor that points non&#45;associated routines to dummy ones. Calling a dummy routine causes an erro..." alt="" coords="42,55,197,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="267,88,197,79,197,74,268,82"/>
+<area shape="rect" id="Node000004" href="$dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46" title="Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodi..." alt="" coords="39,105,199,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="268,111,200,118,199,113,267,105"/>
+<area shape="rect" id="Node000005" href="$d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="34,169,205,195"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="316,125,234,159,189,172,187,167,232,154,314,120"/>
+</map>

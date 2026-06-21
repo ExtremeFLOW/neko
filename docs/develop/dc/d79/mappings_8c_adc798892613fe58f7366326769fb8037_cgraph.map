@@ -1,9 +1,9 @@
 <map id="opencl_smooth_step" name="opencl_smooth_step">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,161,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="389,29,553,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,47,375,47,375,52,162,52"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="389,29,541,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,47,376,47,376,52,161,52"/>
 <area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="209,62,341,87"/>
 <area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="162,57,196,62,195,67,161,62"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="435,30,432,20,438,11,451,5,471,3,494,6,507,13,504,17,493,11,471,8,453,10,442,15,438,21,440,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="341,64,375,59,376,64,342,69"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="429,30,427,20,433,11,446,5,465,3,488,6,500,13,497,17,486,11,465,8,447,10,437,15,433,21,435,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="341,63,375,59,376,64,342,69"/>
 </map>

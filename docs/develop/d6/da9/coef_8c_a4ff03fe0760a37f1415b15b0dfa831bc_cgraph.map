@@ -1,9 +1,9 @@
 <map id="opencl_coef_generate_mass" name="opencl_coef_generate_mass">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,212,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="440,29,604,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="440,29,592,69"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,47,426,47,426,52,212,52"/>
 <area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="260,62,392,87"/>
 <area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="213,59,247,63,246,68,212,64"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="485,30,483,20,489,11,502,5,522,3,545,6,557,13,555,17,543,11,522,8,503,10,492,15,488,21,490,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="392,64,426,59,427,64,393,69"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="480,30,478,20,484,11,497,5,516,3,538,6,551,13,548,17,537,11,516,8,498,10,487,15,483,21,485,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="392,63,426,59,427,64,393,69"/>
 </map>

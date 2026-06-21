@@ -1,6 +1,6 @@
 <map id="hip_wale_nut_compute" name="hip_wale_nut_compute">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,177,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="225,29,389,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,47,212,47,212,52,178,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="267,30,264,20,271,10,285,5,307,3,333,6,346,13,344,18,331,11,307,8,287,10,274,15,270,21,272,28"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="225,29,377,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,47,211,47,211,52,178,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="262,30,260,20,266,10,280,5,301,3,326,6,339,13,336,18,324,11,301,8,281,10,269,15,265,21,267,28"/>
 </map>

@@ -16,10 +16,10 @@
 <area shape="poly" id="edge10_Node000005_Node000010" title=" " alt="" coords="388,170,477,203,505,212,503,217,475,209,386,175"/>
 <area shape="rect" id="Node000008" href="$d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48" title=" " alt="" coords="797,165,999,191"/>
 <area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="710,173,783,174,783,179,710,178"/>
-<area shape="rect" id="Node000009" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1067,187,1231,227"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1000,187,1054,194,1053,199,999,192"/>
-<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="1102,188,1099,178,1107,168,1123,163,1149,161,1178,164,1194,171,1191,176,1176,169,1149,166,1124,168,1110,173,1104,179,1107,186"/>
+<area shape="rect" id="Node000009" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1067,187,1219,227"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1000,187,1053,194,1052,199,999,193"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="1097,188,1095,178,1102,168,1118,163,1143,161,1171,164,1186,171,1184,176,1169,169,1143,166,1119,168,1105,173,1100,179,1103,186"/>
 <area shape="rect" id="Node000011" href="$d7/dff/vreman__nut_8cu.html#ae7c1e3020468ff890690b760e9bbdf62" title=" " alt="" coords="777,219,1019,244"/>
 <area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="729,232,764,232,764,237,729,238"/>
-<area shape="poly" id="edge12_Node000011_Node000009" title=" " alt="" coords="1019,217,1053,214,1053,219,1019,222"/>
+<area shape="poly" id="edge12_Node000011_Node000009" title=" " alt="" coords="1019,217,1053,213,1053,219,1019,222"/>
 </map>

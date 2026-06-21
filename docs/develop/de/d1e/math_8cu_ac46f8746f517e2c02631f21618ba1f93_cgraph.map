@@ -1,6 +1,6 @@
 <map id="cuda_cdiv2" name="cuda_cdiv2">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,100,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="148,29,312,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,47,135,47,135,52,100,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="196,30,194,20,200,11,212,5,230,3,251,6,262,13,259,17,249,11,230,8,213,10,203,15,200,21,202,28"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="148,29,300,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,47,134,47,134,52,100,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="191,30,189,20,195,11,206,5,224,3,244,6,255,13,252,17,242,11,224,8,208,10,198,15,195,21,197,28"/>
 </map>

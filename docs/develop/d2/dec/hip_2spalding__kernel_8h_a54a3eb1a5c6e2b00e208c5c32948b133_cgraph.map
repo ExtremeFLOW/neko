@@ -1,6 +1,6 @@
 <map id="solve" name="solve">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,63,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="111,29,275,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="111,29,263,69"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="63,47,97,47,97,52,63,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="162,29,161,20,165,11,176,5,193,3,212,6,222,13,219,17,209,11,193,8,178,10,169,14,166,21,168,28"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="157,29,156,20,160,11,171,5,187,3,205,6,215,13,212,17,203,11,187,8,172,10,164,14,161,21,163,28"/>
 </map>

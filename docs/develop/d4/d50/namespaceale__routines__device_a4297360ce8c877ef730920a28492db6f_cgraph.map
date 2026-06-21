@@ -1,0 +1,8 @@
+<map id="ale_routines_device::compute_cheap_dist_device" name="ale_routines_device::compute_cheap_dist_device">
+<area shape="rect" id="Node000001" title="Cheap dist device implementation." alt="" coords="5,22,169,77"/>
+<area shape="rect" id="Node000002" href="$d9/d17/ale__kinematics_8cu.html#a462090a94f71cff736d24f603274b4df" title=" " alt="" coords="217,37,412,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,47,204,47,204,52,170,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="460,29,612,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="413,47,446,47,446,52,413,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="495,30,492,20,499,10,514,5,536,3,562,6,576,13,574,18,560,11,536,8,515,10,502,15,497,21,500,28"/>
+</map>

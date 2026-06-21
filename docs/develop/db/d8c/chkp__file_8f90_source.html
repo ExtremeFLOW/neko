@@ -773,290 +773,291 @@ $(document).ready(function(){initNavTree('db/d8c/chkp__file_8f90_source.html','.
 <div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>    <span class="keywordflow">if</span> ( ( glb_nelv .ne. msh%glb_nelv ) .or. &amp;</div>
 <div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>         ( gdim .ne. msh%gdim) .or. &amp;</div>
 <div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>         ( (have_lag .eq. 0) .and. (read_lag) ) .or. &amp;</div>
-<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>         ( (have_scalar .eq. 0) .and. (read_scalar) ) ) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;Checkpoint does not match case&#39;</span>)</div>
-<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>    nel = msh%nelv</div>
-<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>    this%sim_Xh =&gt; u%Xh</div>
-<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>       <span class="keyword">call </span>this%chkp_Xh%init(gll, lx, lx, lx)</div>
-<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>       <span class="keyword">call </span>this%chkp_Xh%init(gll, lx, lx)</div>
-<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span>    <span class="keywordflow">if</span> (this%mesh2mesh) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>       <span class="keywordflow">if</span> (read_ale) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>          <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;ALE does not yet support mesh2mesh &#39;</span> // &amp;</div>
-<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>               <span class="stringliteral">&#39;interpolation for restart!&#39;</span>)</div>
-<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span>       <span class="keyword">call </span>dof%init(msh, this%chkp_Xh)</div>
-<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>       <span class="keyword">call </span>this%global_interp%init(dof, neko_comm, tol = tol)</div>
-<div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span>       <span class="keyword">call </span>this%global_interp%find_points(u%dof%x, u%dof%y, u%dof%z, &amp;</div>
-<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span>            u%dof%size())</div>
-<div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span>       <span class="keyword">call </span>this%space_interp%init(this%sim_Xh, this%chkp_Xh)</div>
-<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span>    dof_offset = int(msh%offset_el, i8) * int(this%chkp_Xh%lxyz, i8)</div>
-<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>    n_glb_dofs = int(this%chkp_Xh%lxyz, i8) * int(msh%glb_nelv, i8)</div>
-<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span> </div>
-<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>    <span class="comment">! Read mandatory checkpoint data</span></div>
-<div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span> </div>
-<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span>    byte_offset = 4_i8 * int(mpi_integer_size, i8) + &amp;</div>
-<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>         int(mpi_double_precision_size, i8)</div>
-<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>    byte_offset = byte_offset + &amp;</div>
-<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>         dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span>    <span class="keyword">call </span>this%read_field(fh, byte_offset, u%x, nel)</div>
-<div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span>    mpi_offset = 4_i8 * int(mpi_integer_size, i8) + &amp;</div>
-<div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>         int(mpi_double_precision_size, i8)</div>
-<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>    mpi_offset = mpi_offset +&amp;</div>
-<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>         n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span> </div>
-<div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>    byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>         dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>    <span class="keyword">call </span>this%read_field(fh, byte_offset, v%x, nel)</div>
-<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>    mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span> </div>
-<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>    byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>         dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>    <span class="keyword">call </span>this%read_field(fh, byte_offset, w%x, nel)</div>
-<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>    mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span> </div>
-<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span>    byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>         dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>    <span class="keyword">call </span>this%read_field(fh, byte_offset, p%x, nel)</div>
-<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>    mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span> </div>
-<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>    <span class="comment">! Read optional payload</span></div>
-<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>    <span class="comment">!</span></div>
-<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span> </div>
-<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span>    <span class="keywordflow">if</span> (read_lag) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>       <span class="keywordflow">do</span> i = 1, ulag%size()</div>
-<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>          byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, ulag%lf(i)%x, nel)</div>
-<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span> </div>
-<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span>       <span class="keywordflow">do</span> i = 1, vlag%size()</div>
-<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span>          byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, vlag%lf(i)%x, nel)</div>
-<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span> </div>
-<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span>       <span class="keywordflow">do</span> i = 1, wlag%size()</div>
-<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>          byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, wlag%lf(i)%x, nel)</div>
-<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span> </div>
-<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>    <span class="keywordflow">if</span> (read_scalar) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, s%x, nel)</div>
-<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span> </div>
-<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span>    <span class="keywordflow">if</span> (read_dtlag .and. have_dtlag .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, tlag, 10, &amp;</div>
-<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>            mpi_real_precision, status, ierr)</div>
-<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>       mpi_offset = mpi_offset + 10_i8 * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, dtlag, 10, &amp;</div>
-<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span>            mpi_real_precision, status, ierr)</div>
-<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span>       mpi_offset = mpi_offset + 10_i8 * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span> </div>
-<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span>    <span class="keywordflow">if</span> (read_abvel .and. have_abvel .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abx1%x, nel)</div>
-<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abx2%x, nel)</div>
-<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00781" name="l00781"></a><span class="lineno">  781</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, aby1%x, nel)</div>
-<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, aby2%x, nel)</div>
-<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abz1%x, nel)</div>
-<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abz2%x, nel)</div>
-<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span>    <span class="keywordflow">if</span> (read_scalarlag .and. have_scalarlag .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span>       <span class="keywordflow">do</span> i = 1, slag%size()</div>
-<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>          byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, slag%lf(i)%x, nel)</div>
-<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abs1%x, nel)</div>
-<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abs2%x, nel)</div>
-<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span> </div>
-<div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span>    <span class="keywordflow">if</span> (read_ale .and. have_ale .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span> </div>
-<div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, msh_x, nel)</div>
-<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span> </div>
-<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, msh_y, nel)</div>
-<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span> </div>
-<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, msh_z, nel)</div>
-<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span> </div>
-<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_x%x, nel)</div>
-<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span> </div>
-<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_y%x, nel)</div>
-<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span> </div>
-<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_z%x, nel)</div>
-<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span> </div>
-<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span>       <span class="keywordflow">do</span> i = 1, wm_x_lag%size()</div>
-<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>          byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_x_lag%lf(i)%x, nel)</div>
-<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>       <span class="keywordflow">do</span> i = 1, wm_y_lag%size()</div>
-<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span>          byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_y_lag%lf(i)%x, nel)</div>
-<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span>       <span class="keywordflow">do</span> i = 1, wm_z_lag%size()</div>
-<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span>          byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_z_lag%lf(i)%x, nel)</div>
-<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, blag, nel)</div>
-<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span> </div>
-<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>       byte_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, blaglag, nel)</div>
-<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span> </div>
-<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, pivot_pos, &amp;</div>
-<div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span>            <span class="keyword">size</span>(pivot_pos), mpi_real_precision, status, ierr)</div>
-<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>       mpi_offset = mpi_offset + int(<span class="keyword">size</span>(pivot_pos), i8) &amp;</div>
-<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span>       * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span> </div>
-<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, pivot_vel_lag, &amp;</div>
-<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>            <span class="keyword">size</span>(pivot_vel_lag), mpi_real_precision, status, ierr)</div>
-<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>       mpi_offset = mpi_offset + int(<span class="keyword">size</span>(pivot_vel_lag), i8) &amp;</div>
-<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span>       * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span> </div>
-<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, basis_pos, &amp;</div>
-<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>            <span class="keyword">size</span>(basis_pos), mpi_real_precision, status, ierr)</div>
-<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>       mpi_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>            int(<span class="keyword">size</span>(basis_pos), i8) * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span> </div>
-<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, basis_vel_lag, &amp;</div>
-<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>            <span class="keyword">size</span>(basis_vel_lag), mpi_real_precision, status, ierr)</div>
-<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>       mpi_offset = mpi_offset + &amp;</div>
-<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>            int(<span class="keyword">size</span>(basis_vel_lag), i8) * int(mpi_real_prec_size, i8)</div>
-<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span> </div>
+<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>         ( (have_scalar .eq. 0) .and. (read_scalar) ) .or. &amp;</div>
+<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>         ( (have_ale .eq. 0) .and. (read_ale) ) ) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;Checkpoint does not match case&#39;</span>)</div>
+<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>    nel = msh%nelv</div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    this%sim_Xh =&gt; u%Xh</div>
+<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>       <span class="keyword">call </span>this%chkp_Xh%init(gll, lx, lx, lx)</div>
+<div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span>       <span class="keyword">call </span>this%chkp_Xh%init(gll, lx, lx)</div>
+<div class="line"><a id="l00684" name="l00684"></a><span class="lineno">  684</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00685" name="l00685"></a><span class="lineno">  685</span>    <span class="keywordflow">if</span> (this%mesh2mesh) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00686" name="l00686"></a><span class="lineno">  686</span>       <span class="keywordflow">if</span> (read_ale) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00687" name="l00687"></a><span class="lineno">  687</span>          <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;ALE does not yet support mesh2mesh &#39;</span> // &amp;</div>
+<div class="line"><a id="l00688" name="l00688"></a><span class="lineno">  688</span>               <span class="stringliteral">&#39;interpolation for restart!&#39;</span>)</div>
+<div class="line"><a id="l00689" name="l00689"></a><span class="lineno">  689</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00690" name="l00690"></a><span class="lineno">  690</span>       <span class="keyword">call </span>dof%init(msh, this%chkp_Xh)</div>
+<div class="line"><a id="l00691" name="l00691"></a><span class="lineno">  691</span>       <span class="keyword">call </span>this%global_interp%init(dof, neko_comm, tol = tol)</div>
+<div class="line"><a id="l00692" name="l00692"></a><span class="lineno">  692</span>       <span class="keyword">call </span>this%global_interp%find_points(u%dof%x, u%dof%y, u%dof%z, &amp;</div>
+<div class="line"><a id="l00693" name="l00693"></a><span class="lineno">  693</span>            u%dof%size())</div>
+<div class="line"><a id="l00694" name="l00694"></a><span class="lineno">  694</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00695" name="l00695"></a><span class="lineno">  695</span>       <span class="keyword">call </span>this%space_interp%init(this%sim_Xh, this%chkp_Xh)</div>
+<div class="line"><a id="l00696" name="l00696"></a><span class="lineno">  696</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00697" name="l00697"></a><span class="lineno">  697</span>    dof_offset = int(msh%offset_el, i8) * int(this%chkp_Xh%lxyz, i8)</div>
+<div class="line"><a id="l00698" name="l00698"></a><span class="lineno">  698</span>    n_glb_dofs = int(this%chkp_Xh%lxyz, i8) * int(msh%glb_nelv, i8)</div>
+<div class="line"><a id="l00699" name="l00699"></a><span class="lineno">  699</span> </div>
+<div class="line"><a id="l00700" name="l00700"></a><span class="lineno">  700</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00701" name="l00701"></a><span class="lineno">  701</span>    <span class="comment">! Read mandatory checkpoint data</span></div>
+<div class="line"><a id="l00702" name="l00702"></a><span class="lineno">  702</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00703" name="l00703"></a><span class="lineno">  703</span> </div>
+<div class="line"><a id="l00704" name="l00704"></a><span class="lineno">  704</span>    byte_offset = 4_i8 * int(mpi_integer_size, i8) + &amp;</div>
+<div class="line"><a id="l00705" name="l00705"></a><span class="lineno">  705</span>         int(mpi_double_precision_size, i8)</div>
+<div class="line"><a id="l00706" name="l00706"></a><span class="lineno">  706</span>    byte_offset = byte_offset + &amp;</div>
+<div class="line"><a id="l00707" name="l00707"></a><span class="lineno">  707</span>         dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00708" name="l00708"></a><span class="lineno">  708</span>    <span class="keyword">call </span>this%read_field(fh, byte_offset, u%x, nel)</div>
+<div class="line"><a id="l00709" name="l00709"></a><span class="lineno">  709</span>    mpi_offset = 4_i8 * int(mpi_integer_size, i8) + &amp;</div>
+<div class="line"><a id="l00710" name="l00710"></a><span class="lineno">  710</span>         int(mpi_double_precision_size, i8)</div>
+<div class="line"><a id="l00711" name="l00711"></a><span class="lineno">  711</span>    mpi_offset = mpi_offset +&amp;</div>
+<div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span>         n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span> </div>
+<div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>    byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>         dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>    <span class="keyword">call </span>this%read_field(fh, byte_offset, v%x, nel)</div>
+<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>    mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span> </div>
+<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>    byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>         dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>    <span class="keyword">call </span>this%read_field(fh, byte_offset, w%x, nel)</div>
+<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>    mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span> </div>
+<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>    byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>         dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>    <span class="keyword">call </span>this%read_field(fh, byte_offset, p%x, nel)</div>
+<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>    mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span> </div>
+<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>    <span class="comment">! Read optional payload</span></div>
+<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span>    <span class="comment">!</span></div>
+<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span> </div>
+<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>    <span class="keywordflow">if</span> (read_lag) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>       <span class="keywordflow">do</span> i = 1, ulag%size()</div>
+<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>          byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, ulag%lf(i)%x, nel)</div>
+<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span> </div>
+<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span>       <span class="keywordflow">do</span> i = 1, vlag%size()</div>
+<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span>          byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, vlag%lf(i)%x, nel)</div>
+<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span> </div>
+<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>       <span class="keywordflow">do</span> i = 1, wlag%size()</div>
+<div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>          byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, wlag%lf(i)%x, nel)</div>
+<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span> </div>
+<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>    <span class="keywordflow">if</span> (read_scalar) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, s%x, nel)</div>
+<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span> </div>
+<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span>    <span class="keywordflow">if</span> (read_dtlag .and. have_dtlag .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, tlag, 10, &amp;</div>
+<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>            mpi_real_precision, status, ierr)</div>
+<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>       mpi_offset = mpi_offset + 10_i8 * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, dtlag, 10, &amp;</div>
+<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span>            mpi_real_precision, status, ierr)</div>
+<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span>       mpi_offset = mpi_offset + 10_i8 * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span> </div>
+<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span>    <span class="keywordflow">if</span> (read_abvel .and. have_abvel .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abx1%x, nel)</div>
+<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abx2%x, nel)</div>
+<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00781" name="l00781"></a><span class="lineno">  781</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, aby1%x, nel)</div>
+<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, aby2%x, nel)</div>
+<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abz1%x, nel)</div>
+<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abz2%x, nel)</div>
+<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span>    <span class="keywordflow">if</span> (read_scalarlag .and. have_scalarlag .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>       <span class="keywordflow">do</span> i = 1, slag%size()</div>
+<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span>          byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, slag%lf(i)%x, nel)</div>
+<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abs1%x, nel)</div>
+<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, abs2%x, nel)</div>
+<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span> </div>
+<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span>    <span class="keywordflow">if</span> (read_ale .and. have_ale .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span> </div>
+<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, msh_x, nel)</div>
+<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span> </div>
+<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, msh_y, nel)</div>
+<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span> </div>
+<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, msh_z, nel)</div>
+<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span> </div>
+<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_x%x, nel)</div>
+<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span> </div>
+<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_y%x, nel)</div>
+<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span> </div>
+<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_z%x, nel)</div>
+<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span> </div>
+<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span>       <span class="keywordflow">do</span> i = 1, wm_x_lag%size()</div>
+<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span>          byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_x_lag%lf(i)%x, nel)</div>
+<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span>       <span class="keywordflow">do</span> i = 1, wm_y_lag%size()</div>
+<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>          byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_y_lag%lf(i)%x, nel)</div>
+<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span>       <span class="keywordflow">do</span> i = 1, wm_z_lag%size()</div>
+<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span>          byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span>               dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>          <span class="keyword">call </span>this%read_field(fh, byte_offset, wm_z_lag%lf(i)%x, nel)</div>
+<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span>          mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, blag, nel)</div>
+<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span> </div>
+<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>       byte_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>            dof_offset * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>       <span class="keyword">call </span>this%read_field(fh, byte_offset, blaglag, nel)</div>
+<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span>       mpi_offset = mpi_offset + n_glb_dofs * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span> </div>
+<div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, pivot_pos, &amp;</div>
+<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>            <span class="keyword">size</span>(pivot_pos), mpi_real_precision, status, ierr)</div>
+<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span>       mpi_offset = mpi_offset + int(<span class="keyword">size</span>(pivot_pos), i8) &amp;</div>
+<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>       * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span> </div>
+<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, pivot_vel_lag, &amp;</div>
+<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>            <span class="keyword">size</span>(pivot_vel_lag), mpi_real_precision, status, ierr)</div>
+<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span>       mpi_offset = mpi_offset + int(<span class="keyword">size</span>(pivot_vel_lag), i8) &amp;</div>
+<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>       * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span> </div>
+<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, basis_pos, &amp;</div>
+<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>            <span class="keyword">size</span>(basis_pos), mpi_real_precision, status, ierr)</div>
+<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>       mpi_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>            int(<span class="keyword">size</span>(basis_pos), i8) * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span> </div>
+<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>       <span class="keyword">call </span>mpi_file_read_at_all(fh, mpi_offset, basis_vel_lag, &amp;</div>
+<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>            <span class="keyword">size</span>(basis_vel_lag), mpi_real_precision, status, ierr)</div>
+<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>       mpi_offset = mpi_offset + &amp;</div>
+<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>            int(<span class="keyword">size</span>(basis_vel_lag), i8) * int(mpi_real_prec_size, i8)</div>
+<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span> </div>
-<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>    <span class="keyword">call </span>mpi_file_close(fh, ierr)</div>
-<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span> </div>
-<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>    <span class="keywordflow">if</span> (ierr .ne. mpi_success) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;Error reading checkpoint file &#39;</span> // trim(fname))</div>
-<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span> </div>
-<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span>    <span class="keyword">call </span>this%global_interp%free()</div>
-<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>    <span class="keyword">call </span>this%space_interp%free()</div>
-<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span> </div>
+<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span> </div>
+<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>    <span class="keyword">call </span>mpi_file_close(fh, ierr)</div>
+<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span> </div>
+<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>    <span class="keywordflow">if</span> (ierr .ne. mpi_success) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;Error reading checkpoint file &#39;</span> // trim(fname))</div>
+<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span> </div>
+<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>    <span class="keyword">call </span>this%global_interp%free()</div>
+<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>    <span class="keyword">call </span>this%space_interp%free()</div>
+<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span> </div>
 </div>
-<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a4fee4d082fd1bdc65e9873aa954d7108">chkp_file_read</a></div>
-<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span> </div>
-<div class="foldopen" id="foldopen00907" data-start="" data-end="">
-<div class="line"><a id="l00907" name="l00907"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">  907</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_read_field</a>(this, fh, byte_offset, x, nel)</div>
-<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>) :: this</div>
-<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>    <span class="keywordtype">type</span>(mpi_file) :: fh</div>
-<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>    <span class="keywordtype">integer(kind=MPI_OFFSET_KIND)</span> :: byte_offset</div>
-<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nel</div>
-<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span><span class="keywordtype">    real</span>(kind=rp) :: x(this%sim_Xh%lxyz, nel)</div>
-<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: read_array(:)</div>
-<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>    <span class="keywordtype">integer</span> :: nel_stride, frac_space</div>
-<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>    <span class="keywordtype">type</span>(mpi_status) :: status</div>
-<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>    <span class="keywordtype">integer</span> :: ierr, i, n</div>
-<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>    <span class="keywordtype">logical</span> :: interp_on_host = .true.</div>
-<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span> </div>
-<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>    n = this%chkp_xh%lxyz*nel</div>
-<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>    <span class="keyword">allocate</span>(read_array(n))</div>
-<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span> </div>
-<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>    <span class="keyword">call </span>rzero(read_array,n)</div>
-<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>    <span class="keyword">call </span>mpi_file_read_at_all(fh, byte_offset, read_array, &amp;</div>
-<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span>         n, mpi_real_precision, status, ierr)</div>
-<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>    <span class="keywordflow">if</span> (this%mesh2mesh) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span>       x = 0.0_rp</div>
-<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>       <span class="keyword">call </span>this%global_interp%evaluate(x, read_array, interp_on_host)</div>
-<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span> </div>
-<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%sim_Xh%lx .ne. this%chkp_Xh%lx) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>       <span class="keyword">call </span>this%space_interp%map_host(x, read_array, nel, this%sim_Xh)</div>
-<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>       <span class="keywordflow">do</span> i = 1,n</div>
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>          x(i,1) = read_array(i)</div>
-<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span>    <span class="keyword">deallocate</span>(read_array)</div>
+<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a4fee4d082fd1bdc65e9873aa954d7108">chkp_file_read</a></div>
+<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span> </div>
+<div class="foldopen" id="foldopen00908" data-start="" data-end="">
+<div class="line"><a id="l00908" name="l00908"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">  908</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_read_field</a>(this, fh, byte_offset, x, nel)</div>
+<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>) :: this</div>
+<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>    <span class="keywordtype">type</span>(mpi_file) :: fh</div>
+<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>    <span class="keywordtype">integer(kind=MPI_OFFSET_KIND)</span> :: byte_offset</div>
+<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nel</div>
+<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span><span class="keywordtype">    real</span>(kind=rp) :: x(this%sim_Xh%lxyz, nel)</div>
+<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">allocatable</span> :: read_array(:)</div>
+<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>    <span class="keywordtype">integer</span> :: nel_stride, frac_space</div>
+<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>    <span class="keywordtype">type</span>(mpi_status) :: status</div>
+<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>    <span class="keywordtype">integer</span> :: ierr, i, n</div>
+<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>    <span class="keywordtype">logical</span> :: interp_on_host = .true.</div>
+<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span> </div>
+<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>    n = this%chkp_xh%lxyz*nel</div>
+<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>    <span class="keyword">allocate</span>(read_array(n))</div>
+<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span> </div>
+<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>    <span class="keyword">call </span>rzero(read_array,n)</div>
+<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span>    <span class="keyword">call </span>mpi_file_read_at_all(fh, byte_offset, read_array, &amp;</div>
+<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>         n, mpi_real_precision, status, ierr)</div>
+<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span>    <span class="keywordflow">if</span> (this%mesh2mesh) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>       x = 0.0_rp</div>
+<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span>       <span class="keyword">call </span>this%global_interp%evaluate(x, read_array, interp_on_host)</div>
+<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span> </div>
+<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this%sim_Xh%lx .ne. this%chkp_Xh%lx) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>       <span class="keyword">call </span>this%space_interp%map_host(x, read_array, nel, this%sim_Xh)</div>
+<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>       <span class="keywordflow">do</span> i = 1,n</div>
+<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span>          x(i,1) = read_array(i)</div>
+<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span>    <span class="keyword">deallocate</span>(read_array)</div>
 </div>
-<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_read_field</a></div>
-<div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span> </div>
-<div class="foldopen" id="foldopen00939" data-start="" data-end="">
-<div class="line"><a id="l00939" name="l00939"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">  939</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file_set_overwrite</a>(this, overwrite)</div>
-<div class="line"><a id="l00940" name="l00940"></a><span class="lineno">  940</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: overwrite</div>
-<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span>    this%overwrite = overwrite</div>
+<div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_read_field</a></div>
+<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span> </div>
+<div class="foldopen" id="foldopen00940" data-start="" data-end="">
+<div class="line"><a id="l00940" name="l00940"></a><span class="lineno"><a class="line" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">  940</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file_set_overwrite</a>(this, overwrite)</div>
+<div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00942" name="l00942"></a><span class="lineno">  942</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: overwrite</div>
+<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span>    this%overwrite = overwrite</div>
 </div>
-<div class="line"><a id="l00943" name="l00943"></a><span class="lineno">  943</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file_set_overwrite</a></div>
-<div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/dcb/namespacechkp__file.html">chkp_file</a></div>
+<div class="line"><a id="l00944" name="l00944"></a><span class="lineno">  944</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file_set_overwrite</a></div>
+<div class="line"><a id="l00945" name="l00945"></a><span class="lineno">  945</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/dcb/namespacechkp__file.html">chkp_file</a></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
 <div class="ttc" id="anamespacecheckpoint_html"><div class="ttname"><a href="../../d3/d51/namespacecheckpoint.html">checkpoint</a></div><div class="ttdoc">Defines a checkpoint.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/checkpoint_8f90_source.html#l00034">checkpoint.f90:34</a></div></div>
 <div class="ttc" id="anamespacechkp__file_html"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html">chkp_file</a></div><div class="ttdoc">Neko checkpoint file format.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00035">chkp_file.f90:35</a></div></div>
 <div class="ttc" id="anamespacechkp__file_html_a4c185a9e0ef7d3da7ac1eccae3411f42"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a4c185a9e0ef7d3da7ac1eccae3411f42">chkp_file::chkp_file_write</a></div><div class="ttdeci">subroutine chkp_file_write(this, data, t)</div><div class="ttdoc">Write a Neko checkpoint.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00082">chkp_file.f90:83</a></div></div>
 <div class="ttc" id="anamespacechkp__file_html_a4fee4d082fd1bdc65e9873aa954d7108"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a4fee4d082fd1bdc65e9873aa954d7108">chkp_file::chkp_file_read</a></div><div class="ttdeci">subroutine chkp_file_read(this, data)</div><div class="ttdoc">Load a checkpoint from file.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00509">chkp_file.f90:510</a></div></div>
-<div class="ttc" id="anamespacechkp__file_html_a80dd889c6e195bb7c41b3bb18cbb09b1"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file::chkp_file_set_overwrite</a></div><div class="ttdeci">subroutine chkp_file_set_overwrite(this, overwrite)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00939">chkp_file.f90:940</a></div></div>
-<div class="ttc" id="anamespacechkp__file_html_abdd803205d3c07f2564e810040947279"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_file::chkp_read_field</a></div><div class="ttdeci">subroutine chkp_read_field(this, fh, byte_offset, x, nel)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00907">chkp_file.f90:908</a></div></div>
+<div class="ttc" id="anamespacechkp__file_html_a80dd889c6e195bb7c41b3bb18cbb09b1"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#a80dd889c6e195bb7c41b3bb18cbb09b1">chkp_file::chkp_file_set_overwrite</a></div><div class="ttdeci">subroutine chkp_file_set_overwrite(this, overwrite)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00940">chkp_file.f90:941</a></div></div>
+<div class="ttc" id="anamespacechkp__file_html_abdd803205d3c07f2564e810040947279"><div class="ttname"><a href="../../dc/dcb/namespacechkp__file.html#abdd803205d3c07f2564e810040947279">chkp_file::chkp_read_field</a></div><div class="ttdeci">subroutine chkp_read_field(this, fh, byte_offset, x, nel)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00908">chkp_file.f90:909</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a3119ac9b00aa5192f43296a1edb405bc"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">comm::mpi_real_precision</a></div><div class="ttdeci">type(mpi_datatype), public mpi_real_precision</div><div class="ttdoc">MPI type for working precision of REAL types.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00053">comm.F90:53</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00058">comm.F90:58</a></div></div>
@@ -1085,7 +1086,7 @@ $(document).ready(function(){initNavTree('db/d8c/chkp__file_8f90_source.html','.
 <div class="ttc" id="anamespacespace_html_a9dbfc4fd0750ee0878eec8a16370a91d"><div class="ttname"><a href="../../d5/d0d/namespacespace.html#a9dbfc4fd0750ee0878eec8a16370a91d">space::gll</a></div><div class="ttdeci">integer, parameter, public gll</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da4/space_8f90_source.html#l00049">space.f90:49</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
 <div class="ttc" id="anamespaceutils_html_ae2d9d80ae0bcff7643db09d1c1860542"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542">utils::filename_suffix_pos</a></div><div class="ttdeci">pure integer function, public filename_suffix_pos(fname)</div><div class="ttdoc">Find position (in the string) of a filename's suffix.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00073">utils.f90:74</a></div></div>
-<div class="ttc" id="astructcheckpoint_1_1chkp__t_html"><div class="ttname"><a href="../../d9/d88/structcheckpoint_1_1chkp__t.html">checkpoint::chkp_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/checkpoint_8f90_source.html#l00051">checkpoint.f90:51</a></div></div>
+<div class="ttc" id="astructcheckpoint_1_1chkp__t_html"><div class="ttname"><a href="../../d9/d88/structcheckpoint_1_1chkp__t.html">checkpoint::chkp_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/checkpoint_8f90_source.html#l00052">checkpoint.f90:52</a></div></div>
 <div class="ttc" id="astructchkp__file_1_1chkp__file__t_html"><div class="ttname"><a href="../../dd/dd2/structchkp__file_1_1chkp__file__t.html">chkp_file::chkp_file_t</a></div><div class="ttdoc">Interface for Neko checkpoint files.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d8c/chkp__file_8f90_source.html#l00061">chkp_file.f90:61</a></div></div>
 <div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00056">dofmap.f90:56</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
@@ -1101,7 +1102,7 @@ $(document).ready(function(){initNavTree('db/d8c/chkp__file_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../db/d8c/chkp__file_8f90.html">chkp_file.f90</a></li>
-    <li class="footer">Generated on Sat Jun 20 2026 04:58:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Jun 21 2026 05:14:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

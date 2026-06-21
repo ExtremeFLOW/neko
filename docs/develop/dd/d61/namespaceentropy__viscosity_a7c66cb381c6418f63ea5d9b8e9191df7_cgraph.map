@@ -26,19 +26,19 @@
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="455,201,512,191,634,178,749,170,749,176,635,183,512,197,456,207"/>
 <area shape="rect" id="Node000008" href="$dd/d01/entropy__viscosity_8c.html#accdd3f16b84e8d1862fef9f157f52d83" title=" " alt="" coords="529,206,689,246"/>
 <area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="456,223,516,223,516,229,456,229"/>
-<area shape="rect" id="Node000007" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1009,257,1173,297"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="918,186,962,205,1045,247,1042,252,960,210,916,191"/>
-<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1048,257,1045,247,1052,238,1068,232,1091,230,1118,233,1133,240,1131,245,1117,238,1091,235,1069,237,1056,242,1051,248,1053,256"/>
-<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="690,226,818,234,962,249,996,254,995,259,961,254,817,239,689,232"/>
+<area shape="rect" id="Node000007" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1009,257,1161,297"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="918,186,962,205,1041,247,1038,252,960,210,916,191"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1043,257,1040,247,1047,238,1062,232,1085,230,1112,233,1126,240,1124,245,1110,238,1085,235,1064,237,1050,242,1046,248,1048,256"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="690,226,818,234,962,249,996,254,995,260,961,254,817,239,690,231"/>
 <area shape="rect" id="Node000009" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="792,264,924,289"/>
 <area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="690,240,782,259,781,264,689,245"/>
-<area shape="poly" id="edge11_Node000009_Node000007" title=" " alt="" coords="924,274,996,274,996,279,924,279"/>
+<area shape="poly" id="edge11_Node000009_Node000007" title=" " alt="" coords="924,274,995,274,995,279,924,279"/>
 <area shape="rect" id="Node000012" href="$d8/d84/entropy__viscosity_8cu.html#af738e8d5bc0602b1753a347c9e26a6d2" title=" " alt="" coords="755,365,961,405"/>
 <area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="464,381,741,382,741,387,464,386"/>
 <area shape="rect" id="Node000013" href="$dd/d01/entropy__viscosity_8c.html#a61db272758938fb59160aab35300463c" title=" " alt="" coords="532,306,687,346"/>
 <area shape="poly" id="edge16_Node000011_Node000013" title=" " alt="" coords="464,357,518,344,519,349,465,362"/>
-<area shape="poly" id="edge15_Node000012_Node000007" title=" " alt="" coords="916,362,960,344,1042,301,1045,306,962,348,918,367"/>
-<area shape="poly" id="edge17_Node000013_Node000007" title=" " alt="" coords="687,320,815,312,961,298,995,293,996,298,962,303,816,318,687,326"/>
+<area shape="poly" id="edge15_Node000012_Node000007" title=" " alt="" coords="916,362,960,344,1038,302,1041,306,962,348,918,367"/>
+<area shape="poly" id="edge17_Node000013_Node000007" title=" " alt="" coords="687,320,815,313,961,298,995,293,996,298,962,303,816,318,687,326"/>
 <area shape="poly" id="edge18_Node000013_Node000009" title=" " alt="" coords="686,308,779,289,780,295,687,313"/>
 <area shape="rect" id="Node000015" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="562,421,657,447"/>
 <area shape="poly" id="edge20_Node000014_Node000015" title=" " alt="" coords="442,440,548,435,548,440,442,446"/>

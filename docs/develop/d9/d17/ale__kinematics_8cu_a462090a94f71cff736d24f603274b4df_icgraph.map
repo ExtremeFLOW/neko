@@ -1,0 +1,9 @@
+<map id="compute_cheap_dist_cuda" name="compute_cheap_dist_cuda">
+<area shape="rect" id="Node000001" title=" " alt="" coords="684,20,879,45"/>
+<area shape="rect" id="Node000002" href="$d4/d50/namespaceale__routines__device.html#a4297360ce8c877ef730920a28492db6f" title="Cheap dist device implementation." alt="" coords="472,5,636,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="670,35,636,35,636,30,670,30"/>
+<area shape="rect" id="Node000003" href="$dd/db4/namespaceale__manager.html#aadb4d8b03fb126dbfd684fe551c739e5" title=" " alt="" coords="252,13,424,53"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="458,35,424,35,424,30,458,30"/>
+<area shape="rect" id="Node000004" href="$dd/db4/namespaceale__manager.html#aaec889c954567207a1fe41e8961ac448" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,13,204,53"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="238,35,204,35,204,30,238,30"/>
+</map>

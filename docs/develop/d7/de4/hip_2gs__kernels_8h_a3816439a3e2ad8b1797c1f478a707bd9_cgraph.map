@@ -1,6 +1,6 @@
 <map id="scatter_kernel" name="scatter_kernel">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,120,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="168,29,332,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="168,29,320,69"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,47,154,47,154,52,120,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="215,30,213,20,218,11,231,5,250,3,272,6,284,13,281,17,270,11,250,8,232,10,222,15,218,21,220,28"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="210,30,208,20,213,11,225,5,244,3,265,6,277,13,274,17,264,11,244,8,227,10,217,15,213,21,215,28"/>
 </map>

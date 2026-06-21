@@ -1,6 +1,6 @@
 <map id="cuda_cmult" name="cuda_cmult">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,103,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="151,29,315,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="151,29,303,69"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,47,137,47,137,52,103,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="199,30,197,20,202,11,214,5,233,3,254,6,265,13,262,17,252,11,233,8,216,10,206,15,202,21,204,28"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="194,30,192,20,197,11,209,5,227,3,247,6,258,13,255,17,245,11,227,8,211,10,201,15,197,21,199,28"/>
 </map>

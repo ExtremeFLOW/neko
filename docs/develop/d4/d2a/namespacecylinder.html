@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('d4/d2a/namespacecylinder.html','../../
 Functions</h2></td></tr>
 <tr class="memitem:a5cab53f41c638415ee3e61671bc914e6" id="r_a5cab53f41c638415ee3e61671bc914e6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d2a/namespacecylinder.html#a5cab53f41c638415ee3e61671bc914e6">initial</a> (name, len)</td></tr>
 <tr class="separator:a5cab53f41c638415ee3e61671bc914e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1257a1af46a5bc2ab50270651318cff" id="r_ac1257a1af46a5bc2ab50270651318cff"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d2a/namespacecylinder.html#ac1257a1af46a5bc2ab50270651318cff">inflow</a> (msk, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">msk_size</a>, t, tstep)</td></tr>
+<tr class="memitem:ac1257a1af46a5bc2ab50270651318cff" id="r_ac1257a1af46a5bc2ab50270651318cff"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d2a/namespacecylinder.html#ac1257a1af46a5bc2ab50270651318cff">inflow</a> (msk, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">msk_size</a>, t, tstep)</td></tr>
 <tr class="separator:ac1257a1af46a5bc2ab50270651318cff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
@@ -240,10 +240,10 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line"><span class="lineno">    1</span>=  <a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pyneko.case_init</a>(cylinder_json,</div>
+<b>Initial value:</b><div class="fragment"><div class="line"><span class="lineno">    1</span>=  <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pyneko.case_init</a>(cylinder_json,</div>
 <div class="line"><span class="lineno">    2</span>                                 cb_initial_condition = cb_cylinder_ic,</div>
 <div class="line"><span class="lineno">    3</span>                                 cb_dirichlet_condition = cb_cylinder_if)</div>
-<div class="ttc" id="acuda_2dirichlet__kernel_8h_html_ac2cb217184f95ca86456f610f72bd533"><div class="ttname"><a href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dirichlet_apply_scalar_kernel</a></div><div class="ttdeci">__global__ void dirichlet_apply_scalar_kernel(const int *__restrict__ msk, T *__restrict__ x, const T g, const int m)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d11/cuda_2dirichlet__kernel_8h_source.html#l00042">dirichlet_kernel.h:42</a></div></div>
+<div class="ttc" id="acuda_2ale__kinematics__kernel_8h_html_ad4350b4cac096924ce42615d376f4759"><div class="ttname"><a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ale_add_kinematics_kernel</a></div><div class="ttdeci">__global__ void ale_add_kinematics_kernel(const int n, T *__restrict__ wx, T *__restrict__ wy, T *__restrict__ wz, const T *__restrict__ x_ref, const T *__restrict__ y_ref, const T *__restrict__ z_ref, const T *__restrict__ phi, const T *__restrict__ x, const T *__restrict__ y, const T *__restrict__ z, const kinematics_params_t kin_params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h_source.html#l00052">ale_kinematics_kernel.h:52</a></div></div>
 </div><!-- fragment -->
 <p class="definition">Definition at line <a class="el" href="../../de/da1/cylinder_8py_source.html#l00049">49</a> of file <a class="el" href="../../de/da1/cylinder_8py_source.html">cylinder.py</a>.</p>
 
@@ -271,7 +271,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d4/d2a/namespacecylinder.html">cylinder</a></li>
-    <li class="footer">Generated on Sat Jun 20 2026 04:58:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Jun 21 2026 05:14:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

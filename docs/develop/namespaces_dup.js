@@ -15,16 +15,10 @@ var namespaces_dup =
     [ "ale_routines_cpu", "d3/d1b/namespaceale__routines__cpu.html", [
       [ "add_kinematics_to_mesh_velocity_cpu", "d3/d1b/namespaceale__routines__cpu.html#a1d6164a67d88ef87354b43be6fb4f812", null ],
       [ "compute_cheap_dist_cpu", "d3/d1b/namespaceale__routines__cpu.html#a1ed25c9746da32ed29a3a1adc93069bc", null ],
-      [ "compute_cheap_dist_v2_cpu", "d3/d1b/namespaceale__routines__cpu.html#ac8f5eb4a1b2a0fb46de7146395427108", null ],
-      [ "compute_stiffness_ale_cpu", "d3/d1b/namespaceale__routines__cpu.html#a26eab9fe752cf281db787307eb26e3c0", null ],
+      [ "compute_cheap_dist_v2_cpu", "d3/d1b/namespaceale__routines__cpu.html#a8fa1e9c2d30882c5ca4edeab07beb1b7", null ],
       [ "update_ale_mesh_cpu", "d3/d1b/namespaceale__routines__cpu.html#afeaabcb60c806c7d3bdf2b6cb2c788b8", null ]
     ] ],
-    [ "ale_routines_device", "d4/d50/namespaceale__routines__device.html", [
-      [ "add_kinematics_to_mesh_velocity_device", "d4/d50/namespaceale__routines__device.html#a2f216f9dcefe2d488516f4a5943cd3a1", null ],
-      [ "compute_cheap_dist_device", "d4/d50/namespaceale__routines__device.html#a2830c50019caed608b4cb87f0276429d", null ],
-      [ "compute_stiffness_ale_device", "d4/d50/namespaceale__routines__device.html#a9b1ac38e047b54f3126324ba95c8981f", null ],
-      [ "update_ale_mesh_device", "d4/d50/namespaceale__routines__device.html#a66f122c51f57f4ff2edf95cb0d091599", null ]
-    ] ],
+    [ "ale_routines_device", "d4/d50/namespaceale__routines__device.html", "d4/d50/namespaceale__routines__device" ],
     [ "ax_helm", "d0/d35/namespaceax__helm.html", "d0/d35/namespaceax__helm" ],
     [ "ax_helm_cpu", "d5/de3/namespaceax__helm__cpu.html", "d5/de3/namespaceax__helm__cpu" ],
     [ "ax_helm_device", "d7/d82/namespaceax__helm__device.html", "d7/d82/namespaceax__helm__device" ],

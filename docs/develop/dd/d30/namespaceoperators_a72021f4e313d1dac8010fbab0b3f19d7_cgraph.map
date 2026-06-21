@@ -8,13 +8,13 @@
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="356,46,404,41,614,20,614,26,404,46,357,52"/>
 <area shape="rect" id="Node000005" href="$d1/dc1/opr__conv1_8c.html#ab07cb7910eb3d0e828e2220814aeb52f" title=" " alt="" coords="428,56,539,81"/>
 <area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="357,61,414,63,414,69,356,67"/>
-<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="791,49,955,89"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="727,28,782,43,781,48,726,33"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="836,49,834,39,840,30,853,24,873,22,896,25,908,32,905,37,894,30,873,27,854,29,843,34,839,40,841,48"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="791,49,943,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="726,28,779,42,777,48,725,33"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="831,49,829,39,834,30,847,24,867,22,889,25,901,32,898,37,887,30,867,27,849,29,838,34,834,40,836,48"/>
 <area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="539,66,777,66,777,71,539,71"/>
 <area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="611,107,743,132"/>
 <area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="533,79,615,101,614,106,532,84"/>
-<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="726,104,781,90,782,95,727,109"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="725,104,777,90,779,95,726,109"/>
 <area shape="rect" id="Node000008" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="404,112,563,137"/>
 <area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="355,122,390,122,390,127,355,127"/>
 </map>

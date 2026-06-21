@@ -18,20 +18,20 @@
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="659,189,1004,195,1004,200,659,195"/>
 <area shape="rect" id="Node000008" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="773,134,890,159"/>
 <area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="658,173,759,156,759,161,659,179"/>
-<area shape="rect" id="Node000007" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1197,128,1361,168"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1122,183,1184,168,1185,174,1124,189"/>
-<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1240,128,1238,118,1244,109,1258,103,1279,101,1304,104,1317,112,1314,116,1302,109,1279,107,1259,109,1247,113,1243,119,1245,127"/>
+<area shape="rect" id="Node000007" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1197,128,1349,168"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1121,183,1183,168,1185,173,1123,188"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="1235,128,1233,118,1239,109,1253,103,1273,101,1297,104,1310,112,1307,116,1295,109,1273,107,1254,109,1242,113,1238,119,1240,127"/>
 <area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="890,144,1184,145,1184,150,890,150"/>
 <area shape="rect" id="Node000009" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1004,85,1136,110"/>
 <area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="890,132,994,110,995,115,891,137"/>
-<area shape="poly" id="edge11_Node000009_Node000007" title=" " alt="" coords="1124,108,1184,122,1183,127,1123,113"/>
+<area shape="poly" id="edge11_Node000009_Node000007" title=" " alt="" coords="1123,108,1185,123,1183,128,1121,113"/>
 <area shape="rect" id="Node000011" href="$d9/d5a/namespaceopr__xsmm.html#afced4474e6070b5f75f9767b4b107aaf" title=" " alt="" coords="744,235,919,261"/>
 <area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="657,250,730,248,730,253,657,255"/>
 <area shape="rect" id="Node000013" href="$d9/d5a/namespaceopr__xsmm.html#a005ad99d806e0b64c65c52b0819b08ec" title=" " alt="" coords="720,285,943,310"/>
 <area shape="poly" id="edge15_Node000010_Node000013" title=" " alt="" coords="657,266,741,280,740,285,656,271"/>
 <area shape="rect" id="Node000012" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="991,235,1149,261"/>
 <area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="919,245,977,245,977,251,919,251"/>
-<area shape="poly" id="edge17_Node000014_Node000007" title=" " alt="" coords="663,337,768,344,893,340,959,332,1024,319,1088,299,1148,271,1179,251,1207,226,1253,177,1256,181,1211,230,1182,255,1151,276,1090,304,1026,324,959,337,893,346,767,349,663,342"/>
-<area shape="poly" id="edge19_Node000015_Node000007" title=" " alt="" coords="911,69,965,61,1025,57,1088,59,1150,69,1201,90,1244,118,1241,122,1198,95,1149,75,1088,64,1025,62,965,66,912,74"/>
+<area shape="poly" id="edge17_Node000014_Node000007" title=" " alt="" coords="659,337,763,344,890,342,956,334,1023,320,1087,299,1148,271,1178,251,1205,226,1248,177,1252,181,1209,230,1181,255,1151,276,1089,304,1024,325,957,339,890,347,763,350,658,342"/>
+<area shape="poly" id="edge19_Node000015_Node000007" title=" " alt="" coords="911,68,965,60,1025,56,1088,58,1150,69,1198,90,1239,117,1236,122,1196,95,1149,75,1088,63,1025,61,965,66,912,74"/>
 <area shape="poly" id="edge20_Node000015_Node000009" title=" " alt="" coords="912,89,990,92,990,97,912,95"/>
 </map>

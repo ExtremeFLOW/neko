@@ -49,6 +49,11 @@ var annotated_dup =
       [ "point_tracker_t", "db/dcf/structale__rigid__kinematics_1_1point__tracker__t.html", "db/dcf/structale__rigid__kinematics_1_1point__tracker__t" ],
       [ "stiffness_geometry_t", "d2/d2c/structale__rigid__kinematics_1_1stiffness__geometry__t.html", "d2/d2c/structale__rigid__kinematics_1_1stiffness__geometry__t" ]
     ] ],
+    [ "ale_routines_device", "d4/d50/namespaceale__routines__device.html", [
+      [ "add_kinematics_to_mesh_velocity_hip", "d1/da5/interfaceale__routines__device_1_1add__kinematics__to__mesh__velocity__hip.html", "d1/da5/interfaceale__routines__device_1_1add__kinematics__to__mesh__velocity__hip" ],
+      [ "compute_cheap_dist_hip", "d4/dfb/interfaceale__routines__device_1_1compute__cheap__dist__hip.html", "d4/dfb/interfaceale__routines__device_1_1compute__cheap__dist__hip" ],
+      [ "kinematics_params_t", "d8/d38/structale__routines__device_1_1kinematics__params__t.html", "d8/d38/structale__routines__device_1_1kinematics__params__t" ]
+    ] ],
     [ "ax_helm", "d0/d35/namespaceax__helm.html", [
       [ "ax_helm_t", "d1/d58/structax__helm_1_1ax__helm__t.html", "d1/d58/structax__helm_1_1ax__helm__t" ]
     ] ],
@@ -1817,5 +1822,6 @@ var annotated_dup =
     ] ],
     [ "zero_dirichlet", "da/ddc/namespacezero__dirichlet.html", [
       [ "zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t" ]
-    ] ]
+    ] ],
+    [ "kinematics_params_t", "df/dc7/structkinematics__params__t.html", "df/dc7/structkinematics__params__t" ]
 ];
