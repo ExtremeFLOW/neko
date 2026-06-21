@@ -37,6 +37,7 @@ module idw_source_term
   use json_module, only : json_file, json_value, json_core
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use source_term, only : source_term_t
+  use field_math, only : field_col2, field_col3, field_copy
   use coefs, only : coef_t
   use field, only : field_t
   use utils, only : neko_error
@@ -44,7 +45,7 @@ module idw_source_term
   use registry, only : neko_registry
   use field, only : field_t
   use file, only : file_t
-  use comm, only : MPI_REAL_PRECISION, NEKO_COMM
+  use comm, only : MPI_REAL_PRECISION, NEKO_COMM, pe_rank
   use intersection_detector, only : intersect_detector_t
   use mesh, only : mesh_t
   use stack, only : stack_i4_t, stack_pt_t
@@ -53,9 +54,17 @@ module idw_source_term
   use math, only : NEKO_EPS
   use aabb, only : aabb_t, get_aabb
   use time_state, only : time_state_t
-  use gather_scatter
-  use mpi_f08
-  use logger
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use elementwise_filter, only : elementwise_filter_t
+  use PDE_filter, only : PDE_filter_t
+  use filter, only : filter_t
+  use device_math, only : device_col2
+  use device, only : device_free
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MIN, &
+       MPI_MAX, MPI_INTEGER, MPI_SUM
+  use logger, only : neko_log, LOG_SIZE
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -76,6 +85,12 @@ module idw_source_term
      real(kind=rp), allocatable :: fum_ib(:)
      real(kind=rp), allocatable :: fvm_ib(:)
      real(kind=rp), allocatable :: fwm_ib(:)
+     type(c_ptr) :: fu_ib_d = C_NULL_PTR
+     type(c_ptr) :: fv_ib_d = C_NULL_PTR
+     type(c_ptr) :: fw_ib_d = C_NULL_PTR
+     type(c_ptr) :: fum_ib_d = C_NULL_PTR
+     type(c_ptr) :: fvm_ib_d = C_NULL_PTR
+     type(c_ptr) :: fwm_ib_d = C_NULL_PTR
      real(kind=rp) :: pwr_param
      real(kind=rp) :: rmax
      type(field_t) :: w
@@ -86,6 +101,7 @@ module idw_source_term
      type(field_t) :: tmp
      type(gs_t) :: gs
      logical :: one_sided
+     class(filter_t), allocatable :: fltr
    contains
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => idw_source_term_init_from_json
@@ -117,6 +133,7 @@ contains
     type(stack_pt_t) :: lagrangian_points
     type(stack_pt_t) :: lagrangian_normals
     real(kind=rp) :: start_time, end_time
+    character(len=:), allocatable :: filter_type
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -124,7 +141,7 @@ contains
 
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
-
+    
     call neko_log%section('Inverse distance weighting')
 
     call json_get_or_default(json, "rmax", this%rmax, 1.0_rp)
@@ -138,9 +155,26 @@ contains
     call json_get_or_default(json, "power_parameter", this%pwr_param, 0.5_rp)
     write(log_buf, '(A,f5.2)') 'IDW Power  : ', this%pwr_param
     call neko_log%message(log_buf)
-    call json_get_or_default(json, "one_sided", this%one_sided, .false.)
+    call json_get_or_default(json, "one_sided", this%one_sided, .true.)
     write(log_buf, '(A,L1)') 'One sided  : ', this%one_sided
     call neko_log%message(log_buf)
+
+
+    call json_get_or_default(json, 'filter.type', filter_type, 'none')
+    select case (filter_type)
+    case ('PDE')
+       allocate(PDE_filter_t::this%fltr)       
+    case ('elementwise')
+       allocate(elementwise_filter_t::this%fltr)
+    case ('none')       
+    case default
+       call neko_error('IDW source term unknown filter type')
+    end select
+
+     if (allocated(this%fltr)) then
+        call this%fltr%init(json, coef)
+     end if
+
 
     ! Naive apporach to find the smallest distance between two dofs in the mesh
 
@@ -299,18 +333,17 @@ contains
 
        call neko_log%message('Type       : '// trim(object_type))
        select case (object_type)
-         case ('boundary_mesh')
+       case ('boundary_mesh')
           call this%init_boundary_mesh(lagrangian_points, lagrangian_normals, &
                object_settings)
-         case ('none')
+       case ('none')
           call neko_error('IDW source term objects require a region type')
-         case default
+       case default
           call neko_error('IDW source term unkown region type')
        end select
        call neko_log%end()
     end do
     call neko_log%end()
-
 
     ! Report total number of lagrangian points generated, this might differ
     ! from the STL sources due to refinement (not implemented yet!)
@@ -370,7 +403,8 @@ contains
     call this%global_interp%init(coef%dof, NEKO_COMM)
 
     n_lags = lagrangian_points%size()
-    call this%global_interp%find_points_and_redist(this%xyz, n_lags)
+    
+    call this%global_interp%find_points_xyz(this%xyz, n_lags)
 
     ! Construct list of overlapping elements for each lagrangian particle
     allocate(this%lag_el(lagrangian_points%size()))
@@ -408,8 +442,8 @@ contains
             this%lag_nrm, coef%dof%x, coef%dof%y, coef%dof%z, &
             coef%Xh%lx, coef%msh%nelv)
     else
-       this%mmsk%x = 0.0_rp
-       this%pmsk%x = 1.0_rp
+       this%mmsk = 0.0_rp
+       this%pmsk = 1.0_rp
     end if
 
 
@@ -475,15 +509,44 @@ contains
        deallocate(this%fwm_ib)
     end if
 
+    if (c_associated(this%fu_ib_d)) then
+       call device_free(this%fu_ib_d)
+    end if
+    
+    if (c_associated(this%fv_ib_d)) then
+       call device_free(this%fv_ib_d)
+    end if
+    
+    if (c_associated(this%fw_ib_d)) then
+       call device_free(this%fw_ib_d)
+    end if
+    
+    if (c_associated(this%fum_ib_d)) then
+       call device_free(this%fum_ib_d)
+    end if
+    
+    if (c_associated(this%fvm_ib_d)) then
+       call device_free(this%fvm_ib_d)
+    end if
+    
+    if (c_associated(this%fwm_ib_d)) then
+       call device_free(this%fwm_ib_d)
+    end if
+    
     if (allocated(this%lag_pts)) then
        deallocate(this%lag_pts)
     end if
-
+    
     if (allocated(this%lag_el)) then
        do i = 1, size(this%lag_el)
           call this%lag_el(i)%free()
        end do
        deallocate(this%lag_el)
+    end if
+
+    if (allocated(this%fltr)) then
+       call this%fltr%free()
+       deallocate(this%fltr)
     end if
 
     call this%gs%free()
@@ -525,35 +588,23 @@ contains
          fvm_ib = 0.0_rp
          fwm_ib = 0.0_rp
 
-         do i = 1, n
-            tmp%x(i,1,1,1) = u%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
-         end do
-         call global_interp%evaluate(fu_ib, tmp%x, .false.)
+         call field_col3(tmp, u, this%pmsk, tmp%size())
+         call global_interp%evaluate(fu_ib, tmp%x, .true.)
+                  
+         call field_col3(tmp, v, this%pmsk, tmp%size())         
+         call global_interp%evaluate(fv_ib, tmp%x, .true.)
 
-         do i = 1, n
-            tmp%x(i,1,1,1) = v%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
-         end do
-         call global_interp%evaluate(fv_ib, tmp%x, .false.)
+         call field_col3(tmp, w, this%pmsk, tmp%size())
+         call global_interp%evaluate(fw_ib, tmp%x, .true.)
 
-         do i = 1, n
-            tmp%x(i,1,1,1) = w%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
-         end do
-         call global_interp%evaluate(fw_ib, tmp%x, .false.)
+         call field_col3(tmp, u, this%mmsk, tmp%size())
+         call global_interp%evaluate(fum_ib, tmp%x, .true.)
 
-         do i = 1, n
-            tmp%x(i,1,1,1) = u%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
-         end do
-         call global_interp%evaluate(fum_ib, tmp%x, .false.)
+         call field_col3(tmp, v, this%mmsk, tmp%size())
+         call global_interp%evaluate(fvm_ib, tmp%x, .true.)
 
-         do i = 1, n
-            tmp%x(i,1,1,1) = v%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
-         end do
-         call global_interp%evaluate(fvm_ib, tmp%x, .false.)
-
-         do i = 1, n
-            tmp%x(i,1,1,1) = w%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
-         end do
-         call global_interp%evaluate(fwm_ib, tmp%x, .false.)
+         call field_col3(tmp, w, this%mmsk, tmp%size())
+         call global_interp%evaluate(fwm_ib, tmp%x, .true.)
 
          do i = 1, size(this%lag_pts)
             select type (el => this%lag_el(i)%data)
@@ -570,7 +621,7 @@ contains
                            idw = inv_dist_weight(r, this%rmax, this%pwr_param)
 
                            if (this%pmsk%x(j,k,l,e) .gt. 0) then
-                              if (abs(this%w%x(j,k,l,e)) .gt. 1e-8_rp) then
+                              if (abs(this%w%x(j,k,l,e)) .gt. 1e-10_rp) then
                                  fu%x(j,k,l,e) = fu%x(j,k,l,e) &
                                       + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) &
                                       * time%dt)
@@ -584,7 +635,7 @@ contains
                                       * time%dt)
                               end if
                            else
-                              if (abs(this%wm%x(j,k,l,e)) .gt. 1e-8_rp) then
+                              if (abs(this%wm%x(j,k,l,e)) .gt. 1e-10_rp) then
                                  fu%x(j,k,l,e) = fu%x(j,k,l,e) &
                                       + (-fum_ib(i) * idw) / (this%wm%x(j,k,l,e) &
                                       * time%dt)
@@ -605,10 +656,9 @@ contains
             end select
          end do
       else
-
-         call global_interp%evaluate(fu_ib, u%x, .false.)
-         call global_interp%evaluate(fv_ib, v%x, .false.)
-         call global_interp%evaluate(fw_ib, w%x, .false.)
+         call global_interp%evaluate(fu_ib, u%x, .true.)
+         call global_interp%evaluate(fv_ib, v%x, .true.)
+         call global_interp%evaluate(fw_ib, w%x, .true.)
 
 
          do i = 1, size(this%lag_pts)
@@ -646,15 +696,32 @@ contains
          end do
       end if
 
-      do i = 1, n
-         fu%x(i,1,1,1) = fu%x(i,1,1,1) * this%coef%mult(i,1,1,1)
-         fv%x(i,1,1,1) = fv%x(i,1,1,1) * this%coef%mult(i,1,1,1)
-         fw%x(i,1,1,1) = fw%x(i,1,1,1) * this%coef%mult(i,1,1,1)
-      end do
-
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_col2(fu%x_d, this%coef%mult_d, fu%size())
+         call device_col2(fv%x_d, this%coef%mult_d, fu%size())
+         call device_col2(fw%x_d, this%coef%mult_d, fu%size())         
+      else
+         do i = 1, n
+            fu%x(i,1,1,1) = fu%x(i,1,1,1) * this%coef%mult(i,1,1,1)
+            fv%x(i,1,1,1) = fv%x(i,1,1,1) * this%coef%mult(i,1,1,1)
+            fw%x(i,1,1,1) = fw%x(i,1,1,1) * this%coef%mult(i,1,1,1)
+         end do
+      end if
+      
       call this%gs%op(fu, GS_OP_ADD)
       call this%gs%op(fv, GS_OP_ADD)
       call this%gs%op(fw, GS_OP_ADD)
+
+      if (allocated(this%fltr)) then
+         call field_copy(tmp, fu)
+         call this%fltr%apply(fu, tmp)
+         
+         call field_copy(tmp, fv)
+         call this%fltr%apply(fv, tmp)
+         
+         call field_copy(tmp, fw)
+         call this%fltr%apply(fw, tmp)
+      end if
 
     end associate
 
@@ -773,7 +840,6 @@ contains
     end do
 
 
-
 !    call boundary_mesh%free()
 
   end subroutine idw_init_boundary_mesh
@@ -785,7 +851,7 @@ contains
     type(point_t), allocatable, intent(inout) :: lag_pts(:)
     type(stack_i4_t), allocatable, intent(inout) :: lag_el(:)
     integer, intent(in) :: lx, ne
-    real(kind=rp), dimension(lx,lx,lx,ne) :: x, y, z, ds
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: x, y, z, ds
     real(kind=rp), intent(inout) :: p
     real(kind=rp), intent(inout) :: rmax
     integer :: i, j, k, l, e, ee
