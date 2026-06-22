@@ -60,27 +60,24 @@ module sem
      type(dofmap_t) :: dm_Xh
      !> Gather-scatter associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh
+     !> Geometrical coefficient flag
+     logical :: ifcoef = .false.
+     !> Do we allocate all coefficients
+     logical :: ifcoef_all = .false.
+     !> Coefficients associated with \f$ X_h \f$
+     type(coef_t) :: c_Xh
    contains
      !> Constructor
      procedure, pass(this) :: init => sem_lx_init
      !> Destructor
      procedure, pass(this) :: free => sem_lx_free
+     !> Add empty geometrical coefficient to existing type
+     procedure, pass(this) :: coef_empty_add => sem_coef_empty_add
+     !> Add all geometrical coefficients to existing type
+     procedure, pass(this) :: coef_all_add => sem_coef_all_add
      !> AMR restart
      procedure, pass(this) :: amr_restart => sem_lx_amr_restart
   end type sem_lx_t
-
-  !> Basic objects plus geometrical coefficients for given polynomial order
-  type, public, extends(sem_lx_t) :: sem_coef_lx_t
-     !> Coefficients associated with \f$ X_h \f$
-     type(coef_t) :: c_Xh
-   contains
-     !> Constructor
-     procedure, pass(this) :: init => sem_coef_lx_init
-     !> Destructor
-     procedure, pass(this) :: free => sem_coef_lx_free
-     !> AMR restart
-     procedure, pass(this) :: amr_restart => sem_coef_lx_amr_restart
-  end type sem_coef_lx_t
 
   !> Basic objects defining SEM discretisation
   type, public, extends(amr_restart_component_t) :: sem_t
@@ -110,18 +107,23 @@ module sem
 contains
 
   !> Constructor
-  !! @param[in]  lx           polynomial order + 1
   !! @param[in]  msh          mesh
-  subroutine sem_lx_init(this, lx, msh)
+  !! @param[in]  lx           polynomial order + 1
+  !! @param[in]  ifcoef       Are geometrical coefficients initialised
+  !! @param[in]  ifcoef_all   Are all geometrical coefficients allocated
+  subroutine sem_lx_init(this, msh, lx, ifcoef, ifcoef_all)
     class(sem_lx_t), intent(inout) :: this
-    integer, intent(in) :: lx
     type(mesh_t), target, intent(inout) :: msh
+    integer, intent(in) :: lx
+    logical, intent(in) :: ifcoef, ifcoef_all
 
     call this%free()
 
-    this%lx = lx
-
     this%msh => msh
+
+    this%lx = lx
+    this%ifcoef = ifcoef
+    this%ifcoef_all = ifcoef_all
 
     if (msh%gdim .eq. 2) then
        call this%Xh%init(GLL, lx, lx)
@@ -130,8 +132,15 @@ contains
     end if
 
     call this%dm_Xh%init(msh, this%Xh)
-
     call this%gs_Xh%init(this%dm_Xh)
+
+    if (this%ifcoef) then
+       if (this%ifcoef_all) then
+          call this%c_Xh%init(this%gs_Xh)
+       else
+          call this%c_Xh%init(this%Xh, this%msh)
+       end if
+    end if
 
   end subroutine sem_lx_init
 
@@ -139,10 +148,14 @@ contains
   subroutine sem_lx_free(this)
     class(sem_lx_t), intent(inout) :: this
 
-    this%lx = 0
-
     nullify(this%msh)
 
+    this%lx = 0
+    this%ifcoef = .false.
+    this%ifcoef_all = .false.
+
+
+    call this%c_Xh%free()
     call this%gs_Xh%free()
     call this%dm_Xh%free()
     call this%Xh%free()
@@ -150,6 +163,30 @@ contains
     call this%free_amr_base()
 
   end subroutine sem_lx_free
+
+  !> Add empty geometrical coefficient to existing type
+  subroutine sem_coef_empty_add(this)
+    class(sem_lx_t), intent(inout) :: this
+
+    call this%c_Xh%free()
+
+    this%ifcoef = .true.
+    this%ifcoef_all = .false.
+    call this%c_Xh%init(this%Xh, this%msh)
+
+  end subroutine sem_coef_empty_add
+
+  !> Add all geometrical coefficients to existing type
+  subroutine sem_coef_all_add(this)
+    class(sem_lx_t), intent(inout) :: this
+
+    call this%c_Xh%free()
+
+    this%ifcoef = .true.
+    this%ifcoef_all = .true.
+    call this%c_Xh%init(this%gs_Xh)
+
+  end subroutine sem_coef_all_add
 
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type
@@ -180,63 +217,9 @@ contains
     ! reconstruct gs
     call this%gs_Xh%amr_restart(reconstruct, counter, time)
 
+    if (this%ifcoef) call this%c_Xh%amr_restart(reconstruct, counter, time)
+
   end subroutine sem_lx_amr_restart
-
-  !> Constructor
-  !! @param[in]  lx           polynomial order + 1
-  !! @param[in]  msh          mesh
-  subroutine sem_coef_lx_init(this, lx, msh)
-    class(sem_coef_lx_t), intent(inout) :: this
-    integer, intent(in) :: lx
-    type(mesh_t), target, intent(inout) :: msh
-
-    call this%free()
-
-    call this%sem_lx_t%init(lx, msh)
-
-    call this%c_Xh%init(this%gs_Xh)
-
-  end subroutine sem_coef_lx_init
-
-  !> Destructor
-  subroutine sem_coef_lx_free(this)
-    class(sem_coef_lx_t), intent(inout) :: this
-
-    call this%sem_lx_t%free()
-
-    call this%c_Xh%free()
-
-  end subroutine sem_coef_lx_free
-
-  !> AMR restart
-  !! @param[inout]  reconstruct   data reconstruction type
-  !! @param[in]     counter       restart counter
-  !! @param[in]     time          time state
-  subroutine sem_coef_lx_amr_restart(this, reconstruct, counter, time)
-    class(sem_coef_lx_t), intent(inout) :: this
-    type(amr_reconstruct_t), intent(inout) :: reconstruct
-    integer, intent(in) :: counter
-    type(time_state_t), intent(in) :: time
-    character(len=LOG_SIZE) :: log_buf
-
-    ! Was this component already restarted?
-    if (this%counter .eq. counter) return
-
-    this%counter = counter
-
-    if (this%Xh%lx .lt. 1e1) then
-       write(log_buf, '(A,I2)') 'Reconstructing SEM_coef; lx =  ', this%Xh%lx
-    else if (this%Xh%lx .lt. 1e2) then
-       write(log_buf, '(A,I2)') 'Reconstructing SEM_coef; lx =  ', this%Xh%lx
-    end if
-    call neko_log%message(log_buf, NEKO_LOG_VERBOSE)
-
-    call this%sem_lx_t%amr_restart(reconstruct, counter, time)
-
-    ! reconstruct coef
-    call this%c_Xh%amr_restart(reconstruct, counter, time)
-
-  end subroutine sem_coef_lx_amr_restart
 
   !> Constructor
   !! @param[inout]   msh             mesh
@@ -262,7 +245,8 @@ contains
        end if
     end if
 
-    call this%grid_min%init(3, msh)
+    ! Add minimal grid
+    call this%grid_min%init(msh, 3, .false., .false.)
 
   end subroutine sem_init
 
