@@ -33,22 +33,24 @@
 !> Various tools for AMR
 module amr_tools
   use num_types, only : rp, dp
+  use comm, only : NEKO_COMM, pe_rank
   use utils, only : NEKO_VARNAME_LEN, neko_error
   use vector_list, only : vector_list_t
   use simulation_component, only : simulation_component_t
   use spectral_error, only : spectral_error_t
   use simcomp_executor, only : neko_simcomps
   use mesh, only : mesh_t
-  use space, only : space_t, GLL
-  use dofmap, only : dofmap_t
-  use gather_scatter, only : gs_t
+  use sem, only : sem_lx_t
   use field, only : field_t
   use field_array, only : field_array_t
   use fld_file, only : fld_file_t
   use fld_file_output, only : fld_file_output_t
   use time_state, only : time_state_t
-  use amr_reconstruct, only : amr_reconstruct_t
+  use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
+  use amr_reconstruct, only : amr_reconstruct_t, amr_flg_none, amr_flg_h_ref, &
+       amr_flg_h_crs
   use amr_restart_component, only : amr_restart_component_t
+  use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
   implicit none
   private
@@ -65,12 +67,8 @@ module amr_tools
      integer :: nelv
      !> Corresponding mesh
      type(mesh_t), pointer :: msh
-     !> Minimal space
-     type(space_t) :: Xh
-     !> Minimal dofmap
-     type(dofmap_t) :: dm_Xh
-     !> Minimal gather-scatter communicator
-     type(gs_t) :: gs_Xh
+     !> Minimal grid
+     type(sem_lx_t) :: grid_min
      !> Field array for saving instantaneous error indicators
      type(field_array_t) :: eind_in_fld
      !> File output for instantaneous error indicator
@@ -114,6 +112,9 @@ module amr_tools
      procedure, pass(this) :: amr_restart => amr_spectral_error_amr_restart
   end type amr_spectral_error_t
 
+  ! Specific tools for managing refinement on the user side
+  public :: amr_remove_gaps
+
 contains
 
   !> Initialise spectral error indicator type
@@ -146,18 +147,16 @@ contains
     ! Array length
     this%nelv = this%simcomp_spectral%nelv
 
-    ! minimal mesh
+    ! Add minimal grid
     this%msh => msh
     lx = 3
-    call this%Xh%init(GLL, lx, lx, lx)
-    call this%dm_Xh%init(this%msh, this%Xh)
-    call this%gs_Xh%init(this%dm_Xh)
+    call this%grid_min%init(this%msh, 3, .false., .false.)
 
     ! Get fields for visualisation of
     ! instantaneous indicators
     call this%eind_in_fld%init(this%nfld_smp)
     do il = 1, this%nfld_smp
-       call fld_tmp%init(this%dm_Xh, 'eind_in_'//&
+       call fld_tmp%init(this%grid_min%dm_Xh, 'eind_in_'//&
             trim(this%simcomp_spectral%field_names(il)))
        call this%eind_in_fld%items(il)%init(fld_tmp)
        call fld_tmp%free()
@@ -166,12 +165,12 @@ contains
     ! nfld_smp + 1 for refinement flag
     call this%eind_av_fld%init(this%nfld_smp + 1)
     do il = 1, this%nfld_smp
-       call fld_tmp%init(this%dm_Xh, 'eind_av_'//&
+       call fld_tmp%init(this%grid_min%dm_Xh, 'eind_av_'//&
             trim(this%simcomp_spectral%field_names(il)))
        call this%eind_av_fld%items(il)%init(fld_tmp)
        call fld_tmp%free()
     end do
-    call fld_tmp%init(this%dm_Xh, 'rflag')
+    call fld_tmp%init(this%grid_min%dm_Xh, 'rflag')
     call this%eind_av_fld%items(this%nfld_smp + 1)%init(fld_tmp)
     call fld_tmp%free()
 
@@ -291,9 +290,7 @@ contains
     if (allocated(this%field_names_ref)) deallocate(this%field_names_ref)
     if (allocated(this%field_names_mntr)) deallocate(this%field_names_mntr)
 
-    call this%gs_Xh%free()
-    call this%dm_Xh%free()
-    call this%Xh%free()
+    call this%grid_min%free()
 
     call this%eind_in_fld%free()
     call this%eind_av_fld%free()
@@ -427,14 +424,142 @@ contains
 
     this%nelv = this%simcomp_spectral%nelv
 
-    ! Reconstruct minimal mesh and communicator
-    call this%dm_Xh%amr_restart(reconstruct, counter, time)
-    call this%gs_Xh%amr_restart(reconstruct, counter, time)
+    ! Reconstruct minimal grid
+    call this%grid_min%amr_restart(reconstruct, counter, time)
 
     ! instantaneous and averaged fields for visualisation
     call this%eind_in_fld%amr_reallocate(reconstruct, counter, time)
     call this%eind_av_fld%amr_reallocate(reconstruct, counter, time)
 
   end subroutine amr_spectral_error_amr_restart
+
+
+  !> Remove refinement gaps of the size of a single element
+  !! @param[in]     nelv        local element number
+  !! @param[in]     ref_level   element refinement level
+  !! @param[inout]  ref_mark    refinement flag
+  !! @param[inout]  grid_min    minimal grid
+  !! @param[inout]  iter        max/performed number of iterations
+  !! @param[out]    nmod        global number of modified elements
+  subroutine amr_remove_gaps(nelv, ref_level, ref_mark, grid_min, iter, nmod)
+    integer, intent(in) :: nelv
+    integer, dimension(nelv), intent(in) :: ref_level
+    integer, dimension(nelv), intent(inout) :: ref_mark
+    type(sem_lx_t), intent(inout) :: grid_min
+    integer, intent(inout) ::  iter
+    integer, intent(out) :: nmod
+    integer, parameter :: lx = 3
+    real(rp), dimension(lx, lx, lx, nelv) :: exchange
+    integer, dimension(lx, lx, lx, nelv) :: level, mark_max, mark_min
+    ! pairs of opposing faces
+    integer, dimension(2, 3) :: fpair_lev, fpair_max, fpair_min
+    integer :: ntot, il, jl, iter_max, nmod_iter, ierr
+    logical :: refine
+
+    ntot = lx * lx* lx * nelv
+    nmod  = 0
+    iter_max = iter
+
+    ! Get current refinement level across interfaces; no interpolation
+    do il = 1, nelv
+       exchange(:, :, :, il) = ref_level(il)
+    end do
+    ! take care of nonconforming interfaces
+    call grid_min%gs_Xh%interp%scale_children(exchange, 0.25_rp, 0.5_rp)
+    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_ADD)
+    level = nint(exchange)
+    ! subtract element's refinement level
+    do il = 1, nelv
+       level(:, :, :, il) = level(:, :, :, il) - ref_level(il)
+    end do
+
+    ! This part can be iterated
+    iter = 0
+    do
+       iter = iter + 1
+       ! Get min/max refinement mark across interfaces; no interpolation
+       ! Possibly needed to take care of nonconforming interfaces
+!       do il = 1, nelv
+!          exchange(:, :, :, il) = ref_mark(il)
+!       end do
+!       call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MIN)
+!       mark_min = nint(exchange)
+       do il = 1, nelv
+          exchange(:, :, :, il) = ref_mark(il)
+       end do
+       call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
+       mark_max = nint(exchange)
+
+       nmod_iter = 0
+
+       do il = 1, nelv
+
+!          call amr_oposite_face_extract(mark_min(:, :, :, il), fpair_min)
+
+          refine = .false.
+
+          ! gap in refinement level
+          ! during first iteration only
+          if (iter .eq. 1) then
+             if (ref_mark(il) .eq. amr_flg_none) then
+                call amr_oposite_face_extract(level(:, :, :, il), fpair_lev)
+                do jl = 1, 3
+                   if (fpair_lev(1, jl) .gt. ref_level(il) .and. &
+                        fpair_lev(2, jl) .gt. ref_level(il) .and. &
+                        fpair_max(1, jl) .eq. amr_flg_none .and. &
+                        fpair_max(2, jl) .eq. amr_flg_none) then
+                      refine = .true.
+                   end if
+                end do
+             end if
+          end if
+
+          ! gap in refinement mark
+          if (ref_mark(il) .eq. amr_flg_none) then
+             call amr_oposite_face_extract(mark_max(:, :, :, il), fpair_max)
+             do jl = 1, 3
+                if (fpair_lev(1, jl) .eq. ref_level(il) .and. &
+                     fpair_lev(2, jl) .eq. ref_level(il) .and. &
+                     fpair_max(1, jl) .eq. amr_flg_h_ref .and. &
+                     fpair_max(2, jl) .eq. amr_flg_h_ref) then
+                   refine = .true.
+                end if
+             end do
+          end if
+
+          ! other tests?
+          if (refine) then
+             nmod_iter = nmod_iter + 1
+             ref_mark(il) = amr_flg_h_ref
+          end if
+       end do
+
+       ! global number of modified elements
+       call MPI_Allreduce(MPI_IN_PLACE, nmod_iter, 1, MPI_INTEGER, MPI_SUM, &
+            NEKO_COMM, ierr)
+
+       nmod = nmod + nmod_iter
+       if (nmod_iter .eq. 0 .or. iter .eq. iter_max) exit
+    end do
+
+  end subroutine amr_remove_gaps
+
+  ! Extract opposite face from the minimal grid box
+  subroutine amr_oposite_face_extract(box, face_pair)
+    integer, parameter :: lx = 3, nface = 3, dim = 3
+    integer, dimension(lx, lx, lx), intent(in) :: box
+    integer, dimension(2, nface), intent(out) :: face_pair
+    ! pairs of opposing faces in the minimal grid box
+    integer, parameter, dimension(dim, 2, nface) :: fop =reshape([1, 2, 2, &
+         3, 2, 2, 2, 1, 2, 2, 3, 2, 2, 2, 1, 2, 2, 3], shape(fop))
+    integer :: il, jl
+
+    do il = 1, nface
+       do jl = 1, 2
+          face_pair(jl, il) = box(fop(1, jl, il), fop(2, jl, il), &
+               fop(3, jl, il))
+       end do
+    end do
+  end subroutine amr_oposite_face_extract
 
 end module amr_tools
