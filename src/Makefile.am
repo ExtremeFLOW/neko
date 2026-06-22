@@ -363,7 +363,7 @@ neko_fortran_SOURCES = \
 	simulation_components/lpt/lpt_periodic_bc.f90\
 	simulation_components/lpt/lpt_output.f90\
 	simulation_components/lpt/lpt.f90\
-	simulation_components/lpt/lpt_redistribute.f90\
+	simulation_components/lpt/lpt_migration.f90\
 	simulation_components/lpt/lpt_wall_collision.f90\
 	simulation_components/curl_simcomp.f90\
 	simulation_components/divergence_simcomp.f90\

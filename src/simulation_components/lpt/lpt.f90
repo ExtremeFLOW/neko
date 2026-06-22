@@ -53,7 +53,7 @@ module lagrangian_particle_tracking
                    power, sub3, vdot3, cmult, cadd2, invcol3
   use ab_time_scheme, only : ab_time_scheme_t
   use lpt_periodic_bc, only : lpt_periodic_bc_t
-  use lpt_redistribute, only : lpt_redistribute_t
+  use lpt_migrate, only : lpt_migrate_t
   use lpt_wall_collision, only : lpt_handle_elastic_wall_collisions, &
        lpt_init_wall_facet_mask
   use lpt_output, only : lpt_output_t
@@ -83,7 +83,6 @@ module lagrangian_particle_tracking
   end type particles_t
 
   !> A simulation component for passive Lagrangian particle tracking.
-  !! Particles are redistributed to the rank that owns their current location.
   type, public, extends(simulation_component_t) :: lpt_t
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
@@ -104,7 +103,7 @@ module lagrangian_particle_tracking
      logical :: lpt_time_initialized = .false.
      type(global_interpolation_t) :: global_interp
      type(lpt_periodic_bc_t) :: periodic_bc
-     type(lpt_redistribute_t) :: redistributor
+     type(lpt_migrate_t) :: migration
      type(particles_t) :: particles
      type(lpt_output_t) :: output
      logical :: output_enabled = .false.
@@ -224,7 +223,7 @@ contains
     this%coef => case%fluid%c_Xh
 
     this%lag_len = this%time_order - 1
-    call this%redistributor%init(this%lag_len)
+    call this%migration%init(this%lag_len)
 
     call json_get(json, "inertia", this%inertia)
 
@@ -261,7 +260,7 @@ contains
          params_subdict = interp_subdict)
     call this%periodic_bc%init(case%fluid%msh, case%fluid%dm_Xh, &
          case%fluid%c_Xh)
-    call this%redistributor%redistribute_particles(this%global_interp, &
+    call this%migration%migrate_particles(this%global_interp, &
          this%periodic_bc, this%inertia, this%particles%xyz, &
          this%particles%ids, this%particles%vel_lag, this%particles%vel, &
          this%particles%acc, this%particles%d, this%particles%rho, &
@@ -472,7 +471,7 @@ contains
     class(lpt_t), intent(inout) :: this
     real(kind=rp), allocatable :: vel_fluid(:,:)
 
-    call this%redistributor%redistribute_particles(this%global_interp, &
+    call this%migration%migrate_particles(this%global_interp, &
          this%periodic_bc, this%inertia, this%particles%xyz, &
          this%particles%ids, this%particles%vel_lag, this%particles%vel, &
          this%particles%acc, this%particles%d, this%particles%rho, &
@@ -521,6 +520,11 @@ contains
    !  v0(2) = 0.0_rp
    !  v0(3) = 0.0_rp
    !  x0 = 0.0_rp
+
+
+write(*,*) "rank: ", pe_rank, &
+   " particle id: ", this%particles%ids
+
 
     if (time%t .lt. this%start_time) return
     call this%sync_time_controller(time)
@@ -715,7 +719,7 @@ contains
     call this%particles%free()
     call this%global_interp%free()
     call this%periodic_bc%free()
-    call this%redistributor%free()
+    call this%migration%free()
     call this%output%free()
 
     this%u => null()
