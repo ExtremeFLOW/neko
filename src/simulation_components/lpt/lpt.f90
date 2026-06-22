@@ -53,7 +53,8 @@ module lagrangian_particle_tracking
                    power, sub3, vdot3, cmult, cadd2, invcol3
   use ab_time_scheme, only : ab_time_scheme_t
   use lpt_periodic_bc, only : lpt_periodic_bc_t
-  use lpt_migrate, only : lpt_migrate_t
+  use lpt_migrate, only : lpt_migrate_t, LPT_MIGRATE_TO_OWNER, &
+       LPT_MIGRATE_NONE
   use lpt_wall_collision, only : lpt_handle_elastic_wall_collisions, &
        lpt_init_wall_facet_mask
   use lpt_output, only : lpt_output_t
@@ -204,8 +205,10 @@ contains
     class(case_t), intent(inout), target :: case
     type(json_file) :: interp_subdict
     character(len=:), allocatable :: name
+    character(len=:), allocatable :: migration_strategy
     character(len=:), allocatable :: output_filename
     character(len=:), allocatable :: output_path
+    integer :: migration_strategy_id
 
     call this%free()
 
@@ -223,7 +226,17 @@ contains
     this%coef => case%fluid%c_Xh
 
     this%lag_len = this%time_order - 1
-    call this%migration%init(this%lag_len)
+    call json_get_or_default(json, "migration_strategy", migration_strategy, &
+         "owner")
+    select case (trim(migration_strategy))
+    case ("owner")
+       migration_strategy_id = LPT_MIGRATE_TO_OWNER
+    case ("none")
+       migration_strategy_id = LPT_MIGRATE_NONE
+    case default
+       call neko_error("lpt migration_strategy must be 'owner' or 'none'")
+    end select
+    call this%migration%init(this%lag_len, migration_strategy_id)
 
     call json_get(json, "inertia", this%inertia)
 
@@ -247,6 +260,11 @@ contains
           call neko_error("lpt wall_zone_indices requires inertia = true")
        end if
        this%elastic_wall_enabled = size(this%wall_zone_indices) .gt. 0
+       if (this%elastic_wall_enabled .and. &
+            migration_strategy_id .eq. LPT_MIGRATE_NONE) then
+          call neko_error("lpt migration_strategy = none is not " // &
+               "compatible with elastic wall collisions")
+       end if
        if (this%elastic_wall_enabled) then
           call lpt_init_wall_facet_mask(this%wall_facet_mask, this%msh, &
                this%wall_zone_indices)
@@ -254,6 +272,10 @@ contains
     end if
 
     call this%read_particles_json(json)
+    call this%migration%distribute_initial_particles_evenly(this%inertia, &
+         this%particles%xyz, this%particles%ids, this%particles%vel_lag, &
+         this%particles%vel, this%particles%acc, this%particles%d, &
+         this%particles%rho, this%particles%acc_lag, this%particles%n)
 
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &

@@ -36,17 +36,28 @@ module lpt_migrate
   use global_interpolation, only : global_interpolation_t
   use glb_intrp_comm, only : glb_intrp_comm_t
   use lpt_periodic_bc, only : lpt_periodic_bc_t
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
+  use mpi_f08, only : MPI_Allreduce, MPI_Bcast, MPI_INTEGER, MPI_Scatterv, &
+       MPI_SUM
   implicit none
   private
 
+  integer, public, parameter :: LPT_MIGRATE_TO_OWNER = 1
+  integer, public, parameter :: LPT_MIGRATE_NONE = 2
+
   type, public :: lpt_migrate_t
      integer :: lag_len = 0
+     integer :: strategy = LPT_MIGRATE_TO_OWNER
    contains
      procedure, pass(this) :: init => lpt_migrate_init
      procedure, pass(this) :: free => lpt_migrate_free
+     procedure, pass(this) :: distribute_initial_particles_evenly
      procedure, pass(this) :: migrate_particles
+     procedure, private, pass(this) :: distribute_particles_evenly
+     procedure, private, pass(this) :: distribute_particle_ids
+     procedure, private, pass(this) :: distribute_particle_field
+     procedure, private, pass(this) :: distribute_particle_scalar
+     procedure, private, pass(this) :: distribute_lags
      procedure, private, pass(this) :: localize_global_interpolation
      procedure, private, pass(this) :: migrate_particle_positions
      procedure, private, pass(this) :: migrate_particle_ids
@@ -57,18 +68,42 @@ module lpt_migrate
 
 contains
 
-  subroutine lpt_migrate_init(this, lag_len)
+  subroutine lpt_migrate_init(this, lag_len, strategy)
     class(lpt_migrate_t), intent(inout) :: this
     integer, intent(in) :: lag_len
+    integer, intent(in), optional :: strategy
 
     this%lag_len = lag_len
+    this%strategy = LPT_MIGRATE_TO_OWNER
+    if (present(strategy)) this%strategy = strategy
   end subroutine lpt_migrate_init
 
   subroutine lpt_migrate_free(this)
     class(lpt_migrate_t), intent(inout) :: this
 
     this%lag_len = 0
+    this%strategy = LPT_MIGRATE_TO_OWNER
   end subroutine lpt_migrate_free
+
+  subroutine distribute_initial_particles_evenly(this, inertia, xyz, ids, &
+       vel_lag, vel, acc, d, rho, acc_lag, n)
+    class(lpt_migrate_t), intent(inout) :: this
+    logical, intent(in) :: inertia
+    real(kind=rp), allocatable, intent(inout) :: xyz(:, :)
+    integer, allocatable, intent(inout) :: ids(:)
+    real(kind=rp), allocatable, intent(inout) :: vel_lag(:, :, :)
+    real(kind=rp), allocatable, intent(inout) :: vel(:, :)
+    real(kind=rp), allocatable, intent(inout) :: acc(:, :)
+    real(kind=rp), allocatable, intent(inout) :: d(:)
+    real(kind=rp), allocatable, intent(inout) :: rho(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_lag(:, :, :)
+    integer, intent(inout) :: n
+
+    if (this%strategy .eq. LPT_MIGRATE_NONE) then
+       call this%distribute_particles_evenly(inertia, xyz, ids, vel_lag, &
+            vel, acc, d, rho, acc_lag, n)
+    end if
+  end subroutine distribute_initial_particles_evenly
 
   !> migrate particles to the rank that owns their current location.
   subroutine migrate_particles(this, global_interp, periodic_bc, inertia, &
@@ -104,6 +139,13 @@ contains
 
     n_particles_old = n
     call periodic_bc%wrap(xyz, n, vel, vel_lag, acc_lag)
+    if (this%strategy .eq. LPT_MIGRATE_NONE) then
+       call global_interp%find_points(xyz, n)
+       call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+            ierr)
+       return
+    end if
+
     call global_interp%find_points(xyz, n)
     n_particles_local = global_interp%n_points_local
 
@@ -167,6 +209,189 @@ contains
     call this%localize_global_interpolation(global_interp, n)
     call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine migrate_particles
+
+  subroutine distribute_particles_evenly(this, inertia, xyz, ids, vel_lag, &
+       vel, acc, d, rho, acc_lag, n)
+    class(lpt_migrate_t), intent(inout) :: this
+    logical, intent(in) :: inertia
+    real(kind=rp), allocatable, intent(inout) :: xyz(:, :)
+    integer, allocatable, intent(inout) :: ids(:)
+    real(kind=rp), allocatable, intent(inout) :: vel_lag(:, :, :)
+    real(kind=rp), allocatable, intent(inout) :: vel(:, :)
+    real(kind=rp), allocatable, intent(inout) :: acc(:, :)
+    real(kind=rp), allocatable, intent(inout) :: d(:)
+    real(kind=rp), allocatable, intent(inout) :: rho(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_lag(:, :, :)
+    integer, intent(inout) :: n
+    integer, allocatable :: ids_local(:)
+    real(kind=rp), allocatable :: xyz_local(:, :)
+    real(kind=rp), allocatable :: vel_lag_local(:, :, :)
+    real(kind=rp), allocatable :: vel_local(:, :)
+    real(kind=rp), allocatable :: acc_local(:, :)
+    real(kind=rp), allocatable :: d_local(:)
+    real(kind=rp), allocatable :: rho_local(:)
+    real(kind=rp), allocatable :: acc_lag_local(:, :, :)
+    integer, allocatable :: counts(:)
+    integer, allocatable :: offsets(:)
+    integer :: n_total
+    integer :: n_local
+    integer :: rank
+    integer :: ierr
+
+    n_total = n
+    call MPI_Bcast(n_total, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+
+    allocate(counts(0:pe_size - 1))
+    allocate(offsets(0:pe_size - 1))
+    do rank = 0, pe_size - 1
+       counts(rank) = n_total / pe_size
+       if (rank .lt. mod(n_total, pe_size)) counts(rank) = counts(rank) + 1
+    end do
+    offsets(0) = 0
+    do rank = 1, pe_size - 1
+       offsets(rank) = offsets(rank - 1) + counts(rank - 1)
+    end do
+    n_local = counts(pe_rank)
+
+    call this%distribute_particle_field(xyz, counts, offsets, n_local, &
+         xyz_local)
+    call this%distribute_particle_ids(ids, counts, offsets, n_local, &
+         ids_local)
+    call this%distribute_lags(vel_lag, counts, offsets, n_local, &
+         vel_lag_local)
+    if (inertia) then
+       call this%distribute_particle_field(vel, counts, offsets, n_local, &
+            vel_local)
+       call this%distribute_particle_field(acc, counts, offsets, n_local, &
+            acc_local)
+       call this%distribute_particle_scalar(d, counts, offsets, n_local, &
+            d_local)
+       call this%distribute_particle_scalar(rho, counts, offsets, n_local, &
+            rho_local)
+       call this%distribute_lags(acc_lag, counts, offsets, n_local, &
+            acc_lag_local)
+    end if
+
+    n = n_local
+    call move_alloc(xyz_local, xyz)
+    call move_alloc(ids_local, ids)
+    call move_alloc(vel_lag_local, vel_lag)
+    if (inertia) then
+       call move_alloc(vel_local, vel)
+       call move_alloc(acc_local, acc)
+       call move_alloc(d_local, d)
+       call move_alloc(rho_local, rho)
+       call move_alloc(acc_lag_local, acc_lag)
+    else
+       if (allocated(vel)) deallocate(vel)
+       if (allocated(acc)) deallocate(acc)
+       if (allocated(d)) deallocate(d)
+       if (allocated(rho)) deallocate(rho)
+       if (allocated(acc_lag)) deallocate(acc_lag)
+    end if
+
+    deallocate(counts)
+    deallocate(offsets)
+  end subroutine distribute_particles_evenly
+
+  subroutine distribute_particle_ids(this, ids_old, counts, offsets, n_local, &
+       ids_local)
+    class(lpt_migrate_t), intent(inout) :: this
+    integer, allocatable, intent(in) :: ids_old(:)
+    integer, intent(in) :: counts(0:)
+    integer, intent(in) :: offsets(0:)
+    integer, intent(in) :: n_local
+    integer, allocatable, intent(out) :: ids_local(:)
+    integer, allocatable :: counts_i(:)
+    integer, allocatable :: offsets_i(:)
+    integer :: ierr
+
+    allocate(ids_local(n_local))
+    allocate(counts_i(0:pe_size - 1))
+    allocate(offsets_i(0:pe_size - 1))
+    counts_i = counts
+    offsets_i = offsets
+    call MPI_Scatterv(ids_old, counts_i, offsets_i, MPI_INTEGER, ids_local, &
+         n_local, MPI_INTEGER, 0, NEKO_COMM, ierr)
+    deallocate(counts_i)
+    deallocate(offsets_i)
+  end subroutine distribute_particle_ids
+
+  subroutine distribute_particle_field(this, field_old, counts, offsets, &
+       n_local, field_local)
+    class(lpt_migrate_t), intent(inout) :: this
+    real(kind=rp), allocatable, intent(in) :: field_old(:, :)
+    integer, intent(in) :: counts(0:)
+    integer, intent(in) :: offsets(0:)
+    integer, intent(in) :: n_local
+    real(kind=rp), allocatable, intent(out) :: field_local(:, :)
+    integer, allocatable :: counts_r(:)
+    integer, allocatable :: offsets_r(:)
+    integer :: rank
+    integer :: ierr
+
+    allocate(field_local(3, n_local))
+    allocate(counts_r(0:pe_size - 1))
+    allocate(offsets_r(0:pe_size - 1))
+    do rank = 0, pe_size - 1
+       counts_r(rank) = 3 * counts(rank)
+       offsets_r(rank) = 3 * offsets(rank)
+    end do
+    call MPI_Scatterv(field_old, counts_r, offsets_r, MPI_REAL_PRECISION, &
+         field_local, 3 * n_local, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+    deallocate(counts_r)
+    deallocate(offsets_r)
+  end subroutine distribute_particle_field
+
+  subroutine distribute_particle_scalar(this, scalar_old, counts, offsets, &
+       n_local, scalar_local)
+    class(lpt_migrate_t), intent(inout) :: this
+    real(kind=rp), allocatable, intent(in) :: scalar_old(:)
+    integer, intent(in) :: counts(0:)
+    integer, intent(in) :: offsets(0:)
+    integer, intent(in) :: n_local
+    real(kind=rp), allocatable, intent(out) :: scalar_local(:)
+    integer, allocatable :: counts_r(:)
+    integer, allocatable :: offsets_r(:)
+    integer :: ierr
+
+    allocate(scalar_local(n_local))
+    allocate(counts_r(0:pe_size - 1))
+    allocate(offsets_r(0:pe_size - 1))
+    counts_r = counts
+    offsets_r = offsets
+    call MPI_Scatterv(scalar_old, counts_r, offsets_r, MPI_REAL_PRECISION, &
+         scalar_local, n_local, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+    deallocate(counts_r)
+    deallocate(offsets_r)
+  end subroutine distribute_particle_scalar
+
+  subroutine distribute_lags(this, lag_old, counts, offsets, n_local, &
+       lag_local)
+    class(lpt_migrate_t), intent(inout) :: this
+    real(kind=rp), allocatable, intent(in) :: lag_old(:, :, :)
+    integer, intent(in) :: counts(0:)
+    integer, intent(in) :: offsets(0:)
+    integer, intent(in) :: n_local
+    real(kind=rp), allocatable, intent(out) :: lag_local(:, :, :)
+    integer, allocatable :: counts_r(:)
+    integer, allocatable :: offsets_r(:)
+    integer :: rank
+    integer :: ierr
+
+    allocate(lag_local(3, this%lag_len, n_local))
+    allocate(counts_r(0:pe_size - 1))
+    allocate(offsets_r(0:pe_size - 1))
+    do rank = 0, pe_size - 1
+       counts_r(rank) = 3 * this%lag_len * counts(rank)
+       offsets_r(rank) = 3 * this%lag_len * offsets(rank)
+    end do
+    call MPI_Scatterv(lag_old, counts_r, offsets_r, MPI_REAL_PRECISION, &
+         lag_local, 3 * this%lag_len * n_local, MPI_REAL_PRECISION, 0, &
+         NEKO_COMM, ierr)
+    deallocate(counts_r)
+    deallocate(offsets_r)
+  end subroutine distribute_lags
 
   subroutine localize_global_interpolation(this, global_interp, n_local)
     class(lpt_migrate_t), intent(inout) :: this
