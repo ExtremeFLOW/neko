@@ -288,6 +288,7 @@ contains
     type(user_t), intent(in) :: user
     type(time_state_t), intent(in) :: time
     integer, allocatable, dimension(:) :: ref_level, ref_mark
+    integer, allocatable, dimension(:, :) :: family
     logical :: ifrefine, ifmod
     integer :: nelt, ierr
     character(len=LOG_SIZE) :: log_buf
@@ -301,11 +302,13 @@ contains
        end select
 
        ! get refinement information
-       allocate(ref_level(nelt), ref_mark(nelt))
-       call mesh_manager%mesh%element_level(nelt, ref_level)
+       allocate(ref_level(nelt), ref_mark(nelt), family(2, nelt))
+       call mesh_manager%mesh%element_level_get(nelt, ref_level)
+       call mesh_manager%mesh%family_get(nelt, family)
        ref_mark(:) = AMR_RM_NONE
        ifrefine = .false.
-       call user%amr_refine_flag(time, nelt, ref_level, ref_mark, ifrefine)
+       call user%amr_refine_flag(time, nelt, ref_level, family, ref_mark, &
+            ifrefine)
 
        ! Global test
        call MPI_Allreduce(MPI_IN_PLACE, ifrefine, 1, MPI_LOGICAL, MPI_LOR, &
@@ -354,7 +357,7 @@ contains
           call neko_log%end()
        end if
 
-       deallocate(ref_mark)
+       deallocate(ref_level, ref_mark, family)
     end if
 
   end subroutine amr_refine_coarsen

@@ -77,8 +77,10 @@ module manager_mesh
      procedure(mesh_free_data), pass(this), deferred :: free_data
      !> Free type
      procedure(mesh_init), pass(this), deferred :: free
-     !> Provide element refinement level
-     procedure(mesh_element_level), pass(this), deferred :: element_level
+     !> Provide element refinement level information
+     procedure(mesh_element_level), pass(this), deferred :: element_level_get
+     !> Provide element family information for coarsening
+     procedure(mesh_family), pass(this), deferred :: family_get
   end type manager_mesh_t
 
   abstract interface
@@ -105,6 +107,13 @@ module manager_mesh
        integer, intent(in) :: nelv
        integer, dimension(nelv), intent(out) :: element_level
      end subroutine mesh_element_level
+
+     subroutine mesh_family(this, nelv, family)
+       import manager_mesh_t
+       class(manager_mesh_t), intent(inout) :: this
+       integer, intent(in) :: nelv
+       integer, dimension(2, nelv), intent(out) :: family
+     end subroutine mesh_family
   end interface
 
 contains
