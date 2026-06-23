@@ -272,7 +272,7 @@ contains
     end if
 
     call this%read_particles_json(json)
-    call this%migration%distribute_initial_particles_evenly(this%inertia, &
+    call this%migration%initialize_particle_distribution(this%inertia, &
          this%particles%xyz, this%particles%ids, this%particles%vel_lag, &
          this%particles%vel, this%particles%acc, this%particles%d, &
          this%particles%rho, this%particles%acc_lag, this%particles%n)

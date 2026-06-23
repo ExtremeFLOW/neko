@@ -51,7 +51,7 @@ module lpt_migrate
    contains
      procedure, pass(this) :: init => lpt_migrate_init
      procedure, pass(this) :: free => lpt_migrate_free
-     procedure, pass(this) :: distribute_initial_particles_evenly
+     procedure, pass(this) :: initialize_particle_distribution
      procedure, pass(this) :: migrate_particles
      procedure, private, pass(this) :: distribute_particles_evenly
      procedure, private, pass(this) :: distribute_particle_ids
@@ -85,7 +85,33 @@ contains
     this%strategy = LPT_MIGRATE_TO_OWNER
   end subroutine lpt_migrate_free
 
-  subroutine distribute_initial_particles_evenly(this, inertia, xyz, ids, &
+  subroutine build_even_particle_distribution(n_root, counts, offsets, n_local)
+    integer, intent(in) :: n_root
+    integer, allocatable, intent(out) :: counts(:)
+    integer, allocatable, intent(out) :: offsets(:)
+    integer, intent(out) :: n_local
+    integer :: n_total
+    integer :: rank
+    integer :: ierr
+
+    n_total = n_root
+    call MPI_Bcast(n_total, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+
+    allocate(counts(0:pe_size - 1))
+    allocate(offsets(0:pe_size - 1))
+    do rank = 0, pe_size - 1
+       counts(rank) = n_total / pe_size
+       if (rank .lt. mod(n_total, pe_size)) counts(rank) = counts(rank) + 1
+    end do
+
+    offsets(0) = 0
+    do rank = 1, pe_size - 1
+       offsets(rank) = offsets(rank - 1) + counts(rank - 1)
+    end do
+    n_local = counts(pe_rank)
+  end subroutine build_even_particle_distribution
+
+  subroutine initialize_particle_distribution(this, inertia, xyz, ids, &
        vel_lag, vel, acc, d, rho, acc_lag, n)
     class(lpt_migrate_t), intent(inout) :: this
     logical, intent(in) :: inertia
@@ -103,9 +129,9 @@ contains
        call this%distribute_particles_evenly(inertia, xyz, ids, vel_lag, &
             vel, acc, d, rho, acc_lag, n)
     end if
-  end subroutine distribute_initial_particles_evenly
+  end subroutine initialize_particle_distribution
 
-  !> migrate particles to the rank that owns their current location.
+  !> Update particle ownership according to the selected migration strategy.
   subroutine migrate_particles(this, global_interp, periodic_bc, inertia, &
        xyz, ids, vel_lag, vel, acc, d, rho, acc_lag, n, n_global)
     class(lpt_migrate_t), intent(inout) :: this
@@ -137,7 +163,6 @@ contains
     integer :: rank
     logical :: migration_needed
 
-    n_particles_old = n
     call periodic_bc%wrap(xyz, n, vel, vel_lag, acc_lag)
     if (this%strategy .eq. LPT_MIGRATE_NONE) then
        call global_interp%find_points(xyz, n)
@@ -146,6 +171,7 @@ contains
        return
     end if
 
+    n_particles_old = n
     call global_interp%find_points(xyz, n)
     n_particles_local = global_interp%n_points_local
 
@@ -233,25 +259,9 @@ contains
     real(kind=rp), allocatable :: acc_lag_local(:, :, :)
     integer, allocatable :: counts(:)
     integer, allocatable :: offsets(:)
-    integer :: n_total
     integer :: n_local
-    integer :: rank
-    integer :: ierr
 
-    n_total = n
-    call MPI_Bcast(n_total, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-
-    allocate(counts(0:pe_size - 1))
-    allocate(offsets(0:pe_size - 1))
-    do rank = 0, pe_size - 1
-       counts(rank) = n_total / pe_size
-       if (rank .lt. mod(n_total, pe_size)) counts(rank) = counts(rank) + 1
-    end do
-    offsets(0) = 0
-    do rank = 1, pe_size - 1
-       offsets(rank) = offsets(rank - 1) + counts(rank - 1)
-    end do
-    n_local = counts(pe_rank)
+    call build_even_particle_distribution(n, counts, offsets, n_local)
 
     call this%distribute_particle_field(xyz, counts, offsets, n_local, &
          xyz_local)
