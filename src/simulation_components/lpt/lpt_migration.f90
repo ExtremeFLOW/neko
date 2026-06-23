@@ -494,9 +494,6 @@ contains
     real(kind=rp), allocatable :: sendbuf(:)
     real(kind=rp), allocatable :: recvbuf(:)
     integer :: i
-    integer :: rank
-    integer :: n_send_off_rank
-    integer :: n_recv_off_rank
 
     allocate(field_local(3, n_local))
     field_local = 0.0_rp
@@ -511,28 +508,6 @@ contains
        call migrate_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
        field_local(i, :) = recvbuf
     end do
-    n_send_off_rank = 0
-    n_recv_off_rank = 0
-    do rank = 0, migrate_comm%pe_size - 1
-       if (rank .ne. pe_rank) then
-          n_send_off_rank = n_send_off_rank + &
-               migrate_comm%send_dof(rank)%size()
-          n_recv_off_rank = n_recv_off_rank + &
-               migrate_comm%recv_dof(rank)%size()
-          if (migrate_comm%send_dof(rank)%size() .gt. 0) then
-             write(*,*) "PE ", pe_rank, ": Send DOFs to PE ", rank, " = ", &
-                  migrate_comm%send_dof(rank)%size()
-          end if
-          if (migrate_comm%recv_dof(rank)%size() .gt. 0) then
-             write(*,*) "PE ", pe_rank, ": Recv DOFs from PE ", rank, " = ", &
-                  migrate_comm%recv_dof(rank)%size()
-          end if
-       end if
-    end do
-    write(*,*) "PE ", pe_rank, ": Total off-rank send DOFs = ", &
-         n_send_off_rank
-    write(*,*) "PE ", pe_rank, ": Total off-rank recv DOFs = ", &
-         n_recv_off_rank
     deallocate(sendbuf)
     deallocate(recvbuf)
   end subroutine migrate_particle_field

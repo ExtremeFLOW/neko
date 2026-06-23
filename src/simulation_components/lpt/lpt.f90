@@ -543,11 +543,6 @@ contains
    !  v0(3) = 0.0_rp
    !  x0 = 0.0_rp
 
-
-write(*,*) "rank: ", pe_rank, &
-   " particle id: ", this%particles%ids
-
-
     if (time%t .lt. this%start_time) return
     call this%sync_time_controller(time)
     if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
