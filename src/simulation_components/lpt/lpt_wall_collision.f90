@@ -80,19 +80,26 @@ contains
   !! remaining trajectory together with the current particle velocity and
   !! velocity history for a purely elastic collision.
   subroutine lpt_handle_elastic_wall_collisions(global_interp, msh, dm_Xh, &
-       coef, wall_facet_mask, xyz_old, xyz, d, vel, vel_lag, acc_lag, &
-       vel_old, acc, lag_len)
+       coef, wall_facet_mask, x_old, y_old, z_old, x, y, z, d, u, v, w, &
+       u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
+       acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, u_old, &
+       v_old, w_old, acc_x, acc_y, acc_z, lag_len)
     type(global_interpolation_t), intent(inout) :: global_interp
     type(mesh_t), intent(in) :: msh
     type(dofmap_t), intent(in) :: dm_Xh
     type(coef_t), intent(in) :: coef
     logical, intent(in) :: wall_facet_mask(:, :)
-    real(kind=rp), intent(in) :: xyz_old(:, :)
-    real(kind=rp), intent(inout) :: xyz(:, :)
+    real(kind=rp), intent(in) :: x_old(:), y_old(:), z_old(:)
+    real(kind=rp), intent(inout) :: x(:), y(:), z(:)
     real(kind=rp), intent(in) :: d(:)
-    real(kind=rp), intent(inout) :: vel(:, :)
-    real(kind=rp), intent(inout) :: vel_lag(:, :, :), acc_lag(:, :, :)
-    real(kind=rp), intent(inout) :: vel_old(:, :), acc(:, :)
+    real(kind=rp), intent(inout) :: u(:), v(:), w(:)
+    real(kind=rp), intent(inout) :: u_lag(:), v_lag(:), w_lag(:)
+    real(kind=rp), intent(inout) :: u_laglag(:), v_laglag(:), w_laglag(:)
+    real(kind=rp), intent(inout) :: acc_xlag(:), acc_ylag(:), acc_zlag(:)
+    real(kind=rp), intent(inout) :: acc_xlaglag(:), acc_ylaglag(:)
+    real(kind=rp), intent(inout) :: acc_zlaglag(:)
+    real(kind=rp), intent(inout) :: u_old(:), v_old(:), w_old(:)
+    real(kind=rp), intent(inout) :: acc_x(:), acc_y(:), acc_z(:)
     integer, intent(in) :: lag_len
     type(matrix_t) :: rst_new
     type(vector_t) :: x_t
@@ -103,16 +110,17 @@ contains
     type(vector_t) :: resz
     integer, allocatable :: el_list(:)
     integer :: i
-    integer :: j
     integer :: n
     integer :: facet
     integer :: el
     integer :: el_mesh
     real(kind=rp) :: normal(3)
     real(kind=rp) :: wall_point(3)
+    real(kind=rp) :: xyz_old(3)
+    real(kind=rp) :: xyz_new(3)
     real(kind=rp) :: radius
 
-    n = size(xyz, 2)
+    n = size(x)
     if (n .eq. 0) return
 
     allocate(el_list(n))
@@ -126,9 +134,9 @@ contains
 
     do i = 1, n
        el_list(i) = global_interp%el_owner0_local(i)
-       x_t%x(i) = xyz(1, i)
-       y_t%x(i) = xyz(2, i)
-       z_t%x(i) = xyz(3, i)
+       x_t%x(i) = x(i)
+       y_t%x(i) = y(i)
+       z_t%x(i) = z(i)
     end do
 
     call global_interp%rst_finder%find(rst_new, x_t, y_t, z_t, el_list, n, &
@@ -141,22 +149,34 @@ contains
        if (el_mesh .gt. msh%nelv) cycle
 
        radius = 0.5_rp * d(i)
-       facet = identify_wall_facet(wall_facet_mask, dm_Xh, coef, xyz_old(:, i), &
-            xyz(:, i), radius, el_mesh, msh%gdim)
+       xyz_old = [x_old(i), y_old(i), z_old(i)]
+       xyz_new = [x(i), y(i), z(i)]
+       facet = identify_wall_facet(wall_facet_mask, dm_Xh, coef, xyz_old, &
+            xyz_new, radius, el_mesh, msh%gdim)
        if (facet .eq. 0) cycle
 
        call wall_facet_normal(coef, el_mesh, facet, normal)
        if (norm2(normal) .le. epsilon(1.0_rp)) cycle
 
        call wall_facet_center(dm_Xh, el_mesh, facet, wall_point)
-       call reflect_position(xyz(:, i), wall_point, normal, radius)
-       call reflect_vector(vel(:, i), normal)
-       call reflect_vector(vel_old(:, i), normal)
-       call reflect_vector(acc(:, i), normal)
-       do j = 1, lag_len
-          call reflect_vector(vel_lag(:, j, i), normal)
-          call reflect_vector(acc_lag(:, j, i), normal)
-       end do
+       call reflect_position(xyz_new, wall_point, normal, radius)
+       x(i) = xyz_new(1)
+       y(i) = xyz_new(2)
+       z(i) = xyz_new(3)
+       call reflect_vector_components(u(i), v(i), w(i), normal)
+       call reflect_vector_components(u_old(i), v_old(i), w_old(i), normal)
+       call reflect_vector_components(acc_x(i), acc_y(i), acc_z(i), normal)
+       if (lag_len .ge. 1) then
+          call reflect_vector_components(u_lag(i), v_lag(i), w_lag(i), normal)
+          call reflect_vector_components(acc_xlag(i), acc_ylag(i), &
+               acc_zlag(i), normal)
+       end if
+       if (lag_len .ge. 2) then
+          call reflect_vector_components(u_laglag(i), v_laglag(i), &
+               w_laglag(i), normal)
+          call reflect_vector_components(acc_xlaglag(i), acc_ylaglag(i), &
+               acc_zlaglag(i), normal)
+       end if
     end do
 
     if (allocated(el_list)) deallocate(el_list)
@@ -281,8 +301,8 @@ contains
 
   !> Reflect the particle center across the contact plane located one radius
   !! inward from the wall plane.
-  subroutine reflect_position(xyz, wall_point, normal, radius)
-    real(kind=rp), intent(inout) :: xyz(3)
+  subroutine reflect_position(point, wall_point, normal, radius)
+    real(kind=rp), intent(inout) :: point(3)
     real(kind=rp), intent(in) :: wall_point(3)
     real(kind=rp), intent(in) :: normal(3)
     real(kind=rp), intent(in) :: radius
@@ -294,10 +314,10 @@ contains
     if (nmag .le. epsilon(1.0_rp)) return
 
     nhat = normal / nmag
-    signed_contact_distance = dot_product(xyz - wall_point, nhat) + radius
+    signed_contact_distance = dot_product(point - wall_point, nhat) + radius
     if (signed_contact_distance .le. 0.0_rp) return
 
-    xyz = xyz - 2.0_rp * signed_contact_distance * nhat
+    point = point - 2.0_rp * signed_contact_distance * nhat
   end subroutine reflect_position
 
   pure real(kind=rp) function signed_plane_distance(point, wall_point, normal)
@@ -329,5 +349,19 @@ contains
     vn = dot_product(vec, nhat)
     vec = vec - 2.0_rp * vn * nhat
   end subroutine reflect_vector
+
+  pure subroutine reflect_vector_components(x, y, z, normal)
+    real(kind=rp), intent(inout) :: x
+    real(kind=rp), intent(inout) :: y
+    real(kind=rp), intent(inout) :: z
+    real(kind=rp), intent(in) :: normal(3)
+    real(kind=rp) :: vec(3)
+
+    vec = [x, y, z]
+    call reflect_vector(vec, normal)
+    x = vec(1)
+    y = vec(2)
+    z = vec(3)
+  end subroutine reflect_vector_components
 
 end module lpt_wall_collision

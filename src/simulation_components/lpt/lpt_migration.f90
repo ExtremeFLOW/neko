@@ -55,15 +55,10 @@ module lpt_migrate
      procedure, pass(this) :: migrate_particles
      procedure, private, pass(this) :: distribute_particles_evenly
      procedure, private, pass(this) :: distribute_particle_ids
-     procedure, private, pass(this) :: distribute_particle_field
      procedure, private, pass(this) :: distribute_particle_scalar
-     procedure, private, pass(this) :: distribute_lags
      procedure, private, pass(this) :: localize_global_interpolation
-     procedure, private, pass(this) :: migrate_particle_positions
      procedure, private, pass(this) :: migrate_particle_ids
-     procedure, private, pass(this) :: migrate_particle_field
      procedure, private, pass(this) :: migrate_particle_scalar
-     procedure, private, pass(this) :: migrate_lags
   end type lpt_migrate_t
 
 contains
@@ -111,68 +106,104 @@ contains
     n_local = counts(pe_rank)
   end subroutine build_even_particle_distribution
 
-  subroutine initialize_particle_distribution(this, inertia, xyz, ids, &
-       vel_lag, vel, acc, d, rho, acc_lag, n)
+  subroutine initialize_particle_distribution(this, inertia, x, y, z, ids, &
+       u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, u, v, w, &
+       acc_x, acc_y, acc_z, d, rho, acc_xlag, acc_ylag, acc_zlag, &
+       acc_xlaglag, acc_ylaglag, acc_zlaglag, n)
     class(lpt_migrate_t), intent(inout) :: this
+    integer, intent(inout) :: n
     logical, intent(in) :: inertia
-    real(kind=rp), allocatable, intent(inout) :: xyz(:, :)
+    real(kind=rp), allocatable, intent(inout) :: x(:), y(:), z(:)
     integer, allocatable, intent(inout) :: ids(:)
-    real(kind=rp), allocatable, intent(inout) :: vel_lag(:, :, :)
-    real(kind=rp), allocatable, intent(inout) :: vel(:, :)
-    real(kind=rp), allocatable, intent(inout) :: acc(:, :)
+    real(kind=rp), allocatable, intent(inout) :: u_lag(:), v_lag(:), w_lag(:)
+    real(kind=rp), allocatable, intent(inout) :: u_laglag(:), v_laglag(:)
+    real(kind=rp), allocatable, intent(inout) :: w_laglag(:)
+    real(kind=rp), allocatable, intent(inout) :: u(:), v(:), w(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_x(:), acc_y(:), acc_z(:)
     real(kind=rp), allocatable, intent(inout) :: d(:)
     real(kind=rp), allocatable, intent(inout) :: rho(:)
-    real(kind=rp), allocatable, intent(inout) :: acc_lag(:, :, :)
-    integer, intent(inout) :: n
+    real(kind=rp), allocatable, intent(inout) :: acc_xlag(:), acc_ylag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_zlag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_xlaglag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_ylaglag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_zlaglag(:)
 
     if (this%strategy .eq. LPT_MIGRATE_NONE) then
-       call this%distribute_particles_evenly(inertia, xyz, ids, vel_lag, &
-            vel, acc, d, rho, acc_lag, n)
+       call this%distribute_particles_evenly(inertia, x, y, z, ids, &
+            u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+            u, v, w, acc_x, acc_y, acc_z, d, rho, &
+            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
+            acc_zlaglag, n)
     end if
   end subroutine initialize_particle_distribution
 
   !> Update particle ownership according to the selected migration strategy.
   subroutine migrate_particles(this, global_interp, periodic_bc, inertia, &
-       xyz, ids, vel_lag, vel, acc, d, rho, acc_lag, n, n_global)
+       x, y, z, ids, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+       u, v, w, acc_x, acc_y, acc_z, d, rho, acc_xlag, acc_ylag, acc_zlag, &
+       acc_xlaglag, acc_ylaglag, acc_zlaglag, n, n_global)
     class(lpt_migrate_t), intent(inout) :: this
+    integer, intent(inout) :: n
     type(global_interpolation_t), intent(inout) :: global_interp
     type(lpt_periodic_bc_t), intent(inout) :: periodic_bc
     logical, intent(in) :: inertia
-    real(kind=rp), allocatable, intent(inout) :: xyz(:, :)
+    real(kind=rp), allocatable, intent(inout) :: x(:), y(:), z(:)
     integer, allocatable, intent(inout) :: ids(:)
-    real(kind=rp), allocatable, intent(inout) :: vel_lag(:, :, :)
-    real(kind=rp), allocatable, intent(inout) :: vel(:, :)
-    real(kind=rp), allocatable, intent(inout) :: acc(:, :)
+    real(kind=rp), allocatable, intent(inout) :: u_lag(:), v_lag(:), w_lag(:)
+    real(kind=rp), allocatable, intent(inout) :: u_laglag(:), v_laglag(:)
+    real(kind=rp), allocatable, intent(inout) :: w_laglag(:)
+    real(kind=rp), allocatable, intent(inout) :: u(:), v(:), w(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_x(:), acc_y(:), acc_z(:)
     real(kind=rp), allocatable, intent(inout) :: d(:)
     real(kind=rp), allocatable, intent(inout) :: rho(:)
-    real(kind=rp), allocatable, intent(inout) :: acc_lag(:, :, :)
-    integer, intent(inout) :: n
+    real(kind=rp), allocatable, intent(inout) :: acc_xlag(:), acc_ylag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_zlag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_xlaglag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_ylaglag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_zlaglag(:)
     integer, intent(out) :: n_global
     type(glb_intrp_comm_t) :: migrate_comm
     integer :: n_particles_old
     integer :: n_particles_local
     integer, allocatable :: particle_ids_local(:)
-    real(kind=rp), allocatable :: xyz_local(:, :)
-    real(kind=rp), allocatable :: vel_local(:, :)
-    real(kind=rp), allocatable :: acc_local(:, :)
+    real(kind=rp), allocatable :: x_local(:)
+    real(kind=rp), allocatable :: y_local(:)
+    real(kind=rp), allocatable :: z_local(:)
+    real(kind=rp), allocatable :: u_local(:)
+    real(kind=rp), allocatable :: v_local(:)
+    real(kind=rp), allocatable :: w_local(:)
+    real(kind=rp), allocatable :: acc_xlocal(:)
+    real(kind=rp), allocatable :: acc_ylocal(:)
+    real(kind=rp), allocatable :: acc_zlocal(:)
     real(kind=rp), allocatable :: d_local(:)
     real(kind=rp), allocatable :: rho_local(:)
-    real(kind=rp), allocatable :: vel_particles_lag_local(:, :, :)
-    real(kind=rp), allocatable :: acc_particles_lag_local(:, :, :)
+    real(kind=rp), allocatable :: u_lag_local(:), v_lag_local(:)
+    real(kind=rp), allocatable :: w_lag_local(:), u_laglag_local(:)
+    real(kind=rp), allocatable :: v_laglag_local(:), w_laglag_local(:)
+    real(kind=rp), allocatable :: acc_xlag_local(:), acc_ylag_local(:)
+    real(kind=rp), allocatable :: acc_zlag_local(:), acc_xlaglag_local(:)
+    real(kind=rp), allocatable :: acc_ylaglag_local(:), acc_zlaglag_local(:)
     integer :: ierr
     integer :: rank
     logical :: migration_needed
 
-    call periodic_bc%wrap(xyz, n, vel, vel_lag, acc_lag)
+    if (inertia) then
+       call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, v_lag, w_lag, &
+            u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, &
+            acc_xlaglag, acc_ylaglag, acc_zlaglag)
+    else
+       call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, v_lag, w_lag, &
+            u_laglag, v_laglag, w_laglag)
+    end if
     if (this%strategy .eq. LPT_MIGRATE_NONE) then
-       call global_interp%find_points(xyz, n)
+       call global_interp%find_points(x, y, z, n)
        call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
             ierr)
        return
     end if
 
     n_particles_old = n
-    call global_interp%find_points(xyz, n)
+    call global_interp%find_points(x, y, z, n)
     n_particles_local = global_interp%n_points_local
 
     migration_needed = .false.
@@ -192,112 +223,239 @@ contains
     end if
 
     call global_interp%init_redist_comm(migrate_comm)
-    call this%migrate_particle_positions(migrate_comm, xyz, &
-         n_particles_old, n_particles_local, xyz_local)
+    call this%migrate_particle_scalar(migrate_comm, x, n_particles_old, &
+         n_particles_local, x_local)
+    call this%migrate_particle_scalar(migrate_comm, y, n_particles_old, &
+         n_particles_local, y_local)
+    call this%migrate_particle_scalar(migrate_comm, z, n_particles_old, &
+         n_particles_local, z_local)
     call this%migrate_particle_ids(migrate_comm, ids, n_particles_old, &
          n_particles_local, particle_ids_local)
-    call this%migrate_lags(migrate_comm, vel_lag, n_particles_old, &
-         n_particles_local, &
-         vel_particles_lag_local)
+    call this%migrate_particle_scalar(migrate_comm, u_lag, n_particles_old, &
+         n_particles_local, u_lag_local)
+    call this%migrate_particle_scalar(migrate_comm, v_lag, n_particles_old, &
+         n_particles_local, v_lag_local)
+    call this%migrate_particle_scalar(migrate_comm, w_lag, n_particles_old, &
+         n_particles_local, w_lag_local)
+    call this%migrate_particle_scalar(migrate_comm, u_laglag, n_particles_old, &
+         n_particles_local, u_laglag_local)
+    call this%migrate_particle_scalar(migrate_comm, v_laglag, n_particles_old, &
+         n_particles_local, v_laglag_local)
+    call this%migrate_particle_scalar(migrate_comm, w_laglag, n_particles_old, &
+         n_particles_local, w_laglag_local)
     if (inertia) then
-       call this%migrate_particle_field(migrate_comm, vel, &
-            n_particles_old, n_particles_local, vel_local)
-       call this%migrate_particle_field(migrate_comm, acc, &
-            n_particles_old, n_particles_local, acc_local)
+       call this%migrate_particle_scalar(migrate_comm, u, n_particles_old, &
+            n_particles_local, u_local)
+       call this%migrate_particle_scalar(migrate_comm, v, n_particles_old, &
+            n_particles_local, v_local)
+       call this%migrate_particle_scalar(migrate_comm, w, n_particles_old, &
+            n_particles_local, w_local)
+       call this%migrate_particle_scalar(migrate_comm, acc_x, n_particles_old, &
+            n_particles_local, acc_xlocal)
+       call this%migrate_particle_scalar(migrate_comm, acc_y, n_particles_old, &
+            n_particles_local, acc_ylocal)
+       call this%migrate_particle_scalar(migrate_comm, acc_z, n_particles_old, &
+            n_particles_local, acc_zlocal)
        call this%migrate_particle_scalar(migrate_comm, d, &
             n_particles_old, n_particles_local, d_local)
        call this%migrate_particle_scalar(migrate_comm, rho, &
             n_particles_old, n_particles_local, rho_local)
-       call this%migrate_lags(migrate_comm, acc_lag, n_particles_old, &
-            n_particles_local, &
-            acc_particles_lag_local)
+       call this%migrate_particle_scalar(migrate_comm, acc_xlag, &
+            n_particles_old, n_particles_local, acc_xlag_local)
+       call this%migrate_particle_scalar(migrate_comm, acc_ylag, &
+            n_particles_old, n_particles_local, acc_ylag_local)
+       call this%migrate_particle_scalar(migrate_comm, acc_zlag, &
+            n_particles_old, n_particles_local, acc_zlag_local)
+       call this%migrate_particle_scalar(migrate_comm, acc_xlaglag, &
+            n_particles_old, n_particles_local, acc_xlaglag_local)
+       call this%migrate_particle_scalar(migrate_comm, acc_ylaglag, &
+            n_particles_old, n_particles_local, acc_ylaglag_local)
+       call this%migrate_particle_scalar(migrate_comm, acc_zlaglag, &
+            n_particles_old, n_particles_local, acc_zlaglag_local)
     end if
     call migrate_comm%free()
 
     n = n_particles_local
-    call move_alloc(xyz_local, xyz)
+    call move_alloc(x_local, x)
+    call move_alloc(y_local, y)
+    call move_alloc(z_local, z)
     call move_alloc(particle_ids_local, ids)
-    call move_alloc(vel_particles_lag_local, vel_lag)
+    call move_alloc(u_lag_local, u_lag)
+    call move_alloc(v_lag_local, v_lag)
+    call move_alloc(w_lag_local, w_lag)
+    call move_alloc(u_laglag_local, u_laglag)
+    call move_alloc(v_laglag_local, v_laglag)
+    call move_alloc(w_laglag_local, w_laglag)
     if (inertia) then
-      call move_alloc(vel_local, vel)
-      call move_alloc(acc_local, acc)
+      call move_alloc(u_local, u)
+      call move_alloc(v_local, v)
+      call move_alloc(w_local, w)
+      call move_alloc(acc_xlocal, acc_x)
+      call move_alloc(acc_ylocal, acc_y)
+      call move_alloc(acc_zlocal, acc_z)
       call move_alloc(d_local, d)
       call move_alloc(rho_local, rho)
-      call move_alloc(acc_particles_lag_local, acc_lag)
+      call move_alloc(acc_xlag_local, acc_xlag)
+      call move_alloc(acc_ylag_local, acc_ylag)
+      call move_alloc(acc_zlag_local, acc_zlag)
+      call move_alloc(acc_xlaglag_local, acc_xlaglag)
+      call move_alloc(acc_ylaglag_local, acc_ylaglag)
+      call move_alloc(acc_zlaglag_local, acc_zlaglag)
     else
-      if (allocated(vel)) deallocate(vel)
-      if (allocated(acc)) deallocate(acc)
+      if (allocated(u)) deallocate(u)
+      if (allocated(v)) deallocate(v)
+      if (allocated(w)) deallocate(w)
+      if (allocated(acc_x)) deallocate(acc_x)
+      if (allocated(acc_y)) deallocate(acc_y)
+      if (allocated(acc_z)) deallocate(acc_z)
       if (allocated(d)) deallocate(d)
       if (allocated(rho)) deallocate(rho)
-      if (allocated(acc_lag)) deallocate(acc_lag)
+      if (allocated(acc_xlag)) deallocate(acc_xlag)
+      if (allocated(acc_ylag)) deallocate(acc_ylag)
+      if (allocated(acc_zlag)) deallocate(acc_zlag)
+      if (allocated(acc_xlaglag)) deallocate(acc_xlaglag)
+      if (allocated(acc_ylaglag)) deallocate(acc_ylaglag)
+      if (allocated(acc_zlaglag)) deallocate(acc_zlaglag)
     end if
 
     call this%localize_global_interpolation(global_interp, n)
     call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine migrate_particles
 
-  subroutine distribute_particles_evenly(this, inertia, xyz, ids, vel_lag, &
-       vel, acc, d, rho, acc_lag, n)
+  subroutine distribute_particles_evenly(this, inertia, x, y, z, ids, &
+       u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, u, v, w, &
+       acc_x, acc_y, acc_z, d, rho, acc_xlag, acc_ylag, acc_zlag, &
+       acc_xlaglag, acc_ylaglag, acc_zlaglag, n)
     class(lpt_migrate_t), intent(inout) :: this
     logical, intent(in) :: inertia
-    real(kind=rp), allocatable, intent(inout) :: xyz(:, :)
+    real(kind=rp), allocatable, intent(inout) :: x(:), y(:), z(:)
     integer, allocatable, intent(inout) :: ids(:)
-    real(kind=rp), allocatable, intent(inout) :: vel_lag(:, :, :)
-    real(kind=rp), allocatable, intent(inout) :: vel(:, :)
-    real(kind=rp), allocatable, intent(inout) :: acc(:, :)
+    real(kind=rp), allocatable, intent(inout) :: u_lag(:), v_lag(:), w_lag(:)
+    real(kind=rp), allocatable, intent(inout) :: u_laglag(:), v_laglag(:)
+    real(kind=rp), allocatable, intent(inout) :: w_laglag(:)
+    real(kind=rp), allocatable, intent(inout) :: u(:), v(:), w(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_x(:), acc_y(:), acc_z(:)
     real(kind=rp), allocatable, intent(inout) :: d(:)
     real(kind=rp), allocatable, intent(inout) :: rho(:)
-    real(kind=rp), allocatable, intent(inout) :: acc_lag(:, :, :)
+    real(kind=rp), allocatable, intent(inout) :: acc_xlag(:), acc_ylag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_zlag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_xlaglag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_ylaglag(:)
+    real(kind=rp), allocatable, intent(inout) :: acc_zlaglag(:)
     integer, intent(inout) :: n
     integer, allocatable :: ids_local(:)
-    real(kind=rp), allocatable :: xyz_local(:, :)
-    real(kind=rp), allocatable :: vel_lag_local(:, :, :)
-    real(kind=rp), allocatable :: vel_local(:, :)
-    real(kind=rp), allocatable :: acc_local(:, :)
+    real(kind=rp), allocatable :: x_local(:)
+    real(kind=rp), allocatable :: y_local(:)
+    real(kind=rp), allocatable :: z_local(:)
+    real(kind=rp), allocatable :: u_lag_local(:), v_lag_local(:)
+    real(kind=rp), allocatable :: w_lag_local(:), u_laglag_local(:)
+    real(kind=rp), allocatable :: v_laglag_local(:), w_laglag_local(:)
+    real(kind=rp), allocatable :: u_local(:)
+    real(kind=rp), allocatable :: v_local(:)
+    real(kind=rp), allocatable :: w_local(:)
+    real(kind=rp), allocatable :: acc_xlocal(:)
+    real(kind=rp), allocatable :: acc_ylocal(:)
+    real(kind=rp), allocatable :: acc_zlocal(:)
     real(kind=rp), allocatable :: d_local(:)
     real(kind=rp), allocatable :: rho_local(:)
-    real(kind=rp), allocatable :: acc_lag_local(:, :, :)
+    real(kind=rp), allocatable :: acc_xlag_local(:), acc_ylag_local(:)
+    real(kind=rp), allocatable :: acc_zlag_local(:), acc_xlaglag_local(:)
+    real(kind=rp), allocatable :: acc_ylaglag_local(:), acc_zlaglag_local(:)
     integer, allocatable :: counts(:)
     integer, allocatable :: offsets(:)
     integer :: n_local
 
     call build_even_particle_distribution(n, counts, offsets, n_local)
 
-    call this%distribute_particle_field(xyz, counts, offsets, n_local, &
-         xyz_local)
+    call this%distribute_particle_scalar(x, counts, offsets, n_local, x_local)
+    call this%distribute_particle_scalar(y, counts, offsets, n_local, y_local)
+    call this%distribute_particle_scalar(z, counts, offsets, n_local, z_local)
     call this%distribute_particle_ids(ids, counts, offsets, n_local, &
          ids_local)
-    call this%distribute_lags(vel_lag, counts, offsets, n_local, &
-         vel_lag_local)
+    call this%distribute_particle_scalar(u_lag, counts, offsets, n_local, &
+         u_lag_local)
+    call this%distribute_particle_scalar(v_lag, counts, offsets, n_local, &
+         v_lag_local)
+    call this%distribute_particle_scalar(w_lag, counts, offsets, n_local, &
+         w_lag_local)
+    call this%distribute_particle_scalar(u_laglag, counts, offsets, n_local, &
+         u_laglag_local)
+    call this%distribute_particle_scalar(v_laglag, counts, offsets, n_local, &
+         v_laglag_local)
+    call this%distribute_particle_scalar(w_laglag, counts, offsets, n_local, &
+         w_laglag_local)
     if (inertia) then
-       call this%distribute_particle_field(vel, counts, offsets, n_local, &
-            vel_local)
-       call this%distribute_particle_field(acc, counts, offsets, n_local, &
-            acc_local)
+       call this%distribute_particle_scalar(u, counts, offsets, n_local, &
+            u_local)
+       call this%distribute_particle_scalar(v, counts, offsets, n_local, &
+            v_local)
+       call this%distribute_particle_scalar(w, counts, offsets, n_local, &
+            w_local)
+       call this%distribute_particle_scalar(acc_x, counts, offsets, n_local, &
+            acc_xlocal)
+       call this%distribute_particle_scalar(acc_y, counts, offsets, n_local, &
+            acc_ylocal)
+       call this%distribute_particle_scalar(acc_z, counts, offsets, n_local, &
+            acc_zlocal)
        call this%distribute_particle_scalar(d, counts, offsets, n_local, &
             d_local)
        call this%distribute_particle_scalar(rho, counts, offsets, n_local, &
             rho_local)
-       call this%distribute_lags(acc_lag, counts, offsets, n_local, &
-            acc_lag_local)
+       call this%distribute_particle_scalar(acc_xlag, counts, offsets, n_local, &
+            acc_xlag_local)
+       call this%distribute_particle_scalar(acc_ylag, counts, offsets, n_local, &
+            acc_ylag_local)
+       call this%distribute_particle_scalar(acc_zlag, counts, offsets, n_local, &
+            acc_zlag_local)
+       call this%distribute_particle_scalar(acc_xlaglag, counts, offsets, &
+            n_local, acc_xlaglag_local)
+       call this%distribute_particle_scalar(acc_ylaglag, counts, offsets, &
+            n_local, acc_ylaglag_local)
+       call this%distribute_particle_scalar(acc_zlaglag, counts, offsets, &
+            n_local, acc_zlaglag_local)
     end if
 
     n = n_local
-    call move_alloc(xyz_local, xyz)
+    call move_alloc(x_local, x)
+    call move_alloc(y_local, y)
+    call move_alloc(z_local, z)
     call move_alloc(ids_local, ids)
-    call move_alloc(vel_lag_local, vel_lag)
+    call move_alloc(u_lag_local, u_lag)
+    call move_alloc(v_lag_local, v_lag)
+    call move_alloc(w_lag_local, w_lag)
+    call move_alloc(u_laglag_local, u_laglag)
+    call move_alloc(v_laglag_local, v_laglag)
+    call move_alloc(w_laglag_local, w_laglag)
     if (inertia) then
-       call move_alloc(vel_local, vel)
-       call move_alloc(acc_local, acc)
+       call move_alloc(u_local, u)
+       call move_alloc(v_local, v)
+       call move_alloc(w_local, w)
+       call move_alloc(acc_xlocal, acc_x)
+       call move_alloc(acc_ylocal, acc_y)
+       call move_alloc(acc_zlocal, acc_z)
        call move_alloc(d_local, d)
        call move_alloc(rho_local, rho)
-       call move_alloc(acc_lag_local, acc_lag)
+       call move_alloc(acc_xlag_local, acc_xlag)
+       call move_alloc(acc_ylag_local, acc_ylag)
+       call move_alloc(acc_zlag_local, acc_zlag)
+       call move_alloc(acc_xlaglag_local, acc_xlaglag)
+       call move_alloc(acc_ylaglag_local, acc_ylaglag)
+       call move_alloc(acc_zlaglag_local, acc_zlaglag)
     else
-       if (allocated(vel)) deallocate(vel)
-       if (allocated(acc)) deallocate(acc)
+       if (allocated(u)) deallocate(u)
+       if (allocated(v)) deallocate(v)
+       if (allocated(w)) deallocate(w)
+       if (allocated(acc_x)) deallocate(acc_x)
+       if (allocated(acc_y)) deallocate(acc_y)
+       if (allocated(acc_z)) deallocate(acc_z)
        if (allocated(d)) deallocate(d)
        if (allocated(rho)) deallocate(rho)
-       if (allocated(acc_lag)) deallocate(acc_lag)
+       if (allocated(acc_xlag)) deallocate(acc_xlag)
+       if (allocated(acc_ylag)) deallocate(acc_ylag)
+       if (allocated(acc_zlag)) deallocate(acc_zlag)
+       if (allocated(acc_xlaglag)) deallocate(acc_xlaglag)
+       if (allocated(acc_ylaglag)) deallocate(acc_ylaglag)
+       if (allocated(acc_zlaglag)) deallocate(acc_zlaglag)
     end if
 
     deallocate(counts)
@@ -327,32 +485,6 @@ contains
     deallocate(offsets_i)
   end subroutine distribute_particle_ids
 
-  subroutine distribute_particle_field(this, field_old, counts, offsets, &
-       n_local, field_local)
-    class(lpt_migrate_t), intent(inout) :: this
-    real(kind=rp), allocatable, intent(in) :: field_old(:, :)
-    integer, intent(in) :: counts(0:)
-    integer, intent(in) :: offsets(0:)
-    integer, intent(in) :: n_local
-    real(kind=rp), allocatable, intent(out) :: field_local(:, :)
-    integer, allocatable :: counts_r(:)
-    integer, allocatable :: offsets_r(:)
-    integer :: rank
-    integer :: ierr
-
-    allocate(field_local(3, n_local))
-    allocate(counts_r(0:pe_size - 1))
-    allocate(offsets_r(0:pe_size - 1))
-    do rank = 0, pe_size - 1
-       counts_r(rank) = 3 * counts(rank)
-       offsets_r(rank) = 3 * offsets(rank)
-    end do
-    call MPI_Scatterv(field_old, counts_r, offsets_r, MPI_REAL_PRECISION, &
-         field_local, 3 * n_local, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
-    deallocate(counts_r)
-    deallocate(offsets_r)
-  end subroutine distribute_particle_field
-
   subroutine distribute_particle_scalar(this, scalar_old, counts, offsets, &
        n_local, scalar_local)
     class(lpt_migrate_t), intent(inout) :: this
@@ -376,33 +508,6 @@ contains
     deallocate(offsets_r)
   end subroutine distribute_particle_scalar
 
-  subroutine distribute_lags(this, lag_old, counts, offsets, n_local, &
-       lag_local)
-    class(lpt_migrate_t), intent(inout) :: this
-    real(kind=rp), allocatable, intent(in) :: lag_old(:, :, :)
-    integer, intent(in) :: counts(0:)
-    integer, intent(in) :: offsets(0:)
-    integer, intent(in) :: n_local
-    real(kind=rp), allocatable, intent(out) :: lag_local(:, :, :)
-    integer, allocatable :: counts_r(:)
-    integer, allocatable :: offsets_r(:)
-    integer :: rank
-    integer :: ierr
-
-    allocate(lag_local(3, this%lag_len, n_local))
-    allocate(counts_r(0:pe_size - 1))
-    allocate(offsets_r(0:pe_size - 1))
-    do rank = 0, pe_size - 1
-       counts_r(rank) = 3 * this%lag_len * counts(rank)
-       offsets_r(rank) = 3 * this%lag_len * offsets(rank)
-    end do
-    call MPI_Scatterv(lag_old, counts_r, offsets_r, MPI_REAL_PRECISION, &
-         lag_local, 3 * this%lag_len * n_local, MPI_REAL_PRECISION, 0, &
-         NEKO_COMM, ierr)
-    deallocate(counts_r)
-    deallocate(offsets_r)
-  end subroutine distribute_lags
-
   subroutine localize_global_interpolation(this, global_interp, n_local)
     class(lpt_migrate_t), intent(inout) :: this
     type(global_interpolation_t), intent(inout) :: global_interp
@@ -411,19 +516,6 @@ contains
     global_interp%n_points = n_local
     global_interp%all_points_local = .true.
   end subroutine localize_global_interpolation
-
-  subroutine migrate_particle_positions(this, migrate_comm, xyz_old, &
-       n_particles_old, n_local, xyz_local)
-    class(lpt_migrate_t), intent(inout) :: this
-    type(glb_intrp_comm_t), intent(inout) :: migrate_comm
-    real(kind=rp), allocatable, intent(in) :: xyz_old(:, :)
-    integer, intent(in) :: n_particles_old
-    integer, intent(in) :: n_local
-    real(kind=rp), allocatable, intent(out) :: xyz_local(:, :)
-
-    call this%migrate_particle_field(migrate_comm, xyz_old, &
-         n_particles_old, n_local, xyz_local)
-  end subroutine migrate_particle_positions
 
   subroutine migrate_particle_ids(this, migrate_comm, ids_old, &
        n_particles_old, n_local, particle_ids_local)
@@ -450,67 +542,6 @@ contains
     deallocate(sendbuf)
     deallocate(recvbuf)
   end subroutine migrate_particle_ids
-
-  subroutine migrate_lags(this, migrate_comm, lag_old, n_particles_old, &
-       n_local, lag_local)
-    class(lpt_migrate_t), intent(inout) :: this
-    type(glb_intrp_comm_t), intent(inout) :: migrate_comm
-    real(kind=rp), allocatable, intent(in) :: lag_old(:, :, :)
-    integer, intent(in) :: n_particles_old
-    integer, intent(in) :: n_local
-    real(kind=rp), allocatable, intent(out) :: lag_local(:, :, :)
-    real(kind=rp), allocatable :: sendbuf(:)
-    real(kind=rp), allocatable :: recvbuf(:)
-    integer :: i
-    integer :: j
-
-    allocate(lag_local(3, this%lag_len, n_local))
-    lag_local = 0.0_rp
-
-    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
-
-    allocate(sendbuf(n_particles_old))
-    allocate(recvbuf(n_local))
-    do j = 1, this%lag_len
-       do i = 1, 3
-          sendbuf = lag_old(i, j, :)
-          recvbuf = 0.0_rp
-          call migrate_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-          lag_local(i, j, :) = recvbuf
-       end do
-    end do
-    deallocate(sendbuf)
-    deallocate(recvbuf)
-  end subroutine migrate_lags
-
-  subroutine migrate_particle_field(this, migrate_comm, field_old, &
-       n_particles_old, n_local, field_local)
-    class(lpt_migrate_t), intent(inout) :: this
-    type(glb_intrp_comm_t), intent(inout) :: migrate_comm
-    real(kind=rp), allocatable, intent(in) :: field_old(:, :)
-    integer, intent(in) :: n_particles_old
-    integer, intent(in) :: n_local
-    real(kind=rp), allocatable, intent(out) :: field_local(:, :)
-    real(kind=rp), allocatable :: sendbuf(:)
-    real(kind=rp), allocatable :: recvbuf(:)
-    integer :: i
-
-    allocate(field_local(3, n_local))
-    field_local = 0.0_rp
-
-    if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
-
-    allocate(sendbuf(n_particles_old))
-    allocate(recvbuf(n_local))
-    do i = 1, 3
-       sendbuf = field_old(i, :)
-       recvbuf = 0.0_rp
-       call migrate_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-       field_local(i, :) = recvbuf
-    end do
-    deallocate(sendbuf)
-    deallocate(recvbuf)
-  end subroutine migrate_particle_field
 
   subroutine migrate_particle_scalar(this, migrate_comm, scalar_old, &
        n_particles_old, n_local, scalar_local)
