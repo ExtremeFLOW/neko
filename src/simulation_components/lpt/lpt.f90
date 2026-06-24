@@ -372,14 +372,6 @@ contains
     real(kind=rp), allocatable :: densities(:)
     real(kind=rp), allocatable :: x(:), y(:), z(:)
     real(kind=rp), allocatable :: u(:), v(:), w(:)
-    real(kind=rp), allocatable :: empty_x(:)
-    real(kind=rp), allocatable :: empty_y(:)
-    real(kind=rp), allocatable :: empty_z(:)
-    real(kind=rp), allocatable :: empty_u(:)
-    real(kind=rp), allocatable :: empty_v(:)
-    real(kind=rp), allocatable :: empty_w(:)
-    real(kind=rp), allocatable :: empty_diams(:)
-    real(kind=rp), allocatable :: empty_densities(:)
 
     if (pe_rank .eq. 0) then
        if (json%valid_path("coordinates")) then
@@ -434,24 +426,7 @@ contains
           call neko_error("lpt requires either coordinates or points_file")
        end if
     else
-       allocate(empty_x(0))
-       allocate(empty_y(0))
-       allocate(empty_z(0))
-       allocate(empty_u(0))
-       allocate(empty_v(0))
-       allocate(empty_w(0))
-       allocate(empty_diams(0))
-       allocate(empty_densities(0))
-       call this%particles%init(empty_x, empty_y, empty_z, this%time_order, &
-            empty_u, empty_v, empty_w, empty_diams, empty_densities)
-       deallocate(empty_x)
-       deallocate(empty_y)
-       deallocate(empty_z)
-       deallocate(empty_u)
-       deallocate(empty_v)
-       deallocate(empty_w)
-       deallocate(empty_diams)
-       deallocate(empty_densities)
+       return
     end if
   end subroutine read_particles_json
 

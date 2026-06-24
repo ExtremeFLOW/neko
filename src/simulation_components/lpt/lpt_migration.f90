@@ -500,20 +500,25 @@ contains
     integer, allocatable, intent(out) :: particle_ids_local(:)
     real(kind=rp), allocatable :: sendbuf(:)
     real(kind=rp), allocatable :: recvbuf(:)
+    integer :: n_sendbuf
+    integer :: n_recvbuf
 
     allocate(particle_ids_local(n_local))
     particle_ids_local = 0
 
     if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
-    allocate(sendbuf(n_particles_old))
-    allocate(recvbuf(n_local))
-    sendbuf = real(ids_old, rp)
+    n_sendbuf = max(1, n_particles_old)
+    n_recvbuf = max(1, n_local)
+    allocate(sendbuf(n_sendbuf))
+    allocate(recvbuf(n_recvbuf))
+    sendbuf = 0.0_rp
     recvbuf = 0.0_rp
-    call migrate_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-    particle_ids_local = nint(recvbuf)
-    deallocate(sendbuf)
-    deallocate(recvbuf)
+    if (n_particles_old .gt. 0) sendbuf = real(ids_old, rp)
+    call migrate_comm%sendrecv(sendbuf, recvbuf, n_sendbuf, n_recvbuf)
+    if (n_local .gt. 0) particle_ids_local = nint(recvbuf(1:n_local))
+    if (allocated(sendbuf)) deallocate(sendbuf)
+    if (allocated(recvbuf)) deallocate(recvbuf)
   end subroutine migrate_particle_ids
 
   subroutine migrate_particle_scalar(this, migrate_comm, scalar_old, &
@@ -526,19 +531,24 @@ contains
     type(vector_t), intent(inout) :: scalar_local
     real(kind=rp), allocatable :: sendbuf(:)
     real(kind=rp), allocatable :: recvbuf(:)
+    integer :: n_sendbuf
+    integer :: n_recvbuf
 
     call scalar_local%init(n_local)
 
     if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
-    allocate(sendbuf(n_particles_old))
-    allocate(recvbuf(n_local))
-    sendbuf = scalar_old%x
+    n_sendbuf = max(1, n_particles_old)
+    n_recvbuf = max(1, n_local)
+    allocate(sendbuf(n_sendbuf))
+    allocate(recvbuf(n_recvbuf))
+    sendbuf = 0.0_rp
     recvbuf = 0.0_rp
-    call migrate_comm%sendrecv(sendbuf, recvbuf, n_particles_old, n_local)
-    scalar_local = recvbuf
-    deallocate(sendbuf)
-    deallocate(recvbuf)
+    if (n_particles_old .gt. 0) sendbuf = scalar_old%x
+    call migrate_comm%sendrecv(sendbuf, recvbuf, n_sendbuf, n_recvbuf)
+    if (n_local .gt. 0) scalar_local = recvbuf(1:n_local)
+    if (allocated(sendbuf)) deallocate(sendbuf)
+    if (allocated(recvbuf)) deallocate(recvbuf)
   end subroutine migrate_particle_scalar
 
 end module lpt_migrate
