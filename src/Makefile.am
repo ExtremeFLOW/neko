@@ -394,6 +394,7 @@ neko_fortran_SOURCES = \
 	source_terms/sponge_source_term.f90\
 	source_terms/brinkman_source_term.f90\
 	source_terms/idw_source_term.f90\
+	source_terms/bcknd/device/device_idw_source_term.F90\
 	filter/mappings.f90\
 	filter/filter.f90\
 	filter/filter_fctry.f90\
@@ -651,7 +652,8 @@ libneko_la_SOURCES += \
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
 	sem/bcknd/device/opencl/local_interpolation.c\
-	filter/bcknd/device/opencl/mappings.c
+	filter/bcknd/device/opencl/mappings.c\
+	source_terms/bcknd/device/opencl/idw.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -1044,6 +1046,7 @@ EXTRA_DIST = \
 	filter/bcknd/device/cuda/mapping_kernels.h\
 	filter/bcknd/device/hip/mapping_kernels.h\
 	filter/bcknd/device/opencl/mapping_kernels.cl\
+	source_terms/bcknd/device/opencl/idw_kernel.cl\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	math/bcknd/device/metal/math_kernel.metal\

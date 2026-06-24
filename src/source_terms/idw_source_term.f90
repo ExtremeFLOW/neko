@@ -45,7 +45,7 @@ module idw_source_term
   use registry, only : neko_registry
   use field, only : field_t
   use file, only : file_t
-  use comm, only : MPI_REAL_PRECISION, NEKO_COMM, pe_rank
+  use comm, only : NEKO_COMM, pe_rank
   use intersection_detector, only : intersect_detector_t
   use mesh, only : mesh_t
   use stack, only : stack_i4_t, stack_pt_t
@@ -59,10 +59,12 @@ module idw_source_term
   use PDE_filter, only : PDE_filter_t
   use filter, only : filter_t
   use device_math, only : device_col2
-  use device, only : device_free
+  use device, only : device_free, device_map, device_memcpy, &
+       HOST_TO_DEVICE, DEVICE_TO_HOST
+  use device_idw_source_term, only : device_idw_gather
   use gather_scatter, only : gs_t, GS_OP_ADD
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MIN, &
-       MPI_MAX, MPI_INTEGER, MPI_SUM
+       MPI_MAX, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -78,7 +80,7 @@ module idw_source_term
      type(point_t), allocatable :: lag_pts(:)
      type(point_t), allocatable :: lag_nrm(:)
      type(stack_i4_t), allocatable :: lag_el(:)
-     real(kind=dp), allocatable :: xyz(:,:)
+     real(kind=rp), allocatable :: xyz(:,:)
      real(kind=rp), allocatable :: fu_ib(:)
      real(kind=rp), allocatable :: fv_ib(:)
      real(kind=rp), allocatable :: fw_ib(:)
@@ -91,6 +93,20 @@ module idw_source_term
      type(c_ptr) :: fum_ib_d = C_NULL_PTR
      type(c_ptr) :: fvm_ib_d = C_NULL_PTR
      type(c_ptr) :: fwm_ib_d = C_NULL_PTR
+     !> CSR transpose of lag_el (per element -> lag points) for the gather kernel
+     integer, allocatable :: el_off(:)
+     integer, allocatable :: el_lag(:)
+     integer, allocatable :: active_el(:)
+     !> Lagrangian point coordinates, unpacked for the device kernel
+     real(kind=rp), allocatable :: lpx(:), lpy(:), lpz(:)
+     type(c_ptr) :: el_off_d = C_NULL_PTR
+     type(c_ptr) :: el_lag_d = C_NULL_PTR
+     type(c_ptr) :: active_el_d = C_NULL_PTR
+     type(c_ptr) :: lpx_d = C_NULL_PTR
+     type(c_ptr) :: lpy_d = C_NULL_PTR
+     type(c_ptr) :: lpz_d = C_NULL_PTR
+     integer :: n_active = 0
+     integer :: lx3 = 0
      real(kind=rp) :: pwr_param
      real(kind=rp) :: rmax
      type(field_t) :: w
@@ -148,7 +164,7 @@ contains
     write(log_buf, '(A,f5.2)') 'Rmax       : ', this%rmax
     call neko_log%message(log_buf)
 
-    call json_get_or_default(json, "padding", aabb_padding, 0.125_rp)
+    call json_get_or_default(json, "padding", aabb_padding, 0.125_dp)
     write(log_buf, '(A,f5.2)') 'Padding    : ', aabb_padding
     call neko_log%message(log_buf)
     
@@ -298,12 +314,12 @@ contains
     this%ds_max = ds_max
 
     call MPI_Allreduce(MPI_IN_PLACE, this%ds_min, 1, &
-         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM)
+         MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_COMM)
     write(log_buf, '(A,ES13.6)') 'Minimum ds :', this%ds_min
     call neko_log%message(log_buf)
 
     call MPI_Allreduce(MPI_IN_PLACE, this%ds_max, 1, &
-         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM)
+         MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM)
     write(log_buf, '(A,ES13.6)') 'Maximum ds :', this%ds_max
     call neko_log%message(log_buf)
 
@@ -471,7 +487,222 @@ contains
     call lagrangian_points%free()
     call lagrangian_normals%free()
 
+    if (NEKO_BCKND_DEVICE .eq. 1) call idw_build_device_maps(this)
+
   end subroutine idw_source_term_init_from_json
+
+  !> Build the device data structures for the IDW source term: the CSR
+  !! transpose of `lag_el` (per element -> lag points) used by the gather
+  !! kernel, the unpacked Lagrangian coordinates, and upload the mask/weight
+  !! fields that are assembled on the host during init.
+  subroutine idw_build_device_maps(this)
+    class(idw_source_term_t), intent(inout) :: this
+    integer :: nelv, n_lag, n, i, ee, e, k, n_csr
+    integer, allocatable :: cursor(:)
+
+    nelv = size(this%w%dof%x, 4)
+    n_lag = size(this%lag_pts)
+    this%lx3 = this%w%Xh%lx**3
+
+    ! Histogram of contributions per element (stored shifted by one slot)
+    allocate(this%el_off(nelv + 1))
+    this%el_off = 0
+    do i = 1, n_lag
+       select type (el => this%lag_el(i)%data)
+         type is (integer)
+          do ee = 1, this%lag_el(i)%size()
+             e = el(ee)
+             this%el_off(e + 1) = this%el_off(e + 1) + 1
+          end do
+       end select
+    end do
+
+    ! Prefix sum -> 0-based CSR offsets; element e occupies [el_off(e), el_off(e+1))
+    do e = 1, nelv
+       this%el_off(e + 1) = this%el_off(e + 1) + this%el_off(e)
+    end do
+    n_csr = this%el_off(nelv + 1)
+
+    allocate(this%el_lag(n_csr))
+    allocate(cursor(nelv))
+    cursor(1:nelv) = this%el_off(1:nelv)
+
+    ! Fill the CSR buffer (0-based lag indices for the kernel)
+    do i = 1, n_lag
+       select type (el => this%lag_el(i)%data)
+         type is (integer)
+          do ee = 1, this%lag_el(i)%size()
+             e = el(ee)
+             this%el_lag(cursor(e) + 1) = i - 1
+             cursor(e) = cursor(e) + 1
+          end do
+       end select
+    end do
+    deallocate(cursor)
+
+    ! Compact list of elements that actually receive contributions
+    this%n_active = count(this%el_off(2:nelv + 1) - this%el_off(1:nelv) > 0)
+    allocate(this%active_el(this%n_active))
+    k = 0
+    do e = 1, nelv
+       if (this%el_off(e + 1) > this%el_off(e)) then
+          k = k + 1
+          this%active_el(k) = e - 1
+       end if
+    end do
+
+    ! Unpack Lagrangian coordinates
+    allocate(this%lpx(n_lag), this%lpy(n_lag), this%lpz(n_lag))
+    do i = 1, n_lag
+       this%lpx(i) = this%lag_pts(i)%x(1)
+       this%lpy(i) = this%lag_pts(i)%x(2)
+       this%lpz(i) = this%lag_pts(i)%x(3)
+    end do
+
+    ! Map and upload the connectivity / per-point arrays (static after init)
+    call device_map(this%el_off, this%el_off_d, nelv + 1)
+    call device_memcpy(this%el_off, this%el_off_d, nelv + 1, &
+         HOST_TO_DEVICE, sync = .false.)
+
+    if (this%n_active > 0) then
+       call device_map(this%active_el, this%active_el_d, this%n_active)
+       call device_memcpy(this%active_el, this%active_el_d, this%n_active, &
+            HOST_TO_DEVICE, sync = .false.)
+    end if
+
+    if (n_csr > 0) then
+       call device_map(this%el_lag, this%el_lag_d, n_csr)
+       call device_memcpy(this%el_lag, this%el_lag_d, n_csr, &
+            HOST_TO_DEVICE, sync = .false.)
+    end if
+
+    if (n_lag > 0) then
+       call device_map(this%lpx, this%lpx_d, n_lag)
+       call device_map(this%lpy, this%lpy_d, n_lag)
+       call device_map(this%lpz, this%lpz_d, n_lag)
+       call device_memcpy(this%lpx, this%lpx_d, n_lag, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%lpy, this%lpy_d, n_lag, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%lpz, this%lpz_d, n_lag, HOST_TO_DEVICE, &
+            sync = .false.)
+
+       ! Device buffers for the interpolated values (refilled every step)
+       call device_map(this%fu_ib, this%fu_ib_d, n_lag)
+       call device_map(this%fv_ib, this%fv_ib_d, n_lag)
+       call device_map(this%fw_ib, this%fw_ib_d, n_lag)
+       call device_map(this%fum_ib, this%fum_ib_d, n_lag)
+       call device_map(this%fvm_ib, this%fvm_ib_d, n_lag)
+       call device_map(this%fwm_ib, this%fwm_ib_d, n_lag)
+    end if
+
+    ! Upload the mask / weight fields assembled on the host during init
+    n = this%w%size()
+    call device_memcpy(this%w%x, this%w%x_d, n, HOST_TO_DEVICE, sync = .false.)
+    call device_memcpy(this%wm%x, this%wm%x_d, n, HOST_TO_DEVICE, sync = .false.)
+    call device_memcpy(this%ds%x, this%ds%x_d, n, HOST_TO_DEVICE, sync = .false.)
+    call device_memcpy(this%pmsk%x, this%pmsk%x_d, n, HOST_TO_DEVICE, &
+         sync = .false.)
+    call device_memcpy(this%mmsk%x, this%mmsk%x_d, n, HOST_TO_DEVICE, &
+         sync = .true.)
+
+  end subroutine idw_build_device_maps
+
+  !> Interpolate a masked field at the Lagrangian points on the host. The
+  !! masked product `field_col3` runs on the device, so the result is synced
+  !! back before the (host) gslib evaluation.
+  subroutine idw_interp_masked(global_interp, tmp, fld, msk, ib, nt)
+    type(global_interpolation_t), intent(inout) :: global_interp
+    type(field_t), intent(inout) :: tmp
+    type(field_t), intent(in) :: fld, msk
+    real(kind=rp), intent(inout) :: ib(:)
+    integer, intent(in) :: nt
+
+    call field_col3(tmp, fld, msk, nt)
+    if (NEKO_BCKND_DEVICE .eq. 1) &
+         call device_memcpy(tmp%x, tmp%x_d, nt, DEVICE_TO_HOST, sync = .true.)
+    call global_interp%evaluate(ib, tmp%x, .true.)
+  end subroutine idw_interp_masked
+
+  !> Device path of the source term: interpolate on the host (gslib), upload
+  !! the per-point values, then assemble the contributions with the atomic-free
+  !! gather kernel. Mirrors the host branches of idw_source_term_compute.
+  subroutine idw_compute_device(this, fu, fv, fw, u, v, w, time)
+    class(idw_source_term_t), intent(inout) :: this
+    type(field_t), intent(inout) :: fu, fv, fw
+    type(field_t), intent(inout) :: u, v, w
+    type(time_state_t), intent(in) :: time
+    integer :: n_lag, nt
+    real(kind=rp) :: wtol
+
+    n_lag = size(this%fu_ib)
+    nt = this%tmp%size()
+
+    this%fu_ib = 0.0_rp
+    this%fv_ib = 0.0_rp
+    this%fw_ib = 0.0_rp
+
+    if (this%one_sided) then
+       this%fum_ib = 0.0_rp
+       this%fvm_ib = 0.0_rp
+       this%fwm_ib = 0.0_rp
+
+       call idw_interp_masked(this%global_interp, this%tmp, u, this%pmsk, &
+            this%fu_ib, nt)
+       call idw_interp_masked(this%global_interp, this%tmp, v, this%pmsk, &
+            this%fv_ib, nt)
+       call idw_interp_masked(this%global_interp, this%tmp, w, this%pmsk, &
+            this%fw_ib, nt)
+       call idw_interp_masked(this%global_interp, this%tmp, u, this%mmsk, &
+            this%fum_ib, nt)
+       call idw_interp_masked(this%global_interp, this%tmp, v, this%mmsk, &
+            this%fvm_ib, nt)
+       call idw_interp_masked(this%global_interp, this%tmp, w, this%mmsk, &
+            this%fwm_ib, nt)
+    else
+       ! Unmasked interpolation reads the host velocity directly; refresh it.
+       call device_memcpy(u%x, u%x_d, u%size(), DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(v%x, v%x_d, v%size(), DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(w%x, w%x_d, w%size(), DEVICE_TO_HOST, sync = .true.)
+       call this%global_interp%evaluate(this%fu_ib, u%x, .true.)
+       call this%global_interp%evaluate(this%fv_ib, v%x, .true.)
+       call this%global_interp%evaluate(this%fw_ib, w%x, .true.)
+    end if
+
+    ! Upload the interpolated per-point values (last copy is synchronous so the
+    ! kernel, enqueued on the same queue afterwards, sees the data).
+    if (n_lag > 0) then
+       call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, HOST_TO_DEVICE, &
+            sync = .not. this%one_sided)
+       if (this%one_sided) then
+          call device_memcpy(this%fum_ib, this%fum_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%fvm_ib, this%fvm_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%fwm_ib, this%fwm_ib_d, n_lag, &
+               HOST_TO_DEVICE, sync = .true.)
+       end if
+    end if
+
+    ! one_sided uses the pmsk split with tol 1e-10; the unmasked path has
+    ! pmsk == 1 everywhere and matches the host tol of 1e-12.
+    wtol = merge(1.0e-10_rp, 1.0e-12_rp, this%one_sided)
+
+    call device_idw_gather(fu%x_d, fv%x_d, fw%x_d, &
+         this%fu_ib_d, this%fv_ib_d, this%fw_ib_d, &
+         this%fum_ib_d, this%fvm_ib_d, this%fwm_ib_d, &
+         this%w%dof%x_d, this%w%dof%y_d, this%w%dof%z_d, this%ds%x_d, &
+         this%pmsk%x_d, this%w%x_d, this%wm%x_d, &
+         this%lpx_d, this%lpy_d, this%lpz_d, &
+         this%active_el_d, this%el_off_d, this%el_lag_d, &
+         this%n_active, this%lx3, time%dt, this%rmax, this%pwr_param, &
+         NEKO_EPS, wtol)
+
+  end subroutine idw_compute_device
 
   subroutine idw_source_term_free(this)
     class(idw_source_term_t), intent(inout) :: this
@@ -549,6 +780,20 @@ contains
        deallocate(this%fltr)
     end if
 
+    if (c_associated(this%el_off_d)) call device_free(this%el_off_d)
+    if (c_associated(this%el_lag_d)) call device_free(this%el_lag_d)
+    if (c_associated(this%active_el_d)) call device_free(this%active_el_d)
+    if (c_associated(this%lpx_d)) call device_free(this%lpx_d)
+    if (c_associated(this%lpy_d)) call device_free(this%lpy_d)
+    if (c_associated(this%lpz_d)) call device_free(this%lpz_d)
+
+    if (allocated(this%el_off)) deallocate(this%el_off)
+    if (allocated(this%el_lag)) deallocate(this%el_lag)
+    if (allocated(this%active_el)) deallocate(this%active_el)
+    if (allocated(this%lpx)) deallocate(this%lpx)
+    if (allocated(this%lpy)) deallocate(this%lpy)
+    if (allocated(this%lpz)) deallocate(this%lpz)
+
     call this%gs%free()
 
   end subroutine idw_source_term_free
@@ -582,7 +827,9 @@ contains
       fv_ib = 0.0_rp
       fw_ib = 0.0_rp
 
-      if (this%one_sided) then
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call idw_compute_device(this, fu, fv, fw, u, v, w, time)
+      else if (this%one_sided) then
 
          fum_ib = 0.0_rp
          fvm_ib = 0.0_rp
@@ -740,7 +987,7 @@ contains
     type(stack_i4_t) :: overlaps
     type(point_t) :: tri_nrm, tri_cntr
 
-    real(kind=rp), dimension(:), allocatable :: box_min, box_max
+    real(kind=dp), dimension(:), allocatable :: box_min, box_max
     real(kind=rp), dimension(3) :: scaling, translation
     type(aabb_t) :: mesh_box, target_box
     character(len=:), allocatable :: mesh_transform

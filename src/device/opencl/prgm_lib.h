@@ -121,4 +121,7 @@ extern void *find_rst_legendre_program;
 /** Device entropy viscosity kernels */
 extern void *entropy_viscosity_program;
 
+/** Device IDW source term kernels */
+extern void *idw_program;
+
 #endif

@@ -126,6 +126,9 @@ module opencl_prgm_lib
   !> Device entropy viscosity kernels
   type(c_ptr), public, bind(c) :: entropy_viscosity_program = C_NULL_PTR
 
+  !> Device IDW source term kernels
+  type(c_ptr), public, bind(c) :: idw_program = C_NULL_PTR
+
   public :: opencl_prgm_lib_release
 
 contains
@@ -393,6 +396,13 @@ contains
           call neko_error('Failed to release program')
        end if
        entropy_viscosity_program = C_NULL_PTR
+    end if
+
+    if (c_associated(idw_program)) then
+       if (clReleaseProgram(idw_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       idw_program = C_NULL_PTR
     end if
 
   end subroutine opencl_prgm_lib_release
