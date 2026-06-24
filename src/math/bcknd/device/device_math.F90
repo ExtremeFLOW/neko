@@ -67,7 +67,8 @@ module device_math
        device_invcol3, device_cdiv, device_cdiv2, device_glsubnorm, &
        device_pwmax2, device_pwmax3, device_cpwmax2, device_cpwmax3, &
        device_pwmin2, device_pwmin3, device_cpwmin2, device_cpwmin3, &
-       device_glmax, device_glmin, device_cwrap
+       device_glmax, device_glmin, device_cwrap, device_sqrt_inplace, &
+       device_power
 
 contains
 
@@ -548,6 +549,59 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_cwrap
+
+  !> Sqrt a vector \f$ a = sqrt(a) \f$
+  subroutine device_sqrt_inplace(a_d, n, strm)
+    type(c_ptr) :: a_d
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_sqrt_inplace(a_d, n, strm_)
+#elif HAVE_CUDA
+    call cuda_sqrt_inplace(a_d, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_sqrt_inplace(a_d, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_sqrt_inplace
+
+  !> Take the power of a vector \f$ a^p \f$
+  subroutine device_power(ap_d, a_d, p, n, strm)
+    type(c_ptr) :: ap_d, a_d
+    real(kind=rp), intent(in) :: p
+    integer :: n
+    type(c_ptr), optional :: strm
+    type(c_ptr) :: strm_
+
+    if (n .lt. 1) return
+
+    if (present(strm)) then
+       strm_ = strm
+    else
+       strm_ = glb_cmd_queue
+    end if
+
+#if HAVE_HIP
+    call hip_power(ap_d, a_d, p, n, strm_)
+#elif HAVE_CUDA
+    call cuda_power(ap_d, a_d, p, n, strm_)
+#elif HAVE_OPENCL
+    call opencl_power(ap_d, a_d, p, n, strm_)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_power
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine device_cfill(a_d, c, n, strm)

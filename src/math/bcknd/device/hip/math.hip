@@ -297,6 +297,33 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /** Fortran wrapper for sqrt_inplace
+   * Sqrt a vector \f$ a = sqrt(a) \f$
+   */
+  void hip_sqrt_inplace(void *a, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(sqrt_inplace_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for power
+   * Take the power of a vector \f$ a^p \f$
+   */
+  void hip_power(void *ap, void *a, real *p, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(power_kernel<real>),
+                       nblcks, nthrds, 0, strm,
+                       (real *) ap, (real *) a, *p, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
   /** Fortran wrapper for cfill
    * Multiplication by constant c \f$ a = c \cdot a \f$
    */

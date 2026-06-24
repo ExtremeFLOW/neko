@@ -82,7 +82,7 @@ module vector_math
        device_masked_gather_copy_0, device_face_masked_gather_copy_0, &
        device_masked_gather_copy_aligned, device_masked_scatter_copy_0, &
        device_masked_scatter_copy_aligned, device_glsubnorm, device_invcol3, &
-       device_cwrap
+       device_cwrap, device_sqrt_inplace, device_power
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -959,7 +959,7 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("sqrt_inplace is not implemented on device")
+       call device_sqrt_inplace(a%x_d, size)
     else
        call sqrt_inplace(a%x, size)
     end if
@@ -981,7 +981,7 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("power is not implemented on device")
+       call device_power(ap%x_d, a%x_d, p, size)
     else
        call power(ap%x, a%x, p, size)
     end if
