@@ -49,8 +49,10 @@ module lagrangian_particle_tracking
   use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
-  use math, only : add2s2, cfill, cmult2, col2, col3, invcol2, sqrt_inplace, &
-                   power, sub3, vdot3, cmult, cadd2, invcol3
+  use vector_math, only : vector_add2s2, vector_cfill, vector_cmult2, &
+      vector_col2, vector_col3, vector_invcol2, vector_sqrt_inplace, &
+      vector_power, vector_sub3, vector_vdot3, vector_cmult, &
+      vector_cadd2, vector_invcol3
   use ab_time_scheme, only : ab_time_scheme_t
   use lpt_periodic_bc, only : lpt_periodic_bc_t
   use lpt_migrate, only : lpt_migrate_t, LPT_MIGRATE_TO_OWNER, &
@@ -60,27 +62,27 @@ module lagrangian_particle_tracking
   use lpt_output, only : lpt_output_t
   use comm, only : pe_rank
   use csv_file, only : csv_file_t
+  use vector, only : vector_t
   implicit none
   private
 
   type, private :: particles_t
      ! general particle info
-     real(kind=rp), allocatable :: x(:), y(:), z(:)
+     type(vector_t) :: x, y, z
      integer, allocatable :: ids(:)
-     real(kind=rp), allocatable :: u_lag(:), v_lag(:), w_lag(:)
-     real(kind=rp), allocatable :: u_laglag(:), v_laglag(:), w_laglag(:)
+     type(vector_t) :: u_lag, v_lag, w_lag
+     type(vector_t) :: u_laglag, v_laglag, w_laglag
      integer :: time_order, lag_len
      integer :: n = 0
      integer :: n_global = 0
      ! inertia-specific info
      logical :: inertia = .false.
-     real(kind=rp), allocatable :: u(:), v(:), w(:)
-     real(kind=rp), allocatable :: acc_x(:), acc_y(:), acc_z(:)
-     real(kind=rp), allocatable :: d(:) ! diameter of particles
-     real(kind=rp), allocatable :: rho(:) ! density of particles
-     real(kind=rp), allocatable :: acc_xlag(:), acc_ylag(:), acc_zlag(:)
-     real(kind=rp), allocatable :: acc_xlaglag(:), acc_ylaglag(:)
-     real(kind=rp), allocatable :: acc_zlaglag(:)
+     type(vector_t) :: u, v, w
+     type(vector_t) :: acc_x, acc_y, acc_z
+     type(vector_t) :: d ! diameter of particles
+     type(vector_t) :: rho ! density of particles
+     type(vector_t) :: acc_xlag, acc_ylag, acc_zlag
+     type(vector_t) :: acc_xlaglag, acc_ylaglag, acc_zlaglag
    contains
      procedure, pass(this) :: init => particles_init
      procedure, pass(this) :: free => particles_free
@@ -154,30 +156,30 @@ contains
     this%n_global = this%n
     this%time_order = time_order
     this%lag_len = time_order - 1
-    allocate(this%x(this%n))
-    allocate(this%y(this%n))
-    allocate(this%z(this%n))
-    allocate(this%u(this%n))
-    allocate(this%v(this%n))
-    allocate(this%w(this%n))
-    allocate(this%acc_x(this%n))
-    allocate(this%acc_y(this%n))
-    allocate(this%acc_z(this%n))
+    call this%x%init(this%n)
+    call this%y%init(this%n)
+    call this%z%init(this%n)
+    call this%u%init(this%n)
+    call this%v%init(this%n)
+    call this%w%init(this%n)
+    call this%acc_x%init(this%n)
+    call this%acc_y%init(this%n)
+    call this%acc_z%init(this%n)
     allocate(this%ids(this%n))
-    allocate(this%u_lag(this%n))
-    allocate(this%v_lag(this%n))
-    allocate(this%w_lag(this%n))
-    allocate(this%u_laglag(this%n))
-    allocate(this%v_laglag(this%n))
-    allocate(this%w_laglag(this%n))
-    allocate(this%acc_xlag(this%n))
-    allocate(this%acc_ylag(this%n))
-    allocate(this%acc_zlag(this%n))
-    allocate(this%acc_xlaglag(this%n))
-    allocate(this%acc_ylaglag(this%n))
-    allocate(this%acc_zlaglag(this%n))
-    allocate(this%d(this%n))
-    allocate(this%rho(this%n))
+    call this%u_lag%init(this%n)
+    call this%v_lag%init(this%n)
+    call this%w_lag%init(this%n)
+    call this%u_laglag%init(this%n)
+    call this%v_laglag%init(this%n)
+    call this%w_laglag%init(this%n)
+    call this%acc_xlag%init(this%n)
+    call this%acc_ylag%init(this%n)
+    call this%acc_zlag%init(this%n)
+    call this%acc_xlaglag%init(this%n)
+    call this%acc_ylaglag%init(this%n)
+    call this%acc_zlaglag%init(this%n)
+    call this%d%init(this%n)
+    call this%rho%init(this%n)
     this%x = x
     this%y = y
     this%z = z
@@ -190,21 +192,6 @@ contains
        this%v = 0.0_rp
        this%w = 0.0_rp
     end if
-    this%acc_x = 0.0_rp
-    this%acc_y = 0.0_rp
-    this%acc_z = 0.0_rp
-    this%u_lag = 0.0_rp
-    this%v_lag = 0.0_rp
-    this%w_lag = 0.0_rp
-    this%u_laglag = 0.0_rp
-    this%v_laglag = 0.0_rp
-    this%w_laglag = 0.0_rp
-    this%acc_xlag = 0.0_rp
-    this%acc_ylag = 0.0_rp
-    this%acc_zlag = 0.0_rp
-    this%acc_xlaglag = 0.0_rp
-    this%acc_ylaglag = 0.0_rp
-    this%acc_zlaglag = 0.0_rp
     if (present(diameter)) then
        this%d = diameter
     else
@@ -223,30 +210,30 @@ contains
   subroutine particles_free(this)
     class(particles_t), intent(inout) :: this
 
-    if (allocated(this%x)) deallocate(this%x)
-    if (allocated(this%y)) deallocate(this%y)
-    if (allocated(this%z)) deallocate(this%z)
+    call this%x%free()
+    call this%y%free()
+    call this%z%free()
     if (allocated(this%ids)) deallocate(this%ids)
-    if (allocated(this%u)) deallocate(this%u)
-    if (allocated(this%v)) deallocate(this%v)
-    if (allocated(this%w)) deallocate(this%w)
-    if (allocated(this%acc_x)) deallocate(this%acc_x)
-    if (allocated(this%acc_y)) deallocate(this%acc_y)
-    if (allocated(this%acc_z)) deallocate(this%acc_z)
-    if (allocated(this%u_lag)) deallocate(this%u_lag)
-    if (allocated(this%v_lag)) deallocate(this%v_lag)
-    if (allocated(this%w_lag)) deallocate(this%w_lag)
-    if (allocated(this%u_laglag)) deallocate(this%u_laglag)
-    if (allocated(this%v_laglag)) deallocate(this%v_laglag)
-    if (allocated(this%w_laglag)) deallocate(this%w_laglag)
-    if (allocated(this%acc_xlag)) deallocate(this%acc_xlag)
-    if (allocated(this%acc_ylag)) deallocate(this%acc_ylag)
-    if (allocated(this%acc_zlag)) deallocate(this%acc_zlag)
-    if (allocated(this%acc_xlaglag)) deallocate(this%acc_xlaglag)
-    if (allocated(this%acc_ylaglag)) deallocate(this%acc_ylaglag)
-    if (allocated(this%acc_zlaglag)) deallocate(this%acc_zlaglag)
-    if (allocated(this%d)) deallocate(this%d)
-    if (allocated(this%rho)) deallocate(this%rho)
+    call this%u%free()
+    call this%v%free()
+    call this%w%free()
+    call this%acc_x%free()
+    call this%acc_y%free()
+    call this%acc_z%free()
+    call this%u_lag%free()
+    call this%v_lag%free()
+    call this%w_lag%free()
+    call this%u_laglag%free()
+    call this%v_laglag%free()
+    call this%w_laglag%free()
+    call this%acc_xlag%free()
+    call this%acc_ylag%free()
+    call this%acc_zlag%free()
+    call this%acc_xlaglag%free()
+    call this%acc_ylaglag%free()
+    call this%acc_zlaglag%free()
+    call this%d%free()
+    call this%rho%free()
     this%n = 0
     this%n_global = 0
   end subroutine particles_free
@@ -528,85 +515,105 @@ contains
   end subroutine read_particles_csv
 
   !> Interpolate the carrier velocity at the local particles.
-  subroutine evaluate_velocity(this, u_fluid, v_fluid, w_fluid, n)
+  subroutine evaluate_velocity(this, u_fluid, v_fluid, w_fluid)
     class(lpt_t), intent(inout) :: this
-    integer, intent(in) :: n
-    real(kind=rp), intent(out) :: u_fluid(n), v_fluid(n), w_fluid(n)
+    type(vector_t), intent(inout) :: u_fluid, v_fluid, w_fluid
     logical :: do_interp_on_host
 
     if (this%particles%n .eq. 0) return
 
     do_interp_on_host = .false.
-    call this%global_interp%evaluate(u_fluid, this%u_field%x, &
+    call this%global_interp%evaluate(u_fluid%x, this%u_field%x, &
          do_interp_on_host)
-    call this%global_interp%evaluate(v_fluid, this%v_field%x, &
+    call this%global_interp%evaluate(v_fluid%x, this%v_field%x, &
          do_interp_on_host)
-    call this%global_interp%evaluate(w_fluid, this%w_field%x, &
+    call this%global_interp%evaluate(w_fluid%x, this%w_field%x, &
          do_interp_on_host)
 
   end subroutine evaluate_velocity
 
   !> Estimate the local particile acceleration
   subroutine evaluate_acceleration(this, acc_x, acc_y, acc_z, &
-             u_fluid, v_fluid, w_fluid, n)
+             u_fluid, v_fluid, w_fluid)
     class(lpt_t), intent(inout) :: this
-    integer, intent(in) :: n
-    real(kind=rp), intent(in) :: u_fluid(n), v_fluid(n), w_fluid(n)
-    real(kind=rp), intent(out) :: acc_x(n), acc_y(n), acc_z(n)
-    real(kind=rp) :: tau_p(n), Re_p(n), f(n), rho_fluid_local(n)
-    real(kind=rp) :: mu_fluid_local(n),  nu_fluid_local(n)
-    real(kind=rp):: u_rel(n), v_rel(n), w_rel(n), vel_rel_mag(n)
-    real(kind=rp):: wa(n)
+    type(vector_t), intent(in) :: u_fluid, v_fluid, w_fluid
+    type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
+    type(vector_t) :: tau_p, Re_p, f, rho_fluid_local
+    type(vector_t) :: mu_fluid_local,  nu_fluid_local
+    type(vector_t) :: u_rel, v_rel, w_rel, vel_rel_mag
+    type(vector_t) :: wa
 
     integer :: i
     logical :: do_interp_on_host
 
     if (this%particles%n .eq. 0) return
-    
+
+    call tau_p%init(this%particles%n)
+    call Re_p%init(this%particles%n)
+    call f%init(this%particles%n)
+    call rho_fluid_local%init(this%particles%n)
+    call mu_fluid_local%init(this%particles%n)
+    call nu_fluid_local%init(this%particles%n)
+    call u_rel%init(this%particles%n)
+    call v_rel%init(this%particles%n)
+    call w_rel%init(this%particles%n)
+    call vel_rel_mag%init(this%particles%n)
+    call wa%init(this%particles%n)
+
     do_interp_on_host = .false.
-    call this%global_interp%evaluate(mu_fluid_local, this%mu_fluid%x, &
+    call this%global_interp%evaluate(mu_fluid_local%x, this%mu_fluid%x, &
          do_interp_on_host)
-    call this%global_interp%evaluate(rho_fluid_local, this%rho_fluid%x, &
+    call this%global_interp%evaluate(rho_fluid_local%x, this%rho_fluid%x, &
          do_interp_on_host)
-    call invcol3(nu_fluid_local, mu_fluid_local, rho_fluid_local, n)
+    call vector_invcol3(nu_fluid_local, mu_fluid_local, rho_fluid_local)
 
     ! compute the time scale
-    call cfill(tau_p, 1.0_rp/18.0_rp, n)
-    call col2(tau_p, this%particles%rho, n)
-    call invcol2(tau_p, mu_fluid_local, n)
-    call col2(tau_p, this%particles%d, n)
-    call col2(tau_p, this%particles%d, n)
+    call vector_cfill(tau_p, 1.0_rp/18.0_rp)
+    call vector_col2(tau_p, this%particles%rho)
+    call vector_invcol2(tau_p, mu_fluid_local)
+    call vector_col2(tau_p, this%particles%d)
+    call vector_col2(tau_p, this%particles%d)
 
     ! compute the particle Reynolds number
-    call sub3(u_rel, u_fluid, this%particles%u, n)
-    call sub3(v_rel, v_fluid, this%particles%v, n)
-    call sub3(w_rel, w_fluid, this%particles%w, n)
-    call vdot3(vel_rel_mag, u_rel, v_rel, w_rel, u_rel, v_rel, w_rel, n)
-    call sqrt_inplace(vel_rel_mag, n)
-    call col3(Re_p, vel_rel_mag, this%particles%d, n)
-    call invcol2(Re_p, nu_fluid_local, n)
+    call vector_sub3(u_rel, u_fluid, this%particles%u)
+    call vector_sub3(v_rel, v_fluid, this%particles%v)
+    call vector_sub3(w_rel, w_fluid, this%particles%w)
+    call vector_vdot3(vel_rel_mag, u_rel, v_rel, w_rel, u_rel, v_rel, w_rel)
+    call vector_sqrt_inplace(vel_rel_mag)
+    call vector_col3(Re_p, vel_rel_mag, this%particles%d)
+    call vector_invcol2(Re_p, nu_fluid_local)
     
     ! compute f
-    wa = power(Re_p, this%nonlinear_exponent, n)
-    call cmult(wa, this%nonlinear_coefficient, n)
-    call cadd2(f, wa, 1.0_rp, n)
+    call vector_power(wa, Re_p, this%nonlinear_exponent)
+    call vector_cmult(wa, this%nonlinear_coefficient)
+    call vector_cadd2(f, wa, 1.0_rp)
 
     ! assemble compute the acceleration
-    call col3(acc_x, u_rel, f, n)
-    call col3(acc_y, v_rel, f, n)
-    call col3(acc_z, w_rel, f, n)
-    call invcol2(acc_x, tau_p, n)
-    call invcol2(acc_y, tau_p, n)
-    call invcol2(acc_z, tau_p, n)
+    call vector_col3(acc_x, u_rel, f)
+    call vector_col3(acc_y, v_rel, f)
+    call vector_col3(acc_z, w_rel, f)
+    call vector_invcol2(acc_x, tau_p)
+    call vector_invcol2(acc_y, tau_p)
+    call vector_invcol2(acc_z, tau_p)
+
+    call tau_p%free()
+    call Re_p%free()
+    call f%free()
+    call rho_fluid_local%free()
+    call mu_fluid_local%free()
+    call nu_fluid_local%free()
+    call u_rel%free()
+    call v_rel%free()
+    call w_rel%free()
+    call vel_rel_mag%free()
+    call wa%free()
 
   end subroutine evaluate_acceleration
 
   !> Refresh the particle RHS using the current fluid solution.
   subroutine update_current_rhs(this)
     class(lpt_t), intent(inout) :: this
-    real(kind=rp), allocatable :: u_fluid(:)
-    real(kind=rp), allocatable :: v_fluid(:)
-    real(kind=rp), allocatable :: w_fluid(:)
+    type(vector_t) :: u_fluid, v_fluid, w_fluid
 
     call this%migration%migrate_particles(this%global_interp, &
          this%periodic_bc, this%inertia, &
@@ -623,30 +630,31 @@ contains
          this%particles%acc_ylaglag, this%particles%acc_zlaglag, &
          this%particles%n, this%particles%n_global)
 
-    allocate(u_fluid(this%particles%n))
-    allocate(v_fluid(this%particles%n))
-    allocate(w_fluid(this%particles%n))
-    call this%evaluate_velocity(u_fluid, v_fluid, w_fluid, this%particles%n)
+    call u_fluid%init(this%particles%n)
+    call v_fluid%init(this%particles%n)
+    call w_fluid%init(this%particles%n)
+
+    call this%evaluate_velocity(u_fluid, v_fluid, w_fluid)
 
     if (this%inertia) then
        call this%evaluate_acceleration(this%particles%acc_x, &
             this%particles%acc_y, this%particles%acc_z, &
-            u_fluid, v_fluid, w_fluid, this%particles%n)
+            u_fluid, v_fluid, w_fluid)
     else
        this%particles%u = u_fluid
        this%particles%v = v_fluid
        this%particles%w = w_fluid
     end if
 
-    if (allocated(u_fluid)) deallocate(u_fluid)
-    if (allocated(v_fluid)) deallocate(v_fluid)
-    if (allocated(w_fluid)) deallocate(w_fluid)
+    call u_fluid%free()
+    call v_fluid%free()
+    call w_fluid%free()
   end subroutine update_current_rhs
 
   !> Refresh the particle lags.
   subroutine update_lags(lag, laglag, new_values)
-    real(kind=rp), intent(inout) :: lag(:), laglag(:)
-    real(kind=rp), intent(in) :: new_values(:)
+    type(vector_t), intent(inout) :: lag, laglag
+    type(vector_t), intent(in) :: new_values
 
     laglag = lag
     lag = new_values
@@ -657,27 +665,25 @@ contains
   subroutine lpt_preprocess(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    real(kind=rp), allocatable :: u_old(:)
-    real(kind=rp), allocatable :: v_old(:)
-    real(kind=rp), allocatable :: w_old(:)
-    real(kind=rp), allocatable :: x_old(:)
-    real(kind=rp), allocatable :: y_old(:)
-    real(kind=rp), allocatable :: z_old(:)
+    type(vector_t) :: x_old, y_old, z_old, u_old, v_old, w_old
     ! pieces to test the accuracy: force exact solution at the first 2 steps
-   !  real(kind=rp) :: v0
-   !  real(kind=rp) :: x0
-   !  real(kind=rp) :: tau_p
+    real(kind=rp) :: v0
+    real(kind=rp) :: x0
+    real(kind=rp) :: tau_p
 
-   !  v0 = 1.0_rp
-   !  x0 = 0.0_rp
+    v0 = 1.0_rp
+    x0 = 0.0_rp
 ! write(*,*) "rank: ", pe_rank, ", particle ids: ", this%particles%ids
 
     associate(x => this%particles%x, y => this%particles%y, &
               z => this%particles%z, u => this%particles%u, &
               v => this%particles%v, w => this%particles%w, &
-              acc_x => this%particles%acc_x, acc_y => this%particles%acc_y, &
-              acc_z => this%particles%acc_z, u_lag => this%particles%u_lag, &
-              v_lag => this%particles%v_lag, w_lag => this%particles%w_lag, &
+              acc_x => this%particles%acc_x, &
+              acc_y => this%particles%acc_y, &
+              acc_z => this%particles%acc_z, &
+              u_lag => this%particles%u_lag, &
+              v_lag => this%particles%v_lag, &
+              w_lag => this%particles%w_lag, &
               u_laglag => this%particles%u_laglag, &
               v_laglag => this%particles%v_laglag, &
               w_laglag => this%particles%w_laglag, &
@@ -692,12 +698,6 @@ contains
     call this%sync_time_controller(time)
     if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
 
-    allocate(u_old(n))
-    allocate(v_old(n))
-    allocate(w_old(n))
-    allocate(x_old(n))
-    allocate(y_old(n))
-    allocate(z_old(n))
     x_old = x
     y_old = y
     z_old = z
@@ -710,33 +710,33 @@ contains
        call this%ODE_integrate_ab_3c(u, v, w, acc_x, acc_y, acc_z, &
             acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
             acc_zlaglag, n)
-      !  ! pieces to test the accuracy: force exact solution at the first 2 steps
-      !  if (time%tstep .le. 2) then
-      !     tau_p = 1.0_rp/18.0_rp * this%particles%rho(1) * this%particles%d(1)**2
-      !     u(1) = v0 * exp(-time%t/tau_p)
-      !  end if
+       ! pieces to test the accuracy: force exact solution at the first 2 steps
+       if (time%tstep .le. 2) then
+          tau_p = 1.0_rp/18.0_rp * this%particles%rho%x(1) * this%particles%d%x(1)**2
+          u%x(1) = v0 * exp(-time%t/tau_p)
+       end if
     end if
 
     ! Advance the coordinates using the velocity history available at step
     ! entry, before the fluid solve refreshes the current RHS.
     call this%ODE_integrate_ab_3c(x, y, z, u_old, v_old, w_old, &
          u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, n)
-   !  ! pieces to test the accuracy: force exact solution at the first 2 steps
-   !  if (time%tstep .le. 2) then
-   !     x(1) = x0 + tau_p * v0 * (1.0_rp - exp(-time%t/tau_p))
-   !  end if
+    ! pieces to test the accuracy: force exact solution at the first 2 steps
+    if (time%tstep .le. 2) then
+       x%x(1) = x0 + tau_p * v0 * (1.0_rp - exp(-time%t/tau_p))
+    end if
 
     ! Handle the wall collisions with the pre-step RHS.
     if (this%inertia .and. this%elastic_wall_enabled) then
        call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
-            this%dm_Xh, this%coef, this%wall_facet_mask, x_old, y_old, z_old, &
-            x, y, z, &
-            this%particles%d, &
-            u, v, w, &
-            u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-            acc_zlaglag, &
-            u_old, v_old, w_old, acc_x, acc_y, acc_z, this%lag_len)
+            this%dm_Xh, this%coef, this%wall_facet_mask, x_old%x, y_old%x, z_old%x, &
+            x%x, y%x, z%x, &
+            this%particles%d%x, &
+            u%x, v%x, w%x, &
+            u_lag%x, v_lag%x, w_lag%x, u_laglag%x, v_laglag%x, w_laglag%x, &
+            acc_xlag%x, acc_ylag%x, acc_zlag%x, acc_xlaglag%x, acc_ylaglag%x, &
+            acc_zlaglag%x, &
+            u_old%x, v_old%x, w_old%x, acc_x%x, acc_y%x, acc_z%x, this%lag_len)
     end if
 
     ! Update lag histories for the next Adams-Bashforth step.
@@ -752,12 +752,12 @@ contains
        this%history_len = min(this%history_len + 1, this%lag_len)
     end if
 
-    if (allocated(x_old)) deallocate(x_old)
-    if (allocated(y_old)) deallocate(y_old)
-    if (allocated(z_old)) deallocate(z_old)
-    if (allocated(u_old)) deallocate(u_old)
-    if (allocated(v_old)) deallocate(v_old)
-    if (allocated(w_old)) deallocate(w_old)
+    call x_old%free()
+    call y_old%free()
+    call z_old%free()
+    call u_old%free()
+    call v_old%free()
+    call w_old%free()
     end associate
 
   end subroutine lpt_preprocess
@@ -823,11 +823,11 @@ contains
              rhs_x, rhs_y, rhs_z, rhs_xlag, rhs_ylag, rhs_zlag, &
              rhs_xlaglag, rhs_ylaglag, rhs_zlaglag, n)
     class(lpt_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: sol_x(:), sol_y(:), sol_z(:)
-    real(kind=rp), intent(in) :: rhs_x(:), rhs_y(:), rhs_z(:)
-    real(kind=rp), intent(in) :: rhs_xlag(:), rhs_ylag(:), rhs_zlag(:)
-    real(kind=rp), intent(in) :: rhs_xlaglag(:), rhs_ylaglag(:)
-    real(kind=rp), intent(in) :: rhs_zlaglag(:)
+    type(vector_t), intent(inout) :: sol_x, sol_y, sol_z
+    type(vector_t), intent(in) :: rhs_x, rhs_y, rhs_z
+    type(vector_t), intent(in) :: rhs_xlag, rhs_ylag, rhs_zlag
+    type(vector_t), intent(in) :: rhs_xlaglag, rhs_ylaglag
+    type(vector_t), intent(in) :: rhs_zlaglag
     integer, intent(in) :: n
     type(ab_time_scheme_t) :: ab_scheme
     real(kind=rp) :: ab_coeffs(4), dt_history(10)
@@ -850,22 +850,22 @@ contains
     ! contribution from the current velocity
     dtc = this%lpt_time%dt * ab_coeffs(1)
 
-    call add2s2(sol_x, rhs_x, dtc, n)
-    call add2s2(sol_y, rhs_y, dtc, n)
-    call add2s2(sol_z, rhs_z, dtc, n)
+    call vector_add2s2(sol_x, rhs_x, dtc, n)
+    call vector_add2s2(sol_y, rhs_y, dtc, n)
+    call vector_add2s2(sol_z, rhs_z, dtc, n)
 
     if (nadv .ge. 2) then
        dtc = this%lpt_time%dt * ab_coeffs(2)
-       call add2s2(sol_x, rhs_xlag, dtc, n)
-       call add2s2(sol_y, rhs_ylag, dtc, n)
-       call add2s2(sol_z, rhs_zlag, dtc, n)
+       call vector_add2s2(sol_x, rhs_xlag, dtc, n)
+       call vector_add2s2(sol_y, rhs_ylag, dtc, n)
+       call vector_add2s2(sol_z, rhs_zlag, dtc, n)
     end if
 
     if (nadv .ge. 3) then
        dtc = this%lpt_time%dt * ab_coeffs(3)
-       call add2s2(sol_x, rhs_xlaglag, dtc, n)
-       call add2s2(sol_y, rhs_ylaglag, dtc, n)
-       call add2s2(sol_z, rhs_zlaglag, dtc, n)
+       call vector_add2s2(sol_x, rhs_xlaglag, dtc, n)
+       call vector_add2s2(sol_y, rhs_ylaglag, dtc, n)
+       call vector_add2s2(sol_z, rhs_zlaglag, dtc, n)
     end if
 
   end subroutine ODE_integrate_ab_3c
@@ -891,15 +891,15 @@ contains
        local_data(1,i) = real(time%tstep, rp)
        local_data(2,i) = time%t
        local_data(3,i) = real(this%particles%ids(i), rp)
-       local_data(4,i) = this%particles%x(i)
-       local_data(5,i) = this%particles%y(i)
-       local_data(6,i) = this%particles%z(i)
-       local_data(7,i) = this%particles%u(i)
-       local_data(8,i) = this%particles%v(i)
-       local_data(9,i) = this%particles%w(i)
+       local_data(4,i) = this%particles%x%x(i)
+       local_data(5,i) = this%particles%y%x(i)
+       local_data(6,i) = this%particles%z%x(i)
+       local_data(7,i) = this%particles%u%x(i)
+       local_data(8,i) = this%particles%v%x(i)
+       local_data(9,i) = this%particles%w%x(i)
        if (this%inertia) then
-          local_data(10,i) = this%particles%d(i)
-          local_data(11,i) = this%particles%rho(i)
+          local_data(10,i) = this%particles%d%x(i)
+          local_data(11,i) = this%particles%rho%x(i)
        end if
     end do
 

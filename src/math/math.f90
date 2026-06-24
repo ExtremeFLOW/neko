@@ -1885,12 +1885,12 @@ contains
 
   end subroutine sqrt_inplace
 
-  !> Return the power of a vector \f$ a^p \f$
-  pure function power(a, p, n) result(ap)
+  !> Take the power of a vector \f$ a^p \f$
+  subroutine power(ap, a, p, n)
     integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: ap
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), intent(in) :: p
-    real(kind=rp), dimension(n) :: ap
     integer :: i
 
     !$omp parallel do
@@ -1899,5 +1899,5 @@ contains
     end do
     !$omp end parallel do
 
-  end function power
+  end subroutine power
 end module math
