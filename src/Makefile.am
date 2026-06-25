@@ -361,6 +361,7 @@ neko_fortran_SOURCES = \
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/lpt/bcknd/cpu/lpt_periodic_bc_cpu.f90\
+	simulation_components/lpt/bcknd/device/lpt_periodic_bc_device.F90\
 	simulation_components/lpt/lpt_periodic_bc.f90\
 	simulation_components/lpt/lpt_output.f90\
 	simulation_components/lpt/lpt.f90\
@@ -518,6 +519,7 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/hip/coef.hip\
 	sem/bcknd/device/hip/local_interpolation.hip\
 	filter/bcknd/device/hip/mappings.hip\
+	simulation_components/lpt/bcknd/device/hip/lpt_periodic_bc.hip\
 	source_terms/bcknd/device/hip/gradient_jump_penalty.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip\
@@ -583,6 +585,7 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/cuda/coef.cu\
 	sem/bcknd/device/cuda/local_interpolation.cu\
 	filter/bcknd/device/cuda/mappings.cu\
+	simulation_components/lpt/bcknd/device/cuda/lpt_periodic_bc.cu\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\

@@ -34,7 +34,6 @@
 module lpt_periodic_bc
   use num_types, only : rp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use utils, only : neko_error
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
   use mesh, only : mesh_t
@@ -44,6 +43,9 @@ module lpt_periodic_bc
   use vector, only : vector_t
   use lpt_periodic_bc_cpu, only : lpt_periodic_bc_wrap_rotational_cpu, &
        lpt_periodic_bc_wrap_translational_cpu
+  use lpt_periodic_bc_device, only : lpt_periodic_bc_wrap_rotational_device, &
+       lpt_periodic_bc_wrap_translational_device
+  use device, only : DEVICE_TO_HOST, device_sync
   implicit none
   private
 
@@ -115,8 +117,21 @@ contains
          .not. this%rotational_periodic_enabled) return
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("LPT periodic boundary wrapping is not implemented " // &
-            "for device backends.")
+       if (this%rotational_periodic_enabled) then
+          call lpt_periodic_bc_wrap_rotational_device(x, y, z, n, &
+               this%rotational_theta_min, this%rotational_theta_max, &
+               this%rotational_theta_len, u, v, w, u_lag, v_lag, w_lag, &
+               u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, &
+               acc_xlaglag, acc_ylaglag, acc_zlaglag)
+       else
+          call lpt_periodic_bc_wrap_translational_device(x, y, z, n, &
+               this%n_periodic_dirs, this%periodic_dir, this%periodic_min, &
+               this%periodic_max, this%periodic_shift, this%periodic_len)
+       end if
+       call lpt_periodic_bc_sync_from_device(x, y, z, u, v, w, u_lag, v_lag, &
+            w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, &
+            acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag)
+       return
     end if
 
     if (this%rotational_periodic_enabled) then
@@ -133,6 +148,42 @@ contains
          this%periodic_min, this%periodic_max, this%periodic_shift, &
          this%periodic_len)
   end subroutine lpt_periodic_bc_wrap
+
+  subroutine lpt_periodic_bc_sync_from_device(x, y, z, u, v, w, u_lag, &
+       v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, &
+       acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag)
+    type(vector_t), intent(inout) :: x, y, z
+    type(vector_t), intent(inout), optional :: u, v, w
+    type(vector_t), intent(inout), optional :: u_lag, v_lag, w_lag
+    type(vector_t), intent(inout), optional :: u_laglag, v_laglag, w_laglag
+    type(vector_t), intent(inout), optional :: acc_xlag, acc_ylag, acc_zlag
+    type(vector_t), intent(inout), optional :: acc_xlaglag
+    type(vector_t), intent(inout), optional :: acc_ylaglag
+    type(vector_t), intent(inout), optional :: acc_zlaglag
+
+    call x%copy_from(DEVICE_TO_HOST, .false.)
+    call y%copy_from(DEVICE_TO_HOST, .false.)
+    call z%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(u)) call u%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(v)) call v%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(w)) call w%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(u_lag)) call u_lag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(v_lag)) call v_lag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(w_lag)) call w_lag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(u_laglag)) call u_laglag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(v_laglag)) call v_laglag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(w_laglag)) call w_laglag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(acc_xlag)) call acc_xlag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(acc_ylag)) call acc_ylag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(acc_zlag)) call acc_zlag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(acc_xlaglag)) &
+         call acc_xlaglag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(acc_ylaglag)) &
+         call acc_ylaglag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(acc_zlaglag)) &
+         call acc_zlaglag%copy_from(DEVICE_TO_HOST, .false.)
+    call device_sync()
+  end subroutine lpt_periodic_bc_sync_from_device
 
   subroutine lpt_periodic_bc_reset(this)
     class(lpt_periodic_bc_t), intent(inout) :: this
