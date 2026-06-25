@@ -101,37 +101,68 @@ contains
   end subroutine lpt_periodic_bc_wrap_rotational_cpu
 
   subroutine lpt_periodic_bc_wrap_translational_cpu(x, y, z, n, &
-       periodic_enabled, n_periodic_dirs, periodic_dir, periodic_min, &
-       periodic_max, periodic_shift, periodic_len)
+       periodic_enabled, n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, &
+       periodic_dir_z1, periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, &
+       periodic_dir_x3, periodic_dir_y3, periodic_dir_z3, periodic_min1, &
+       periodic_min2, periodic_min3, periodic_max1, periodic_max2, &
+       periodic_max3, periodic_shift_x1, periodic_shift_y1, &
+       periodic_shift_z1, periodic_shift_x2, periodic_shift_y2, &
+       periodic_shift_z2, periodic_shift_x3, periodic_shift_y3, &
+       periodic_shift_z3, periodic_len1, periodic_len2, periodic_len3)
     type(vector_t), intent(inout) :: x, y, z
     integer, intent(in) :: n
     logical, intent(in) :: periodic_enabled
     integer, intent(in) :: n_periodic_dirs
-    real(kind=rp), intent(in) :: periodic_dir(3, 3)
-    real(kind=rp), intent(in) :: periodic_min(3)
-    real(kind=rp), intent(in) :: periodic_max(3)
-    real(kind=rp), intent(in) :: periodic_shift(3, 3)
-    real(kind=rp), intent(in) :: periodic_len(3)
+    real(kind=rp), intent(in) :: periodic_dir_x1, periodic_dir_y1
+    real(kind=rp), intent(in) :: periodic_dir_z1, periodic_dir_x2
+    real(kind=rp), intent(in) :: periodic_dir_y2, periodic_dir_z2
+    real(kind=rp), intent(in) :: periodic_dir_x3, periodic_dir_y3
+    real(kind=rp), intent(in) :: periodic_dir_z3
+    real(kind=rp), intent(in) :: periodic_min1, periodic_min2, periodic_min3
+    real(kind=rp), intent(in) :: periodic_max1, periodic_max2, periodic_max3
+    real(kind=rp), intent(in) :: periodic_shift_x1, periodic_shift_y1
+    real(kind=rp), intent(in) :: periodic_shift_z1, periodic_shift_x2
+    real(kind=rp), intent(in) :: periodic_shift_y2, periodic_shift_z2
+    real(kind=rp), intent(in) :: periodic_shift_x3, periodic_shift_y3
+    real(kind=rp), intent(in) :: periodic_shift_z3
+    real(kind=rp), intent(in) :: periodic_len1, periodic_len2, periodic_len3
     integer :: i
     integer :: j
     real(kind=rp) :: point(3)
+    real(kind=rp) :: dir(3)
+    real(kind=rp) :: shift(3)
     real(kind=rp) :: coord
+    real(kind=rp) :: periodic_min
+    real(kind=rp) :: periodic_max
+    real(kind=rp) :: periodic_len
 
     if (.not. periodic_enabled) return
 
     do i = 1, n
        point = [x%x(i), y%x(i), z%x(i)]
        do j = 1, n_periodic_dirs
-          coord = dot_product(point, periodic_dir(:, j))
+          call lpt_periodic_bc_get_translational_slot(j, &
+               periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+               periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, &
+               periodic_dir_x3, periodic_dir_y3, periodic_dir_z3, &
+               periodic_min1, periodic_min2, periodic_min3, periodic_max1, &
+               periodic_max2, periodic_max3, periodic_shift_x1, &
+               periodic_shift_y1, periodic_shift_z1, periodic_shift_x2, &
+               periodic_shift_y2, periodic_shift_z2, periodic_shift_x3, &
+               periodic_shift_y3, periodic_shift_z3, periodic_len1, &
+               periodic_len2, periodic_len3, dir, periodic_min, &
+               periodic_max, shift, periodic_len)
 
-          do while (coord .lt. periodic_min(j) - LPT_PERIODIC_TOL)
-             point = point + periodic_shift(:, j)
-             coord = coord + periodic_len(j)
+          coord = dot_product(point, dir)
+
+          do while (coord .lt. periodic_min - LPT_PERIODIC_TOL)
+             point = point + shift
+             coord = coord + periodic_len
           end do
 
-          do while (coord .gt. periodic_max(j) + LPT_PERIODIC_TOL)
-             point = point - periodic_shift(:, j)
-             coord = coord - periodic_len(j)
+          do while (coord .gt. periodic_max + LPT_PERIODIC_TOL)
+             point = point - shift
+             coord = coord - periodic_len
           end do
        end do
        x%x(i) = point(1)
@@ -157,5 +188,62 @@ contains
     x = cos_theta * x_old - sin_theta * y_old
     y = sin_theta * x_old + cos_theta * y_old
   end subroutine lpt_rotate_xy
+
+  pure subroutine lpt_periodic_bc_get_translational_slot(idx, &
+       periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, periodic_dir_x2, &
+       periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, periodic_dir_y3, &
+       periodic_dir_z3, periodic_min1, periodic_min2, periodic_min3, &
+       periodic_max1, periodic_max2, periodic_max3, periodic_shift_x1, &
+       periodic_shift_y1, periodic_shift_z1, periodic_shift_x2, &
+       periodic_shift_y2, periodic_shift_z2, periodic_shift_x3, &
+       periodic_shift_y3, periodic_shift_z3, periodic_len1, periodic_len2, &
+       periodic_len3, dir, periodic_min, periodic_max, shift, periodic_len)
+    integer, intent(in) :: idx
+    real(kind=rp), intent(in) :: periodic_dir_x1, periodic_dir_y1
+    real(kind=rp), intent(in) :: periodic_dir_z1, periodic_dir_x2
+    real(kind=rp), intent(in) :: periodic_dir_y2, periodic_dir_z2
+    real(kind=rp), intent(in) :: periodic_dir_x3, periodic_dir_y3
+    real(kind=rp), intent(in) :: periodic_dir_z3
+    real(kind=rp), intent(in) :: periodic_min1, periodic_min2, periodic_min3
+    real(kind=rp), intent(in) :: periodic_max1, periodic_max2, periodic_max3
+    real(kind=rp), intent(in) :: periodic_shift_x1, periodic_shift_y1
+    real(kind=rp), intent(in) :: periodic_shift_z1, periodic_shift_x2
+    real(kind=rp), intent(in) :: periodic_shift_y2, periodic_shift_z2
+    real(kind=rp), intent(in) :: periodic_shift_x3, periodic_shift_y3
+    real(kind=rp), intent(in) :: periodic_shift_z3
+    real(kind=rp), intent(in) :: periodic_len1, periodic_len2, periodic_len3
+    real(kind=rp), intent(out) :: dir(3)
+    real(kind=rp), intent(out) :: periodic_min
+    real(kind=rp), intent(out) :: periodic_max
+    real(kind=rp), intent(out) :: shift(3)
+    real(kind=rp), intent(out) :: periodic_len
+
+    select case (idx)
+    case (1)
+       dir = [periodic_dir_x1, periodic_dir_y1, periodic_dir_z1]
+       periodic_min = periodic_min1
+       periodic_max = periodic_max1
+       shift = [periodic_shift_x1, periodic_shift_y1, periodic_shift_z1]
+       periodic_len = periodic_len1
+    case (2)
+       dir = [periodic_dir_x2, periodic_dir_y2, periodic_dir_z2]
+       periodic_min = periodic_min2
+       periodic_max = periodic_max2
+       shift = [periodic_shift_x2, periodic_shift_y2, periodic_shift_z2]
+       periodic_len = periodic_len2
+    case (3)
+       dir = [periodic_dir_x3, periodic_dir_y3, periodic_dir_z3]
+       periodic_min = periodic_min3
+       periodic_max = periodic_max3
+       shift = [periodic_shift_x3, periodic_shift_y3, periodic_shift_z3]
+       periodic_len = periodic_len3
+    case default
+       dir = 0.0_rp
+       periodic_min = 0.0_rp
+       periodic_max = 0.0_rp
+       shift = 0.0_rp
+       periodic_len = 0.0_rp
+    end select
+  end subroutine lpt_periodic_bc_get_translational_slot
 
 end module lpt_periodic_bc_cpu

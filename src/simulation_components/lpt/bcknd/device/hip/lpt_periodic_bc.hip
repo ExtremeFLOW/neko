@@ -41,8 +41,17 @@ extern "C" {
 
   void hip_lpt_periodic_bc_wrap_translational(
       void *x, void *y, void *z, int *n, int *n_periodic_dirs,
-      real *periodic_dir, real *periodic_min, real *periodic_max,
-      real *periodic_shift, real *periodic_len, hipStream_t strm) {
+      real *periodic_dir_x1, real *periodic_dir_y1, real *periodic_dir_z1,
+      real *periodic_dir_x2, real *periodic_dir_y2, real *periodic_dir_z2,
+      real *periodic_dir_x3, real *periodic_dir_y3, real *periodic_dir_z3,
+      real *periodic_min1, real *periodic_min2, real *periodic_min3,
+      real *periodic_max1, real *periodic_max2, real *periodic_max3,
+      real *periodic_shift_x1, real *periodic_shift_y1,
+      real *periodic_shift_z1, real *periodic_shift_x2,
+      real *periodic_shift_y2, real *periodic_shift_z2,
+      real *periodic_shift_x3, real *periodic_shift_y3,
+      real *periodic_shift_z3, real *periodic_len1, real *periodic_len2,
+      real *periodic_len3, hipStream_t strm) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -51,7 +60,14 @@ extern "C" {
       HIP_KERNEL_NAME(lpt_periodic_bc_wrap_translational_kernel<real>),
       nblcks, nthrds, 0, strm,
       (real *) x, (real *) y, (real *) z, *n, *n_periodic_dirs,
-      periodic_dir, periodic_min, periodic_max, periodic_shift, periodic_len);
+      *periodic_dir_x1, *periodic_dir_y1, *periodic_dir_z1, *periodic_dir_x2,
+      *periodic_dir_y2, *periodic_dir_z2, *periodic_dir_x3, *periodic_dir_y3,
+      *periodic_dir_z3, *periodic_min1, *periodic_min2, *periodic_min3,
+      *periodic_max1, *periodic_max2, *periodic_max3, *periodic_shift_x1,
+      *periodic_shift_y1, *periodic_shift_z1, *periodic_shift_x2,
+      *periodic_shift_y2, *periodic_shift_z2, *periodic_shift_x3,
+      *periodic_shift_y3, *periodic_shift_z3, *periodic_len1,
+      *periodic_len2, *periodic_len3);
     HIP_CHECK(hipGetLastError());
   }
 

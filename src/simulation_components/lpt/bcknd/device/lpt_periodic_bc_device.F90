@@ -43,15 +43,28 @@ module lpt_periodic_bc_device
 #ifdef HAVE_HIP
   interface
      subroutine hip_lpt_periodic_bc_wrap_translational(x, y, z, n, &
-          n_periodic_dirs, periodic_dir, periodic_min, periodic_max, &
-          periodic_shift, periodic_len, strm) &
+          n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+          periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+          periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+          periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+          periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+          periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+          periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+          periodic_len1, periodic_len2, periodic_len3, strm) &
           bind(c, name='hip_lpt_periodic_bc_wrap_translational')
        use, intrinsic :: iso_c_binding
        use num_types, only : c_rp
        implicit none
        integer(c_int) :: n, n_periodic_dirs
-       real(c_rp) :: periodic_dir(3, 3), periodic_shift(3, 3)
-       real(c_rp) :: periodic_min(3), periodic_max(3), periodic_len(3)
+       real(c_rp) :: periodic_dir_x1, periodic_dir_y1, periodic_dir_z1
+       real(c_rp) :: periodic_dir_x2, periodic_dir_y2, periodic_dir_z2
+       real(c_rp) :: periodic_dir_x3, periodic_dir_y3, periodic_dir_z3
+       real(c_rp) :: periodic_min1, periodic_min2, periodic_min3
+       real(c_rp) :: periodic_max1, periodic_max2, periodic_max3
+       real(c_rp) :: periodic_shift_x1, periodic_shift_y1, periodic_shift_z1
+       real(c_rp) :: periodic_shift_x2, periodic_shift_y2, periodic_shift_z2
+       real(c_rp) :: periodic_shift_x3, periodic_shift_y3, periodic_shift_z3
+       real(c_rp) :: periodic_len1, periodic_len2, periodic_len3
        type(c_ptr), value :: x, y, z, strm
      end subroutine hip_lpt_periodic_bc_wrap_translational
 
@@ -74,15 +87,28 @@ module lpt_periodic_bc_device
 #elif HAVE_CUDA
   interface
      subroutine cuda_lpt_periodic_bc_wrap_translational(x, y, z, n, &
-          n_periodic_dirs, periodic_dir, periodic_min, periodic_max, &
-          periodic_shift, periodic_len, strm) &
+          n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+          periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+          periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+          periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+          periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+          periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+          periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+          periodic_len1, periodic_len2, periodic_len3, strm) &
           bind(c, name='cuda_lpt_periodic_bc_wrap_translational')
        use, intrinsic :: iso_c_binding
        use num_types, only : c_rp
        implicit none
        integer(c_int) :: n, n_periodic_dirs
-       real(c_rp) :: periodic_dir(3, 3), periodic_shift(3, 3)
-       real(c_rp) :: periodic_min(3), periodic_max(3), periodic_len(3)
+       real(c_rp) :: periodic_dir_x1, periodic_dir_y1, periodic_dir_z1
+       real(c_rp) :: periodic_dir_x2, periodic_dir_y2, periodic_dir_z2
+       real(c_rp) :: periodic_dir_x3, periodic_dir_y3, periodic_dir_z3
+       real(c_rp) :: periodic_min1, periodic_min2, periodic_min3
+       real(c_rp) :: periodic_max1, periodic_max2, periodic_max3
+       real(c_rp) :: periodic_shift_x1, periodic_shift_y1, periodic_shift_z1
+       real(c_rp) :: periodic_shift_x2, periodic_shift_y2, periodic_shift_z2
+       real(c_rp) :: periodic_shift_x3, periodic_shift_y3, periodic_shift_z3
+       real(c_rp) :: periodic_len1, periodic_len2, periodic_len3
        type(c_ptr), value :: x, y, z, strm
      end subroutine cuda_lpt_periodic_bc_wrap_translational
 
@@ -110,16 +136,30 @@ module lpt_periodic_bc_device
 contains
 
   subroutine lpt_periodic_bc_wrap_translational_device(x, y, z, n, &
-       n_periodic_dirs, periodic_dir, periodic_min, periodic_max, &
-       periodic_shift, periodic_len, strm)
+       n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+       periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+       periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+       periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+       periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+       periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+       periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+       periodic_len1, periodic_len2, periodic_len3, strm)
     type(vector_t), intent(inout) :: x, y, z
     integer, intent(in) :: n
     integer, intent(in) :: n_periodic_dirs
-    real(kind=rp), intent(in) :: periodic_dir(3, 3)
-    real(kind=rp), intent(in) :: periodic_min(3)
-    real(kind=rp), intent(in) :: periodic_max(3)
-    real(kind=rp), intent(in) :: periodic_shift(3, 3)
-    real(kind=rp), intent(in) :: periodic_len(3)
+    real(kind=rp), intent(in) :: periodic_dir_x1, periodic_dir_y1
+    real(kind=rp), intent(in) :: periodic_dir_z1, periodic_dir_x2
+    real(kind=rp), intent(in) :: periodic_dir_y2, periodic_dir_z2
+    real(kind=rp), intent(in) :: periodic_dir_x3, periodic_dir_y3
+    real(kind=rp), intent(in) :: periodic_dir_z3
+    real(kind=rp), intent(in) :: periodic_min1, periodic_min2, periodic_min3
+    real(kind=rp), intent(in) :: periodic_max1, periodic_max2, periodic_max3
+    real(kind=rp), intent(in) :: periodic_shift_x1, periodic_shift_y1
+    real(kind=rp), intent(in) :: periodic_shift_z1, periodic_shift_x2
+    real(kind=rp), intent(in) :: periodic_shift_y2, periodic_shift_z2
+    real(kind=rp), intent(in) :: periodic_shift_x3, periodic_shift_y3
+    real(kind=rp), intent(in) :: periodic_shift_z3
+    real(kind=rp), intent(in) :: periodic_len1, periodic_len2, periodic_len3
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
@@ -129,12 +169,24 @@ contains
 
 #ifdef HAVE_HIP
     call hip_lpt_periodic_bc_wrap_translational(x%x_d, y%x_d, z%x_d, n, &
-         n_periodic_dirs, periodic_dir, periodic_min, periodic_max, &
-         periodic_shift, periodic_len, strm_)
+         n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+         periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+         periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+         periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+         periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+         periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+         periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+         periodic_len1, periodic_len2, periodic_len3, strm_)
 #elif HAVE_CUDA
     call cuda_lpt_periodic_bc_wrap_translational(x%x_d, y%x_d, z%x_d, n, &
-         n_periodic_dirs, periodic_dir, periodic_min, periodic_max, &
-         periodic_shift, periodic_len, strm_)
+         n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+         periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+         periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+         periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+         periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+         periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+         periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+         periodic_len1, periodic_len2, periodic_len3, strm_)
 #else
     call neko_error('LPT periodic BC device wrapping requires CUDA or HIP')
 #endif

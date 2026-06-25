@@ -55,11 +55,33 @@ module lpt_periodic_bc
      logical :: periodic_enabled = .false.
      logical :: rotational_periodic_enabled = .false.
      integer :: n_periodic_dirs = 0
-     real(kind=rp) :: periodic_shift(3, 3) = 0.0_rp
-     real(kind=rp) :: periodic_dir(3, 3) = 0.0_rp
-     real(kind=rp) :: periodic_min(3) = 0.0_rp
-     real(kind=rp) :: periodic_max(3) = 0.0_rp
-     real(kind=rp) :: periodic_len(3) = 0.0_rp
+     real(kind=rp) :: periodic_shift_x1 = 0.0_rp
+     real(kind=rp) :: periodic_shift_y1 = 0.0_rp
+     real(kind=rp) :: periodic_shift_z1 = 0.0_rp
+     real(kind=rp) :: periodic_shift_x2 = 0.0_rp
+     real(kind=rp) :: periodic_shift_y2 = 0.0_rp
+     real(kind=rp) :: periodic_shift_z2 = 0.0_rp
+     real(kind=rp) :: periodic_shift_x3 = 0.0_rp
+     real(kind=rp) :: periodic_shift_y3 = 0.0_rp
+     real(kind=rp) :: periodic_shift_z3 = 0.0_rp
+     real(kind=rp) :: periodic_dir_x1 = 0.0_rp
+     real(kind=rp) :: periodic_dir_y1 = 0.0_rp
+     real(kind=rp) :: periodic_dir_z1 = 0.0_rp
+     real(kind=rp) :: periodic_dir_x2 = 0.0_rp
+     real(kind=rp) :: periodic_dir_y2 = 0.0_rp
+     real(kind=rp) :: periodic_dir_z2 = 0.0_rp
+     real(kind=rp) :: periodic_dir_x3 = 0.0_rp
+     real(kind=rp) :: periodic_dir_y3 = 0.0_rp
+     real(kind=rp) :: periodic_dir_z3 = 0.0_rp
+     real(kind=rp) :: periodic_min1 = 0.0_rp
+     real(kind=rp) :: periodic_min2 = 0.0_rp
+     real(kind=rp) :: periodic_min3 = 0.0_rp
+     real(kind=rp) :: periodic_max1 = 0.0_rp
+     real(kind=rp) :: periodic_max2 = 0.0_rp
+     real(kind=rp) :: periodic_max3 = 0.0_rp
+     real(kind=rp) :: periodic_len1 = 0.0_rp
+     real(kind=rp) :: periodic_len2 = 0.0_rp
+     real(kind=rp) :: periodic_len3 = 0.0_rp
      real(kind=rp) :: rotational_theta_min = 0.0_rp
      real(kind=rp) :: rotational_theta_max = 0.0_rp
      real(kind=rp) :: rotational_theta_len = 0.0_rp
@@ -125,8 +147,19 @@ contains
                acc_xlaglag, acc_ylaglag, acc_zlaglag)
        else
           call lpt_periodic_bc_wrap_translational_device(x, y, z, n, &
-               this%n_periodic_dirs, this%periodic_dir, this%periodic_min, &
-               this%periodic_max, this%periodic_shift, this%periodic_len)
+               this%n_periodic_dirs, this%periodic_dir_x1, &
+               this%periodic_dir_y1, this%periodic_dir_z1, &
+               this%periodic_dir_x2, this%periodic_dir_y2, &
+               this%periodic_dir_z2, this%periodic_dir_x3, &
+               this%periodic_dir_y3, this%periodic_dir_z3, &
+               this%periodic_min1, this%periodic_min2, this%periodic_min3, &
+               this%periodic_max1, this%periodic_max2, this%periodic_max3, &
+               this%periodic_shift_x1, this%periodic_shift_y1, &
+               this%periodic_shift_z1, this%periodic_shift_x2, &
+               this%periodic_shift_y2, this%periodic_shift_z2, &
+               this%periodic_shift_x3, this%periodic_shift_y3, &
+               this%periodic_shift_z3, this%periodic_len1, &
+               this%periodic_len2, this%periodic_len3)
        end if
        call lpt_periodic_bc_sync_from_device(x, y, z, u, v, w, u_lag, v_lag, &
             w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, &
@@ -144,9 +177,17 @@ contains
     end if
 
     call lpt_periodic_bc_wrap_translational_cpu(x, y, z, n, &
-         this%periodic_enabled, this%n_periodic_dirs, this%periodic_dir, &
-         this%periodic_min, this%periodic_max, this%periodic_shift, &
-         this%periodic_len)
+         this%periodic_enabled, this%n_periodic_dirs, this%periodic_dir_x1, &
+         this%periodic_dir_y1, this%periodic_dir_z1, this%periodic_dir_x2, &
+         this%periodic_dir_y2, this%periodic_dir_z2, this%periodic_dir_x3, &
+         this%periodic_dir_y3, this%periodic_dir_z3, this%periodic_min1, &
+         this%periodic_min2, this%periodic_min3, this%periodic_max1, &
+         this%periodic_max2, this%periodic_max3, this%periodic_shift_x1, &
+         this%periodic_shift_y1, this%periodic_shift_z1, &
+         this%periodic_shift_x2, this%periodic_shift_y2, &
+         this%periodic_shift_z2, this%periodic_shift_x3, &
+         this%periodic_shift_y3, this%periodic_shift_z3, &
+         this%periodic_len1, this%periodic_len2, this%periodic_len3)
   end subroutine lpt_periodic_bc_wrap
 
   subroutine lpt_periodic_bc_sync_from_device(x, y, z, u, v, w, u_lag, &
@@ -191,11 +232,7 @@ contains
     this%periodic_enabled = .false.
     this%rotational_periodic_enabled = .false.
     this%n_periodic_dirs = 0
-    this%periodic_shift = 0.0_rp
-    this%periodic_dir = 0.0_rp
-    this%periodic_min = 0.0_rp
-    this%periodic_max = 0.0_rp
-    this%periodic_len = 0.0_rp
+    call lpt_periodic_bc_clear_translational(this)
     this%rotational_theta_min = 0.0_rp
     this%rotational_theta_max = 0.0_rp
     this%rotational_theta_len = 0.0_rp
@@ -340,7 +377,8 @@ contains
 
        ! identfy whether the direction is a unique one
        do j = 1, this%n_periodic_dirs
-          if (abs(dot_product(dir, this%periodic_dir(:, j))) .gt. &
+          if (abs(dot_product(dir, &
+               lpt_periodic_bc_get_dir(this, j))) .gt. &
                1.0_rp - 1.0e-6_rp) then
              idx = j
              exit
@@ -354,11 +392,9 @@ contains
        if (this%n_periodic_dirs .ge. 3) cycle
        idx = this%n_periodic_dirs + 1
        this%n_periodic_dirs = idx
-       this%periodic_dir(:, idx) = dir
-       this%periodic_min(idx) = min(proj_src, proj_tgt)
-       this%periodic_max(idx) = max(proj_src, proj_tgt)
-       this%periodic_shift(:, idx) = shift
-       this%periodic_len(idx) = norm2(shift)
+       call lpt_periodic_bc_set_translational(this, idx, dir, &
+            min(proj_src, proj_tgt), max(proj_src, proj_tgt), shift, &
+            norm2(shift))
     end do
 
     deallocate(global_center)
@@ -423,5 +459,101 @@ contains
     vnorm = norm2(v)
     if (vnorm .gt. LPT_PERIODIC_TOL) v = v / vnorm
   end subroutine lpt_normalize
+
+  subroutine lpt_periodic_bc_clear_translational(this)
+    class(lpt_periodic_bc_t), intent(inout) :: this
+
+    this%periodic_shift_x1 = 0.0_rp
+    this%periodic_shift_y1 = 0.0_rp
+    this%periodic_shift_z1 = 0.0_rp
+    this%periodic_shift_x2 = 0.0_rp
+    this%periodic_shift_y2 = 0.0_rp
+    this%periodic_shift_z2 = 0.0_rp
+    this%periodic_shift_x3 = 0.0_rp
+    this%periodic_shift_y3 = 0.0_rp
+    this%periodic_shift_z3 = 0.0_rp
+    this%periodic_dir_x1 = 0.0_rp
+    this%periodic_dir_y1 = 0.0_rp
+    this%periodic_dir_z1 = 0.0_rp
+    this%periodic_dir_x2 = 0.0_rp
+    this%periodic_dir_y2 = 0.0_rp
+    this%periodic_dir_z2 = 0.0_rp
+    this%periodic_dir_x3 = 0.0_rp
+    this%periodic_dir_y3 = 0.0_rp
+    this%periodic_dir_z3 = 0.0_rp
+    this%periodic_min1 = 0.0_rp
+    this%periodic_min2 = 0.0_rp
+    this%periodic_min3 = 0.0_rp
+    this%periodic_max1 = 0.0_rp
+    this%periodic_max2 = 0.0_rp
+    this%periodic_max3 = 0.0_rp
+    this%periodic_len1 = 0.0_rp
+    this%periodic_len2 = 0.0_rp
+    this%periodic_len3 = 0.0_rp
+  end subroutine lpt_periodic_bc_clear_translational
+
+  pure function lpt_periodic_bc_get_dir(this, idx) result(dir)
+    class(lpt_periodic_bc_t), intent(in) :: this
+    integer, intent(in) :: idx
+    real(kind=rp) :: dir(3)
+
+    select case (idx)
+    case (1)
+       dir = [this%periodic_dir_x1, this%periodic_dir_y1, &
+            this%periodic_dir_z1]
+    case (2)
+       dir = [this%periodic_dir_x2, this%periodic_dir_y2, &
+            this%periodic_dir_z2]
+    case (3)
+       dir = [this%periodic_dir_x3, this%periodic_dir_y3, &
+            this%periodic_dir_z3]
+    case default
+       dir = 0.0_rp
+    end select
+  end function lpt_periodic_bc_get_dir
+
+  subroutine lpt_periodic_bc_set_translational(this, idx, dir, periodic_min, &
+       periodic_max, shift, periodic_len)
+    class(lpt_periodic_bc_t), intent(inout) :: this
+    integer, intent(in) :: idx
+    real(kind=rp), intent(in) :: dir(3)
+    real(kind=rp), intent(in) :: periodic_min
+    real(kind=rp), intent(in) :: periodic_max
+    real(kind=rp), intent(in) :: shift(3)
+    real(kind=rp), intent(in) :: periodic_len
+
+    select case (idx)
+    case (1)
+       this%periodic_dir_x1 = dir(1)
+       this%periodic_dir_y1 = dir(2)
+       this%periodic_dir_z1 = dir(3)
+       this%periodic_min1 = periodic_min
+       this%periodic_max1 = periodic_max
+       this%periodic_shift_x1 = shift(1)
+       this%periodic_shift_y1 = shift(2)
+       this%periodic_shift_z1 = shift(3)
+       this%periodic_len1 = periodic_len
+    case (2)
+       this%periodic_dir_x2 = dir(1)
+       this%periodic_dir_y2 = dir(2)
+       this%periodic_dir_z2 = dir(3)
+       this%periodic_min2 = periodic_min
+       this%periodic_max2 = periodic_max
+       this%periodic_shift_x2 = shift(1)
+       this%periodic_shift_y2 = shift(2)
+       this%periodic_shift_z2 = shift(3)
+       this%periodic_len2 = periodic_len
+    case (3)
+       this%periodic_dir_x3 = dir(1)
+       this%periodic_dir_y3 = dir(2)
+       this%periodic_dir_z3 = dir(3)
+       this%periodic_min3 = periodic_min
+       this%periodic_max3 = periodic_max
+       this%periodic_shift_x3 = shift(1)
+       this%periodic_shift_y3 = shift(2)
+       this%periodic_shift_z3 = shift(3)
+       this%periodic_len3 = periodic_len
+    end select
+  end subroutine lpt_periodic_bc_set_translational
 
 end module lpt_periodic_bc

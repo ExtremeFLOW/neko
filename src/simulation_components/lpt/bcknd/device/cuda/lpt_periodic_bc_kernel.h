@@ -55,11 +55,33 @@ __global__ void lpt_periodic_bc_wrap_translational_kernel(
     T * __restrict__ z,
     const int n,
     const int n_periodic_dirs,
-    const T * __restrict__ periodic_dir,
-    const T * __restrict__ periodic_min,
-    const T * __restrict__ periodic_max,
-    const T * __restrict__ periodic_shift,
-    const T * __restrict__ periodic_len) {
+    const T periodic_dir_x1,
+    const T periodic_dir_y1,
+    const T periodic_dir_z1,
+    const T periodic_dir_x2,
+    const T periodic_dir_y2,
+    const T periodic_dir_z2,
+    const T periodic_dir_x3,
+    const T periodic_dir_y3,
+    const T periodic_dir_z3,
+    const T periodic_min1,
+    const T periodic_min2,
+    const T periodic_min3,
+    const T periodic_max1,
+    const T periodic_max2,
+    const T periodic_max3,
+    const T periodic_shift_x1,
+    const T periodic_shift_y1,
+    const T periodic_shift_z1,
+    const T periodic_shift_x2,
+    const T periodic_shift_y2,
+    const T periodic_shift_z2,
+    const T periodic_shift_x3,
+    const T periodic_shift_y3,
+    const T periodic_shift_z3,
+    const T periodic_len1,
+    const T periodic_len2,
+    const T periodic_len3) {
 
   const T tol = 1.0e-8;
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -71,22 +93,57 @@ __global__ void lpt_periodic_bc_wrap_translational_kernel(
     T point2 = z[i];
 
     for (int j = 0; j < n_periodic_dirs; j++) {
-      T coord = point0 * periodic_dir[3 * j] +
-                point1 * periodic_dir[3 * j + 1] +
-                point2 * periodic_dir[3 * j + 2];
+      T dir0 = periodic_dir_x1;
+      T dir1 = periodic_dir_y1;
+      T dir2 = periodic_dir_z1;
+      T min = periodic_min1;
+      T max = periodic_max1;
+      T shift0 = periodic_shift_x1;
+      T shift1 = periodic_shift_y1;
+      T shift2 = periodic_shift_z1;
+      T len = periodic_len1;
 
-      while (coord < periodic_min[j] - tol) {
-        point0 += periodic_shift[3 * j];
-        point1 += periodic_shift[3 * j + 1];
-        point2 += periodic_shift[3 * j + 2];
-        coord += periodic_len[j];
+      switch (j) {
+      case 1:
+        dir0 = periodic_dir_x2;
+        dir1 = periodic_dir_y2;
+        dir2 = periodic_dir_z2;
+        min = periodic_min2;
+        max = periodic_max2;
+        shift0 = periodic_shift_x2;
+        shift1 = periodic_shift_y2;
+        shift2 = periodic_shift_z2;
+        len = periodic_len2;
+        break;
+      case 2:
+        dir0 = periodic_dir_x3;
+        dir1 = periodic_dir_y3;
+        dir2 = periodic_dir_z3;
+        min = periodic_min3;
+        max = periodic_max3;
+        shift0 = periodic_shift_x3;
+        shift1 = periodic_shift_y3;
+        shift2 = periodic_shift_z3;
+        len = periodic_len3;
+        break;
+      default:
+        break;
       }
 
-      while (coord > periodic_max[j] + tol) {
-        point0 -= periodic_shift[3 * j];
-        point1 -= periodic_shift[3 * j + 1];
-        point2 -= periodic_shift[3 * j + 2];
-        coord -= periodic_len[j];
+      T coord = point0 * dir0 + point1 * dir1 + point2 * dir2;
+
+      while (coord < min - tol) {
+        point0 += shift0;
+        point1 += shift1;
+        point2 += shift2;
+        coord += len;
+      }
+
+      while (coord > max + tol) {
+        point0 -= shift0;
+        point1 -= shift1;
+        point2 -= shift2;
+        coord -= len;
       }
     }
 
