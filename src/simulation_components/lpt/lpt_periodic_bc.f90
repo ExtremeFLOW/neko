@@ -39,6 +39,7 @@ module lpt_periodic_bc
   use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_INTEGER, &
        MPI_MIN, MPI_MAX
+  use vector, only : vector_t
   implicit none
   private
 
@@ -99,17 +100,15 @@ contains
        w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, &
        acc_xlaglag, acc_ylaglag, acc_zlaglag)
     class(lpt_periodic_bc_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: x(:), y(:), z(:)
+    type(vector_t), intent(inout) :: x, y, z
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), optional :: u(:), v(:), w(:)
-    real(kind=rp), intent(inout), optional :: u_lag(:), v_lag(:), w_lag(:)
-    real(kind=rp), intent(inout), optional :: u_laglag(:), v_laglag(:)
-    real(kind=rp), intent(inout), optional :: w_laglag(:)
-    real(kind=rp), intent(inout), optional :: acc_xlag(:), acc_ylag(:)
-    real(kind=rp), intent(inout), optional :: acc_zlag(:)
-    real(kind=rp), intent(inout), optional :: acc_xlaglag(:)
-    real(kind=rp), intent(inout), optional :: acc_ylaglag(:)
-    real(kind=rp), intent(inout), optional :: acc_zlaglag(:)
+    type(vector_t), intent(inout), optional :: u, v, w
+    type(vector_t), intent(inout), optional :: u_lag, v_lag, w_lag
+    type(vector_t), intent(inout), optional :: u_laglag, v_laglag, w_laglag
+    type(vector_t), intent(inout), optional :: acc_xlag, acc_ylag, acc_zlag
+    type(vector_t), intent(inout), optional :: acc_xlaglag
+    type(vector_t), intent(inout), optional :: acc_ylaglag
+    type(vector_t), intent(inout), optional :: acc_zlaglag
 
     if (n .eq. 0) return
 
@@ -314,17 +313,15 @@ contains
        u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
        acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag)
     class(lpt_periodic_bc_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: x(:), y(:), z(:)
+    type(vector_t), intent(inout) :: x, y, z
     integer, intent(in) :: n
-    real(kind=rp), intent(inout), optional :: u(:), v(:), w(:)
-    real(kind=rp), intent(inout), optional :: u_lag(:), v_lag(:), w_lag(:)
-    real(kind=rp), intent(inout), optional :: u_laglag(:), v_laglag(:)
-    real(kind=rp), intent(inout), optional :: w_laglag(:)
-    real(kind=rp), intent(inout), optional :: acc_xlag(:), acc_ylag(:)
-    real(kind=rp), intent(inout), optional :: acc_zlag(:)
-    real(kind=rp), intent(inout), optional :: acc_xlaglag(:)
-    real(kind=rp), intent(inout), optional :: acc_ylaglag(:)
-    real(kind=rp), intent(inout), optional :: acc_zlaglag(:)
+    type(vector_t), intent(inout), optional :: u, v, w
+    type(vector_t), intent(inout), optional :: u_lag, v_lag, w_lag
+    type(vector_t), intent(inout), optional :: u_laglag, v_laglag, w_laglag
+    type(vector_t), intent(inout), optional :: acc_xlag, acc_ylag, acc_zlag
+    type(vector_t), intent(inout), optional :: acc_xlaglag
+    type(vector_t), intent(inout), optional :: acc_ylaglag
+    type(vector_t), intent(inout), optional :: acc_zlaglag
     integer :: i
     real(kind=rp) :: radius
     real(kind=rp) :: theta_old
@@ -334,8 +331,8 @@ contains
 
     pi = acos(-1.0_rp)
     do i = 1, n
-       radius = sqrt(x(i) * x(i) + y(i) * y(i))
-       theta_old = modulo(atan2(y(i), x(i)) + 2.0_rp * pi, &
+       radius = sqrt(x%x(i) * x%x(i) + y%x(i) * y%x(i))
+       theta_old = modulo(atan2(y%x(i), x%x(i)) + 2.0_rp * pi, &
             2.0_rp * pi)
        theta = theta_old
 
@@ -348,25 +345,25 @@ contains
        end do
 
        dtheta = theta - theta_old
-       x(i) = radius * cos(theta)
-       y(i) = radius * sin(theta)
+       x%x(i) = radius * cos(theta)
+       y%x(i) = radius * sin(theta)
        if (abs(dtheta) .le. LPT_PERIODIC_TOL) cycle
 
-       if (present(u) .and. present(v)) call lpt_rotate_xy(u(i), v(i), dtheta)
+       if (present(u) .and. present(v)) call lpt_rotate_xy(u%x(i), v%x(i), dtheta)
        if (present(u_lag) .and. present(v_lag)) &
-            call lpt_rotate_xy(u_lag(i), v_lag(i), dtheta)
+            call lpt_rotate_xy(u_lag%x(i), v_lag%x(i), dtheta)
        if (present(u_laglag) .and. present(v_laglag)) &
-            call lpt_rotate_xy(u_laglag(i), v_laglag(i), dtheta)
+            call lpt_rotate_xy(u_laglag%x(i), v_laglag%x(i), dtheta)
        if (present(acc_xlag) .and. present(acc_ylag)) &
-            call lpt_rotate_xy(acc_xlag(i), acc_ylag(i), dtheta)
+            call lpt_rotate_xy(acc_xlag%x(i), acc_ylag%x(i), dtheta)
        if (present(acc_xlaglag) .and. present(acc_ylaglag)) &
-            call lpt_rotate_xy(acc_xlaglag(i), acc_ylaglag(i), dtheta)
+            call lpt_rotate_xy(acc_xlaglag%x(i), acc_ylaglag%x(i), dtheta)
     end do
   end subroutine lpt_periodic_bc_wrap_rotational
 
   subroutine lpt_periodic_bc_wrap_translational(this, x, y, z, n)
     class(lpt_periodic_bc_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: x(:), y(:), z(:)
+    type(vector_t), intent(inout) :: x, y, z
     integer, intent(in) :: n
     integer :: i
     integer :: j
@@ -376,7 +373,7 @@ contains
     if (.not. this%periodic_enabled) return
 
     do i = 1, n
-       point = [x(i), y(i), z(i)]
+       point = [x%x(i), y%x(i), z%x(i)]
        do j = 1, this%n_periodic_dirs
           coord = dot_product(point, this%periodic_dir(:, j))
 
@@ -390,9 +387,9 @@ contains
              coord = coord - this%periodic_len(j)
           end do
        end do
-       x(i) = point(1)
-       y(i) = point(2)
-       z(i) = point(3)
+       x%x(i) = point(1)
+       y%x(i) = point(2)
+       z%x(i) = point(3)
     end do
   end subroutine lpt_periodic_bc_wrap_translational
 

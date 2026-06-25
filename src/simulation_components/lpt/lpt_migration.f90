@@ -171,13 +171,13 @@ contains
     logical :: migration_needed
 
     if (inertia) then
-       call periodic_bc%wrap(x%x, y%x, z%x, n, u%x, v%x, w%x, u_lag%x, &
-            v_lag%x, w_lag%x, u_laglag%x, v_laglag%x, w_laglag%x, &
-            acc_xlag%x, acc_ylag%x, acc_zlag%x, acc_xlaglag%x, &
-            acc_ylaglag%x, acc_zlaglag%x)
+       call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, &
+            v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
+            acc_ylaglag, acc_zlaglag)
     else
-       call periodic_bc%wrap(x%x, y%x, z%x, n, u%x, v%x, w%x, u_lag%x, &
-            v_lag%x, w_lag%x, u_laglag%x, v_laglag%x, w_laglag%x)
+       call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, &
+            v_lag, w_lag, u_laglag, v_laglag, w_laglag)
     end if
     if (this%strategy .eq. LPT_MIGRATE_NONE) then
        call global_interp%find_points(x%x, y%x, z%x, n)
