@@ -11,7 +11,7 @@ on:
       - ready_for_review
   workflow_dispatch:
 
-#merge queue trigger
+  #merge queue trigger
   merge_group:
     types:
       - checks_requested
@@ -51,6 +51,9 @@ jobs:
           echo "flint-changed-minimum=$FLINT_CHANGED_FILES_MINIMUM" >> $GITHUB_OUTPUT
           echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
           echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
+
+  # ========================================================================== #
+  # Style and linting checks
 
   linting:
     name: Linting
@@ -102,6 +105,18 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   # ========================================================================== #
+  # Regression checks
+
+  Valgrind:
+    name: Valgrind
+    needs:
+      - prepare
+      - depend
+    uses: ./.github/workflows/check_valgrind.yml
+    with:
+      json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
+      # ========================================================================== #
   # Determine if the PR is ready
 
   check_complete:
@@ -114,6 +129,7 @@ jobs:
       - depend
       - GNU
       - Intel
+      - Valgrind
       - Nvidia
 
     runs-on: ubuntu-latest
@@ -123,6 +139,7 @@ jobs:
       format_status: ${{ needs.formatting.result }}
       gnu_status: ${{ needs.GNU.result }}
       intel_status: ${{ needs.Intel.result }}
+      valgrind_status: ${{ needs.Valgrind.result }}
       nvidia_status: ${{ needs.Nvidia.result }}
 
     steps:
@@ -155,17 +172,25 @@ jobs:
             success=false
           fi
 
+          # Valgrind check is informational only.
+          if [ "$valgrind_status" != "success" ]; then
+            fail+=("\t- Valgrind check: $valgrind_status (informational only)")
+          fi
+
           # NVidia check is skipped since the compiler is broken.
           # if [ "$nvidia_status" != "success" ]; then
           #   fail+=("\t- NVIDIA check: $nvidia_status")
           #   success=false
           # fi
 
-          if [ "$success" = false ]; then
+          if [ ${#fail[@]} -ne 0 ]; then
             >&2 echo "The following checks failed:"
             for i in "${fail[@]}"; do
               >&2 printf "$i\n"
             done
+          fi
+
+          if [ "$success" = false ]; then
             exit 1
           fi
           echo "All checks passed"

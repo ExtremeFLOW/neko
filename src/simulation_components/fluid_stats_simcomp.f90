@@ -133,6 +133,8 @@ contains
             coef, start_time, hom_dir, stat_set)
     end if
 
+    nullify(u, v, w, p, coef)
+
   end subroutine fluid_stats_simcomp_init_from_json
 
   !> Actual constructor.

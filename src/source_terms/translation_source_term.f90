@@ -110,8 +110,8 @@ contains
   !! @param coef The SEM coeffs.
   !! @param start_time When to start adding the source term.
   !! @param end_time When to stop adding the source term.
-  subroutine translation_source_term_init_from_components(this, fields, domain_vel, &
-       coef, start_time, end_time)
+  subroutine translation_source_term_init_from_components(this, fields, &
+       domain_vel, coef, start_time, end_time)
     class(translation_source_term_t), intent(inout) :: this
     class(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: domain_vel(3)
@@ -175,7 +175,8 @@ contains
     work2 = this%domain_vel(2)
     work3 = this%domain_vel(3)
 
-    ! umesh_j * du/dx_j = div (umesh u) - u * div umesh but div umesh = 0 so we just calculate div (umesh u)
+    ! umesh_j * du/dx_j = div (umesh u) - u * div umesh but
+    ! div umesh = 0 so we just calculate div (umesh u)
     call field_col3(work4, u, work1, u%size())
     call field_col3(work5, u, work2, u%size())
     call field_col3(work6, u, work3, u%size())
@@ -200,6 +201,10 @@ contains
 
     ! Release the scratch fields
     call neko_scratch_registry%relinquish_field(tmp_index)
+
+    nullify(u, v, w, fx, fy, fz)
+
+    nullify(work1, work2, work3, work4, work5, work6, work7)
 
 
   end subroutine translation_source_term_compute

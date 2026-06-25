@@ -34,7 +34,8 @@
 !! @details this module defines the interface to write ADIOS2 files
 !! to use compression
 module bp_file
-  use utils, only : filename_chsuffix, filename_suffix_pos, filename_tslash_pos
+  use utils, only : filename_chsuffix, filename_suffix_pos, &
+       filename_tslash_pos, neko_error
   use num_types, only : dp, sp, i8, rp
   use generic_file, only : generic_file_t
   use field_list, only : field_list_t
@@ -44,7 +45,6 @@ module bp_file
   use mesh, only : mesh_t
   use structs, only : array_ptr_t
   use fld_file_data, only : fld_file_data_t
-  use utils, only : neko_error
   use datadist, only : linear_dist_t
   use comm, only : pe_size, pe_rank, NEKO_COMM
 #ifdef HAVE_ADIOS2_FORTRAN

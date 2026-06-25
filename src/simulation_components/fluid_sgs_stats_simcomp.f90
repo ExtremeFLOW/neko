@@ -126,6 +126,8 @@ contains
             start_time, hom_dir, nut_field)
     end if
 
+    nullify(u, v, w, coef)
+
   end subroutine fluid_sgs_stats_simcomp_init_from_json
 
   !> Actual constructor.

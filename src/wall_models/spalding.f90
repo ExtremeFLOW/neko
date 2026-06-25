@@ -186,7 +186,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_masked_gather_copy_0(this%nu%x_d, temp%x_d, this%msk_d, &
             temp%size(), this%nu%size())
-       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, &
+            this%msk_d, &
             this%rho%size(), this%rho_w%size())
     else
        call masked_gather_copy_0(this%nu%x, temp%x, this%msk, temp%size(), &
@@ -243,6 +244,8 @@ contains
             this%n_nodes, u%Xh%lx, u%msh%nelv, &
             this%kappa, this%B, tstep)
     end if
+
+    nullify(u, v, w)
 
   end subroutine spalding_compute
 end module spalding

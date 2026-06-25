@@ -188,6 +188,9 @@ contains
        call coriolis_source_term_compute_cpu(u, v, w, this%fields, this%omega, &
             this%u_geo)
     end if
+
+    nullify(u, v, w)
+
   end subroutine coriolis_source_term_compute
 
 end module coriolis_source_term

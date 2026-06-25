@@ -53,8 +53,9 @@ module overset_interface_vector
   use vector, only : vector_t
   use vector_list, only : vector_list_t
   use vector_series, only: vector_series_t
-  use vector_math, only : vector_masked_gather_copy, vector_masked_scatter_copy, vector_add2s2, &
-       vector_cmult2
+  use vector_math, only : vector_masked_gather_copy, &
+       vector_masked_scatter_copy, vector_add2s2, &
+       vector_cmult2, vector_glsc2
   use math, only : copy
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use vector_math, only : vector_copy
@@ -68,6 +69,11 @@ module overset_interface_vector
   use iextm_time_scheme, only : iextm_time_scheme_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   use time_state, only : time_state_t
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use scratch_registry, only : neko_scratch_registry
+  use logger, only : neko_log, LOG_SIZE
+
+
   implicit none
   private
 
@@ -97,12 +103,15 @@ module overset_interface_vector
      type(vector_list_t) :: interface_dof, interface_field
      !> Interpolation settings.
      type(global_interpolation_settings_t) :: interpolation_settings
+     integer :: n_int_tot = 0
      logical :: find_interface = .false.
      logical :: setup = .false.
+     logical :: log = .false.
 
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
-     procedure(morph_overset_interface), nopass, pointer :: morph_interface => null()
+     procedure(morph_overset_interface), nopass, pointer :: &
+          morph_interface => null()
 
    contains
      !> Constructor.
@@ -131,10 +140,14 @@ module overset_interface_vector
      !> Build the masks for the overset interface.
      procedure, pass(this), private :: build_masks_ => build_masks_
      !> Gather the dofs at the interface.
-     procedure, pass(this), private :: gather_interface_dofs_ => gather_interface_dofs_
+     procedure, pass(this), private :: gather_interface_dofs_ => &
+          gather_interface_dofs_
      !> Set up the interpolator.
-     procedure, pass(this), private :: setup_interpolator_ => setup_interpolator_
-
+     procedure, pass(this), private :: setup_interpolator_ => &
+          setup_interpolator_
+     !> Log interface interpolation error diagnostics.
+     procedure, pass(this), private :: log_interface_error_ => &
+          log_interface_error_
   end type overset_interface_vector_t
 
 contains
@@ -147,6 +160,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(json_file), intent(inout) ::json
     real(kind=rp) :: tol, pad
+    logical :: log
 
     !> Parse the interpolation settings
     call json_get_or_default(json, "interpolation.tolerance", &
@@ -157,17 +171,22 @@ contains
     if (this%iextm_order .lt. 1 .or. this%iextm_order .gt. 3) then
        call neko_error("The order of the IEXTm time scheme must be 1 to 3.")
     end if
+    call json_get_or_default(json, "log", this%log, .false.)
 
-    call this%init_from_components(coef, tol, pad)
+    call this%init_from_components(coef, tol, pad, log)
 
   end subroutine overset_interface_vector_init
 
   !> Constructor from components
   !! @param[in] coef The SEM coefficients.
-  subroutine overset_interface_vector_init_from_components(this, coef, tol, pad)
+  !! @param[in] tol The tolerance for the interpolation.
+  !! @param[in] pad The padding for the interpolation.
+  !! @param[in] log Whether to log the interpolation.
+  subroutine overset_interface_vector_init_from_components(this, coef, tol, pad, log)
     class(overset_interface_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(in), optional :: tol, pad
+    logical, intent(in), optional :: log
 
     !> This initializes coef, dof, msh, and Xh pointers
     call this%init_base(coef)
@@ -178,6 +197,9 @@ contains
     end if
     if (present(pad)) then
        if (pad .gt. 0.0_rp) this%interpolation_settings%padding = pad
+    end if
+    if (present(log)) then
+       this%log = log
     end if
 
     call this%bc_u%init_from_components(coef, "u")
@@ -352,7 +374,8 @@ contains
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &
-               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), strm) ! adperez: change the masks used here
+               this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0), &
+               strm) ! adperez: change the masks used here
           call device_masked_copy_0(y_d, this%bc_v%field_bc%x_d, &
                this%bc_v%msk_d, this%bc_v%dof%size(), this%msk(0), strm)
           call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
@@ -389,9 +412,12 @@ contains
     call this%build_masks_()
 
     !> Gather the interface boundary points
-    call this%x_interface_dof%init(this%interface_dof_mask%size(), 'x_interface')
-    call this%y_interface_dof%init(this%interface_dof_mask%size(), 'y_interface')
-    call this%z_interface_dof%init(this%interface_dof_mask%size(), 'z_interface')
+    call this%x_interface_dof%init(this%interface_dof_mask%size(), &
+         'x_interface')
+    call this%y_interface_dof%init(this%interface_dof_mask%size(), &
+         'y_interface')
+    call this%z_interface_dof%init(this%interface_dof_mask%size(), &
+         'z_interface')
     call this%gather_interface_dofs_()
 
     !> Initialize the interpolator and find the points
@@ -418,6 +444,9 @@ contains
     call this%v_interface_lag%init(this%v_interface, this%iextm_order)
     call this%w_interface_lag%init(this%w_interface, this%iextm_order)
 
+    call MPI_Allreduce(this%u_interface%size(), this%n_int_tot, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_GLOBAL_COMM)
+
 
   end subroutine overset_interface_vector_finalize
 
@@ -429,6 +458,7 @@ contains
     type(iextm_time_scheme_t) :: time_scheme
     integer :: nhist, ihist
     real(kind=rp) :: iextm_coeffs(4)
+
 
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
@@ -462,9 +492,17 @@ contains
     w => neko_registry%get_field("w")
 
     !> Interpolate the values
-    call this%interface_interpolator%evaluate_masked(this%u_interface%x, u%x, this%domain_element_mask, .false.)
-    call this%interface_interpolator%evaluate_masked(this%v_interface%x, v%x, this%domain_element_mask, .false.)
-    call this%interface_interpolator%evaluate_masked(this%w_interface%x, w%x, this%domain_element_mask, .false.)
+    call this%interface_interpolator%evaluate_masked(this%u_interface%x, &
+         u%x, this%domain_element_mask, .false.)
+    call this%interface_interpolator%evaluate_masked(this%v_interface%x, &
+         v%x, this%domain_element_mask, .false.)
+    call this%interface_interpolator%evaluate_masked(this%w_interface%x, &
+         w%x, this%domain_element_mask, .false.)
+
+    if (this%log) then
+       call this%log_interface_error_(u, v, w)
+    end if
+
 
     !> If this is the first substep, then we do the extrapolation
     if (time%tstep .ne. this%last_tstep) then
@@ -480,29 +518,77 @@ contains
        nhist = min(time%tstep, this%iextm_order)
        call time_scheme%compute_coeffs(iextm_coeffs, time%dtlag, nhist)
 
-       ! Perfrom the extrapolation using the lag arrays
-       call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), iextm_coeffs(1))
-       call vector_cmult2(this%v_interface, this%v_interface_lag%lv(1), iextm_coeffs(1))
-       call vector_cmult2(this%w_interface, this%w_interface_lag%lv(1), iextm_coeffs(1))
+       ! Perform the extrapolation using the lag arrays
+       call vector_cmult2(this%u_interface, this%u_interface_lag%lv(1), &
+            iextm_coeffs(1))
+       call vector_cmult2(this%v_interface, this%v_interface_lag%lv(1), &
+            iextm_coeffs(1))
+       call vector_cmult2(this%w_interface, this%w_interface_lag%lv(1), &
+            iextm_coeffs(1))
        do ihist = 2, nhist
-          call vector_add2s2(this%u_interface, this%u_interface_lag%lv(ihist), iextm_coeffs(ihist))
-          call vector_add2s2(this%v_interface, this%v_interface_lag%lv(ihist), iextm_coeffs(ihist))
-          call vector_add2s2(this%w_interface, this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%u_interface, &
+               this%u_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%v_interface, &
+               this%v_interface_lag%lv(ihist), iextm_coeffs(ihist))
+          call vector_add2s2(this%w_interface, &
+               this%w_interface_lag%lv(ihist), iextm_coeffs(ihist))
        end do
 
     end if
 
 
     !> Scatter them to the bc fields
-    call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), this%u_interface, &
+    call vector_masked_scatter_copy(this%bc_u%field_bc%x(:,1,1,1), &
+         this%u_interface, &
          this%interface_dof_mask, this%bc_u%dof%size())
-    call vector_masked_scatter_copy(this%bc_v%field_bc%x(:,1,1,1), this%v_interface, &
+    call vector_masked_scatter_copy(this%bc_v%field_bc%x(:,1,1,1), &
+         this%v_interface, &
          this%interface_dof_mask, this%bc_v%dof%size())
-    call vector_masked_scatter_copy(this%bc_w%field_bc%x(:,1,1,1), this%w_interface, &
+    call vector_masked_scatter_copy(this%bc_w%field_bc%x(:,1,1,1), &
+         this%w_interface, &
          this%interface_dof_mask, this%bc_w%dof%size())
 
 
   end subroutine overset_interface_update
+
+  !> Log interface RMSE for each vector component.
+  subroutine log_interface_error_(this, u, v, w)
+    class(overset_interface_vector_t), intent(inout) :: this
+    type(field_t), pointer, intent(in) :: u, v, w
+    real(kind=rp) :: u_int_norm, v_int_norm, w_int_norm
+    type(vector_t), pointer :: error
+    integer :: ind(1)
+    logical :: clear_scratch = .false.
+    character(len=256) :: log_buf
+
+    call neko_scratch_registry%request_vector(error, ind(1), this%u_interface%size(), &
+         clear_scratch)
+
+    !> Compute the L2 norm (RMSE in reality) of the error at the interface points
+    call vector_masked_gather_copy(error, u%x(:,1,1,1), this%interface_dof_mask, &
+         this%dof%size())
+    call vector_add2s2(error, this%u_interface, -1.0_rp)
+    u_int_norm = sqrt(vector_glsc2(error, error)) / sqrt(real(this%n_int_tot, kind=rp))
+
+    call vector_masked_gather_copy(error, v%x(:,1,1,1), this%interface_dof_mask, &
+         this%dof%size())
+    call vector_add2s2(error, this%v_interface, -1.0_rp)
+    v_int_norm = sqrt(vector_glsc2(error, error)) / sqrt(real(this%n_int_tot, kind=rp))
+
+    call vector_masked_gather_copy(error, w%x(:,1,1,1), this%interface_dof_mask, &
+         this%dof%size())
+    call vector_add2s2(error, this%w_interface, -1.0_rp)
+    w_int_norm = sqrt(vector_glsc2(error, error)) / sqrt(real(this%n_int_tot, kind=rp))
+
+    call neko_scratch_registry%relinquish(ind)
+
+    !> Log the errors
+    write(log_buf, '(A12,A3,A10,1x,A1,E15.7,A1,E15.7,A1,E15.7,A1)') &
+         'Interface BC', ' | ', 'L2 Error: ', '(', &
+         u_int_norm, ',', v_int_norm, ',', w_int_norm, ')'
+    call neko_log%message(log_buf)
+
+  end subroutine log_interface_error_
 
   !===================
   ! Helper subroutines
