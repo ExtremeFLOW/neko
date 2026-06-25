@@ -43,23 +43,14 @@ extern "C" {
       real *periodic_dir, real *periodic_min, real *periodic_max,
       real *periodic_shift, real *periodic_len, cudaStream_t strm) {
 
-    lpt_periodic_bc_meta<real> meta;
-    for (int i = 0; i < 9; i++) {
-      meta.dir[i] = periodic_dir[i];
-      meta.shift[i] = periodic_shift[i];
-    }
-    for (int i = 0; i < 3; i++) {
-      meta.min[i] = periodic_min[i];
-      meta.max[i] = periodic_max[i];
-      meta.len[i] = periodic_len[i];
-    }
-
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     lpt_periodic_bc_wrap_translational_kernel<real>
       <<<nblcks, nthrds, 0, strm>>>((real *) x, (real *) y, (real *) z,
-                                    *n, *n_periodic_dirs, meta);
+                                    *n, *n_periodic_dirs, periodic_dir,
+                                    periodic_min, periodic_max,
+                                    periodic_shift, periodic_len);
     CUDA_CHECK(cudaGetLastError());
   }
 

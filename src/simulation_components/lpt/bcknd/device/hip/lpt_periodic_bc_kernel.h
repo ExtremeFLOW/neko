@@ -38,15 +38,6 @@
 #include <math.h>
 
 template<typename T>
-struct lpt_periodic_bc_meta {
-  T dir[9];
-  T min[3];
-  T max[3];
-  T shift[9];
-  T len[3];
-};
-
-template<typename T>
 __device__ inline void lpt_rotate_xy(T *x, T *y, const int i, const T theta) {
   const T x_old = x[i];
   const T y_old = y[i];
@@ -64,7 +55,11 @@ __global__ void lpt_periodic_bc_wrap_translational_kernel(
     T * __restrict__ z,
     const int n,
     const int n_periodic_dirs,
-    const lpt_periodic_bc_meta<T> meta) {
+    const T * __restrict__ periodic_dir,
+    const T * __restrict__ periodic_min,
+    const T * __restrict__ periodic_max,
+    const T * __restrict__ periodic_shift,
+    const T * __restrict__ periodic_len) {
 
   const T tol = 1.0e-8;
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -76,22 +71,22 @@ __global__ void lpt_periodic_bc_wrap_translational_kernel(
     T point2 = z[i];
 
     for (int j = 0; j < n_periodic_dirs; j++) {
-      T coord = point0 * meta.dir[3 * j] +
-                point1 * meta.dir[3 * j + 1] +
-                point2 * meta.dir[3 * j + 2];
+      T coord = point0 * periodic_dir[3 * j] +
+                point1 * periodic_dir[3 * j + 1] +
+                point2 * periodic_dir[3 * j + 2];
 
-      while (coord < meta.min[j] - tol) {
-        point0 += meta.shift[3 * j];
-        point1 += meta.shift[3 * j + 1];
-        point2 += meta.shift[3 * j + 2];
-        coord += meta.len[j];
+      while (coord < periodic_min[j] - tol) {
+        point0 += periodic_shift[3 * j];
+        point1 += periodic_shift[3 * j + 1];
+        point2 += periodic_shift[3 * j + 2];
+        coord += periodic_len[j];
       }
 
-      while (coord > meta.max[j] + tol) {
-        point0 -= meta.shift[3 * j];
-        point1 -= meta.shift[3 * j + 1];
-        point2 -= meta.shift[3 * j + 2];
-        coord -= meta.len[j];
+      while (coord > periodic_max[j] + tol) {
+        point0 -= periodic_shift[3 * j];
+        point1 -= periodic_shift[3 * j + 1];
+        point2 -= periodic_shift[3 * j + 2];
+        coord -= periodic_len[j];
       }
     }
 
