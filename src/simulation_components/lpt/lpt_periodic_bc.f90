@@ -33,6 +33,8 @@
 !> Periodic and cyclic boundary-condition support for LPT.
 module lpt_periodic_bc
   use num_types, only : rp
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use utils, only : neko_error
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
   use mesh, only : mesh_t
@@ -40,6 +42,8 @@ module lpt_periodic_bc
   use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_INTEGER, &
        MPI_MIN, MPI_MAX
   use vector, only : vector_t
+  use lpt_periodic_bc_cpu, only : lpt_periodic_bc_wrap_rotational_cpu, &
+       lpt_periodic_bc_wrap_translational_cpu
   implicit none
   private
 
@@ -66,10 +70,6 @@ module lpt_periodic_bc
           lpt_periodic_bc_init_rotational
      procedure, private, pass(this) :: init_translational => &
           lpt_periodic_bc_init_translational
-     procedure, private, pass(this) :: wrap_rotational => &
-          lpt_periodic_bc_wrap_rotational
-     procedure, private, pass(this) :: wrap_translational => &
-          lpt_periodic_bc_wrap_translational
   end type lpt_periodic_bc_t
 
 contains
@@ -111,15 +111,27 @@ contains
     type(vector_t), intent(inout), optional :: acc_zlaglag
 
     if (n .eq. 0) return
+    if (.not. this%periodic_enabled .and. &
+         .not. this%rotational_periodic_enabled) return
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error("LPT periodic boundary wrapping is not implemented " // &
+            "for device backends.")
+    end if
 
     if (this%rotational_periodic_enabled) then
-       call this%wrap_rotational(x, y, z, n, u, v, w, u_lag, v_lag, &
-            w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, &
-            acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag)
+       call lpt_periodic_bc_wrap_rotational_cpu(x, y, z, n, &
+            this%rotational_theta_min, this%rotational_theta_max, &
+            this%rotational_theta_len, u, v, w, u_lag, v_lag, w_lag, &
+            u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, &
+            acc_xlaglag, acc_ylaglag, acc_zlaglag)
        return
     end if
 
-    call this%wrap_translational(x, y, z, n)
+    call lpt_periodic_bc_wrap_translational_cpu(x, y, z, n, &
+         this%periodic_enabled, this%n_periodic_dirs, this%periodic_dir, &
+         this%periodic_min, this%periodic_max, this%periodic_shift, &
+         this%periodic_len)
   end subroutine lpt_periodic_bc_wrap
 
   subroutine lpt_periodic_bc_reset(this)
@@ -309,90 +321,6 @@ contains
     this%periodic_enabled = this%n_periodic_dirs .gt. 0
   end subroutine lpt_periodic_bc_init_translational
 
-  subroutine lpt_periodic_bc_wrap_rotational(this, x, y, z, n, u, v, w, &
-       u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
-       acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag)
-    class(lpt_periodic_bc_t), intent(inout) :: this
-    type(vector_t), intent(inout) :: x, y, z
-    integer, intent(in) :: n
-    type(vector_t), intent(inout), optional :: u, v, w
-    type(vector_t), intent(inout), optional :: u_lag, v_lag, w_lag
-    type(vector_t), intent(inout), optional :: u_laglag, v_laglag, w_laglag
-    type(vector_t), intent(inout), optional :: acc_xlag, acc_ylag, acc_zlag
-    type(vector_t), intent(inout), optional :: acc_xlaglag
-    type(vector_t), intent(inout), optional :: acc_ylaglag
-    type(vector_t), intent(inout), optional :: acc_zlaglag
-    integer :: i
-    real(kind=rp) :: radius
-    real(kind=rp) :: theta_old
-    real(kind=rp) :: theta
-    real(kind=rp) :: dtheta
-    real(kind=rp) :: pi
-
-    pi = acos(-1.0_rp)
-    do i = 1, n
-       radius = sqrt(x%x(i) * x%x(i) + y%x(i) * y%x(i))
-       theta_old = modulo(atan2(y%x(i), x%x(i)) + 2.0_rp * pi, &
-            2.0_rp * pi)
-       theta = theta_old
-
-       do while (theta .lt. this%rotational_theta_min - LPT_PERIODIC_TOL)
-          theta = theta + this%rotational_theta_len
-       end do
-
-       do while (theta .gt. this%rotational_theta_max + LPT_PERIODIC_TOL)
-          theta = theta - this%rotational_theta_len
-       end do
-
-       dtheta = theta - theta_old
-       x%x(i) = radius * cos(theta)
-       y%x(i) = radius * sin(theta)
-       if (abs(dtheta) .le. LPT_PERIODIC_TOL) cycle
-
-       if (present(u) .and. present(v)) call lpt_rotate_xy(u%x(i), v%x(i), dtheta)
-       if (present(u_lag) .and. present(v_lag)) &
-            call lpt_rotate_xy(u_lag%x(i), v_lag%x(i), dtheta)
-       if (present(u_laglag) .and. present(v_laglag)) &
-            call lpt_rotate_xy(u_laglag%x(i), v_laglag%x(i), dtheta)
-       if (present(acc_xlag) .and. present(acc_ylag)) &
-            call lpt_rotate_xy(acc_xlag%x(i), acc_ylag%x(i), dtheta)
-       if (present(acc_xlaglag) .and. present(acc_ylaglag)) &
-            call lpt_rotate_xy(acc_xlaglag%x(i), acc_ylaglag%x(i), dtheta)
-    end do
-  end subroutine lpt_periodic_bc_wrap_rotational
-
-  subroutine lpt_periodic_bc_wrap_translational(this, x, y, z, n)
-    class(lpt_periodic_bc_t), intent(inout) :: this
-    type(vector_t), intent(inout) :: x, y, z
-    integer, intent(in) :: n
-    integer :: i
-    integer :: j
-    real(kind=rp) :: point(3)
-    real(kind=rp) :: coord
-
-    if (.not. this%periodic_enabled) return
-
-    do i = 1, n
-       point = [x%x(i), y%x(i), z%x(i)]
-       do j = 1, this%n_periodic_dirs
-          coord = dot_product(point, this%periodic_dir(:, j))
-
-          do while (coord .lt. this%periodic_min(j) - LPT_PERIODIC_TOL)
-             point = point + this%periodic_shift(:, j)
-             coord = coord + this%periodic_len(j)
-          end do
-
-          do while (coord .gt. this%periodic_max(j) + LPT_PERIODIC_TOL)
-             point = point - this%periodic_shift(:, j)
-             coord = coord - this%periodic_len(j)
-          end do
-       end do
-       x%x(i) = point(1)
-       y%x(i) = point(2)
-       z%x(i) = point(3)
-    end do
-  end subroutine lpt_periodic_bc_wrap_translational
-
   subroutine lpt_get_facet_points(msh, el, facet, pts)
     type(mesh_t), intent(in) :: msh
     integer, intent(in) :: el
@@ -444,40 +372,5 @@ contains
     vnorm = norm2(v)
     if (vnorm .gt. LPT_PERIODIC_TOL) v = v / vnorm
   end subroutine lpt_normalize
-
-  subroutine lpt_rotate_vector_xy(vec, theta)
-    real(kind=rp), intent(inout) :: vec(3)
-    real(kind=rp), intent(in) :: theta
-    real(kind=rp) :: x_old
-    real(kind=rp) :: y_old
-    real(kind=rp) :: cos_theta
-    real(kind=rp) :: sin_theta
-
-    x_old = vec(1)
-    y_old = vec(2)
-    cos_theta = cos(theta)
-    sin_theta = sin(theta)
-
-    vec(1) = cos_theta * x_old - sin_theta * y_old
-    vec(2) = sin_theta * x_old + cos_theta * y_old
-  end subroutine lpt_rotate_vector_xy
-
-  subroutine lpt_rotate_xy(x, y, theta)
-    real(kind=rp), intent(inout) :: x
-    real(kind=rp), intent(inout) :: y
-    real(kind=rp), intent(in) :: theta
-    real(kind=rp) :: x_old
-    real(kind=rp) :: y_old
-    real(kind=rp) :: cos_theta
-    real(kind=rp) :: sin_theta
-
-    x_old = x
-    y_old = y
-    cos_theta = cos(theta)
-    sin_theta = sin(theta)
-
-    x = cos_theta * x_old - sin_theta * y_old
-    y = sin_theta * x_old + cos_theta * y_old
-  end subroutine lpt_rotate_xy
 
 end module lpt_periodic_bc
