@@ -63,8 +63,7 @@ module lagrangian_particle_tracking
   use comm, only : pe_rank
   use csv_file, only : csv_file_t
   use vector, only : vector_t
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST, device_memcpy
+  use device, only : DEVICE_TO_HOST
   implicit none
   private
 
@@ -246,28 +245,17 @@ contains
     class(particles_t), intent(inout) :: this
     integer, intent(in) :: memdir
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-write(*,*) "check1.1", this%x%x(1), this%x%size()
-       call device_memcpy(this%x%x, this%x%x_d, &
-            this%x%size(), memdir, sync=.false.)
-write(*,*) "check1.2", this%x%x(2), this%x%size()
-       call device_memcpy(this%y%x, this%y%x_d, &
-            this%y%size(), memdir, sync=.false.)
-       call device_memcpy(this%z%x, this%z%x_d, &
-            this%z%size(), memdir, sync=.false.)
-       call device_memcpy(this%u%x, this%u%x_d, &
-            this%u%size(), memdir, sync=.false.)
-       call device_memcpy(this%v%x, this%v%x_d, &
-            this%v%size(), memdir, sync=.false.)
-       call device_memcpy(this%w%x, this%w%x_d, &
-            this%w%size(), memdir, sync=.true.)
-       if (this%inertia) then
-          call device_memcpy(this%rho%x, this%rho%x_d, &
-               this%rho%size(), memdir, sync=.false.)
-          call device_memcpy(this%d%x, this%d%x_d, &
-               this%d%size(), memdir, sync=.true.)
-       end if
+    call this%x%copy_from(memdir, .false.)
+    call this%y%copy_from(memdir, .false.)
+    call this%z%copy_from(memdir, .false.)
+    call this%u%copy_from(memdir, .false.)
+    call this%v%copy_from(memdir, .false.)
+    call this%w%copy_from(memdir, .true.)
+    if (this%inertia) then
+       call this%d%copy_from(memdir, .false.)
+       call this%rho%copy_from(memdir, .true.)
     end if
+
   end subroutine particles_device_sync
 
   !> Construct from JSON.
@@ -887,9 +875,8 @@ write(*,*) "check1.2", this%x%x(2), this%x%size()
     integer :: n_data
 
     n_local = this%particles%n
-write(*,*) "check1", this%particles%x%x(1)
+
     call this%particles%device_sync(DEVICE_TO_HOST)
-write(*,*) "check2", this%particles%x%x(1)
     
     if (this%inertia) then
        n_data = 11

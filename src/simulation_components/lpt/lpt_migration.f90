@@ -40,6 +40,7 @@ module lpt_migrate
   use mpi_f08, only : MPI_Allreduce, MPI_Bcast, MPI_INTEGER, MPI_Scatterv, &
        MPI_SUM
   use vector, only : vector_t
+  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
   implicit none
   private
 
@@ -457,7 +458,7 @@ contains
   subroutine distribute_particle_scalar(this, scalar_old, counts, offsets, &
        n_local, scalar_local)
     class(lpt_migrate_t), intent(inout) :: this
-    type(vector_t), intent(in) :: scalar_old
+    type(vector_t), intent(inout) :: scalar_old
     integer, intent(in) :: counts(0:)
     integer, intent(in) :: offsets(0:)
     integer, intent(in) :: n_local
@@ -471,8 +472,10 @@ contains
     allocate(offsets_r(0:pe_size - 1))
     counts_r = counts
     offsets_r = offsets
+    call scalar_old%copy_from(DEVICE_TO_HOST, .true.)
     call MPI_Scatterv(scalar_old%x, counts_r, offsets_r, MPI_REAL_PRECISION, &
          scalar_local%x, n_local, MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+    call scalar_local%copy_from(HOST_TO_DEVICE, .true.)
     deallocate(counts_r)
     deallocate(offsets_r)
   end subroutine distribute_particle_scalar
@@ -525,7 +528,7 @@ contains
        n_particles_old, n_local, scalar_local)
     class(lpt_migrate_t), intent(inout) :: this
     type(glb_intrp_comm_t), intent(inout) :: migrate_comm
-    type(vector_t), intent(in) :: scalar_old
+    type(vector_t), intent(inout) :: scalar_old
     integer, intent(in) :: n_particles_old
     integer, intent(in) :: n_local
     type(vector_t), intent(inout) :: scalar_local
@@ -544,8 +547,10 @@ contains
     allocate(recvbuf(n_recvbuf))
     sendbuf = 0.0_rp
     recvbuf = 0.0_rp
+    call scalar_old%copy_from(DEVICE_TO_HOST, .true.)
     if (n_particles_old .gt. 0) sendbuf = scalar_old%x
     call migrate_comm%sendrecv(sendbuf, recvbuf, n_sendbuf, n_recvbuf)
+    call scalar_local%copy_from(HOST_TO_DEVICE, .true.)
     if (n_local .gt. 0) scalar_local = recvbuf(1:n_local)
     if (allocated(sendbuf)) deallocate(sendbuf)
     if (allocated(recvbuf)) deallocate(recvbuf)
