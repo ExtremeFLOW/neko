@@ -35,6 +35,8 @@ module amr_tools
   use num_types, only : rp, dp
   use comm, only : NEKO_COMM, pe_rank
   use utils, only : NEKO_VARNAME_LEN, neko_error
+  use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
+       NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
   use vector_list, only : vector_list_t
   use simulation_component, only : simulation_component_t
   use spectral_error, only : spectral_error_t
@@ -56,6 +58,52 @@ module amr_tools
   private
 
   integer, parameter, public :: AMR_OP_MAX = 1, AMR_OP_ELEN = 2
+
+  integer, parameter :: lx = 3, dim = 3, nvrt = 8, nedg = 12, nfcs = 6
+
+  ! vertex position in the minimal grid box
+  integer, parameter, dimension(dim, nvrt) :: vert =reshape([&
+       1, 1, 1,  3, 1, 1,  1, 3, 1,  3, 3, 1,  &
+       1, 1, 3,  3, 1, 3,  1, 3, 3,  3, 3, 3], shape(vert))
+
+  ! edge position in the minimal grid box
+  integer, parameter, dimension(dim, nedg) :: edge =reshape([&
+       2, 1, 1,  2, 3, 1,  2, 1, 3,  2, 3, 3,  &
+       1, 2, 1,  3, 2, 1,  1, 2, 3,  3, 2, 3,  &
+       1, 1, 2,  3, 1, 2,  1, 3, 2,  3, 3, 2], shape(edge))
+
+  ! face position in the minimal grid box
+  integer, parameter, dimension(dim, nfcs) :: face =reshape([&
+       1, 2, 2,  3, 2, 2,  2, 1, 2,  2, 3, 2,  2, 2, 1,  2, 2, 3], shape(face))
+
+  ! faces sharing vertex in the minimal grid box
+  integer, parameter, dimension(dim, 3, nvrt) :: fsv =reshape([ &
+       1, 2, 2,  2, 1, 2,  2, 2, 1, &
+       3, 2, 2,  2, 1, 2,  2, 2, 1, &
+       1, 2, 2,  2, 3, 2,  2, 2, 1, &
+       3, 2, 2,  2, 3, 2,  2, 2, 1, &
+       1, 2, 2,  2, 1, 2,  2, 2, 3, &
+       3, 2, 2,  2, 1, 2,  2, 2, 3, &
+       1, 2, 2,  2, 3, 2,  2, 2, 3, &
+       3, 2, 2,  2, 3, 2,  2, 2, 3], shape(fsv))
+
+  ! faces sharing edge in the minimal grid box
+  integer, parameter, dimension(dim, 2, nedg) :: fse =reshape([ &
+       2, 1, 2,  2, 2, 1,   2, 3, 2,  2, 2, 1, &
+       2, 1, 2,  2, 2, 3,   2, 3, 2,  2, 2, 3, &
+       1, 2, 2,  2, 2, 1,   3, 2, 2,  2, 2, 1, &
+       1, 2, 2,  2, 2, 3,   3, 2, 2,  2, 2, 3, &
+       1, 2, 2,  2, 1, 2,   3, 2, 2,  2, 1, 2, &
+       1, 2, 2,  2, 3, 2,   3, 2, 2,  2, 3, 2], shape(fse))
+
+  ! pairs of opposing faces in the minimal grid box
+  integer, parameter, dimension(dim, 2, dim) :: fop =reshape([ &
+       1, 2, 2,  3, 2, 2,   2, 1, 2,  2, 3, 2,   2, 2, 1,  2, 2, 3], shape(fop))
+
+  ! edge vertices
+  integer, public, parameter, dimension(2, 12) :: vedge  = reshape([ &
+       1, 2,  3, 4,  5, 6,  7, 8,  1, 3,  2, 4, &
+       5, 7,  6, 8,  1, 5,  2, 6,  3, 7,  4, 8], shape(vedge))
 
   !> Type for spectral error indicator operations
   type, public, extends(amr_restart_component_t) :: amr_spectral_error_t
@@ -113,7 +161,7 @@ module amr_tools
   end type amr_spectral_error_t
 
   ! Specific tools for managing refinement on the user side
-  public :: amr_remove_gaps
+  public :: amr_ref_mark_check, amr_nonconf_int_remove
 
 contains
 
@@ -126,7 +174,7 @@ contains
     type(mesh_t), target, intent(in) :: msh
     character(len=NEKO_VARNAME_LEN), dimension(:), optional, intent(in) :: &
          fld_name_ref, fld_name_mntr
-    integer :: il, jl, n_simcomps, lx
+    integer :: il, jl, n_simcomps
     type(field_t) :: fld_tmp
     logical :: found
 
@@ -149,8 +197,7 @@ contains
 
     ! Add minimal grid
     this%msh => msh
-    lx = 3
-    call this%grid_min%init(this%msh, 3, .false., .false.)
+    call this%grid_min%init(this%msh, lx, .false., .false.)
 
     ! Get fields for visualisation of
     ! instantaneous indicators
@@ -433,133 +480,692 @@ contains
 
   end subroutine amr_spectral_error_amr_restart
 
+  ! Set vertex in the box
+  subroutine amr_vertex_set(box, ivrt, const)
+    integer, dimension(lx, lx, lx), intent(inout) :: box
+    integer, intent(in) :: ivrt, const
 
-  !> Remove refinement gaps of the size of a single element
-  !! @param[in]     nelv        local element number
-  !! @param[in]     ref_level   element refinement level
-  !! @param[inout]  ref_mark    refinement flag
-  !! @param[inout]  grid_min    minimal grid
-  !! @param[inout]  iter        max/performed number of iterations
-  !! @param[out]    nmod        global number of modified elements
-  subroutine amr_remove_gaps(nelv, ref_level, ref_mark, grid_min, iter, nmod)
-    integer, intent(in) :: nelv
-    integer, dimension(nelv), intent(in) :: ref_level
-    integer, dimension(nelv), intent(inout) :: ref_mark
-    type(sem_lx_t), intent(inout) :: grid_min
-    integer, intent(inout) ::  iter
-    integer, intent(out) :: nmod
-    integer, parameter :: lx = 3
-    real(rp), dimension(lx, lx, lx, nelv) :: exchange
-    integer, dimension(lx, lx, lx, nelv) :: level, mark_max, mark_min
-    ! pairs of opposing faces
-    integer, dimension(2, 3) :: fpair_lev, fpair_max, fpair_min
-    integer :: ntot, il, jl, iter_max, nmod_iter, ierr
-    logical :: refine
+    box(vert(1, ivrt), vert(2, ivrt), vert(3, ivrt)) = const
 
-    ntot = lx * lx* lx * nelv
-    nmod  = 0
-    iter_max = iter
+  end subroutine amr_vertex_set
 
-    ! Get current refinement level across interfaces; no interpolation
-    do il = 1, nelv
-       exchange(:, :, :, il) = ref_level(il)
-    end do
-    ! take care of nonconforming interfaces
-    call grid_min%gs_Xh%interp%scale_children(exchange, 0.25_rp, 0.5_rp)
-    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_ADD)
-    level = nint(exchange)
-    ! subtract element's refinement level
-    do il = 1, nelv
-       level(:, :, :, il) = level(:, :, :, il) - ref_level(il)
-    end do
+  ! Extract vertex from the box
+  subroutine amr_vertex_get(box, ivrt, const)
+    integer, dimension(lx, lx, lx), intent(in) :: box
+    integer, intent(in) :: ivrt
+    integer, intent(out) :: const
 
-    ! This part can be iterated
-    iter = 0
-    do
-       iter = iter + 1
-       ! Get min/max refinement mark across interfaces; no interpolation
-       ! Possibly needed to take care of nonconforming interfaces
-!       do il = 1, nelv
-!          exchange(:, :, :, il) = ref_mark(il)
-!       end do
-!       call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MIN)
-!       mark_min = nint(exchange)
-       do il = 1, nelv
-          exchange(:, :, :, il) = ref_mark(il)
-       end do
-       call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
-       mark_max = nint(exchange)
+    const = box(vert(1, ivrt), vert(2, ivrt), vert(3, ivrt))
 
-       nmod_iter = 0
+  end subroutine amr_vertex_get
 
-       do il = 1, nelv
+  ! Set edge in the box
+  subroutine amr_edge_set(box, iedg, const)
+    integer, dimension(lx, lx, lx), intent(inout) :: box
+    integer, intent(in) :: iedg, const
 
-!          call amr_oposite_face_extract(mark_min(:, :, :, il), fpair_min)
+    box(edge(1, iedg), edge(2, iedg), edge(3, iedg)) = const
 
-          refine = .false.
+  end subroutine amr_edge_set
 
-          ! gap in refinement level
-          ! during first iteration only
-          if (iter .eq. 1) then
-             if (ref_mark(il) .eq. amr_flg_none) then
-                call amr_oposite_face_extract(level(:, :, :, il), fpair_lev)
-                do jl = 1, 3
-                   if (fpair_lev(1, jl) .gt. ref_level(il) .and. &
-                        fpair_lev(2, jl) .gt. ref_level(il) .and. &
-                        fpair_max(1, jl) .eq. amr_flg_none .and. &
-                        fpair_max(2, jl) .eq. amr_flg_none) then
-                      refine = .true.
-                   end if
-                end do
-             end if
-          end if
+  ! Extract edge from the box
+  subroutine amr_edge_get(box, iedg, const)
+    integer, dimension(lx, lx, lx), intent(in) :: box
+    integer, intent(in) :: iedg
+    integer, intent(out) :: const
 
-          ! gap in refinement mark
-          if (ref_mark(il) .eq. amr_flg_none) then
-             call amr_oposite_face_extract(mark_max(:, :, :, il), fpair_max)
-             do jl = 1, 3
-                if (fpair_lev(1, jl) .eq. ref_level(il) .and. &
-                     fpair_lev(2, jl) .eq. ref_level(il) .and. &
-                     fpair_max(1, jl) .eq. amr_flg_h_ref .and. &
-                     fpair_max(2, jl) .eq. amr_flg_h_ref) then
-                   refine = .true.
-                end if
-             end do
-          end if
+    const = box(edge(1, iedg), edge(2, iedg), edge(3, iedg))
 
-          ! other tests?
-          if (refine) then
-             nmod_iter = nmod_iter + 1
-             ref_mark(il) = amr_flg_h_ref
-          end if
-       end do
+  end subroutine amr_edge_get
 
-       ! global number of modified elements
-       call MPI_Allreduce(MPI_IN_PLACE, nmod_iter, 1, MPI_INTEGER, MPI_SUM, &
-            NEKO_COMM, ierr)
+  ! Set face in the box
+  subroutine amr_face_set(box, ifcs, const)
+    integer, dimension(lx, lx, lx), intent(inout) :: box
+    integer, intent(in) :: ifcs, const
 
-       nmod = nmod + nmod_iter
-       if (nmod_iter .eq. 0 .or. iter .eq. iter_max) exit
-    end do
+    box(face(1, ifcs), face(2, ifcs), face(3, ifcs)) = const
 
-  end subroutine amr_remove_gaps
+  end subroutine amr_face_set
+
+  ! Extract face from the box
+  subroutine amr_face_get(box, ifcs, const)
+    integer, dimension(lx, lx, lx), intent(in) :: box
+    integer, intent(in) :: ifcs
+    integer, intent(out) :: const
+
+    const = box(face(1, ifcs), face(2, ifcs), face(3, ifcs))
+
+  end subroutine amr_face_get
+
+  ! Set vertex sharing faces in the box
+  subroutine amr_vertex_face_set(box, ivrt, const)
+    integer, dimension(lx, lx, lx), intent(inout) :: box
+    integer, intent(in) :: ivrt, const
+
+    box(fsv(1, 1, ivrt), fsv(2, 1, ivrt), fsv(3, 1, ivrt)) = const
+    box(fsv(1, 2, ivrt), fsv(2, 2, ivrt), fsv(3, 2, ivrt)) = const
+    box(fsv(1, 3, ivrt), fsv(2, 3, ivrt), fsv(3, 3, ivrt)) = const
+
+  end subroutine amr_vertex_face_set
+
+  ! Extract vertex sharing faces in the box
+  subroutine amr_vertex_face_get(box, ivrt, const)
+    integer, dimension(lx, lx, lx), intent(in) :: box
+    integer, intent(in) :: ivrt
+    integer, dimension(3), intent(out) :: const
+
+    const(1) = box(fsv(1, 1, ivrt), fsv(2, 1, ivrt), fsv(3, 1, ivrt))
+    const(2) = box(fsv(1, 2, ivrt), fsv(2, 2, ivrt), fsv(3, 2, ivrt))
+    const(3) = box(fsv(1, 3, ivrt), fsv(2, 3, ivrt), fsv(3, 3, ivrt))
+
+  end subroutine amr_vertex_face_get
+
+  ! Set edge sharing faces in the box
+  subroutine amr_edge_face_set(box, iedg, const)
+    integer, dimension(lx, lx, lx), intent(inout) :: box
+    integer, intent(in) :: iedg, const
+
+    box(fse(1, 1, iedg), fse(2, 1, iedg), fse(3, 1, iedg)) = const
+    box(fse(1, 2, iedg), fse(2, 2, iedg), fse(3, 2, iedg)) = const
+
+  end subroutine amr_edge_face_set
+
+  ! Extract edge sharing faces in the box
+  subroutine amr_edge_face_get(box, iedg, const)
+    integer, dimension(lx, lx, lx), intent(in) :: box
+    integer, intent(in) :: iedg
+    integer, dimension(2), intent(out) :: const
+
+    const(1) = box(fse(1, 1, iedg), fse(2, 1, iedg), fse(3, 1, iedg))
+    const(2) = box(fse(1, 2, iedg), fse(2, 2, iedg), fse(3, 2, iedg))
+
+  end subroutine amr_edge_face_get
 
   ! Extract opposite face from the minimal grid box
   subroutine amr_oposite_face_extract(box, face_pair)
-    integer, parameter :: lx = 3, nface = 3, dim = 3
     integer, dimension(lx, lx, lx), intent(in) :: box
-    integer, dimension(2, nface), intent(out) :: face_pair
-    ! pairs of opposing faces in the minimal grid box
-    integer, parameter, dimension(dim, 2, nface) :: fop =reshape([1, 2, 2, &
-         3, 2, 2, 2, 1, 2, 2, 3, 2, 2, 2, 1, 2, 2, 3], shape(fop))
+    integer, dimension(2, dim), intent(out) :: face_pair
     integer :: il, jl
 
-    do il = 1, nface
+    do il = 1, dim
        do jl = 1, 2
           face_pair(jl, il) = box(fop(1, jl, il), fop(2, jl, il), &
                fop(3, jl, il))
        end do
     end do
   end subroutine amr_oposite_face_extract
+
+  !> Make coarsening flag consistent within families.
+  !! @param[in]     nelv        local element number
+  !! @param[in]     ref_family  element family information for coarsening
+  !! @param[inout]  ref_mark    refinement flag
+  !! @param[inout]  grid_min    minimal grid
+  subroutine amr_family_crs_check(nelv, ref_family, ref_mark, grid_min)
+    integer, intent(in) :: nelv
+    integer, dimension(2, nelv), intent(in) :: ref_family
+    integer, dimension(nelv), intent(inout) :: ref_mark
+    type(sem_lx_t), intent(inout) :: grid_min
+    real(rp), dimension(lx, lx, lx, nelv) :: exchange
+    integer, dimension(lx, lx, lx, nelv) :: mark_max
+    integer :: ntot, itmp, il
+
+    ntot = lx * lx* lx * nelv
+
+    ! Make coarsening flag consistent within families. Elements in the family
+    ! can be marked for coarsening only if all the members are flagged this
+    ! way.
+    do il = 1, nelv
+       exchange(:, :, :, il) = real(ref_mark(il), rp)
+    end do
+    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
+    mark_max = nint(exchange)
+    do il = 1, nelv
+       if (ref_family(1, il) .gt. 0 .and. ref_mark(il) .eq. amr_flg_h_crs) then
+          call amr_vertex_get(mark_max(:, :, :, il), ref_family(2, il), itmp)
+          if (itmp .ge. amr_flg_none) ref_mark(il) = amr_flg_none
+       end if
+    end do
+  end subroutine amr_family_crs_check
+
+
+  !> Balance refinement with 2:1 criterion. It is a crude one.
+  !! @param[in]     nelv        local element number
+  !! @param[in]     ref_level   element refinement level (current or predicted)
+  !! @param[in]     ref_family  element family information for coarsening
+  !! @param[inout]  ref_mark    refinement flag
+  !! @param[inout]  grid_min    minimal grid
+  !! @param[inout]  iter        max/performed number of iterations
+  !! @param[out]    nmod        global number of (modified, not fixed) elements
+  subroutine amr_ref_balance(nelv, ref_level, ref_family, ref_mark, grid_min, &
+       iter, nmod)
+    integer, intent(in) :: nelv
+    integer, dimension(nelv), intent(in) :: ref_level
+    integer, dimension(2, nelv), intent(in) :: ref_family
+    integer, dimension(nelv), intent(inout) :: ref_mark
+    type(sem_lx_t), intent(inout) :: grid_min
+    integer, intent(inout) ::  iter
+    integer, dimension(2), intent(out) :: nmod
+    integer, dimension(2) :: nmod_iter
+    integer, dimension(nelv) :: level_tmp
+    real(rp), dimension(lx, lx, lx, nelv) :: exchange
+    integer, dimension(lx, lx, lx, nelv) :: level_max
+    integer :: ntot, iter_max, itmp, ierr, il
+    character(len=LOG_SIZE) :: log_buf
+
+    ntot = lx * lx* lx * nelv
+    nmod(:) = 0
+    iter_max = iter
+    iter = 0
+
+    do
+       iter = iter + 1
+       nmod_iter(:) = 0
+
+       ! Make coarsening flag consistent within families.
+       call amr_family_crs_check(nelv, ref_family, ref_mark, grid_min)
+
+       ! Get predicted refinement level
+       do il = 1, nelv
+          select case(ref_mark(il))
+          case(amr_flg_h_crs)
+             level_tmp(il) = ref_level(il) - 1
+          case(amr_flg_h_ref)
+             level_tmp(il) = ref_level(il) + 1
+          case(amr_flg_none)
+             level_tmp(il) = ref_level(il)
+          end select
+       end do
+
+       ! Distribute element refinement level
+       do il = 1, nelv
+          exchange(:, :, :, il) = real(level_tmp(il), rp)
+       end do
+       ! possible problem for nonconforming interfaces; vertices/edges
+       call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
+       level_max = nint(exchange)
+
+       ! Check refinement level difference across interfaces
+       do il = 1, nelv
+          itmp = maxval(level_max(:, :, :, il))
+          ! We modify amr_flg_none and amr_flg_h_crs only
+          if (itmp - level_tmp(il) .gt. 1) then
+             if (ref_mark(il) .ne. amr_flg_h_ref) then
+                nmod_iter(1) = nmod_iter(1) + 1
+                select case(ref_mark(il))
+                case(amr_flg_h_crs)
+                   ref_mark(il) = amr_flg_none
+                case(amr_flg_none)
+                   ref_mark(il) = amr_flg_h_ref
+                end select
+             else
+                nmod_iter(2) = nmod_iter(2) + 1
+             end if
+          end if
+       end do
+
+       ! global number of modified elements
+       call MPI_Allreduce(MPI_IN_PLACE, nmod_iter, 2, MPI_INTEGER, MPI_SUM, &
+            NEKO_COMM, ierr)
+
+       nmod(1) = nmod(1) + nmod_iter(1)
+       nmod(2) = nmod_iter(2)
+       if (nmod_iter(1) .eq. 0) then
+          exit
+       else
+          if (iter .eq. iter_max) then
+             write(log_buf, '(A,I9)') 'AMR tool balance; balancing not &
+                  &finalised: ', nmod_iter(1)
+             call neko_log%message(log_buf, NEKO_LOG_INFO)
+             exit
+          end if
+       end if
+    end do
+
+  end subroutine amr_ref_balance
+
+  !> Fix edge/vertex connected regions for single iteration
+  !! @param[in]     nelv        local element number
+  !! @param[in]     ref_level   element refinement level (current or predicted)
+  !! @param[in]     ifcurrent   is a refinement level a current one
+  !! @param[in]     flag_exc    flag marking excluded elements
+  !! @param[inout]  ref_mark    refinement flag
+  !! @param[inout]  grid_min    minimal grid
+  !! @param[out]    nmod        global number of modified elements
+  subroutine amr_ref_connect_fix(nelv, ref_level, ifcurrent, flag_exc, &
+       ref_mark, grid_min, nmod)
+    integer, intent(in) :: nelv
+    integer, dimension(nelv), intent(in) :: ref_level
+    logical, intent(in) :: ifcurrent
+    logical, dimension(nelv), intent(inout) :: flag_exc
+    integer, dimension(nelv), intent(inout) :: ref_mark
+    type(sem_lx_t), intent(inout) :: grid_min
+    integer, intent(out) :: nmod
+    real(rp), dimension(lx, lx, lx, nelv) :: exchange
+    integer, dimension(lx, lx, lx, nelv) :: level_min, level_max, mult, &
+         local_mark
+    ! vertex sharing faces
+    integer, dimension(3) :: fvert
+    ! edge sharing faces
+    integer, dimension(2) :: fedge
+    integer :: ntot, mult_min_vrt, mult_min_edg, lmax, lmin, itmp, ierr, il, jl
+    logical, dimension(nvrt) :: ifvert
+
+    ! NOTICE. Following algorithm is not fully general, as it e.g., may not
+    ! work with conforming edges with multiplicity higher than 6.
+
+    ntot = lx * lx* lx * nelv
+    nmod  = 0
+    if (ifcurrent) then
+       ! take into account nonconforming faces
+       mult_min_edg = 6
+       mult_min_vrt = 7
+    else
+       ! conforming faces only
+       mult_min_edg = 2
+       mult_min_vrt = 2
+    end if
+
+    ! Distribute element refinement level
+    do il = 1, nelv
+       exchange(:, :, :, il) = real(ref_level(il), rp)
+    end do
+    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MIN)
+    level_min = nint(exchange)
+    do il = 1, nelv
+       exchange(:, :, :, il) = real(ref_level(il), rp)
+    end do
+    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
+    level_max = nint(exchange)
+
+    ! Get multiplicity of highest refinement level through edges and vertices
+    mult(:, :, :, :) = 0
+    do il = 1, nelv
+       ! Skip excluded elements
+       if (.not. flag_exc(il)) then
+          ! Refined regions connected by edge
+          do jl = 1, nedg
+             call amr_edge_get(level_max(:, :, :, il), jl, lmax)
+             call amr_edge_get(level_min(:, :, :, il), jl, lmin)
+             if (lmax .ne. lmin .and. ref_level(il) .gt. lmin) then
+                call amr_edge_set(mult(:, :, :, il), jl, 1)
+             end if
+          end do
+
+          ! Refined regions connected by vertex
+          do jl = 1, nvrt
+             call amr_vertex_get(level_max(:, :, :, il), jl, lmax)
+             call amr_vertex_get(level_min(:, :, :, il), jl, lmin)
+             if (lmax .ne. lmin .and. ref_level(il) .gt. lmin) then
+                call amr_vertex_set(mult(:, :, :, il), jl, 1)
+             end if
+          end do
+       end if
+    end do
+
+    exchange = real(mult, rp)
+    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_ADD)
+    mult = nint(exchange)
+
+    ! Mark problematic elements
+    local_mark(:, :, :, :) = amr_flg_none
+    do il = 1, nelv
+       ! Skip excluded elements
+       if (.not. flag_exc(il)) then
+          ifvert(:) = .true.
+          ! Refined regions connected by edge
+          ! Start with edges to exclude vertices
+          do jl = 1, nedg
+             call amr_edge_get(level_max(:, :, :, il), jl, lmax)
+             call amr_edge_get(level_min(:, :, :, il), jl, lmin)
+             call amr_edge_get(mult(:, :, :, il), jl, itmp)
+             call amr_edge_face_get(level_min(:, :, :, il), jl, fedge)
+             if (lmax .ne. lmin .and. ref_level(il) .gt. lmin .and. &
+                  itmp .gt. mult_min_edg .and. &
+                  maxval(fedge) .lt. ref_level(il)) then
+                flag_exc(il) = .true.
+                ifvert(vedge(1, jl)) = .false.
+                ifvert(vedge(2, jl)) = .false.
+                call amr_edge_face_set(local_mark(:, :, :, il), jl, &
+                     amr_flg_h_ref)
+             end if
+          end do
+
+          ! Refined regions connected by vertex
+          do jl = 1, nvrt
+             ! Skip marked vertices
+             if (ifvert(jl)) then
+                call amr_vertex_get(level_max(:, :, :, il), jl, lmax)
+                call amr_vertex_get(level_min(:, :, :, il), jl, lmin)
+                call amr_vertex_get(mult(:, :, :, il), jl, itmp)
+                call amr_vertex_face_get(level_min(:, :, :, il), jl, fvert)
+                if (lmax .ne. lmin .and. ref_level(il) .gt. lmin .and. &
+                     itmp .gt. mult_min_vrt .and.&
+                     maxval(fvert) .lt. ref_level(il)) then
+                   flag_exc(il) = .true.
+                   call amr_vertex_face_set(local_mark(:, :, :, il), jl, &
+                        amr_flg_h_ref)
+                end if
+             end if
+          end do
+       end if
+    end do
+
+    exchange = real(local_mark, rp)
+    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
+    local_mark = nint(exchange)
+
+    if (ifcurrent) then
+       do il = 1, nelv
+          ! Skip excluded elements
+          if (.not. flag_exc(il)) then
+             faces1 : do jl = 1, nfcs
+                call amr_face_get(level_max(:, :, :, il), jl, lmax)
+                call amr_face_get(local_mark(:, :, :, il), jl, itmp)
+                if (lmax .gt. ref_level(il) .and. itmp .eq. amr_flg_h_ref &
+                     .and. ref_mark(il) .ne. amr_flg_h_ref) then
+                   nmod = nmod + 1
+                   ref_mark(il) = amr_flg_h_ref
+                   exit faces1
+                end if
+             end do faces1
+          end if
+       end do
+    else
+       do il = 1, nelv
+          ! Skip excluded elements
+          if (.not. flag_exc(il)) then
+             faces2 : do jl = 1, nfcs
+                call amr_face_get(level_max(:, :, :, il), jl, lmax)
+                call amr_face_get(local_mark(:, :, :, il), jl, itmp)
+                if (lmax .gt. ref_level(il) .and. itmp .eq. amr_flg_h_ref &
+                     .and. ref_mark(il) .ne. amr_flg_h_ref) then
+                   nmod = nmod + 1
+                   select case(ref_mark(il))
+                   case(amr_flg_h_crs)
+                      ref_mark(il) = amr_flg_none
+                   case(amr_flg_none)
+                      ref_mark(il) = amr_flg_h_ref
+                   end select
+                   exit faces2
+                end if
+             end do faces2
+          end if
+       end do
+    end if
+
+    ! global number of modified elements
+    call MPI_Allreduce(MPI_IN_PLACE, nmod, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM, ierr)
+
+  end subroutine amr_ref_connect_fix
+
+  !> Remove single element gaps
+  !! @param[in]     nelv        local element number
+  !! @param[in]     ref_level   element refinement level (current or predicted)
+  !! @param[inout]  ref_mark    refinement flag
+  !! @param[inout]  grid_min    minimal grid
+  !! @param[out]    nmod        global number of (modified, not fixed) elements
+  subroutine amr_ref_gap_remove(nelv, ref_level, ref_mark, grid_min, nmod)
+    integer, intent(in) :: nelv
+    integer, dimension(nelv), intent(in) :: ref_level
+    integer, dimension(nelv), intent(inout) :: ref_mark
+    type(sem_lx_t), intent(inout) :: grid_min
+    integer, dimension(2), intent(out) :: nmod
+    real(rp), dimension(lx, lx, lx, nelv) :: exchange
+    integer, dimension(lx, lx, lx, nelv) :: level_max
+    integer, dimension(2, 3) :: fpair_max
+    integer :: ntot, il, jl, ierr
+    logical :: ifgap
+
+    ntot = lx * lx* lx * nelv
+    nmod(:) = 0
+
+    ! Distribute element refinement level
+    do il = 1, nelv
+       exchange(:, :, :, il) = real(ref_level(il), rp)
+    end do
+    ! possible problem for nonconforming interfaces; faces
+    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
+    level_max = nint(exchange)
+
+    do il = 1, nelv
+       call amr_oposite_face_extract(level_max(:, :, :, il), fpair_max)
+       ifgap = .false.
+       do jl = 1, 3
+          if (fpair_max(1, jl) .gt. ref_level(il) .and. &
+               fpair_max(2, jl) .gt. ref_level(il)) then
+             ifgap = .true.
+             exit
+          end if
+       end do
+       if (ifgap) then
+          if (ref_mark(il) .ne. amr_flg_h_ref) then
+             nmod(1) = nmod(1) + 1
+             select case(ref_mark(il))
+             case(amr_flg_h_crs)
+                ref_mark(il) = amr_flg_none
+             case(amr_flg_none)
+                ref_mark(il) = amr_flg_h_ref
+             end select
+          else
+             nmod(2) = nmod(2) + 1
+          end if
+       end if
+    end do
+
+    ! global number of modified elements
+    call MPI_Allreduce(MPI_IN_PLACE, nmod, 2, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM, ierr)
+
+  end subroutine amr_ref_gap_remove
+
+  !> Check refinement flag for possible topology problems
+  !! @param[in]     nelv        local element number
+  !! @param[in]     ref_level   element refinement level
+  !! @param[in]     ref_family  element family information for coarsening
+  !! @param[inout]  ref_mark    refinement flag
+  !! @param[inout]  grid_min    minimal grid
+  !! @param[inout]  iter        max/performed number of iterations
+  !! @param[in]     iterb       max number of iterations for balancing
+  !! @param[out]    nmod        global number of modified elements
+  subroutine amr_ref_mark_check(nelv, ref_level, ref_family, ref_mark, &
+       grid_min, iter, iterb, nmod)
+    integer, intent(in) :: nelv, iterb
+    integer, dimension(nelv), intent(in) :: ref_level
+    integer, dimension(2, nelv), intent(in) :: ref_family
+    integer, dimension(nelv), intent(inout) :: ref_mark
+    type(sem_lx_t), intent(inout) :: grid_min
+    integer, intent(inout) ::  iter
+    integer, intent(out) :: nmod
+    integer, dimension(nelv) :: level_tmp
+    logical, dimension(nelv) :: flag_exc
+    integer :: ntot, iter_max, iter_balance, nmod_iter, itmp, il
+    integer, dimension(2) :: nmod2
+    character(len=LOG_SIZE) :: log_buf
+    logical :: refine
+
+    ntot = lx * lx* lx * nelv
+    nmod  = 0
+    iter_max = iter
+    iter = 0
+
+    ! Pressure preconditioner was found to be sensitive to the refinement
+    ! topology, so some of the configurations should be corrected. The goal
+    ! is to avoid single unrefined elements surrounded by refined ones and
+    ! refined regions connected by edge or vertex only. This is just an
+    ! approximate procedure, as mesh manager can have additional constraints
+    ! not applied here. However, it is not an intention to replicate all
+    ! possible constraints, but to fix the most obvious problems. In general
+    ! order of applying operations can matter.
+
+    flag_exc(:) = .false.
+
+    ! Connect through face refinement regions sharing edge or vertex
+    ! Start with current refinement level to remove existing problems
+    ! This step can be exact
+    call amr_ref_connect_fix(nelv, ref_level, .true., flag_exc, ref_mark, &
+         grid_min, itmp)
+    nmod = nmod + itmp
+
+    do
+       iter = iter + 1
+       nmod_iter = 0
+       iter_balance = iterb
+
+       ! Balance the refinement flag
+       call amr_ref_balance(nelv, ref_level, ref_family, ref_mark, grid_min, &
+            iter_balance, nmod2)
+       if (nmod2(2) .ne. 0) then
+          write(log_buf, '(A,I9,1X,I3)') 'AMR tool mark check; tree cannot be &
+               &balanced: ', nmod2(2), iter_balance
+          call neko_log%message(log_buf, NEKO_LOG_INFO)
+       end if
+
+       ! Fix refined regions connected by edge/vertex only
+       ! Use predicted refinement level to avoid possible future problems
+       ! This is approximate only as not all additional constraints may be
+       ! taken into account
+       do il = 1, nelv
+          select case(ref_mark(il))
+          case(amr_flg_h_crs)
+             level_tmp(il) = ref_level(il) - 1
+          case(amr_flg_h_ref)
+             level_tmp(il) = ref_level(il) + 1
+          case(amr_flg_none)
+             level_tmp(il) = ref_level(il)
+          end select
+       end do
+       call amr_ref_connect_fix(nelv, level_tmp, .false., flag_exc, &
+            ref_mark, grid_min, itmp)
+       nmod_iter = nmod_iter + itmp
+
+       ! Update predicted refinement level.
+       do il = 1, nelv
+          select case(ref_mark(il))
+          case(amr_flg_h_crs)
+             level_tmp(il) = ref_level(il) - 1
+          case(amr_flg_h_ref)
+             level_tmp(il) = ref_level(il) + 1
+          case(amr_flg_none)
+             level_tmp(il) = ref_level(il)
+          end select
+       end do
+
+       ! Remove single unrefined element surrounded by refined ones
+       call amr_ref_gap_remove(nelv, level_tmp, ref_mark, grid_min, nmod2)
+       nmod_iter = nmod_iter + nmod2(1)
+
+       nmod = nmod + nmod_iter
+       if (nmod_iter .eq. 0) then
+          exit
+       else
+          if (iter .eq. iter_max) then
+             write(log_buf, '(A,I9)') 'AMR tool mark check; correcting not &
+                  &finalised: ', nmod_iter
+             call neko_log%message(log_buf, NEKO_LOG_INFO)
+             exit
+          end if
+       end if
+    end do
+
+  end subroutine amr_ref_mark_check
+
+  !> Remove nonconforming interfaces around marked elements
+  !! @param[in]     nelv        local element number
+  !! @param[in]     ref_level   element refinement level
+  !! @param[in]     ref_flag    flag marking problematic elements
+  !! @param[inout]  ref_mark    refinement flag
+  !! @param[inout]  grid_min    minimal grid
+  !! @param[in]     icomm       communication type
+  !! @param[in]     ifrefall    refine only flag
+  !! @param[out]    nmod        global number of modified elements
+  subroutine amr_nonconf_int_remove(nelv, ref_level, ref_flag, ref_mark, &
+       grid_min, icomm, ifrefall, nmod)
+    integer, intent(in) :: nelv, icomm
+    integer, dimension(nelv), intent(in) :: ref_level
+    logical, dimension(nelv), intent(in) :: ref_flag
+    integer, dimension(nelv), intent(inout) :: ref_mark
+    type(sem_lx_t), intent(inout) :: grid_min
+    logical, intent(in) :: ifrefall
+    integer, intent(out) :: nmod
+    real(rp), dimension(lx, lx, lx, nelv) :: exchange
+    integer, dimension(lx, lx, lx, nelv) :: level
+    integer :: ntot, itmp, il, jl
+
+    ntot = lx * lx* lx * nelv
+    nmod  = 0
+
+    ! Distribute refinement level of marked elements
+    level(:, :, :, :) = -1
+    ! Depending on communication type fill
+    select case(icomm)
+    case (1)
+       ! vertices only
+       do il = 1, nelv
+          if (ref_flag(il)) then
+             do jl = 1, nvrt
+                call amr_vertex_set(level(:, :, :, il), jl, ref_level(il))
+             end do
+          end if
+       end do
+    case (2)
+       ! edges only
+       do il = 1, nelv
+          if (ref_flag(il)) then
+             do jl = 1, nedg
+                call amr_edge_set(level(:, :, :, il), jl, ref_level(il))
+             end do
+          end if
+       end do
+    case (3)
+       ! faces only
+       do il = 1, nelv
+          if (ref_flag(il)) then
+             do jl = 1, nfcs
+                call amr_face_set(level(:, :, :, il), jl, ref_level(il))
+             end do
+          end if
+       end do
+    case (4)
+       ! all
+       do il = 1, nelv
+          if (ref_flag(il)) level(:, :, :, il) = ref_level(il)
+       end do
+    case default
+       call neko_error('AMR tools removing interf.; wrong communication type')
+    end select
+    exchange = real(level, rp)
+    call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
+    level = nint(exchange)
+
+    ! Mark neighbours of flagged elements
+    if (ifrefall) then
+       do il = 1, nelv
+          if (.not. ref_flag(il)) then
+             itmp = maxval(level(:, :, :, il))
+             if (itmp .gt. ref_level(il)) then
+                nmod = nmod + 1
+                ref_mark(il) = amr_flg_h_ref
+             end if
+          end if
+       end do
+    else
+       do il = 1, nelv
+          if (.not. ref_flag(il)) then
+             itmp = maxval(level(:, :, :, il))
+             if (itmp .gt. ref_level(il)) then
+                nmod = nmod + 1
+                select case(ref_mark(il))
+                case(amr_flg_h_crs)
+                   ref_mark(il) = amr_flg_none
+                case(amr_flg_none)
+                   ref_mark(il) = amr_flg_h_ref
+                end select
+             end if
+          end if
+       end do
+    end if
+
+  end subroutine amr_nonconf_int_remove
 
 end module amr_tools
