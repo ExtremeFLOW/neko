@@ -63,12 +63,15 @@ module lagrangian_particle_tracking
   use comm, only : pe_rank
   use csv_file, only : csv_file_t
   use vector, only : vector_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST, device_memcpy
   implicit none
   private
 
   type, private :: particles_t
      ! general particle info
      type(vector_t) :: x, y, z
+     type(vector_t) :: u, v, w
      integer, allocatable :: ids(:)
      type(vector_t) :: u_lag, v_lag, w_lag
      type(vector_t) :: u_laglag, v_laglag, w_laglag
@@ -77,7 +80,6 @@ module lagrangian_particle_tracking
      integer :: n_global = 0
      ! inertia-specific info
      logical :: inertia = .false.
-     type(vector_t) :: u, v, w
      type(vector_t) :: acc_x, acc_y, acc_z
      type(vector_t) :: d ! diameter of particles
      type(vector_t) :: rho ! density of particles
@@ -86,6 +88,7 @@ module lagrangian_particle_tracking
    contains
      procedure, pass(this) :: init => particles_init
      procedure, pass(this) :: free => particles_free
+     procedure, pass(this) :: device_sync => particles_device_sync
   end type particles_t
 
   !> A simulation component for passive Lagrangian particle tracking.
@@ -237,6 +240,35 @@ contains
     this%n = 0
     this%n_global = 0
   end subroutine particles_free
+
+  !> Synchronise the host and device data for particles
+  subroutine particles_device_sync(this, memdir)
+    class(particles_t), intent(inout) :: this
+    integer, intent(in) :: memdir
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+write(*,*) "check1.1", this%x%x(1), this%x%size()
+       call device_memcpy(this%x%x, this%x%x_d, &
+            this%x%size(), memdir, sync=.false.)
+write(*,*) "check1.2", this%x%x(2), this%x%size()
+       call device_memcpy(this%y%x, this%y%x_d, &
+            this%y%size(), memdir, sync=.false.)
+       call device_memcpy(this%z%x, this%z%x_d, &
+            this%z%size(), memdir, sync=.false.)
+       call device_memcpy(this%u%x, this%u%x_d, &
+            this%u%size(), memdir, sync=.false.)
+       call device_memcpy(this%v%x, this%v%x_d, &
+            this%v%size(), memdir, sync=.false.)
+       call device_memcpy(this%w%x, this%w%x_d, &
+            this%w%size(), memdir, sync=.true.)
+       if (this%inertia) then
+          call device_memcpy(this%rho%x, this%rho%x_d, &
+               this%rho%size(), memdir, sync=.false.)
+          call device_memcpy(this%d%x, this%d%x_d, &
+               this%d%size(), memdir, sync=.true.)
+       end if
+    end if
+  end subroutine particles_device_sync
 
   !> Construct from JSON.
   !! Supported particle input is either a flat `coordinates` array
@@ -855,6 +887,9 @@ contains
     integer :: n_data
 
     n_local = this%particles%n
+write(*,*) "check1", this%particles%x%x(1)
+    call this%particles%device_sync(DEVICE_TO_HOST)
+write(*,*) "check2", this%particles%x%x(1)
     
     if (this%inertia) then
        n_data = 11
