@@ -48,6 +48,35 @@ export LD_LIBRARY_PATH=$JSONFORTRAN/lib:$LD_LIBRARY_PATH
   > ~100 GB across the job (the pressure GMRES Krylov basis is the main consumer).
 - `mpirun -n <ranks>` — Neko partitions the mesh automatically (ParMETIS).
 
+### Finer ~1M-element mesh (`hump_fine.geo`)
+`hump_fine.geo` is a refined version: NxA40 + NxB140 + NxC170 streamwise, Ny48, Nz60,
+gentler wall grading (rGrow 1.08) -> **~1.0 M hex elements** (vs 53,760).
+
+- The `.nmsh` is ~240 MB (too big for git) -> generated separately. Use the prebuilt
+  `hump_fine.nmsh` (scp it over), or regenerate from the `.geo`:
+  ```bash
+  gmsh -3 hump_fine.geo -order 2 -o hump_fine.msh        # needs gmsh
+  gmsh2nek      # answer: 3 / hump_fine / 0 / 1 / "6 7" / hump_fine   (sets z-periodicity)
+  rea2nbin hump_fine.re2 hump_fine.nmsh
+  ```
+  Then set `"mesh_file": "hump_fine.nmsh"` in `heated_hump.case`.
+- **Resource sizing for 1M elements** — point count = 1M x (order+1)^3:
+  | polynomial_order | grid points | suggested ranks (~30k pts/rank) | ~nodes (32/node) |
+  |---|---|---|---|
+  | 5 | 216 M | ~7,000 | ~220 |
+  | 4 | 125 M | ~4,000 | ~125 |
+  | 3 |  64 M | ~2,000 |  ~64 |
+  With 1M elements the resolution comes from the *grid* (h-refinement), so a **lower
+  polynomial order (5, or even 3-4) is the right choice** — order 7 would be 512 M points
+  and need ~500 nodes. On your usual 45-node (1440-rank) allocation, order 5 gives
+  ~150k pts/rank (heavy but in the same ballpark as your bfs runs); use more nodes for speed.
+
+### Reynolds number
+`Re_in` (top of `heated_hump.f90`) is defined on the **hump height** H=1: Re_H = rho*U*H/mu.
+- Coarse-mesh stable value: **Re_in = 500** (Re on the channel height Ly=3 is ~1500).
+- On the 1M-element mesh you can run a genuinely turbulent flow: set **Re_in ~ 5000-10000**
+  (the fine grid + near-wall clustering resolve it; rebuild the driver with `makeneko`).
+
 ## 4. Run (see `job.slurm`)
 Edit `job.slurm` for your scheduler/account/partition, then:
 ```bash
