@@ -63,7 +63,7 @@ module lagrangian_particle_tracking
   use comm, only : pe_rank
   use csv_file, only : csv_file_t
   use vector, only : vector_t
-  use device, only : DEVICE_TO_HOST
+  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   implicit none
   private
 
@@ -709,6 +709,7 @@ contains
        if (time%tstep .le. 2) then
           tau_p = 1.0_rp/18.0_rp * this%particles%rho%x(1) * this%particles%d%x(1)**2
           u%x(1) = v0 * exp(-time%t/tau_p)
+          call u%copy_from(HOST_TO_DEVICE, .true.)
        end if
     end if
 
@@ -719,6 +720,7 @@ contains
     ! pieces to test the accuracy: force exact solution at the first 2 steps
     if (time%tstep .le. 2) then
        x%x(1) = x0 + tau_p * v0 * (1.0_rp - exp(-time%t/tau_p))
+       call x%copy_from(HOST_TO_DEVICE, .true.)
     end if
 
     ! Handle the wall collisions with the pre-step RHS.
