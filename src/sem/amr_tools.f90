@@ -37,6 +37,7 @@ module amr_tools
   use utils, only : NEKO_VARNAME_LEN, neko_error
   use logger, only : neko_log, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
+  use math, only : glmin, glmax, izero
   use vector_list, only : vector_list_t
   use simulation_component, only : simulation_component_t
   use spectral_error, only : spectral_error_t
@@ -179,7 +180,7 @@ module amr_tools
   end type amr_nonconforming_flag_t
 
   ! Specific tools for managing refinement on the user side
-  public :: amr_ref_mark_check, amr_nonconf_int_remove
+  public :: amr_ref_mark_check, amr_nonconf_int_remove, amr_thrsh_get
 
 contains
 
@@ -1279,5 +1280,125 @@ contains
     end if
 
   end subroutine amr_nonconf_int_remove
+
+  !> @brief Find threshold for given element number and error
+  !! @param[in]    el_ref     number of elements to refine/coarsen
+  !! @param[in]    el_dlt     accuracy of element count
+  !! @param[in]    erri       error value per element
+  !! @param[in]    errl       flag marking excluded elements
+  !! @param[in]    lnel       local element number (size of erri and errl)
+  !! @param[in]    nint       interval number (size of work arrays)
+  !! @param[in]    it_max     max number of iterations
+  !! @param[in]    ifcrs      count for coarsening/refinement threshold
+  !! @param[out]   thrsh      error threshold
+  !! @param[out]   count      final element count
+  !! @param[out]   iter       iteration number
+  subroutine amr_thrsh_get(el_ref, el_dlt, erri, errl, lnel, nint, it_max, &
+       ifcrs, thrsh, count, iter)
+    integer, intent(in) :: el_ref, el_dlt, lnel, nint, it_max
+    real(rp), intent(in) :: erri(lnel)
+    logical, intent(in) :: errl(lnel)
+    logical, intent(in) :: ifcrs
+    real(rp), intent(out) ::  thrsh
+    integer, intent(out) :: count, iter
+    integer, dimension(nint) :: work
+    integer :: il, jl, iint, istart, iend, istp, ierr
+    real(rp) :: lmax, lmin, ldlt
+
+    thrsh = 0.0_rp
+    count = 0
+    iter = 0
+
+    ! sanity check
+    if (lnel .lt. 1 .or. nint .lt. 1) call neko_error('AMR tools threshold; &
+         &wrong array sizes')
+
+    ! get global error max/min and interval
+    lmax = glmax(erri, lnel)
+    lmin = glmin(erri, lnel)
+    ldlt = (lmax - lmin) / real(nint)
+    ! sanity check
+    if (ldlt .eq. 0.0_rp) call neko_error('AMR tools threshold; lmax = lmin')
+
+    if (el_ref .le. 0) then
+       if (ifcrs) then
+          thrsh = lmin * 0.9
+       else
+          thrsh = lmax * 1.1
+       end if
+    else
+       ! get count per interval
+       call izero(work, nint)
+       do il = 1, lnel
+          if (errl(il)) then
+             iint = int((erri(il) - lmin) / ldlt) + 1
+             iint = min(iint, nint)
+             work(iint) = work(iint) + 1
+          end if
+       end do
+
+       call MPI_Allreduce(MPI_IN_PLACE, work, nint, MPI_INTEGER, MPI_SUM, &
+            NEKO_COMM, ierr)
+
+       if (ifcrs) then
+          istart = 1
+          iend = nint
+          istp = 1
+       else
+          istart = nint
+          iend = 1
+          istp = -1
+       end if
+
+       ! big loop
+       loop : do jl = 1, it_max
+          iter = iter + 1
+          ! get approximate interval
+          do il = istart, iend, istp
+             count = count + work(il)
+             if (count .ge. el_ref .or. il .eq. iend) exit
+          end do
+
+          ! have we converged?
+          if (count .le. el_ref) then
+             ! exact solution or whole domain within a range
+             thrsh = lmin + ldlt * (il + min(0, istp))
+             exit loop
+          else if (work(il) .le. el_dlt) then
+             ! error smaller than assumed delta
+             il = il - istp
+             thrsh = lmin + ldlt * (il + min(0, istp))
+             exit loop
+          else if(iter .eq. it_max) then
+             ! reached iteration count
+             thrsh = lmin + ldlt * (il + min(0, istp))
+             exit loop
+          else
+             ! correct current element number
+             count = count - work(il)
+             ! update min/max values
+             lmax = lmin + ldlt * il
+             lmin = lmax - ldlt
+             ldlt = (lmax - lmin) / real(nint)
+
+             ! update count per interval
+             call izero(work, nint)
+             do il=1, lnel
+                if (errl(il)) then
+                   iint = int((erri(il) - lmin) / ldlt) + 1
+                   if (iint .gt. 0 .and. iint .le. nint) then
+                      work(iint) = work(iint) + 1
+                   end if
+                end if
+             end do
+             call MPI_Allreduce(MPI_IN_PLACE, work, nint, MPI_INTEGER, &
+                  MPI_SUM, NEKO_COMM, ierr)
+          end if
+       end do loop
+    end if
+
+    thrsh = max(lmin, min(lmax, thrsh))
+
+  end subroutine amr_thrsh_get
 
 end module amr_tools
