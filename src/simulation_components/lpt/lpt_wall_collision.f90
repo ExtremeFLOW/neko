@@ -112,8 +112,12 @@ contains
     integer :: i
     integer :: n
     integer :: facet
+    integer :: candidate
     integer :: el
     integer :: el_mesh
+    integer :: hit_count
+    integer :: hit_idx
+    integer :: hit_facets(6)
     real(kind=rp) :: normal(3)
     real(kind=rp) :: wall_point(3)
     real(kind=rp) :: xyz_old(3)
@@ -151,32 +155,46 @@ contains
        radius = 0.5_rp * d(i)
        xyz_old = [x_old(i), y_old(i), z_old(i)]
        xyz_new = [x(i), y(i), z(i)]
-       facet = identify_wall_facet(wall_facet_mask, dm_Xh, coef, xyz_old, &
-            xyz_new, radius, el_mesh, msh%gdim)
-       if (facet .eq. 0) cycle
 
-       call wall_facet_normal(coef, el_mesh, facet, normal)
-       if (norm2(normal) .le. epsilon(1.0_rp)) cycle
+       hit_count = 0
+       do candidate = 1, 2 * msh%gdim
+          if (wall_facet_is_hit(wall_facet_mask, dm_Xh, coef, xyz_old, &
+               xyz_new, radius, el_mesh, candidate, msh%gdim)) then
+             hit_count = hit_count + 1
+             hit_facets(hit_count) = candidate
+          end if
+       end do
+       if (hit_count .eq. 0) cycle
 
-       call wall_facet_center(dm_Xh, el_mesh, facet, wall_point)
-       call reflect_position(xyz_new, wall_point, normal, radius)
+       do hit_idx = 1, hit_count
+          facet = hit_facets(hit_idx)
+          call wall_facet_normal(coef, el_mesh, facet, normal)
+          if (norm2(normal) .le. epsilon(1.0_rp)) cycle
+
+          call wall_facet_center(dm_Xh, el_mesh, facet, wall_point)
+          call reflect_position(xyz_new, wall_point, normal, radius)
+          call reflect_vector_components(u(i), v(i), w(i), normal)
+          call reflect_vector_components(u_old(i), v_old(i), w_old(i), &
+               normal)
+          call reflect_vector_components(acc_x(i), acc_y(i), acc_z(i), &
+               normal)
+          if (lag_len .ge. 1) then
+             call reflect_vector_components(u_lag(i), v_lag(i), w_lag(i), &
+                  normal)
+             call reflect_vector_components(acc_xlag(i), acc_ylag(i), &
+                  acc_zlag(i), normal)
+          end if
+          if (lag_len .ge. 2) then
+             call reflect_vector_components(u_laglag(i), v_laglag(i), &
+                  w_laglag(i), normal)
+             call reflect_vector_components(acc_xlaglag(i), acc_ylaglag(i), &
+                  acc_zlaglag(i), normal)
+          end if
+       end do
+
        x(i) = xyz_new(1)
        y(i) = xyz_new(2)
        z(i) = xyz_new(3)
-       call reflect_vector_components(u(i), v(i), w(i), normal)
-       call reflect_vector_components(u_old(i), v_old(i), w_old(i), normal)
-       call reflect_vector_components(acc_x(i), acc_y(i), acc_z(i), normal)
-       if (lag_len .ge. 1) then
-          call reflect_vector_components(u_lag(i), v_lag(i), w_lag(i), normal)
-          call reflect_vector_components(acc_xlag(i), acc_ylag(i), &
-               acc_zlag(i), normal)
-       end if
-       if (lag_len .ge. 2) then
-          call reflect_vector_components(u_laglag(i), v_laglag(i), &
-               w_laglag(i), normal)
-          call reflect_vector_components(acc_xlaglag(i), acc_ylaglag(i), &
-               acc_zlaglag(i), normal)
-       end if
     end do
 
     if (allocated(el_list)) deallocate(el_list)
@@ -189,10 +207,9 @@ contains
     call resz%free()
   end subroutine lpt_handle_elastic_wall_collisions
 
-  !> Return the wall facet reached by the particle surface, or 0 if none
-  !! matched.
-  integer function identify_wall_facet(wall_facet_mask, dm_Xh, coef, xyz_old, &
-       xyz_new, radius, el, gdim) result(facet)
+  !> Return true if the particle surface reaches a given wall facet.
+  logical function wall_facet_is_hit(wall_facet_mask, dm_Xh, coef, xyz_old, &
+       xyz_new, radius, el, facet, gdim) result(is_hit)
     logical, intent(in) :: wall_facet_mask(:, :)
     type(dofmap_t), intent(in) :: dm_Xh
     type(coef_t), intent(in) :: coef
@@ -200,6 +217,7 @@ contains
     real(kind=rp), intent(in) :: xyz_new(3)
     real(kind=rp), intent(in) :: radius
     integer, intent(in) :: el
+    integer, intent(in) :: facet
     integer, intent(in) :: gdim
     real(kind=rp), parameter :: tol = 1.0e-8_rp
     real(kind=rp) :: normal(3)
@@ -207,30 +225,24 @@ contains
     real(kind=rp) :: dist_old
     real(kind=rp) :: dist_new
     real(kind=rp) :: penetration
-    real(kind=rp) :: best_penetration
-    integer :: candidate
 
-    facet = 0
-    best_penetration = 0.0_rp
+    is_hit = .false.
 
-    do candidate = 1, 2 * gdim
-       if (.not. wall_facet_mask(candidate, el)) cycle
+    if (facet .lt. 1 .or. facet .gt. 2 * gdim) return
+    if (.not. wall_facet_mask(facet, el)) return
 
-       call wall_facet_normal(coef, el, candidate, normal)
-       if (norm2(normal) .le. epsilon(1.0_rp)) cycle
-       call wall_facet_center(dm_Xh, el, candidate, wall_point)
-       dist_old = signed_plane_distance(xyz_old, wall_point, normal)
-       dist_new = signed_plane_distance(xyz_new, wall_point, normal)
-       penetration = dist_new + radius
+    call wall_facet_normal(coef, el, facet, normal)
+    if (norm2(normal) .le. epsilon(1.0_rp)) return
+    call wall_facet_center(dm_Xh, el, facet, wall_point)
+    dist_old = signed_plane_distance(xyz_old, wall_point, normal)
+    dist_new = signed_plane_distance(xyz_new, wall_point, normal)
+    penetration = dist_new + radius
 
-       if (penetration .le. tol) cycle
-       if (dist_new .le. dist_old + tol) cycle
-       if (penetration .le. best_penetration) cycle
+    if (penetration .le. tol) return
+    if (dist_new .le. dist_old + tol) return
 
-       facet = candidate
-       best_penetration = penetration
-    end do
-  end function identify_wall_facet
+    is_hit = .true.
+  end function wall_facet_is_hit
 
   !> Use the face-center SEM normal as the reflection normal.
   subroutine wall_facet_normal(coef, el, facet, normal)
