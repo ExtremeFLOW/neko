@@ -661,13 +661,13 @@ contains
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(vector_t) :: x_old, y_old, z_old, u_old, v_old, w_old
-   !  ! pieces to test the accuracy: force exact solution at the first 2 steps
-   !  real(kind=rp) :: v0
-   !  real(kind=rp) :: x0
-   !  real(kind=rp) :: tau_p
+    ! pieces to test the accuracy: force exact solution at the first 2 steps
+    real(kind=rp) :: v0
+    real(kind=rp) :: x0
+    real(kind=rp) :: tau_p
 
-   !  v0 = 1.0_rp
-   !  x0 = 0.0_rp
+    v0 = 1.0_rp
+    x0 = 0.0_rp
 ! write(*,*) "rank: ", pe_rank, ", particle ids: ", this%particles%ids
 
     associate(x => this%particles%x, y => this%particles%y, &
@@ -705,33 +705,33 @@ contains
        call this%ODE_integrate_ab_3c(u, v, w, acc_x, acc_y, acc_z, &
             acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
             acc_zlaglag, n)
-      !  ! pieces to test the accuracy: force exact solution at the first 2 steps
-      !  if (time%tstep .le. 2) then
-      !     tau_p = 1.0_rp/18.0_rp * this%particles%rho%x(1) * this%particles%d%x(1)**2
-      !     u%x(1) = v0 * exp(-time%t/tau_p)
-      !  end if
+       ! pieces to test the accuracy: force exact solution at the first 2 steps
+       if (time%tstep .le. 2) then
+          tau_p = 1.0_rp/18.0_rp * this%particles%rho%x(1) * this%particles%d%x(1)**2
+          u%x(1) = v0 * exp(-time%t/tau_p)
+       end if
     end if
 
     ! Advance the coordinates using the velocity history available at step
     ! entry, before the fluid solve refreshes the current RHS.
     call this%ODE_integrate_ab_3c(x, y, z, u_old, v_old, w_old, &
          u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, n)
-   !  ! pieces to test the accuracy: force exact solution at the first 2 steps
-   !  if (time%tstep .le. 2) then
-   !     x%x(1) = x0 + tau_p * v0 * (1.0_rp - exp(-time%t/tau_p))
-   !  end if
+    ! pieces to test the accuracy: force exact solution at the first 2 steps
+    if (time%tstep .le. 2) then
+       x%x(1) = x0 + tau_p * v0 * (1.0_rp - exp(-time%t/tau_p))
+    end if
 
     ! Handle the wall collisions with the pre-step RHS.
     if (this%inertia .and. this%elastic_wall_enabled) then
        call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
-            this%dm_Xh, this%coef, this%wall_facet_mask, x_old%x, y_old%x, z_old%x, &
-            x%x, y%x, z%x, &
-            this%particles%d%x, &
-            u%x, v%x, w%x, &
-            u_lag%x, v_lag%x, w_lag%x, u_laglag%x, v_laglag%x, w_laglag%x, &
-            acc_xlag%x, acc_ylag%x, acc_zlag%x, acc_xlaglag%x, acc_ylaglag%x, &
-            acc_zlaglag%x, &
-            u_old%x, v_old%x, w_old%x, acc_x%x, acc_y%x, acc_z%x, this%lag_len)
+            this%dm_Xh, this%coef, this%wall_facet_mask, x_old, y_old, z_old, &
+            x, y, z, &
+            this%particles%d, &
+            u, v, w, &
+            u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
+            acc_zlaglag, &
+            u_old, v_old, w_old, acc_x, acc_y, acc_z, this%lag_len)
     end if
 
     ! Update lag histories for the next Adams-Bashforth step.

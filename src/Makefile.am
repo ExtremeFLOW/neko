@@ -361,6 +361,7 @@ neko_fortran_SOURCES = \
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/lpt/bcknd/cpu/lpt_periodic_bc_cpu.f90\
+	simulation_components/lpt/bcknd/cpu/lpt_wall_collision_cpu.f90\
 	simulation_components/lpt/bcknd/device/lpt_periodic_bc_device.F90\
 	simulation_components/lpt/lpt_periodic_bc.f90\
 	simulation_components/lpt/lpt_output.f90\
