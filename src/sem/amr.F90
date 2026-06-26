@@ -38,6 +38,7 @@ module amr
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG, LOG_SIZE
   use utils, only : neko_warning, NEKO_FNAME_LEN
   use profiler, only : profiler_start_region, profiler_end_region
+  use math, only : glimax, glimin
   use file, only : file_t
   use time_state, only : time_state_t
   use user_intf, only : user_t
@@ -49,7 +50,8 @@ module amr
   use sem, only : sem_t
   use amr_reconstruct, only : amr_reconstruct_t
   use amr_restart_component, only : amr_restart_component_t
-  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_LOGICAL, MPI_LOR
+  use mpi_f08, only : MPI_Allreduce, MPI_Wtime, MPI_IN_PLACE, MPI_LOGICAL, &
+       MPI_LOR
 
   implicit none
   private
@@ -290,7 +292,8 @@ contains
     integer, allocatable, dimension(:) :: ref_level, ref_mark
     integer, allocatable, dimension(:, :) :: family
     logical :: ifrefine, ifmod
-    integer :: nelt, ierr
+    integer :: nelt, gmark_max, gmark_min, ierr
+    real(kind=dp) :: start_time, end_time
     character(len=LOG_SIZE) :: log_buf
 
     ! For AMR mesh manager only
@@ -300,6 +303,10 @@ contains
        type is (mesh_manager_transfer_p4est_t)
           nelt = transfer%nelt_neko
        end select
+
+       call neko_log%begin()
+       start_time = MPI_WTIME()
+       call neko_log%section("Mesh refinement marking")
 
        ! get refinement information
        allocate(ref_level(nelt), ref_mark(nelt), family(2, nelt))
@@ -315,7 +322,19 @@ contains
             NEKO_COMM, ierr)
 
        if (ifrefine) then
-          call neko_log%begin()
+          gmark_max = glimax(ref_mark, nelt)
+          gmark_min = glimin(ref_mark, nelt)
+          if (gmark_max .eq. AMR_RM_NONE .and. gmark_min .eq. AMR_RM_NONE) &
+               ifrefine = .false.
+       end if
+
+       end_time = MPI_WTIME()
+       write(log_buf, '(A,3X,E15.7)') 'Refinement marking step time (s):', &
+            end_time - start_time
+       call neko_log%end_section(log_buf)
+
+       if (ifrefine) then
+          start_time = MPI_WTIME()
           call neko_log%section("Mesh refinement/coarsening")
 
           call profiler_start_region("Mesh refine/coarsen", 30)
@@ -353,9 +372,12 @@ contains
 
           call profiler_end_region("Mesh refine/coarsen", 30)
 
-          call neko_log%end_section()
-          call neko_log%end()
+          end_time = MPI_WTIME()
+          write(log_buf, '(A,3X,E15.7)') 'Refinement step time (s):', &
+               end_time - start_time
+          call neko_log%end_section(log_buf)
        end if
+       call neko_log%end()
 
        deallocate(ref_level, ref_mark, family)
     end if
