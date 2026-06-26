@@ -101,7 +101,7 @@ module amr_tools
        1, 2, 2,  3, 2, 2,   2, 1, 2,  2, 3, 2,   2, 2, 1,  2, 2, 3], shape(fop))
 
   ! edge vertices
-  integer, public, parameter, dimension(2, 12) :: vedge  = reshape([ &
+  integer, public, parameter, dimension(2, nedg) :: vedge  = reshape([ &
        1, 2,  3, 4,  5, 6,  7, 8,  1, 3,  2, 4, &
        5, 7,  6, 8,  1, 5,  2, 6,  3, 7,  4, 8], shape(vedge))
 
@@ -159,6 +159,24 @@ module amr_tools
      !> AMR restart
      procedure, pass(this) :: amr_restart => amr_spectral_error_amr_restart
   end type amr_spectral_error_t
+
+  !> Flag nonconforming elements, faces, edges and vertices based on gs
+  !! information
+  type, public :: amr_nonconforming_flag_t
+     !> Nonconforming element flag
+     logical, allocatable, dimension(:) :: ifelm
+     !> Nonconforming vertex flag
+     logical, allocatable, dimension(:, :) :: ifvrt
+     !> Nonconforming edge flag
+     logical, allocatable, dimension(:, :) :: ifedg
+     !> Nonconforming face flag
+     logical, allocatable, dimension(:, :) :: iffcs
+   contains
+     !> Set nonconforming flag
+     procedure, pass(this) :: init => amr_nonconforming_flag_init
+     !> Free type
+     procedure, pass(this) :: free => amr_nonconforming_flag_free
+  end type amr_nonconforming_flag_t
 
   ! Specific tools for managing refinement on the user side
   public :: amr_ref_mark_check, amr_nonconf_int_remove
@@ -480,6 +498,73 @@ contains
 
   end subroutine amr_spectral_error_amr_restart
 
+
+  !> Set nonconforming flag
+  !! @param[in]   gs            Gather-scatter communicator
+  subroutine amr_nonconforming_flag_init(this, grid_min)
+    class(amr_nonconforming_flag_t), intent(inout) :: this
+    type(sem_lx_t), intent(inout) :: grid_min
+    real(rp), allocatable, dimension(:, :, :, :) :: vec_rp
+    integer, allocatable, dimension(:, :, :, :) :: vec_int
+    integer :: nelv, itmp, il, jl
+
+    call this%free()
+
+    nelv = grid_min%gs_Xh%dofmap%msh%nelv
+    if (lx .ne. grid_min%gs_Xh%dofmap%Xh%lx) &
+         call neko_error('AMR tools nonc. flag; inconsistent space size')
+
+    allocate(vec_rp(lx, lx, lx, nelv), vec_int(lx, lx, lx, nelv), &
+         this%ifelm(nelv), this%ifvrt(nvrt, nelv), this%ifedg(nedg, nelv), &
+         this%iffcs(nfcs, nelv))
+
+    vec_rp(:, :, :, :) = 1.0_rp
+    call grid_min%gs_Xh%interp%zero_children(vec_rp)
+    vec_int = nint(vec_rp)
+
+    do il = 1, nelv
+       do jl = 1, nvrt
+          call amr_vertex_get(vec_int(:, :, :, il), jl, itmp)
+          if (itmp .lt. 0) then
+             this%ifvrt(jl, il) = .true.
+          else
+             this%ifvrt(jl, il) = .false.
+          end if
+       end do
+       do jl = 1, nedg
+          call amr_edge_get(vec_int(:, :, :, il), jl, itmp)
+          if (itmp .eq. 0) then
+             this%ifedg(jl, il) = .true.
+          else
+             this%ifedg(jl, il) = .false.
+          end if
+       end do
+       do jl = 1, nfcs
+          call amr_face_get(vec_int(:, :, :, il), jl, itmp)
+          if (itmp .eq. 0) then
+             this%iffcs(jl, il) = .true.
+          else
+             this%iffcs(jl, il) = .false.
+          end if
+       end do
+       this%ifelm(il) = any(this%ifvrt(:, il))
+    end do
+
+    deallocate(vec_rp, vec_int)
+
+  end subroutine amr_nonconforming_flag_init
+
+  !> Free type
+  subroutine amr_nonconforming_flag_free(this)
+    class(amr_nonconforming_flag_t), intent(inout) :: this
+
+    if (allocated(this%ifelm)) deallocate(this%ifelm)
+    if (allocated(this%ifvrt)) deallocate(this%ifvrt)
+    if (allocated(this%ifedg)) deallocate(this%ifedg)
+    if (allocated(this%iffcs)) deallocate(this%iffcs)
+
+  end subroutine amr_nonconforming_flag_free
+
   ! Set vertex in the box
   subroutine amr_vertex_set(box, ivrt, const)
     integer, dimension(lx, lx, lx), intent(inout) :: box
@@ -676,11 +761,19 @@ contains
           end select
        end do
 
-       ! Distribute element refinement level
+       ! Distribute element refinement level; special treatment of family
+       ! members
        do il = 1, nelv
-          exchange(:, :, :, il) = real(level_tmp(il), rp)
+          if (ref_family(1, il) .gt. 0) then
+             level_max(:, :, :, 1) = 0
+             ! set vertex opposite to the one shared in the family
+             call amr_vertex_set(level_max(:, :, :, 1), 9 - ref_family(2, il), &
+                  level_tmp(il))
+             exchange(:, :, :, il) = real(level_max(:, :, :, 1), rp)
+          else
+             exchange(:, :, :, il) = real(level_tmp(il), rp)
+          end if
        end do
-       ! possible problem for nonconforming interfaces; vertices/edges
        call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
        level_max = nint(exchange)
 
@@ -727,15 +820,17 @@ contains
   !! @param[in]     nelv        local element number
   !! @param[in]     ref_level   element refinement level (current or predicted)
   !! @param[in]     ifcurrent   is a refinement level a current one
+  !! @param[in]     flag_nonc   flag of nonconforming objects
   !! @param[in]     flag_exc    flag marking excluded elements
   !! @param[inout]  ref_mark    refinement flag
   !! @param[inout]  grid_min    minimal grid
   !! @param[out]    nmod        global number of modified elements
-  subroutine amr_ref_connect_fix(nelv, ref_level, ifcurrent, flag_exc, &
-       ref_mark, grid_min, nmod)
+  subroutine amr_ref_connect_fix(nelv, ref_level, ifcurrent, flag_nonc, &
+       flag_exc, ref_mark, grid_min, nmod)
     integer, intent(in) :: nelv
     integer, dimension(nelv), intent(in) :: ref_level
     logical, intent(in) :: ifcurrent
+    type(amr_nonconforming_flag_t), intent(in) :: flag_nonc
     logical, dimension(nelv), intent(inout) :: flag_exc
     integer, dimension(nelv), intent(inout) :: ref_mark
     type(sem_lx_t), intent(inout) :: grid_min
@@ -747,23 +842,15 @@ contains
     integer, dimension(3) :: fvert
     ! edge sharing faces
     integer, dimension(2) :: fedge
-    integer :: ntot, mult_min_vrt, mult_min_edg, lmax, lmin, itmp, ierr, il, jl
+    integer :: ntot, lmax, lmin, itmp, ierr, il, jl
     logical, dimension(nvrt) :: ifvert
+    logical :: refine
 
     ! NOTICE. Following algorithm is not fully general, as it e.g., may not
     ! work with conforming edges with multiplicity higher than 6.
 
     ntot = lx * lx* lx * nelv
     nmod  = 0
-    if (ifcurrent) then
-       ! take into account nonconforming faces
-       mult_min_edg = 6
-       mult_min_vrt = 7
-    else
-       ! conforming faces only
-       mult_min_edg = 2
-       mult_min_vrt = 2
-    end if
 
     ! Distribute element refinement level
     do il = 1, nelv
@@ -778,6 +865,8 @@ contains
     level_max = nint(exchange)
 
     ! Get multiplicity of highest refinement level through edges and vertices
+    ! "Conforming" interfaces and elements with lowest refinement level are not
+    ! counted.
     mult(:, :, :, :) = 0
     do il = 1, nelv
        ! Skip excluded elements
@@ -817,16 +906,24 @@ contains
           do jl = 1, nedg
              call amr_edge_get(level_max(:, :, :, il), jl, lmax)
              call amr_edge_get(level_min(:, :, :, il), jl, lmin)
-             call amr_edge_get(mult(:, :, :, il), jl, itmp)
              call amr_edge_face_get(level_min(:, :, :, il), jl, fedge)
              if (lmax .ne. lmin .and. ref_level(il) .gt. lmin .and. &
-                  itmp .gt. mult_min_edg .and. &
                   maxval(fedge) .lt. ref_level(il)) then
-                flag_exc(il) = .true.
-                ifvert(vedge(1, jl)) = .false.
-                ifvert(vedge(2, jl)) = .false.
-                call amr_edge_face_set(local_mark(:, :, :, il), jl, &
-                     amr_flg_h_ref)
+                refine = .false.
+                ! real nonconforming and conforming edges treated differently
+                call amr_edge_get(mult(:, :, :, il), jl, itmp)
+                if (flag_nonc%ifedg(jl, il)) then
+                   if (itmp .gt. 6) refine = .true.
+                else
+                   if (.not. ifcurrent .and. itmp .gt. 1) refine = .true.
+                end if
+                if (refine) then
+                   flag_exc(il) = .true.
+                   ifvert(vedge(1, jl)) = .false.
+                   ifvert(vedge(2, jl)) = .false.
+                   call amr_edge_face_set(local_mark(:, :, :, il), jl, &
+                        amr_flg_h_ref)
+                end if
              end if
           end do
 
@@ -836,14 +933,23 @@ contains
              if (ifvert(jl)) then
                 call amr_vertex_get(level_max(:, :, :, il), jl, lmax)
                 call amr_vertex_get(level_min(:, :, :, il), jl, lmin)
-                call amr_vertex_get(mult(:, :, :, il), jl, itmp)
                 call amr_vertex_face_get(level_min(:, :, :, il), jl, fvert)
                 if (lmax .ne. lmin .and. ref_level(il) .gt. lmin .and. &
-                     itmp .gt. mult_min_vrt .and.&
                      maxval(fvert) .lt. ref_level(il)) then
-                   flag_exc(il) = .true.
-                   call amr_vertex_face_set(local_mark(:, :, :, il), jl, &
-                        amr_flg_h_ref)
+                   refine = .false.
+                   ! real nonconforming and conforming vertices treated
+                   ! differently
+                   call amr_vertex_get(mult(:, :, :, il), jl, itmp)
+                   if (flag_nonc%ifvrt(jl, il)) then
+                      if (itmp .gt. 7) refine = .true.
+                   else
+                      if (.not. ifcurrent .and. itmp .gt. 1) refine = .true.
+                   end if
+                   if (refine) then
+                      flag_exc(il) = .true.
+                      call amr_vertex_face_set(local_mark(:, :, :, il), jl, &
+                           amr_flg_h_ref)
+                   end if
                 end if
              end if
           end do
@@ -924,7 +1030,8 @@ contains
     do il = 1, nelv
        exchange(:, :, :, il) = real(ref_level(il), rp)
     end do
-    ! possible problem for nonconforming interfaces; faces
+    ! possible problem for nonconforming interfaces causing unnecessary
+    ! refinements; faces
     call grid_min%gs_Xh%gs_op_vector(exchange, ntot, GS_OP_MAX)
     level_max = nint(exchange)
 
@@ -977,17 +1084,13 @@ contains
     type(sem_lx_t), intent(inout) :: grid_min
     integer, intent(inout) ::  iter
     integer, intent(out) :: nmod
+    type(amr_nonconforming_flag_t) :: flag_nonc
     integer, dimension(nelv) :: level_tmp
     logical, dimension(nelv) :: flag_exc
     integer :: ntot, iter_max, iter_balance, nmod_iter, itmp, il
     integer, dimension(2) :: nmod2
     character(len=LOG_SIZE) :: log_buf
     logical :: refine
-
-    ntot = lx * lx* lx * nelv
-    nmod  = 0
-    iter_max = iter
-    iter = 0
 
     ! Pressure preconditioner was found to be sensitive to the refinement
     ! topology, so some of the configurations should be corrected. The goal
@@ -998,13 +1101,20 @@ contains
     ! possible constraints, but to fix the most obvious problems. In general
     ! order of applying operations can matter.
 
+    ntot = lx * lx* lx * nelv
+    nmod  = 0
+    iter_max = iter
+    iter = 0
+
+    call flag_nonc%init(grid_min)
+
     flag_exc(:) = .false.
 
     ! Connect through face refinement regions sharing edge or vertex
     ! Start with current refinement level to remove existing problems
     ! This step can be exact
-    call amr_ref_connect_fix(nelv, ref_level, .true., flag_exc, ref_mark, &
-         grid_min, itmp)
+    call amr_ref_connect_fix(nelv, ref_level, .true., flag_nonc, flag_exc, &
+         ref_mark, grid_min, itmp)
     nmod = nmod + itmp
 
     do
@@ -1035,7 +1145,7 @@ contains
              level_tmp(il) = ref_level(il)
           end select
        end do
-       call amr_ref_connect_fix(nelv, level_tmp, .false., flag_exc, &
+       call amr_ref_connect_fix(nelv, level_tmp, .false., flag_nonc, flag_exc, &
             ref_mark, grid_min, itmp)
        nmod_iter = nmod_iter + itmp
 
@@ -1067,6 +1177,8 @@ contains
           end if
        end if
     end do
+
+    call flag_nonc%free()
 
   end subroutine amr_ref_mark_check
 
