@@ -41,6 +41,7 @@ module device_coef
   public :: device_coef_generate_dxydrst
   public :: device_coef_generate_mass
   public :: device_coef_generate_area_and_normal
+  public :: device_coef_get_normal
 
 #ifdef HAVE_HIP
   interface
@@ -104,6 +105,19 @@ module device_coef
        integer(c_int) :: lx, nel
        real(kind=c_rp), value :: eps
      end subroutine hip_coef_generate_area_and_normal
+  end interface
+
+  interface
+     subroutine hip_coef_get_normal(normal_x, normal_y, normal_z, nx, ny, nz, &
+          i_idx, j_idx, k_idx, e_idx, facet, lx, n) &
+          bind(c, name='hip_coef_get_normal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: normal_x, normal_y, normal_z
+       type(c_ptr), value :: nx, ny, nz
+       type(c_ptr), value :: i_idx, j_idx, k_idx, e_idx, facet
+       integer(c_int) :: lx, n
+     end subroutine hip_coef_get_normal
   end interface
 
 #elif HAVE_CUDA
@@ -170,6 +184,19 @@ module device_coef
      end subroutine cuda_coef_generate_area_and_normal
   end interface
 
+  interface
+     subroutine cuda_coef_get_normal(normal_x, normal_y, normal_z, nx, ny, nz, &
+          i_idx, j_idx, k_idx, e_idx, facet, lx, n) &
+          bind(c, name='cuda_coef_get_normal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: normal_x, normal_y, normal_z
+       type(c_ptr), value :: nx, ny, nz
+       type(c_ptr), value :: i_idx, j_idx, k_idx, e_idx, facet
+       integer(c_int) :: lx, n
+     end subroutine cuda_coef_get_normal
+  end interface
+
 #elif HAVE_OPENCL
   interface
      subroutine opencl_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
@@ -232,6 +259,19 @@ module device_coef
        integer(c_int) :: lx, nel
        real(kind=c_rp), value :: eps
      end subroutine opencl_coef_generate_area_and_normal
+  end interface
+
+  interface
+     subroutine opencl_coef_get_normal(normal_x, normal_y, normal_z, &
+          nx, ny, nz, i_idx, j_idx, k_idx, e_idx, facet, lx, n) &
+          bind(c, name='opencl_coef_get_normal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: normal_x, normal_y, normal_z
+       type(c_ptr), value :: nx, ny, nz
+       type(c_ptr), value :: i_idx, j_idx, k_idx, e_idx, facet
+       integer(c_int) :: lx, n
+     end subroutine opencl_coef_get_normal
   end interface
 
 #endif
@@ -354,5 +394,29 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_coef_generate_area_and_normal
+
+  subroutine device_coef_get_normal(normal_x_d, normal_y_d, normal_z_d, &
+       nx_d, ny_d, nz_d, i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d, lx, n)
+    type(c_ptr) :: normal_x_d, normal_y_d, normal_z_d
+    type(c_ptr) :: nx_d, ny_d, nz_d
+    type(c_ptr) :: i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d
+    integer :: lx, n
+
+#ifdef HAVE_HIP
+    call hip_coef_get_normal(normal_x_d, normal_y_d, normal_z_d, &
+         nx_d, ny_d, nz_d, i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d, &
+         lx, n)
+#elif HAVE_CUDA
+    call cuda_coef_get_normal(normal_x_d, normal_y_d, normal_z_d, &
+         nx_d, ny_d, nz_d, i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d, &
+         lx, n)
+#elif HAVE_OPENCL
+    call opencl_coef_get_normal(normal_x_d, normal_y_d, normal_z_d, &
+         nx_d, ny_d, nz_d, i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d, &
+         lx, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_coef_get_normal
 
 end module device_coef
