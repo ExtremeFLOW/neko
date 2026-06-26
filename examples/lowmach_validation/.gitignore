@@ -1,0 +1,11 @@
+# generated outputs / binaries (regenerable; not committed)
+*.log
+field0.*
+qt_out0.*
+*.fld
+*.chkp
+neko
+makeneko.out
+# leftover test meshes (the committed mesh is lowMach_nek.nmsh)
+box.nmsh
+box3d.nmsh
