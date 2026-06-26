@@ -58,8 +58,8 @@ extern "C" {
       return;
     }
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const dim3 nthrds(256, 1, 1);
+    const dim3 nblcks(((*n) + 256 - 1) / 256, 1, 1);
 
     lpt_handle_elastic_wall_collisions_kernel<real>
       <<<nblcks, nthrds, 0, strm>>>(
