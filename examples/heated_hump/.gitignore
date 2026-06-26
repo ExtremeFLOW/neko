@@ -1,0 +1,16 @@
+# mesh intermediates (regenerate from hump.geo via gmsh + gmsh2nek + rea2nbin)
+*.msh
+*.re2
+*.co2
+# coarse local-test mesh (regenerable)
+hump_coarse.*
+# run outputs / build artifacts
+field0.*
+fluid*.chkp
+bdry0.*
+*.nek5000
+*.log
+neko
+*.mod
+*.smod
+makeneko.out
