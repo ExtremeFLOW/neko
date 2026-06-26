@@ -40,10 +40,15 @@
 !!     inside step(). A Q_T (thermal divergence) field is allocated and
 !!     passed to the residuals.
 !!
-!! Physics content as of this commit: Q_T is held at zero and the residual
-!! bodies reproduce pnpn_res_cpu exactly, so enabling low-Mach still gives
-!! bit-identical output while the infrastructure is in place to add the Q_T
-!! source and variable-property stress terms in subsequent commits.
+!! Physics content: Q_T = div(k grad T)/(rho cp T) is computed from the
+!! temperature field and (i) drives the continuity constraint div u = Q_T via
+!! a source in the pressure residual, and (ii) appears in the momentum
+!! residual through the dilatation stress -(2/3) grad(mu Q_T). The deviatoric
+!! stress div[mu(grad u + grad u^T)] is handled by the coupled full-stress
+!! operator, so low_mach requires full_stress_formulation = true.
+!!
+!! Both the pressure and velocity residuals carry the variable-property viscous
+!! stress and the Q_T terms. Known follow-up: there is no device backend yet.
 module fluid_lowmach_pnpn
   use num_types, only : rp
   use fluid_pnpn, only : fluid_pnpn_t
@@ -57,16 +62,13 @@ module fluid_lowmach_pnpn
   use checkpoint, only : chkp_t
   use utils, only : neko_error
   use krylov, only : ksp_monitor_t
-  use bc, only : bc_t
-  use non_normal, only : non_normal_t
-  use file, only : file_t
   use time_state, only : time_state_t
   use time_step_controller, only : time_step_controller_t
   use profiler, only : profiler_start_region, profiler_end_region
-  use field_math, only : field_add2
-  use field_series, only : field_series_t
-  use operators, only : ortho, rotate_cyc, opgrad, cdtp
-  use opr_device, only : device_ortho
+  use field_math, only : field_add2, field_copy
+  use math, only : glsc2, glmin, glmax, rzero
+  use, intrinsic :: iso_c_binding, only : c_ptr
+  use operators, only : ortho, rotate_cyc, opgrad, cdtp, dudxyz
   use scratch_registry, only : neko_scratch_registry
   use device, only : device_event_sync, glb_cmd_event, device_memcpy, &
        HOST_TO_DEVICE
@@ -81,29 +83,50 @@ module fluid_lowmach_pnpn
   private
 
   type, public, extends(fluid_pnpn_t) :: fluid_lowmach_pnpn_t
-     !> Master switch. When false, step() runs as vanilla pnpn.
-     logical :: low_mach_enabled = .false.
      !> Thermodynamic (background) pressure — constant for open domains.
      real(kind=rp) :: P0 = 1.0_rp
      !> Specific gas constant R/M.
      real(kind=rp) :: R_specific = 1.0_rp
+     !> Temperature clamp for the EOS (guards rho against unphysical T).
+     real(kind=rp) :: T_eos_min = tiny(1.0_rp)
+     real(kind=rp) :: T_eos_max = huge(1.0_rp)
      !> Thermal conductivity used in Q_T = div(k grad T) / (rho cp T).
      real(kind=rp) :: k_cond = 1.0_rp
      !> Specific heat at constant pressure used in the same expression.
      real(kind=rp) :: cp = 1.0_rp
+     !> Optional built-in temperature-dependent property model. One of
+     !! 'none' (default; properties come from the user material_properties
+     !! hook), 'sutherland', or 'power_law'. When set, mu(T) and lambda(T) are
+     !! filled from the law each step, so a user hook is not required.
+     !!   power_law:   q(T) = q_ref (T/T_ref)**exponent
+     !!   sutherland:  q(T) = q_ref (T/T_ref)**1.5 (T_ref + S_q)/(T + S_q)
+     character(len=:), allocatable :: property_model
+     real(kind=rp) :: prop_mu_ref = 1.0_rp
+     real(kind=rp) :: prop_lambda_ref = 1.0_rp
+     real(kind=rp) :: prop_T_ref = 1.0_rp
+     real(kind=rp) :: prop_S_mu = 0.0_rp
+     real(kind=rp) :: prop_S_lambda = 0.0_rp
+     real(kind=rp) :: prop_exponent = 0.7_rp
      !> Name of the temperature field in the global registry (default "s").
      character(len=:), allocatable :: T_field_name
      !> Pointer to the temperature field, resolved lazily on first step.
      type(field_t), pointer :: T_ptr => null()
-     !> Thermal divergence source field. Currently held at zero; subsequent
-     !! commits will populate it from the energy equation.
-     type(field_t) :: Q_T_field
+     !> Pointers to the scalar's conductivity (lambda) and cp fields, resolved
+     !! lazily. Using these (instead of the constant k_cond/cp) makes Q_T
+     !! consistent with the energy equation the scalar actually solves
+     !! (matches Nek5000 userqtl_scig, which uses vdiff/vtrans of the T field).
+     type(field_t), pointer :: lambda_ptr => null()
+     type(field_t), pointer :: cp_ptr => null()
+     !> Thermal divergence source field, Q_T = div(k grad T)/(rho cp T),
+     !! populated each step from the temperature field by lowmach_update_Q_T.
+     type(field_t), pointer :: Q_T_field => null()
      !> Low-Mach pressure residual operator.
      class(lowmach_prs_res_t), allocatable :: lm_prs_res
      !> Low-Mach velocity residual operator.
      class(lowmach_vel_res_t), allocatable :: lm_vel_res
    contains
      procedure, pass(this) :: init => fluid_lowmach_pnpn_init
+     procedure, pass(this) :: free => fluid_lowmach_pnpn_free
      procedure, pass(this) :: step => fluid_lowmach_pnpn_step
   end type fluid_lowmach_pnpn_t
 
@@ -123,16 +146,26 @@ contains
     character(len=:), allocatable :: tname
     integer :: i, n
 
+    ! Low-Mach is a variable-density scheme whose momentum stress is assembled
+    ! with the coupled full-stress operator, which in turn requires a coupled
+    ! velocity solver. Both are mandatory, so force them here rather than make
+    ! the user set them (and risk a silently inconsistent configuration). They
+    ! must be forced BEFORE the parent init, which builds Ax_vel from these keys.
+    call json_force_logical(params, 'case.fluid.full_stress_formulation', .true.)
+    call json_force_string(params, 'case.fluid.velocity_solver.type', 'coupled_cg')
+
     ! Run the standard Pn-Pn init to set up mesh, dofmap, fields, BCs, solvers.
     call this%fluid_pnpn_t%init(msh, lx, params, user, chkp)
 
     ! Low-Mach parameters — all under case.fluid.low_mach, all optional.
-    call json_get_or_default(params, 'case.fluid.low_mach.enabled', &
-         this%low_mach_enabled, .false.)
     call json_get_or_default(params, 'case.fluid.low_mach.P0', &
          this%P0, 1.0_rp)
     call json_get_or_default(params, 'case.fluid.low_mach.R_specific', &
          this%R_specific, 1.0_rp)
+    call json_get_or_default(params, 'case.fluid.low_mach.T_eos_min', &
+         this%T_eos_min, tiny(1.0_rp))
+    call json_get_or_default(params, 'case.fluid.low_mach.T_eos_max', &
+         this%T_eos_max, huge(1.0_rp))
     call json_get_or_default(params, 'case.fluid.low_mach.k_conductivity', &
          this%k_cond, 1.0_rp)
     call json_get_or_default(params, 'case.fluid.low_mach.cp', &
@@ -141,12 +174,42 @@ contains
          tname, 's')
     this%T_field_name = tname
 
-    if (this%low_mach_enabled .and. NEKO_BCKND_DEVICE .eq. 1) then
+    ! Optional built-in property model (mu(T), lambda(T)). Default 'none' keeps
+    ! the user material_properties hook as the source of properties.
+    call json_get_or_default(params, &
+         'case.fluid.low_mach.property_model.type', this%property_model, 'none')
+    call json_get_or_default(params, &
+         'case.fluid.low_mach.property_model.mu_ref', this%prop_mu_ref, 1.0_rp)
+    call json_get_or_default(params, &
+         'case.fluid.low_mach.property_model.lambda_ref', &
+         this%prop_lambda_ref, 1.0_rp)
+    call json_get_or_default(params, &
+         'case.fluid.low_mach.property_model.T_ref', this%prop_T_ref, 1.0_rp)
+    call json_get_or_default(params, &
+         'case.fluid.low_mach.property_model.S_mu', this%prop_S_mu, 0.0_rp)
+    call json_get_or_default(params, &
+         'case.fluid.low_mach.property_model.S_lambda', &
+         this%prop_S_lambda, 0.0_rp)
+    call json_get_or_default(params, &
+         'case.fluid.low_mach.property_model.exponent', &
+         this%prop_exponent, 0.7_rp)
+
+    if (this%property_model .ne. 'none' .and. &
+         this%property_model .ne. 'sutherland' .and. &
+         this%property_model .ne. 'power_law') then
+       call neko_error("fluid_lowmach_pnpn: unknown property_model.type '" // &
+            this%property_model // "' (use none, sutherland or power_law)")
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_error("fluid_lowmach_pnpn: device backend not yet implemented")
     end if
 
     ! Allocate Q_T field (zero-initialised) and the residual operators.
-    call this%Q_T_field%init(this%dm_Xh, 'Q_T')
+    ! Register it so it is readable by user hooks / the field writer (e.g. for
+    ! the lowMach_test QTL validation).
+    call neko_registry%add_field(this%dm_Xh, 'Q_T', ignore_existing = .true.)
+    this%Q_T_field => neko_registry%get_field('Q_T')
     n = this%dm_Xh%size()
     do i = 1, n
        this%Q_T_field%x(i,1,1,1) = 0.0_rp
@@ -155,22 +218,60 @@ contains
     call lowmach_prs_res_factory(this%lm_prs_res)
     call lowmach_vel_res_factory(this%lm_vel_res)
 
-    if (this%low_mach_enabled) then
-       call neko_log%section('Low-Mach')
-       write(log_buf, '(A,E15.7)') 'P0         : ', this%P0
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,E15.7)') 'R_specific : ', this%R_specific
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,E15.7)') 'k_cond     : ', this%k_cond
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,E15.7)') 'cp         : ', this%cp
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,A)')     'T field    : ', trim(this%T_field_name)
-       call neko_log%message(log_buf)
-       call neko_log%end_section()
-    end if
+    call neko_log%section('Low-Mach')
+    write(log_buf, '(A,E15.7)') 'P0         : ', this%P0
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,E15.7)') 'R_specific : ', this%R_specific
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,E15.7)') 'k_cond     : ', this%k_cond
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,E15.7)') 'cp         : ', this%cp
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,A)')     'T field    : ', trim(this%T_field_name)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,A)')     'Property   : ', trim(this%property_model)
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
   end subroutine fluid_lowmach_pnpn_init
+
+  !> Force a logical JSON key to a value. json_file%update replaces the value
+  !! if the key exists and creates it (with any missing parent objects) via
+  !! add_by_path if it does not, so this overrides whatever the user set.
+  subroutine json_force_logical(params, path, val)
+    type(json_file), intent(inout) :: params
+    character(len=*), intent(in) :: path
+    logical, intent(in) :: val
+    logical :: found
+    call params%update(path, val, found)
+  end subroutine json_force_logical
+
+  !> Force a string JSON key to a value (see json_force_logical).
+  subroutine json_force_string(params, path, val)
+    type(json_file), intent(inout) :: params
+    character(len=*), intent(in) :: path
+    character(len=*), intent(in) :: val
+    logical :: found
+    call params%update(path, val, found)
+  end subroutine json_force_string
+
+  !> Free the low-Mach members (the Q_T field and the residual operators),
+  !! then delegate to the parent for everything inherited from fluid_pnpn.
+  subroutine fluid_lowmach_pnpn_free(this)
+    class(fluid_lowmach_pnpn_t), intent(inout) :: this
+
+    nullify(this%Q_T_field)   ! owned by neko_registry
+
+    if (allocated(this%lm_prs_res)) deallocate(this%lm_prs_res)
+    if (allocated(this%lm_vel_res)) deallocate(this%lm_vel_res)
+
+    nullify(this%T_ptr)
+    nullify(this%lambda_ptr)
+    nullify(this%cp_ptr)
+
+    call this%fluid_pnpn_t%free()
+
+  end subroutine fluid_lowmach_pnpn_free
 
   !> Update the density field from the temperature field using the ideal-gas
   !! EOS rho = P0 / (R_specific * T).
@@ -186,10 +287,14 @@ contains
        end if
     end if
 
+    ! Clamp the temperature used in the EOS to a physical range. Near-wall /
+    ! inlet temperature discontinuities can produce Gibbs over/undershoots that
+    ! would otherwise drive rho = P0/(R T) to infinity or negative values,
+    ! destroying both the physics and the pressure-solve conditioning.
     n = this%dm_Xh%size()
     do concurrent (i = 1:n)
        this%rho%x(i,1,1,1) = this%P0 / (this%R_specific &
-            * this%T_ptr%x(i,1,1,1))
+            * min(max(this%T_ptr%x(i,1,1,1), this%T_eos_min), this%T_eos_max))
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -199,19 +304,108 @@ contains
 
   end subroutine lowmach_update_density
 
-  !> Populate Q_T from the current temperature field using
-  !!   Q_T = div(k grad T) / (rho * cp * T).
-  !! The algebra relies on the identity D_t T = div(k grad T) / (rho cp)
-  !! from the energy equation (no heat release), so the advection term in
-  !! the material derivative cancels and Q_T becomes a pure spatial
-  !! expression.
+  !> Fill mu(T) and lambda(T) from the built-in property model (Sutherland or
+  !! power law) when one is configured, so the user does not have to supply a
+  !! material_properties hook. Writes the molecular fields (this%mu and the
+  !! scalar's "<T>_lambda") and their "_tot" counterparts so the values are
+  !! immediately consistent for the Q_T assembly and the Helmholtz solves this
+  !! step. A no-op (returns early) when property_model == 'none', preserving the
+  !! user-hook path bit-for-bit.
+  subroutine lowmach_update_properties(this)
+    class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
+    type(field_t), pointer :: lam, lam_tot
+    integer :: i, n
+    real(kind=rp) :: Tval, fac_mu, fac_lam
+
+    if (this%property_model .eq. 'none') return
+
+    if (.not. associated(this%T_ptr)) then
+       if (neko_registry%field_exists(this%T_field_name)) then
+          this%T_ptr => neko_registry%get_field(this%T_field_name)
+       else
+          return
+       end if
+    end if
+
+    ! Resolve the scalar's base/total conductivity fields. They are absent if
+    ! no scalar is configured, in which case only mu is updated.
+    nullify(lam)
+    nullify(lam_tot)
+    if (neko_registry%field_exists(this%T_field_name // "_lambda")) &
+         lam => neko_registry%get_field(this%T_field_name // "_lambda")
+    if (neko_registry%field_exists(this%T_field_name // "_lambda_tot")) &
+         lam_tot => neko_registry%get_field(this%T_field_name // "_lambda_tot")
+
+    n = this%dm_Xh%size()
+    do i = 1, n
+       Tval = min(max(this%T_ptr%x(i,1,1,1), this%T_eos_min), this%T_eos_max)
+       if (this%property_model .eq. 'sutherland') then
+          fac_mu = (Tval / this%prop_T_ref)**1.5_rp &
+               * (this%prop_T_ref + this%prop_S_mu) / (Tval + this%prop_S_mu)
+          fac_lam = (Tval / this%prop_T_ref)**1.5_rp &
+               * (this%prop_T_ref + this%prop_S_lambda) &
+               / (Tval + this%prop_S_lambda)
+       else  ! power_law
+          fac_mu = (Tval / this%prop_T_ref)**this%prop_exponent
+          fac_lam = fac_mu
+       end if
+       this%mu%x(i,1,1,1) = this%prop_mu_ref * fac_mu
+       if (associated(lam)) lam%x(i,1,1,1) = this%prop_lambda_ref * fac_lam
+    end do
+
+    ! Sync the *_tot fields so Q_T (which reads lambda_tot) and the velocity /
+    ! energy Helmholtz operators see the fresh values within this step.
+    call field_copy(this%mu_tot, this%mu)
+    if (associated(lam) .and. associated(lam_tot)) call field_copy(lam_tot, lam)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%mu%x, this%mu%x_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+    end if
+
+  end subroutine lowmach_update_properties
+
+  !> Populate Q_T = div(lambda grad T) / (rho cp T), the low-Mach thermal
+  !! divergence (div u = Q_T) for an ideal gas with constant background
+  !! pressure (no volumetric heat release, open domain so dP0/dt = 0).
+  !!
+  !! This mirrors Nek5000 userqtl_scig (plan4.f): grad T (weak) -> assemble ->
+  !! 1/B (strong grad) -> multiply by the conductivity field lambda -> weak
+  !! divergence -> assemble -> 1/B (strong) -> divide by (rho cp T). The
+  !! crucial point is that lambda and cp here are the SAME spatially varying
+  !! fields the scalar (energy) equation uses (Nek5000's vdiff/vtrans of the
+  !! temperature field), so the imposed velocity divergence is consistent with
+  !! the temperature the scalar actually transports. Using a constant k/cp
+  !! instead makes div u = Q_T inconsistent with the energy balance and was the
+  !! cause of the heated-channel blow-up.
   subroutine lowmach_update_Q_T(this)
     class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
-    type(field_t), pointer :: gx, gy, gz, w1
+    type(field_t), pointer :: gx, gy, gz, w1, qdot
     integer :: temp_indices(4)
     integer :: i, n
+    logical :: have_lambda, have_cp
 
     if (.not. associated(this%T_ptr)) return
+
+    ! Resolve the scalar's conductivity / cp fields lazily. These are created
+    ! by the scalar scheme as "<temperature>_lambda(_tot)" and "<temperature>_cp"
+    ! and filled (e.g. by a Sutherland material_properties hook) with lambda(T).
+    if (.not. associated(this%lambda_ptr)) then
+       if (neko_registry%field_exists(this%T_field_name // "_lambda_tot")) then
+          this%lambda_ptr => &
+               neko_registry%get_field(this%T_field_name // "_lambda_tot")
+       else if (neko_registry%field_exists(this%T_field_name // "_lambda")) then
+          this%lambda_ptr => &
+               neko_registry%get_field(this%T_field_name // "_lambda")
+       end if
+    end if
+    if (.not. associated(this%cp_ptr)) then
+       if (neko_registry%field_exists(this%T_field_name // "_cp")) then
+          this%cp_ptr => neko_registry%get_field(this%T_field_name // "_cp")
+       end if
+    end if
+    have_lambda = associated(this%lambda_ptr)
+    have_cp = associated(this%cp_ptr)
 
     n = this%dm_Xh%size()
 
@@ -220,183 +414,124 @@ contains
     call neko_scratch_registry%request_field(gz, temp_indices(3), .false.)
     call neko_scratch_registry%request_field(w1, temp_indices(4), .false.)
 
-    ! Weak-form gradient of T.
-    call opgrad(gx%x, gy%x, gz%x, this%T_ptr%x, this%c_Xh)
+    ! Conduction div(lambda grad T) via dudxyz (strong collocation derivative),
+    ! the same primitive Neko's div() operator uses. cdtp (D^T, weak/transpose)
+    ! does NOT compose with Binv into div(lambda grad T) (it gave O(1e2) garbage
+    ! even for T = 2 + x^2 whose Laplacian is the constant 2); and the weak
+    ! ax_helm route, while consistent with the energy operator, drops the
+    ! boundary-flux term and grows Q_T near the all-Dirichlet boundary. dudxyz is
+    ! the accurate, bounded choice (Q_T err ~6e-3 on the manufactured tanh).
+    call dudxyz(gx%x, this%T_ptr%x, this%c_Xh%drdx, this%c_Xh%dsdx, &
+         this%c_Xh%dtdx, this%c_Xh)
+    call dudxyz(gy%x, this%T_ptr%x, this%c_Xh%drdy, this%c_Xh%dsdy, &
+         this%c_Xh%dtdy, this%c_Xh)
+    call dudxyz(gz%x, this%T_ptr%x, this%c_Xh%drdz, this%c_Xh%dsdz, &
+         this%c_Xh%dtdz, this%c_Xh)
 
-    ! Assemble into the strong-form gradient and multiply by k.
+    ! Make the gradient continuous (gs_op ADD then average via mult = 1/count)
+    ! and multiply by the conductivity lambda(T) (else constant k_cond).
     call this%gs_Xh%op(gx, GS_OP_ADD)
     call this%gs_Xh%op(gy, GS_OP_ADD)
     call this%gs_Xh%op(gz, GS_OP_ADD)
-    do concurrent (i = 1:n)
-       gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
-       gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
-       gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
-    end do
+    if (have_lambda) then
+       do concurrent (i = 1:n)
+          gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) &
+               * this%lambda_ptr%x(i,1,1,1)
+          gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) &
+               * this%lambda_ptr%x(i,1,1,1)
+          gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) &
+               * this%lambda_ptr%x(i,1,1,1)
+       end do
+    else
+       do concurrent (i = 1:n)
+          gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) * this%k_cond
+          gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) * this%k_cond
+          gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) * this%k_cond
+       end do
+    end if
 
-    ! Weak divergence via cdtp, accumulating into Q_T.
-    call cdtp(this%Q_T_field%x, gx%x, this%c_Xh%drdx, this%c_Xh%dsdx, &
+    ! Strong-form divergence div(lambda grad T) via dudxyz (matches Neko's div()).
+    call dudxyz(this%Q_T_field%x, gx%x, this%c_Xh%drdx, this%c_Xh%dsdx, &
          this%c_Xh%dtdx, this%c_Xh)
-    call cdtp(w1%x, gy%x, this%c_Xh%drdy, this%c_Xh%dsdy, &
+    call dudxyz(w1%x, gy%x, this%c_Xh%drdy, this%c_Xh%dsdy, &
          this%c_Xh%dtdy, this%c_Xh)
     do concurrent (i = 1:n)
-       this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
-            + w1%x(i,1,1,1)
+       this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) + w1%x(i,1,1,1)
     end do
-    call cdtp(w1%x, gz%x, this%c_Xh%drdz, this%c_Xh%dsdz, &
+    call dudxyz(w1%x, gz%x, this%c_Xh%drdz, this%c_Xh%dsdz, &
          this%c_Xh%dtdz, this%c_Xh)
     do concurrent (i = 1:n)
-       this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
-            + w1%x(i,1,1,1)
+       this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) + w1%x(i,1,1,1)
     end do
 
-    ! Assemble, convert to strong form, and divide by (rho * cp * T).
     call this%gs_Xh%op(this%Q_T_field, GS_OP_ADD)
     do concurrent (i = 1:n)
        this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
-            * this%c_Xh%Binv(i,1,1,1) &
-            / (this%rho%x(i,1,1,1) * this%cp * this%T_ptr%x(i,1,1,1))
+            * this%c_Xh%mult(i,1,1,1)
     end do
+
+    ! Add the volumetric heat source q (STRONG form, point values) so that
+    !   Q_T_field := div(lambda grad T) + q,
+    ! matching Nek5000 userqtl_scig, whose QTL uses the full energy-equation RHS
+    ! (including the source). q is read from the OPTIONAL registry field
+    ! "<temperature>_qdot" (created/filled by the user, e.g. a manufactured
+    ! source or chemical heat release); when absent, behaviour is the previous
+    ! conduction-only Q_T, so existing cases are bit-for-bit unchanged.
+    if (neko_registry%field_exists(this%T_field_name // "_qdot")) then
+       qdot => neko_registry%get_field(this%T_field_name // "_qdot")
+       do concurrent (i = 1:n)
+          this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
+               + qdot%x(i,1,1,1)
+       end do
+    end if
+
+    ! Divide by (rho cp T) to obtain Q_T. The temperature used here MUST be the
+    ! SAME clamped value used to form rho = P0/(R*T_clamp) in
+    ! lowmach_update_density, otherwise rho*T no longer equals the EOS constant
+    ! P0/R. With the same clamp, rho*T_clamp = P0/R holds identically.
+    if (have_cp) then
+       do concurrent (i = 1:n)
+          this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
+               / (this%rho%x(i,1,1,1) * this%cp_ptr%x(i,1,1,1) &
+                  * min(max(this%T_ptr%x(i,1,1,1), this%T_eos_min), &
+                        this%T_eos_max))
+       end do
+    else
+       do concurrent (i = 1:n)
+          this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
+               / (this%rho%x(i,1,1,1) * this%cp &
+                  * min(max(this%T_ptr%x(i,1,1,1), this%T_eos_min), &
+                        this%T_eos_max))
+       end do
+    end if
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine lowmach_update_Q_T
 
-  !> Variable-density counterpart of rhs_maker_ext_cpu. Applies the AB
-  !! extrapolation of the momentum forcing history and multiplies the
-  !! result by the spatially-varying rho field instead of a scalar.
-  subroutine lm_rhs_ext_field_rho(fx_lag, fy_lag, fz_lag, &
-       fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, rho, ext_coeffs, n)
-    type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
-    type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    type(field_t), intent(in) :: rho
-    real(kind=rp), intent(in) :: ext_coeffs(4)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
-    type(field_t), pointer :: temp1, temp2, temp3
-    integer :: temp_indices(3)
-    integer :: i
-
-    call neko_scratch_registry%request_field(temp1, temp_indices(1), .false.)
-    call neko_scratch_registry%request_field(temp2, temp_indices(2), .false.)
-    call neko_scratch_registry%request_field(temp3, temp_indices(3), .false.)
-
-    do concurrent (i = 1:n)
-       temp1%x(i,1,1,1) = ext_coeffs(2) * fx_lag%x(i,1,1,1) + &
-            ext_coeffs(3) * fx_laglag%x(i,1,1,1)
-       temp2%x(i,1,1,1) = ext_coeffs(2) * fy_lag%x(i,1,1,1) + &
-            ext_coeffs(3) * fy_laglag%x(i,1,1,1)
-       temp3%x(i,1,1,1) = ext_coeffs(2) * fz_lag%x(i,1,1,1) + &
-            ext_coeffs(3) * fz_laglag%x(i,1,1,1)
-    end do
-
-    do concurrent (i = 1:n)
-       fx_laglag%x(i,1,1,1) = fx_lag%x(i,1,1,1)
-       fy_laglag%x(i,1,1,1) = fy_lag%x(i,1,1,1)
-       fz_laglag%x(i,1,1,1) = fz_lag%x(i,1,1,1)
-       fx_lag%x(i,1,1,1) = fx(i)
-       fy_lag%x(i,1,1,1) = fy(i)
-       fz_lag%x(i,1,1,1) = fz(i)
-    end do
-
-    do concurrent (i = 1:n)
-       fx(i) = (ext_coeffs(1) * fx(i) + temp1%x(i,1,1,1)) * rho%x(i,1,1,1)
-       fy(i) = (ext_coeffs(1) * fy(i) + temp2%x(i,1,1,1)) * rho%x(i,1,1,1)
-       fz(i) = (ext_coeffs(1) * fz(i) + temp3%x(i,1,1,1)) * rho%x(i,1,1,1)
-    end do
-
-    call neko_scratch_registry%relinquish_field(temp_indices)
-
-  end subroutine lm_rhs_ext_field_rho
-
-  !> Variable-density counterpart of rhs_maker_bdf_cpu. Assembles the BDF
-  !! lagged-velocity contribution to the momentum RHS weighting each
-  !! pointwise term by rho(x)/dt.
-  subroutine lm_rhs_bdf_field_rho(ulag, vlag, wlag, bfx, bfy, bfz, &
-       u, v, w, B, rho, dt, bd, nbd, n)
-    integer, intent(in) :: n, nbd
-    type(field_t), intent(in) :: u, v, w
-    type(field_series_t), intent(in) :: ulag, vlag, wlag
-    type(field_t), intent(in) :: rho
-    real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
-    real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: dt, bd(4)
-    type(field_t), pointer :: tb1, tb2, tb3
-    integer :: temp_indices(3)
-    integer :: i, ilag
-
-    call neko_scratch_registry%request_field(tb1, temp_indices(1), .false.)
-    call neko_scratch_registry%request_field(tb2, temp_indices(2), .false.)
-    call neko_scratch_registry%request_field(tb3, temp_indices(3), .false.)
-
-    do concurrent (i = 1:n)
-       tb1%x(i,1,1,1) = u%x(i,1,1,1) * B(i) * bd(2)
-       tb2%x(i,1,1,1) = v%x(i,1,1,1) * B(i) * bd(2)
-       tb3%x(i,1,1,1) = w%x(i,1,1,1) * B(i) * bd(2)
-    end do
-
-    do ilag = 2, nbd
-       do concurrent (i = 1:n)
-          tb1%x(i,1,1,1) = tb1%x(i,1,1,1) + &
-               (ulag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
-          tb2%x(i,1,1,1) = tb2%x(i,1,1,1) + &
-               (vlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
-          tb3%x(i,1,1,1) = tb3%x(i,1,1,1) + &
-               (wlag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
-       end do
-    end do
-
-    do concurrent (i = 1:n)
-       bfx(i) = bfx(i) + tb1%x(i,1,1,1) * (rho%x(i,1,1,1) / dt)
-       bfy(i) = bfy(i) + tb2%x(i,1,1,1) * (rho%x(i,1,1,1) / dt)
-       bfz(i) = bfz(i) + tb3%x(i,1,1,1) * (rho%x(i,1,1,1) / dt)
-    end do
-
-    call neko_scratch_registry%relinquish_field(temp_indices)
-
-  end subroutine lm_rhs_bdf_field_rho
-
-  !> Variable-density counterpart of rhs_maker_oifs_cpu. OIFS branch of
-  !! the momentum RHS assembly with rho as a spatial field.
-  subroutine lm_rhs_oifs_field_rho(phi_x, phi_y, phi_z, &
-       bf_x, bf_y, bf_z, rho, dt, n)
-    type(field_t), intent(in) :: rho
-    real(kind=rp), intent(in) :: dt
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
-    real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
-    integer :: i
-
-    do concurrent (i = 1:n)
-       bf_x(i) = bf_x(i) + phi_x(i) * (rho%x(i,1,1,1) / dt)
-       bf_y(i) = bf_y(i) + phi_y(i) * (rho%x(i,1,1,1) / dt)
-       bf_z(i) = bf_z(i) + phi_z(i) * (rho%x(i,1,1,1) / dt)
-    end do
-
-  end subroutine lm_rhs_oifs_field_rho
-
-  !> Advance the solution by one time step. When low_mach_enabled is false,
-  !! runs the inherited Pn-Pn path bit-for-bit. When true, updates rho from
-  !! the EOS and routes the pressure/velocity residuals through the new
-  !! lowmach_residual operators (which currently still ignore Q_T and match
-  !! pnpn_res_cpu exactly).
+  !> Advance the solution by one time step. Updates rho from the EOS and Q_T
+  !! from the temperature field, then routes the pressure/velocity residuals
+  !! through the lowmach_residual operators: Q_T enters the pressure residual
+  !! as the div u = Q_T source and the velocity residual as the
+  !! -(2/3) grad(mu Q_T) dilatation stress. The variable-density momentum RHS
+  !! is assembled by the standard rhs makers, which take the rho field.
   subroutine fluid_lowmach_pnpn_step(this, time, dt_controller)
     class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
     integer :: n
     type(ksp_monitor_t) :: ksp_results(4)
-    type(file_t) :: dump_file
-    class(bc_t), pointer :: bc_i
-    type(non_normal_t), pointer :: bc_j
 
     if (this%freeze) return
 
     n = this%dm_Xh%size()
 
-    if (this%low_mach_enabled) then
-       call lowmach_update_density(this)
-       call lowmach_update_Q_T(this)
-    end if
+    ! Update the density field from the EOS, fill mu(T)/lambda(T) from the
+    ! built-in property model (if configured), then the thermal divergence Q_T
+    ! from the temperature field; all feed the variable-density residuals below.
+    call lowmach_update_density(this)
+    call lowmach_update_properties(this)
+    call lowmach_update_Q_T(this)
 
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -407,8 +542,7 @@ contains
          Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
-         msh => this%msh, prs_res => this%prs_res, &
-         source_term => this%source_term, vel_res => this%vel_res, &
+         msh => this%msh, source_term => this%source_term, &
          sumab => this%sumab, makeoifs => this%makeoifs, &
          makeabf => this%makeabf, makebdf => this%makebdf, &
          vel_projection_dim => this%vel_projection_dim, &
@@ -427,51 +561,34 @@ contains
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), time, strong = .false.)
 
+      ! The momentum RHS is weighted by the spatially varying density field
+      ! rho%x; the standard rhs makers consume the full density array.
       if (oifs) then
          call this%adv%compute(u, v, w, &
               this%advx, this%advy, this%advz, &
               Xh, this%c_Xh, dm_Xh%size(), dt)
 
-         if (this%low_mach_enabled) then
-            call lm_rhs_ext_field_rho(this%abx1, this%aby1, this%abz1, &
-                 this%abx2, this%aby2, this%abz2, &
-                 f_x%x, f_y%x, f_z%x, &
-                 rho, ext_bdf%advection_coeffs%x, n)
-            call lm_rhs_oifs_field_rho(this%advx%x, this%advy%x, this%advz%x, &
-                 f_x%x, f_y%x, f_z%x, rho, dt, n)
-         else
-            call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-                 this%abx2, this%aby2, this%abz2, &
-                 f_x%x, f_y%x, f_z%x, &
-                 rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
+         call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
+              this%abx2, this%aby2, this%abz2, &
+              f_x%x, f_y%x, f_z%x, &
+              rho%x, ext_bdf%advection_coeffs%x, n)
 
-            call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
-                 f_x%x, f_y%x, f_z%x, &
-                 rho%x(1,1,1,1), dt, n)
-         end if
+         call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
+              f_x%x, f_y%x, f_z%x, &
+              rho%x, dt, n)
       else
          call this%adv%compute(u, v, w, &
               f_x, f_y, f_z, &
               Xh, this%c_Xh, dm_Xh%size())
 
-         if (this%low_mach_enabled) then
-            call lm_rhs_ext_field_rho(this%abx1, this%aby1, this%abz1, &
-                 this%abx2, this%aby2, this%abz2, &
-                 f_x%x, f_y%x, f_z%x, &
-                 rho, ext_bdf%advection_coeffs%x, n)
-            call lm_rhs_bdf_field_rho(ulag, vlag, wlag, &
-                 f_x%x, f_y%x, f_z%x, u, v, w, c_Xh%B, rho, dt, &
-                 ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
-         else
-            call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-                 this%abx2, this%aby2, this%abz2, &
-                 f_x%x, f_y%x, f_z%x, &
-                 rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
+         call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
+              this%abx2, this%aby2, this%abz2, &
+              f_x%x, f_y%x, f_z%x, &
+              rho%x, ext_bdf%advection_coeffs%x, n)
 
-            call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-                 u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
-                 ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
-         end if
+         call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
+              u, v, w, c_Xh%B, rho%x, dt, &
+              ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
       end if
 
       call ulag%update()
@@ -483,83 +600,24 @@ contains
 
       call this%update_material_properties(time)
 
-      call profiler_start_region('Pressure_residual', 18)
-
-      if (this%low_mach_enabled) then
-         call this%lm_prs_res%compute(p, p_res, &
-              u, v, w, &
-              u_e, v_e, w_e, &
-              f_x, f_y, f_z, &
-              c_Xh, gs_Xh, &
-              this%bc_prs_surface, this%bc_sym_surface, &
-              Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
-              mu_tot, rho, this%Q_T_field, event)
-      else
-         call prs_res%compute(p, p_res, &
-              u, v, w, &
-              u_e, v_e, w_e, &
-              f_x, f_y, f_z, &
-              c_Xh, gs_Xh, &
-              this%bc_prs_surface, this%bc_sym_surface, &
-              Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
-              mu_tot, rho, event)
-      end if
-
-      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
-         call device_ortho(p_res%x_d, this%glb_n_points, n)
-      else if (.not. this%prs_dirichlet) then
-         call ortho(p_res%x, this%glb_n_points, n)
-      end if
-
-      call gs_Xh%op(p_res, GS_OP_ADD, event)
-      call device_event_sync(event)
-
-      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
-
-      call profiler_end_region('Pressure_residual', 18)
-
-      call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-           Ax=Ax_prs, gs_h=gs_Xh, bclst=this%bclst_dp, string='Pressure')
-
-      call this%pc_prs%update()
-
       call profiler_start_region('Pressure_solve', 3)
 
-      ksp_results(1) = &
-           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-           this%bclst_dp, gs_Xh)
-      ksp_results(1)%name = 'Pressure'
+      ! Variable-density pressure solve: flexible GMRES on the true 1/rho(x)
+      ! operator preconditioned by a constant-coefficient hsmg, exactly like
+      ! Nek5000's low-Mach pressure step (see lowmach_pressure_solve).
+      call lowmach_pressure_solve(this, time, dt_controller, &
+           ext_bdf%diffusion_coeffs%x(1), dt, n, ksp_results(1))
 
       call profiler_end_region('Pressure_solve', 3)
 
-      call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-           this%bclst_dp, gs_Xh, n, tstep, dt_controller)
-
-      call field_add2(p, dp, n)
-      if (.not. this%prs_dirichlet .and. NEKO_BCKND_DEVICE .eq. 1) then
-         call device_ortho(p%x_d, this%glb_n_points, n)
-      else if (.not. this%prs_dirichlet) then
-         call ortho(p%x, this%glb_n_points, n)
-      end if
-
       call profiler_start_region('Velocity_residual', 19)
-      if (this%low_mach_enabled) then
-         call this%lm_vel_res%compute(Ax_vel, u, v, w, &
-              u_res, v_res, w_res, &
-              p, &
-              f_x, f_y, f_z, &
-              c_Xh, msh, Xh, &
-              mu_tot, rho, this%Q_T_field, &
-              ext_bdf%diffusion_coeffs%x(1), dt, dm_Xh%size())
-      else
-         call vel_res%compute(Ax_vel, u, v, w, &
-              u_res, v_res, w_res, &
-              p, &
-              f_x, f_y, f_z, &
-              c_Xh, msh, Xh, &
-              mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
-              dt, dm_Xh%size())
-      end if
+      call this%lm_vel_res%compute(Ax_vel, u, v, w, &
+           u_res, v_res, w_res, &
+           p, &
+           f_x, f_y, f_z, &
+           c_Xh, msh, Xh, &
+           mu_tot, rho, this%Q_T_field, &
+           ext_bdf%diffusion_coeffs%x(1), dt, dm_Xh%size())
 
       call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
       call gs_Xh%op(u_res, GS_OP_ADD, event)
@@ -620,5 +678,90 @@ contains
     end associate
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_lowmach_pnpn_step
+
+  !> Pressure solve for the variable-density (low-Mach) case -- a direct
+  !! replica of Nek5000's low-Mach pressure step (plan4.f / hmh_gmres).
+  !!
+  !! Nek5000 solves the TRUE variable-density operator A = div((1/rho) grad p)
+  !! with a flexible, residual-projected GMRES, preconditioned by a
+  !! CONSTANT-coefficient geometric multigrid (its h1mg sets mg_h1 = const and
+  !! the Schwarz/FDM smoother is geometry-only). The Krylov method absorbs the
+  !! spatially varying 1/rho; the preconditioner only accelerates.
+  !!
+  !! We reproduce that here WITHOUT touching the shared hsmg or the
+  !! incompressible solver: pc_prs%update is called while c_Xh%h1 holds a single
+  !! constant cref, so hsmg only ever sees a uniform coefficient (exactly as in
+  !! the constant-density case); c_Xh%h1 is then restored to 1/rho(x) for the
+  !! GMRES operator. One GMRES pass per step -- no defect-correction loop.
+  subroutine lowmach_pressure_solve(this, time, dt_controller, bd, dt, n, &
+       ksp_result)
+    class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    type(time_step_controller_t), intent(in) :: dt_controller
+    real(kind=rp), intent(in) :: bd, dt
+    integer, intent(in) :: n
+    type(ksp_monitor_t), intent(out) :: ksp_result
+    type(c_ptr) :: event
+    real(kind=rp) :: cref, hmin, hmax
+    integer :: i, nl
+
+    associate (c_Xh => this%c_Xh, gs_Xh => this%gs_Xh, Ax_prs => this%Ax_prs, &
+         p => this%p, p_res => this%p_res, dp => this%dp, rho => this%rho)
+
+      event = glb_cmd_event
+      ! Mutable copy: projection pre/post_solving declare their size arg inout.
+      nl = n
+
+      ! 1. True variable-density pressure residual. lm_prs_res sets
+      !    c_Xh%h1 = 1/rho(x), i.e. the operator A = div((1/rho) grad p),
+      !    matching Nek5000 plan4 (h1 = 1/vtrans, h2 = 0).
+      call this%lm_prs_res%compute(p, p_res, this%u, this%v, this%w, &
+           this%u_e, this%v_e, this%w_e, this%f_x, this%f_y, this%f_z, &
+           c_Xh, gs_Xh, this%bc_prs_surface, this%bc_sym_surface, &
+           Ax_prs, bd, dt, this%mu_tot, rho, this%Q_T_field, event)
+
+      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
+      call gs_Xh%op(p_res, GS_OP_ADD, event)
+      call device_event_sync(event)
+      call this%bclst_dp%apply_scalar(p_res%x, n, time)
+
+      ! 2. A-conjugate residual projection against the TRUE variable operator
+      !    (Nek5000 project1); c_Xh%h1 is still 1/rho here.
+      call this%proj_prs%pre_solving(p_res%x, time%tstep, c_Xh, nl, &
+           dt_controller, Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
+           string = 'Pressure')
+
+      ! 3. Refresh the preconditioner on a CONSTANT-coefficient operator
+      !    (Nek5000 h1mg uses mg_h1 = const). cref = midpoint of the 1/rho
+      !    range. hsmg only ever sees a uniform h1 here, so neither pc_hsmg
+      !    nor the incompressible solver is affected.
+      hmin = glmin(c_Xh%h1, n)
+      hmax = glmax(c_Xh%h1, n)
+      cref = 0.5_rp * (hmin + hmax)
+      do concurrent (i = 1:n)
+         c_Xh%h1(i,1,1,1) = cref
+      end do
+      c_Xh%ifh2 = .false.
+      call this%pc_prs%update()
+
+      ! 4. Restore the TRUE variable operator and solve it with ONE flexible
+      !    GMRES pass (Nek5000 hmh_gmres). The constant-coefficient hsmg only
+      !    preconditions; GMRES handles 1/rho(x).
+      do concurrent (i = 1:n)
+         c_Xh%h1(i,1,1,1) = 1.0_rp / rho%x(i,1,1,1)
+      end do
+      call rzero(dp%x, n)
+      ksp_result = this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+           this%bclst_dp, gs_Xh)
+      ksp_result%name = 'Pressure'
+
+      ! 5. Reconstruct/store the projection basis (Nek5000 project2), update p.
+      call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, this%bclst_dp, &
+           gs_Xh, nl, time%tstep, dt_controller)
+      call field_add2(p, dp, n)
+      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n)
+
+    end associate
+  end subroutine lowmach_pressure_solve
 
 end module fluid_lowmach_pnpn

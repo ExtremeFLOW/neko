@@ -375,8 +375,8 @@ contains
                            rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rho(n), ext_coeffs(4)
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     type(c_ptr) :: fx_d, fy_d, fz_d
 
@@ -384,20 +384,23 @@ contains
     fy_d = device_get_ptr(fy)
     fz_d = device_get_ptr(fz)
 
+    ! The device kernels take a constant density. Spatially varying rho
+    ! (low-Mach) on device is not yet supported, so the constant rho(1) is
+    ! passed here -- correct for the incompressible (constant-density) path.
 #ifdef HAVE_HIP
     call rhs_maker_ext_hip(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
                            fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-                           fx_d, fy_d, fz_d, rho, &
+                           fx_d, fy_d, fz_d, rho(1), &
                            ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_CUDA
     call rhs_maker_ext_cuda(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
                             fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-                            fx_d, fy_d, fz_d, rho, &
+                            fx_d, fy_d, fz_d, rho(1), &
                             ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_OPENCL
     call rhs_maker_ext_opencl(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
                               fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-                              fx_d, fy_d, fz_d, rho, &
+                              fx_d, fy_d, fz_d, rho(1), &
                               ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
 
@@ -434,7 +437,7 @@ contains
     type(field_series_t), intent(in) :: ulag, vlag, wlag
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: dt, rho, bd(4)
+    real(kind=rp), intent(in) :: dt, rho(n), bd(4)
     type(c_ptr) :: bfx_d, bfy_d, bfz_d, B_d
 
     bfx_d = device_get_ptr(bfx)
@@ -442,24 +445,26 @@ contains
     bfz_d = device_get_ptr(bfz)
     B_d = device_get_ptr(B)
 
+    ! Constant density passed to the device kernels (see note in
+    ! rhs_maker_ext_device); spatially varying rho on device is a TODO.
 #ifdef HAVE_HIP
     call rhs_maker_bdf_hip(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                            vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
                            wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
                            bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                           B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
+                           B_d, rho(1), dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_CUDA
     call rhs_maker_bdf_cuda(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                             vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
                             wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
                             bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                            B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
+                            B_d, rho(1), dt, bd(2), bd(3), bd(4), nbd, n)
 #elif HAVE_OPENCL
     call rhs_maker_bdf_opencl(ulag%lf(1)%x_d, ulag%lf(2)%x_d, &
                               vlag%lf(1)%x_d, vlag%lf(2)%x_d, &
                               wlag%lf(1)%x_d, wlag%lf(2)%x_d, &
                               bfx_d, bfy_d, bfz_d, u%x_d, v%x_d, w%x_d, &
-                              B_d, rho, dt, bd(2), bd(3), bd(4), nbd, n)
+                              B_d, rho(1), dt, bd(2), bd(3), bd(4), nbd, n)
 #endif
 
   end subroutine rhs_maker_bdf_device
@@ -495,8 +500,8 @@ contains
 
   subroutine rhs_maker_oifs_device(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
                                 rho, dt, n)
-    real(kind=rp), intent(in) :: rho, dt
     integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rho(n), dt
     real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
     real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
 
@@ -509,15 +514,17 @@ contains
     bf_y_d = device_get_ptr(bf_y)
     bf_z_d = device_get_ptr(bf_z)
 
+    ! Constant density passed to the device kernels (see note in
+    ! rhs_maker_ext_device); spatially varying rho on device is a TODO.
 #ifdef HAVE_HIP
     call rhs_maker_oifs_hip(phi_x_d, phi_y_d, phi_z_d, &
-                           bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
+                           bf_x_d, bf_y_d, bf_z_d, rho(1), dt, n)
 #elif HAVE_CUDA
     call rhs_maker_oifs_cuda(phi_x_d, phi_y_d, phi_z_d, &
-                             bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
+                             bf_x_d, bf_y_d, bf_z_d, rho(1), dt, n)
 #elif HAVE_OPENCL
     call rhs_maker_oifs_opencl(phi_x_d, phi_y_d, phi_z_d, &
-                               bf_x_d, bf_y_d, bf_z_d, rho, dt, n)
+                               bf_x_d, bf_y_d, bf_z_d, rho(1), dt, n)
 #endif
 
   end subroutine rhs_maker_oifs_device

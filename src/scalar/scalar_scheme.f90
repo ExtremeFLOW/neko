@@ -589,6 +589,14 @@ contains
     call this%user_material_properties(this%name, this%material_properties, &
          time)
 
+    ! Refresh the total conductivity from the (possibly user-updated, e.g.
+    ! Sutherland k(T)) molecular conductivity EVERY step. Previously lambda_tot
+    ! was only written inside the turbulence branches, so a laminar run kept the
+    ! init-time value and a k(T) hook never reached either the diffusion
+    ! operator or the low-Mach thermal divergence Q_T. For a constant lambda
+    ! this is a no-op copy; the turbulence branches below add nu_t on top.
+    call field_copy(this%lambda_tot, this%lambda)
+
     ! factor = rho * cp / pr_turb
     if (len_trim(this%nut_field_name) .gt. 0 &
          .and. len_trim(this%alphat_field_name) .eq. 0 ) then

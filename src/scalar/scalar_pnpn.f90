@@ -55,7 +55,8 @@ module scalar_pnpn
   use device_math, only : device_add2s2, device_col2
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
-  use math, only : glsc2, col2, add2s2
+  use math, only : glsc2, col2, add2s2, copy, cmult2, col3
+  use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -121,6 +122,16 @@ module scalar_pnpn
 
      !> Lag arrays
      type(field_t) :: abx1, abx2
+
+     !> Low-Mach: use the full spatially-varying rho*cp(x) field in the energy
+     !! equation (unsteady, advection, EXT and BDF terms) instead of the
+     !! constant point-1 value rho(1)*cp(1). Required so that the temperature
+     !! the scalar transports is consistent with the fluid low-Mach thermal
+     !! divergence Q_T = div(lambda grad T)/(rho(x) cp(x) T(x)); mirrors
+     !! Nek5000's full-field vtrans(:,:,:,2)=rho*cp. Enabled by the case key
+     !! `case.scalar.low_mach.enabled`. Default .false. leaves the stock
+     !! constant-property path bit-for-bit unchanged.
+     logical :: low_mach_rhocp = .false.
 
    contains
      !> Constructor.
@@ -260,6 +271,16 @@ contains
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
+
+    ! Low-Mach: density-weight the energy equation with the full rho*cp(x) field
+    ! (read relative to this scalar's sub-dictionary, e.g.
+    ! case.scalar.low_mach.enabled). Off by default.
+    call json_get_or_default(params, 'low_mach.enabled', &
+         this%low_mach_rhocp, .false.)
+    if (this%low_mach_rhocp) then
+       call neko_log%message('Scalar low-Mach: variable rho*cp(x) weighting ' &
+            // 'enabled (energy equation consistent with the fluid Q_T)')
+    end if
   end subroutine scalar_pnpn_init
 
   ! Restarts the scalar from a checkpoint
@@ -355,6 +376,14 @@ contains
     type(ksp_monitor_t), intent(inout) :: ksp_results
     ! Number of degrees of freedom
     integer :: n
+    ! Low-Mach: scratch field holding the full rho*cp(x) and helper indices.
+    type(field_t), pointer :: rhocp
+    integer :: rhocp_idx, ii
+    real(kind=rp) :: bd0
+    ! Low-Mach: scratch field holding the RAW (un-rho*cp-weighted) volumetric
+    ! source + weak-BC contribution, kept out of the rho*cp advection weighting.
+    type(field_t), pointer :: src_save
+    integer :: src_idx
 
     if (this%freeze) return
 
@@ -381,16 +410,48 @@ contains
       ! Apply weak boundary conditions, that contribute to the source terms.
       call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), time, .false.)
 
+      ! Low-Mach: build the full rho*cp(x) field used to density-weight the
+      ! energy equation (advection / EXT / BDF and, below, the unsteady term),
+      ! mirroring Nek5000 vtrans(:,:,:,2). rho is the EOS density updated by the
+      ! low-Mach fluid this step; cp is the scalar's (possibly T-dependent) cp
+      ! field. The stock constant-property path is untouched when the flag is
+      ! off.
+      if (this%low_mach_rhocp) then
+         call neko_scratch_registry%request_field(rhocp, rhocp_idx, .false.)
+         call col3(rhocp%x, rho%x, cp%x, n)
+         ! The energy equation is rho*cp*DT/Dt = div(lambda grad T) + q, so the
+         ! volumetric source q (and the weak Neumann-BC flux, a diffusion boundary
+         ! term) must NOT be density-weighted -- only the advection carries rho*cp.
+         ! Nek5000 keeps them separate (makeuq adds bq = M*q raw; convab weights
+         ! u.grad T by vtrans). At this point f_Xh holds exactly M*q + weak-BC, so
+         ! snapshot it raw and zero f_Xh; advection then accumulates alone, gets the
+         ! rho*cp(x) weighting below, and the raw source is re-added to the residual.
+         ! (Bundling q into the rho*cp multiply made Neko enforce ...+rho*cp*q and
+         ! left a spurious (rho*cp-1)*q steady residual -- the lowMach_test drift.)
+         call neko_scratch_registry%request_field(src_save, src_idx, .false.)
+         do concurrent (ii = 1:n)
+            src_save%x(ii,1,1,1) = f_Xh%x(ii,1,1,1)
+            f_Xh%x(ii,1,1,1) = 0.0_rp
+         end do
+      else
+         nullify(rhocp)
+      end if
+
       if (oifs) then
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, this%advs, &
               Xh, this%c_Xh, dm_Xh%size())
 
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
-
-         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), dt,&
-              n)
+         if (this%low_mach_rhocp) then
+            call lm_scalar_rhs_ext_field(this%abx1, this%abx2, f_Xh%x, &
+                 rhocp, ext_bdf%advection_coeffs%x, n)
+            call lm_scalar_rhs_oifs_field(this%advs%x, f_Xh%x, rhocp, dt, n)
+         else
+            call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
+                 rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
+            call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), &
+                 dt, n)
+         end if
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
@@ -400,12 +461,21 @@ contains
          ! Neumann boundary sources and additional source terms, evaluated using
          ! the scalar field from the previous time-step. Now, this value is used in
          ! the explicit time scheme to advance these terms in time.
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
+         if (this%low_mach_rhocp) then
+            call lm_scalar_rhs_ext_field(this%abx1, this%abx2, f_Xh%x, &
+                 rhocp, ext_bdf%advection_coeffs%x, n)
+            ! Add the RHS contributions coming from the BDF scheme.
+            call lm_scalar_rhs_bdf_field(slag, f_Xh%x, s, c_Xh%B, rhocp, &
+                 dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+         else
+            call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
+                 rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
-         ! Add the RHS contributions coming from the BDF scheme.
-         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho%x(1,1,1,1), &
-              dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
+            ! Add the RHS contributions coming from the BDF scheme.
+            call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, &
+                 rho%x(1,1,1,1), dt, ext_bdf%diffusion_coeffs%x, &
+                 ext_bdf%ndiff, n)
+         end if
       end if
 
       call slag%update()
@@ -418,9 +488,32 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)
-      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
-           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs%x(1), dt, &
-           dm_Xh%size())
+      if (this%low_mach_rhocp) then
+         ! Variable rho*cp(x) energy residual: replicate scalar_residual_cpu but
+         ! with the unsteady coefficient h2 = rho*cp(x)*bd/dt assembled as a
+         ! FIELD (not the constant point-1 value), so the unsteady term uses the
+         ! same rho*cp(x) as the BDF/EXT RHS above and as the fluid Q_T. rho*cp
+         ! is rebuilt here with the freshly updated cp (after
+         ! update_material_properties).
+         bd0 = ext_bdf%diffusion_coeffs%x(1)
+         call col3(rhocp%x, rho%x, cp%x, n)
+         call copy(c_Xh%h1, lambda_tot%x, n)
+         call cmult2(c_Xh%h2, rhocp%x, bd0 / dt, n)
+         c_Xh%ifh2 = .true.
+         call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
+         ! f_Xh holds the rho*cp-weighted advection/BDF RHS; add the RAW source
+         ! (+ weak-BC) snapshot back un-weighted, completing the Nek5000 split.
+         do concurrent (ii = 1:n)
+            s_res%x(ii,1,1,1) = (-s_res%x(ii,1,1,1)) + f_Xh%x(ii,1,1,1) &
+                 + src_save%x(ii,1,1,1)
+         end do
+         call neko_scratch_registry%relinquish_field(src_idx)
+         call neko_scratch_registry%relinquish_field(rhocp_idx)
+      else
+         call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
+              rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs%x(1), dt, &
+              dm_Xh%size())
+      end if
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
@@ -601,6 +694,89 @@ contains
     nullify(bc_i)
 
   end subroutine scalar_scheme_apply_strong_bcs
+
+  !> Low-Mach variant of scalar_rhs_maker_ext_cpu: AB/EXT extrapolation of the
+  !! advection + source RHS, weighted by the full rho*cp(x) field instead of the
+  !! constant point-1 value. Counterpart of lm_rhs_ext_field_rho on the fluid
+  !! side. The lag history (fs_lag, fs_laglag) stores the per-coefficient RHS
+  !! *before* the rho*cp weighting, so rho*cp(x) is applied fresh each step.
+  subroutine lm_scalar_rhs_ext_field(fs_lag, fs_laglag, fs, rhocp, &
+       ext_coeffs, n)
+    type(field_t), intent(inout) :: fs_lag
+    type(field_t), intent(inout) :: fs_laglag
+    type(field_t), intent(in) :: rhocp
+    real(kind=rp), intent(in) :: ext_coeffs(4)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: fs(n)
+    type(field_t), pointer :: temp1
+    integer :: temp_index, i
+
+    call neko_scratch_registry%request_field(temp1, temp_index, .false.)
+
+    do concurrent (i = 1:n)
+       temp1%x(i,1,1,1) = ext_coeffs(2) * fs_lag%x(i,1,1,1) + &
+            ext_coeffs(3) * fs_laglag%x(i,1,1,1)
+    end do
+
+    do concurrent (i = 1:n)
+       fs_laglag%x(i,1,1,1) = fs_lag%x(i,1,1,1)
+       fs_lag%x(i,1,1,1) = fs(i)
+    end do
+
+    do concurrent (i = 1:n)
+       fs(i) = (ext_coeffs(1) * fs(i) + temp1%x(i,1,1,1)) * rhocp%x(i,1,1,1)
+    end do
+
+    call neko_scratch_registry%relinquish_field(temp_index)
+  end subroutine lm_scalar_rhs_ext_field
+
+  !> Low-Mach variant of scalar_rhs_maker_bdf_cpu: BDF lagged-temperature term,
+  !! weighted by rho*cp(x)/dt instead of the constant rho/dt.
+  subroutine lm_scalar_rhs_bdf_field(s_lag, fs, s, B, rhocp, dt, bd, nbd, n)
+    integer, intent(in) :: n, nbd
+    type(field_t), intent(in) :: s
+    type(field_series_t), intent(in) :: s_lag
+    type(field_t), intent(in) :: rhocp
+    real(kind=rp), intent(inout) :: fs(n)
+    real(kind=rp), intent(in) :: B(n)
+    real(kind=rp), intent(in) :: dt, bd(4)
+    type(field_t), pointer :: temp1
+    integer :: temp_index, i, ilag
+
+    call neko_scratch_registry%request_field(temp1, temp_index, .false.)
+
+    do concurrent (i = 1:n)
+       temp1%x(i,1,1,1) = s%x(i,1,1,1) * B(i) * bd(2)
+    end do
+
+    do ilag = 2, nbd
+       do concurrent (i = 1:n)
+          temp1%x(i,1,1,1) = temp1%x(i,1,1,1) + &
+               (s_lag%lf(ilag-1)%x(i,1,1,1) * B(i) * bd(ilag+1))
+       end do
+    end do
+
+    do concurrent (i = 1:n)
+       fs(i) = fs(i) + temp1%x(i,1,1,1) * (rhocp%x(i,1,1,1) / dt)
+    end do
+
+    call neko_scratch_registry%relinquish_field(temp_index)
+  end subroutine lm_scalar_rhs_bdf_field
+
+  !> Low-Mach variant of scalar_rhs_maker_oifs_cpu: OIFS contribution weighted
+  !! by rho*cp(x)/dt.
+  subroutine lm_scalar_rhs_oifs_field(phi_s, bf_s, rhocp, dt, n)
+    type(field_t), intent(in) :: rhocp
+    real(kind=rp), intent(in) :: dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bf_s(n)
+    real(kind=rp), intent(inout) :: phi_s(n)
+    integer :: i
+
+    do concurrent (i = 1:n)
+       bf_s(i) = bf_s(i) + phi_s(i) * (rhocp%x(i,1,1,1) / dt)
+    end do
+  end subroutine lm_scalar_rhs_oifs_field
 
 
 end module scalar_pnpn

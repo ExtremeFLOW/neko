@@ -68,8 +68,8 @@ contains
        rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rho(n), ext_coeffs(4)
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     integer :: i
     type(field_t), pointer :: temp1, temp2, temp3
@@ -98,9 +98,9 @@ contains
     end do
 
     do concurrent (i = 1:n)
-       fx(i) = (ext_coeffs(1) * fx(i) + temp1%x(i,1,1,1)) * rho
-       fy(i) = (ext_coeffs(1) * fy(i) + temp2%x(i,1,1,1)) * rho
-       fz(i) = (ext_coeffs(1) * fz(i) + temp3%x(i,1,1,1)) * rho
+       fx(i) = (ext_coeffs(1) * fx(i) + temp1%x(i,1,1,1)) * rho(i)
+       fy(i) = (ext_coeffs(1) * fy(i) + temp2%x(i,1,1,1)) * rho(i)
+       fz(i) = (ext_coeffs(1) * fz(i) + temp3%x(i,1,1,1)) * rho(i)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -144,7 +144,7 @@ contains
     type(field_series_t), intent(in) :: ulag, vlag, wlag
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: dt, rho, bd(4)
+    real(kind=rp), intent(in) :: dt, rho(n), bd(4)
     type(field_t), pointer :: tb1, tb2, tb3
     integer :: temp_indices(3)
     integer :: i, ilag
@@ -171,9 +171,9 @@ contains
     end do
 
     do concurrent (i = 1:n)
-       bfx(i) = bfx(i) + tb1%x(i,1,1,1) * (rho / dt)
-       bfy(i) = bfy(i) + tb2%x(i,1,1,1) * (rho / dt)
-       bfz(i) = bfz(i) + tb3%x(i,1,1,1) * (rho / dt)
+       bfx(i) = bfx(i) + tb1%x(i,1,1,1) * (rho(i) / dt)
+       bfy(i) = bfy(i) + tb2%x(i,1,1,1) * (rho(i) / dt)
+       bfz(i) = bfz(i) + tb3%x(i,1,1,1) * (rho(i) / dt)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -213,16 +213,16 @@ contains
 
   subroutine rhs_maker_oifs_cpu(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
        rho, dt, n)
-    real(kind=rp), intent(in) :: rho, dt
     integer, intent(in) :: n
+    real(kind=rp), intent(in) :: rho(n), dt
     real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
     real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
     integer :: i
 
     do concurrent (i = 1:n)
-       bf_x(i) = bf_x(i) + phi_x(i) * (rho / dt)
-       bf_y(i) = bf_y(i) + phi_y(i) * (rho / dt)
-       bf_z(i) = bf_z(i) + phi_z(i) * (rho / dt)
+       bf_x(i) = bf_x(i) + phi_x(i) * (rho(i) / dt)
+       bf_y(i) = bf_y(i) + phi_y(i) * (rho(i) / dt)
+       bf_z(i) = bf_z(i) + phi_z(i) * (rho(i) / dt)
     end do
 
   end subroutine rhs_maker_oifs_cpu

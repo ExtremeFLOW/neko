@@ -91,8 +91,9 @@ module rhs_maker
        import rp
        type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
        type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-       real(kind=rp), intent(in) :: rho, ext_coeffs(4)
        integer, intent(in) :: n
+       !> Density as a field array, supporting spatially varying (low-Mach) rho.
+       real(kind=rp), intent(in) :: rho(n), ext_coeffs(4)
        real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
      end subroutine rhs_maker_ext
   end interface
@@ -121,7 +122,8 @@ module rhs_maker
        type(field_series_t), intent(in) :: ulag, vlag, wlag
        real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
        real(kind=rp), intent(in) :: B(n)
-       real(kind=rp), intent(in) :: dt, rho, bd(4)
+       !> Density as a field array, supporting spatially varying (low-Mach) rho.
+       real(kind=rp), intent(in) :: dt, rho(n), bd(4)
      end subroutine rhs_maker_bdf
   end interface
 
@@ -144,8 +146,9 @@ module rhs_maker
      subroutine rhs_maker_oifs(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
                                rho, dt, n)
        import rp
-       real(kind=rp), intent(in) :: rho, dt
        integer, intent(in) :: n
+       !> Density as a field array, supporting spatially varying (low-Mach) rho.
+       real(kind=rp), intent(in) :: rho(n), dt
        real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
        real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
      end subroutine rhs_maker_oifs

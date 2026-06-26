@@ -599,10 +599,16 @@ contains
     call this%user_material_properties(this%name, this%material_properties, &
          time)
 
+    ! Refresh the total viscosity from the (possibly user-updated, e.g.
+    ! Sutherland mu(T)) molecular viscosity EVERY step. Previously this copy
+    ! lived inside the turbulence branch only, so a laminar run kept mu_tot
+    ! frozen at its init value and a temperature-dependent mu(T) written by a
+    ! material_properties hook never reached the solver (nor the low-Mach
+    ! viscous stress). For a constant mu this is a no-op copy.
+    call field_copy(this%mu_tot, this%mu)
+
     if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_registry%get_field(this%nut_field_name)
-       ! Copy material property
-       call field_copy(this%mu_tot, this%mu)
        ! Add turbulent contribution
        call field_addcol3(this%mu_tot, nut, this%rho)
     end if
