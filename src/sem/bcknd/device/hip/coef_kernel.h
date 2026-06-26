@@ -451,6 +451,60 @@ __global__ void coef_generate_area_and_normal_kernel(T* __restrict__ area,
   }
 }
 
+template< typename T >
+__device__ inline void coef_get_normal_device(const T * __restrict__ nx,
+                                              const T * __restrict__ ny,
+                                              const T * __restrict__ nz,
+                                              const int i,
+                                              const int j,
+                                              const int k,
+                                              const int e,
+                                              const int facet,
+                                              const int lx,
+                                              T &normal_x,
+                                              T &normal_y,
+                                              T &normal_z) {
+  int a = 0;
+  int b = 0;
+
+  switch (facet) {
+  case 1:
+  case 2:
+    a = j;
+    b = k;
+    break;
+  case 3:
+  case 4:
+    a = i;
+    b = k;
+    break;
+  case 5:
+  case 6:
+    a = i;
+    b = j;
+    break;
+  default:
+    normal_x = 0.0;
+    normal_y = 0.0;
+    normal_z = 0.0;
+    return;
+  }
+
+  if (a < 1 || a > lx || b < 1 || b > lx || e < 1) {
+    normal_x = 0.0;
+    normal_y = 0.0;
+    normal_z = 0.0;
+    return;
+  }
+
+  const int normal_idx = (a - 1) + lx * ((b - 1) + lx *
+                         ((facet - 1) + 6 * (e - 1)));
+
+  normal_x = nx[normal_idx];
+  normal_y = ny[normal_idx];
+  normal_z = nz[normal_idx];
+}
+
 /**
  * Device kernel for coef_get_normal.
  *
@@ -476,50 +530,9 @@ void coef_get_normal_kernel(T * __restrict__ normal_x,
   const int str = blockDim.x * gridDim.x;
 
   for (int p = idx; p < n; p += str) {
-    const int i = i_idx[p];
-    const int j = j_idx[p];
-    const int k = k_idx[p];
-    const int e = e_idx[p];
-    const int facet = facet_idx[p];
-    int a = 0;
-    int b = 0;
-
-    switch (facet) {
-    case 1:
-    case 2:
-      a = j;
-      b = k;
-      break;
-    case 3:
-    case 4:
-      a = i;
-      b = k;
-      break;
-    case 5:
-    case 6:
-      a = i;
-      b = j;
-      break;
-    default:
-      normal_x[p] = 0.0;
-      normal_y[p] = 0.0;
-      normal_z[p] = 0.0;
-      continue;
-    }
-
-    if (a < 1 || a > lx || b < 1 || b > lx || e < 1) {
-      normal_x[p] = 0.0;
-      normal_y[p] = 0.0;
-      normal_z[p] = 0.0;
-      continue;
-    }
-
-    const int normal_idx = (a - 1) + lx * ((b - 1) + lx *
-                           ((facet - 1) + 6 * (e - 1)));
-
-    normal_x[p] = nx[normal_idx];
-    normal_y[p] = ny[normal_idx];
-    normal_z[p] = nz[normal_idx];
+    coef_get_normal_device(nx, ny, nz, i_idx[p], j_idx[p], k_idx[p], e_idx[p],
+                           facet_idx[p], lx, normal_x[p], normal_y[p],
+                           normal_z[p]);
   }
 }
 
