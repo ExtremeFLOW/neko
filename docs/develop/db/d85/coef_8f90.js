@@ -7,6 +7,7 @@ var coef_8f90 =
     [ "coef_generate_cyclic_bc", "db/d85/coef_8f90.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa", null ],
     [ "coef_generate_dxyzdrst", "db/d85/coef_8f90.html#a7109166ad05f1f18a62a9b96be52900e", null ],
     [ "coef_generate_geo", "db/d85/coef_8f90.html#a1b615b359ab35faee3c6522857bdac33", null ],
+    [ "coef_generate_geo_compressed", "db/d85/coef_8f90.html#acfa0af3d1e6b50af3fa7dbddd9e9d4cf", null ],
     [ "coef_generate_mass", "db/d85/coef_8f90.html#af4bc052c7d759da9d20f84872216f462", null ],
     [ "coef_get_area", "db/d85/coef_8f90.html#a3f7f96b151a2f17e768db3d5ad5b12c0", null ],
     [ "coef_get_normal", "db/d85/coef_8f90.html#a4d34532e89acebdb72fddd6f72f8090d", null ],
