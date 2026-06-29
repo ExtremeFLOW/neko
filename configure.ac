@@ -325,6 +325,9 @@ AX_RCCL
 # Checks for NVSHMEM backend
 AX_NVSHMEM
 
+# Checks for uTofu (native Tofu) gather-scatter backend
+AX_UTOFU
+
 # Checks for NVTX profiling
 AX_NVTX
 
@@ -359,6 +362,7 @@ AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 AM_CONDITIONAL([ENABLE_METAL], [test "x${have_metal}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
+AM_CONDITIONAL([ENABLE_UTOFU], [test "x${have_utofu}" = xyes])
 AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 # Set device dependent flags

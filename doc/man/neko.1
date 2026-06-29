@@ -112,6 +112,19 @@ on accelerator builds and host MPI otherwise.
 .B NEKO_GS_STRTGY
 Selects the gather\-scatter strategy.
 .TP
+.B NEKO_GS_UTOFU_NTNI
+Number of Tofu network interfaces (TNIs) that the per\-thread injection
+VCQs of the native Tofu (uTofu) gather\-scatter backend
+.RB ( NEKO_GS_COMM=UTOFU )
+are dealt over.
+Defaults to
+.BR 1 .
+.TP
+.B NEKO_GS_UTOFU_MASTER_INJECT
+When set to a non\-zero value, the uTofu gather\-scatter backend issues
+all puts from the master thread instead of thread\-parallel injection
+(an A/B reference).
+.TP
 .B NEKO_GLOBAL_INTERP_EL_FINDER
 Selects the element search algorithm used by the global interpolation
 routines.
