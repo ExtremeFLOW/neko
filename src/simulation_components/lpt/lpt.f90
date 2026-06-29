@@ -281,6 +281,7 @@ contains
     real(kind=rp), allocatable :: densities(:)
     real(kind=rp), allocatable :: x(:), y(:), z(:)
     real(kind=rp), allocatable :: u(:), v(:), w(:)
+    integer :: n_particles
 
     if (pe_rank .eq. 0) then
        if (json%valid_path("coordinates")) then
@@ -289,6 +290,7 @@ contains
              call neko_error("lpt coordinates must contain 3 values per " // &
                   "particle")
           end if
+          n_particles = size(coords) / 3
           if (this%inertia) then
              call json_get(json, "velocities", vels)
              if (mod(size(vels), 3) .ne. 0) then
@@ -297,20 +299,27 @@ contains
              end if
              call json_get(json, "diameters", diams)
              call json_get(json, "densities", densities)
+             if (size(vels) / 3 .ne. n_particles .or. &
+                  size(diams) .ne. n_particles .or. &
+                  size(densities) .ne. n_particles) then
+                call neko_error("lpt coordinates, velocities, diameters " // &
+                     "and densities must describe the same number of " // &
+                     "particles")
+             end if
           else
              allocate(vels(size(coords)))
-             allocate(diams(size(coords)/3))
-             allocate(densities(size(coords)/3))
+             allocate(diams(n_particles))
+             allocate(densities(n_particles))
              vels = 0.0_rp
              diams = 0.0_rp
              densities = 0.0_rp
           end if
-          allocate(x(size(coords) / 3))
-          allocate(y(size(coords) / 3))
-          allocate(z(size(coords) / 3))
-          allocate(u(size(vels) / 3))
-          allocate(v(size(vels) / 3))
-          allocate(w(size(vels) / 3))
+          allocate(x(n_particles))
+          allocate(y(n_particles))
+          allocate(z(n_particles))
+          allocate(u(n_particles))
+          allocate(v(n_particles))
+          allocate(w(n_particles))
           x = coords(1::3)
           y = coords(2::3)
           z = coords(3::3)
