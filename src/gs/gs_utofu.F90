@@ -290,11 +290,11 @@ contains
 
     max_tag = 0
     do i = 1, nsend
-       this%rmt_stadd(i)  = msg_in(1, i)
+       this%rmt_stadd(i) = msg_in(1, i)
        this%rmt_vcq_id(i) = msg_in(2, i)
-       this%dst_off0(i)   = msg_in(3, i)
-       this%dst_off1(i)   = msg_in(4, i)
-       this%dst_tag(i)    = int(msg_in(5, i), c_int)
+       this%dst_off0(i) = msg_in(3, i)
+       this%dst_off1(i) = msg_in(4, i)
+       this%dst_tag(i) = int(msg_in(5, i), c_int)
        max_tag = max(max_tag, this%dst_tag(i))
     end do
 
