@@ -50,12 +50,20 @@
                     "zone_indices": [ 1 ]
                 },
                 {
-                    "type": "outflow",
+                    "type": "outflow+dong",
                     "zone_indices": [ 2 ]
                 },
                 {
+                    "type": "symmetry",
+                    "zone_indices": [ 3, 4 ]
+                },
+                {
+                    "type": "normal_outflow",
+                    "zone_indices": [ 6 ]
+                },
+                {
                     "type": "no_slip",
-                    "zone_indices": [ 3, 4, 5, 6 ]
+                    "zone_indices": [ 5 ]
                 }
             ],
             "source_terms": [
