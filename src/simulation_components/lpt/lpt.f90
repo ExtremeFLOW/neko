@@ -61,33 +61,11 @@ module lagrangian_particle_tracking
   use comm, only : pe_rank
   use csv_file, only : csv_file_t
   use vector, only : vector_t
+  use particles, only : particles_t
   use device, only : DEVICE_TO_HOST
   use profiler, only : profiler_start_region, profiler_end_region
   implicit none
   private
-
-  type, private :: particles_t
-     ! general particle info
-     type(vector_t) :: x, y, z
-     type(vector_t) :: u, v, w
-     integer, allocatable :: ids(:)
-     type(vector_t) :: u_lag, v_lag, w_lag
-     type(vector_t) :: u_laglag, v_laglag, w_laglag
-     integer :: time_order, lag_len
-     integer :: n = 0
-     integer :: n_global = 0
-     ! inertia-specific info
-     logical :: inertia = .false.
-     type(vector_t) :: acc_x, acc_y, acc_z
-     type(vector_t) :: d ! diameter of particles
-     type(vector_t) :: rho ! density of particles
-     type(vector_t) :: acc_xlag, acc_ylag, acc_zlag
-     type(vector_t) :: acc_xlaglag, acc_ylaglag, acc_zlaglag
-   contains
-     procedure, pass(this) :: init => particles_init
-     procedure, pass(this) :: free => particles_free
-     procedure, pass(this) :: device_sync => particles_device_sync
-  end type particles_t
 
   !> A simulation component for passive Lagrangian particle tracking.
   type, public, extends(simulation_component_t) :: lpt_t
@@ -168,127 +146,6 @@ module lagrangian_particle_tracking
   end interface
 
 contains
-
-  subroutine particles_init(this, x, y, z, time_order, u, v, w, diameter, &
-       density)
-    class(particles_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: x(:), y(:), z(:)
-    integer, intent(in) :: time_order
-    real(kind=rp), intent(in), optional :: u(:), v(:), w(:)
-    real(kind=rp), intent(in), optional :: diameter(:)
-    real(kind=rp), intent(in), optional :: density(:)
-
-    integer :: i
-
-    if (size(y) .ne. size(x) .or. size(z) .ne. size(x)) then
-       call neko_error("particle coordinate arrays must have the same size")
-    end if
-
-    call this%free()
-
-    this%n = size(x)
-    this%n_global = this%n
-    this%time_order = time_order
-    this%lag_len = time_order - 1
-    call this%x%init(this%n)
-    call this%y%init(this%n)
-    call this%z%init(this%n)
-    call this%u%init(this%n)
-    call this%v%init(this%n)
-    call this%w%init(this%n)
-    call this%acc_x%init(this%n)
-    call this%acc_y%init(this%n)
-    call this%acc_z%init(this%n)
-    allocate(this%ids(this%n))
-    call this%u_lag%init(this%n)
-    call this%v_lag%init(this%n)
-    call this%w_lag%init(this%n)
-    call this%u_laglag%init(this%n)
-    call this%v_laglag%init(this%n)
-    call this%w_laglag%init(this%n)
-    call this%acc_xlag%init(this%n)
-    call this%acc_ylag%init(this%n)
-    call this%acc_zlag%init(this%n)
-    call this%acc_xlaglag%init(this%n)
-    call this%acc_ylaglag%init(this%n)
-    call this%acc_zlaglag%init(this%n)
-    call this%d%init(this%n)
-    call this%rho%init(this%n)
-    this%x = x
-    this%y = y
-    this%z = z
-    if (present(u) .and. present(v) .and. present(w)) then
-       this%u = u
-       this%v = v
-       this%w = w
-    else
-       this%u = 0.0_rp
-       this%v = 0.0_rp
-       this%w = 0.0_rp
-    end if
-    if (present(diameter)) then
-       this%d = diameter
-    else
-       this%d = 0.0_rp
-    end if
-    if (present(density)) then
-       this%rho = density
-    else
-       this%rho = 0.0_rp
-    end if
-    do i = 1, this%n
-       this%ids(i) = i
-    end do
-  end subroutine particles_init
-
-  subroutine particles_free(this)
-    class(particles_t), intent(inout) :: this
-
-    call this%x%free()
-    call this%y%free()
-    call this%z%free()
-    if (allocated(this%ids)) deallocate(this%ids)
-    call this%u%free()
-    call this%v%free()
-    call this%w%free()
-    call this%acc_x%free()
-    call this%acc_y%free()
-    call this%acc_z%free()
-    call this%u_lag%free()
-    call this%v_lag%free()
-    call this%w_lag%free()
-    call this%u_laglag%free()
-    call this%v_laglag%free()
-    call this%w_laglag%free()
-    call this%acc_xlag%free()
-    call this%acc_ylag%free()
-    call this%acc_zlag%free()
-    call this%acc_xlaglag%free()
-    call this%acc_ylaglag%free()
-    call this%acc_zlaglag%free()
-    call this%d%free()
-    call this%rho%free()
-    this%n = 0
-    this%n_global = 0
-  end subroutine particles_free
-
-  !> Synchronise the host and device data for particles
-  subroutine particles_device_sync(this, memdir)
-    class(particles_t), intent(inout) :: this
-    integer, intent(in) :: memdir
-
-    call this%x%copy_from(memdir, .false.)
-    call this%y%copy_from(memdir, .false.)
-    call this%z%copy_from(memdir, .false.)
-    call this%u%copy_from(memdir, .false.)
-    call this%v%copy_from(memdir, .false.)
-    call this%w%copy_from(memdir, .true.)
-    if (this%inertia) then
-       call this%d%copy_from(memdir, .false.)
-       call this%rho%copy_from(memdir, .true.)
-    end if
-
-  end subroutine particles_device_sync
 
   !> Construct from JSON.
   !! Supported particle input is either a flat `coordinates` array
