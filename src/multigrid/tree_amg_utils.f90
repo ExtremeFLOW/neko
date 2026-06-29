@@ -63,7 +63,7 @@ contains
     u(i) = 1.0_rp
 
     !> Get the ghosts to agree on the value of 1.0
-    if (lvl.eq.0) call amg%gs_h%gs_op_vector(u, n, GS_OP_ADD)
+    if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
 
     call amg%matvec(v, u, lvl)
 
@@ -92,7 +92,7 @@ contains
 
           u(i) = 1.0_rp
           !> Get the ghosts to agree on the value of 1.0
-          if (lvl.eq.0) call amg%gs_h%gs_op_vector(u, n, GS_OP_ADD)
+          if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
 
           call amg%matvec(v, u, lvl)
 
@@ -127,7 +127,7 @@ contains
 
           u(i) = 1.0_rp
           !> Get the ghosts to agree on the value of 1.0
-          if (lvl.eq.0) call amg%gs_h%gs_op_vector(u, n, GS_OP_ADD)
+          if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
 
           call amg%interp_f2c(v, u, lvl+1)
 
