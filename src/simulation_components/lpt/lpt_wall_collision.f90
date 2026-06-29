@@ -108,9 +108,6 @@ contains
     type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
     integer, intent(in) :: lag_len
     type(matrix_t) :: rst_new
-      !  type(vector_t) :: x_t
-      !  type(vector_t) :: y_t
-      !  type(vector_t) :: z_t
     type(vector_t) :: resx
     type(vector_t) :: resy
     type(vector_t) :: resz
