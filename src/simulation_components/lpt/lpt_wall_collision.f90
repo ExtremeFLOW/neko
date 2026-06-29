@@ -46,6 +46,7 @@ module lpt_wall_collision
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST, device_map, &
        device_memcpy, device_deassociate, device_free, device_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
@@ -108,15 +109,14 @@ contains
     type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
     integer, intent(in) :: lag_len
     type(matrix_t) :: rst_new
-    type(vector_t) :: resx
-    type(vector_t) :: resy
-    type(vector_t) :: resz
+    type(vector_t), pointer :: resx, resy, resz
     integer, allocatable :: el_list(:)
     integer, allocatable :: wall_facet_mask_i(:, :)
     type(c_ptr) :: el_list_d
     type(c_ptr) :: wall_facet_mask_d
     integer :: i
     integer :: n
+    integer :: ind(3)
 
     n = x%size()
     if (n .eq. 0) return
@@ -126,9 +126,10 @@ contains
 
     allocate(el_list(n))
     call rst_new%init(3, n)
-    call resx%init(n)
-    call resy%init(n)
-    call resz%init(n)
+    call neko_scratch_registry%request_vector(resx, ind(1), n, .false.)
+    call neko_scratch_registry%request_vector(resy, ind(2), n, .false.)
+    call neko_scratch_registry%request_vector(resz, ind(3), n, .false.)
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(el_list, el_list_d, n)
     end if
@@ -183,9 +184,7 @@ contains
 
     if (allocated(el_list)) deallocate(el_list)
     call rst_new%free()
-    call resx%free()
-    call resy%free()
-    call resz%free()
+    call neko_scratch_registry%relinquish(ind)
   end subroutine lpt_handle_elastic_wall_collisions
 
   subroutine lpt_wall_collision_sync_from_device(x, y, z, u, v, w, &

@@ -63,7 +63,7 @@ submodule (simulation_component) simulation_component_fctry
   character(len=20) :: SIMCOMPS_KNOWN_TYPES(22) = [character(len=20) :: &
        "boundary_operation", &
        "boundary_flux", &
-       "lpt", &
+       "lagrangian_particles", &
        "lambda2", &
        "probes", &
        "les_model", &
@@ -131,7 +131,7 @@ contains
        allocate(boundary_operation_t::object)
     case ("boundary_flux")
        allocate(boundary_flux_t::object)
-    case ("lpt")
+    case ("lagrangian_particles")
        allocate(lpt_t::object)
     case ("lambda2")
        allocate(lambda2_t::object)
