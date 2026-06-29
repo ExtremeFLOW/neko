@@ -271,35 +271,35 @@ contains
     v_laglag = v_laglag_local
     w_laglag = w_laglag_local
     if (inertia) then
-      u = u_local
-      v = v_local
-      w = w_local
-      acc_x = acc_xlocal
-      acc_y = acc_ylocal
-      acc_z = acc_zlocal
-      d = d_local
-      rho = rho_local
-      acc_xlag = acc_xlag_local
-      acc_ylag = acc_ylag_local
-      acc_zlag = acc_zlag_local
-      acc_xlaglag = acc_xlaglag_local
-      acc_ylaglag = acc_ylaglag_local
-      acc_zlaglag = acc_zlaglag_local
+       u = u_local
+       v = v_local
+       w = w_local
+       acc_x = acc_xlocal
+       acc_y = acc_ylocal
+       acc_z = acc_zlocal
+       d = d_local
+       rho = rho_local
+       acc_xlag = acc_xlag_local
+       acc_ylag = acc_ylag_local
+       acc_zlag = acc_zlag_local
+       acc_xlaglag = acc_xlaglag_local
+       acc_ylaglag = acc_ylaglag_local
+       acc_zlaglag = acc_zlaglag_local
     else
-      call u%free()
-      call v%free()
-      call w%free()
-      call acc_x%free()
-      call acc_y%free()
-      call acc_z%free()
-      call d%free()
-      call rho%free()
-      call acc_xlag%free()
-      call acc_ylag%free()
-      call acc_zlag%free()
-      call acc_xlaglag%free()
-      call acc_ylaglag%free()
-      call acc_zlaglag%free()
+       call u%free()
+       call v%free()
+       call w%free()
+       call acc_x%free()
+       call acc_y%free()
+       call acc_z%free()
+       call d%free()
+       call rho%free()
+       call acc_xlag%free()
+       call acc_ylag%free()
+       call acc_zlag%free()
+       call acc_xlaglag%free()
+       call acc_ylaglag%free()
+       call acc_zlaglag%free()
     end if
 
     call this%localize_global_interpolation(global_interp, n)

@@ -50,9 +50,9 @@ module lagrangian_particle_tracking
   use file, only : file_t
   use matrix, only : matrix_t
   use vector_math, only : vector_add2s2, vector_cfill, vector_cmult2, &
-      vector_col2, vector_col3, vector_invcol2, vector_sqrt_inplace, &
-      vector_power, vector_sub3, vector_vdot3, vector_cmult, &
-      vector_cadd2, vector_invcol3
+       vector_col2, vector_col3, vector_invcol2, vector_sqrt_inplace, &
+       vector_power, vector_sub3, vector_vdot3, vector_cmult, &
+       vector_cadd2, vector_invcol3
   use ab_time_scheme, only : ab_time_scheme_t
   use lpt_periodic_bc, only : lpt_periodic_bc_t
   use lpt_migrate, only : lpt_migrate_t, LPT_MIGRATE_TO_OWNER, &
@@ -309,9 +309,9 @@ contains
        call json_get_or_default(json, "nonlinear_exponent", &
             this%nonlinear_exponent, 0.687_rp)
        this%mu_fluid => neko_registry%get_field_by_name( &
-                        case%fluid%name // "_mu")
+            case%fluid%name // "_mu")
        this%rho_fluid => neko_registry%get_field_by_name( &
-                        case%fluid%name // "_rho")
+            case%fluid%name // "_rho")
     end if
     this%u_field => neko_registry%get_field_by_name("u")
     this%v_field => neko_registry%get_field_by_name("v")
@@ -530,12 +530,12 @@ contains
 
   !> Estimate the local particile acceleration
   subroutine evaluate_acceleration(this, acc_x, acc_y, acc_z, &
-             u_fluid, v_fluid, w_fluid)
+       u_fluid, v_fluid, w_fluid)
     class(lpt_t), intent(inout) :: this
     type(vector_t), intent(in) :: u_fluid, v_fluid, w_fluid
     type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
     type(vector_t) :: tau_p, Re_p, f, rho_fluid_local
-    type(vector_t) :: mu_fluid_local,  nu_fluid_local
+    type(vector_t) :: mu_fluid_local, nu_fluid_local
     type(vector_t) :: u_rel, v_rel, w_rel, vel_rel_mag
     type(vector_t) :: wa
 
@@ -578,7 +578,7 @@ contains
     call vector_sqrt_inplace(vel_rel_mag)
     call vector_col3(Re_p, vel_rel_mag, this%particles%d)
     call vector_invcol2(Re_p, nu_fluid_local)
-    
+
     ! compute f
     call vector_power(wa, Re_p, this%nonlinear_exponent)
     call vector_cmult(wa, this%nonlinear_coefficient)
@@ -668,81 +668,81 @@ contains
     type(vector_t) :: x_old, y_old, z_old, u_old, v_old, w_old
 
     associate(x => this%particles%x, y => this%particles%y, &
-              z => this%particles%z, u => this%particles%u, &
-              v => this%particles%v, w => this%particles%w, &
-              acc_x => this%particles%acc_x, &
-              acc_y => this%particles%acc_y, &
-              acc_z => this%particles%acc_z, &
-              u_lag => this%particles%u_lag, &
-              v_lag => this%particles%v_lag, &
-              w_lag => this%particles%w_lag, &
-              u_laglag => this%particles%u_laglag, &
-              v_laglag => this%particles%v_laglag, &
-              w_laglag => this%particles%w_laglag, &
-              acc_xlag => this%particles%acc_xlag, &
-              acc_ylag => this%particles%acc_ylag, &
-              acc_zlag => this%particles%acc_zlag, &
-              acc_xlaglag => this%particles%acc_xlaglag, &
-              acc_ylaglag => this%particles%acc_ylaglag, &
-              acc_zlaglag => this%particles%acc_zlaglag, &
-              n => this%particles%n)
-    if (time%t .lt. this%start_time) return
-    call this%sync_time_controller(time)
-    if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
+         z => this%particles%z, u => this%particles%u, &
+         v => this%particles%v, w => this%particles%w, &
+         acc_x => this%particles%acc_x, &
+         acc_y => this%particles%acc_y, &
+         acc_z => this%particles%acc_z, &
+         u_lag => this%particles%u_lag, &
+         v_lag => this%particles%v_lag, &
+         w_lag => this%particles%w_lag, &
+         u_laglag => this%particles%u_laglag, &
+         v_laglag => this%particles%v_laglag, &
+         w_laglag => this%particles%w_laglag, &
+         acc_xlag => this%particles%acc_xlag, &
+         acc_ylag => this%particles%acc_ylag, &
+         acc_zlag => this%particles%acc_zlag, &
+         acc_xlaglag => this%particles%acc_xlaglag, &
+         acc_ylaglag => this%particles%acc_ylaglag, &
+         acc_zlaglag => this%particles%acc_zlaglag, &
+         n => this%particles%n)
+      if (time%t .lt. this%start_time) return
+      call this%sync_time_controller(time)
+      if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
 
-    call profiler_start_region('LPT_time_integration')
+      call profiler_start_region('LPT_time_integration')
 
-    x_old = x
-    y_old = y
-    z_old = z
-    u_old = u
-    v_old = v
-    w_old = w
+      x_old = x
+      y_old = y
+      z_old = z
+      u_old = u
+      v_old = v
+      w_old = w
 
-    ! Advance the particle state from the previously stored RHS.
-    if (this%inertia) then
-       call this%ODE_integrate_ab_3c(u, v, w, acc_x, acc_y, acc_z, &
-            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-            acc_zlaglag, n)
-    end if
+      ! Advance the particle state from the previously stored RHS.
+      if (this%inertia) then
+         call this%ODE_integrate_ab_3c(u, v, w, acc_x, acc_y, acc_z, &
+              acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
+              acc_zlaglag, n)
+      end if
 
-    ! Advance the coordinates using the velocity history available at step
-    ! entry, before the fluid solve refreshes the current RHS.
-    call this%ODE_integrate_ab_3c(x, y, z, u_old, v_old, w_old, &
-         u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, n)
+      ! Advance the coordinates using the velocity history available at step
+      ! entry, before the fluid solve refreshes the current RHS.
+      call this%ODE_integrate_ab_3c(x, y, z, u_old, v_old, w_old, &
+           u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, n)
 
-    ! Handle the wall collisions with the pre-step RHS.
-    if (this%inertia .and. this%elastic_wall_enabled) then
-       call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
-            this%dm_Xh, this%coef, this%wall_facet_mask, x_old, y_old, z_old, &
-            x, y, z, &
-            this%particles%d, &
-            u, v, w, &
-            u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-            acc_zlaglag, &
-            u_old, v_old, w_old, acc_x, acc_y, acc_z, this%lag_len)
-    end if
+      ! Handle the wall collisions with the pre-step RHS.
+      if (this%inertia .and. this%elastic_wall_enabled) then
+         call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
+              this%dm_Xh, this%coef, this%wall_facet_mask, x_old, y_old, z_old, &
+              x, y, z, &
+              this%particles%d, &
+              u, v, w, &
+              u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+              acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
+              acc_zlaglag, &
+              u_old, v_old, w_old, acc_x, acc_y, acc_z, this%lag_len)
+      end if
 
-    ! Update lag histories for the next Adams-Bashforth step.
-    if (this%lag_len .gt. 0) then
-       call update_lags(u_lag, u_laglag, u_old)
-       call update_lags(v_lag, v_laglag, v_old)
-       call update_lags(w_lag, w_laglag, w_old)
-       if (this%inertia) then
-          call update_lags(acc_xlag, acc_xlaglag, acc_x)
-          call update_lags(acc_ylag, acc_ylaglag, acc_y)
-          call update_lags(acc_zlag, acc_zlaglag, acc_z)
-       end if
-       this%history_len = min(this%history_len + 1, this%lag_len)
-    end if
+      ! Update lag histories for the next Adams-Bashforth step.
+      if (this%lag_len .gt. 0) then
+         call update_lags(u_lag, u_laglag, u_old)
+         call update_lags(v_lag, v_laglag, v_old)
+         call update_lags(w_lag, w_laglag, w_old)
+         if (this%inertia) then
+            call update_lags(acc_xlag, acc_xlaglag, acc_x)
+            call update_lags(acc_ylag, acc_ylaglag, acc_y)
+            call update_lags(acc_zlag, acc_zlaglag, acc_z)
+         end if
+         this%history_len = min(this%history_len + 1, this%lag_len)
+      end if
 
-    call x_old%free()
-    call y_old%free()
-    call z_old%free()
-    call u_old%free()
-    call v_old%free()
-    call w_old%free()
+      call x_old%free()
+      call y_old%free()
+      call z_old%free()
+      call u_old%free()
+      call v_old%free()
+      call w_old%free()
     end associate
 
     call profiler_end_region('LPT_time_integration')
@@ -807,8 +807,8 @@ contains
 
   !> Performing ODE integration by Adam-Bashforth scheme
   subroutine ODE_integrate_ab_3c(this, sol_x, sol_y, sol_z, &
-             rhs_x, rhs_y, rhs_z, rhs_xlag, rhs_ylag, rhs_zlag, &
-             rhs_xlaglag, rhs_ylaglag, rhs_zlaglag, n)
+       rhs_x, rhs_y, rhs_z, rhs_xlag, rhs_ylag, rhs_zlag, &
+       rhs_xlaglag, rhs_ylaglag, rhs_zlaglag, n)
     class(lpt_t), intent(inout) :: this
     type(vector_t), intent(inout) :: sol_x, sol_y, sol_z
     type(vector_t), intent(in) :: rhs_x, rhs_y, rhs_z
@@ -869,7 +869,7 @@ contains
     n_local = this%particles%n
 
     call this%particles%device_sync(DEVICE_TO_HOST)
-    
+
     if (this%inertia) then
        n_data = 11
     else
