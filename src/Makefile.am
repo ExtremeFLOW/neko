@@ -938,6 +938,8 @@ EXTRA_DIST = \
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
+	simulation_components/lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h\
+	simulation_components/lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h\
 	les/bcknd/device/cuda/sigma_nut_kernel.h\
 	les/bcknd/device/cuda/vreman_nut_kernel.h\
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
@@ -998,6 +1000,8 @@ EXTRA_DIST = \
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\
+	simulation_components/lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h\
+	simulation_components/lpt/bcknd/device/hip/lpt_wall_collision_kernel.h\
 	les/bcknd/device/hip/sigma_nut_kernel.h\
 	les/bcknd/device/hip/vreman_nut_kernel.h\
 	les/bcknd/device/hip/smagorinsky_nut_kernel.h\
