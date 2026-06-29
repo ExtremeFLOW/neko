@@ -47,6 +47,8 @@ A number of gather-scatter backends are supported.
   OpenSHMEM based on CPU builds (requires a native OpenSHMEM library,
   e.g. Cray OpenSHMEMX, enabled at configure time with `--with-openshmem`)
 - `NEKO_GS_COMM=CAF`    : Coarray Fortran (requires a coarray-capable compiler)
+- `NEKO_GS_COMM=NEIGHBOUR` : Host MPI using an `MPI_Ineighbor_alltoallv`
+  neighbourhood collective (`NEIGHBOR` is also accepted; MPI-3, host only)
 
 ### MPI thread level details
 
