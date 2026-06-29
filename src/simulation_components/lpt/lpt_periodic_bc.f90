@@ -354,7 +354,7 @@ contains
        ! find whether there is a match facet from the global list
        match_idx = 0
        do j = 1, n_global
-          if (global_meta(2 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1) &
+          if (global_meta(2 * (j - 1) + 1) .eq. msh%periodic%p_facet_el(i)%x(1)&
                .and. global_meta(2 * (j - 1) + 2) .eq. &
                msh%periodic%p_facet_el(i)%x(2)) then
              match_idx = j

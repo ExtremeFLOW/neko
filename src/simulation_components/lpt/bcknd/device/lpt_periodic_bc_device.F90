@@ -51,7 +51,7 @@ module lpt_periodic_bc_device
           periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
           periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
           periodic_len1, periodic_len2, periodic_len3, strm) &
-          bind(c, name='hip_lpt_periodic_bc_wrap_translational')
+          bind(c, name = 'hip_lpt_periodic_bc_wrap_translational')
        use, intrinsic :: iso_c_binding
        use num_types, only : c_rp
        implicit none
@@ -72,7 +72,7 @@ module lpt_periodic_bc_device
           theta_max, theta_len, u, v, w, u_lag, v_lag, w_lag, u_laglag, &
           v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
           acc_ylaglag, acc_zlaglag, strm) &
-          bind(c, name='hip_lpt_periodic_bc_wrap_rotational')
+          bind(c, name = 'hip_lpt_periodic_bc_wrap_rotational')
        use, intrinsic :: iso_c_binding
        use num_types, only : c_rp
        implicit none
@@ -95,7 +95,7 @@ module lpt_periodic_bc_device
           periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
           periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
           periodic_len1, periodic_len2, periodic_len3, strm) &
-          bind(c, name='cuda_lpt_periodic_bc_wrap_translational')
+          bind(c, name = 'cuda_lpt_periodic_bc_wrap_translational')
        use, intrinsic :: iso_c_binding
        use num_types, only : c_rp
        implicit none
@@ -116,7 +116,7 @@ module lpt_periodic_bc_device
           theta_max, theta_len, u, v, w, u_lag, v_lag, w_lag, u_laglag, &
           v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
           acc_ylaglag, acc_zlaglag, strm) &
-          bind(c, name='cuda_lpt_periodic_bc_wrap_rotational')
+          bind(c, name = 'cuda_lpt_periodic_bc_wrap_rotational')
        use, intrinsic :: iso_c_binding
        use num_types, only : c_rp
        implicit none

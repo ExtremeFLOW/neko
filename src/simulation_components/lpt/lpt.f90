@@ -714,8 +714,8 @@ contains
       ! Handle the wall collisions with the pre-step RHS.
       if (this%inertia .and. this%elastic_wall_enabled) then
          call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
-              this%dm_Xh, this%coef, this%wall_facet_mask, x_old, y_old, z_old, &
-              x, y, z, &
+              this%dm_Xh, this%coef, this%wall_facet_mask, &
+              x_old, y_old, z_old, x, y, z, &
               this%particles%d, &
               u, v, w, &
               u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
@@ -944,9 +944,9 @@ contains
     end if
     if (this%periodic_bc%rotational_periodic_enabled) then
        write(log_buf, '(A,3(ES13.5,A),ES13.5)') &
-            "Rotational periodic sector: theta_min=", &
-            this%periodic_bc%rotational_theta_min, ", theta_max=", &
-            this%periodic_bc%rotational_theta_max, ", theta_len=", &
+            "Rotational periodic sector: theta_min = ", &
+            this%periodic_bc%rotational_theta_min, ", theta_max = ", &
+            this%periodic_bc%rotational_theta_max, ", theta_len = ", &
             this%periodic_bc%rotational_theta_len, ""
        call neko_log%message(log_buf)
     end if

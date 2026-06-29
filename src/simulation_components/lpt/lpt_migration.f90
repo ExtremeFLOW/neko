@@ -371,12 +371,12 @@ contains
             d_local)
        call this%distribute_particle_scalar(rho, counts, offsets, n_local, &
             rho_local)
-       call this%distribute_particle_scalar(acc_xlag, counts, offsets, n_local, &
-            acc_xlag_local)
-       call this%distribute_particle_scalar(acc_ylag, counts, offsets, n_local, &
-            acc_ylag_local)
-       call this%distribute_particle_scalar(acc_zlag, counts, offsets, n_local, &
-            acc_zlag_local)
+       call this%distribute_particle_scalar(acc_xlag, counts, offsets, &
+            n_local, acc_xlag_local)
+       call this%distribute_particle_scalar(acc_ylag, counts, offsets, &
+            n_local, acc_ylag_local)
+       call this%distribute_particle_scalar(acc_zlag, counts, offsets, &
+            n_local, acc_zlag_local)
        call this%distribute_particle_scalar(acc_xlaglag, counts, offsets, &
             n_local, acc_xlaglag_local)
        call this%distribute_particle_scalar(acc_ylaglag, counts, offsets, &

@@ -50,7 +50,7 @@ module lpt_wall_collision_device
           acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
           u_old, v_old, w_old, acc_x, acc_y, acc_z, dm_x, dm_y, dm_z, &
           nx, ny, nz, n, gdim, nelv, lx, ly, lz, lag_len, strm) &
-          bind(c, name='hip_lpt_handle_elastic_wall_collisions')
+          bind(c, name = 'hip_lpt_handle_elastic_wall_collisions')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: wall_facet_mask, el_list
@@ -75,7 +75,7 @@ module lpt_wall_collision_device
           acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
           u_old, v_old, w_old, acc_x, acc_y, acc_z, dm_x, dm_y, dm_z, &
           nx, ny, nz, n, gdim, nelv, lx, ly, lz, lag_len, strm) &
-          bind(c, name='cuda_lpt_handle_elastic_wall_collisions')
+          bind(c, name = 'cuda_lpt_handle_elastic_wall_collisions')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: wall_facet_mask, el_list
