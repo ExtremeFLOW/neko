@@ -64,6 +64,7 @@ module lagrangian_particle_tracking
   use csv_file, only : csv_file_t
   use vector, only : vector_t
   use device, only : DEVICE_TO_HOST
+  use profiler, only : profiler_start_region, profiler_end_region
   implicit none
   private
 
@@ -610,6 +611,8 @@ contains
     class(lpt_t), intent(inout) :: this
     type(vector_t) :: u_fluid, v_fluid, w_fluid
 
+    call profiler_start_region('LPT_migrate_interp')
+
     call this%migration%migrate_particles(this%global_interp, &
          this%periodic_bc, this%inertia, &
          this%particles%x, this%particles%y, this%particles%z, &
@@ -644,6 +647,8 @@ contains
     call u_fluid%free()
     call v_fluid%free()
     call w_fluid%free()
+
+    call profiler_end_region('LPT_migrate_interp')
   end subroutine update_current_rhs
 
   !> Refresh the particle lags.
@@ -684,6 +689,8 @@ contains
     if (time%t .lt. this%start_time) return
     call this%sync_time_controller(time)
     if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
+
+    call profiler_start_region('LPT_time_integration')
 
     x_old = x
     y_old = y
@@ -737,6 +744,8 @@ contains
     call v_old%free()
     call w_old%free()
     end associate
+
+    call profiler_end_region('LPT_time_integration')
 
   end subroutine lpt_preprocess
 
