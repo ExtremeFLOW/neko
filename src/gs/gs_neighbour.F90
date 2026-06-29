@@ -177,11 +177,11 @@ contains
        dst = this%send_pe(i)
        off = this%sdispls(i)
        ndst = this%sendcounts(i)
-       select type (sp => this%send_dof(dst)%data)
+       select type (dofs => this%send_dof(dst)%data)
        type is (integer)
           !$omp simd
           do j = 1, ndst
-             this%send_buf(off + j) = u(sp(j))
+             this%send_buf(off + j) = u(dofs(j))
           end do
        end select
     end do
@@ -231,7 +231,7 @@ contains
        src = this%recv_pe(i)
        off = this%rdispls(i)
        nsrc = this%recvcounts(i)
-       select type (sp => this%recv_dof(src)%data)
+       select type (dofs => this%recv_dof(src)%data)
        type is (integer)
           select case (op)
           case (GS_OP_ADD)
@@ -241,7 +241,7 @@ contains
              !NEC$ IVDEP
              !$omp do
              do j = 1, nsrc
-                u(sp(j)) = u(sp(j)) + this%recv_buf(off + j)
+                u(dofs(j)) = u(dofs(j)) + this%recv_buf(off + j)
              end do
              !$omp end do
           case (GS_OP_MUL)
@@ -251,7 +251,7 @@ contains
              !NEC$ IVDEP
              !$omp do
              do j = 1, nsrc
-                u(sp(j)) = u(sp(j)) * this%recv_buf(off + j)
+                u(dofs(j)) = u(dofs(j)) * this%recv_buf(off + j)
              end do
              !$omp end do
           case (GS_OP_MIN)
@@ -261,7 +261,7 @@ contains
              !NEC$ IVDEP
              !$omp do
              do j = 1, nsrc
-                u(sp(j)) = min(u(sp(j)), this%recv_buf(off + j))
+                u(dofs(j)) = min(u(dofs(j)), this%recv_buf(off + j))
              end do
              !$omp end do
           case (GS_OP_MAX)
@@ -271,7 +271,7 @@ contains
              !NEC$ IVDEP
              !$omp do
              do j = 1, nsrc
-                u(sp(j)) = max(u(sp(j)), this%recv_buf(off + j))
+                u(dofs(j)) = max(u(dofs(j)), this%recv_buf(off + j))
              end do
              !$omp end do
           case default
