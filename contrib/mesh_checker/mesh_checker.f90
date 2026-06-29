@@ -186,10 +186,14 @@ program mesh_checker
         call bdry_mask%free()
      end do
 
+     call bdry_file%init('zone_indices.fld')
+     call bdry_file%write(bdry_field)
+
      do e = 1, msh%nelv
         do i = 1, dofmap%Xh%lx
            do j = 1, dofmap%Xh%ly
               do k = 1, dofmap%Xh%lz
+                 bdry_field%x(i, j, k, e) = coef%jac(i, j, k, e)
                  if (coef%jac(i, j, k, e) .lt. 0.0_rp) then
                     write(*,*) 'Warning: Found negative jacobian at element ', &
                          e, &
@@ -200,7 +204,6 @@ program mesh_checker
         end do
      end do
 
-     call bdry_file%init('zone_indices.fld')
      call bdry_file%write(bdry_field)
 
      call dofmap%free()
