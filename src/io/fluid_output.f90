@@ -203,6 +203,18 @@ contains
        ft%skip_velocity = .false.
        ft%skip_temperature = .false.
        ft%write_mesh = this%always_write_mesh
+       if (ft%write_mesh) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             associate(mesh => this%fluid%items(2)%ptr%dof)
+               call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .false.)
+               call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .false.)
+               call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+             end associate
+          end if
+       end if
        call ft%write(this%fluid, t)
     class default
        call ft%write(this%fluid, t)

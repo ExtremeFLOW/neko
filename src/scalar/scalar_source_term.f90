@@ -81,7 +81,8 @@ contains
   !! @param coef The SEM coefs.
   !! "user_poinwise".
   !! @param user The user type containing the user source term routines.
-  !! @param scheme_name The name of the scalar scheme that owns this source term.
+  !! @param scheme_name The name of the scalar scheme that owns this
+  !! source term.
   subroutine scalar_init_user_source(source_term, rhs_fields, coef, user, &
        scheme_name)
     class(source_term_t), allocatable, intent(inout) :: source_term

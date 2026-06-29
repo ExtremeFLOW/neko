@@ -85,6 +85,30 @@ module device_tree_amg_smoother
        integer(c_int) :: n
      end subroutine cuda_amg_cheby_solve_part2
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_amg_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
+          inv_thet, n, zero_initial, strm) &
+          bind(c, name='metal_amg_cheby_solve_part1')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int, c_bool
+       import c_rp
+       type(c_ptr), value :: r_d, f_d, w_d, x_d, d_d, strm
+       real(c_rp) :: inv_thet
+       integer(c_int) :: n
+       logical(c_bool) :: zero_initial
+     end subroutine metal_amg_cheby_solve_part1
+  end interface
+
+  interface
+     subroutine metal_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
+          tmp1, tmp2, n, strm) bind(c, name='metal_amg_cheby_solve_part2')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: r_d, w_d, d_d, x_d, strm
+       real(c_rp) :: tmp1, tmp2
+       integer(c_int) :: n
+     end subroutine metal_amg_cheby_solve_part2
+  end interface
 #elif HAVE_OPENCL
 #endif
 
@@ -108,6 +132,9 @@ contains
 #elif HAVE_CUDA
     call cuda_amg_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
          inv_thet, n, zinit, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_amg_cheby_solve_part1(r_d, f_d, w_d, x_d, d_d, &
+         inv_thet, n, zinit, glb_cmd_queue)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -122,6 +149,9 @@ contains
          tmp1, tmp2, n, glb_cmd_queue)
 #elif HAVE_CUDA
     call cuda_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
+         tmp1, tmp2, n, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_amg_cheby_solve_part2(r_d, w_d, d_d, x_d, &
          tmp1, tmp2, n, glb_cmd_queue)
 #else
     call neko_error('No device backend configured')

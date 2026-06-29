@@ -157,3 +157,40 @@ wall_models/bcknd/device/hip/most.lo : wall_models/bcknd/device/hip/most.hip wal
 wall_models/bcknd/device/hip/richardson.lo : wall_models/bcknd/device/hip/richardson.hip wall_models/bcknd/device/hip/richardson_kernel.h
 wall_models/bcknd/device/opencl/cai_sagaut_model_ii.lo : wall_models/bcknd/device/opencl/cai_sagaut_model_ii.c wall_models/bcknd/device/opencl/cai_sagaut_model_ii_kernel.cl.h
 multigrid/bcknd/device/cuda/amg_cheby.lo : multigrid/bcknd/device/cuda/amg_cheby.cu
+device/metal/metal.lo : device/metal/metal.m device/metal/check.h
+device/metal/neko_metallib.lo : device/metal/neko_metallib.c
+math/bcknd/device/metal/math.lo : math/bcknd/device/metal/math.m
+math/bcknd/device/metal/ax_helm.lo : math/bcknd/device/metal/ax_helm.m
+gs/bcknd/device/metal/gs.lo : gs/bcknd/device/metal/gs.m
+sem/bcknd/device/metal/coef.lo : sem/bcknd/device/metal/coef.m
+bc/bcknd/device/metal/dirichlet.lo : bc/bcknd/device/metal/dirichlet.m bc/bcknd/device/metal/bc_utils.h
+bc/bcknd/device/metal/inflow.lo : bc/bcknd/device/metal/inflow.m bc/bcknd/device/metal/bc_utils.h
+bc/bcknd/device/metal/zero_dirichlet.lo : bc/bcknd/device/metal/zero_dirichlet.m bc/bcknd/device/metal/bc_utils.h
+bc/bcknd/device/metal/symmetry.lo : bc/bcknd/device/metal/symmetry.m bc/bcknd/device/metal/bc_utils.h
+bc/bcknd/device/metal/facet_normal.lo : bc/bcknd/device/metal/facet_normal.m bc/bcknd/device/metal/bc_utils.h
+bc/bcknd/device/metal/neumann.lo : bc/bcknd/device/metal/neumann.m bc/bcknd/device/metal/bc_utils.h
+bc/bcknd/device/metal/inhom_dirichlet.lo : bc/bcknd/device/metal/inhom_dirichlet.m bc/bcknd/device/metal/bc_utils.h
+bc/bcknd/device/metal/dong_outflow.lo : bc/bcknd/device/metal/dong_outflow.m bc/bcknd/device/metal/bc_utils.h
+krylov/bcknd/device/metal/pc_jacobi.lo : krylov/bcknd/device/metal/pc_jacobi.m device/metal/check.h
+math/bcknd/device/metal/tensor.lo : math/bcknd/device/metal/tensor.m device/metal/check.h
+math/bcknd/device/metal/opr_cfl.lo : math/bcknd/device/metal/opr_cfl.m device/metal/check.h
+math/bcknd/device/metal/opr_dudxyz.lo : math/bcknd/device/metal/opr_dudxyz.m device/metal/check.h
+math/bcknd/device/metal/opr_opgrad.lo : math/bcknd/device/metal/opr_opgrad.m device/metal/check.h
+math/bcknd/device/metal/opr_cdtp.lo : math/bcknd/device/metal/opr_cdtp.m device/metal/check.h
+math/bcknd/device/metal/opr_conv1.lo : math/bcknd/device/metal/opr_conv1.m device/metal/check.h
+math/bcknd/device/metal/set_convect_rst.lo : math/bcknd/device/metal/set_convect_rst.m device/metal/check.h
+math/bcknd/device/metal/opr_convect_scalar.lo : math/bcknd/device/metal/opr_convect_scalar.m device/metal/check.h
+math/bcknd/device/metal/opr_lambda2.lo : math/bcknd/device/metal/opr_lambda2.m device/metal/check.h
+math/bcknd/device/metal/opr_rotate_cyc.lo : math/bcknd/device/metal/opr_rotate_cyc.m device/metal/check.h
+math/bcknd/device/metal/schwarz.lo : math/bcknd/device/metal/schwarz.m device/metal/check.h
+math/bcknd/device/metal/fdm.lo : math/bcknd/device/metal/fdm.m device/metal/check.h
+multigrid/bcknd/device/metal/amg_cheby.lo : multigrid/bcknd/device/metal/amg_cheby.m device/metal/check.h
+krylov/bcknd/device/metal/cheby.lo : krylov/bcknd/device/metal/cheby.m device/metal/check.h
+scalar/bcknd/device/metal/scalar_residual.lo : scalar/bcknd/device/metal/scalar_residual.m device/metal/check.h
+math/bcknd/device/metal/mathops.lo : math/bcknd/device/metal/mathops.m device/metal/check.h
+common/bcknd/device/metal/rhs_maker.lo : common/bcknd/device/metal/rhs_maker.m device/metal/check.h
+fluid/bcknd/device/metal/euler_res.lo : fluid/bcknd/device/metal/euler_res.m device/metal/check.h
+fluid/bcknd/device/metal/pnpn_res.lo : fluid/bcknd/device/metal/pnpn_res.m device/metal/check.h
+fluid/bcknd/device/metal/compressible_ops.lo : fluid/bcknd/device/metal/compressible_ops.m device/metal/check.h
+fluid/regularization/bcknd/device/metal/entropy_viscosity.lo : fluid/regularization/bcknd/device/metal/entropy_viscosity.m device/metal/check.h
+filter/bcknd/device/metal/mappings.lo : filter/bcknd/device/metal/mappings.m device/metal/check.h

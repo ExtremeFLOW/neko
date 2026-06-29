@@ -54,8 +54,8 @@ module scalar_stats_simcomp
   private
 
   !> A simulation component that computes the scalar statistics for the
-  !! skewness, kurtosis, and the Reynolds-averaged mean scalar transport equation,
-  !! scalar variance budget, and scalar flux budgets.
+  !! skewness, kurtosis, and the Reynolds-averaged mean scalar
+  !! transport equation, scalar variance budget, and scalar flux budgets.
   !!
   !! The statistics are stored assuming that the relevant fluid statistics
   !! have already been computed using the `fluid_stats` simcomp.
@@ -146,6 +146,8 @@ contains
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
             p, coef, start_time, hom_dir, stat_set)
     end if
+
+    nullify(s, u, v, w, p, coef)
 
   end subroutine scalar_stats_simcomp_init_from_json
 

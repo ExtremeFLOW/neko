@@ -45,170 +45,16 @@ module ale_routines_cpu
   use mesh, only : mesh_t
   use gather_scatter, only : GS_OP_MIN
   use mpi_f08, only : MPI_WTIME, MPI_Barrier
-  use logger, only : neko_log
+  use logger, only : neko_log, LOG_SIZE
   use ale_rigid_kinematics, only : ale_config_t, body_kinematics_t
   implicit none
   private
 
-  public :: compute_stiffness_ale_cpu
   public :: add_kinematics_to_mesh_velocity_cpu
   public :: update_ale_mesh_cpu
+  public :: compute_cheap_dist_v2_cpu
 
 contains
-
-  !> Compute mesh stiffness with per-body gain/decay from stiff_geom
-  subroutine compute_stiffness_ale_cpu(coef, params)
-    type(coef_t), intent(inout) :: coef
-    type(ale_config_t), intent(in) :: params
-    integer :: i, n, b, ierr
-    integer, allocatable :: cheap_map(:)
-    integer :: n_cheap, map_idx
-    real(kind=rp) :: x, y, z
-    real(kind=rp) :: raw_dist, body_stiff_val, max_added_stiff
-    real(kind=rp) :: cx, cy, cz
-    real(kind=rp) :: arg, decay, gain, norm_dist
-    real(kind=rp) :: sample_start_time, sample_end_time, sample_time
-    real(kind=rp), allocatable :: dist_fields(:,:)
-    character(len=128) :: log_buf
-
-    n = coef%dof%size()
-
-    ! Check how many bodies need cheap_dist and create Map
-    allocate(cheap_map(params%nbodies))
-    cheap_map = 0
-    n_cheap = 0
-
-    do b = 1, params%nbodies
-       if (trim(params%bodies(b)%stiff_geom%type) == 'cheap_dist') then
-          n_cheap = n_cheap + 1
-          cheap_map(b) = n_cheap
-       end if
-    end do
-
-    ! Allocate and Compute cheap_dist only for required bodies
-    if (n_cheap > 0) then
-       allocate(dist_fields(n, n_cheap))
-       dist_fields = huge(0.0_rp)
-
-       do b = 1, params%nbodies
-          map_idx = cheap_map(b)
-          if (map_idx > 0) then
-             call neko_log%message(' ')
-             call neko_log%message(" Start: cheap dist calculation " // &
-                  "for body '" // trim(params%bodies(b)%name) // "'")
-             call MPI_Barrier(NEKO_COMM, ierr)
-             sample_start_time = MPI_WTIME()
-
-             ! Compute into the specific slot for this body
-
-             ! Nek5000 algorithm
-             ! call compute_cheap_dist_cpu(dist_fields(:, map_idx), coef, &
-             !     coef%msh, params%bodies(b)%zone_indices)
-
-             call compute_cheap_dist_v2_cpu(dist_fields(:, map_idx), coef, &
-                  coef%msh, params%bodies(b)%zone_indices)
-
-             call MPI_Barrier(NEKO_COMM, ierr)
-             sample_end_time = MPI_WTIME()
-             sample_time = sample_end_time - sample_start_time
-
-             write(log_buf, '(A, A, A, ES11.4, A)') "   cheap dist for '", &
-                  trim(params%bodies(b)%name), "' took ", sample_time, " (s)"
-             call neko_log%message(log_buf)
-          end if
-       end do
-    end if
-    call neko_log%message(' ')
-
-    ! Build stiffness field
-    select case (trim(params%stiffness_type))
-    case ('built-in')
-
-       do concurrent (i = 1:n)
-          x = coef%dof%x(i, 1, 1, 1)
-          y = coef%dof%y(i, 1, 1, 1)
-          z = coef%dof%z(i, 1, 1, 1)
-
-          max_added_stiff = 0.0_rp
-
-          ! Loop over bodies, calculate local contribution
-          do b = 1, params%nbodies
-             gain = params%bodies(b)%stiff_geom%gain
-             if (trim(params%bodies(b)%stiff_geom%type) == 'cheap_dist') then
-                decay = params%bodies(b)%stiff_geom%stiff_dist
-             else
-                decay = params%bodies(b)%stiff_geom%radius
-             end if
-
-             ! Geometry Center
-             cx = params%bodies(b)%stiff_geom%center(1)
-             cy = params%bodies(b)%stiff_geom%center(2)
-             cz = params%bodies(b)%stiff_geom%center(3)
-
-             raw_dist = huge(0.0_rp)
-
-             ! Calculate Distance
-             select case (trim(params%bodies(b)%stiff_geom%type))
-             case ('sphere')
-
-                raw_dist = sqrt((x - cx)**2 + (y - cy)**2 + (z - cz)**2)
-
-             case ('cylinder')
-
-                ! Distance to Z-axis centered at (cx, cy)
-                raw_dist = sqrt((x - cx)**2 + (y - cy)**2)
-
-             case ('box')
-
-                ! ToDO
-
-             case ('cheap_dist')
-
-                map_idx = cheap_map(b)
-                if (map_idx > 0) then
-                   raw_dist = dist_fields(i, map_idx)
-                end if
-
-             end select
-
-             ! Apply Profile
-             body_stiff_val = 0.0_rp
-             select case (trim(params%bodies(b)%stiff_geom%decay_profile))
-             case ('gaussian')
-
-                ! exp( -(r/decay)^2 )
-                arg = -(raw_dist**2) / (decay**2)
-                arg = arg * params%bodies(b)%stiff_geom%cutoff_coef
-                body_stiff_val = gain * exp(arg)
-
-             case ('tanh')
-
-                ! Tanh profile
-                norm_dist = (raw_dist / decay)
-                norm_dist = norm_dist * &
-                     params%bodies(b)%stiff_geom%cutoff_coef
-                body_stiff_val = gain * (1.0_rp - tanh(norm_dist))
-
-             end select
-
-             if (body_stiff_val > max_added_stiff) then
-                max_added_stiff = body_stiff_val
-             end if
-
-          end do
-
-          coef%h1(i, 1, 1, 1) = 1.0_rp + max_added_stiff
-          coef%h2(i, 1, 1, 1) = 0.0_rp
-       end do
-
-    case default
-       call neko_error("ALE Manager: Unknown stiffness type")
-    end select
-
-    coef%ifh2 = .false.
-    if (allocated(dist_fields)) deallocate(dist_fields)
-    if (allocated(cheap_map)) deallocate(cheap_map)
-  end subroutine compute_stiffness_ale_cpu
 
   !> Implementation of cheap_dist in Nek5000 (CPU)
   subroutine compute_cheap_dist_cpu(d, coef, msh, zone_indices)
@@ -238,7 +84,7 @@ contains
     !d = huge(0.0_rp)
     call cfill(d, huge(0.0_rp), n)
 
-    if (size(zone_indices) > 0) then
+    if (size(zone_indices) .gt. 0) then
        call bc_wall%init_from_components(coef)
        do k = 1, size(zone_indices)
           z_idx = zone_indices(k)
@@ -255,7 +101,7 @@ contains
 
     ipass = 1
     done = .false.
-    do while (ipass <= max_pass .and. .not. done)
+    do while ((ipass .le. max_pass) .and. .not. done)
        nchange = 0
        do e = 1, nel
           do k = 1, lz
@@ -273,14 +119,15 @@ contains
                    do kk = k0, k1
                       do jj = j0, j1
                          do ii = i0, i1
-                            if (ii == i .and. jj == j .and. kk == k) cycle
+                            if ((ii .eq. i) .and. (jj .eq. j) .and. &
+                                 (kk .eq. k)) cycle
                             x2 = coef%dof%x(ii, jj, kk, e)
                             y2 = coef%dof%y(ii, jj, kk, e)
                             z2 = coef%dof%z(ii, jj, kk, e)
                             dtmp = d4(ii, jj, kk, e) + &
                                  sqrt((x1 - x2)**2 + &
                                  (y1 - y2)**2 + (z1 - z2)**2)
-                            if (dtmp < d4(i, j, k, e)) then
+                            if (dtmp .lt. d4(i, j, k, e)) then
                                d4(i, j, k, e) = dtmp
                                nchange = nchange + 1
                             end if
@@ -293,7 +140,7 @@ contains
        end do
        call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
        change_vec(1) = nchange
-       if (glimax(change_vec, 1) == 0) done = .true.
+       if (glimax(change_vec, 1) .eq. 0) done = .true.
        ipass = ipass + 1
     end do
   end subroutine compute_cheap_dist_cpu
@@ -301,13 +148,12 @@ contains
   !> Compute cheap_dist field by passing distance information
   !> throughout an entire local element
   !> before doing a global MPI synchronization.
-  subroutine compute_cheap_dist_v2_cpu(d, coef, msh, zone_indices)
-    real(kind=rp), intent(inout), target :: d(:)
+  subroutine compute_cheap_dist_v2_cpu(dist_field, coef, msh, zone_indices)
+    type(field_t), intent(inout) :: dist_field
     type(coef_t), intent(in) :: coef
     type(mesh_t), intent(in) :: msh
-    type(zero_dirichlet_t) :: bc_wall
     integer, intent(in) :: zone_indices(:)
-    real(kind=rp), pointer :: d4(:, :, :, :)
+    type(zero_dirichlet_t) :: bc_wall
     integer :: i, j, k, e, n
     integer :: ipass, nchange, max_pass
     integer :: ii, jj, kk, i0, i1, j0, j1, k0, k1
@@ -316,23 +162,22 @@ contains
     real(kind=rp) :: dtmp, x1, y1, z1, x2, y2, z2
     integer :: change_vec(1)
     logical :: done, changed_local, element_changed_ever
-    character(len=128) :: log_buf
+    character(len=LOG_SIZE) :: log_buf
 
     lx = coef%dof%Xh%lx
     ly = coef%dof%Xh%ly
     lz = coef%dof%Xh%lz
     nel = msh%nelv
-    n = size(d)
-    d4(1:lx, 1:ly, 1:lz, 1:nel) => d
+    n = coef%dof%size()
     max_pass = 10000
 
-!   Limit for worst case scenario such that all nodes can propagate
-!   their values across the element before triggering an MPI call.
+    ! Limit for worst case scenario such that all nodes can propagate
+    ! their values across the element before triggering an MPI call.
     local_iters = lx + ly + lz
 
-    call cfill(d, huge(0.0_rp), n)
+    call cfill(dist_field%x, huge(0.0_rp), n)
 
-    if (size(zone_indices) > 0) then
+    if (size(zone_indices) .gt. 0) then
        call bc_wall%init_from_components(coef)
        do k = 1, size(zone_indices)
           z_idx = zone_indices(k)
@@ -342,21 +187,21 @@ contains
        m = bc_wall%msk(0)
        do i = 1, m
           idx = bc_wall%msk(i)
-          d(idx) = 0.0_rp
+          dist_field%x(idx, 1, 1, 1) = 0.0_rp
        end do
        call bc_wall%free()
     end if
 
     ipass = 1
     done = .false.
-    do while (ipass <= max_pass .and. .not. done)
+    do while ((ipass .le. max_pass) .and. .not. done)
        nchange = 0
 
        do e = 1, nel
           iter = 1
           element_changed_ever = .false.
           changed_local = .true.
-          do while (changed_local .and. iter <= local_iters)
+          do while (changed_local .and. (iter .le. local_iters))
 
              changed_local = .false.
              do k = 1, lz
@@ -374,18 +219,19 @@ contains
                       do kk = k0, k1
                          do jj = j0, j1
                             do ii = i0, i1
-                               if (ii == i .and. jj == j .and. kk == k) cycle
+                               if ((ii .eq. i) .and. (jj .eq. j) .and. &
+                                    (kk .eq. k)) cycle
 
                                x2 = coef%dof%x(ii, jj, kk, e)
                                y2 = coef%dof%y(ii, jj, kk, e)
                                z2 = coef%dof%z(ii, jj, kk, e)
 
-                               dtmp = d4(ii, jj, kk, e) + &
-                               sqrt((x1 - x2)**2 + &
-                               (y1 - y2)**2 + (z1 - z2)**2)
+                               dtmp = dist_field%x(ii, jj, kk, e) + &
+                                    sqrt((x1 - x2)**2 + &
+                                    (y1 - y2)**2 + (z1 - z2)**2)
 
-                               if (dtmp < d4(i, j, k, e)) then
-                                  d4(i, j, k, e) = dtmp
+                               if (dtmp .lt. dist_field%x(i, j, k, e)) then
+                                  dist_field%x(i, j, k, e) = dtmp
                                   changed_local = .true.
                                end if
 
@@ -402,17 +248,22 @@ contains
           if (element_changed_ever) nchange = nchange + 1
        end do
 
-       call coef%gs_h%gs_op_vector(d, n, GS_OP_MIN)
+       call coef%gs_h%gs_op_vector(dist_field%x, n, GS_OP_MIN)
        change_vec(1) = nchange
 
-       if (glimax(change_vec, 1) == 0) done = .true.
+       if (glimax(change_vec, 1) .eq. 0) done = .true.
        ipass = ipass + 1
     end do
 
-    write(log_buf, '(A, I0, A)') "   converged in: ", ipass, " passes"
-    call neko_log%message(log_buf)
+    if (done) then
+       write(log_buf, '(A, I0, A)') "    converged in: ", ipass, " passes"
+       call neko_log%message(log_buf)
+    else
+       write(log_buf, '(A, I0, A)') "    reached max passes: ", ipass, &
+            " without convergence"
+       call neko_log%message(log_buf)
+    end if
   end subroutine compute_cheap_dist_v2_cpu
-
 
   !> Adds kinematics to mesh velocity (CPU)
   subroutine add_kinematics_to_mesh_velocity_cpu(wx, wy, wz, &
@@ -436,7 +287,7 @@ contains
          ! for points on the wall (phi=1) we do this to avoid any
          ! numeric error due to computation of rotation matrix.
          ! It ensures, the walls are always where they need to be!
-         if ( abs(phi%x(i, 1, 1, 1) - 1.0_rp) < 1e-6_rp ) then
+         if ( abs(phi%x(i, 1, 1, 1) - 1.0_rp) .lt. 1e-6_rp ) then
 
             rx = x(i, 1, 1, 1) - kinematics%center(1)
             ry = y(i, 1, 1, 1) - kinematics%center(2)

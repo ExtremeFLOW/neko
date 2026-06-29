@@ -32,7 +32,7 @@
 !
 module pnpn_res_device
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use operators
+  use operators, only : curl, cdtp, rotate_cyc, opgrad
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
@@ -40,8 +40,8 @@ module pnpn_res_device
   use mesh, only : mesh_t
   use num_types, only : rp, c_rp
   use space, only : space_t
-  use device_math
-  use device_mathops
+  use device_math, only : device_cfill, device_rzero
+  use device_mathops, only : device_opcolv
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use device, only : device_event_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
@@ -215,6 +215,58 @@ module pnpn_res_device
        integer(c_int) :: n
      end subroutine pnpn_vel_res_update_opencl
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine pnpn_prs_res_part1_metal(ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
+          B_d, h1_d, mu, rho, n) &
+          bind(c, name = 'pnpn_prs_res_part1_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       type(c_ptr), value :: B_d, h1_d
+       real(c_rp) :: mu, rho
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part1_metal
+  end interface
+
+  interface
+     subroutine pnpn_prs_res_part2_metal(p_res_d, wa1_d, wa2_d, wa3_d, n) &
+          bind(c, name = 'pnpn_prs_res_part2_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part2_metal
+  end interface
+
+  interface
+     subroutine pnpn_prs_res_part3_metal(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, &
+          n) bind(c, name = 'pnpn_prs_res_part3_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: p_res_d, ta1_d, ta2_d, ta3_d
+       real(c_rp) :: dtbd
+       integer(c_int) :: n
+     end subroutine pnpn_prs_res_part3_metal
+  end interface
+
+  interface
+     subroutine pnpn_vel_res_update_metal(u_res_d, v_res_d, w_res_d, &
+          ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
+          bind(c, name = 'pnpn_vel_res_update_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u_res_d, v_res_d, w_res_d
+       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
+       integer(c_int) :: n
+     end subroutine pnpn_vel_res_update_metal
+  end interface
 #endif
 
 
@@ -277,6 +329,10 @@ contains
     call pnpn_prs_res_part1_opencl(ta1%x_d, ta2%x_d, ta3%x_d, &
          wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, mu_val, rho_val, n)
+#elif HAVE_METAL
+    call pnpn_prs_res_part1_metal(ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
+         c_Xh%B_d, c_Xh%h1_d, mu_val, rho_val, n)
 #endif
     c_Xh%ifh2 = .false.
     call device_cfill(c_Xh%h1_d, 1.0_rp / rho_val, n)
@@ -304,6 +360,8 @@ contains
     call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
+#elif HAVE_METAL
+    call pnpn_prs_res_part2_metal(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #endif
 
     !
@@ -323,6 +381,9 @@ contains
 #elif HAVE_OPENCL
     call pnpn_prs_res_part3_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, &
          n)
+#elif HAVE_METAL
+    call pnpn_prs_res_part3_metal(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, dtbd, &
+         n)
 #endif
     !
     dtbd = bd / dt
@@ -340,6 +401,9 @@ contains
     call pnpn_prs_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd, n)
 #elif HAVE_OPENCL
     call pnpn_prs_res_part3_opencl(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd,&
+         n)
+#elif HAVE_METAL
+    call pnpn_prs_res_part3_metal(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, dtbd,&
          n)
 #endif
 
@@ -390,6 +454,9 @@ contains
          ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #elif HAVE_OPENCL
     call pnpn_vel_res_update_opencl(u_res%x_d, v_res%x_d, w_res%x_d, &
+         ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
+#elif HAVE_METAL
+    call pnpn_vel_res_update_metal(u_res%x_d, v_res%x_d, w_res%x_d, &
          ta1%x_d, ta2%x_d, ta3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, n)
 #endif
 

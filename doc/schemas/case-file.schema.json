@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:case-file",
+  "title": "Neko case file",
+  "type": "object",
+  "required": [
+    "version",
+    "case"
+  ],
+  "properties": {
+    "version": {
+      "type": "number"
+    },
+    "case": {
+      "$ref": "#/$defs/case"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "constantEntry": {
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:neko:schema:common#/$defs/numberArray"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "case": {
+      "type": "object",
+      "required": [
+        "mesh_file",
+        "time",
+        "numerics",
+        "fluid"
+      ],
+      "properties": {
+        "no_defaults": {
+          "type": "boolean"
+        },
+        "mesh_file": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+        },
+        "output_boundary": {
+          "type": "boolean"
+        },
+        "output_directory": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+        },
+        "output_format": {
+          "type": "string",
+          "enum": [
+            "nek5000",
+            "adios2",
+            "vtkhdf"
+          ]
+        },
+        "output_precision": {
+          "type": "string",
+          "enum": [
+            "single",
+            "double"
+          ]
+        },
+        "output_layout": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "load_balancing": {
+          "type": "boolean"
+        },
+        "load_balance": {
+          "type": "boolean"
+        },
+        "output_partitions": {
+          "type": "boolean"
+        },
+        "output_checkpoints": {
+          "type": "boolean"
+        },
+        "checkpoint_control": {
+          "$ref": "urn:neko:schema:common#/$defs/frequencyControl"
+        },
+        "checkpoint_value": {
+          "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+        },
+        "checkpoint_filename": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+        },
+        "checkpoint_format": {
+          "type": "string",
+          "enum": [
+            "chkp",
+            "hdf5"
+          ]
+        },
+        "restart_file": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+        },
+        "restart_mesh_file": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+        },
+        "mesh2mesh_tolerance": {
+          "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+        },
+        "job_timelimit": {
+          "type": "string",
+          "pattern": "^\\d{2}:\\d{2}:\\d{2}$"
+        },
+        "output_at_end": {
+          "type": "boolean"
+        },
+        "constants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/constantEntry"
+          }
+        },
+        "time": {
+          "$ref": "urn:neko:schema:time#/$defs/time"
+        },
+        "numerics": {
+          "$ref": "urn:neko:schema:numerics#/$defs/numerics"
+        },
+        "fluid": {
+          "$ref": "urn:neko:schema:fluid#/$defs/fluid"
+        },
+        "scalar": {
+          "$ref": "urn:neko:schema:scalar#/$defs/scalarField"
+        },
+        "scalars": {
+          "type": "array",
+          "items": {
+          "$ref": "urn:neko:schema:scalar#/$defs/scalarField"
+          }
+        },
+        "simulation_components": {
+          "type": "array",
+          "items": {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simulationComponent"
+          }
+        },
+        "point_zones": {
+          "type": "array",
+          "items": {
+          "$ref": "urn:neko:schema:point-zones#/$defs/pointZone"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

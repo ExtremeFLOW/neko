@@ -50,8 +50,8 @@ module local_interpolation
   implicit none
   private
 
-  !> Interpolation on a set of points with known rst coordinates in elements local
-  !! to this process.
+  !> Interpolation on a set of points with known rst coordinates in
+  !! elements local to this process.
   !! Similar to point_interpolator, but prioritizes performance
   !! Only works with arrays of coordinates
   !! Performs interpolation with the configured NEKO_BCKND

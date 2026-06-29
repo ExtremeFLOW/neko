@@ -32,7 +32,7 @@
 !
 !> Defines various GMRES methods
 module gmres_device
-  use neko_config, only : NEKO_BCKND_OPENCL
+  use neko_config, only : NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -399,7 +399,7 @@ contains
             call device_event_sync(this%gs_event)
             call blst%apply_scalar(w, n)
 
-            if (NEKO_BCKND_OPENCL .eq. 1) then
+            if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
                do i = 1, j
                   h(i,j) = device_glsc3(w_d, v_d(i), coef%mult_d, n)
 
@@ -466,7 +466,7 @@ contains
             c(k) = temp / h(k,k)
          end do
 
-         if (NEKO_BCKND_OPENCL .eq. 1) then
+         if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
             do i = 1, j
                call device_add2s2(x_d, this%z_d(i), c(i), n)
             end do

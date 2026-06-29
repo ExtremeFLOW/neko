@@ -154,7 +154,8 @@ contains
   !> Retrieves a real parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the
+  !! retrieved parameter.
   subroutine json_get_real(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name

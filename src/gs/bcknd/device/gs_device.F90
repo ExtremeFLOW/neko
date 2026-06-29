@@ -127,6 +127,26 @@ module gs_device
        type(c_ptr), value :: v, u, dg, gd, b, bo, strm
      end subroutine opencl_scatter_kernel
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_gather_kernel(v, m, o, dg, u, n, gd, nb, b, bo, op, &
+          strm) bind(c, name = 'metal_gather_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, nb, o, op
+       type(c_ptr), value :: v, u, dg, gd, b, bo, strm
+     end subroutine metal_gather_kernel
+  end interface
+
+  interface
+     subroutine metal_scatter_kernel(v, m, dg, u, n, gd, nb, b, bo, strm) &
+          bind(c, name = 'metal_scatter_kernel')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, nb
+       type(c_ptr), value :: v, u, dg, gd, b, bo, strm
+     end subroutine metal_scatter_kernel
+  end interface
 #endif
 
 contains
@@ -157,7 +177,7 @@ contains
 
     this%shared_on_host = .true.
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_METAL)
     call device_event_create(this%gather_event, 2)
     call device_event_create(this%scatter_event, 2)
 #endif
@@ -201,7 +221,7 @@ contains
     this%nlocal = 0
     this%nshared = 0
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_METAL)
     if (c_associated(this%gather_event)) then
        call device_event_destroy(this%gather_event)
     end if
@@ -287,6 +307,9 @@ contains
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
               nb, b_d, bo_d, op, strm)
+#elif HAVE_METAL
+         call metal_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+              nb, b_d, bo_d, op, strm)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -343,11 +366,15 @@ contains
 #elif HAVE_OPENCL
          call opencl_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
               nb, b_d, bo_d, op, strm)
+#elif HAVE_METAL
+         call metal_gather_kernel(v_d, m, o, dg_d, u_d, n, gd_d, &
+              nb, b_d, bo_d, op, strm)
 #else
          call neko_error('No device backend configured')
 #endif
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+         defined(HAVE_OPENCL) || defined(HAVE_METAL)
          call device_event_record(this%gather_event, strm)
 #endif
 
@@ -394,6 +421,9 @@ contains
 #elif HAVE_OPENCL
          call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, &
               bo_d, strm)
+#elif HAVE_METAL
+         call metal_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, &
+              bo_d, strm)
 #else
          call neko_error('No device backend configured')
 #endif
@@ -417,13 +447,17 @@ contains
 #elif HAVE_OPENCL
          call opencl_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, &
               bo_d, strm)
+#elif HAVE_METAL
+         call metal_scatter_kernel(v_d, m, dg_d, u_d, n, gd_d, nb, b_d, &
+              bo_d, strm)
 #else
          call neko_error('No device backend configured')
 #endif
        end associate
     end if
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
     if (c_associated(event)) then
        call device_event_record(event, this%gs_stream)
     else

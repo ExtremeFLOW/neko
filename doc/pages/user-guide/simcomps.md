@@ -88,7 +88,7 @@ vorticity fields will be added to the main `.fld` file.
 {
   "type": "curl",
   "name": "curl",
-  "field_names": ["u", "v", "w"],
+  "fields": ["u", "v", "w"],
   "computed_field": "vorticity"
   "compute_control": "tsteps",
   "compute_value": 50
@@ -657,6 +657,25 @@ specified, the name of the simcomp will default to `user_stats`.
 For example, if `"fields": ["s", "my_field"]` and `"name": "my_stats"` then
 the fields `"my_stats/mean_s"` and `"my_stats/mean_my_field"` will be added
 to the registry.
+
+### Spatial average {#simcomp_spatial_average}
+
+Writes the instantaneous spatial average of an arbitrary collection of registry
+fields. The fields are prescribed via the `fields` keyword. The
+`avg_direction` keyword follows the same semantics as the statistics simcomps:
+`x`, `y`, or `z` produce a 2D `.fld` file, while `xy`, `xz`, or `yz` produce a
+1D `.csv` file. The `avg_direction` keyword is required for this simcomp. The
+base filename is controlled by `output_filename` and defaults to `spatial_average`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "spatial_average",
+  "name": "spatial_average",
+  "fields": ["u", "s"],
+  "avg_direction": "xz",
+  "output_filename": "xz_average"
+}
+~~~~~~~~~~~~~~~
 
 ### Spectral error indicator {#simcomp_speri}
 
