@@ -142,6 +142,7 @@ MPI is available, host MPI otherwise). The supported values are:
 | `NCCL` | NCCL/RCCL (`gs_device_nccl`) | `--with-nccl=...` | Multi-GPU runs where NCCL outperforms MPI |
 | `SHMEM` | NVSHMEM (`gs_device_shmem`) on GPU builds, OpenSHMEM (`gs_shmem`) on CPU builds | `--with-nvshmem=...` (GPU) or `--with-openshmem` (CPU, Cray) | NVIDIA GPUs with NVSHMEM-capable interconnect; CPU systems with a native OpenSHMEM (e.g. Cray OpenSHMEMX) |
 | `CAF` | Coarray Fortran (`gs_caf`) | Coarray-capable Fortran compiler | Systems with a tuned coarray runtime |
+| `NEIGHBOUR` | MPI neighbourhood collective (`gs_neighbour`) | None (MPI-3) | CPU runs where one collective per gs beats many point-to-point messages (e.g. Fugaku / Tofu) |
 
 @note `MPIGPU` and `NCCL` require Neko to be built with GPU support
 and the corresponding optional dependency. `SHMEM` picks the device
@@ -151,8 +152,42 @@ which of NVSHMEM / OpenSHMEM is present at configure time.
 The backend can also be selected programmatically by passing the
 `comm_bcknd` argument to `gs%init`, using the constants `GS_COMM_MPI`,
 `GS_COMM_MPIGPU`, `GS_COMM_NCCL`, `GS_COMM_NVSHMEM`,
-`GS_COMM_OPENSHMEM`, or `GS_COMM_CAF` exposed by the `gather_scatter`
-module. The environment variable wins when both are present.
+`GS_COMM_OPENSHMEM`, `GS_COMM_CAF`, or `GS_COMM_NEIGHBOUR` exposed by
+the `gather_scatter` module. The environment variable wins when both
+are present.
+
+#### MPI neighbourhood collective backend {#performance-neighbour-backend}
+
+The neighbourhood backend (`NEKO_GS_COMM=NEIGHBOUR`, the spelling
+`NEIGHBOR` is also accepted) replaces the per-neighbour
+`MPI_Isend`/`MPI_Irecv` pairs of the host `MPI` backend with a single
+non-blocking neighbourhood collective, `MPI_Ineighbor_alltoallv`, over
+a distributed-graph communicator. The graph is built once at
+initialisation with `MPI_Dist_graph_create_adjacent` (sources are the
+receive peers, destinations the send peers, `reorder = .false.`), so
+the neighbour ordering matches the gs schedule and the concatenated
+per-peer send / receive buffer layout of the host MPI backend is reused
+unchanged. `nbsend` packs the send buffer and launches the collective
+from the master thread; `nbwait` completes it and reduces each received
+slab into `u` with the same serial-across-peers, parallel-within-peer
+reduction as the host MPI backend.
+
+The motivation is to collapse the N point-to-point calls of a halo
+exchange into a single entry to the MPI runtime. On platforms where the
+MPI library serialises concurrent calls internally (for example
+Fujitsu MPI on Fugaku), this is one runtime crossing per gs op instead
+of N, and it hands the striping of the transfers across the network
+interfaces to the vendor runtime. The backend is host-only and requires
+nothing beyond MPI-3, which every modern MPI implementation provides.
+
+@note Whether the collective actually overlaps with the local gs work
+depends on the MPI library making asynchronous progress; with the
+default build of many implementations, progress happens at the
+`MPI_Wait` in `nbwait`. Enable the library's asynchronous-progress
+option to test the overlap benefit. Each `gs_t` instance owns its own
+graph communicator, so multiple instances may coexist, but a given
+instance must complete its `nbsend`/`nbwait` window before the next gs
+op on the same instance.
 
 #### NVSHMEM backend {#performance-nvshmem-backend}
 
