@@ -63,7 +63,7 @@ module lagrangian_particle_tracking
   use comm, only : pe_rank
   use csv_file, only : csv_file_t
   use vector, only : vector_t
-  use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
+  use device, only : DEVICE_TO_HOST
   implicit none
   private
 
@@ -661,14 +661,6 @@ contains
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(vector_t) :: x_old, y_old, z_old, u_old, v_old, w_old
-    ! pieces to test the accuracy: force exact solution at the first 2 steps
-    real(kind=rp) :: v0
-    real(kind=rp) :: x0
-    real(kind=rp) :: tau_p
-
-    v0 = 1.0_rp
-    x0 = 0.0_rp
-! write(*,*) "rank: ", pe_rank, ", particle ids: ", this%particles%ids
 
     associate(x => this%particles%x, y => this%particles%y, &
               z => this%particles%z, u => this%particles%u, &
@@ -705,23 +697,12 @@ contains
        call this%ODE_integrate_ab_3c(u, v, w, acc_x, acc_y, acc_z, &
             acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
             acc_zlaglag, n)
-       ! pieces to test the accuracy: force exact solution at the first 2 steps
-       if (time%tstep .le. 2) then
-          tau_p = 1.0_rp/18.0_rp * this%particles%rho%x(1) * this%particles%d%x(1)**2
-          u%x(1) = v0 * exp(-time%t/tau_p)
-          call u%copy_from(HOST_TO_DEVICE, .true.)
-       end if
     end if
 
     ! Advance the coordinates using the velocity history available at step
     ! entry, before the fluid solve refreshes the current RHS.
     call this%ODE_integrate_ab_3c(x, y, z, u_old, v_old, w_old, &
          u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, n)
-    ! pieces to test the accuracy: force exact solution at the first 2 steps
-    if (time%tstep .le. 2) then
-       x%x(1) = x0 + tau_p * v0 * (1.0_rp - exp(-time%t/tau_p))
-       call x%copy_from(HOST_TO_DEVICE, .true.)
-    end if
 
     ! Handle the wall collisions with the pre-step RHS.
     if (this%inertia .and. this%elastic_wall_enabled) then
