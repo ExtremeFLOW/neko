@@ -272,6 +272,7 @@ module device_coef
        type(c_ptr), value :: i_idx, j_idx, k_idx, e_idx, facet
        integer(c_int) :: lx, n
      end subroutine opencl_coef_get_normal
+  end interface
 #elif HAVE_METAL
   interface
      subroutine metal_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
