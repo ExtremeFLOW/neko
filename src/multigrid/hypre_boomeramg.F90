@@ -170,6 +170,17 @@ module hypre_boomeramg
   end interface
 
   interface
+     integer (c_int) function HYPRE_BoomerAMGSetCycleRelaxType(solver, cycle_type, k) &
+          bind(c, name='HYPRE_BoomerAMGSetCycleRelaxType')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: solver
+       integer(c_int), value :: cycle_type
+       integer(c_int), value :: k
+     end function HYPRE_BoomerAMGSetCycleRelaxType
+  end interface
+
+  interface
      integer (c_int) function HYPRE_BoomerAMGSetCycleType(solver, cycle_type) &
           bind(c, name='HYPRE_BoomerAMGSetCycleType')
        use, intrinsic :: iso_c_binding
@@ -267,6 +278,12 @@ contains
      !ierr = HYPRE_BoomerAMGSetNumSweeps(solver, 2)
      !ierr = HYPRE_BoomerAMGSetMaxLevels(solver, 20)
      !ierr = HYPRE_BoomerAMGSetKeepTranspose(solver, 1)
+
+     !ierr = HYPRE_BoomerAMGSetCycleRelaxType(solver, 16, 3)
+     !ierr = HYPRE_BoomerAMGSetRelaxType(solver, 16)
+     !ierr = HYPRE_BoomerAMGSetChebyOrder(solver, 3)
+     !ierr = HYPRE_BoomerAMGSetMaxLevels(solver, 4)
+
      ierr = HYPRE_BoomerAMGSetMaxIter(solver, 1)
      ierr = HYPRE_BoomerAMGSetTol(solver, 0.0d0)
   end subroutine boomeramg_init
