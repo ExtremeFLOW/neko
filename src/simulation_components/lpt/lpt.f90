@@ -57,8 +57,6 @@ module lagrangian_particle_tracking
   use lpt_periodic_bc, only : lpt_periodic_bc_t
   use lpt_migrate, only : lpt_migrate_t, LPT_MIGRATE_TO_OWNER, &
        LPT_MIGRATE_NONE
-  use lpt_wall_collision, only : lpt_handle_elastic_wall_collisions, &
-       lpt_init_wall_facet_mask
   use lpt_output, only : lpt_output_t
   use comm, only : pe_rank
   use csv_file, only : csv_file_t
@@ -135,6 +133,39 @@ module lagrangian_particle_tracking
      procedure, private, pass(this) :: log_status
   end type lpt_t
   private :: update_lags
+
+  interface
+     module subroutine lpt_init_wall_facet_mask(wall_facet_mask, msh, &
+          wall_zone_indices)
+       logical, allocatable, intent(inout) :: wall_facet_mask(:, :)
+       type(mesh_t), intent(in) :: msh
+       integer, intent(in) :: wall_zone_indices(:)
+     end subroutine lpt_init_wall_facet_mask
+
+     module subroutine lpt_handle_elastic_wall_collisions(global_interp, &
+          msh, dm_Xh, coef, wall_facet_mask, x_old, y_old, z_old, x, y, z, &
+          d, u, v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+          acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
+          acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, acc_z, lag_len)
+       type(global_interpolation_t), intent(inout) :: global_interp
+       type(mesh_t), intent(in) :: msh
+       type(dofmap_t), intent(in) :: dm_Xh
+       type(coef_t), intent(in) :: coef
+       logical, intent(in) :: wall_facet_mask(:, :)
+       type(vector_t), intent(in) :: x_old, y_old, z_old
+       type(vector_t), intent(inout) :: x, y, z
+       type(vector_t), intent(in) :: d
+       type(vector_t), intent(inout) :: u, v, w
+       type(vector_t), intent(inout) :: u_lag, v_lag, w_lag
+       type(vector_t), intent(inout) :: u_laglag, v_laglag, w_laglag
+       type(vector_t), intent(inout) :: acc_xlag, acc_ylag, acc_zlag
+       type(vector_t), intent(inout) :: acc_xlaglag, acc_ylaglag
+       type(vector_t), intent(inout) :: acc_zlaglag
+       type(vector_t), intent(inout) :: u_old, v_old, w_old
+       type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
+       integer, intent(in) :: lag_len
+     end subroutine lpt_handle_elastic_wall_collisions
+  end interface
 
 contains
 

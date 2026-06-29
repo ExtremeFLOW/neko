@@ -30,32 +30,22 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Helpers for LPT wall-collision handling.
-module lpt_wall_collision
-  use utils, only : neko_error
+!> Implements LPT wall-collision handling.
+submodule (lagrangian_particle_tracking) lpt_wall_collision
   use neko_config, only : NEKO_BCKND_DEVICE
-  use mesh, only : mesh_t
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
-  use global_interpolation, only : global_interpolation_t
   use lpt_wall_collision_cpu, only : lpt_handle_elastic_wall_collisions_cpu
   use lpt_wall_collision_device, only : &
        lpt_handle_elastic_wall_collisions_device
-  use matrix, only : matrix_t
-  use vector, only : vector_t
-  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST, device_map, &
+  use device, only : HOST_TO_DEVICE, device_map, &
        device_memcpy, device_deassociate, device_free, device_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   use scratch_registry, only : neko_scratch_registry
   implicit none
-  private
-
-  public :: lpt_handle_elastic_wall_collisions
-  public :: lpt_init_wall_facet_mask
 
 contains
 
-  subroutine lpt_init_wall_facet_mask(wall_facet_mask, msh, wall_zone_indices)
+  module subroutine lpt_init_wall_facet_mask(wall_facet_mask, msh, &
+       wall_zone_indices)
     logical, allocatable, intent(inout) :: wall_facet_mask(:, :)
     type(mesh_t), intent(in) :: msh
     integer, intent(in) :: wall_zone_indices(:)
@@ -86,9 +76,9 @@ contains
   !> Restore particles that crossed a configured wall zone and reflect the
   !! remaining trajectory together with the current particle velocity and
   !! velocity history for a purely elastic collision.
-  subroutine lpt_handle_elastic_wall_collisions(global_interp, msh, dm_Xh, &
-       coef, wall_facet_mask, x_old, y_old, z_old, x, y, z, d, u, v, w, &
-       u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
+  module subroutine lpt_handle_elastic_wall_collisions(global_interp, msh, &
+       dm_Xh, coef, wall_facet_mask, x_old, y_old, z_old, x, y, z, d, u, v, &
+       w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
        acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, u_old, &
        v_old, w_old, acc_x, acc_y, acc_z, lag_len)
     type(global_interpolation_t), intent(inout) :: global_interp
@@ -228,4 +218,4 @@ contains
     call device_sync()
   end subroutine lpt_wall_collision_sync_from_device
 
-end module lpt_wall_collision
+end submodule lpt_wall_collision
