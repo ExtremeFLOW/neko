@@ -111,7 +111,8 @@
 !     DGLLGL    Compute derivative matrix for a staggered mesh (GLL->GL)
 !     DGJ       Compute Gauss Jacobi derivative matrix (general)
 !     DGLJ      Compute Gauss-Lobatto Jacobi derivative matrix (general)
-!     DGLJGJ    Compute derivative matrix for a staggered mesh (GLJ->GJ) (general)
+!     DGLJGJ    Compute derivative matrix for a staggered mesh
+!               (GLJ->GJ) (general)
 !
 !     Interpolation operators:
 !
@@ -1174,7 +1175,8 @@ contains
                   (2.0_xp*(1.0_xp - ZG(I)**2))
           else
              call JACOBF(PI, PDI, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZG(I))
-             call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NGL, ALPHA, BETA, ZGL(J))
+             call JACOBF(PJ, PDJ, PM1, PDM1, PM2, PDM2, NGL, ALPHA, &
+                  BETA, ZGL(J))
              FACI = ALPHA*(1.0_xp + ZG(I)) - BETA*(1.0_xp - ZG(I))
              FACJ = ALPHA*(1.0_xp + ZGL(J)) - BETA*(1.0_xp - ZGL(J))
              CONST = EIGVAL*PJ + FACJ*PDJ

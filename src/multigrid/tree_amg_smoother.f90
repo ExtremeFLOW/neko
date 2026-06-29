@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,7 @@ module tree_amg_smoother
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
-       device_deassociate
+  use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
   use neko_config, only: NEKO_BCKND_DEVICE
@@ -97,7 +96,8 @@ contains
 
   !> Initialization of chebyshev
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are
+  !! to be applied
   !! @param max_iter The number of iterations (chebyshev degree)
   subroutine amg_cheby_init(this, n, lvl, max_iter)
     class(amg_cheby_t), intent(inout), target :: this
@@ -125,24 +125,23 @@ contains
   !> free cheby data
   subroutine amg_cheby_free(this)
     class(amg_cheby_t), intent(inout), target :: this
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_deassociate(this%d)
-       call device_deassociate(this%w)
-       call device_deassociate(this%r)
-    end if
     if (allocated(this%d)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%d_d)) then
+          call device_unmap(this%d, this%d_d)
+       end if
        deallocate(this%d)
     end if
     if (allocated(this%w)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
     if (allocated(this%r)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
-    end if
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_free(this%d_d)
-       call device_free(this%w_d)
-       call device_free(this%r_d)
     end if
   end subroutine amg_cheby_free
 
@@ -158,15 +157,27 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
+      ! Save current random seed and set a fixed seed
+      call random_seed( size=rnd_n )
+      allocate(saved_seed(rnd_n))
+      allocate(fixed_seed(rnd_n))
+      fixed_seed = 3901
+      call random_seed( get=saved_seed )
+      call random_seed( put=fixed_seed )
+
       do i = 1, n
-         !call random_number(rn)
-         !d(i) = rn + 10.0_rp
-         d(i) = sin(real(i))
+         call random_number(rn)
+         d(i) = rn + 10.0_rp
       end do
+
+      ! Restore saved random seed
+      call random_seed( put=saved_seed )
+
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
          call blst%apply(d, n)
@@ -246,10 +257,15 @@ contains
       rhok = 1.0_rp / s1
 
       ! First iteration
-      do concurrent (i = 1:n)
+      !OCL NORECURRENCE, NOVREC, NOALIAS
+      !DIR$ CONCURRENT
+      !GCC$ ivdep
+      !$omp parallel do
+      do i = 1, n
          d(i) = 1.0_rp/thet * r(i)
          x(i) = x(i) + d(i)
       end do
+      !$omp end parallel do
 
       ! Rest of iterations
       do iter = 2, max_iter
@@ -260,12 +276,18 @@ contains
          tmp2 = 2.0_rp * rhokp1 / delt
          rhok = rhokp1
 
-         do concurrent (i = 1:n)
+         !$omp parallel private(i)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !GCC$ ivdep
+         !$omp do
+         do i = 1, n
             r(i) = r(i) - w(i)
             d(i) = tmp1 * d(i) + tmp2 * r(i)
             x(i) = x(i) + d(i)
          end do
-
+         !$omp end do
+         !$omp end parallel
       end do
     end associate
   end subroutine amg_cheby_solve
@@ -281,14 +303,28 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
+
+      ! Save current random seed and set a fixed seed
+      call random_seed( size=rnd_n )
+      allocate(saved_seed(rnd_n))
+      allocate(fixed_seed(rnd_n))
+      fixed_seed = 3901
+      call random_seed( get=saved_seed )
+      call random_seed( put=fixed_seed )
+
       do i = 1, n
-         !TODO: replace with a better way to initialize power method
-         d(i) = sin(real(i))
+         call random_number(rn)
+         d(i) = rn + 10.0_rp
       end do
       call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
+
+      ! Restore saved random seed
+      call random_seed( put=saved_seed )
+
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
          call blst%apply(d, n)
@@ -389,7 +425,8 @@ contains
 
   !> Initialization of Jacobi (this is expensive...)
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are
+  !! to be applied
   !! @param max_iter The number of iterations
   subroutine amg_jacobi_init(this, n, lvl, max_iter)
     class(amg_jacobi_t), intent(inout), target :: this
@@ -470,13 +507,26 @@ contains
          w = 0.0_rp
          !> w = A x
          call amg%matvec(w, x, this%lvl)
+         !$omp parallel private(i)
          !> r = f - Ax
-         call copy(r, f, n)
-         call sub2(r, w, n)
+         !$omp do
+         do i = 1, n
+            r(i) = f(i) - w(i)
+         end do
+         !$omp end do
          !> r = Dinv * (f - Ax)
-         call col2(r, d, n)
+         !$omp do
+         do i = 1, n
+            r(i) = r(i) * d(i)
+         end do
+         !$omp end do
          !> x = x + omega * Dinv * (f - Ax)
-         call add2s2(x, r, this%omega, n)
+         !$omp do
+         do i = 1, n
+            x(i) = x(i) + this%omega * r(i)
+         end do
+         !$omp end do
+         !$omp end parallel
       end do
     end associate
   end subroutine amg_jacobi_solve

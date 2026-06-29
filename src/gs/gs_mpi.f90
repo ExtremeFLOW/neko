@@ -191,11 +191,9 @@ contains
              !$omp end do
           end select
           !$omp master
-          associate(send_data => this%send_buf(off + 1 : off + ndst))
-            call MPI_Isend(send_data, ndst, &
-                 MPI_REAL_PRECISION, dst, tag, &
-                 NEKO_COMM, this%send_request(i), ierr)
-          end associate
+          call MPI_Isend(this%send_buf(off + 1), ndst, &
+               MPI_REAL_PRECISION, dst, tag, &
+               NEKO_COMM, this%send_request(i), ierr)
           !$omp end master
        end do
        !$omp barrier
@@ -212,11 +210,9 @@ contains
                 this%send_buf(off + j) = u(sp(j))
              end do
           end select
-          associate(send_data => this%send_buf(off + 1 : off + ndst))
-            call MPI_Isend(send_data, ndst, &
-                 MPI_REAL_PRECISION, dst, tag, &
-                 NEKO_COMM, this%send_request(i), ierr)
-          end associate
+          call MPI_Isend(this%send_buf(off + 1), ndst, &
+               MPI_REAL_PRECISION, dst, tag, &
+               NEKO_COMM, this%send_request(i), ierr)
        end do
        !$omp end do
     end if
@@ -241,11 +237,9 @@ contains
        do i = 1, size(this%recv_pe)
           off = this%recv_offset(i)
           nsrc = this%recv_len(i)
-          associate(recv_data => this%recv_buf(off + 1 : off + nsrc))
-            call MPI_IRecv(recv_data, nsrc, &
-                 MPI_REAL_PRECISION, this%recv_pe(i), tag, &
-                 NEKO_COMM, this%recv_request(i), ierr)
-          end associate
+          call MPI_IRecv(this%recv_buf(off + 1), nsrc, &
+               MPI_REAL_PRECISION, this%recv_pe(i), tag, &
+               NEKO_COMM, this%recv_request(i), ierr)
        end do
        !$omp end master
        !$omp barrier
@@ -254,11 +248,9 @@ contains
        do i = 1, size(this%recv_pe)
           off = this%recv_offset(i)
           nsrc = this%recv_len(i)
-          associate(recv_data => this%recv_buf(off + 1 : off + nsrc))
-            call MPI_IRecv(recv_data, nsrc, &
-                 MPI_REAL_PRECISION, this%recv_pe(i), tag, &
-                 NEKO_COMM, this%recv_request(i), ierr)
-          end associate
+          call MPI_IRecv(this%recv_buf(off + 1), nsrc, &
+               MPI_REAL_PRECISION, this%recv_pe(i), tag, &
+               NEKO_COMM, this%recv_request(i), ierr)
        end do
        !$omp end do
     end if
@@ -272,7 +264,6 @@ contains
     type(c_ptr), intent(inout) :: strm
     integer :: i, j, k, src, off, nsrc, ierr
     integer :: op
-    integer, pointer :: sp(:)
     integer :: nreqs
     logical :: sends_done
 

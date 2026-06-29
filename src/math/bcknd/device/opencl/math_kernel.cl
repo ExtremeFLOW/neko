@@ -35,9 +35,9 @@
 */
 
 /**
- * Device kernel for masked copy
+ * Device kernel for masked copy with BC style mask
  */
-__kernel void masked_copy_kernel(__global real* __restrict__ a,
+__kernel void masked_copy_kernel_0(__global real* __restrict__ a,
                                  __global real* __restrict__ b,
                                  __global int* __restrict__ mask,
                                  const int n, const int n_mask) {
@@ -47,6 +47,22 @@ __kernel void masked_copy_kernel(__global real* __restrict__ a,
 
   for (int i = idx; i < n_mask; i += str) {
     a[mask[i + 1] - 1] = b[mask[i + 1] - 1];
+  }
+}
+
+/**
+ * Device kernel for masked copy with point zone style mask
+ */
+__kernel void masked_copy_kernel_aligned(__global real* __restrict__ a,
+                                 __global real* __restrict__ b,
+                                 __global int* __restrict__ mask,
+                                 const int n, const int n_mask) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n_mask; i += str) {
+    a[mask[i]] = b[mask[i]];
   }
 }
 

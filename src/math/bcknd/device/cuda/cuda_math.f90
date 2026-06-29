@@ -43,12 +43,19 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_copy
 
-     subroutine cuda_masked_copy(a_d, b_d, mask_d, n, n_mask, strm) &
-          bind(c, name = 'cuda_masked_copy')
+     subroutine cuda_masked_copy_0(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'cuda_masked_copy_0')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr
        type(c_ptr), value :: a_d, b_d, mask_d, strm
        integer(c_int) :: n, n_mask
-     end subroutine cuda_masked_copy
+     end subroutine cuda_masked_copy_0
+
+     subroutine cuda_masked_copy_aligned(a_d, b_d, mask_d, n, n_mask, strm) &
+          bind(c, name = 'cuda_masked_copy_aligned')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, mask_d, strm
+       integer(c_int) :: n, n_mask
+     end subroutine cuda_masked_copy_aligned
 
      subroutine cuda_masked_gather_copy(a_d, b_d, mask_d, n, n_mask, strm) &
           bind(c, name = 'cuda_masked_gather_copy')

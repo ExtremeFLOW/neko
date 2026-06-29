@@ -51,7 +51,7 @@ submodule (krylov) krylov_fctry
   use num_Types, only : rp
   use precon, only : pc_t
   use utils, only : neko_type_error
-  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   implicit none
 
   ! List of all possible types created by the factory routine
@@ -112,8 +112,8 @@ contains
        if (NEKO_BCKND_SX .eq. 1) then
           allocate(sx_pipecg_t::object)
        else if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (NEKO_BCKND_OPENCL .eq. 1) then
-             call neko_error('PipeCG not supported for OpenCL')
+          if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
+             call neko_error('PipeCG not supported for OpenCL/Metal')
           end if
           allocate(pipecg_device_t::object)
        else
@@ -122,8 +122,8 @@ contains
 
     case ('fused_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (NEKO_BCKND_OPENCL .eq. 1) then
-             call neko_error('FusedCG not supported for OpenCL')
+          if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
+             call neko_error('FusedCG not supported for OpenCL/Metal')
           end if
           allocate(fusedcg_device_t::object)
        else
@@ -132,8 +132,8 @@ contains
 
     case ('fused_coupled_cg')
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (NEKO_BCKND_OPENCL .eq. 1) then
-             call neko_error('Coupled FusedCG not supported for OpenCL')
+          if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
+             call neko_error('Coupled FusedCG not supported for OpenCL/Metal')
           end if
           allocate(fusedcg_cpld_device_t::object)
        else

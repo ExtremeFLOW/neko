@@ -33,27 +33,25 @@
 !> Routines to obtain interpolated values on a set of points with known
 !! rst coordinates in elements local to this process.
 module local_interpolation
-  use tensor, only: triple_tensor_product, tnsr3d_el_list, tnsr3d
-  use space, only: space_t, GL, GLL
-  use num_types, only: rp, xp
-  use point, only: point_t
-  use math, only: abscmp, NEKO_EPS
-  use speclib
-  use fast3d, only: fd_weights_full, setup_intp
-  use utils, only: neko_error
-  use field, only: field_t
-  use field_list, only: field_list_t
+  use tensor, only : triple_tensor_product, tnsr3d_el_list, tnsr3d
+  use space, only : space_t, GL, GLL
+  use num_types, only : rp, xp
+  use point, only : point_t
+  use math, only : abscmp, NEKO_EPS
+  use fast3d, only : fd_weights_full, setup_intp
+  use utils, only : neko_error
+  use field, only : field_t
+  use field_list, only : field_list_t
   use device
   use math, only : matinv3, matinv39
-  use tensor_cpu
-  use device_math, only: device_rzero
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use device_math, only : device_rzero
+  use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
-  !> Interpolation on a set of points with known rst coordinates in elements local
-  !! to this process.
+  !> Interpolation on a set of points with known rst coordinates in
+  !! elements local to this process.
   !! Similar to point_interpolator, but prioritizes performance
   !! Only works with arrays of coordinates
   !! Performs interpolation with the configured NEKO_BCKND
@@ -78,7 +76,8 @@ module local_interpolation
      !> Interpolates the scalar field \f$ X \f$ on the specified coordinates
      procedure, pass(this) :: evaluate => local_interpolator_evaluate
      !> COmputes weights based on rst coordinates
-     procedure, pass(this) :: compute_weights => local_interpolator_compute_weights
+     procedure, pass(this) :: compute_weights => &
+          local_interpolator_compute_weights
      generic :: init => init_3arrays, init_1array
 
   end type local_interpolator_t
@@ -101,9 +100,9 @@ contains
 
     this%Xh => Xh
     this%n_points = n_points
-    allocate(this%weights_r(Xh%lx,n_points))
-    allocate(this%weights_s(Xh%ly,n_points))
-    allocate(this%weights_t(Xh%lz,n_points))
+    allocate(this%weights_r(Xh%lx, n_points))
+    allocate(this%weights_s(Xh%ly, n_points))
+    allocate(this%weights_t(Xh%lz, n_points))
     call this%compute_weights(r, s, t)
     size_weights = Xh%lx * n_points
 
@@ -127,7 +126,7 @@ contains
     class(local_interpolator_t), intent(inout), target :: this
     type(space_t), intent(in), target :: Xh
     integer, intent(in) :: n_points
-    real(kind=rp), intent(in) :: rst(3,n_points)
+    real(kind=rp), intent(in) :: rst(3, n_points)
     real(kind=rp), allocatable :: r(:), s(:), t(:)
     integer :: i
 
@@ -157,17 +156,23 @@ contains
 
     if (associated(this%Xh)) this%Xh => null()
 
-    if(allocated(this%weights_r)) deallocate(this%weights_r)
-    if(allocated(this%weights_s)) deallocate(this%weights_s)
-    if(allocated(this%weights_t)) deallocate(this%weights_t)
-    if (c_associated(this%weights_r_d)) then
-       call device_free(this%weights_r_d)
+    if (allocated(this%weights_r)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%weights_r, this%weights_r_d)
+       end if
+       deallocate(this%weights_r)
     end if
-    if (c_associated(this%weights_s_d)) then
-       call device_free(this%weights_s_d)
+    if (allocated(this%weights_s)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%weights_s, this%weights_s_d)
+       end if
+       deallocate(this%weights_s)
     end if
-    if (c_associated(this%weights_t_d)) then
-       call device_free(this%weights_t_d)
+    if (allocated(this%weights_t)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%weights_t, this%weights_t_d)
+       end if
+       deallocate(this%weights_t)
     end if
   end subroutine local_interpolator_free
 
@@ -193,9 +198,12 @@ contains
        if ((r(i) <= 1.1_rp .and. r(i) >= -1.1_rp) .and. &
             (s(i) <= 1.1_rp .and. s(i) >= -1.1_rp) .and. &
             (t(i) <= 1.1_rp .and. t(i) >= -1.1_rp)) then
-          call fd_weights_full(r(i), this%Xh%zg(:,1), lx-1, 0, this%weights_r(:,i))
-          call fd_weights_full(s(i), this%Xh%zg(:,2), lx-1, 0, this%weights_s(:,i))
-          call fd_weights_full(t(i), this%Xh%zg(:,3), lx-1, 0, this%weights_t(:,i))
+          call fd_weights_full(r(i), this%Xh%zg(:, 1), lx-1, 0, &
+               this%weights_r(:, i))
+          call fd_weights_full(s(i), this%Xh%zg(:, 2), lx-1, 0, &
+               this%weights_s(:, i))
+          call fd_weights_full(t(i), this%Xh%zg(:, 3), lx-1, 0, &
+               this%weights_t(:, i))
        else
           this%weights_r(:,i) = 0.0_rp
           this%weights_s(:,i) = 0.0_rp
@@ -298,8 +306,8 @@ contains
     call jacobian(jacinv, rst, x, y, z, n_pts, Xh)
 
     do i = 1, n_pts
-       tmp = matinv3(real(jacinv(:,:,3),xp))
-       jacinv(:,:,i) = tmp
+       tmp = matinv3(real(jacinv(:, :, 3), xp))
+       jacinv(:, :, i) = tmp
     end do
 
   end subroutine jacobian_inverse

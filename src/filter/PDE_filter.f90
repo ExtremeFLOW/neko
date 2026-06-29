@@ -231,7 +231,8 @@ contains
 
     ! set up Helmholtz operators and RHS
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(this%coef%h1_d, (this%r / (2.0_rp * sqrt(3.0_rp)))**2, n)
+       call device_cfill(this%coef%h1_d, &
+            (this%r / (2.0_rp * sqrt(3.0_rp)))**2, n)
        call device_cfill(this%coef%h2_d, 1.0_rp, n)
     else
        ! h1 is already negative in its definition

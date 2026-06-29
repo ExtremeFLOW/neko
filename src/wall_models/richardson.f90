@@ -52,12 +52,13 @@ module richardson
   use math, only: masked_gather_copy_0
   use device_math, only: device_masked_gather_copy_0
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   implicit none
   private
 
   !> Wall model similar to the Monin-Obukhov Similarity Theory for atmospheric
-  !! boundary layer flows, but which avoids the iterative computation of the Obukhov length,
+  !! boundary layer flows, but which avoids the iterative computation
+  !! of the Obukhov length,
   !! computing the Richardson number directly (Mauritsen, 2007)
   type, public, extends(wall_model_t) :: richardson_t
      !> The von Karman coefficient.
@@ -102,7 +103,8 @@ module richardson
      !> Compute the wall shear stress.
      procedure, pass(this) :: compute => richardson_compute
      ! Extract fluid properties at the wall (mu and rho)
-     procedure, pass(this) :: extract_properties => richardson_extract_properties
+     procedure, pass(this) :: extract_properties => &
+          richardson_extract_properties
   end type richardson_t
 
 contains
@@ -302,9 +304,11 @@ contains
     class(richardson_t), intent(inout) :: this
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_masked_gather_copy_0(this%mu_w%x_d, this%mu%x_d, this%msk_d, &
+       call device_masked_gather_copy_0(this%mu_w%x_d, this%mu%x_d, &
+            this%msk_d, &
             this%mu%size(), this%mu_w%size())
-       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, &
+            this%msk_d, &
             this%rho%size(), this%rho_w%size())
     else
        call masked_gather_copy_0(this%mu_w%x, this%mu%x, this%msk, &
@@ -323,9 +327,11 @@ contains
   !! @param kappa The von Karman coefficient.
   !! @param g The gravity vector.
   !! @param z0 The roughness height.
-  !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
+  !! @param z0h_in The thermal roughness height. If negative, set
+  !! automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
-  !! @param scalar_name The name of the scalar field (temperature) for Richardson WM.
+  !! @param scalar_name The name of the scalar field (temperature) for
+  !! Richardson WM.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine richardson_init_from_components(this, scheme_name, &
        scalar_name, coef, msk, facet, h_index, kappa, g, Pr, z0, &
@@ -370,7 +376,8 @@ contains
     !> Check alignment across all nodes (handling hills/slopes)
     max_ang = 0.0_rp
     do i = 1, this%n_nodes
-       g_dot_n = abs(g(1)*this%n_x%x(i) + g(2)*this%n_y%x(i) + g(3)*this%n_z%x(i))
+       g_dot_n = abs(g(1) * this%n_x%x(i) + g(2) * this%n_y%x(i) + &
+            g(3) * this%n_z%x(i))
        cos_alpha = g_dot_n / g_mag
        max_ang = max(max_ang, acos(min(1.0_rp, cos_alpha)))
     end do
@@ -393,7 +400,8 @@ contains
     else if (this%z0 .eq. 0.0_rp) then
        call neko_error("Richardson WM: Roughness z0 must be greater than 0.")
     else if (this%z0h_in .eq. 0.0_rp) then
-       call neko_error("Richardson WM: Thermal roughness z0h must be greater than 0.")
+       call neko_error("Richardson WM: Thermal roughness z0h must " // &
+            "be greater than 0.")
     end if
 
   end subroutine richardson_init_from_components
@@ -423,24 +431,24 @@ contains
     call this%q%free()
 
     if (allocated(this%h_x_idx)) then
+       if (c_associated(this%h_x_idx_d)) then
+          call device_unmap(this%h_x_idx, this%h_x_idx_d)
+       end if
        deallocate(this%h_x_idx)
-    end if
-    if (c_associated(this%h_x_idx_d)) then
-       call device_free(this%h_x_idx_d)
     end if
 
     if (allocated(this%h_y_idx)) then
+       if (c_associated(this%h_y_idx_d)) then
+          call device_unmap(this%h_y_idx, this%h_y_idx_d)
+       end if
        deallocate(this%h_y_idx)
-    end if
-    if (c_associated(this%h_y_idx_d)) then
-       call device_free(this%h_y_idx_d)
     end if
 
     if (allocated(this%h_z_idx)) then
+       if (c_associated(this%h_z_idx_d)) then
+          call device_unmap(this%h_z_idx, this%h_z_idx_d)
+       end if
        deallocate(this%h_z_idx)
-    end if
-    if (c_associated(this%h_z_idx_d)) then
-       call device_free(this%h_z_idx_d)
     end if
 
   end subroutine richardson_free
@@ -477,9 +485,11 @@ contains
             this%ind_e_d, this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu_w%x_d, this%rho_w%x_d, this%g, this%Pr, this%z0, this%z0h_in, &
+            this%mu_w%x_d, this%rho_w%x_d, this%g, this%Pr, this%z0, &
+            this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
-            this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, this%ts%x_d,&
+            this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
+            this%ts%x_d, &
             this%q%x_d, this%h_x_idx_d, this%h_y_idx_d, this%h_z_idx_d)
     else
        call richardson_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
@@ -496,6 +506,9 @@ contains
     call richardson_log_diagnostics(this%Ri_b, this%L_ob, &
          this%utau, this%magu, this%ti, this%ts, this%q, &
          this%n_nodes, this%bc_value)
+
+    nullify(u, v, w, temp, updated_bc_value)
+
   end subroutine richardson_compute
 
   subroutine richardson_log_diagnostics(Ri_b, L_ob, utau, magu, &

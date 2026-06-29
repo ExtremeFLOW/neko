@@ -193,6 +193,8 @@ contains
     integer :: i, j, k, e
     cfl = 0d0
     if (gdim .eq. 3) then
+       !$omp parallel do reduction(max:cfl) private(e, k, j, i, ur, us, ut, &
+       !$omp& cflr, cfls, cflt, cflm)
        do e = 1, nelv
           do k = 1, Xh%lz
              do j = 1, Xh%ly
@@ -220,7 +222,10 @@ contains
              end do
           end do
        end do
+       !$omp end parallel do
     else
+       !$omp parallel do reduction(max:cfl) private(e, j, i, ur, us, &
+       !$omp& cflr, cfls, cflm)
        do e = 1, nelv
           do j = 1, Xh%ly
              do i = 1, Xh%lx
@@ -238,6 +243,7 @@ contains
              end do
           end do
        end do
+       !$omp end parallel do
     end if
   end function opr_cpu_cfl
 

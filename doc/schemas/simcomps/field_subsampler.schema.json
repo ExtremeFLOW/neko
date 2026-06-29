@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:field_subsampler",
+  "$defs": {
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFieldWriterOptions"
+        },
+        {
+          "type": "object",
+          "required": [
+            "source_fields"
+          ],
+          "properties": {
+            "type": {
+              "const": "field_subsampler"
+            },
+            "source_fields": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields"
+            },
+            "point_zone": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "polynomial_order": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/integerOrRef"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

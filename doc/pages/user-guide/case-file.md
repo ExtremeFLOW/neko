@@ -15,6 +15,19 @@ idea of how a case file looks.
 The table below provides a complete reference for all possible configuration
 choices.
 
+An initial JSON Schema for the case file is available in
+`doc/schemas/`.
+The schema is split logically by case-object substructure (see below), with dedicated files
+for `time`, `numerics`, `fluid`, `scalar`, `source_terms`, `point_zones`, and
+`simulation_components`, plus a shared `doc/schemas/common.schema.json` for
+reusable definitions. The simulation-component schema is further split into
+per-component files under `doc/schemas/simcomps/`.
+The helper `contrib/validate_case_schema.py` can be used to validate case
+files against that schema.
+Since some shipped example files use `//` comments and trailing commas, the
+helper parses the input using a JSON5-compatible frontend before applying the
+schema.
+
 ## High-level structure
 The current high-level structure of the case file is shown below.
 
@@ -88,7 +101,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
-| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
 | `output_at_end`       | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 Some additional practical comments are provided regarding the output triggered
@@ -116,7 +129,9 @@ checkpoint file, with the filename called `joblimit#####.chkp`. This is done so
 that the user is at least provided a restart file, and none of the computer time
 spent on the simulation is wasted. Generally, however, it is recommended to
 have `output_at_end` set to `true` in tandem with `job_timelimit`, so that what
-exactly gets written is controlled by the case file settings.
+exactly gets written is controlled by the case file settings. Note that the time
+format is flexible. For example, `1-01:00:00` and `25:00:00` are both valid ways
+to specify a 25-hour time limit.
 
 ### Constants
 The `constants` array allows the user to define parameters that are global to
@@ -126,17 +141,19 @@ represented as a subobject inside the `constants` object and should containt two
 entries: `name` and `value`. Here is an example:
 
 ```json
-"constants":
-[
-  {
-    "name": "const1",
-    "value": 3.5
-  },
-  {
-    "name": "vector1",
-    "value": [1, 0, 1]
-  }
-]
+{
+  "constants":
+  [
+    {
+      "name": "const1",
+      "value": 3.5
+    },
+    {
+      "name": "vector1",
+      "value": [1, 0, 1]
+    }
+  ]
+}
 ```
 
 Other parameters in the case file that require a scalar or array entry, can
@@ -148,20 +165,22 @@ a simulation with both [fluid](@ref case-file_fluid) and [scalar](@ref
 case-file_scalar) solvers active, the following could be used.
 
 ```json
-"constants":
-[
+{
+  "constants":
+  [
+    {
+      "name": "common_output_value",
+      "value": 10
+    }
+  ],
+  "fluid":
   {
-    "name": "common_output_value",
-    "value": 10
+    "output_value": "common_output_value"
+  },
+  "scalar":
+  {
+    "output_value": "common_output_value"
   }
-],
-"fluid":
-{
-  "output_value": "common_output_value"
-},
-"scalar":
-{
-  "output_value": "common_output_value"
 }
 ```
 The advantage is that this guarantees that the fluid and scalar output will be
@@ -183,20 +202,20 @@ smallest of `timestep` and the value calculated from the target CFL number.
 
 | Name                       | Description                                                                                 | Admissible values                 | Default value |
 | -------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
-| `start_time`               | Start time at which the simulation is initiated.                                            | Positive reals                    | `0.0`         |
+| `start_time`               | Start time at which the simulation is initiated.                                            | Non-negative reals                | `0.0`         |
 | `end_time`                 | Final time after which the simulation is stopped.                                           | Positive reals                    | -             |
 | `timestep`                 | Time-step size                                                                              | Positive reals                    | -             |
 | `variable_timestep`        | Whether to use variable dt                                                                  | `true` or `false`                 | `false`       |
 | `max_timestep`             | Maximum time-step size when variable time step is activated                                 | Positive reals                    | `huge`        |
-| `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Positive reals                    | `0.0`         |
+| `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Non-negative reals                | `0.0`         |
 | `target_cfl`               | The desired CFL number                                                                      | Positive real                     | `0.4`         |
-| `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Integer                           | `0`           |
-| `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Integer                           | `huge`        |
+| `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
+| `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `huge`        |
 | `running_avg_coeff`        | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 | `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                            | Positive real greater than `1`    | `1.2`         |
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
-| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps            | Integer                           | `0`           |
+| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 
 ### Restarts and joblimit
@@ -1110,16 +1129,18 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "constant",
-             "value": [2.0, 0.0, 0.0]
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "constant",
+                "value": [2.0, 0.0, 0.0]
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1130,18 +1151,20 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "field",
-             "file_name": "my_field0.f00016",
-             "mesh_file_name": "my_field0.f00000",
-             "interpolate": true
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "field",
+                "file_name": "my_field0.f00016",
+                "mesh_file_name": "my_field0.f00000",
+                "interpolate": true
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1153,15 +1176,17 @@ The reference velocity field, or `baseflow` can be set from three methods:
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
    ```json
-   "source_terms": [
-      {
-         "type": "sponge",
-         "amplitudes": [1.0, 1.0, 1.0],
-         "baseflow": {
-             "method": "user"
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [1.0, 1.0, 1.0],
+            "baseflow": {
+                "method": "user"
+            }
          }
-      }
-   ]
+      ]
+   }
    ```
    </details>
 
@@ -1328,7 +1353,7 @@ The parameters for the sponge source term are summarized in the table below:
 ### Arbitrary Lagrangian-Eulerian Framework {#case-file_fluid-ale}
 Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies.
 
-@note Currently, only the CPU backend of the ALE framework is supported. GPU acceleration for ALE computations will be available in future updates.
+@note Currently, the ALE framework supports CPU backend, as well as HIP and CUDA backends for GPU acceleration.
 
 The `"ale"` block in case file is part of the `"fluid"` object, and has the following high-level structure:
 
@@ -1413,6 +1438,7 @@ Within the `"solver"` block, the parameters of the linear solver used to solve t
 | `monitor`             | Monitor residuals in the linear solver                                    | `true` or `false`              | `false`       |
 | `output_base_shape`   | Enables output of the base shape field \f$ \phi \f$                       | `true` or `false`              | `true`        |
 | `output_stiffness`    | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false`              | `false`       |
+| `import_base_shape`   | Whether to import \f$ \phi \f$ fields from file                       | `true` or `false`                | `false`       |
 
 ##### Output Files and Diagnostics
 If the output flags are enabled, Neko will generate `.fld` files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:
@@ -1421,11 +1447,12 @@ If the output flags are enabled, Neko will generate `.fld` files during the init
 * `phi_total0.f00000`: Generated if `"output_base_shape": true` **and** there is more than one body registered. Contains the sum of all base shapes (\f$ \phi_{total} = \sum \phi_i \f$).
 * `stiffness0.f00000`: Generated if `"output_stiffness": true`. Contains the global spatial mesh stiffness field \f$ h(\mathbf{x}) \f$.
 
-@attention Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
+@note Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \f$ \phi_{total} \f$ is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's `absolute_tolerance` is set appropriately.
 
 
-@note It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
+@attention It is also possible to provide a custom base shape \f$ \phi \f$ using a `user_ale_base_shapes` user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting `"output_base_shape": true` will still write your custom user shapes to `.fld` files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found [here](#user-file_ale-base-shapes).
 
+@note If the option `import_base_shape` is set to `true`, the Laplace solve will be skipped entirely, and the \f$ \phi \f$ fields are instead loaded from previously computed `.fld` files. When this feature is enabled, the file to be loaded for each body must be specified using the `base_shape_import_file` keyword within the `"bodies"` block.
 
 #### Mesh preview
 
@@ -1462,10 +1489,14 @@ Each individual body object accepts the following general keywords and base kine
 | `rotation`     | Sub-object defining the rotational kinematics applied to the body | JSON object                | -                  |
 | `pivot`        | Sub-object defining the center point for rotational kinematics    | JSON object                | -                  |
 | `stiff_geom`   | Sub-object defining the mesh stiffness region                     | JSON object                | -                  |
+| `base_shape_import_file` | Name of the \f$ \phi \f$ field file to import           | String ending with `f00000` | -                  |
 
-@attention The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
+@note The body_ID for ALE bodies is defined based on the order in which they are added to the `"bodies"` array, not based on their `"zone_indices"`.
 
-@note If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+@attention If multiple moving `no_slip` zone IDs are assigned to `"zone_indices"` of a single ALE body, the code will treat all those boundaries as a unified rigid body.
+
+@note The `base_shape_import_file` keyword is only mandatory if the solver option `"ale.solver.import_base_shape"` is set to `true`. In this case, this keyword should be provided for **every** single registered body.
+
 
 ##### Oscillation
 
@@ -1656,9 +1687,14 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
 
 #### Restarting ALE simulations
 
-Neko supports checkpointing and restarting for ALE simulations. No additional parameters need to be set apart from the usual configuration for saving `.chkp` files.
+Neko supports checkpointing and restarting for ALE simulations from `.chkp` files. No additional parameters need to be set apart from the usual configuration for saving these files.
 
-@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
+**Restart Capabilities:**
+* **Exact Restart:** Restarting from the same mesh and the same polynomial order is an exact restart.
+* **Different Polynomial Order:** Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in `BDF2` and `BDF3` time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.
+* **Different Mesh:** Restarting from a different mesh is not yet supported for ALE simulations.
+
+@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used as `"restart_file"` to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
@@ -1840,11 +1876,13 @@ If the eddy diffusivity field is associated to the eddy viscosity field by a coe
 And the corresponding setting could be done by the following:
 
 ```json
-"alphat":{
+{
+  "alphat": {
     "nut_dependency": true,
     "nut_field": "nut",
     "Pr_t": 0.7
-},
+  }
+}
 ```
 
 Otherwise one could have some SGS models providing an eddy diffusivity field, and the
@@ -1852,10 +1890,12 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 `temperature_alphat`:
 
 ```json
-"alphat":{
+{
+  "alphat": {
     "nut_dependency": false,
     "alphat_field": "temperature_alphat"
-},
+  }
+}
 ```
 
 ### Boundary conditions
@@ -1957,8 +1997,8 @@ A more detailed description as well as a  full list of available components and
 
 ## Point zones
 Point zones enable the user to select GLL points in the computational domain
-according to some geometric criterion. Two predefined geometric shapes are
-selectable from the case file, boxes and spheres.
+according to some geometric criterion. Three predefined geometric shapes are
+selectable from the case file: boxes, spheres, and cylinders.
 
 A point zone object defined in the case file can be retrieved from the point
 zone registry, `neko_point_zone_registry`, and can be used to perform any

@@ -398,8 +398,8 @@ contains
 
          ! At this point the RHS contains the sum of the advection operator,
          ! Neumann boundary sources and additional source terms, evaluated using
-         ! the scalar field from the previous time-step. Now, this value is used in
-         ! the explicit time scheme to advance these terms in time.
+         ! the scalar field from the previous time-step. Now, this value is
+         ! used in the explicit time scheme to advance these terms in time.
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
               rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 

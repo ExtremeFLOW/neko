@@ -66,7 +66,8 @@ module registry_entry
    contains
      ! Constructors
      procedure, pass(this) :: init_real_scalar => init_register_real_scalar
-     procedure, pass(this) :: init_integer_scalar => init_register_integer_scalar
+     procedure, pass(this) :: init_integer_scalar => &
+          init_register_integer_scalar
      procedure, pass(this) :: init_host_array => init_register_host_array
      procedure, pass(this) :: init_device_array => init_register_device_array
      procedure, pass(this) :: init_vector => init_register_vector

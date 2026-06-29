@@ -83,7 +83,8 @@ module rough_log_law
      !> Compute the wall shear stress.
      procedure, pass(this) :: compute => rough_log_law_compute
      ! Extract fluid properties at the wall (rho)
-     procedure, pass(this) :: extract_properties => rough_log_law_extract_properties
+     procedure, pass(this) :: extract_properties => &
+          rough_log_law_extract_properties
   end type rough_log_law_t
 
 contains
@@ -159,7 +160,8 @@ contains
     class(rough_log_law_t), intent(inout) :: this
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, &
+            this%msk_d, &
             this%rho%size(), this%rho_w%size())
     else
        call masked_gather_copy_0(this%rho_w%x, this%rho%x, this%msk, &
@@ -197,7 +199,8 @@ contains
 
     ! Check that the sampling height is above the roughness length
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
-       call neko_error("Roughlog WM: Sampling height h must be greater than roughness z0. " // &
+       call neko_error("Roughlog WM: Sampling height h must be greater " // &
+            "than roughness z0. " // &
             "Increase h_index or decrease z0.")
     else if (this%z0 .eq. 0.0_rp) then
        call neko_error("Roughlog WM: Roughness z0 must be greater than 0.")
@@ -246,6 +249,8 @@ contains
             this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
             this%rho_w%x, this%B, this%z0, tstep)
     end if
+
+    nullify(u, v, w)
 
   end subroutine rough_log_law_compute
 

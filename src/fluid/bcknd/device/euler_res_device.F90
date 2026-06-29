@@ -311,6 +311,92 @@ module euler_res_device
        integer(c_int) :: n
      end subroutine euler_res_part_rk_sum_opencl
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine euler_res_part_visc_metal(rhs_field_d, Binv_d, field_d, &
+          effective_visc_d, n) &
+          bind(c, name = 'euler_res_part_visc_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: rhs_field_d, Binv_d, field_d, effective_visc_d
+       integer(c_int) :: n
+     end subroutine euler_res_part_visc_metal
+  end interface
+
+  interface
+     subroutine euler_res_part_mx_flux_metal(f_x, f_y, f_z, &
+          m_x, m_y, m_z, rho_field, p, n) &
+          bind(c, name = 'euler_res_part_mx_flux_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+       integer(c_int) :: n
+     end subroutine euler_res_part_mx_flux_metal
+  end interface
+
+  interface
+     subroutine euler_res_part_my_flux_metal(f_x, f_y, f_z, &
+          m_x, m_y, m_z, rho_field, p, n) &
+          bind(c, name = 'euler_res_part_my_flux_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+       integer(c_int) :: n
+     end subroutine euler_res_part_my_flux_metal
+  end interface
+
+  interface
+     subroutine euler_res_part_mz_flux_metal(f_x, f_y, f_z, &
+          m_x, m_y, m_z, rho_field, p, n) &
+          bind(c, name = 'euler_res_part_mz_flux_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+       integer(c_int) :: n
+     end subroutine euler_res_part_mz_flux_metal
+  end interface
+
+  interface
+     subroutine euler_res_part_E_flux_metal(f_x, f_y, f_z, &
+          m_x, m_y, m_z, rho_field, p, E, n) &
+          bind(c, name = 'euler_res_part_E_flux_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E
+       integer(c_int) :: n
+     end subroutine euler_res_part_E_flux_metal
+  end interface
+
+  interface
+     subroutine euler_res_part_coef_mult_metal(rhs_rho_field_d, &
+          rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+          rhs_E_d, mult_d, n) &
+          bind(c, name = 'euler_res_part_coef_mult_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: rhs_rho_field_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+            rhs_E_d, mult_d
+       integer(c_int) :: n
+     end subroutine euler_res_part_coef_mult_metal
+  end interface
+
+  interface
+     subroutine euler_res_part_rk_sum_metal(rho, m_x, m_y, m_z, E, &
+          k_rho_i, k_m_x_i, k_m_y_i, &
+          k_m_z_i, k_E_i, &
+          dt, c, n) &
+          bind(c, name = 'euler_res_part_rk_sum_metal')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: rho, m_x, m_y, m_z, E, &
+            k_rho_i, k_m_x_i, k_m_y_i, &
+            k_m_z_i, k_E_i
+       real(c_rp) :: dt, c
+       integer(c_int) :: n
+     end subroutine euler_res_part_rk_sum_metal
+  end interface
 #endif
 
 contains
@@ -416,6 +502,12 @@ contains
                k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
+#elif HAVE_METAL
+          call euler_res_part_rk_sum_metal(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
+               temp_m_z%x_d, temp_E%x_d, &
+               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
+               k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
+               dt, rk_scheme%coeffs_A(i, j), n)
 #endif
        end do
 
@@ -443,6 +535,12 @@ contains
             dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_OPENCL
        call euler_res_part_rk_sum_opencl(rho_field%x_d, &
+            m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
+            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
+            k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
+            dt, rk_scheme%coeffs_b(i), n)
+#elif HAVE_METAL
+       call euler_res_part_rk_sum_metal(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
             k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
@@ -488,6 +586,9 @@ contains
 #elif HAVE_OPENCL
     call euler_res_part_mx_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
+#elif HAVE_METAL
+    call euler_res_part_mx_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
+         m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_y
@@ -501,6 +602,10 @@ contains
          rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
     call euler_res_part_my_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+         m_x%x_d, m_y%x_d, m_z%x_d, &
+         rho_field%x_d, p%x_d, n)
+#elif HAVE_METAL
+    call euler_res_part_my_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #endif
@@ -518,6 +623,10 @@ contains
     call euler_res_part_mz_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
+#elif HAVE_METAL
+    call euler_res_part_mz_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
+         m_x%x_d, m_y%x_d, m_z%x_d, &
+         rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
 
@@ -532,6 +641,10 @@ contains
          rho_field%x_d, p%x_d, E%x_d, n)
 #elif HAVE_OPENCL
     call euler_res_part_E_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+         m_x%x_d, m_y%x_d, m_z%x_d, &
+         rho_field%x_d, p%x_d, E%x_d, n)
+#elif HAVE_METAL
+    call euler_res_part_E_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, E%x_d, n)
 #endif
@@ -555,6 +668,10 @@ contains
          rhs_E%x_d, coef%mult_d, n)
 #elif HAVE_OPENCL
     call euler_res_part_coef_mult_opencl(rhs_rho_field%x_d, rhs_m_x%x_d, &
+         rhs_m_y%x_d, rhs_m_z%x_d, &
+         rhs_E%x_d, coef%mult_d, n)
+#elif HAVE_METAL
+    call euler_res_part_coef_mult_metal(rhs_rho_field%x_d, rhs_m_x%x_d, &
          rhs_m_y%x_d, rhs_m_z%x_d, &
          rhs_E%x_d, coef%mult_d, n)
 #endif

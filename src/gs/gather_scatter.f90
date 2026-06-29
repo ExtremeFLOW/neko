@@ -33,7 +33,7 @@
 !> Gather-scatter
 module gather_scatter
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_HIP, &
-       NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, NEKO_DEVICE_MPI
+       NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL, NEKO_DEVICE_MPI
   use gs_bcknd, only : gs_bcknd_t, GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
   use gs_device, only : gs_device_t
   use gs_sx, only : gs_sx_t
@@ -61,8 +61,8 @@ module gather_scatter
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_free, &
-       device_map, device_deassociate
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_map, &
+       device_unmap
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   !$ use omp_lib, only : omp_get_thread_num
   implicit none
@@ -280,6 +280,8 @@ contains
           bcknd_str = '        cuda'
        else if (NEKO_BCKND_OPENCL .eq. 1) then
           bcknd_str = '      opencl'
+       else if (NEKO_BCKND_METAL .eq. 1) then
+          bcknd_str = '       metal'
        end if
     case (GS_BCKND_SX)
        allocate(gs_sx_t::gs%bcknd)
@@ -327,8 +329,7 @@ contains
                    strtgy_time(i) = (MPI_Wtime() - strtgy_time(i)) / 100d0
                 end do
 
-                call device_deassociate(tmp)
-                call device_free(tmp_d)
+                call device_unmap(tmp, tmp_d)
                 deallocate(tmp)
 
                 c%nb_strtgy = strtgy(minloc(strtgy_time, 1))
@@ -1443,6 +1444,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: m, l, op, lo, so, tid
+    type(c_ptr) :: scatter_event
 
     lo = gs%local_facet_offset
     so = -gs%shared_facet_offset
@@ -1454,6 +1456,13 @@ contains
     ! threads (device path) don't collide.
     tid = 0
     !$ tid = omp_get_thread_num()
+
+    ! Resolve the optional event into a non-optional local before opening
+    ! the parallel region. An absent optional dummy must not be captured by
+    ! the region's data-sharing, otherwise the outlined region prologue
+    ! dereferences a null descriptor (segfaults on CCE).
+    scatter_event = C_NULL_PTR
+    if (present(event)) scatter_event = event
 
     !$omp parallel if (NEKO_BCKND_DEVICE .eq. 0)
     call profiler_start_region("gather_scatter", 5)
@@ -1489,17 +1498,10 @@ contains
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
        call profiler_end_region("gs_nbwait", 7)
        call profiler_start_region("gs_scatter_shared", 15)
-       if (present(event)) then
-          call gs%bcknd%scatter(gs%shared_gs, l,&
-               gs%shared_dof_gs, u, n, &
-               gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, gs%shared_blk_off, .true., event)
-       else
-          call gs%bcknd%scatter(gs%shared_gs, l,&
-               gs%shared_dof_gs, u, n, &
-               gs%shared_gs_dof, gs%nshared_blks, &
-               gs%shared_blk_len, gs%shared_blk_off, .true., C_NULL_PTR)
-       end if
+       call gs%bcknd%scatter(gs%shared_gs, l,&
+            gs%shared_dof_gs, u, n, &
+            gs%shared_gs_dof, gs%nshared_blks, &
+            gs%shared_blk_len, gs%shared_blk_off, .true., scatter_event)
        call profiler_end_region("gs_scatter_shared", 15)
     end if
 

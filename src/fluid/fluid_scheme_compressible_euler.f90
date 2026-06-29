@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ module fluid_scheme_compressible_euler
   use bc_list, only : bc_list_t
   use bc, only : bc_t
   use utils, only : neko_error, neko_type_error
-  use logger, only : LOG_SIZE
+  use logger, only : LOG_SIZE, neko_log
   use time_state, only : time_state_t
   use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
        compressible_ops_cpu_update_mxyz_p_ruvw, &
@@ -69,7 +69,6 @@ module fluid_scheme_compressible_euler
   use compressible_ops_device, only : compressible_ops_device_update_uvw, &
        compressible_ops_device_update_mxyz_p_ruvw, &
        compressible_ops_device_update_e
-  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
   implicit none
@@ -230,8 +229,10 @@ contains
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
     call this%rk_scheme%init(rk_order)
 
+    call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
+    call neko_log%end_section()
 
   end subroutine fluid_scheme_compressible_euler_init
 
@@ -500,55 +501,13 @@ contains
   !> @param this The fluid scheme object
   subroutine compute_h(this)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
-    integer :: e, i, j, k
-    integer :: im, ip, jm, jp, km, kp
-    real(kind=rp) :: di, dj, dk, ndim_inv
-    integer :: lx_half, ly_half, lz_half
+    integer :: lx, ly, lz
 
-    lx_half = this%c_Xh%Xh%lx / 2
-    ly_half = this%c_Xh%Xh%ly / 2
-    lz_half = this%c_Xh%Xh%lz / 2
-
-    do concurrent (e = 1:this%c_Xh%msh%nelv)
-       do concurrent (k = 1:this%c_Xh%Xh%lz, &
-            j = 1:this%c_Xh%Xh%ly, i = 1:this%c_Xh%Xh%lx)
-          km = max(1, k-1)
-          kp = min(this%c_Xh%Xh%lz, k+1)
-
-          jm = max(1, j-1)
-          jp = min(this%c_Xh%Xh%ly, j+1)
-
-          im = max(1, i-1)
-          ip = min(this%c_Xh%Xh%lx, i+1)
-
-          di = (this%c_Xh%dof%x(ip, j, k, e) - &
-               this%c_Xh%dof%x(im, j, k, e))**2 &
-               + (this%c_Xh%dof%y(ip, j, k, e) - &
-               this%c_Xh%dof%y(im, j, k, e))**2 &
-               + (this%c_Xh%dof%z(ip, j, k, e) - &
-               this%c_Xh%dof%z(im, j, k, e))**2
-
-          dj = (this%c_Xh%dof%x(i, jp, k, e) - &
-               this%c_Xh%dof%x(i, jm, k, e))**2 &
-               + (this%c_Xh%dof%y(i, jp, k, e) - &
-               this%c_Xh%dof%y(i, jm, k, e))**2 &
-               + (this%c_Xh%dof%z(i, jp, k, e) - &
-               this%c_Xh%dof%z(i, jm, k, e))**2
-
-          dk = (this%c_Xh%dof%x(i, j, kp, e) - &
-               this%c_Xh%dof%x(i, j, km, e))**2 &
-               + (this%c_Xh%dof%y(i, j, kp, e) - &
-               this%c_Xh%dof%y(i, j, km, e))**2 &
-               + (this%c_Xh%dof%z(i, j, kp, e) - &
-               this%c_Xh%dof%z(i, j, km, e))**2
-
-          di = sqrt(di) / (ip - im)
-          dj = sqrt(dj) / (jp - jm)
-          dk = sqrt(dk) / (kp - km)
-          this%h%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
-
-       end do
-    end do
+    lx = this%c_Xh%Xh%lx
+    ly = this%c_Xh%Xh%ly
+    lz = this%c_Xh%Xh%lz
+    call compute_h_cpu(this%h%x, this%c_Xh%dof%x, this%c_Xh%dof%y, &
+         this%c_Xh%dof%z, lx, ly, lz, this%c_Xh%msh%nelv)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%h%x, this%h%x_d, this%h%dof%size(),&
@@ -561,6 +520,51 @@ contains
     end if
 
   end subroutine compute_h
+
+  subroutine compute_h_cpu(h, x, y, z, lx, ly, lz, nelv)
+    integer, intent(in) :: lx, ly, lz, nelv
+    real(kind=rp), intent(out) :: h(lx, ly, lz, nelv)
+    real(kind=rp), intent(in) :: x(lx, ly, lz, nelv)
+    real(kind=rp), intent(in) :: y(lx, ly, lz, nelv)
+    real(kind=rp), intent(in) :: z(lx, ly, lz, nelv)
+    integer :: e, i, j, k
+    integer :: im, ip, jm, jp, km, kp
+    real(kind=rp) :: di, dj, dk
+
+    !$omp parallel do private(i, j, k, im, ip, jm, jp, km, kp, di, dj, dk)
+    do e = 1, nelv
+       do k = 1, lz
+          km = max(1, k - 1)
+          kp = min(lz, k + 1)
+          do j = 1, ly
+             jm = max(1, j - 1)
+             jp = min(ly, j + 1)
+             do i = 1, lx
+                im = max(1, i - 1)
+                ip = min(lx, i + 1)
+
+                di = (x(ip, j, k, e) - x(im, j, k, e))**2 &
+                     + (y(ip, j, k, e) - y(im, j, k, e))**2 &
+                     + (z(ip, j, k, e) - z(im, j, k, e))**2
+
+                dj = (x(i, jp, k, e) - x(i, jm, k, e))**2 &
+                     + (y(i, jp, k, e) - y(i, jm, k, e))**2 &
+                     + (z(i, jp, k, e) - z(i, jm, k, e))**2
+
+                dk = (x(i, j, kp, e) - x(i, j, km, e))**2 &
+                     + (y(i, j, kp, e) - y(i, j, km, e))**2 &
+                     + (z(i, j, kp, e) - z(i, j, km, e))**2
+
+                di = sqrt(di) / (ip - im)
+                dj = sqrt(dj) / (jp - jm)
+                dk = sqrt(dk) / (kp - km)
+                h(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+             end do
+          end do
+       end do
+    end do
+    !$omp end parallel do
+  end subroutine compute_h_cpu
 
   !> Restart the simulation from saved state
   !! @param this The fluid scheme object

@@ -531,6 +531,7 @@ contains
     call mpi_Type_nmsh_curve_free
     call mpi_type_re2_xyz_free
     call mpi_type_re2_xy_free
+    call mpi_type_re2_cv_free
     call mpi_type_re2_bc_free
     call mpi_type_stl_header_free
     call mpi_type_stl_triangle_free
