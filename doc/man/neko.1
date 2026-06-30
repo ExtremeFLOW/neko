@@ -101,8 +101,13 @@ treated as fatal errors. If unset, they are reported as warnings.
 Indentation width used by the logger.
 .TP
 .B NEKO_GS_COMM
-Selects the communication backend used by the gather\-scatter kernel
-(e.g. MPI or device\-aware variants).
+Selects the communication backend used by the gather\-scatter kernel.
+Accepted values are
+.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF " and " NEIGHBOUR ,
+the last being host MPI using an
+.B MPI_Ineighbor_alltoallv
+neighbourhood collective. When unset, a device\-aware variant is used
+on accelerator builds and host MPI otherwise.
 .TP
 .B NEKO_GS_STRTGY
 Selects the gather\-scatter strategy.

@@ -38,7 +38,7 @@ program mesh_checker
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname
   type(file_t) :: mesh_file
   type(mesh_t) :: msh
-  integer :: argc, i, n_labeled, ierr
+  integer :: argc, i, j, k, n_labeled, ierr, n
   character(len=LOG_SIZE) :: log_buf
   integer :: total_size, inlet_size, wall_size, periodic_size
   integer :: outlet_size, symmetry_size, outlet_normal_size
@@ -187,6 +187,23 @@ program mesh_checker
      end do
 
      call bdry_file%init('zone_indices.fld')
+     call bdry_file%write(bdry_field)
+
+     do e = 1, msh%nelv
+        do i = 1, dofmap%Xh%lx
+           do j = 1, dofmap%Xh%ly
+              do k = 1, dofmap%Xh%lz
+                 bdry_field%x(i, j, k, e) = coef%jac(i, j, k, e)
+                 if (coef%jac(i, j, k, e) .lt. 0.0_rp) then
+                    write(*,*) 'Warning: Found negative jacobian at element ', &
+                         e, &
+                         ' at local point (', i, ',', j, ',', k, ')'
+                 end if
+              end do
+           end do
+        end do
+     end do
+
      call bdry_file%write(bdry_field)
 
      call dofmap%free()

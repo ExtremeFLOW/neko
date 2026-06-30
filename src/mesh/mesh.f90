@@ -1650,6 +1650,9 @@ contains
     integer :: i, j, id, p_local_idx, match
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
+    integer :: envvar_len
+    character(len=255) :: tol_str
+    real(kind=dp) :: tol
     integer, dimension(4, 6) :: face_nodes = reshape([&
          1,5,7,3,&
          2,6,8,4,&
@@ -1664,6 +1667,13 @@ contains
          1,2,&
          3,4 ],&
          [2,4])
+
+    call get_environment_variable("NEKO_PERIODIC_TOL", tol_str, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(tol_str(1:envvar_len), *) tol
+    else
+       tol = 1d-7
+    end if
 
     select type(ele => this%elements(e)%e)
     type is(hex_t)
@@ -1680,7 +1690,7 @@ contains
              match = 0
              do j = 1, 4
                 pj => elp%pts(face_nodes(j,pf))%p
-                if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
+                if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. tol) then
                    id = min(pi%id(), pj%id())
                    call pi%set_id(id)
                    call pj%set_id(id)
@@ -1709,7 +1719,7 @@ contains
              do j = 1, 2
                 pj => elp%pts(edge_nodes(j,pf))%p
                 !whatabout thie tolerance?
-                if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. 1d-7) then
+                if (norm2(pi%x(1:3) - pj%x(1:3) - L) .lt. tol) then
                    id = min(pi%id(), pj%id())
                    call pi%set_id(id)
                    call pj%set_id(id)
