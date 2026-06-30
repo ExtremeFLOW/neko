@@ -4,7 +4,7 @@ from scipy.integrate import cumulative_trapezoid
 import matplotlib.pyplot as plt
 
 file_format = "h5"
-file_name = "tracers." + file_format
+file_name = "tracers_0." + file_format
 
 print("Reading file:", file_name)
 

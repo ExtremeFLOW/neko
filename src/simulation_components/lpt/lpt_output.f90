@@ -33,7 +33,7 @@
 !> Output support for Lagrangian particle tracking.
 module lpt_output
   use num_types, only : rp
-  use utils, only : filename_suffix, neko_error
+  use utils, only : filename_split, filename_suffix, neko_error
   use file, only : file_t
   use hdf5_file, only : hdf5_file_t
   use matrix, only : matrix_t
@@ -45,14 +45,20 @@ module lpt_output
 
   type, public :: lpt_output_t
      type(file_t) :: output_file
+     character(len=1024) :: output_path = ""
      logical :: hdf5_output = .false.
      logical :: inertia = .false.
+     integer :: snapshots_per_file = 0
+     integer :: snapshots_in_file = 0
+     integer :: output_file_index = 1
      integer :: hdf5_output_count = 0
      integer :: n_data = 0
    contains
      procedure, pass(this) :: init => lpt_output_init
      procedure, pass(this) :: free => lpt_output_free
      procedure, pass(this) :: write => lpt_output_write
+     procedure, private, pass(this) :: init_file => lpt_output_init_file
+     procedure, private, pass(this) :: current_path => lpt_output_current_path
      procedure, private, pass(this) :: init_hdf5 => lpt_output_init_hdf5
      procedure, private, pass(this) :: write_csv => lpt_output_write_csv
      procedure, private, pass(this) :: write_hdf5 => lpt_output_write_hdf5
@@ -61,14 +67,16 @@ module lpt_output
 contains
 
   !> Initialise the LPT output writer.
-  subroutine lpt_output_init(this, output_path, inertia)
+  subroutine lpt_output_init(this, output_path, inertia, snapshots_per_file)
     class(lpt_output_t), intent(inout) :: this
     character(len=*), intent(in) :: output_path
     logical, intent(in) :: inertia
-    character(len=80) :: output_suffix
+    integer, intent(in) :: snapshots_per_file
 
     call this%free()
+    this%output_path = trim(output_path)
     this%inertia = inertia
+    this%snapshots_per_file = snapshots_per_file
 
     if (inertia) then
        this%n_data = 11
@@ -76,10 +84,22 @@ contains
        this%n_data = 9
     end if
 
+    call this%init_file()
+  end subroutine lpt_output_init
+
+  !> Initialise the currently active LPT output file.
+  subroutine lpt_output_init_file(this)
+    class(lpt_output_t), intent(inout) :: this
+    character(len=1024) :: output_path
+    character(len=80) :: output_suffix
+
+    call this%output_file%free()
+    call this%current_path(output_path)
+
     call filename_suffix(output_path, output_suffix)
     select case (trim(output_suffix))
     case ("csv")
-       if (inertia) then
+       if (this%inertia) then
           call this%output_file%init(output_path, &
                header = "tstep,time,particle_id,x,y,z,u,v,w,d,rho", &
                overwrite = .true.)
@@ -91,11 +111,27 @@ contains
        this%hdf5_output = .false.
     case ("h5", "hdf5")
        this%hdf5_output = .true.
-       call this%init_hdf5(output_path, inertia)
+       call this%init_hdf5(output_path, this%inertia)
     case default
        call neko_error("lpt output_filename must end in .csv, .h5, or .hdf5")
     end select
-  end subroutine lpt_output_init
+    this%snapshots_in_file = 0
+  end subroutine lpt_output_init_file
+
+  !> Get the active output path, adding a file index when chunked output is on.
+  subroutine lpt_output_current_path(this, output_path)
+    class(lpt_output_t), intent(in) :: this
+    character(len=*), intent(out) :: output_path
+    character(len=1024) :: path
+    character(len=1024) :: name
+    character(len=1024) :: suffix
+
+
+    call filename_split(trim(this%output_path), path, name, suffix)
+    write(output_path, '(A,A,A,I0,A)') trim(path), trim(name), &
+         "_", this%output_file_index, trim(suffix)
+
+  end subroutine lpt_output_current_path
 
   !> Initialise an HDF5 LPT trajectory file.
   subroutine lpt_output_init_hdf5(this, output_path, inertia)
@@ -157,11 +193,18 @@ contains
     integer, intent(in) :: n_local
     real(kind=rp), intent(in) :: local_data(this%n_data, n_local)
 
+    if (this%snapshots_per_file .gt. 0 .and. &
+         this%snapshots_in_file .ge. this%snapshots_per_file) then
+       this%output_file_index = this%output_file_index + 1
+       call this%init_file()
+    end if
+
     if (this%hdf5_output) then
        call this%write_hdf5(local_data, n_local)
     else
        call this%write_csv(local_data, n_local)
     end if
+    this%snapshots_in_file = this%snapshots_in_file + 1
   end subroutine lpt_output_write
 
   !> Append one local LPT trajectory snapshot to an HDF5 file.
@@ -297,8 +340,12 @@ contains
     class(lpt_output_t), intent(inout) :: this
 
     call this%output_file%free()
+    this%output_path = ""
     this%hdf5_output = .false.
     this%inertia = .false.
+    this%snapshots_per_file = 0
+    this%snapshots_in_file = 0
+    this%output_file_index = 0
     this%hdf5_output_count = 0
     this%n_data = 0
   end subroutine lpt_output_free

@@ -158,8 +158,12 @@ contains
     character(len=:), allocatable :: name
     character(len=:), allocatable :: migration_strategy
     character(len=:), allocatable :: output_filename
+    character(len=:), allocatable :: snapshots_per_file_str
     character(len=:), allocatable :: output_path
     integer :: migration_strategy_id
+    integer :: snapshots_per_file
+    integer :: snapshots_per_file_type
+    logical :: snapshots_per_file_found
 
     call this%free()
 
@@ -261,8 +265,34 @@ contains
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name) // ".csv")
+    call json%info("snapshots_per_file", found = snapshots_per_file_found, &
+         var_type = snapshots_per_file_type)
+    if (snapshots_per_file_found) then
+       select case (snapshots_per_file_type)
+       case (5)
+          call json_get(json, "snapshots_per_file", snapshots_per_file)
+          if (snapshots_per_file .lt. 1) then
+             call neko_error("lpt snapshots_per_file must be a positive " // &
+                  "integer or 'all'")
+          end if
+       case (7)
+          call json_get(json, "snapshots_per_file", snapshots_per_file_str)
+          if (trim(snapshots_per_file_str) .eq. "all") then
+             snapshots_per_file = 0
+          else
+             call neko_error("lpt snapshots_per_file must be a positive " // &
+                  "integer or 'all'")
+          end if
+       case default
+          call neko_error("lpt snapshots_per_file must be a positive " // &
+               "integer or 'all'")
+       end select
+    else
+       snapshots_per_file = 0
+       call json%add("snapshots_per_file", "all")
+    end if
     output_path = case%output_directory // trim(output_filename)
-    call this%output%init(output_path, this%inertia)
+    call this%output%init(output_path, this%inertia, snapshots_per_file)
 
     ! output at the initialisation
     this%output_enabled = .true.

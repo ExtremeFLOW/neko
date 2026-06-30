@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 
 file_format = "csv"
-file_name = "tracers." + file_format
+file_name = "tracers_0." + file_format
 
 print("Reading file:", file_name)
 
