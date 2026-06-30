@@ -48,11 +48,12 @@ module mesh
   use distdata, only : distdata_t
   use comm, only : pe_size, pe_rank, NEKO_COMM
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
-  use math, only : abscmp
+  use math, only : abscmp, sort
+  use crystal_router, only : crystal_router_transfer, crystal_router_pack
   use mpi_f08, only : MPI_INTEGER, MPI_MAX, MPI_SUM, MPI_IN_PLACE, &
        MPI_Allreduce, MPI_Exscan, MPI_Request, MPI_Status, MPI_Wait, &
-       MPI_Isend, MPI_Irecv, MPI_STATUS_IGNORE, MPI_Integer8, &
-       MPI_Get_count, MPI_Sendrecv
+       MPI_Issend, MPI_Irecv, MPI_STATUS_IGNORE, MPI_Integer8, &
+       MPI_Get_count
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE
@@ -739,7 +740,11 @@ contains
        end if
 
        if (this%neigh(dst)) then
-          call MPI_Isend(buffer%array(), buffer%size(), MPI_INTEGER, &
+          ! Synchronous send so the buffer is never eager-buffered as an
+          ! unexpected message, which exhausts the MPI internal buffer pool
+          ! (SIGBUS) under flat MPI at high rank counts. Deadlock-safe: the
+          ! matching recv is pre-posted at the top of the peer's iteration.
+          call MPI_Issend(buffer%array(), buffer%size(), MPI_INTEGER, &
                dst, 0, NEKO_COMM, send_req, ierr)
        end if
 
@@ -841,68 +846,143 @@ contains
   end subroutine mesh_generate_external_facet_conn
 
   !> Generate element-element connectivity via points between PEs
+  !! @details Uses a canonical-owner rendezvous routed through the crystal
+  !! router instead of a dense O(P) all-to-all. Each local point is hashed to
+  !! an owner rank, `mod(glb_idx, P)`; the owner gathers every rank holding
+  !! that point and reflects, back to each holder, the other holders' element
+  !! lists. Shared points (held by more than one rank) are thus discovered in
+  !! O(log P) communication stages, the neigh array becomes symmetric by
+  !! construction, and no O(P) buffers are ever allocated.
   subroutine mesh_generate_external_point_conn(this)
     type(mesh_t), intent(inout) :: this
-    type(stack_i4_t) :: send_buffer
-    type(MPI_Status) :: status
-    integer, allocatable :: recv_buffer(:)
-    integer :: i, j, k
-    integer :: max_recv, ierr, src, dst, n_recv, neigh_el
-    integer :: pt_glb_idx, pt_loc_idx, num_neigh
+    type(stack_i8_t) :: cr_buf
+    integer(i8), allocatable :: buf(:), body(:)
+    integer(i8), pointer :: cr_data(:)
+    integer, allocatable :: gkey(:), gperm(:), rpos(:)
     integer, contiguous, pointer :: neighs(:)
+    integer :: i, j, k, n, p, owner, num_neigh, nrec, rlen
+    integer :: pt_glb_idx, pt_loc_idx, src_rank, neigh_el, rk, rp
 
-
-    call send_buffer%init(this%mpts * 2)
-
-    ! Build send buffers containing
-    ! [pt_glb_idx, #neigh, neigh id_1 ....neigh_id_n]
+    !
+    ! Phase 1: route every local point's element list to its canonical owner.
+    !   record payload = [glb_idx, origin, elems...]
+    !
+    call cr_buf%init(this%mpts * 4)
+    allocate(body(8))
     do i = 1, this%mpts
        pt_glb_idx = this%points(i)%id() ! Adhere to standards...
        num_neigh = this%point_neigh(i)%size()
-       call send_buffer%push(pt_glb_idx)
-       call send_buffer%push(num_neigh)
-
+       if (2 + num_neigh .gt. size(body)) then
+          deallocate(body)
+          allocate(body(2 + num_neigh))
+       end if
+       body(1) = int(pt_glb_idx, i8)   ! glb_idx
+       body(2) = int(pe_rank, i8)      ! origin
        neighs => this%point_neigh(i)%array()
-       do j = 1, this%point_neigh(i)%size()
-          call send_buffer%push(neighs(j))
+       do j = 1, num_neigh
+          body(2 + j) = int(neighs(j), i8)   ! element ids
        end do
+       owner = modulo(pt_glb_idx, pe_size)
+       call crystal_router_pack(cr_buf, owner, body(1:2 + num_neigh))
+    end do
+    deallocate(body)
+
+    n = cr_buf%size()
+    allocate(buf(max(n, 1)))
+    if (n .gt. 0) then
+       cr_data => cr_buf%array()
+       buf(1:n) = cr_data(1:n)
+    end if
+    call cr_buf%free()
+
+    call crystal_router_transfer(buf, n)
+
+    !
+    ! Phase 2: at the owner, group received records by glb_idx and reflect,
+    !   to each holder, the element lists of every *other* holder.
+    !   reply = [dest=holder, len=2+num_neigh, glb_idx, src_rank, elems...]
+    !
+    ! Index the received records and sort their keys (glb_idx) so equal keys
+    ! form contiguous runs; per-point holder counts are small, so the
+    ! all-pairs reflection within a run is cheap.
+    nrec = 0
+    p = 1
+    do while (p .le. n)
+       nrec = nrec + 1
+       p = p + 2 + int(buf(p + 1))
     end do
 
-    call MPI_Allreduce(send_buffer%size(), max_recv, 1, &
-         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
-    allocate(recv_buffer(max_recv))
+    allocate(gkey(max(nrec, 1)), gperm(max(nrec, 1)), rpos(max(nrec, 1)))
+    nrec = 0
+    p = 1
+    do while (p .le. n)
+       nrec = nrec + 1
+       rpos(nrec) = p                 ! record start offset in buf
+       gkey(nrec) = int(buf(p + 2))   ! glb_idx
+       p = p + 2 + int(buf(p + 1))
+    end do
+    if (nrec .gt. 0) call sort(gkey, gperm, nrec)
 
-    do i = 1, pe_size - 1
-       src = modulo(pe_rank - i + pe_size, pe_size)
-       dst = modulo(pe_rank + i, pe_size)
-
-       call MPI_Sendrecv(send_buffer%array(), send_buffer%size(), &
-            MPI_INTEGER, dst, 0, recv_buffer, max_recv, MPI_INTEGER, src, 0, &
-            NEKO_COMM, status, ierr)
-
-       call MPI_Get_count(status, MPI_INTEGER, n_recv, ierr)
-
-       j = 1
-       do while (j .le. n_recv)
-          pt_glb_idx = recv_buffer(j)
-          num_neigh = recv_buffer(j + 1)
-          ! Check if the point is present on this PE
-          pt_loc_idx = this%have_point_glb_idx(pt_glb_idx)
-          if (pt_loc_idx .gt. 0) then
-             this%neigh(src) = .true.
-             do k = 1, num_neigh
-                neigh_el = -recv_buffer(j + 1 + k)
-                call this%point_neigh(pt_loc_idx)%push(neigh_el)
-                call this%ddata%set_shared_point(pt_loc_idx)
+    call cr_buf%init(max(n, 1))
+    i = 1
+    do while (i .le. nrec)
+       ! [i, j) is the run of records sharing the same glb_idx
+       j = i
+       do while (j .le. nrec)
+          if (gkey(j) .ne. gkey(i)) exit
+          j = j + 1
+       end do
+       ! All-pairs reflection within the run (skip singletons = unshared):
+       ! send source holder p's record body (glb_idx, origin, elems) to
+       ! recipient holder k, addressed to k's origin rank.
+       if (j - i .gt. 1) then
+          do k = i, j - 1                    ! recipient holder
+             rk = rpos(gperm(k))
+             do p = i, j - 1                 ! source holder
+                if (p .eq. k) cycle
+                rp = rpos(gperm(p))
+                call crystal_router_pack(cr_buf, int(buf(rk + 3)), &
+                     buf(rp + 2 : rp + 1 + int(buf(rp + 1))))
              end do
-          end if
-          j = j + (2 + num_neigh)
-       end do
+          end do
+       end if
+       i = j
+    end do
+    deallocate(gkey, gperm, rpos)
 
+    n = cr_buf%size()
+    if (allocated(buf)) deallocate(buf)
+    allocate(buf(max(n, 1)))
+    if (n .gt. 0) then
+       cr_data => cr_buf%array()
+       buf(1:n) = cr_data(1:n)
+    end if
+    call cr_buf%free()
+
+    call crystal_router_transfer(buf, n)
+
+    !
+    ! Phase 3: finalise locally. Each reply names a remote holder of one of our
+    !   points; mark it as a neighbour and absorb its (remote) element list.
+    !
+    p = 1
+    do while (p .le. n)
+       rlen = int(buf(p + 1))
+       pt_glb_idx = int(buf(p + 2))
+       src_rank = int(buf(p + 3))
+       pt_loc_idx = this%have_point_glb_idx(pt_glb_idx)
+       if (pt_loc_idx .gt. 0) then
+          this%neigh(src_rank) = .true.
+          call this%ddata%set_shared_point(pt_loc_idx)
+          do k = 1, rlen - 2
+             neigh_el = -int(buf(p + 3 + k))
+             call this%point_neigh(pt_loc_idx)%push(neigh_el)
+          end do
+       end if
+       p = p + 2 + rlen
     end do
 
-    deallocate(recv_buffer)
-    call send_buffer%free()
+    if (allocated(buf)) deallocate(buf)
 
   end subroutine mesh_generate_external_point_conn
 
@@ -1030,7 +1110,10 @@ contains
           ! certain data types
           select type(sbarray=>send_buff%data)
           type is (integer(i8))
-             call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER8, &
+             ! Synchronous send to avoid eager-buffering the key list as an
+             ! unexpected message (FJMPI buffer-pool exhaustion / SIGBUS under
+             ! flat MPI); matching recv is pre-posted by the peer.
+             call MPI_Issend(sbarray, send_buff%size(), MPI_INTEGER8, &
                   dst, 0, NEKO_COMM, send_req, ierr)
           end select
        end if
@@ -1115,7 +1198,10 @@ contains
           ! certain data types
           select type(sbarray=>send_buff%data)
           type is (integer(i8))
-             call MPI_Isend(sbarray, send_buff%size(), MPI_INTEGER8, &
+             ! Synchronous send to avoid eager-buffering the key list as an
+             ! unexpected message (FJMPI buffer-pool exhaustion / SIGBUS under
+             ! flat MPI); matching recv is pre-posted by the peer.
+             call MPI_Issend(sbarray, send_buff%size(), MPI_INTEGER8, &
                   dst, 0, NEKO_COMM, send_req, ierr)
           end select
        end if
@@ -1337,7 +1423,10 @@ contains
        end if
 
        if (this%neigh(dst)) then
-          call MPI_Isend(send_buff%array(), send_buff%size(), MPI_INTEGER, &
+          ! Synchronous send to avoid eager-buffered unexpected messages
+          ! (FJMPI buffer-pool exhaustion / SIGBUS under flat MPI); the
+          ! matching recv is pre-posted at the top of the peer's iteration.
+          call MPI_Issend(send_buff%array(), send_buff%size(), MPI_INTEGER, &
                dst, 0, NEKO_COMM, send_req, ierr)
        end if
 
