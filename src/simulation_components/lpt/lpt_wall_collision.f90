@@ -76,28 +76,11 @@ contains
   !> Restore particles that crossed a configured wall zone and reflect the
   !! remaining trajectory together with the current particle velocity and
   !! velocity history for a purely elastic collision.
-  module subroutine lpt_handle_elastic_wall_collisions(global_interp, msh, &
-       dm_Xh, coef, wall_facet_mask, x_old, y_old, z_old, x, y, z, d, u, v, &
-       w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
-       acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, u_old, &
-       v_old, w_old, acc_x, acc_y, acc_z, lag_len)
-    type(global_interpolation_t), intent(inout) :: global_interp
-    type(mesh_t), intent(in) :: msh
-    type(dofmap_t), intent(in) :: dm_Xh
-    type(coef_t), intent(in) :: coef
-    logical, intent(in) :: wall_facet_mask(:, :)
+  module subroutine lpt_handle_elastic_wall_collisions(this, x_old, y_old, &
+       z_old, u_old, v_old, w_old)
+    class(lpt_t), intent(inout) :: this
     type(vector_t), intent(in) :: x_old, y_old, z_old
-    type(vector_t), intent(inout) :: x, y, z
-    type(vector_t), intent(in) :: d
-    type(vector_t), intent(inout) :: u, v, w
-    type(vector_t), intent(inout) :: u_lag, v_lag, w_lag
-    type(vector_t), intent(inout) :: u_laglag, v_laglag, w_laglag
-    type(vector_t), intent(inout) :: acc_xlag, acc_ylag, acc_zlag
-    type(vector_t), intent(inout) :: acc_xlaglag, acc_ylaglag
-    type(vector_t), intent(inout) :: acc_zlaglag
     type(vector_t), intent(inout) :: u_old, v_old, w_old
-    type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
-    integer, intent(in) :: lag_len
     type(matrix_t) :: rst_new
     type(vector_t), pointer :: resx, resy, resz
     integer, allocatable :: el_list(:)
@@ -107,6 +90,26 @@ contains
     integer :: i
     integer :: n
     integer :: ind(3)
+
+    associate(global_interp => this%global_interp, msh => this%msh, &
+         dm_Xh => this%dm_Xh, coef => this%coef, &
+         wall_facet_mask => this%wall_facet_mask, &
+         x => this%particles%x, y => this%particles%y, &
+         z => this%particles%z, d => this%particles%d, &
+         u => this%particles%u, v => this%particles%v, &
+         w => this%particles%w, u_lag => this%particles%u_lag, &
+         v_lag => this%particles%v_lag, w_lag => this%particles%w_lag, &
+         u_laglag => this%particles%u_laglag, &
+         v_laglag => this%particles%v_laglag, &
+         w_laglag => this%particles%w_laglag, &
+         acc_x => this%particles%acc_x, acc_y => this%particles%acc_y, &
+         acc_z => this%particles%acc_z, &
+         acc_xlag => this%particles%acc_xlag, &
+         acc_ylag => this%particles%acc_ylag, &
+         acc_zlag => this%particles%acc_zlag, &
+         acc_xlaglag => this%particles%acc_xlaglag, &
+         acc_ylaglag => this%particles%acc_ylaglag, &
+         acc_zlaglag => this%particles%acc_zlaglag, lag_len => this%lag_len)
 
     n = x%size()
     if (n .eq. 0) return
@@ -175,6 +178,8 @@ contains
     if (allocated(el_list)) deallocate(el_list)
     call rst_new%free()
     call neko_scratch_registry%relinquish(ind)
+
+    end associate
   end subroutine lpt_handle_elastic_wall_collisions
 
   subroutine lpt_wall_collision_sync_from_device(x, y, z, u, v, w, &

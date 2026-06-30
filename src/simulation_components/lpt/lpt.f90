@@ -122,28 +122,11 @@ module lagrangian_particle_tracking
        integer, intent(in) :: wall_zone_indices(:)
      end subroutine lpt_init_wall_facet_mask
 
-     module subroutine lpt_handle_elastic_wall_collisions(global_interp, &
-          msh, dm_Xh, coef, wall_facet_mask, x_old, y_old, z_old, x, y, z, &
-          d, u, v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-          acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-          acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, acc_z, lag_len)
-       type(global_interpolation_t), intent(inout) :: global_interp
-       type(mesh_t), intent(in) :: msh
-       type(dofmap_t), intent(in) :: dm_Xh
-       type(coef_t), intent(in) :: coef
-       logical, intent(in) :: wall_facet_mask(:, :)
+     module subroutine lpt_handle_elastic_wall_collisions(this, x_old, y_old, &
+          z_old, u_old, v_old, w_old)
+       class(lpt_t), intent(inout) :: this
        type(vector_t), intent(in) :: x_old, y_old, z_old
-       type(vector_t), intent(inout) :: x, y, z
-       type(vector_t), intent(in) :: d
-       type(vector_t), intent(inout) :: u, v, w
-       type(vector_t), intent(inout) :: u_lag, v_lag, w_lag
-       type(vector_t), intent(inout) :: u_laglag, v_laglag, w_laglag
-       type(vector_t), intent(inout) :: acc_xlag, acc_ylag, acc_zlag
-       type(vector_t), intent(inout) :: acc_xlaglag, acc_ylaglag
-       type(vector_t), intent(inout) :: acc_zlaglag
        type(vector_t), intent(inout) :: u_old, v_old, w_old
-       type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
-       integer, intent(in) :: lag_len
      end subroutine lpt_handle_elastic_wall_collisions
   end interface
 
@@ -627,15 +610,8 @@ contains
 
       ! Handle the wall collisions with the pre-step RHS.
       if (this%inertia .and. this%elastic_wall_enabled) then
-         call lpt_handle_elastic_wall_collisions(this%global_interp, this%msh, &
-              this%dm_Xh, this%coef, this%wall_facet_mask, &
-              x_old, y_old, z_old, x, y, z, &
-              this%particles%d, &
-              u, v, w, &
-              u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-              acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-              acc_zlaglag, &
-              u_old, v_old, w_old, acc_x, acc_y, acc_z, this%lag_len)
+         call lpt_handle_elastic_wall_collisions(this, x_old, y_old, z_old, &
+              u_old, v_old, w_old)
       end if
 
       ! Update lag histories for the next Adams-Bashforth step.
