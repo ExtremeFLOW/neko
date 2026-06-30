@@ -1373,8 +1373,8 @@ contains
        end do
        ! Reflect, to each holder, every other holder of this dof.
        if (j - i .gt. 1) then
-          do a = i, j - 1  ! recipient holder
-             do b = i, j - 1  ! the other holder
+          do a = i, j - 1 ! recipient holder
+             do b = i, j - 1 ! the other holder
                 if (a .eq. b) cycle
                 call crystal_router_pack(cr_buf, rgsid(gperm(a)), &
                      [rgid(i), int(rgsid(gperm(b)), i8)])
