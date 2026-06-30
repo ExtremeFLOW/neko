@@ -59,7 +59,7 @@ gs/gs_comm.lo : gs/gs_comm.f90 adt/stack.lo comm/comm.lo config/num_types.lo
 gs/gs_mpi.lo : gs/gs_mpi.f90 common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
 gs/gs_shmem.lo : gs/gs_shmem.F90 common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
 gs/gs_caf.lo : gs/gs_caf.F90 common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
-gs/gs_neighbour.lo : gs/gs_neighbour.F90 common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
+gs/gs_neighbour.lo : gs/gs_neighbour.f90 common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
 gs/bcknd/device/gs_device_mpi.lo : gs/bcknd/device/gs_device_mpi.F90 common/utils.lo device/device.lo adt/htable.lo comm/comm.lo adt/stack.lo gs/gs_comm.lo config/num_types.lo 
 gs/bcknd/device/gs_device_nccl.lo : gs/bcknd/device/gs_device_nccl.F90 common/utils.lo device/device.lo adt/htable.lo comm/comm.lo adt/stack.lo gs/gs_comm.lo config/num_types.lo 
 gs/bcknd/device/gs_device_shmem.lo : gs/bcknd/device/gs_device_shmem.F90 common/utils.lo comm/comm.lo device/device.lo adt/htable.lo adt/stack.lo gs/gs_comm.lo config/num_types.lo 
