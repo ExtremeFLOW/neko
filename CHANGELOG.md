@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Added CSV/HDF5 trajectory output options for the `lagrangian_particles`
+  simcomp, including `output_format`, `snapshots_per_file`, documentation, and
+  the `rebounding_particles` example.
 - Added HIP and CUDA support for ALE.
 - Added `spatial_average` simcomp for spatially averaging a list of registered
   fields.
