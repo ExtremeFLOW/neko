@@ -14,6 +14,7 @@ var namespacegs__comm =
     [ "gs_comm_mpi", "d6/d7c/namespacegs__comm.html#a58325561231afe6ed26e5234d5d67f0e", null ],
     [ "gs_comm_mpigpu", "d6/d7c/namespacegs__comm.html#a393ea0390a10bb91e06c660203f08f82", null ],
     [ "gs_comm_nccl", "d6/d7c/namespacegs__comm.html#ae4dccd3f016a80e6d76b6bcc87d3c620", null ],
+    [ "gs_comm_neighbour", "d6/d7c/namespacegs__comm.html#a51fd5b4a09316cb973cb0395a64c0e35", null ],
     [ "gs_comm_nvshmem", "d6/d7c/namespacegs__comm.html#a8d5f4e7a6bf0a1e4d0d417a0d6e9780b", null ],
     [ "gs_comm_openshmem", "d6/d7c/namespacegs__comm.html#a914406c7eda523913597fefb37b3e108", null ]
 ];

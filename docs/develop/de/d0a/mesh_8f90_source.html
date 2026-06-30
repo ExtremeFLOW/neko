@@ -1760,444 +1760,454 @@ $(document).ready(function(){initNavTree('de/d0a/mesh_8f90_source.html','../../'
 <div class="line"><a id="l01650" name="l01650"></a><span class="lineno"> 1650</span>    <span class="keywordtype">integer</span> :: i, j, id, p_local_idx, match</div>
 <div class="line"><a id="l01651" name="l01651"></a><span class="lineno"> 1651</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>) :: ft</div>
 <div class="line"><a id="l01652" name="l01652"></a><span class="lineno"> 1652</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>) :: et</div>
-<div class="line"><a id="l01653" name="l01653"></a><span class="lineno"> 1653</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">dimension(4, 6)</span> :: face_nodes = reshape([&amp;</div>
-<div class="line"><a id="l01654" name="l01654"></a><span class="lineno"> 1654</span>         1,5,7,3,&amp;</div>
-<div class="line"><a id="l01655" name="l01655"></a><span class="lineno"> 1655</span>         2,6,8,4,&amp;</div>
-<div class="line"><a id="l01656" name="l01656"></a><span class="lineno"> 1656</span>         1,2,6,5,&amp;</div>
-<div class="line"><a id="l01657" name="l01657"></a><span class="lineno"> 1657</span>         3,4,8,7,&amp;</div>
-<div class="line"><a id="l01658" name="l01658"></a><span class="lineno"> 1658</span>         1,2,4,3,&amp;</div>
-<div class="line"><a id="l01659" name="l01659"></a><span class="lineno"> 1659</span>         5,6,8,7],&amp;</div>
-<div class="line"><a id="l01660" name="l01660"></a><span class="lineno"> 1660</span>         [4,6])</div>
-<div class="line"><a id="l01661" name="l01661"></a><span class="lineno"> 1661</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">dimension(2, 4)</span> :: edge_nodes = reshape([&amp;</div>
-<div class="line"><a id="l01662" name="l01662"></a><span class="lineno"> 1662</span>         1,3,&amp;</div>
-<div class="line"><a id="l01663" name="l01663"></a><span class="lineno"> 1663</span>         2,4,&amp;</div>
-<div class="line"><a id="l01664" name="l01664"></a><span class="lineno"> 1664</span>         1,2,&amp;</div>
-<div class="line"><a id="l01665" name="l01665"></a><span class="lineno"> 1665</span>         3,4 ],&amp;</div>
-<div class="line"><a id="l01666" name="l01666"></a><span class="lineno"> 1666</span>         [2,4])</div>
-<div class="line"><a id="l01667" name="l01667"></a><span class="lineno"> 1667</span> </div>
-<div class="line"><a id="l01668" name="l01668"></a><span class="lineno"> 1668</span>    <span class="keywordflow">select type</span>(ele =&gt; this%elements(e)%e)</div>
-<div class="line"><a id="l01669" name="l01669"></a><span class="lineno"> 1669</span><span class="keywordflow">    type is</span>(<a class="code hl_struct" href="../../d6/d66/structhex_1_1hex__t.html">hex_t</a>)</div>
-<div class="line"><a id="l01670" name="l01670"></a><span class="lineno"> 1670</span>       <span class="keywordflow">select type</span>(elp =&gt; this%elements(pe)%e)</div>
-<div class="line"><a id="l01671" name="l01671"></a><span class="lineno"> 1671</span><span class="keywordflow">       type is</span>(<a class="code hl_struct" href="../../d6/d66/structhex_1_1hex__t.html">hex_t</a>)</div>
-<div class="line"><a id="l01672" name="l01672"></a><span class="lineno"> 1672</span>          l = 0d0</div>
-<div class="line"><a id="l01673" name="l01673"></a><span class="lineno"> 1673</span>          <span class="keywordflow">do</span> i = 1, 4</div>
-<div class="line"><a id="l01674" name="l01674"></a><span class="lineno"> 1674</span>             l = l + ele%pts(face_nodes(i,f))%p%x(1:3) - &amp;</div>
-<div class="line"><a id="l01675" name="l01675"></a><span class="lineno"> 1675</span>                  elp%pts(face_nodes(i,pf))%p%x(1:3)</div>
-<div class="line"><a id="l01676" name="l01676"></a><span class="lineno"> 1676</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01677" name="l01677"></a><span class="lineno"> 1677</span>          l = l/4</div>
-<div class="line"><a id="l01678" name="l01678"></a><span class="lineno"> 1678</span>          <span class="keywordflow">do</span> i = 1, 4</div>
-<div class="line"><a id="l01679" name="l01679"></a><span class="lineno"> 1679</span>             pi =&gt; ele%pts(face_nodes(i,f))%p</div>
-<div class="line"><a id="l01680" name="l01680"></a><span class="lineno"> 1680</span>             match = 0</div>
-<div class="line"><a id="l01681" name="l01681"></a><span class="lineno"> 1681</span>             <span class="keywordflow">do</span> j = 1, 4</div>
-<div class="line"><a id="l01682" name="l01682"></a><span class="lineno"> 1682</span>                pj =&gt; elp%pts(face_nodes(j,pf))%p</div>
-<div class="line"><a id="l01683" name="l01683"></a><span class="lineno"> 1683</span>                <span class="keywordflow">if</span> (norm2(pi%x(1:3) - pj%x(1:3) - l) .lt. 1d-7) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01684" name="l01684"></a><span class="lineno"> 1684</span>                   id = min(pi%id(), pj%id())</div>
-<div class="line"><a id="l01685" name="l01685"></a><span class="lineno"> 1685</span>                   <span class="keyword">call </span>pi%set_id(id)</div>
-<div class="line"><a id="l01686" name="l01686"></a><span class="lineno"> 1686</span>                   <span class="keyword">call </span>pj%set_id(id)</div>
-<div class="line"><a id="l01687" name="l01687"></a><span class="lineno"> 1687</span>                   p_local_idx = this%get_local(this%points(id))</div>
-<div class="line"><a id="l01688" name="l01688"></a><span class="lineno"> 1688</span>                   match = match + 1</div>
-<div class="line"><a id="l01689" name="l01689"></a><span class="lineno"> 1689</span><span class="keywordflow">                end if</span></div>
-<div class="line"><a id="l01690" name="l01690"></a><span class="lineno"> 1690</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l01691" name="l01691"></a><span class="lineno"> 1691</span>             <span class="keywordflow">if</span> ( match .gt. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01692" name="l01692"></a><span class="lineno"> 1692</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Multiple matches when creating periodic ids&#39;</span>)</div>
-<div class="line"><a id="l01693" name="l01693"></a><span class="lineno"> 1693</span>             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (match .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01694" name="l01694"></a><span class="lineno"> 1694</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Cannot find matching periodic point&#39;</span>)</div>
-<div class="line"><a id="l01695" name="l01695"></a><span class="lineno"> 1695</span><span class="keywordflow">             end if</span></div>
-<div class="line"><a id="l01696" name="l01696"></a><span class="lineno"> 1696</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01697" name="l01697"></a><span class="lineno"> 1697</span><span class="keywordflow">       end select</span></div>
-<div class="line"><a id="l01698" name="l01698"></a><span class="lineno"> 1698</span><span class="keywordflow">    type is</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>)</div>
-<div class="line"><a id="l01699" name="l01699"></a><span class="lineno"> 1699</span>       <span class="keywordflow">select type</span>(elp =&gt; this%elements(pe)%e)</div>
-<div class="line"><a id="l01700" name="l01700"></a><span class="lineno"> 1700</span><span class="keywordflow">       type is</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>)</div>
-<div class="line"><a id="l01701" name="l01701"></a><span class="lineno"> 1701</span>          l = 0d0</div>
-<div class="line"><a id="l01702" name="l01702"></a><span class="lineno"> 1702</span>          <span class="keywordflow">do</span> i = 1, 2</div>
-<div class="line"><a id="l01703" name="l01703"></a><span class="lineno"> 1703</span>             l = l + ele%pts(edge_nodes(i,f))%p%x(1:3) - &amp;</div>
-<div class="line"><a id="l01704" name="l01704"></a><span class="lineno"> 1704</span>                  elp%pts(edge_nodes(i,pf))%p%x(1:3)</div>
-<div class="line"><a id="l01705" name="l01705"></a><span class="lineno"> 1705</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01706" name="l01706"></a><span class="lineno"> 1706</span>          l = l/2</div>
-<div class="line"><a id="l01707" name="l01707"></a><span class="lineno"> 1707</span>          <span class="keywordflow">do</span> i = 1, 2</div>
-<div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span>             pi =&gt; ele%pts(edge_nodes(i,f))%p</div>
-<div class="line"><a id="l01709" name="l01709"></a><span class="lineno"> 1709</span>             <span class="keywordflow">do</span> j = 1, 2</div>
-<div class="line"><a id="l01710" name="l01710"></a><span class="lineno"> 1710</span>                pj =&gt; elp%pts(edge_nodes(j,pf))%p</div>
-<div class="line"><a id="l01711" name="l01711"></a><span class="lineno"> 1711</span>                <span class="comment">!whatabout thie tolerance?</span></div>
-<div class="line"><a id="l01712" name="l01712"></a><span class="lineno"> 1712</span>                <span class="keywordflow">if</span> (norm2(pi%x(1:3) - pj%x(1:3) - l) .lt. 1d-7) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01713" name="l01713"></a><span class="lineno"> 1713</span>                   id = min(pi%id(), pj%id())</div>
-<div class="line"><a id="l01714" name="l01714"></a><span class="lineno"> 1714</span>                   <span class="keyword">call </span>pi%set_id(id)</div>
-<div class="line"><a id="l01715" name="l01715"></a><span class="lineno"> 1715</span>                   <span class="keyword">call </span>pj%set_id(id)</div>
-<div class="line"><a id="l01716" name="l01716"></a><span class="lineno"> 1716</span>                   p_local_idx = this%get_local(this%points(id))</div>
-<div class="line"><a id="l01717" name="l01717"></a><span class="lineno"> 1717</span><span class="keywordflow">                end if</span></div>
-<div class="line"><a id="l01718" name="l01718"></a><span class="lineno"> 1718</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l01719" name="l01719"></a><span class="lineno"> 1719</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01720" name="l01720"></a><span class="lineno"> 1720</span><span class="keywordflow">       end select</span></div>
-<div class="line"><a id="l01721" name="l01721"></a><span class="lineno"> 1721</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l01653" name="l01653"></a><span class="lineno"> 1653</span>    <span class="keywordtype">integer</span> :: envvar_len</div>
+<div class="line"><a id="l01654" name="l01654"></a><span class="lineno"> 1654</span>    <span class="keywordtype">character(len=255)</span> :: tol_str</div>
+<div class="line"><a id="l01655" name="l01655"></a><span class="lineno"> 1655</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: tol</div>
+<div class="line"><a id="l01656" name="l01656"></a><span class="lineno"> 1656</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">dimension(4, 6)</span> :: face_nodes = reshape([&amp;</div>
+<div class="line"><a id="l01657" name="l01657"></a><span class="lineno"> 1657</span>         1,5,7,3,&amp;</div>
+<div class="line"><a id="l01658" name="l01658"></a><span class="lineno"> 1658</span>         2,6,8,4,&amp;</div>
+<div class="line"><a id="l01659" name="l01659"></a><span class="lineno"> 1659</span>         1,2,6,5,&amp;</div>
+<div class="line"><a id="l01660" name="l01660"></a><span class="lineno"> 1660</span>         3,4,8,7,&amp;</div>
+<div class="line"><a id="l01661" name="l01661"></a><span class="lineno"> 1661</span>         1,2,4,3,&amp;</div>
+<div class="line"><a id="l01662" name="l01662"></a><span class="lineno"> 1662</span>         5,6,8,7],&amp;</div>
+<div class="line"><a id="l01663" name="l01663"></a><span class="lineno"> 1663</span>         [4,6])</div>
+<div class="line"><a id="l01664" name="l01664"></a><span class="lineno"> 1664</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">dimension(2, 4)</span> :: edge_nodes = reshape([&amp;</div>
+<div class="line"><a id="l01665" name="l01665"></a><span class="lineno"> 1665</span>         1,3,&amp;</div>
+<div class="line"><a id="l01666" name="l01666"></a><span class="lineno"> 1666</span>         2,4,&amp;</div>
+<div class="line"><a id="l01667" name="l01667"></a><span class="lineno"> 1667</span>         1,2,&amp;</div>
+<div class="line"><a id="l01668" name="l01668"></a><span class="lineno"> 1668</span>         3,4 ],&amp;</div>
+<div class="line"><a id="l01669" name="l01669"></a><span class="lineno"> 1669</span>         [2,4])</div>
+<div class="line"><a id="l01670" name="l01670"></a><span class="lineno"> 1670</span> </div>
+<div class="line"><a id="l01671" name="l01671"></a><span class="lineno"> 1671</span>    <span class="keyword">call </span>get_environment_variable(<span class="stringliteral">&quot;NEKO_PERIODIC_TOL&quot;</span>, tol_str, envvar_len)</div>
+<div class="line"><a id="l01672" name="l01672"></a><span class="lineno"> 1672</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01673" name="l01673"></a><span class="lineno"> 1673</span>       <span class="keyword">read</span>(tol_str(1:envvar_len), *) tol</div>
+<div class="line"><a id="l01674" name="l01674"></a><span class="lineno"> 1674</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01675" name="l01675"></a><span class="lineno"> 1675</span>       tol = 1d-7</div>
+<div class="line"><a id="l01676" name="l01676"></a><span class="lineno"> 1676</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01677" name="l01677"></a><span class="lineno"> 1677</span> </div>
+<div class="line"><a id="l01678" name="l01678"></a><span class="lineno"> 1678</span>    <span class="keywordflow">select type</span>(ele =&gt; this%elements(e)%e)</div>
+<div class="line"><a id="l01679" name="l01679"></a><span class="lineno"> 1679</span><span class="keywordflow">    type is</span>(<a class="code hl_struct" href="../../d6/d66/structhex_1_1hex__t.html">hex_t</a>)</div>
+<div class="line"><a id="l01680" name="l01680"></a><span class="lineno"> 1680</span>       <span class="keywordflow">select type</span>(elp =&gt; this%elements(pe)%e)</div>
+<div class="line"><a id="l01681" name="l01681"></a><span class="lineno"> 1681</span><span class="keywordflow">       type is</span>(<a class="code hl_struct" href="../../d6/d66/structhex_1_1hex__t.html">hex_t</a>)</div>
+<div class="line"><a id="l01682" name="l01682"></a><span class="lineno"> 1682</span>          l = 0d0</div>
+<div class="line"><a id="l01683" name="l01683"></a><span class="lineno"> 1683</span>          <span class="keywordflow">do</span> i = 1, 4</div>
+<div class="line"><a id="l01684" name="l01684"></a><span class="lineno"> 1684</span>             l = l + ele%pts(face_nodes(i,f))%p%x(1:3) - &amp;</div>
+<div class="line"><a id="l01685" name="l01685"></a><span class="lineno"> 1685</span>                  elp%pts(face_nodes(i,pf))%p%x(1:3)</div>
+<div class="line"><a id="l01686" name="l01686"></a><span class="lineno"> 1686</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01687" name="l01687"></a><span class="lineno"> 1687</span>          l = l/4</div>
+<div class="line"><a id="l01688" name="l01688"></a><span class="lineno"> 1688</span>          <span class="keywordflow">do</span> i = 1, 4</div>
+<div class="line"><a id="l01689" name="l01689"></a><span class="lineno"> 1689</span>             pi =&gt; ele%pts(face_nodes(i,f))%p</div>
+<div class="line"><a id="l01690" name="l01690"></a><span class="lineno"> 1690</span>             match = 0</div>
+<div class="line"><a id="l01691" name="l01691"></a><span class="lineno"> 1691</span>             <span class="keywordflow">do</span> j = 1, 4</div>
+<div class="line"><a id="l01692" name="l01692"></a><span class="lineno"> 1692</span>                pj =&gt; elp%pts(face_nodes(j,pf))%p</div>
+<div class="line"><a id="l01693" name="l01693"></a><span class="lineno"> 1693</span>                <span class="keywordflow">if</span> (norm2(pi%x(1:3) - pj%x(1:3) - l) .lt. tol) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01694" name="l01694"></a><span class="lineno"> 1694</span>                   id = min(pi%id(), pj%id())</div>
+<div class="line"><a id="l01695" name="l01695"></a><span class="lineno"> 1695</span>                   <span class="keyword">call </span>pi%set_id(id)</div>
+<div class="line"><a id="l01696" name="l01696"></a><span class="lineno"> 1696</span>                   <span class="keyword">call </span>pj%set_id(id)</div>
+<div class="line"><a id="l01697" name="l01697"></a><span class="lineno"> 1697</span>                   p_local_idx = this%get_local(this%points(id))</div>
+<div class="line"><a id="l01698" name="l01698"></a><span class="lineno"> 1698</span>                   match = match + 1</div>
+<div class="line"><a id="l01699" name="l01699"></a><span class="lineno"> 1699</span><span class="keywordflow">                end if</span></div>
+<div class="line"><a id="l01700" name="l01700"></a><span class="lineno"> 1700</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l01701" name="l01701"></a><span class="lineno"> 1701</span>             <span class="keywordflow">if</span> ( match .gt. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01702" name="l01702"></a><span class="lineno"> 1702</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Multiple matches when creating periodic ids&#39;</span>)</div>
+<div class="line"><a id="l01703" name="l01703"></a><span class="lineno"> 1703</span>             <span class="keywordflow">else</span> <span class="keywordflow">if</span> (match .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01704" name="l01704"></a><span class="lineno"> 1704</span>                <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Cannot find matching periodic point&#39;</span>)</div>
+<div class="line"><a id="l01705" name="l01705"></a><span class="lineno"> 1705</span><span class="keywordflow">             end if</span></div>
+<div class="line"><a id="l01706" name="l01706"></a><span class="lineno"> 1706</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01707" name="l01707"></a><span class="lineno"> 1707</span><span class="keywordflow">       end select</span></div>
+<div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span><span class="keywordflow">    type is</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>)</div>
+<div class="line"><a id="l01709" name="l01709"></a><span class="lineno"> 1709</span>       <span class="keywordflow">select type</span>(elp =&gt; this%elements(pe)%e)</div>
+<div class="line"><a id="l01710" name="l01710"></a><span class="lineno"> 1710</span><span class="keywordflow">       type is</span>(<a class="code hl_struct" href="../../d2/d32/structquad_1_1quad__t.html">quad_t</a>)</div>
+<div class="line"><a id="l01711" name="l01711"></a><span class="lineno"> 1711</span>          l = 0d0</div>
+<div class="line"><a id="l01712" name="l01712"></a><span class="lineno"> 1712</span>          <span class="keywordflow">do</span> i = 1, 2</div>
+<div class="line"><a id="l01713" name="l01713"></a><span class="lineno"> 1713</span>             l = l + ele%pts(edge_nodes(i,f))%p%x(1:3) - &amp;</div>
+<div class="line"><a id="l01714" name="l01714"></a><span class="lineno"> 1714</span>                  elp%pts(edge_nodes(i,pf))%p%x(1:3)</div>
+<div class="line"><a id="l01715" name="l01715"></a><span class="lineno"> 1715</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01716" name="l01716"></a><span class="lineno"> 1716</span>          l = l/2</div>
+<div class="line"><a id="l01717" name="l01717"></a><span class="lineno"> 1717</span>          <span class="keywordflow">do</span> i = 1, 2</div>
+<div class="line"><a id="l01718" name="l01718"></a><span class="lineno"> 1718</span>             pi =&gt; ele%pts(edge_nodes(i,f))%p</div>
+<div class="line"><a id="l01719" name="l01719"></a><span class="lineno"> 1719</span>             <span class="keywordflow">do</span> j = 1, 2</div>
+<div class="line"><a id="l01720" name="l01720"></a><span class="lineno"> 1720</span>                pj =&gt; elp%pts(edge_nodes(j,pf))%p</div>
+<div class="line"><a id="l01721" name="l01721"></a><span class="lineno"> 1721</span>                <span class="comment">!whatabout thie tolerance?</span></div>
+<div class="line"><a id="l01722" name="l01722"></a><span class="lineno"> 1722</span>                <span class="keywordflow">if</span> (norm2(pi%x(1:3) - pj%x(1:3) - l) .lt. tol) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01723" name="l01723"></a><span class="lineno"> 1723</span>                   id = min(pi%id(), pj%id())</div>
+<div class="line"><a id="l01724" name="l01724"></a><span class="lineno"> 1724</span>                   <span class="keyword">call </span>pi%set_id(id)</div>
+<div class="line"><a id="l01725" name="l01725"></a><span class="lineno"> 1725</span>                   <span class="keyword">call </span>pj%set_id(id)</div>
+<div class="line"><a id="l01726" name="l01726"></a><span class="lineno"> 1726</span>                   p_local_idx = this%get_local(this%points(id))</div>
+<div class="line"><a id="l01727" name="l01727"></a><span class="lineno"> 1727</span><span class="keywordflow">                end if</span></div>
+<div class="line"><a id="l01728" name="l01728"></a><span class="lineno"> 1728</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l01729" name="l01729"></a><span class="lineno"> 1729</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01730" name="l01730"></a><span class="lineno"> 1730</span><span class="keywordflow">       end select</span></div>
+<div class="line"><a id="l01731" name="l01731"></a><span class="lineno"> 1731</span><span class="keywordflow">    end select</span></div>
 </div>
-<div class="line"><a id="l01722" name="l01722"></a><span class="lineno"> 1722</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a902cff461359f6d7673ee57d2191d41d">mesh_create_periodic_ids</a></div>
-<div class="line"><a id="l01723" name="l01723"></a><span class="lineno"> 1723</span> </div>
-<div class="foldopen" id="foldopen01726" data-start="" data-end="">
-<div class="line"><a id="l01726" name="l01726"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#abce2263656e025ff29d5da32f447454d"> 1726</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#abce2263656e025ff29d5da32f447454d">mesh_apply_periodic_facet</a>(this, f, e, pf, pe, pids)</div>
-<div class="line"><a id="l01727" name="l01727"></a><span class="lineno"> 1727</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01728" name="l01728"></a><span class="lineno"> 1728</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: f</div>
-<div class="line"><a id="l01729" name="l01729"></a><span class="lineno"> 1729</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: e</div>
-<div class="line"><a id="l01730" name="l01730"></a><span class="lineno"> 1730</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: pf</div>
-<div class="line"><a id="l01731" name="l01731"></a><span class="lineno"> 1731</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: pe</div>
-<div class="line"><a id="l01732" name="l01732"></a><span class="lineno"> 1732</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: pids(4)</div>
-<div class="line"><a id="l01733" name="l01733"></a><span class="lineno"> 1733</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: pi</div>
-<div class="line"><a id="l01734" name="l01734"></a><span class="lineno"> 1734</span>    <span class="keywordtype">integer</span> :: i, id, p_local_idx</div>
-<div class="line"><a id="l01735" name="l01735"></a><span class="lineno"> 1735</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>) :: ft</div>
-<div class="line"><a id="l01736" name="l01736"></a><span class="lineno"> 1736</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>) :: et</div>
-<div class="line"><a id="l01737" name="l01737"></a><span class="lineno"> 1737</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">dimension(4, 6)</span> :: face_nodes = reshape([&amp;</div>
-<div class="line"><a id="l01738" name="l01738"></a><span class="lineno"> 1738</span>         1,5,7,3,&amp;</div>
-<div class="line"><a id="l01739" name="l01739"></a><span class="lineno"> 1739</span>         2,6,8,4,&amp;</div>
-<div class="line"><a id="l01740" name="l01740"></a><span class="lineno"> 1740</span>         1,2,6,5,&amp;</div>
-<div class="line"><a id="l01741" name="l01741"></a><span class="lineno"> 1741</span>         3,4,8,7,&amp;</div>
-<div class="line"><a id="l01742" name="l01742"></a><span class="lineno"> 1742</span>         1,2,4,3,&amp;</div>
-<div class="line"><a id="l01743" name="l01743"></a><span class="lineno"> 1743</span>         5,6,8,7],&amp;</div>
-<div class="line"><a id="l01744" name="l01744"></a><span class="lineno"> 1744</span>         [4,6])</div>
-<div class="line"><a id="l01745" name="l01745"></a><span class="lineno"> 1745</span>    <span class="keywordflow">select type</span>(ele =&gt; this%elements(e)%e)</div>
-<div class="line"><a id="l01746" name="l01746"></a><span class="lineno"> 1746</span><span class="keywordflow">    type is</span>(<a class="code hl_struct" href="../../d6/d66/structhex_1_1hex__t.html">hex_t</a>)</div>
-<div class="line"><a id="l01747" name="l01747"></a><span class="lineno"> 1747</span>       <span class="keywordflow">do</span> i = 1, 4</div>
-<div class="line"><a id="l01748" name="l01748"></a><span class="lineno"> 1748</span>          pi =&gt; ele%pts(face_nodes(i,f))%p</div>
-<div class="line"><a id="l01749" name="l01749"></a><span class="lineno"> 1749</span>          <span class="keyword">call </span>pi%set_id(pids(i))</div>
-<div class="line"><a id="l01750" name="l01750"></a><span class="lineno"> 1750</span>          <span class="keyword">call </span>this%add_point(pi, id)</div>
-<div class="line"><a id="l01751" name="l01751"></a><span class="lineno"> 1751</span>          p_local_idx = this%get_local(this%points(id))</div>
-<div class="line"><a id="l01752" name="l01752"></a><span class="lineno"> 1752</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01753" name="l01753"></a><span class="lineno"> 1753</span><span class="keywordflow">    end select</span></div>
-<div class="line"><a id="l01754" name="l01754"></a><span class="lineno"> 1754</span> </div>
+<div class="line"><a id="l01732" name="l01732"></a><span class="lineno"> 1732</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a902cff461359f6d7673ee57d2191d41d">mesh_create_periodic_ids</a></div>
+<div class="line"><a id="l01733" name="l01733"></a><span class="lineno"> 1733</span> </div>
+<div class="foldopen" id="foldopen01736" data-start="" data-end="">
+<div class="line"><a id="l01736" name="l01736"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#abce2263656e025ff29d5da32f447454d"> 1736</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#abce2263656e025ff29d5da32f447454d">mesh_apply_periodic_facet</a>(this, f, e, pf, pe, pids)</div>
+<div class="line"><a id="l01737" name="l01737"></a><span class="lineno"> 1737</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01738" name="l01738"></a><span class="lineno"> 1738</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: f</div>
+<div class="line"><a id="l01739" name="l01739"></a><span class="lineno"> 1739</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: e</div>
+<div class="line"><a id="l01740" name="l01740"></a><span class="lineno"> 1740</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: pf</div>
+<div class="line"><a id="l01741" name="l01741"></a><span class="lineno"> 1741</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: pe</div>
+<div class="line"><a id="l01742" name="l01742"></a><span class="lineno"> 1742</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: pids(4)</div>
+<div class="line"><a id="l01743" name="l01743"></a><span class="lineno"> 1743</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">pointer</span> :: pi</div>
+<div class="line"><a id="l01744" name="l01744"></a><span class="lineno"> 1744</span>    <span class="keywordtype">integer</span> :: i, id, p_local_idx</div>
+<div class="line"><a id="l01745" name="l01745"></a><span class="lineno"> 1745</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>) :: ft</div>
+<div class="line"><a id="l01746" name="l01746"></a><span class="lineno"> 1746</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>) :: et</div>
+<div class="line"><a id="l01747" name="l01747"></a><span class="lineno"> 1747</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">dimension(4, 6)</span> :: face_nodes = reshape([&amp;</div>
+<div class="line"><a id="l01748" name="l01748"></a><span class="lineno"> 1748</span>         1,5,7,3,&amp;</div>
+<div class="line"><a id="l01749" name="l01749"></a><span class="lineno"> 1749</span>         2,6,8,4,&amp;</div>
+<div class="line"><a id="l01750" name="l01750"></a><span class="lineno"> 1750</span>         1,2,6,5,&amp;</div>
+<div class="line"><a id="l01751" name="l01751"></a><span class="lineno"> 1751</span>         3,4,8,7,&amp;</div>
+<div class="line"><a id="l01752" name="l01752"></a><span class="lineno"> 1752</span>         1,2,4,3,&amp;</div>
+<div class="line"><a id="l01753" name="l01753"></a><span class="lineno"> 1753</span>         5,6,8,7],&amp;</div>
+<div class="line"><a id="l01754" name="l01754"></a><span class="lineno"> 1754</span>         [4,6])</div>
+<div class="line"><a id="l01755" name="l01755"></a><span class="lineno"> 1755</span>    <span class="keywordflow">select type</span>(ele =&gt; this%elements(e)%e)</div>
+<div class="line"><a id="l01756" name="l01756"></a><span class="lineno"> 1756</span><span class="keywordflow">    type is</span>(<a class="code hl_struct" href="../../d6/d66/structhex_1_1hex__t.html">hex_t</a>)</div>
+<div class="line"><a id="l01757" name="l01757"></a><span class="lineno"> 1757</span>       <span class="keywordflow">do</span> i = 1, 4</div>
+<div class="line"><a id="l01758" name="l01758"></a><span class="lineno"> 1758</span>          pi =&gt; ele%pts(face_nodes(i,f))%p</div>
+<div class="line"><a id="l01759" name="l01759"></a><span class="lineno"> 1759</span>          <span class="keyword">call </span>pi%set_id(pids(i))</div>
+<div class="line"><a id="l01760" name="l01760"></a><span class="lineno"> 1760</span>          <span class="keyword">call </span>this%add_point(pi, id)</div>
+<div class="line"><a id="l01761" name="l01761"></a><span class="lineno"> 1761</span>          p_local_idx = this%get_local(this%points(id))</div>
+<div class="line"><a id="l01762" name="l01762"></a><span class="lineno"> 1762</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01763" name="l01763"></a><span class="lineno"> 1763</span><span class="keywordflow">    end select</span></div>
+<div class="line"><a id="l01764" name="l01764"></a><span class="lineno"> 1764</span> </div>
 </div>
-<div class="line"><a id="l01755" name="l01755"></a><span class="lineno"> 1755</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#abce2263656e025ff29d5da32f447454d">mesh_apply_periodic_facet</a></div>
-<div class="line"><a id="l01756" name="l01756"></a><span class="lineno"> 1756</span> </div>
-<div class="foldopen" id="foldopen01758" data-start="" data-end="">
-<div class="line"><a id="l01758" name="l01758"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229"> 1758</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229">mesh_get_local_point</a>(this, p) <span class="keyword">result</span>(local_id)</div>
-<div class="line"><a id="l01759" name="l01759"></a><span class="lineno"> 1759</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01760" name="l01760"></a><span class="lineno"> 1760</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(inout)</span> :: p</div>
-<div class="line"><a id="l01761" name="l01761"></a><span class="lineno"> 1761</span>    <span class="keywordtype">integer</span> :: local_id</div>
-<div class="line"><a id="l01762" name="l01762"></a><span class="lineno"> 1762</span>    <span class="keywordtype">integer</span> :: tmp</div>
-<div class="line"><a id="l01763" name="l01763"></a><span class="lineno"> 1763</span> </div>
-<div class="line"><a id="l01765" name="l01765"></a><span class="lineno"> 1765</span>    tmp = p%id()</div>
+<div class="line"><a id="l01765" name="l01765"></a><span class="lineno"> 1765</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#abce2263656e025ff29d5da32f447454d">mesh_apply_periodic_facet</a></div>
 <div class="line"><a id="l01766" name="l01766"></a><span class="lineno"> 1766</span> </div>
-<div class="line"><a id="l01767" name="l01767"></a><span class="lineno"> 1767</span>    <span class="keywordflow">if</span> (this%htp%get(tmp, local_id) .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01768" name="l01768"></a><span class="lineno"> 1768</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid global id (local point)&#39;</span>)</div>
-<div class="line"><a id="l01769" name="l01769"></a><span class="lineno"> 1769</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01770" name="l01770"></a><span class="lineno"> 1770</span> </div>
+<div class="foldopen" id="foldopen01768" data-start="" data-end="">
+<div class="line"><a id="l01768" name="l01768"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229"> 1768</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229">mesh_get_local_point</a>(this, p) <span class="keyword">result</span>(local_id)</div>
+<div class="line"><a id="l01769" name="l01769"></a><span class="lineno"> 1769</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01770" name="l01770"></a><span class="lineno"> 1770</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(inout)</span> :: p</div>
+<div class="line"><a id="l01771" name="l01771"></a><span class="lineno"> 1771</span>    <span class="keywordtype">integer</span> :: local_id</div>
+<div class="line"><a id="l01772" name="l01772"></a><span class="lineno"> 1772</span>    <span class="keywordtype">integer</span> :: tmp</div>
+<div class="line"><a id="l01773" name="l01773"></a><span class="lineno"> 1773</span> </div>
+<div class="line"><a id="l01775" name="l01775"></a><span class="lineno"> 1775</span>    tmp = p%id()</div>
+<div class="line"><a id="l01776" name="l01776"></a><span class="lineno"> 1776</span> </div>
+<div class="line"><a id="l01777" name="l01777"></a><span class="lineno"> 1777</span>    <span class="keywordflow">if</span> (this%htp%get(tmp, local_id) .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01778" name="l01778"></a><span class="lineno"> 1778</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid global id (local point)&#39;</span>)</div>
+<div class="line"><a id="l01779" name="l01779"></a><span class="lineno"> 1779</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01780" name="l01780"></a><span class="lineno"> 1780</span> </div>
 </div>
-<div class="line"><a id="l01771" name="l01771"></a><span class="lineno"> 1771</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229">mesh_get_local_point</a></div>
-<div class="line"><a id="l01772" name="l01772"></a><span class="lineno"> 1772</span> </div>
-<div class="foldopen" id="foldopen01775" data-start="" data-end="">
-<div class="line"><a id="l01775" name="l01775"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a71ad476dec25f957ddfd536f2b2d12a7"> 1775</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a71ad476dec25f957ddfd536f2b2d12a7">mesh_get_local_edge</a>(this, e) <span class="keyword">result</span>(local_id)</div>
-<div class="line"><a id="l01776" name="l01776"></a><span class="lineno"> 1776</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01777" name="l01777"></a><span class="lineno"> 1777</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: e</div>
-<div class="line"><a id="l01778" name="l01778"></a><span class="lineno"> 1778</span>    <span class="keywordtype">integer</span> :: local_id</div>
-<div class="line"><a id="l01779" name="l01779"></a><span class="lineno"> 1779</span> </div>
-<div class="line"><a id="l01780" name="l01780"></a><span class="lineno"> 1780</span>    <span class="keywordflow">if</span> (this%hte%get(e, local_id) .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01781" name="l01781"></a><span class="lineno"> 1781</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid global id (local edge)&#39;</span>)</div>
-<div class="line"><a id="l01782" name="l01782"></a><span class="lineno"> 1782</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01783" name="l01783"></a><span class="lineno"> 1783</span> </div>
+<div class="line"><a id="l01781" name="l01781"></a><span class="lineno"> 1781</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229">mesh_get_local_point</a></div>
+<div class="line"><a id="l01782" name="l01782"></a><span class="lineno"> 1782</span> </div>
+<div class="foldopen" id="foldopen01785" data-start="" data-end="">
+<div class="line"><a id="l01785" name="l01785"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a71ad476dec25f957ddfd536f2b2d12a7"> 1785</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a71ad476dec25f957ddfd536f2b2d12a7">mesh_get_local_edge</a>(this, e) <span class="keyword">result</span>(local_id)</div>
+<div class="line"><a id="l01786" name="l01786"></a><span class="lineno"> 1786</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01787" name="l01787"></a><span class="lineno"> 1787</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: e</div>
+<div class="line"><a id="l01788" name="l01788"></a><span class="lineno"> 1788</span>    <span class="keywordtype">integer</span> :: local_id</div>
+<div class="line"><a id="l01789" name="l01789"></a><span class="lineno"> 1789</span> </div>
+<div class="line"><a id="l01790" name="l01790"></a><span class="lineno"> 1790</span>    <span class="keywordflow">if</span> (this%hte%get(e, local_id) .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01791" name="l01791"></a><span class="lineno"> 1791</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid global id (local edge)&#39;</span>)</div>
+<div class="line"><a id="l01792" name="l01792"></a><span class="lineno"> 1792</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01793" name="l01793"></a><span class="lineno"> 1793</span> </div>
 </div>
-<div class="line"><a id="l01784" name="l01784"></a><span class="lineno"> 1784</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a71ad476dec25f957ddfd536f2b2d12a7">mesh_get_local_edge</a></div>
-<div class="line"><a id="l01785" name="l01785"></a><span class="lineno"> 1785</span> </div>
-<div class="foldopen" id="foldopen01787" data-start="" data-end="">
-<div class="line"><a id="l01787" name="l01787"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#af05fb6ef9da3ada4cdd5b861b0a0d866"> 1787</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af05fb6ef9da3ada4cdd5b861b0a0d866">mesh_get_local_facet</a>(this, f) <span class="keyword">result</span>(local_id)</div>
-<div class="line"><a id="l01788" name="l01788"></a><span class="lineno"> 1788</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01789" name="l01789"></a><span class="lineno"> 1789</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: f</div>
-<div class="line"><a id="l01790" name="l01790"></a><span class="lineno"> 1790</span>    <span class="keywordtype">integer</span> :: local_id</div>
-<div class="line"><a id="l01791" name="l01791"></a><span class="lineno"> 1791</span> </div>
-<div class="line"><a id="l01792" name="l01792"></a><span class="lineno"> 1792</span>    <span class="keywordflow">if</span> (this%htf%get(f, local_id) .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01793" name="l01793"></a><span class="lineno"> 1793</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid global id (local facet)&#39;</span>)</div>
-<div class="line"><a id="l01794" name="l01794"></a><span class="lineno"> 1794</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01794" name="l01794"></a><span class="lineno"> 1794</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a71ad476dec25f957ddfd536f2b2d12a7">mesh_get_local_edge</a></div>
 <div class="line"><a id="l01795" name="l01795"></a><span class="lineno"> 1795</span> </div>
-</div>
-<div class="line"><a id="l01796" name="l01796"></a><span class="lineno"> 1796</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af05fb6ef9da3ada4cdd5b861b0a0d866">mesh_get_local_facet</a></div>
-<div class="line"><a id="l01797" name="l01797"></a><span class="lineno"> 1797</span> </div>
-<div class="foldopen" id="foldopen01799" data-start="" data-end="">
-<div class="line"><a id="l01799" name="l01799"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a352d66cbbefa58780f0c986f1e0e983a"> 1799</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a352d66cbbefa58780f0c986f1e0e983a">mesh_get_global_edge</a>(this, e) <span class="keyword">result</span>(global_id)</div>
-<div class="line"><a id="l01800" name="l01800"></a><span class="lineno"> 1800</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01801" name="l01801"></a><span class="lineno"> 1801</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: e</div>
-<div class="line"><a id="l01802" name="l01802"></a><span class="lineno"> 1802</span>    <span class="keywordtype">integer</span> :: global_id</div>
-<div class="line"><a id="l01803" name="l01803"></a><span class="lineno"> 1803</span> </div>
-<div class="line"><a id="l01804" name="l01804"></a><span class="lineno"> 1804</span>    global_id = this%get_local(e)</div>
+<div class="foldopen" id="foldopen01797" data-start="" data-end="">
+<div class="line"><a id="l01797" name="l01797"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#af05fb6ef9da3ada4cdd5b861b0a0d866"> 1797</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af05fb6ef9da3ada4cdd5b861b0a0d866">mesh_get_local_facet</a>(this, f) <span class="keyword">result</span>(local_id)</div>
+<div class="line"><a id="l01798" name="l01798"></a><span class="lineno"> 1798</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01799" name="l01799"></a><span class="lineno"> 1799</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: f</div>
+<div class="line"><a id="l01800" name="l01800"></a><span class="lineno"> 1800</span>    <span class="keywordtype">integer</span> :: local_id</div>
+<div class="line"><a id="l01801" name="l01801"></a><span class="lineno"> 1801</span> </div>
+<div class="line"><a id="l01802" name="l01802"></a><span class="lineno"> 1802</span>    <span class="keywordflow">if</span> (this%htf%get(f, local_id) .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01803" name="l01803"></a><span class="lineno"> 1803</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid global id (local facet)&#39;</span>)</div>
+<div class="line"><a id="l01804" name="l01804"></a><span class="lineno"> 1804</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l01805" name="l01805"></a><span class="lineno"> 1805</span> </div>
-<div class="line"><a id="l01806" name="l01806"></a><span class="lineno"> 1806</span>    <span class="keywordflow">if</span> (this%gdim .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01807" name="l01807"></a><span class="lineno"> 1807</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01808" name="l01808"></a><span class="lineno"> 1808</span>          global_id = this%ddata%local_to_global_facet(global_id)</div>
-<div class="line"><a id="l01809" name="l01809"></a><span class="lineno"> 1809</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01810" name="l01810"></a><span class="lineno"> 1810</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01811" name="l01811"></a><span class="lineno"> 1811</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01812" name="l01812"></a><span class="lineno"> 1812</span>          global_id = this%ddata%local_to_global_edge(global_id)</div>
-<div class="line"><a id="l01813" name="l01813"></a><span class="lineno"> 1813</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01814" name="l01814"></a><span class="lineno"> 1814</span><span class="keywordflow">    end if</span></div>
+</div>
+<div class="line"><a id="l01806" name="l01806"></a><span class="lineno"> 1806</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af05fb6ef9da3ada4cdd5b861b0a0d866">mesh_get_local_facet</a></div>
+<div class="line"><a id="l01807" name="l01807"></a><span class="lineno"> 1807</span> </div>
+<div class="foldopen" id="foldopen01809" data-start="" data-end="">
+<div class="line"><a id="l01809" name="l01809"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a352d66cbbefa58780f0c986f1e0e983a"> 1809</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a352d66cbbefa58780f0c986f1e0e983a">mesh_get_global_edge</a>(this, e) <span class="keyword">result</span>(global_id)</div>
+<div class="line"><a id="l01810" name="l01810"></a><span class="lineno"> 1810</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01811" name="l01811"></a><span class="lineno"> 1811</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: e</div>
+<div class="line"><a id="l01812" name="l01812"></a><span class="lineno"> 1812</span>    <span class="keywordtype">integer</span> :: global_id</div>
+<div class="line"><a id="l01813" name="l01813"></a><span class="lineno"> 1813</span> </div>
+<div class="line"><a id="l01814" name="l01814"></a><span class="lineno"> 1814</span>    global_id = this%get_local(e)</div>
 <div class="line"><a id="l01815" name="l01815"></a><span class="lineno"> 1815</span> </div>
-</div>
-<div class="line"><a id="l01816" name="l01816"></a><span class="lineno"> 1816</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a352d66cbbefa58780f0c986f1e0e983a">mesh_get_global_edge</a></div>
-<div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span> </div>
-<div class="foldopen" id="foldopen01819" data-start="" data-end="">
-<div class="line"><a id="l01819" name="l01819"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#aa8bcf197f80e19e6013b1007fe624ef3"> 1819</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aa8bcf197f80e19e6013b1007fe624ef3">mesh_get_global_facet</a>(this, f) <span class="keyword">result</span>(global_id)</div>
-<div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01821" name="l01821"></a><span class="lineno"> 1821</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: f</div>
-<div class="line"><a id="l01822" name="l01822"></a><span class="lineno"> 1822</span>    <span class="keywordtype">integer</span> :: global_id</div>
-<div class="line"><a id="l01823" name="l01823"></a><span class="lineno"> 1823</span> </div>
-<div class="line"><a id="l01824" name="l01824"></a><span class="lineno"> 1824</span>    global_id = this%get_local_facet(f)</div>
+<div class="line"><a id="l01816" name="l01816"></a><span class="lineno"> 1816</span>    <span class="keywordflow">if</span> (this%gdim .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01818" name="l01818"></a><span class="lineno"> 1818</span>          global_id = this%ddata%local_to_global_facet(global_id)</div>
+<div class="line"><a id="l01819" name="l01819"></a><span class="lineno"> 1819</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01821" name="l01821"></a><span class="lineno"> 1821</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01822" name="l01822"></a><span class="lineno"> 1822</span>          global_id = this%ddata%local_to_global_edge(global_id)</div>
+<div class="line"><a id="l01823" name="l01823"></a><span class="lineno"> 1823</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01824" name="l01824"></a><span class="lineno"> 1824</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l01825" name="l01825"></a><span class="lineno"> 1825</span> </div>
-<div class="line"><a id="l01826" name="l01826"></a><span class="lineno"> 1826</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01827" name="l01827"></a><span class="lineno"> 1827</span>       global_id = this%ddata%local_to_global_facet(global_id)</div>
-<div class="line"><a id="l01828" name="l01828"></a><span class="lineno"> 1828</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01829" name="l01829"></a><span class="lineno"> 1829</span> </div>
 </div>
-<div class="line"><a id="l01830" name="l01830"></a><span class="lineno"> 1830</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aa8bcf197f80e19e6013b1007fe624ef3">mesh_get_global_facet</a></div>
-<div class="line"><a id="l01831" name="l01831"></a><span class="lineno"> 1831</span> </div>
-<div class="line"><a id="l01832" name="l01832"></a><span class="lineno"> 1832</span> </div>
-<div class="foldopen" id="foldopen01836" data-start="" data-end="">
-<div class="line"><a id="l01836" name="l01836"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1"> 1836</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1">mesh_have_point_glb_idx</a>(this, index) <span class="keyword">result</span>(local_id)</div>
-<div class="line"><a id="l01837" name="l01837"></a><span class="lineno"> 1837</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01838" name="l01838"></a><span class="lineno"> 1838</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: index</div>
-<div class="line"><a id="l01839" name="l01839"></a><span class="lineno"> 1839</span>    <span class="keywordtype">integer</span> :: local_id</div>
-<div class="line"><a id="l01840" name="l01840"></a><span class="lineno"> 1840</span> </div>
-<div class="line"><a id="l01841" name="l01841"></a><span class="lineno"> 1841</span>    <span class="keywordflow">if</span> (this%htp%get(index, local_id) .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01842" name="l01842"></a><span class="lineno"> 1842</span>       local_id = -1</div>
-<div class="line"><a id="l01843" name="l01843"></a><span class="lineno"> 1843</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01844" name="l01844"></a><span class="lineno"> 1844</span> </div>
+<div class="line"><a id="l01826" name="l01826"></a><span class="lineno"> 1826</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a352d66cbbefa58780f0c986f1e0e983a">mesh_get_global_edge</a></div>
+<div class="line"><a id="l01827" name="l01827"></a><span class="lineno"> 1827</span> </div>
+<div class="foldopen" id="foldopen01829" data-start="" data-end="">
+<div class="line"><a id="l01829" name="l01829"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#aa8bcf197f80e19e6013b1007fe624ef3"> 1829</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aa8bcf197f80e19e6013b1007fe624ef3">mesh_get_global_facet</a>(this, f) <span class="keyword">result</span>(global_id)</div>
+<div class="line"><a id="l01830" name="l01830"></a><span class="lineno"> 1830</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01831" name="l01831"></a><span class="lineno"> 1831</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: f</div>
+<div class="line"><a id="l01832" name="l01832"></a><span class="lineno"> 1832</span>    <span class="keywordtype">integer</span> :: global_id</div>
+<div class="line"><a id="l01833" name="l01833"></a><span class="lineno"> 1833</span> </div>
+<div class="line"><a id="l01834" name="l01834"></a><span class="lineno"> 1834</span>    global_id = this%get_local_facet(f)</div>
+<div class="line"><a id="l01835" name="l01835"></a><span class="lineno"> 1835</span> </div>
+<div class="line"><a id="l01836" name="l01836"></a><span class="lineno"> 1836</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d">pe_size</a> .gt. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01837" name="l01837"></a><span class="lineno"> 1837</span>       global_id = this%ddata%local_to_global_facet(global_id)</div>
+<div class="line"><a id="l01838" name="l01838"></a><span class="lineno"> 1838</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01839" name="l01839"></a><span class="lineno"> 1839</span> </div>
 </div>
-<div class="line"><a id="l01845" name="l01845"></a><span class="lineno"> 1845</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1">mesh_have_point_glb_idx</a></div>
-<div class="line"><a id="l01846" name="l01846"></a><span class="lineno"> 1846</span> </div>
-<div class="line"><a id="l01847" name="l01847"></a><span class="lineno"> 1847</span> </div>
-<div class="foldopen" id="foldopen01849" data-start="" data-end="">
-<div class="line"><a id="l01849" name="l01849"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a18e0ec9e252da45afddf3049b5a2aa07"> 1849</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a18e0ec9e252da45afddf3049b5a2aa07">mesh_is_shared_point</a>(this, p) <span class="keyword">result</span>(shared)</div>
-<div class="line"><a id="l01850" name="l01850"></a><span class="lineno"> 1850</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01851" name="l01851"></a><span class="lineno"> 1851</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(inout)</span> :: p</div>
-<div class="line"><a id="l01852" name="l01852"></a><span class="lineno"> 1852</span>    <span class="keywordtype">integer</span> :: local_index</div>
-<div class="line"><a id="l01853" name="l01853"></a><span class="lineno"> 1853</span>    <span class="keywordtype">logical</span> shared</div>
+<div class="line"><a id="l01840" name="l01840"></a><span class="lineno"> 1840</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aa8bcf197f80e19e6013b1007fe624ef3">mesh_get_global_facet</a></div>
+<div class="line"><a id="l01841" name="l01841"></a><span class="lineno"> 1841</span> </div>
+<div class="line"><a id="l01842" name="l01842"></a><span class="lineno"> 1842</span> </div>
+<div class="foldopen" id="foldopen01846" data-start="" data-end="">
+<div class="line"><a id="l01846" name="l01846"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1"> 1846</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1">mesh_have_point_glb_idx</a>(this, index) <span class="keyword">result</span>(local_id)</div>
+<div class="line"><a id="l01847" name="l01847"></a><span class="lineno"> 1847</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01848" name="l01848"></a><span class="lineno"> 1848</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: index</div>
+<div class="line"><a id="l01849" name="l01849"></a><span class="lineno"> 1849</span>    <span class="keywordtype">integer</span> :: local_id</div>
+<div class="line"><a id="l01850" name="l01850"></a><span class="lineno"> 1850</span> </div>
+<div class="line"><a id="l01851" name="l01851"></a><span class="lineno"> 1851</span>    <span class="keywordflow">if</span> (this%htp%get(index, local_id) .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01852" name="l01852"></a><span class="lineno"> 1852</span>       local_id = -1</div>
+<div class="line"><a id="l01853" name="l01853"></a><span class="lineno"> 1853</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l01854" name="l01854"></a><span class="lineno"> 1854</span> </div>
-<div class="line"><a id="l01855" name="l01855"></a><span class="lineno"> 1855</span>    local_index = this%get_local(p)</div>
-<div class="line"><a id="l01856" name="l01856"></a><span class="lineno"> 1856</span>    shared = this%ddata%shared_point%element(local_index)</div>
+</div>
+<div class="line"><a id="l01855" name="l01855"></a><span class="lineno"> 1855</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1">mesh_have_point_glb_idx</a></div>
+<div class="line"><a id="l01856" name="l01856"></a><span class="lineno"> 1856</span> </div>
 <div class="line"><a id="l01857" name="l01857"></a><span class="lineno"> 1857</span> </div>
+<div class="foldopen" id="foldopen01859" data-start="" data-end="">
+<div class="line"><a id="l01859" name="l01859"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a18e0ec9e252da45afddf3049b5a2aa07"> 1859</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a18e0ec9e252da45afddf3049b5a2aa07">mesh_is_shared_point</a>(this, p) <span class="keyword">result</span>(shared)</div>
+<div class="line"><a id="l01860" name="l01860"></a><span class="lineno"> 1860</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01861" name="l01861"></a><span class="lineno"> 1861</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>), <span class="keywordtype">intent(inout)</span> :: p</div>
+<div class="line"><a id="l01862" name="l01862"></a><span class="lineno"> 1862</span>    <span class="keywordtype">integer</span> :: local_index</div>
+<div class="line"><a id="l01863" name="l01863"></a><span class="lineno"> 1863</span>    <span class="keywordtype">logical</span> shared</div>
+<div class="line"><a id="l01864" name="l01864"></a><span class="lineno"> 1864</span> </div>
+<div class="line"><a id="l01865" name="l01865"></a><span class="lineno"> 1865</span>    local_index = this%get_local(p)</div>
+<div class="line"><a id="l01866" name="l01866"></a><span class="lineno"> 1866</span>    shared = this%ddata%shared_point%element(local_index)</div>
+<div class="line"><a id="l01867" name="l01867"></a><span class="lineno"> 1867</span> </div>
 </div>
-<div class="line"><a id="l01858" name="l01858"></a><span class="lineno"> 1858</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a18e0ec9e252da45afddf3049b5a2aa07">mesh_is_shared_point</a></div>
-<div class="line"><a id="l01859" name="l01859"></a><span class="lineno"> 1859</span> </div>
-<div class="line"><a id="l01860" name="l01860"></a><span class="lineno"> 1860</span> </div>
-<div class="foldopen" id="foldopen01863" data-start="" data-end="">
-<div class="line"><a id="l01863" name="l01863"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a7bf30dfab024520de1e417f0ab184946"> 1863</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a7bf30dfab024520de1e417f0ab184946">mesh_is_shared_edge</a>(this, e) <span class="keyword">result</span>(shared)</div>
-<div class="line"><a id="l01864" name="l01864"></a><span class="lineno"> 1864</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01865" name="l01865"></a><span class="lineno"> 1865</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: e</div>
-<div class="line"><a id="l01866" name="l01866"></a><span class="lineno"> 1866</span>    <span class="keywordtype">integer</span> :: local_index</div>
-<div class="line"><a id="l01867" name="l01867"></a><span class="lineno"> 1867</span>    <span class="keywordtype">logical</span> shared</div>
-<div class="line"><a id="l01868" name="l01868"></a><span class="lineno"> 1868</span>    local_index = this%get_local(e)</div>
-<div class="line"><a id="l01869" name="l01869"></a><span class="lineno"> 1869</span>    <span class="keywordflow">if</span> (this%gdim .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01870" name="l01870"></a><span class="lineno"> 1870</span>       shared = this%ddata%shared_facet%element(local_index)</div>
-<div class="line"><a id="l01871" name="l01871"></a><span class="lineno"> 1871</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01872" name="l01872"></a><span class="lineno"> 1872</span>       shared = this%ddata%shared_edge%element(local_index)</div>
-<div class="line"><a id="l01873" name="l01873"></a><span class="lineno"> 1873</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01868" name="l01868"></a><span class="lineno"> 1868</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a18e0ec9e252da45afddf3049b5a2aa07">mesh_is_shared_point</a></div>
+<div class="line"><a id="l01869" name="l01869"></a><span class="lineno"> 1869</span> </div>
+<div class="line"><a id="l01870" name="l01870"></a><span class="lineno"> 1870</span> </div>
+<div class="foldopen" id="foldopen01873" data-start="" data-end="">
+<div class="line"><a id="l01873" name="l01873"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a7bf30dfab024520de1e417f0ab184946"> 1873</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a7bf30dfab024520de1e417f0ab184946">mesh_is_shared_edge</a>(this, e) <span class="keyword">result</span>(shared)</div>
+<div class="line"><a id="l01874" name="l01874"></a><span class="lineno"> 1874</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01875" name="l01875"></a><span class="lineno"> 1875</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: e</div>
+<div class="line"><a id="l01876" name="l01876"></a><span class="lineno"> 1876</span>    <span class="keywordtype">integer</span> :: local_index</div>
+<div class="line"><a id="l01877" name="l01877"></a><span class="lineno"> 1877</span>    <span class="keywordtype">logical</span> shared</div>
+<div class="line"><a id="l01878" name="l01878"></a><span class="lineno"> 1878</span>    local_index = this%get_local(e)</div>
+<div class="line"><a id="l01879" name="l01879"></a><span class="lineno"> 1879</span>    <span class="keywordflow">if</span> (this%gdim .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01880" name="l01880"></a><span class="lineno"> 1880</span>       shared = this%ddata%shared_facet%element(local_index)</div>
+<div class="line"><a id="l01881" name="l01881"></a><span class="lineno"> 1881</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01882" name="l01882"></a><span class="lineno"> 1882</span>       shared = this%ddata%shared_edge%element(local_index)</div>
+<div class="line"><a id="l01883" name="l01883"></a><span class="lineno"> 1883</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l01874" name="l01874"></a><span class="lineno"> 1874</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a7bf30dfab024520de1e417f0ab184946">mesh_is_shared_edge</a></div>
-<div class="line"><a id="l01875" name="l01875"></a><span class="lineno"> 1875</span> </div>
-<div class="foldopen" id="foldopen01877" data-start="" data-end="">
-<div class="line"><a id="l01877" name="l01877"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#aa4ba3e8c450a20cc5d8a45a6f0c5fdb2"> 1877</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aa4ba3e8c450a20cc5d8a45a6f0c5fdb2">mesh_is_shared_facet</a>(this, f) <span class="keyword">result</span>(shared)</div>
-<div class="line"><a id="l01878" name="l01878"></a><span class="lineno"> 1878</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01879" name="l01879"></a><span class="lineno"> 1879</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: f</div>
-<div class="line"><a id="l01880" name="l01880"></a><span class="lineno"> 1880</span>    <span class="keywordtype">integer</span> :: local_index</div>
-<div class="line"><a id="l01881" name="l01881"></a><span class="lineno"> 1881</span>    <span class="keywordtype">logical</span> shared</div>
-<div class="line"><a id="l01882" name="l01882"></a><span class="lineno"> 1882</span> </div>
-<div class="line"><a id="l01883" name="l01883"></a><span class="lineno"> 1883</span>    local_index = this%get_local(f)</div>
-<div class="line"><a id="l01884" name="l01884"></a><span class="lineno"> 1884</span>    shared = this%ddata%shared_facet%element(local_index)</div>
+<div class="line"><a id="l01884" name="l01884"></a><span class="lineno"> 1884</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a7bf30dfab024520de1e417f0ab184946">mesh_is_shared_edge</a></div>
 <div class="line"><a id="l01885" name="l01885"></a><span class="lineno"> 1885</span> </div>
+<div class="foldopen" id="foldopen01887" data-start="" data-end="">
+<div class="line"><a id="l01887" name="l01887"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#aa4ba3e8c450a20cc5d8a45a6f0c5fdb2"> 1887</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aa4ba3e8c450a20cc5d8a45a6f0c5fdb2">mesh_is_shared_facet</a>(this, f) <span class="keyword">result</span>(shared)</div>
+<div class="line"><a id="l01888" name="l01888"></a><span class="lineno"> 1888</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01889" name="l01889"></a><span class="lineno"> 1889</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a>), <span class="keywordtype">intent(inout)</span> :: f</div>
+<div class="line"><a id="l01890" name="l01890"></a><span class="lineno"> 1890</span>    <span class="keywordtype">integer</span> :: local_index</div>
+<div class="line"><a id="l01891" name="l01891"></a><span class="lineno"> 1891</span>    <span class="keywordtype">logical</span> shared</div>
+<div class="line"><a id="l01892" name="l01892"></a><span class="lineno"> 1892</span> </div>
+<div class="line"><a id="l01893" name="l01893"></a><span class="lineno"> 1893</span>    local_index = this%get_local(f)</div>
+<div class="line"><a id="l01894" name="l01894"></a><span class="lineno"> 1894</span>    shared = this%ddata%shared_facet%element(local_index)</div>
+<div class="line"><a id="l01895" name="l01895"></a><span class="lineno"> 1895</span> </div>
 </div>
-<div class="line"><a id="l01886" name="l01886"></a><span class="lineno"> 1886</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aa4ba3e8c450a20cc5d8a45a6f0c5fdb2">mesh_is_shared_facet</a></div>
-<div class="line"><a id="l01887" name="l01887"></a><span class="lineno"> 1887</span> </div>
-<div class="foldopen" id="foldopen01890" data-start="" data-end="">
-<div class="line"><a id="l01890" name="l01890"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#ad7445d7b579f359797327618f283f607"> 1890</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#ad7445d7b579f359797327618f283f607">mesh_check_right_handedness</a>(this)</div>
-<div class="line"><a id="l01891" name="l01891"></a><span class="lineno"> 1891</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01892" name="l01892"></a><span class="lineno"> 1892</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l01893" name="l01893"></a><span class="lineno"> 1893</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: v(8)</div>
-<div class="line"><a id="l01894" name="l01894"></a><span class="lineno"> 1894</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: centroid</div>
-<div class="line"><a id="l01895" name="l01895"></a><span class="lineno"> 1895</span>    <span class="keywordtype">logical</span> :: fail</div>
-<div class="line"><a id="l01896" name="l01896"></a><span class="lineno"> 1896</span> </div>
-<div class="line"><a id="l01897" name="l01897"></a><span class="lineno"> 1897</span>    fail = .false.</div>
-<div class="line"><a id="l01898" name="l01898"></a><span class="lineno"> 1898</span> </div>
-<div class="line"><a id="l01899" name="l01899"></a><span class="lineno"> 1899</span>    <span class="keywordflow">if</span> (this%gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01900" name="l01900"></a><span class="lineno"> 1900</span>       <span class="keywordflow">do</span> i = 1, this%nelv</div>
-<div class="line"><a id="l01901" name="l01901"></a><span class="lineno"> 1901</span>          v(1) = <a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
-<div class="line"><a id="l01902" name="l01902"></a><span class="lineno"> 1902</span>               this%elements(i)%e%pts(2)%p%x, &amp;</div>
-<div class="line"><a id="l01903" name="l01903"></a><span class="lineno"> 1903</span>               this%elements(i)%e%pts(3)%p%x, &amp;</div>
-<div class="line"><a id="l01904" name="l01904"></a><span class="lineno"> 1904</span>               this%elements(i)%e%pts(5)%p%x, &amp;</div>
-<div class="line"><a id="l01905" name="l01905"></a><span class="lineno"> 1905</span>               this%elements(i)%e%pts(1)%p%x &amp;</div>
-<div class="line"><a id="l01906" name="l01906"></a><span class="lineno"> 1906</span>               )</div>
-<div class="line"><a id="l01907" name="l01907"></a><span class="lineno"> 1907</span> </div>
-<div class="line"><a id="l01908" name="l01908"></a><span class="lineno"> 1908</span>          v(2) = <a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
-<div class="line"><a id="l01909" name="l01909"></a><span class="lineno"> 1909</span>               this%elements(i)%e%pts(4)%p%x, &amp;</div>
-<div class="line"><a id="l01910" name="l01910"></a><span class="lineno"> 1910</span>               this%elements(i)%e%pts(1)%p%x, &amp;</div>
-<div class="line"><a id="l01911" name="l01911"></a><span class="lineno"> 1911</span>               this%elements(i)%e%pts(6)%p%x, &amp;</div>
-<div class="line"><a id="l01912" name="l01912"></a><span class="lineno"> 1912</span>               this%elements(i)%e%pts(2)%p%x &amp;</div>
-<div class="line"><a id="l01913" name="l01913"></a><span class="lineno"> 1913</span>               )</div>
-<div class="line"><a id="l01914" name="l01914"></a><span class="lineno"> 1914</span> </div>
-<div class="line"><a id="l01915" name="l01915"></a><span class="lineno"> 1915</span>          v(3) = <a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
-<div class="line"><a id="l01916" name="l01916"></a><span class="lineno"> 1916</span>               this%elements(i)%e%pts(1)%p%x, &amp;</div>
-<div class="line"><a id="l01917" name="l01917"></a><span class="lineno"> 1917</span>               this%elements(i)%e%pts(4)%p%x, &amp;</div>
-<div class="line"><a id="l01918" name="l01918"></a><span class="lineno"> 1918</span>               this%elements(i)%e%pts(7)%p%x, &amp;</div>
-<div class="line"><a id="l01919" name="l01919"></a><span class="lineno"> 1919</span>               this%elements(i)%e%pts(3)%p%x &amp;</div>
-<div class="line"><a id="l01920" name="l01920"></a><span class="lineno"> 1920</span>               )</div>
-<div class="line"><a id="l01921" name="l01921"></a><span class="lineno"> 1921</span> </div>
-<div class="line"><a id="l01922" name="l01922"></a><span class="lineno"> 1922</span>          v(4) = <a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
-<div class="line"><a id="l01923" name="l01923"></a><span class="lineno"> 1923</span>               this%elements(i)%e%pts(3)%p%x, &amp;</div>
-<div class="line"><a id="l01924" name="l01924"></a><span class="lineno"> 1924</span>               this%elements(i)%e%pts(2)%p%x, &amp;</div>
-<div class="line"><a id="l01925" name="l01925"></a><span class="lineno"> 1925</span>               this%elements(i)%e%pts(8)%p%x, &amp;</div>
-<div class="line"><a id="l01926" name="l01926"></a><span class="lineno"> 1926</span>               this%elements(i)%e%pts(4)%p%x &amp;</div>
-<div class="line"><a id="l01927" name="l01927"></a><span class="lineno"> 1927</span>               )</div>
-<div class="line"><a id="l01928" name="l01928"></a><span class="lineno"> 1928</span> </div>
-<div class="line"><a id="l01929" name="l01929"></a><span class="lineno"> 1929</span>          v(5) = -<a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
-<div class="line"><a id="l01930" name="l01930"></a><span class="lineno"> 1930</span>               this%elements(i)%e%pts(6)%p%x, &amp;</div>
-<div class="line"><a id="l01931" name="l01931"></a><span class="lineno"> 1931</span>               this%elements(i)%e%pts(7)%p%x, &amp;</div>
-<div class="line"><a id="l01932" name="l01932"></a><span class="lineno"> 1932</span>               this%elements(i)%e%pts(1)%p%x, &amp;</div>
-<div class="line"><a id="l01933" name="l01933"></a><span class="lineno"> 1933</span>               this%elements(i)%e%pts(5)%p%x &amp;</div>
-<div class="line"><a id="l01934" name="l01934"></a><span class="lineno"> 1934</span>               )</div>
-<div class="line"><a id="l01935" name="l01935"></a><span class="lineno"> 1935</span> </div>
-<div class="line"><a id="l01936" name="l01936"></a><span class="lineno"> 1936</span>          v(6) = -<a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
-<div class="line"><a id="l01937" name="l01937"></a><span class="lineno"> 1937</span>               this%elements(i)%e%pts(8)%p%x, &amp;</div>
-<div class="line"><a id="l01938" name="l01938"></a><span class="lineno"> 1938</span>               this%elements(i)%e%pts(5)%p%x, &amp;</div>
-<div class="line"><a id="l01939" name="l01939"></a><span class="lineno"> 1939</span>               this%elements(i)%e%pts(2)%p%x, &amp;</div>
-<div class="line"><a id="l01940" name="l01940"></a><span class="lineno"> 1940</span>               this%elements(i)%e%pts(6)%p%x &amp;</div>
-<div class="line"><a id="l01941" name="l01941"></a><span class="lineno"> 1941</span>               )</div>
-<div class="line"><a id="l01942" name="l01942"></a><span class="lineno"> 1942</span> </div>
-<div class="line"><a id="l01943" name="l01943"></a><span class="lineno"> 1943</span>          v(7) = -<a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
-<div class="line"><a id="l01944" name="l01944"></a><span class="lineno"> 1944</span>               this%elements(i)%e%pts(5)%p%x, &amp;</div>
-<div class="line"><a id="l01945" name="l01945"></a><span class="lineno"> 1945</span>               this%elements(i)%e%pts(8)%p%x, &amp;</div>
-<div class="line"><a id="l01946" name="l01946"></a><span class="lineno"> 1946</span>               this%elements(i)%e%pts(3)%p%x, &amp;</div>
-<div class="line"><a id="l01947" name="l01947"></a><span class="lineno"> 1947</span>               this%elements(i)%e%pts(7)%p%x &amp;</div>
-<div class="line"><a id="l01948" name="l01948"></a><span class="lineno"> 1948</span>               )</div>
-<div class="line"><a id="l01949" name="l01949"></a><span class="lineno"> 1949</span> </div>
-<div class="line"><a id="l01950" name="l01950"></a><span class="lineno"> 1950</span>          v(8) = -<a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
-<div class="line"><a id="l01951" name="l01951"></a><span class="lineno"> 1951</span>               this%elements(i)%e%pts(7)%p%x, &amp;</div>
-<div class="line"><a id="l01952" name="l01952"></a><span class="lineno"> 1952</span>               this%elements(i)%e%pts(6)%p%x, &amp;</div>
-<div class="line"><a id="l01953" name="l01953"></a><span class="lineno"> 1953</span>               this%elements(i)%e%pts(4)%p%x, &amp;</div>
-<div class="line"><a id="l01954" name="l01954"></a><span class="lineno"> 1954</span>               this%elements(i)%e%pts(8)%p%x &amp;</div>
-<div class="line"><a id="l01955" name="l01955"></a><span class="lineno"> 1955</span>               )</div>
-<div class="line"><a id="l01956" name="l01956"></a><span class="lineno"> 1956</span> </div>
-<div class="line"><a id="l01957" name="l01957"></a><span class="lineno"> 1957</span>          <span class="keywordflow">if</span> (v(1) .le. 0.0_rp .or. &amp;</div>
-<div class="line"><a id="l01958" name="l01958"></a><span class="lineno"> 1958</span>               v(2) .le. 0.0_rp .or. &amp;</div>
-<div class="line"><a id="l01959" name="l01959"></a><span class="lineno"> 1959</span>               v(3) .le. 0.0_rp .or. &amp;</div>
-<div class="line"><a id="l01960" name="l01960"></a><span class="lineno"> 1960</span>               v(4) .le. 0.0_rp .or. &amp;</div>
-<div class="line"><a id="l01961" name="l01961"></a><span class="lineno"> 1961</span>               v(5) .le. 0.0_rp .or. &amp;</div>
-<div class="line"><a id="l01962" name="l01962"></a><span class="lineno"> 1962</span>               v(6) .le. 0.0_rp .or. &amp;</div>
-<div class="line"><a id="l01963" name="l01963"></a><span class="lineno"> 1963</span>               v(7) .le. 0.0_rp .or. &amp;</div>
-<div class="line"><a id="l01964" name="l01964"></a><span class="lineno"> 1964</span>               v(8) .le. 0.0_rp ) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01965" name="l01965"></a><span class="lineno"> 1965</span> </div>
-<div class="line"><a id="l01966" name="l01966"></a><span class="lineno"> 1966</span>             centroid = this%elements(i)%e%centroid()</div>
-<div class="line"><a id="l01967" name="l01967"></a><span class="lineno"> 1967</span> </div>
-<div class="line"><a id="l01968" name="l01968"></a><span class="lineno"> 1968</span>             <span class="keyword">write</span>(error_unit, <span class="stringliteral">&#39;(A, A, I0, A, 3G12.5)&#39;</span>) <span class="stringliteral">&quot;*** ERROR ***: &quot;</span>, &amp;</div>
-<div class="line"><a id="l01969" name="l01969"></a><span class="lineno"> 1969</span>                  <span class="stringliteral">&quot;Wrong orientation of mesh element &quot;</span>, i, &amp;</div>
-<div class="line"><a id="l01970" name="l01970"></a><span class="lineno"> 1970</span>                  <span class="stringliteral">&quot; with centroid &quot;</span>, centroid%x</div>
-<div class="line"><a id="l01971" name="l01971"></a><span class="lineno"> 1971</span> </div>
-<div class="line"><a id="l01972" name="l01972"></a><span class="lineno"> 1972</span>             fail = .true.</div>
-<div class="line"><a id="l01973" name="l01973"></a><span class="lineno"> 1973</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l01974" name="l01974"></a><span class="lineno"> 1974</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01975" name="l01975"></a><span class="lineno"> 1975</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01976" name="l01976"></a><span class="lineno"> 1976</span> </div>
-<div class="line"><a id="l01977" name="l01977"></a><span class="lineno"> 1977</span>    <span class="keywordflow">if</span> (fail) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01978" name="l01978"></a><span class="lineno"> 1978</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Some mesh elements are not right-handed&quot;</span>)</div>
-<div class="line"><a id="l01979" name="l01979"></a><span class="lineno"> 1979</span><span class="keywordflow">    end if</span></div>
-</div>
-<div class="line"><a id="l01980" name="l01980"></a><span class="lineno"> 1980</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#ad7445d7b579f359797327618f283f607">mesh_check_right_handedness</a></div>
+<div class="line"><a id="l01896" name="l01896"></a><span class="lineno"> 1896</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#aa4ba3e8c450a20cc5d8a45a6f0c5fdb2">mesh_is_shared_facet</a></div>
+<div class="line"><a id="l01897" name="l01897"></a><span class="lineno"> 1897</span> </div>
+<div class="foldopen" id="foldopen01900" data-start="" data-end="">
+<div class="line"><a id="l01900" name="l01900"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#ad7445d7b579f359797327618f283f607"> 1900</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#ad7445d7b579f359797327618f283f607">mesh_check_right_handedness</a>(this)</div>
+<div class="line"><a id="l01901" name="l01901"></a><span class="lineno"> 1901</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01902" name="l01902"></a><span class="lineno"> 1902</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l01903" name="l01903"></a><span class="lineno"> 1903</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: v(8)</div>
+<div class="line"><a id="l01904" name="l01904"></a><span class="lineno"> 1904</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: centroid</div>
+<div class="line"><a id="l01905" name="l01905"></a><span class="lineno"> 1905</span>    <span class="keywordtype">logical</span> :: fail</div>
+<div class="line"><a id="l01906" name="l01906"></a><span class="lineno"> 1906</span> </div>
+<div class="line"><a id="l01907" name="l01907"></a><span class="lineno"> 1907</span>    fail = .false.</div>
+<div class="line"><a id="l01908" name="l01908"></a><span class="lineno"> 1908</span> </div>
+<div class="line"><a id="l01909" name="l01909"></a><span class="lineno"> 1909</span>    <span class="keywordflow">if</span> (this%gdim .eq. 3) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01910" name="l01910"></a><span class="lineno"> 1910</span>       <span class="keywordflow">do</span> i = 1, this%nelv</div>
+<div class="line"><a id="l01911" name="l01911"></a><span class="lineno"> 1911</span>          v(1) = <a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
+<div class="line"><a id="l01912" name="l01912"></a><span class="lineno"> 1912</span>               this%elements(i)%e%pts(2)%p%x, &amp;</div>
+<div class="line"><a id="l01913" name="l01913"></a><span class="lineno"> 1913</span>               this%elements(i)%e%pts(3)%p%x, &amp;</div>
+<div class="line"><a id="l01914" name="l01914"></a><span class="lineno"> 1914</span>               this%elements(i)%e%pts(5)%p%x, &amp;</div>
+<div class="line"><a id="l01915" name="l01915"></a><span class="lineno"> 1915</span>               this%elements(i)%e%pts(1)%p%x &amp;</div>
+<div class="line"><a id="l01916" name="l01916"></a><span class="lineno"> 1916</span>               )</div>
+<div class="line"><a id="l01917" name="l01917"></a><span class="lineno"> 1917</span> </div>
+<div class="line"><a id="l01918" name="l01918"></a><span class="lineno"> 1918</span>          v(2) = <a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
+<div class="line"><a id="l01919" name="l01919"></a><span class="lineno"> 1919</span>               this%elements(i)%e%pts(4)%p%x, &amp;</div>
+<div class="line"><a id="l01920" name="l01920"></a><span class="lineno"> 1920</span>               this%elements(i)%e%pts(1)%p%x, &amp;</div>
+<div class="line"><a id="l01921" name="l01921"></a><span class="lineno"> 1921</span>               this%elements(i)%e%pts(6)%p%x, &amp;</div>
+<div class="line"><a id="l01922" name="l01922"></a><span class="lineno"> 1922</span>               this%elements(i)%e%pts(2)%p%x &amp;</div>
+<div class="line"><a id="l01923" name="l01923"></a><span class="lineno"> 1923</span>               )</div>
+<div class="line"><a id="l01924" name="l01924"></a><span class="lineno"> 1924</span> </div>
+<div class="line"><a id="l01925" name="l01925"></a><span class="lineno"> 1925</span>          v(3) = <a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
+<div class="line"><a id="l01926" name="l01926"></a><span class="lineno"> 1926</span>               this%elements(i)%e%pts(1)%p%x, &amp;</div>
+<div class="line"><a id="l01927" name="l01927"></a><span class="lineno"> 1927</span>               this%elements(i)%e%pts(4)%p%x, &amp;</div>
+<div class="line"><a id="l01928" name="l01928"></a><span class="lineno"> 1928</span>               this%elements(i)%e%pts(7)%p%x, &amp;</div>
+<div class="line"><a id="l01929" name="l01929"></a><span class="lineno"> 1929</span>               this%elements(i)%e%pts(3)%p%x &amp;</div>
+<div class="line"><a id="l01930" name="l01930"></a><span class="lineno"> 1930</span>               )</div>
+<div class="line"><a id="l01931" name="l01931"></a><span class="lineno"> 1931</span> </div>
+<div class="line"><a id="l01932" name="l01932"></a><span class="lineno"> 1932</span>          v(4) = <a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
+<div class="line"><a id="l01933" name="l01933"></a><span class="lineno"> 1933</span>               this%elements(i)%e%pts(3)%p%x, &amp;</div>
+<div class="line"><a id="l01934" name="l01934"></a><span class="lineno"> 1934</span>               this%elements(i)%e%pts(2)%p%x, &amp;</div>
+<div class="line"><a id="l01935" name="l01935"></a><span class="lineno"> 1935</span>               this%elements(i)%e%pts(8)%p%x, &amp;</div>
+<div class="line"><a id="l01936" name="l01936"></a><span class="lineno"> 1936</span>               this%elements(i)%e%pts(4)%p%x &amp;</div>
+<div class="line"><a id="l01937" name="l01937"></a><span class="lineno"> 1937</span>               )</div>
+<div class="line"><a id="l01938" name="l01938"></a><span class="lineno"> 1938</span> </div>
+<div class="line"><a id="l01939" name="l01939"></a><span class="lineno"> 1939</span>          v(5) = -<a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
+<div class="line"><a id="l01940" name="l01940"></a><span class="lineno"> 1940</span>               this%elements(i)%e%pts(6)%p%x, &amp;</div>
+<div class="line"><a id="l01941" name="l01941"></a><span class="lineno"> 1941</span>               this%elements(i)%e%pts(7)%p%x, &amp;</div>
+<div class="line"><a id="l01942" name="l01942"></a><span class="lineno"> 1942</span>               this%elements(i)%e%pts(1)%p%x, &amp;</div>
+<div class="line"><a id="l01943" name="l01943"></a><span class="lineno"> 1943</span>               this%elements(i)%e%pts(5)%p%x &amp;</div>
+<div class="line"><a id="l01944" name="l01944"></a><span class="lineno"> 1944</span>               )</div>
+<div class="line"><a id="l01945" name="l01945"></a><span class="lineno"> 1945</span> </div>
+<div class="line"><a id="l01946" name="l01946"></a><span class="lineno"> 1946</span>          v(6) = -<a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
+<div class="line"><a id="l01947" name="l01947"></a><span class="lineno"> 1947</span>               this%elements(i)%e%pts(8)%p%x, &amp;</div>
+<div class="line"><a id="l01948" name="l01948"></a><span class="lineno"> 1948</span>               this%elements(i)%e%pts(5)%p%x, &amp;</div>
+<div class="line"><a id="l01949" name="l01949"></a><span class="lineno"> 1949</span>               this%elements(i)%e%pts(2)%p%x, &amp;</div>
+<div class="line"><a id="l01950" name="l01950"></a><span class="lineno"> 1950</span>               this%elements(i)%e%pts(6)%p%x &amp;</div>
+<div class="line"><a id="l01951" name="l01951"></a><span class="lineno"> 1951</span>               )</div>
+<div class="line"><a id="l01952" name="l01952"></a><span class="lineno"> 1952</span> </div>
+<div class="line"><a id="l01953" name="l01953"></a><span class="lineno"> 1953</span>          v(7) = -<a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
+<div class="line"><a id="l01954" name="l01954"></a><span class="lineno"> 1954</span>               this%elements(i)%e%pts(5)%p%x, &amp;</div>
+<div class="line"><a id="l01955" name="l01955"></a><span class="lineno"> 1955</span>               this%elements(i)%e%pts(8)%p%x, &amp;</div>
+<div class="line"><a id="l01956" name="l01956"></a><span class="lineno"> 1956</span>               this%elements(i)%e%pts(3)%p%x, &amp;</div>
+<div class="line"><a id="l01957" name="l01957"></a><span class="lineno"> 1957</span>               this%elements(i)%e%pts(7)%p%x &amp;</div>
+<div class="line"><a id="l01958" name="l01958"></a><span class="lineno"> 1958</span>               )</div>
+<div class="line"><a id="l01959" name="l01959"></a><span class="lineno"> 1959</span> </div>
+<div class="line"><a id="l01960" name="l01960"></a><span class="lineno"> 1960</span>          v(8) = -<a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>( &amp;</div>
+<div class="line"><a id="l01961" name="l01961"></a><span class="lineno"> 1961</span>               this%elements(i)%e%pts(7)%p%x, &amp;</div>
+<div class="line"><a id="l01962" name="l01962"></a><span class="lineno"> 1962</span>               this%elements(i)%e%pts(6)%p%x, &amp;</div>
+<div class="line"><a id="l01963" name="l01963"></a><span class="lineno"> 1963</span>               this%elements(i)%e%pts(4)%p%x, &amp;</div>
+<div class="line"><a id="l01964" name="l01964"></a><span class="lineno"> 1964</span>               this%elements(i)%e%pts(8)%p%x &amp;</div>
+<div class="line"><a id="l01965" name="l01965"></a><span class="lineno"> 1965</span>               )</div>
+<div class="line"><a id="l01966" name="l01966"></a><span class="lineno"> 1966</span> </div>
+<div class="line"><a id="l01967" name="l01967"></a><span class="lineno"> 1967</span>          <span class="keywordflow">if</span> (v(1) .le. 0.0_rp .or. &amp;</div>
+<div class="line"><a id="l01968" name="l01968"></a><span class="lineno"> 1968</span>               v(2) .le. 0.0_rp .or. &amp;</div>
+<div class="line"><a id="l01969" name="l01969"></a><span class="lineno"> 1969</span>               v(3) .le. 0.0_rp .or. &amp;</div>
+<div class="line"><a id="l01970" name="l01970"></a><span class="lineno"> 1970</span>               v(4) .le. 0.0_rp .or. &amp;</div>
+<div class="line"><a id="l01971" name="l01971"></a><span class="lineno"> 1971</span>               v(5) .le. 0.0_rp .or. &amp;</div>
+<div class="line"><a id="l01972" name="l01972"></a><span class="lineno"> 1972</span>               v(6) .le. 0.0_rp .or. &amp;</div>
+<div class="line"><a id="l01973" name="l01973"></a><span class="lineno"> 1973</span>               v(7) .le. 0.0_rp .or. &amp;</div>
+<div class="line"><a id="l01974" name="l01974"></a><span class="lineno"> 1974</span>               v(8) .le. 0.0_rp ) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01975" name="l01975"></a><span class="lineno"> 1975</span> </div>
+<div class="line"><a id="l01976" name="l01976"></a><span class="lineno"> 1976</span>             centroid = this%elements(i)%e%centroid()</div>
+<div class="line"><a id="l01977" name="l01977"></a><span class="lineno"> 1977</span> </div>
+<div class="line"><a id="l01978" name="l01978"></a><span class="lineno"> 1978</span>             <span class="keyword">write</span>(error_unit, <span class="stringliteral">&#39;(A, A, I0, A, 3G12.5)&#39;</span>) <span class="stringliteral">&quot;*** ERROR ***: &quot;</span>, &amp;</div>
+<div class="line"><a id="l01979" name="l01979"></a><span class="lineno"> 1979</span>                  <span class="stringliteral">&quot;Wrong orientation of mesh element &quot;</span>, i, &amp;</div>
+<div class="line"><a id="l01980" name="l01980"></a><span class="lineno"> 1980</span>                  <span class="stringliteral">&quot; with centroid &quot;</span>, centroid%x</div>
 <div class="line"><a id="l01981" name="l01981"></a><span class="lineno"> 1981</span> </div>
-<div class="foldopen" id="foldopen01990" data-start="" data-end="">
-<div class="line"><a id="l01990" name="l01990"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151"> 1990</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>(p1, p2, p3, origin) <span class="keyword">result</span>(v)</div>
-<div class="line"><a id="l01991" name="l01991"></a><span class="lineno"> 1991</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>), <span class="keywordtype">dimension(3)</span>, <span class="keywordtype">intent(in)</span> :: p1, p2, p3, origin</div>
-<div class="line"><a id="l01992" name="l01992"></a><span class="lineno"> 1992</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: v</div>
-<div class="line"><a id="l01993" name="l01993"></a><span class="lineno"> 1993</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: vp1(3), vp2(3), vp3(3), cross(3)</div>
-<div class="line"><a id="l01994" name="l01994"></a><span class="lineno"> 1994</span> </div>
-<div class="line"><a id="l01995" name="l01995"></a><span class="lineno"> 1995</span>    vp1 = p1 - origin</div>
-<div class="line"><a id="l01996" name="l01996"></a><span class="lineno"> 1996</span>    vp2 = p2 - origin</div>
-<div class="line"><a id="l01997" name="l01997"></a><span class="lineno"> 1997</span>    vp3 = p3 - origin</div>
-<div class="line"><a id="l01998" name="l01998"></a><span class="lineno"> 1998</span> </div>
-<div class="line"><a id="l01999" name="l01999"></a><span class="lineno"> 1999</span>    cross(1) = vp1(2)*vp2(3) - vp2(3)*vp1(2)</div>
-<div class="line"><a id="l02000" name="l02000"></a><span class="lineno"> 2000</span>    cross(2) = vp1(3)*vp2(1) - vp1(1)*vp2(3)</div>
-<div class="line"><a id="l02001" name="l02001"></a><span class="lineno"> 2001</span>    cross(3) = vp1(1)*vp2(2) - vp1(2)*vp2(1)</div>
-<div class="line"><a id="l02002" name="l02002"></a><span class="lineno"> 2002</span> </div>
-<div class="line"><a id="l02003" name="l02003"></a><span class="lineno"> 2003</span>    v = cross(1)*vp3(1) + cross(2)*vp3(2) + cross(3)*vp3(3)</div>
+<div class="line"><a id="l01982" name="l01982"></a><span class="lineno"> 1982</span>             fail = .true.</div>
+<div class="line"><a id="l01983" name="l01983"></a><span class="lineno"> 1983</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l01984" name="l01984"></a><span class="lineno"> 1984</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01985" name="l01985"></a><span class="lineno"> 1985</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01986" name="l01986"></a><span class="lineno"> 1986</span> </div>
+<div class="line"><a id="l01987" name="l01987"></a><span class="lineno"> 1987</span>    <span class="keywordflow">if</span> (fail) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01988" name="l01988"></a><span class="lineno"> 1988</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Some mesh elements are not right-handed&quot;</span>)</div>
+<div class="line"><a id="l01989" name="l01989"></a><span class="lineno"> 1989</span><span class="keywordflow">    end if</span></div>
+</div>
+<div class="line"><a id="l01990" name="l01990"></a><span class="lineno"> 1990</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#ad7445d7b579f359797327618f283f607">mesh_check_right_handedness</a></div>
+<div class="line"><a id="l01991" name="l01991"></a><span class="lineno"> 1991</span> </div>
+<div class="foldopen" id="foldopen02000" data-start="" data-end="">
+<div class="line"><a id="l02000" name="l02000"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151"> 2000</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a>(p1, p2, p3, origin) <span class="keyword">result</span>(v)</div>
+<div class="line"><a id="l02001" name="l02001"></a><span class="lineno"> 2001</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>), <span class="keywordtype">dimension(3)</span>, <span class="keywordtype">intent(in)</span> :: p1, p2, p3, origin</div>
+<div class="line"><a id="l02002" name="l02002"></a><span class="lineno"> 2002</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: v</div>
+<div class="line"><a id="l02003" name="l02003"></a><span class="lineno"> 2003</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: vp1(3), vp2(3), vp3(3), cross(3)</div>
 <div class="line"><a id="l02004" name="l02004"></a><span class="lineno"> 2004</span> </div>
+<div class="line"><a id="l02005" name="l02005"></a><span class="lineno"> 2005</span>    vp1 = p1 - origin</div>
+<div class="line"><a id="l02006" name="l02006"></a><span class="lineno"> 2006</span>    vp2 = p2 - origin</div>
+<div class="line"><a id="l02007" name="l02007"></a><span class="lineno"> 2007</span>    vp3 = p3 - origin</div>
+<div class="line"><a id="l02008" name="l02008"></a><span class="lineno"> 2008</span> </div>
+<div class="line"><a id="l02009" name="l02009"></a><span class="lineno"> 2009</span>    cross(1) = vp1(2)*vp2(3) - vp2(3)*vp1(2)</div>
+<div class="line"><a id="l02010" name="l02010"></a><span class="lineno"> 2010</span>    cross(2) = vp1(3)*vp2(1) - vp1(1)*vp2(3)</div>
+<div class="line"><a id="l02011" name="l02011"></a><span class="lineno"> 2011</span>    cross(3) = vp1(1)*vp2(2) - vp1(2)*vp2(1)</div>
+<div class="line"><a id="l02012" name="l02012"></a><span class="lineno"> 2012</span> </div>
+<div class="line"><a id="l02013" name="l02013"></a><span class="lineno"> 2013</span>    v = cross(1)*vp3(1) + cross(2)*vp3(2) + cross(3)*vp3(3)</div>
+<div class="line"><a id="l02014" name="l02014"></a><span class="lineno"> 2014</span> </div>
 </div>
-<div class="line"><a id="l02005" name="l02005"></a><span class="lineno"> 2005</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a></div>
-<div class="line"><a id="l02006" name="l02006"></a><span class="lineno"> 2006</span> </div>
-<div class="foldopen" id="foldopen02016" data-start="" data-end="">
-<div class="line"><a id="l02016" name="l02016"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577"> 2016</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577">mesh_subset_by_mask</a>(this, other, mask, lx, ly, lz)</div>
-<div class="line"><a id="l02017" name="l02017"></a><span class="lineno"> 2017</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l02018" name="l02018"></a><span class="lineno"> 2018</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: other</div>
-<div class="line"><a id="l02019" name="l02019"></a><span class="lineno"> 2019</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: mask</div>
-<div class="line"><a id="l02020" name="l02020"></a><span class="lineno"> 2020</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: lx, ly, lz</div>
-<div class="line"><a id="l02021" name="l02021"></a><span class="lineno"> 2021</span>    <span class="keywordtype">integer</span> :: i, j, k, nelv, lxyz, gdim, e_m, nidx(4), nelv_c, el_c, el, i_m</div>
-<div class="line"><a id="l02022" name="l02022"></a><span class="lineno"> 2022</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: p(8)</div>
-<div class="line"><a id="l02023" name="l02023"></a><span class="lineno"> 2023</span>    <span class="keywordtype">integer</span> :: p_id = 1</div>
-<div class="line"><a id="l02024" name="l02024"></a><span class="lineno"> 2024</span> </div>
-<div class="line"><a id="l02025" name="l02025"></a><span class="lineno"> 2025</span>    <span class="keyword">call </span>other%free()</div>
-<div class="line"><a id="l02026" name="l02026"></a><span class="lineno"> 2026</span>    lxyz = lx * ly * lz</div>
-<div class="line"><a id="l02027" name="l02027"></a><span class="lineno"> 2027</span> </div>
-<div class="line"><a id="l02028" name="l02028"></a><span class="lineno"> 2028</span>    <span class="comment">! Initialize</span></div>
-<div class="line"><a id="l02029" name="l02029"></a><span class="lineno"> 2029</span>    nelv = <a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>%size()/lxyz</div>
-<div class="line"><a id="l02030" name="l02030"></a><span class="lineno"> 2030</span>    <span class="keyword">call </span>other%init(this%gdim, nelv)</div>
-<div class="line"><a id="l02031" name="l02031"></a><span class="lineno"> 2031</span> </div>
-<div class="line"><a id="l02032" name="l02032"></a><span class="lineno"> 2032</span>    <span class="comment">! Assign the elements</span></div>
-<div class="line"><a id="l02033" name="l02033"></a><span class="lineno"> 2033</span>    <span class="keywordflow">if</span> (other%gdim .eq. 2) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l02034" name="l02034"></a><span class="lineno"> 2034</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Subset mesh not implemented for 2d&quot;</span>)</div>
-<div class="line"><a id="l02035" name="l02035"></a><span class="lineno"> 2035</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (other%gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l02036" name="l02036"></a><span class="lineno"> 2036</span>       <span class="keywordflow">do</span> el = 1, nelv</div>
-<div class="line"><a id="l02037" name="l02037"></a><span class="lineno"> 2037</span>          i_m = 1 + lxyz * (el - 1)</div>
-<div class="line"><a id="l02038" name="l02038"></a><span class="lineno"> 2038</span>          nidx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(<a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>%get(i_m), lx, ly, lz)</div>
-<div class="line"><a id="l02039" name="l02039"></a><span class="lineno"> 2039</span>          e_m = nidx(4) <span class="comment">! Actual element from the original mesh</span></div>
-<div class="line"><a id="l02040" name="l02040"></a><span class="lineno"> 2040</span>          <span class="comment">! Retrieve the points form the other mesh.</span></div>
-<div class="line"><a id="l02041" name="l02041"></a><span class="lineno"> 2041</span>          <span class="comment">! No need to shift points, since original</span></div>
-<div class="line"><a id="l02042" name="l02042"></a><span class="lineno"> 2042</span>          <span class="comment">! mesh has done it.</span></div>
-<div class="line"><a id="l02043" name="l02043"></a><span class="lineno"> 2043</span>          <span class="comment">! Had to use a new point id to avoid issues at</span></div>
-<div class="line"><a id="l02044" name="l02044"></a><span class="lineno"> 2044</span>          <span class="comment">! periodic boundaries</span></div>
-<div class="line"><a id="l02045" name="l02045"></a><span class="lineno"> 2045</span>          <span class="comment">! But this means that all points might be incorrectly</span></div>
-<div class="line"><a id="l02046" name="l02046"></a><span class="lineno"> 2046</span>          <span class="comment">! marked as unique.</span></div>
-<div class="line"><a id="l02047" name="l02047"></a><span class="lineno"> 2047</span>          <span class="keywordflow">do</span> j = 1, 8</div>
-<div class="line"><a id="l02048" name="l02048"></a><span class="lineno"> 2048</span>             <span class="keyword">call </span>p(j)%init(this%elements(e_m)%e%pts(j)%p%x, p_id)</div>
-<div class="line"><a id="l02049" name="l02049"></a><span class="lineno"> 2049</span>             p_id = p_id + 1</div>
-<div class="line"><a id="l02050" name="l02050"></a><span class="lineno"> 2050</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l02051" name="l02051"></a><span class="lineno"> 2051</span> </div>
-<div class="line"><a id="l02052" name="l02052"></a><span class="lineno"> 2052</span>          <span class="keyword">call </span>other%add_element(el, el + other%offset_el, &amp;</div>
-<div class="line"><a id="l02053" name="l02053"></a><span class="lineno"> 2053</span>               p(1), p(2), p(3), p(4), &amp;</div>
-<div class="line"><a id="l02054" name="l02054"></a><span class="lineno"> 2054</span>               p(5), p(6), p(7), p(8))</div>
-<div class="line"><a id="l02055" name="l02055"></a><span class="lineno"> 2055</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l02056" name="l02056"></a><span class="lineno"> 2056</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l02057" name="l02057"></a><span class="lineno"> 2057</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid dimension of mesh&#39;</span>)</div>
-<div class="line"><a id="l02058" name="l02058"></a><span class="lineno"> 2058</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l02059" name="l02059"></a><span class="lineno"> 2059</span> </div>
-<div class="line"><a id="l02060" name="l02060"></a><span class="lineno"> 2060</span>    <span class="comment">! Skip searching for boundaries.</span></div>
+<div class="line"><a id="l02015" name="l02015"></a><span class="lineno"> 2015</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">parallelepiped_signed_volume</a></div>
+<div class="line"><a id="l02016" name="l02016"></a><span class="lineno"> 2016</span> </div>
+<div class="foldopen" id="foldopen02026" data-start="" data-end="">
+<div class="line"><a id="l02026" name="l02026"></a><span class="lineno"><a class="line" href="../../db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577"> 2026</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577">mesh_subset_by_mask</a>(this, other, mask, lx, ly, lz)</div>
+<div class="line"><a id="l02027" name="l02027"></a><span class="lineno"> 2027</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l02028" name="l02028"></a><span class="lineno"> 2028</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <span class="keywordtype">intent(inout)</span> :: other</div>
+<div class="line"><a id="l02029" name="l02029"></a><span class="lineno"> 2029</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <span class="keywordtype">intent(in)</span> :: mask</div>
+<div class="line"><a id="l02030" name="l02030"></a><span class="lineno"> 2030</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: lx, ly, lz</div>
+<div class="line"><a id="l02031" name="l02031"></a><span class="lineno"> 2031</span>    <span class="keywordtype">integer</span> :: i, j, k, nelv, lxyz, gdim, e_m, nidx(4), nelv_c, el_c, el, i_m</div>
+<div class="line"><a id="l02032" name="l02032"></a><span class="lineno"> 2032</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../db/d6f/structpoint_1_1point__t.html">point_t</a>) :: p(8)</div>
+<div class="line"><a id="l02033" name="l02033"></a><span class="lineno"> 2033</span>    <span class="keywordtype">integer</span> :: p_id = 1</div>
+<div class="line"><a id="l02034" name="l02034"></a><span class="lineno"> 2034</span> </div>
+<div class="line"><a id="l02035" name="l02035"></a><span class="lineno"> 2035</span>    <span class="keyword">call </span>other%free()</div>
+<div class="line"><a id="l02036" name="l02036"></a><span class="lineno"> 2036</span>    lxyz = lx * ly * lz</div>
+<div class="line"><a id="l02037" name="l02037"></a><span class="lineno"> 2037</span> </div>
+<div class="line"><a id="l02038" name="l02038"></a><span class="lineno"> 2038</span>    <span class="comment">! Initialize</span></div>
+<div class="line"><a id="l02039" name="l02039"></a><span class="lineno"> 2039</span>    nelv = <a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>%size()/lxyz</div>
+<div class="line"><a id="l02040" name="l02040"></a><span class="lineno"> 2040</span>    <span class="keyword">call </span>other%init(this%gdim, nelv)</div>
+<div class="line"><a id="l02041" name="l02041"></a><span class="lineno"> 2041</span> </div>
+<div class="line"><a id="l02042" name="l02042"></a><span class="lineno"> 2042</span>    <span class="comment">! Assign the elements</span></div>
+<div class="line"><a id="l02043" name="l02043"></a><span class="lineno"> 2043</span>    <span class="keywordflow">if</span> (other%gdim .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l02044" name="l02044"></a><span class="lineno"> 2044</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Subset mesh not implemented for 2d&quot;</span>)</div>
+<div class="line"><a id="l02045" name="l02045"></a><span class="lineno"> 2045</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (other%gdim .eq. 3) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l02046" name="l02046"></a><span class="lineno"> 2046</span>       <span class="keywordflow">do</span> el = 1, nelv</div>
+<div class="line"><a id="l02047" name="l02047"></a><span class="lineno"> 2047</span>          i_m = 1 + lxyz * (el - 1)</div>
+<div class="line"><a id="l02048" name="l02048"></a><span class="lineno"> 2048</span>          nidx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(<a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>%get(i_m), lx, ly, lz)</div>
+<div class="line"><a id="l02049" name="l02049"></a><span class="lineno"> 2049</span>          e_m = nidx(4) <span class="comment">! Actual element from the original mesh</span></div>
+<div class="line"><a id="l02050" name="l02050"></a><span class="lineno"> 2050</span>          <span class="comment">! Retrieve the points form the other mesh.</span></div>
+<div class="line"><a id="l02051" name="l02051"></a><span class="lineno"> 2051</span>          <span class="comment">! No need to shift points, since original</span></div>
+<div class="line"><a id="l02052" name="l02052"></a><span class="lineno"> 2052</span>          <span class="comment">! mesh has done it.</span></div>
+<div class="line"><a id="l02053" name="l02053"></a><span class="lineno"> 2053</span>          <span class="comment">! Had to use a new point id to avoid issues at</span></div>
+<div class="line"><a id="l02054" name="l02054"></a><span class="lineno"> 2054</span>          <span class="comment">! periodic boundaries</span></div>
+<div class="line"><a id="l02055" name="l02055"></a><span class="lineno"> 2055</span>          <span class="comment">! But this means that all points might be incorrectly</span></div>
+<div class="line"><a id="l02056" name="l02056"></a><span class="lineno"> 2056</span>          <span class="comment">! marked as unique.</span></div>
+<div class="line"><a id="l02057" name="l02057"></a><span class="lineno"> 2057</span>          <span class="keywordflow">do</span> j = 1, 8</div>
+<div class="line"><a id="l02058" name="l02058"></a><span class="lineno"> 2058</span>             <span class="keyword">call </span>p(j)%init(this%elements(e_m)%e%pts(j)%p%x, p_id)</div>
+<div class="line"><a id="l02059" name="l02059"></a><span class="lineno"> 2059</span>             p_id = p_id + 1</div>
+<div class="line"><a id="l02060" name="l02060"></a><span class="lineno"> 2060</span><span class="keywordflow">          end do</span></div>
 <div class="line"><a id="l02061" name="l02061"></a><span class="lineno"> 2061</span> </div>
-<div class="line"><a id="l02062" name="l02062"></a><span class="lineno"> 2062</span>    <span class="comment">! Update the curvature</span></div>
-<div class="line"><a id="l02063" name="l02063"></a><span class="lineno"> 2063</span>    nelv_c = this%curve%size</div>
-<div class="line"><a id="l02064" name="l02064"></a><span class="lineno"> 2064</span>    <span class="keywordflow">if</span> (nelv_c .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l02065" name="l02065"></a><span class="lineno"> 2065</span>       el_c = 1</div>
-<div class="line"><a id="l02066" name="l02066"></a><span class="lineno"> 2066</span>       el = 1</div>
-<div class="line"><a id="l02067" name="l02067"></a><span class="lineno"> 2067</span>       <span class="comment">! 2 pointer scan</span></div>
-<div class="line"><a id="l02068" name="l02068"></a><span class="lineno"> 2068</span>       <span class="keywordflow">do</span> <span class="keywordflow">while</span> (el .le. nelv .and. el_c .le. nelv_c)</div>
+<div class="line"><a id="l02062" name="l02062"></a><span class="lineno"> 2062</span>          <span class="keyword">call </span>other%add_element(el, el + other%offset_el, &amp;</div>
+<div class="line"><a id="l02063" name="l02063"></a><span class="lineno"> 2063</span>               p(1), p(2), p(3), p(4), &amp;</div>
+<div class="line"><a id="l02064" name="l02064"></a><span class="lineno"> 2064</span>               p(5), p(6), p(7), p(8))</div>
+<div class="line"><a id="l02065" name="l02065"></a><span class="lineno"> 2065</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l02066" name="l02066"></a><span class="lineno"> 2066</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l02067" name="l02067"></a><span class="lineno"> 2067</span>       <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid dimension of mesh&#39;</span>)</div>
+<div class="line"><a id="l02068" name="l02068"></a><span class="lineno"> 2068</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l02069" name="l02069"></a><span class="lineno"> 2069</span> </div>
-<div class="line"><a id="l02070" name="l02070"></a><span class="lineno"> 2070</span>          i_m = 1 + lxyz * (el - 1)</div>
-<div class="line"><a id="l02071" name="l02071"></a><span class="lineno"> 2071</span>          nidx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(<a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>%get(i_m), lx, ly, lz)</div>
-<div class="line"><a id="l02072" name="l02072"></a><span class="lineno"> 2072</span>          e_m = nidx(4)</div>
-<div class="line"><a id="l02073" name="l02073"></a><span class="lineno"> 2073</span> </div>
-<div class="line"><a id="l02074" name="l02074"></a><span class="lineno"> 2074</span>          <span class="keywordflow">if</span> (e_m .lt. this%curve%curve_el(el_c)%el_idx) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l02075" name="l02075"></a><span class="lineno"> 2075</span>             el = el + 1</div>
-<div class="line"><a id="l02076" name="l02076"></a><span class="lineno"> 2076</span> </div>
-<div class="line"><a id="l02077" name="l02077"></a><span class="lineno"> 2077</span>          <span class="keywordflow">else</span> <span class="keywordflow">if</span> (e_m .gt. this%curve%curve_el(el_c)%el_idx) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l02078" name="l02078"></a><span class="lineno"> 2078</span>             el_c = el_c + 1</div>
+<div class="line"><a id="l02070" name="l02070"></a><span class="lineno"> 2070</span>    <span class="comment">! Skip searching for boundaries.</span></div>
+<div class="line"><a id="l02071" name="l02071"></a><span class="lineno"> 2071</span> </div>
+<div class="line"><a id="l02072" name="l02072"></a><span class="lineno"> 2072</span>    <span class="comment">! Update the curvature</span></div>
+<div class="line"><a id="l02073" name="l02073"></a><span class="lineno"> 2073</span>    nelv_c = this%curve%size</div>
+<div class="line"><a id="l02074" name="l02074"></a><span class="lineno"> 2074</span>    <span class="keywordflow">if</span> (nelv_c .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l02075" name="l02075"></a><span class="lineno"> 2075</span>       el_c = 1</div>
+<div class="line"><a id="l02076" name="l02076"></a><span class="lineno"> 2076</span>       el = 1</div>
+<div class="line"><a id="l02077" name="l02077"></a><span class="lineno"> 2077</span>       <span class="comment">! 2 pointer scan</span></div>
+<div class="line"><a id="l02078" name="l02078"></a><span class="lineno"> 2078</span>       <span class="keywordflow">do</span> <span class="keywordflow">while</span> (el .le. nelv .and. el_c .le. nelv_c)</div>
 <div class="line"><a id="l02079" name="l02079"></a><span class="lineno"> 2079</span> </div>
-<div class="line"><a id="l02080" name="l02080"></a><span class="lineno"> 2080</span>          <span class="keywordflow">else</span></div>
-<div class="line"><a id="l02081" name="l02081"></a><span class="lineno"> 2081</span>             <span class="keyword">call </span>other%mark_curve_element(el, &amp;</div>
-<div class="line"><a id="l02082" name="l02082"></a><span class="lineno"> 2082</span>                  this%curve%curve_el(el_c)%curve_data, &amp;</div>
-<div class="line"><a id="l02083" name="l02083"></a><span class="lineno"> 2083</span>                  this%curve%curve_el(el_c)%curve_type)</div>
-<div class="line"><a id="l02084" name="l02084"></a><span class="lineno"> 2084</span>             el = el + 1</div>
-<div class="line"><a id="l02085" name="l02085"></a><span class="lineno"> 2085</span>             el_c = el_c + 1</div>
-<div class="line"><a id="l02086" name="l02086"></a><span class="lineno"> 2086</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l02087" name="l02087"></a><span class="lineno"> 2087</span> </div>
-<div class="line"><a id="l02088" name="l02088"></a><span class="lineno"> 2088</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l02089" name="l02089"></a><span class="lineno"> 2089</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l02090" name="l02090"></a><span class="lineno"> 2090</span> </div>
-<div class="line"><a id="l02091" name="l02091"></a><span class="lineno"> 2091</span>    <span class="comment">! Finalize</span></div>
-<div class="line"><a id="l02092" name="l02092"></a><span class="lineno"> 2092</span>    <span class="keyword">call </span>other%finalize()</div>
-<div class="line"><a id="l02093" name="l02093"></a><span class="lineno"> 2093</span> </div>
-<div class="line"><a id="l02094" name="l02094"></a><span class="lineno"> 2094</span>    other%is_submesh = .true.</div>
-<div class="line"><a id="l02095" name="l02095"></a><span class="lineno"> 2095</span> </div>
-</div>
-<div class="line"><a id="l02096" name="l02096"></a><span class="lineno"> 2096</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577">mesh_subset_by_mask</a></div>
+<div class="line"><a id="l02080" name="l02080"></a><span class="lineno"> 2080</span>          i_m = 1 + lxyz * (el - 1)</div>
+<div class="line"><a id="l02081" name="l02081"></a><span class="lineno"> 2081</span>          nidx = <a class="code hl_function" href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a>(<a class="code hl_namespace" href="../../d3/d17/namespacemask.html">mask</a>%get(i_m), lx, ly, lz)</div>
+<div class="line"><a id="l02082" name="l02082"></a><span class="lineno"> 2082</span>          e_m = nidx(4)</div>
+<div class="line"><a id="l02083" name="l02083"></a><span class="lineno"> 2083</span> </div>
+<div class="line"><a id="l02084" name="l02084"></a><span class="lineno"> 2084</span>          <span class="keywordflow">if</span> (e_m .lt. this%curve%curve_el(el_c)%el_idx) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l02085" name="l02085"></a><span class="lineno"> 2085</span>             el = el + 1</div>
+<div class="line"><a id="l02086" name="l02086"></a><span class="lineno"> 2086</span> </div>
+<div class="line"><a id="l02087" name="l02087"></a><span class="lineno"> 2087</span>          <span class="keywordflow">else</span> <span class="keywordflow">if</span> (e_m .gt. this%curve%curve_el(el_c)%el_idx) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l02088" name="l02088"></a><span class="lineno"> 2088</span>             el_c = el_c + 1</div>
+<div class="line"><a id="l02089" name="l02089"></a><span class="lineno"> 2089</span> </div>
+<div class="line"><a id="l02090" name="l02090"></a><span class="lineno"> 2090</span>          <span class="keywordflow">else</span></div>
+<div class="line"><a id="l02091" name="l02091"></a><span class="lineno"> 2091</span>             <span class="keyword">call </span>other%mark_curve_element(el, &amp;</div>
+<div class="line"><a id="l02092" name="l02092"></a><span class="lineno"> 2092</span>                  this%curve%curve_el(el_c)%curve_data, &amp;</div>
+<div class="line"><a id="l02093" name="l02093"></a><span class="lineno"> 2093</span>                  this%curve%curve_el(el_c)%curve_type)</div>
+<div class="line"><a id="l02094" name="l02094"></a><span class="lineno"> 2094</span>             el = el + 1</div>
+<div class="line"><a id="l02095" name="l02095"></a><span class="lineno"> 2095</span>             el_c = el_c + 1</div>
+<div class="line"><a id="l02096" name="l02096"></a><span class="lineno"> 2096</span><span class="keywordflow">          end if</span></div>
 <div class="line"><a id="l02097" name="l02097"></a><span class="lineno"> 2097</span> </div>
-<div class="line"><a id="l02098" name="l02098"></a><span class="lineno"> 2098</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../db/dfc/namespacemesh.html">mesh</a></div>
+<div class="line"><a id="l02098" name="l02098"></a><span class="lineno"> 2098</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l02099" name="l02099"></a><span class="lineno"> 2099</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l02100" name="l02100"></a><span class="lineno"> 2100</span> </div>
+<div class="line"><a id="l02101" name="l02101"></a><span class="lineno"> 2101</span>    <span class="comment">! Finalize</span></div>
+<div class="line"><a id="l02102" name="l02102"></a><span class="lineno"> 2102</span>    <span class="keyword">call </span>other%finalize()</div>
+<div class="line"><a id="l02103" name="l02103"></a><span class="lineno"> 2103</span> </div>
+<div class="line"><a id="l02104" name="l02104"></a><span class="lineno"> 2104</span>    other%is_submesh = .true.</div>
+<div class="line"><a id="l02105" name="l02105"></a><span class="lineno"> 2105</span> </div>
+</div>
+<div class="line"><a id="l02106" name="l02106"></a><span class="lineno"> 2106</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577">mesh_subset_by_mask</a></div>
+<div class="line"><a id="l02107" name="l02107"></a><span class="lineno"> 2107</span> </div>
+<div class="line"><a id="l02108" name="l02108"></a><span class="lineno"> 2108</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../db/dfc/namespacemesh.html">mesh</a></div>
 <div class="ttc" id="acuda_2bc__utils_8h_html_a97af2a5f58e9e047d747424d0f89132d"><div class="ttname"><a href="../../d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">nonlinear_index</a></div><div class="ttdeci">__inline__ __device__ void nonlinear_index(const int idx, const int lx, int *index)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/d74/cuda_2bc__utils_8h_source.html#l00044">bc_utils.h:44</a></div></div>
 <div class="ttc" id="ainterfacemath_1_1abscmp_html"><div class="ttname"><a href="../../de/d34/interfacemath_1_1abscmp.html">math::abscmp</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00078">math.f90:78</a></div></div>
 <div class="ttc" id="ainterfacemesh_1_1mesh__deform_html"><div class="ttname"><a href="../../d9/db3/interfacemesh_1_1mesh__deform.html">mesh::mesh_deform</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00174">mesh.f90:174</a></div></div>
@@ -2225,41 +2235,41 @@ $(document).ready(function(){initNavTree('de/d0a/mesh_8f90_source.html','../../'
 <div class="ttc" id="anamespacemesh_html_a000e4a4dd37ff5e6b9a914d2b538705f"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a000e4a4dd37ff5e6b9a914d2b538705f">mesh::mesh_generate_flags</a></div><div class="ttdeci">subroutine mesh_generate_flags(this)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00424">mesh.f90:425</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a18664cc50a3043167f74ea0da7291237"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a18664cc50a3043167f74ea0da7291237">mesh::mesh_generate_facet_numbering</a></div><div class="ttdeci">subroutine mesh_generate_facet_numbering(this)</div><div class="ttdoc">Generate a unique facet numbering.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01155">mesh.f90:1156</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a18c5812c7d48ae7807feb209f54c567c"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a18c5812c7d48ae7807feb209f54c567c">mesh::mesh_init_dist</a></div><div class="ttdeci">subroutine mesh_init_dist(this, gdim, dist)</div><div class="ttdoc">Initialise a mesh this based on a distribution dist.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00220">mesh.f90:221</a></div></div>
-<div class="ttc" id="anamespacemesh_html_a18e0ec9e252da45afddf3049b5a2aa07"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a18e0ec9e252da45afddf3049b5a2aa07">mesh::mesh_is_shared_point</a></div><div class="ttdeci">logical function mesh_is_shared_point(this, p)</div><div class="ttdoc">Check if a point is shared.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01849">mesh.f90:1850</a></div></div>
+<div class="ttc" id="anamespacemesh_html_a18e0ec9e252da45afddf3049b5a2aa07"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a18e0ec9e252da45afddf3049b5a2aa07">mesh::mesh_is_shared_point</a></div><div class="ttdeci">logical function mesh_is_shared_point(this, p)</div><div class="ttdoc">Check if a point is shared.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01859">mesh.f90:1860</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a1be52124a36c4199f586988ce76e2b01"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a1be52124a36c4199f586988ce76e2b01">mesh::neko_msh_max_zlbls</a></div><div class="ttdeci">integer, parameter, public neko_msh_max_zlbls</div><div class="ttdoc">Max num. zone labels.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00064">mesh.f90:64</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a261b4280770e18ab5e979b5167941a92"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a261b4280770e18ab5e979b5167941a92">mesh::mesh_add_face</a></div><div class="ttdeci">subroutine mesh_add_face(this, f)</div><div class="ttdoc">Add a unique face represented as a 4-tuple to the mesh.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01489">mesh.f90:1490</a></div></div>
-<div class="ttc" id="anamespacemesh_html_a352d66cbbefa58780f0c986f1e0e983a"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a352d66cbbefa58780f0c986f1e0e983a">mesh::mesh_get_global_edge</a></div><div class="ttdeci">integer function mesh_get_global_edge(this, e)</div><div class="ttdoc">Return the global id of an edge e.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01799">mesh.f90:1800</a></div></div>
+<div class="ttc" id="anamespacemesh_html_a352d66cbbefa58780f0c986f1e0e983a"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a352d66cbbefa58780f0c986f1e0e983a">mesh::mesh_get_global_edge</a></div><div class="ttdeci">integer function mesh_get_global_edge(this, e)</div><div class="ttdoc">Return the global id of an edge e.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01809">mesh.f90:1810</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a35d97ddb7d486cd79f3c1e4ee4ea2cfc"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a35d97ddb7d486cd79f3c1e4ee4ea2cfc">mesh::mesh_generate_edge_conn</a></div><div class="ttdeci">subroutine mesh_generate_edge_conn(this)</div><div class="ttdoc">Generate element-element connectivity via edges both between internal and between PEs.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00912">mesh.f90:913</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a3948f376c1d300474de09c3983bf63e6"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a3948f376c1d300474de09c3983bf63e6">mesh::mesh_add_edge</a></div><div class="ttdeci">subroutine mesh_add_edge(this, e)</div><div class="ttdoc">Add a unique edge represented as a 2-tuple to the mesh.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01502">mesh.f90:1503</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a44d50eed4cbb57cb3d049c2e6b8f40bc"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a44d50eed4cbb57cb3d049c2e6b8f40bc">mesh::mesh_add_point</a></div><div class="ttdeci">subroutine mesh_add_point(this, p, idx)</div><div class="ttdoc">Add a unique point to the mesh.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01465">mesh.f90:1466</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a50713d8a47ce62278786db9df61c1c28"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a50713d8a47ce62278786db9df61c1c28">mesh::mesh_free</a></div><div class="ttdeci">subroutine mesh_free(this)</div><div class="ttdoc">Deallocate a mesh this.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00331">mesh.f90:332</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a5a9eae917e07b024e8b94de82fe83859"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a5a9eae917e07b024e8b94de82fe83859">mesh::mesh_mark_labeled_facet</a></div><div class="ttdeci">subroutine mesh_mark_labeled_facet(this, f, e, label)</div><div class="ttdoc">Mark facet f in element e with label.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01532">mesh.f90:1533</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a5b54a5ff085b565020f2c7ab6077fe50"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a5b54a5ff085b565020f2c7ab6077fe50">mesh::mesh_add_quad</a></div><div class="ttdeci">subroutine mesh_add_quad(this, el, el_glb, p1, p2, p3, p4)</div><div class="ttdoc">Add a quadrilateral element to the mesh this.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01393">mesh.f90:1394</a></div></div>
-<div class="ttc" id="anamespacemesh_html_a5ba533721b041548bfa9c2d163124151"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">mesh::parallelepiped_signed_volume</a></div><div class="ttdeci">real(kind=dp) function, public parallelepiped_signed_volume(p1, p2, p3, origin)</div><div class="ttdoc">Compute a signed volume of a parallelepiped formed by three vectors, in turn defined via three points...</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01990">mesh.f90:1991</a></div></div>
+<div class="ttc" id="anamespacemesh_html_a5ba533721b041548bfa9c2d163124151"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151">mesh::parallelepiped_signed_volume</a></div><div class="ttdeci">real(kind=dp) function, public parallelepiped_signed_volume(p1, p2, p3, origin)</div><div class="ttdoc">Compute a signed volume of a parallelepiped formed by three vectors, in turn defined via three points...</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l02000">mesh.f90:2001</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a6174f191806cc80974be1c3d763e5151"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a6174f191806cc80974be1c3d763e5151">mesh::neko_msh_max_zlbl_len</a></div><div class="ttdeci">integer, parameter, public neko_msh_max_zlbl_len</div><div class="ttdoc">Max length of a zone label.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00066">mesh.f90:66</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a631f6d53e1dfc9170d456dec2b3b6008"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a631f6d53e1dfc9170d456dec2b3b6008">mesh::mesh_mark_periodic_facet</a></div><div class="ttdeci">subroutine mesh_mark_periodic_facet(this, f, e, pf, pe, pids)</div><div class="ttdoc">Mark facet f in element e as periodic with (pf, pe)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01552">mesh.f90:1553</a></div></div>
-<div class="ttc" id="anamespacemesh_html_a71ad476dec25f957ddfd536f2b2d12a7"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a71ad476dec25f957ddfd536f2b2d12a7">mesh::mesh_get_local_edge</a></div><div class="ttdeci">integer function mesh_get_local_edge(this, e)</div><div class="ttdoc">Return the local id of an edge e.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01775">mesh.f90:1776</a></div></div>
+<div class="ttc" id="anamespacemesh_html_a71ad476dec25f957ddfd536f2b2d12a7"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a71ad476dec25f957ddfd536f2b2d12a7">mesh::mesh_get_local_edge</a></div><div class="ttdeci">integer function mesh_get_local_edge(this, e)</div><div class="ttdoc">Return the local id of an edge e.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01785">mesh.f90:1786</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a7703dc4d65928286603d79bf1b218a46"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a7703dc4d65928286603d79bf1b218a46">mesh::mesh_all_deformed</a></div><div class="ttdeci">subroutine mesh_all_deformed(this)</div><div class="ttdoc">Set all elements as if they are deformed.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00457">mesh.f90:458</a></div></div>
-<div class="ttc" id="anamespacemesh_html_a7bf30dfab024520de1e417f0ab184946"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a7bf30dfab024520de1e417f0ab184946">mesh::mesh_is_shared_edge</a></div><div class="ttdeci">logical function mesh_is_shared_edge(this, e)</div><div class="ttdoc">Check if an edge is shared.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01863">mesh.f90:1864</a></div></div>
+<div class="ttc" id="anamespacemesh_html_a7bf30dfab024520de1e417f0ab184946"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a7bf30dfab024520de1e417f0ab184946">mesh::mesh_is_shared_edge</a></div><div class="ttdeci">logical function mesh_is_shared_edge(this, e)</div><div class="ttdoc">Check if an edge is shared.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01873">mesh.f90:1874</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a84fb89799d74a310f3612f5334cf5b74"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a84fb89799d74a310f3612f5334cf5b74">mesh::mesh_init_common</a></div><div class="ttdeci">subroutine mesh_init_common(this)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00241">mesh.f90:242</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a85bc3b570faf405b6465b75eb87aaab5"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a85bc3b570faf405b6465b75eb87aaab5">mesh::mesh_get_facet_ids</a></div><div class="ttdeci">subroutine mesh_get_facet_ids(this, f, e, pids)</div><div class="ttdoc">Get original ids of periodic points.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01566">mesh.f90:1567</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a902cff461359f6d7673ee57d2191d41d"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a902cff461359f6d7673ee57d2191d41d">mesh::mesh_create_periodic_ids</a></div><div class="ttdeci">subroutine mesh_create_periodic_ids(this, f, e, pf, pe)</div><div class="ttdoc">Creates common ids for matching periodic points.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01642">mesh.f90:1643</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a928322e5f872129051a18bb1c0b97081"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a928322e5f872129051a18bb1c0b97081">mesh::mesh_reset_periodic_ids</a></div><div class="ttdeci">subroutine mesh_reset_periodic_ids(this)</div><div class="ttdoc">Reset ids of periodic points to their original ids.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01589">mesh.f90:1590</a></div></div>
 <div class="ttc" id="anamespacemesh_html_a9af024aab70a8f87cca5f68e9625a361"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#a9af024aab70a8f87cca5f68e9625a361">mesh::mesh_init_nelv</a></div><div class="ttdeci">subroutine mesh_init_nelv(this, gdim, nelv)</div><div class="ttdoc">Initialise a mesh this with nelv elements.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00191">mesh.f90:192</a></div></div>
-<div class="ttc" id="anamespacemesh_html_aa4ba3e8c450a20cc5d8a45a6f0c5fdb2"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#aa4ba3e8c450a20cc5d8a45a6f0c5fdb2">mesh::mesh_is_shared_facet</a></div><div class="ttdeci">logical function mesh_is_shared_facet(this, f)</div><div class="ttdoc">Check if a facet is shared.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01877">mesh.f90:1878</a></div></div>
-<div class="ttc" id="anamespacemesh_html_aa8bcf197f80e19e6013b1007fe624ef3"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#aa8bcf197f80e19e6013b1007fe624ef3">mesh::mesh_get_global_facet</a></div><div class="ttdeci">integer function mesh_get_global_facet(this, f)</div><div class="ttdoc">Return the local id of a face f.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01819">mesh.f90:1820</a></div></div>
-<div class="ttc" id="anamespacemesh_html_aab81a33ee12092f3d0d825d2010de3d1"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1">mesh::mesh_have_point_glb_idx</a></div><div class="ttdeci">integer function mesh_have_point_glb_idx(this, index)</div><div class="ttdoc">Check if the mesh has a point given its global index.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01836">mesh.f90:1837</a></div></div>
+<div class="ttc" id="anamespacemesh_html_aa4ba3e8c450a20cc5d8a45a6f0c5fdb2"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#aa4ba3e8c450a20cc5d8a45a6f0c5fdb2">mesh::mesh_is_shared_facet</a></div><div class="ttdeci">logical function mesh_is_shared_facet(this, f)</div><div class="ttdoc">Check if a facet is shared.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01887">mesh.f90:1888</a></div></div>
+<div class="ttc" id="anamespacemesh_html_aa8bcf197f80e19e6013b1007fe624ef3"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#aa8bcf197f80e19e6013b1007fe624ef3">mesh::mesh_get_global_facet</a></div><div class="ttdeci">integer function mesh_get_global_facet(this, f)</div><div class="ttdoc">Return the local id of a face f.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01829">mesh.f90:1830</a></div></div>
+<div class="ttc" id="anamespacemesh_html_aab81a33ee12092f3d0d825d2010de3d1"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#aab81a33ee12092f3d0d825d2010de3d1">mesh::mesh_have_point_glb_idx</a></div><div class="ttdeci">integer function mesh_have_point_glb_idx(this, index)</div><div class="ttdoc">Check if the mesh has a point given its global index.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01846">mesh.f90:1847</a></div></div>
 <div class="ttc" id="anamespacemesh_html_aadcee020052d3a876ded460252b3a42a"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#aadcee020052d3a876ded460252b3a42a">mesh::mesh_generate_external_point_conn</a></div><div class="ttdeci">subroutine mesh_generate_external_point_conn(this)</div><div class="ttdoc">Generate element-element connectivity via points between PEs.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00844">mesh.f90:845</a></div></div>
-<div class="ttc" id="anamespacemesh_html_abce2263656e025ff29d5da32f447454d"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#abce2263656e025ff29d5da32f447454d">mesh::mesh_apply_periodic_facet</a></div><div class="ttdeci">subroutine mesh_apply_periodic_facet(this, f, e, pf, pe, pids)</div><div class="ttdoc">Replaces the periodic point's id with a common id for matching periodic points.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01726">mesh.f90:1727</a></div></div>
+<div class="ttc" id="anamespacemesh_html_abce2263656e025ff29d5da32f447454d"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#abce2263656e025ff29d5da32f447454d">mesh::mesh_apply_periodic_facet</a></div><div class="ttdeci">subroutine mesh_apply_periodic_facet(this, f, e, pf, pe, pids)</div><div class="ttdoc">Replaces the periodic point's id with a common id for matching periodic points.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01736">mesh.f90:1737</a></div></div>
 <div class="ttc" id="anamespacemesh_html_ac2946fce1b2dd0901137b5d74e1d641a"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#ac2946fce1b2dd0901137b5d74e1d641a">mesh::mesh_finalize</a></div><div class="ttdeci">subroutine mesh_finalize(this)</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00406">mesh.f90:407</a></div></div>
 <div class="ttc" id="anamespacemesh_html_ac54b7d89e17024d5105cf449551a5335"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#ac54b7d89e17024d5105cf449551a5335">mesh::mesh_generate_external_facet_conn</a></div><div class="ttdeci">subroutine mesh_generate_external_facet_conn(this)</div><div class="ttdoc">Generate element-element connectivity via facets between PEs.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00677">mesh.f90:678</a></div></div>
 <div class="ttc" id="anamespacemesh_html_ac953d02448e5c03cfc44b22357dc40a1"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#ac953d02448e5c03cfc44b22357dc40a1">mesh::mesh_mark_curve_element</a></div><div class="ttdeci">subroutine mesh_mark_curve_element(this, e, curve_data, curve_type)</div><div class="ttdoc">Mark element e as a curve element.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01515">mesh.f90:1516</a></div></div>
-<div class="ttc" id="anamespacemesh_html_ad7445d7b579f359797327618f283f607"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#ad7445d7b579f359797327618f283f607">mesh::mesh_check_right_handedness</a></div><div class="ttdeci">subroutine mesh_check_right_handedness(this)</div><div class="ttdoc">Check the correct orientation of the rst coordindates.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01890">mesh.f90:1891</a></div></div>
+<div class="ttc" id="anamespacemesh_html_ad7445d7b579f359797327618f283f607"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#ad7445d7b579f359797327618f283f607">mesh::mesh_check_right_handedness</a></div><div class="ttdeci">subroutine mesh_check_right_handedness(this)</div><div class="ttdoc">Check the correct orientation of the rst coordindates.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01900">mesh.f90:1901</a></div></div>
 <div class="ttc" id="anamespacemesh_html_adda9934c988fca3015a777470bbf43ba"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba">mesh::mesh_generate_conn</a></div><div class="ttdeci">subroutine mesh_generate_conn(this)</div><div class="ttdoc">Generate element-to-element connectivity.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l00463">mesh.f90:464</a></div></div>
 <div class="ttc" id="anamespacemesh_html_ae492f3bdb254d60021210058d4c47ef1"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#ae492f3bdb254d60021210058d4c47ef1">mesh::mesh_add_hex</a></div><div class="ttdeci">subroutine mesh_add_hex(this, el, el_glb, p1, p2, p3, p4, p5, p6, p7, p8)</div><div class="ttdoc">Add a hexahedral element to the mesh this.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01425">mesh.f90:1426</a></div></div>
-<div class="ttc" id="anamespacemesh_html_af05fb6ef9da3ada4cdd5b861b0a0d866"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#af05fb6ef9da3ada4cdd5b861b0a0d866">mesh::mesh_get_local_facet</a></div><div class="ttdeci">integer function mesh_get_local_facet(this, f)</div><div class="ttdoc">Return the local id of a face f.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01787">mesh.f90:1788</a></div></div>
-<div class="ttc" id="anamespacemesh_html_af31c563c205299189102ba77fafcb229"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229">mesh::mesh_get_local_point</a></div><div class="ttdeci">integer function mesh_get_local_point(this, p)</div><div class="ttdoc">Return the local id of a point p.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01758">mesh.f90:1759</a></div></div>
-<div class="ttc" id="anamespacemesh_html_af9743aa9ecd1b5d6a4d6f742bdb02577"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577">mesh::mesh_subset_by_mask</a></div><div class="ttdeci">subroutine mesh_subset_by_mask(this, other, mask, lx, ly, lz)</div><div class="ttdoc">Create a subset of the mesh this in other based on the provided mask.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l02016">mesh.f90:2017</a></div></div>
+<div class="ttc" id="anamespacemesh_html_af05fb6ef9da3ada4cdd5b861b0a0d866"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#af05fb6ef9da3ada4cdd5b861b0a0d866">mesh::mesh_get_local_facet</a></div><div class="ttdeci">integer function mesh_get_local_facet(this, f)</div><div class="ttdoc">Return the local id of a face f.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01797">mesh.f90:1798</a></div></div>
+<div class="ttc" id="anamespacemesh_html_af31c563c205299189102ba77fafcb229"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#af31c563c205299189102ba77fafcb229">mesh::mesh_get_local_point</a></div><div class="ttdeci">integer function mesh_get_local_point(this, p)</div><div class="ttdoc">Return the local id of a point p.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l01768">mesh.f90:1769</a></div></div>
+<div class="ttc" id="anamespacemesh_html_af9743aa9ecd1b5d6a4d6f742bdb02577"><div class="ttname"><a href="../../db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577">mesh::mesh_subset_by_mask</a></div><div class="ttdeci">subroutine mesh_subset_by_mask(this, other, mask, lx, ly, lz)</div><div class="ttdoc">Create a subset of the mesh this in other based on the provided mask.</div><div class="ttdef"><b>Definition</b> <a href="../../de/d0a/mesh_8f90_source.html#l02026">mesh.f90:2027</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_a2dcabd7f1f2ece3f847d06202dd2ee2c"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">num_types::i8</a></div><div class="ttdeci">integer, parameter, public i8</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00007">num_types.f90:7</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_aab47a6c4827cb5c6bbd741a44c87e956"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">num_types::dp</a></div><div class="ttdeci">integer, parameter, public dp</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00009">num_types.f90:9</a></div></div>
@@ -2306,7 +2316,7 @@ $(document).ready(function(){initNavTree('de/d0a/mesh_8f90_source.html','../../'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_7be0d8c199b9408ae01f5d77515b8def.html">mesh</a></li><li class="navelem"><a class="el" href="../../de/d0a/mesh_8f90.html">mesh.f90</a></li>
-    <li class="footer">Generated on Mon Jun 29 2026 05:06:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jun 30 2026 04:54:14 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

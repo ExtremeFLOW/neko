@@ -1,0 +1,5 @@
+<map id="gs_neighbour::gs_neighbour_t" name="gs_neighbour::gs_neighbour_t">
+<area shape="rect" id="Node000001" title="Gather&#45;scatter communication using an MPI neighbourhood collective. The whole halo exchange is carrie..." alt="" coords="5,79,221,104"/>
+<area shape="rect" id="Node000002" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="29,5,197,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,44,116,79,111,79,111,44"/>
+</map>

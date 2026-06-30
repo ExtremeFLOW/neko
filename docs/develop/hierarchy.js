@@ -363,6 +363,7 @@ var hierarchy =
       [ "gs_device_nccl::gs_device_nccl_t", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html", null ],
       [ "gs_device_shmem::gs_device_shmem_t", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html", null ],
       [ "gs_mpi::gs_mpi_t", "d6/d6b/structgs__mpi_1_1gs__mpi__t.html", null ],
+      [ "gs_neighbour::gs_neighbour_t", "d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html", null ],
       [ "gs_shmem::gs_shmem_t", "d7/dae/structgs__shmem_1_1gs__shmem__t.html", null ]
     ] ],
     [ "gs_device_mpi::gs_device_mpi_buf_t", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html", null ],
