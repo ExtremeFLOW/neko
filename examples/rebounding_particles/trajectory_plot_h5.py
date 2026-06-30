@@ -46,35 +46,24 @@ def read_particles(file_name):
 
     with h5py.File(file_name, "r") as h5file:
         lpt = h5file["lpt"]
-        if "metadata" in lpt:
-            metadata = lpt["metadata"][:]
-            position = lpt["position"][:]
-            velocity = lpt["velocity"][:]
-            properties = lpt["properties"]
-            diameter = as_column(properties["diameter"][:])
-            density = as_column(properties["density"][:])
+        position = lpt["position"][:]
+        velocity = lpt["velocity"][:]
 
-            return np.column_stack(
-                (
-                    metadata[:, 0],
-                    metadata[:, 1],
-                    metadata[:, 2],
-                    position[:, 0],
-                    position[:, 1],
-                    position[:, 2],
-                    velocity[:, 0],
-                    velocity[:, 1],
-                    velocity[:, 2],
-                    diameter,
-                    density,
-                )
+        return np.column_stack(
+            (
+                as_column(lpt["tsteps"][:]),
+                as_column(lpt["t"][:]),
+                as_column(lpt["ids"][:]),
+                position[:, 0],
+                position[:, 1],
+                position[:, 2],
+                velocity[:, 0],
+                velocity[:, 1],
+                velocity[:, 2],
+                as_column(lpt["diameter"][:]),
+                as_column(lpt["density"][:]),
             )
-
-        # Backward compatibility with the older single-dataset LPT HDF5 layout.
-        if "data" in lpt:
-            return lpt["data"][:]
-
-        raise KeyError("Could not find LPT particle datasets in tracers.h5")
+        )
 
 particles = read_particles(file_name)
 n_particles = int(np.max(particles[:, 2]))

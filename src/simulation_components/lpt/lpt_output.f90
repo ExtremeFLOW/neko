@@ -125,14 +125,14 @@ contains
        call ft%set_overwrite(.false.)
        call ft%open("w")
        call ft%set_active_group("lpt")
-       out_int = 2
+       out_int = 3
        call ft%write_attribute("FormatVersion", out_int)
        out_int = this%n_data
        call ft%write_attribute("NColumns", out_int)
        if (inertia) then
-          out_int = 4
+          out_int = 7
        else
-          out_int = 3
+          out_int = 5
        end if
        call ft%write_attribute("NCategories", out_int)
        if (inertia) then
@@ -169,14 +169,18 @@ contains
     class(lpt_output_t), intent(inout) :: this
     integer, intent(in) :: n_local
     real(kind=rp), intent(in) :: local_data(this%n_data, n_local)
-    type(matrix_t) :: metadata
+    type(matrix_t) :: tsteps
+    type(matrix_t) :: t
+    type(matrix_t) :: ids
     type(matrix_t) :: position
     type(matrix_t) :: velocity
     type(matrix_t) :: diameter
     type(matrix_t) :: density
     integer :: out_int
 
-    call metadata%init(3, n_local, "metadata")
+    call tsteps%init(1, n_local, "tsteps")
+    call t%init(1, n_local, "t")
+    call ids%init(1, n_local, "ids")
     call position%init(3, n_local, "position")
     call velocity%init(3, n_local, "velocity")
     if (this%inertia) then
@@ -185,7 +189,9 @@ contains
     end if
 
     if (n_local .gt. 0) then
-       metadata%x = local_data(1:3, :)
+       tsteps%x(1, :) = local_data(1, :)
+       t%x(1, :) = local_data(2, :)
+       ids%x(1, :) = local_data(3, :)
        position%x = local_data(4:6, :)
        velocity%x = local_data(7:9, :)
        if (this%inertia) then
@@ -200,13 +206,12 @@ contains
        call ft%set_active_group("lpt")
        out_int = this%hdf5_output_count + 1
        call ft%write_attribute("NSteps", out_int)
-       call ft%write_dataset(metadata)
+       call ft%write_dataset(tsteps)
+       call ft%write_dataset(t)
+       call ft%write_dataset(ids)
        call ft%write_dataset(position)
        call ft%write_dataset(velocity)
        if (this%inertia) then
-          call ft%set_active_group("lpt/properties")
-          out_int = 2
-          call ft%write_attribute("NCategories", out_int)
           call ft%write_dataset(diameter)
           call ft%write_dataset(density)
        end if
@@ -216,7 +221,9 @@ contains
     end select
 
     this%hdf5_output_count = this%hdf5_output_count + 1
-    call metadata%free()
+    call tsteps%free()
+    call t%free()
+    call ids%free()
     call position%free()
     call velocity%free()
     if (this%inertia) then
