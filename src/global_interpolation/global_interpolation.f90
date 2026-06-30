@@ -1247,7 +1247,7 @@ contains
     type(glb_intrp_comm_t), intent(inout) :: redist_comm
     type(stack_i4_t) :: send_pe
     type(stack_i4_t) :: recv_pe
-    integer, pointer :: point_ids(:)
+    integer, pointer :: point_ids(:) => null()
     integer :: rank
     integer :: i
 
@@ -1273,6 +1273,7 @@ contains
     end do
 
     call redist_comm%init(send_pe, recv_pe, this%comm)
+    nullify(point_ids)
     call send_pe%free()
     call recv_pe%free()
   end subroutine global_interpolation_init_redist_comm

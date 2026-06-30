@@ -41,6 +41,7 @@ module lpt_migrate
        MPI_SUM
   use vector, only : vector_t
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
@@ -158,17 +159,19 @@ contains
     integer :: n_particles_old
     integer :: n_particles_local
     integer, allocatable :: particle_ids_local(:)
-    type(vector_t) :: x_local, y_local, z_local
-    type(vector_t) :: u_local, v_local, w_local
-    type(vector_t) :: acc_xlocal, acc_ylocal, acc_zlocal
-    type(vector_t) :: d_local, rho_local
-    type(vector_t) :: u_lag_local, v_lag_local, w_lag_local
-    type(vector_t) :: u_laglag_local, v_laglag_local, w_laglag_local
-    type(vector_t) :: acc_xlag_local, acc_ylag_local, acc_zlag_local
-    type(vector_t) :: acc_xlaglag_local, acc_ylaglag_local, acc_zlaglag_local
+    type(vector_t), pointer :: x_local, y_local, z_local
+    type(vector_t), pointer :: u_local, v_local, w_local
+    type(vector_t), pointer :: acc_xlocal, acc_ylocal, acc_zlocal
+    type(vector_t), pointer :: d_local, rho_local
+    type(vector_t), pointer :: u_lag_local, v_lag_local, w_lag_local
+    type(vector_t), pointer :: u_laglag_local, v_laglag_local, w_laglag_local
+    type(vector_t), pointer :: acc_xlag_local, acc_ylag_local, acc_zlag_local
+    type(vector_t), pointer :: acc_xlaglag_local, &
+                               acc_ylaglag_local, acc_zlaglag_local
     integer :: ierr
     integer :: rank
     logical :: migration_needed
+    integer :: ind(23)
 
     if (inertia) then
        call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, &
@@ -206,15 +209,64 @@ contains
        return
     end if
 
+    allocate(particle_ids_local(n_particles_local))
+    particle_ids_local = 0
+    call neko_scratch_registry%request_vector(x_local, ind(1), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(y_local, ind(2), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(z_local, ind(3), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(u_lag_local, ind(4), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(v_lag_local, ind(5), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(w_lag_local, ind(6), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(u_laglag_local, ind(7), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(v_laglag_local, ind(8), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(w_laglag_local, ind(9), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(u_local, ind(10), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(v_local, ind(11), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(w_local, ind(12), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_xlocal, ind(13), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_ylocal, ind(14), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_zlocal, ind(15), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(d_local, ind(16), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(rho_local, ind(17), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_xlag_local, ind(18), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_ylag_local, ind(19), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_zlag_local, ind(20), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_xlaglag_local, ind(21), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_ylaglag_local, ind(22), &
+         n_particles_local, .false.)
+    call neko_scratch_registry%request_vector(acc_zlaglag_local, ind(23), &
+         n_particles_local, .false.)
+
     call global_interp%init_redist_comm(migrate_comm)
+    call this%migrate_particle_ids(migrate_comm, ids, n_particles_old, &
+         n_particles_local, particle_ids_local)
     call this%migrate_particle_scalar(migrate_comm, x, n_particles_old, &
          n_particles_local, x_local)
     call this%migrate_particle_scalar(migrate_comm, y, n_particles_old, &
          n_particles_local, y_local)
     call this%migrate_particle_scalar(migrate_comm, z, n_particles_old, &
          n_particles_local, z_local)
-    call this%migrate_particle_ids(migrate_comm, ids, n_particles_old, &
-         n_particles_local, particle_ids_local)
     call this%migrate_particle_scalar(migrate_comm, u_lag, n_particles_old, &
          n_particles_local, u_lag_local)
     call this%migrate_particle_scalar(migrate_comm, v_lag, n_particles_old, &
@@ -302,6 +354,9 @@ contains
        call acc_zlaglag%free()
     end if
 
+    if (allocated(particle_ids_local)) deallocate(particle_ids_local)
+    call neko_scratch_registry%relinquish(ind)
+
     call this%localize_global_interpolation(global_interp, n)
     call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   end subroutine migrate_particles
@@ -323,25 +378,74 @@ contains
     type(vector_t), intent(inout) :: acc_xlaglag, acc_ylaglag, acc_zlaglag
     integer, intent(inout) :: n
     integer, allocatable :: ids_local(:)
-    type(vector_t) :: x_local, y_local, z_local
-    type(vector_t) :: u_lag_local, v_lag_local, w_lag_local
-    type(vector_t) :: u_laglag_local, v_laglag_local, w_laglag_local
-    type(vector_t) :: u_local, v_local, w_local
-    type(vector_t) :: acc_xlocal, acc_ylocal, acc_zlocal
-    type(vector_t) :: d_local, rho_local
-    type(vector_t) :: acc_xlag_local, acc_ylag_local, acc_zlag_local
-    type(vector_t) :: acc_xlaglag_local, acc_ylaglag_local, acc_zlaglag_local
+    type(vector_t), pointer :: x_local, y_local, z_local
+    type(vector_t), pointer :: u_lag_local, v_lag_local, w_lag_local
+    type(vector_t), pointer :: u_laglag_local, v_laglag_local, w_laglag_local
+    type(vector_t), pointer :: u_local, v_local, w_local
+    type(vector_t), pointer :: acc_xlocal, acc_ylocal, acc_zlocal
+    type(vector_t), pointer :: d_local, rho_local
+    type(vector_t), pointer :: acc_xlag_local, acc_ylag_local, acc_zlag_local
+    type(vector_t), pointer :: acc_xlaglag_local, &
+                               acc_ylaglag_local, acc_zlaglag_local
     integer, allocatable :: counts(:)
     integer, allocatable :: offsets(:)
     integer :: n_local
+    integer :: ind(23)
 
     call build_even_particle_distribution(n, counts, offsets, n_local)
 
+    allocate(ids_local(n_local))
+    call neko_scratch_registry%request_vector(x_local, ind(1), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(y_local, ind(2), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(z_local, ind(3), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(u_lag_local, ind(4), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(v_lag_local, ind(5), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(w_lag_local, ind(6), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(u_laglag_local, ind(7), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(v_laglag_local, ind(8), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(w_laglag_local, ind(9), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(u_local, ind(10), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(v_local, ind(11), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(w_local, ind(12), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_xlocal, ind(13), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_ylocal, ind(14), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_zlocal, ind(15), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(d_local, ind(16), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(rho_local, ind(17), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_xlag_local, ind(18), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_ylag_local, ind(19), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_zlag_local, ind(20), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_xlaglag_local, ind(21), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_ylaglag_local, ind(22), &
+         n_local, .false.)
+    call neko_scratch_registry%request_vector(acc_zlaglag_local, ind(23), &
+         n_local, .false.)
+
+    call this%distribute_particle_ids(ids, counts, offsets, n_local, ids_local)
     call this%distribute_particle_scalar(x, counts, offsets, n_local, x_local)
     call this%distribute_particle_scalar(y, counts, offsets, n_local, y_local)
     call this%distribute_particle_scalar(z, counts, offsets, n_local, z_local)
-    call this%distribute_particle_ids(ids, counts, offsets, n_local, &
-         ids_local)
     call this%distribute_particle_scalar(u_lag, counts, offsets, n_local, &
          u_lag_local)
     call this%distribute_particle_scalar(v_lag, counts, offsets, n_local, &
@@ -428,6 +532,9 @@ contains
        call acc_zlaglag%free()
     end if
 
+    if (allocated(ids_local)) deallocate(ids_local)
+    call neko_scratch_registry%relinquish(ind)    
+
     deallocate(counts)
     deallocate(offsets)
   end subroutine distribute_particles_evenly
@@ -439,12 +546,11 @@ contains
     integer, intent(in) :: counts(0:)
     integer, intent(in) :: offsets(0:)
     integer, intent(in) :: n_local
-    integer, allocatable, intent(out) :: ids_local(:)
+    integer, allocatable, intent(inout) :: ids_local(:)
     integer, allocatable :: counts_i(:)
     integer, allocatable :: offsets_i(:)
     integer :: ierr
 
-    allocate(ids_local(n_local))
     allocate(counts_i(0:pe_size - 1))
     allocate(offsets_i(0:pe_size - 1))
     counts_i = counts
@@ -467,7 +573,6 @@ contains
     integer, allocatable :: offsets_r(:)
     integer :: ierr
 
-    call scalar_local%init(n_local)
     allocate(counts_r(0:pe_size - 1))
     allocate(offsets_r(0:pe_size - 1))
     counts_r = counts
@@ -500,14 +605,11 @@ contains
     integer, allocatable, intent(in) :: ids_old(:)
     integer, intent(in) :: n_particles_old
     integer, intent(in) :: n_local
-    integer, allocatable, intent(out) :: particle_ids_local(:)
+    integer, allocatable, intent(inout) :: particle_ids_local(:)
     real(kind=rp), allocatable :: sendbuf(:)
     real(kind=rp), allocatable :: recvbuf(:)
     integer :: n_sendbuf
     integer :: n_recvbuf
-
-    allocate(particle_ids_local(n_local))
-    particle_ids_local = 0
 
     if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 
@@ -536,8 +638,6 @@ contains
     real(kind=rp), allocatable :: recvbuf(:)
     integer :: n_sendbuf
     integer :: n_recvbuf
-
-    call scalar_local%init(n_local)
 
     if (n_particles_old .eq. 0 .and. n_local .eq. 0) return
 

@@ -64,6 +64,8 @@ module lagrangian_particle_tracking
   use particles, only : particles_t
   use device, only : DEVICE_TO_HOST
   use profiler, only : profiler_start_region, profiler_end_region
+  use scratch_registry, only : neko_scratch_registry
+  use host_array, only : host_array_t
   implicit none
   private
 
@@ -318,9 +320,8 @@ contains
     real(kind=rp), allocatable :: vels(:)
     real(kind=rp), allocatable :: diams(:)
     real(kind=rp), allocatable :: densities(:)
-    real(kind=rp), allocatable :: x(:), y(:), z(:)
-    real(kind=rp), allocatable :: u(:), v(:), w(:)
-    integer :: n_particles
+    type(host_array_t), pointer :: x, y, z, u, v, w
+    integer :: n_particles, ind(6)
 
     if (pe_rank .eq. 0) then
        if (json%valid_path("coordinates")) then
@@ -353,30 +354,32 @@ contains
              diams = 0.0_rp
              densities = 0.0_rp
           end if
-          allocate(x(n_particles))
-          allocate(y(n_particles))
-          allocate(z(n_particles))
-          allocate(u(n_particles))
-          allocate(v(n_particles))
-          allocate(w(n_particles))
-          x = coords(1::3)
-          y = coords(2::3)
-          z = coords(3::3)
-          u = vels(1::3)
-          v = vels(2::3)
-          w = vels(3::3)
-          call this%particles%init(x, y, z, this%time_order, u, v, w, &
-               diams, densities)
+          call neko_scratch_registry%request_host_array(x, ind(1), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(y, ind(2), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(z, ind(3), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(u, ind(4), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(v, ind(5), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(w, ind(6), n_particles, &
+               .false.)
+          x%x = coords(1::3)
+          y%x = coords(2::3)
+          z%x = coords(3::3)
+          u%x = vels(1::3)
+          v%x = vels(2::3)
+          w%x = vels(3::3)
+          call this%particles%init(x%x, y%x, z%x, this%time_order, u%x, v%x, &
+               w%x, diams, densities)
           deallocate(coords)
           deallocate(vels)
           deallocate(diams)
           deallocate(densities)
-          deallocate(x)
-          deallocate(y)
-          deallocate(z)
-          deallocate(u)
-          deallocate(v)
-          deallocate(w)
+          call neko_scratch_registry%relinquish(ind)
+
        else if (json%valid_path("points_file")) then
           call this%read_particles_csv(json)
        else
@@ -394,10 +397,10 @@ contains
     character(len=:), allocatable :: points_file
     type(file_t) :: file_in
     type(matrix_t) :: mat_in
-    real(kind=rp), allocatable :: x(:), y(:), z(:)
-    real(kind=rp), allocatable :: u(:), v(:), w(:)
+    type(host_array_t), pointer :: x, y, z, u, v, w
     real(kind=rp), allocatable :: diams(:)
     real(kind=rp), allocatable :: densities(:)
+    integer :: n_particles, ind(6)
 
     if (pe_rank .ne. 0) return
 
@@ -409,39 +412,50 @@ contains
        if (this%inertia) then
           call mat_in%init(ft%count_lines(), 8)
           call ft%read(mat_in)
-          x = mat_in%x(:, 1)
-          y = mat_in%x(:, 2)
-          z = mat_in%x(:, 3)
-          u = mat_in%x(:, 4)
-          v = mat_in%x(:, 5)
-          w = mat_in%x(:, 6)
+          n_particles = mat_in%get_nrows()
+          call neko_scratch_registry%request_host_array(x, ind(1), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(y, ind(2), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(z, ind(3), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(u, ind(4), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(v, ind(5), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(w, ind(6), n_particles, &
+               .false.)
+          x%x = mat_in%x(:, 1)
+          y%x = mat_in%x(:, 2)
+          z%x = mat_in%x(:, 3)
+          u%x = mat_in%x(:, 4)
+          v%x = mat_in%x(:, 5)
+          w%x = mat_in%x(:, 6)
           diams = mat_in%x(:, 7)
           densities = mat_in%x(:, 8)
-          call this%particles%init(x, y, z, this%time_order, u, v, w, &
-               diams, densities)
-          deallocate(x)
-          deallocate(y)
-          deallocate(z)
-          deallocate(u)
-          deallocate(v)
-          deallocate(w)
+          call this%particles%init(x%x, y%x, z%x, this%time_order, u%x, v%x, &
+               w%x, diams, densities)
           deallocate(diams)
           deallocate(densities)
        else
           call mat_in%init(ft%count_lines(), 3)
           call ft%read(mat_in)
-          x = mat_in%x(:, 1)
-          y = mat_in%x(:, 2)
-          z = mat_in%x(:, 3)
-          call this%particles%init(x, y, z, this%time_order)
-          deallocate(x)
-          deallocate(y)
-          deallocate(z)
+          n_particles = mat_in%get_nrows()
+          call neko_scratch_registry%request_host_array(x, ind(1), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(y, ind(2), n_particles, &
+               .false.)
+          call neko_scratch_registry%request_host_array(z, ind(3), n_particles, &
+               .false.)
+          x%x = mat_in%x(:, 1)
+          y%x = mat_in%x(:, 2)
+          z%x = mat_in%x(:, 3)
+          call this%particles%init(x%x, y%x, z%x, this%time_order)
        end if
     class default
        call neko_error("lpt points_file must be a csv file")
     end select
-
+    call neko_scratch_registry%relinquish(ind)
     call mat_in%free()
     call file_in%free()
   end subroutine read_particles_csv
@@ -470,27 +484,30 @@ contains
     class(lpt_t), intent(inout) :: this
     type(vector_t), intent(in) :: u_fluid, v_fluid, w_fluid
     type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
-    type(vector_t) :: tau_p, Re_p, f, rho_fluid_local
-    type(vector_t) :: mu_fluid_local, nu_fluid_local
-    type(vector_t) :: u_rel, v_rel, w_rel, vel_rel_mag
-    type(vector_t) :: wa
+    type(vector_t), pointer :: tau_p, Re_p, f, rho_fluid_local
+    type(vector_t), pointer :: mu_fluid_local, nu_fluid_local
+    type(vector_t), pointer :: u_rel, v_rel, w_rel, vel_rel_mag
+    type(vector_t), pointer :: wa
+    integer :: ind(11)
 
-    integer :: i
+    integer :: n, i
     logical :: do_interp_on_host
 
     if (this%particles%n .eq. 0) return
+    n = this%particles%n
 
-    call tau_p%init(this%particles%n)
-    call Re_p%init(this%particles%n)
-    call f%init(this%particles%n)
-    call rho_fluid_local%init(this%particles%n)
-    call mu_fluid_local%init(this%particles%n)
-    call nu_fluid_local%init(this%particles%n)
-    call u_rel%init(this%particles%n)
-    call v_rel%init(this%particles%n)
-    call w_rel%init(this%particles%n)
-    call vel_rel_mag%init(this%particles%n)
-    call wa%init(this%particles%n)
+    call neko_scratch_registry%request_vector(tau_p, ind(1), n, .false.)
+    call neko_scratch_registry%request_vector(Re_p, ind(2), n, .false.)
+    call neko_scratch_registry%request_vector(f, ind(3), n, .false.)
+    call neko_scratch_registry%request_vector(rho_fluid_local, &
+                                              ind(4), n, .false.)
+    call neko_scratch_registry%request_vector(mu_fluid_local, ind(5), n, .false.)
+    call neko_scratch_registry%request_vector(nu_fluid_local, ind(6), n, .false.)
+    call neko_scratch_registry%request_vector(u_rel, ind(7), n, .false.)
+    call neko_scratch_registry%request_vector(v_rel, ind(8), n, .false.)
+    call neko_scratch_registry%request_vector(w_rel, ind(9), n, .false.)
+    call neko_scratch_registry%request_vector(vel_rel_mag, ind(10), n, .false.)
+    call neko_scratch_registry%request_vector(wa, ind(11), n, .false.)
 
     do_interp_on_host = .false.
     call this%global_interp%evaluate(mu_fluid_local%x, this%mu_fluid%x, &
@@ -528,24 +545,15 @@ contains
     call vector_invcol2(acc_y, tau_p)
     call vector_invcol2(acc_z, tau_p)
 
-    call tau_p%free()
-    call Re_p%free()
-    call f%free()
-    call rho_fluid_local%free()
-    call mu_fluid_local%free()
-    call nu_fluid_local%free()
-    call u_rel%free()
-    call v_rel%free()
-    call w_rel%free()
-    call vel_rel_mag%free()
-    call wa%free()
+    call neko_scratch_registry%relinquish(ind)
 
   end subroutine evaluate_acceleration
 
   !> Refresh the particle RHS using the current fluid solution.
   subroutine update_current_rhs(this)
     class(lpt_t), intent(inout) :: this
-    type(vector_t) :: u_fluid, v_fluid, w_fluid
+    type(vector_t), pointer :: u_fluid, v_fluid, w_fluid
+    integer :: ind(3)
 
     call profiler_start_region('LPT_migrate_interp')
 
@@ -564,9 +572,12 @@ contains
          this%particles%acc_ylaglag, this%particles%acc_zlaglag, &
          this%particles%n, this%particles%n_global)
 
-    call u_fluid%init(this%particles%n)
-    call v_fluid%init(this%particles%n)
-    call w_fluid%init(this%particles%n)
+    call neko_scratch_registry%request_vector(u_fluid, ind(1), &
+         this%particles%n, .false.)
+    call neko_scratch_registry%request_vector(v_fluid, ind(2), &
+         this%particles%n, .false.)
+    call neko_scratch_registry%request_vector(w_fluid, ind(3), &
+         this%particles%n, .false.)
 
     call this%evaluate_velocity(u_fluid, v_fluid, w_fluid)
 
@@ -580,9 +591,7 @@ contains
        this%particles%w = w_fluid
     end if
 
-    call u_fluid%free()
-    call v_fluid%free()
-    call w_fluid%free()
+    call neko_scratch_registry%relinquish(ind)
 
     call profiler_end_region('LPT_migrate_interp')
   end subroutine update_current_rhs
@@ -601,7 +610,8 @@ contains
   subroutine lpt_preprocess(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    type(vector_t) :: x_old, y_old, z_old, u_old, v_old, w_old
+    type(vector_t), pointer :: x_old, y_old, z_old, u_old, v_old, w_old
+    integer :: ind(6)
 
     associate(x => this%particles%x, y => this%particles%y, &
          z => this%particles%z, u => this%particles%u, &
@@ -627,6 +637,13 @@ contains
       if (abs(this%lpt_time%dt) .le. epsilon(1.0_rp)) return
 
       call profiler_start_region('LPT_time_integration')
+
+      call neko_scratch_registry%request_vector(x_old, ind(1), n, .false.)
+      call neko_scratch_registry%request_vector(y_old, ind(2), n, .false.)
+      call neko_scratch_registry%request_vector(z_old, ind(3), n, .false.)
+      call neko_scratch_registry%request_vector(u_old, ind(4), n, .false.)
+      call neko_scratch_registry%request_vector(v_old, ind(5), n, .false.)
+      call neko_scratch_registry%request_vector(w_old, ind(6), n, .false.)
 
       x_old = x
       y_old = y
@@ -673,12 +690,8 @@ contains
          this%history_len = min(this%history_len + 1, this%lag_len)
       end if
 
-      call x_old%free()
-      call y_old%free()
-      call z_old%free()
-      call u_old%free()
-      call v_old%free()
-      call w_old%free()
+      call neko_scratch_registry%relinquish(ind)
+
     end associate
 
     call profiler_end_region('LPT_time_integration')
