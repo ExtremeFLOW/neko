@@ -42,6 +42,7 @@ module amr
   use file, only : file_t
   use time_state, only : time_state_t
   use user_intf, only : user_t
+  use checkpoint, only: chkp_t
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use mesh, only : mesh_t
@@ -79,6 +80,10 @@ module amr
      type(amr_reconstruct_t), pointer :: reconstruct => null()
      !> File for writing mesh
      type(file_t) :: mesh_file
+     !> Flag for refinement related checkpoint writing
+     logical :: ifchkp
+     !> File for writing restart
+     type(file_t) :: chkp_file
    contains
      !> Initialise type
      procedure, pass(this) :: init => amr_init
@@ -104,20 +109,25 @@ contains
 
   !> Initialise amr type
   !! @param[in]  sem          SEM discratization module
-  subroutine amr_init(this, sem)
+  !! @param[in]  ifchkp       Flag for refinement related checkpoint writing
+  subroutine amr_init(this, sem, ifchkp)
     class(amr_t), intent(inout) :: this
     type(sem_t), target, intent(in) :: sem
+    logical, intent(in) :: ifchkp
     character(len=NEKO_FNAME_LEN) :: file_name
 
     call this%free()
 
     this%sem => sem
     this%isamr = sem%isamr
+    this%ifchkp = ifchkp
 
     if (this%isamr) then
        this%reconstruct => sem%amr_reconstruct
        file_name = "new_mesh.nmsh"
        call this%mesh_file%init(trim(file_name))
+       file_name = "new_restart.chkp"
+       call this%chkp_file%init(trim(file_name))
     end if
 
   end subroutine amr_init
@@ -127,6 +137,7 @@ contains
     class(amr_t), intent(inout) :: this
 
     this%isamr = .false.
+    this%ifchkp = .false.
     this%ncomponents = 0
     this%counter = 0
     nullify(this%sem)
@@ -282,12 +293,14 @@ contains
   !! @param[inout]   mesh_manager  mesh manager
   !! @param[inout]   mesh          neko mesh type
   !! @param[in]      user          user interface
+  !! @param[inout]   chkp          simulation checkpoint
   !! @param[in]      time          time state
-  subroutine amr_refine_coarsen(this, mesh_manager, mesh, user, time)
+  subroutine amr_refine_coarsen(this, mesh_manager, mesh, user, chkp, time)
     class(amr_t), intent(inout) :: this
     class(mesh_manager_t), intent(inout) :: mesh_manager
     type(mesh_t), intent(inout) :: mesh
     type(user_t), intent(in) :: user
+    type(chkp_t), intent(inout) :: chkp
     type(time_state_t), intent(in) :: time
     integer, allocatable, dimension(:) :: ref_level, ref_mark
     integer, allocatable, dimension(:, :) :: family
@@ -368,6 +381,15 @@ contains
 
              ! save new mesh
              call this%mesh_save(mesh_manager, mesh)
+
+             ! for testing purposes restart is saved after refinement, not
+             ! before
+             if (this%ifchkp) then
+                ! unexpected counter shift ??????
+                call this%chkp_file%set_counter(this%counter - 1)
+                call this%chkp_file%write(chkp, time%t)
+             end if
+
           end if
 
           call profiler_end_region("Mesh refine/coarsen", 30)

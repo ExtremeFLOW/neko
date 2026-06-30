@@ -336,7 +336,8 @@ contains
     !
     ! Initialise adaptive mesh refinement module
     !
-    call this%amr%init(this%sem)
+    ! For now hard-coded checkpointing
+    call this%amr%init(this%sem, .true.)
 
     !
     ! Time control
