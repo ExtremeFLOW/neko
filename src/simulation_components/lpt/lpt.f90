@@ -231,18 +231,7 @@ contains
 
     call this%read_particles_json(json)
     call this%migration%initialize_particle_distribution(this%inertia, &
-         this%particles%x, this%particles%y, this%particles%z, &
-         this%particles%ids, &
-         this%particles%u_lag, this%particles%v_lag, this%particles%w_lag, &
-         this%particles%u_laglag, this%particles%v_laglag, &
-         this%particles%w_laglag, &
-         this%particles%u, this%particles%v, this%particles%w, &
-         this%particles%acc_x, this%particles%acc_y, this%particles%acc_z, &
-         this%particles%d, this%particles%rho, &
-         this%particles%acc_xlag, this%particles%acc_ylag, &
-         this%particles%acc_zlag, this%particles%acc_xlaglag, &
-         this%particles%acc_ylaglag, this%particles%acc_zlaglag, &
-         this%particles%n)
+         this%particles)
 
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &
@@ -250,19 +239,7 @@ contains
     call this%periodic_bc%init(case%fluid%msh, case%fluid%dm_Xh, &
          case%fluid%c_Xh)
     call this%migration%migrate_particles(this%global_interp, &
-         this%periodic_bc, this%inertia, &
-         this%particles%x, this%particles%y, this%particles%z, &
-         this%particles%ids, &
-         this%particles%u_lag, this%particles%v_lag, this%particles%w_lag, &
-         this%particles%u_laglag, this%particles%v_laglag, &
-         this%particles%w_laglag, &
-         this%particles%u, this%particles%v, this%particles%w, &
-         this%particles%acc_x, this%particles%acc_y, this%particles%acc_z, &
-         this%particles%d, this%particles%rho, &
-         this%particles%acc_xlag, this%particles%acc_ylag, &
-         this%particles%acc_zlag, this%particles%acc_xlaglag, &
-         this%particles%acc_ylaglag, this%particles%acc_zlaglag, &
-         this%particles%n, this%particles%n_global)
+         this%periodic_bc, this%inertia, this%particles)
     call this%sync_time_controller(case%time)
     call this%update_current_rhs()
 
@@ -400,7 +377,7 @@ contains
     type(host_array_t), pointer :: x, y, z, u, v, w
     real(kind=rp), allocatable :: diams(:)
     real(kind=rp), allocatable :: densities(:)
-    integer :: n_particles, ind(6)
+    integer :: n_particles, ind_basic(3), ind_inertia(6)
 
     if (pe_rank .ne. 0) return
 
@@ -413,18 +390,18 @@ contains
           call mat_in%init(ft%count_lines(), 8)
           call ft%read(mat_in)
           n_particles = mat_in%get_nrows()
-          call neko_scratch_registry%request_host_array(x, ind(1), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(y, ind(2), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(z, ind(3), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(u, ind(4), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(v, ind(5), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(w, ind(6), n_particles, &
-               .false.)
+          call neko_scratch_registry%request_host_array(x, ind_inertia(1), &
+               n_particles, .false.)
+          call neko_scratch_registry%request_host_array(y, ind_inertia(2), &
+               n_particles, .false.)
+          call neko_scratch_registry%request_host_array(z, ind_inertia(3), &
+               n_particles, .false.)
+          call neko_scratch_registry%request_host_array(u, ind_inertia(4), &
+               n_particles, .false.)
+          call neko_scratch_registry%request_host_array(v, ind_inertia(5), &
+               n_particles, .false.)
+          call neko_scratch_registry%request_host_array(w, ind_inertia(6), &
+               n_particles, .false.)
           x%x = mat_in%x(:, 1)
           y%x = mat_in%x(:, 2)
           z%x = mat_in%x(:, 3)
@@ -437,25 +414,26 @@ contains
                w%x, diams, densities)
           deallocate(diams)
           deallocate(densities)
+          call neko_scratch_registry%relinquish(ind_inertia)
        else
           call mat_in%init(ft%count_lines(), 3)
           call ft%read(mat_in)
           n_particles = mat_in%get_nrows()
-          call neko_scratch_registry%request_host_array(x, ind(1), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(y, ind(2), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(z, ind(3), n_particles, &
-               .false.)
+          call neko_scratch_registry%request_host_array(x, ind_basic(1), &
+               n_particles, .false.)
+          call neko_scratch_registry%request_host_array(y, ind_basic(2), &
+               n_particles, .false.)
+          call neko_scratch_registry%request_host_array(z, ind_basic(3), &
+               n_particles, .false.)
           x%x = mat_in%x(:, 1)
           y%x = mat_in%x(:, 2)
           z%x = mat_in%x(:, 3)
           call this%particles%init(x%x, y%x, z%x, this%time_order)
+          call neko_scratch_registry%relinquish(ind_basic)
        end if
     class default
        call neko_error("lpt points_file must be a csv file")
     end select
-    call neko_scratch_registry%relinquish(ind)
     call mat_in%free()
     call file_in%free()
   end subroutine read_particles_csv
@@ -558,19 +536,7 @@ contains
     call profiler_start_region('LPT_migrate_interp')
 
     call this%migration%migrate_particles(this%global_interp, &
-         this%periodic_bc, this%inertia, &
-         this%particles%x, this%particles%y, this%particles%z, &
-         this%particles%ids, &
-         this%particles%u_lag, this%particles%v_lag, this%particles%w_lag, &
-         this%particles%u_laglag, this%particles%v_laglag, &
-         this%particles%w_laglag, &
-         this%particles%u, this%particles%v, this%particles%w, &
-         this%particles%acc_x, this%particles%acc_y, this%particles%acc_z, &
-         this%particles%d, this%particles%rho, &
-         this%particles%acc_xlag, this%particles%acc_ylag, &
-         this%particles%acc_zlag, this%particles%acc_xlaglag, &
-         this%particles%acc_ylaglag, this%particles%acc_zlaglag, &
-         this%particles%n, this%particles%n_global)
+         this%periodic_bc, this%inertia, this%particles)
 
     call neko_scratch_registry%request_vector(u_fluid, ind(1), &
          this%particles%n, .false.)
