@@ -229,34 +229,36 @@ contains
          n_particles_local, .false.)
     call neko_scratch_registry%request_vector(w_laglag_local, ind(9), &
          n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(u_local, ind(10), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(v_local, ind(11), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(w_local, ind(12), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_xlocal, ind(13), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_ylocal, ind(14), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_zlocal, ind(15), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(d_local, ind(16), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(rho_local, ind(17), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_xlag_local, ind(18), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_ylag_local, ind(19), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_zlag_local, ind(20), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_xlaglag_local, ind(21), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_ylaglag_local, ind(22), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(acc_zlaglag_local, ind(23), &
-         n_particles_local, .false.)
+    if (inertia) then
+       call neko_scratch_registry%request_vector(u_local, ind(10), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(v_local, ind(11), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(w_local, ind(12), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_xlocal, ind(13), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_ylocal, ind(14), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_zlocal, ind(15), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(d_local, ind(16), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(rho_local, ind(17), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_xlag_local, ind(18), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_ylag_local, ind(19), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_zlag_local, ind(20), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_xlaglag_local, ind(21), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_ylaglag_local, ind(22), &
+            n_particles_local, .false.)
+       call neko_scratch_registry%request_vector(acc_zlaglag_local, ind(23), &
+            n_particles_local, .false.)
+    end if
 
     call global_interp%init_redist_comm(migrate_comm)
     call this%migrate_particle_ids(migrate_comm, ids, n_particles_old, &
@@ -413,34 +415,36 @@ contains
          n_local, .false.)
     call neko_scratch_registry%request_vector(w_laglag_local, ind(9), &
          n_local, .false.)
-    call neko_scratch_registry%request_vector(u_local, ind(10), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(v_local, ind(11), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(w_local, ind(12), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_xlocal, ind(13), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_ylocal, ind(14), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_zlocal, ind(15), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(d_local, ind(16), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(rho_local, ind(17), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_xlag_local, ind(18), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_ylag_local, ind(19), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_zlag_local, ind(20), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_xlaglag_local, ind(21), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_ylaglag_local, ind(22), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(acc_zlaglag_local, ind(23), &
-         n_local, .false.)
+    if (inertia) then
+       call neko_scratch_registry%request_vector(u_local, ind(10), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(v_local, ind(11), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(w_local, ind(12), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_xlocal, ind(13), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_ylocal, ind(14), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_zlocal, ind(15), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(d_local, ind(16), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(rho_local, ind(17), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_xlag_local, ind(18), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_ylag_local, ind(19), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_zlag_local, ind(20), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_xlaglag_local, ind(21), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_ylaglag_local, ind(22), &
+            n_local, .false.)
+       call neko_scratch_registry%request_vector(acc_zlaglag_local, ind(23), &
+            n_local, .false.)
+    end if
 
     call this%distribute_particle_ids(ids, counts, offsets, n_local, ids_local)
     call this%distribute_particle_scalar(x, counts, offsets, n_local, x_local)
