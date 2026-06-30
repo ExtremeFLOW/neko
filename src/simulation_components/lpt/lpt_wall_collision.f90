@@ -111,73 +111,73 @@ contains
          acc_ylaglag => this%particles%acc_ylaglag, &
          acc_zlaglag => this%particles%acc_zlaglag, lag_len => this%lag_len)
 
-    n = x%size()
-    if (n .eq. 0) return
+      n = x%size()
+      if (n .eq. 0) return
 
-    el_list_d = C_NULL_PTR
-    wall_facet_mask_d = C_NULL_PTR
+      el_list_d = C_NULL_PTR
+      wall_facet_mask_d = C_NULL_PTR
 
-    allocate(el_list(n))
-    call rst_new%init(3, n)
-    call neko_scratch_registry%request_vector(resx, ind(1), n, .false.)
-    call neko_scratch_registry%request_vector(resy, ind(2), n, .false.)
-    call neko_scratch_registry%request_vector(resz, ind(3), n, .false.)
+      allocate(el_list(n))
+      call rst_new%init(3, n)
+      call neko_scratch_registry%request_vector(resx, ind(1), n, .false.)
+      call neko_scratch_registry%request_vector(resy, ind(2), n, .false.)
+      call neko_scratch_registry%request_vector(resz, ind(3), n, .false.)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(el_list, el_list_d, n)
-    end if
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_map(el_list, el_list_d, n)
+      end if
 
-    do i = 1, n
-       el_list(i) = global_interp%el_owner0_local(i)
-    end do
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(el_list, el_list_d, n, HOST_TO_DEVICE, .true.)
-    end if
+      do i = 1, n
+         el_list(i) = global_interp%el_owner0_local(i)
+      end do
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_memcpy(el_list, el_list_d, n, HOST_TO_DEVICE, .true.)
+      end if
 
-    call global_interp%rst_finder%find(rst_new, x, y, z, el_list, n, &
-         resx, resy, resz)
+      call global_interp%rst_finder%find(rst_new, x, y, z, el_list, n, &
+           resx, resy, resz)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       allocate(wall_facet_mask_i(size(wall_facet_mask, 1), &
-            size(wall_facet_mask, 2)))
-       wall_facet_mask_i = merge(1, 0, wall_facet_mask)
-       call device_map(wall_facet_mask_i, wall_facet_mask_d, &
-            size(wall_facet_mask_i))
-       call device_memcpy(wall_facet_mask_i, wall_facet_mask_d, &
-            size(wall_facet_mask_i), HOST_TO_DEVICE, .true.)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         allocate(wall_facet_mask_i(size(wall_facet_mask, 1), &
+              size(wall_facet_mask, 2)))
+         wall_facet_mask_i = merge(1, 0, wall_facet_mask)
+         call device_map(wall_facet_mask_i, wall_facet_mask_d, &
+              size(wall_facet_mask_i))
+         call device_memcpy(wall_facet_mask_i, wall_facet_mask_d, &
+              size(wall_facet_mask_i), HOST_TO_DEVICE, .true.)
 
-       call lpt_handle_elastic_wall_collisions_device(msh, dm_Xh, coef, &
-            wall_facet_mask_d, el_list_d, x_old, y_old, z_old, x, y, z, d, &
-            u, v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-            acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, acc_z, &
-            lag_len, n)
+         call lpt_handle_elastic_wall_collisions_device(msh, dm_Xh, coef, &
+              wall_facet_mask_d, el_list_d, x_old, y_old, z_old, x, y, z, d, &
+              u, v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+              acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
+              acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, acc_z, &
+              lag_len, n)
 
-       call lpt_wall_collision_sync_from_device(x, y, z, u, v, w, u_lag, &
-            v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
-            acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
-            u_old, v_old, w_old, acc_x, acc_y, acc_z)
+         call lpt_wall_collision_sync_from_device(x, y, z, u, v, w, u_lag, &
+              v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
+              acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
+              u_old, v_old, w_old, acc_x, acc_y, acc_z)
 
-       call device_deassociate(wall_facet_mask_i)
-       call device_free(wall_facet_mask_d)
-       deallocate(wall_facet_mask_i)
-    else
-       call lpt_handle_elastic_wall_collisions_cpu(msh, dm_Xh, coef, &
-            wall_facet_mask, el_list, x_old, y_old, z_old, x, y, z, d, u, &
-            v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-            acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, acc_z, &
-            lag_len, n)
-    end if
+         call device_deassociate(wall_facet_mask_i)
+         call device_free(wall_facet_mask_d)
+         deallocate(wall_facet_mask_i)
+      else
+         call lpt_handle_elastic_wall_collisions_cpu(msh, dm_Xh, coef, &
+              wall_facet_mask, el_list, x_old, y_old, z_old, x, y, z, d, u, &
+              v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+              acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
+              acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, acc_z, &
+              lag_len, n)
+      end if
 
-    if (c_associated(el_list_d)) then
-       call device_deassociate(el_list)
-       call device_free(el_list_d)
-    end if
+      if (c_associated(el_list_d)) then
+         call device_deassociate(el_list)
+         call device_free(el_list_d)
+      end if
 
-    if (allocated(el_list)) deallocate(el_list)
-    call rst_new%free()
-    call neko_scratch_registry%relinquish(ind)
+      if (allocated(el_list)) deallocate(el_list)
+      call rst_new%free()
+      call neko_scratch_registry%relinquish(ind)
 
     end associate
   end subroutine lpt_handle_elastic_wall_collisions

@@ -141,7 +141,7 @@ contains
     type(vector_t), pointer :: u_laglag_local, v_laglag_local, w_laglag_local
     type(vector_t), pointer :: acc_xlag_local, acc_ylag_local, acc_zlag_local
     type(vector_t), pointer :: acc_xlaglag_local, &
-                               acc_ylaglag_local, acc_zlaglag_local
+         acc_ylaglag_local, acc_zlaglag_local
     integer :: ierr
     integer :: rank
     logical :: migration_needed
@@ -162,181 +162,181 @@ contains
          acc_zlaglag => particles%acc_zlaglag, n => particles%n, &
          n_global => particles%n_global)
 
-    if (inertia) then
-       call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, &
-            v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-            acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
-            acc_ylaglag, acc_zlaglag)
-    else
-       call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, &
-            v_lag, w_lag, u_laglag, v_laglag, w_laglag)
-    end if
-    if (this%strategy .eq. LPT_MIGRATE_NONE) then
-       call global_interp%find_points(x%x, y%x, z%x, n)
-       call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       return
-    end if
+      if (inertia) then
+         call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, &
+              v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
+              acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
+              acc_ylaglag, acc_zlaglag)
+      else
+         call periodic_bc%wrap(x, y, z, n, u, v, w, u_lag, &
+              v_lag, w_lag, u_laglag, v_laglag, w_laglag)
+      end if
+      if (this%strategy .eq. LPT_MIGRATE_NONE) then
+         call global_interp%find_points(x%x, y%x, z%x, n)
+         call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+              ierr)
+         return
+      end if
 
-    n_particles_old = n
-    call global_interp%find_points(x%x, y%x, z%x, n)
-    n_particles_local = global_interp%n_points_local
+      n_particles_old = n
+      call global_interp%find_points(x%x, y%x, z%x, n)
+      n_particles_local = global_interp%n_points_local
 
-    migration_needed = .false.
-    do rank = 0, global_interp%pe_size - 1
-       if (rank .ne. pe_rank) then
-          migration_needed = migration_needed .or. &
-               global_interp%n_points_pe(rank) .gt. 0
-          migration_needed = migration_needed .or. &
-               global_interp%n_points_pe_local(rank) .gt. 0
-       end if
-    end do
-    if (.not. migration_needed .and. n_particles_local .eq. n) then
-       call this%localize_global_interpolation(global_interp, n)
-       call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       return
-    end if
+      migration_needed = .false.
+      do rank = 0, global_interp%pe_size - 1
+         if (rank .ne. pe_rank) then
+            migration_needed = migration_needed .or. &
+                 global_interp%n_points_pe(rank) .gt. 0
+            migration_needed = migration_needed .or. &
+                 global_interp%n_points_pe_local(rank) .gt. 0
+         end if
+      end do
+      if (.not. migration_needed .and. n_particles_local .eq. n) then
+         call this%localize_global_interpolation(global_interp, n)
+         call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+              ierr)
+         return
+      end if
 
-    allocate(particle_ids_local(n_particles_local))
-    particle_ids_local = 0
-    call neko_scratch_registry%request_vector(x_local, ind_basic(1), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(y_local, ind_basic(2), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(z_local, ind_basic(3), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(u_lag_local, ind_basic(4), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(v_lag_local, ind_basic(5), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(w_lag_local, ind_basic(6), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(u_laglag_local, ind_basic(7), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(v_laglag_local, ind_basic(8), &
-         n_particles_local, .false.)
-    call neko_scratch_registry%request_vector(w_laglag_local, ind_basic(9), &
-         n_particles_local, .false.)
-    if (inertia) then
-       call neko_scratch_registry%request_vector(u_local, ind_inertia(1), &
-            n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(v_local, ind_inertia(2), &
-            n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(w_local, ind_inertia(3), &
-            n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_xlocal, ind_inertia(4), &
-            n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_ylocal, ind_inertia(5), &
-            n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_zlocal, ind_inertia(6), &
-            n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(d_local, ind_inertia(7), &
-            n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(rho_local, ind_inertia(8), &
-            n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_xlag_local, &
-            ind_inertia(9), n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_ylag_local, &
-            ind_inertia(10), n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_zlag_local, &
-            ind_inertia(11), n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_xlaglag_local, &
-            ind_inertia(12), n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_ylaglag_local, &
-            ind_inertia(13), n_particles_local, .false.)
-       call neko_scratch_registry%request_vector(acc_zlaglag_local, &
-            ind_inertia(14), n_particles_local, .false.)
-    end if
+      allocate(particle_ids_local(n_particles_local))
+      particle_ids_local = 0
+      call neko_scratch_registry%request_vector(x_local, ind_basic(1), &
+           n_particles_local, .false.)
+      call neko_scratch_registry%request_vector(y_local, ind_basic(2), &
+           n_particles_local, .false.)
+      call neko_scratch_registry%request_vector(z_local, ind_basic(3), &
+           n_particles_local, .false.)
+      call neko_scratch_registry%request_vector(u_lag_local, ind_basic(4), &
+           n_particles_local, .false.)
+      call neko_scratch_registry%request_vector(v_lag_local, ind_basic(5), &
+           n_particles_local, .false.)
+      call neko_scratch_registry%request_vector(w_lag_local, ind_basic(6), &
+           n_particles_local, .false.)
+      call neko_scratch_registry%request_vector(u_laglag_local, ind_basic(7), &
+           n_particles_local, .false.)
+      call neko_scratch_registry%request_vector(v_laglag_local, ind_basic(8), &
+           n_particles_local, .false.)
+      call neko_scratch_registry%request_vector(w_laglag_local, ind_basic(9), &
+           n_particles_local, .false.)
+      if (inertia) then
+         call neko_scratch_registry%request_vector(u_local, ind_inertia(1), &
+              n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(v_local, ind_inertia(2), &
+              n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(w_local, ind_inertia(3), &
+              n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_xlocal, ind_inertia(4), &
+              n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_ylocal, ind_inertia(5), &
+              n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_zlocal, ind_inertia(6), &
+              n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(d_local, ind_inertia(7), &
+              n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(rho_local, ind_inertia(8), &
+              n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_xlag_local, &
+              ind_inertia(9), n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_ylag_local, &
+              ind_inertia(10), n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_zlag_local, &
+              ind_inertia(11), n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_xlaglag_local, &
+              ind_inertia(12), n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_ylaglag_local, &
+              ind_inertia(13), n_particles_local, .false.)
+         call neko_scratch_registry%request_vector(acc_zlaglag_local, &
+              ind_inertia(14), n_particles_local, .false.)
+      end if
 
-    call global_interp%init_redist_comm(migrate_comm)
-    call this%migrate_particle_ids(migrate_comm, particles%ids, &
-         n_particles_old, n_particles_local, particle_ids_local)
-    call this%migrate_particle_scalar(migrate_comm, x, n_particles_old, &
-         n_particles_local, x_local)
-    call this%migrate_particle_scalar(migrate_comm, y, n_particles_old, &
-         n_particles_local, y_local)
-    call this%migrate_particle_scalar(migrate_comm, z, n_particles_old, &
-         n_particles_local, z_local)
-    call this%migrate_particle_scalar(migrate_comm, u_lag, n_particles_old, &
-         n_particles_local, u_lag_local)
-    call this%migrate_particle_scalar(migrate_comm, v_lag, n_particles_old, &
-         n_particles_local, v_lag_local)
-    call this%migrate_particle_scalar(migrate_comm, w_lag, n_particles_old, &
-         n_particles_local, w_lag_local)
-    call this%migrate_particle_scalar(migrate_comm, u_laglag, n_particles_old, &
-         n_particles_local, u_laglag_local)
-    call this%migrate_particle_scalar(migrate_comm, v_laglag, n_particles_old, &
-         n_particles_local, v_laglag_local)
-    call this%migrate_particle_scalar(migrate_comm, w_laglag, n_particles_old, &
-         n_particles_local, w_laglag_local)
-    if (inertia) then
-       call this%migrate_particle_scalar(migrate_comm, u, n_particles_old, &
-            n_particles_local, u_local)
-       call this%migrate_particle_scalar(migrate_comm, v, n_particles_old, &
-            n_particles_local, v_local)
-       call this%migrate_particle_scalar(migrate_comm, w, n_particles_old, &
-            n_particles_local, w_local)
-       call this%migrate_particle_scalar(migrate_comm, acc_x, n_particles_old, &
-            n_particles_local, acc_xlocal)
-       call this%migrate_particle_scalar(migrate_comm, acc_y, n_particles_old, &
-            n_particles_local, acc_ylocal)
-       call this%migrate_particle_scalar(migrate_comm, acc_z, n_particles_old, &
-            n_particles_local, acc_zlocal)
-       call this%migrate_particle_scalar(migrate_comm, d, &
-            n_particles_old, n_particles_local, d_local)
-       call this%migrate_particle_scalar(migrate_comm, rho, &
-            n_particles_old, n_particles_local, rho_local)
-       call this%migrate_particle_scalar(migrate_comm, acc_xlag, &
-            n_particles_old, n_particles_local, acc_xlag_local)
-       call this%migrate_particle_scalar(migrate_comm, acc_ylag, &
-            n_particles_old, n_particles_local, acc_ylag_local)
-       call this%migrate_particle_scalar(migrate_comm, acc_zlag, &
-            n_particles_old, n_particles_local, acc_zlag_local)
-       call this%migrate_particle_scalar(migrate_comm, acc_xlaglag, &
-            n_particles_old, n_particles_local, acc_xlaglag_local)
-       call this%migrate_particle_scalar(migrate_comm, acc_ylaglag, &
-            n_particles_old, n_particles_local, acc_ylaglag_local)
-       call this%migrate_particle_scalar(migrate_comm, acc_zlaglag, &
-            n_particles_old, n_particles_local, acc_zlaglag_local)
-    end if
-    call migrate_comm%free()
+      call global_interp%init_redist_comm(migrate_comm)
+      call this%migrate_particle_ids(migrate_comm, particles%ids, &
+           n_particles_old, n_particles_local, particle_ids_local)
+      call this%migrate_particle_scalar(migrate_comm, x, n_particles_old, &
+           n_particles_local, x_local)
+      call this%migrate_particle_scalar(migrate_comm, y, n_particles_old, &
+           n_particles_local, y_local)
+      call this%migrate_particle_scalar(migrate_comm, z, n_particles_old, &
+           n_particles_local, z_local)
+      call this%migrate_particle_scalar(migrate_comm, u_lag, n_particles_old, &
+           n_particles_local, u_lag_local)
+      call this%migrate_particle_scalar(migrate_comm, v_lag, n_particles_old, &
+           n_particles_local, v_lag_local)
+      call this%migrate_particle_scalar(migrate_comm, w_lag, n_particles_old, &
+           n_particles_local, w_lag_local)
+      call this%migrate_particle_scalar(migrate_comm, u_laglag, n_particles_old, &
+           n_particles_local, u_laglag_local)
+      call this%migrate_particle_scalar(migrate_comm, v_laglag, n_particles_old, &
+           n_particles_local, v_laglag_local)
+      call this%migrate_particle_scalar(migrate_comm, w_laglag, n_particles_old, &
+           n_particles_local, w_laglag_local)
+      if (inertia) then
+         call this%migrate_particle_scalar(migrate_comm, u, n_particles_old, &
+              n_particles_local, u_local)
+         call this%migrate_particle_scalar(migrate_comm, v, n_particles_old, &
+              n_particles_local, v_local)
+         call this%migrate_particle_scalar(migrate_comm, w, n_particles_old, &
+              n_particles_local, w_local)
+         call this%migrate_particle_scalar(migrate_comm, acc_x, n_particles_old, &
+              n_particles_local, acc_xlocal)
+         call this%migrate_particle_scalar(migrate_comm, acc_y, n_particles_old, &
+              n_particles_local, acc_ylocal)
+         call this%migrate_particle_scalar(migrate_comm, acc_z, n_particles_old, &
+              n_particles_local, acc_zlocal)
+         call this%migrate_particle_scalar(migrate_comm, d, &
+              n_particles_old, n_particles_local, d_local)
+         call this%migrate_particle_scalar(migrate_comm, rho, &
+              n_particles_old, n_particles_local, rho_local)
+         call this%migrate_particle_scalar(migrate_comm, acc_xlag, &
+              n_particles_old, n_particles_local, acc_xlag_local)
+         call this%migrate_particle_scalar(migrate_comm, acc_ylag, &
+              n_particles_old, n_particles_local, acc_ylag_local)
+         call this%migrate_particle_scalar(migrate_comm, acc_zlag, &
+              n_particles_old, n_particles_local, acc_zlag_local)
+         call this%migrate_particle_scalar(migrate_comm, acc_xlaglag, &
+              n_particles_old, n_particles_local, acc_xlaglag_local)
+         call this%migrate_particle_scalar(migrate_comm, acc_ylaglag, &
+              n_particles_old, n_particles_local, acc_ylaglag_local)
+         call this%migrate_particle_scalar(migrate_comm, acc_zlaglag, &
+              n_particles_old, n_particles_local, acc_zlaglag_local)
+      end if
+      call migrate_comm%free()
 
-    n = n_particles_local
-    x = x_local
-    y = y_local
-    z = z_local
-    call move_alloc(particle_ids_local, particles%ids)
-    u_lag = u_lag_local
-    v_lag = v_lag_local
-    w_lag = w_lag_local
-    u_laglag = u_laglag_local
-    v_laglag = v_laglag_local
-    w_laglag = w_laglag_local
-    if (inertia) then
-       u = u_local
-       v = v_local
-       w = w_local
-       acc_x = acc_xlocal
-       acc_y = acc_ylocal
-       acc_z = acc_zlocal
-       d = d_local
-       rho = rho_local
-       acc_xlag = acc_xlag_local
-       acc_ylag = acc_ylag_local
-       acc_zlag = acc_zlag_local
-       acc_xlaglag = acc_xlaglag_local
-       acc_ylaglag = acc_ylaglag_local
-       acc_zlaglag = acc_zlaglag_local
-    end if
+      n = n_particles_local
+      x = x_local
+      y = y_local
+      z = z_local
+      call move_alloc(particle_ids_local, particles%ids)
+      u_lag = u_lag_local
+      v_lag = v_lag_local
+      w_lag = w_lag_local
+      u_laglag = u_laglag_local
+      v_laglag = v_laglag_local
+      w_laglag = w_laglag_local
+      if (inertia) then
+         u = u_local
+         v = v_local
+         w = w_local
+         acc_x = acc_xlocal
+         acc_y = acc_ylocal
+         acc_z = acc_zlocal
+         d = d_local
+         rho = rho_local
+         acc_xlag = acc_xlag_local
+         acc_ylag = acc_ylag_local
+         acc_zlag = acc_zlag_local
+         acc_xlaglag = acc_xlaglag_local
+         acc_ylaglag = acc_ylaglag_local
+         acc_zlaglag = acc_zlaglag_local
+      end if
 
-    if (allocated(particle_ids_local)) deallocate(particle_ids_local)
-    call neko_scratch_registry%relinquish(ind_basic)
-    if (inertia) call neko_scratch_registry%relinquish(ind_inertia)
+      if (allocated(particle_ids_local)) deallocate(particle_ids_local)
+      call neko_scratch_registry%relinquish(ind_basic)
+      if (inertia) call neko_scratch_registry%relinquish(ind_inertia)
 
-    call this%localize_global_interpolation(global_interp, n)
-    call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-     
+      call this%localize_global_interpolation(global_interp, n)
+      call MPI_Allreduce(n, n_global, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
     end associate
 
   end subroutine migrate_particles
@@ -345,7 +345,7 @@ contains
     class(lpt_migrate_t), intent(inout) :: this
     logical, intent(in) :: inertia
     type(particles_t), intent(inout) :: particles
-    
+
     integer, allocatable :: ids_local(:)
     type(vector_t), pointer :: x_local, y_local, z_local
     type(vector_t), pointer :: u_lag_local, v_lag_local, w_lag_local
@@ -355,7 +355,7 @@ contains
     type(vector_t), pointer :: d_local, rho_local
     type(vector_t), pointer :: acc_xlag_local, acc_ylag_local, acc_zlag_local
     type(vector_t), pointer :: acc_xlaglag_local, &
-                               acc_ylaglag_local, acc_zlaglag_local
+         acc_ylaglag_local, acc_zlaglag_local
     integer, allocatable :: counts(:)
     integer, allocatable :: offsets(:)
     integer :: n_local
@@ -374,140 +374,140 @@ contains
          acc_ylaglag => particles%acc_ylaglag, &
          acc_zlaglag => particles%acc_zlaglag, n => particles%n)
 
-    call build_even_particle_distribution(n, counts, offsets, n_local)
+      call build_even_particle_distribution(n, counts, offsets, n_local)
 
-    allocate(ids_local(n_local))
-    call neko_scratch_registry%request_vector(x_local, ind_basic(1), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(y_local, ind_basic(2), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(z_local, ind_basic(3), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(u_lag_local, ind_basic(4), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(v_lag_local, ind_basic(5), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(w_lag_local, ind_basic(6), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(u_laglag_local, ind_basic(7), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(v_laglag_local, ind_basic(8), &
-         n_local, .false.)
-    call neko_scratch_registry%request_vector(w_laglag_local, ind_basic(9), &
-         n_local, .false.)
-    if (inertia) then
-       call neko_scratch_registry%request_vector(u_local, ind_inertia(1), &
-            n_local, .false.)
-       call neko_scratch_registry%request_vector(v_local, ind_inertia(2), &
-            n_local, .false.)
-       call neko_scratch_registry%request_vector(w_local, ind_inertia(3), &
-            n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_xlocal, ind_inertia(4), &
-            n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_ylocal, ind_inertia(5), &
-            n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_zlocal, ind_inertia(6), &
-            n_local, .false.)
-       call neko_scratch_registry%request_vector(d_local, ind_inertia(7), &
-            n_local, .false.)
-       call neko_scratch_registry%request_vector(rho_local, ind_inertia(8), &
-            n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_xlag_local, &
-            ind_inertia(9), n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_ylag_local, &
-            ind_inertia(10), n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_zlag_local, &
-            ind_inertia(11), n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_xlaglag_local, &
-            ind_inertia(12), n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_ylaglag_local, &
-            ind_inertia(13), n_local, .false.)
-       call neko_scratch_registry%request_vector(acc_zlaglag_local, &
-            ind_inertia(14), n_local, .false.)
-    end if
+      allocate(ids_local(n_local))
+      call neko_scratch_registry%request_vector(x_local, ind_basic(1), &
+           n_local, .false.)
+      call neko_scratch_registry%request_vector(y_local, ind_basic(2), &
+           n_local, .false.)
+      call neko_scratch_registry%request_vector(z_local, ind_basic(3), &
+           n_local, .false.)
+      call neko_scratch_registry%request_vector(u_lag_local, ind_basic(4), &
+           n_local, .false.)
+      call neko_scratch_registry%request_vector(v_lag_local, ind_basic(5), &
+           n_local, .false.)
+      call neko_scratch_registry%request_vector(w_lag_local, ind_basic(6), &
+           n_local, .false.)
+      call neko_scratch_registry%request_vector(u_laglag_local, ind_basic(7), &
+           n_local, .false.)
+      call neko_scratch_registry%request_vector(v_laglag_local, ind_basic(8), &
+           n_local, .false.)
+      call neko_scratch_registry%request_vector(w_laglag_local, ind_basic(9), &
+           n_local, .false.)
+      if (inertia) then
+         call neko_scratch_registry%request_vector(u_local, ind_inertia(1), &
+              n_local, .false.)
+         call neko_scratch_registry%request_vector(v_local, ind_inertia(2), &
+              n_local, .false.)
+         call neko_scratch_registry%request_vector(w_local, ind_inertia(3), &
+              n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_xlocal, ind_inertia(4), &
+              n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_ylocal, ind_inertia(5), &
+              n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_zlocal, ind_inertia(6), &
+              n_local, .false.)
+         call neko_scratch_registry%request_vector(d_local, ind_inertia(7), &
+              n_local, .false.)
+         call neko_scratch_registry%request_vector(rho_local, ind_inertia(8), &
+              n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_xlag_local, &
+              ind_inertia(9), n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_ylag_local, &
+              ind_inertia(10), n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_zlag_local, &
+              ind_inertia(11), n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_xlaglag_local, &
+              ind_inertia(12), n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_ylaglag_local, &
+              ind_inertia(13), n_local, .false.)
+         call neko_scratch_registry%request_vector(acc_zlaglag_local, &
+              ind_inertia(14), n_local, .false.)
+      end if
 
-    call this%distribute_particle_ids(particles%ids, counts, offsets, n_local, &
-         ids_local)
-    call this%distribute_particle_scalar(x, counts, offsets, n_local, x_local)
-    call this%distribute_particle_scalar(y, counts, offsets, n_local, y_local)
-    call this%distribute_particle_scalar(z, counts, offsets, n_local, z_local)
-    call this%distribute_particle_scalar(u_lag, counts, offsets, n_local, &
-         u_lag_local)
-    call this%distribute_particle_scalar(v_lag, counts, offsets, n_local, &
-         v_lag_local)
-    call this%distribute_particle_scalar(w_lag, counts, offsets, n_local, &
-         w_lag_local)
-    call this%distribute_particle_scalar(u_laglag, counts, offsets, n_local, &
-         u_laglag_local)
-    call this%distribute_particle_scalar(v_laglag, counts, offsets, n_local, &
-         v_laglag_local)
-    call this%distribute_particle_scalar(w_laglag, counts, offsets, n_local, &
-         w_laglag_local)
-    if (inertia) then
-       call this%distribute_particle_scalar(u, counts, offsets, n_local, &
-            u_local)
-       call this%distribute_particle_scalar(v, counts, offsets, n_local, &
-            v_local)
-       call this%distribute_particle_scalar(w, counts, offsets, n_local, &
-            w_local)
-       call this%distribute_particle_scalar(acc_x, counts, offsets, n_local, &
-            acc_xlocal)
-       call this%distribute_particle_scalar(acc_y, counts, offsets, n_local, &
-            acc_ylocal)
-       call this%distribute_particle_scalar(acc_z, counts, offsets, n_local, &
-            acc_zlocal)
-       call this%distribute_particle_scalar(d, counts, offsets, n_local, &
-            d_local)
-       call this%distribute_particle_scalar(rho, counts, offsets, n_local, &
-            rho_local)
-       call this%distribute_particle_scalar(acc_xlag, counts, offsets, &
-            n_local, acc_xlag_local)
-       call this%distribute_particle_scalar(acc_ylag, counts, offsets, &
-            n_local, acc_ylag_local)
-       call this%distribute_particle_scalar(acc_zlag, counts, offsets, &
-            n_local, acc_zlag_local)
-       call this%distribute_particle_scalar(acc_xlaglag, counts, offsets, &
-            n_local, acc_xlaglag_local)
-       call this%distribute_particle_scalar(acc_ylaglag, counts, offsets, &
-            n_local, acc_ylaglag_local)
-       call this%distribute_particle_scalar(acc_zlaglag, counts, offsets, &
-            n_local, acc_zlaglag_local)
-    end if
+      call this%distribute_particle_ids(particles%ids, counts, offsets, n_local, &
+           ids_local)
+      call this%distribute_particle_scalar(x, counts, offsets, n_local, x_local)
+      call this%distribute_particle_scalar(y, counts, offsets, n_local, y_local)
+      call this%distribute_particle_scalar(z, counts, offsets, n_local, z_local)
+      call this%distribute_particle_scalar(u_lag, counts, offsets, n_local, &
+           u_lag_local)
+      call this%distribute_particle_scalar(v_lag, counts, offsets, n_local, &
+           v_lag_local)
+      call this%distribute_particle_scalar(w_lag, counts, offsets, n_local, &
+           w_lag_local)
+      call this%distribute_particle_scalar(u_laglag, counts, offsets, n_local, &
+           u_laglag_local)
+      call this%distribute_particle_scalar(v_laglag, counts, offsets, n_local, &
+           v_laglag_local)
+      call this%distribute_particle_scalar(w_laglag, counts, offsets, n_local, &
+           w_laglag_local)
+      if (inertia) then
+         call this%distribute_particle_scalar(u, counts, offsets, n_local, &
+              u_local)
+         call this%distribute_particle_scalar(v, counts, offsets, n_local, &
+              v_local)
+         call this%distribute_particle_scalar(w, counts, offsets, n_local, &
+              w_local)
+         call this%distribute_particle_scalar(acc_x, counts, offsets, n_local, &
+              acc_xlocal)
+         call this%distribute_particle_scalar(acc_y, counts, offsets, n_local, &
+              acc_ylocal)
+         call this%distribute_particle_scalar(acc_z, counts, offsets, n_local, &
+              acc_zlocal)
+         call this%distribute_particle_scalar(d, counts, offsets, n_local, &
+              d_local)
+         call this%distribute_particle_scalar(rho, counts, offsets, n_local, &
+              rho_local)
+         call this%distribute_particle_scalar(acc_xlag, counts, offsets, &
+              n_local, acc_xlag_local)
+         call this%distribute_particle_scalar(acc_ylag, counts, offsets, &
+              n_local, acc_ylag_local)
+         call this%distribute_particle_scalar(acc_zlag, counts, offsets, &
+              n_local, acc_zlag_local)
+         call this%distribute_particle_scalar(acc_xlaglag, counts, offsets, &
+              n_local, acc_xlaglag_local)
+         call this%distribute_particle_scalar(acc_ylaglag, counts, offsets, &
+              n_local, acc_ylaglag_local)
+         call this%distribute_particle_scalar(acc_zlaglag, counts, offsets, &
+              n_local, acc_zlaglag_local)
+      end if
 
-    n = n_local
-    x = x_local
-    y = y_local
-    z = z_local
-    call move_alloc(ids_local, particles%ids)
-    u_lag = u_lag_local
-    v_lag = v_lag_local
-    w_lag = w_lag_local
-    u_laglag = u_laglag_local
-    v_laglag = v_laglag_local
-    w_laglag = w_laglag_local
-    if (inertia) then
-       u = u_local
-       v = v_local
-       w = w_local
-       acc_x = acc_xlocal
-       acc_y = acc_ylocal
-       acc_z = acc_zlocal
-       d = d_local
-       rho = rho_local
-       acc_xlag = acc_xlag_local
-       acc_ylag = acc_ylag_local
-       acc_zlag = acc_zlag_local
-       acc_xlaglag = acc_xlaglag_local
-       acc_ylaglag = acc_ylaglag_local
-       acc_zlaglag = acc_zlaglag_local
-    end if
+      n = n_local
+      x = x_local
+      y = y_local
+      z = z_local
+      call move_alloc(ids_local, particles%ids)
+      u_lag = u_lag_local
+      v_lag = v_lag_local
+      w_lag = w_lag_local
+      u_laglag = u_laglag_local
+      v_laglag = v_laglag_local
+      w_laglag = w_laglag_local
+      if (inertia) then
+         u = u_local
+         v = v_local
+         w = w_local
+         acc_x = acc_xlocal
+         acc_y = acc_ylocal
+         acc_z = acc_zlocal
+         d = d_local
+         rho = rho_local
+         acc_xlag = acc_xlag_local
+         acc_ylag = acc_ylag_local
+         acc_zlag = acc_zlag_local
+         acc_xlaglag = acc_xlaglag_local
+         acc_ylaglag = acc_ylaglag_local
+         acc_zlaglag = acc_zlaglag_local
+      end if
 
-    if (allocated(ids_local)) deallocate(ids_local)
-    call neko_scratch_registry%relinquish(ind_basic)
-    if (inertia) call neko_scratch_registry%relinquish(ind_inertia)    
+      if (allocated(ids_local)) deallocate(ids_local)
+      call neko_scratch_registry%relinquish(ind_basic)
+      if (inertia) call neko_scratch_registry%relinquish(ind_inertia)
 
-    deallocate(counts)
-    deallocate(offsets)
+      deallocate(counts)
+      deallocate(offsets)
 
     end associate
 

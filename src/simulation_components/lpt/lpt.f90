@@ -456,7 +456,7 @@ contains
     call neko_scratch_registry%request_vector(Re_p, ind(2), n, .false.)
     call neko_scratch_registry%request_vector(f, ind(3), n, .false.)
     call neko_scratch_registry%request_vector(rho_fluid_local, &
-                                              ind(4), n, .false.)
+         ind(4), n, .false.)
     call neko_scratch_registry%request_vector(mu_fluid_local, ind(5), n, .false.)
     call neko_scratch_registry%request_vector(nu_fluid_local, ind(6), n, .false.)
     call neko_scratch_registry%request_vector(u_rel, ind(7), n, .false.)
