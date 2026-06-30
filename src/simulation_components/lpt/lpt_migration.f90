@@ -328,21 +328,6 @@ contains
        acc_xlaglag = acc_xlaglag_local
        acc_ylaglag = acc_ylaglag_local
        acc_zlaglag = acc_zlaglag_local
-    else
-       call u%free()
-       call v%free()
-       call w%free()
-       call acc_x%free()
-       call acc_y%free()
-       call acc_z%free()
-       call d%free()
-       call rho%free()
-       call acc_xlag%free()
-       call acc_ylag%free()
-       call acc_zlag%free()
-       call acc_xlaglag%free()
-       call acc_ylaglag%free()
-       call acc_zlaglag%free()
     end if
 
     if (allocated(particle_ids_local)) deallocate(particle_ids_local)
@@ -515,21 +500,6 @@ contains
        acc_xlaglag = acc_xlaglag_local
        acc_ylaglag = acc_ylaglag_local
        acc_zlaglag = acc_zlaglag_local
-    else
-       call u%free()
-       call v%free()
-       call w%free()
-       call acc_x%free()
-       call acc_y%free()
-       call acc_z%free()
-       call d%free()
-       call rho%free()
-       call acc_xlag%free()
-       call acc_ylag%free()
-       call acc_zlag%free()
-       call acc_xlaglag%free()
-       call acc_ylaglag%free()
-       call acc_zlaglag%free()
     end if
 
     if (allocated(ids_local)) deallocate(ids_local)
