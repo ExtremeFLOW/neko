@@ -1355,11 +1355,11 @@ contains
     !   every other holder of the same dof.
     !   reply = [dest=holder, len=2, gid, peer]
     !
-    nrec = n / 4   ! every record here has the fixed form [me, 2, gid, origin]
+    nrec = n / 4 ! every record here has the fixed form [me, 2, gid, origin]
     allocate(rgid(max(nrec, 1)), rgsid(max(nrec, 1)), gperm(max(nrec, 1)))
     do i = 1, nrec
-       rgid(i) = buf((i - 1) * 4 + 3)        ! gid
-       rgsid(i) = int(buf((i - 1) * 4 + 4))  ! origin rank (reuse array)
+       rgid(i) = buf((i - 1) * 4 + 3) ! gid
+       rgsid(i) = int(buf((i - 1) * 4 + 4)) ! origin rank (reuse array)
     end do
     if (nrec .gt. 0) call gs_sort_i8(rgid, gperm, nrec)
 
@@ -1373,8 +1373,8 @@ contains
        end do
        ! Reflect, to each holder, every other holder of this dof.
        if (j - i .gt. 1) then
-          do a = i, j - 1                 ! recipient holder
-             do b = i, j - 1              ! the other holder
+          do a = i, j - 1  ! recipient holder
+             do b = i, j - 1  ! the other holder
                 if (a .eq. b) cycle
                 call crystal_router_pack(cr_buf, rgsid(gperm(a)), &
                      [rgid(i), int(rgsid(gperm(b)), i8)])
@@ -1400,7 +1400,7 @@ contains
     ! Phase 3: register each (dof, peer) for both send and receive. Order each
     !   peer's dof list by gid so both ranks of a pair agree on the order.
     !
-    nrec = n / 4   ! replies are [me, 2, gid, peer]
+    nrec = n / 4 ! replies are [me, 2, gid, peer]
     allocate(rgid(max(nrec, 1)), rpeer(max(nrec, 1)), rgsid(max(nrec, 1)), &
          rperm(max(nrec, 1)))
     do i = 1, nrec

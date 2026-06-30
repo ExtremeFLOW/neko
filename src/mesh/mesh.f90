@@ -876,11 +876,11 @@ contains
           deallocate(body)
           allocate(body(2 + num_neigh))
        end if
-       body(1) = int(pt_glb_idx, i8)   ! glb_idx
-       body(2) = int(pe_rank, i8)      ! origin
+       body(1) = int(pt_glb_idx, i8) ! glb_idx
+       body(2) = int(pe_rank, i8) ! origin
        neighs => this%point_neigh(i)%array()
        do j = 1, num_neigh
-          body(2 + j) = int(neighs(j), i8)   ! element ids
+          body(2 + j) = int(neighs(j), i8) ! element ids
        end do
        owner = modulo(pt_glb_idx, pe_size)
        call crystal_router_pack(cr_buf, owner, body(1:2 + num_neigh))
@@ -917,8 +917,8 @@ contains
     p = 1
     do while (p .le. n)
        nrec = nrec + 1
-       rpos(nrec) = p                 ! record start offset in buf
-       gkey(nrec) = int(buf(p + 2))   ! glb_idx
+       rpos(nrec) = p ! record start offset in buf
+       gkey(nrec) = int(buf(p + 2)) ! glb_idx
        p = p + 2 + int(buf(p + 1))
     end do
     if (nrec .gt. 0) call sort(gkey, gperm, nrec)
@@ -936,9 +936,9 @@ contains
        ! send source holder p's record body (glb_idx, origin, elems) to
        ! recipient holder k, addressed to k's origin rank.
        if (j - i .gt. 1) then
-          do k = i, j - 1                    ! recipient holder
+          do k = i, j - 1 ! recipient holder
              rk = rpos(gperm(k))
-             do p = i, j - 1                 ! source holder
+             do p = i, j - 1 ! source holder
                 if (p .eq. k) cycle
                 rp = rpos(gperm(p))
                 call crystal_router_pack(cr_buf, int(buf(rk + 3)), &
