@@ -46,6 +46,7 @@ module lpt_output
   type, public :: lpt_output_t
      type(file_t) :: output_file
      logical :: hdf5_output = .false.
+     logical :: inertia = .false.
      integer :: hdf5_output_count = 0
      integer :: n_data = 0
    contains
@@ -67,6 +68,7 @@ contains
     character(len=80) :: output_suffix
 
     call this%free()
+    this%inertia = inertia
 
     if (inertia) then
        this%n_data = 11
@@ -123,10 +125,16 @@ contains
        call ft%set_overwrite(.false.)
        call ft%open("w")
        call ft%set_active_group("lpt")
-       out_int = 1
+       out_int = 2
        call ft%write_attribute("FormatVersion", out_int)
        out_int = this%n_data
        call ft%write_attribute("NColumns", out_int)
+       if (inertia) then
+          out_int = 4
+       else
+          out_int = 3
+       end if
+       call ft%write_attribute("NCategories", out_int)
        if (inertia) then
           out_int = 1
        else
@@ -161,11 +169,30 @@ contains
     class(lpt_output_t), intent(inout) :: this
     integer, intent(in) :: n_local
     real(kind=rp), intent(in) :: local_data(this%n_data, n_local)
-    type(matrix_t) :: block
+    type(matrix_t) :: metadata
+    type(matrix_t) :: position
+    type(matrix_t) :: velocity
+    type(matrix_t) :: diameter
+    type(matrix_t) :: density
     integer :: out_int
 
-    call block%init(this%n_data, n_local, "data")
-    if (n_local .gt. 0) block%x = local_data
+    call metadata%init(3, n_local, "metadata")
+    call position%init(3, n_local, "position")
+    call velocity%init(3, n_local, "velocity")
+    if (this%inertia) then
+       call diameter%init(1, n_local, "diameter")
+       call density%init(1, n_local, "density")
+    end if
+
+    if (n_local .gt. 0) then
+       metadata%x = local_data(1:3, :)
+       position%x = local_data(4:6, :)
+       velocity%x = local_data(7:9, :)
+       if (this%inertia) then
+          diameter%x(1, :) = local_data(10, :)
+          density%x(1, :) = local_data(11, :)
+       end if
+    end if
 
     select type (ft => this%output_file%file_type)
     type is (hdf5_file_t)
@@ -173,14 +200,29 @@ contains
        call ft%set_active_group("lpt")
        out_int = this%hdf5_output_count + 1
        call ft%write_attribute("NSteps", out_int)
-       call ft%write_dataset(block)
+       call ft%write_dataset(metadata)
+       call ft%write_dataset(position)
+       call ft%write_dataset(velocity)
+       if (this%inertia) then
+          call ft%set_active_group("lpt/properties")
+          out_int = 2
+          call ft%write_attribute("NCategories", out_int)
+          call ft%write_dataset(diameter)
+          call ft%write_dataset(density)
+       end if
        call ft%close()
     class default
        call neko_error("lpt internal error: expected hdf5_file_t")
     end select
 
     this%hdf5_output_count = this%hdf5_output_count + 1
-    call block%free()
+    call metadata%free()
+    call position%free()
+    call velocity%free()
+    if (this%inertia) then
+       call diameter%free()
+       call density%free()
+    end if
   end subroutine lpt_output_write_hdf5
 
   !> Write one trajectory snapshot to CSV by gathering particle data to rank 0.
@@ -249,6 +291,7 @@ contains
 
     call this%output_file%free()
     this%hdf5_output = .false.
+    this%inertia = .false.
     this%hdf5_output_count = 0
     this%n_data = 0
   end subroutine lpt_output_free
