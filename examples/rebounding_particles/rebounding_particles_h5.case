@@ -11,7 +11,7 @@
     },
     "numerics": {
       "time_order": 3,
-      "polynomial_order": 2,
+      "polynomial_order": 3,
       "dealias": true
     },
     "fluid": {
