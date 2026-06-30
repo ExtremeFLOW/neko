@@ -246,11 +246,6 @@ contains
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name))
     call json_get_or_default(json, "output_format", output_format, "csv")
-    select case (trim(output_format))
-    case ("csv", "h5", "hdf5")
-    case default
-       call neko_error("lpt output_format must be 'csv', 'h5', or 'hdf5'")
-    end select
 
     call json%info("snapshots_per_file", found = snapshots_per_file_found, &
          var_type = snapshots_per_file_type)
