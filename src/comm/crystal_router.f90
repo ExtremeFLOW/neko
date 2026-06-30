@@ -180,6 +180,12 @@ contains
        end if
     end do
 
+    ! Release the per-stage scratch buffers (buf is returned to the caller).
+    if (allocated(keep)) deallocate(keep)
+    if (allocated(snd)) deallocate(snd)
+    if (allocated(rcv)) deallocate(rcv)
+    if (allocated(extra)) deallocate(extra)
+
   end subroutine crystal_router_transfer
 
   !> Abort if any record destination falls outside @f$ [0, P) @f$.
