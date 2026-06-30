@@ -68,7 +68,8 @@
                         0.7, 0.0, 0.0],
         "diameters": [1e-3, 1e-3, 1e-3],
         "densities": [1e7, 1e7, 1e7],
-        "output_filename": "tracers.h5",
+        "output_filename": "tracers",
+        "output_format": "h5",
         "snapshots_per_file": "all",
         "output_control": "tsteps",
         "output_value": 1

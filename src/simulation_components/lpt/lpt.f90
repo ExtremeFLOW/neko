@@ -158,6 +158,7 @@ contains
     character(len=:), allocatable :: name
     character(len=:), allocatable :: migration_strategy
     character(len=:), allocatable :: output_filename
+    character(len=:), allocatable :: output_format
     character(len=:), allocatable :: snapshots_per_file_str
     character(len=:), allocatable :: output_path
     integer :: migration_strategy_id
@@ -264,7 +265,14 @@ contains
     call this%update_current_rhs()
 
     call json_get_or_default(json, "output_filename", output_filename, &
-         trim(this%name) // ".csv")
+         trim(this%name))
+    call json_get_or_default(json, "output_format", output_format, "csv")
+    select case (trim(output_format))
+    case ("csv", "h5", "hdf5")
+    case default
+       call neko_error("lpt output_format must be 'csv', 'h5', or 'hdf5'")
+    end select
+
     call json%info("snapshots_per_file", found = snapshots_per_file_found, &
          var_type = snapshots_per_file_type)
     if (snapshots_per_file_found) then
@@ -291,7 +299,8 @@ contains
        snapshots_per_file = 0
        call json%add("snapshots_per_file", "all")
     end if
-    output_path = case%output_directory // trim(output_filename)
+    output_path = case%output_directory // trim(output_filename) // "." // &
+         trim(output_format)
     call this%output%init(output_path, this%inertia, snapshots_per_file)
 
     ! output at the initialisation

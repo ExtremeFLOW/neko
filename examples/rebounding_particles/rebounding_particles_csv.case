@@ -61,7 +61,8 @@
         "wall_zone_indices": [2],
         "log": true,
         "points_file": "particles.csv",
-        "output_filename": "tracers.csv",
+        "output_filename": "tracers",
+        "output_format": "csv",
         "snapshots_per_file": "all",
         "output_control": "tsteps",
         "output_value": 1
