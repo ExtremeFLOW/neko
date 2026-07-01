@@ -1,0 +1,7 @@
+<map id="gather_scatter::gs_sort_i8" name="gather_scatter::gs_sort_i8">
+<area shape="rect" id="Node000001" title="Heap sort for 64&#45;bit integer arrays, returning the permutation ind. Local helper for gs_schedule (the..." alt="" coords="407,5,545,45"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793" title="Schedule shared gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="393,28,359,28,359,23,393,23"/>
+<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+</map>

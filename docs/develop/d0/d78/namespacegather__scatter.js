@@ -7,5 +7,6 @@ var namespacegather__scatter =
     [ "gs_op_fld", "d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083", null ],
     [ "gs_op_r4", "d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23", null ],
     [ "gs_op_vector", "d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806", null ],
-    [ "gs_schedule", "d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793", null ]
+    [ "gs_schedule", "d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793", null ],
+    [ "gs_sort_i8", "d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655", null ]
 ];

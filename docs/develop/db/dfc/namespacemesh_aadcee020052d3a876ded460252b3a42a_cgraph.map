@@ -1,0 +1,17 @@
+<map id="mesh::mesh_generate_external_point_conn" name="mesh::mesh_generate_external_point_conn">
+<area shape="rect" id="Node000001" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="5,101,172,141"/>
+<area shape="rect" id="Node000002" href="$d8/d75/namespacecrystal__router.html#a8feca47eb70b004800b3c053fca83f9c" title="Append one record to a packed crystal&#45;router buffer." alt="" coords="220,69,384,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,106,206,101,207,106,172,112"/>
+<area shape="rect" id="Node000003" href="$d8/d75/namespacecrystal__router.html#a3748daf852207d528e6b3651a74bb6d3" title="Route packed records to their destination ranks." alt="" coords="220,133,384,173"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,131,207,136,206,142,172,136"/>
+<area shape="rect" id="Node000004" href="$d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="432,5,564,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="363,131,382,119,397,104,406,88,415,72,430,55,436,51,439,55,434,59,419,75,411,91,402,107,386,123,366,135"/>
+<area shape="rect" id="Node000005" href="$d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="432,69,564,109"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="363,131,423,111,424,116,365,136"/>
+<area shape="rect" id="Node000006" href="$d8/d75/namespacecrystal__router.html#a6545979889a469f3d0108e0d3fa36c41" title="Rebuild buf as the concatenation a(1:na) ++ b(1:nb)." alt="" coords="432,133,564,173"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="384,151,418,151,418,156,384,156"/>
+<area shape="rect" id="Node000007" href="$d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="432,197,564,237"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="365,171,424,191,423,196,363,176"/>
+<area shape="rect" id="Node000008" href="$d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="432,261,564,301"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="329,171,376,208,433,247,443,253,440,257,431,252,373,212,326,176"/>
+</map>

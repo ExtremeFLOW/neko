@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.5</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -127,6 +127,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a70b1e5adb11770ec89f7e135bb74c793" id="r_a70b1e5adb11770ec89f7e135bb74c793"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793">gs_schedule</a> (gs)</td></tr>
 <tr class="memdesc:a70b1e5adb11770ec89f7e135bb74c793"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schedule shared gather-scatter operations.  <br /></td></tr>
 <tr class="separator:a70b1e5adb11770ec89f7e135bb74c793"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abba505ea99ff836fd6ba1e86d237d655" id="r_abba505ea99ff836fd6ba1e86d237d655"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655">gs_sort_i8</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">a</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ind</a>, n)</td></tr>
+<tr class="memdesc:abba505ea99ff836fd6ba1e86d237d655"><td class="mdescLeft">&#160;</td><td class="mdescRight">Heap sort for 64-bit integer arrays, returning the permutation <em>ind</em>. Local helper for gs_schedule (the generic math sort has no i8 variant).  <br /></td></tr>
+<tr class="separator:abba505ea99ff836fd6ba1e86d237d655"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6d7eed444d705e5a72312bf01e3c083" id="r_af6d7eed444d705e5a72312bf01e3c083"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083">gs_op_fld</a> (gs, u, op, event)</td></tr>
 <tr class="memdesc:af6d7eed444d705e5a72312bf01e3c083"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather-scatter operation on a field <em>u</em> with op <em>op</em>.  <br /></td></tr>
 <tr class="separator:af6d7eed444d705e5a72312bf01e3c083"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -218,26 +221,42 @@ Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d78/namespacegather__scatter_ab47747b3dc7d9b75b840e7c6aafdf347_cgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_ab47747b3dc7d9b75b840e7c6aafdf347_cgraph" alt=""/></div>
 <map name="ad0/d78/namespacegather__scatter_ab47747b3dc7d9b75b840e7c6aafdf347_cgraph" id="ad0/d78/namespacegather__scatter_ab47747b3dc7d9b75b840e7c6aafdf347_cgraph">
-<area shape="rect" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,235,172,260"/>
+<area shape="rect" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,283,172,308"/>
 <area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,121,359,161"/>
-<area shape="poly" title=" " alt="" coords="113,232,238,165,240,169,115,237"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="220,227,359,267"/>
-<area shape="poly" title=" " alt="" coords="172,245,206,245,206,250,172,250"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793" title="Schedule shared gather&#45;scatter operations." alt="" coords="220,291,359,331"/>
-<area shape="poly" title=" " alt="" coords="130,258,214,285,212,290,129,263"/>
-<area shape="rect" href="../../d5/d7e/gather__scatter_8f90.html#a911f14e18cc5ef3b55e29dbdc6fe5ce2" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="435,5,538,31"/>
-<area shape="poly" title=" " alt="" coords="307,119,350,79,405,40,421,32,423,37,408,44,353,83,311,122"/>
-<area shape="rect" href="../../d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8" title="Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu..." alt="" coords="407,55,567,80"/>
+<area shape="poly" title=" " alt="" coords="105,280,250,167,253,171,108,285"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="220,275,359,315"/>
+<area shape="poly" title=" " alt="" coords="172,293,206,293,206,298,172,298"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793" title="Schedule shared gather&#45;scatter operations." alt="" coords="220,371,359,411"/>
+<area shape="poly" title=" " alt="" coords="117,306,235,363,233,368,115,310"/>
+<area shape="rect" href="../../d5/d7e/gather__scatter_8f90.html#a911f14e18cc5ef3b55e29dbdc6fe5ce2" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="437,5,540,31"/>
+<area shape="poly" title=" " alt="" coords="307,118,350,79,405,40,423,31,425,36,408,44,353,83,311,122"/>
+<area shape="rect" href="../../d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8" title="Register a unique dof Takes the unique id dof and checks if it is in the htable map_ If it is we retu..." alt="" coords="409,55,569,80"/>
 <area shape="poly" title=" " alt="" coords="334,118,406,89,427,82,429,87,408,94,336,123"/>
-<area shape="rect" href="../../d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b" title="Sort the dof lists based on the dof to gather&#45;scatter list." alt="" coords="419,128,554,153"/>
-<area shape="poly" title=" " alt="" coords="359,138,405,138,405,143,359,143"/>
-<area shape="rect" href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="417,177,556,203"/>
-<area shape="poly" title=" " alt="" coords="359,155,422,171,421,176,358,161"/>
-<area shape="poly" title=" " alt="" coords="454,129,447,120,451,110,464,104,487,101,514,105,525,114,522,118,512,110,487,107,466,109,455,113,452,119,458,126"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="425,227,548,267"/>
-<area shape="poly" title=" " alt="" coords="359,245,411,245,411,250,359,250"/>
-<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="425,291,548,331"/>
-<area shape="poly" title=" " alt="" coords="353,265,413,285,411,290,351,270"/>
+<area shape="rect" href="../../d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b" title="Sort the dof lists based on the dof to gather&#45;scatter list." alt="" coords="421,128,556,153"/>
+<area shape="poly" title=" " alt="" coords="359,138,408,138,408,143,359,143"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="419,177,558,203"/>
+<area shape="poly" title=" " alt="" coords="360,155,424,171,423,177,358,160"/>
+<area shape="poly" title=" " alt="" coords="457,129,450,120,453,110,467,104,489,101,515,105,527,114,523,118,513,110,489,107,468,109,457,113,455,119,461,126"/>
+<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="427,227,550,267"/>
+<area shape="poly" title=" " alt="" coords="358,276,413,263,414,268,360,281"/>
+<area shape="rect" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="427,291,550,331"/>
+<area shape="poly" title=" " alt="" coords="359,298,414,303,413,308,359,304"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a8feca47eb70b004800b3c053fca83f9c" title="Append one record to a packed crystal&#45;router buffer." alt="" coords="407,355,571,395"/>
+<area shape="poly" title=" " alt="" coords="359,383,393,380,393,386,359,388"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a3748daf852207d528e6b3651a74bb6d3" title="Route packed records to their destination ranks." alt="" coords="407,419,571,459"/>
+<area shape="poly" title=" " alt="" coords="360,405,394,414,393,419,358,411"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655" title="Heap sort for 64&#45;bit integer arrays, returning the permutation ind. Local helper for gs_schedule (the..." alt="" coords="419,483,558,523"/>
+<area shape="poly" title=" " alt="" coords="318,409,359,439,408,469,421,475,418,480,405,474,356,444,315,414"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="619,291,751,331"/>
+<area shape="poly" title=" " alt="" coords="550,417,569,405,584,390,593,374,601,358,617,341,623,337,626,341,620,345,606,361,597,377,588,393,572,409,553,421"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="619,355,751,395"/>
+<area shape="poly" title=" " alt="" coords="550,417,609,397,611,402,551,422"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a6545979889a469f3d0108e0d3fa36c41" title="Rebuild buf as the concatenation a(1:na) ++ b(1:nb)." alt="" coords="619,419,751,459"/>
+<area shape="poly" title=" " alt="" coords="571,437,605,437,605,442,571,442"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="619,483,751,523"/>
+<area shape="poly" title=" " alt="" coords="551,457,611,477,609,482,550,462"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="619,547,751,587"/>
+<area shape="poly" title=" " alt="" coords="553,457,572,469,588,486,597,502,606,517,620,533,626,538,623,542,617,537,601,520,593,504,584,489,569,473,550,462"/>
 </map>
 </div>
 
@@ -345,7 +364,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01422">1422</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01508">1508</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -425,7 +444,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01438">1438</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01524">1524</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -505,7 +524,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01454">1454</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01540">1540</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -562,11 +581,33 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000010">Todo:</a></b></dt><dd>Consider switching to a crystal router... </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000011">Todo:</a></b></dt><dd>don't touch others data... </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000012">Todo:</a></b></dt><dd>don't touch others data... </dd></dl>
+<p>Discovers, for every shared dof, the set of ranks that also hold it, using a canonical-owner rendezvous routed through the crystal router instead of the previous O(P) shifted neighbour exchange. Each dof global id is hashed to an owner rank, <code>mod(gid, P)</code>; the owner gathers all holders and reflects, to each holder, the other holders. Each holder then registers the dof for both send and receive with every peer. The per-peer dof lists are ordered by dof global id, which gives the same ordering on both ranks of a pair (the matching invariant the gather-scatter exchange relies on) without ever transmitting a single sequenced key list. Scales to &gt;1e5 ranks without O(P) buffers or unexpected-message buffer exhaustion. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01305">1305</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01315">1315</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/d78/namespacegather__scatter_a70b1e5adb11770ec89f7e135bb74c793_cgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_a70b1e5adb11770ec89f7e135bb74c793_cgraph" alt=""/></div>
+<map name="ad0/d78/namespacegather__scatter_a70b1e5adb11770ec89f7e135bb74c793_cgraph" id="ad0/d78/namespacegather__scatter_a70b1e5adb11770ec89f7e135bb74c793_cgraph">
+<area shape="rect" title="Schedule shared gather&#45;scatter operations." alt="" coords="5,133,144,173"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a8feca47eb70b004800b3c053fca83f9c" title="Append one record to a packed crystal&#45;router buffer." alt="" coords="192,69,356,109"/>
+<area shape="poly" title=" " alt="" coords="137,131,197,111,199,116,139,136"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a3748daf852207d528e6b3651a74bb6d3" title="Route packed records to their destination ranks." alt="" coords="192,133,356,173"/>
+<area shape="poly" title=" " alt="" coords="144,151,178,151,178,156,144,156"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#abba505ea99ff836fd6ba1e86d237d655" title="Heap sort for 64&#45;bit integer arrays, returning the permutation ind. Local helper for gs_schedule (the..." alt="" coords="205,197,343,237"/>
+<area shape="poly" title=" " alt="" coords="139,171,199,191,197,196,137,176"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="404,5,536,45"/>
+<area shape="poly" title=" " alt="" coords="335,131,354,119,369,104,378,88,387,72,402,55,408,51,411,55,406,59,391,75,383,91,374,107,358,123,338,135"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="404,69,536,109"/>
+<area shape="poly" title=" " alt="" coords="335,131,395,111,396,116,337,136"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a6545979889a469f3d0108e0d3fa36c41" title="Rebuild buf as the concatenation a(1:na) ++ b(1:nb)." alt="" coords="404,133,536,173"/>
+<area shape="poly" title=" " alt="" coords="356,151,390,151,390,156,356,156"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="404,197,536,237"/>
+<area shape="poly" title=" " alt="" coords="337,171,396,191,395,196,335,176"/>
+<area shape="rect" href="../../d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="404,261,536,301"/>
+<area shape="poly" title=" " alt="" coords="338,171,358,183,374,200,383,216,391,231,406,247,411,252,408,256,402,251,387,234,378,218,369,203,354,187,335,176"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -580,13 +621,69 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="abba505ea99ff836fd6ba1e86d237d655" name="abba505ea99ff836fd6ba1e86d237d655"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abba505ea99ff836fd6ba1e86d237d655">&#9670;&#160;</a></span>gs_sort_i8()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gather_scatter::gs_sort_i8 </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>(i8), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(n), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
+          <td class="paramname"><em>ind</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01455">1455</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/d78/namespacegather__scatter_abba505ea99ff836fd6ba1e86d237d655_icgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_abba505ea99ff836fd6ba1e86d237d655_icgraph" alt=""/></div>
+<map name="ad0/d78/namespacegather__scatter_abba505ea99ff836fd6ba1e86d237d655_icgraph" id="ad0/d78/namespacegather__scatter_abba505ea99ff836fd6ba1e86d237d655_icgraph">
+<area shape="rect" title="Heap sort for 64&#45;bit integer arrays, returning the permutation ind. Local helper for gs_schedule (the..." alt="" coords="407,5,545,45"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793" title="Schedule shared gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
+<area shape="poly" title=" " alt="" coords="393,28,359,28,359,23,393,23"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+</map>
+</div>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></li>
-    <li class="footer">Generated on Tue Jun 30 2026 04:54:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jul 1 2026 05:03:39 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

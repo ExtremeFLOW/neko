@@ -31,7 +31,7 @@ var searchData=
   ['gs_5fdevice_5fshmem_2ef90_28',['gs_device_shmem.F90',['../da/d8d/gs__device__shmem_8F90.html',1,'']]],
   ['gs_5fkernels_2eh_29',['gs_kernels.h',['../d0/dc4/cuda_2gs__kernels_8h.html',1,'(Global Namespace)'],['../d7/de4/hip_2gs__kernels_8h.html',1,'(Global Namespace)']]],
   ['gs_5fmpi_2ef90_30',['gs_mpi.f90',['../d6/ddf/gs__mpi_8f90.html',1,'']]],
-  ['gs_5fneighbour_2ef90_31',['gs_neighbour.F90',['../d3/d10/gs__neighbour_8F90.html',1,'']]],
+  ['gs_5fneighbour_2ef90_31',['gs_neighbour.f90',['../d1/db8/gs__neighbour_8f90.html',1,'']]],
   ['gs_5fnvshmem_2ecu_32',['gs_nvshmem.cu',['../d3/de2/gs__nvshmem_8cu.html',1,'']]],
   ['gs_5fnvshmem_5fkernels_2eh_33',['gs_nvshmem_kernels.h',['../de/df0/gs__nvshmem__kernels_8h.html',1,'']]],
   ['gs_5fops_2ef90_34',['gs_ops.f90',['../d4/d67/gs__ops_8f90.html',1,'']]],

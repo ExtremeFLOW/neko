@@ -10,5 +10,6 @@ var gather__scatter_8f90 =
     [ "gs_op_r4", "d5/d7e/gather__scatter_8f90.html#a9add4a7c59c01d0c077e39fcdba63b23", null ],
     [ "gs_op_vector", "d5/d7e/gather__scatter_8f90.html#ae256fdf907de8a5e60a425f9d3510806", null ],
     [ "gs_qsort_dofmap", "d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b", null ],
-    [ "gs_schedule", "d5/d7e/gather__scatter_8f90.html#a70b1e5adb11770ec89f7e135bb74c793", null ]
+    [ "gs_schedule", "d5/d7e/gather__scatter_8f90.html#a70b1e5adb11770ec89f7e135bb74c793", null ],
+    [ "gs_sort_i8", "d5/d7e/gather__scatter_8f90.html#abba505ea99ff836fd6ba1e86d237d655", null ]
 ];
