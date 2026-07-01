@@ -309,18 +309,12 @@ contains
              diams = 0.0_rp
              densities = 0.0_rp
           end if
-          call neko_scratch_registry%request_host_array(x, ind(1), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(y, ind(2), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(z, ind(3), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(u, ind(4), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(v, ind(5), n_particles, &
-               .false.)
-          call neko_scratch_registry%request_host_array(w, ind(6), n_particles, &
-               .false.)
+          call neko_scratch_registry%request(x, ind(1), n_particles, .false.)
+          call neko_scratch_registry%request(y, ind(2), n_particles, .false.)
+          call neko_scratch_registry%request(z, ind(3), n_particles, .false.)
+          call neko_scratch_registry%request(u, ind(4), n_particles, .false.)
+          call neko_scratch_registry%request(v, ind(5), n_particles, .false.)
+          call neko_scratch_registry%request(w, ind(6), n_particles, .false.)
           x%x = coords(1::3)
           y%x = coords(2::3)
           z%x = coords(3::3)
@@ -368,18 +362,18 @@ contains
           call mat_in%init(ft%count_lines(), 8)
           call ft%read(mat_in)
           n_particles = mat_in%get_nrows()
-          call neko_scratch_registry%request_host_array(x, ind_inertia(1), &
-               n_particles, .false.)
-          call neko_scratch_registry%request_host_array(y, ind_inertia(2), &
-               n_particles, .false.)
-          call neko_scratch_registry%request_host_array(z, ind_inertia(3), &
-               n_particles, .false.)
-          call neko_scratch_registry%request_host_array(u, ind_inertia(4), &
-               n_particles, .false.)
-          call neko_scratch_registry%request_host_array(v, ind_inertia(5), &
-               n_particles, .false.)
-          call neko_scratch_registry%request_host_array(w, ind_inertia(6), &
-               n_particles, .false.)
+          call neko_scratch_registry%request(x, ind_inertia(1), n_particles, &
+               .false.)
+          call neko_scratch_registry%request(y, ind_inertia(2), n_particles, &
+               .false.)
+          call neko_scratch_registry%request(z, ind_inertia(3), n_particles, &
+               .false.)
+          call neko_scratch_registry%request(u, ind_inertia(4), n_particles, &
+               .false.)
+          call neko_scratch_registry%request(v, ind_inertia(5), n_particles, &
+               .false.)
+          call neko_scratch_registry%request(w, ind_inertia(6), n_particles, &
+               .false.)
           x%x = mat_in%x(:, 1)
           y%x = mat_in%x(:, 2)
           z%x = mat_in%x(:, 3)
