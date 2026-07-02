@@ -88,6 +88,7 @@ contains
        call neko_error("particle diameter and density must both be provided")
     end if
     this%inertia = present(diameter)
+    call this%x%init(this%n)
     call this%y%init(this%n)
     call this%z%init(this%n)
     call this%u%init(this%n)
