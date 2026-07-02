@@ -129,6 +129,8 @@ module idw_source_term
      procedure, pass(this) :: init_boundary_mesh => idw_init_boundary_mesh
   end type idw_source_term_t
 
+  public :: idw_interp_shepard
+
 contains
 
   subroutine idw_source_term_init_from_json(this, json, fields, &
@@ -973,6 +975,88 @@ contains
     end associate
 
   end subroutine idw_source_term_compute
+
+  !> Shepard (inverse-distance-weighted) interpolation of the velocity onto
+  !! the Lagrangian points, mirroring the spread operator: same kernel and
+  !! stencil, hard pmsk side test, row-normalized per marker and side.
+  !! Contributions carry the dof multiplicity weight so that shared nodes,
+  !! visited once per adjoining stencil element, count once. Sides whose
+  !! weight sum is below tolerance return zero.
+  subroutine idw_interp_shepard(fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
+       lag_pts, lag_el, u, v, w, pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne)
+    real(kind=rp), intent(inout) :: fu_ib(:), fv_ib(:), fw_ib(:)
+    real(kind=rp), intent(inout) :: fum_ib(:), fvm_ib(:), fwm_ib(:)
+    type(point_t), intent(in) :: lag_pts(:)
+    type(stack_i4_t), intent(inout) :: lag_el(:)
+    integer, intent(in) :: lx, ne
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: u, v, w
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, mult, x, y, z, ds
+    real(kind=rp), intent(in) :: rmax_i, p
+    integer :: i, j, k, l, e, ee
+    real(kind=rp) :: r, wgt
+    real(kind=rp) :: nup, nvp, nwp, dp_sum
+    real(kind=rp) :: num, nvm, nwm, dm_sum
+
+    do i = 1, size(lag_pts)
+       nup = 0.0_rp
+       nvp = 0.0_rp
+       nwp = 0.0_rp
+       dp_sum = 0.0_rp
+       num = 0.0_rp
+       nvm = 0.0_rp
+       nwm = 0.0_rp
+       dm_sum = 0.0_rp
+       select type (el => lag_el(i)%data)
+         type is (integer)
+          do ee = 1, lag_el(i)%size()
+             e = el(ee)
+             do l = 1, lx
+                do k = 1, lx
+                   do j = 1, lx
+                      r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
+                           + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
+                           + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
+                      r = r / ds(j,k,l,e)
+                      wgt = inv_dist_weight(r, rmax_i, p) * mult(j,k,l,e)
+                      if (pmsk(j,k,l,e) .gt. 0.0_rp) then
+                         nup = nup + wgt * u(j,k,l,e)
+                         nvp = nvp + wgt * v(j,k,l,e)
+                         nwp = nwp + wgt * w(j,k,l,e)
+                         dp_sum = dp_sum + wgt
+                      else
+                         num = num + wgt * u(j,k,l,e)
+                         nvm = nvm + wgt * v(j,k,l,e)
+                         nwm = nwm + wgt * w(j,k,l,e)
+                         dm_sum = dm_sum + wgt
+                      end if
+                   end do
+                end do
+             end do
+          end do
+       end select
+
+       if (dp_sum .gt. 1e-12_rp) then
+          fu_ib(i) = nup / dp_sum
+          fv_ib(i) = nvp / dp_sum
+          fw_ib(i) = nwp / dp_sum
+       else
+          fu_ib(i) = 0.0_rp
+          fv_ib(i) = 0.0_rp
+          fw_ib(i) = 0.0_rp
+       end if
+
+       if (dm_sum .gt. 1e-12_rp) then
+          fum_ib(i) = num / dm_sum
+          fvm_ib(i) = nvm / dm_sum
+          fwm_ib(i) = nwm / dm_sum
+       else
+          fum_ib(i) = 0.0_rp
+          fvm_ib(i) = 0.0_rp
+          fwm_ib(i) = 0.0_rp
+       end if
+    end do
+
+  end subroutine idw_interp_shepard
 
   subroutine idw_init_boundary_mesh(this, lag_pts, lag_nrm, json)
     class(idw_source_term_t), intent(inout) :: this

@@ -1,13 +1,206 @@
 module test_idw_interp
   use pfunit
   use num_types, only : rp
+  use point, only : point_t
+  use stack, only : stack_i4_t
+  use idw_source_term, only : idw_interp_shepard
   implicit none
+
+  integer, parameter :: lx = 6, ne = 1
 
 contains
 
+  !> Uniform grid on [1,2]^3, h = 0.2; pmsk = 1 above the z = 1.5 plane.
+  subroutine setup_grid(x, y, z, ds, mult, pmsk)
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(out) :: x, y, z
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(out) :: ds, mult, pmsk
+    integer :: j, k, l
+
+    do l = 1, lx
+       do k = 1, lx
+          do j = 1, lx
+             x(j,k,l,1) = 1.0_rp + 0.2_rp * (j - 1)
+             y(j,k,l,1) = 1.0_rp + 0.2_rp * (k - 1)
+             z(j,k,l,1) = 1.0_rp + 0.2_rp * (l - 1)
+          end do
+       end do
+    end do
+    ds = 0.2_rp
+    mult = 1.0_rp
+    pmsk = merge(1.0_rp, 0.0_rp, z .gt. 1.5_rp)
+  end subroutine setup_grid
+
+  subroutine setup_marker(lag_pts, lag_el)
+    type(point_t), intent(out) :: lag_pts(1)
+    type(stack_i4_t), intent(inout) :: lag_el(1)
+
+    lag_pts(1)%x = (/ 1.5_rp, 1.5_rp, 1.5_rp /)
+    call lag_el(1)%init()
+    call lag_el(1)%push(1)
+  end subroutine setup_marker
+
+  !> (a) A constant field is reproduced exactly on both sides.
   @test
-  subroutine test_dummy()
-    @assertEqual(1, 1)
-  end subroutine test_dummy
+  subroutine test_constant_reproduction()
+    real(kind=rp), dimension(lx,lx,lx,ne) :: x, y, z, ds, mult, pmsk, u, v, w
+    real(kind=rp) :: fu(1), fv(1), fw(1), fum(1), fvm(1), fwm(1)
+    type(point_t) :: lag_pts(1)
+    type(stack_i4_t) :: lag_el(1)
+
+    call setup_grid(x, y, z, ds, mult, pmsk)
+    call setup_marker(lag_pts, lag_el)
+    u = 3.14_rp
+    v = -2.71_rp
+    w = 0.5_rp
+
+    call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el, &
+         u, v, w, pmsk, mult, x, y, z, ds, 2.0_rp, 0.5_rp, lx, ne)
+
+    @assertEqual(3.14_rp, fu(1), tolerance = 1e-12_rp)
+    @assertEqual(-2.71_rp, fv(1), tolerance = 1e-12_rp)
+    @assertEqual(0.5_rp, fw(1), tolerance = 1e-12_rp)
+    @assertEqual(3.14_rp, fum(1), tolerance = 1e-12_rp)
+    @assertEqual(-2.71_rp, fvm(1), tolerance = 1e-12_rp)
+    @assertEqual(0.5_rp, fwm(1), tolerance = 1e-12_rp)
+    call lag_el(1)%free()
+  end subroutine test_constant_reproduction
+
+  !> (b) An empty stencil (cutoff below the nearest-node distance) gives 0.
+  !! Nearest nodes to the cell-centre marker are the 8 corners at
+  !! r = 0.1*sqrt(3) = 0.173; rmax_i = 0.4 means reach 0.4*ds = 0.08 < 0.173.
+  @test
+  subroutine test_empty_stencil_is_zero()
+    real(kind=rp), dimension(lx,lx,lx,ne) :: x, y, z, ds, mult, pmsk, u, v, w
+    real(kind=rp) :: fu(1), fv(1), fw(1), fum(1), fvm(1), fwm(1)
+    type(point_t) :: lag_pts(1)
+    type(stack_i4_t) :: lag_el(1)
+
+    call setup_grid(x, y, z, ds, mult, pmsk)
+    call setup_marker(lag_pts, lag_el)
+    u = 3.14_rp
+    v = 3.14_rp
+    w = 3.14_rp
+
+    call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el, &
+         u, v, w, pmsk, mult, x, y, z, ds, 0.4_rp, 0.5_rp, lx, ne)
+
+    @assertEqual(0.0_rp, fu(1), tolerance = 1e-14_rp)
+    @assertEqual(0.0_rp, fum(1), tolerance = 1e-14_rp)
+    call lag_el(1)%free()
+  end subroutine test_empty_stencil_is_zero
+
+  !> (c) The cutoff radius controls the support: with rmax_i = 0.9 the four
+  !! lower cell corners (r/ds = 0.866) are the whole minus-side stencil, all
+  !! equidistant, so the Shepard average is the plain mean. One corner holds
+  !! u = 5, the rest 0 -> fum = 1.25. With rmax_i = 0.85 the stencil is
+  !! empty -> 0. The plus side reads 0 either way.
+  @test
+  subroutine test_cutoff_radius_support()
+    real(kind=rp), dimension(lx,lx,lx,ne) :: x, y, z, ds, mult, pmsk, u, v, w
+    real(kind=rp) :: fu(1), fv(1), fw(1), fum(1), fvm(1), fwm(1)
+    type(point_t) :: lag_pts(1)
+    type(stack_i4_t) :: lag_el(1)
+
+    call setup_grid(x, y, z, ds, mult, pmsk)
+    call setup_marker(lag_pts, lag_el)
+    u = 0.0_rp
+    v = 0.0_rp
+    w = 0.0_rp
+    u(3,3,3,1) = 5.0_rp   ! node (1.4, 1.4, 1.4), minus side
+
+    call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el, &
+         u, v, w, pmsk, mult, x, y, z, ds, 0.9_rp, 0.5_rp, lx, ne)
+    @assertEqual(1.25_rp, fum(1), tolerance = 1e-12_rp)
+    @assertEqual(0.0_rp, fu(1), tolerance = 1e-14_rp)
+
+    call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el, &
+         u, v, w, pmsk, mult, x, y, z, ds, 0.85_rp, 0.5_rp, lx, ne)
+    @assertEqual(0.0_rp, fum(1), tolerance = 1e-14_rp)
+    call lag_el(1)%free()
+  end subroutine test_cutoff_radius_support
+
+  !> (d) For the linear field u = z the plus-side bias |U - 1.5| shrinks
+  !! with the cutoff radius (samples hug the surface more tightly).
+  @test
+  subroutine test_linear_bias_shrinks_with_radius()
+    real(kind=rp), dimension(lx,lx,lx,ne) :: x, y, z, ds, mult, pmsk, u, v, w
+    real(kind=rp) :: fu(1), fv(1), fw(1), fum(1), fvm(1), fwm(1)
+    real(kind=rp) :: err_big, err_small
+    type(point_t) :: lag_pts(1)
+    type(stack_i4_t) :: lag_el(1)
+
+    call setup_grid(x, y, z, ds, mult, pmsk)
+    call setup_marker(lag_pts, lag_el)
+    v = 0.0_rp
+    w = 0.0_rp
+    u = z
+
+    call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el, &
+         u, v, w, pmsk, mult, x, y, z, ds, 2.0_rp, 0.5_rp, lx, ne)
+    err_big = abs(fu(1) - 1.5_rp)
+
+    call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el, &
+         u, v, w, pmsk, mult, x, y, z, ds, 1.0_rp, 0.5_rp, lx, ne)
+    err_small = abs(fu(1) - 1.5_rp)
+
+    @assertTrue(err_small .lt. err_big)
+    @assertTrue(err_small .gt. 0.0_rp)
+    call lag_el(1)%free()
+  end subroutine test_linear_bias_shrinks_with_radius
+
+  !> (e) mult counts duplicated dofs once: two identical element copies with
+  !! mult = 0.5 must reproduce the single-element result exactly.
+  @test
+  subroutine test_mult_deduplicates_copies()
+    real(kind=rp), dimension(lx,lx,lx,1) :: x1, y1, z1, ds1, mlt1, pm1
+    real(kind=rp), dimension(lx,lx,lx,1) :: u1, v1, w1
+    real(kind=rp), dimension(lx,lx,lx,2) :: x2, y2, z2, ds2, mlt2, pm2
+    real(kind=rp), dimension(lx,lx,lx,2) :: u2, v2, w2
+    real(kind=rp) :: fu(1), fv(1), fw(1), fum(1), fvm(1), fwm(1)
+    real(kind=rp) :: gu(1), gv(1), gw(1), gum(1), gvm(1), gwm(1)
+    type(point_t) :: lag_pts(1)
+    type(stack_i4_t) :: lag_el1(1), lag_el2(1)
+
+    call setup_grid(x1, y1, z1, ds1, mlt1, pm1)
+    u1 = z1
+    v1 = x1
+    w1 = y1
+
+    x2(:,:,:,1) = x1(:,:,:,1)
+    x2(:,:,:,2) = x1(:,:,:,1)
+    y2(:,:,:,1) = y1(:,:,:,1)
+    y2(:,:,:,2) = y1(:,:,:,1)
+    z2(:,:,:,1) = z1(:,:,:,1)
+    z2(:,:,:,2) = z1(:,:,:,1)
+    ds2 = 0.2_rp
+    mlt2 = 0.5_rp
+    pm2(:,:,:,1) = pm1(:,:,:,1)
+    pm2(:,:,:,2) = pm1(:,:,:,1)
+    u2(:,:,:,1) = u1(:,:,:,1)
+    u2(:,:,:,2) = u1(:,:,:,1)
+    v2(:,:,:,1) = v1(:,:,:,1)
+    v2(:,:,:,2) = v1(:,:,:,1)
+    w2(:,:,:,1) = w1(:,:,:,1)
+    w2(:,:,:,2) = w1(:,:,:,1)
+
+    lag_pts(1)%x = (/ 1.5_rp, 1.5_rp, 1.5_rp /)
+    call lag_el1(1)%init()
+    call lag_el1(1)%push(1)
+    call lag_el2(1)%init()
+    call lag_el2(1)%push(1)
+    call lag_el2(1)%push(2)
+
+    call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el1, &
+         u1, v1, w1, pm1, mlt1, x1, y1, z1, ds1, 2.0_rp, 0.5_rp, lx, 1)
+    call idw_interp_shepard(gu, gv, gw, gum, gvm, gwm, lag_pts, lag_el2, &
+         u2, v2, w2, pm2, mlt2, x2, y2, z2, ds2, 2.0_rp, 0.5_rp, lx, 2)
+
+    @assertEqual(fu(1), gu(1), tolerance = 1e-13_rp)
+    @assertEqual(fv(1), gv(1), tolerance = 1e-13_rp)
+    @assertEqual(fw(1), gw(1), tolerance = 1e-13_rp)
+    @assertEqual(fum(1), gum(1), tolerance = 1e-13_rp)
+    call lag_el1(1)%free()
+    call lag_el2(1)%free()
+  end subroutine test_mult_deduplicates_copies
 
 end module test_idw_interp
