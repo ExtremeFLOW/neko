@@ -38,6 +38,7 @@ SUBDIRS = tuple\
 	  json_utils\
 	  utils\
 	  point_interpolation\
+	  idw_source_term\
 	  templates/parallel\
 	  boundary_operation\
 	  templates/serial
@@ -82,6 +83,7 @@ TESTS = device/device_test\
 	json_utils/json_utils_test\
 	utils/read_duration_test\
 	point_interpolation/point_interpolation_test\
+	idw_source_term/idw_source_term_test\
 	templates/parallel/parallel_test\
 	boundary_operation/boundary_operation_test\
 	templates/serial/serial_test
@@ -166,6 +168,7 @@ EXTRA_DIST = \
 	time_based_controller/test_time_based_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
 	point_interpolation/point_interpolation_test\
+	idw_source_term/test_idw_interp.pf\
 	boundary_operation/test_boundary_operation.pf\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\

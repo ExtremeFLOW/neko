@@ -40,6 +40,7 @@ field/field_suite
 global_interpolation/global_interpolation_suite
 hex/hex_test
 htable/htable_test
+idw_source_term/idw_source_term_test
 krylov/krylov_test
 mathops/mathops_test
 point/point_test

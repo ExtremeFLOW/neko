@@ -448,6 +448,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/json_utils/Makefile\
         tests/unit/utils/Makefile\
         tests/unit/point_interpolation/Makefile\
+        tests/unit/idw_source_term/Makefile\
         tests/unit/templates/parallel/Makefile\
         tests/unit/boundary_operation/Makefile\
         tests/unit/templates/serial/Makefile])

@@ -1,0 +1,28 @@
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: idw_source_term_test
+
+
+idw_source_term_test_TESTS := test_idw_interp.pf
+idw_source_term_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko
+$(eval $(call make_pfunit_test,idw_source_term_test))
+idw_source_term_test.inc: Makefile
+
+distclean:
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 idw_source_term_test
+
+
+
+all:
+html:
+install:
+distdir:

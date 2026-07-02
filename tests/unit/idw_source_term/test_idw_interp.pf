@@ -1,0 +1,13 @@
+module test_idw_interp
+  use pfunit
+  use num_types, only : rp
+  implicit none
+
+contains
+
+  @test
+  subroutine test_dummy()
+    @assertEqual(1, 1)
+  end subroutine test_dummy
+
+end module test_idw_interp
