@@ -6,6 +6,8 @@
         "output_at_end": true,
         "output_boundary": false,
         "output_checkpoints": false,
+        "checkpoint_control": "never",
+        "checkpoint_value": 1,
         "time": {
             "end_time": 0.006,
             "timestep": 1e-4
