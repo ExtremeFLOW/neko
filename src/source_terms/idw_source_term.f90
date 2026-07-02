@@ -574,6 +574,8 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) call idw_build_device_maps(this)
 
+    call neko_log%end_section()
+
   end subroutine idw_source_term_init_from_json
 
   !> Build the device data structures for the IDW source term: the CSR
