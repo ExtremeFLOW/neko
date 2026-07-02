@@ -195,8 +195,9 @@ contains
     this%v_field => neko_registry%get_field_by_name("v")
     this%w_field => neko_registry%get_field_by_name("w")
 
-    if (json%valid_path("wall_zone_indices")) then
-       call json_get(json, "wall_zone_indices", this%wall_zone_indices)
+    if (case%params%valid_path("case.fluid.wall_zone_indices")) then
+       call json_get(case%params, "case.fluid.wall_zone_indices", &
+            this%wall_zone_indices)
        if (.not. this%inertia .and. size(this%wall_zone_indices) .gt. 0) then
           call neko_error("lpt wall_zone_indices requires inertia = true")
        end if

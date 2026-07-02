@@ -19,11 +19,12 @@
       "mu": 1.0,
       "rho": 1.0,
       "freeze": true,
+      "wall_zone_indices": [2],
       "initial_condition": {
         "type": "uniform",
         "value": [0.0, 0.0, 0.0]
       },
-    "boundary_conditions": [
+      "boundary_conditions": [
           {
               "type": "velocity_value",
               "value": [ 0.0, 0.0, 0.0 ],
@@ -58,7 +59,6 @@
         "inertia": true,
         "nonlinear_coefficient": 0.15,
         "nonlinear_exponent": 0.687,
-        "wall_zone_indices": [2],
         "log": true,
         "coordinates": [0.0, 0.0, 0.0, 
                         0.0, 0.0, 0.0,
