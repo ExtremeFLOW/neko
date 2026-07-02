@@ -526,7 +526,7 @@ Optional fields for this simcomp are:
 
 The `output_control` and `output_value` keywords control when trajectory
 snapshots are written. The initial particle state is always written during
-initialization.
+initialisation.
 
 The `compute_control` and `compute_value` keywords determine when the LPT
 component advances the particles. The time interval between two LPT compute
@@ -549,8 +549,8 @@ For HDF5 output, the data are written under the `lpt` group with datasets for
 contains `diameter` and `density`.
 
 If `snapshots_per_file` is a positive integer, output files are named by adding
-`_partN` before the format suffix, for example `tracers_part1.h5`,
-`tracers_part2.h5`, and so on.
+`_0`, `_1`, ... before the format suffix, for example `tracers_0.h5`,
+`tracers_1.h5`, and so on.
 
 ~~~~~~~~~~~~~~~{.json}
 {

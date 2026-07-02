@@ -7,4 +7,4 @@
 
 # using json as input and hdf5 as output
 neko rebounding_particles_h5.case
-python3 trajectory_plot_h5.py h5
+python3 trajectory_plot_h5.py

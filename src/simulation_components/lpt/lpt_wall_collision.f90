@@ -36,7 +36,7 @@ submodule (lagrangian_particle_tracking) lpt_wall_collision
   use lpt_wall_collision_cpu, only : lpt_handle_elastic_wall_collisions_cpu
   use lpt_wall_collision_device, only : &
        lpt_handle_elastic_wall_collisions_device
-  use device, only : HOST_TO_DEVICE, device_map, &
+  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST, device_map, &
        device_memcpy, device_deassociate, device_free, device_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   use scratch_registry, only : neko_scratch_registry

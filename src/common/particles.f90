@@ -83,7 +83,11 @@ contains
     this%n_global = this%n
     this%time_order = time_order
     this%lag_len = time_order - 1
-    call this%x%init(this%n)
+
+    if (present(diameter) .neqv. present(density)) then
+       call neko_error("particle diameter and density must both be provided")
+    end if
+    this%inertia = present(diameter)
     call this%y%init(this%n)
     call this%z%init(this%n)
     call this%u%init(this%n)
