@@ -1,0 +1,84 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box.nmsh",
+        "output_directory": "fields",
+        "output_at_end": true,
+        "output_boundary": true,
+        "output_checkpoints": false,
+        "time": {
+            "end_time": 1e-3,
+            "timestep": 1e-4
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 8,
+            "dealias": true
+        },
+        "fluid": {
+            "scheme": "pnpn",
+            "Re": 1000.0,
+            "initial_condition": {
+                "type": "uniform",
+                "value": [ 1.0, 0.0, 0.0 ]
+            },
+            "velocity_solver": {
+                "type": "cg",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-8,
+                "max_iterations": 800
+            },
+            "pressure_solver": {
+                "type": "gmres",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-7,
+                "max_iterations": 800
+            },
+            "output_control": "nsamples",
+            "output_value": 250,
+            "boundary_conditions": [
+                {
+                    "type": "velocity_value",
+                    "value": [ 1.0, 0.0, 0.0 ],
+                    "zone_indices": [ 1 ]
+                },
+                {
+                    "type": "outflow",
+                    "zone_indices": [ 2 ]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 3, 4, 5, 6 ]
+                }
+            ],
+            "source_terms": [
+                {
+                    "type": "idw",
+                    "rmax": 1.0,
+                    "power_parameter": 0.5,
+                    "one_sided": true,
+                    "interpolation": "idw",
+                    "interpolation_rmax": 2.0,
+                    "objects": [
+                        {
+                            "type": "boundary_mesh",
+                            "name": "bunny.stl",
+                            "mesh_transform": {
+                                "type": "bounding_box",
+                                "box_min": [ 0.75, 0.25, 0.00 ],
+                                "box_max": [ 1.25, 0.75, 0.50 ],
+                                "keep_aspect_ratio": true
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
