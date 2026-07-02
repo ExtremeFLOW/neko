@@ -106,7 +106,6 @@ EXTRA_DIST = \
 	examples/rayleigh_benard_cylinder/rayleigh.case\
 	examples/rayleigh_benard_cylinder/postprocess_probes.py\
 	examples/rebounding_particles/README.md\
-	examples/rebounding_particles/box.nmsh\
 	examples/rebounding_particles/particles_init.py\
 	examples/rebounding_particles/rebounding_particles_csv.case\
 	examples/rebounding_particles/rebounding_particles_h5.case\
