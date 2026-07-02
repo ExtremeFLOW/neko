@@ -217,12 +217,15 @@ contains
     if (present(acc_xlag)) call acc_xlag%copy_from(DEVICE_TO_HOST, .false.)
     if (present(acc_ylag)) call acc_ylag%copy_from(DEVICE_TO_HOST, .false.)
     if (present(acc_zlag)) call acc_zlag%copy_from(DEVICE_TO_HOST, .false.)
-    if (present(acc_xlaglag)) &
-         call acc_xlaglag%copy_from(DEVICE_TO_HOST, .false.)
-    if (present(acc_ylaglag)) &
-         call acc_ylaglag%copy_from(DEVICE_TO_HOST, .false.)
-    if (present(acc_zlaglag)) &
-         call acc_zlaglag%copy_from(DEVICE_TO_HOST, .false.)
+    if (present(acc_xlaglag)) then
+       call acc_xlaglag%copy_from(DEVICE_TO_HOST, .false.)
+    end if
+    if (present(acc_ylaglag)) then
+       call acc_ylaglag%copy_from(DEVICE_TO_HOST, .false.)
+    end if
+    if (present(acc_zlaglag)) then
+       call acc_zlaglag%copy_from(DEVICE_TO_HOST, .false.)
+    end if
     call device_sync()
   end subroutine lpt_periodic_bc_sync_from_device
 

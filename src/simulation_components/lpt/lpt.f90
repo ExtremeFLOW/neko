@@ -52,7 +52,7 @@ module lagrangian_particle_tracking
   use vector_math, only : vector_add2s2, vector_cfill, vector_cmult2, &
        vector_col2, vector_col3, vector_invcol2, vector_sqrt_inplace, &
        vector_power, vector_sub3, vector_vdot3, vector_cmult, &
-       vector_cadd2, vector_invcol3
+       vector_cadd
   use ab_time_scheme, only : ab_time_scheme_t
   use lpt_periodic_bc, only : lpt_periodic_bc_t
   use lpt_migrate, only : lpt_migrate_t, LPT_MIGRATE_TO_OWNER, &
@@ -436,35 +436,32 @@ contains
     type(vector_t), intent(inout) :: acc_x, acc_y, acc_z
     type(vector_t), pointer :: tau_p, Re_p, f, rho_fluid_local
     type(vector_t), pointer :: mu_fluid_local, nu_fluid_local
-    type(vector_t), pointer :: u_rel, v_rel, w_rel, vel_rel_mag
-    type(vector_t), pointer :: wa
-    integer :: ind(11)
+    integer :: ind(5)
 
-    integer :: n, i
+    integer :: n
     logical :: do_interp_on_host
 
     if (this%particles%n .eq. 0) return
     n = this%particles%n
 
-    call neko_scratch_registry%request_vector(tau_p, ind(1), n, .false.)
-    call neko_scratch_registry%request_vector(Re_p, ind(2), n, .false.)
-    call neko_scratch_registry%request_vector(f, ind(3), n, .false.)
-    call neko_scratch_registry%request_vector(rho_fluid_local, &
+    ! Request the scratch storage used throughout the computation.
+    call neko_scratch_registry%request(rho_fluid_local, &
+         ind(1), n, .false.)
+    call neko_scratch_registry%request(mu_fluid_local, &
+         ind(2), n, .false.)
+    call neko_scratch_registry%request(tau_p, &
+         ind(3), n, .false.)
+    call neko_scratch_registry%request(Re_p, &
          ind(4), n, .false.)
-    call neko_scratch_registry%request_vector(mu_fluid_local, ind(5), n, .false.)
-    call neko_scratch_registry%request_vector(nu_fluid_local, ind(6), n, .false.)
-    call neko_scratch_registry%request_vector(u_rel, ind(7), n, .false.)
-    call neko_scratch_registry%request_vector(v_rel, ind(8), n, .false.)
-    call neko_scratch_registry%request_vector(w_rel, ind(9), n, .false.)
-    call neko_scratch_registry%request_vector(vel_rel_mag, ind(10), n, .false.)
-    call neko_scratch_registry%request_vector(wa, ind(11), n, .false.)
+    call neko_scratch_registry%request(f, &
+         ind(5), n, .false.)
 
+    ! Compute the local fluid properties and particle time scale.
     do_interp_on_host = .false.
     call this%global_interp%evaluate(mu_fluid_local%x, this%mu_fluid%x, &
          do_interp_on_host)
     call this%global_interp%evaluate(rho_fluid_local%x, this%rho_fluid%x, &
          do_interp_on_host)
-    call vector_invcol3(nu_fluid_local, mu_fluid_local, rho_fluid_local)
 
     ! compute the time scale
     call vector_cfill(tau_p, 1.0_rp/18.0_rp)
@@ -473,24 +470,31 @@ contains
     call vector_col2(tau_p, this%particles%d)
     call vector_col2(tau_p, this%particles%d)
 
-    ! compute the particle Reynolds number
-    call vector_sub3(u_rel, u_fluid, this%particles%u)
-    call vector_sub3(v_rel, v_fluid, this%particles%v)
-    call vector_sub3(w_rel, w_fluid, this%particles%w)
-    call vector_vdot3(vel_rel_mag, u_rel, v_rel, w_rel, u_rel, v_rel, w_rel)
-    call vector_sqrt_inplace(vel_rel_mag)
-    call vector_col3(Re_p, vel_rel_mag, this%particles%d)
+    ! The dynamic viscosity is no longer needed, so reuse its storage for the
+    ! kinematic viscosity.
+    call vector_invcol2(mu_fluid_local, rho_fluid_local)
+    ! reuse tempoerary array but with a different name for clarity
+    nu_fluid_local => mu_fluid_local
+
+    ! Compute the relative velocity and particle Reynolds number.
+    ! now use acc_xyz as work arrays
+    call vector_sub3(acc_x, u_fluid, this%particles%u)
+    call vector_sub3(acc_y, v_fluid, this%particles%v)
+    call vector_sub3(acc_z, w_fluid, this%particles%w)
+    call vector_vdot3(Re_p, acc_x, acc_y, acc_z, acc_x, acc_y, acc_z)
+    call vector_sqrt_inplace(Re_p)
+    call vector_col2(Re_p, this%particles%d)
     call vector_invcol2(Re_p, nu_fluid_local)
 
-    ! compute f
-    call vector_power(wa, Re_p, this%nonlinear_exponent)
-    call vector_cmult(wa, this%nonlinear_coefficient)
-    call vector_cadd2(f, wa, 1.0_rp)
+    ! Compute the nonlinear drag correction.
+    call vector_power(f, Re_p, this%nonlinear_exponent)
+    call vector_cmult(f, this%nonlinear_coefficient)
+    call vector_cadd(f, 1.0_rp)
 
-    ! assemble compute the acceleration
-    call vector_col3(acc_x, u_rel, f)
-    call vector_col3(acc_y, v_rel, f)
-    call vector_col3(acc_z, w_rel, f)
+    ! Assemble the particle acceleration.
+    call vector_col2(acc_x, f)
+    call vector_col2(acc_y, f)
+    call vector_col2(acc_z, f)
     call vector_invcol2(acc_x, tau_p)
     call vector_invcol2(acc_y, tau_p)
     call vector_invcol2(acc_z, tau_p)
@@ -510,11 +514,11 @@ contains
     call this%migration%migrate_particles(this%global_interp, &
          this%periodic_bc, this%inertia, this%particles)
 
-    call neko_scratch_registry%request_vector(u_fluid, ind(1), &
+    call neko_scratch_registry%request(u_fluid, ind(1), &
          this%particles%n, .false.)
-    call neko_scratch_registry%request_vector(v_fluid, ind(2), &
+    call neko_scratch_registry%request(v_fluid, ind(2), &
          this%particles%n, .false.)
-    call neko_scratch_registry%request_vector(w_fluid, ind(3), &
+    call neko_scratch_registry%request(w_fluid, ind(3), &
          this%particles%n, .false.)
 
     call this%evaluate_velocity(u_fluid, v_fluid, w_fluid)
@@ -576,12 +580,12 @@ contains
 
       call profiler_start_region('LPT_time_integration')
 
-      call neko_scratch_registry%request_vector(x_old, ind(1), n, .false.)
-      call neko_scratch_registry%request_vector(y_old, ind(2), n, .false.)
-      call neko_scratch_registry%request_vector(z_old, ind(3), n, .false.)
-      call neko_scratch_registry%request_vector(u_old, ind(4), n, .false.)
-      call neko_scratch_registry%request_vector(v_old, ind(5), n, .false.)
-      call neko_scratch_registry%request_vector(w_old, ind(6), n, .false.)
+      call neko_scratch_registry%request(x_old, ind(1), n, .false.)
+      call neko_scratch_registry%request(y_old, ind(2), n, .false.)
+      call neko_scratch_registry%request(z_old, ind(3), n, .false.)
+      call neko_scratch_registry%request(u_old, ind(4), n, .false.)
+      call neko_scratch_registry%request(v_old, ind(5), n, .false.)
+      call neko_scratch_registry%request(w_old, ind(6), n, .false.)
 
       x_old = x
       y_old = y

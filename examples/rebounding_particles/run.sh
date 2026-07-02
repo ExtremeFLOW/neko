@@ -1,5 +1,7 @@
 #!/bin/bash
 
+genmeshbox 0 0.5 0 0.1 0 0.1 10 1 1 .false. .true. .true.
+
 # using csv as input and output
 # python3 particles_init.py
 # neko rebounding_particles_csv.case
