@@ -117,6 +117,10 @@ module idw_source_term
      type(field_t) :: tmp
      type(gs_t) :: gs
      logical :: one_sided
+     !> Use Shepard IDW interpolation onto the markers instead of gslib
+     logical :: idw_interp = .false.
+     !> Cutoff radius (in units of ds) for the Shepard interpolation
+     real(kind=rp) :: interp_rmax
      class(filter_t), allocatable :: fltr
    contains
      !> The common constructor using a JSON object.
@@ -152,6 +156,7 @@ contains
     type(stack_pt_t) :: lagrangian_normals
     real(kind=rp) :: start_time, end_time
     character(len=:), allocatable :: filter_type
+    character(len=:), allocatable :: interp_scheme
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -176,6 +181,26 @@ contains
     call json_get_or_default(json, "one_sided", this%one_sided, .true.)
     write(log_buf, '(A,L1)') 'One sided  : ', this%one_sided
     call neko_log%message(log_buf)
+
+    call json_get_or_default(json, "interpolation", interp_scheme, &
+         "barycentric")
+    select case (trim(interp_scheme))
+    case ("barycentric")
+       this%idw_interp = .false.
+    case ("idw")
+       this%idw_interp = .true.
+    case default
+       call neko_error('IDW source term unknown interpolation scheme: ' &
+            // trim(interp_scheme))
+    end select
+    call neko_log%message('Interp     : '// trim(interp_scheme))
+
+    call json_get_or_default(json, "interpolation_rmax", this%interp_rmax, &
+         2.0_rp)
+    if (this%idw_interp) then
+       write(log_buf, '(A,f5.2)') 'Interp rmax: ', this%interp_rmax
+       call neko_log%message(log_buf)
+    end if
 
 
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
@@ -418,11 +443,15 @@ contains
        end do
     end select
 
-    call this%global_interp%init(coef%dof, NEKO_COMM)
-
     n_lags = lagrangian_points%size()
-    
-    call this%global_interp%find_points_xyz(this%xyz, n_lags)
+
+    ! The Shepard (idw) interpolation never evaluates through gslib, so the
+    ! global search is only set up for the barycentric scheme. This also
+    ! makes the idw scheme usable in builds without gslib.
+    if (.not. this%idw_interp) then
+       call this%global_interp%init(coef%dof, NEKO_COMM)
+       call this%global_interp%find_points_xyz(this%xyz, n_lags)
+    end if
 
     ! Construct list of overlapping elements for each lagrangian particle
     allocate(this%lag_el(lagrangian_points%size()))
@@ -644,7 +673,21 @@ contains
     this%fv_ib = 0.0_rp
     this%fw_ib = 0.0_rp
 
-    if (this%one_sided) then
+    if (this%idw_interp) then
+       ! Shepard interpolation runs on the host: refresh u,v,w host mirrors
+       call device_memcpy(u%x, u%x_d, u%size(), DEVICE_TO_HOST, &
+            sync = .false.)
+       call device_memcpy(v%x, v%x_d, v%size(), DEVICE_TO_HOST, &
+            sync = .false.)
+       call device_memcpy(w%x, w%x_d, w%size(), DEVICE_TO_HOST, &
+            sync = .true.)
+       call idw_interp_shepard(this%fu_ib, this%fv_ib, this%fw_ib, &
+            this%fum_ib, this%fvm_ib, this%fwm_ib, this%lag_pts, &
+            this%lag_el, u%x, v%x, w%x, this%pmsk%x, this%coef%mult, &
+            this%w%dof%x, this%w%dof%y, this%w%dof%z, this%ds%x, &
+            this%interp_rmax, this%pwr_param, this%w%Xh%lx, &
+            size(this%w%dof%x, 4))
+    else if (this%one_sided) then
        this%fum_ib = 0.0_rp
        this%fvm_ib = 0.0_rp
        this%fwm_ib = 0.0_rp
@@ -679,8 +722,8 @@ contains
        call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, HOST_TO_DEVICE, &
             sync = .false.)
        call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, HOST_TO_DEVICE, &
-            sync = .not. this%one_sided)
-       if (this%one_sided) then
+            sync = .not. (this%one_sided .or. this%idw_interp))
+       if (this%one_sided .or. this%idw_interp) then
           call device_memcpy(this%fum_ib, this%fum_ib_d, n_lag, &
                HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%fvm_ib, this%fvm_ib_d, n_lag, &
@@ -831,30 +874,43 @@ contains
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call idw_compute_device(this, fu, fv, fw, u, v, w, time)
-      else if (this%one_sided) then
+      else
+         ! Interpolation stage: velocity at the Lagrangian points
+         if (this%idw_interp) then
+            call idw_interp_shepard(fu_ib, fv_ib, fw_ib, &
+                 fum_ib, fvm_ib, fwm_ib, lag_pts, this%lag_el, &
+                 u%x, v%x, w%x, this%pmsk%x, this%coef%mult, x, y, z, ds, &
+                 this%interp_rmax, this%pwr_param, lx, this%coef%msh%nelv)
+         else if (this%one_sided) then
+            fum_ib = 0.0_rp
+            fvm_ib = 0.0_rp
+            fwm_ib = 0.0_rp
 
-         fum_ib = 0.0_rp
-         fvm_ib = 0.0_rp
-         fwm_ib = 0.0_rp
+            call field_col3(tmp, u, this%pmsk, tmp%size())
+            call global_interp%evaluate(fu_ib, tmp%x, .true.)
 
-         call field_col3(tmp, u, this%pmsk, tmp%size())
-         call global_interp%evaluate(fu_ib, tmp%x, .true.)
-                  
-         call field_col3(tmp, v, this%pmsk, tmp%size())         
-         call global_interp%evaluate(fv_ib, tmp%x, .true.)
+            call field_col3(tmp, v, this%pmsk, tmp%size())
+            call global_interp%evaluate(fv_ib, tmp%x, .true.)
 
-         call field_col3(tmp, w, this%pmsk, tmp%size())
-         call global_interp%evaluate(fw_ib, tmp%x, .true.)
+            call field_col3(tmp, w, this%pmsk, tmp%size())
+            call global_interp%evaluate(fw_ib, tmp%x, .true.)
 
-         call field_col3(tmp, u, this%mmsk, tmp%size())
-         call global_interp%evaluate(fum_ib, tmp%x, .true.)
+            call field_col3(tmp, u, this%mmsk, tmp%size())
+            call global_interp%evaluate(fum_ib, tmp%x, .true.)
 
-         call field_col3(tmp, v, this%mmsk, tmp%size())
-         call global_interp%evaluate(fvm_ib, tmp%x, .true.)
+            call field_col3(tmp, v, this%mmsk, tmp%size())
+            call global_interp%evaluate(fvm_ib, tmp%x, .true.)
 
-         call field_col3(tmp, w, this%mmsk, tmp%size())
-         call global_interp%evaluate(fwm_ib, tmp%x, .true.)
+            call field_col3(tmp, w, this%mmsk, tmp%size())
+            call global_interp%evaluate(fwm_ib, tmp%x, .true.)
+         else
+            call global_interp%evaluate(fu_ib, u%x, .true.)
+            call global_interp%evaluate(fv_ib, v%x, .true.)
+            call global_interp%evaluate(fw_ib, w%x, .true.)
+         end if
 
+         ! Spread stage (unchanged)
+         if (this%one_sided) then
          do i = 1, size(this%lag_pts)
             select type (el => this%lag_el(i)%data)
               type is (integer)
@@ -904,12 +960,7 @@ contains
                end do
             end select
          end do
-      else
-         call global_interp%evaluate(fu_ib, u%x, .true.)
-         call global_interp%evaluate(fv_ib, v%x, .true.)
-         call global_interp%evaluate(fw_ib, w%x, .true.)
-
-
+         else
          do i = 1, size(this%lag_pts)
             select type (el => this%lag_el(i)%data)
               type is (integer)
@@ -943,6 +994,7 @@ contains
                end do
             end select
          end do
+         end if
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
