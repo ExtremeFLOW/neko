@@ -149,8 +149,10 @@ contains
     type(json_file) :: object_settings
     character(len=:), allocatable :: object_type
     integer :: n_regions, i, j, k, e, n_lags
+    integer :: np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty, n_lag_glb
     character(len=LOG_SIZE) :: log_buf
     real(kind=dp) :: aabb_padding,dx_max, dy_max, dz_max, ds_max, ds_min
+    real(kind=dp) :: diam_min, dxe, dye, dze
     type(stack_i4_t) :: overlaps
     type(stack_pt_t) :: lagrangian_points
     type(stack_pt_t) :: lagrangian_normals
@@ -514,6 +516,58 @@ contains
     this%wm%x = this%wm%x * coef%mult
 
     call this%gs%op(this%wm, GS_OP_ADD)
+
+    if (this%idw_interp) then
+       n_lag_glb = size(this%lag_pts)
+       call MPI_Allreduce(MPI_IN_PLACE, n_lag_glb, 1, MPI_INTEGER, &
+            MPI_SUM, NEKO_COMM)
+
+       call idw_interp_stencil_stats(this%lag_pts, this%lag_el, &
+            this%pmsk%x, coef%dof%x, coef%dof%y, coef%dof%z, this%ds%x, &
+            this%interp_rmax, coef%Xh%lx, coef%msh%nelv, &
+            np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty)
+
+       call MPI_Allreduce(MPI_IN_PLACE, np_min, 1, MPI_INTEGER, &
+            MPI_MIN, NEKO_COMM)
+       call MPI_Allreduce(MPI_IN_PLACE, nm_min, 1, MPI_INTEGER, &
+            MPI_MIN, NEKO_COMM)
+       call MPI_Allreduce(MPI_IN_PLACE, np_sum, 1, MPI_INTEGER, &
+            MPI_SUM, NEKO_COMM)
+       call MPI_Allreduce(MPI_IN_PLACE, nm_sum, 1, MPI_INTEGER, &
+            MPI_SUM, NEKO_COMM)
+       call MPI_Allreduce(MPI_IN_PLACE, np_empty, 1, MPI_INTEGER, &
+            MPI_SUM, NEKO_COMM)
+       call MPI_Allreduce(MPI_IN_PLACE, nm_empty, 1, MPI_INTEGER, &
+            MPI_SUM, NEKO_COMM)
+
+       write(log_buf, '(A,I6,A,F7.1)') 'Interp + side: min nodes ', &
+            np_min, ', mean ', real(np_sum, rp) / max(n_lag_glb, 1)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,I6)') 'Interp + side: empty markers ', np_empty
+       call neko_log%message(log_buf)
+       if (this%one_sided) then
+          write(log_buf, '(A,I6,A,F7.1)') 'Interp - side: min nodes ', &
+               nm_min, ', mean ', real(nm_sum, rp) / max(n_lag_glb, 1)
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,I6)') 'Interp - side: empty markers ', nm_empty
+          call neko_log%message(log_buf)
+       end if
+
+       diam_min = huge(0.0_dp)
+       do e = 1, coef%msh%nelv
+          dxe = maxval(coef%dof%x(:,:,:,e)) - minval(coef%dof%x(:,:,:,e))
+          dye = maxval(coef%dof%y(:,:,:,e)) - minval(coef%dof%y(:,:,:,e))
+          dze = maxval(coef%dof%z(:,:,:,e)) - minval(coef%dof%z(:,:,:,e))
+          diam_min = min(diam_min, sqrt(dxe**2 + dye**2 + dze**2))
+       end do
+       call MPI_Allreduce(MPI_IN_PLACE, diam_min, 1, &
+            MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_COMM)
+
+       if (this%interp_rmax * this%ds_max .gt. aabb_padding * diam_min) then
+          call neko_log%warning('interpolation_rmax*ds may exceed the &
+               &element search reach; consider increasing padding')
+       end if
+    end if
 
     call lagrangian_points%free()
     call lagrangian_normals%free()
@@ -1270,6 +1324,64 @@ contains
     end do
 
   end subroutine idw_compute_weight
+
+  !> Count, for every marker and side, the stencil nodes inside the
+  !! interpolation cutoff. Used for the init-time diagnostic of the
+  !! Shepard interpolation (spec: sparse read stencils do not
+  !! self-attenuate, so surface them loudly).
+  subroutine idw_interp_stencil_stats(lag_pts, lag_el, pmsk, x, y, z, ds, &
+       rmax_i, lx, ne, np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty)
+    type(point_t), intent(in) :: lag_pts(:)
+    type(stack_i4_t), intent(inout) :: lag_el(:)
+    integer, intent(in) :: lx, ne
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, x, y, z, ds
+    real(kind=rp), intent(in) :: rmax_i
+    integer, intent(out) :: np_min, nm_min, np_sum, nm_sum
+    integer, intent(out) :: np_empty, nm_empty
+    integer :: i, j, k, l, e, ee, np, nm
+    real(kind=rp) :: r
+
+    np_min = huge(0)
+    nm_min = huge(0)
+    np_sum = 0
+    nm_sum = 0
+    np_empty = 0
+    nm_empty = 0
+
+    do i = 1, size(lag_pts)
+       np = 0
+       nm = 0
+       select type (el => lag_el(i)%data)
+         type is (integer)
+          do ee = 1, lag_el(i)%size()
+             e = el(ee)
+             do l = 1, lx
+                do k = 1, lx
+                   do j = 1, lx
+                      r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
+                           + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
+                           + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
+                      if (r / ds(j,k,l,e) .lt. rmax_i) then
+                         if (pmsk(j,k,l,e) .gt. 0.0_rp) then
+                            np = np + 1
+                         else
+                            nm = nm + 1
+                         end if
+                      end if
+                   end do
+                end do
+             end do
+          end do
+       end select
+       np_min = min(np_min, np)
+       nm_min = min(nm_min, nm)
+       np_sum = np_sum + np
+       nm_sum = nm_sum + nm
+       if (np .eq. 0) np_empty = np_empty + 1
+       if (nm .eq. 0) nm_empty = nm_empty + 1
+    end do
+
+  end subroutine idw_interp_stencil_stats
 
   !> Compute IB mask fields
   subroutine idw_compute_mask(mmsk, pmsk, lag_pts, lag_el, lag_nrm, x, y, z, lx, ne)
