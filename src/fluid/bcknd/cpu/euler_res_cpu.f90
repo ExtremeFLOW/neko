@@ -368,9 +368,9 @@ contains
     ! gs
     call gs%op(rhs_rho_field, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 1, coef)
-    call gs%op(rhs_m_x, GS_OP_ADD)
-    call gs%op(rhs_m_y, GS_OP_ADD)
-    call gs%op(rhs_m_z, GS_OP_ADD)
+    ! Fused 3-component (momentum) halo exchange; falls back to three scalar
+    ! ops on comm backends without a vector path.
+    call gs%op(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
 
@@ -403,9 +403,9 @@ contains
     ! because nothing here (gs%op, rotate_cyc) reads coef%h1.
     call gs%op(visc_rho, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 1, coef)
-    call gs%op(visc_m_x, GS_OP_ADD)
-    call gs%op(visc_m_y, GS_OP_ADD)
-    call gs%op(visc_m_z, GS_OP_ADD)
+    ! Fused 3-component (momentum) halo exchange; falls back to three scalar
+    ! ops on comm backends without a vector path.
+    call gs%op(visc_m_x%x, visc_m_y%x, visc_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 

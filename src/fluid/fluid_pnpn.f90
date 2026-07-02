@@ -871,11 +871,10 @@ contains
               dt, dm_Xh%size())
 
          call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
-         call gs_Xh%op(u_res, GS_OP_ADD, event)
-         call device_event_sync(event)
-         call gs_Xh%op(v_res, GS_OP_ADD, event)
-         call device_event_sync(event)
-         call gs_Xh%op(w_res, GS_OP_ADD, event)
+         ! Fused 3-component halo exchange; the event is recorded once,
+         ! after the last component's scatter.
+         call gs_Xh%op(u_res%x, v_res%x, w_res%x, dm_Xh%size(), &
+              GS_OP_ADD, event)
          call device_event_sync(event)
          call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 

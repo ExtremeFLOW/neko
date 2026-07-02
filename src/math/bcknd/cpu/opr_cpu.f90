@@ -173,9 +173,9 @@ contains
 
     call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
     if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_Xh)
-    call c_Xh%gs_h%op(w1, n, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, n, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, n, GS_OP_ADD)
+    ! Fused 3-component halo exchange (falls back to three scalar ops on comm
+    ! backends without a vector path).
+    call c_Xh%gs_h%op(w1, w2, w3, n, GS_OP_ADD)
     if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_Xh)
     call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)
 

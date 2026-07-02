@@ -609,14 +609,12 @@ contains
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
 
          call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
-         call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
+         ! Fused 3-component halo exchange; one event covers all three
+         ! components' scatters.
+         call gs_h%op(w1, w2, w3, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
          call blstx%apply(w1, n)
-         call gs_h%op(w2, n, GS_OP_ADD, this%gs_event2)
-         call device_event_sync(this%gs_event2)
          call blsty%apply(w2, n)
-         call gs_h%op(w3, n, GS_OP_ADD, this%gs_event3)
-         call device_event_sync(this%gs_event3)
          call blstz%apply(w3, n)
          call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
