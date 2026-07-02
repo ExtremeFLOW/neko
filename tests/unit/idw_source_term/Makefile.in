@@ -12,7 +12,7 @@ check: idw_source_term_test
 
 
 idw_source_term_test_TESTS := test_idw_interp.pf
-idw_source_term_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko
+idw_source_term_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,idw_source_term_test))
 idw_source_term_test.inc: Makefile
 
