@@ -44,7 +44,7 @@ module scalar_stats_simcomp
   use case, only : case_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
-       NEKO_VARNAME_LEN
+       filename_name, NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default
@@ -69,7 +69,7 @@ module scalar_stats_simcomp
      !> Time value at which the sampling of statistics is initiated.
      real(kind=rp) :: start_time
      real(kind=rp) :: time
-     logical :: default_fname = .true.
+     character(len=:), allocatable :: base_filename
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -105,19 +105,12 @@ contains
     real(kind=rp) :: start_time
     type(field_t), pointer :: s, u, v, w, p
     type(coef_t), pointer :: coef
-    logical :: sname_provided
-
-    sname_provided = json%valid_path('field')
 
     call json_get_or_default(json, 'field', &
          sname, 's')
-    if (sname_provided) then
-       call json_get_or_default(json, "name", &
-            name, "scalar_stats_" // trim(sname))
-    else
-       call json_get_or_default(json, "name", &
-            name, "scalar_stats")
-    end if
+    call json_get_or_default(json, "name", &
+         name, "scalar_stats_" // trim(sname))
+
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
@@ -138,13 +131,10 @@ contains
        call json_get(json, "output_filename", filename)
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
             p, coef, start_time, hom_dir, stat_set, filename)
-    else if (sname_provided) then
-       call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
-            p, coef, start_time, hom_dir, stat_set, "scalar_stats_" // &
-            trim(sname) // "0")
     else
        call scalar_stats_simcomp_init_from_components(this, name, s, u, v, w, &
-            p, coef, start_time, hom_dir, stat_set)
+            p, coef, start_time, hom_dir, stat_set, "scalar_stats_" // &
+            trim(sname))
     end if
 
     nullify(s, u, v, w, p, coef)
@@ -171,7 +161,7 @@ contains
     real(kind=rp), intent(in) :: start_time
     type(field_t), intent(in), target :: s, u, v, w, p
     type(coef_t), intent(in), target :: coef
-    character(len=*), intent(in), optional :: fname
+    character(len=*), intent(in) :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
     character(len=LOG_SIZE) :: log_buf
     character(len=5) :: prefix
@@ -192,13 +182,8 @@ contains
 
     this%start_time = start_time
     this%time = start_time
-    if (present(fname)) then
-       this%default_fname = .false.
-       stats_fname = fname
-    else
-       stats_fname = "scalar_stats0"
-       this%default_fname = .true.
-    end if
+    this%base_filename = fname
+    stats_fname = trim(fname) // "0"
 
     call this%stats_output%init(this%stats, this%start_time, &
          hom_dir = hom_dir, name = stats_fname, &
@@ -226,25 +211,28 @@ contains
     character(len=5) :: prefix, suffix
     integer :: last_slash_pos
     real(kind=rp) :: t
+    integer :: i
+
     t = time%t
     if (t .gt. this%time) this%time = t
-    if (this%default_fname) then
-       fname = this%stats_output%file_%get_base_fname()
-       write (prefix, '(I5)') &
-            this%stats_output%file_%file_type%get_start_counter()
-       call filename_suffix(fname, suffix)
-       last_slash_pos = &
-            filename_tslash_pos(fname)
-       if (last_slash_pos .ne. 0) then
-          fname = &
-               trim(fname(1:last_slash_pos))// &
-               "scalar_stats"//trim(adjustl(prefix))//"."//suffix
-       else
-          fname = "scalar_stats"// &
-               trim(adjustl(prefix))//"."//suffix
-       end if
-       call this%stats_output%init_base(fname)
+
+    fname = this%stats_output%file_%get_base_fname()
+    write (prefix, '(I5)') &
+         this%stats_output%file_%file_type%get_start_counter()
+    call filename_suffix(fname, suffix)
+
+    last_slash_pos = &
+         filename_tslash_pos(fname)
+    if (last_slash_pos .ne. 0) then
+       fname = &
+            trim(fname(1:last_slash_pos))// &
+            trim(this%base_filename)// &
+            trim(adjustl(prefix))//"."//suffix
+    else
+       fname = trim(this%base_filename)// &
+            trim(adjustl(prefix))//"."//suffix
     end if
+    call this%stats_output%init_base(fname)
   end subroutine scalar_stats_simcomp_restart
 
   !> scalar_stats, called depending on compute_control and compute_value

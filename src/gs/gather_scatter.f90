@@ -51,14 +51,14 @@ module gather_scatter
   use mesh, only : mesh_t
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use mpi_f08, only : MPI_Reduce, MPI_Allreduce, MPI_Barrier, MPI_IN_PLACE, &
-       MPI_Wait, MPI_Irecv, MPI_Isend, MPI_Wtime, MPI_SUM, MPI_MAX, &
-       MPI_INTEGER, MPI_INTEGER2, MPI_INTEGER8, MPI_Request, MPI_Status, &
-       MPI_STATUS_IGNORE, MPI_Get_Count
+       MPI_Wtime, MPI_SUM, MPI_INTEGER, MPI_INTEGER8
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types, only : rp, dp, i2, i8
+  use num_types, only : rp, dp, i8
   use htable, only : htable_i8_t, htable_iter_i8_t
-  use stack, only : stack_i4_t
+  use stack, only : stack_i4_t, stack_i8_t
+  use crystal_router, only : crystal_router_transfer, crystal_router_pack
+  use math, only : sort
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
@@ -1302,121 +1302,207 @@ contains
   end subroutine gs_init_mapping
 
   !> Schedule shared gather-scatter operations
+  !! @details Discovers, for every shared dof, the set of ranks that also hold
+  !! it, using a canonical-owner rendezvous routed through the crystal router
+  !! instead of the previous O(P) shifted neighbour exchange. Each dof global
+  !! id is hashed to an owner rank, `mod(gid, P)`; the owner gathers all holders
+  !! and reflects, to each holder, the other holders. Each holder then registers
+  !! the dof for both send and receive with every peer. The per-peer dof lists
+  !! are ordered by dof global id, which gives the same ordering on both ranks
+  !! of a pair (the matching invariant the gather-scatter exchange relies on)
+  !! without ever transmitting a single sequenced key list. Scales to >1e5 ranks
+  !! without O(P) buffers or unexpected-message buffer exhaustion.
   subroutine gs_schedule(gs)
     type(gs_t), target, intent(inout) :: gs
-    integer(kind=i8), allocatable :: send_buf(:), recv_buf(:)
-    integer(kind=i2), allocatable :: shared_flg(:), recv_flg(:)
     type(htable_iter_i8_t) :: it
     type(stack_i4_t) :: send_pe, recv_pe
-    type(MPI_Status) :: status
-    type(MPI_Request) :: send_req, recv_req
-    integer :: i, j, max_recv, src, dst, ierr, n_recv
-    integer :: tmp, shared_gs_id
-    integer :: nshared_unique
-
-    nshared_unique = gs%shared_dofs%num_entries()
-
-    call it%init(gs%shared_dofs)
-    allocate(send_buf(nshared_unique))
-    i = 1
-    do while (it%next())
-       send_buf(i) = it%key()
-       i = i + 1
-    end do
+    type(stack_i8_t) :: cr_buf
+    integer(i8), allocatable :: buf(:)
+    integer(i8), pointer :: cr_data(:)
+    integer(i8), allocatable :: rgid(:), gtmp(:)
+    integer, allocatable :: rpeer(:), rgsid(:), rperm(:), gperm(:)
+    integer(i8) :: gid
+    integer :: i, j, n, owner, nrec, peer, shared_gs_id, tmp
+    integer :: a, b, cnt, t
 
     call send_pe%init()
     call recv_pe%init()
 
-
     !
-    ! Schedule exchange of shared dofs
+    ! Phase 1: route every local shared dof to its canonical owner.
+    !   record = [dest=owner, len=2, gid, origin]
     !
-
-    call MPI_Allreduce(nshared_unique, max_recv, 1, &
-         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
-
-    allocate(recv_buf(max_recv))
-    allocate(shared_flg(max_recv))
-    allocate(recv_flg(max_recv))
-
-    !> @todo Consider switching to a crystal router...
-    do i = 1, size(gs%dofmap%msh%neigh_order)
-       src = modulo(pe_rank - gs%dofmap%msh%neigh_order(i) + pe_size, pe_size)
-       dst = modulo(pe_rank + gs%dofmap%msh%neigh_order(i), pe_size)
-
-       if (gs%dofmap%msh%neigh(src)) then
-          call MPI_Irecv(recv_buf, max_recv, MPI_INTEGER8, &
-               src, 0, NEKO_COMM, recv_req, ierr)
-       end if
-
-       if (gs%dofmap%msh%neigh(dst)) then
-          call MPI_Isend(send_buf, nshared_unique, MPI_INTEGER8, &
-               dst, 0, NEKO_COMM, send_req, ierr)
-       end if
-
-       if (gs%dofmap%msh%neigh(src)) then
-          call MPI_Wait(recv_req, status, ierr)
-          call MPI_Get_count(status, MPI_INTEGER8, n_recv, ierr)
-
-          do j = 1, n_recv
-             shared_flg(j) = gs%shared_dofs%get(recv_buf(j), shared_gs_id)
-             if (shared_flg(j) .eq. 0) then
-                !> @todo don't touch others data...
-                call gs%comm%recv_dof(src)%push(shared_gs_id)
-             end if
-          end do
-
-          if (gs%comm%recv_dof(src)%size() .gt. 0) then
-             call recv_pe%push(src)
-          end if
-       end if
-
-       if (gs%dofmap%msh%neigh(dst)) then
-          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
-          call MPI_Irecv(recv_flg, max_recv, MPI_INTEGER2, &
-               dst, 0, NEKO_COMM, recv_req, ierr)
-       end if
-
-       if (gs%dofmap%msh%neigh(src)) then
-          call MPI_Isend(shared_flg, n_recv, MPI_INTEGER2, &
-               src, 0, NEKO_COMM, send_req, ierr)
-       end if
-
-       if (gs%dofmap%msh%neigh(dst)) then
-          call MPI_Wait(recv_req, status, ierr)
-          call MPI_Get_count(status, MPI_INTEGER2, n_recv, ierr)
-
-          do j = 1, n_recv
-             if (recv_flg(j) .eq. 0) then
-                tmp = gs%shared_dofs%get(send_buf(j), shared_gs_id)
-                !> @todo don't touch others data...
-                call gs%comm%send_dof(dst)%push(shared_gs_id)
-             end if
-          end do
-
-          if (gs%comm%send_dof(dst)%size() .gt. 0) then
-             call send_pe%push(dst)
-          end if
-       end if
-
-       if (gs%dofmap%msh%neigh(src)) then
-          call MPI_Wait(send_req, MPI_STATUS_IGNORE, ierr)
-       end if
-
+    call cr_buf%init(max(gs%shared_dofs%num_entries(), 1) * 4)
+    call it%init(gs%shared_dofs)
+    do while (it%next())
+       gid = it%key()
+       owner = int(modulo(gid, int(pe_size, i8)))
+       call crystal_router_pack(cr_buf, owner, [gid, int(pe_rank, i8)])
     end do
+
+    n = cr_buf%size()
+    allocate(buf(max(n, 1)))
+    if (n .gt. 0) then
+       cr_data => cr_buf%array()
+       buf(1:n) = cr_data(1:n)
+    end if
+    call cr_buf%free()
+
+    call crystal_router_transfer(buf, n)
+
+    !
+    ! Phase 2: at the owner, group holders by gid and reflect, to each holder,
+    !   every other holder of the same dof.
+    !   reply = [dest=holder, len=2, gid, peer]
+    !
+    nrec = n / 4 ! every record here has the fixed form [me, 2, gid, origin]
+    allocate(rgid(max(nrec, 1)), rgsid(max(nrec, 1)), gperm(max(nrec, 1)))
+    do i = 1, nrec
+       rgid(i) = buf((i - 1) * 4 + 3) ! gid
+       rgsid(i) = int(buf((i - 1) * 4 + 4)) ! origin rank (reuse array)
+    end do
+    if (nrec .gt. 0) call gs_sort_i8(rgid, gperm, nrec)
+
+    call cr_buf%init(max(n, 1))
+    i = 1
+    do while (i .le. nrec)
+       j = i
+       do while (j .le. nrec)
+          if (rgid(j) .ne. rgid(i)) exit
+          j = j + 1
+       end do
+       ! Reflect, to each holder, every other holder of this dof.
+       if (j - i .gt. 1) then
+          do a = i, j - 1 ! recipient holder
+             do b = i, j - 1 ! the other holder
+                if (a .eq. b) cycle
+                call crystal_router_pack(cr_buf, rgsid(gperm(a)), &
+                     [rgid(i), int(rgsid(gperm(b)), i8)])
+             end do
+          end do
+       end if
+       i = j
+    end do
+    deallocate(rgid, rgsid, gperm)
+
+    n = cr_buf%size()
+    if (allocated(buf)) deallocate(buf)
+    allocate(buf(max(n, 1)))
+    if (n .gt. 0) then
+       cr_data => cr_buf%array()
+       buf(1:n) = cr_data(1:n)
+    end if
+    call cr_buf%free()
+
+    call crystal_router_transfer(buf, n)
+
+    !
+    ! Phase 3: register each (dof, peer) for both send and receive. Order each
+    !   peer's dof list by gid so both ranks of a pair agree on the order.
+    !
+    nrec = n / 4 ! replies are [me, 2, gid, peer]
+    allocate(rgid(max(nrec, 1)), rpeer(max(nrec, 1)), rgsid(max(nrec, 1)), &
+         rperm(max(nrec, 1)))
+    do i = 1, nrec
+       gid = buf((i - 1) * 4 + 3)
+       rgid(i) = gid
+       rpeer(i) = int(buf((i - 1) * 4 + 4))
+       tmp = gs%shared_dofs%get(gid, shared_gs_id)
+       rgsid(i) = shared_gs_id
+    end do
+
+    ! Sort by peer; within each peer run, sort by gid and register in that order.
+    if (nrec .gt. 0) call sort(rpeer, rperm, nrec)
+    a = 1
+    do while (a .le. nrec)
+       b = a
+       do while (b .le. nrec)
+          if (rpeer(b) .ne. rpeer(a)) exit
+          b = b + 1
+       end do
+       peer = rpeer(a)
+       cnt = b - a
+       allocate(gtmp(cnt), gperm(cnt))
+       do t = 1, cnt
+          gtmp(t) = rgid(rperm(a + t - 1))
+       end do
+       call gs_sort_i8(gtmp, gperm, cnt)
+       do t = 1, cnt
+          shared_gs_id = rgsid(rperm(a + gperm(t) - 1))
+          call gs%comm%send_dof(peer)%push(shared_gs_id)
+          call gs%comm%recv_dof(peer)%push(shared_gs_id)
+       end do
+       deallocate(gtmp, gperm)
+       call send_pe%push(peer)
+       call recv_pe%push(peer)
+       a = b
+    end do
+    deallocate(rgid, rpeer, rgsid, rperm)
+    if (allocated(buf)) deallocate(buf)
 
     call gs%comm%init(send_pe, recv_pe)
 
     call send_pe%free()
     call recv_pe%free()
 
-    deallocate(send_buf)
-    deallocate(recv_flg)
-    deallocate(shared_flg)
     !This arrays seems to take massive amounts of memory...
     call gs%shared_dofs%free()
 
   end subroutine gs_schedule
+
+  !> Heap sort for 64-bit integer arrays, returning the permutation @a ind.
+  !! Local helper for gs_schedule (the generic math sort has no i8 variant).
+  subroutine gs_sort_i8(a, ind, n)
+    integer, intent(in) :: n
+    integer(i8), intent(inout) :: a(n)
+    integer, intent(out) :: ind(n)
+    integer(i8) :: aa
+    integer :: j, ir, i, ii, l
+
+    do j = 1, n
+       ind(j) = j
+    end do
+
+    if (n .le. 1) return
+
+    l = n/2 + 1
+    ir = n
+    do while (.true.)
+       if (l .gt. 1) then
+          l = l - 1
+          aa = a(l)
+          ii = ind(l)
+       else
+          aa = a(ir)
+          ii = ind(ir)
+          a(ir) = a(1)
+          ind(ir) = ind(1)
+          ir = ir - 1
+          if (ir .eq. 1) then
+             a(1) = aa
+             ind(1) = ii
+             return
+          end if
+       end if
+       i = l
+       j = l + l
+       do while (j .le. ir)
+          if (j .lt. ir) then
+             if (a(j) .lt. a(j + 1)) j = j + 1
+          end if
+          if (aa .lt. a(j)) then
+             a(i) = a(j)
+             ind(i) = ind(j)
+             i = j
+             j = j + j
+          else
+             j = ir + 1
+          end if
+       end do
+       a(i) = aa
+       ind(i) = ii
+    end do
+  end subroutine gs_sort_i8
 
   !> Gather-scatter operation on a field @a u with op @a op
   subroutine gs_op_fld(gs, u, op, event)

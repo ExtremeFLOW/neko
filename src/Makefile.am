@@ -20,6 +20,7 @@ neko_fortran_SOURCES = \
 	io/buffer/buffer_4d_npar.F90\
 	common/log.f90\
 	comm/comm.F90\
+	comm/crystal_router.f90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
 	comm/shmem.F90\
