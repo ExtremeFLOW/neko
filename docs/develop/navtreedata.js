@@ -117,7 +117,7 @@ var NAVTREEINDEX =
 "d7/dee/aabb__tree_8f90_source.html",
 "d8/d0c/neko__api__user_8f90.html#a4f16996b2e118ed29089e51eeecf2642",
 "d8/d1e/structgmres__device_1_1gmres__device__t.html#acdccafa2c2cd1d507b9913524c52b54e",
-"d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#ae51a7cdb03cda7e4460ee4bc645aef01",
+"d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#ae42efdd6751039007b270f1d46b92fcf",
 "d8/d57/rhs__maker__fctry_8f90_source.html",
 "d8/d85/structtime__interpolator_1_1time__interpolator__t.html#a434f634eafd19ad175776d7a96c17016",
 "d8/dae/namespacefield__subsampler.html#a840b304a56dc81ebd743c7195519af09",
