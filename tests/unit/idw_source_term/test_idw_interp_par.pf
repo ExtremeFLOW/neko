@@ -1,0 +1,155 @@
+module test_idw_interp_par
+  use pfunit
+  use num_types, only : rp
+  use point, only : point_t
+  use stack, only : stack_i4_t
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use idw_source_term, only : idw_interp_shepard, idw_build_shared_slots
+  implicit none
+
+  integer, parameter :: lx = 6
+
+  @TestCase
+  type, extends(MPITestCase) :: test_idw_par
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_idw_par
+
+contains
+
+  subroutine setUp(this)
+    class(test_idw_par), intent(inout) :: this
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_idw_par), intent(inout) :: this
+  end subroutine tearDown
+
+  !> Point the Neko communicator at the pFUnit test context.
+  subroutine use_test_comm(this)
+    class(test_idw_par), intent(inout) :: this
+
+    NEKO_COMM%mpi_val = this%getMpiCommunicator()
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+  end subroutine use_test_comm
+
+  !> Markers held by more than one rank get a common reduction slot;
+  !! exclusively held markers get slot 0.
+  @test(npes=[1,2])
+  subroutine test_build_shared_slots(this)
+    class(test_idw_par), intent(inout) :: this
+    integer :: lag_gid(2), shared_slot(2), n_shared
+
+    call use_test_comm(this)
+
+    if (pe_size .eq. 1) then
+       ! Single rank: every marker has one holder, nothing is shared
+       lag_gid = (/ 1, 3 /)
+       call idw_build_shared_slots(lag_gid, 3, shared_slot, n_shared)
+       @assertEqual(0, n_shared)
+       @assertEqual(0, shared_slot(1))
+       @assertEqual(0, shared_slot(2))
+    else
+       ! Both ranks hold gid 3; gids 1 and 2 have a single holder
+       if (pe_rank .eq. 0) then
+          lag_gid = (/ 1, 3 /)
+       else
+          lag_gid = (/ 2, 3 /)
+       end if
+       call idw_build_shared_slots(lag_gid, 3, shared_slot, n_shared)
+       @assertEqual(1, n_shared)
+       @assertEqual(0, shared_slot(1))
+       @assertEqual(1, shared_slot(2))
+    end if
+  end subroutine test_build_shared_slots
+
+  !> A marker on an element face that is also an MPI boundary must see the
+  !! stencil nodes of both sides: with the shared-marker reduction, every
+  !! holder rank reproduces the serial full-domain interpolation.
+  @test(npes=[1,2])
+  subroutine test_shared_marker_reduction(this)
+    class(test_idw_par), intent(inout) :: this
+    real(kind=rp), dimension(lx,lx,lx,2) :: x2, y2, z2, ds2, ml2, pm2
+    real(kind=rp), dimension(lx,lx,lx,2) :: u2, v2, w2
+    real(kind=rp), dimension(lx,lx,lx,1) :: xs, ys, zs, dss, mls, pms
+    real(kind=rp), dimension(lx,lx,lx,1) :: us, vs, ws
+    real(kind=rp) :: ru(1), rv(1), rw(1), rum(1), rvm(1), rwm(1)
+    real(kind=rp) :: fu(1), fv(1), fw(1), fum(1), fvm(1), fwm(1)
+    type(point_t) :: lag_pts(1)
+    type(stack_i4_t) :: el_full(1), el_half(1)
+    integer :: j, k, l, e
+    integer :: shared_slot(1), n_shared
+
+    call use_test_comm(this)
+
+    ! Two elements sharing the x = 2 face; h = 0.2; pmsk = 1 above z = 1.5
+    do l = 1, lx
+       do k = 1, lx
+          do j = 1, lx
+             x2(j,k,l,1) = 1.0_rp + 0.2_rp * (j - 1)
+             x2(j,k,l,2) = 2.0_rp + 0.2_rp * (j - 1)
+             y2(j,k,l,:) = 1.0_rp + 0.2_rp * (k - 1)
+             z2(j,k,l,:) = 1.0_rp + 0.2_rp * (l - 1)
+          end do
+       end do
+    end do
+    ds2 = 0.2_rp
+    ml2 = 1.0_rp
+    ml2(lx,:,:,1) = 0.5_rp   ! dofs on the shared face count half per side
+    ml2(1,:,:,2) = 0.5_rp
+    pm2 = merge(1.0_rp, 0.0_rp, z2 .gt. 1.5_rp)
+    u2 = z2
+    v2 = x2
+    w2 = y2
+
+    ! Marker on the shared face, duplicated on both ranks
+    lag_pts(1)%x = (/ 2.0_rp, 1.5_rp, 1.5_rp /)
+
+    ! Serial full-domain reference, identical on every rank
+    call el_full(1)%init()
+    call el_full(1)%push(1)
+    call el_full(1)%push(2)
+    call idw_interp_shepard(ru, rv, rw, rum, rvm, rwm, lag_pts, el_full, &
+         u2, v2, w2, pm2, ml2, x2, y2, z2, ds2, 2.0_rp, 0.5_rp, lx, 2)
+
+    if (pe_size .eq. 1) then
+       ! One rank holds the whole stencil; the marker is not shared
+       shared_slot(1) = 0
+       n_shared = 0
+       call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, el_full, &
+            u2, v2, w2, pm2, ml2, x2, y2, z2, ds2, 2.0_rp, 0.5_rp, lx, 2, &
+            shared_slot, n_shared)
+    else
+       ! Rank r holds element r+1 only: half the stencil each
+       e = pe_rank + 1
+       xs(:,:,:,1) = x2(:,:,:,e)
+       ys(:,:,:,1) = y2(:,:,:,e)
+       zs(:,:,:,1) = z2(:,:,:,e)
+       dss(:,:,:,1) = ds2(:,:,:,e)
+       mls(:,:,:,1) = ml2(:,:,:,e)
+       pms(:,:,:,1) = pm2(:,:,:,e)
+       us(:,:,:,1) = u2(:,:,:,e)
+       vs(:,:,:,1) = v2(:,:,:,e)
+       ws(:,:,:,1) = w2(:,:,:,e)
+       call el_half(1)%init()
+       call el_half(1)%push(1)
+       shared_slot(1) = 1
+       n_shared = 1
+       call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, el_half, &
+            us, vs, ws, pms, mls, xs, ys, zs, dss, 2.0_rp, 0.5_rp, lx, 1, &
+            shared_slot, n_shared)
+       call el_half(1)%free()
+    end if
+
+    @assertEqual(ru(1), fu(1), tolerance = 1e-12_rp)
+    @assertEqual(rv(1), fv(1), tolerance = 1e-12_rp)
+    @assertEqual(rw(1), fw(1), tolerance = 1e-12_rp)
+    @assertEqual(rum(1), fum(1), tolerance = 1e-12_rp)
+    @assertEqual(rvm(1), fvm(1), tolerance = 1e-12_rp)
+    @assertEqual(rwm(1), fwm(1), tolerance = 1e-12_rp)
+    call el_full(1)%free()
+  end subroutine test_shared_marker_reduction
+
+end module test_idw_interp_par

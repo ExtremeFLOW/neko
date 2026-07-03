@@ -3,7 +3,8 @@ module test_idw_interp
   use num_types, only : rp
   use point, only : point_t
   use stack, only : stack_i4_t
-  use idw_source_term, only : idw_interp_shepard
+  use idw_source_term, only : idw_interp_shepard, &
+       idw_interp_shepard_partials, idw_interp_shepard_normalize
   implicit none
 
   integer, parameter :: lx = 6, ne = 1
@@ -202,5 +203,98 @@ contains
     call lag_el1(1)%free()
     call lag_el2(1)%free()
   end subroutine test_mult_deduplicates_copies
+
+  !> (f) Partial sums over disjoint element partitions combine exactly to
+  !! the serial result: the invariant behind the cross-rank reduction for
+  !! markers whose stencil straddles an MPI boundary.
+  @test
+  subroutine test_partials_sum_across_partitions()
+    real(kind=rp), dimension(lx,lx,lx,2) :: x2, y2, z2, ds2, ml2, pm2
+    real(kind=rp), dimension(lx,lx,lx,2) :: u2, v2, w2
+    real(kind=rp), dimension(lx,lx,lx,1) :: xs, ys, zs, dss, mls, pms
+    real(kind=rp), dimension(lx,lx,lx,1) :: us, vs, ws
+    real(kind=rp) :: part_full(8,1), part_a(8,1), part_b(8,1)
+    real(kind=rp) :: fu(1), fv(1), fw(1), fum(1), fvm(1), fwm(1)
+    real(kind=rp) :: gu(1), gv(1), gw(1), gum(1), gvm(1), gwm(1)
+    type(point_t) :: lag_pts(1)
+    type(stack_i4_t) :: el_full(1), el_half(1)
+    integer :: j, k, l, c
+
+    ! Two elements sharing the x = 2 face; h = 0.2; pmsk = 1 above z = 1.5
+    do l = 1, lx
+       do k = 1, lx
+          do j = 1, lx
+             x2(j,k,l,1) = 1.0_rp + 0.2_rp * (j - 1)
+             x2(j,k,l,2) = 2.0_rp + 0.2_rp * (j - 1)
+             y2(j,k,l,:) = 1.0_rp + 0.2_rp * (k - 1)
+             z2(j,k,l,:) = 1.0_rp + 0.2_rp * (l - 1)
+          end do
+       end do
+    end do
+    ds2 = 0.2_rp
+    ml2 = 1.0_rp
+    ml2(lx,:,:,1) = 0.5_rp   ! dofs on the shared face count half per side
+    ml2(1,:,:,2) = 0.5_rp
+    pm2 = merge(1.0_rp, 0.0_rp, z2 .gt. 1.5_rp)
+    u2 = z2
+    v2 = x2
+    w2 = y2
+
+    ! Marker on the shared face: element boundary that is an MPI boundary
+    lag_pts(1)%x = (/ 2.0_rp, 1.5_rp, 1.5_rp /)
+
+    call el_full(1)%init()
+    call el_full(1)%push(1)
+    call el_full(1)%push(2)
+
+    call idw_interp_shepard_partials(part_full, lag_pts, el_full, &
+         u2, v2, w2, pm2, ml2, x2, y2, z2, ds2, 2.0_rp, 0.5_rp, lx, 2)
+
+    ! "Rank A" holds element 1 only
+    call el_half(1)%init()
+    call el_half(1)%push(1)
+    xs(:,:,:,1) = x2(:,:,:,1)
+    ys(:,:,:,1) = y2(:,:,:,1)
+    zs(:,:,:,1) = z2(:,:,:,1)
+    dss(:,:,:,1) = ds2(:,:,:,1)
+    mls(:,:,:,1) = ml2(:,:,:,1)
+    pms(:,:,:,1) = pm2(:,:,:,1)
+    us(:,:,:,1) = u2(:,:,:,1)
+    vs(:,:,:,1) = v2(:,:,:,1)
+    ws(:,:,:,1) = w2(:,:,:,1)
+    call idw_interp_shepard_partials(part_a, lag_pts, el_half, &
+         us, vs, ws, pms, mls, xs, ys, zs, dss, 2.0_rp, 0.5_rp, lx, 1)
+
+    ! "Rank B" holds element 2 only
+    xs(:,:,:,1) = x2(:,:,:,2)
+    ys(:,:,:,1) = y2(:,:,:,2)
+    zs(:,:,:,1) = z2(:,:,:,2)
+    dss(:,:,:,1) = ds2(:,:,:,2)
+    mls(:,:,:,1) = ml2(:,:,:,2)
+    pms(:,:,:,1) = pm2(:,:,:,2)
+    us(:,:,:,1) = u2(:,:,:,2)
+    vs(:,:,:,1) = v2(:,:,:,2)
+    ws(:,:,:,1) = w2(:,:,:,2)
+    call idw_interp_shepard_partials(part_b, lag_pts, el_half, &
+         us, vs, ws, pms, mls, xs, ys, zs, dss, 2.0_rp, 0.5_rp, lx, 1)
+
+    do c = 1, 8
+       @assertEqual(part_full(c,1), part_a(c,1) + part_b(c,1), tolerance = 1e-12_rp)
+    end do
+
+    ! Normalizing the summed partials reproduces the serial interpolation
+    call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, el_full, &
+         u2, v2, w2, pm2, ml2, x2, y2, z2, ds2, 2.0_rp, 0.5_rp, lx, 2)
+    part_a = part_a + part_b
+    call idw_interp_shepard_normalize(gu, gv, gw, gum, gvm, gwm, part_a)
+    @assertEqual(fu(1), gu(1), tolerance = 1e-12_rp)
+    @assertEqual(fv(1), gv(1), tolerance = 1e-12_rp)
+    @assertEqual(fw(1), gw(1), tolerance = 1e-12_rp)
+    @assertEqual(fum(1), gum(1), tolerance = 1e-12_rp)
+    @assertEqual(fvm(1), gvm(1), tolerance = 1e-12_rp)
+    @assertEqual(fwm(1), gwm(1), tolerance = 1e-12_rp)
+    call el_full(1)%free()
+    call el_half(1)%free()
+  end subroutine test_partials_sum_across_partitions
 
 end module test_idw_interp

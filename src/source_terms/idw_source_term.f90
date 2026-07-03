@@ -45,7 +45,7 @@ module idw_source_term
   use registry, only : neko_registry
   use field, only : field_t
   use file, only : file_t
-  use comm, only : NEKO_COMM, pe_rank
+  use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
   use intersection_detector, only : intersect_detector_t
   use mesh, only : mesh_t
   use stack, only : stack_i4_t, stack_pt_t
@@ -117,10 +117,16 @@ module idw_source_term
      type(field_t) :: tmp
      type(gs_t) :: gs
      logical :: one_sided
-     !> Use Shepard IDW interpolation onto the markers instead of gslib
+     !> Use Shepard IDW interpolation onto the markers instead of the
+     !! global (rst-based) interpolation
      logical :: idw_interp = .false.
      !> Cutoff radius (in units of ds) for the Shepard interpolation
      real(kind=rp) :: interp_rmax
+     !> Reduction slot per marker for the Shepard interpolation: markers
+     !! held by several ranks share a slot, 0 marks a single-holder marker
+     integer, allocatable :: shared_slot(:)
+     !> Global number of markers held by more than one rank
+     integer :: n_shared_glb = 0
      class(filter_t), allocatable :: fltr
    contains
      !> The common constructor using a JSON object.
@@ -133,7 +139,8 @@ module idw_source_term
      procedure, pass(this) :: init_boundary_mesh => idw_init_boundary_mesh
   end type idw_source_term_t
 
-  public :: idw_interp_shepard
+  public :: idw_interp_shepard, idw_interp_shepard_partials, &
+       idw_interp_shepard_normalize, idw_build_shared_slots
 
 contains
 
@@ -150,12 +157,15 @@ contains
     character(len=:), allocatable :: object_type
     integer :: n_regions, i, j, k, e, n_lags
     integer :: np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty, n_lag_glb
+    integer :: gid_offset
+    integer, allocatable :: np_i(:), nm_i(:), cnt_shr(:,:)
     character(len=LOG_SIZE) :: log_buf
     real(kind=dp) :: aabb_padding,dx_max, dy_max, dz_max, ds_max, ds_min
     real(kind=dp) :: diam_min, dxe, dye, dze
     type(stack_i4_t) :: overlaps
     type(stack_pt_t) :: lagrangian_points
     type(stack_pt_t) :: lagrangian_normals
+    type(stack_i4_t) :: lagrangian_gids
     real(kind=rp) :: start_time, end_time
     character(len=:), allocatable :: filter_type
     character(len=:), allocatable :: interp_scheme
@@ -356,6 +366,8 @@ contains
     call this%intersect%init(coef%msh, aabb_padding)
     call lagrangian_points%init()
     call lagrangian_normals%init()
+    call lagrangian_gids%init()
+    gid_offset = 0
 
     call json%get('objects', json_object_list)
     call json%info('objects', n_children=n_regions)
@@ -380,7 +392,7 @@ contains
        select case (object_type)
        case ('boundary_mesh')
           call this%init_boundary_mesh(lagrangian_points, lagrangian_normals, &
-               object_settings)
+               lagrangian_gids, gid_offset, object_settings)
        case ('none')
           call neko_error('IDW source term objects require a region type')
        case default
@@ -447,12 +459,25 @@ contains
 
     n_lags = lagrangian_points%size()
 
-    ! The Shepard (idw) interpolation never evaluates through gslib, so the
-    ! global search is only set up for the barycentric scheme. This also
-    ! makes the idw scheme usable in builds without gslib.
+    ! The Shepard (idw) interpolation never evaluates through the global
+    ! (rst-based) interpolation, so the global search is only set up for
+    ! the barycentric scheme. The Shepard scheme instead needs a reduction
+    ! slot for every marker held by more than one rank, so that the partial
+    ! sums of stencils straddling an MPI boundary can be summed across the
+    ! holder ranks.
     if (.not. this%idw_interp) then
        call this%global_interp%init(coef%dof, NEKO_COMM)
        call this%global_interp%find_points_xyz(this%xyz, n_lags)
+    else
+       allocate(this%shared_slot(n_lags))
+       this%shared_slot = 0
+       select type (gd => lagrangian_gids%data)
+         type is (integer)
+          call idw_build_shared_slots(gd(1:n_lags), gid_offset, &
+               this%shared_slot, this%n_shared_glb)
+       end select
+       write(log_buf, '(A,I9)') 'Shared mrks: ', this%n_shared_glb
+       call neko_log%message(log_buf)
     end if
 
     ! Construct list of overlapping elements for each lagrangian particle
@@ -518,14 +543,46 @@ contains
     call this%gs%op(this%wm, GS_OP_ADD)
 
     if (this%idw_interp) then
-       n_lag_glb = size(this%lag_pts)
-       call MPI_Allreduce(MPI_IN_PLACE, n_lag_glb, 1, MPI_INTEGER, &
-            MPI_SUM, NEKO_COMM)
-
-       call idw_interp_stencil_stats(this%lag_pts, this%lag_el, &
+       ! Per-marker local stencil counts; the counts of markers held by
+       ! several ranks are then summed over their holders so the diagnostic
+       ! reflects the stencil the reduced interpolation actually sees.
+       allocate(np_i(n_lags), nm_i(n_lags))
+       call idw_interp_stencil_counts(this%lag_pts, this%lag_el, &
             this%pmsk%x, coef%dof%x, coef%dof%y, coef%dof%z, this%ds%x, &
-            this%interp_rmax, coef%Xh%lx, coef%msh%nelv, &
-            np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty)
+            this%interp_rmax, coef%Xh%lx, coef%msh%nelv, np_i, nm_i)
+
+       if (this%n_shared_glb .gt. 0) then
+          allocate(cnt_shr(2, this%n_shared_glb))
+          cnt_shr = 0
+          do i = 1, n_lags
+             if (this%shared_slot(i) .gt. 0) then
+                cnt_shr(1, this%shared_slot(i)) = np_i(i)
+                cnt_shr(2, this%shared_slot(i)) = nm_i(i)
+             end if
+          end do
+          call MPI_Allreduce(MPI_IN_PLACE, cnt_shr, 2 * this%n_shared_glb, &
+               MPI_INTEGER, MPI_SUM, NEKO_COMM)
+       end if
+
+       ! Stats over single-holder markers, reduced over ranks
+       np_min = huge(0)
+       nm_min = huge(0)
+       np_sum = 0
+       nm_sum = 0
+       np_empty = 0
+       nm_empty = 0
+       n_lag_glb = 0
+       do i = 1, n_lags
+          if (this%shared_slot(i) .eq. 0) then
+             np_min = min(np_min, np_i(i))
+             nm_min = min(nm_min, nm_i(i))
+             np_sum = np_sum + np_i(i)
+             nm_sum = nm_sum + nm_i(i)
+             if (np_i(i) .eq. 0) np_empty = np_empty + 1
+             if (nm_i(i) .eq. 0) nm_empty = nm_empty + 1
+             n_lag_glb = n_lag_glb + 1
+          end if
+       end do
 
        call MPI_Allreduce(MPI_IN_PLACE, np_min, 1, MPI_INTEGER, &
             MPI_MIN, NEKO_COMM)
@@ -539,6 +596,23 @@ contains
             MPI_SUM, NEKO_COMM)
        call MPI_Allreduce(MPI_IN_PLACE, nm_empty, 1, MPI_INTEGER, &
             MPI_SUM, NEKO_COMM)
+       call MPI_Allreduce(MPI_IN_PLACE, n_lag_glb, 1, MPI_INTEGER, &
+            MPI_SUM, NEKO_COMM)
+
+       ! Fold in each shared marker once; the reduced buffer is identical
+       ! on every rank, so the stats stay rank independent
+       do i = 1, this%n_shared_glb
+          np_min = min(np_min, cnt_shr(1, i))
+          nm_min = min(nm_min, cnt_shr(2, i))
+          np_sum = np_sum + cnt_shr(1, i)
+          nm_sum = nm_sum + cnt_shr(2, i)
+          if (cnt_shr(1, i) .eq. 0) np_empty = np_empty + 1
+          if (cnt_shr(2, i) .eq. 0) nm_empty = nm_empty + 1
+       end do
+       n_lag_glb = n_lag_glb + this%n_shared_glb
+
+       if (allocated(cnt_shr)) deallocate(cnt_shr)
+       deallocate(np_i, nm_i)
 
        write(log_buf, '(A,I6,A,F7.1)') 'Interp + side: min nodes ', &
             np_min, ', mean ', real(np_sum, rp) / max(n_lag_glb, 1)
@@ -571,6 +645,7 @@ contains
 
     call lagrangian_points%free()
     call lagrangian_normals%free()
+    call lagrangian_gids%free()
 
     if (NEKO_BCKND_DEVICE .eq. 1) call idw_build_device_maps(this)
 
@@ -742,7 +817,7 @@ contains
             this%lag_el, u%x, v%x, w%x, this%pmsk%x, this%coef%mult, &
             this%w%dof%x, this%w%dof%y, this%w%dof%z, this%ds%x, &
             this%interp_rmax, this%pwr_param, this%w%Xh%lx, &
-            size(this%w%dof%x, 4))
+            size(this%w%dof%x, 4), this%shared_slot, this%n_shared_glb)
     else if (this%one_sided) then
        this%fum_ib = 0.0_rp
        this%fvm_ib = 0.0_rp
@@ -895,6 +970,9 @@ contains
     if (allocated(this%lpy)) deallocate(this%lpy)
     if (allocated(this%lpz)) deallocate(this%lpz)
 
+    if (allocated(this%shared_slot)) deallocate(this%shared_slot)
+    this%n_shared_glb = 0
+
     call this%gs%free()
 
   end subroutine idw_source_term_free
@@ -936,7 +1014,8 @@ contains
             call idw_interp_shepard(fu_ib, fv_ib, fw_ib, &
                  fum_ib, fvm_ib, fwm_ib, lag_pts, this%lag_el, &
                  u%x, v%x, w%x, this%pmsk%x, this%coef%mult, x, y, z, ds, &
-                 this%interp_rmax, this%pwr_param, lx, this%coef%msh%nelv)
+                 this%interp_rmax, this%pwr_param, lx, this%coef%msh%nelv, &
+                 this%shared_slot, this%n_shared_glb)
          else if (this%one_sided) then
             fum_ib = 0.0_rp
             fvm_ib = 0.0_rp
@@ -1090,8 +1169,16 @@ contains
   !! Contributions carry the dof multiplicity weight so that shared nodes,
   !! visited once per adjoining stencil element, count once. Sides whose
   !! weight sum is below tolerance return zero.
+  !!
+  !! A marker whose stencil straddles an MPI boundary is held by every rank
+  !! whose padded elements it overlaps, each copy seeing only the local part
+  !! of the stencil. When `shared_slot` and `n_shared` are passed, the
+  !! partial sums of such markers are summed over their holder ranks before
+  !! normalization, so every copy computes the full-stencil value. The
+  !! reduction is collective: all ranks in NEKO_COMM must call this routine.
   subroutine idw_interp_shepard(fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
-       lag_pts, lag_el, u, v, w, pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne)
+       lag_pts, lag_el, u, v, w, pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne, &
+       shared_slot, n_shared)
     real(kind=rp), intent(inout) :: fu_ib(:), fv_ib(:), fw_ib(:)
     real(kind=rp), intent(inout) :: fum_ib(:), fvm_ib(:), fwm_ib(:)
     type(point_t), intent(in) :: lag_pts(:)
@@ -1100,20 +1187,60 @@ contains
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: u, v, w
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, mult, x, y, z, ds
     real(kind=rp), intent(in) :: rmax_i, p
+    integer, intent(in), optional :: shared_slot(:)
+    integer, intent(in), optional :: n_shared
+    real(kind=rp), allocatable :: part(:,:), shr(:,:)
+    integer :: i
+
+    allocate(part(8, size(lag_pts)))
+    call idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, pmsk, &
+         mult, x, y, z, ds, rmax_i, p, lx, ne)
+
+    if (present(shared_slot) .and. present(n_shared)) then
+       if (n_shared .gt. 0) then
+          allocate(shr(8, n_shared))
+          shr = 0.0_rp
+          do i = 1, size(lag_pts)
+             if (shared_slot(i) .gt. 0) then
+                shr(:, shared_slot(i)) = part(:, i)
+             end if
+          end do
+          call MPI_Allreduce(MPI_IN_PLACE, shr, 8 * n_shared, &
+               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM)
+          do i = 1, size(lag_pts)
+             if (shared_slot(i) .gt. 0) then
+                part(:, i) = shr(:, shared_slot(i))
+             end if
+          end do
+          deallocate(shr)
+       end if
+    end if
+
+    call idw_interp_shepard_normalize(fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, &
+         fwm_ib, part)
+    deallocate(part)
+
+  end subroutine idw_interp_shepard
+
+  !> Accumulate the per-marker Shepard partial sums over the local stencil
+  !! elements. Row layout of `part`: the +side numerators and weight sum
+  !! (rows 1-4: u, v, w, weight), then the -side (rows 5-8). Because every
+  !! contribution carries the dof multiplicity weight, the partials of one
+  !! marker are exactly summable over the ranks holding a copy of it.
+  subroutine idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, &
+       pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne)
+    real(kind=rp), intent(inout) :: part(:,:)
+    type(point_t), intent(in) :: lag_pts(:)
+    type(stack_i4_t), intent(inout) :: lag_el(:)
+    integer, intent(in) :: lx, ne
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: u, v, w
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, mult, x, y, z, ds
+    real(kind=rp), intent(in) :: rmax_i, p
     integer :: i, j, k, l, e, ee
     real(kind=rp) :: r, wgt
-    real(kind=rp) :: nup, nvp, nwp, dp_sum
-    real(kind=rp) :: num, nvm, nwm, dm_sum
 
     do i = 1, size(lag_pts)
-       nup = 0.0_rp
-       nvp = 0.0_rp
-       nwp = 0.0_rp
-       dp_sum = 0.0_rp
-       num = 0.0_rp
-       nvm = 0.0_rp
-       nwm = 0.0_rp
-       dm_sum = 0.0_rp
+       part(:, i) = 0.0_rp
        select type (el => lag_el(i)%data)
          type is (integer)
           do ee = 1, lag_el(i)%size()
@@ -1127,36 +1254,50 @@ contains
                       r = r / ds(j,k,l,e)
                       wgt = inv_dist_weight(r, rmax_i, p) * mult(j,k,l,e)
                       if (pmsk(j,k,l,e) .gt. 0.0_rp) then
-                         nup = nup + wgt * u(j,k,l,e)
-                         nvp = nvp + wgt * v(j,k,l,e)
-                         nwp = nwp + wgt * w(j,k,l,e)
-                         dp_sum = dp_sum + wgt
+                         part(1, i) = part(1, i) + wgt * u(j,k,l,e)
+                         part(2, i) = part(2, i) + wgt * v(j,k,l,e)
+                         part(3, i) = part(3, i) + wgt * w(j,k,l,e)
+                         part(4, i) = part(4, i) + wgt
                       else
-                         num = num + wgt * u(j,k,l,e)
-                         nvm = nvm + wgt * v(j,k,l,e)
-                         nwm = nwm + wgt * w(j,k,l,e)
-                         dm_sum = dm_sum + wgt
+                         part(5, i) = part(5, i) + wgt * u(j,k,l,e)
+                         part(6, i) = part(6, i) + wgt * v(j,k,l,e)
+                         part(7, i) = part(7, i) + wgt * w(j,k,l,e)
+                         part(8, i) = part(8, i) + wgt
                       end if
                    end do
                 end do
              end do
           end do
        end select
+    end do
 
-       if (dp_sum .gt. 1e-12_rp) then
-          fu_ib(i) = nup / dp_sum
-          fv_ib(i) = nvp / dp_sum
-          fw_ib(i) = nwp / dp_sum
+  end subroutine idw_interp_shepard_partials
+
+  !> Turn the (possibly rank-reduced) Shepard partial sums into the
+  !! interpolated values; a side whose weight sum is below tolerance
+  !! returns zero.
+  subroutine idw_interp_shepard_normalize(fu_ib, fv_ib, fw_ib, fum_ib, &
+       fvm_ib, fwm_ib, part)
+    real(kind=rp), intent(inout) :: fu_ib(:), fv_ib(:), fw_ib(:)
+    real(kind=rp), intent(inout) :: fum_ib(:), fvm_ib(:), fwm_ib(:)
+    real(kind=rp), intent(in) :: part(:,:)
+    integer :: i
+
+    do i = 1, size(part, 2)
+       if (part(4, i) .gt. 1e-12_rp) then
+          fu_ib(i) = part(1, i) / part(4, i)
+          fv_ib(i) = part(2, i) / part(4, i)
+          fw_ib(i) = part(3, i) / part(4, i)
        else
           fu_ib(i) = 0.0_rp
           fv_ib(i) = 0.0_rp
           fw_ib(i) = 0.0_rp
        end if
 
-       if (dm_sum .gt. 1e-12_rp) then
-          fum_ib(i) = num / dm_sum
-          fvm_ib(i) = nvm / dm_sum
-          fwm_ib(i) = nwm / dm_sum
+       if (part(8, i) .gt. 1e-12_rp) then
+          fum_ib(i) = part(5, i) / part(8, i)
+          fvm_ib(i) = part(6, i) / part(8, i)
+          fwm_ib(i) = part(7, i) / part(8, i)
        else
           fum_ib(i) = 0.0_rp
           fvm_ib(i) = 0.0_rp
@@ -1164,13 +1305,56 @@ contains
        end if
     end do
 
-  end subroutine idw_interp_shepard
+  end subroutine idw_interp_shepard_normalize
 
-  subroutine idw_init_boundary_mesh(this, lag_pts, lag_nrm, json)
+  !> Assign a reduction-buffer slot to every marker held by more than one
+  !! rank. `lag_gid` holds the global ids of this rank's markers (their
+  !! position in the source boundary meshes); the ids are consistent across
+  !! ranks because every rank scans the same boundary meshes. Slots are a
+  !! prefix count over the reduced holder array, hence identical on every
+  !! rank. Collective over NEKO_COMM.
+  subroutine idw_build_shared_slots(lag_gid, n_gid_glb, shared_slot, n_shared)
+    integer, intent(in) :: lag_gid(:)
+    integer, intent(in) :: n_gid_glb
+    integer, intent(out) :: shared_slot(:)
+    integer, intent(out) :: n_shared
+    integer, allocatable :: holders(:)
+    integer :: i, g
+
+    allocate(holders(n_gid_glb))
+    holders = 0
+    do i = 1, size(lag_gid)
+       holders(lag_gid(i)) = 1
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, holders, n_gid_glb, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM)
+
+    ! Prefix count: holders becomes the slot per gid (0 = single holder)
+    n_shared = 0
+    do g = 1, n_gid_glb
+       if (holders(g) .gt. 1) then
+          n_shared = n_shared + 1
+          holders(g) = n_shared
+       else
+          holders(g) = 0
+       end if
+    end do
+
+    do i = 1, size(lag_gid)
+       shared_slot(i) = holders(lag_gid(i))
+    end do
+    deallocate(holders)
+
+  end subroutine idw_build_shared_slots
+
+  subroutine idw_init_boundary_mesh(this, lag_pts, lag_nrm, lag_gid, &
+       gid_offset, json)
     class(idw_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(stack_pt_t), intent(inout) :: lag_pts
     type(stack_pt_t), intent(inout) :: lag_nrm
+    type(stack_i4_t), intent(inout) :: lag_gid
+    integer, intent(inout) :: gid_offset
     type(file_t) :: mesh_file
     type(tri_mesh_t) :: boundary_mesh
     character(len=:), allocatable :: mesh_file_name
@@ -1269,6 +1453,8 @@ contains
 
           call lag_pts%push(tri_cntr)
           call lag_nrm%push(tri_nrm)
+          el_idx = gid_offset + i
+          call lag_gid%push(el_idx)
 
 !          do while (.not. overlaps%is_empty())
 !             el_idx = overlaps%pop()
@@ -1277,6 +1463,10 @@ contains
        call overlaps%clear()
 
     end do
+
+    ! Every rank reads the same boundary mesh, so the global marker ids
+    ! stay aligned across ranks and consecutive objects
+    gid_offset = gid_offset + boundary_mesh%nelv
 
 
 !    call boundary_mesh%free()
@@ -1327,28 +1517,21 @@ contains
 
   end subroutine idw_compute_weight
 
-  !> Count, for every marker and side, the stencil nodes inside the
+  !> Count, for every marker and side, the local stencil nodes inside the
   !! interpolation cutoff. Used for the init-time diagnostic of the
   !! Shepard interpolation (spec: sparse read stencils do not
-  !! self-attenuate, so surface them loudly).
-  subroutine idw_interp_stencil_stats(lag_pts, lag_el, pmsk, x, y, z, ds, &
-       rmax_i, lx, ne, np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty)
+  !! self-attenuate, so surface them loudly). The counts of markers held
+  !! by several ranks are summed over the holders by the caller.
+  subroutine idw_interp_stencil_counts(lag_pts, lag_el, pmsk, x, y, z, ds, &
+       rmax_i, lx, ne, np_i, nm_i)
     type(point_t), intent(in) :: lag_pts(:)
     type(stack_i4_t), intent(inout) :: lag_el(:)
     integer, intent(in) :: lx, ne
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, x, y, z, ds
     real(kind=rp), intent(in) :: rmax_i
-    integer, intent(out) :: np_min, nm_min, np_sum, nm_sum
-    integer, intent(out) :: np_empty, nm_empty
+    integer, intent(out) :: np_i(:), nm_i(:)
     integer :: i, j, k, l, e, ee, np, nm
     real(kind=rp) :: r
-
-    np_min = huge(0)
-    nm_min = huge(0)
-    np_sum = 0
-    nm_sum = 0
-    np_empty = 0
-    nm_empty = 0
 
     do i = 1, size(lag_pts)
        np = 0
@@ -1375,15 +1558,11 @@ contains
              end do
           end do
        end select
-       np_min = min(np_min, np)
-       nm_min = min(nm_min, nm)
-       np_sum = np_sum + np
-       nm_sum = nm_sum + nm
-       if (np .eq. 0) np_empty = np_empty + 1
-       if (nm .eq. 0) nm_empty = nm_empty + 1
+       np_i(i) = np
+       nm_i(i) = nm
     end do
 
-  end subroutine idw_interp_stencil_stats
+  end subroutine idw_interp_stencil_counts
 
   !> Compute IB mask fields
   subroutine idw_compute_mask(mmsk, pmsk, lag_pts, lag_el, lag_nrm, x, y, z, lx, ne)
