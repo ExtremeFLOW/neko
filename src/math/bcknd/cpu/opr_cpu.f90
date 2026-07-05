@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -173,8 +173,6 @@ contains
 
     call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
     if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_Xh)
-    ! Fused 3-component halo exchange (falls back to three scalar ops on comm
-    ! backends without a vector path).
     call c_Xh%gs_h%op(w1, w2, w3, n, GS_OP_ADD)
     if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_Xh)
     call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)

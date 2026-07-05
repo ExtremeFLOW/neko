@@ -323,7 +323,6 @@ contains
 #endif
 
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 1, c_Xh)
-    ! Fused 3-component halo exchange.
     call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 0, c_Xh)
 

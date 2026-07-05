@@ -143,8 +143,6 @@ contains
     end do
 
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
-    ! Fused 3-component halo exchange; falls back to three scalar ops on comm
-    ! backends without a vector path.
     call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 

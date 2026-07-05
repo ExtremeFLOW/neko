@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -376,8 +376,6 @@ contains
               this%p1, this%p2, this%p3, coef, x%msh, x%Xh)
 
          call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
-         ! Fused 3-component halo exchange; the event is recorded once,
-         ! after the last component's scatter.
          call gs_h%op(this%w1, this%w2, this%w3, n, GS_OP_ADD, &
               this%gs_event)
          call device_event_sync(this%gs_event)

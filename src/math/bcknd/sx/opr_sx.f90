@@ -147,7 +147,6 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
-    ! Fused 3-component halo exchange.
     call c_Xh%gs_h%op(w1, w2, w3, n, GS_OP_ADD)
     call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)
 

@@ -282,8 +282,6 @@ contains
       c_Xh%ifh2 = .true.
 
       call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
-      ! Fused 3-component halo exchange; falls back to three scalar ops on comm
-      ! backends without a vector path.
       call gs_Xh%op(u_res%x, v_res%x, w_res%x, n, GS_OP_ADD)
       call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 

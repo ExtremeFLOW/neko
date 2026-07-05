@@ -652,7 +652,6 @@ contains
 
     call gs%op(rhs_rho_field, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 1, coef)
-    ! Fused 3-component (momentum) halo exchange.
     call gs%op(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
@@ -696,7 +695,6 @@ contains
 
     call gs%op(visc_rho, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 1, coef)
-    ! Fused 3-component (momentum) halo exchange.
     call gs%op(visc_m_x%x, visc_m_y%x, visc_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)

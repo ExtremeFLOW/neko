@@ -86,7 +86,6 @@ contains
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val - wa3%x(i,1,1,1)
     end do
 
-    ! Fused 3-component halo exchange.
     call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
 
     do i = 1, n

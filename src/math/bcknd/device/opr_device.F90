@@ -989,8 +989,6 @@ contains
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
 
-    ! Fused 3-component halo exchange; with an event it is recorded once,
-    ! after the last component's scatter.
     if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
     if (present(event)) then
        call c_Xh%gs_h%op(w1%x, w2%x, w3%x, n, GS_OP_ADD, event)

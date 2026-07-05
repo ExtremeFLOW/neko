@@ -338,8 +338,6 @@ contains
     call device_cfill(c_Xh%h1_d, 1.0_rp / rho_val, n)
 
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 1, c_Xh)
-    ! Fused 3-component halo exchange; the event is recorded once, after
-    ! the last component's scatter.
     call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD, event)
     call device_event_sync(event)
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 0, c_Xh)

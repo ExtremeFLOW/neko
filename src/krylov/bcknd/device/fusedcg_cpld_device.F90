@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -609,8 +609,6 @@ contains
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
 
          call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
-         ! Fused 3-component halo exchange; one event covers all three
-         ! components' scatters.
          call gs_h%op(w1, w2, w3, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
          call blstx%apply(w1, n)
