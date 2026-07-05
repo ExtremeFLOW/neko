@@ -58,7 +58,6 @@ module gs_device
      type(c_ptr) :: shared_blk_off_d = C_NULL_PTR!< Dev. ptr shared blk offset
      integer :: nlocal
      integer :: nshared
-     logical :: shared_on_host !< Shared points are handled on host
    contains
      procedure, pass(this) :: init => gs_device_init
      procedure, pass(this) :: free => gs_device_free
