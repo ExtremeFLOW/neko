@@ -31,10 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements `lpt_t`. (Lagrangian Particle Tracking)
-module lagrangian_particle_tracking
+module lpt
   use num_types, only : rp
   use json_module, only : json_file
-  use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
   use field, only : field_t
   use case, only : case_t
@@ -44,6 +43,7 @@ module lagrangian_particle_tracking
   use json_utils, only : json_get, json_get_or_default, &
        json_get_subdict_or_empty
   use time_state, only : time_state_t
+  use time_based_controller, only : time_based_controller_t
   use global_interpolation, only : global_interpolation_t
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
@@ -69,8 +69,10 @@ module lagrangian_particle_tracking
   implicit none
   private
 
-  !> A simulation component for passive Lagrangian particle tracking.
-  type, public, extends(simulation_component_t) :: lpt_t
+  !> Passive Lagrangian particle tracking.
+  type, public :: lpt_t
+     !> LPT instance name.
+     character(:), allocatable :: name
      ! Fields based on the fluid solution space
      type(field_t), pointer :: u_field => null()
      type(field_t), pointer :: v_field => null()
@@ -94,14 +96,15 @@ module lagrangian_particle_tracking
      type(lpt_migrate_t) :: migration
      type(particles_t) :: particles
      type(lpt_output_t) :: output
+     type(time_based_controller_t) :: output_controller
      logical :: output_enabled = .false.
      logical :: log = .true.
      real(kind=rp) :: start_time = -huge(0.0_rp)
    contains
      procedure, pass(this) :: init => lpt_init_from_json
      procedure, pass(this) :: free => lpt_free
-     procedure, pass(this) :: preprocess_ => lpt_preprocess
-     procedure, pass(this) :: compute_ => lpt_compute
+     procedure, pass(this) :: preprocess => lpt_preprocess
+     procedure, pass(this) :: compute => lpt_compute
      procedure, private, pass(this) :: read_particles_json
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: evaluate_velocity
@@ -157,9 +160,7 @@ contains
     call json_get_or_default(json, "log", this%log, .true.)
     call json_get_or_default(json, "start_time", this%start_time, &
          -huge(0.0_rp))
-    call this%init_base(json, case)
-    this%preprocess_controller = this%compute_controller
-
+    
     this%name = name
     this%time_order = case%fluid%ext_bdf%advection_time_order
     this%msh => case%fluid%msh
@@ -790,6 +791,7 @@ contains
     call this%periodic_bc%free()
     call this%migration%free()
     call this%output%free()
+    call this%output_controller%free()
 
     this%u_field => null()
     this%v_field => null()
@@ -804,9 +806,9 @@ contains
     this%log = .true.
     this%start_time = -huge(0.0_rp)
     this%history_len = 0
+    if (allocated(this%name)) deallocate(this%name)
     call this%lpt_time%reset()
     this%lpt_time_initialized = .false.
-    call this%free_base()
   end subroutine lpt_free
 
   !> Emit a setup summary.
@@ -846,4 +848,4 @@ contains
     call neko_log%end_section()
   end subroutine log_status
 
-end module lagrangian_particle_tracking
+end module lpt

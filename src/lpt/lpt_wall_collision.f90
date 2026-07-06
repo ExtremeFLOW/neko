@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements LPT wall-collision handling.
-submodule (lagrangian_particle_tracking) lpt_wall_collision
+submodule (lpt) lpt_wall_collision
   use neko_config, only : NEKO_BCKND_DEVICE
   use lpt_wall_collision_cpu, only : lpt_handle_elastic_wall_collisions_cpu
   use lpt_wall_collision_device, only : &

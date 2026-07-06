@@ -366,15 +366,16 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
-	simulation_components/lpt/bcknd/cpu/lpt_periodic_bc_cpu.f90\
-	simulation_components/lpt/bcknd/cpu/lpt_wall_collision_cpu.f90\
-	simulation_components/lpt/bcknd/device/lpt_periodic_bc_device.F90\
-	simulation_components/lpt/bcknd/device/lpt_wall_collision_device.F90\
-	simulation_components/lpt/lpt_periodic_bc.f90\
-	simulation_components/lpt/lpt_output.f90\
-	simulation_components/lpt/lpt.f90\
-	simulation_components/lpt/lpt_migration.f90\
-	simulation_components/lpt/lpt_wall_collision.f90\
+	lpt/bcknd/cpu/lpt_periodic_bc_cpu.f90\
+	lpt/bcknd/cpu/lpt_wall_collision_cpu.f90\
+	lpt/bcknd/device/lpt_periodic_bc_device.F90\
+	lpt/bcknd/device/lpt_wall_collision_device.F90\
+	lpt/lpt_periodic_bc.f90\
+	lpt/lpt_output.f90\
+	lpt/lpt.f90\
+	simulation_components/lpt_simcomp.f90\
+	lpt/lpt_migration.f90\
+	lpt/lpt_wall_collision.f90\
 	simulation_components/curl_simcomp.f90\
 	simulation_components/divergence_simcomp.f90\
 	simulation_components/weak_gradient_simcomp.f90\
@@ -531,8 +532,8 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/hip/coef.hip\
 	sem/bcknd/device/hip/local_interpolation.hip\
 	filter/bcknd/device/hip/mappings.hip\
-	simulation_components/lpt/bcknd/device/hip/lpt_periodic_bc.hip\
-	simulation_components/lpt/bcknd/device/hip/lpt_wall_collision.hip\
+	lpt/bcknd/device/hip/lpt_periodic_bc.hip\
+	lpt/bcknd/device/hip/lpt_wall_collision.hip\
 	source_terms/bcknd/device/hip/gradient_jump_penalty.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip\
@@ -599,8 +600,8 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/cuda/coef.cu\
 	sem/bcknd/device/cuda/local_interpolation.cu\
 	filter/bcknd/device/cuda/mappings.cu\
-	simulation_components/lpt/bcknd/device/cuda/lpt_periodic_bc.cu\
-	simulation_components/lpt/bcknd/device/cuda/lpt_wall_collision.cu\
+	lpt/bcknd/device/cuda/lpt_periodic_bc.cu\
+	lpt/bcknd/device/cuda/lpt_wall_collision.cu\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\
@@ -939,8 +940,8 @@ EXTRA_DIST = \
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
-	simulation_components/lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h\
-	simulation_components/lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h\
+	lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h\
+	lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h\
 	les/bcknd/device/cuda/sigma_nut_kernel.h\
 	les/bcknd/device/cuda/vreman_nut_kernel.h\
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
@@ -1001,8 +1002,8 @@ EXTRA_DIST = \
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\
-	simulation_components/lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h\
-	simulation_components/lpt/bcknd/device/hip/lpt_wall_collision_kernel.h\
+	lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h\
+	lpt/bcknd/device/hip/lpt_wall_collision_kernel.h\
 	les/bcknd/device/hip/sigma_nut_kernel.h\
 	les/bcknd/device/hip/vreman_nut_kernel.h\
 	les/bcknd/device/hip/smagorinsky_nut_kernel.h\

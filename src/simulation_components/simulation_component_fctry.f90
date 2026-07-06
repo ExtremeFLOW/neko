@@ -38,7 +38,7 @@ submodule (simulation_component) simulation_component_fctry
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
-  use lagrangian_particle_tracking, only : lpt_t
+  use lpt_simcomp, only : lpt_simcomp_t
   use scalar_stats_simcomp, only : scalar_stats_simcomp_t
   use scalar_sgs_stats_simcomp, only : scalar_sgs_stats_simcomp_t
   use spatial_average, only : spatial_average_t
@@ -132,7 +132,7 @@ contains
     case ("boundary_flux")
        allocate(boundary_flux_t::object)
     case ("lagrangian_particles")
-       allocate(lpt_t::object)
+       allocate(lpt_simcomp_t::object)
     case ("lambda2")
        allocate(lambda2_t::object)
     case ("probes")
