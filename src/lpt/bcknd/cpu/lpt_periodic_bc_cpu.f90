@@ -44,6 +44,14 @@ module lpt_periodic_bc_cpu
 
 contains
 
+  !> Wrap particles through a rotational periodic sector on the CPU.
+  !! @param x Particle x coordinates.
+  !! @param y Particle y coordinates.
+  !! @param z Particle z coordinates.
+  !! @param n Number of local particles.
+  !! @param theta_min Minimum sector angle.
+  !! @param theta_max Maximum sector angle.
+  !! @param theta_len Angular sector length.
   subroutine lpt_periodic_bc_wrap_rotational_cpu(x, y, z, n, theta_min, &
        theta_max, theta_len, u, v, w, u_lag, v_lag, w_lag, u_laglag, &
        v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
@@ -100,6 +108,11 @@ contains
     end do
   end subroutine lpt_periodic_bc_wrap_rotational_cpu
 
+  !> Wrap particle coordinates through translational periodic directions.
+  !! @param x Particle x coordinates.
+  !! @param y Particle y coordinates.
+  !! @param z Particle z coordinates.
+  !! @param n Number of local particles.
   subroutine lpt_periodic_bc_wrap_translational_cpu(x, y, z, n, &
        periodic_enabled, n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, &
        periodic_dir_z1, periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, &
@@ -171,6 +184,10 @@ contains
     end do
   end subroutine lpt_periodic_bc_wrap_translational_cpu
 
+  !> Rotate a two-component vector in the x-y plane.
+  !! @param x X component updated in place.
+  !! @param y Y component updated in place.
+  !! @param theta Rotation angle.
   subroutine lpt_rotate_xy(x, y, theta)
     real(kind=rp), intent(inout) :: x
     real(kind=rp), intent(inout) :: y
@@ -189,6 +206,13 @@ contains
     y = sin_theta * x_old + cos_theta * y_old
   end subroutine lpt_rotate_xy
 
+  !> Extract one translational periodic slot from scalar storage.
+  !! @param idx Direction slot to extract.
+  !! @param dir Periodic direction.
+  !! @param periodic_min Minimum projected coordinate.
+  !! @param periodic_max Maximum projected coordinate.
+  !! @param shift Periodic translation vector.
+  !! @param periodic_len Periodic length along `dir`.
   pure subroutine lpt_periodic_bc_get_translational_slot(idx, &
        periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, periodic_dir_x2, &
        periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, periodic_dir_y3, &

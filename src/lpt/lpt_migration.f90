@@ -67,6 +67,9 @@ module lpt_migrate
 
 contains
 
+  !> Initialise particle migration settings.
+  !! @param lag_len Number of lagged RHS levels carried by particles.
+  !! @param strategy Optional migration strategy identifier.
   subroutine lpt_migrate_init(this, lag_len, strategy)
     class(lpt_migrate_t), intent(inout) :: this
     integer, intent(in) :: lag_len
@@ -77,6 +80,7 @@ contains
     if (present(strategy)) this%strategy = strategy
   end subroutine lpt_migrate_init
 
+  !> Reset migration settings to defaults.
   subroutine lpt_migrate_free(this)
     class(lpt_migrate_t), intent(inout) :: this
 
@@ -84,6 +88,11 @@ contains
     this%strategy = LPT_MIGRATE_TO_OWNER
   end subroutine lpt_migrate_free
 
+  !> Build an even rank distribution from the root-rank particle count.
+  !! @param n_root Number of particles available on rank 0.
+  !! @param counts Number of particles assigned to each rank.
+  !! @param offsets Particle offsets into the root-rank arrays.
+  !! @param n_local Number of particles assigned to this rank.
   subroutine build_even_particle_distribution(n_root, counts, offsets, n_local)
     integer, intent(in) :: n_root
     integer, allocatable, intent(out) :: counts(:)
@@ -110,6 +119,9 @@ contains
     n_local = counts(pe_rank)
   end subroutine build_even_particle_distribution
 
+  !> Apply the initial particle distribution required by the strategy.
+  !! @param inertia Whether particles carry inertial state.
+  !! @param particles Particle storage to distribute.
   subroutine initialize_particle_distribution(this, inertia, particles)
     class(lpt_migrate_t), intent(inout) :: this
     logical, intent(in) :: inertia
@@ -121,6 +133,10 @@ contains
   end subroutine initialize_particle_distribution
 
   !> Update particle ownership according to the selected migration strategy.
+  !! @param global_interp Interpolation object used to locate particle owners.
+  !! @param periodic_bc Periodic wrapper applied before ownership lookup.
+  !! @param inertia Whether particles carry inertial state.
+  !! @param particles Particle storage to migrate.
   subroutine migrate_particles(this, global_interp, periodic_bc, inertia, &
        particles)
     class(lpt_migrate_t), intent(inout) :: this
@@ -341,6 +357,9 @@ contains
 
   end subroutine migrate_particles
 
+  !> Distribute particles from rank 0 evenly across all ranks.
+  !! @param inertia Whether particles carry inertial state.
+  !! @param particles Particle storage to redistribute.
   subroutine distribute_particles_evenly(this, inertia, particles)
     class(lpt_migrate_t), intent(inout) :: this
     logical, intent(in) :: inertia
@@ -513,6 +532,12 @@ contains
 
   end subroutine distribute_particles_evenly
 
+  !> Scatter particle ids from rank 0 to the current rank.
+  !! @param ids_old Root-rank particle ids.
+  !! @param counts Number of ids assigned to each rank.
+  !! @param offsets Offsets into `ids_old`.
+  !! @param n_local Number of ids received by this rank.
+  !! @param ids_local Local particle ids.
   subroutine distribute_particle_ids(this, ids_old, counts, offsets, n_local, &
        ids_local)
     class(lpt_migrate_t), intent(inout) :: this
@@ -535,6 +560,12 @@ contains
     deallocate(offsets_i)
   end subroutine distribute_particle_ids
 
+  !> Scatter one particle scalar field from rank 0 to the current rank.
+  !! @param scalar_old Root-rank scalar values.
+  !! @param counts Number of values assigned to each rank.
+  !! @param offsets Offsets into `scalar_old`.
+  !! @param n_local Number of values received by this rank.
+  !! @param scalar_local Local scalar values.
   subroutine distribute_particle_scalar(this, scalar_old, counts, offsets, &
        n_local, scalar_local)
     class(lpt_migrate_t), intent(inout) :: this
@@ -559,6 +590,9 @@ contains
     deallocate(offsets_r)
   end subroutine distribute_particle_scalar
 
+  !> Mark interpolation data as local after migration has completed.
+  !! @param global_interp Interpolation object to update.
+  !! @param n_local Number of local particles.
   subroutine localize_global_interpolation(this, global_interp, n_local)
     class(lpt_migrate_t), intent(inout) :: this
     type(global_interpolation_t), intent(inout) :: global_interp
@@ -572,6 +606,12 @@ contains
     global_interp%all_points_local = .true.
   end subroutine localize_global_interpolation
 
+  !> Exchange particle ids according to global-interpolation ownership data.
+  !! @param migrate_comm Redistribution communicator from interpolation.
+  !! @param ids_old Particle ids before migration.
+  !! @param n_particles_old Number of particles before migration.
+  !! @param n_local Number of particles after migration.
+  !! @param particle_ids_local Particle ids after migration.
   subroutine migrate_particle_ids(this, migrate_comm, ids_old, &
        n_particles_old, n_local, particle_ids_local)
     class(lpt_migrate_t), intent(inout) :: this
@@ -600,6 +640,12 @@ contains
     if (allocated(recvbuf)) deallocate(recvbuf)
   end subroutine migrate_particle_ids
 
+  !> Exchange one particle scalar according to interpolation ownership data.
+  !! @param migrate_comm Redistribution communicator from interpolation.
+  !! @param scalar_old Scalar values before migration.
+  !! @param n_particles_old Number of particles before migration.
+  !! @param n_local Number of particles after migration.
+  !! @param scalar_local Scalar values after migration.
   subroutine migrate_particle_scalar(this, migrate_comm, scalar_old, &
        n_particles_old, n_local, scalar_local)
     class(lpt_migrate_t), intent(inout) :: this

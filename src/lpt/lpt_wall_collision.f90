@@ -44,6 +44,10 @@ submodule (lpt) lpt_wall_collision
 
 contains
 
+  !> Build a facet mask for all mesh zones configured as elastic walls.
+  !! @param wall_facet_mask Output mask indexed by facet and element.
+  !! @param msh Mesh containing labeled wall zones.
+  !! @param wall_zone_indices Indices of labeled zones treated as walls.
   module subroutine lpt_init_wall_facet_mask(wall_facet_mask, msh, &
        wall_zone_indices)
     logical, allocatable, intent(inout) :: wall_facet_mask(:, :)
@@ -76,6 +80,12 @@ contains
   !> Restore particles that crossed a configured wall zone and reflect the
   !! remaining trajectory together with the current particle velocity and
   !! velocity history for a purely elastic collision.
+  !! @param x_old Particle x coordinates before the time integration step.
+  !! @param y_old Particle y coordinates before the time integration step.
+  !! @param z_old Particle z coordinates before the time integration step.
+  !! @param u_old Particle x velocity before the time integration step.
+  !! @param v_old Particle y velocity before the time integration step.
+  !! @param w_old Particle z velocity before the time integration step.
   module subroutine lpt_handle_elastic_wall_collisions(this, x_old, y_old, &
        z_old, u_old, v_old, w_old)
     class(lpt_t), intent(inout) :: this
@@ -182,6 +192,7 @@ contains
     end associate
   end subroutine lpt_handle_elastic_wall_collisions
 
+  !> Copy wall-collision-updated particle state from device to host.
   subroutine lpt_wall_collision_sync_from_device(x, y, z, u, v, w, &
        u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
        acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, u_old, &

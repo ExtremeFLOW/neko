@@ -118,6 +118,7 @@ module lpt
   private :: update_lags
 
   interface
+     !> Build a mask of elastic wall facets from configured mesh zone ids.
      module subroutine lpt_init_wall_facet_mask(wall_facet_mask, msh, &
           wall_zone_indices)
        logical, allocatable, intent(inout) :: wall_facet_mask(:, :)
@@ -125,6 +126,7 @@ module lpt
        integer, intent(in) :: wall_zone_indices(:)
      end subroutine lpt_init_wall_facet_mask
 
+     !> Reflect particles and histories after elastic wall contact.
      module subroutine lpt_handle_elastic_wall_collisions(this, x_old, y_old, &
           z_old, u_old, v_old, w_old)
        class(lpt_t), intent(inout) :: this
@@ -269,7 +271,9 @@ contains
     call this%log_status()
   end subroutine lpt_init_from_json
 
-  !> Read particle coordinates from JSON.
+  !> Read particle data from JSON and initialise particles on rank 0.
+  !! @param json LPT configuration containing either `coordinates` or
+  !! `points_file`.
   subroutine read_particles_json(this, json)
     class(lpt_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -341,7 +345,8 @@ contains
     end if
   end subroutine read_particles_json
 
-  !> Read particle coordinates from a three-column CSV file.
+  !> Read particle data from a CSV file and initialise particles on rank 0.
+  !! @param json LPT configuration containing `points_file`.
   subroutine read_particles_csv(this, json)
     class(lpt_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -413,6 +418,9 @@ contains
   end subroutine read_particles_csv
 
   !> Interpolate the carrier velocity at the local particles.
+  !! @param u_fluid Interpolated x velocity at particle locations.
+  !! @param v_fluid Interpolated y velocity at particle locations.
+  !! @param w_fluid Interpolated z velocity at particle locations.
   subroutine evaluate_velocity(this, u_fluid, v_fluid, w_fluid)
     class(lpt_t), intent(inout) :: this
     type(vector_t), intent(inout) :: u_fluid, v_fluid, w_fluid
@@ -430,7 +438,13 @@ contains
 
   end subroutine evaluate_velocity
 
-  !> Estimate the local particile acceleration
+  !> Estimate particle acceleration from local carrier-fluid velocity.
+  !! @param acc_x Particle acceleration in x.
+  !! @param acc_y Particle acceleration in y.
+  !! @param acc_z Particle acceleration in z.
+  !! @param u_fluid Interpolated x velocity at particle locations.
+  !! @param v_fluid Interpolated y velocity at particle locations.
+  !! @param w_fluid Interpolated z velocity at particle locations.
   subroutine evaluate_acceleration(this, acc_x, acc_y, acc_z, &
        u_fluid, v_fluid, w_fluid)
     class(lpt_t), intent(inout) :: this
@@ -505,7 +519,7 @@ contains
 
   end subroutine evaluate_acceleration
 
-  !> Refresh the particle RHS using the current fluid solution.
+  !> Refresh particle RHS values using the current fluid solution.
   subroutine update_current_rhs(this)
     class(lpt_t), intent(inout) :: this
     type(vector_t), pointer :: u_fluid, v_fluid, w_fluid
@@ -540,7 +554,10 @@ contains
     call profiler_end_region('LPT_migrate_interp')
   end subroutine update_current_rhs
 
-  !> Refresh the particle lags.
+  !> Shift one particle history level and store new current values.
+  !! @param lag Previous-step values.
+  !! @param laglag Two-steps-back values.
+  !! @param new_values Values to store in `lag`.
   subroutine update_lags(lag, laglag, new_values)
     type(vector_t), intent(inout) :: lag, laglag
     type(vector_t), intent(in) :: new_values
@@ -550,7 +567,8 @@ contains
 
   end subroutine update_lags
 
-  !> Advance particles with local Adams-Bashforth coefficients only.
+  !> Advance particle positions and, for inertial particles, velocities.
+  !! @param time Current simulation time used to build the LPT local step.
   subroutine lpt_preprocess(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -636,6 +654,7 @@ contains
   end subroutine lpt_preprocess
 
   !> Refresh particle/fluid coupling after the fluid step and emit output.
+  !! @param time Current simulation time used for output scheduling.
   subroutine lpt_compute(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -653,6 +672,7 @@ contains
   end subroutine lpt_compute
 
   !> Build an LPT-local time-step history from the times at which LPT runs.
+  !! @param time Current simulation time from the main solver.
   subroutine sync_time_controller(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -691,7 +711,11 @@ contains
     this%lpt_time%tstep = time%tstep
   end subroutine sync_time_controller
 
-  !> Performing ODE integration by Adam-Bashforth scheme
+  !> Advance a three-component state with variable-step Adams-Bashforth.
+  !! @param sol_x State component in x.
+  !! @param sol_y State component in y.
+  !! @param sol_z State component in z.
+  !! @param n Number of local particles to advance.
   subroutine ODE_integrate_ab_3c(this, sol_x, sol_y, sol_z, &
        rhs_x, rhs_y, rhs_z, rhs_xlag, rhs_ylag, rhs_zlag, &
        rhs_xlaglag, rhs_ylaglag, rhs_zlaglag, n)
@@ -744,6 +768,7 @@ contains
   end subroutine ODE_integrate_ab_3c
 
   !> Write one trajectory snapshot.
+  !! @param time Current simulation time stored with particle data.
   subroutine write_output(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
@@ -782,7 +807,7 @@ contains
     deallocate(local_data)
   end subroutine write_output
 
-  !> Free the component.
+  !> Free all LPT-owned state and reset pointers/flags.
   subroutine lpt_free(this)
     class(lpt_t), intent(inout) :: this
 
@@ -811,7 +836,7 @@ contains
     this%lpt_time_initialized = .false.
   end subroutine lpt_free
 
-  !> Emit a setup summary.
+  !> Emit a setup summary for the configured LPT instance.
   subroutine log_status(this)
     class(lpt_t), intent(in) :: this
     character(len=LOG_SIZE) :: log_buf

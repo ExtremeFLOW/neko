@@ -98,12 +98,17 @@ module lpt_periodic_bc
 
 contains
 
+  !> Free periodic-boundary wrapping metadata.
   subroutine lpt_periodic_bc_free(this)
     class(lpt_periodic_bc_t), intent(inout) :: this
 
     call this%reset()
   end subroutine lpt_periodic_bc_free
 
+  !> Initialise rotational or translational periodic wrapping from the mesh.
+  !! @param msh Mesh containing periodic facet pairing.
+  !! @param dm_Xh Coordinate dofmap used for rotational extents.
+  !! @param coef Coefficients used to identify cyclic geometry.
   subroutine lpt_periodic_bc_init(this, msh, dm_Xh, coef)
     class(lpt_periodic_bc_t), intent(inout) :: this
     type(mesh_t), intent(in), target :: msh
@@ -120,6 +125,11 @@ contains
     call this%init_translational(msh)
   end subroutine lpt_periodic_bc_init
 
+  !> Wrap particle positions and optional vector histories across boundaries.
+  !! @param x Particle x coordinates.
+  !! @param y Particle y coordinates.
+  !! @param z Particle z coordinates.
+  !! @param n Number of local particles.
   subroutine lpt_periodic_bc_wrap(this, x, y, z, n, u, v, w, u_lag, v_lag, &
        w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, &
        acc_xlaglag, acc_ylaglag, acc_zlaglag)
@@ -190,6 +200,7 @@ contains
          this%periodic_len1, this%periodic_len2, this%periodic_len3)
   end subroutine lpt_periodic_bc_wrap
 
+  !> Copy wrapped particle coordinates and optional histories back to host.
   subroutine lpt_periodic_bc_sync_from_device(x, y, z, u, v, w, u_lag, &
        v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, acc_ylag, &
        acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag)
@@ -229,6 +240,7 @@ contains
     call device_sync()
   end subroutine lpt_periodic_bc_sync_from_device
 
+  !> Reset all periodic wrapping flags, directions, and extents.
   subroutine lpt_periodic_bc_reset(this)
     class(lpt_periodic_bc_t), intent(inout) :: this
 
@@ -241,6 +253,10 @@ contains
     this%rotational_theta_len = 0.0_rp
   end subroutine lpt_periodic_bc_reset
 
+  !> Detect and initialise rotational periodic wrapping.
+  !! @param msh Mesh used to determine dimensionality.
+  !! @param dm_Xh Coordinate dofmap used to compute angular extents.
+  !! @param coef Coefficients carrying cyclic-geometry metadata.
   subroutine lpt_periodic_bc_init_rotational(this, msh, dm_Xh, coef)
     class(lpt_periodic_bc_t), intent(inout) :: this
     type(mesh_t), intent(in) :: msh
@@ -275,6 +291,8 @@ contains
          this%rotational_theta_len .gt. LPT_PERIODIC_TOL
   end subroutine lpt_periodic_bc_init_rotational
 
+  !> Detect unique translational periodic directions from facet pairs.
+  !! @param msh Mesh containing periodic facet-pair metadata.
   subroutine lpt_periodic_bc_init_translational(this, msh)
     class(lpt_periodic_bc_t), intent(inout) :: this
     type(mesh_t), intent(in) :: msh
@@ -411,6 +429,11 @@ contains
     this%periodic_enabled = this%n_periodic_dirs .gt. 0
   end subroutine lpt_periodic_bc_init_translational
 
+  !> Gather the corner points of a mesh facet.
+  !! @param msh Mesh containing the element.
+  !! @param el Local element index.
+  !! @param facet Facet index on the element.
+  !! @param pts Output corner coordinates.
   subroutine lpt_get_facet_points(msh, el, facet, pts)
     type(mesh_t), intent(in) :: msh
     integer, intent(in) :: el
@@ -442,6 +465,10 @@ contains
     end if
   end subroutine lpt_get_facet_points
 
+  !> Compute the geometric center of a periodic source facet.
+  !! @param msh Mesh containing periodic metadata.
+  !! @param i_periodic Periodic-facet entry index.
+  !! @param pt Output facet-center coordinate.
   subroutine lpt_get_periodic_center(msh, i_periodic, pt)
     type(mesh_t), intent(in) :: msh
     integer, intent(in) :: i_periodic
@@ -455,6 +482,8 @@ contains
     pt = sum(pts(:, 1:npts), dim = 2) / real(npts, rp)
   end subroutine lpt_get_periodic_center
 
+  !> Normalise a 3-vector when its norm is above LPT periodic tolerance.
+  !! @param v Vector to normalise in place.
   subroutine lpt_normalize(v)
     real(kind=rp), intent(inout) :: v(3)
     real(kind=rp) :: vnorm
@@ -463,6 +492,7 @@ contains
     if (vnorm .gt. LPT_PERIODIC_TOL) v = v / vnorm
   end subroutine lpt_normalize
 
+  !> Clear translational periodic direction, extent, and shift storage.
   subroutine lpt_periodic_bc_clear_translational(this)
     class(lpt_periodic_bc_t), intent(inout) :: this
 
@@ -515,6 +545,13 @@ contains
     end select
   end function lpt_periodic_bc_get_dir
 
+  !> Store one translational periodic wrapping direction.
+  !! @param idx Direction slot in the fixed three-direction storage.
+  !! @param dir Unit direction of periodic wrapping.
+  !! @param periodic_min Minimum coordinate projected on `dir`.
+  !! @param periodic_max Maximum coordinate projected on `dir`.
+  !! @param shift Translation vector between paired facets.
+  !! @param periodic_len Periodic length along `dir`.
   subroutine lpt_periodic_bc_set_translational(this, idx, dir, periodic_min, &
        periodic_max, shift, periodic_len)
     class(lpt_periodic_bc_t), intent(inout) :: this

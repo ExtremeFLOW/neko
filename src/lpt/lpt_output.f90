@@ -67,6 +67,9 @@ module lpt_output
 contains
 
   !> Initialise the LPT output writer.
+  !! @param output_path Base output path, including csv/hdf5 suffix.
+  !! @param inertia Whether particle records include diameter and density.
+  !! @param snapshots_per_file Number of snapshots per file, or 0 for all.
   subroutine lpt_output_init(this, output_path, inertia, snapshots_per_file)
     class(lpt_output_t), intent(inout) :: this
     character(len=*), intent(in) :: output_path
@@ -119,6 +122,7 @@ contains
   end subroutine lpt_output_init_file
 
   !> Get the active output path, adding a file index when chunked output is on.
+  !! @param output_path Path selected for the current output file.
   subroutine lpt_output_current_path(this, output_path)
     class(lpt_output_t), intent(in) :: this
     character(len=*), intent(out) :: output_path
@@ -134,6 +138,8 @@ contains
   end subroutine lpt_output_current_path
 
   !> Initialise an HDF5 LPT trajectory file.
+  !! @param output_path HDF5 file path to initialise.
+  !! @param inertia Whether particle records include diameter and density.
   subroutine lpt_output_init_hdf5(this, output_path, inertia)
     class(lpt_output_t), intent(inout) :: this
     character(len=*), intent(in) :: output_path
@@ -188,6 +194,8 @@ contains
   end subroutine lpt_output_init_hdf5
 
   !> Write one trajectory snapshot.
+  !! @param local_data Particle data owned by this rank.
+  !! @param n_local Number of local particles.
   subroutine lpt_output_write(this, local_data, n_local)
     class(lpt_output_t), intent(inout) :: this
     integer, intent(in) :: n_local
@@ -208,6 +216,8 @@ contains
   end subroutine lpt_output_write
 
   !> Append one local LPT trajectory snapshot to an HDF5 file.
+  !! @param local_data Particle data owned by this rank.
+  !! @param n_local Number of local particles.
   subroutine lpt_output_write_hdf5(this, local_data, n_local)
     class(lpt_output_t), intent(inout) :: this
     integer, intent(in) :: n_local
@@ -276,6 +286,8 @@ contains
   end subroutine lpt_output_write_hdf5
 
   !> Write one trajectory snapshot to CSV by gathering particle data to rank 0.
+  !! @param local_data Particle data owned by this rank.
+  !! @param n_local Number of local particles.
   subroutine lpt_output_write_csv(this, local_data, n_local)
     class(lpt_output_t), intent(inout) :: this
     integer, intent(in) :: n_local
@@ -335,7 +347,7 @@ contains
     deallocate(displs)
   end subroutine lpt_output_write_csv
 
-  !> Free the output writer.
+  !> Free the output writer and reset file/output counters.
   subroutine lpt_output_free(this)
     class(lpt_output_t), intent(inout) :: this
 

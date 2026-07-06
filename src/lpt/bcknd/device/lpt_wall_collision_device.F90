@@ -44,6 +44,7 @@ module lpt_wall_collision_device
 
 #ifdef HAVE_HIP
   interface
+     !> HIP kernel entry point for elastic wall-collision reflection.
      subroutine hip_lpt_handle_elastic_wall_collisions(wall_facet_mask, &
           el_list, x_old, y_old, z_old, x, y, z, d, u, v, w, u_lag, &
           v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
@@ -69,6 +70,7 @@ module lpt_wall_collision_device
   end interface
 #elif HAVE_CUDA
   interface
+     !> CUDA kernel entry point for elastic wall-collision reflection.
      subroutine cuda_lpt_handle_elastic_wall_collisions(wall_facet_mask, &
           el_list, x_old, y_old, z_old, x, y, z, d, u, v, w, u_lag, &
           v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
@@ -98,6 +100,13 @@ module lpt_wall_collision_device
 
 contains
 
+  !> Launch device kernel for elastic wall-collision reflection.
+  !! @param msh Mesh containing candidate wall facets.
+  !! @param dm_Xh Coordinate dofmap used for wall geometry.
+  !! @param coef Coefficients used for facet normals.
+  !! @param wall_facet_mask_d Device mask of elastic wall facets.
+  !! @param el_list_d Device list of local owner elements.
+  !! @param n Number of local particles.
   subroutine lpt_handle_elastic_wall_collisions_device(msh, dm_Xh, coef, &
        wall_facet_mask_d, el_list_d, x_old, y_old, z_old, x, y, z, d, &
        u, v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &

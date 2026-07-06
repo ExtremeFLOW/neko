@@ -44,6 +44,13 @@ module lpt_wall_collision_cpu
 
 contains
 
+  !> Reflect inertial particles that hit configured wall facets on the CPU.
+  !! @param msh Mesh containing wall facets.
+  !! @param dm_Xh Coordinate dofmap used for facet locations.
+  !! @param coef Coefficients used for facet normals.
+  !! @param wall_facet_mask Mask of facets that behave as elastic walls.
+  !! @param el_list Local owner element for each particle.
+  !! @param n Number of local particles.
   subroutine lpt_handle_elastic_wall_collisions_cpu(msh, dm_Xh, coef, &
        wall_facet_mask, el_list, x_old, y_old, z_old, x, y, z, d, u, v, w, &
        u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
@@ -188,6 +195,7 @@ contains
   end function wall_facet_is_hit
 
   !> Use the face-center SEM normal as the reflection normal.
+  !! @param normal Output normal vector.
   subroutine wall_facet_normal(coef, lx, ly, lz, el, facet, normal)
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: lx
@@ -217,6 +225,7 @@ contains
   end subroutine wall_facet_normal
 
   !> Return the facet-center position that matches the reflection normal.
+  !! @param wall_point Output point on the wall plane.
   subroutine wall_facet_center(dm_x, dm_y, dm_z, lx, ly, lz, el, facet, &
        wall_point)
     real(kind=rp), pointer, dimension(:,:,:,:), intent(in) :: dm_x, dm_y, dm_z
@@ -261,6 +270,12 @@ contains
 
   !> Reflect the particle center across the contact plane located one radius
   !! inward from the wall plane.
+  !! @param x Particle x coordinate updated in place.
+  !! @param y Particle y coordinate updated in place.
+  !! @param z Particle z coordinate updated in place.
+  !! @param wall_point Point on the wall plane.
+  !! @param normal Wall normal.
+  !! @param radius Particle radius.
   subroutine reflect_position(x, y, z, wall_point, normal, radius)
     real(kind=rp), intent(inout) :: x, y, z
     real(kind=rp), intent(in) :: wall_point(3)
@@ -283,6 +298,9 @@ contains
     z = z - 2.0_rp * signed_contact_distance * nhat(3)
   end subroutine reflect_position
 
+  !> Return signed distance from a point to a wall plane.
+  !! @param wall_point Point on the wall plane.
+  !! @param normal Wall normal.
   pure real(kind=rp) function signed_plane_distance(x, y, z, wall_point, &
        normal)
     real(kind=rp), intent(in) :: x, y, z
@@ -299,6 +317,9 @@ contains
     signed_plane_distance = dot_product([x, y, z] - wall_point, normal / nmag)
   end function signed_plane_distance
 
+  !> Reflect a vector across a plane with the supplied normal.
+  !! @param vec Vector updated in place.
+  !! @param normal Plane normal.
   pure subroutine reflect_vector(vec, normal)
     real(kind=rp), intent(inout) :: vec(3)
     real(kind=rp), intent(in) :: normal(3)
@@ -314,6 +335,11 @@ contains
     vec = vec - 2.0_rp * vn * nhat
   end subroutine reflect_vector
 
+  !> Reflect vector components across a plane with the supplied normal.
+  !! @param x X component updated in place.
+  !! @param y Y component updated in place.
+  !! @param z Z component updated in place.
+  !! @param normal Plane normal.
   pure subroutine reflect_vector_components(x, y, z, normal)
     real(kind=rp), intent(inout) :: x
     real(kind=rp), intent(inout) :: y

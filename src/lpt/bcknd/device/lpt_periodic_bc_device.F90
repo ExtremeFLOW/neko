@@ -42,6 +42,7 @@ module lpt_periodic_bc_device
 
 #ifdef HAVE_HIP
   interface
+     !> HIP kernel entry point for translational periodic wrapping.
      subroutine hip_lpt_periodic_bc_wrap_translational(x, y, z, n, &
           n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
           periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
@@ -68,6 +69,7 @@ module lpt_periodic_bc_device
        type(c_ptr), value :: x, y, z, strm
      end subroutine hip_lpt_periodic_bc_wrap_translational
 
+     !> HIP kernel entry point for rotational periodic wrapping.
      subroutine hip_lpt_periodic_bc_wrap_rotational(x, y, z, n, theta_min, &
           theta_max, theta_len, u, v, w, u_lag, v_lag, w_lag, u_laglag, &
           v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
@@ -86,6 +88,7 @@ module lpt_periodic_bc_device
   end interface
 #elif HAVE_CUDA
   interface
+     !> CUDA kernel entry point for translational periodic wrapping.
      subroutine cuda_lpt_periodic_bc_wrap_translational(x, y, z, n, &
           n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
           periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
@@ -112,6 +115,7 @@ module lpt_periodic_bc_device
        type(c_ptr), value :: x, y, z, strm
      end subroutine cuda_lpt_periodic_bc_wrap_translational
 
+     !> CUDA kernel entry point for rotational periodic wrapping.
      subroutine cuda_lpt_periodic_bc_wrap_rotational(x, y, z, n, theta_min, &
           theta_max, theta_len, u, v, w, u_lag, v_lag, w_lag, u_laglag, &
           v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
@@ -135,6 +139,12 @@ module lpt_periodic_bc_device
 
 contains
 
+  !> Launch device kernel for translational periodic wrapping.
+  !! @param x Particle x coordinates on device.
+  !! @param y Particle y coordinates on device.
+  !! @param z Particle z coordinates on device.
+  !! @param n Number of local particles.
+  !! @param n_periodic_dirs Number of translational periodic directions.
   subroutine lpt_periodic_bc_wrap_translational_device(x, y, z, n, &
        n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
        periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
@@ -192,6 +202,14 @@ contains
 #endif
   end subroutine lpt_periodic_bc_wrap_translational_device
 
+  !> Launch device kernel for rotational periodic wrapping.
+  !! @param x Particle x coordinates on device.
+  !! @param y Particle y coordinates on device.
+  !! @param z Particle z coordinates on device.
+  !! @param n Number of local particles.
+  !! @param theta_min Minimum sector angle.
+  !! @param theta_max Maximum sector angle.
+  !! @param theta_len Angular sector length.
   subroutine lpt_periodic_bc_wrap_rotational_device(x, y, z, n, theta_min, &
        theta_max, theta_len, u, v, w, u_lag, v_lag, w_lag, u_laglag, &
        v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
