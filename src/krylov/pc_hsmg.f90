@@ -115,7 +115,8 @@ module hsmg
      type(dofmap_t) :: dm_crs, dm_mg
      type(coef_t) :: c_crs, c_mg
      type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
-     type(scalar_bc_resolver_t) :: bc_resolver_crs, bc_resolver_mg, bc_resolver_reg
+     type(scalar_bc_resolver_t) :: bc_resolver_crs, bc_resolver_mg, &
+          bc_resolver_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(field_t) :: wf !< Work fields
