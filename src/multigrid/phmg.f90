@@ -56,18 +56,22 @@ module phmg
   use json_utils, only : json_get_or_default, json_get
   use math, only : copy, col2, add2, add2s2, add2s1
   use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
-       glb_cmd_event
+       glb_cmd_event, device_memcpy, DEVICE_TO_HOST
   use device_math, only : device_rzero, device_copy, device_add2, &
-       device_add2s2, device_invcol2, device_glsc2, device_col2, device_add2s1
+       device_add2s2, device_invcol2, device_glsc2, device_col2, device_add2s1, device_cfill
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
+  use hypre, only : hypre_init, hypre_fin, hypre_solver_t
+  use comm, only: pe_rank, NEKO_COMM
   use, intrinsic :: iso_c_binding
   implicit none
   private
 
+  logical :: use_tamg = .true.
+  logical :: use_hypre = .true.
 
   type, private :: phmg_lvl_t
      integer :: lvl = -1
@@ -93,6 +97,7 @@ module phmg
 
   type, public, extends(pc_t) :: phmg_t
      type(tamg_solver_t) :: amg_solver
+     type(hypre_solver_t) :: hypre_solver
      integer :: nlvls
      type(phmg_hrchy_t) :: phmg_hrchy
      class(ax_t), allocatable :: ax
@@ -143,7 +148,6 @@ contains
        pcrs_sched(2) = 1
     end if
 
-
     call this%init_from_components(coef, bclst, smoother_itrs, &
          cheby_acc, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree,&
          pcrs_sched)
@@ -168,6 +172,16 @@ contains
     logical :: use_jacobi, use_cheby
     use_jacobi = .true.
     use_cheby = .true.
+
+    !todo: hacky way to select coarse grid solver
+    if (crs_tamg_lvls .lt. 0) then
+      use_hypre = .true.
+      use_tamg = .false.
+    else
+      use_hypre = .false.
+      use_tamg = .true.
+    end if
+
 
     this%msh => coef%msh
 
@@ -291,12 +305,39 @@ contains
             this%phmg_hrchy%lvl(i)%Xh)
     end do
 
-    call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
-         this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
-         this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, crs_tamg_lvls, &
-         this%phmg_hrchy%lvl(this%nlvls -1)%bclst, &
-         crs_tamg_itrs, crs_tamg_cheby_degree)
+    if (use_tamg) then
+       call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
+            this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
+            this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, crs_tamg_lvls, &
+            this%phmg_hrchy%lvl(this%nlvls -1)%bclst, &
+            crs_tamg_itrs, crs_tamg_cheby_degree)
+    end if
 
+    if (use_hypre) then
+       ! hacky dirichlet bc detection
+       associate(mg => this%phmg_hrchy%lvl)
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call device_cfill(mg(this%nlvls-1)%z%x_d, 1.0_rp,  &
+                 mg(this%nlvls-1)%dm_Xh%size())
+            call mg(this%nlvls-1)%bclst%apply_scalar( &
+                 mg(this%nlvls-1)%z%x, &
+                 mg(this%nlvls-1)%dm_Xh%size())
+            call device_memcpy( mg(this%nlvls-1)%z%x, mg(this%nlvls-1)%z%x_d, &
+                 mg(this%nlvls-1)%dm_Xh%size(), DEVICE_TO_HOST, .true.)
+         else
+            mg(this%nlvls-1)%z%x = 1.0
+            call mg(this%nlvls-1)%bclst%apply_scalar( &
+                 mg(this%nlvls-1)%z%x, &
+                 mg(this%nlvls-1)%dm_Xh%size())
+         end if
+       end associate
+       call hypre_init()
+       call this%hypre_solver%init(1)
+       call this%hypre_solver%setup( &
+            this%phmg_hrchy%lvl(this%nlvls-1)%coef, &
+            this%phmg_hrchy%lvl(this%nlvls-1)%z%x, &
+            this%phmg_hrchy%lvl(this%nlvls-1)%dm_Xh%size())
+    end if
   end subroutine phmg_init_from_components
 
   subroutine phmg_free(this)
@@ -422,9 +463,47 @@ contains
       !------------!
       !   SOLVE    !
       !------------!
-      call this%amg_solver%solve(mg(this%nlvls-1)%z%x, &
-           mg(this%nlvls-1)%r%x, &
-           mg(this%nlvls-1)%dm_Xh%size())
+      if (use_hypre) then
+        call profiler_start_region( 'hypre' )
+        associate (mgc => this%phmg_hrchy%lvl(this%nlvls-1))
+          call mgc%gs_h%op(mgc%z%x, mgc%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+          call mgc%gs_h%op(mgc%r%x, mgc%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+          call mg(this%nlvls-1)%bclst%apply_scalar(mgc%r%x, mgc%dm_Xh%size())
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_col2(mgc%z%x_d, mgc%coef%mult_d, mgc%dm_Xh%size())
+             call device_col2(mgc%r%x_d, mgc%coef%mult_d, mgc%dm_Xh%size())
+             call this%hypre_solver%device_solve( &
+                  mgc%z%x_d, &
+                  mgc%r%x_d, &
+                  mgc%dm_Xh%size())
+             call device_col2(mgc%z%x_d, this%hypre_solver%rnk_mult_d, mgc%dm_Xh%size())
+             call mgc%gs_h%op_only_shared( mgc%z%x, &
+                  mgc%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+             call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+          else
+             call col2(mgc%z%x, mgc%coef%mult, mgc%dm_Xh%size())
+             call col2(mgc%r%x, mgc%coef%mult, mgc%dm_Xh%size())
+             call this%hypre_solver%solve( &
+                  mgc%z%x, &
+                  mgc%r%x, &
+                  mgc%dm_Xh%size())
+             call col2(mgc%z%x, this%hypre_solver%rnk_mult, mgc%dm_Xh%size())
+             call mgc%gs_h%op_only_shared( mgc%z%x, &
+                  mgc%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+          end if
+        end associate
+        call profiler_end_region( 'hypre' )
+      end if
+      if (use_tamg) then
+        call profiler_start_region( 'tamg' )
+        call this%amg_solver%solve(mg(this%nlvls-1)%z%x, &
+             mg(this%nlvls-1)%r%x, &
+             mg(this%nlvls-1)%dm_Xh%size())
+        call profiler_end_region( 'tamg' )
+      end if
       call profiler_end_region( 'PHMG_coarse-solve' )
 
       do lvl = (this%nlvls-2), 0, -1
