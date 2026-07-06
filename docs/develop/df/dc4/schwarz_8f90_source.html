@@ -670,84 +670,86 @@ $(document).ready(function(){initNavTree('df/dc4/schwarz_8f90_source.html','../.
 <div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>         <span class="keyword">call </span>this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)</div>
 <div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>         <span class="keyword">call </span>device_col2(e_d, this%wt_d, n, aux_cmd_queue)</div>
 <div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span> </div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>         <span class="comment">! switch back to the default stream on the shared gs</span></div>
-<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>         <span class="keywordflow">if</span> (.not. this%local_gs) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>            <span class="keyword">call </span>device_event_sync(this%event)</div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>            this%gs_h%bcknd%gs_stream = glb_cmd_queue</div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>         <span class="keyword">call </span>this%bclst%apply_scalar(r, n)</div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#abb186b40351fea36a94645705dfefc48">schwarz_toext3d</a>(work1, r, this%Xh%lx, this%msh%nelv)</div>
-<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span> </div>
-<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>         <span class="comment">!  exchange interior nodes</span></div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0">schwarz_extrude_single</a>(work1, 0, zero, 2, one, &amp;</div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>              enx, eny, enz, this%msh%nelv)</div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>         <span class="keyword">call </span>this%gs_schwarz%op(work1, ns, gs_op_add)</div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0">schwarz_extrude_single</a>(work1, 0, one, 2, -one, &amp;</div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>              enx, eny, enz, this%msh%nelv)</div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span> </div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>         <span class="keyword">call </span>this%fdm%compute(work2, work1) <span class="comment">! do local solves</span></div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>         <span class="keyword">call </span>device_event_record(this%event, aux_cmd_queue)</div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>         <span class="keyword">call </span>device_event_sync(this%event)</div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span> </div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>         <span class="comment">! switch back to the default stream on the shared gs</span></div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>         <span class="keywordflow">if</span> (.not. this%local_gs) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>            this%gs_h%bcknd%gs_stream = glb_cmd_queue</div>
+<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>         <span class="keyword">call </span>this%bclst%apply_scalar(r, n)</div>
+<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#abb186b40351fea36a94645705dfefc48">schwarz_toext3d</a>(work1, r, this%Xh%lx, this%msh%nelv)</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span> </div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>         <span class="comment">!  exchange interior nodes</span></div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0">schwarz_extrude_single</a>(work1, 0, zero, 2, one, &amp;</div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>              enx, eny, enz, this%msh%nelv)</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>         <span class="keyword">call </span>this%gs_schwarz%op(work1, ns, gs_op_add)</div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0">schwarz_extrude_single</a>(work1, 0, one, 2, -one, &amp;</div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>              enx, eny, enz, this%msh%nelv)</div>
 <div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span> </div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>         <span class="comment">!   Sum overlap region (border excluded)</span></div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384">schwarz_extrude</a>(work1, 0, zero, work2, 0, one, &amp;</div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>              enx, eny, enz, this%msh%nelv)</div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>         <span class="keyword">call </span>this%gs_schwarz%op(work2, ns, gs_op_add)</div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384">schwarz_extrude</a>(work2, 0, one, work1, 0, -one, &amp;</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>              enx, eny, enz, this%msh%nelv)</div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0">schwarz_extrude_single</a>(work2, 2, one, 0, one, &amp;</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>         <span class="keyword">call </span>this%fdm%compute(work2, work1) <span class="comment">! do local solves</span></div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>         <span class="comment">!   Sum overlap region (border excluded)</span></div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384">schwarz_extrude</a>(work1, 0, zero, work2, 0, one, &amp;</div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>              enx, eny, enz, this%msh%nelv)</div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>         <span class="keyword">call </span>this%gs_schwarz%op(work2, ns, gs_op_add)</div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384">schwarz_extrude</a>(work2, 0, one, work1, 0, -one, &amp;</div>
 <div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>              enx, eny, enz, this%msh%nelv)</div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span> </div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970">schwarz_toreg3d</a>(e, work2, this%Xh%lx, this%msh%nelv)</div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0">schwarz_extrude_single</a>(work2, 2, one, 0, one, &amp;</div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>              enx, eny, enz, this%msh%nelv)</div>
 <div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span> </div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>         <span class="comment">! sum border nodes</span></div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>         <span class="keyword">call </span>this%gs_h%op(e, n, gs_op_add)</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>         <span class="keyword">call </span>this%bclst%apply_scalar(e, n)</div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span> </div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">schwarz_wt3d</a>(e, this%wt, this%Xh%lx, this%msh%nelv)</div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970">schwarz_toreg3d</a>(e, work2, this%Xh%lx, this%msh%nelv)</div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span> </div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>         <span class="comment">! sum border nodes</span></div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>         <span class="keyword">call </span>this%gs_h%op(e, n, gs_op_add)</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>         <span class="keyword">call </span>this%bclst%apply_scalar(e, n)</div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span> </div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>         <span class="keyword">call </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">schwarz_wt3d</a>(e, this%wt, this%Xh%lx, this%msh%nelv)</div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>    <span class="keyword">end </span>associate</div>
 </div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416">schwarz_compute</a></div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span> </div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>  <span class="comment">!Apply schwarz weights along the boundary of each element.</span></div>
-<div class="foldopen" id="foldopen00597" data-start="" data-end="">
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno"><a class="line" href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">  597</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">schwarz_wt3d</a>(e, wt, n, nelv)</div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n, nelv</div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: e(n, n, n, nelv)</div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: wt(n, n, 4, 3, nelv)</div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>    <span class="keywordtype">integer</span> :: ie, i, j, k</div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span> </div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    <span class="comment">!$omp parallel do private(ie, i, j, k)</span></div>
-<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>    <span class="keywordflow">do</span> ie = 1, nelv</div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>       <span class="keywordflow">do</span> k = 1, n</div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>          <span class="keywordflow">do</span> j = 1, n</div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>             e(1, j, k, ie) = e(1, j, k, ie) * wt(j, k, 1, 1, ie)</div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>             e(2, j, k, ie) = e(2, j, k, ie) * wt(j, k, 2, 1, ie)</div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>             e(n - 1, j, k, ie) = e(n - 1, j, k, ie) * wt(j, k, 3, 1, ie)</div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>             e(n, j, k, ie) = e(n, j, k, ie) * wt(j, k, 4, 1, ie)</div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>       <span class="keywordflow">do</span> k = 1, n</div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>          <span class="keywordflow">do</span> i = 3, n-2</div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>             e(i, 1, k, ie) = e(i, 1, k, ie) * wt(i, k, 1, 2, ie)</div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>             e(i, 2, k, ie) = e(i, 2, k, ie) * wt(i, k, 2, 2, ie)</div>
-<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>             e(i, n - 1, k, ie) = e(i, n - 1, k, ie) * wt(i, k, 3, 2, ie)</div>
-<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>             e(i, n, k, ie) = e(i, n, k, ie) * wt(i, k, 4, 2, ie)</div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>       <span class="keywordflow">do</span> j = 3, n-2</div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>          <span class="keywordflow">do</span> i = 3, n-2</div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>             e(i, j, 1, ie) = e(i, j, 1, ie) * wt(i, j, 1, 3, ie)</div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>             e(i, j, 2, ie) = e(i, j, 2, ie) * wt(i, j, 2, 3, ie)</div>
-<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>             e(i, j, n - 1, ie) = e(i, j, n - 1, ie) * wt(i, j, 3, 3, ie)</div>
-<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>             e(i, j, n, ie) = e(i, j, n, ie) * wt(i, j, 4, 3, ie)</div>
-<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>    <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416">schwarz_compute</a></div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span> </div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>  <span class="comment">!Apply schwarz weights along the boundary of each element.</span></div>
+<div class="foldopen" id="foldopen00599" data-start="" data-end="">
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno"><a class="line" href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">  599</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">schwarz_wt3d</a>(e, wt, n, nelv)</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n, nelv</div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: e(n, n, n, nelv)</div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(inout)</span> :: wt(n, n, 4, 3, nelv)</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    <span class="keywordtype">integer</span> :: ie, i, j, k</div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span> </div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>    <span class="comment">!$omp parallel do private(ie, i, j, k)</span></div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>    <span class="keywordflow">do</span> ie = 1, nelv</div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>       <span class="keywordflow">do</span> k = 1, n</div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>          <span class="keywordflow">do</span> j = 1, n</div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>             e(1, j, k, ie) = e(1, j, k, ie) * wt(j, k, 1, 1, ie)</div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>             e(2, j, k, ie) = e(2, j, k, ie) * wt(j, k, 2, 1, ie)</div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>             e(n - 1, j, k, ie) = e(n - 1, j, k, ie) * wt(j, k, 3, 1, ie)</div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>             e(n, j, k, ie) = e(n, j, k, ie) * wt(j, k, 4, 1, ie)</div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>       <span class="keywordflow">do</span> k = 1, n</div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>          <span class="keywordflow">do</span> i = 3, n-2</div>
+<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>             e(i, 1, k, ie) = e(i, 1, k, ie) * wt(i, k, 1, 2, ie)</div>
+<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>             e(i, 2, k, ie) = e(i, 2, k, ie) * wt(i, k, 2, 2, ie)</div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>             e(i, n - 1, k, ie) = e(i, n - 1, k, ie) * wt(i, k, 3, 2, ie)</div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>             e(i, n, k, ie) = e(i, n, k, ie) * wt(i, k, 4, 2, ie)</div>
+<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>       <span class="keywordflow">do</span> j = 3, n-2</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>          <span class="keywordflow">do</span> i = 3, n-2</div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>             e(i, j, 1, ie) = e(i, j, 1, ie) * wt(i, j, 1, 3, ie)</div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>             e(i, j, 2, ie) = e(i, j, 2, ie) * wt(i, j, 2, 3, ie)</div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>             e(i, j, n - 1, ie) = e(i, j, n - 1, ie) * wt(i, j, 3, 3, ie)</div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>             e(i, j, n, ie) = e(i, j, n, ie) * wt(i, j, 4, 3, ie)</div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>    <span class="comment">!$omp end parallel do</span></div>
 </div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">schwarz_wt3d</a></div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d2/d37/namespaceschwarz.html">schwarz</a></div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">schwarz_wt3d</a></div>
+<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d2/d37/namespaceschwarz.html">schwarz</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00108">device.F90:108</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00078">device.F90:78</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>
@@ -791,7 +793,7 @@ $(document).ready(function(){initNavTree('df/dc4/schwarz_8f90_source.html','../.
 <div class="ttc" id="anamespaceschwarz_html_a7a6b8a1e76d325b84a8abe931d3e7384"><div class="ttname"><a href="../../d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384">schwarz::schwarz_extrude</a></div><div class="ttdeci">subroutine schwarz_extrude(arr1, l1, f1, arr2, l2, f2, nx, ny, nz, nelv)</div><div class="ttdoc">Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c...</div><div class="ttdef"><b>Definition</b> <a href="../../df/dc4/schwarz_8f90_source.html#l00388">schwarz.f90:389</a></div></div>
 <div class="ttc" id="anamespaceschwarz_html_aa6ed48c46882c077ddab2ea62c6db125"><div class="ttname"><a href="../../d2/d37/namespaceschwarz.html#aa6ed48c46882c077ddab2ea62c6db125">schwarz::schwarz_setup_schwarz_wt3d_2</a></div><div class="ttdeci">subroutine schwarz_setup_schwarz_wt3d_2(wt, ie, n, work, nelv)</div><div class="ttdoc">Setup schwarz weights, 3d, second step.</div><div class="ttdef"><b>Definition</b> <a href="../../df/dc4/schwarz_8f90_source.html#l00308">schwarz.f90:309</a></div></div>
 <div class="ttc" id="anamespaceschwarz_html_aaaec764e6ff1c0db41b6575074b8d416"><div class="ttname"><a href="../../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416">schwarz::schwarz_compute</a></div><div class="ttdeci">subroutine schwarz_compute(this, e, r)</div><div class="ttdef"><b>Definition</b> <a href="../../df/dc4/schwarz_8f90_source.html#l00506">schwarz.f90:507</a></div></div>
-<div class="ttc" id="anamespaceschwarz_html_aac3358ce98e9c604fb514399d8e95cbe"><div class="ttname"><a href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">schwarz::schwarz_wt3d</a></div><div class="ttdeci">subroutine schwarz_wt3d(e, wt, n, nelv)</div><div class="ttdef"><b>Definition</b> <a href="../../df/dc4/schwarz_8f90_source.html#l00597">schwarz.f90:598</a></div></div>
+<div class="ttc" id="anamespaceschwarz_html_aac3358ce98e9c604fb514399d8e95cbe"><div class="ttname"><a href="../../d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe">schwarz::schwarz_wt3d</a></div><div class="ttdeci">subroutine schwarz_wt3d(e, wt, n, nelv)</div><div class="ttdef"><b>Definition</b> <a href="../../df/dc4/schwarz_8f90_source.html#l00599">schwarz.f90:600</a></div></div>
 <div class="ttc" id="anamespaceschwarz_html_ab2b9de8082309c01044e5ec5c99d14c0"><div class="ttname"><a href="../../d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0">schwarz::schwarz_extrude_single</a></div><div class="ttdeci">subroutine schwarz_extrude_single(arr, l1, f1, l2, f2, nx, ny, nz, nelv)</div><div class="ttdoc">Same as schwarz_extrude but for the case when arr1 and arr2 are the same array. Avoids aliasing by us...</div><div class="ttdef"><b>Definition</b> <a href="../../df/dc4/schwarz_8f90_source.html#l00449">schwarz.f90:450</a></div></div>
 <div class="ttc" id="anamespaceschwarz_html_abb186b40351fea36a94645705dfefc48"><div class="ttname"><a href="../../d2/d37/namespaceschwarz.html#abb186b40351fea36a94645705dfefc48">schwarz::schwarz_toext3d</a></div><div class="ttdeci">subroutine schwarz_toext3d(a, b, n, nelv)</div><div class="ttdoc">convert array a from original size to size extended array with border</div><div class="ttdef"><b>Definition</b> <a href="../../df/dc4/schwarz_8f90_source.html#l00363">schwarz.f90:364</a></div></div>
 <div class="ttc" id="anamespaceschwarz_html_ade8d64f2437a4224082b3711ca027645"><div class="ttname"><a href="../../d2/d37/namespaceschwarz.html#ade8d64f2437a4224082b3711ca027645">schwarz::schwarz_setup_schwarz_wt2d_2</a></div><div class="ttdeci">subroutine schwarz_setup_schwarz_wt2d_2(wt, ie, n, work, nelv)</div><div class="ttdoc">Setup schwarz weights, 2d, second step.</div><div class="ttdef"><b>Definition</b> <a href="../../df/dc4/schwarz_8f90_source.html#l00286">schwarz.f90:287</a></div></div>
@@ -811,7 +813,7 @@ $(document).ready(function(){initNavTree('df/dc4/schwarz_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../df/dc4/schwarz_8f90.html">schwarz.f90</a></li>
-    <li class="footer">Generated on Sun Jul 5 2026 04:49:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Mon Jul 6 2026 04:57:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
