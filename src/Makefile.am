@@ -64,6 +64,7 @@ neko_fortran_SOURCES = \
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
 	gs/gs_neighbour.f90\
+	gs/gs_utofu.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
@@ -474,6 +475,10 @@ libneko_la_LIBADD =
 
 if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
+endif
+
+if ENABLE_UTOFU
+libneko_la_SOURCES += gs/gs_utofu_aux.c
 endif
 
 if ENABLE_HIP

@@ -41,11 +41,12 @@ module gather_scatter
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
        GS_COMM_NVSHMEM, GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR, &
-       GS_VEC_NC
+       GS_COMM_UTOFU, GS_VEC_NC
   use gs_mpi, only : gs_mpi_t
   use gs_neighbour, only : gs_neighbour_t
   use gs_shmem, only : gs_shmem_t
   use gs_caf, only : gs_caf_t
+  use gs_utofu, only : gs_utofu_t
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
   use gs_device_shmem, only : gs_device_shmem_t
@@ -118,8 +119,7 @@ module gather_scatter
 
   ! Expose available gather-scatter comm. backends
   public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM, &
-       GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR
-
+       GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR, GS_COMM_UTOFU
 
 contains
 
@@ -139,6 +139,7 @@ contains
     logical :: use_host_shmem
     logical :: use_caf
     logical :: use_neighbour
+    logical :: use_utofu
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
     integer :: strtgy(4) = [int(B'00'), int(B'01'), int(B'10'), int(B'11')]
@@ -160,6 +161,7 @@ contains
     use_host_shmem = .false.
     use_caf = .false.
     use_neighbour = .false.
+    use_utofu = .false.
 
     ! Check if a comm-backend is requested via env. variables
     call get_environment_variable("NEKO_GS_COMM", env_gscomm, env_len)
@@ -181,6 +183,8 @@ contains
        else if (env_gscomm(1:env_len) .eq. "NEIGHBOUR" .or. &
             env_gscomm(1:env_len) .eq. "NEIGHBOR") then
           use_neighbour = .true.
+       else if (env_gscomm(1:env_len) .eq. "UTOFU") then
+          use_utofu = .true.
        else
           call neko_error('Unknown Gather-scatter comm. backend')
        end if
@@ -203,8 +207,8 @@ contains
        comm_bcknd_ = GS_COMM_CAF
     else if (use_neighbour) then
        comm_bcknd_ = GS_COMM_NEIGHBOUR
-    else if (use_neighbour) then
-       comm_bcknd_ = GS_COMM_NEIGHBOUR
+    else if (use_utofu) then
+       comm_bcknd_ = GS_COMM_UTOFU
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
@@ -236,6 +240,9 @@ contains
     case (GS_COMM_NEIGHBOUR)
        call neko_log%message('Comm         :   MPI neigh.')
        allocate(gs_neighbour_t::gs%comm)
+    case (GS_COMM_UTOFU)
+       call neko_log%message('Comm         :        uTofu')
+       allocate(gs_utofu_t::gs%comm)
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select

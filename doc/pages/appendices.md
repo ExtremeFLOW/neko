@@ -49,6 +49,8 @@ A number of gather-scatter backends are supported.
 - `NEKO_GS_COMM=CAF`    : Coarray Fortran (requires a coarray-capable compiler)
 - `NEKO_GS_COMM=NEIGHBOUR` : Host MPI using an `MPI_Ineighbor_alltoallv`
   neighbourhood collective (`NEIGHBOR` is also accepted; MPI-3, host only)
+- `NEKO_GS_COMM=UTOFU`  : Native Tofu interconnect (uTofu) one-sided RDMA
+  (Fugaku and other Tofu-D systems; requires building with `--with-utofu`)
 
 ### MPI thread level details
 
@@ -81,3 +83,57 @@ default (when unset) is `sync`.
 - `NEKO_GS_CAF_SIGNALING=event`  : F2018 events (`event post` /
   `event wait`); requires a runtime that implements F2018 event
   semantics.
+
+### uTofu injection details
+
+When `NEKO_GS_COMM=UTOFU`, one injection virtual control queue (VCQ) is
+created per OpenMP thread, dealt round-robin over the Tofu network
+interfaces (TNIs) selected by `NEKO_GS_UTOFU_NTNI` (default `1`). Every
+VCQ is created with `UTOFU_VCQ_FLAG_THREAD_SAFE`, and both the packing
+of the send buffer and the `utofu_put` calls are parallelised over the
+OpenMP team: each thread fires the puts for its share of the peers on
+its own VCQ. This is the uTofu substitute for the per-thread
+`MPI_Isend` that Fujitsu MPI's missing `MPI_THREAD_MULTIPLE` support
+rules out. The counts are bound on the first gather-scatter
+initialisation and cannot change thereafter; the TNI count is silently
+clamped to the number of one-sided TNIs the hardware exposes, and the
+VCQ count to whatever the TNIs' VCQ budget allows (threads beyond the
+granted VCQ count do not inject).
+
+- `NEKO_GS_UTOFU_NTNI=1` (default) : All injection VCQs sit on one TNI.
+- `NEKO_GS_UTOFU_NTNI=N`           : Deal the per-thread VCQs across `N`
+  TNIs (benefits large messages and high neighbour counts).
+- `NEKO_GS_UTOFU_NVCQ=N`           : Cap the injection pool at `N` VCQs.
+  The VCQ budget (roughly 8 per TNI per rank on Fugaku) is shared with
+  the per-instance receive VCQs, so on tight budgets the pool must
+  leave room.
+- `NEKO_GS_UTOFU_NRVCQ=N`          : Receive VCQs per instance path
+  (default: one per TNI; `1` restores a single receive queue). Each
+  receive peer is bound to one of them, so an instance's incoming halo
+  traffic is processed by several TNIs instead of funnelling through
+  one.
+- `NEKO_GS_UTOFU_MASTER_INJECT=1`  : Serialise all injection onto the
+  master thread (still spread over every VCQ), as an A/B reference for
+  the thread-parallel default.
+
+The per-instance receive VCQs are placed round-robin over *all*
+one-sided TNIs (not only the `NEKO_GS_UTOFU_NTNI` injection set),
+sweeping past TNIs whose VCQ budget is exhausted; incoming puts are
+routed by the advertised VCQ id, so this costs nothing and balances
+receive processing across the interfaces. When the budget runs dry an
+instance is granted fewer receive VCQs (at least one).
+
+The startup log prints the granted counts, e.g.
+`uTofu inj.   : 12 VCQs (12 threads) over 4 TNIs (6 requested)`.
+
+The puts also request Tofu cache injection by default, which writes each
+arriving slab straight into the receiver's cache. This helps when the
+slab is consumed immediately but can pollute cache otherwise, so it can
+be disabled for A/B testing:
+
+- `NEKO_GS_UTOFU_CACHE_INJECT=1` (default, or unset) : cache injection on.
+- `NEKO_GS_UTOFU_CACHE_INJECT=0`                     : cache injection off.
+
+The fused vector (multi-component) exchange can be disabled with
+`NEKO_GS_UTOFU_VEC=0`, in which case multi-component gather-scatter
+falls back to independent scalar rounds (a validation/bisection aid).
