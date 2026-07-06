@@ -125,6 +125,13 @@ Caps the number of injection VCQs created by the uTofu gather\-scatter
 backend (default: one per OpenMP thread). Useful when the hardware VCQ
 budget, which is shared with the per\-instance receive VCQs, is tight.
 .TP
+.B NEKO_GS_UTOFU_NRVCQ
+Number of receive VCQs per gather\-scatter instance path in the uTofu
+backend (default: one per TNI). Each receive peer is bound to one, so
+incoming halo traffic is spread over the TNIs;
+.B 1
+restores a single receive queue.
+.TP
 .B NEKO_GS_UTOFU_MASTER_INJECT
 When set to a non\-zero value, the uTofu gather\-scatter backend issues
 all puts from the master thread instead of thread\-parallel injection

@@ -338,9 +338,11 @@ thereafter is pure uTofu.
 
 @note The uTofu backend uses per-instance (not symmetric) send and
 receive buffers, so it carries no global-maximum sizing constraint.
-Each `gs_t` instance also gets its own receive VCQs (one scalar, one
-vector, each with its own MRQ), so an arrival notice for one instance
-or path can never be consumed by another's poll -- multiple `gs_t`
-objects can be used back to back safely. The injection VCQs (one per OpenMP thread) are
-process-global and shared across instances; send-completion accounting
-is per instance, per VCQ, and per buffer-half.
+Each `gs_t` instance also gets its own receive VCQs (a set per path,
+scalar and vector, spread over the TNIs with each receive peer bound
+to one -- see `NEKO_GS_UTOFU_NRVCQ`), so an arrival notice for one
+instance or path can never be consumed by another's poll -- multiple
+`gs_t` objects can be used back to back safely. The injection VCQs
+(one per OpenMP thread) are process-global and shared across
+instances; send-completion accounting is per instance, per VCQ, and
+per buffer-half.

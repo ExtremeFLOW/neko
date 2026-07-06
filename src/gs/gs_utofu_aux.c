@@ -100,6 +100,7 @@ static int              gs_utofu_recv_rr = 0;  /* round-robins recv-VCQ TNIs */
 static uint64_t         gs_utofu_edata_max = 255;
 static unsigned long    gs_utofu_put_flags = GS_UTOFU_PUT_FLAGS_BASE;
 static int              gs_utofu_master_inject = 0;
+static size_t           gs_utofu_nrvcq_def = 1;  /* recv VCQs per ctx (req.) */
 
 /* Longs per counter slot: one A64FX L1/L2 cache line (256 bytes), so the
  * per-VCQ completion counters never false-share between threads. */
@@ -108,8 +109,16 @@ static int              gs_utofu_master_inject = 0;
 /* --- per-instance context (one per gs_utofu_t) -------------------------- */
 typedef struct {
   utofu_stadd_t  *send_stadd;  /* [nvcq] send_buf registered on each inj VCQ */
-  utofu_vcq_hdl_t recv_vcq;    /* this instance's OWN receive VCQ (its MRQ) */
-  utofu_stadd_t   recv_stadd;  /* recv_buf registered on recv_vcq           */
+  /* This instance's OWN receive VCQs, spread over the TNIs. Each receive
+   * peer is bound to one of them at init (the receiver advertises that
+   * VCQ's id/STADD to the peer), so incoming halo traffic is processed by
+   * several TNIs instead of funnelling through one -- the receive-side
+   * counterpart of the per-thread injection pool. All are polled by the
+   * master; the edata tags are per-instance-unique, so which MRQ a notice
+   * appears on carries no protocol meaning. */
+  size_t          nrvcq;       /* receive VCQs actually created (>= 1)      */
+  utofu_vcq_hdl_t *recv_vcq;   /* [nrvcq]                                   */
+  utofu_stadd_t   *recv_stadd; /* [nrvcq] recv_buf registered on each       */
   /* Outstanding (un-reaped) put completions, one padded slot per
    * (injection VCQ, send-buffer half). The put's cbdata points at its
    * slot, so draining a VCQ's TCQ decrements the right counter -- letting
@@ -163,10 +172,13 @@ static void gs_utofu_stash_push(gs_utofu_ctx_t *ctx, uint64_t edata)
  * @param nthreads    OpenMP thread count = requested injection VCQs (>=1)
  * @param ntni_out    number of TNIs actually in use
  * @param nvcq_out    number of injection VCQs actually created
+ * @param nrvcq_out   receive VCQs requested per instance path (the caller
+ *                    sizes its id/STADD arrays with this; ctx_create may
+ *                    grant fewer)
  * @param edata_max   largest usable edata value (for tag-range checking)
  */
 void gs_utofu_init(int ntni_req, int nthreads, int *ntni_out, int *nvcq_out,
-                   uint64_t *edata_max, int *ierr)
+                   int *nrvcq_out, uint64_t *edata_max, int *ierr)
 {
   *ierr = 0;
 
@@ -233,6 +245,19 @@ void gs_utofu_init(int ntni_req, int nthreads, int *ntni_out, int *nvcq_out,
      * receive queues prefer interfaces the pool has not loaded. */
     gs_utofu_recv_rr = (int) (gs_utofu_ntni % gs_utofu_nalltni);
 
+    /* Receive VCQs per instance path: default one per TNI, so an
+     * instance's incoming halo traffic is processed by every interface
+     * instead of funnelling through one. NEKO_GS_UTOFU_NRVCQ overrides
+     * (=1 restores the single-receive-VCQ behaviour). The budget is
+     * shared with the injection pool and across instances/paths;
+     * ctx_create degrades gracefully to fewer when it runs dry. */
+    gs_utofu_nrvcq_def = gs_utofu_nalltni;
+    const char *nr = getenv("NEKO_GS_UTOFU_NRVCQ");
+    if (nr != NULL) {
+      long v = strtol(nr, NULL, 10);
+      if (v > 0 && v <= 64) gs_utofu_nrvcq_def = (size_t) v;
+    }
+
     /* Largest edata the hardware will carry. VERIFY: field name and whether
      * the capability is expressed in bytes (assumed here). */
     struct utofu_onesided_caps *caps = NULL;
@@ -264,47 +289,63 @@ void gs_utofu_init(int ntni_req, int nthreads, int *ntni_out, int *nvcq_out,
   *edata_max   = gs_utofu_edata_max;
   *ntni_out    = (int) gs_utofu_ntni;
   *nvcq_out    = (int) gs_utofu_nvcq;
+  *nrvcq_out   = (int) gs_utofu_nrvcq_def;
 }
 
 /**
  * Register an instance's send/recv buffers and allocate its context.
  * send_buf is registered on every injection VCQ (the source STADD must
- * belong to the VCQ that issues the put). The instance gets its OWN receive
- * VCQ (a private MRQ); recv_buf is registered on it, and its id is advertised
- * to neighbours as the put target so arrivals land only in this instance's
- * queue. The receive VCQ's TNI is round-robined across interfaces.
+ * belong to the VCQ that issues the put). The instance gets its OWN set of
+ * receive VCQs (private MRQs); recv_buf is registered on each, and the
+ * caller binds every receive peer to one of them, advertising that VCQ's
+ * id/STADD as the peer's put target -- so arrivals land only in this
+ * instance's queues, spread over the TNIs.
+ *
+ * recv_vcq_id / recv_stadd are arrays of (at least) the nrvcq_out value
+ * reported by gs_utofu_init; entries [0, *nrvcq_out) are filled. Fewer
+ * than requested may be granted when the VCQ budget runs dry (>= 1, or
+ * ierr = 1 -- remedy: lower OMP_NUM_THREADS, cap NEKO_GS_UTOFU_NVCQ, or
+ * reduce NEKO_GS_UTOFU_NRVCQ).
  */
 void gs_utofu_ctx_create(void *send_buf, size_t send_bytes,
                          void *recv_buf, size_t recv_bytes,
-                         void **ctx_out, uint64_t *recv_vcq_id,
-                         uint64_t *recv_stadd, int *ierr)
+                         void **ctx_out, int *nrvcq_out,
+                         uint64_t *recv_vcq_id, uint64_t *recv_stadd,
+                         int *ierr)
 {
   *ierr = 0;
   gs_utofu_ctx_t *ctx = calloc(1, sizeof(*ctx));
   ctx->send_stadd = malloc(gs_utofu_nvcq * sizeof(*ctx->send_stadd));
   ctx->send_pending = calloc(2 * gs_utofu_nvcq * GS_UTOFU_PEND_STRIDE,
                              sizeof(*ctx->send_pending));
+  ctx->recv_vcq   = malloc(gs_utofu_nrvcq_def * sizeof(*ctx->recv_vcq));
+  ctx->recv_stadd = malloc(gs_utofu_nrvcq_def * sizeof(*ctx->recv_stadd));
 
-  /* The receive VCQ may sit on ANY one-sided TNI: incoming puts are routed
+  /* Receive VCQs may sit on ANY one-sided TNI: incoming puts are routed
    * by the advertised VCQ id, so spreading the receive processing over all
    * interfaces is free (NEKO_GS_UTOFU_NTNI deliberately confines only the
    * injection side). Round-robin over the full set, sweeping past
    * exhausted TNIs -- the injection pool can eat a whole TNI's VCQ budget
-   * (~8 per TNI on Fugaku) and a private MRQ per instance is a correctness
-   * requirement, so only give up when every TNI is out of VCQs (ierr 1;
-   * remedy: lower OMP_NUM_THREADS or cap NEKO_GS_UTOFU_NVCQ).
-   * It stays non-THREAD_SAFE (flags 0): it is strictly master-polled, and
-   * skipping the internal lock keeps the MRQ spin -- the receive hot path
-   * -- cheap. It must never be touched off-master. */
-  int created = 0;
-  for (size_t s = 0; s < gs_utofu_nalltni && !created; s++) {
-    utofu_tni_id_t rtni =
-      gs_utofu_alltni[((size_t) gs_utofu_recv_rr + s) % gs_utofu_nalltni];
-    if (utofu_create_vcq(rtni, 0, &ctx->recv_vcq) == UTOFU_SUCCESS)
-      created = 1;
+   * (~8 per TNI on Fugaku). Stop early when the budget runs dry; at least
+   * one must succeed, since a private MRQ per instance is a correctness
+   * requirement. They stay non-THREAD_SAFE (flags 0): they are strictly
+   * master-polled, and skipping the internal lock keeps the MRQ sweep --
+   * the receive hot path -- cheap. Never touch them off-master. */
+  while (ctx->nrvcq < gs_utofu_nrvcq_def) {
+    int created = 0;
+    for (size_t s = 0; s < gs_utofu_nalltni && !created; s++) {
+      utofu_tni_id_t rtni =
+        gs_utofu_alltni[((size_t) gs_utofu_recv_rr + s) % gs_utofu_nalltni];
+      if (utofu_create_vcq(rtni, 0, &ctx->recv_vcq[ctx->nrvcq])
+          == UTOFU_SUCCESS)
+        created = 1;
+    }
+    gs_utofu_recv_rr++;
+    if (!created)
+      break;
+    ctx->nrvcq++;
   }
-  gs_utofu_recv_rr++;
-  if (!created) {
+  if (ctx->nrvcq == 0) {
     *ierr = 1;
     return;
   }
@@ -316,20 +357,25 @@ void gs_utofu_ctx_create(void *send_buf, size_t send_bytes,
       return;
     }
   }
-  if (utofu_reg_mem(ctx->recv_vcq, recv_buf, recv_bytes, 0,
-                    &ctx->recv_stadd) != UTOFU_SUCCESS) {
-    *ierr = 3;
-    return;
+  for (size_t r = 0; r < ctx->nrvcq; r++) {
+    if (utofu_reg_mem(ctx->recv_vcq[r], recv_buf, recv_bytes, 0,
+                      &ctx->recv_stadd[r]) != UTOFU_SUCCESS) {
+      *ierr = 3;
+      return;
+    }
   }
 
-  utofu_vcq_id_t vid;
-  if (utofu_query_vcq_id(ctx->recv_vcq, &vid) != UTOFU_SUCCESS) {
-    *ierr = 4;
-    return;
+  for (size_t r = 0; r < ctx->nrvcq; r++) {
+    utofu_vcq_id_t vid;
+    if (utofu_query_vcq_id(ctx->recv_vcq[r], &vid) != UTOFU_SUCCESS) {
+      *ierr = 4;
+      return;
+    }
+    recv_vcq_id[r] = (uint64_t) vid;
+    recv_stadd[r]  = (uint64_t) ctx->recv_stadd[r];
   }
 
-  *recv_vcq_id = (uint64_t) vid;
-  *recv_stadd  = (uint64_t) ctx->recv_stadd;
+  *nrvcq_out = (int) ctx->nrvcq;
   *ctx_out = ctx;
 }
 
@@ -349,10 +395,14 @@ void gs_utofu_ctx_free(void *vctx, int *ierr)
 
   for (size_t k = 0; k < gs_utofu_nvcq; k++)
     utofu_dereg_mem(gs_utofu_vcq[k], ctx->send_stadd[k], 0);
-  utofu_dereg_mem(ctx->recv_vcq, ctx->recv_stadd, 0);
-  utofu_free_vcq(ctx->recv_vcq);
+  for (size_t r = 0; r < ctx->nrvcq; r++) {
+    utofu_dereg_mem(ctx->recv_vcq[r], ctx->recv_stadd[r], 0);
+    utofu_free_vcq(ctx->recv_vcq[r]);
+  }
 
   free(ctx->send_stadd);
+  free(ctx->recv_vcq);
+  free(ctx->recv_stadd);
   free(ctx->send_pending);
   free(ctx->stash);
   free(ctx);
@@ -474,23 +524,28 @@ void gs_utofu_poll_recv(void *vctx, int parity, int cap,
   }
   ctx->stash_n = w;
 
-  /* Drain currently-available arrival notices from this instance's MRQ. */
+  /* Drain currently-available arrival notices from every one of this
+   * instance's MRQs. Each peer's notices always land on its bound VCQ, but
+   * the tags are instance-unique, so the queues can be drained in any
+   * order into the one result list / stash. */
   struct utofu_mrq_notice notice;
-  while (n < cap) {
-    int rc = utofu_poll_mrq(ctx->recv_vcq, 0, &notice);
-    if (rc == UTOFU_ERR_NOT_FOUND) break;
-    if (rc != UTOFU_SUCCESS) {
-      *ierr = 1;
-      return;
-    }
-    /* VERIFY: RMT_PUT is the receiver-side notice for an incoming put. */
-    if (notice.notice_type != UTOFU_MRQ_TYPE_RMT_PUT) continue;
+  for (size_t r = 0; r < ctx->nrvcq && n < cap; r++) {
+    while (n < cap) {
+      int rc = utofu_poll_mrq(ctx->recv_vcq[r], 0, &notice);
+      if (rc == UTOFU_ERR_NOT_FOUND) break;
+      if (rc != UTOFU_SUCCESS) {
+        *ierr = 1;
+        return;
+      }
+      /* VERIFY: RMT_PUT is the receiver-side notice for an incoming put. */
+      if (notice.notice_type != UTOFU_MRQ_TYPE_RMT_PUT) continue;
 
-    uint64_t ed = notice.edata;
-    if ((int)(ed & 1u) == parity)
-      out_idx[n++] = (int)(ed >> 1) + 1;
-    else
-      gs_utofu_stash_push(ctx, ed);
+      uint64_t ed = notice.edata;
+      if ((int)(ed & 1u) == parity)
+        out_idx[n++] = (int)(ed >> 1) + 1;
+      else
+        gs_utofu_stash_push(ctx, ed);
+    }
   }
 
   *ncompleted = n;

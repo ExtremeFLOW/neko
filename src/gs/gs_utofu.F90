@@ -138,28 +138,32 @@ module gs_utofu
 #ifdef HAVE_UTOFU
   !> Largest edata value the hardware will carry (set once at first init).
   integer(c_int64_t) :: gs_utofu_edata_max = 255
+  !> Receive VCQs requested per instance path (set once at first init;
+  !! instances may be granted fewer when the VCQ budget runs dry).
+  integer(c_int) :: gs_utofu_nrvcq = 1
   !> Log the granted VCQ/TNI counts only once, on the first instance.
   logical, save :: gs_utofu_logged = .false.
 
   interface
      subroutine gs_utofu_init_ep(ntni_req, nthreads, ntni_out, nvcq_out, &
-          edata_max, ierr) bind(c, name = 'gs_utofu_init')
+          nrvcq_out, edata_max, ierr) bind(c, name = 'gs_utofu_init')
        import :: c_int, c_int64_t
        integer(c_int), value :: ntni_req, nthreads
-       integer(c_int) :: ntni_out, nvcq_out
+       integer(c_int) :: ntni_out, nvcq_out, nrvcq_out
        integer(c_int64_t) :: edata_max
        integer(c_int) :: ierr
      end subroutine gs_utofu_init_ep
 
      subroutine gs_utofu_ctx_create(send_buf, send_bytes, recv_buf, &
-          recv_bytes, ctx, recv_vcq_id, recv_stadd, ierr) &
+          recv_bytes, ctx, nrvcq, recv_vcq_id, recv_stadd, ierr) &
           bind(c, name = 'gs_utofu_ctx_create')
        import :: c_ptr, c_size_t, c_int64_t, c_int
        type(c_ptr), value :: send_buf, recv_buf
        integer(c_size_t), value :: send_bytes, recv_bytes
        type(c_ptr) :: ctx
-       integer(c_int64_t) :: recv_vcq_id
-       integer(c_int64_t) :: recv_stadd
+       integer(c_int) :: nrvcq
+       integer(c_int64_t) :: recv_vcq_id(*)
+       integer(c_int64_t) :: recv_stadd(*)
        integer(c_int) :: ierr
      end subroutine gs_utofu_ctx_create
 
@@ -214,8 +218,8 @@ contains
 #ifdef HAVE_UTOFU
     integer :: i, nsend, nrecv, send_total, recv_total
     integer :: ntni_req, env_len, max_tag, nthreads
-    integer(c_int) :: ntni, nvcq, ierr
-    integer(c_int64_t) :: recv_vcq_id, recv_stadd
+    integer(c_int) :: ntni, nvcq, nrv, ierr
+    integer(c_int64_t), allocatable :: recv_vcq_id(:), recv_stadd(:)
     integer(c_size_t) :: send_bytes, recv_bytes
     character(len=32) :: env_val
     character(len=LOG_SIZE) :: log_buf
@@ -268,36 +272,42 @@ contains
     !$ nthreads = omp_get_max_threads()
 
     call gs_utofu_init_ep(int(ntni_req, c_int), int(nthreads, c_int), &
-         ntni, nvcq, gs_utofu_edata_max, ierr)
+         ntni, nvcq, gs_utofu_nrvcq, gs_utofu_edata_max, ierr)
     if (ierr .ne. 0) call neko_error("gs_utofu: endpoint init failed")
 
+    send_bytes = int(size(this%send_buf), c_size_t) * this%elem_size
+    recv_bytes = int(size(this%recv_buf), c_size_t) * this%elem_size
+    ! Filled by gs_utofu_ctx_create: one (vcq_id, stadd) pair per receive
+    ! VCQ granted to this instance; each receive peer is bound to one pair
+    ! below. Initialised to keep the compiler from warning (it cannot see
+    ! the C side write).
+    allocate(recv_vcq_id(gs_utofu_nrvcq), recv_stadd(gs_utofu_nrvcq))
+    recv_vcq_id = 0_c_int64_t
+    recv_stadd = 0_c_int64_t
+    nrv = 1
+    call gs_utofu_ctx_create(c_loc(this%send_buf), send_bytes, &
+         c_loc(this%recv_buf), recv_bytes, this%ctx, nrv, recv_vcq_id, &
+         recv_stadd, ierr)
+    if (ierr .eq. 1) then
+       call neko_error("gs_utofu: out of VCQs for the receive queues " // &
+            "(lower OMP_NUM_THREADS or NEKO_GS_UTOFU_NRVCQ, or set " // &
+            "NEKO_GS_UTOFU_NVCQ)")
+    else if (ierr .ne. 0) then
+       call neko_error("gs_utofu: buffer registration failed")
+    end if
+
     ! Report what the hardware actually granted: requested vs granted can
-    ! differ when ranks on a node share its TNIs, or when a TNI's VCQ budget
-    ! is smaller than the thread count. Once, on rank 0.
+    ! differ when ranks on a node share its TNIs, or when the VCQ budget
+    ! runs dry. Once, on rank 0.
     if (.not. gs_utofu_logged .and. pe_rank .eq. 0) then
        write(log_buf, '(A,I0,A,I0,A,I0,A,I0,A)') 'uTofu inj.   : ', &
             int(nvcq), ' VCQs (', nthreads, ' threads) over ', int(ntni), &
             ' TNIs (', ntni_req, ' requested)'
        call neko_log%message(log_buf)
+       write(log_buf, '(A,I0,A,I0,A)') 'uTofu recv   : ', int(nrv), &
+            ' of ', int(gs_utofu_nrvcq), ' VCQs (first instance)'
+       call neko_log%message(log_buf)
        gs_utofu_logged = .true.
-    end if
-
-    send_bytes = int(size(this%send_buf), c_size_t) * this%elem_size
-    recv_bytes = int(size(this%recv_buf), c_size_t) * this%elem_size
-    ! recv_vcq_id and recv_stadd are set by gs_utofu_ctx_create through its
-    ! reference arguments (the compiler cannot see the C side write, so
-    ! initialise to keep it from warning). This instance gets its own receive
-    ! VCQ, so the advertised vcq_id is per-instance.
-    recv_vcq_id = 0_c_int64_t
-    recv_stadd = 0_c_int64_t
-    call gs_utofu_ctx_create(c_loc(this%send_buf), send_bytes, &
-         c_loc(this%recv_buf), recv_bytes, this%ctx, recv_vcq_id, &
-         recv_stadd, ierr)
-    if (ierr .eq. 1) then
-       call neko_error("gs_utofu: out of VCQs for the receive queue " // &
-            "(lower OMP_NUM_THREADS or set NEKO_GS_UTOFU_NVCQ)")
-    else if (ierr .ne. 0) then
-       call neko_error("gs_utofu: buffer registration failed")
     end if
 
     ! Tell each sender where, and with which tag, to put our slab; learn the
@@ -306,9 +316,11 @@ contains
     allocate(msg_out(5, max(1, nrecv)), msg_in(5, max(1, nsend)))
     allocate(sreq(max(1, nrecv)), rreq(max(1, nsend)))
 
+    ! Receive peer i is bound to receive VCQ mod(i-1, nrv) + 1; advertising
+    ! that VCQ's STADD/id spreads the incoming slabs over the TNIs.
     do i = 1, nrecv
-       msg_out(1, i) = recv_stadd
-       msg_out(2, i) = recv_vcq_id
+       msg_out(1, i) = recv_stadd(mod(i - 1, int(nrv)) + 1)
+       msg_out(2, i) = recv_vcq_id(mod(i - 1, int(nrv)) + 1)
        msg_out(3, i) = int(this%recv_offset(i), c_int64_t)
        msg_out(4, i) = int(this%buf_size + this%recv_offset(i), c_int64_t)
        msg_out(5, i) = int(i - 1, c_int64_t)
@@ -344,7 +356,7 @@ contains
          call neko_error("gs_utofu: neighbour count exceeds edata capacity")
 
     ! Fused vector path: double-buffered slabs sized for GS_VEC_NC
-    ! components, registered under their own context (own receive VCQ).
+    ! components, registered under their own context (own receive VCQs).
     allocate(this%send_buf_v(max(1, 2 * GS_VEC_NC * send_total)))
     allocate(this%recv_buf_v(max(1, 2 * GS_VEC_NC * recv_total)))
     allocate(this%rmt_vcq_id_v(nsend), this%rmt_stadd_v(nsend))
@@ -356,12 +368,14 @@ contains
     recv_bytes = int(size(this%recv_buf_v), c_size_t) * this%elem_size
     recv_vcq_id = 0_c_int64_t
     recv_stadd = 0_c_int64_t
+    nrv = 1
     call gs_utofu_ctx_create(c_loc(this%send_buf_v), send_bytes, &
-         c_loc(this%recv_buf_v), recv_bytes, this%ctx_v, recv_vcq_id, &
+         c_loc(this%recv_buf_v), recv_bytes, this%ctx_v, nrv, recv_vcq_id, &
          recv_stadd, ierr)
     if (ierr .eq. 1) then
        call neko_error("gs_utofu: out of VCQs for the vector receive " // &
-            "queue (lower OMP_NUM_THREADS or set NEKO_GS_UTOFU_NVCQ)")
+            "queues (lower OMP_NUM_THREADS or NEKO_GS_UTOFU_NRVCQ, or " // &
+            "set NEKO_GS_UTOFU_NVCQ)")
     else if (ierr .ne. 0) then
        call neko_error("gs_utofu: vector buffer registration failed")
     end if
@@ -374,9 +388,10 @@ contains
     allocate(msg_out(4, max(1, nrecv)), msg_in(4, max(1, nsend)))
     allocate(sreq(max(1, nrecv)), rreq(max(1, nsend)))
 
+    ! Same peer-to-receive-VCQ binding as the scalar path (its own VCQ set).
     do i = 1, nrecv
-       msg_out(1, i) = recv_stadd
-       msg_out(2, i) = recv_vcq_id
+       msg_out(1, i) = recv_stadd(mod(i - 1, int(nrv)) + 1)
+       msg_out(2, i) = recv_vcq_id(mod(i - 1, int(nrv)) + 1)
        msg_out(3, i) = int(this%recv_offset(i), c_int64_t)
        msg_out(4, i) = int(this%buf_size, c_int64_t)
     end do
