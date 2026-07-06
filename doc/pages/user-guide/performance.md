@@ -316,6 +316,19 @@ stash holds notices that arrive from a neighbour running one round ahead
 and replays them on the next round, so the unpack-as-ready path stays
 correct without a global barrier or a back-pressure channel.
 
+The backend also implements the fused vector (multi-component) halo
+exchange used by `gs_op_r3`, so a three-component gather-scatter costs
+one halo round instead of three. The vector path is a second, fully
+independent instance of the same transport: its own registered
+double-buffered slabs (sized for `GS_VEC_NC` components, each peer slab
+holding `nc` consecutive component blocks), its own receive VCQ (and
+thus private MRQ), and its own parity. The separation is what keeps the
+skew handling sound -- a neighbour racing from a vector round into a
+scalar round (or vice versa) lands its notice in the right queue. The
+scalar per-peer layout is reused scaled by `nc`, with the destination
+offsets recomputed each round from the receiver's advertised unscaled
+layout.
+
 The backend is gated on the autoconf macro `HAVE_UTOFU` and enabled at
 configure time with `--with-utofu[=DIR]` (linking `-ltofucom`); builds
 without uTofu are unaffected. Neighbour metadata (remote VCQ id,
@@ -325,9 +338,9 @@ thereafter is pure uTofu.
 
 @note The uTofu backend uses per-instance (not symmetric) send and
 receive buffers, so it carries no global-maximum sizing constraint.
-Each `gs_t` instance also gets its own receive VCQ (and therefore its
-own MRQ), so an arrival notice for one instance can never be consumed
-by another instance's poll -- multiple `gs_t` objects can be used back
-to back safely. The injection VCQs (one per OpenMP thread) are
+Each `gs_t` instance also gets its own receive VCQs (one scalar, one
+vector, each with its own MRQ), so an arrival notice for one instance
+or path can never be consumed by another's poll -- multiple `gs_t`
+objects can be used back to back safely. The injection VCQs (one per OpenMP thread) are
 process-global and shared across instances; send-completion accounting
 is per instance, per VCQ, and per buffer-half.

@@ -75,7 +75,16 @@
  * and on the remote MRQ (so the receiver learns of arrival). Cache
  * injection (added at init unless NEKO_GS_UTOFU_CACHE_INJECT=0) drops the
  * received slab straight into the peer's cache -- a win if it is consumed
- * immediately, a loss if it pollutes cache, hence the runtime toggle. */
+ * immediately, a loss if it pollutes cache, hence the runtime toggle.
+ *
+ * UTOFU_ONESIDED_FLAG_STRONG_ORDER (which jacobi2d sets) is deliberately
+ * NOT used: it is only required when arrival is detected by watchdog-
+ * polling the payload's last word, which needs the data to land in address
+ * order. The RMT_PUT MRQ notice used here is raised only after the whole
+ * put has been written at the target, so it already carries that
+ * guarantee, and strong ordering would just restrict the NIC's packet-
+ * level freedom on multi-packet slabs. Revisit if the receive side ever
+ * moves to jacobi2d-style payload watchdogs. */
 #define GS_UTOFU_PUT_FLAGS_BASE                                          \
   (UTOFU_ONESIDED_FLAG_TCQ_NOTICE | UTOFU_ONESIDED_FLAG_REMOTE_MRQ_NOTICE)
 
