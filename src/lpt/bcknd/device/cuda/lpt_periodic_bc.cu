@@ -34,7 +34,7 @@
 
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-#include <simulation_components/lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h>
+#include <lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h>
 
 extern "C" {
 

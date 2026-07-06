@@ -35,7 +35,7 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include <simulation_components/lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h>
+#include <lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h>
 
 extern "C" {
 

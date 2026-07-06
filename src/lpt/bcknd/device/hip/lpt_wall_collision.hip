@@ -34,7 +34,7 @@
 
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include <simulation_components/lpt/bcknd/device/hip/lpt_wall_collision_kernel.h>
+#include <lpt/bcknd/device/hip/lpt_wall_collision_kernel.h>
 
 extern "C" {
 
