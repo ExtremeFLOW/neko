@@ -181,10 +181,24 @@ contains
     call this%u%copy_from(memdir, .false.)
     call this%v%copy_from(memdir, .false.)
     call this%w%copy_from(memdir, .true.)
-    if (this%inertia) then
-       call this%d%copy_from(memdir, .false.)
-       call this%rho%copy_from(memdir, .true.)
-    end if
+    call this%acc_x%copy_from(memdir, .false.)
+    call this%acc_y%copy_from(memdir, .false.)
+    call this%acc_z%copy_from(memdir, .true.)
+    call this%u_lag%copy_from(memdir, .false.)
+    call this%v_lag%copy_from(memdir, .false.)
+    call this%w_lag%copy_from(memdir, .true.)
+    call this%u_laglag%copy_from(memdir, .false.)
+    call this%v_laglag%copy_from(memdir, .false.)
+    call this%w_laglag%copy_from(memdir, .true.)
+    call this%acc_xlag%copy_from(memdir, .false.)
+    call this%acc_ylag%copy_from(memdir, .false.)
+    call this%acc_zlag%copy_from(memdir, .true.)
+    call this%acc_xlaglag%copy_from(memdir, .false.)
+    call this%acc_ylaglag%copy_from(memdir, .false.)
+    call this%acc_zlaglag%copy_from(memdir, .true.)
+    call this%d%copy_from(memdir, .false.)
+    call this%rho%copy_from(memdir, .true.)
+
   end subroutine particles_device_sync
 
 end module particles
