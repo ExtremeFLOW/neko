@@ -44,6 +44,9 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
   use no_slip, only : no_slip_t
+  use zero_dirichlet, only : zero_dirichlet_t
+  use shear_stress, only : shear_stress_t
+  use wall_model_bc, only : wall_model_bc_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   use overset_interface, only : overset_interface_t
   use overset_interface_vector, only : overset_interface_vector_t

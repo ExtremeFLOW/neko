@@ -320,11 +320,12 @@ contains
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
+    ! Plain base-type assignment; setting this through a
+    ! select type (gs_device_t) miscompiles with CCE 21 at -O2/-O3,
+    ! silently leaving shared points on the host so that the scatter
+    ! overwrites the unpacked halo data with the stale host buffer
     if (use_device_mpi .or. use_device_nccl .or. use_device_shmem) then
-       select type (b => gs%bcknd)
-       type is (gs_device_t)
-          b%shared_on_host = .false.
-       end select
+       gs%bcknd%shared_on_host = .false.
     end if
 
     if (use_device_mpi) then
