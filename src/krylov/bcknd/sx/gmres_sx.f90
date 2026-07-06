@@ -179,7 +179,8 @@ contains
   end subroutine sx_gmres_free
 
   !> Standard PCG solve
-  function sx_gmres_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) result(ksp_results)
+  function sx_gmres_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
+       result(ksp_results)
     class(sx_gmres_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
