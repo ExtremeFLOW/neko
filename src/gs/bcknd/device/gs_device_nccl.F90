@@ -308,6 +308,13 @@ contains
        end do
        deallocate(this%stream)
     end if
+
+    if (allocated(this%event)) then
+       do i = 1, size(this%event)
+          call device_event_destroy(this%event(i))
+       end do
+       deallocate(this%event)
+    end if
 #endif
 
   end subroutine gs_device_nccl_free
