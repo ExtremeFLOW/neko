@@ -29,9 +29,19 @@ it could be beneficial to configure Neko to use OpenMP
 `--enable-openmp`, and launch the simulation with two threads. This
 would enable the task-parallel preconditioners inside Neko.
 
-@note In the current release, OpenMP is only used to launch jobs
-concurrently into different accelerator streams. Thus, no gains should
-be expected from OpenMP when using a CPU backend.
+### CPU specific options
+
+On CPU backends, the performance-critical path (math and solver
+kernels, Krylov solvers and preconditioners, boundary conditions,
+dealiasing, and the host gather-scatter) is threaded with OpenMP when
+Neko is configured with `--enable-openmp`, making hybrid MPI+OpenMP a
+supported execution mode: launch one rank per NUMA domain (e.g. one
+per CMG on A64FX) and set `OMP_NUM_THREADS` to the number of cores in
+it. Flat MPI (one rank per core, single-threaded) generally remains
+the fastest configuration per node, but the hybrid mode reduces the
+number of ranks -- and with it the memory footprint, initialisation
+time, and communication metadata -- which pays off at very large
+scale or under tight memory constraints.
 
 ## Simulation setup
 
