@@ -33,7 +33,7 @@
 !> Defines OpenSHMEM gather-scatter communication
 module gs_shmem
   use num_types, only : rp, c_rp, i8
-  use gs_comm, only : gs_comm_t
+  use gs_comm, only : gs_comm_t, GS_VEC_NC
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
@@ -110,6 +110,9 @@ module gs_shmem
      procedure, pass(this) :: nbsend => gs_shmem_nbsend
      procedure, pass(this) :: nbrecv => gs_shmem_nbrecv
      procedure, pass(this) :: nbwait => gs_shmem_nbwait
+     procedure, pass(this) :: nbsend_vec => gs_shmem_nbsend_vec
+     procedure, pass(this) :: nbrecv_vec => gs_shmem_nbrecv_vec
+     procedure, pass(this) :: nbwait_vec => gs_shmem_nbwait_vec
   end type gs_shmem_t
 
 contains
@@ -151,7 +154,10 @@ contains
     call MPI_Allreduce(this%total, this%max_total, 1, MPI_INTEGER, MPI_MAX, &
          NEKO_COMM, ierr)
 
-    sz = c_sizeof(rp_dummy) * int(max(this%max_total, 1), c_size_t)
+    ! Sized for up to GS_VEC_NC components so the fused vector path can
+    ! reuse the same symmetric buffer; the scalar path uses the first
+    ! max_total elements.
+    sz = c_sizeof(rp_dummy) * int(max(GS_VEC_NC*this%max_total, 1), c_size_t)
     this%buf_ptr = shmem_malloc(sz)
     if (.not. c_associated(this%buf_ptr)) then
        call neko_error('shmem_malloc failed for gs_shmem buffer')
@@ -232,6 +238,7 @@ contains
     deallocate(remote_offsets)
 
     this%iter = 0
+    this%vec_supported = .true.
 
     ! Ensure all PEs have completed symmetric allocation before any
     ! one-sided communication is issued.
@@ -397,5 +404,138 @@ contains
     end do
 #endif
   end subroutine gs_shmem_nbwait
+
+  !> Fused nc-component send: pack nc contiguous component blocks per peer
+  !! slab and put nc*ndofs reals with a single signal. Buffer indexing and
+  !! put size scale by nc; the per-rank signalling is unchanged.
+  !! @param u compact shared buffer, component-outer: u((c-1)*n + idx).
+  subroutine gs_shmem_nbsend_vec(this, u, n, nc, tag, deps, strm)
+    class(gs_shmem_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    integer, intent(in) :: tag
+    type(c_ptr), intent(inout) :: deps
+    type(c_ptr), intent(inout) :: strm
+    integer :: i, j, c, dst, base, ndst
+    integer(c_size_t) :: nbytes
+    integer, pointer :: sp(:)
+    real(kind=rp), pointer :: send_data(:), recv_data(:)
+    integer(c_int64_t), pointer :: data_signals(:), ack_signals(:)
+    real(c_rp) :: rp_dummy
+#ifdef HAVE_OPENSHMEM
+
+    this%iter = this%iter + 1
+
+    call c_f_pointer(this%send_buf%buf_ptr, send_data, &
+         [max(nc*this%send_buf%max_total, 1)])
+    call c_f_pointer(this%recv_buf%buf_ptr, recv_data, &
+         [max(nc*this%recv_buf%max_total, 1)])
+    call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
+    call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
+
+    do i = 1, size(this%send_pe)
+       dst = this%send_pe(i)
+
+       call shmem_uint64_wait_until(c_loc(ack_signals(dst + 1)), &
+            SHMEM_CMP_GE, this%iter - 1_8)
+
+       sp => this%send_dof(dst)%array()
+       base = this%send_buf%offset(i)
+       ndst = this%send_buf%ndofs(i)
+       do c = 1, nc
+          do concurrent (j = 1:ndst)
+             send_data(nc*base + (c-1)*ndst + j) = u((c-1)*n + sp(j))
+          end do
+       end do
+
+       nbytes = int(nc*ndst, c_size_t) * c_sizeof(rp_dummy)
+       call shmem_putmem_signal_nbi( &
+            c_loc(recv_data(nc*this%send_buf%remote_offset(i) + 1)), &
+            c_loc(send_data(nc*base + 1)), &
+            nbytes, &
+            c_loc(data_signals(pe_rank + 1)), &
+            this%iter, SHMEM_SIGNAL_SET, dst)
+    end do
+#endif
+  end subroutine gs_shmem_nbsend_vec
+
+  !> No-op: receives are completed via remote put-with-signal.
+  subroutine gs_shmem_nbrecv_vec(this, tag, nc)
+    class(gs_shmem_t), intent(inout) :: this
+    integer, intent(in) :: tag, nc
+  end subroutine gs_shmem_nbrecv_vec
+
+  !> Fused nc-component wait/reduce: per peer, wait on the data signal and
+  !! reduce nc component blocks into u, then ack the sender.
+  subroutine gs_shmem_nbwait_vec(this, u, n, nc, op, strm)
+    class(gs_shmem_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: strm
+    integer :: op
+    integer :: i, j, c, src, base, nsrc
+    integer(c_int64_t) :: dummy
+    integer, pointer :: sp(:)
+    real(kind=rp), pointer :: recv_data(:)
+    integer(c_int64_t), pointer :: data_signals(:), ack_signals(:)
+#ifdef HAVE_OPENSHMEM
+
+    call c_f_pointer(this%recv_buf%buf_ptr, recv_data, &
+         [max(nc*this%recv_buf%max_total, 1)])
+    call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
+    call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
+
+    do i = 1, size(this%recv_pe)
+       src = this%recv_pe(i)
+
+       dummy = shmem_signal_wait_until(c_loc(data_signals(src + 1)), &
+            SHMEM_CMP_GE, this%iter)
+
+       sp => this%recv_dof(src)%array()
+       base = this%recv_buf%offset(i)
+       nsrc = this%recv_buf%ndofs(i)
+       select case (op)
+       case (GS_OP_ADD)
+          do c = 1, nc
+             !NEC$ IVDEP
+             do concurrent (j = 1:nsrc)
+                u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) + &
+                     recv_data(nc*base + (c-1)*nsrc + j)
+             end do
+          end do
+       case (GS_OP_MUL)
+          do c = 1, nc
+             !NEC$ IVDEP
+             do concurrent (j = 1:nsrc)
+                u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) * &
+                     recv_data(nc*base + (c-1)*nsrc + j)
+             end do
+          end do
+       case (GS_OP_MIN)
+          do c = 1, nc
+             !NEC$ IVDEP
+             do concurrent (j = 1:nsrc)
+                u((c-1)*n + sp(j)) = min(u((c-1)*n + sp(j)), &
+                     recv_data(nc*base + (c-1)*nsrc + j))
+             end do
+          end do
+       case (GS_OP_MAX)
+          do c = 1, nc
+             !NEC$ IVDEP
+             do concurrent (j = 1:nsrc)
+                u((c-1)*n + sp(j)) = max(u((c-1)*n + sp(j)), &
+                     recv_data(nc*base + (c-1)*nsrc + j))
+             end do
+          end do
+       case default
+          call neko_error("Unknown operation in gs_shmem_nbwait_vec")
+       end select
+
+       call shmem_uint64_atomic_set( &
+            c_loc(ack_signals(pe_rank + 1)), &
+            this%iter, src)
+    end do
+#endif
+  end subroutine gs_shmem_nbwait_vec
 
 end module gs_shmem

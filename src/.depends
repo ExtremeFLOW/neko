@@ -56,7 +56,7 @@ gs/bcknd/cpu/gs_cpu.lo : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.lo gs/gs_bcknd.lo con
 gs/bcknd/sx/gs_sx.lo : gs/bcknd/sx/gs_sx.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo 
 gs/bcknd/device/gs_device.lo : gs/bcknd/device/gs_device.F90 common/utils.lo device/device.lo gs/gs_bcknd.lo config/num_types.lo 
 gs/gs_ops.lo : gs/gs_ops.f90 
-gs/gs_comm.lo : gs/gs_comm.f90 adt/stack.lo comm/comm.lo config/num_types.lo 
+gs/gs_comm.lo : gs/gs_comm.f90 common/utils.lo adt/stack.lo comm/comm.lo config/num_types.lo 
 gs/gs_mpi.lo : gs/gs_mpi.f90 common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
 gs/gs_shmem.lo : gs/gs_shmem.F90 common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
 gs/gs_caf.lo : gs/gs_caf.F90 common/utils.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
