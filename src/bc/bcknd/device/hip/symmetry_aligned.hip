@@ -43,9 +43,9 @@ extern "C" {
    * Fortran wrapper for device axis-aligned symmetry apply vector
    */
   void hip_symmetry_aligned_apply_vector(void *xmsk, void *ymsk, void *zmsk,
-					 void *x, void *y, void *z,
-					 int *m, int *n, int *l,
-                                         hipStream_t strm) {
+           void *x, void *y, void *z,
+           int *m, int *n, int *l,
+           hipStream_t strm) {
 
     const int max_len = std::max(std::max(*m, *n), *l);
     const dim3 nthrds(1024, 1, 1);
