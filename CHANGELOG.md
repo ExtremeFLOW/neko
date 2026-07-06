@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Fixed a linking failure with CUDA 13, which no longer implicitly links the
+  host C++ runtime (`undefined reference to __cxa_guard_acquire`); `configure`
+  now links `libstdc++` explicitly for CUDA >= 13, except with the Cray
+  compiler (CCE/PrgEnv-cray) which provides its own C++ runtime.
 - Added a native Tofu (uTofu) gather-scatter backend for Fugaku and other
   Tofu-D systems (`NEKO_GS_COMM=UTOFU`, `--with-utofu`), using one-sided
   RDMA puts with fused arrival signalling and thread-parallel injection;
