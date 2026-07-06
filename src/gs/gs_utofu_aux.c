@@ -91,9 +91,11 @@
 /* --- process-global endpoint state, created once ------------------------ */
 static int             gs_utofu_ready = 0;
 static size_t          gs_utofu_nvcq  = 0;     /* number of injection VCQs  */
-static size_t          gs_utofu_ntni  = 0;     /* distinct TNIs in use      */
-static utofu_vcq_hdl_t *gs_utofu_vcq   = NULL; /* [nvcq] injection VCQs     */
-static utofu_tni_id_t  *gs_utofu_tniid = NULL; /* [ntni] granted TNI ids    */
+static size_t          gs_utofu_ntni  = 0;     /* TNIs used for injection   */
+static utofu_vcq_hdl_t *gs_utofu_vcq    = NULL; /* [nvcq] injection VCQs    */
+static utofu_tni_id_t  *gs_utofu_alltni = NULL; /* [nalltni] ALL 1-sided TNIs;
+                                                 * first ntni = injection set */
+static size_t           gs_utofu_nalltni = 0;
 static int              gs_utofu_recv_rr = 0;  /* round-robins recv-VCQ TNIs */
 static uint64_t         gs_utofu_edata_max = 255;
 static unsigned long    gs_utofu_put_flags = GS_UTOFU_PUT_FLAGS_BASE;
@@ -180,25 +182,45 @@ void gs_utofu_init(int ntni_req, int nthreads, int *ntni_out, int *nvcq_out,
 
     size_t want_tni = (ntni_req > 0) ? (size_t) ntni_req : 1;
     if (want_tni > num_tnis) want_tni = num_tnis;
-    gs_utofu_ntni  = want_tni;
-    gs_utofu_tniid = malloc(want_tni * sizeof(*gs_utofu_tniid));
-    for (size_t k = 0; k < want_tni; k++)
-      gs_utofu_tniid[k] = tnis[k];
+    gs_utofu_ntni    = want_tni;
+    gs_utofu_nalltni = num_tnis;
+    gs_utofu_alltni  = malloc(num_tnis * sizeof(*gs_utofu_alltni));
+    for (size_t k = 0; k < num_tnis; k++)
+      gs_utofu_alltni[k] = tnis[k];
 
-    /* One injection VCQ per thread. THREAD_SAFE is what makes multithreaded
-     * operation defined at all: without it uTofu takes the unlocked
-     * direct-descriptor injection path and any cross-thread touch corrupts
-     * the TOQ (the "TOQ Direct Descriptor Exception" of the first
-     * multithreaded attempt). With one thread per VCQ the internal lock is
-     * uncontended. If a TNI's VCQ budget runs out mid-loop, keep what was
-     * granted: threads beyond the count simply do not inject (see
-     * gs_utofu_post_puts), and the modulo peer partition shrinks with it. */
+    /* One injection VCQ per thread, capped by NEKO_GS_UTOFU_NVCQ. The VCQ
+     * budget is shared with the per-instance receive VCQs created later
+     * (one scalar + one vector per gs instance) -- on Fugaku a TNI grants
+     * us ~8 VCQs, so a 12-thread pool can eat a whole TNI; the cap lets a
+     * tight budget be rebalanced without rebuilding. THREAD_SAFE is what
+     * makes multithreaded operation defined at all: without it uTofu takes
+     * the unlocked direct-descriptor injection path and any cross-thread
+     * touch corrupts the TOQ (the "TOQ Direct Descriptor Exception" of the
+     * first multithreaded attempt). With one thread per VCQ the internal
+     * lock is uncontended. */
     size_t want_vcq = (nthreads > 0) ? (size_t) nthreads : 1;
+    const char *nv = getenv("NEKO_GS_UTOFU_NVCQ");
+    if (nv != NULL) {
+      long cap = strtol(nv, NULL, 10);
+      if (cap > 0 && (size_t) cap < want_vcq)
+        want_vcq = (size_t) cap;
+    }
+
+    /* Preferred TNI first, then the rest of the injection set: one
+     * exhausted TNI must not end the pool while others still have room.
+     * If every TNI in the set is out of VCQs, keep what was granted:
+     * threads beyond the count simply do not inject (see
+     * gs_utofu_post_puts), and the modulo peer partition shrinks with it. */
     gs_utofu_vcq = malloc(want_vcq * sizeof(*gs_utofu_vcq));
     while (gs_utofu_nvcq < want_vcq) {
-      if (utofu_create_vcq(gs_utofu_tniid[gs_utofu_nvcq % want_tni],
-                           UTOFU_VCQ_FLAG_THREAD_SAFE,
-                           &gs_utofu_vcq[gs_utofu_nvcq]) != UTOFU_SUCCESS)
+      int created = 0;
+      for (size_t s = 0; s < want_tni && !created; s++) {
+        if (utofu_create_vcq(gs_utofu_alltni[(gs_utofu_nvcq + s) % want_tni],
+                             UTOFU_VCQ_FLAG_THREAD_SAFE,
+                             &gs_utofu_vcq[gs_utofu_nvcq]) == UTOFU_SUCCESS)
+          created = 1;
+      }
+      if (!created)
         break;
       gs_utofu_nvcq++;
     }
@@ -206,6 +228,10 @@ void gs_utofu_init(int ntni_req, int nthreads, int *ntni_out, int *nvcq_out,
       *ierr = 2;
       return;
     }
+
+    /* Start the receive-VCQ round-robin just past the injection TNIs, so
+     * receive queues prefer interfaces the pool has not loaded. */
+    gs_utofu_recv_rr = (int) (gs_utofu_ntni % gs_utofu_nalltni);
 
     /* Largest edata the hardware will carry. VERIFY: field name and whether
      * the capability is expressed in bytes (assumed here). */
@@ -259,12 +285,26 @@ void gs_utofu_ctx_create(void *send_buf, size_t send_bytes,
   ctx->send_pending = calloc(2 * gs_utofu_nvcq * GS_UTOFU_PEND_STRIDE,
                              sizeof(*ctx->send_pending));
 
-  /* The receive VCQ stays non-THREAD_SAFE (flags 0): it is strictly
-   * master-polled, and skipping the internal lock keeps the MRQ spin --
-   * the receive hot path -- cheap. It must never be touched off-master. */
-  utofu_tni_id_t rtni = gs_utofu_tniid[gs_utofu_recv_rr % (int) gs_utofu_ntni];
+  /* The receive VCQ may sit on ANY one-sided TNI: incoming puts are routed
+   * by the advertised VCQ id, so spreading the receive processing over all
+   * interfaces is free (NEKO_GS_UTOFU_NTNI deliberately confines only the
+   * injection side). Round-robin over the full set, sweeping past
+   * exhausted TNIs -- the injection pool can eat a whole TNI's VCQ budget
+   * (~8 per TNI on Fugaku) and a private MRQ per instance is a correctness
+   * requirement, so only give up when every TNI is out of VCQs (ierr 1;
+   * remedy: lower OMP_NUM_THREADS or cap NEKO_GS_UTOFU_NVCQ).
+   * It stays non-THREAD_SAFE (flags 0): it is strictly master-polled, and
+   * skipping the internal lock keeps the MRQ spin -- the receive hot path
+   * -- cheap. It must never be touched off-master. */
+  int created = 0;
+  for (size_t s = 0; s < gs_utofu_nalltni && !created; s++) {
+    utofu_tni_id_t rtni =
+      gs_utofu_alltni[((size_t) gs_utofu_recv_rr + s) % gs_utofu_nalltni];
+    if (utofu_create_vcq(rtni, 0, &ctx->recv_vcq) == UTOFU_SUCCESS)
+      created = 1;
+  }
   gs_utofu_recv_rr++;
-  if (utofu_create_vcq(rtni, 0, &ctx->recv_vcq) != UTOFU_SUCCESS) {
+  if (!created) {
     *ierr = 1;
     return;
   }

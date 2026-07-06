@@ -293,7 +293,12 @@ contains
     call gs_utofu_ctx_create(c_loc(this%send_buf), send_bytes, &
          c_loc(this%recv_buf), recv_bytes, this%ctx, recv_vcq_id, &
          recv_stadd, ierr)
-    if (ierr .ne. 0) call neko_error("gs_utofu: buffer registration failed")
+    if (ierr .eq. 1) then
+       call neko_error("gs_utofu: out of VCQs for the receive queue " // &
+            "(lower OMP_NUM_THREADS or set NEKO_GS_UTOFU_NVCQ)")
+    else if (ierr .ne. 0) then
+       call neko_error("gs_utofu: buffer registration failed")
+    end if
 
     ! Tell each sender where, and with which tag, to put our slab; learn the
     ! same for each receiver we send to. Message layout per peer:
@@ -354,8 +359,12 @@ contains
     call gs_utofu_ctx_create(c_loc(this%send_buf_v), send_bytes, &
          c_loc(this%recv_buf_v), recv_bytes, this%ctx_v, recv_vcq_id, &
          recv_stadd, ierr)
-    if (ierr .ne. 0) &
-         call neko_error("gs_utofu: vector buffer registration failed")
+    if (ierr .eq. 1) then
+       call neko_error("gs_utofu: out of VCQs for the vector receive " // &
+            "queue (lower OMP_NUM_THREADS or set NEKO_GS_UTOFU_NVCQ)")
+    else if (ierr .ne. 0) then
+       call neko_error("gs_utofu: vector buffer registration failed")
+    end if
 
     ! Second metadata exchange for the vector path. Because the component
     ! count nc varies per round, the receiver advertises its UNSCALED layout
@@ -392,7 +401,11 @@ contains
 
     deallocate(msg_out, msg_in, sreq, rreq)
 
-    this%vec_supported = .true.
+    ! Runtime kill-switch for the fused vector path (validation aid):
+    ! NEKO_GS_UTOFU_VEC=0 makes gs_op_r3 fall back to three scalar rounds.
+    ! The vector context stays registered either way; only its use is gated.
+    call get_environment_variable("NEKO_GS_UTOFU_VEC", env_val, env_len)
+    this%vec_supported = .not. (env_len .gt. 0 .and. env_val(1:1) .eq. '0')
 #else
     call neko_error("uTofu support not built; reconfigure with --with-utofu")
 #endif

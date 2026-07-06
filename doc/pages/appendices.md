@@ -103,9 +103,19 @@ granted VCQ count do not inject).
 - `NEKO_GS_UTOFU_NTNI=1` (default) : All injection VCQs sit on one TNI.
 - `NEKO_GS_UTOFU_NTNI=N`           : Deal the per-thread VCQs across `N`
   TNIs (benefits large messages and high neighbour counts).
+- `NEKO_GS_UTOFU_NVCQ=N`           : Cap the injection pool at `N` VCQs.
+  The VCQ budget (roughly 8 per TNI per rank on Fugaku) is shared with
+  the per-instance receive VCQs, so on tight budgets the pool must
+  leave room.
 - `NEKO_GS_UTOFU_MASTER_INJECT=1`  : Serialise all injection onto the
   master thread (still spread over every VCQ), as an A/B reference for
   the thread-parallel default.
+
+The per-instance receive VCQs are placed round-robin over *all*
+one-sided TNIs (not only the `NEKO_GS_UTOFU_NTNI` injection set),
+sweeping past TNIs whose VCQ budget is exhausted; incoming puts are
+routed by the advertised VCQ id, so this costs nothing and balances
+receive processing across the interfaces.
 
 The startup log prints the granted counts, e.g.
 `uTofu inj.   : 12 VCQs (12 threads) over 4 TNIs (6 requested)`.
@@ -117,3 +127,7 @@ be disabled for A/B testing:
 
 - `NEKO_GS_UTOFU_CACHE_INJECT=1` (default, or unset) : cache injection on.
 - `NEKO_GS_UTOFU_CACHE_INJECT=0`                     : cache injection off.
+
+The fused vector (multi-component) exchange can be disabled with
+`NEKO_GS_UTOFU_VEC=0`, in which case multi-component gather-scatter
+falls back to independent scalar rounds (a validation/bisection aid).
