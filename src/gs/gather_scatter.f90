@@ -73,6 +73,12 @@ module gather_scatter
   implicit none
   private
 
+  !> Gather-scatter kernel
+  !! @note A gs_t instance is not re-entrant: each object owns mutable
+  !! scratch buffers, backend device state and communication state that are
+  !! reused by every gather-scatter operation. Concurrent calls to @a op on
+  !! the same object must be serialised by the caller (or use one object
+  !! per thread).
   type, public :: gs_t
      real(kind=rp), allocatable :: local_gs(:) !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:) !< Local dof to gs mapping

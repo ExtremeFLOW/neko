@@ -266,6 +266,7 @@ contains
 
     if (allocated(this%ndofs)) deallocate(this%ndofs)
     if (allocated(this%offset)) deallocate(this%offset)
+    if (allocated(this%remote_offset)) deallocate(this%remote_offset)
 
 #ifdef HAVE_NVSHMEM
     if (c_associated(this%buf_d)) call cudafree_nvshmem(this%buf_d)
@@ -371,6 +372,13 @@ contains
           call device_stream_destroy(this%stream(i))
        end do
        deallocate(this%stream)
+    end if
+
+    if (allocated(this%event)) then
+       do i = 1, size(this%event)
+          call device_event_destroy(this%event(i))
+       end do
+       deallocate(this%event)
     end if
 #endif
 

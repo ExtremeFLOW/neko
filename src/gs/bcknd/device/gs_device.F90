@@ -201,6 +201,18 @@ contains
        call device_free(this%local_gs_dof_d)
     end if
 
+    if (c_associated(this%shared_gs_d)) then
+       call device_free(this%shared_gs_d)
+    end if
+
+    if (c_associated(this%shared_dof_gs_d)) then
+       call device_free(this%shared_dof_gs_d)
+    end if
+
+    if (c_associated(this%shared_gs_dof_d)) then
+       call device_free(this%shared_gs_dof_d)
+    end if
+
     if (c_associated(this%local_blk_len_d)) then
        call device_free(this%local_blk_len_d)
     end if
