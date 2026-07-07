@@ -610,7 +610,7 @@ libneko_la_SOURCES += \
 	multigrid/bcknd/device/cuda/amg_cheby.cu\
 	krylov/bcknd/device/cuda/cheby_aux.cu
 
-BUILT_SOURCES = libtool_cuda
+BUILT_SOURCES = @top_builddir@/libtool_cuda
 
 if ENABLE_NVSHMEM
 #
@@ -1160,11 +1160,11 @@ include .depends_device
 include .depends_turboneko
 
 # CUDA Build rules
-.cu.lo: @top_builddir@/libtool_cuda
+.cu.lo:
 	$(SHELL) @top_builddir@/libtool_cuda --tag=CC --mode=compile $(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
 
-libtool_cuda:
-	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_builddir@/libtool > @top_builddir@/libtool_cuda
+@top_builddir@/libtool_cuda: @top_builddir@/libtool
+	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_builddir@/libtool > $@
 
 # HIP Build rules
 .hip.lo:
