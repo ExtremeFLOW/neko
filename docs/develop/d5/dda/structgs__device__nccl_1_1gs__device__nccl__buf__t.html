@@ -113,9 +113,9 @@ Collaboration diagram for gs_device_nccl::gs_device_nccl_buf_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/d38/structgs__device__nccl_1_1gs__device__nccl__buf__t__coll__graph.png" border="0" usemap="#ags__device__nccl_1_1gs__device__nccl__buf__t_coll__map" alt="Collaboration graph"/></div>
 <map name="ags__device__nccl_1_1gs__device__nccl__buf__t_coll__map" id="ags__device__nccl_1_1gs__device__nccl__buf__t_coll__map">
-<area shape="rect" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="5,108,151,148"/>
+<area shape="rect" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="5,123,151,163"/>
 <area shape="rect" title=" " alt="" coords="51,5,105,31"/>
-<area shape="poly" title=" " alt="" coords="81,45,81,108,75,108,75,45"/>
+<area shape="poly" title=" " alt="" coords="81,44,81,122,75,122,75,44"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -140,6 +140,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a438cc09b2d118b948180782d6ce5e05e" id="r_a438cc09b2d118b948180782d6ce5e05e"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t.html#a438cc09b2d118b948180782d6ce5e05e">buf_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:a438cc09b2d118b948180782d6ce5e05e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device buffer.  <br /></td></tr>
 <tr class="separator:a438cc09b2d118b948180782d6ce5e05e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9230ddf7a0e21fd01e96199b2b9e17bd" id="r_a9230ddf7a0e21fd01e96199b2b9e17bd"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t.html#a9230ddf7a0e21fd01e96199b2b9e17bd">buf_v_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
+<tr class="memdesc:a9230ddf7a0e21fd01e96199b2b9e17bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device buffer, fused vector (x nc)  <br /></td></tr>
+<tr class="separator:a9230ddf7a0e21fd01e96199b2b9e17bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a874f982444ce84a9a671213899db5b3d" id="r_a874f982444ce84a9a671213899db5b3d"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t.html#a874f982444ce84a9a671213899db5b3d">dof_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:a874f982444ce84a9a671213899db5b3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dof mapping for pack/unpack.  <br /></td></tr>
 <tr class="separator:a874f982444ce84a9a671213899db5b3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,7 +167,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00056">56</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00057">57</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 
 </div>
 </div>
@@ -206,7 +209,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00055">55</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00056">56</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 
 </div>
 </div>
@@ -227,6 +230,22 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a9230ddf7a0e21fd01e96199b2b9e17bd" name="a9230ddf7a0e21fd01e96199b2b9e17bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9230ddf7a0e21fd01e96199b2b9e17bd">&#9670;&#160;</a></span>buf_v_d</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr) gs_device_nccl::gs_device_nccl_buf_t::buf_v_d = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00053">53</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+
+</div>
+</div>
 <a id="a874f982444ce84a9a671213899db5b3d" name="a874f982444ce84a9a671213899db5b3d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a874f982444ce84a9a671213899db5b3d">&#9670;&#160;</a></span>dof_d</h2>
 
@@ -239,7 +258,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00053">53</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html#l00054">54</a> of file <a class="el" href="../../d8/da1/gs__device__nccl_8F90_source.html">gs_device_nccl.F90</a>.</p>
 
 </div>
 </div>
@@ -300,7 +319,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../de/dcf/namespacegs__device__nccl.html">gs_device_nccl</a></li><li class="navelem"><a class="el" href="../../d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t.html">gs_device_nccl_buf_t</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

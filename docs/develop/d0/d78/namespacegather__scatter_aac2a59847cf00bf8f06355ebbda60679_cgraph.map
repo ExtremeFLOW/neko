@@ -1,0 +1,15 @@
+<map id="gather_scatter::gs_op_vector3" name="gather_scatter::gs_op_vector3">
+<area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="5,92,144,132"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a2895d584c6ac94e9da48452a2e56abd4" title="Device path for the fused 3&#45;component gs. The device backend&#39;s shared gather/scatter always operate o..." alt="" coords="192,5,331,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,89,204,49,206,54,120,94"/>
+<area shape="rect" id="Node000004" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="192,120,331,160"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="145,120,178,125,178,130,144,125"/>
+<area shape="rect" id="Node000005" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="397,80,520,120"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="144,107,192,105,384,99,384,105,192,111,144,112"/>
+<area shape="rect" id="Node000006" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="397,165,520,205"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="107,130,147,152,193,169,241,180,291,185,384,187,384,193,291,191,241,185,191,175,145,157,105,134"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="379,5,539,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="331,23,365,23,365,28,331,28"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="330,123,383,113,384,118,331,129"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="331,153,384,166,383,171,330,158"/>
+</map>

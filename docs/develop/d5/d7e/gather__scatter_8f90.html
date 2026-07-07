@@ -154,6 +154,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ae256fdf907de8a5e60a425f9d3510806" id="r_ae256fdf907de8a5e60a425f9d3510806"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806">gather_scatter::gs_op_vector</a> (gs, u, n, op, event)</td></tr>
 <tr class="memdesc:ae256fdf907de8a5e60a425f9d3510806"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather-scatter operation on a vector <em>u</em> with op <em>op</em>.  <br /></td></tr>
 <tr class="separator:ae256fdf907de8a5e60a425f9d3510806"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae43657febcc9273f7327ad60e4e381be" id="r_ae43657febcc9273f7327ad60e4e381be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be">gather_scatter::gs_op_r3</a> (gs, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u1</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u2</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u3</a>, n, op, event)</td></tr>
+<tr class="memdesc:ae43657febcc9273f7327ad60e4e381be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather-scatter operation on a 3-component vector of rank-4 arrays (<em>u1</em>, <em>u2</em>, <em>u3</em>) with op <em>op</em>; see gs_op_vector3.  <br /></td></tr>
+<tr class="separator:ae43657febcc9273f7327ad60e4e381be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac2a59847cf00bf8f06355ebbda60679" id="r_aac2a59847cf00bf8f06355ebbda60679"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679">gather_scatter::gs_op_vector3</a> (gs, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u1</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u2</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u3</a>, n, op, event)</td></tr>
+<tr class="memdesc:aac2a59847cf00bf8f06355ebbda60679"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gather-scatter operation on a 3-component vector (<em>u1</em>, <em>u2</em>, <em>u3</em>) with op <em>op</em>. When the comm backend supports a fused vector halo exchange, the three components are communicated in a single round; otherwise this falls back to three independent scalar gs_op_vector calls (identical result, 3 rounds). The on-node gather/scatter is always done per component (scalar), so only the communication cost is reduced. On device backends the caller's event is recorded once, after the last component's scatter (or superseded by hard synchronisation on host-mirrored comms), so a single event sync covers all components.  <br /></td></tr>
+<tr class="separator:aac2a59847cf00bf8f06355ebbda60679"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2895d584c6ac94e9da48452a2e56abd4" id="r_a2895d584c6ac94e9da48452a2e56abd4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a2895d584c6ac94e9da48452a2e56abd4">gather_scatter::gs_op_r3_device</a> (gs, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u1</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u2</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">u3</a>, n, op, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">lo</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">so</a>, m, l, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">tid</a>, scatter_event)</td></tr>
+<tr class="memdesc:a2895d584c6ac94e9da48452a2e56abd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device path for the fused 3-component gs. The device backend's shared gather/scatter always operate on its internal shared buffer, so each component is staged between that buffer and its column of the compact vector buffer gsshared_gs_v: through the host mirror when the comm backend is a host backend (shared_on_host, e.g. OpenCL/Metal or a device build with host MPI), or with device-to-device copies when the comm is device-resident (device MPI/NCCL/NVSHMEM). Apart from the column staging the two modes are identical; the comm backends transparently pick the host array or its device pointer, as in gs_op_vector.  <br /></td></tr>
+<tr class="separator:a2895d584c6ac94e9da48452a2e56abd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a911f14e18cc5ef3b55e29dbdc6fe5ce2" name="a911f14e18cc5ef3b55e29dbdc6fe5ce2"></a>
@@ -214,7 +223,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01260">1260</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01294">1294</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -278,7 +287,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01203">1203</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01237">1237</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -346,7 +355,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01218">1218</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01252">1252</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -378,7 +387,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../d5/d7e/gather__scatter_8f90.html">gather_scatter.f90</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

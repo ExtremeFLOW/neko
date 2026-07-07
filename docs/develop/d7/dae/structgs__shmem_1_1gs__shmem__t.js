@@ -10,10 +10,16 @@ var structgs__shmem_1_1gs__shmem__t =
     [ "init_order", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "nbrecv", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#aec5d1110e6cf95af443cbc206c9ccde4", null ],
     [ "nbrecv", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
+    [ "nbrecv_vec", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#acb4740062fe8d21f3e820b6ace12d0ce", null ],
+    [ "nbrecv_vec", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a99865a8bca5c504ed8c1d35eacfe7def", null ],
     [ "nbsend", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#ad5ff1d3b6d74cf7a6df6c04504f79555", null ],
     [ "nbsend", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#acf4509783be3167911fb59699cf621b3", null ],
+    [ "nbsend_vec", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#af4dc3308d366cc075bc75e6116267c3b", null ],
+    [ "nbsend_vec", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#ab4fc3c485953a363b2502a9f011945e2", null ],
     [ "nbwait", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a8e2003bd57d646f89f805ecf7faafad6", null ],
     [ "nbwait", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#ad0c0f5696f81644ef2104e604bfd20f2", null ],
+    [ "nbwait_vec", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a066342db8ef95c6ead29ffe3e3f9b2eb", null ],
+    [ "nbwait_vec", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a6517c58db23d10915925b3e0cfab2e9f", null ],
     [ "ack_signals_ptr", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#af9dd01ff9b0a18f62e6fdbfe7779ae15", null ],
     [ "data_signals_ptr", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a8636c0496dd16488d09a54ac2f22da9f", null ],
     [ "iter", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#af0295adb665912707e7416c5d914b8cc", null ],
@@ -22,5 +28,6 @@ var structgs__shmem_1_1gs__shmem__t =
     [ "recv_pe", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a3aa9a01e00b4124bc44d67d434c2790a", null ],
     [ "send_buf", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#acf1175acc4202ea29e011d986f1031d9", null ],
     [ "send_dof", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a8004e1ed7b91668a726c51f51712c246", null ],
-    [ "send_pe", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a922bae84686dc75a7487fedf8544704a", null ]
+    [ "send_pe", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#a922bae84686dc75a7487fedf8544704a", null ],
+    [ "vec_supported", "d7/dae/structgs__shmem_1_1gs__shmem__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

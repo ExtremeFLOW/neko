@@ -6,6 +6,8 @@ var gs_8hip =
     [ "GS_OP_MUL", "da/d57/gs_8hip.html#aa893c5502045308e916c8860db7a74aa", null ],
     [ "hip_gather_kernel", "da/d57/gs_8hip.html#ac0621fe6febaf9acc5dffd88733c2d2f", null ],
     [ "hip_gs_pack", "da/d57/gs_8hip.html#a6fb58c9abf4c1e74a4cc5695173a6b68", null ],
+    [ "hip_gs_pack_vec", "da/d57/gs_8hip.html#aaf42183ee8d1526871b2f791a72e4965", null ],
     [ "hip_gs_unpack", "da/d57/gs_8hip.html#a29e94d459cc2467c8228104988f90d93", null ],
+    [ "hip_gs_unpack_vec", "da/d57/gs_8hip.html#abfe62ab2fefa05d72189f70ebbc02f7c", null ],
     [ "hip_scatter_kernel", "da/d57/gs_8hip.html#a2a8f3b90ee14d37fc957a00e61234ffb", null ]
 ];

@@ -1,0 +1,8 @@
+<map id="gs_utofu::gs_utofu_init" name="gs_utofu::gs_utofu_init">
+<area shape="rect" id="Node000001" title="Initialise the uTofu communication method. See gs_comm.f90 for details." alt="" coords="5,37,176,62"/>
+<area shape="rect" id="Node000002" href="$d0/d1b/gs__utofu__aux_8c.html#a99df831599a4d17002c73854c87268a8" title=" " alt="" coords="224,37,377,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,47,210,47,210,52,176,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="425,29,577,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="377,47,411,47,411,52,377,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="464,30,461,20,467,11,481,5,501,3,525,6,538,13,535,18,523,11,501,8,482,10,471,15,467,21,469,28"/>
+</map>

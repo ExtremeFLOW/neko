@@ -14,5 +14,6 @@ var structgs__sx_1_1gs__sx__t =
     [ "nlocal", "db/d5b/structgs__sx_1_1gs__sx__t.html#a200910c353fd5d14da848def577ce067", null ],
     [ "nshared", "db/d5b/structgs__sx_1_1gs__sx__t.html#af82884d93bcd83258c05975057f8a042", null ],
     [ "scatter_event", "db/d5b/structgs__sx_1_1gs__sx__t.html#a1c7d41aed77e06e6c07cc933954dd23f", null ],
+    [ "shared_on_host", "db/d5b/structgs__sx_1_1gs__sx__t.html#a25f195d859215a8ef4d60390be723743", null ],
     [ "shared_wrk", "db/d5b/structgs__sx_1_1gs__sx__t.html#a74adefae4eb0207baf84df3ce903f3de", null ]
 ];

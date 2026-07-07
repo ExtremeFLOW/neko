@@ -37,5 +37,7 @@ var searchData=
   ['gs_5fshmem_5fbuf_5ft_34',['gs_shmem_buf_t',['../de/d29/structgs__shmem_1_1gs__shmem__buf__t.html',1,'gs_shmem']]],
   ['gs_5fshmem_5ft_35',['gs_shmem_t',['../d7/dae/structgs__shmem_1_1gs__shmem__t.html',1,'gs_shmem']]],
   ['gs_5fsx_5ft_36',['gs_sx_t',['../db/d5b/structgs__sx_1_1gs__sx__t.html',1,'gs_sx']]],
-  ['gs_5ft_37',['gs_t',['../dd/db8/structgather__scatter_1_1gs__t.html',1,'gather_scatter']]]
+  ['gs_5ft_37',['gs_t',['../dd/db8/structgather__scatter_1_1gs__t.html',1,'gather_scatter']]],
+  ['gs_5futofu_5fctx_5ft_38',['gs_utofu_ctx_t',['../d3/d60/structgs__utofu__ctx__t.html',1,'']]],
+  ['gs_5futofu_5ft_39',['gs_utofu_t',['../d8/dce/structgs__utofu_1_1gs__utofu__t.html',1,'gs_utofu']]]
 ];

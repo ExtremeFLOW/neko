@@ -746,16 +746,28 @@ var annotated_dup =
       [ "gs_device_mpi_buf_t", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t" ],
       [ "gs_device_mpi_t", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t" ],
       [ "hip_gs_pack", "d3/d98/interfacegs__device__mpi_1_1hip__gs__pack.html", "d3/d98/interfacegs__device__mpi_1_1hip__gs__pack" ],
-      [ "hip_gs_unpack", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack.html", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack" ]
+      [ "hip_gs_pack_vec", "d6/d45/interfacegs__device__mpi_1_1hip__gs__pack__vec.html", "d6/d45/interfacegs__device__mpi_1_1hip__gs__pack__vec" ],
+      [ "hip_gs_unpack", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack.html", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack" ],
+      [ "hip_gs_unpack_vec", "d7/d9d/interfacegs__device__mpi_1_1hip__gs__unpack__vec.html", "d7/d9d/interfacegs__device__mpi_1_1hip__gs__unpack__vec" ]
     ] ],
     [ "gs_device_nccl", "de/dcf/namespacegs__device__nccl.html", [
       [ "device_nccl_sendrecv", "d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv.html", "d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv" ],
       [ "gs_device_nccl_buf_t", "d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t.html", "d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t" ],
       [ "gs_device_nccl_t", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t" ],
       [ "hip_gs_pack", "dd/d40/interfacegs__device__nccl_1_1hip__gs__pack.html", "dd/d40/interfacegs__device__nccl_1_1hip__gs__pack" ],
-      [ "hip_gs_unpack", "d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack.html", "d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack" ]
+      [ "hip_gs_pack_vec", "d1/dbe/interfacegs__device__nccl_1_1hip__gs__pack__vec.html", "d1/dbe/interfacegs__device__nccl_1_1hip__gs__pack__vec" ],
+      [ "hip_gs_unpack", "d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack.html", "d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack" ],
+      [ "hip_gs_unpack_vec", "db/d82/interfacegs__device__nccl_1_1hip__gs__unpack__vec.html", "db/d82/interfacegs__device__nccl_1_1hip__gs__unpack__vec" ]
     ] ],
     [ "gs_device_shmem", "d0/d2a/namespacegs__device__shmem.html", [
+      [ "cuda_gs_pack_and_push", "db/d23/interfacegs__device__shmem_1_1cuda__gs__pack__and__push.html", "db/d23/interfacegs__device__shmem_1_1cuda__gs__pack__and__push" ],
+      [ "cuda_gs_pack_and_push_vec", "db/d0d/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__vec.html", "db/d0d/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__vec" ],
+      [ "cuda_gs_pack_and_push_wait", "d7/d9e/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__wait.html", "d7/d9e/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__wait" ],
+      [ "cuda_gs_post_ready", "df/d2a/interfacegs__device__shmem_1_1cuda__gs__post__ready.html", "df/d2a/interfacegs__device__shmem_1_1cuda__gs__post__ready" ],
+      [ "cuda_gs_unpack", "da/d48/interfacegs__device__shmem_1_1cuda__gs__unpack.html", "da/d48/interfacegs__device__shmem_1_1cuda__gs__unpack" ],
+      [ "cuda_gs_unpack_vec", "d7/d3b/interfacegs__device__shmem_1_1cuda__gs__unpack__vec.html", "d7/d3b/interfacegs__device__shmem_1_1cuda__gs__unpack__vec" ],
+      [ "cudafree_nvshmem", "d8/d67/interfacegs__device__shmem_1_1cudafree__nvshmem.html", "d8/d67/interfacegs__device__shmem_1_1cudafree__nvshmem" ],
+      [ "cudamalloc_nvshmem", "d4/dbe/interfacegs__device__shmem_1_1cudamalloc__nvshmem.html", "d4/dbe/interfacegs__device__shmem_1_1cudamalloc__nvshmem" ],
       [ "gs_device_shmem_buf_t", "da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t.html", "da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t" ],
       [ "gs_device_shmem_t", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t" ]
     ] ],
@@ -771,6 +783,9 @@ var annotated_dup =
     ] ],
     [ "gs_sx", "d2/dc3/namespacegs__sx.html", [
       [ "gs_sx_t", "db/d5b/structgs__sx_1_1gs__sx__t.html", "db/d5b/structgs__sx_1_1gs__sx__t" ]
+    ] ],
+    [ "gs_utofu", "d3/d29/namespacegs__utofu.html", [
+      [ "gs_utofu_t", "d8/dce/structgs__utofu_1_1gs__utofu__t.html", "d8/dce/structgs__utofu_1_1gs__utofu__t" ]
     ] ],
     [ "hdf5_file", "d6/dbe/namespacehdf5__file.html", [
       [ "hdf5_file_t", "df/d0b/structhdf5__file_1_1hdf5__file__t.html", "df/d0b/structhdf5__file_1_1hdf5__file__t" ]
@@ -1826,5 +1841,6 @@ var annotated_dup =
     [ "zero_dirichlet", "da/ddc/namespacezero__dirichlet.html", [
       [ "zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t" ]
     ] ],
+    [ "gs_utofu_ctx_t", "d3/d60/structgs__utofu__ctx__t.html", "d3/d60/structgs__utofu__ctx__t" ],
     [ "kinematics_params_t", "df/dc7/structkinematics__params__t.html", "df/dc7/structkinematics__params__t" ]
 ];

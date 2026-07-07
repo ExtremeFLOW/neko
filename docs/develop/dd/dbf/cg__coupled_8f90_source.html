@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
   <div class="headertitle"><div class="title">cg_coupled.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../dd/dbf/cg__coupled_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2024, The Neko Authors</span></div>
+<a href="../../dd/dbf/cg__coupled_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2024-2026, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -405,66 +405,64 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>         <span class="keyword">call </span>ax%compute_vector(w1, w2, w3, p1, p2, p3, coef, x%msh, x%Xh)</div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
 <div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>         <span class="keyword">call </span><a class="code hl_interface" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html">rotate_cyc</a>(w1, w2, w3, 1, coef)</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>         <span class="keyword">call </span>gs_h%op(w1, n, gs_op_add)</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>         <span class="keyword">call </span>gs_h%op(w2, n, gs_op_add)</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>         <span class="keyword">call </span>gs_h%op(w3, n, gs_op_add)</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>         <span class="keyword">call </span><a class="code hl_interface" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html">rotate_cyc</a>(w1, w2, w3, 0, coef)</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>         <span class="keyword">call </span>blstx%apply_scalar(w1, n)</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>         <span class="keyword">call </span>blsty%apply_scalar(w2, n)</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>         <span class="keyword">call </span>blstz%apply_scalar(w3, n)</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>         <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>            tmp(i) = w1(i) * p1(i) &amp;</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>                 + w2(i) * p2(i) &amp;</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>                 + w3(i) * p3(i)</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>         <span class="keyword">call </span>gs_h%op(w1, w2, w3, n, gs_op_add)</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>         <span class="keyword">call </span><a class="code hl_interface" href="../../de/dad/interfaceoperators_1_1rotate__cyc.html">rotate_cyc</a>(w1, w2, w3, 0, coef)</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>         <span class="keyword">call </span>blstx%apply_scalar(w1, n)</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>         <span class="keyword">call </span>blsty%apply_scalar(w2, n)</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>         <span class="keyword">call </span>blstz%apply_scalar(w3, n)</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span> </div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>         <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>            tmp(i) = w1(i) * p1(i) &amp;</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>                 + w2(i) * p2(i) &amp;</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>                 + w3(i) * p3(i)</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>         pap = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">glsc2</a>(tmp, coef%mult, n)</div>
 <div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>         pap = <a class="code hl_function" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed">glsc2</a>(tmp, coef%mult, n)</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>         alpha = rtz1 / pap</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>         <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>            x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>            y%x(i,1,1,1) = y%x(i,1,1,1) + alpha * p2(i)</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>            z%x(i,1,1,1) = z%x(i,1,1,1) + alpha * p3(i)</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>         tmp = 0.0_rp</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>         tmp_xp = 0.0_xp</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>         <span class="comment">!$omp parallel do reduction(+:tmp_xp)</span></div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>         <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>            r1(i) = r1(i) - alpha * w1(i)</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>            r2(i) = r2(i) - alpha * w2(i)</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>            r3(i) = r3(i) - alpha * w3(i)</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>            r1_xp = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(r1(i), kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>            r2_xp = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(r2(i), kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>            r3_xp = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(r3(i), kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>            mult_xp = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(coef%mult(i,1,1,1), kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>            tmp_xp = tmp_xp + &amp;</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>                 (r1_xp * r1_xp + r2_xp * r2_xp + r3_xp * r3_xp) * mult_xp</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>         <span class="comment">!$omp end parallel do</span></div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>         <span class="keyword">call </span>mpi_allreduce(mpi_in_place, tmp_xp, 1, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#ae24abe270df5000b8f0534eaeb00245f">mpi_extra_precision</a>, &amp;</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>              mpi_sum, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a>, ierr)</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>         rtr = tmp_xp</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span> </div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>         <span class="keywordflow">if</span> (iter .eq. 1) rtr0 = rtr</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>         rnorm = sqrt(rtr) * norm_fac</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>         <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>         <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>            <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keyword">call </span>this%monitor_stop()</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    ksp_results%res_final = rnorm</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    ksp_results%iter = iter</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    ksp_results%converged = this%is_converged(iter, rnorm)</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>         alpha = rtz1 / pap</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>         <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>            x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>            y%x(i,1,1,1) = y%x(i,1,1,1) + alpha * p2(i)</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>            z%x(i,1,1,1) = z%x(i,1,1,1) + alpha * p3(i)</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>         tmp = 0.0_rp</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>         tmp_xp = 0.0_xp</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>         <span class="comment">!$omp parallel do reduction(+:tmp_xp)</span></div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>         <span class="keywordflow">do</span> i = 1, n</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>            r1(i) = r1(i) - alpha * w1(i)</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>            r2(i) = r2(i) - alpha * w2(i)</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>            r3(i) = r3(i) - alpha * w3(i)</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>            r1_xp = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(r1(i), kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>            r2_xp = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(r2(i), kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>            r3_xp = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(r3(i), kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>            mult_xp = <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(coef%mult(i,1,1,1), kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>            tmp_xp = tmp_xp + &amp;</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>                 (r1_xp * r1_xp + r2_xp * r2_xp + r3_xp * r3_xp) * mult_xp</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>         <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>         <span class="keyword">call </span>mpi_allreduce(mpi_in_place, tmp_xp, 1, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#ae24abe270df5000b8f0534eaeb00245f">mpi_extra_precision</a>, &amp;</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>              mpi_sum, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d">neko_comm</a>, ierr)</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>         rtr = tmp_xp</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span> </div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>         <span class="keywordflow">if</span> (iter .eq. 1) rtr0 = rtr</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>         rnorm = sqrt(rtr) * norm_fac</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>         <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>         <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>            <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="keyword">call </span>this%monitor_stop()</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    ksp_results%res_final = rnorm</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    ksp_results%iter = iter</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    ksp_results%converged = this%is_converged(iter, rnorm)</div>
 </div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../da/d8d/namespacecg__cpld.html#a6620ea1ef9c5e5cdf24655995607434a">cg_cpld_solve</a></div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span> </div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../da/d8d/namespacecg__cpld.html">cg_cpld</a></div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../da/d8d/namespacecg__cpld.html#a6620ea1ef9c5e5cdf24655995607434a">cg_cpld_solve</a></div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span> </div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../da/d8d/namespacecg__cpld.html">cg_cpld</a></div>
 <div class="ttc" id="acuda_2spalding__kernel_8h_html_a54a3eb1a5c6e2b00e208c5c32948b133"><div class="ttname"><a href="../../d1/dca/cuda_2spalding__kernel_8h.html#a54a3eb1a5c6e2b00e208c5c32948b133">solve</a></div><div class="ttdeci">__device__ T solve(const T u, const T y, const T guess, const T nu, const T kappa, const T B)</div><div class="ttdef"><b>Definition</b> <a href="../../d1/dca/cuda_2spalding__kernel_8h_source.html#l00126">spalding_kernel.h:126</a></div></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfacemath_1_1abscmp_html"><div class="ttname"><a href="../../de/d34/interfacemath_1_1abscmp.html">math::abscmp</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/ddb/math_8f90_source.html#l00078">math.f90:78</a></div></div>
@@ -498,7 +496,7 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
 <div class="ttc" id="astructcg__cpld_1_1cg__cpld__t_html"><div class="ttname"><a href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html">cg_cpld::cg_cpld_t</a></div><div class="ttdoc">Coupled preconditioned conjugate gradient method.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/cg__coupled_8f90_source.html#l00052">cg_coupled.f90:52</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00062">coef.f90:62</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00048">field.f90:48</a></div></div>
-<div class="ttc" id="astructgather__scatter_1_1gs__t_html"><div class="ttname"><a href="../../dd/db8/structgather__scatter_1_1gs__t.html">gather_scatter::gs_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00072">gather_scatter.f90:72</a></div></div>
+<div class="ttc" id="astructgather__scatter_1_1gs__t_html"><div class="ttname"><a href="../../dd/db8/structgather__scatter_1_1gs__t.html">gather_scatter::gs_t</a></div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00076">gather_scatter.f90:76</a></div></div>
 <div class="ttc" id="astructkrylov_1_1ksp__monitor__t_html"><div class="ttname"><a href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">krylov::ksp_monitor_t</a></div><div class="ttdoc">Type for storing initial and final residuals in a Krylov solver.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00056">krylov.f90:56</a></div></div>
 <div class="ttc" id="astructkrylov_1_1ksp__t_html"><div class="ttname"><a href="../../d0/d3b/structkrylov_1_1ksp__t.html">krylov::ksp_t</a></div><div class="ttdoc">Base abstract type for a canonical Krylov method, solving .</div><div class="ttdef"><b>Definition</b> <a href="../../d9/da5/krylov_8f90_source.html#l00073">krylov.f90:73</a></div></div>
 <div class="ttc" id="astructprecon_1_1pc__t_html"><div class="ttname"><a href="../../d7/d3a/structprecon_1_1pc__t.html">precon::pc_t</a></div><div class="ttdoc">Defines a canonical Krylov preconditioner.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/de5/precon_8f90_source.html#l00040">precon.f90:40</a></div></div>
@@ -508,7 +506,7 @@ $(document).ready(function(){initNavTree('dd/dbf/cg__coupled_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_902813e86b127dbb0dcb2952584e8a67.html">cpu</a></li><li class="navelem"><a class="el" href="../../dd/dbf/cg__coupled_8f90.html">cg_coupled.f90</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

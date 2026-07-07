@@ -10,10 +10,16 @@ var structgs__device__mpi_1_1gs__device__mpi__t =
     [ "init_order", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "nbrecv", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#acc8a316922178a679646746c39909fa4", null ],
     [ "nbrecv", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
+    [ "nbrecv_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ab4e74586559291bf9aa438963b878a7d", null ],
+    [ "nbrecv_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#acb4740062fe8d21f3e820b6ace12d0ce", null ],
     [ "nbsend", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#aef82f84c8ee1bebaa8b9c6c2baa09fc5", null ],
     [ "nbsend", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#acf4509783be3167911fb59699cf621b3", null ],
+    [ "nbsend_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ab1484472b9db47c9d1761ab09ab6fe09", null ],
+    [ "nbsend_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#af4dc3308d366cc075bc75e6116267c3b", null ],
     [ "nbwait", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#af0e2f74251689197c006fbb5676f9493", null ],
     [ "nbwait", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ad0c0f5696f81644ef2104e604bfd20f2", null ],
+    [ "nbwait_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ad3d1f5cf69dd4c5ec9d7afc7b7e09c7a", null ],
+    [ "nbwait_vec", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a066342db8ef95c6ead29ffe3e3f9b2eb", null ],
     [ "event", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a6e4fcf8b793c7468bd4fe824ec64e7ed", null ],
     [ "nb_strtgy", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a3bbfb7838d74697592010e6c93131967", null ],
     [ "recv_buf", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#aa22a2e58f3a6eeaa8efb33218121075b", null ],
@@ -23,5 +29,6 @@ var structgs__device__mpi_1_1gs__device__mpi__t =
     [ "send_dof", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a8004e1ed7b91668a726c51f51712c246", null ],
     [ "send_event", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a64e4235e784360168cba4b2ec4fc2015", null ],
     [ "send_pe", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#a922bae84686dc75a7487fedf8544704a", null ],
-    [ "stream", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ad4dc5abce2c8f710b623cb99c6bd1516", null ]
+    [ "stream", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ad4dc5abce2c8f710b623cb99c6bd1516", null ],
+    [ "vec_supported", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

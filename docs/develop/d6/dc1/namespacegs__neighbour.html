@@ -131,6 +131,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a1c351395446f33e715b8e20e14460a6b" id="r_a1c351395446f33e715b8e20e14460a6b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dc1/namespacegs__neighbour.html#a1c351395446f33e715b8e20e14460a6b">gs_nbwait_neighbour</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, op, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
 <tr class="memdesc:a1c351395446f33e715b8e20e14460a6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for the neighbourhood collective and reduce the received slabs.  <br /></td></tr>
 <tr class="separator:a1c351395446f33e715b8e20e14460a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34898fb334a7b75f54b09b0b388ef61f" id="r_a34898fb334a7b75f54b09b0b388ef61f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">gs_nbsend_vec_neighbour</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deps</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memdesc:a34898fb334a7b75f54b09b0b388ef61f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pack the nc components and launch a single neighbourhood collective.  <br /></td></tr>
+<tr class="separator:a34898fb334a7b75f54b09b0b388ef61f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec7c0ed150a0ba20a990b76c99e4b0df" id="r_aec7c0ed150a0ba20a990b76c99e4b0df"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">gs_nbrecv_vec_neighbour</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>)</td></tr>
+<tr class="memdesc:aec7c0ed150a0ba20a990b76c99e4b0df"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op: the collective is launched in nbsend_vec.  <br /></td></tr>
+<tr class="separator:aec7c0ed150a0ba20a990b76c99e4b0df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49bb4a26fe493fe0fa8e53cb909531e5" id="r_a49bb4a26fe493fe0fa8e53cb909531e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">gs_nbwait_vec_neighbour</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, op, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
+<tr class="memdesc:a49bb4a26fe493fe0fa8e53cb909531e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for the vector collective and reduce each received slab into u. Peer i's received slab holds nc consecutive blocks of recvcounts(i) values, matching the sender's packing convention.  <br /></td></tr>
+<tr class="separator:a49bb4a26fe493fe0fa8e53cb909531e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a4fc4c83b445704acd6bfa0414b34b628" name="a4fc4c83b445704acd6bfa0414b34b628"></a>
@@ -167,7 +176,51 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00203">203</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00232">232</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
+
+</div>
+</div>
+<a id="aec7c0ed150a0ba20a990b76c99e4b0df" name="aec7c0ed150a0ba20a990b76c99e4b0df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec7c0ed150a0ba20a990b76c99e4b0df">&#9670;&#160;</a></span>gs_nbrecv_vec_neighbour()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_neighbour::gs_nbrecv_vec_neighbour </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>nc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00365">365</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
 
 </div>
 </div>
@@ -229,7 +282,81 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00162">162</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00191">191</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
+
+</div>
+</div>
+<a id="a34898fb334a7b75f54b09b0b388ef61f" name="a34898fb334a7b75f54b09b0b388ef61f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34898fb334a7b75f54b09b0b388ef61f">&#9670;&#160;</a></span>gs_nbsend_vec_neighbour()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_neighbour::gs_nbsend_vec_neighbour </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>*n), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>nc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>deps</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">u</td><td>compact shared buffer, component-outer: u((c-1)*n + idx). Peer i's slab in send_buf_v holds nc consecutive blocks of sendcounts(i) values, so the collective descriptors are simply nc times the scalar ones. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00318">318</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
 
 </div>
 </div>
@@ -285,7 +412,69 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00210">210</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00239">239</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
+
+</div>
+</div>
+<a id="a49bb4a26fe493fe0fa8e53cb909531e5" name="a49bb4a26fe493fe0fa8e53cb909531e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49bb4a26fe493fe0fa8e53cb909531e5">&#9670;&#160;</a></span>gs_nbwait_vec_neighbour()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gs_neighbour::gs_nbwait_vec_neighbour </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>*n), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>nc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td>
+          <td class="paramname"><em>op</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>strm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00374">374</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
 
 </div>
 </div>
@@ -313,7 +502,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00141">141</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00163">163</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
 
 </div>
 </div>
@@ -350,7 +539,7 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <p>Unit weights for the graph. MPI_UNWEIGHTED is the natural choice but trips frt's mpi_f08 generic resolution; with reorder = .false. the weights never affect the neighbour ordering, so all-ones is equivalent.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d1/db8/gs__neighbour_8f90_source.html">gs_neighbour.f90</a>.</p>
 
 </div>
 </div>
@@ -360,7 +549,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/dc1/namespacegs__neighbour.html">gs_neighbour</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

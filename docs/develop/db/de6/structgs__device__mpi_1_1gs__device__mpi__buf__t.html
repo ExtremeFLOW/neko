@@ -113,9 +113,9 @@ Collaboration diagram for gs_device_mpi::gs_device_mpi_buf_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/d2f/structgs__device__mpi_1_1gs__device__mpi__buf__t__coll__graph.png" border="0" usemap="#ags__device__mpi_1_1gs__device__mpi__buf__t_coll__map" alt="Collaboration graph"/></div>
 <map name="ags__device__mpi_1_1gs__device__mpi__buf__t_coll__map" id="ags__device__mpi_1_1gs__device__mpi__buf__t_coll__map">
-<area shape="rect" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="5,123,197,163"/>
+<area shape="rect" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="5,137,197,177"/>
 <area shape="rect" title=" " alt="" coords="74,5,129,31"/>
-<area shape="poly" title=" " alt="" coords="104,44,104,122,99,122,99,44"/>
+<area shape="poly" title=" " alt="" coords="104,44,104,137,99,137,99,44"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -143,6 +143,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a354853ecf76ac965ae683f430312aa7f" id="r_a354853ecf76ac965ae683f430312aa7f"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a354853ecf76ac965ae683f430312aa7f">buf_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:a354853ecf76ac965ae683f430312aa7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device buffer.  <br /></td></tr>
 <tr class="separator:a354853ecf76ac965ae683f430312aa7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bcee094bdd8249af948faf5cddc0d29" id="r_a7bcee094bdd8249af948faf5cddc0d29"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#a7bcee094bdd8249af948faf5cddc0d29">buf_v_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
+<tr class="memdesc:a7bcee094bdd8249af948faf5cddc0d29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device buffer, fused vector (x nc)  <br /></td></tr>
+<tr class="separator:a7bcee094bdd8249af948faf5cddc0d29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4ca14bbd211c433867bbeb772029466" id="r_ac4ca14bbd211c433867bbeb772029466"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#ac4ca14bbd211c433867bbeb772029466">dof_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="memdesc:ac4ca14bbd211c433867bbeb772029466"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dof mapping for pack/unpack.  <br /></td></tr>
 <tr class="separator:ac4ca14bbd211c433867bbeb772029466"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -167,7 +170,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00061">61</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00062">62</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 
 </div>
 </div>
@@ -209,7 +212,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00060">60</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00061">61</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 
 </div>
 </div>
@@ -230,6 +233,22 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a7bcee094bdd8249af948faf5cddc0d29" name="a7bcee094bdd8249af948faf5cddc0d29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bcee094bdd8249af948faf5cddc0d29">&#9670;&#160;</a></span>buf_v_d</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr) gs_device_mpi::gs_device_mpi_buf_t::buf_v_d = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00058">58</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+
+</div>
+</div>
 <a id="ac4ca14bbd211c433867bbeb772029466" name="ac4ca14bbd211c433867bbeb772029466"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac4ca14bbd211c433867bbeb772029466">&#9670;&#160;</a></span>dof_d</h2>
 
@@ -242,7 +261,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00058">58</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00059">59</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 
 </div>
 </div>
@@ -319,7 +338,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/dfa/namespacegs__device__mpi.html">gs_device_mpi</a></li><li class="navelem"><a class="el" href="../../db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html">gs_device_mpi_buf_t</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

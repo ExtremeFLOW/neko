@@ -102,25 +102,25 @@ $(document).ready(function(){initNavTree('d8/d00/fld-format.html','../../'); ini
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md4">File naming and series</a></li>
-<li class="level1"><a href="#autotoc_md5">File overview</a></li>
-<li class="level1"><a href="#autotoc_md6">Header</a><ul><li class="level2"><a href="#autotoc_md7">rdcode</a></li>
+<ul><li class="level1"><a href="#autotoc_md5">File naming and series</a></li>
+<li class="level1"><a href="#autotoc_md6">File overview</a></li>
+<li class="level1"><a href="#autotoc_md7">Header</a><ul><li class="level2"><a href="#autotoc_md8">rdcode</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md8">Test pattern</a></li>
-<li class="level1"><a href="#autotoc_md9">Element index list</a></li>
-<li class="level1"><a href="#autotoc_md10">Field blocks</a><ul><li class="level2"><a href="#autotoc_md11">Vector fields (X and U)</a></li>
-<li class="level2"><a href="#autotoc_md12">Scalar fields (P, T, S)</a></li>
-<li class="level2"><a href="#autotoc_md13">Precision</a></li>
+<li class="level1"><a href="#autotoc_md9">Test pattern</a></li>
+<li class="level1"><a href="#autotoc_md10">Element index list</a></li>
+<li class="level1"><a href="#autotoc_md11">Field blocks</a><ul><li class="level2"><a href="#autotoc_md12">Vector fields (X and U)</a></li>
+<li class="level2"><a href="#autotoc_md13">Scalar fields (P, T, S)</a></li>
+<li class="level2"><a href="#autotoc_md14">Precision</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md14">Metadata blocks (3D only)</a></li>
-<li class="level1"><a href="#autotoc_md15">2D fields and Z-velocity</a></li>
-<li class="level1"><a href="#autotoc_md16">Portability notes</a></li>
+<li class="level1"><a href="#autotoc_md15">Metadata blocks (3D only)</a></li>
+<li class="level1"><a href="#autotoc_md16">2D fields and Z-velocity</a></li>
+<li class="level1"><a href="#autotoc_md17">Portability notes</a></li>
 </ul>
 </div>
 <div class="textblock"><p>This appendix documents the Nek5000 file format as written and read by Neko in <code><a class="el" href="../../d5/dcf/fld__file_8f90.html">src/io/fld_file.f90</a></code>. We refer to this format as <code>.fld</code> for brevity. Neko writes <code>.fld</code> files using MPI-IO, and the layout on disk follows the code paths in that module.</p>
-<h1><a class="anchor" id="autotoc_md4"></a>
+<h1><a class="anchor" id="autotoc_md5"></a>
 File naming and series</h1>
 <p>Neko writes a file series in Nek5000 style:</p>
 <ul>
@@ -128,7 +128,7 @@ File naming and series</h1>
 <li>Metadata file: <code>&lt;base&gt;&lt;start_counter&gt;.nek5000</code></li>
 </ul>
 <p>The <code>.nek5000</code> file contains the file template and time range for the series and is used by Neko when reading a series.</p>
-<h1><a class="anchor" id="autotoc_md5"></a>
+<h1><a class="anchor" id="autotoc_md6"></a>
 File overview</h1>
 <p>Each <code>.fld</code> data file is binary and consists of:</p>
 <ol type="1">
@@ -139,7 +139,7 @@ File overview</h1>
 <li><b>Metadata blocks</b> (per-element min/max, only for 3D)</li>
 </ol>
 <p>The presence and ordering of the field blocks is described by <code>rdcode</code> in the header.</p>
-<h1><a class="anchor" id="autotoc_md6"></a>
+<h1><a class="anchor" id="autotoc_md7"></a>
 Header</h1>
 <p>The header is a 132-character record written with the format:</p>
 <div class="fragment"><div class="line">#std &lt;fld_data_size&gt; &lt;lx&gt; &lt;ly&gt; &lt;lz&gt; &lt;glb_nelv&gt; &lt;glb_nelv&gt; &lt;time&gt; &lt;step&gt;</div>
@@ -156,7 +156,7 @@ Header</h1>
 <li>The two <code>i6</code> values are currently written as <code>1</code></li>
 <li><code>rdcode</code>: 10-character field descriptor</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md8"></a>
 rdcode</h2>
 <p><code>rdcode</code> is a compact descriptor of which fields are present and in which order:</p>
 <ul>
@@ -167,20 +167,20 @@ rdcode</h2>
 <li><code>Snn</code>: scalars, with a two-digit count (<code>S00</code> .. <code>S99</code>)</li>
 </ul>
 <p>The writer appends <code>S</code> followed by two digits for the scalar count. The reader parses these digits to determine the number of scalar fields.</p>
-<h1><a class="anchor" id="autotoc_md8"></a>
+<h1><a class="anchor" id="autotoc_md9"></a>
 Test pattern</h1>
 <p>Immediately after the header, the writer stores a single-precision real with value <code>6.54321</code>. The reader validates this value to guard against format or endianness mismatches.</p>
-<h1><a class="anchor" id="autotoc_md9"></a>
+<h1><a class="anchor" id="autotoc_md10"></a>
 Element index list</h1>
 <p>After the test pattern, the file contains <code>glb_nelv</code> integers storing the global element ids. Each MPI rank reads/writes its own slice based on <code>offset_el</code>.</p>
-<h1><a class="anchor" id="autotoc_md10"></a>
+<h1><a class="anchor" id="autotoc_md11"></a>
 Field blocks</h1>
 <p>Field data is written in the order indicated by <code>rdcode</code>. Within each block, Neko writes data in <b>element-major</b> order:</p>
 <ul>
 <li>Loop elements <code>e = 1..nelv</code></li>
 <li>For each element, loop GLL points <code>j = 1..lxyz</code></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md11"></a>
+<h2><a class="anchor" id="autotoc_md12"></a>
 Vector fields (X and U)</h2>
 <p>For vector fields, the layout per element is:</p>
 <ol type="1">
@@ -190,13 +190,13 @@ Vector fields (X and U)</h2>
 </ol>
 <p>The block size is <code>gdim * lxyz * glb_nelv</code> values. Note that if <code>U</code> is written, all three components have to be present. One cannot, for example, write only one component of velocity.</p>
 <p>If <code>X</code> is not written, then the files does not contain the mesh! </p>
-<h2><a class="anchor" id="autotoc_md12"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 Scalar fields (P, T, S)</h2>
 <p>Scalar fields are stored as <code>lxyz * glb_nelv</code> values in element-major order. Scalars are written in sequence <code>S1, S2, ...</code>.</p>
-<h2><a class="anchor" id="autotoc_md13"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
 Precision</h2>
 <p>Field blocks are written in either single or double precision, depending on the <code>fld_data_size</code> header value. Neko writes single precision by default unless configured otherwise.</p>
-<h1><a class="anchor" id="autotoc_md14"></a>
+<h1><a class="anchor" id="autotoc_md15"></a>
 Metadata blocks (3D only)</h1>
 <p>For 3D output (<code>gdim == 3</code>), Neko appends per-element min/max metadata for all written fields. These metadata blocks are always <b>single precision</b> and follow the same field ordering as the data blocks.</p>
 <ul>
@@ -210,10 +210,10 @@ Metadata blocks (3D only)</h1>
 </li>
 </ul>
 <p>For 2D output, these metadata blocks are not written.</p>
-<h1><a class="anchor" id="autotoc_md15"></a>
+<h1><a class="anchor" id="autotoc_md16"></a>
 2D fields and Z-velocity</h1>
 <p>When writing 2D fields, Neko sets <code>gdim = 2</code> (<code>lz = 1</code>). If a Z-velocity component exists, it is stored as an additional scalar field in the output. This is a semantic convention rather than a special file layout.</p>
-<h1><a class="anchor" id="autotoc_md16"></a>
+<h1><a class="anchor" id="autotoc_md17"></a>
 Portability notes</h1>
 <p>The <code>.fld</code> format is not self-describing beyond the header. It depends on:</p>
 <ul>
@@ -229,7 +229,7 @@ Portability notes</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../da/dd6/appendices.html">Appendices</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

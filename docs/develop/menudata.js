@@ -269,8 +269,7 @@ var menudata={children:[
 {text:"z",url:"globals_vars_z.html#index_z"}]},
 {text:"Typedefs",url:"globals_type.html"},
 {text:"Macros",url:"globals_defs.html",children:[
-{text:"_",url:"globals_defs.html#index__5F"},
-{text:"a",url:"globals_defs_a.html#index_a"},
+{text:"a",url:"globals_defs.html#index_a"},
 {text:"c",url:"globals_defs_c.html#index_c"},
 {text:"d",url:"globals_defs_d.html#index_d"},
 {text:"g",url:"globals_defs_g.html#index_g"},

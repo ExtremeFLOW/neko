@@ -1,0 +1,7 @@
+<map id="gs_utofu_post_puts" name="gs_utofu_post_puts">
+<area shape="rect" id="Node000001" title=" " alt="" coords="208,45,356,70"/>
+<area shape="rect" id="Node000002" href="$d3/d29/namespacegs__utofu.html#aae9a847e64e1a61ade3d8fbc286ca1d9" title="Pack the send slabs and fire all one&#45;sided puts (non&#45;blocking)." alt="" coords="5,5,160,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,46,160,40,161,35,195,41"/>
+<area shape="rect" id="Node000003" href="$d3/d29/namespacegs__utofu.html#a25127157b8302dad932febc2fc3de131" title="Pack the fused nc&#45;component send slabs and fire the puts (non&#45;blocking)." alt="" coords="5,69,160,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="195,74,161,80,160,74,194,69"/>
+</map>

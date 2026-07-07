@@ -1,0 +1,12 @@
+<map id="gs_device_nccl::gs_device_nccl_nbwait_vec" name="gs_device_nccl::gs_device_nccl_nbwait_vec">
+<area shape="rect" id="Node000001" title="Fused nc&#45;component send/recv + unpack." alt="" coords="5,87,192,127"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789" title=" " alt="" coords="245,37,404,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,84,260,63,261,68,179,89"/>
+<area shape="rect" id="Node000004" href="$d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="245,87,405,127"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="192,104,231,104,231,109,192,109"/>
+<area shape="rect" id="Node000005" href="$d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405" title="Synchronize a device stream with an event." alt="" coords="240,151,409,191"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="171,124,241,144,239,149,169,129"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="457,29,609,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="404,47,444,47,444,52,404,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="494,30,492,20,498,10,512,5,533,3,558,6,571,13,568,18,556,11,533,8,513,10,501,15,497,21,499,28"/>
+</map>

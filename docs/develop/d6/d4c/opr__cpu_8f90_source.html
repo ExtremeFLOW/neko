@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
   <div class="headertitle"><div class="title">opr_cpu.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../d6/d4c/opr__cpu_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2021-2024, The Neko Authors</span></div>
+<a href="../../d6/d4c/opr__cpu_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2021-2026, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -281,229 +281,227 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d2/dd4/namespacemathops.html#a2f4fd77e04e2fdec101dae9afe9caa58">opcolv</a>(w1, w2, w3, c_xh%B, gdim, n)</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordflow">if</span> (c_xh%cyclic) <span class="keyword">call </span>opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_xh)</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keyword">call </span>c_xh%gs_h%op(w1, n, gs_op_add)</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keyword">call </span>c_xh%gs_h%op(w2, n, gs_op_add)</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keyword">call </span>c_xh%gs_h%op(w3, n, gs_op_add)</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordflow">if</span> (c_xh%cyclic) <span class="keyword">call </span>opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_xh)</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d2/dd4/namespacemathops.html#a2f4fd77e04e2fdec101dae9afe9caa58">opcolv</a>(w1, w2, w3, c_xh%Binv, gdim, n)</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keyword">call </span>c_xh%gs_h%op(w1, w2, w3, n, gs_op_add)</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordflow">if</span> (c_xh%cyclic) <span class="keyword">call </span>opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_xh)</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keyword">call </span><a class="code hl_function" href="../../d2/dd4/namespacemathops.html#a2f4fd77e04e2fdec101dae9afe9caa58">opcolv</a>(w1, w2, w3, c_xh%Binv, gdim, n)</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
+</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  <span class="keyword">end subroutine </span>opr_cpu_curl</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="foldopen" id="foldopen00182" data-start="" data-end="">
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html#a4a465514ef3ae0473678d23d8792f799">  182</a></span>  <span class="keyword">function </span>opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim) <span class="keyword">result</span>(cfl)</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d99/structspace_1_1space__t.html">space_t</a>) :: xh</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>) :: coef</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordtype">integer</span> :: nelv, gdim</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dt</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(Xh%lx, Xh%ly, Xh%lz, nelv)</span> :: u, v, w</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: cflr, cfls, cflt, cflm</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: ur, us, ut</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: cfl</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="keywordtype">integer</span> :: i, j, k, e</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    cfl = 0d0</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>       <span class="comment">!$omp parallel do reduction(max:cfl) private(e, k, j, i, ur, us, ut, &amp;</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>       <span class="comment">!$omp&amp; cflr, cfls, cflt, cflm)</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       <span class="keywordflow">do</span> e = 1, nelv</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>          <span class="keywordflow">do</span> k = 1, xh%lz</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>             <span class="keywordflow">do</span> j = 1, xh%ly</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>                <span class="keywordflow">do</span> i = 1, xh%lx</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>                   ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &amp;</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>                        + v(i,j,k,e)*coef%drdy(i,j,k,e) &amp;</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>                        + w(i,j,k,e)*coef%drdz(i,j,k,e) ) &amp;</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>                        * coef%jacinv(i,j,k,e)</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>                   us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &amp;</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>                        + v(i,j,k,e)*coef%dsdy(i,j,k,e) &amp;</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>                        + w(i,j,k,e)*coef%dsdz(i,j,k,e) ) &amp;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>                        * coef%jacinv(i,j,k,e)</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>                   ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &amp;</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>                        + v(i,j,k,e)*coef%dtdy(i,j,k,e) &amp;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>                        + w(i,j,k,e)*coef%dtdz(i,j,k,e) ) &amp;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>                        * coef%jacinv(i,j,k,e)</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>                   cflr = abs(dt*ur*xh%dr_inv(i))</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>                   cfls = abs(dt*us*xh%ds_inv(j))</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>                   cflt = abs(dt*ut*xh%dt_inv(k))</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>                   cflm = cflr + cfls + cflt</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>                   cfl = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(cfl, cflm)</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keywordflow">                end do</span></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>       <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>       <span class="comment">!$omp parallel do reduction(max:cfl) private(e, j, i, ur, us, &amp;</span></div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>       <span class="comment">!$omp&amp; cflr, cfls, cflm)</span></div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       <span class="keywordflow">do</span> e = 1, nelv</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>          <span class="keywordflow">do</span> j = 1, xh%ly</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>             <span class="keywordflow">do</span> i = 1, xh%lx</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>                ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &amp;</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>                     + v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>                us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &amp;</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>                     + v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>                cflr = abs(dt*ur*xh%dr_inv(i))</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>                cfls = abs(dt*us*xh%ds_inv(j))</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>                cflm = cflr + cfls</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>                cfl = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(cfl, cflm)</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>       <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  <span class="keyword">end subroutine </span>opr_cpu_curl</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> </div>
-<div class="foldopen" id="foldopen00184" data-start="" data-end="">
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html#a4a465514ef3ae0473678d23d8792f799">  184</a></span>  <span class="keyword">function </span>opr_cpu_cfl(dt, u, v, w, Xh, coef, nelv, gdim) <span class="keyword">result</span>(cfl)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../da/d99/structspace_1_1space__t.html">space_t</a>) :: xh</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>) :: coef</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordtype">integer</span> :: nelv, gdim</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dt</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(Xh%lx, Xh%ly, Xh%lz, nelv)</span> :: u, v, w</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: cflr, cfls, cflt, cflm</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: ur, us, ut</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: cfl</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordtype">integer</span> :: i, j, k, e</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    cfl = 0d0</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keywordflow">if</span> (gdim .eq. 3) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>       <span class="comment">!$omp parallel do reduction(max:cfl) private(e, k, j, i, ur, us, ut, &amp;</span></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>       <span class="comment">!$omp&amp; cflr, cfls, cflt, cflm)</span></div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>       <span class="keywordflow">do</span> e = 1, nelv</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>          <span class="keywordflow">do</span> k = 1, xh%lz</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>             <span class="keywordflow">do</span> j = 1, xh%ly</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>                <span class="keywordflow">do</span> i = 1, xh%lx</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>                   ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &amp;</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>                        + v(i,j,k,e)*coef%drdy(i,j,k,e) &amp;</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>                        + w(i,j,k,e)*coef%drdz(i,j,k,e) ) &amp;</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>                        * coef%jacinv(i,j,k,e)</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>                   us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &amp;</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>                        + v(i,j,k,e)*coef%dsdy(i,j,k,e) &amp;</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>                        + w(i,j,k,e)*coef%dsdz(i,j,k,e) ) &amp;</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>                        * coef%jacinv(i,j,k,e)</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>                   ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &amp;</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>                        + v(i,j,k,e)*coef%dtdy(i,j,k,e) &amp;</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>                        + w(i,j,k,e)*coef%dtdz(i,j,k,e) ) &amp;</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>                        * coef%jacinv(i,j,k,e)</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>                   cflr = abs(dt*ur*xh%dr_inv(i))</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>                   cfls = abs(dt*us*xh%ds_inv(j))</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>                   cflt = abs(dt*ut*xh%dt_inv(k))</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>                   cflm = cflr + cfls + cflt</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>                   cfl = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(cfl, cflm)</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="keywordflow">                end do</span></div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>       <span class="comment">!$omp end parallel do</span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>       <span class="comment">!$omp parallel do reduction(max:cfl) private(e, j, i, ur, us, &amp;</span></div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>       <span class="comment">!$omp&amp; cflr, cfls, cflm)</span></div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>       <span class="keywordflow">do</span> e = 1, nelv</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>          <span class="keywordflow">do</span> j = 1, xh%ly</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>             <span class="keywordflow">do</span> i = 1, xh%lx</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>                ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &amp;</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>                     + v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>                us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &amp;</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>                     + v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>                cflr = abs(dt*ur*xh%dr_inv(i))</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>                cfls = abs(dt*us*xh%ds_inv(j))</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>                cflm = cflr + cfls</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>                cfl = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(cfl, cflm)</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span> </div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>       <span class="comment">!$omp end parallel do</span></div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keywordflow">    end if</span></div>
-</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>  <span class="keyword">end function </span>opr_cpu_cfl</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
-<div class="foldopen" id="foldopen00250" data-start="" data-end="">
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html#a9ddb521f33adfff1eee02fb4fc9255f8">  250</a></span>  <span class="keyword">subroutine </span>opr_cpu_lambda2(lambda2, u, v, w, coef)</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, &amp;</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>         <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: <a class="code hl_namespace" href="../../d0/d66/namespacelambda2.html">lambda2</a></div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>  <span class="keyword">end function </span>opr_cpu_cfl</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
+<div class="foldopen" id="foldopen00248" data-start="" data-end="">
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html#a9ddb521f33adfff1eee02fb4fc9255f8">  248</a></span>  <span class="keyword">subroutine </span>opr_cpu_lambda2(lambda2, u, v, w, coef)</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, &amp;</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>         <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: <a class="code hl_namespace" href="../../d0/d66/namespacelambda2.html">lambda2</a></div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, &amp;</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>         <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: u</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, &amp;</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>         <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: u</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>         <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: v</div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, &amp;</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>         <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: v</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, &amp;</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>         <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: w</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: grad(coef%Xh%lxyz,3,3)</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <span class="keywordtype">integer</span> :: e, i</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: eigen(3), b, c, d, q, r, theta, l2</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: s11, s22, s33, s12, s13, s23, o12, o13, o23</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: a11, a22, a33, a12, a13, a23</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: msk1, msk2, msk3</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="comment">!$omp parallel do private(e, i, grad, eigen, B, C, D, q, r, theta, l2, &amp;</span></div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="comment">!$omp&amp; s11, s22, s33, s12, s13, s23, o12, o13, o23, &amp;</span></div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    <span class="comment">!$omp&amp; a11, a22, a33, a12, a13, a23, msk1, msk2, msk3)</span></div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       <span class="keyword">call </span>opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &amp;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>            u(1,1,1,e), coef,e,e)</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       <span class="keyword">call </span>opr_cpu_opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &amp;</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>            v(1,1,1,e), coef,e,e)</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>       <span class="keyword">call </span>opr_cpu_opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &amp;</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>            w(1,1,1,e), coef,e,e)</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>       <span class="keywordflow">do</span> i = 1, coef%Xh%lxyz</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          s11 = grad(i,1,1)</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>          s22 = grad(i,2,2)</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>          s33 = grad(i,3,3)</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>          s12 = 0.5_xp*(grad(i,1,2) + grad(i,2,1))</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>          s13 = 0.5_xp*(grad(i,1,3) + grad(i,3,1))</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>          s23 = 0.5_xp*(grad(i,2,3) + grad(i,3,2))</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>          o12 = 0.5_xp*(grad(i,1,2) - grad(i,2,1))</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>          o13 = 0.5_xp*(grad(i,1,3) - grad(i,3,1))</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>          o23 = 0.5_xp*(grad(i,2,3) - grad(i,3,2))</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>          a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>          a12 = s11 * s12 + s12 * s22 + s13 * s23 - o13 * o23</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>          a13 = s11 * s13 + s12 * s23 + s13 * s33 + o12 * o23</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>          a22 = s12*s12 + s22*s22 + s23*s23 - o12*o12 - o23*o23</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>          a23 = s12 * s13 + s22 * s23 + s23 * s33 - o12 * o13</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>          a33 = s13*s13 + s23*s23 + s33*s33 - o13*o13 - o23*o23</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>          b = -(a11 + a22 + a33)</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>          c = -(a12*a12 + a13*a13 + a23*a23 &amp;</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>               - a11 * a22 - a11 * a33 - a22 * a33)</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>          d = -(2.0_xp * a12 * a13 * a23 - a11 * a23*a23 &amp;</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>               - a22 * a13*a13 - a33 * a12*a12 + a11 * a22 * a33)</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>          q = (3.0_xp * c - b*b) / 9.0_xp</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>          r = (9.0_xp * c * b - 27.0_xp * d - 2.0_xp * b*b*b) / 54.0_xp</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>          theta = acos( r / sqrt(-q*q*q) )</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>          eigen(1) = 2.0_xp * sqrt(-q) * cos(theta / 3.0_xp) - b / 3.0_xp</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          eigen(2) = 2.0_xp * sqrt(-q) * &amp;</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>               cos((theta + 2.0_xp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a>) / 3.0_xp) - b / 3.0_xp</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>          eigen(3) = 2.0_xp * sqrt(-q) * &amp;</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>               cos((theta + 4.0_xp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a>) / 3.0_xp) - b / 3.0_xp</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>          msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &amp;</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>               .and. eigen(1) .le. eigen(3) .or. eigen(3) &amp;</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>               .le. eigen(1) .and. eigen(1) .le. eigen(2) )</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>          msk2 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(2) &amp;</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>               .and. eigen(2) .le. eigen(3) .or. eigen(3) &amp;</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>               .le. eigen(2) .and. eigen(2) .le. eigen(1))</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>          msk3 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(3) &amp;</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>               .and. eigen(3) .le. eigen(2) .or. eigen(2) &amp;</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>               .le. eigen(3) .and. eigen(3) .le. eigen(1))</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span> </div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>          l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>          <a class="code hl_namespace" href="../../d0/d66/namespacelambda2.html">lambda2</a>(i, 1, 1, e) = l2 / <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(coef%B(i, 1, 1, e)**2, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>         <span class="keywordtype">dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv)</span> :: w</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: grad(coef%Xh%lxyz,3,3)</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordtype">integer</span> :: e, i</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: eigen(3), b, c, d, q, r, theta, l2</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: s11, s22, s33, s12, s13, s23, o12, o13, o23</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: a11, a22, a33, a12, a13, a23</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: msk1, msk2, msk3</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="comment">!$omp parallel do private(e, i, grad, eigen, B, C, D, q, r, theta, l2, &amp;</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="comment">!$omp&amp; s11, s22, s33, s12, s13, s23, o12, o13, o23, &amp;</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="comment">!$omp&amp; a11, a22, a33, a12, a13, a23, msk1, msk2, msk3)</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>       <span class="keyword">call </span>opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &amp;</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>            u(1,1,1,e), coef,e,e)</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>       <span class="keyword">call </span>opr_cpu_opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &amp;</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>            v(1,1,1,e), coef,e,e)</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>       <span class="keyword">call </span>opr_cpu_opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &amp;</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>            w(1,1,1,e), coef,e,e)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>       <span class="keywordflow">do</span> i = 1, coef%Xh%lxyz</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>          s11 = grad(i,1,1)</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>          s22 = grad(i,2,2)</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>          s33 = grad(i,3,3)</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>          s12 = 0.5_xp*(grad(i,1,2) + grad(i,2,1))</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>          s13 = 0.5_xp*(grad(i,1,3) + grad(i,3,1))</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>          s23 = 0.5_xp*(grad(i,2,3) + grad(i,3,2))</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>          o12 = 0.5_xp*(grad(i,1,2) - grad(i,2,1))</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>          o13 = 0.5_xp*(grad(i,1,3) - grad(i,3,1))</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>          o23 = 0.5_xp*(grad(i,2,3) - grad(i,3,2))</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>          a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>          a12 = s11 * s12 + s12 * s22 + s13 * s23 - o13 * o23</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>          a13 = s11 * s13 + s12 * s23 + s13 * s33 + o12 * o23</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>          a22 = s12*s12 + s22*s22 + s23*s23 - o12*o12 - o23*o23</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>          a23 = s12 * s13 + s22 * s23 + s23 * s33 - o12 * o13</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>          a33 = s13*s13 + s23*s23 + s33*s33 - o13*o13 - o23*o23</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>          b = -(a11 + a22 + a33)</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>          c = -(a12*a12 + a13*a13 + a23*a23 &amp;</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>               - a11 * a22 - a11 * a33 - a22 * a33)</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>          d = -(2.0_xp * a12 * a13 * a23 - a11 * a23*a23 &amp;</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>               - a22 * a13*a13 - a33 * a12*a12 + a11 * a22 * a33)</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>          q = (3.0_xp * c - b*b) / 9.0_xp</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>          r = (9.0_xp * c * b - 27.0_xp * d - 2.0_xp * b*b*b) / 54.0_xp</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>          theta = acos( r / sqrt(-q*q*q) )</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span> </div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>          eigen(1) = 2.0_xp * sqrt(-q) * cos(theta / 3.0_xp) - b / 3.0_xp</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>          eigen(2) = 2.0_xp * sqrt(-q) * &amp;</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>               cos((theta + 2.0_xp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a>) / 3.0_xp) - b / 3.0_xp</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>          eigen(3) = 2.0_xp * sqrt(-q) * &amp;</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>               cos((theta + 4.0_xp * <a class="code hl_variable" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a>) / 3.0_xp) - b / 3.0_xp</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>          msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &amp;</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>               .and. eigen(1) .le. eigen(3) .or. eigen(3) &amp;</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>               .le. eigen(1) .and. eigen(1) .le. eigen(2) )</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>          msk2 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(2) &amp;</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>               .and. eigen(2) .le. eigen(3) .or. eigen(3) &amp;</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>               .le. eigen(2) .and. eigen(2) .le. eigen(1))</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>          msk3 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(3) &amp;</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>               .and. eigen(3) .le. eigen(2) .or. eigen(2) &amp;</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>               .le. eigen(3) .and. eigen(3) .le. eigen(1))</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span> </div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>          l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>          <a class="code hl_namespace" href="../../d0/d66/namespacelambda2.html">lambda2</a>(i, 1, 1, e) = l2 / <a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(coef%B(i, 1, 1, e)**2, <a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>)</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span> </div>
+</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>  <span class="keyword">end subroutine </span>opr_cpu_lambda2</div>
 <div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
-</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>  <span class="keyword">end subroutine </span>opr_cpu_lambda2</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="foldopen" id="foldopen00335" data-start="" data-end="">
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html#a281916ba5bf1e7c29c581832bdc01ac9">  335</a></span>  <span class="keyword">subroutine </span>opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(:)</span>, <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: idir</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="keywordtype">integer</span> :: i, j, ncyc</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: vnor, vtan</div>
+<div class="foldopen" id="foldopen00333" data-start="" data-end="">
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html#a281916ba5bf1e7c29c581832bdc01ac9">  333</a></span>  <span class="keyword">subroutine </span>opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(:)</span>, <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: idir</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    <span class="keywordtype">integer</span> :: i, j, ncyc</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: vnor, vtan</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span> </div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    ncyc = coef%cyc_msk(0) - 1</div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    ncyc = coef%cyc_msk(0) - 1</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordflow">do</span> i = 1, ncyc</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>       j = coef%cyc_msk(i)</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span> </div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>       <span class="keywordflow">if</span> (idir .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>          vnor = vx(j) * coef%R11(i) + vy(j) * coef%R12(i)</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>          vtan = -vx(j) * coef%R12(i) + vy(j) * coef%R11(i)</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (idir .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>          vnor = vx(j) * coef%R11(i) - vy(j) * coef%R12(i)</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>          vtan = vx(j) * coef%R12(i) + vy(j) * coef%R11(i)</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>       vx(j) = vnor</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>       vy(j) = vtan</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span> </div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    <span class="keywordflow">do</span> i = 1, ncyc</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>       j = coef%cyc_msk(i)</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>       <span class="keywordflow">if</span> (idir .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>          vnor = vx(j) * coef%R11(i) + vy(j) * coef%R12(i)</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>          vtan = -vx(j) * coef%R12(i) + vy(j) * coef%R11(i)</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (idir .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>          vnor = vx(j) * coef%R11(i) - vy(j) * coef%R12(i)</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>          vtan = vx(j) * coef%R12(i) + vy(j) * coef%R11(i)</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>       vx(j) = vnor</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>       vy(j) = vtan</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span><span class="keywordflow">    end do</span></div>
 </div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>  <span class="keyword">end subroutine </span>opr_cpu_rotate_cyc_r1</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span> </div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span> </div>
-<div class="foldopen" id="foldopen00362" data-start="" data-end="">
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html#aa6b02ac3eae8d8bbd2e5a6d9a9927e08">  362</a></span>  <span class="keyword">subroutine </span>opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(:,:,:,:)</span>, <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: idir</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    <span class="keywordtype">integer</span> :: i, j, ncyc</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: vnor, vtan</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>  <span class="keyword">end subroutine </span>opr_cpu_rotate_cyc_r1</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span> </div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span> </div>
+<div class="foldopen" id="foldopen00360" data-start="" data-end="">
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html#aa6b02ac3eae8d8bbd2e5a6d9a9927e08">  360</a></span>  <span class="keyword">subroutine </span>opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(:,:,:,:)</span>, <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: idir</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="keywordtype">integer</span> :: i, j, ncyc</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: vnor, vtan</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span> </div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    ncyc = coef%cyc_msk(0) - 1</div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    ncyc = coef%cyc_msk(0) - 1</div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    <span class="keywordflow">do</span> i = 1, ncyc</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>       j = coef%cyc_msk(i)</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span> </div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>       <span class="keywordflow">if</span> (idir .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>          vnor = vx(j, 1, 1, 1) * coef%R11(i) + vy(j, 1, 1, 1) * coef%R12(i)</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>          vtan = -vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (idir .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>          vnor = vx(j, 1, 1, 1) * coef%R11(i) - vy(j, 1, 1, 1) * coef%R12(i)</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>          vtan = vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)</div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>       vx(j, 1, 1, 1) = vnor</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>       vy(j, 1, 1, 1) = vtan</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>    <span class="keywordflow">do</span> i = 1, ncyc</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>       j = coef%cyc_msk(i)</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span> </div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>       <span class="keywordflow">if</span> (idir .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>          vnor = vx(j, 1, 1, 1) * coef%R11(i) + vy(j, 1, 1, 1) * coef%R12(i)</div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>          vtan = -vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (idir .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>          vnor = vx(j, 1, 1, 1) * coef%R11(i) - vy(j, 1, 1, 1) * coef%R12(i)</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>          vtan = vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>       vx(j, 1, 1, 1) = vnor</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>       vy(j, 1, 1, 1) = vtan</div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span> </div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span> </div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
 </div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>  <span class="keyword">end subroutine </span>opr_cpu_rotate_cyc_r4</div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span> </div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/d94/namespaceopr__cpu.html">opr_cpu</a></div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>  <span class="keyword">end subroutine </span>opr_cpu_rotate_cyc_r4</div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d0/d94/namespaceopr__cpu.html">opr_cpu</a></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacegather__scatter_html"><div class="ttname"><a href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></div><div class="ttdoc">Gather-scatter.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00034">gather_scatter.f90:34</a></div></div>
@@ -522,10 +520,10 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespaceopr__cpu_html"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html">opr_cpu</a></div><div class="ttdoc">Operators CPU backend.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00034">opr_cpu.f90:34</a></div></div>
 <div class="ttc" id="anamespaceopr__cpu_html_a102777fce325ee827cf3ddbbe20e1eea"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#a102777fce325ee827cf3ddbbe20e1eea">opr_cpu::opr_cpu_curl</a></div><div class="ttdeci">subroutine, public opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_xh)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00126">opr_cpu.f90:127</a></div></div>
-<div class="ttc" id="anamespaceopr__cpu_html_a281916ba5bf1e7c29c581832bdc01ac9"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#a281916ba5bf1e7c29c581832bdc01ac9">opr_cpu::opr_cpu_rotate_cyc_r1</a></div><div class="ttdeci">subroutine, public opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00335">opr_cpu.f90:336</a></div></div>
-<div class="ttc" id="anamespaceopr__cpu_html_a4a465514ef3ae0473678d23d8792f799"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#a4a465514ef3ae0473678d23d8792f799">opr_cpu::opr_cpu_cfl</a></div><div class="ttdeci">real(kind=rp) function, public opr_cpu_cfl(dt, u, v, w, xh, coef, nelv, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00184">opr_cpu.f90:185</a></div></div>
-<div class="ttc" id="anamespaceopr__cpu_html_a9ddb521f33adfff1eee02fb4fc9255f8"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#a9ddb521f33adfff1eee02fb4fc9255f8">opr_cpu::opr_cpu_lambda2</a></div><div class="ttdeci">subroutine, public opr_cpu_lambda2(lambda2, u, v, w, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00250">opr_cpu.f90:251</a></div></div>
-<div class="ttc" id="anamespaceopr__cpu_html_aa6b02ac3eae8d8bbd2e5a6d9a9927e08"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#aa6b02ac3eae8d8bbd2e5a6d9a9927e08">opr_cpu::opr_cpu_rotate_cyc_r4</a></div><div class="ttdeci">subroutine, public opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00362">opr_cpu.f90:363</a></div></div>
+<div class="ttc" id="anamespaceopr__cpu_html_a281916ba5bf1e7c29c581832bdc01ac9"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#a281916ba5bf1e7c29c581832bdc01ac9">opr_cpu::opr_cpu_rotate_cyc_r1</a></div><div class="ttdeci">subroutine, public opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00333">opr_cpu.f90:334</a></div></div>
+<div class="ttc" id="anamespaceopr__cpu_html_a4a465514ef3ae0473678d23d8792f799"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#a4a465514ef3ae0473678d23d8792f799">opr_cpu::opr_cpu_cfl</a></div><div class="ttdeci">real(kind=rp) function, public opr_cpu_cfl(dt, u, v, w, xh, coef, nelv, gdim)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00182">opr_cpu.f90:183</a></div></div>
+<div class="ttc" id="anamespaceopr__cpu_html_a9ddb521f33adfff1eee02fb4fc9255f8"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#a9ddb521f33adfff1eee02fb4fc9255f8">opr_cpu::opr_cpu_lambda2</a></div><div class="ttdeci">subroutine, public opr_cpu_lambda2(lambda2, u, v, w, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00248">opr_cpu.f90:249</a></div></div>
+<div class="ttc" id="anamespaceopr__cpu_html_aa6b02ac3eae8d8bbd2e5a6d9a9927e08"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#aa6b02ac3eae8d8bbd2e5a6d9a9927e08">opr_cpu::opr_cpu_rotate_cyc_r4</a></div><div class="ttdeci">subroutine, public opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00360">opr_cpu.f90:361</a></div></div>
 <div class="ttc" id="anamespacespace_html"><div class="ttname"><a href="../../d5/d0d/namespacespace.html">space</a></div><div class="ttdoc">Defines a function space.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/da4/space_8f90_source.html#l00034">space.f90:34</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00062">coef.f90:62</a></div></div>
 <div class="ttc" id="astructinterpolation_1_1interpolator__t_html"><div class="ttname"><a href="../../db/d74/structinterpolation_1_1interpolator__t.html">interpolation::interpolator_t</a></div><div class="ttdoc">Interpolation between two space::space_t.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dbb/interpolation_8f90_source.html#l00053">interpolation.f90:53</a></div></div>
@@ -537,7 +535,7 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_a1c99f91a79f7bf548f96fca73db34ee.html">cpu</a></li><li class="navelem"><a class="el" href="../../d6/d4c/opr__cpu_8f90.html">opr_cpu.f90</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:40 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

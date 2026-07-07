@@ -1,0 +1,27 @@
+var gs__utofu__aux_8c =
+[
+    [ "gs_utofu_ctx_t", "d3/d60/structgs__utofu__ctx__t.html", "d3/d60/structgs__utofu__ctx__t" ],
+    [ "GS_UTOFU_PEND_STRIDE", "d0/d1b/gs__utofu__aux_8c.html#a6e23d1d254dfac08c65534712867da70", null ],
+    [ "GS_UTOFU_PUT_FLAGS_BASE", "d0/d1b/gs__utofu__aux_8c.html#a42720e3a255c18d1602790146b4edc5a", null ],
+    [ "gs_utofu_ctx_create", "d0/d1b/gs__utofu__aux_8c.html#a99df831599a4d17002c73854c87268a8", null ],
+    [ "gs_utofu_ctx_free", "d0/d1b/gs__utofu__aux_8c.html#a85f0fa51f38f3d20bffdc22e52ad6773", null ],
+    [ "gs_utofu_drain_half", "d0/d1b/gs__utofu__aux_8c.html#ad8d3911b94dc6af161e357395cee5f6b", null ],
+    [ "gs_utofu_drain_tcq", "d0/d1b/gs__utofu__aux_8c.html#a925dc619d045f40b2ab8bb2d7cdb098c", null ],
+    [ "gs_utofu_init", "d0/d1b/gs__utofu__aux_8c.html#ade20082f1dbf1064468dd605bef0e0aa", null ],
+    [ "gs_utofu_pend_slot", "d0/d1b/gs__utofu__aux_8c.html#ab61df2ef6c04e7351af46603b3af56b7", null ],
+    [ "gs_utofu_poll_recv", "d0/d1b/gs__utofu__aux_8c.html#a933e997097e9331b7b9d5666f74da666", null ],
+    [ "gs_utofu_post_puts", "d0/d1b/gs__utofu__aux_8c.html#a77b39fbfb6691e942456583c6fb0eae5", null ],
+    [ "gs_utofu_put_one", "d0/d1b/gs__utofu__aux_8c.html#afe0d11747a128058e241a22e06ab013c", null ],
+    [ "gs_utofu_stash_push", "d0/d1b/gs__utofu__aux_8c.html#a3e966e383fadee266a5c9474473104e4", null ],
+    [ "gs_utofu_alltni", "d0/d1b/gs__utofu__aux_8c.html#ac2c9e4e6f093c4b482863a6d3a994ba7", null ],
+    [ "gs_utofu_edata_max", "d0/d1b/gs__utofu__aux_8c.html#afb6e5aa6b96ac081f0c96bab9a2cc415", null ],
+    [ "gs_utofu_master_inject", "d0/d1b/gs__utofu__aux_8c.html#a3fd194f502c04eb3b81bfbeefddd5ba3", null ],
+    [ "gs_utofu_nalltni", "d0/d1b/gs__utofu__aux_8c.html#a4c990f796045cc811fa514013ac4e151", null ],
+    [ "gs_utofu_nrvcq_def", "d0/d1b/gs__utofu__aux_8c.html#ac0b97a171fcef2ad47114f6aee2718eb", null ],
+    [ "gs_utofu_ntni", "d0/d1b/gs__utofu__aux_8c.html#a475d360f2599f1b2f6ffe52fae507d03", null ],
+    [ "gs_utofu_nvcq", "d0/d1b/gs__utofu__aux_8c.html#ad68a728d9564d50c0c48464d45e10be3", null ],
+    [ "gs_utofu_put_flags", "d0/d1b/gs__utofu__aux_8c.html#a64dd702ea57e385969b416d389b75335", null ],
+    [ "gs_utofu_ready", "d0/d1b/gs__utofu__aux_8c.html#a1ed51e841bcfb8bfb34cb79627173c25", null ],
+    [ "gs_utofu_recv_rr", "d0/d1b/gs__utofu__aux_8c.html#a5f1890550c873f2e0e993e9525bae813", null ],
+    [ "gs_utofu_vcq", "d0/d1b/gs__utofu__aux_8c.html#a46b4824cc2b32ccfdd15cf3a763e008f", null ]
+];

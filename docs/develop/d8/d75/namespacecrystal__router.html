@@ -141,7 +141,7 @@ Variables</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Routes a set of variable-length records, each tagged with a destination rank, from any source to any destination in \( \lceil \log_2 P \rceil \) communication stages. This replaces dense \( O(P) \)-round neighbour discovery / personalized exchange (which is \( O(P^2) \) globally and, under flat MPI at high rank counts, exhausts the MPI runtime's internal unexpected-message buffers) with a recursive-bisection routing that talks to at most one or two partners per stage.</p>
 <p>Records are passed in a single packed <code>integer(i8)</code> buffer as a sequence of self-describing entries </p><pre class="fragment">     [ dest, len, payload(1), ..., payload(len) ]</pre><p> where <code>dest</code> is the destination rank in \( [0, P) \) and <code>len</code> is the payload length. On return the buffer holds exactly the records whose <code>dest</code> equals <code>pe_rank</code>, in the same packed format (the <code>dest</code>/<code>len</code> headers are preserved so the caller can unpack uniformly).</p>
-<h3><a class="anchor" id="autotoc_md205"></a>
+<h3><a class="anchor" id="autotoc_md207"></a>
 Algorithm and correctness</h3>
 <p>The active rank range <code>[lo, hi)</code> always contains <code>pe_rank</code>; it starts as <code>[0, P)</code> and is halved each stage at <code>mid = lo + (hi-lo)/2</code>. A record is kept if its destination lies in the local half and otherwise shipped to a partner in the opposite half. Since a record is always moved into the half containing its destination, the range invariant "`dest in [lo, hi)`" is preserved, and when the range collapses to a single rank that rank is the destination &ndash; so every record is delivered exactly once and none is dropped.</p>
 <p>For odd-sized ranges the upper half has exactly one more rank than the lower half, leaving one unpaired upper rank (<code>hi-1</code>). That rank still holds records destined for the lower half; it offloads them to rank <code>lo</code>, which performs one extra receive. All other ranks exchange with a single partner via <code>MPI_Sendrecv</code>, and the unpaired transfers use <code>MPI_PROC_NULL</code> for the idle direction, so every stage is fully matched and deadlock-free for any <code>P</code> (not only powers of two). Message sizes are negotiated per stage (a one-integer count exchange precedes each data exchange), so no global maximum buffer is ever allocated. </p>
@@ -698,7 +698,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d75/namespacecrystal__router.html">crystal_router</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -2,12 +2,16 @@ var structgather__scatter_1_1gs__t =
 [
     [ "free", "dd/db8/structgather__scatter_1_1gs__t.html#a7e96b76c8e8142ce4b1571966dae41a1", null ],
     [ "gs_op_fld", "dd/db8/structgather__scatter_1_1gs__t.html#a348fb7cf5d294a1acbb6607cf235814b", null ],
+    [ "gs_op_r3", "dd/db8/structgather__scatter_1_1gs__t.html#a87f826218262190c62c597a57f9cb54b", null ],
     [ "gs_op_r4", "dd/db8/structgather__scatter_1_1gs__t.html#a9eb08a2b94b9030a8432efdedc12680c", null ],
     [ "gs_op_vector", "dd/db8/structgather__scatter_1_1gs__t.html#afcc494e82feaabc7677b29df1b3e5665", null ],
+    [ "gs_op_vector3", "dd/db8/structgather__scatter_1_1gs__t.html#a2672f383114bc055cc12bfdf68b77274", null ],
     [ "init", "dd/db8/structgather__scatter_1_1gs__t.html#a8f8b2d7e6f5846fa920a879d481527dd", null ],
     [ "op", "dd/db8/structgather__scatter_1_1gs__t.html#a4ef3bfcb6a51789be78dac527c8896e9", null ],
     [ "op", "dd/db8/structgather__scatter_1_1gs__t.html#a4ef3bfcb6a51789be78dac527c8896e9", null ],
     [ "op", "dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a", null ],
+    [ "op", "dd/db8/structgather__scatter_1_1gs__t.html#a700dbd0cc8896e6c78c61dcb456ecb5b", null ],
+    [ "op", "dd/db8/structgather__scatter_1_1gs__t.html#a700dbd0cc8896e6c78c61dcb456ecb5b", null ],
     [ "bcknd", "dd/db8/structgather__scatter_1_1gs__t.html#aa2c175586dd0149be7281003bfc09967", null ],
     [ "comm", "dd/db8/structgather__scatter_1_1gs__t.html#a72909c90cfe9ab7df22af948c0467733", null ],
     [ "dofmap", "dd/db8/structgather__scatter_1_1gs__t.html#a4b7826a8e75000bf22fb7c41286758ec", null ],
@@ -27,5 +31,7 @@ var structgather__scatter_1_1gs__t =
     [ "shared_dofs", "dd/db8/structgather__scatter_1_1gs__t.html#ab29915db837da8e0912cef172be6cbac", null ],
     [ "shared_facet_offset", "dd/db8/structgather__scatter_1_1gs__t.html#af97aa8dc90892cb0b9a20a741d3417b0", null ],
     [ "shared_gs", "dd/db8/structgather__scatter_1_1gs__t.html#a36f9f82a1d4f5e1925e5062af0594048", null ],
-    [ "shared_gs_dof", "dd/db8/structgather__scatter_1_1gs__t.html#ac26458b8910ae089ae7ddd1cf57168f2", null ]
+    [ "shared_gs_dof", "dd/db8/structgather__scatter_1_1gs__t.html#ac26458b8910ae089ae7ddd1cf57168f2", null ],
+    [ "shared_gs_v", "dd/db8/structgather__scatter_1_1gs__t.html#abe0ad95bfd1ffd3794845f1a6e1264c3", null ],
+    [ "shared_gs_v_d", "dd/db8/structgather__scatter_1_1gs__t.html#a3d0e599feb36ec5498d4b955915393fe", null ]
 ];

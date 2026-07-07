@@ -1,0 +1,19 @@
+<map id="gs_utofu_pend_slot" name="gs_utofu_pend_slot">
+<area shape="rect" id="Node000001" title=" " alt="" coords="617,55,765,80"/>
+<area shape="rect" id="Node000002" href="$d0/d1b/gs__utofu__aux_8c.html#a85f0fa51f38f3d20bffdc22e52ad6773" title=" " alt="" coords="431,5,569,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="628,54,550,33,551,28,629,49"/>
+<area shape="rect" id="Node000004" href="$d0/d1b/gs__utofu__aux_8c.html#ad8d3911b94dc6af161e357395cee5f6b" title=" " alt="" coords="220,105,371,131"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="619,85,570,94,371,115,371,110,569,89,618,80"/>
+<area shape="rect" id="Node000007" href="$d0/d1b/gs__utofu__aux_8c.html#afe0d11747a128058e241a22e06ab013c" title=" " alt="" coords="431,55,569,80"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="604,70,569,70,569,65,604,65"/>
+<area shape="rect" id="Node000003" href="$d3/d29/namespacegs__utofu.html#abfdb7aacdb5dd9cd88649e7e63f8c465" title="Deallocate the uTofu communication method." alt="" coords="208,5,383,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="417,21,383,21,383,15,417,15"/>
+<area shape="rect" id="Node000005" href="$d3/d29/namespacegs__utofu.html#aae9a847e64e1a61ade3d8fbc286ca1d9" title="Pack the send slabs and fire all one&#45;sided puts (non&#45;blocking)." alt="" coords="5,41,160,81"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="234,104,157,83,158,78,235,99"/>
+<area shape="rect" id="Node000006" href="$d3/d29/namespacegs__utofu.html#a25127157b8302dad932febc2fc3de131" title="Pack the fused nc&#45;component send slabs and fire the puts (non&#45;blocking)." alt="" coords="5,105,160,145"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="207,123,160,125,160,120,207,118"/>
+<area shape="rect" id="Node000008" href="$d0/d1b/gs__utofu__aux_8c.html#a77b39fbfb6691e942456583c6fb0eae5" title=" " alt="" coords="221,55,369,80"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="417,70,370,70,370,65,417,65"/>
+<area shape="poly" id="edge8_Node000008_Node000005" title=" " alt="" coords="207,67,160,66,160,60,208,62"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="235,86,158,107,157,102,234,81"/>
+</map>

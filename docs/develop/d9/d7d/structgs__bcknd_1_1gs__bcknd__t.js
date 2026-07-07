@@ -6,5 +6,6 @@ var structgs__bcknd_1_1gs__bcknd__t =
     [ "scatter", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html#abe2921d1088b440a7d072ac5c5626483", null ],
     [ "gather_event", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html#a70a153fe874e0867f1042f6e68783304", null ],
     [ "gs_stream", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html#a96464bcba094589dfbf7689bacf1ec44", null ],
-    [ "scatter_event", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html#a1c7d41aed77e06e6c07cc933954dd23f", null ]
+    [ "scatter_event", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html#a1c7d41aed77e06e6c07cc933954dd23f", null ],
+    [ "shared_on_host", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html#a25f195d859215a8ef4d60390be723743", null ]
 ];

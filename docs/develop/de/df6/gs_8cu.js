@@ -6,6 +6,8 @@ var gs_8cu =
     [ "GS_OP_MUL", "de/df6/gs_8cu.html#aa893c5502045308e916c8860db7a74aa", null ],
     [ "cuda_gather_kernel", "de/df6/gs_8cu.html#a92dd9777088d543713dc659d261fda68", null ],
     [ "cuda_gs_pack", "de/df6/gs_8cu.html#a7ce5d7eddaca70d46e33391af8561115", null ],
+    [ "cuda_gs_pack_vec", "de/df6/gs_8cu.html#abbdfc79a5ca52e6d7e0af8c53fcc0fe6", null ],
     [ "cuda_gs_unpack", "de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3", null ],
+    [ "cuda_gs_unpack_vec", "de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789", null ],
     [ "cuda_scatter_kernel", "de/df6/gs_8cu.html#a98e630bcda65453c48119b53e17c875e", null ]
 ];

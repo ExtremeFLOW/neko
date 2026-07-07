@@ -21,5 +21,6 @@ var searchData=
   ['gs_5fneighbour_18',['gs_neighbour',['../d6/dc1/namespacegs__neighbour.html',1,'']]],
   ['gs_5fops_19',['gs_ops',['../dd/d18/namespacegs__ops.html',1,'']]],
   ['gs_5fshmem_20',['gs_shmem',['../de/dce/namespacegs__shmem.html',1,'']]],
-  ['gs_5fsx_21',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]]
+  ['gs_5fsx_21',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]],
+  ['gs_5futofu_22',['gs_utofu',['../d3/d29/namespacegs__utofu.html',1,'']]]
 ];

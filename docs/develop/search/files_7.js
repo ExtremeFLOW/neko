@@ -36,5 +36,7 @@ var searchData=
   ['gs_5fnvshmem_5fkernels_2eh_33',['gs_nvshmem_kernels.h',['../de/df0/gs__nvshmem__kernels_8h.html',1,'']]],
   ['gs_5fops_2ef90_34',['gs_ops.f90',['../d4/d67/gs__ops_8f90.html',1,'']]],
   ['gs_5fshmem_2ef90_35',['gs_shmem.F90',['../d2/d33/gs__shmem_8F90.html',1,'']]],
-  ['gs_5fsx_2ef90_36',['gs_sx.f90',['../de/d94/gs__sx_8f90.html',1,'']]]
+  ['gs_5fsx_2ef90_36',['gs_sx.f90',['../de/d94/gs__sx_8f90.html',1,'']]],
+  ['gs_5futofu_2ef90_37',['gs_utofu.F90',['../d2/dd5/gs__utofu_8F90.html',1,'']]],
+  ['gs_5futofu_5faux_2ec_38',['gs_utofu_aux.c',['../d0/d1b/gs__utofu__aux_8c.html',1,'']]]
 ];

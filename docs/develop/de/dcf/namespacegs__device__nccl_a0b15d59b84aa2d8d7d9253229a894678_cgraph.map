@@ -1,0 +1,10 @@
+<map id="gs_device_nccl::gs_device_nccl_nbsend_vec" name="gs_device_nccl::gs_device_nccl_nbsend_vec">
+<area shape="rect" id="Node000001" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="5,59,195,99"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#abbdfc79a5ca52e6d7e0af8c53fcc0fe6" title=" " alt="" coords="256,37,399,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,64,242,58,243,63,196,69"/>
+<area shape="rect" id="Node000004" href="$d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405" title="Synchronize a device stream with an event." alt="" coords="243,87,412,127"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="196,88,229,92,229,97,195,93"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="460,29,612,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="399,47,446,47,446,52,399,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="497,30,495,20,501,10,515,5,536,3,560,6,574,13,571,18,559,11,536,8,516,10,504,15,500,21,502,28"/>
+</map>

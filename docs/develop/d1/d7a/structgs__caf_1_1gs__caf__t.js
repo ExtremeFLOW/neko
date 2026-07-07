@@ -10,10 +10,16 @@ var structgs__caf_1_1gs__caf__t =
     [ "init_order", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a8cbd176ce03aa9f17e780266c755e489", null ],
     [ "nbrecv", "d1/d7a/structgs__caf_1_1gs__caf__t.html#af7dc4cbdbb1d61aeee6ee8392e6c0b23", null ],
     [ "nbrecv", "d1/d7a/structgs__caf_1_1gs__caf__t.html#afe5d3da570816cb38d9eb2b2a15e6c25", null ],
+    [ "nbrecv_vec", "d1/d7a/structgs__caf_1_1gs__caf__t.html#acf2d385e2eac186b9ebc470b901cf146", null ],
+    [ "nbrecv_vec", "d1/d7a/structgs__caf_1_1gs__caf__t.html#acb4740062fe8d21f3e820b6ace12d0ce", null ],
     [ "nbsend", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a40c3dee3854f7ee8a45758f4309d831d", null ],
     [ "nbsend", "d1/d7a/structgs__caf_1_1gs__caf__t.html#acf4509783be3167911fb59699cf621b3", null ],
+    [ "nbsend_vec", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a28624af375ce36260069274df9327b02", null ],
+    [ "nbsend_vec", "d1/d7a/structgs__caf_1_1gs__caf__t.html#af4dc3308d366cc075bc75e6116267c3b", null ],
     [ "nbwait", "d1/d7a/structgs__caf_1_1gs__caf__t.html#acb346844ce41f6d261f1a9100c057e7d", null ],
     [ "nbwait", "d1/d7a/structgs__caf_1_1gs__caf__t.html#ad0c0f5696f81644ef2104e604bfd20f2", null ],
+    [ "nbwait_vec", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a9bc51ace34d0fce7cf19dd042a569681", null ],
+    [ "nbwait_vec", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a066342db8ef95c6ead29ffe3e3f9b2eb", null ],
     [ "dest_offset", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a7ce4df22e3df485ba435deb5846c23f2", null ],
     [ "parity", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a0c693c7fc0484cf00d0a9aab4c3409f5", null ],
     [ "recv_dof", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a454cf259ff31b824bd4508df2f8bcd5a", null ],
@@ -28,5 +34,6 @@ var structgs__caf_1_1gs__caf__t =
     [ "send_offset", "d1/d7a/structgs__caf_1_1gs__caf__t.html#ab62618b65bfe2be37d855447bf97b87c", null ],
     [ "send_pe", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a922bae84686dc75a7487fedf8544704a", null ],
     [ "send_started", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a1ef8e8848f449df0e5546fa0b0370c76", null ],
-    [ "sync_img", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a4daadc184d9bc5caeae8403565c30175", null ]
+    [ "sync_img", "d1/d7a/structgs__caf_1_1gs__caf__t.html#a4daadc184d9bc5caeae8403565c30175", null ],
+    [ "vec_supported", "d1/d7a/structgs__caf_1_1gs__caf__t.html#ab5445b62e22604c428bacfa315a6fd5e", null ]
 ];

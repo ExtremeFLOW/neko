@@ -352,6 +352,7 @@ var namespaces_dup =
     ] ],
     [ "gs_shmem", "de/dce/namespacegs__shmem.html", "de/dce/namespacegs__shmem" ],
     [ "gs_sx", "d2/dc3/namespacegs__sx.html", "d2/dc3/namespacegs__sx" ],
+    [ "gs_utofu", "d3/d29/namespacegs__utofu.html", "d3/d29/namespacegs__utofu" ],
     [ "hdf5_file", "d6/dbe/namespacehdf5__file.html", "d6/dbe/namespacehdf5__file" ],
     [ "hex", "d3/da1/namespacehex.html", "d3/da1/namespacehex" ],
     [ "hip_intf", "d0/d4e/namespacehip__intf.html", "d0/d4e/namespacehip__intf" ],

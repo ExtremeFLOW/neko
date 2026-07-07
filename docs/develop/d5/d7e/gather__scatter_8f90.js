@@ -7,8 +7,11 @@ var gather__scatter_8f90 =
     [ "gs_init_mapping", "d5/d7e/gather__scatter_8f90.html#a116426a5fc51d480ab0f080002328566", null ],
     [ "gs_mapping_add_dof", "d5/d7e/gather__scatter_8f90.html#af8cc5f86931d4ca4f75ac2ddc0b311d8", null ],
     [ "gs_op_fld", "d5/d7e/gather__scatter_8f90.html#af6d7eed444d705e5a72312bf01e3c083", null ],
+    [ "gs_op_r3", "d5/d7e/gather__scatter_8f90.html#ae43657febcc9273f7327ad60e4e381be", null ],
+    [ "gs_op_r3_device", "d5/d7e/gather__scatter_8f90.html#a2895d584c6ac94e9da48452a2e56abd4", null ],
     [ "gs_op_r4", "d5/d7e/gather__scatter_8f90.html#a9add4a7c59c01d0c077e39fcdba63b23", null ],
     [ "gs_op_vector", "d5/d7e/gather__scatter_8f90.html#ae256fdf907de8a5e60a425f9d3510806", null ],
+    [ "gs_op_vector3", "d5/d7e/gather__scatter_8f90.html#aac2a59847cf00bf8f06355ebbda60679", null ],
     [ "gs_qsort_dofmap", "d5/d7e/gather__scatter_8f90.html#a762680d00a8b9d4de7498ece71c4092b", null ],
     [ "gs_schedule", "d5/d7e/gather__scatter_8f90.html#a70b1e5adb11770ec89f7e135bb74c793", null ],
     [ "gs_sort_i8", "d5/d7e/gather__scatter_8f90.html#abba505ea99ff836fd6ba1e86d237d655", null ]

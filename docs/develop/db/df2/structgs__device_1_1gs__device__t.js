@@ -23,5 +23,5 @@ var structgs__device_1_1gs__device__t =
     [ "shared_dof_gs_d", "db/df2/structgs__device_1_1gs__device__t.html#a3465869716b7d6dd11c5bf554fe5d3e5", null ],
     [ "shared_gs_d", "db/df2/structgs__device_1_1gs__device__t.html#a7961680c920e649d796a6ec02343c919", null ],
     [ "shared_gs_dof_d", "db/df2/structgs__device_1_1gs__device__t.html#ad004eecbeca3f86318c598dc36414550", null ],
-    [ "shared_on_host", "db/df2/structgs__device_1_1gs__device__t.html#aa0914bbbeea6034e5387650c68726c92", null ]
+    [ "shared_on_host", "db/df2/structgs__device_1_1gs__device__t.html#a25f195d859215a8ef4d60390be723743", null ]
 ];

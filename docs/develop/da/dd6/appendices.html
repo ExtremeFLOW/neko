@@ -106,6 +106,7 @@ $(document).ready(function(){initNavTree('da/dd6/appendices.html','../../'); ini
 <li class="level2"><a href="#autotoc_md1">Gather-scatter communication backend details</a></li>
 <li class="level2"><a href="#autotoc_md2">MPI thread level details</a></li>
 <li class="level2"><a href="#autotoc_md3">Coarray Fortran signaling mode details</a></li>
+<li class="level2"><a href="#autotoc_md4">uTofu injection details</a></li>
 </ul>
 </li>
 </ul>
@@ -164,6 +165,7 @@ Gather-scatter communication backend details</h2>
 <li><code>NEKO_GS_COMM=SHMEM</code> : NVSHMEM based on GPU builds (NVIDIA GPUs); OpenSHMEM based on CPU builds (requires a native OpenSHMEM library, e.g. Cray OpenSHMEMX, enabled at configure time with <code>--with-openshmem</code>)</li>
 <li><code>NEKO_GS_COMM=CAF</code> : Coarray Fortran (requires a coarray-capable compiler)</li>
 <li><code>NEKO_GS_COMM=NEIGHBOUR</code> : Host MPI using an <code>MPI_Ineighbor_alltoallv</code> neighbourhood collective (<code>NEIGHBOR</code> is also accepted; MPI-3, host only)</li>
+<li><code>NEKO_GS_COMM=UTOFU</code> : Native Tofu interconnect (uTofu) one-sided RDMA (Fugaku and other Tofu-D systems; requires building with <code>--with-utofu</code>)</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md2"></a>
 MPI thread level details</h2>
@@ -180,8 +182,26 @@ Coarray Fortran signaling mode details</h2>
 <ul>
 <li><code>NEKO_GS_CAF_SIGNALING=sync</code> : <code>sync images</code> over the union of neighbour pairs, with a double-buffered receive coarray (F2008).</li>
 <li><code>NEKO_GS_CAF_SIGNALING=atomic</code> : Per-pair atomic counters via <code>atomic_define</code>/<code>atomic_ref</code> with a busy-wait spin (F2008).</li>
-<li><code>NEKO_GS_CAF_SIGNALING=event</code> : F2018 events (<code>event post</code> / <code>event wait</code>); requires a runtime that implements F2018 event semantics. </li>
+<li><code>NEKO_GS_CAF_SIGNALING=event</code> : F2018 events (<code>event post</code> / <code>event wait</code>); requires a runtime that implements F2018 event semantics.</li>
 </ul>
+<h2><a class="anchor" id="autotoc_md4"></a>
+uTofu injection details</h2>
+<p>When <code>NEKO_GS_COMM=UTOFU</code>, one injection virtual control queue (VCQ) is created per OpenMP thread, dealt round-robin over the Tofu network interfaces (TNIs) selected by <code>NEKO_GS_UTOFU_NTNI</code> (default <code>1</code>). Every VCQ is created with <code>UTOFU_VCQ_FLAG_THREAD_SAFE</code>, and both the packing of the send buffer and the <code>utofu_put</code> calls are parallelised over the OpenMP team: each thread fires the puts for its share of the peers on its own VCQ. This is the uTofu substitute for the per-thread <code>MPI_Isend</code> that Fujitsu MPI's missing <code>MPI_THREAD_MULTIPLE</code> support rules out. The counts are bound on the first gather-scatter initialisation and cannot change thereafter; the TNI count is silently clamped to the number of one-sided TNIs the hardware exposes, and the VCQ count to whatever the TNIs' VCQ budget allows (threads beyond the granted VCQ count do not inject).</p>
+<ul>
+<li><code>NEKO_GS_UTOFU_NTNI=1</code> (default) : All injection VCQs sit on one TNI.</li>
+<li><code>NEKO_GS_UTOFU_NTNI=N</code> : Deal the per-thread VCQs across <code>N</code> TNIs (benefits large messages and high neighbour counts).</li>
+<li><code>NEKO_GS_UTOFU_NVCQ=N</code> : Cap the injection pool at <code>N</code> VCQs. The VCQ budget (roughly 8 per TNI per rank on Fugaku) is shared with the per-instance receive VCQs, so on tight budgets the pool must leave room.</li>
+<li><code>NEKO_GS_UTOFU_NRVCQ=N</code> : Receive VCQs per instance path (default: one per TNI; <code>1</code> restores a single receive queue). Each receive peer is bound to one of them, so an instance's incoming halo traffic is processed by several TNIs instead of funnelling through one.</li>
+<li><code>NEKO_GS_UTOFU_MASTER_INJECT=1</code> : Serialise all injection onto the master thread (still spread over every VCQ), as an A/B reference for the thread-parallel default.</li>
+</ul>
+<p>The per-instance receive VCQs are placed round-robin over <em>all</em> one-sided TNIs (not only the <code>NEKO_GS_UTOFU_NTNI</code> injection set), sweeping past TNIs whose VCQ budget is exhausted; incoming puts are routed by the advertised VCQ id, so this costs nothing and balances receive processing across the interfaces. When the budget runs dry an instance is granted fewer receive VCQs (at least one).</p>
+<p>The startup log prints the granted counts, e.g. <code>uTofu inj. : 12 VCQs (12 threads) over 4 TNIs (6 requested)</code>.</p>
+<p>The puts also request Tofu cache injection by default, which writes each arriving slab straight into the receiver's cache. This helps when the slab is consumed immediately but can pollute cache otherwise, so it can be disabled for A/B testing:</p>
+<ul>
+<li><code>NEKO_GS_UTOFU_CACHE_INJECT=1</code> (default, or unset) : cache injection on.</li>
+<li><code>NEKO_GS_UTOFU_CACHE_INJECT=0</code> : cache injection off.</li>
+</ul>
+<p>The fused vector (multi-component) exchange can be disabled with <code>NEKO_GS_UTOFU_VEC=0</code>, in which case multi-component gather-scatter falls back to independent scalar rounds (a validation/bisection aid). </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
@@ -189,7 +209,7 @@ Coarray Fortran signaling mode details</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li>
-    <li class="footer">Generated on Mon Jul 6 2026 04:57:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 7 2026 04:48:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
