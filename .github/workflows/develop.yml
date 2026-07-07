@@ -176,7 +176,6 @@ jobs:
             fail+=("\t- Valgrind check: $valgrind_status (informational only)")
           fi
 
-          # NVidia check is skipped since the compiler is broken.
           if [ "$nvidia_status" != "success" ]; then
             fail+=("\t- NVIDIA check: $nvidia_status")
             success=false
