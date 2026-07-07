@@ -187,6 +187,9 @@ __global__ void masked_scatter_copy_aligned_kernel(T * __restrict__ a,
   }
 }
 
+#if __CUDA_ARCH__ < 600
+#include <cassert>
+#endif
 
 /**
  * Device kernel for masked atomic update
@@ -201,11 +204,13 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < m; i += str) {
 #if __CUDA_ARCH__ >= 600
+  for (int i = idx; i < m; i += str) 
     atomicAdd( &(a[mask[i+1]-1]), b[i]);
+#else
+  if (idx == 0) 
+    assert(0 && "masked_atomic_reduction_kernel requires compute capability 6.0 or higher.");
 #endif
-  }
 }
 
 /**

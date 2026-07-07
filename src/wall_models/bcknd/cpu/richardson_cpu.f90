@@ -78,7 +78,8 @@ contains
     case ("dirichlet")
        Ri_b = g_dot_n*hi/ti*(ti - ts)/magu**2
     case default
-       call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+       call neko_error("Invalid specified temperature b.c. type " // &
+            "('neumann' or 'dirichlet'?)")
     end select
   end subroutine compute_Ri_b
 
@@ -96,11 +97,13 @@ contains
        ts = bc_value
        q = kappa*utau*(ts - ti)/log(hi/z0h)
     case default
-       call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+       call neko_error("Invalid specified temperature b.c. type " // &
+            "('neumann' or 'dirichlet'?)")
     end select
   end subroutine assign_bc_value
 
-  !> Sets the stability regime based on the Richardson number value (quite arbitrary).
+  !> Sets the stability regime based on the Richardson number value
+  !! (quite arbitrary).
   subroutine set_stability_regime(Ri_b,Ri_threshold)
     real(kind=rp), intent(in) :: Ri_b, Ri_threshold
 
@@ -203,10 +206,12 @@ contains
           ! Compute q
           q = heat_flux_ptr(ti, ts, Ri_b, hi, magu, z0h, Pr, l, utau, kappa)
        case default
-          call neko_error("Invalid specified temperature b.c. type ('neumann' or 'dirichlet'?)")
+          call neko_error("Invalid specified temperature b.c. type " // &
+               "('neumann' or 'dirichlet'?)")
        end select
 
-       ! Distribute according to the velocity vector and bound magu to avoid 0 division
+       ! Distribute according to the velocity vector and bound magu
+       ! to avoid 0 division
        magu = max(magu, 1.0e-6_rp)
        tau_x(i) = -rho*utau**2 * ui / magu
        tau_y(i) = -rho*utau**2 * vi / magu
@@ -223,7 +228,8 @@ contains
        utau_diagn(i) = utau
        magu_diagn(i) = magu
        ti_diagn(i) = ti
-       ts_diagn(i) = temp(ind_r(i)-h_x_idx(i), ind_s(i)-h_y_idx(i), ind_t(i)-h_z_idx(i), ind_e(i))
+       ts_diagn(i) = temp(ind_r(i) - h_x_idx(i), ind_s(i) - h_y_idx(i), &
+            ind_t(i) - h_z_idx(i), ind_e(i))
        q_diagn(i) = q
     end do
 

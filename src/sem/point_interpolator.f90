@@ -60,8 +60,10 @@ module point_interpolator
      procedure, pass(this) :: init => point_interpolator_init
      !> Destructor.
      procedure, pass(this) :: free => point_interpolator_free
-     !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a list of points.
-     procedure, pass(this) :: compute_weights => point_interpolator_compute_weights
+     !> Computes interpolation weights \f$ w_r, w_s, w_t \f$ for a
+     !! list of points.
+     procedure, pass(this) :: compute_weights => &
+          point_interpolator_compute_weights
      !> Interpolates a scalar field \f$ X \f$ on a set of points.
      procedure, pass(this) :: point_interpolator_interpolate_scalar
      !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of points.
@@ -172,15 +174,15 @@ contains
        ! If the coordinates are different, then recompute weights
        if ( .not. abscmp(rst(i)%x(1), rst(i-1)%x(1)) ) then
           call fd_weights_full(real(rst(i)%x(1), rp), &
-                               this%Xh%zg(:,1), lx-1, 0, hr)
+               this%Xh%zg(:,1), lx-1, 0, hr)
        end if
        if ( .not. abscmp(rst(i)%x(2), rst(i-1)%x(2)) ) then
           call fd_weights_full(real(rst(i)%x(2), rp), &
-                               this%Xh%zg(:,2), ly-1, 0, hs)
+               this%Xh%zg(:,2), ly-1, 0, hs)
        end if
        if ( .not. abscmp(rst(i)%x(3), rst(i-1)%x(3)) ) then
           call fd_weights_full(real(rst(i)%x(3), rp), &
-                               this%Xh%zg(:,3), lz-1, 0, ht)
+               this%Xh%zg(:,3), lz-1, 0, ht)
        end if
 
        ! And interpolate!
@@ -190,7 +192,8 @@ contains
 
   end function point_interpolator_interpolate_scalar
 
-  !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of \f$ N \f$ points
+  !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ on a set of
+  !! \f$ N \f$ points
   !! \f$ \mathbf{r}_i \f$. Returns an array of N points
   !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param N number of points (use `1` to interpolate a scalar).
@@ -241,15 +244,15 @@ contains
        ! If the coordinates are different, then recompute weights
        if ( .not. abscmp(rst(i)%x(1), rst(i-1)%x(1)) ) then
           call fd_weights_full(real(rst(i)%x(1), rp), &
-                               this%Xh%zg(:,1), lx-1, 0, hr)
+               this%Xh%zg(:,1), lx-1, 0, hr)
        end if
        if ( .not. abscmp(rst(i)%x(2), rst(i-1)%x(2)) ) then
           call fd_weights_full(real(rst(i)%x(2), rp), &
-                               this%Xh%zg(:,2), ly-1, 0, hs)
+               this%Xh%zg(:,2), ly-1, 0, hs)
        end if
        if ( .not. abscmp(rst(i)%x(3), rst(i-1)%x(3)) ) then
           call fd_weights_full(real(rst(i)%x(3), rp), &
-                               this%Xh%zg(:,3), lz-1, 0, ht)
+               this%Xh%zg(:,3), lz-1, 0, ht)
        end if
 
        ! And interpolate!
@@ -263,7 +266,8 @@ contains
 
   end function point_interpolator_interpolate_vector
 
-  !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ and constructs the Jacobian
+  !> Interpolates a vector field \f$ \vec f = (X,Y,Z) \f$ and
+  !! constructs the Jacobian
   !! at a point \f$ (r,s,t) \f$. Returns a vector
   !! \f$ [x(\mathbf{r}_i), y(\mathbf{r}_i), z(\mathbf{r}_i)], i\in[1,N]\f$.
   !! @param jac Jacobian.
@@ -271,7 +275,8 @@ contains
   !! @param X Values of the field \f$ X \f$ at GLL points in one element.
   !! @param Y Values of the field \f$ Y \f$ at GLL points in one element.
   !! @param Z Values of the field \f$ Z \f$ at GLL points in one element.
-  function point_interpolator_interpolate_vector_jacobian(this, jac, rst, X, Y, Z) result(res)
+  function point_interpolator_interpolate_vector_jacobian(this, jac, &
+       rst, X, Y, Z) result(res)
     class(point_interpolator_t), intent(in) :: this
     real(kind=rp), intent(inout) :: jac(3,3)
     type(point_t), intent(in) :: rst

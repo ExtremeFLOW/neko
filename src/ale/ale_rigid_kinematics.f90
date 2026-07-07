@@ -199,7 +199,7 @@ contains
     integer, intent(in) :: nadv
 
     call ab_integrate_point_pos(tracker%pos, tracker%vel_lag, &
-          current_vel, time, nadv)
+         current_vel, time, nadv)
 
   end subroutine advance_point_tracker
 
@@ -217,10 +217,10 @@ contains
     ! Oscillation
     kinematics%vel_trans = 0.0_rp
     do i = 1, 3
-       if (abs(body_conf%osc_amp(i)) > 0.0_rp) then
+       if (abs(body_conf%osc_amp(i)) .gt. 0.0_rp) then
           w_scalar = body_conf%osc_freq(i) * 2.0_rp * pi
           kinematics%vel_trans(i) = body_conf%osc_amp(i) * w_scalar * &
-                cos(w_scalar * time%t)
+               cos(w_scalar * time%t)
        end if
     end do
 
@@ -228,7 +228,7 @@ contains
     kinematics%vel_ang = 0.0_rp
     select case (trim(body_conf%rotation_type))
     case ('smooth_step')
-       if (abs(body_conf%target_rot_angle_deg) > 0.0_rp) then
+       if (abs(body_conf%target_rot_angle_deg) .gt. 0.0_rp) then
           t_curr = time%t
           t0 = body_conf%step_control_times(1)
           t1 = body_conf%step_control_times(2)
@@ -237,21 +237,21 @@ contains
           target_rad = body_conf%target_rot_angle_deg * (pi / 180.0_rp)
           current_omega = 0.0_rp
 
-          if (t_curr < t0) then
+          if (t_curr .lt. t0) then
              current_omega = 0.0_rp
-          elseif (t_curr < t1) then ! Rise
-             if (t1 > t0) then
+          elseif (t_curr .lt. t1) then ! Rise
+             if (t1 .gt. t0) then
                 tau = (t_curr - t0) / (t1 - t0)
                 current_omega = target_rad * math_dstepf(tau) * &
-                      (1.0_rp / (t1 - t0))
+                     (1.0_rp / (t1 - t0))
              end if
-          elseif (t_curr < t2) then ! Hold
+          elseif (t_curr .lt. t2) then ! Hold
              current_omega = 0.0_rp
-          elseif (t_curr < t3) then ! Fall
-             if (t3 > t2) then
+          elseif (t_curr .lt. t3) then ! Fall
+             if (t3 .gt. t2) then
                 tau = (t_curr - t2) / (t3 - t2)
                 current_omega = -1.0_rp * target_rad * math_dstepf(tau) * &
-                      (1.0_rp / (t3 - t2))
+                     (1.0_rp / (t3 - t2))
              end if
           end if
           kinematics%vel_ang(body_conf%rotation_axis) = current_omega
@@ -262,25 +262,26 @@ contains
        ! Journal of Fluid Mechanics 861 (2019): 860-885.
        ! and
        ! Visbal, Miguel R., and J. S. Shang.
-       ! "Investigation of the flow structure around a rapidly pitching airfoil."
+       ! "Investigation of the flow structure around a rapidly
+       ! pitching airfoil."
        ! AIAA journal 27.8 (1989): 1044-1051.
     case ('ramp')
        do i = 1, 3
-          if (body_conf%ramp_t0(i) > 0.0_rp .and. &
-                abs(body_conf%ramp_omega0(i)) > 0.0_rp) then
+          if (body_conf%ramp_t0(i) .gt. 0.0_rp .and. &
+               abs(body_conf%ramp_omega0(i)) .gt. 0.0_rp) then
              ex_term = exp(-4.6_rp * time%t / body_conf%ramp_t0(i))
              kinematics%vel_ang(i) = body_conf%ramp_omega0(i) * &
-                   (1.0_rp - ex_term)
+                  (1.0_rp - ex_term)
           end if
        end do
 
     case ('harmonic')
        do i = 1, 3
-          if (abs(body_conf%rot_amp_degree(i)) > 0.0_rp) then
+          if (abs(body_conf%rot_amp_degree(i)) .gt. 0.0_rp) then
              amp_scalar = body_conf%rot_amp_degree(i) * (pi / 180.0_rp)
              w_scalar = body_conf%rot_freq(i) * 2.0_rp * pi
              kinematics%vel_ang(i) = w_scalar * amp_scalar * &
-                   cos(w_scalar * time%t)
+                  cos(w_scalar * time%t)
           end if
        end do
     end select
@@ -303,7 +304,7 @@ contains
        ! This mode uses vel_trans to move the pivot by integrating the velocity
     case ('relative')
 
-       if (time%tstep > 0) then
+       if (time%tstep .gt. 0) then
           call ab_integrate_point_pos(pivot%pos, pivot%vel_lag, &
                pivot_vel, time, nadv)
        end if

@@ -44,7 +44,7 @@ module scalar_sgs_stats_simcomp
   use case, only : case_t
   use coefs, only : coef_t
   use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
-       NEKO_VARNAME_LEN
+       filename_name, NEKO_VARNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup_or_default, json_get_or_lookup
@@ -65,7 +65,7 @@ module scalar_sgs_stats_simcomp
      !> Time value at which the sampling of statistics is initiated.
      real(kind=rp) :: start_time
      real(kind=rp) :: time
-     logical :: default_fname = .true.
+     character(len=:), allocatable :: base_filename
 
    contains
      generic :: init_from_components => &
@@ -102,7 +102,7 @@ contains
     character(len=:), allocatable :: filename
     character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
-    character(len=:), allocatable :: s_name
+    character(len=:), allocatable :: sname
     character(len=:), allocatable :: name
     real(kind=rp) :: start_time
     type(coef_t), pointer :: coef
@@ -110,14 +110,16 @@ contains
     real(kind=rp) :: pr_turb
     logical :: nut_dependency
 
-    call json_get_or_default(json, "name", name, "scalar_sgs_stats")
+    call json_get_or_default(json, 'field', &
+         sname, 's')
+    call json_get_or_default(json, "name", &
+         name, "scalar_sgs_stats_" // trim(sname))
+
     call this%init_base(json, case)
     call json_get_or_default(json, 'avg_direction', &
          hom_dir, 'none')
     call json_get_or_lookup_or_default(json, 'start_time', &
          start_time, 0.0_rp)
-    call json_get_or_default(json, 'field', &
-         s_name, 's')
 
     call json_get(json, 'alphat', json_subdict)
     call json_get(json_subdict, 'nut_dependency', nut_dependency)
@@ -134,46 +136,49 @@ contains
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (nut_dependency) then
-          call this%init_from_components(s_name, coef, &
+          call this%init_from_components(name, sname, coef, &
                start_time, hom_dir, nut_field, pr_turb, filename)
        else
-          call this%init_from_components(s_name, coef, &
+          call this%init_from_components(name, sname, coef, &
                start_time, hom_dir, alphat_field, filename)
        end if
     else
        if (nut_dependency) then
-          call this%init_from_components(s_name, coef, &
-               start_time, hom_dir, nut_field, pr_turb)
+          call this%init_from_components(name, sname, coef, &
+               start_time, hom_dir, nut_field, pr_turb, &
+               "scalar_sgs_stats_"//trim(sname))
        else
-          call this%init_from_components(s_name, coef, &
-               start_time, hom_dir, alphat_field)
+          call this%init_from_components(name, sname, coef, &
+               start_time, hom_dir, alphat_field, &
+               "scalar_sgs_stats_"//trim(sname))
        end if
     end if
 
   end subroutine scalar_sgs_stats_simcomp_init_from_json
 
   !> Actual constructor using directly the alphat field.
-  !! @param s_name The name of the scalar field
+  !! @param sname The name of the scalar field
   !! @param coef sem coefs
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param alphat_field name of the eddy diffusivity field
   !! @param fname name of the outut file
   subroutine scalar_sgs_stats_simcomp_init_from_components_alphat(this, &
-       s_name, coef, start_time, hom_dir, alphat_field, fname)
+       name, sname, coef, start_time, hom_dir, alphat_field, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
-    character(len=*), intent(in) :: s_name
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
     type(coef_t), intent(in), target :: coef
     character(len=*), intent(in) :: alphat_field
-    character(len=*), intent(in), optional :: fname
+    character(len=*), intent(in) :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
     character(len=LOG_SIZE) :: log_buf
     character(len=5) :: prefix
 
-    call neko_log%section('scalar SGS stats')
-    write(log_buf, '(A,A)') 'Scalar field: ', trim(s_name)
+    call neko_log%section('Scalar SGS stats')
+    write(log_buf, '(A,A)') 'Scalar field: ', trim(sname)
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Eddy diffusivity field: ', trim(alphat_field)
     call neko_log%message(log_buf)
@@ -182,18 +187,13 @@ contains
     write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
     call neko_log%message(log_buf)
 
+    call this%stats%init(coef, sname, alphat_field)
 
-    call this%stats%init(coef, s_name, alphat_field)
-
+    this%name = name
     this%start_time = start_time
     this%time = start_time
-    if (present(fname)) then
-       this%default_fname = .false.
-       stats_fname = fname
-    else
-       stats_fname = "scalar_sgs_stats0"
-       this%default_fname = .true.
-    end if
+    this%base_filename = fname
+    stats_fname = trim(fname) // "0"
 
     call this%stats_output%init(this%stats, this%start_time, &
          hom_dir = hom_dir, name = stats_fname, &
@@ -209,7 +209,7 @@ contains
 
   !> Actual constructor using directly the nut field and the turbulent
   !> Prandtl number.
-  !! @param s_name The name of the scalar field
+  !! @param sname The name of the scalar field
   !! @param coef sem coefs
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
@@ -217,9 +217,10 @@ contains
   !! @param pr_turb turbulent Prandtl number
   !! @param fname name of the output file
   subroutine scalar_sgs_stats_simcomp_init_from_components_nut(this, &
-       s_name, coef, start_time, hom_dir, nut_field, pr_turb, fname)
+       name, sname, coef, start_time, hom_dir, nut_field, pr_turb, fname)
     class(scalar_sgs_stats_simcomp_t), target, intent(inout) :: this
-    character(len=*), intent(in) :: s_name
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in) :: sname
     character(len=*), intent(in) :: hom_dir
     real(kind=rp), intent(in) :: start_time
     type(coef_t), intent(in), target :: coef
@@ -231,7 +232,7 @@ contains
     character(len=5) :: prefix
 
     call neko_log%section('scalar stats')
-    write(log_buf, '(A,A)') 'Scalar field: ', trim(s_name)
+    write(log_buf, '(A,A)') 'Scalar field: ', trim(sname)
     call neko_log%message(log_buf)
     write(log_buf, '(A,A)') 'Eddy viscosity field: ', trim(nut_field)
     call neko_log%message(log_buf)
@@ -243,17 +244,13 @@ contains
     call neko_log%message(log_buf)
 
 
-    call this%stats%init(coef, s_name, nut_field, pr_turb)
+    call this%stats%init(coef, sname, nut_field, pr_turb)
 
+    this%name = name
     this%start_time = start_time
     this%time = start_time
-    if (present(fname)) then
-       this%default_fname = .false.
-       stats_fname = fname
-    else
-       stats_fname = "scalar_sgs_stats0"
-       this%default_fname = .true.
-    end if
+    this%base_filename = fname
+    stats_fname = trim(fname) // "0"
 
     call this%stats_output%init(this%stats, this%start_time, &
          hom_dir = hom_dir, name = stats_fname, &
@@ -282,25 +279,29 @@ contains
     character(len=5) :: prefix, suffix
     integer :: last_slash_pos
     real(kind=rp) :: t
+    character(len=NEKO_FNAME_LEN) :: basename
+    integer :: i
+
     t = time%t
     if (t .gt. this%time) this%time = t
-    if (this%default_fname) then
-       fname = this%stats_output%file_%get_base_fname()
-       write (prefix, '(I5)') &
-            this%stats_output%file_%file_type%get_start_counter()
-       call filename_suffix(fname, suffix)
-       last_slash_pos = &
-            filename_tslash_pos(fname)
-       if (last_slash_pos .ne. 0) then
-          fname = &
-               trim(fname(1:last_slash_pos))// &
-               "scalar_sgs_stats"//trim(adjustl(prefix))//"."//suffix
-       else
-          fname = "scalar_sgs_stats"// &
-               trim(adjustl(prefix))//"."//suffix
-       end if
-       call this%stats_output%init_base(fname)
+
+    fname = this%stats_output%file_%get_base_fname()
+    write (prefix, '(I5)') &
+         this%stats_output%file_%file_type%get_start_counter()
+    call filename_suffix(fname, suffix)
+
+    last_slash_pos = &
+         filename_tslash_pos(fname)
+    if (last_slash_pos .ne. 0) then
+       fname = &
+            trim(fname(1:last_slash_pos))// &
+            trim(this%base_filename)// &
+            trim(adjustl(prefix))//"."//suffix
+    else
+       fname = trim(this%base_filename)// &
+            trim(adjustl(prefix))//"."//suffix
     end if
+    call this%stats_output%init_base(fname)
   end subroutine scalar_sgs_stats_simcomp_restart
 
   !> scalar_sgs_stats, called depending on compute_control and compute_value

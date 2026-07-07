@@ -555,9 +555,11 @@ contains
          call this%bclst%apply_scalar(e, n, strm = aux_cmd_queue)
          call device_col2(e_d, this%wt_d, n, aux_cmd_queue)
 
+         call device_event_record(this%event, aux_cmd_queue)
+         call device_event_sync(this%event)
+
          ! switch back to the default stream on the shared gs
          if (.not. this%local_gs) then
-            call device_event_sync(this%event)
             this%gs_h%bcknd%gs_stream = glb_cmd_queue
          end if
       else

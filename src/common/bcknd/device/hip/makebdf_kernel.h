@@ -49,6 +49,8 @@ __global__ void makebdf_kernel(const T * __restrict__ ulag1,
                                const T * __restrict__ v,
                                const T * __restrict__ w,
                                const T * __restrict__ B,
+                               const T * __restrict__ Blag,
+                               const T * __restrict__ Blaglag,
                                const T rho,
                                const T dt,
                                const T bd2,
@@ -65,18 +67,18 @@ __global__ void makebdf_kernel(const T * __restrict__ ulag1,
     T tb2_val = v[i] * B[i] * bd2;
     T tb3_val = w[i] * B[i] * bd2;
 
-    T ta1_val = ulag1[i] * B[i] * bd3;
-    T ta2_val = vlag1[i] * B[i] * bd3;
-    T ta3_val = wlag1[i] * B[i] * bd3;
+    T ta1_val = ulag1[i] * Blag[i] * bd3;
+    T ta2_val = vlag1[i] * Blag[i] * bd3;
+    T ta3_val = wlag1[i] * Blag[i] * bd3;
 
     tb1_val += ta1_val;
     tb2_val += ta2_val;
     tb3_val += ta3_val;
 
     if (nbd == 3) {
-      tb1_val += ulag2[i] * B[i] * bd4;
-      tb2_val += vlag2[i] * B[i] * bd4;
-      tb3_val += wlag2[i] * B[i] * bd4;
+      tb1_val += ulag2[i] * Blaglag[i] * bd4;
+      tb2_val += vlag2[i] * Blaglag[i] * bd4;
+      tb3_val += wlag2[i] * Blaglag[i] * bd4;
     }
     
     bfx[i] = bfx[i] + tb1_val * (rho / dt);

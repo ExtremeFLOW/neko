@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -241,7 +241,8 @@ contains
          w3 => this%w3)
 
       rtz1 = 1.0_rp
-      do concurrent (i = 1:n)
+      !$omp parallel do
+      do i = 1, n
          x%x(i,1,1,1) = 0.0_rp
          y%x(i,1,1,1) = 0.0_rp
          z%x(i,1,1,1) = 0.0_rp
@@ -256,6 +257,7 @@ contains
          r3(i) = fz(i)
          tmp(i) = r1(i)**2 + r2(i)**2 + r3(i)**2
       end do
+      !$omp end parallel do
 
       rtr = glsc2(tmp, coef%mult, n)
       rnorm = sqrt(rtr)*norm_fac
@@ -274,52 +276,59 @@ contains
          call this%M%solve(z3, this%r3, n)
          rtz2 = rtz1
 
-         do concurrent (i = 1:n)
+         !$omp parallel do
+         do i = 1, n
             this%tmp(i) = z1(i) * r1(i) &
                  + z2(i) * r2(i) &
                  + z3(i) * r3(i)
          end do
+         !$omp end parallel do
 
          rtz1 = glsc2(tmp, coef%mult, n)
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
-         do concurrent (i = 1:n)
+         !$omp parallel do
+         do i = 1, n
             p1(i) = p1(i) * beta + z1(i)
             p2(i) = p2(i) * beta + z2(i)
             p3(i) = p3(i) * beta + z3(i)
          end do
+         !$omp end parallel do
 
          call Ax%compute_vector(w1, w2, w3, p1, p2, p3, coef, x%msh, x%Xh)
 
          call rotate_cyc(w1, w2, w3, 1, coef)
-         call gs_h%op(w1, n, GS_OP_ADD)
-         call gs_h%op(w2, n, GS_OP_ADD)
-         call gs_h%op(w3, n, GS_OP_ADD)
+         call gs_h%op(w1, w2, w3, n, GS_OP_ADD)
          call rotate_cyc(w1, w2, w3, 0, coef)
 
          call blstx%apply_scalar(w1, n)
          call blsty%apply_scalar(w2, n)
          call blstz%apply_scalar(w3, n)
 
-         do concurrent (i = 1:n)
+         !$omp parallel do
+         do i = 1, n
             tmp(i) = w1(i) * p1(i) &
                  + w2(i) * p2(i) &
                  + w3(i) * p3(i)
          end do
+         !$omp end parallel do
 
          pap = glsc2(tmp, coef%mult, n)
 
          alpha = rtz1 / pap
-         do concurrent (i = 1:n)
+         tmp_xp = 0.0_xp
+
+         !$omp parallel private (i)
+         !$omp do
+         do i = 1, n
             x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)
             y%x(i,1,1,1) = y%x(i,1,1,1) + alpha * p2(i)
             z%x(i,1,1,1) = z%x(i,1,1,1) + alpha * p3(i)
          end do
+         !$omp end do nowait
 
-         tmp = 0.0_rp
-         tmp_xp = 0.0_xp
-         !$omp parallel do reduction(+:tmp_xp)
+         !$omp do reduction(+:tmp_xp)
          do i = 1, n
             r1(i) = r1(i) - alpha * w1(i)
             r2(i) = r2(i) - alpha * w2(i)
@@ -331,7 +340,8 @@ contains
             tmp_xp = tmp_xp + &
                  (r1_xp * r1_xp + r2_xp * r2_xp + r3_xp * r3_xp) * mult_xp
          end do
-         !$omp end parallel do
+         !$omp end do nowait
+         !$omp end parallel
 
          call MPI_Allreduce(MPI_IN_PLACE, tmp_xp, 1, MPI_EXTRA_PRECISION, &
               MPI_SUM, NEKO_COMM, ierr)

@@ -147,6 +147,7 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-roctx=DIR`              | Compile with support for ROCTX                |
 | `--with-nccl=DIR`               | Compiler with support for NCCL                |
 | `--with-rccl=DIR`               | Compiler with support for RCCL                |
+| `--with-utofu=DIR`              | Compile with support for the native Tofu interconnect (uTofu) |
 | `--with-hdf5`                   | Compile with support for HDF5                 |
 | `--with-pfunit=DIR`             | Directory for pFUnit (see \subpage testing)   |
 
@@ -198,6 +199,7 @@ supported backends are listed below.
 | NVSHMEM          | NVIDIA OpenSHMEM, one-sided on device buffers   | CUDA             | `--with-nvshmem`              | `SHMEM`        |
 | OpenSHMEM        | Host OpenSHMEM, one-sided                        | CPU              | `--with-openshmem`           | `SHMEM`        |
 | Co-Array Fortran | Fortran coarrays                                | CPU              | coarray-capable compiler      | `CAF`          |
+| uTofu            | Native Tofu interconnect, one-sided RDMA        | CPU              | `--with-utofu`                | `UTOFU`        |
 
 @note Every device backend (CUDA, HIP, OpenCL, Metal) can use host `MPI`, which
 stages data through host memory before the exchange. The device-resident
@@ -207,6 +209,11 @@ host `MPI`.
 
 @note `NEKO_GS_COMM=SHMEM` selects NVSHMEM on a device (GPU) build and host
 OpenSHMEM otherwise.
+
+@note `UTOFU` targets the native Tofu interconnect (Tofu-D, e.g. Fugaku) and
+requires the `libtofucom` library; it is a host (CPU) backend. The number of
+Tofu network interfaces used for injection is set with `NEKO_GS_UTOFU_NTNI`
+(default `1`).
 
 #### Compiling Neko for CPU or SX-Aurora
 

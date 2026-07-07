@@ -989,22 +989,14 @@ contains
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
 
+    if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
     if (present(event)) then
-       if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
-       call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
+       call c_Xh%gs_h%op(w1%x, w2%x, w3%x, n, GS_OP_ADD, event)
        call device_event_sync(event)
-       call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
-       call device_event_sync(event)
-       call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
-       call device_event_sync(event)
-       if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
     else
-       if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
-       call c_Xh%gs_h%op(w1, GS_OP_ADD)
-       call c_Xh%gs_h%op(w2, GS_OP_ADD)
-       call c_Xh%gs_h%op(w3, GS_OP_ADD)
-       if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
+       call c_Xh%gs_h%op(w1%x, w2%x, w3%x, n, GS_OP_ADD)
     end if
+    if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
 

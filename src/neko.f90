@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2025, The Neko Authors
+! Copyright (c) 2019-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -284,9 +284,9 @@ contains
     call neko_user_access%free()
     call neko_log%free()
 
-    call device_finalize
     call neko_mpi_types_free
     call comm_free
+    call device_finalize
   end subroutine neko_finalize
 
 

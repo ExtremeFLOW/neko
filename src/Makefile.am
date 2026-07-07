@@ -4,7 +4,7 @@ neko_fortran_SOURCES = \
 	ale/ale_rigid_kinematics.f90\
 	ale/ale_manager.f90\
 	ale/bcknd/cpu/ale_routines_cpu.f90\
-	ale/bcknd/ale_routines_device.F90\
+	ale/bcknd/device/ale_routines_device.F90\
 	api/neko_api.f90\
 	api/neko_api_user.f90\
 	config/num_types.f90\
@@ -20,6 +20,7 @@ neko_fortran_SOURCES = \
 	io/buffer/buffer_4d_npar.F90\
 	common/log.f90\
 	comm/comm.F90\
+	comm/crystal_router.f90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
 	comm/shmem.F90\
@@ -62,6 +63,8 @@ neko_fortran_SOURCES = \
 	gs/gs_mpi.f90\
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
+	gs/gs_neighbour.f90\
+	gs/gs_utofu.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
@@ -172,6 +175,7 @@ neko_fortran_SOURCES = \
 	io/fluid_sgs_stats_output.f90\
 	io/scalar_stats_output.f90\
 	io/scalar_sgs_stats_output.f90\
+	io/spatial_average_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	global_interpolation/global_interpolation.f90\
@@ -253,6 +257,7 @@ neko_fortran_SOURCES = \
 	simulation_components/fluid_sgs_stats_simcomp.f90\
 	simulation_components/scalar_stats_simcomp.f90\
 	simulation_components/scalar_sgs_stats_simcomp.f90\
+	simulation_components/spatial_average.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
@@ -472,8 +477,13 @@ if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
+if ENABLE_UTOFU
+libneko_la_SOURCES += gs/gs_utofu_aux.c
+endif
+
 if ENABLE_HIP
 libneko_la_SOURCES += \
+    ale/bcknd/device/hip/ale_kinematics.hip\
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
@@ -537,6 +547,7 @@ endif
 
 if ENABLE_CUDA
 libneko_la_SOURCES += \
+    ale/bcknd/device/cuda/ale_kinematics.cu\
 	device/cuda/check.cu\
 	device/cuda/nvtx_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
@@ -880,6 +891,7 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
+    ale/bcknd/device/cuda/ale_kinematics_kernel.h\
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
@@ -930,6 +942,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
+    ale/bcknd/device/hip/ale_kinematics_kernel.h\
 	wall_models/bcknd/device/cuda/most_kernel.h\
 	wall_models/bcknd/device/cuda/richardson_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\

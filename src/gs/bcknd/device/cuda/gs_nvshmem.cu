@@ -48,40 +48,86 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
     cudaMemset(*ptr, 0, size);
     CUDA_CHECK(cudaGetLastError());
-  }    
-  
+  }
+
   void cudafree_nvshmem(void** ptr, size_t size)
   {
     nvshmem_free(*ptr);
     CUDA_CHECK(cudaGetLastError());
   }
-  
+
+  /**
+   * Pack and push one peer slab with rank-indexed signaling. roffset is the
+   * offset in the destination's recv buffer where our slab lands; done_d and
+   * ready_d are the symmetric rank-indexed signal arrays; mype is our rank.
+   * Single-block launch: the kernel packs with a block-stride loop and
+   * pushes from the same block (see gs_nvshmem_kernels.h).
+   */
   void cuda_gs_pack_and_push(void *u_d, void *sbuf_d, void *sdof_d,
                              int soffset, int n, cudaStream_t stream,
-                             int srank,  void *rbuf_d, int roffset, int* remote_offset,
-			     int rrank, int counter, void* notifyDone, void* notifyReady,
-			     int iter)
-
+                             int destRank, void *rbuf_d, int roffset,
+                             int iter, void *done_d, void *ready_d,
+                             int mype)
   {
-    
     const int nthrds = 1024;
-    const int nblcks = (n+nthrds-1)/nthrds;
 
     pack_pushShmemKernel<real>
-      <<<nblcks,nthrds,0,stream>>>((real *) u_d,
-                                   (real *) rbuf_d + remote_offset[iter-1],
-                                   (real *) sbuf_d + soffset,
-                                   (int *) sdof_d + soffset,
-                                   srank, rrank, n, counter,
-                                   (uint64_t*) notifyDone,
-                                   (uint64_t*) notifyReady);         
+      <<<1,nthrds,0,stream>>>((real *) u_d,
+                              (real *) rbuf_d + roffset,
+                              (real *) sbuf_d + soffset,
+                              (int *) sdof_d + soffset,
+                              destRank, n, (uint64_t) iter,
+                              (uint64_t *) done_d + mype,
+                              (uint64_t *) ready_d + destRank);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void cuda_gs_pack_and_push_wait(cudaStream_t stream, int counter, void* notifyDone)
+  /**
+   * Wait until the slab from srcRank has landed (our local done_sig[srcRank]
+   * reaches iter).
+   */
+  void cuda_gs_pack_and_push_wait(cudaStream_t stream, int iter,
+                                  void *done_d, int srcRank)
   {
-    uint64_t counter_ = (uint64_t) counter;
-    pushShmemKernelWait<<<1,1,0,stream>>>(counter_,(uint64_t*) notifyDone);
+    pushShmemKernelWait<<<1,1,0,stream>>>((uint64_t) iter,
+                                          (uint64_t *) done_d + srcRank);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Post our ready signal to srcRank (sets ready_sig[mype] = iter there),
+   * allowing it to overwrite its send slab for the next round. Launch after
+   * the unpack on the same stream.
+   */
+  void cuda_gs_post_ready(cudaStream_t stream, int iter, void *ready_d,
+                          int mype, int srcRank)
+  {
+    postReadyShmemKernel<<<1,1,0,stream>>>((uint64_t *) ready_d + mype,
+                                           (uint64_t) iter, srcRank);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Fused nc-component pack-and-push. sbuf_d/rbuf_d are interleaved (nc per
+   * position); u_d is the compact shared buffer (component-outer, stride ns).
+   * Single-block launch, see cuda_gs_pack_and_push.
+   */
+  void cuda_gs_pack_and_push_vec(void *u_d, void *sbuf_d, void *sdof_d,
+                                 int soffset, int n, int nc, int ns,
+                                 cudaStream_t stream, int destRank,
+                                 void *rbuf_d, int roffset, int iter,
+                                 void *done_d, void *ready_d, int mype)
+  {
+    const int nthrds = 1024;
+
+    pack_pushShmemKernel_vec<real>
+      <<<1,nthrds,0,stream>>>((real *) u_d,
+                              (real *) rbuf_d + nc*roffset,
+                              (real *) sbuf_d + nc*soffset,
+                              (int *) sdof_d + soffset,
+                              destRank, n, nc, ns, (uint64_t) iter,
+                              (uint64_t *) done_d + mype,
+                              (uint64_t *) ready_d + destRank);
     CUDA_CHECK(cudaGetLastError());
   }
 #endif
