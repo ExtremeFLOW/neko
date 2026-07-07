@@ -95,7 +95,6 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   Nvidia:
-    if: ${{ github.event_name != 'pull_request' }}
     name: Nvidia
     needs:
       - prepare
