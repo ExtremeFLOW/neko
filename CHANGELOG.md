@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Modified the additive reduction routines in `device_math` (`glsum`, `glsc2`,
+  `glsc3`, `glsubnorm`, and `glsc3_many`) to do reductions in extended
+  precision instead of `rp`. This improves numerical robustness when running
+  in single precision.
 - Fixed a linking failure with CUDA 13, which no longer implicitly links the
   host C++ runtime (`undefined reference to __cxa_guard_acquire`); `configure`
   now links `libstdc++` explicitly for CUDA >= 13, except with the Cray
