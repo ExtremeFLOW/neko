@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -310,6 +310,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: ksp_results
+    integer :: i
 
     call profiler_start_region('PHMG_solve', 8)
     associate( mglvl => this%phmg_hrchy%lvl)
@@ -326,15 +327,29 @@ contains
 
          call device_copy(z_d, mglvl(0)%z%x_d, n)
       else
-         !We should not work with the input
-         call copy(mglvl(0)%r%x, r, n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !GCC$ ivdep
+         !$omp parallel do
+         do i = 1, n
+            !We should not work with the input
+            mglvl(0)%r%x(i,1,1,1) = r(i)
 
-         mglvl(0)%z%x = 0.0_rp
-         mglvl(0)%w%x = 0.0_rp
+            mglvl(0)%z%x(i,1,1,1) = 0.0_rp
+            mglvl(0)%w%x(i,1,1,1) = 0.0_rp
+         end do
+         !$omp end parallel do
 
          call this%mg_cycle()
 
-         call copy(z, mglvl(0)%z%x, n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !GCC$ ivdep
+         !$omp parallel do
+         do i = 1, n
+            z(i) = mglvl(0)%z%x(i,1,1,1)
+         end do
+         !$omp end parallel do
       end if
     end associate
     call profiler_end_region('PHMG_solve', 8)
@@ -350,7 +365,7 @@ contains
     class(phmg_t), intent(inout) :: this
     type(ksp_monitor_t) :: ksp_results
     character(len=2) :: lvl_name
-    integer :: lvl
+    integer :: lvl, i
 
     associate(mg => this%phmg_hrchy%lvl, intrp => this%intrp, &
          msh => this%msh, Ax => this%Ax)
@@ -387,7 +402,14 @@ contains
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg(lvl)%dm_Xh%size())
            else
-              w%x = r%x - w%x
+              !OCL NORECURRENCE, NOVREC, NOALIAS
+              !DIR$ CONCURRENT
+              !GCC$ ivdep
+              !$omp parallel do
+              do i = 1, mg(lvl)%dm_Xh%size()
+                 w%x(i,1,1,1) = r%x(i,1,1,1) - w%x(i,1,1,1)
+              end do
+              !$omp end parallel do
            end if
 
            !------------!
@@ -412,7 +434,14 @@ contains
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
            else
-              mg(lvl+1)%z%x = 0.0_rp
+              !OCL NORECURRENCE, NOVREC, NOALIAS
+              !DIR$ CONCURRENT
+              !GCC$ ivdep
+              !$omp parallel do
+              do i = 1, mg(lvl+1)%dm_Xh%size()
+                 mg(lvl+1)%z%x(i,1,1,1) = 0.0_rp
+              end do
+              !$omp end parallel do
            end if
          end associate
          call profiler_end_region( "PHMG_level_" // trim(lvl_name))
@@ -452,7 +481,14 @@ contains
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_add2(z%x_d, w%x_d, mg(lvl)%dm_Xh%size())
            else
-              z%x = z%x + w%x
+              !OCL NORECURRENCE, NOVREC, NOALIAS
+              !DIR$ CONCURRENT
+              !GCC$ ivdep
+              !$omp parallel do
+              do i = 1, mg(lvl)%dm_Xh%size()
+                 z%x(i,1,1,1) = z%x(i,1,1,1) + w%x(i,1,1,1)
+              end do
+              !$omp end parallel do
            end if
 
            !------------!

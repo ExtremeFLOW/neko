@@ -264,6 +264,10 @@ contains
     type(stack_i4_t), intent(inout) :: recv_pe
     integer :: i, nstrm
 
+#if !defined(HAVE_NCCL) && !defined(HAVE_RCCL)
+    call neko_error('Neko was not built with NCCL support')
+#endif
+
     call this%init_order(send_pe, recv_pe)
 
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
@@ -307,6 +311,13 @@ contains
           call device_stream_destroy(this%stream(i))
        end do
        deallocate(this%stream)
+    end if
+
+    if (allocated(this%event)) then
+       do i = 1, size(this%event)
+          call device_event_destroy(this%event(i))
+       end do
+       deallocate(this%event)
     end if
 #endif
 
