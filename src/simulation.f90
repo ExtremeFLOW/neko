@@ -88,9 +88,9 @@ contains
 
     ! Execute outputs and user-init before time loop
     call neko_log%section('Preprocessing')
+    call C%user%initialize(C%time)
     call C%output_controller%execute(C%time)
 
-    call C%user%initialize(C%time)
     call neko_log%end_section()
     call neko_log%newline()
 
