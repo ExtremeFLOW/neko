@@ -1,5 +1,7 @@
 <map id="gs_device_nccl::gs_device_nccl_free" name="gs_device_nccl::gs_device_nccl_free">
-<area shape="rect" id="Node000001" title="Deallocate MPI based communication method." alt="" coords="5,5,148,45"/>
-<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#af74b29ebaa45f9d17c541fb736c7dd30" title="Destroy a device stream/command queue." alt="" coords="196,5,365,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,23,182,23,182,28,148,28"/>
+<area shape="rect" id="Node000001" title="Deallocate MPI based communication method." alt="" coords="5,37,148,77"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="201,5,361,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,44,187,37,187,43,149,49"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#af74b29ebaa45f9d17c541fb736c7dd30" title="Destroy a device stream/command queue." alt="" coords="196,69,365,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,66,183,71,182,77,148,71"/>
 </map>

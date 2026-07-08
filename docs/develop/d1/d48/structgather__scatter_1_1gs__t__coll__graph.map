@@ -1,5 +1,5 @@
 <map id="gather_scatter::gs_t" name="gather_scatter::gs_t">
-<area shape="rect" id="Node000001" title=" " alt="" coords="2080,1027,2231,1053"/>
+<area shape="rect" id="Node000001" title="Gather&#45;scatter kernel." alt="" coords="2080,1027,2231,1053"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="1261,966,1316,991"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1330,979,2080,1032,2080,1037,1330,984"/>
 <area shape="rect" id="Node000003" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1835,945,1977,970"/>

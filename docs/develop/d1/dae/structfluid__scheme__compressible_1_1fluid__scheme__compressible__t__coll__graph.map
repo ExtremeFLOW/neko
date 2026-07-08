@@ -15,7 +15,7 @@
 <area shape="rect" id="Node000004" title=" " alt="" coords="1283,1068,1338,1093"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1330,1056,1378,1009,1409,985,1443,965,1481,950,1513,945,1546,942,1586,934,1659,909,1661,915,1587,939,1547,947,1514,950,1483,955,1445,970,1412,990,1382,1013,1334,1060"/>
 <area shape="poly" id="edge45_Node000005_Node000004" title=" " alt="" coords="1350,1062,1394,1046,1443,1031,1588,1003,1733,982,1967,961,1968,966,1734,988,1589,1008,1445,1037,1396,1051,1352,1067"/>
-<area shape="rect" id="Node000032" href="$dd/db8/structgather__scatter_1_1gs__t.html" title=" " alt="" coords="2241,1161,2392,1187"/>
+<area shape="rect" id="Node000032" href="$dd/db8/structgather__scatter_1_1gs__t.html" title="Gather&#45;scatter kernel." alt="" coords="2241,1161,2392,1187"/>
 <area shape="poly" id="edge47_Node000032_Node000004" title=" " alt="" coords="1352,1082,2242,1164,2241,1170,1351,1087"/>
 <area shape="poly" id="edge56_Node000034_Node000004" title=" " alt="" coords="1352,1087,1599,1146,1778,1191,1855,1221,1885,1240,1918,1271,1927,1286,1929,1300,1932,1312,1942,1323,1967,1337,1991,1345,2013,1347,2034,1346,2081,1336,2138,1322,2200,1307,2262,1288,2380,1242,2478,1195,2545,1159,2548,1164,2481,1200,2382,1246,2264,1293,2202,1312,2139,1327,2082,1341,2035,1352,2013,1353,1990,1350,1965,1341,1938,1327,1927,1315,1924,1301,1921,1288,1914,1274,1882,1244,1852,1226,1777,1197,1597,1151,1351,1093"/>
 <area shape="rect" id="Node000035" href="$d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html" title="Implements the logic to compute the time coefficients for the advection and diffusion operators in a ..." alt="" coords="1940,1409,2139,1449"/>

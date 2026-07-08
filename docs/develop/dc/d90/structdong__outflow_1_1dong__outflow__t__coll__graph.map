@@ -6,7 +6,7 @@
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1902,1176,1983,1194,2075,1209,2159,1216,2192,1214,2218,1208,2286,1172,2311,1154,2332,1133,2368,1082,2403,1012,2415,977,2426,929,2443,813,2460,622,2466,623,2448,814,2431,930,2420,978,2408,1014,2372,1084,2336,1136,2315,1158,2289,1177,2220,1212,2193,1219,2159,1221,2074,1214,1982,1199,1901,1182"/>
 <area shape="rect" id="Node000032" href="$d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2243,1037,2348,1063"/>
 <area shape="poly" id="edge48_Node000032_Node000003" title=" " alt="" coords="1920,1156,2087,1140,2164,1127,2217,1109,2252,1085,2279,1061,2283,1065,2255,1089,2220,1114,2165,1132,2087,1145,1921,1161"/>
-<area shape="rect" id="Node000033" href="$dd/db8/structgather__scatter_1_1gs__t.html" title=" " alt="" coords="2009,1248,2160,1273"/>
+<area shape="rect" id="Node000033" href="$dd/db8/structgather__scatter_1_1gs__t.html" title="Gather&#45;scatter kernel." alt="" coords="2009,1248,2160,1273"/>
 <area shape="poly" id="edge51_Node000033_Node000003" title=" " alt="" coords="1869,1181,1932,1213,1982,1231,2031,1245,2030,1251,1981,1236,1930,1218,1867,1185"/>
 <area shape="rect" id="Node000035" href="$d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="2035,727,2134,752"/>
 <area shape="poly" id="edge62_Node000035_Node000003" title=" " alt="" coords="1862,1140,1931,1080,1963,1048,1983,1023,1995,997,1998,974,2000,950,2007,920,2043,822,2075,751,2080,753,2048,824,2012,921,2006,951,2003,975,2000,998,1988,1026,1967,1052,1934,1084,1865,1144"/>
