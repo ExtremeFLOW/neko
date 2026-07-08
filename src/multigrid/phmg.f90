@@ -329,6 +329,7 @@ contains
       else
          !OCL NORECURRENCE, NOVREC, NOALIAS
          !DIR$ CONCURRENT
+         !DIR$ IVDEP
          !GCC$ ivdep
          !$omp parallel do
          do i = 1, n
@@ -344,6 +345,7 @@ contains
 
          !OCL NORECURRENCE, NOVREC, NOALIAS
          !DIR$ CONCURRENT
+         !DIR$ IVDEP
          !GCC$ ivdep
          !$omp parallel do
          do i = 1, n
@@ -404,6 +406,7 @@ contains
            else
               !OCL NORECURRENCE, NOVREC, NOALIAS
               !DIR$ CONCURRENT
+              !DIR$ IVDEP
               !GCC$ ivdep
               !$omp parallel do
               do i = 1, mg(lvl)%dm_Xh%size()
@@ -436,6 +439,7 @@ contains
            else
               !OCL NORECURRENCE, NOVREC, NOALIAS
               !DIR$ CONCURRENT
+              !DIR$ IVDEP
               !GCC$ ivdep
               !$omp parallel do
               do i = 1, mg(lvl+1)%dm_Xh%size()
@@ -483,6 +487,7 @@ contains
            else
               !OCL NORECURRENCE, NOVREC, NOALIAS
               !DIR$ CONCURRENT
+              !DIR$ IVDEP
               !GCC$ ivdep
               !$omp parallel do
               do i = 1, mg(lvl)%dm_Xh%size()
