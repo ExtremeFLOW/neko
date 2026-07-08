@@ -211,7 +211,6 @@ smallest of `timestep` and the value calculated from the target CFL number.
 | `target_cfl`               | The desired CFL number                                                                      | Positive real                     | `0.4`         |
 | `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
 | `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `huge`        |
-| `running_avg_coeff`        | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 | `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                            | Positive real greater than `1`    | `1.2`         |
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
