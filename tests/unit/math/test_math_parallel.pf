@@ -3,7 +3,8 @@ module test_math_parallel
   use pfunit
   use math
   use num_types
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
 
 contains

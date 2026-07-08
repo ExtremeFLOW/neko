@@ -6,7 +6,8 @@ module test_device_math_parallel
   use device_math
   use neko_config
   use num_types
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use, intrinsic :: iso_c_binding
   implicit none
 

@@ -13,7 +13,8 @@ module test_gather_scatter_parallel
   use gather_scatter
   use device
   use neko_config
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
 
   @TestCase

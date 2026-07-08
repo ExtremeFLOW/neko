@@ -13,7 +13,8 @@ module test_boundary_operation
   use time_state, only : time_state_t
   use num_types, only : rp
   use case, only : case_t
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use device, only : device_init, device_finalize, HOST_TO_DEVICE
   use neko_config, only : NEKO_BCKND_DEVICE
   use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free

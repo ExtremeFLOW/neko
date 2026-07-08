@@ -8,7 +8,8 @@ module test_mesh_parallel
   use quad
   use point
   use tuple
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
 
 contains

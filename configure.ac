@@ -397,6 +397,7 @@ AC_CONFIG_FILES([Makefile\
         src/python/Makefile\
         tests/unit/Makefile\
         src/comm/comm.F90\
+        src/comm/pfunit_comm_utils.F90\
         src/config/neko_config.f90\
         src/config/num_types.f90\
         src/device/device_config.h\

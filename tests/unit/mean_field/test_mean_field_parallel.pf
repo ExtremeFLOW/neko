@@ -11,7 +11,8 @@ module test_mean_field_parallel
   use field
   use space
   use device
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config
   implicit none
 

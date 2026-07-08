@@ -12,7 +12,8 @@ module vtkhdf_parallel
   use num_types, only : rp, dp
   use device, only : device_init, device_finalize
   use dofmap, only : dofmap_t
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config, only : NEKO_BCKND_DEVICE
   use hdf5, only : h5open_f, h5close_f, h5fopen_f, h5fclose_f, &
        h5gopen_f, h5gclose_f, h5aopen_f, h5aclose_f, h5aread_f, &

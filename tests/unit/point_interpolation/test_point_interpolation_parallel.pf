@@ -10,7 +10,8 @@ module test_point_interpolation_parallel
   use space
   use point
   use datadist
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use device
   use neko_config
   implicit none

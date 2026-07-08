@@ -13,7 +13,8 @@
   use vector
   use math
   use global_interpolation
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init_test, comm_free_test
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config
   use neko_mpi_types
   implicit none
