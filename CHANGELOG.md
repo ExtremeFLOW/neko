@@ -2,6 +2,9 @@
 
 ## Develop
 
+- *BREAKING* Changed the size of mesh velocity lag arrays in ALE to 2. 
+  Old ALE restart files (before this commit) should not be used anymore. 
+  Non-ALE restart files are totally unaffected.
 - Fixed a linking failure with CUDA 13, which no longer implicitly links the
   host C++ runtime (`undefined reference to __cxa_guard_acquire`); `configure`
   now links `libstdc++` explicitly for CUDA >= 13, except with the Cray
