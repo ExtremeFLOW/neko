@@ -325,6 +325,8 @@ contains
     call field_subcol3(fv, v, this%brinkman, n)
     call field_subcol3(fw, w, this%brinkman, n)
 
+    nullify(u, v, w, fu, fv, fw)
+
   end subroutine brinkman_source_term_compute
 
   ! ========================================================================== !

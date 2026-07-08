@@ -38,7 +38,7 @@ module scalar_residual_device
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
-  use num_types, only : rp    
+  use num_types, only : rp
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -83,6 +83,18 @@ module scalar_residual_device
        integer(c_int) :: n
      end subroutine scalar_residual_update_opencl
   end interface
+#elif HAVE_METAL
+
+  interface
+     subroutine scalar_residual_update_metal(s_res_d, f_s_d, n) &
+          bind(c, name = 'scalar_residual_update_metal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: s_res_d
+       type(c_ptr), value :: f_s_d
+       integer(c_int) :: n
+     end subroutine scalar_residual_update_metal
+  end interface
 #endif
 
 
@@ -116,6 +128,8 @@ contains
     call scalar_residual_update_cuda(s_res%x_d, f_Xh%x_d, n)
 #elif HAVE_OPENCL
     call scalar_residual_update_opencl(s_res%x_d, f_Xh%x_d, n)
+#elif HAVE_METAL
+    call scalar_residual_update_metal(s_res%x_d, f_Xh%x_d, n)
 #endif
 
   end subroutine scalar_residual_device_compute

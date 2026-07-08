@@ -671,7 +671,8 @@ contains
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
          ( (have_lag .eq. 0) .and. (read_lag) ) .or. &
-         ( (have_scalar .eq. 0) .and. (read_scalar) ) ) then
+         ( (have_scalar .eq. 0) .and. (read_scalar) ) .or. &
+         ( (have_ale .eq. 0) .and. (read_ale) ) ) then
        call neko_error('Checkpoint does not match case')
     end if
     nel = msh%nelv

@@ -36,8 +36,8 @@ module vector_series
   implicit none
   private
 
-  !> Stores a series (sequence) of vectors, logically connected to a base vector,
-  !! and arranged according to some ordering.
+  !> Stores a series (sequence) of vectors, logically connected to a
+  !! base vector, and arranged according to some ordering.
   !! Currently used to store time-lagged values of solution vectors.
   type, public :: vector_series_t
      type(vector_t), pointer :: v => null()

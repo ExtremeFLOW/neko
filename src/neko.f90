@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2025, The Neko Authors
+! Copyright (c) 2019-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -284,9 +284,9 @@ contains
     call neko_user_access%free()
     call neko_log%free()
 
-    call device_finalize
     call neko_mpi_types_free
     call comm_free
+    call device_finalize
   end subroutine neko_finalize
 
 
@@ -371,13 +371,15 @@ contains
        write(log_buf(13:), '(a)') 'Accelerator (HIP)'
     else if (NEKO_BCKND_OPENCL .eq. 1) then
        write(log_buf(13:), '(a)') 'Accelerator (OpenCL)'
+    else if (NEKO_BCKND_METAL .eq. 1) then
+       write(log_buf(13:), '(a)') 'Accelerator (Metal)'
     else
        write(log_buf(13:), '(a)') 'CPU'
     end if
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
     if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
-         NEKO_BCKND_OPENCL .eq. 1) then
+         NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
        write(log_buf, '(a)') 'Dev. name : '
        call device_name(log_buf(13:))
        call neko_log%message(log_buf, NEKO_LOG_QUIET)

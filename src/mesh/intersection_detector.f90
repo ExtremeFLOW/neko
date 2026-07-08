@@ -39,7 +39,6 @@ module intersection_detector
   use point, only : point_t
   use utils, only : neko_error
   use stack, only : stack_i4_t
-  use aabb
   implicit none
   private
 

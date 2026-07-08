@@ -209,18 +209,10 @@ contains
        call this%surface_v%init(n_pts)
        call this%surface_w%init(n_pts)
        call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
-            this%n1%x, this%n2%x, this%n3%x, n_pts)
+            this%n1, this%n2, this%n3, n_pts)
        call vector_cmult(this%n1, -1.0_rp, n_pts)
        call vector_cmult(this%n2, -1.0_rp, n_pts)
        call vector_cmult(this%n3, -1.0_rp, n_pts)
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(this%n1%x, this%n1%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%n2%x, this%n2%x_d, n_pts, &
-               HOST_TO_DEVICE, .false.)
-          call device_memcpy(this%n3%x, this%n3%x_d, n_pts, &
-               HOST_TO_DEVICE, .true.)
-       end if
     end if
 
     if (present(output_filename)) then
