@@ -70,10 +70,10 @@ module vector_math
        glmin, glsc2, glsc3, masked_gather_copy_0, face_masked_gather_copy_0, &
        masked_gather_copy, cadd2, masked_scatter_copy, &
        masked_scatter_copy_0, glsubnorm, invcol3, cwrap, &
-       sqrt_inplace, power
+       sqrt_inplace, power, absval
   use device_math, only : device_rzero, device_rone, device_copy, &
        device_cmult, device_cadd, device_cfill, device_invcol1, device_vdot3, &
-       device_cadd2, &
+       device_cadd2, device_absval, &
        device_add2, device_add3, device_add4, device_sub2, device_sub3, &
        device_add2s1, device_add2s2, device_addsqr2s2, device_cmult2, &
        device_invcol2, device_col2, device_col3, device_subcol3, &
@@ -89,7 +89,7 @@ module vector_math
 
   public :: vector_rzero, vector_rone, vector_copy, vector_cmult, &
        vector_cadd, vector_cfill, vector_invcol1, vector_invcol3, &
-       vector_vdot3, vector_cadd2, &
+       vector_vdot3, vector_cadd2, vector_absval, &
        vector_add2, vector_sub2, vector_sub3, vector_add2s1, &
        vector_add2s2, vector_addsqr2s2, vector_cmult2, &
        vector_invcol2, vector_col2, vector_col3, vector_subcol3, &
@@ -766,6 +766,26 @@ contains
     end if
 
   end function vector_glsc3
+
+  !> Compute the pointwise absolute value of a vector \f$ a = |a| \f$
+  subroutine vector_absval(a, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_absval(a%x_d, size)
+    else
+       call absval(a%x, size)
+    end if
+
+  end subroutine vector_absval
 
   function vector_glsubnorm(a, b, n) result(norm)
     integer, intent(in), optional :: n

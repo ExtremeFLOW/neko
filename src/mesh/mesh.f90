@@ -194,9 +194,16 @@ contains
     integer, intent(in) :: gdim !< Geometric dimension
     integer, intent(in) :: nelv !< Local number of elements
     integer :: ierr
+    logical :: lgenc
     character(len=LOG_SIZE) :: log_buf
 
+    ! Preserve the caller's connectivity-generation choice across free(), which
+    ! resets lgenc to its .true. default (see mesh_free). Without this, setting
+    ! `msh%lgenc = .false.` before init has no effect, and connectivity is always
+    ! generated.
+    lgenc = this%lgenc
     call this%free()
+    this%lgenc = lgenc
 
     this%nelv = nelv
     this%gdim = gdim
@@ -222,9 +229,14 @@ contains
     class(mesh_t), intent(inout) :: this !< Mesh
     integer, intent(in) :: gdim !< Geometric dimension
     type(linear_dist_t), intent(in) :: dist !< Data distribution
+    logical :: lgenc
     character(len=LOG_SIZE) :: log_buf
 
+    ! Preserve the caller's connectivity-generation choice across free()
+    ! (see mesh_init_nelv / mesh_free).
+    lgenc = this%lgenc
     call this%free()
+    this%lgenc = lgenc
 
     this%nelv = dist%num_local()
     if (this%nelv < 1) then

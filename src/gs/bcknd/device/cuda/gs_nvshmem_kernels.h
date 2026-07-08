@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2024-2025, The Neko Authors
+ Copyright (c) 2024-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,11 @@
 #include <nvshmemx.h>
 
 /*
- * Fused pack-and-push kernels with rank-indexed signaling.
+ * Push kernels with rank-indexed signaling.
  *
  * Signaling uses two symmetric arrays of pe_size slots, indexed by the
- * REMOTE PE's rank (so peer lists need not be uniform in length or aligned
- * in order across ranks, and the symmetric allocations are collective-safe):
+ * REMOTE PE's rank (so peer lists need not be uniform in length across
+ * ranks, and the symmetric allocations are collective-safe):
  *  - doneSig  = &done_sig[my_rank] on the destination: set to iter by our
  *    put_signal when our slab has landed there.
  *  - readySlot = &ready_sig[destRank] locally: set to iter by the
@@ -50,51 +50,48 @@
  * The round counter iter advances once per gs op (lockstep across ranks),
  * and all waits use CMP_GE, so no cross-rank counter matching is needed.
  *
- * These are SINGLE-BLOCK kernels (launched with one block): the pack is a
- * block-stride loop, so the block-local __syncthreads() suffices to order
- * the pack before the put. A multi-block pack would race with the push --
- * there is no grid-wide barrier between pack and push. Single-block
- * transfers were also found to perform best.
+ * Packing is NOT done here: all peer slabs are packed by one bulk kernel
+ * on the main stream in nbsend, into the round's parity half of the
+ * double-buffered send buffer (see gs_device_shmem.F90). That orders every
+ * read of the shared buffer u before any unpack writes u. Packing inside
+ * the push kernel, gated on the remote ready signal, let an unpack from a
+ * fast peer modify u before the pack for a slow peer had read it -- for a
+ * dof shared with both peers the slow peer then received an already
+ * partially reduced value (observed as divergence at large rank counts,
+ * where multi-peer dofs and round-level skew are common).
  *
- * The ready wait comes BEFORE the pack: the destination posts ready(iter-1)
- * only after consuming our round iter-1 slab, which implies our previous
- * (non-blocking) put has fully drained src -- so the pack below can safely
- * overwrite it. Packing before this wait would race with a still-in-flight
- * nbi put on proxy-based transports.
+ * The ready wait below therefore gates only the put: the destination posts
+ * ready(iter-1) once it has consumed our round iter-1 slab, so its recv
+ * slab may be overwritten. The pack needs no remote gate; see the nbsend
+ * comment in gs_device_shmem.F90 for why the parity slab has always
+ * drained by the time it is repacked.
+ *
+ * These are SINGLE-BLOCK kernels (launched with one block); single-block
+ * transfers were found to perform best at gs slab sizes.
  */
 
 template< typename T >
-__global__ void pack_pushShmemKernel(const T * __restrict__ u,
-                                     T * dest,
-                                     T * __restrict__ src,
-                                     const int * __restrict__ dof,
-                                     const int destRank,
-                                     const int n,
-                                     uint64_t iter,
-                                     uint64_t * doneSig,
-                                     uint64_t * readySlot);
+__global__ void pushShmemKernel(T * dest,
+                                const T * __restrict__ src,
+                                const size_t n,
+                                const int destRank,
+                                uint64_t iter,
+                                uint64_t * doneSig,
+                                uint64_t * readySlot);
 
 template<>
-__global__ void pack_pushShmemKernel(const float * __restrict__ u,
-                                     float * dest,
-                                     float * __restrict__ src,
-                                     const int * __restrict__ dof,
-                                     const int destRank,
-                                     const int n,
-                                     uint64_t iter,
-                                     uint64_t * doneSig,
-                                     uint64_t * readySlot)
+__global__ void pushShmemKernel(float * dest,
+                                const float * __restrict__ src,
+                                const size_t n,
+                                const int destRank,
+                                uint64_t iter,
+                                uint64_t * doneSig,
+                                uint64_t * readySlot)
 {
 
   /* Wait until destRank has consumed our previous round (see note above) */
   if (threadIdx.x == 0) {
     nvshmem_signal_wait_until(readySlot, NVSHMEM_CMP_GE, iter - 1);
-  }
-  __syncthreads();
-
-  /* Pack with a block-stride loop (single-block kernel) */
-  for (int j = threadIdx.x; j < n; j += blockDim.x) {
-    src[j] = u[dof[j]-1];
   }
   __syncthreads();
 
@@ -105,26 +102,18 @@ __global__ void pack_pushShmemKernel(const float * __restrict__ u,
 }
 
 template<>
-__global__ void pack_pushShmemKernel(const double * __restrict__ u,
-                                     double * dest,
-                                     double * __restrict__ src,
-                                     const int * __restrict__ dof,
-                                     const int destRank,
-                                     const int n,
-                                     uint64_t iter,
-                                     uint64_t * doneSig,
-                                     uint64_t * readySlot)
+__global__ void pushShmemKernel(double * dest,
+                                const double * __restrict__ src,
+                                const size_t n,
+                                const int destRank,
+                                uint64_t iter,
+                                uint64_t * doneSig,
+                                uint64_t * readySlot)
 {
 
   /* Wait until destRank has consumed our previous round (see note above) */
   if (threadIdx.x == 0) {
     nvshmem_signal_wait_until(readySlot, NVSHMEM_CMP_GE, iter - 1);
-  }
-  __syncthreads();
-
-  /* Pack with a block-stride loop (single-block kernel) */
-  for (int j = threadIdx.x; j < n; j += blockDim.x) {
-    src[j] = u[dof[j]-1];
   }
   __syncthreads();
 
@@ -145,8 +134,8 @@ __global__ void pushShmemKernelWait(uint64_t iter,
 }
 
 /* Post our ready signal to the peer we receive from: sets
-   ready_sig[my_rank] = iter on srcRank, allowing it to overwrite its send
-   slab for the next round. Launched after the unpack on the same stream. */
+   ready_sig[my_rank] = iter on srcRank, allowing it to put its next round
+   into our recv slab. Launched after the unpack on the same stream. */
 __global__ void postReadyShmemKernel(uint64_t *readySlot,
                                      uint64_t iter,
                                      const int srcRank)
@@ -154,93 +143,6 @@ __global__ void postReadyShmemKernel(uint64_t *readySlot,
   if (blockIdx.x==0 && threadIdx.x == 0) {
     nvshmemx_signal_op(readySlot, iter, NVSHMEM_SIGNAL_SET, srcRank);
   }
-}
-
-/*
- * Fused nc-component pack-and-push (single-block, rank-indexed signaling,
- * see the scalar kernels above). u is the compact shared buffer,
- * component-outer with per-component stride ns; src/dest are interleaved
- * (nc per position). The pushed payload is nc*n elements.
- */
-template< typename T >
-__global__ void pack_pushShmemKernel_vec(const T * __restrict__ u,
-                                         T * dest,
-                                         T * __restrict__ src,
-                                         const int * __restrict__ dof,
-                                         const int destRank,
-                                         const int n,
-                                         const int nc,
-                                         const int ns,
-                                         uint64_t iter,
-                                         uint64_t * doneSig,
-                                         uint64_t * readySlot);
-
-template<>
-__global__ void pack_pushShmemKernel_vec(const float * __restrict__ u,
-                                         float * dest,
-                                         float * __restrict__ src,
-                                         const int * __restrict__ dof,
-                                         const int destRank,
-                                         const int n,
-                                         const int nc,
-                                         const int ns,
-                                         uint64_t iter,
-                                         uint64_t * doneSig,
-                                         uint64_t * readySlot)
-{
-
-  /* Wait until destRank has consumed our previous round */
-  if (threadIdx.x == 0) {
-    nvshmem_signal_wait_until(readySlot, NVSHMEM_CMP_GE, iter - 1);
-  }
-  __syncthreads();
-
-  /* Pack with a block-stride loop (single-block kernel) */
-  for (int j = threadIdx.x; j < n; j += blockDim.x) {
-    const int idx = dof[j] - 1;
-    for (int c = 0; c < nc; c++)
-      src[nc*j + c] = u[c*ns + idx];
-  }
-  __syncthreads();
-
-  /* Push data and set done_sig[my_rank] = iter on the destination */
-  nvshmemx_float_put_signal_nbi_block(dest, src, (size_t) nc * n,
-                                      doneSig, iter,
-                                      NVSHMEM_SIGNAL_SET, destRank);
-}
-
-template<>
-__global__ void pack_pushShmemKernel_vec(const double * __restrict__ u,
-                                         double * dest,
-                                         double * __restrict__ src,
-                                         const int * __restrict__ dof,
-                                         const int destRank,
-                                         const int n,
-                                         const int nc,
-                                         const int ns,
-                                         uint64_t iter,
-                                         uint64_t * doneSig,
-                                         uint64_t * readySlot)
-{
-
-  /* Wait until destRank has consumed our previous round */
-  if (threadIdx.x == 0) {
-    nvshmem_signal_wait_until(readySlot, NVSHMEM_CMP_GE, iter - 1);
-  }
-  __syncthreads();
-
-  /* Pack with a block-stride loop (single-block kernel) */
-  for (int j = threadIdx.x; j < n; j += blockDim.x) {
-    const int idx = dof[j] - 1;
-    for (int c = 0; c < nc; c++)
-      src[nc*j + c] = u[c*ns + idx];
-  }
-  __syncthreads();
-
-  /* Push data and set done_sig[my_rank] = iter on the destination */
-  nvshmemx_double_put_signal_nbi_block(dest, src, (size_t) nc * n,
-                                       doneSig, iter,
-                                       NVSHMEM_SIGNAL_SET, destRank);
 }
 
 #endif
