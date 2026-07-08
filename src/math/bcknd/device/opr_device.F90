@@ -781,7 +781,7 @@ contains
     type(c_ptr) :: du_d, ud_d
     integer :: n_GL, n_GLL
 
-    n_GLL = coef_GL%msh%nelv * Xh_GL%lxyz
+    n_GL = coef_GL%msh%nelv * Xh_GL%lxyz
     n_GLL = coef_GL%msh%nelv * Xh_GLL%lxyz
 
     call device_map(ud, ud_d, n_GL)

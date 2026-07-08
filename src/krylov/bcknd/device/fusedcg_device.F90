@@ -228,7 +228,7 @@ contains
     call device_map(this%r, this%r_d, n)
     call device_map(this%z, this%z_d, n)
     call device_map(this%alpha, this%alpha_d, DEVICE_FUSEDCG_P_SPACE)
-    do i = 1, DEVICE_FUSEDCG_P_SPACE+1
+    do i = 1, DEVICE_FUSEDCG_P_SPACE
        this%p_d(i) = C_NULL_PTR
        call device_map(this%p(:,i), this%p_d(i), n)
     end do
@@ -306,6 +306,10 @@ contains
           end do
        end if
        deallocate(this%p)
+    end if
+
+    if (allocated(this%p_d)) then
+       deallocate(this%p_d)
     end if
 
     if (c_associated(this%p_d_d)) then

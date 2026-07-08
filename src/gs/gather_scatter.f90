@@ -66,7 +66,7 @@ module gather_scatter
   use profiler, only : profiler_start_region, profiler_end_region
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_DEVICE, &
        device_sync, device_map, device_unmap, device_get_ptr, &
-       device_event_record
+       device_event_record, device_deassociate
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_intptr_t, &
        c_sizeof, c_associated, c_size_t
   !$ use omp_lib, only : omp_get_thread_num
@@ -410,27 +410,48 @@ contains
 
     nullify(gs%dofmap)
 
+    ! The device backend lazily maps these arrays in gather/scatter,
+    ! and its free only releases the device side; remove any stale
+    ! address table entries before deallocating the host side
     if (allocated(gs%local_gs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_gs)
+       end if
        deallocate(gs%local_gs)
     end if
 
     if (allocated(gs%local_dof_gs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_dof_gs)
+       end if
        deallocate(gs%local_dof_gs)
     end if
 
     if (allocated(gs%local_gs_dof)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_gs_dof)
+       end if
        deallocate(gs%local_gs_dof)
     end if
 
     if (allocated(gs%local_blk_len)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_blk_len)
+       end if
        deallocate(gs%local_blk_len)
     end if
 
     if (allocated(gs%local_blk_off)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_blk_off)
+       end if
        deallocate(gs%local_blk_off)
     end if
 
     if (allocated(gs%shared_gs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_gs)
+       end if
        deallocate(gs%shared_gs)
     end if
 
@@ -442,18 +463,30 @@ contains
     end if
 
     if (allocated(gs%shared_dof_gs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_dof_gs)
+       end if
        deallocate(gs%shared_dof_gs)
     end if
 
     if (allocated(gs%shared_gs_dof)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_gs_dof)
+       end if
        deallocate(gs%shared_gs_dof)
     end if
 
     if (allocated(gs%shared_blk_len)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_blk_len)
+       end if
        deallocate(gs%shared_blk_len)
     end if
 
     if (allocated(gs%shared_blk_off)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_blk_off)
+       end if
        deallocate(gs%shared_blk_off)
     end if
 
