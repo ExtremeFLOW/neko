@@ -2,6 +2,14 @@
 
 ## Develop
 
+- Fixed NVSHMEM support for NVSHMEM 3.x, which no longer ships the combined
+  `libnvshmem`; `configure` now detects the split `libnvshmem_host` and
+  `libnvshmem_device` libraries (falling back to `-lnvshmem` for older
+  releases). The device link is now performed at build time via
+  `nvcc -dlink`, so final binaries link with the Fortran compiler as usual:
+  NVSHMEM builds no longer require a manual `nvcc` link or `-rdc=true` in
+  `CUDA_CFLAGS`, and no longer disable the `neko` binary, contrib tools,
+  or the unit tests.
 - Modified the additive reduction routines in `device_math` (`glsum`, `glsc2`,
   `glsc3`, `glsubnorm`, and `glsc3_many`) to do reductions in extended
   precision instead of `rp`. This improves numerical robustness when running
