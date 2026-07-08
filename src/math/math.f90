@@ -879,7 +879,7 @@ contains
 
   end function vlsc3
 
-  !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
+  !> Compute multiplication sum \f$ dot = u \cdot v \f$
   function vlsc2(u, v, n) result(s)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: u, v

@@ -465,9 +465,7 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
-    call c_Xh%gs_h%op(w1, n, GS_OP_ADD)
-    call c_Xh%gs_h%op(w2, n, GS_OP_ADD)
-    call c_Xh%gs_h%op(w3, n, GS_OP_ADD)
+    call c_Xh%gs_h%op(w1, w2, w3, n, GS_OP_ADD)
     call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)
 
   end subroutine opr_xsmm_curl

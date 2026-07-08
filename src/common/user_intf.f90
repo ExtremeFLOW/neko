@@ -263,7 +263,7 @@ contains
   subroutine user_intf_init(this)
     class(user_t), intent(inout) :: this
     logical :: user_extended = .false.
-    character(len=256), dimension(14) :: extensions
+    character(len=256), dimension(15) :: extensions
     integer :: i, n
 
     n = 0

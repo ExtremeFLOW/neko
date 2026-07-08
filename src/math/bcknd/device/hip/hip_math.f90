@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module hip_math
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, c_xp
   implicit none
   public
 
@@ -405,10 +405,10 @@ module hip_math
        integer(c_int) :: j, n
      end subroutine hip_add2s2_many
 
-     real(c_rp) function hip_glsc3(a_d, b_d, c_d, n, strm) &
+     real(c_xp) function hip_glsc3(a_d, b_d, c_d, n, strm) &
           bind(c, name = 'hip_glsc3')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, c_d, strm
        integer(c_int) :: n
      end function hip_glsc3
@@ -416,32 +416,32 @@ module hip_math
      subroutine hip_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm) &
           bind(c, name = 'hip_glsc3_many')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: w_d, v_d_d, mult_d, strm
        integer(c_int) :: j, n
-       real(c_rp) :: h(j)
+       real(c_xp) :: h(j)
      end subroutine hip_glsc3_many
 
-     real(c_rp) function hip_glsc2(a_d, b_d, n, strm) &
+     real(c_xp) function hip_glsc2(a_d, b_d, n, strm) &
           bind(c, name = 'hip_glsc2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function hip_glsc2
 
-     real(c_rp) function hip_glsubnorm2(a_d, b_d, n, strm) &
+     real(c_xp) function hip_glsubnorm2(a_d, b_d, n, strm) &
           bind(c, name = 'hip_glsubnorm2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function hip_glsubnorm2
 
-     real(c_rp) function hip_glsum(a_d, n, strm) &
+     real(c_xp) function hip_glsum(a_d, n, strm) &
           bind(c, name = 'hip_glsum')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        type(c_ptr), value :: a_d, strm
        integer(c_int) :: n
      end function hip_glsum

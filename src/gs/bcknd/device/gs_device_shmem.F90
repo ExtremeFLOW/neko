@@ -33,15 +33,14 @@
 !> Defines GPU aware MPI gather-scatter communication
 module gs_device_shmem
   use num_types, only : rp, c_rp
-  use gs_comm, only : gs_comm_t
+  use gs_comm, only : gs_comm_t, GS_VEC_NC
   use stack, only : stack_i4_t
   use htable, only : htable_i4_t
   use device
   use comm, only : pe_size, pe_rank, NEKO_COMM
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, &
-       MPI_MAX, MPI_Sendrecv, MPI_STATUS_IGNORE
+  use mpi_f08, only : MPI_Allreduce, MPI_Alltoall, MPI_INTEGER, MPI_MAX
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, c_int64_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
   private
@@ -53,6 +52,7 @@ module gs_device_shmem
      integer, allocatable :: remote_offset(:) !< Offset into buf for remote rank
      integer :: total !< Total number of dofs
      type(c_ptr) :: buf_d = C_NULL_PTR !< Device buffer
+     type(c_ptr) :: buf_v_d = C_NULL_PTR !< Symmetric buffer, fused vector (x nc)
      type(c_ptr) :: dof_d = C_NULL_PTR !< Dof mapping for pack/unpack
    contains
      procedure, pass(this) :: init => gs_device_shmem_buf_init
@@ -66,15 +66,28 @@ module gs_device_shmem
      type(gs_device_shmem_buf_t) :: recv_buf
      type(c_ptr), allocatable :: stream(:)
      type(c_ptr), allocatable :: event(:)
-     integer :: nvshmem_counter = 1
-     type(c_ptr), allocatable :: notifyDone(:)
-     type(c_ptr), allocatable :: notifyReady(:)
+     !> Round counter for the rank-indexed signal protocol. Advances once per
+     !! gs op (lockstep across ranks, SPMD); all waits use CMP_GE, so no
+     !! cross-rank counter matching is required and peer counts may differ
+     !! between ranks.
+     integer :: iter = 0
+     !> Symmetric rank-indexed signal arrays, pe_size slots each (a single
+     !! collective allocation per array, so nvshmem_malloc collectivity is
+     !! independent of the local peer count). done_sig(r) on our PE is set to
+     !! iter by rank r's put_signal when its slab has landed in our recv
+     !! buffer; ready_sig(r) on our PE is set to iter by rank r once it has
+     !! consumed our round-iter slab (so we may overwrite our send slab).
+     type(c_ptr) :: done_sig_d = C_NULL_PTR
+     type(c_ptr) :: ready_sig_d = C_NULL_PTR
    contains
      procedure, pass(this) :: init => gs_device_shmem_init
      procedure, pass(this) :: free => gs_device_shmem_free
      procedure, pass(this) :: nbsend => gs_device_shmem_nbsend
      procedure, pass(this) :: nbrecv => gs_device_shmem_nbrecv
      procedure, pass(this) :: nbwait => gs_device_shmem_nbwait
+     procedure, pass(this) :: nbsend_vec => gs_device_shmem_nbsend_vec
+     procedure, pass(this) :: nbrecv_vec => gs_device_shmem_nbrecv_vec
+     procedure, pass(this) :: nbwait_vec => gs_device_shmem_nbwait_vec
   end type gs_device_shmem_t
 
 
@@ -101,28 +114,34 @@ module gs_device_shmem
 
   interface
      subroutine cuda_gs_pack_and_push(u_d, buf_d, dof_d, offset, n, stream, &
-          srank, rbuf_d, roffset, remote_offset, &
-          rrank, nvshmem_counter, notifyDone, &
-          notifyReady, iter) &
+          dest_rank, rbuf_d, roffset, iter, done_d, ready_d, mype) &
           bind(c, name = 'cuda_gs_pack_and_push')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: n, offset, srank, roffset, rrank, iter
-       integer(c_int), value :: nvshmem_counter
-       type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, &
-            notifyReady
-       integer(c_int), dimension(*) :: remote_offset
+       integer(c_int), value :: n, offset, dest_rank, roffset, iter, mype
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, done_d, &
+            ready_d
      end subroutine cuda_gs_pack_and_push
   end interface
 
   interface
-     subroutine cuda_gs_pack_and_push_wait(stream, nvshmem_counter, &
-          notifyDone) bind(c, name = 'cuda_gs_pack_and_push_wait')
+     subroutine cuda_gs_pack_and_push_wait(stream, iter, done_d, src_rank) &
+          bind(c, name = 'cuda_gs_pack_and_push_wait')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int), value :: nvshmem_counter
-       type(c_ptr), value :: stream, notifyDone
+       integer(c_int), value :: iter, src_rank
+       type(c_ptr), value :: stream, done_d
      end subroutine cuda_gs_pack_and_push_wait
+  end interface
+
+  interface
+     subroutine cuda_gs_post_ready(stream, iter, ready_d, mype, src_rank) &
+          bind(c, name = 'cuda_gs_post_ready')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: iter, mype, src_rank
+       type(c_ptr), value :: stream, ready_d
+     end subroutine cuda_gs_post_ready
   end interface
 
   interface
@@ -133,6 +152,29 @@ module gs_device_shmem
        integer(c_int), value :: op, offset, n
        type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine cuda_gs_unpack
+  end interface
+
+  interface
+     subroutine cuda_gs_pack_and_push_vec(u_d, buf_d, dof_d, offset, n, nc, &
+          ns, stream, dest_rank, rbuf_d, roffset, iter, done_d, ready_d, &
+          mype) bind(c, name = 'cuda_gs_pack_and_push_vec')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: n, nc, ns, offset, dest_rank, roffset, iter
+       integer(c_int), value :: mype
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, done_d, &
+            ready_d
+     end subroutine cuda_gs_pack_and_push_vec
+  end interface
+
+  interface
+     subroutine cuda_gs_unpack_vec(u_d, op, buf_d, dof_d, offset, n, nc, ns, &
+          stream) bind(c, name = 'cuda_gs_unpack_vec')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int), value :: op, offset, n, nc, ns
+       type(c_ptr), value :: u_d, buf_d, dof_d, stream
+     end subroutine cuda_gs_unpack_vec
   end interface
 #endif
 
@@ -173,6 +215,9 @@ contains
     sz = c_sizeof(rp_dummy) * max_total
 #ifdef HAVE_NVSHMEM
     call cudamalloc_nvshmem(this%buf_d, sz)
+    ! Fused vector symmetric buffer, sized for up to GS_VEC_NC components.
+    sz = c_sizeof(rp_dummy) * GS_VEC_NC * max_total
+    call cudamalloc_nvshmem(this%buf_v_d, sz)
 #endif
 
     sz = c_sizeof(i4_dummy) * total
@@ -221,9 +266,11 @@ contains
 
     if (allocated(this%ndofs)) deallocate(this%ndofs)
     if (allocated(this%offset)) deallocate(this%offset)
+    if (allocated(this%remote_offset)) deallocate(this%remote_offset)
 
 #ifdef HAVE_NVSHMEM
     if (c_associated(this%buf_d)) call cudafree_nvshmem(this%buf_d)
+    if (c_associated(this%buf_v_d)) call cudafree_nvshmem(this%buf_v_d)
 #endif
     if (c_associated(this%dof_d)) call device_free(this%dof_d)
 
@@ -234,35 +281,65 @@ contains
     class(gs_device_shmem_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
-    integer :: i
+    integer :: i, nstrm, ierr
+    integer, allocatable :: local_offsets(:), remote_offsets(:)
+    integer(c_size_t) :: sz
+    integer(c_int64_t) :: i64_dummy
 
     call this%init_order(send_pe, recv_pe)
 
     call this%send_buf%init(this%send_pe, this%send_dof, .false.)
     call this%recv_buf%init(this%recv_pe, this%recv_dof, .true.)
 
-#if defined(HAVE_HIP) || defined(HAVE_CUDA)
-    ! Create a set of non-blocking streams
-    allocate(this%stream(size(this%recv_pe)))
+    ! Exchange, for every send peer, the offset in the receiver's recv buffer
+    ! where our slab must land. A single Alltoall keeps the exchange
+    ! deadlock-free for arbitrary, non-uniform peer sets (same rationale as
+    ! the host OpenSHMEM backend); the lazy pairwise exchange this replaces
+    ! indexed send_pe/recv_pe with the same loop index and required uniform,
+    ! index-aligned peer lists on every rank.
+    allocate(local_offsets(0:pe_size - 1))
+    allocate(remote_offsets(0:pe_size - 1))
+    local_offsets = -1
     do i = 1, size(this%recv_pe)
+       local_offsets(this%recv_pe(i)) = this%recv_buf%offset(i)
+    end do
+    call MPI_Alltoall(local_offsets, 1, MPI_INTEGER, &
+         remote_offsets, 1, MPI_INTEGER, NEKO_COMM, ierr)
+    do i = 1, size(this%send_pe)
+       this%send_buf%remote_offset(i) = remote_offsets(this%send_pe(i))
+    end do
+    deallocate(local_offsets)
+    deallocate(remote_offsets)
+
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+    ! Create a set of non-blocking streams. The per-peer streams, events and
+    ! notify signals are indexed over both send_pe (pack-and-push) and
+    ! recv_pe (unpack, sync), so size them for the larger of the two peer
+    ! lists.
+    nstrm = max(size(this%send_pe), size(this%recv_pe))
+    allocate(this%stream(nstrm))
+    do i = 1, nstrm
        call device_stream_create_with_priority(this%stream(i), 1, &
             STRM_HIGH_PRIO)
     end do
 
-    allocate(this%event(size(this%recv_pe)))
-    do i = 1, size(this%recv_pe)
+    allocate(this%event(nstrm))
+    do i = 1, nstrm
        call device_event_create(this%event(i), 2)
     end do
 
 #ifdef HAVE_NVSHMEM
-    allocate(this%notifyDone(size(this%recv_pe)))
-    allocate(this%notifyReady(size(this%recv_pe)))
-    do i = 1, size(this%recv_pe)
-       call cudamalloc_nvshmem(this%notifyDone(i), 8_8)
-       call cudamalloc_nvshmem(this%notifyReady(i), 8_8)
-    end do
+    ! Rank-indexed symmetric signal arrays; zero-initialised by
+    ! cudamalloc_nvshmem, so the first round's CMP_GE waits on iter-1 = 0
+    ! pass immediately.
+    sz = c_sizeof(i64_dummy) * pe_size
+    call cudamalloc_nvshmem(this%done_sig_d, sz)
+    call cudamalloc_nvshmem(this%ready_sig_d, sz)
 #endif
 #endif
+
+    this%iter = 0
+    this%vec_supported = .true.
 
   end subroutine gs_device_shmem_init
 
@@ -274,6 +351,18 @@ contains
     call this%send_buf%free()
     call this%recv_buf%free()
 
+#ifdef HAVE_NVSHMEM
+    ! Collective frees; every rank allocated both arrays exactly once.
+    if (c_associated(this%done_sig_d)) then
+       call cudafree_nvshmem(this%done_sig_d)
+       this%done_sig_d = C_NULL_PTR
+    end if
+    if (c_associated(this%ready_sig_d)) then
+       call cudafree_nvshmem(this%ready_sig_d)
+       this%ready_sig_d = C_NULL_PTR
+    end if
+#endif
+
     call this%free_order()
     call this%free_dofs()
 
@@ -283,6 +372,13 @@ contains
           call device_stream_destroy(this%stream(i))
        end do
        deallocate(this%stream)
+    end if
+
+    if (allocated(this%event)) then
+       do i = 1, size(this%event)
+          call device_event_destroy(this%event(i))
+       end do
+       deallocate(this%event)
     end if
 #endif
 
@@ -301,11 +397,16 @@ contains
 
     u_d = device_get_ptr(u)
 
+    ! Order each per-peer stream after the gather (deps); the pack-and-push
+    ! kernels in nbwait are stream-ordered behind this wait. The historic
+    ! host-side device_sync here papered over a send-buffer reuse race: the
+    ! pack-and-push kernel used to overwrite the send buffer BEFORE its
+    ! ready handshake, while the previous round's non-blocking put could
+    ! still be draining it. The kernel now performs the handshake before
+    ! packing (see gs_nvshmem_kernels.h), which closes that race properly,
+    ! so no host synchronisation is needed.
     do i = 1, size(this%send_pe)
        call device_stream_wait_event(this%stream(i), deps, 0)
-       ! Not clear why this sync is required, but there seems to be a race condition
-       ! without it for certain run configs
-       call device_sync(this%stream(i))
     end do
 
     ! We do the rest in the "wait" routine below
@@ -333,14 +434,14 @@ contains
 
     u_d = device_get_ptr(u)
 #ifdef HAVE_NVSHMEM
-    do i = 1, size(this%send_pe)
-       if (this%recv_buf%remote_offset(i) .eq. -1) then
-          call MPI_Sendrecv(this%recv_buf%offset(i), 1, MPI_INTEGER, &
-               this%recv_pe(i), 0, &
-               this%recv_buf%remote_offset(i), 1, MPI_INTEGER, &
-               this%send_pe(i), 0, NEKO_COMM, MPI_STATUS_IGNORE)
-       end if
+    ! One round counter per gs op; the rank-indexed signal slots make the
+    ! exchange independent of peer counts and peer-list ordering.
+    this%iter = this%iter + 1
 
+    ! Push our slab to every send peer. The kernel waits for the peer's
+    ! ready signal (previous round consumed) before overwriting the send
+    ! slab, then puts with a done signal.
+    do i = 1, size(this%send_pe)
        call cuda_gs_pack_and_push(u_d, &
             this%send_buf%buf_d, &
             this%send_buf%dof_d, &
@@ -349,29 +450,23 @@ contains
             this%stream(i), &
             this%send_pe(i), &
             this%recv_buf%buf_d, &
-            this%recv_buf%offset(i), &
-            this%recv_buf%remote_offset, &
-            this%recv_pe(i), &
-            this%nvshmem_counter, &
-            this%notifyDone(i), &
-            this%notifyReady(i), &
-            i)
-       this%nvshmem_counter = this%nvshmem_counter + 1
+            this%send_buf%remote_offset(i), &
+            this%iter, this%done_sig_d, this%ready_sig_d, pe_rank)
     end do
 
-    do i = 1, size(this%send_pe)
-       call cuda_gs_pack_and_push_wait(this%stream(i), &
-            this%nvshmem_counter - size(this%send_pe) + i - 1, &
-            this%notifyDone(i))
-    end do
-
+    ! For every recv peer: wait until its slab has landed, reduce it into u,
+    ! then post our ready signal so the peer may start its next round.
     do done_req = 1, size(this%recv_pe)
+       call cuda_gs_pack_and_push_wait(this%stream(done_req), this%iter, &
+            this%done_sig_d, this%recv_pe(done_req))
        call cuda_gs_unpack(u_d, op, &
             this%recv_buf%buf_d, &
             this%recv_buf%dof_d, &
             this%recv_buf%offset(done_req), &
             this%recv_buf%ndofs(done_req), &
             this%stream(done_req))
+       call cuda_gs_post_ready(this%stream(done_req), this%iter, &
+            this%ready_sig_d, pe_rank, this%recv_pe(done_req))
        call device_event_record(this%event(done_req), this%stream(done_req))
     end do
 
@@ -382,5 +477,86 @@ contains
     end do
 #endif
   end subroutine gs_device_shmem_nbwait
+
+  !> Fused nc-component send. @a u is the compact shared device buffer
+  !! (component-outer, per-component stride n = nshared). All the work is done
+  !! in nbwait_vec; this only orders against the packing dependencies.
+  subroutine gs_device_shmem_nbsend_vec(this, u, n, nc, tag, deps, strm)
+    class(gs_device_shmem_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    integer, intent(in) :: tag
+    type(c_ptr), intent(inout) :: deps
+    type(c_ptr), intent(inout) :: strm
+    integer :: i
+
+    ! Order each per-peer stream after the gather/copies (deps); no host
+    ! synchronisation needed, see gs_device_shmem_nbsend.
+    do i = 1, size(this%send_pe)
+       call device_stream_wait_event(this%stream(i), deps, 0)
+    end do
+
+  end subroutine gs_device_shmem_nbsend_vec
+
+  !> No-op: everything happens in nbwait_vec.
+  subroutine gs_device_shmem_nbrecv_vec(this, tag, nc)
+    class(gs_device_shmem_t), intent(inout) :: this
+    integer, intent(in) :: tag, nc
+  end subroutine gs_device_shmem_nbrecv_vec
+
+  !> Fused nc-component pack-and-push + unpack.
+  subroutine gs_device_shmem_nbwait_vec(this, u, n, nc, op, strm)
+    class(gs_device_shmem_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: strm
+    integer :: op, done_req, i
+    type(c_ptr) :: u_d
+
+    u_d = device_get_ptr(u)
+#ifdef HAVE_NVSHMEM
+    ! One round counter per gs op (shared with the scalar path; all ranks
+    ! execute the same op sequence, so counters stay in lockstep).
+    this%iter = this%iter + 1
+
+    ! Push our nc-component slab to every send peer.
+    do i = 1, size(this%send_pe)
+       call cuda_gs_pack_and_push_vec(u_d, &
+            this%send_buf%buf_v_d, &
+            this%send_buf%dof_d, &
+            this%send_buf%offset(i), &
+            this%send_buf%ndofs(i), &
+            nc, n, &
+            this%stream(i), &
+            this%send_pe(i), &
+            this%recv_buf%buf_v_d, &
+            this%send_buf%remote_offset(i), &
+            this%iter, this%done_sig_d, this%ready_sig_d, pe_rank)
+    end do
+
+    ! For every recv peer: wait until its slab has landed, reduce it into u,
+    ! then post our ready signal so the peer may start its next round.
+    do done_req = 1, size(this%recv_pe)
+       call cuda_gs_pack_and_push_wait(this%stream(done_req), this%iter, &
+            this%done_sig_d, this%recv_pe(done_req))
+       call cuda_gs_unpack_vec(u_d, op, &
+            this%recv_buf%buf_v_d, &
+            this%recv_buf%dof_d, &
+            this%recv_buf%offset(done_req), &
+            this%recv_buf%ndofs(done_req), &
+            nc, n, &
+            this%stream(done_req))
+       call cuda_gs_post_ready(this%stream(done_req), this%iter, &
+            this%ready_sig_d, pe_rank, this%recv_pe(done_req))
+       call device_event_record(this%event(done_req), this%stream(done_req))
+    end do
+
+    ! Sync non-blocking streams
+    do done_req = 1, size(this%recv_pe)
+       call device_stream_wait_event(strm, &
+            this%event(done_req), 0)
+    end do
+#endif
+  end subroutine gs_device_shmem_nbwait_vec
 
 end module gs_device_shmem

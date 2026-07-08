@@ -34,6 +34,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <device/device_config.h>
+
 /**
  * Device kernel for cmult
  */
@@ -973,12 +975,12 @@ __global__ void reduce_min_kernel(T * bufred, const T pinf, const int n) {
  * Reduction kernel for glsc3
  */
 
-template< typename T >
-__global__ void glsc3_reduce_kernel( T * bufred,
-                                    const int n,
-                                    const int j
+template< typename T_acc >
+__global__ void glsc3_reduce_kernel( T_acc * bufred,
+                                     const int n,
+                                     const int j
                                    ) {
-   __shared__ T buf[1024] ;
+   __shared__ T_acc buf[1024] ;
    const int idx = threadIdx.x;
    const int y= blockIdx.x;
    const int step = blockDim.x;
@@ -1006,10 +1008,10 @@ __global__ void glsc3_reduce_kernel( T * bufred,
 
 
 /**
- * Device kernel for glsc3
+ * Device kernel for vlsc3
  */
 template< typename T >
-__global__ void glsc3_kernel(const T * a,
+__global__ void vlsc3_kernel(const T * a,
                              const T * b,
                              const T * c,
                              T * buf_h,
@@ -1041,13 +1043,48 @@ __global__ void glsc3_kernel(const T * a,
 }
 
 /**
+ * Device kernel for glsc3
+ */
+template< typename T, typename T_acc >
+__global__ void glsc3_kernel(const T * a,
+                             const T * b,
+                             const T * c,
+                             T_acc * buf_h,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T_acc shared[32];
+  T_acc sum = 0.0;
+  for (int i = idx; i < n; i+= str) {
+    sum += static_cast<T_acc>(a[i] * b[i] * c[i]);
+  }
+
+  sum = reduce_warp<T_acc>(sum);
+  if (lane == 0)
+    shared[wid] = sum;
+  __syncthreads();
+
+  sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
+  if (wid == 0)
+    sum = reduce_warp<T_acc>(sum);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = sum;
+}
+
+/**
  * Device kernel for glsc3 many
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsc3_many_kernel(const T * a,
                                   const T ** b,
                                   const T * c,
-                                  T * buf_h,
+                                  T_acc * buf_h,
                                   const int j,
                                   const int n) {
 
@@ -1055,11 +1092,11 @@ __global__ void glsc3_many_kernel(const T * a,
   const int str = blockDim.y * gridDim.x;
   const int y = threadIdx.x;
 
-  __shared__ T buf[1024];
-  T tmp = 0;
+  __shared__ T_acc buf[1024];
+  T_acc tmp = 0;
   if(y < j){
     for (int i = idx; i < n; i+= str) {
-      tmp += a[i] * b[threadIdx.x][i] * c[i];
+      tmp += static_cast<T_acc>(a[i] * b[threadIdx.x][i] * c[i]);
     }
   }
 
@@ -1084,10 +1121,10 @@ __global__ void glsc3_many_kernel(const T * a,
 /**
  * Device kernel for glsc2
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsc2_kernel(const T * a,
                              const T * b,
-                             T * buf_h,
+                             T_acc * buf_h,
                              const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1096,20 +1133,20 @@ __global__ void glsc2_kernel(const T * a,
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
 
-  __shared__ T shared[32];
-  T sum = 0.0;
+  __shared__ T_acc shared[32];
+  T_acc sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    sum += a[i] * b[i];
+    sum += static_cast<T_acc>(a[i] * b[i]);
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
   sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
@@ -1119,11 +1156,11 @@ __global__ void glsc2_kernel(const T * a,
 /**
  * Device kernel for glsubnorm2
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsubnorm2_kernel(const T * a,
-                             const T * b,
-                             T * buf_h,
-                             const int n) {
+                                  const T * b,
+                                  T_acc * buf_h,
+                                  const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -1131,20 +1168,20 @@ __global__ void glsubnorm2_kernel(const T * a,
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
 
-  __shared__ T shared[32];
-  T sum = 0.0;
+  __shared__ T_acc shared[32];
+  T_acc sum = 0.0;
   for (int i = idx; i < n; i+= str) {
-    sum += pow(a[i] - b[i], 2.0);
+    sum += static_cast<T_acc>(pow(a[i] - b[i], 2.0));
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
   sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
@@ -1154,9 +1191,9 @@ __global__ void glsubnorm2_kernel(const T * a,
 /**
  * Device kernel for glsum
  */
-template< typename T >
+template< typename T, typename T_acc >
 __global__ void glsum_kernel(const T * a,
-                             T * buf_h,
+                             T_acc * buf_h,
                              const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1165,21 +1202,21 @@ __global__ void glsum_kernel(const T * a,
   const unsigned int lane = threadIdx.x % warpSize;
   const unsigned int wid = threadIdx.x / warpSize;
 
-  __shared__ T shared[32];
-  T sum = 0;
+  __shared__ T_acc shared[32];
+  T_acc sum = 0;
   for (int i = idx; i<n ; i += str)
   {
-    sum += a[i];
+    sum += static_cast<T_acc>(a[i]);
   }
 
-  sum = reduce_warp<T>(sum);
+  sum = reduce_warp<T_acc>(sum);
   if (lane == 0)
     shared[wid] = sum;
   __syncthreads();
 
   sum = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : 0;
   if (wid == 0)
-    sum = reduce_warp<T>(sum);
+    sum = reduce_warp<T_acc>(sum);
 
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;

@@ -20,6 +20,7 @@ neko_fortran_SOURCES = \
 	io/buffer/buffer_4d_npar.F90\
 	common/log.f90\
 	comm/comm.F90\
+	comm/crystal_router.f90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
 	comm/shmem.F90\
@@ -62,6 +63,8 @@ neko_fortran_SOURCES = \
 	gs/gs_mpi.f90\
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
+	gs/gs_neighbour.f90\
+	gs/gs_utofu.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
@@ -483,6 +486,10 @@ libneko_la_LIBADD =
 
 if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
+endif
+
+if ENABLE_UTOFU
+libneko_la_SOURCES += gs/gs_utofu_aux.c
 endif
 
 if ENABLE_HIP

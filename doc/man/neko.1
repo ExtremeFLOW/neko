@@ -101,11 +101,47 @@ treated as fatal errors. If unset, they are reported as warnings.
 Indentation width used by the logger.
 .TP
 .B NEKO_GS_COMM
-Selects the communication backend used by the gather\-scatter kernel
-(e.g. MPI or device\-aware variants).
+Selects the communication backend used by the gather\-scatter kernel.
+Accepted values are
+.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF " and " NEIGHBOUR ,
+the last being host MPI using an
+.B MPI_Ineighbor_alltoallv
+neighbourhood collective. When unset, a device\-aware variant is used
+on accelerator builds and host MPI otherwise.
 .TP
 .B NEKO_GS_STRTGY
 Selects the gather\-scatter strategy.
+.TP
+.B NEKO_GS_UTOFU_NTNI
+Number of Tofu network interfaces (TNIs) that the per\-thread injection
+VCQs of the native Tofu (uTofu) gather\-scatter backend
+.RB ( NEKO_GS_COMM=UTOFU )
+are dealt over.
+Defaults to
+.BR 1 .
+.TP
+.B NEKO_GS_UTOFU_NVCQ
+Caps the number of injection VCQs created by the uTofu gather\-scatter
+backend (default: one per OpenMP thread). Useful when the hardware VCQ
+budget, which is shared with the per\-instance receive VCQs, is tight.
+.TP
+.B NEKO_GS_UTOFU_NRVCQ
+Number of receive VCQs per gather\-scatter instance path in the uTofu
+backend (default: one per TNI). Each receive peer is bound to one, so
+incoming halo traffic is spread over the TNIs;
+.B 1
+restores a single receive queue.
+.TP
+.B NEKO_GS_UTOFU_MASTER_INJECT
+When set to a non\-zero value, the uTofu gather\-scatter backend issues
+all puts from the master thread instead of thread\-parallel injection
+(an A/B reference).
+.TP
+.B NEKO_GS_UTOFU_VEC
+When set to
+.BR 0 ,
+disables the uTofu backend's fused vector (multi\-component) exchange;
+multi\-component gather\-scatter falls back to independent scalar rounds.
 .TP
 .B NEKO_GLOBAL_INTERP_EL_FINDER
 Selects the element search algorithm used by the global interpolation

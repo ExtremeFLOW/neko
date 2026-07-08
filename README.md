@@ -44,9 +44,7 @@ supercomputers and clusters, please check the [documentation](https://neko.cfd)
 and
 [discussions](https://github.com/ExtremeFLOW/neko/discussions/categories/show-and-tell)
 for more information on which compilers and systems Neko has been used on.
-
-> [!NOTE]
-> Note that the Nvidia tests are failing due to a bug in the compiler. 
+ 
 
 | Branch: master                                                                                                                                                                      | Branch: develop                                                                                                                                                                                                |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
