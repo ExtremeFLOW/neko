@@ -293,7 +293,7 @@ template<typename T>
 __device__ T atomicMinFloat(T* address, T val);
 
 template<>
-__device__ float atomicMinFloat<float>(float* address, float val) {
+__device__ inline float atomicMinFloat<float>(float* address, float val) {
     float old;
     old = !signbit(val) ? __int_as_float(atomicMin((int*)address, __float_as_int(val))) :
         __uint_as_float(atomicMax((unsigned int*)address, __float_as_uint(val)));
@@ -302,7 +302,7 @@ __device__ float atomicMinFloat<float>(float* address, float val) {
 }
 
 template<>
-__device__ double atomicMinFloat<double>(double* address, double val) {
+__device__ inline double atomicMinFloat<double>(double* address, double val) {
     double old;
 #if __CUDA_ARCH__ >= 600
     old = !signbit(val) ? __longlong_as_double(atomicMin((unsigned long long*)address, 
@@ -340,7 +340,7 @@ template<typename T>
 __device__ T atomicMaxFloat(T* address, T val);
 
 template<>
-__device__ float atomicMaxFloat<float>(float* address, float val) {
+__device__ inline float atomicMaxFloat<float>(float* address, float val) {
     float old;
     old = !signbit(val) ? __int_as_float(atomicMax((int*)address, __float_as_int(val))) :
         __uint_as_float(atomicMin((unsigned int*)address, __float_as_uint(val)));
@@ -348,7 +348,7 @@ __device__ float atomicMaxFloat<float>(float* address, float val) {
 }
 
 template<>
-__device__ double atomicMaxFloat<double>(double* address, double val) {
+__device__ inline double atomicMaxFloat<double>(double* address, double val) {
     double old;
 #if __CUDA_ARCH__ >= 600
     old = !signbit(val) ? __longlong_as_double(atomicMax((unsigned long long*)address, 
