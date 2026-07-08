@@ -43,6 +43,8 @@ documented and up to date.
 - rayleigh_benard, Rayleigh Benard convection (RBC) (temperature as additional
   scalar)
 - rayleigh_benard_cylinder, Cylindrical domain RBC
+- rebounding_particles, Inertial Lagrangian particles with nonlinear drag,
+  elastic wall rebounds, and CSV/HDF5 trajectory output.
 - recycling, Turbulent channel with recycling boundary conditions using global
   interpolation.
 - scalar_mms, method of manufactured solutions for the scalar verification

@@ -439,6 +439,9 @@
           "$ref": "urn:neko:schema:simcomps:boundary_flux#/$defs/simulationComponent"
         },
         {
+          "$ref": "urn:neko:schema:simcomps:lagrangian_particles#/$defs/simulationComponent"
+        },
+        {
           "$ref": "urn:neko:schema:simcomps:probes#/$defs/simulationComponent"
         },
         {

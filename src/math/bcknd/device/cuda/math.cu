@@ -303,6 +303,34 @@ extern "C" {
 
   }
 
+  /** Fortran wrapper for sqrt_inplace
+   * Sqrt a vector \f$ a = sqrt(a) \f$
+   */
+  void cuda_sqrt_inplace(void *a, int *n, cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    sqrt_inplace_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) a, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /** Fortran wrapper for power
+   * Take the power of a vector \f$ a^p \f$
+   */
+  void cuda_power(void *ap, void *a, real *p, int *n, cudaStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    power_kernel<real><<<nblcks, nthrds, 0, strm>>>
+      ((real *) ap, (real *) a, *p, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
   /** Fortran wrapper for cfill
    * Set all elements to a constant c \f$ a = c \f$
    */
