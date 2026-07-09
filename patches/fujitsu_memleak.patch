@@ -1,0 +1,370 @@
+diff --git a/src/.depends b/src/.depends
+index fc5aa5bb01b..1c36e89dbde 100644
+--- a/src/.depends
++++ b/src/.depends
+@@ -463,4 +463,5 @@ wall_models/richardson.lo : wall_models/richardson.f90 device/device.lo math/bck
+ wall_models/bcknd/cpu/richardson_cpu.lo : wall_models/bcknd/cpu/richardson_cpu.f90 math/math.lo common/log.lo common/utils.lo config/num_types.lo 
+ wall_models/bcknd/device/richardson_device.lo : wall_models/bcknd/device/richardson_device.F90 common/utils.lo config/num_types.lo 
+ wall_models/wall_model_fctry.lo : wall_models/wall_model_fctry.f90 common/utils.lo wall_models/richardson.lo wall_models/most.lo wall_models/rough_log_law.lo wall_models/cai_sagaut_model_ii.lo wall_models/spalding.lo wall_models/wall_model.lo 
+-neko.lo : neko.f90 ale/ale_manager.lo common/user_access_singleton.lo source_terms/source_term.lo common/time_step_controller.lo common/time_based_controller.lo simulation_components/lambda2.lo simulation_components/force_torque.lo simulation_components/weak_gradient_simcomp.lo simulation_components/gradient_simcomp.lo simulation_components/curl_simcomp.lo simulation_components/divergence_simcomp.lo simulation_components/derivative_simcomp.lo simulation_components/field_writer.lo les/les_model.lo common/json_utils.lo common/runtime_statistics.lo bc/field_neumann.lo bc/field_dirichlet_vector.lo bc/field_dirichlet.lo mesh/point_zone_registry.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo sem/point_interpolator.lo common/time_interpolator.lo io/data_streamer.lo simulation_components/simcomp_executor.lo registries/scratch_registry.lo registries/registry.lo qoi/drag_torque.lo common/system.lo common/profiler.lo simulation_components/spectral_error.lo simulation_components/probes.lo simulation_components/boundary_flux.lo simulation_components/boundary_operation.lo simulation_components/simulation_component.lo math/tensor.lo math/matrix.lo math/vector_list.lo math/vector.lo source_terms/user_source_term.lo field/field_list.lo fluid/fluid_stats.lo sem/cpr.lo sem/map_2d.lo sem/map_1d.lo math/bcknd/device/device_math.lo device/device.lo common/jobctrl.lo common/time_state.lo common/signal.lo common/user_intf.lo common/projection.lo math/mathops.lo math/operators.lo simulation.lo io/output.lo io/output_controller.lo case.lo config/neko_config.lo comm/parmetis.lo math/ax.lo bc/dirichlet.lo bc/bc_list.lo bc/zero_dirichlet.lo bc/bc.lo sem/coef.lo krylov/krylov.lo gs/gather_scatter.lo comm/mpi_types.lo math/field_math.lo field/field.lo io/file.lo global_interpolation/global_interpolation.lo math/mxm_wrapper.lo io/import_field_utils.lo io/format/map.lo field/mesh_field.lo mesh/point.lo mesh/mesh.lo adt/tuple.lo adt/stack.lo adt/uset.lo adt/htable.lo sem/space.lo sem/dofmap.lo sem/speclib.lo math/math.lo common/mask.lo common/log.lo common/utils.lo comm/comm.lo config/num_types.lo 
++common/fujitsu_memleak.lo : common/fujitsu_memleak.f90 ale/ale_rigid_kinematics.lo field/field_series.lo field/field.lo gs/gather_scatter.lo adt/uset.lo adt/stack.lo global_interpolation/cartesian_pe_finder.lo global_interpolation/global_interpolation_comm.lo multigrid/tree_amg_multigrid.lo multigrid/tree_amg.lo mesh/mesh.lo adt/htable.lo 
++neko.lo : neko.f90 common/fujitsu_memleak.lo ale/ale_manager.lo common/user_access_singleton.lo source_terms/source_term.lo common/time_step_controller.lo common/time_based_controller.lo simulation_components/lambda2.lo simulation_components/force_torque.lo simulation_components/weak_gradient_simcomp.lo simulation_components/gradient_simcomp.lo simulation_components/curl_simcomp.lo simulation_components/divergence_simcomp.lo simulation_components/derivative_simcomp.lo simulation_components/field_writer.lo les/les_model.lo common/json_utils.lo common/runtime_statistics.lo bc/field_neumann.lo bc/field_dirichlet_vector.lo bc/field_dirichlet.lo mesh/point_zone_registry.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo sem/point_interpolator.lo common/time_interpolator.lo io/data_streamer.lo simulation_components/simcomp_executor.lo registries/scratch_registry.lo registries/registry.lo qoi/drag_torque.lo common/system.lo common/profiler.lo simulation_components/spectral_error.lo simulation_components/probes.lo simulation_components/boundary_flux.lo simulation_components/boundary_operation.lo simulation_components/simulation_component.lo math/tensor.lo math/matrix.lo math/vector_list.lo math/vector.lo source_terms/user_source_term.lo field/field_list.lo fluid/fluid_stats.lo sem/cpr.lo sem/map_2d.lo sem/map_1d.lo math/bcknd/device/device_math.lo device/device.lo common/jobctrl.lo common/time_state.lo common/signal.lo common/user_intf.lo common/projection.lo math/mathops.lo math/operators.lo simulation.lo io/output.lo io/output_controller.lo case.lo config/neko_config.lo comm/parmetis.lo math/ax.lo bc/dirichlet.lo bc/bc_list.lo bc/zero_dirichlet.lo bc/bc.lo sem/coef.lo krylov/krylov.lo gs/gather_scatter.lo comm/mpi_types.lo math/field_math.lo field/field.lo io/file.lo global_interpolation/global_interpolation.lo math/mxm_wrapper.lo io/import_field_utils.lo io/format/map.lo field/mesh_field.lo mesh/point.lo mesh/mesh.lo adt/tuple.lo adt/stack.lo adt/uset.lo adt/htable.lo sem/space.lo sem/dofmap.lo sem/speclib.lo math/math.lo common/mask.lo common/log.lo common/utils.lo comm/comm.lo config/num_types.lo 
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 07bd878124b..0704abc23fa 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -466,6 +466,7 @@ neko_fortran_SOURCES = \
+ 	wall_models/bcknd/cpu/richardson_cpu.f90\
+ 	wall_models/bcknd/device/richardson_device.F90\
+ 	wall_models/wall_model_fctry.f90\
++	common/fujitsu_memleak.f90\
+ 	neko.f90
+ 
+ neko_c_SOURCES = \
+diff --git a/src/adt/htable.f90 b/src/adt/htable.f90
+index 52a762d4622..3cd62efd1bb 100644
+--- a/src/adt/htable.f90
++++ b/src/adt/htable.f90
+@@ -59,6 +59,8 @@ module htable
+   implicit none
+   private
+ 
++  public :: htable_fujitsu_memleak_workaround
++
+   !> Hash table entry, tuple (key, data)
+   type :: h_tuple_t
+      logical :: valid = .false.
+@@ -1648,4 +1650,33 @@ contains
+ 
+   end function htable_iter_cptr_key
+ 
++  !> Workaround for a memory leak in the Fujitsu compiler runtime.
++  !! Nullifying a polymorphic pointer of each type materialises the type's
++  !! runtime descriptor once, preventing the runtime from re-allocating (and
++  !! leaking) it on every polymorphic binding of the type. Called from
++  !! fujitsu_memleak_workaround(), see common/fujitsu_memleak.f90 and
++  !! https://www.fugaku.r-ccs.riken.jp/bug/20260120_01
++  subroutine htable_fujitsu_memleak_workaround()
++    class(h_tuple_t), pointer :: tmp_h_tuple_t
++    class(htable_t), pointer :: tmp_htable_t
++    class(htable_i4_t), pointer :: tmp_htable_i4_t
++    class(htable_i8_t), pointer :: tmp_htable_i8_t
++    class(htable_r8_t), pointer :: tmp_htable_r8_t
++    class(htable_pt_t), pointer :: tmp_htable_pt_t
++    class(htable_i4t2_t), pointer :: tmp_htable_i4t2_t
++    class(htable_i4t4_t), pointer :: tmp_htable_i4t4_t
++    class(htable_cptr_t), pointer :: tmp_htable_cptr_t
++
++    tmp_h_tuple_t => null()
++    tmp_htable_t => null()
++    tmp_htable_i4_t => null()
++    tmp_htable_i8_t => null()
++    tmp_htable_r8_t => null()
++    tmp_htable_pt_t => null()
++    tmp_htable_i4t2_t => null()
++    tmp_htable_i4t4_t => null()
++    tmp_htable_cptr_t => null()
++
++  end subroutine htable_fujitsu_memleak_workaround
++
+ end module htable
+diff --git a/src/common/fujitsu_memleak.f90 b/src/common/fujitsu_memleak.f90
+new file mode 100644
+index 00000000000..5e17141c25b
+--- /dev/null
++++ b/src/common/fujitsu_memleak.f90
+@@ -0,0 +1,107 @@
++!> Workaround for a memory-leak bug in the Fujitsu Fortran compiler.
++!! @details The Fujitsu runtime leaks memory each time an object of a
++!! derived type with (non-polymorphic) allocatable ultimate components is
++!! bound to a polymorphic entity — passed to a `class` dummy argument,
++!! invoked through a type-bound procedure, or assigned to a polymorphic
++!! variable — unless the type's runtime descriptor has already been
++!! materialised by a polymorphic declaration. Nullifying a polymorphic
++!! pointer of each affected type at startup materialises the descriptors
++!! once and suppresses the leak.
++!! For details, see https://www.fugaku.r-ccs.riken.jp/bug/20260120_01
++module fujitsu_memleak
++  use htable, only : htable_fujitsu_memleak_workaround
++  use mesh, only : mesh_fujitsu_memleak_workaround
++  use tree_amg, only : tree_amg_fujitsu_memleak_workaround
++  use tree_amg_multigrid, only : tree_amg_multigrid_fujitsu_memleak_workaround
++  use glb_intrp_comm, only : glb_intrp_comm_fujitsu_memleak_workaround
++  use cartesian_pe_finder, only : &
++       cartesian_pe_finder_fujitsu_memleak_workaround
++  use stack, only : stack_i4_t, stack_i8_t, stack_r8_t, stack_i4t2_t, &
++       stack_i4t4_t, stack_i4r8t2_t, stack_2i4r8t3_t, stack_curve_t, &
++       stack_nq_t, stack_nh_t, stack_nz_t, stack_nc_t, stack_pt_t
++  use uset, only : uset_i4_t, uset_i8_t, uset_r8_t
++  use gather_scatter, only : gs_t
++  use field, only : field_t
++  use field_series, only : field_series_t
++  use ale_rigid_kinematics, only : ale_body_t, ale_config_t
++  implicit none
++  private
++
++  public :: fujitsu_memleak_workaround
++
++contains
++
++  !> Apply the workaround for the Fujitsu compiler memory leak.
++  !!
++  !! Initialises dummy polymorphic pointers of the affected types to prevent
++  !! memory leaks with the Fujitsu compiler. Must be called once, before any
++  !! of the affected types is bound to a polymorphic entity, i.e. as the
++  !! first step of initialisation.
++  !!
++  !! @attention The set of types below was derived from a scan for the
++  !!            documented occurrence conditions (same-module derived-type
++  !!            pairs with nested non-polymorphic allocatable components)
++  !!            together with the types most frequently bound to polymorphic
++  !!            entities in the time loop, as of July 2026. There is no
++  !!            guarantee it stays complete as the code evolves. If slow
++  !!            memory growth is observed again with the Fujitsu compiler,
++  !!            extend the lists here and in the
++  !!            *_fujitsu_memleak_workaround routines. Types private to
++  !!            their module are handled by the
++  !!            *_fujitsu_memleak_workaround routine of the respective
++  !!            module.
++  subroutine fujitsu_memleak_workaround()
++    class(stack_i4_t), pointer :: tmp_stack_i4_t
++    class(stack_i8_t), pointer :: tmp_stack_i8_t
++    class(stack_r8_t), pointer :: tmp_stack_r8_t
++    class(stack_i4t2_t), pointer :: tmp_stack_i4t2_t
++    class(stack_i4t4_t), pointer :: tmp_stack_i4t4_t
++    class(stack_i4r8t2_t), pointer :: tmp_stack_i4r8t2_t
++    class(stack_2i4r8t3_t), pointer :: tmp_stack_2i4r8t3_t
++    class(stack_curve_t), pointer :: tmp_stack_curve_t
++    class(stack_nq_t), pointer :: tmp_stack_nq_t
++    class(stack_nh_t), pointer :: tmp_stack_nh_t
++    class(stack_nz_t), pointer :: tmp_stack_nz_t
++    class(stack_nc_t), pointer :: tmp_stack_nc_t
++    class(stack_pt_t), pointer :: tmp_stack_pt_t
++    class(uset_i4_t), pointer :: tmp_uset_i4_t
++    class(uset_i8_t), pointer :: tmp_uset_i8_t
++    class(uset_r8_t), pointer :: tmp_uset_r8_t
++    class(gs_t), pointer :: tmp_gs_t
++    class(field_t), pointer :: tmp_field_t
++    class(field_series_t), pointer :: tmp_field_series_t
++    class(ale_body_t), pointer :: tmp_ale_body_t
++    class(ale_config_t), pointer :: tmp_ale_config_t
++
++    tmp_stack_i4_t => null()
++    tmp_stack_i8_t => null()
++    tmp_stack_r8_t => null()
++    tmp_stack_i4t2_t => null()
++    tmp_stack_i4t4_t => null()
++    tmp_stack_i4r8t2_t => null()
++    tmp_stack_2i4r8t3_t => null()
++    tmp_stack_curve_t => null()
++    tmp_stack_nq_t => null()
++    tmp_stack_nh_t => null()
++    tmp_stack_nz_t => null()
++    tmp_stack_nc_t => null()
++    tmp_stack_pt_t => null()
++    tmp_uset_i4_t => null()
++    tmp_uset_i8_t => null()
++    tmp_uset_r8_t => null()
++    tmp_gs_t => null()
++    tmp_field_t => null()
++    tmp_field_series_t => null()
++    tmp_ale_body_t => null()
++    tmp_ale_config_t => null()
++
++    call htable_fujitsu_memleak_workaround()
++    call mesh_fujitsu_memleak_workaround()
++    call tree_amg_fujitsu_memleak_workaround()
++    call tree_amg_multigrid_fujitsu_memleak_workaround()
++    call glb_intrp_comm_fujitsu_memleak_workaround()
++    call cartesian_pe_finder_fujitsu_memleak_workaround()
++
++  end subroutine fujitsu_memleak_workaround
++
++end module fujitsu_memleak
+diff --git a/src/global_interpolation/cartesian_pe_finder.f90 b/src/global_interpolation/cartesian_pe_finder.f90
+index 292f59ddc72..1d818458b8f 100644
+--- a/src/global_interpolation/cartesian_pe_finder.f90
++++ b/src/global_interpolation/cartesian_pe_finder.f90
+@@ -51,6 +51,8 @@ module cartesian_pe_finder
+   implicit none
+   private
+ 
++  public :: cartesian_pe_finder_fujitsu_memleak_workaround
++
+   !> Minimum number of total boxes in the aabb tree
+   integer, public, parameter :: GLOB_MAP_SIZE = 4096
+ 
+@@ -672,4 +674,19 @@ contains
+ 
+ 
+   end subroutine send_recv_data
++
++  !> Workaround for a memory leak in the Fujitsu compiler runtime.
++  !! Nullifying a polymorphic pointer of each type materialises the type's
++  !! runtime descriptor once, preventing the runtime from re-allocating (and
++  !! leaking) it on every polymorphic binding of the type. Called from
++  !! fujitsu_memleak_workaround(), see common/fujitsu_memleak.f90 and
++  !! https://www.fugaku.r-ccs.riken.jp/bug/20260120_01
++  subroutine cartesian_pe_finder_fujitsu_memleak_workaround()
++    class(i8_mpi_t), pointer :: tmp_i8_mpi_t
++    class(cartesian_pe_finder_t), pointer :: tmp_cartesian_pe_finder_t
++
++    tmp_i8_mpi_t => null()
++    tmp_cartesian_pe_finder_t => null()
++
++  end subroutine cartesian_pe_finder_fujitsu_memleak_workaround
+ end module cartesian_pe_finder
+diff --git a/src/global_interpolation/global_interpolation_comm.f90 b/src/global_interpolation/global_interpolation_comm.f90
+index 266d8faa40f..61eede3c65b 100644
+--- a/src/global_interpolation/global_interpolation_comm.f90
++++ b/src/global_interpolation/global_interpolation_comm.f90
+@@ -43,6 +43,7 @@ module glb_intrp_comm
+   implicit none
+   private
+ 
++  public :: glb_intrp_comm_fujitsu_memleak_workaround
+ 
+   !> MPI buffer for non-blocking operations
+   type, private :: glb_intrp_comm_mpi_t
+@@ -367,5 +368,19 @@ contains
+ 
+   end subroutine glb_intrp_comm_nbwait_no_op
+ 
++  !> Workaround for a memory leak in the Fujitsu compiler runtime.
++  !! Nullifying a polymorphic pointer of each type materialises the type's
++  !! runtime descriptor once, preventing the runtime from re-allocating (and
++  !! leaking) it on every polymorphic binding of the type. Called from
++  !! fujitsu_memleak_workaround(), see common/fujitsu_memleak.f90 and
++  !! https://www.fugaku.r-ccs.riken.jp/bug/20260120_01
++  subroutine glb_intrp_comm_fujitsu_memleak_workaround()
++    class(glb_intrp_comm_mpi_t), pointer :: tmp_glb_intrp_comm_mpi_t
++    class(glb_intrp_comm_t), pointer :: tmp_glb_intrp_comm_t
++
++    tmp_glb_intrp_comm_mpi_t => null()
++    tmp_glb_intrp_comm_t => null()
++
++  end subroutine glb_intrp_comm_fujitsu_memleak_workaround
+ 
+ end module glb_intrp_comm
+diff --git a/src/mesh/mesh.f90 b/src/mesh/mesh.f90
+index e25814ef515..458e3c48c35 100644
+--- a/src/mesh/mesh.f90
++++ b/src/mesh/mesh.f90
+@@ -184,6 +184,7 @@ module mesh
+   end interface
+ 
+   public :: mesh_deform, parallelepiped_signed_volume
++  public :: mesh_fujitsu_memleak_workaround
+ 
+ 
+ contains
+@@ -2206,4 +2207,19 @@ contains
+ 
+   end subroutine mesh_subset_by_mask
+ 
++  !> Workaround for a memory leak in the Fujitsu compiler runtime.
++  !! Nullifying a polymorphic pointer of each type materialises the type's
++  !! runtime descriptor once, preventing the runtime from re-allocating (and
++  !! leaking) it on every polymorphic binding of the type. Called from
++  !! fujitsu_memleak_workaround(), see common/fujitsu_memleak.f90 and
++  !! https://www.fugaku.r-ccs.riken.jp/bug/20260120_01
++  subroutine mesh_fujitsu_memleak_workaround()
++    class(mesh_element_t), pointer :: tmp_mesh_element_t
++    class(mesh_t), pointer :: tmp_mesh_t
++
++    tmp_mesh_element_t => null()
++    tmp_mesh_t => null()
++
++  end subroutine mesh_fujitsu_memleak_workaround
++
+ end module mesh
+diff --git a/src/multigrid/tree_amg.f90 b/src/multigrid/tree_amg.f90
+index ea1e86e7ad1..68cad4bef4a 100644
+--- a/src/multigrid/tree_amg.f90
++++ b/src/multigrid/tree_amg.f90
+@@ -111,6 +111,7 @@ module tree_amg
+   end type tamg_hierarchy_t
+ 
+   public tamg_lvl_init, tamg_node_init
++  public :: tree_amg_fujitsu_memleak_workaround
+ 
+ contains
+ 
+@@ -541,4 +542,21 @@ contains
+     end if
+   end subroutine tamg_device_prolongation_operator
+ 
++  !> Workaround for a memory leak in the Fujitsu compiler runtime.
++  !! Nullifying a polymorphic pointer of each type materialises the type's
++  !! runtime descriptor once, preventing the runtime from re-allocating (and
++  !! leaking) it on every polymorphic binding of the type. Called from
++  !! fujitsu_memleak_workaround(), see common/fujitsu_memleak.f90 and
++  !! https://www.fugaku.r-ccs.riken.jp/bug/20260120_01
++  subroutine tree_amg_fujitsu_memleak_workaround()
++    class(tamg_node_t), pointer :: tmp_tamg_node_t
++    class(tamg_lvl_t), pointer :: tmp_tamg_lvl_t
++    class(tamg_hierarchy_t), pointer :: tmp_tamg_hierarchy_t
++
++    tmp_tamg_node_t => null()
++    tmp_tamg_lvl_t => null()
++    tmp_tamg_hierarchy_t => null()
++
++  end subroutine tree_amg_fujitsu_memleak_workaround
++
+ end module tree_amg
+diff --git a/src/multigrid/tree_amg_multigrid.f90 b/src/multigrid/tree_amg_multigrid.f90
+index 692262aa624..e15005059e2 100644
+--- a/src/multigrid/tree_amg_multigrid.f90
++++ b/src/multigrid/tree_amg_multigrid.f90
+@@ -68,6 +68,8 @@ module tree_amg_multigrid
+   implicit none
+   private
+ 
++  public :: tree_amg_multigrid_fujitsu_memleak_workaround
++
+   type :: tamg_wrk_t
+      integer :: n = -1
+      real(kind=rp), allocatable :: r(:)
+@@ -555,4 +557,19 @@ contains
+        end do
+     end if
+   end subroutine fill_lvl_map
++
++  !> Workaround for a memory leak in the Fujitsu compiler runtime.
++  !! Nullifying a polymorphic pointer of each type materialises the type's
++  !! runtime descriptor once, preventing the runtime from re-allocating (and
++  !! leaking) it on every polymorphic binding of the type. Called from
++  !! fujitsu_memleak_workaround(), see common/fujitsu_memleak.f90 and
++  !! https://www.fugaku.r-ccs.riken.jp/bug/20260120_01
++  subroutine tree_amg_multigrid_fujitsu_memleak_workaround()
++    class(tamg_wrk_t), pointer :: tmp_tamg_wrk_t
++    class(tamg_solver_t), pointer :: tmp_tamg_solver_t
++
++    tmp_tamg_wrk_t => null()
++    tmp_tamg_solver_t => null()
++
++  end subroutine tree_amg_multigrid_fujitsu_memleak_workaround
+ end module tree_amg_multigrid
+diff --git a/src/neko.f90 b/src/neko.f90
+index b980d94073e..6fdffc813a8 100644
+--- a/src/neko.f90
++++ b/src/neko.f90
+@@ -151,6 +151,7 @@ module neko
+        register_source_term, source_term_factory, source_term_allocator
+   use user_access_singleton, only : neko_user_access
+   use ale_manager, only : neko_ale
++  use fujitsu_memleak, only : fujitsu_memleak_workaround
+   use, intrinsic :: iso_fortran_env
+   use mpi_f08
+   !$ use omp_lib
+@@ -169,6 +170,10 @@ contains
+     character(8) :: date
+     integer :: argc, i
+ 
++    ! Must execute before the affected types are bound to any polymorphic
++    ! entity (see common/fujitsu_memleak.f90)
++    call fujitsu_memleak_workaround()
++
+     call date_and_time(time = time, date = date)
+ 
+     call comm_init
