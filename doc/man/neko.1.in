@@ -1,5 +1,5 @@
 .\" Manual page for neko
-.TH NEKO 1 "2026-05-28" "Neko" "User Commands"
+.TH NEKO 1 "@MAN_DATE@" "Neko @PACKAGE_VERSION@" "User Commands"
 .SH NAME
 neko \- portable spectral element flow solver
 .SH SYNOPSIS
@@ -16,7 +16,8 @@ neko \- portable spectral element flow solver
 is a portable framework for high-order spectral element flow simulations.
 It solves the incompressible (and compressible) Navier\-Stokes equations on
 unstructured hexahedral meshes and supports execution on CPUs, NEC SX-Aurora
-vector engines, NVIDIA GPUs (CUDA), AMD GPUs (HIP) and OpenCL devices.
+vector engines, NVIDIA GPUs (CUDA), AMD GPUs (HIP), Apple GPUs (Metal) and
+OpenCL devices.
 .PP
 The simulation is driven by a single
 .I case-file
@@ -39,7 +40,7 @@ When built with OpenMP support, the number of threads per rank is controlled
 via
 .BR OMP_NUM_THREADS .
 .SH GPU EXECUTION
-When built for GPUs (CUDA, HIP or OpenCL),
+When built for GPUs (CUDA, HIP, OpenCL or Metal),
 .B neko
 uses one device per MPI rank. Neko does
 .B not
@@ -52,6 +53,9 @@ e.g. by setting
 (NVIDIA) or
 .B ROCR_VISIBLE_DEVICES
 (AMD) to the node-local rank id before starting the solver.
+The Metal backend is the exception: it always uses the system default
+device (Apple silicon exposes a single GPU), and no device mapping
+applies.
 .PP
 A typical
 .BR srun (1)
@@ -103,8 +107,12 @@ Indentation width used by the logger.
 .B NEKO_GS_COMM
 Selects the communication backend used by the gather\-scatter kernel.
 Accepted values are
-.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF " and " NEIGHBOUR ,
-the last being host MPI using an
+.BR MPI ", " MPIGPU ", " NCCL ", " SHMEM ", " CAF ", " UTOFU " and " NEIGHBOUR ,
+where
+.B UTOFU
+is native one\-sided communication over the Tofu interconnect and
+.B NEIGHBOUR
+is host MPI using an
 .B MPI_Ineighbor_alltoallv
 neighbourhood collective. When unset, a device\-aware variant is used
 on accelerator builds and host MPI otherwise.

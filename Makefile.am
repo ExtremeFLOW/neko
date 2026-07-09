@@ -22,7 +22,7 @@ CLEANFILES = *.mod\
 
 bin_SCRIPTS = makeneko
 
-dist_man_MANS = \
+man_MANS = \
 	doc/man/neko.1\
 	doc/man/makeneko.1
 
