@@ -57,6 +57,7 @@ contains
     ! |u| + c = sqrt(u^2 + v^2 + w^2) + sqrt(gamma * p / rho)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd private(vel_mag, sound_speed)
     do i = 1, n
@@ -84,6 +85,7 @@ contains
     ! Compute entropy: S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -103,6 +105,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -126,6 +129,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd private(tmp)
     do i = 1, n
@@ -154,6 +158,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n

@@ -296,6 +296,7 @@ contains
        ! very well...
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp parallel do
        do i = 1, n

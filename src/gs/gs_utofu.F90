@@ -587,6 +587,7 @@ contains
        sp => this%send_dof(dst)%array()
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !NEC$ IVDEP
        !$omp simd
@@ -666,6 +667,7 @@ contains
           case (GS_OP_ADD)
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !NEC$ IVDEP
              !$omp do
@@ -676,6 +678,7 @@ contains
           case (GS_OP_MUL)
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !NEC$ IVDEP
              !$omp do
@@ -686,6 +689,7 @@ contains
           case (GS_OP_MIN)
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !NEC$ IVDEP
              !$omp do
@@ -696,6 +700,7 @@ contains
           case (GS_OP_MAX)
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !NEC$ IVDEP
              !$omp do
@@ -780,6 +785,7 @@ contains
        do c = 1, nc
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
+          !DIR$ IVDEP
           !GCC$ ivdep
           !NEC$ IVDEP
           !$omp simd
