@@ -320,7 +320,7 @@ contains
     call device_map(this%z3, this%z3_d, n)
     call device_map(this%tmp, this%tmp_d, n)
     call device_map(this%alpha, this%alpha_d, DEVICE_FUSEDCG_CPLD_P_SPACE)
-    do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE+1
+    do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
        this%p1_d(i) = C_NULL_PTR
        call device_map(this%p1(:,i), this%p1_d(i), n)
 
@@ -483,6 +483,18 @@ contains
           end do
        end if
        deallocate(this%p3)
+    end if
+
+    if (allocated(this%p1_d)) then
+       deallocate(this%p1_d)
+    end if
+
+    if (allocated(this%p2_d)) then
+       deallocate(this%p2_d)
+    end if
+
+    if (allocated(this%p3_d)) then
+       deallocate(this%p3_d)
     end if
 
     if (c_associated(this%p1_d_d)) then

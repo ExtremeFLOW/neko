@@ -58,6 +58,15 @@ extern "C" {
    */
   void *cfl_d = NULL;
 
+#ifdef HAVE_NVSHMEM
+  /**
+   * Symmetric one-element buffer for the NVSHMEM reduction; the work
+   * buffer cfl_d cannot live on the symmetric heap since its size
+   * (nel) differs between PEs
+   */
+  void *cfl_red_d = NULL;
+#endif
+
   /**
    * Fortran wrapper for device cuda CFL
    */
@@ -73,10 +82,9 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     if (cfl_d == NULL) {
-#ifdef HAVE_NVSHMEM
-      cfl_d = (real *) nvshmem_malloc(sizeof(real));
-#else
       CUDA_CHECK(cudaMalloc(&cfl_d, (*nel) * sizeof(real)));
+#ifdef HAVE_NVSHMEM
+      cfl_red_d = (real *) nvshmem_malloc(sizeof(real));
 #endif
     }
 
@@ -121,17 +129,19 @@ extern "C" {
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #elif HAVE_NVSHMEM
+    CUDA_CHECK(cudaMemcpyAsync(cfl_red_d, cfl_d, sizeof(real),
+                               cudaMemcpyDeviceToDevice, stream));
     if (sizeof(real) == sizeof(float)) {
       nvshmemx_float_max_reduce_on_stream(NVSHMEM_TEAM_WORLD,
-                                          (float *) cfl_d,
-                                          (float *) cfl_d, 1, stream);
+                                          (float *) cfl_red_d,
+                                          (float *) cfl_red_d, 1, stream);
     }
     else if (sizeof(real) == sizeof(double)) {
       nvshmemx_double_max_reduce_on_stream(NVSHMEM_TEAM_WORLD,
-                                           (double *) cfl_d,
-                                           (double *) cfl_d, 1, stream);
+                                           (double *) cfl_red_d,
+                                           (double *) cfl_red_d, 1, stream);
     }
-    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
+    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_red_d, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #elif HAVE_DEVICE_MPI
