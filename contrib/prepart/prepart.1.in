@@ -1,5 +1,5 @@
 .\" Manual page for prepart
-.TH PREPART 1 "2026-05-22" "Neko" "User Commands"
+.TH PREPART 1 "@MAN_DATE@" "Neko @PACKAGE_VERSION@" "User Commands"
 .SH NAME
 prepart \- pre-partition a Neko nmsh mesh with ParMETIS
 .SH SYNOPSIS
