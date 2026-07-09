@@ -1,5 +1,5 @@
 .\" Manual page for rea2nbin
-.TH REA2NBIN 1 "2026-05-22" "Neko" "User Commands"
+.TH REA2NBIN 1 "@MAN_DATE@" "Neko @PACKAGE_VERSION@" "User Commands"
 .SH NAME
 rea2nbin \- convert a Nek5000 re2 mesh to Neko's nmsh format
 .SH SYNOPSIS
