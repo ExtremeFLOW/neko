@@ -11,7 +11,9 @@
 <area shape="rect" id="Node000007" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="259,210,457,235"/>
 <area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="519,171,458,200,418,212,417,207,456,195,517,166"/>
 <area shape="rect" id="Node000008" href="$d3/d0d/namespacevector__math.html#a40da5cd57b058d7e69b8890f04115fb4" title="Vector subtraction ." alt="" coords="263,259,453,285"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="536,175,503,213,482,233,459,249,430,262,428,257,456,244,479,228,499,210,532,172"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="537,175,504,214,482,234,459,250,433,262,431,257,456,246,479,230,500,210,533,172"/>
 <area shape="rect" id="Node000003" href="$d7/d3f/namespacehpfrt__source__term.html#a7b741f1a3cb76156b86b2ba831567679" title="Computes the source term and adds the result to fields." alt="" coords="5,5,211,45"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="261,28,211,28,211,23,261,23"/>
+<area shape="rect" id="Node000009" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="13,259,203,285"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="249,275,204,275,204,269,249,269"/>
 </map>

@@ -1,0 +1,18 @@
+<map id="hip_glsc3" name="hip_glsc3">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,55,88,81"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="595,48,747,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,53,135,40,250,18,341,6,432,5,547,20,615,40,613,45,546,25,432,10,341,11,251,24,137,45,87,58"/>
+<area shape="rect" id="Node000003" href="$de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="137,55,332,81"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="88,65,124,65,124,71,88,71"/>
+<area shape="rect" id="Node000006" href="$de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="136,130,333,155"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="81,78,190,122,188,127,79,83"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="632,48,630,38,636,29,650,23,671,21,695,24,708,31,705,36,693,29,671,27,651,29,639,33,635,39,637,47"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="295,53,381,40,464,35,547,40,581,45,581,50,546,45,464,40,382,45,295,58"/>
+<area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="382,55,546,81"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="332,65,368,65,368,71,332,71"/>
+<area shape="rect" id="Node000005" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="381,105,547,130"/>
+<area shape="poly" id="edge7_Node000003_Node000005" title=" " alt="" coords="295,78,391,99,390,104,294,83"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="547,65,581,65,581,71,547,71"/>
+<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="517,102,580,87,582,92,518,107"/>
+<area shape="poly" id="edge10_Node000006_Node000002" title=" " alt="" coords="326,153,433,156,490,151,546,140,593,120,633,94,636,98,595,125,547,145,491,157,433,161,326,158"/>
+</map>

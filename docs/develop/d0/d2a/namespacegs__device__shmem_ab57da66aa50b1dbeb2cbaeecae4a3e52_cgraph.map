@@ -1,5 +1,5 @@
 <map id="gs_device_shmem::gs_device_shmem_nbwait_vec" name="gs_device_shmem::gs_device_shmem_nbwait_vec">
-<area shape="rect" id="Node000001" title="Fused nc&#45;component pack&#45;and&#45;push + unpack." alt="" coords="5,37,215,77"/>
+<area shape="rect" id="Node000001" title="Fused nc&#45;component push + unpack (the pack happens in nbsend_vec)." alt="" coords="5,37,215,77"/>
 <area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="267,5,427,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,41,253,35,254,41,215,46"/>
 <area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405" title="Synchronize a device stream with an event." alt="" coords="263,69,432,109"/>

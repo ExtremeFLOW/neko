@@ -1,0 +1,10 @@
+<map id="lpt_wall_collision_device::hip_lpt_handle_elastic_wall_collisions::hip_lpt_handle_elastic_wall_collisions" name="lpt_wall_collision_device::hip_lpt_handle_elastic_wall_collisions::hip_lpt_handle_elastic_wall_collisions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,7,180,91"/>
+<area shape="rect" id="Node000002" href="$da/d7c/namespacelpt__wall__collision__device.html#a1d60c140e5b180c339bb165b4a99d5c4" title="Launch device kernel for elastic wall&#45;collision reflection." alt="" coords="228,15,403,84"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,47,214,47,214,52,180,52"/>
+<area shape="rect" id="Node000003" href="$d8/d85/lpt__wall__collision_8cu.html#a40b037dec28d1045e545080095ab2791" title=" " alt="" coords="451,29,629,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,47,437,47,437,52,403,52"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="677,29,829,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="629,47,663,47,663,52,629,52"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="713,30,711,20,717,10,732,5,753,3,778,6,792,13,789,18,777,11,753,8,733,10,721,15,716,21,718,28"/>
+</map>

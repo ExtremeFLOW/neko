@@ -160,6 +160,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ac1d7dd757c992a82f1a201d671ce637d" id="r_ac1d7dd757c992a82f1a201d671ce637d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d">global_interpolation_find_and_redist</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, xyz, n_points)</td></tr>
 <tr class="memdesc:ac1d7dd757c992a82f1a201d671ce637d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the correct global element as well as which process that owns the point. There will be some redundancy as for example xyz and xyz_local will have the same values After this the values at these points can be evaluated without MPI.  <br /></td></tr>
 <tr class="separator:ac1d7dd757c992a82f1a201d671ce637d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46335d9765ee5db303e73b7f954cc9e4" id="r_a46335d9765ee5db303e73b7f954cc9e4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a46335d9765ee5db303e73b7f954cc9e4">global_interpolation_init_redist_comm</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">redist_comm</a>)</td></tr>
+<tr class="memdesc:a46335d9765ee5db303e73b7f954cc9e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a communicator that redistributes point-wise payloads from the original point ordering to the local owned-point ordering created by find_points_and_redist.  <br /></td></tr>
+<tr class="separator:a46335d9765ee5db303e73b7f954cc9e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9c17253d0dc29559d194d89a868d56c" id="r_ae9c17253d0dc29559d194d89a868d56c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ae9c17253d0dc29559d194d89a868d56c">global_interpolation_evaluate_masked</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">interp_values</a>, field, mask, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">on_host</a>)</td></tr>
 <tr class="memdesc:ae9c17253d0dc29559d194d89a868d56c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate the interpolated value in a masked field.  <br /></td></tr>
 <tr class="separator:ae9c17253d0dc29559d194d89a868d56c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -226,7 +229,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01030">1030</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01032">1032</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -284,7 +287,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01263">1263</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01304">1304</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -349,7 +352,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01246">1246</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01287">1287</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -415,7 +418,7 @@ Here is the call graph for this function:</div>
 </dl>
 <p>make deep copy incase xyz goes out of scope or deallocated</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01200">1200</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01202">1202</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -461,7 +464,7 @@ Here is the call graph for this function:</div>
 <p>Find element candidates at this rank</p>
 <p>Copy xyz coords to each element candidate</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00568">568</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00570">570</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -552,7 +555,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01085">1085</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01087">1087</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -631,7 +634,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01120">1120</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01122">1122</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -697,7 +700,7 @@ Here is the call graph for this function:</div>
 </dl>
 <p>make deep copy incase xyz goes out of scope or deallocated</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01171">1171</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01173">1173</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -741,7 +744,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00483">483</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00485">485</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -769,7 +772,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00527">527</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00529">529</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -797,7 +800,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00549">549</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00551">551</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -868,7 +871,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00280">280</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00282">282</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -933,7 +936,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00255">255</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00257">257</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1018,7 +1021,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00224">224</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00226">226</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1046,7 +1049,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01147">1147</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01149">1149</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1063,6 +1066,44 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="238,189,167,231,143,244,141,239,164,226,235,184"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="a46335d9765ee5db303e73b7f954cc9e4" name="a46335d9765ee5db303e73b7f954cc9e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46335d9765ee5db303e73b7f954cc9e4">&#9670;&#160;</a></span>global_interpolation_init_redist_comm()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> global_interpolation::global_interpolation_init_redist_comm </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html">glb_intrp_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>redist_comm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01245">1245</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1161,7 +1202,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00327">327</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00329">329</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1238,7 +1279,7 @@ Here is the call graph for this function:</div>
 </dl>
 <p>Else we check rst2 is inside and has a smaller distance</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01304">1304</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l01345">1345</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1315,7 +1356,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html">global_interpolation</a></li>
-    <li class="footer">Generated on Wed Jul 8 2026 04:36:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 9 2026 04:49:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

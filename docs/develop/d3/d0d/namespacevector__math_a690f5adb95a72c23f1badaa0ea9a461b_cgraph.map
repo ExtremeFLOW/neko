@@ -1,0 +1,7 @@
+<map id="vector_math::vector_absval" name="vector_math::vector_absval">
+<area shape="rect" id="Node000001" title="Compute the pointwise absolute value of a vector ." alt="" coords="5,27,159,67"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a7f0feef1d5e8da2763f4d1e03a02ca49" title="Take the absolute value of an array." alt="" coords="232,5,339,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,34,218,25,219,30,160,39"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#aa55c9d4cfc4bba967eb08edb3f3193c0" title=" " alt="" coords="207,55,364,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,55,194,60,193,65,159,61"/>
+</map>

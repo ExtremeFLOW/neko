@@ -1,5 +1,6 @@
 var vector__math_8f90 =
 [
+    [ "vector_absval", "d6/d03/vector__math_8f90.html#a690f5adb95a72c23f1badaa0ea9a461b", null ],
     [ "vector_add2", "d6/d03/vector__math_8f90.html#a2ca83e4227ff57fef1ae01d8c4d3e963", null ],
     [ "vector_add2s1", "d6/d03/vector__math_8f90.html#aca9745f1e0e9feba0443d1baa1a11006", null ],
     [ "vector_add2s2", "d6/d03/vector__math_8f90.html#ad2e3b136be995cb9e58faec0d754e15e", null ],
@@ -32,8 +33,10 @@ var vector__math_8f90 =
     [ "vector_masked_gather_copy_0", "d6/d03/vector__math_8f90.html#a102c3fdd6473f46807a9cd38290910de", null ],
     [ "vector_masked_scatter_copy", "d6/d03/vector__math_8f90.html#adb8b35dd7d3344cd6165541c64e01d02", null ],
     [ "vector_masked_scatter_copy_0", "d6/d03/vector__math_8f90.html#ae6a9b6ccf8813a576d35925f2c451e27", null ],
+    [ "vector_power", "d6/d03/vector__math_8f90.html#a483a64e1a80182c7d4237f89448eb636", null ],
     [ "vector_rone", "d6/d03/vector__math_8f90.html#ae230a7be11fda2b4e3a193c8f3e172c2", null ],
     [ "vector_rzero", "d6/d03/vector__math_8f90.html#ae61cdbb3bb145783d9387cee0ecf1c59", null ],
+    [ "vector_sqrt_inplace", "d6/d03/vector__math_8f90.html#ab05c94f41e8cb4739ec02de9be381aa2", null ],
     [ "vector_sub2", "d6/d03/vector__math_8f90.html#a588b98b5b338b05f30f57698f2f59126", null ],
     [ "vector_sub3", "d6/d03/vector__math_8f90.html#a40da5cd57b058d7e69b8890f04115fb4", null ],
     [ "vector_subcol3", "d6/d03/vector__math_8f90.html#ab4bc4dc15b3799233b025018f6d4500a", null ],

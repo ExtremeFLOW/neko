@@ -1,0 +1,8 @@
+<map id="lpt_periodic_bc_device::lpt_periodic_bc_wrap_translational_device" name="lpt_periodic_bc_device::lpt_periodic_bc_wrap_translational_device">
+<area shape="rect" id="Node000001" title="Launch device kernel for translational periodic wrapping." alt="" coords="5,22,176,77"/>
+<area shape="rect" id="Node000002" href="$de/d35/lpt__periodic__bc_8cu.html#a9448b78b78182eae88fd00bbb65c9787" title=" " alt="" coords="224,29,383,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,47,210,47,210,52,176,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="431,29,583,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="383,47,417,47,417,52,383,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="468,30,466,20,472,11,486,5,507,3,530,6,543,13,541,18,529,11,507,8,487,10,476,15,471,21,474,28"/>
+</map>

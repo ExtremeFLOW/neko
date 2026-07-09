@@ -18,6 +18,6 @@
 <area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="327,346,280,396,251,422,219,444,194,456,192,451,216,439,247,417,276,392,323,342"/>
 <area shape="rect" id="Node000010" href="$d0/d2a/namespacegs__device__shmem.html#a6beab26e24a8a58b8b0237f6260d7c40" title="Wait for non&#45;blocking operations." alt="" coords="22,517,201,557"/>
 <area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="337,347,319,384,292,427,259,470,219,507,198,520,196,515,216,503,255,467,288,424,314,381,333,344"/>
-<area shape="rect" id="Node000011" href="$d0/d2a/namespacegs__device__shmem.html#ab57da66aa50b1dbeb2cbaeecae4a3e52" title="Fused nc&#45;component pack&#45;and&#45;push + unpack." alt="" coords="7,581,216,621"/>
+<area shape="rect" id="Node000011" href="$d0/d2a/namespacegs__device__shmem.html#ab57da66aa50b1dbeb2cbaeecae4a3e52" title="Fused nc&#45;component push + unpack (the pack happens in nbsend_vec)." alt="" coords="7,581,216,621"/>
 <area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="343,347,328,397,303,457,267,518,245,547,219,571,201,584,198,579,216,567,241,543,263,515,298,455,323,395,338,345"/>
 </map>

@@ -6,5 +6,6 @@ var coef_8cu =
     [ "cuda_coef_generate_area_and_normal", "d4/d95/coef_8cu.html#a8276c4946f9a1f78e5c217207a037d3e", null ],
     [ "cuda_coef_generate_dxyzdrst", "d4/d95/coef_8cu.html#ae353b24ed06280c0189697af736a6b7d", null ],
     [ "cuda_coef_generate_geo", "d4/d95/coef_8cu.html#afc958c4ada849476c2f7b2bf9bc0d677", null ],
-    [ "cuda_coef_generate_mass", "d4/d95/coef_8cu.html#aaa6e57cdcf0240660a75c138fa848c80", null ]
+    [ "cuda_coef_generate_mass", "d4/d95/coef_8cu.html#aaa6e57cdcf0240660a75c138fa848c80", null ],
+    [ "cuda_coef_get_normal", "d4/d95/coef_8cu.html#a04f7cb76daa8c1741aef519695ffe62c", null ]
 ];

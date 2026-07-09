@@ -23,6 +23,7 @@ var structgs__device__shmem_1_1gs__device__shmem__t =
     [ "done_sig_d", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#aef4b4c328698cf39dacdd5bb48881c5d", null ],
     [ "event", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#aa69d453c1c01a85d0b840c3921f0aab4", null ],
     [ "iter", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a67e3b0ee8224579c7ce4f92a4496a05b", null ],
+    [ "pack_event", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a7b93fcc5a82a244fad31f1c9f2bebd00", null ],
     [ "ready_sig_d", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#abc10ee96f5c699a859ba8aafd77fd33c", null ],
     [ "recv_buf", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#aa4094d2a5c30d51682bb753095e59fc4", null ],
     [ "recv_dof", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a454cf259ff31b824bd4508df2f8bcd5a", null ],

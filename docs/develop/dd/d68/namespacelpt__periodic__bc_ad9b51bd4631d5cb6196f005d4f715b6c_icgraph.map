@@ -1,0 +1,5 @@
+<map id="lpt_periodic_bc::lpt_normalize" name="lpt_periodic_bc::lpt_normalize">
+<area shape="rect" id="Node000001" title="Normalise a 3&#45;vector when its norm is above LPT periodic tolerance." alt="" coords="273,5,419,45"/>
+<area shape="rect" id="Node000002" href="$dd/d68/namespacelpt__periodic__bc.html#a361d2fa3ea42642b3a0488e6625de62e" title="Detect unique translational periodic directions from facet pairs." alt="" coords="5,5,225,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="260,28,226,28,226,23,260,23"/>
+</map>

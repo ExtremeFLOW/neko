@@ -149,6 +149,7 @@ var index =
             [ "Example usage", "d3/d84/simcomps.html#autotoc_md191", null ]
           ] ],
           [ "field_writer", "d3/d84/simcomps.html#simcomp_field_writer", null ],
+          [ "lagrangian_particles", "d3/d84/simcomps.html#simcomp_lagrangian_particles", null ],
           [ "force_torque", "d3/d84/simcomps.html#simcomp_force_torque", [
             [ "Torque calculation for moving bodies", "d3/d84/simcomps.html#autotoc_md192", null ]
           ] ],

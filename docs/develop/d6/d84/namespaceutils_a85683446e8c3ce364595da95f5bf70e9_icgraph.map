@@ -1,11 +1,13 @@
 <map id="utils::filename_split" name="utils::filename_split">
-<area shape="rect" id="Node000001" title="Extract file name components." alt="" coords="653,112,804,137"/>
+<area shape="rect" id="Node000001" title="Extract file name components." alt="" coords="653,144,804,169"/>
 <area shape="rect" id="Node000002" href="$dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68" title="Initialize a case from its (loaded) params object." alt="" coords="423,55,605,80"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="666,111,562,83,563,77,668,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="693,140,652,117,604,95,567,83,569,78,606,90,654,112,696,135"/>
 <area shape="rect" id="Node000006" href="$d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313" title="Return the file name with the start counter." alt="" coords="447,105,581,145"/>
-<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="639,127,582,127,582,122,639,122"/>
-<area shape="rect" id="Node000008" href="$db/d11/namespacevtkhdf__file.html#afb2879798169ca1979ce2a08b4dfbe18" title="Return the file name with the start counter." alt="" coords="443,169,585,209"/>
-<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="673,144,583,171,581,166,671,139"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="639,146,581,137,582,132,640,141"/>
+<area shape="rect" id="Node000008" href="$d2/d47/namespacelpt__output.html#a5410381a1601355573b4b97943aaff3d" title="Get the active output path, adding a file index when chunked output is on." alt="" coords="433,169,595,209"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="640,173,596,179,595,174,639,167"/>
+<area shape="rect" id="Node000009" href="$db/d11/namespacevtkhdf__file.html#afb2879798169ca1979ce2a08b4dfbe18" title="Return the file name with the start counter." alt="" coords="443,233,585,273"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="695,178,606,223,576,235,574,230,604,218,692,174"/>
 <area shape="rect" id="Node000003" href="$dd/da8/namespacecase.html#a43da3102124b9a70209d9f4cea65676a" title="Initialize a case from an input file case_file." alt="" coords="188,5,371,31"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="439,54,340,33,341,28,440,49"/>
 <area shape="rect" id="Node000005" href="$dd/da8/namespacecase.html#ac5da808aa4acd3a1c5d03c5c7f785e92" title="Initialize a case from a JSON object describing a case." alt="" coords="184,55,375,80"/>

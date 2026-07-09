@@ -120,6 +120,7 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </ul>
 </li>
 <li class="level2"><a href="#simcomp_field_writer">field_writer</a></li>
+<li class="level2"><a href="#simcomp_lagrangian_particles">lagrangian_particles</a></li>
 <li class="level2"><a href="#simcomp_force_torque">force_torque</a><ul><li class="level3"><a href="#autotoc_md192">Torque calculation for moving bodies</a></li>
 </ul>
 </li>
@@ -159,6 +160,7 @@ List of simulation components</h1>
 <li>Computation of forces and torque on a surface <a class="el" href="../../d3/d84/simcomps.html#simcomp_force_torque">force_torque</a></li>
 <li>Boundary operations on labelled zones <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_operation">boundary_operation</a></li>
 <li>Total vector flux through labelled zones <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_flux">boundary_flux</a></li>
+<li>Lagrangian particle tracking <a class="el" href="../../d3/d84/simcomps.html#simcomp_lagrangian_particles">lagrangian_particles</a></li>
 <li>Computation of subgrid-scale (SGS) eddy viscosity via a SGS model <a class="el" href="../../d3/d84/simcomps.html#simcomp_les_model">les_model</a></li>
 <li>User defined components <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">user-file_simcomps</a></li>
 <li>Fluid statistics simcomp, "fluid_stats", for more details see the <a class="el" href="../../df/d8f/statistics-guide.html">statistics guide</a></li>
@@ -417,7 +419,62 @@ field_writer</h2>
 <div class="line">  &quot;output_filename&quot;: &quot;my_point_zone_field&quot;,</div>
 <div class="line">  &quot;point_zone&quot;: &quot;my_point_zone&quot;</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="simcomp_force_torque"></a>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_lagrangian_particles"></a>
+lagrangian_particles</h2>
+<p>Tracks point particles through the flow using the Lagrangian particle tracking component. The particles are advected by the interpolated fluid velocity. With <code>inertia</code> enabled, particle velocity, nonlinear drag, particle diameter, density, and elastic wall rebounds can also be included.</p>
+<p>Mandatory fields for this simcomp are:</p><ul>
+<li><code>inertia</code>: whether to track inertial particles. If <code>false</code>, particles are passive tracers.</li>
+<li>Either <code>coordinates</code> or <code>points_file</code>:<ul>
+<li><code>coordinates</code>: a flat list of particle coordinates, <code>[x1, y1, z1, x2, y2, z2, ...]</code>.</li>
+<li><code>points_file</code>: a CSV file containing the initial particle coordinates.</li>
+</ul>
+</li>
+</ul>
+<p>When <code>inertia</code> is <code>true</code>, the JSON particle input also requires:</p><ul>
+<li><code>velocities</code>: a flat list of initial particle velocities, <code>[u1, v1, w1, u2, v2, w2, ...]</code>.</li>
+<li><code>diameters</code>: one particle diameter per particle.</li>
+<li><code>densities</code>: one particle density per particle.</li>
+</ul>
+<p>Optional fields for this simcomp are:</p><ul>
+<li><code>migration_strategy</code>: controls particle ownership migration. Supported values are <code>owner</code> (default) and <code>none</code>.</li>
+<li><code>nonlinear_coefficient</code>: nonlinear drag coefficient for inertial particles. Defaults to <code>0.15</code>.</li>
+<li><code>nonlinear_exponent</code>: nonlinear drag exponent for inertial particles. Defaults to <code>0.687</code>.</li>
+<li><code>wall_zone_indices</code>: boundary zone indices that should act as elastic rebound walls. This requires <code>inertia</code> to be <code>true</code>.</li>
+<li><code>interpolation</code>: sub-dictionary passed to the global interpolation setup.</li>
+<li><code>output_filename</code>: base name for the trajectory output. Defaults to the simcomp name.</li>
+<li><code>output_format</code>: trajectory output format. Supported values are <code>csv</code>, <code>h5</code>, and <code>hdf5</code>. Defaults to <code>csv</code>.</li>
+<li><code>snapshots_per_file</code>: controls how many written trajectory snapshots are stored in each file. The default value <code>all</code> keeps all snapshots in the current output sequence. A positive integer writes that many output snapshots per file.</li>
+</ul>
+<p>The <code>output_control</code> and <code>output_value</code> keywords control when trajectory snapshots are written. The initial particle state is always written during initialisation.</p>
+<p>The <code>compute_control</code> and <code>compute_value</code> keywords determine when the LPT component advances the particles. The time interval between two LPT compute executions is therefore the time step used by the particle time integration.</p>
+<p>For CSV output, the columns are:</p>
+<div class="fragment"><div class="line">tstep,time,particle_id,x,y,z,u,v,w</div>
+</div><!-- fragment --><p>For inertial particles, the particle diameter and density are appended:</p>
+<div class="fragment"><div class="line">tstep,time,particle_id,x,y,z,u,v,w,d,rho</div>
+</div><!-- fragment --><p>For HDF5 output, the data are written under the <code>lpt</code> group with datasets for <code>tsteps</code>, <code>t</code>, <code>ids</code>, <code>position</code>, and <code>velocity</code>. Inertial-particle output also contains <code>diameter</code> and <code>density</code>.</p>
+<p>If <code>snapshots_per_file</code> is a positive integer, output files are named by adding <code>_0</code>, <code>_1</code>, ... before the format suffix, for example <code>tracers_0.h5</code>, <code>tracers_1.h5</code>, and so on.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;lagrangian_particles&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;tracers&quot;,</div>
+<div class="line">  &quot;inertia&quot;: true,</div>
+<div class="line">  &quot;coordinates&quot;: [</div>
+<div class="line">    0.0, 0.0, 0.0,</div>
+<div class="line">    0.1, 0.0, 0.0</div>
+<div class="line">  ],</div>
+<div class="line">  &quot;velocities&quot;: [</div>
+<div class="line">    1.0, 0.0, 0.0,</div>
+<div class="line">    0.5, 0.0, 0.0</div>
+<div class="line">  ],</div>
+<div class="line">  &quot;diameters&quot;: [1e-3, 1e-3],</div>
+<div class="line">  &quot;densities&quot;: [1e3, 1e3],</div>
+<div class="line">  &quot;output_filename&quot;: &quot;tracers&quot;,</div>
+<div class="line">  &quot;output_format&quot;: &quot;h5&quot;,</div>
+<div class="line">  &quot;snapshots_per_file&quot;: &quot;all&quot;,</div>
+<div class="line">  &quot;output_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">  &quot;output_value&quot;: 10</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>The <code>examples/rebounding_particles</code> case demonstrates CSV input and output, JSON input with HDF5 output, nonlinear drag, and elastic wall rebounds.</p>
+<h2><a class="anchor" id="simcomp_force_torque"></a>
 force_torque</h2>
 <p>Computes the force on a specified zone and the corresponding torque around a center point. The compute control specifies how often they are computed and printed into the log. Scale specifies a scale for the computed force/torque. Conventient if one wants to scale with the area or similar. long_print is default false and can be set to true to print all digits in the calculation. Subroutines used in the simcomp can be found in <a class="el" href="../../d9/df1/drag__torque_8f90.html">src/qoi/drag_torque.f90</a></p>
 <div class="fragment"><div class="line">{</div>
@@ -598,7 +655,7 @@ Field subsampler</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Jul 8 2026 04:36:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 9 2026 04:49:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

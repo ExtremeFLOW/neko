@@ -1,0 +1,5 @@
+<map id="lpt_periodic_bc_cpu::lpt_periodic_bc_wrap_rotational_cpu" name="lpt_periodic_bc_cpu::lpt_periodic_bc_wrap_rotational_cpu">
+<area shape="rect" id="Node000001" title="Wrap particles through a rotational periodic sector on the CPU." alt="" coords="5,5,172,60"/>
+<area shape="rect" id="Node000002" href="$d7/d06/namespacelpt__periodic__bc__cpu.html#afe9107922a569d9fe5f1b4ee2c8a3e01" title="Rotate a two&#45;component vector in the x&#45;y plane." alt="" coords="220,13,371,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,30,206,30,206,35,172,35"/>
+</map>

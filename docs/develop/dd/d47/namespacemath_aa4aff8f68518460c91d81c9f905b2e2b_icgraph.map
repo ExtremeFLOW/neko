@@ -42,38 +42,40 @@
 <area shape="poly" id="edge36_Node000001_Node000035" title=" " alt="" coords="593,668,587,777,572,928,560,1005,545,1075,525,1133,501,1172,484,1185,481,1181,497,1169,520,1131,540,1074,555,1004,567,927,581,776,587,667"/>
 <area shape="rect" id="Node000036" href="$d3/d0d/namespacevector__math.html#a6b7dd93eaf2a1c5a2530f03f83f5819e" title="Vector multiplication ." alt="" coords="288,1233,475,1258"/>
 <area shape="poly" id="edge37_Node000001_Node000036" title=" " alt="" coords="593,668,589,786,575,952,563,1037,548,1115,527,1178,515,1203,501,1222,477,1239,474,1234,497,1218,510,1200,522,1176,542,1113,558,1036,570,952,583,786,588,668"/>
-<area shape="rect" id="Node000037" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="301,1283,461,1323"/>
-<area shape="poly" id="edge38_Node000001_Node000037" title=" " alt="" coords="593,668,590,795,577,976,566,1069,550,1154,528,1224,515,1251,501,1272,483,1287,463,1297,460,1292,480,1282,497,1269,511,1249,523,1222,544,1152,560,1068,572,975,584,795,588,668"/>
+<area shape="rect" id="Node000038" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="301,1283,461,1323"/>
+<area shape="poly" id="edge39_Node000001_Node000038" title=" " alt="" coords="593,668,590,795,577,976,566,1069,550,1154,528,1224,515,1251,501,1272,483,1287,463,1297,460,1292,480,1282,497,1269,511,1249,523,1222,544,1152,560,1068,572,975,584,795,588,668"/>
 <area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="38,5,183,45"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="280,28,184,28,184,23,280,23"/>
 <area shape="rect" id="Node000005" href="$d2/dee/namespacedeardorff.html#a9017a40fe20a5f853ffcfb15310f07d7" title="Compute eddy viscosity." alt="" coords="37,69,185,109"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="278,92,185,92,185,87,278,87"/>
-<area shape="rect" id="Node000008" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="5,245,216,299"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="294,243,216,257,216,251,293,238"/>
-<area shape="rect" id="Node000009" href="$da/de3/namespacescalar__scheme.html#a9f1e7d30e723418c67f7d22f72f0ace1" title="Call user material properties routine and update the values of lambda if necessary." alt="" coords="13,166,208,221"/>
-<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="287,217,208,207,209,202,287,212"/>
+<area shape="rect" id="Node000008" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="5,166,216,221"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="286,217,216,208,217,203,287,212"/>
+<area shape="rect" id="Node000009" href="$da/de3/namespacescalar__scheme.html#a9f1e7d30e723418c67f7d22f72f0ace1" title="Call user material properties routine and update the values of lambda if necessary." alt="" coords="13,245,208,299"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="294,243,208,258,208,253,293,238"/>
 <area shape="rect" id="Node000013" href="$dd/d49/namespacejacobi.html#a5c43a3d9d05e1ba76322ba2a8f1faea6" title=" " alt="" coords="43,377,179,402"/>
 <area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="288,392,179,392,179,387,288,387"/>
-<area shape="rect" id="Node000018" href="$db/d5a/interfaceoperators_1_1dudxyz.html#a09aeed57ec3a82e68b48218c8c403ffd" title="Compute derivative of a scalar field along a single direction." alt="" coords="37,479,184,519"/>
-<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="283,589,263,580,247,568,238,556,229,544,215,533,183,518,186,514,217,528,233,540,242,552,251,564,265,575,285,585"/>
-<area shape="rect" id="Node000019" href="$db/d5a/interfaceoperators_1_1dudxyz.html#ad6ccdb3f34539d2dd3273b0cf92ebadd" title="Compute derivative of a scalar field along a single direction." alt="" coords="37,543,184,583"/>
-<area shape="poly" id="edge18_Node000017_Node000019" title=" " alt="" coords="283,595,184,578,185,573,284,590"/>
-<area shape="rect" id="Node000020" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="11,607,210,633"/>
-<area shape="poly" id="edge19_Node000017_Node000020" title=" " alt="" coords="284,616,210,619,210,613,283,611"/>
-<area shape="rect" id="Node000022" href="$d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="13,722,208,747"/>
-<area shape="poly" id="edge21_Node000021_Node000022" title=" " alt="" coords="277,739,208,738,208,733,277,734"/>
-<area shape="rect" id="Node000023" href="$d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="13,657,208,697"/>
-<area shape="poly" id="edge22_Node000021_Node000023" title=" " alt="" coords="277,717,201,700,202,695,278,712"/>
-<area shape="rect" id="Node000024" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="29,771,192,797"/>
-<area shape="poly" id="edge23_Node000021_Node000024" title=" " alt="" coords="277,758,185,774,185,769,276,753"/>
-<area shape="poly" id="edge25_Node000025_Node000022" title=" " alt="" coords="282,698,168,725,167,719,281,693"/>
-<area shape="poly" id="edge26_Node000025_Node000023" title=" " alt="" coords="282,677,208,679,208,673,282,672"/>
+<area shape="rect" id="Node000018" href="$db/d5a/interfaceoperators_1_1dudxyz.html#a09aeed57ec3a82e68b48218c8c403ffd" title="Compute derivative of a scalar field along a single direction." alt="" coords="37,487,184,527"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="283,589,263,580,248,570,238,560,215,541,183,528,186,523,217,536,242,556,251,566,265,575,286,584"/>
+<area shape="rect" id="Node000019" href="$db/d5a/interfaceoperators_1_1dudxyz.html#ad6ccdb3f34539d2dd3273b0cf92ebadd" title="Compute derivative of a scalar field along a single direction." alt="" coords="37,551,184,591"/>
+<area shape="poly" id="edge18_Node000017_Node000019" title=" " alt="" coords="283,598,184,584,185,578,284,593"/>
+<area shape="rect" id="Node000020" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="11,615,210,641"/>
+<area shape="poly" id="edge19_Node000017_Node000020" title=" " alt="" coords="284,619,210,624,210,619,283,613"/>
+<area shape="rect" id="Node000022" href="$d1/d99/namespacemap__2d.html#aed0fbf197cedeb057b48268a451b2640" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="13,665,208,690"/>
+<area shape="poly" id="edge21_Node000021_Node000022" title=" " alt="" coords="276,717,168,693,169,687,278,712"/>
+<area shape="rect" id="Node000023" href="$d1/d99/namespacemap__2d.html#aaa22d03617c59612fa2c690b2dc807aa" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="13,715,208,755"/>
+<area shape="poly" id="edge22_Node000021_Node000023" title=" " alt="" coords="277,739,208,738,208,733,277,734"/>
+<area shape="rect" id="Node000024" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="29,779,192,805"/>
+<area shape="poly" id="edge23_Node000021_Node000024" title=" " alt="" coords="278,761,175,782,174,777,277,756"/>
+<area shape="poly" id="edge25_Node000025_Node000022" title=" " alt="" coords="282,677,208,679,208,673,282,672"/>
+<area shape="poly" id="edge26_Node000025_Node000023" title=" " alt="" coords="283,698,200,717,199,712,282,693"/>
 <area shape="rect" id="Node000028" href="$d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="23,861,198,886"/>
 <area shape="poly" id="edge29_Node000027_Node000028" title=" " alt="" coords="250,876,198,876,198,871,250,871"/>
 <area shape="rect" id="Node000030" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="13,911,208,951"/>
 <area shape="poly" id="edge31_Node000029_Node000030" title=" " alt="" coords="254,933,208,933,208,928,254,928"/>
 <area shape="rect" id="Node000034" href="$dd/d6e/namespacesx__jacobi.html#a8e0d95bbb8f2b6dc135d59f47b066669" title=" " alt="" coords="21,1126,201,1151"/>
 <area shape="poly" id="edge35_Node000033_Node000034" title=" " alt="" coords="291,1141,201,1141,201,1136,291,1136"/>
-<area shape="rect" id="Node000038" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="13,1290,208,1315"/>
-<area shape="poly" id="edge39_Node000037_Node000038" title=" " alt="" coords="288,1305,208,1305,208,1300,288,1300"/>
+<area shape="rect" id="Node000037" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="15,1233,206,1258"/>
+<area shape="poly" id="edge38_Node000036_Node000037" title=" " alt="" coords="274,1248,206,1248,206,1243,274,1243"/>
+<area shape="rect" id="Node000039" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="13,1290,208,1315"/>
+<area shape="poly" id="edge40_Node000038_Node000039" title=" " alt="" coords="288,1305,208,1305,208,1300,288,1300"/>
 </map>

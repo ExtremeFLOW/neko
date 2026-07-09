@@ -1,0 +1,5 @@
+<map id="lpt_periodic_bc::lpt_periodic_bc_sync_from_device" name="lpt_periodic_bc::lpt_periodic_bc_sync_from_device">
+<area shape="rect" id="Node000001" title="Copy wrapped particle coordinates and optional histories back to host." alt="" coords="199,5,377,60"/>
+<area shape="rect" id="Node000002" href="$dd/d68/namespacelpt__periodic__bc.html#a021c8ceabe8ac82a1c0a0f6c33dfb34a" title="Wrap particle positions and optional vector histories across boundaries." alt="" coords="5,13,151,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,35,151,35,151,30,185,30"/>
+</map>

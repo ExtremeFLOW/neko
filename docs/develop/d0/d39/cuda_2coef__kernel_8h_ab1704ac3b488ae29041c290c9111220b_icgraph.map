@@ -1,0 +1,12 @@
+<map id="coef_get_normal_device" name="coef_get_normal_device">
+<area shape="rect" id="Node000001" title=" " alt="" coords="653,31,835,56"/>
+<area shape="rect" id="Node000002" href="$d0/d39/cuda_2coef__kernel_8h.html#a494d31d10d5c3f21e64fa29baa478636" title=" " alt="" coords="427,5,605,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="639,34,605,31,606,25,640,29"/>
+<area shape="rect" id="Node000003" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a48041fe97248d2d02fb9e74c0e8610a1" title=" " alt="" coords="433,55,599,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="640,57,600,61,599,56,639,52"/>
+<area shape="rect" id="Node000004" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#aef6a70471dabbe9ee1e2612e2bc05df3" title=" " alt="" coords="5,47,176,87"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="418,70,176,70,176,65,418,65"/>
+<area shape="rect" id="Node000005" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#abc79b36404908b18baa12d6198daebe4" title=" " alt="" coords="224,80,379,105"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="419,81,379,86,378,81,418,76"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="210,84,176,80,177,75,210,79"/>
+</map>

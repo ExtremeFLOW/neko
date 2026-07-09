@@ -1,5 +1,7 @@
 <map id="device_math::device_absval" name="device_math::device_absval">
-<area shape="rect" id="Node000001" title=" " alt="" coords="255,13,412,53"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="255,49,412,89"/>
 <area shape="rect" id="Node000002" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="5,5,207,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,35,207,35,207,30,241,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,57,206,51,207,46,241,51"/>
+<area shape="rect" id="Node000003" href="$d3/d0d/namespacevector__math.html#a690f5adb95a72c23f1badaa0ea9a461b" title="Compute the pointwise absolute value of a vector ." alt="" coords="29,85,183,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="241,86,183,95,182,90,240,81"/>
 </map>

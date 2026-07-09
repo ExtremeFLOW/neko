@@ -1,0 +1,8 @@
+<map id="lpt_wall_collision_cpu::wall_facet_normal" name="lpt_wall_collision_cpu::wall_facet_normal">
+<area shape="rect" id="Node000001" title="Use the face&#45;center SEM normal as the reflection normal." alt="" coords="449,13,629,53"/>
+<area shape="rect" id="Node000002" href="$d1/d45/namespacelpt__wall__collision__cpu.html#af44cf65b2bdf1db0f589222412d531d0" title="Reflect inertial particles that hit configured wall facets on the CPU." alt="" coords="5,5,184,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="436,32,401,31,232,31,184,32,184,27,232,26,401,26,436,27"/>
+<area shape="rect" id="Node000003" href="$d1/d45/namespacelpt__wall__collision__cpu.html#a1332068721fbb058db91af17c77c2c4a" title="Return true if the particle surface reaches a given wall facet." alt="" coords="232,41,401,81"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="436,48,402,53,401,47,435,43"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="218,51,184,47,184,41,219,46"/>
+</map>

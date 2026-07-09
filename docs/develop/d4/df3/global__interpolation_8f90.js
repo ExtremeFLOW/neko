@@ -17,6 +17,7 @@ var global__interpolation_8f90 =
     [ "global_interpolation_init_json_dof", "d4/df3/global__interpolation_8f90.html#a2aaba5a0c7b1b4b0102991ad8e6477ab", null ],
     [ "global_interpolation_init_json_xyz", "d4/df3/global__interpolation_8f90.html#abdbb54164ca19ca4b1859a58782ae9d1", null ],
     [ "global_interpolation_init_point_arrays", "d4/df3/global__interpolation_8f90.html#a419e4bc704c8fcd7549a4de09f5dfbb3", null ],
+    [ "global_interpolation_init_redist_comm", "d4/df3/global__interpolation_8f90.html#a46335d9765ee5db303e73b7f954cc9e4", null ],
     [ "global_interpolation_init_xyz", "d4/df3/global__interpolation_8f90.html#aa22c2902ead56b80171cf0a6874732b7", null ],
     [ "rst_cmp", "d4/df3/global__interpolation_8f90.html#a829324239907e3b2115c45ac52ab3d51", null ],
     [ "glob_interp_pad", "d4/df3/global__interpolation_8f90.html#a9f16d611954909f8bcb7902b13703f5d", null ],

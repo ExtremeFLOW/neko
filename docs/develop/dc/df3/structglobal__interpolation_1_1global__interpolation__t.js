@@ -20,6 +20,7 @@ var structglobal__interpolation_1_1global__interpolation__t =
     [ "init_dof", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a5644d505ac36443653a8d3ff0ec4167a", null ],
     [ "init_json_dof", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a741274b0484133f25ec04ac9092c7b53", null ],
     [ "init_json_xyz", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a73eab7bc9458dc5062ad0db7d2aa03eb", null ],
+    [ "init_redist_comm", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a55ec8a7dab51bb941b686763a91d1e0c", null ],
     [ "init_xyz", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a055ebb5e63d2eaeec92680c5bda806d9", null ],
     [ "all_points_local", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a48afec930d38c8ab783a6b6b181a3368", null ],
     [ "comm", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4292fd619de8d8df8a802d3157c50fee", null ],

@@ -1,0 +1,5 @@
+<map id="lpt::lpt_init_from_json" name="lpt::lpt_init_from_json">
+<area shape="rect" id="Node000001" title="Build a mask of elastic wall facets from configured mesh zone ids." alt="" coords="5,13,169,38"/>
+<area shape="rect" id="Node000002" href="$d8/da8/namespacejson__utils.html#ab32ecc2e205eaaad7cc379b5271e51b6" title="Extract a sub&#45;object from a json object and returns an empty object if the key is missing." alt="" coords="217,5,364,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,23,204,23,204,28,170,28"/>
+</map>

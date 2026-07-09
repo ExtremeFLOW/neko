@@ -1,0 +1,12 @@
+<map id="cuda_global_reduce_add_xp" name="cuda_global_reduce_add_xp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,156,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="417,29,569,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,29,204,21,287,16,370,21,404,26,403,32,369,27,287,21,204,27,157,34"/>
+<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="205,37,369,62"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="157,47,191,47,191,52,157,52"/>
+<area shape="rect" id="Node000004" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="204,86,369,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="157,65,220,80,219,85,156,70"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="455,30,452,20,459,11,472,5,493,3,517,6,531,13,528,18,516,11,493,8,474,10,462,15,458,21,460,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="369,47,403,47,403,52,369,52"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="340,83,403,68,404,73,341,89"/>
+</map>

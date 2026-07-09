@@ -302,6 +302,7 @@ var annotated_dup =
       [ "cuda_masked_gather_copy_aligned", "d5/df3/interfacecuda__math_1_1cuda__masked__gather__copy__aligned.html", "d5/df3/interfacecuda__math_1_1cuda__masked__gather__copy__aligned" ],
       [ "cuda_masked_scatter_copy", "d9/dda/interfacecuda__math_1_1cuda__masked__scatter__copy.html", "d9/dda/interfacecuda__math_1_1cuda__masked__scatter__copy" ],
       [ "cuda_masked_scatter_copy_aligned", "d0/dd3/interfacecuda__math_1_1cuda__masked__scatter__copy__aligned.html", "d0/dd3/interfacecuda__math_1_1cuda__masked__scatter__copy__aligned" ],
+      [ "cuda_power", "db/dc1/interfacecuda__math_1_1cuda__power.html", "db/dc1/interfacecuda__math_1_1cuda__power" ],
       [ "cuda_pwmax_sca2", "df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html", "df/d32/interfacecuda__math_1_1cuda__pwmax__sca2" ],
       [ "cuda_pwmax_sca3", "d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html", "d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3" ],
       [ "cuda_pwmax_vec2", "d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html", "d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2" ],
@@ -312,6 +313,7 @@ var annotated_dup =
       [ "cuda_pwmin_vec3", "d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html", "d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3" ],
       [ "cuda_radd", "d1/da2/interfacecuda__math_1_1cuda__radd.html", "d1/da2/interfacecuda__math_1_1cuda__radd" ],
       [ "cuda_rzero", "d4/d40/interfacecuda__math_1_1cuda__rzero.html", "d4/d40/interfacecuda__math_1_1cuda__rzero" ],
+      [ "cuda_sqrt_inplace", "d3/ddd/interfacecuda__math_1_1cuda__sqrt__inplace.html", "d3/ddd/interfacecuda__math_1_1cuda__sqrt__inplace" ],
       [ "cuda_sub2", "d9/df2/interfacecuda__math_1_1cuda__sub2.html", "d9/df2/interfacecuda__math_1_1cuda__sub2" ],
       [ "cuda_sub3", "d9/d6a/interfacecuda__math_1_1cuda__sub3.html", "d9/d6a/interfacecuda__math_1_1cuda__sub3" ],
       [ "cuda_subcol3", "d8/d08/interfacecuda__math_1_1cuda__subcol3.html", "d8/d08/interfacecuda__math_1_1cuda__subcol3" ],
@@ -364,7 +366,8 @@ var annotated_dup =
       [ "hip_coef_generate_area_and_normal", "df/d07/interfacedevice__coef_1_1hip__coef__generate__area__and__normal.html", "df/d07/interfacedevice__coef_1_1hip__coef__generate__area__and__normal" ],
       [ "hip_coef_generate_dxyzdrst", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst" ],
       [ "hip_coef_generate_geo", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo.html", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo" ],
-      [ "hip_coef_generate_mass", "d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass.html", "d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass" ]
+      [ "hip_coef_generate_mass", "d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass.html", "d8/d7a/interfacedevice__coef_1_1hip__coef__generate__mass" ],
+      [ "hip_coef_get_normal", "dd/d70/interfacedevice__coef_1_1hip__coef__get__normal.html", "dd/d70/interfacedevice__coef_1_1hip__coef__get__normal" ]
     ] ],
     [ "device_deardorff_nut", "d4/d66/namespacedevice__deardorff__nut.html", [
       [ "hip_deardorff_nut_compute", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute.html", "d2/d29/interfacedevice__deardorff__nut_1_1hip__deardorff__nut__compute" ]
@@ -760,10 +763,11 @@ var annotated_dup =
       [ "hip_gs_unpack_vec", "db/d82/interfacegs__device__nccl_1_1hip__gs__unpack__vec.html", "db/d82/interfacegs__device__nccl_1_1hip__gs__unpack__vec" ]
     ] ],
     [ "gs_device_shmem", "d0/d2a/namespacegs__device__shmem.html", [
-      [ "cuda_gs_pack_and_push", "db/d23/interfacegs__device__shmem_1_1cuda__gs__pack__and__push.html", "db/d23/interfacegs__device__shmem_1_1cuda__gs__pack__and__push" ],
-      [ "cuda_gs_pack_and_push_vec", "db/d0d/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__vec.html", "db/d0d/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__vec" ],
-      [ "cuda_gs_pack_and_push_wait", "d7/d9e/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__wait.html", "d7/d9e/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__wait" ],
+      [ "cuda_gs_nvshmem_pack", "db/d34/interfacegs__device__shmem_1_1cuda__gs__nvshmem__pack.html", "db/d34/interfacegs__device__shmem_1_1cuda__gs__nvshmem__pack" ],
+      [ "cuda_gs_nvshmem_pack_vec", "d8/d5c/interfacegs__device__shmem_1_1cuda__gs__nvshmem__pack__vec.html", "d8/d5c/interfacegs__device__shmem_1_1cuda__gs__nvshmem__pack__vec" ],
       [ "cuda_gs_post_ready", "df/d2a/interfacegs__device__shmem_1_1cuda__gs__post__ready.html", "df/d2a/interfacegs__device__shmem_1_1cuda__gs__post__ready" ],
+      [ "cuda_gs_push", "d1/d3e/interfacegs__device__shmem_1_1cuda__gs__push.html", "d1/d3e/interfacegs__device__shmem_1_1cuda__gs__push" ],
+      [ "cuda_gs_push_wait", "dd/dfb/interfacegs__device__shmem_1_1cuda__gs__push__wait.html", "dd/dfb/interfacegs__device__shmem_1_1cuda__gs__push__wait" ],
       [ "cuda_gs_unpack", "da/d48/interfacegs__device__shmem_1_1cuda__gs__unpack.html", "da/d48/interfacegs__device__shmem_1_1cuda__gs__unpack" ],
       [ "cuda_gs_unpack_vec", "d7/d3b/interfacegs__device__shmem_1_1cuda__gs__unpack__vec.html", "d7/d3b/interfacegs__device__shmem_1_1cuda__gs__unpack__vec" ],
       [ "cudafree_nvshmem", "d8/d67/interfacegs__device__shmem_1_1cudafree__nvshmem.html", "d8/d67/interfacegs__device__shmem_1_1cudafree__nvshmem" ],
@@ -866,6 +870,7 @@ var annotated_dup =
       [ "hip_masked_gather_copy_aligned", "da/db3/interfacehip__math_1_1hip__masked__gather__copy__aligned.html", "da/db3/interfacehip__math_1_1hip__masked__gather__copy__aligned" ],
       [ "hip_masked_scatter_copy", "d7/d57/interfacehip__math_1_1hip__masked__scatter__copy.html", "d7/d57/interfacehip__math_1_1hip__masked__scatter__copy" ],
       [ "hip_masked_scatter_copy_aligned", "d9/d79/interfacehip__math_1_1hip__masked__scatter__copy__aligned.html", "d9/d79/interfacehip__math_1_1hip__masked__scatter__copy__aligned" ],
+      [ "hip_power", "de/da4/interfacehip__math_1_1hip__power.html", "de/da4/interfacehip__math_1_1hip__power" ],
       [ "hip_pwmax_sca2", "dd/d93/interfacehip__math_1_1hip__pwmax__sca2.html", "dd/d93/interfacehip__math_1_1hip__pwmax__sca2" ],
       [ "hip_pwmax_sca3", "df/d52/interfacehip__math_1_1hip__pwmax__sca3.html", "df/d52/interfacehip__math_1_1hip__pwmax__sca3" ],
       [ "hip_pwmax_vec2", "db/daf/interfacehip__math_1_1hip__pwmax__vec2.html", "db/daf/interfacehip__math_1_1hip__pwmax__vec2" ],
@@ -876,6 +881,7 @@ var annotated_dup =
       [ "hip_pwmin_vec3", "dd/d3b/interfacehip__math_1_1hip__pwmin__vec3.html", "dd/d3b/interfacehip__math_1_1hip__pwmin__vec3" ],
       [ "hip_radd", "d3/d3d/interfacehip__math_1_1hip__radd.html", "d3/d3d/interfacehip__math_1_1hip__radd" ],
       [ "hip_rzero", "d9/d73/interfacehip__math_1_1hip__rzero.html", "d9/d73/interfacehip__math_1_1hip__rzero" ],
+      [ "hip_sqrt_inplace", "de/de4/interfacehip__math_1_1hip__sqrt__inplace.html", "de/de4/interfacehip__math_1_1hip__sqrt__inplace" ],
       [ "hip_sub2", "d6/d08/interfacehip__math_1_1hip__sub2.html", "d6/d08/interfacehip__math_1_1hip__sub2" ],
       [ "hip_sub3", "db/d3a/interfacehip__math_1_1hip__sub3.html", "db/d3a/interfacehip__math_1_1hip__sub3" ],
       [ "hip_subcol3", "df/d2a/interfacehip__math_1_1hip__subcol3.html", "df/d2a/interfacehip__math_1_1hip__subcol3" ],
@@ -975,6 +981,28 @@ var annotated_dup =
     ] ],
     [ "logger", "d8/da0/namespacelogger.html", [
       [ "log_t", "d0/d7b/structlogger_1_1log__t.html", "d0/d7b/structlogger_1_1log__t" ]
+    ] ],
+    [ "lpt", "dd/d2c/namespacelpt.html", [
+      [ "lpt_t", "d6/d7d/structlpt_1_1lpt__t.html", "d6/d7d/structlpt_1_1lpt__t" ]
+    ] ],
+    [ "lpt_migrate", "dd/d49/namespacelpt__migrate.html", [
+      [ "lpt_migrate_t", "d2/d23/structlpt__migrate_1_1lpt__migrate__t.html", "d2/d23/structlpt__migrate_1_1lpt__migrate__t" ]
+    ] ],
+    [ "lpt_output", "d2/d47/namespacelpt__output.html", [
+      [ "lpt_output_t", "d8/d53/structlpt__output_1_1lpt__output__t.html", "d8/d53/structlpt__output_1_1lpt__output__t" ]
+    ] ],
+    [ "lpt_periodic_bc", "dd/d68/namespacelpt__periodic__bc.html", [
+      [ "lpt_periodic_bc_t", "d7/d57/structlpt__periodic__bc_1_1lpt__periodic__bc__t.html", "d7/d57/structlpt__periodic__bc_1_1lpt__periodic__bc__t" ]
+    ] ],
+    [ "lpt_periodic_bc_device", "d4/dce/namespacelpt__periodic__bc__device.html", [
+      [ "hip_lpt_periodic_bc_wrap_rotational", "d0/d21/interfacelpt__periodic__bc__device_1_1hip__lpt__periodic__bc__wrap__rotational.html", "d0/d21/interfacelpt__periodic__bc__device_1_1hip__lpt__periodic__bc__wrap__rotational" ],
+      [ "hip_lpt_periodic_bc_wrap_translational", "d8/da1/interfacelpt__periodic__bc__device_1_1hip__lpt__periodic__bc__wrap__translational.html", "d8/da1/interfacelpt__periodic__bc__device_1_1hip__lpt__periodic__bc__wrap__translational" ]
+    ] ],
+    [ "lpt_simcomp", "dc/d97/namespacelpt__simcomp.html", [
+      [ "lpt_simcomp_t", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t" ]
+    ] ],
+    [ "lpt_wall_collision_device", "da/d7c/namespacelpt__wall__collision__device.html", [
+      [ "hip_lpt_handle_elastic_wall_collisions", "db/de6/interfacelpt__wall__collision__device_1_1hip__lpt__handle__elastic__wall__collisions.html", "db/de6/interfacelpt__wall__collision__device_1_1hip__lpt__handle__elastic__wall__collisions" ]
     ] ],
     [ "map", "d3/dca/namespacemap.html", [
       [ "map_t", "da/d40/structmap_1_1map__t.html", "da/d40/structmap_1_1map__t" ]
@@ -1209,6 +1237,7 @@ var annotated_dup =
       [ "opencl_masked_gather_copy_aligned", "dc/d54/interfaceopencl__math_1_1opencl__masked__gather__copy__aligned.html", "dc/d54/interfaceopencl__math_1_1opencl__masked__gather__copy__aligned" ],
       [ "opencl_masked_scatter_copy", "d5/d45/interfaceopencl__math_1_1opencl__masked__scatter__copy.html", "d5/d45/interfaceopencl__math_1_1opencl__masked__scatter__copy" ],
       [ "opencl_masked_scatter_copy_aligned", "dd/dec/interfaceopencl__math_1_1opencl__masked__scatter__copy__aligned.html", "dd/dec/interfaceopencl__math_1_1opencl__masked__scatter__copy__aligned" ],
+      [ "opencl_power", "d9/d21/interfaceopencl__math_1_1opencl__power.html", "d9/d21/interfaceopencl__math_1_1opencl__power" ],
       [ "opencl_pwmax_sca2", "d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2.html", "d1/d36/interfaceopencl__math_1_1opencl__pwmax__sca2" ],
       [ "opencl_pwmax_sca3", "d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3.html", "d4/dab/interfaceopencl__math_1_1opencl__pwmax__sca3" ],
       [ "opencl_pwmax_vec2", "d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2.html", "d9/df9/interfaceopencl__math_1_1opencl__pwmax__vec2" ],
@@ -1220,6 +1249,7 @@ var annotated_dup =
       [ "opencl_radd", "df/dc7/interfaceopencl__math_1_1opencl__radd.html", "df/dc7/interfaceopencl__math_1_1opencl__radd" ],
       [ "opencl_rone", "de/d53/interfaceopencl__math_1_1opencl__rone.html", "de/d53/interfaceopencl__math_1_1opencl__rone" ],
       [ "opencl_rzero", "d0/d46/interfaceopencl__math_1_1opencl__rzero.html", "d0/d46/interfaceopencl__math_1_1opencl__rzero" ],
+      [ "opencl_sqrt_inplace", "d8/d11/interfaceopencl__math_1_1opencl__sqrt__inplace.html", "d8/d11/interfaceopencl__math_1_1opencl__sqrt__inplace" ],
       [ "opencl_sub2", "d1/dfa/interfaceopencl__math_1_1opencl__sub2.html", "d1/dfa/interfaceopencl__math_1_1opencl__sub2" ],
       [ "opencl_sub3", "d2/dc8/interfaceopencl__math_1_1opencl__sub3.html", "d2/dc8/interfaceopencl__math_1_1opencl__sub3" ],
       [ "opencl_subcol3", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3.html", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3" ],
@@ -1265,6 +1295,9 @@ var annotated_dup =
     [ "parmetis", "d1/dd7/namespaceparmetis.html", [
       [ "parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom" ],
       [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ]
+    ] ],
+    [ "particles", "d5/dbf/namespaceparticles.html", [
+      [ "particles_t", "d7/d84/structparticles_1_1particles__t.html", "d7/d84/structparticles_1_1particles__t" ]
     ] ],
     [ "pde_filter", "d8/da5/namespacepde__filter.html", [
       [ "pde_filter_t", "dc/d26/structpde__filter_1_1pde__filter__t.html", "dc/d26/structpde__filter_1_1pde__filter__t" ]

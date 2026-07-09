@@ -1,0 +1,15 @@
+<map id="lpt_periodic_bc_device::hip_lpt_periodic_bc_wrap_rotational::hip_lpt_periodic_bc_wrap_rotational" name="lpt_periodic_bc_device::hip_lpt_periodic_bc_wrap_rotational::hip_lpt_periodic_bc_wrap_rotational">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,38,217,107"/>
+<area shape="rect" id="Node000002" href="$d4/dce/namespacelpt__periodic__bc__device.html#a6a2e1c4d6bf56949a0ed95304b09691e" title="Launch device kernel for rotational periodic wrapping." alt="" coords="265,5,436,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,52,252,46,252,52,218,58"/>
+<area shape="rect" id="Node000005" href="$d4/dce/namespacelpt__periodic__bc__device.html#af876bd0d02464b158bb50f74417161ec" title="Launch device kernel for translational periodic wrapping." alt="" coords="265,84,436,139"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="218,87,252,93,252,98,217,92"/>
+<area shape="rect" id="Node000003" href="$de/d35/lpt__periodic__bc_8cu.html#a91b6a5dbdbfc9b7411d1d5a65c4d0adf" title=" " alt="" coords="484,17,643,57"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="436,32,470,32,470,38,436,37"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="691,53,843,93"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="643,48,678,54,677,59,642,53"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="728,53,726,43,732,34,746,28,767,26,790,29,803,36,801,41,789,34,767,31,747,33,736,38,731,44,734,52"/>
+<area shape="rect" id="Node000006" href="$de/d35/lpt__periodic__bc_8cu.html#a9448b78b78182eae88fd00bbb65c9787" title=" " alt="" coords="484,85,643,125"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="436,106,470,105,470,110,436,111"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="642,90,677,84,678,89,643,95"/>
+</map>

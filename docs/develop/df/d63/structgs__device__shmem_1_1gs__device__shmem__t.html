@@ -123,18 +123,18 @@ Collaboration diagram for gs_device_shmem::gs_device_shmem_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dc/da6/structgs__device__shmem_1_1gs__device__shmem__t__coll__graph.png" border="0" usemap="#ags__device__shmem_1_1gs__device__shmem__t_coll__map" alt="Collaboration graph"/></div>
 <map name="ags__device__shmem_1_1gs__device__shmem__t_coll__map" id="ags__device__shmem_1_1gs__device__shmem__t_coll__map">
-<area shape="rect" title="Gather&#45;scatter communication using device SHMEM. The arrays are indexed per PE like send_pe and @ rec..." alt="" coords="138,333,305,373"/>
-<area shape="rect" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,214,173,239"/>
-<area shape="poly" title=" " alt="" coords="113,247,203,331,199,335,110,251"/>
+<area shape="rect" title="Gather&#45;scatter communication using device SHMEM. The arrays are indexed per PE like send_pe and @ rec..." alt="" coords="138,348,305,388"/>
+<area shape="rect" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,221,173,247"/>
+<area shape="poly" title=" " alt="" coords="113,255,204,346,200,350,109,259"/>
 <area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="24,80,155,105"/>
-<area shape="poly" title=" " alt="" coords="92,119,92,214,87,214,87,119"/>
+<area shape="poly" title=" " alt="" coords="92,119,92,221,87,221,87,119"/>
 <area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="33,5,145,31"/>
 <area shape="poly" title=" " alt="" coords="92,45,92,80,87,80,87,45"/>
-<area shape="rect" href="../../da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t.html" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="324,207,492,247"/>
-<area shape="poly" title=" " alt="" coords="370,257,251,335,248,331,367,252"/>
+<area shape="rect" href="../../da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t.html" title="Buffers for non&#45;blocking communication and packing/unpacking." alt="" coords="324,214,492,254"/>
+<area shape="poly" title=" " alt="" coords="372,264,250,350,246,346,369,260"/>
 <area shape="rect" title=" " alt="" coords="215,80,270,105"/>
-<area shape="poly" title=" " alt="" coords="243,119,236,198,225,333,220,333,231,197,238,119"/>
-<area shape="poly" title=" " alt="" coords="270,112,386,204,382,208,266,116"/>
+<area shape="poly" title=" " alt="" coords="243,119,236,198,225,348,220,348,231,197,238,119"/>
+<area shape="poly" title=" " alt="" coords="268,112,387,212,384,216,265,116"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -156,13 +156,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aa503fe4788771cbe63eeb2b005fe0dc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for non-blocking operations.  <br /></td></tr>
 <tr class="separator:aa503fe4788771cbe63eeb2b005fe0dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b83e5ccba4ce0055e76533a15440726" id="r_a2b83e5ccba4ce0055e76533a15440726"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a2b83e5ccba4ce0055e76533a15440726">nbsend_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deps</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
-<tr class="memdesc:a2b83e5ccba4ce0055e76533a15440726"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused nc-component send. <em>u</em> is the compact shared device buffer (component-outer, per-component stride n = nshared). All the work is done in nbwait_vec; this only orders against the packing dependencies.  <br /></td></tr>
+<tr class="memdesc:a2b83e5ccba4ce0055e76533a15440726"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused nc-component send. <em>u</em> is the compact shared device buffer (component-outer, per-component stride n = nshared). Bulk-packs the parity slab of the fused vector send buffer; see gs_device_shmem_nbsend for the ordering and parity-slab rationale.  <br /></td></tr>
 <tr class="separator:a2b83e5ccba4ce0055e76533a15440726"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a267ca858f6b88f32565f5ed7404491cc" id="r_a267ca858f6b88f32565f5ed7404491cc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a267ca858f6b88f32565f5ed7404491cc">nbrecv_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">tag</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>)</td></tr>
 <tr class="memdesc:a267ca858f6b88f32565f5ed7404491cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">No-op: everything happens in nbwait_vec.  <br /></td></tr>
 <tr class="separator:a267ca858f6b88f32565f5ed7404491cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26d62ee388d4261370541f771c9ac7f0" id="r_a26d62ee388d4261370541f771c9ac7f0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a26d62ee388d4261370541f771c9ac7f0">nbwait_vec</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, u, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nc</a>, op, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">strm</a>)</td></tr>
-<tr class="memdesc:a26d62ee388d4261370541f771c9ac7f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused nc-component pack-and-push + unpack.  <br /></td></tr>
+<tr class="memdesc:a26d62ee388d4261370541f771c9ac7f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fused nc-component push + unpack (the pack happens in nbsend_vec).  <br /></td></tr>
 <tr class="separator:a26d62ee388d4261370541f771c9ac7f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a256497204484cf99fdcfbcaa04f1cd0c" id="r_a256497204484cf99fdcfbcaa04f1cd0c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(gs_comm_init), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a256497204484cf99fdcfbcaa04f1cd0c">init</a> gs_comm_init</td></tr>
 <tr class="separator:a256497204484cf99fdcfbcaa04f1cd0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -207,10 +207,13 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a67e3b0ee8224579c7ce4f92a4496a05b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Round counter for the rank-indexed signal protocol. Advances once per gs op (lockstep across ranks, SPMD); all waits use CMP_GE, so no cross-rank counter matching is required and peer counts may differ between ranks.  <br /></td></tr>
 <tr class="separator:a67e3b0ee8224579c7ce4f92a4496a05b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef4b4c328698cf39dacdd5bb48881c5d" id="r_aef4b4c328698cf39dacdd5bb48881c5d"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#aef4b4c328698cf39dacdd5bb48881c5d">done_sig_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
-<tr class="memdesc:aef4b4c328698cf39dacdd5bb48881c5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Symmetric rank-indexed signal arrays, pe_size slots each (a single collective allocation per array, so nvshmem_malloc collectivity is independent of the local peer count). done_sig(r) on our PE is set to iter by rank r's put_signal when its slab has landed in our recv buffer; ready_sig(r) on our PE is set to iter by rank r once it has consumed our round-iter slab (so we may overwrite our send slab).  <br /></td></tr>
+<tr class="memdesc:aef4b4c328698cf39dacdd5bb48881c5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Symmetric rank-indexed signal arrays, pe_size slots each (a single collective allocation per array, so nvshmem_malloc collectivity is independent of the local peer count). done_sig(r) on our PE is set to iter by rank r's put_signal when its slab has landed in our recv buffer; ready_sig(r) on our PE is set to iter by rank r once it has consumed our round-iter slab (so we may put into its recv slab again).  <br /></td></tr>
 <tr class="separator:aef4b4c328698cf39dacdd5bb48881c5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc10ee96f5c699a859ba8aafd77fd33c" id="r_abc10ee96f5c699a859ba8aafd77fd33c"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#abc10ee96f5c699a859ba8aafd77fd33c">ready_sig_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
 <tr class="separator:abc10ee96f5c699a859ba8aafd77fd33c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b93fcc5a82a244fad31f1c9f2bebd00" id="r_a7b93fcc5a82a244fad31f1c9f2bebd00"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a7b93fcc5a82a244fad31f1c9f2bebd00">pack_event</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td></tr>
+<tr class="memdesc:a7b93fcc5a82a244fad31f1c9f2bebd00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Records the bulk pack on the main stream in nbsend; every per-peer stream waits on it, ordering all reads of the shared buffer u before any unpack write to u.  <br /></td></tr>
+<tr class="separator:a7b93fcc5a82a244fad31f1c9f2bebd00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8004e1ed7b91668a726c51f51712c246" id="r_a8004e1ed7b91668a726c51f51712c246"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d2/d45/structstack_1_1stack__i4__t.html">stack_i4_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d1c/structgs__comm_1_1gs__comm__t.html#a8004e1ed7b91668a726c51f51712c246">send_dof</a></td></tr>
 <tr class="memdesc:a8004e1ed7b91668a726c51f51712c246"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of stacks of dof indices local to this process to send to rank_i.  <br /></td></tr>
 <tr class="separator:a8004e1ed7b91668a726c51f51712c246"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -229,7 +232,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00064">64</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00068">68</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="ac940af603c75a08bb066076317d1fd83" name="ac940af603c75a08bb066076317d1fd83"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac940af603c75a08bb066076317d1fd83">&#9670;&#160;</a></span>free() <span class="overload">[1/2]</span></h2>
@@ -247,7 +250,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00084">84</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00092">92</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -363,7 +366,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00083">83</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00091">91</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -496,7 +499,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00086">86</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00094">94</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -556,7 +559,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00089">89</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00097">97</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -654,7 +657,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00085">85</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00093">93</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -738,7 +741,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00088">88</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00096">96</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -862,7 +865,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00087">87</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00095">95</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -940,7 +943,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00090">90</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00098">98</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -1019,7 +1022,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00080">80</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00084">84</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -1035,7 +1038,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00068">68</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00072">72</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -1051,7 +1054,23 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00073">73</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00077">77</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+
+</div>
+</div>
+<a id="a7b93fcc5a82a244fad31f1c9f2bebd00" name="a7b93fcc5a82a244fad31f1c9f2bebd00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b93fcc5a82a244fad31f1c9f2bebd00">&#9670;&#160;</a></span>pack_event</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr) gs_device_shmem::gs_device_shmem_t::pack_event = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C_NULL_PTR</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00089">89</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -1067,7 +1086,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00081">81</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00085">85</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -1083,7 +1102,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00066">66</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00070">70</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -1147,7 +1166,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00065">65</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00069">69</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -1212,7 +1231,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00067">67</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html#l00071">71</a> of file <a class="el" href="../../da/d8d/gs__device__shmem_8F90_source.html">gs_device_shmem.F90</a>.</p>
 
 </div>
 </div>
@@ -1249,7 +1268,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d2a/namespacegs__device__shmem.html">gs_device_shmem</a></li><li class="navelem"><a class="el" href="../../df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html">gs_device_shmem_t</a></li>
-    <li class="footer">Generated on Wed Jul 8 2026 04:36:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 9 2026 04:49:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

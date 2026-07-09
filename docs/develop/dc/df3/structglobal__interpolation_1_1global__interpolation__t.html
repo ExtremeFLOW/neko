@@ -201,6 +201,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a71a83f0e52b93457c8464c95ae0fa945" id="r_a71a83f0e52b93457c8464c95ae0fa945"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a71a83f0e52b93457c8464c95ae0fa945">evaluate_masked</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">interp_values</a>, field, mask, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">on_host</a>)</td></tr>
 <tr class="memdesc:a71a83f0e52b93457c8464c95ae0fa945"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate the interpolated value in a masked field.  <br /></td></tr>
 <tr class="separator:a71a83f0e52b93457c8464c95ae0fa945"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55ec8a7dab51bb941b686763a91d1e0c" id="r_a55ec8a7dab51bb941b686763a91d1e0c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a55ec8a7dab51bb941b686763a91d1e0c">init_redist_comm</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">redist_comm</a>)</td></tr>
+<tr class="memdesc:a55ec8a7dab51bb941b686763a91d1e0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a communicator that redistributes point-wise payloads from the original point ordering to the local owned-point ordering created by find_points_and_redist.  <br /></td></tr>
+<tr class="separator:a55ec8a7dab51bb941b686763a91d1e0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4de4b2e888150f3fcb589bf2cc76d3b" id="r_aa4de4b2e888150f3fcb589bf2cc76d3b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#aa4de4b2e888150f3fcb589bf2cc76d3b">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, dof, <a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html#a4292fd619de8d8df8a802d3157c50fee">comm</a>, tol, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pad</a>, mask)</td></tr>
 <tr class="memdesc:aa4de4b2e888150f3fcb589bf2cc76d3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic constructor.  <br /></td></tr>
 <tr class="separator:aa4de4b2e888150f3fcb589bf2cc76d3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -950,7 +953,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00205">205</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1007,7 +1010,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00205">205</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1098,7 +1101,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00205">205</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1183,7 +1186,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00205">205</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00207">207</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -1389,6 +1392,36 @@ Public Attributes</h2></td></tr>
 </dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
+
+</div>
+</div>
+<a id="a55ec8a7dab51bb941b686763a91d1e0c" name="a55ec8a7dab51bb941b686763a91d1e0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55ec8a7dab51bb941b686763a91d1e0c">&#9670;&#160;</a></span>init_redist_comm()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) global_interpolation::global_interpolation_t::init_redist_comm </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../db/d1d/structglb__intrp__comm_1_1glb__intrp__comm__t.html">glb_intrp_comm_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>redist_comm</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html#l00203">203</a> of file <a class="el" href="../../d4/df3/global__interpolation_8f90_source.html">global_interpolation.f90</a>.</p>
 
 </div>
 </div>
@@ -2101,7 +2134,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html">global_interpolation</a></li><li class="navelem"><a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a></li>
-    <li class="footer">Generated on Wed Jul 8 2026 04:36:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 9 2026 04:49:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,5 +1,7 @@
 <map id="gs_device_shmem::gs_device_shmem_nbsend_vec" name="gs_device_shmem::gs_device_shmem_nbsend_vec">
-<area shape="rect" id="Node000001" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="5,5,217,45"/>
-<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405" title="Synchronize a device stream with an event." alt="" coords="265,5,435,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,23,251,23,251,28,218,28"/>
+<area shape="rect" id="Node000001" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="5,37,217,77"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="270,5,430,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,40,256,35,257,40,218,46"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405" title="Synchronize a device stream with an event." alt="" coords="265,69,435,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,69,252,74,251,79,217,74"/>
 </map>

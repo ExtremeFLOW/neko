@@ -1,40 +1,42 @@
 <map id="device_math::device_cmult" name="device_math::device_cmult">
-<area shape="rect" id="Node000001" title="Multiplication by constant c ." alt="" coords="509,259,667,299"/>
+<area shape="rect" id="Node000001" title="Multiplication by constant c ." alt="" coords="509,261,667,301"/>
 <area shape="rect" id="Node000002" href="$d4/dc5/namespacecheby__device.html#aafa86a9d038f04af6c23cdf634e9a1bb" title=" " alt="" coords="283,7,442,47"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="574,246,558,204,533,154,501,104,460,61,441,49,444,44,463,57,505,101,538,152,562,202,579,244"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="574,249,558,206,534,155,501,104,460,61,441,49,444,44,463,57,505,101,538,153,563,204,579,247"/>
 <area shape="rect" id="Node000004" href="$d4/dc5/namespacecheby__device.html#a56dd0099614626d018abbb680f4d21ce" title=" " alt="" coords="283,71,442,111"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="567,248,523,186,493,153,460,125,439,113,441,108,463,120,497,149,527,182,571,245"/>
-<area shape="rect" id="Node000005" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="287,135,438,175"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="551,252,509,220,460,190,430,177,432,172,463,186,512,216,554,248"/>
-<area shape="rect" id="Node000007" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="264,200,461,240"/>
-<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="497,258,439,243,441,237,498,253"/>
-<area shape="rect" id="Node000009" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="277,266,448,291"/>
-<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="495,281,448,281,448,276,495,276"/>
-<area shape="rect" id="Node000015" href="$dc/d12/namespacematrix__math.html#a3669edcec8f049816b67c3ef035b66d5" title="Multiplication by constant c ." alt="" coords="284,316,441,356"/>
-<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="496,305,442,319,441,313,495,299"/>
-<area shape="rect" id="Node000016" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="287,380,439,420"/>
-<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="554,309,512,341,463,370,435,382,433,378,460,366,509,336,551,305"/>
-<area shape="rect" id="Node000017" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="274,445,451,499"/>
-<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="570,312,525,373,496,405,463,434,443,447,440,442,460,430,492,402,521,370,565,309"/>
-<area shape="rect" id="Node000018" href="$d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237" title="Multiplication by constant c ." alt="" coords="286,527,439,567"/>
-<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="580,312,564,357,540,411,506,466,463,514,440,529,437,524,460,510,502,463,535,409,559,355,575,311"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="567,251,523,188,493,155,460,126,436,113,439,108,463,122,497,151,527,184,571,248"/>
+<area shape="rect" id="Node000005" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="287,136,438,176"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="552,255,509,222,460,192,431,179,433,174,463,187,512,218,555,250"/>
+<area shape="rect" id="Node000007" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="264,201,461,241"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="498,260,438,244,439,239,500,255"/>
+<area shape="rect" id="Node000009" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="277,269,448,294"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="495,284,448,284,448,279,495,279"/>
+<area shape="rect" id="Node000015" href="$dc/d12/namespacematrix__math.html#a3669edcec8f049816b67c3ef035b66d5" title="Multiplication by constant c ." alt="" coords="284,319,441,359"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="496,307,442,321,441,316,495,302"/>
+<area shape="rect" id="Node000016" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="287,383,439,423"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="554,312,512,343,463,373,435,385,433,380,460,368,509,339,551,308"/>
+<area shape="rect" id="Node000017" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="274,447,451,502"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="570,315,525,376,496,408,463,437,443,449,440,445,460,433,492,404,521,372,565,311"/>
+<area shape="rect" id="Node000018" href="$d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237" title="Multiplication by constant c ." alt="" coords="286,533,439,573"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="580,315,563,360,539,414,506,468,463,517,434,536,431,531,460,513,501,465,534,411,559,358,575,313"/>
 <area shape="rect" id="Node000003" href="$d4/dc5/namespacecheby__device.html#af7ddf3344912ba0450cd079cec7e5929" title="A chebyshev preconditioner." alt="" coords="31,5,190,45"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="270,29,190,28,190,23,270,24"/>
 <area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="271,70,188,48,189,43,272,65"/>
 <area shape="rect" id="Node000006" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="38,69,183,109"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="274,134,183,111,184,106,275,129"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="274,135,183,111,184,106,275,130"/>
 <area shape="rect" id="Node000008" href="$d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7" title=" " alt="" coords="8,133,213,173"/>
-<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="273,199,186,176,188,171,274,194"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="274,200,185,176,186,171,275,195"/>
 <area shape="rect" id="Node000010" href="$d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4" title="Validate field initialization and compute derived quantities." alt="" coords="5,198,216,253"/>
-<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="287,266,215,250,217,245,289,260"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="291,268,216,251,217,246,292,263"/>
 <area shape="rect" id="Node000011" href="$d8/dc1/namespacefluid__sgs__stats.html#a1c33719c9072a10d856295874f897774" title="Updates all fields with a new sample." alt="" coords="33,277,188,317"/>
-<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="264,289,188,294,188,289,264,283"/>
+<area shape="poly" id="edge11_Node000009_Node000011" title=" " alt="" coords="264,290,188,295,188,290,264,285"/>
 <area shape="rect" id="Node000012" href="$d7/d3f/namespacehpfrt__source__term.html#a7b741f1a3cb76156b86b2ba831567679" title="Computes the source term and adds the result to fields." alt="" coords="8,341,213,381"/>
-<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="291,298,265,306,241,319,217,332,185,344,183,339,215,327,239,314,263,302,290,293"/>
+<area shape="poly" id="edge12_Node000009_Node000012" title=" " alt="" coords="293,300,265,309,217,332,183,344,182,339,215,327,263,304,291,295"/>
 <area shape="rect" id="Node000013" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="23,405,198,445"/>
-<area shape="poly" id="edge13_Node000009_Node000013" title=" " alt="" coords="275,300,266,306,249,327,242,349,236,372,218,395,199,407,196,403,214,391,231,370,237,348,244,324,262,302,272,295"/>
+<area shape="poly" id="edge13_Node000009_Node000013" title=" " alt="" coords="275,302,266,309,249,329,242,351,235,373,218,395,199,407,196,403,214,391,231,371,237,349,244,326,262,305,272,298"/>
 <area shape="rect" id="Node000014" href="$dd/db4/namespaceale__manager.html#aaec889c954567207a1fe41e8961ac448" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="11,469,210,509"/>
-<area shape="poly" id="edge14_Node000009_Node000014" title=" " alt="" coords="273,300,266,306,251,324,244,342,242,380,240,420,233,440,218,459,202,471,199,467,214,455,228,437,235,419,237,380,239,341,247,321,262,302,269,296"/>
+<area shape="poly" id="edge14_Node000009_Node000014" title=" " alt="" coords="273,303,266,309,252,326,245,344,242,382,240,420,233,440,218,459,202,471,199,467,214,455,228,437,235,419,237,381,239,343,247,324,262,305,269,299"/>
 <area shape="rect" id="Node000019" href="$d1/d36/namespaceboundary__flux.html#a316fd4eba5e521e2a2c279b7f2ce4962" title="Common constructor shared by all public constructors." alt="" coords="19,533,202,573"/>
-<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="272,552,202,554,202,548,272,546"/>
+<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="272,556,202,556,202,551,272,551"/>
+<area shape="rect" id="Node000020" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="15,598,206,623"/>
+<area shape="poly" id="edge20_Node000018_Node000020" title=" " alt="" coords="273,576,168,601,167,595,272,571"/>
 </map>

@@ -1,9 +1,10 @@
 var namespacegs__device__shmem =
 [
-    [ "cuda_gs_pack_and_push", "db/d23/interfacegs__device__shmem_1_1cuda__gs__pack__and__push.html", "db/d23/interfacegs__device__shmem_1_1cuda__gs__pack__and__push" ],
-    [ "cuda_gs_pack_and_push_vec", "db/d0d/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__vec.html", "db/d0d/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__vec" ],
-    [ "cuda_gs_pack_and_push_wait", "d7/d9e/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__wait.html", "d7/d9e/interfacegs__device__shmem_1_1cuda__gs__pack__and__push__wait" ],
+    [ "cuda_gs_nvshmem_pack", "db/d34/interfacegs__device__shmem_1_1cuda__gs__nvshmem__pack.html", "db/d34/interfacegs__device__shmem_1_1cuda__gs__nvshmem__pack" ],
+    [ "cuda_gs_nvshmem_pack_vec", "d8/d5c/interfacegs__device__shmem_1_1cuda__gs__nvshmem__pack__vec.html", "d8/d5c/interfacegs__device__shmem_1_1cuda__gs__nvshmem__pack__vec" ],
     [ "cuda_gs_post_ready", "df/d2a/interfacegs__device__shmem_1_1cuda__gs__post__ready.html", "df/d2a/interfacegs__device__shmem_1_1cuda__gs__post__ready" ],
+    [ "cuda_gs_push", "d1/d3e/interfacegs__device__shmem_1_1cuda__gs__push.html", "d1/d3e/interfacegs__device__shmem_1_1cuda__gs__push" ],
+    [ "cuda_gs_push_wait", "dd/dfb/interfacegs__device__shmem_1_1cuda__gs__push__wait.html", "dd/dfb/interfacegs__device__shmem_1_1cuda__gs__push__wait" ],
     [ "cuda_gs_unpack", "da/d48/interfacegs__device__shmem_1_1cuda__gs__unpack.html", "da/d48/interfacegs__device__shmem_1_1cuda__gs__unpack" ],
     [ "cuda_gs_unpack_vec", "d7/d3b/interfacegs__device__shmem_1_1cuda__gs__unpack__vec.html", "d7/d3b/interfacegs__device__shmem_1_1cuda__gs__unpack__vec" ],
     [ "cudafree_nvshmem", "d8/d67/interfacegs__device__shmem_1_1cudafree__nvshmem.html", "d8/d67/interfacegs__device__shmem_1_1cudafree__nvshmem" ],
@@ -11,7 +12,7 @@ var namespacegs__device__shmem =
     [ "gs_device_shmem_buf_t", "da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t.html", "da/d8c/structgs__device__shmem_1_1gs__device__shmem__buf__t" ],
     [ "gs_device_shmem_t", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html", "df/d63/structgs__device__shmem_1_1gs__device__shmem__t" ],
     [ "gs_device_shmem_buf_free", "d0/d2a/namespacegs__device__shmem.html#ad4f3bfd3b1bc42e19c6703bbc1f17ef1", null ],
-    [ "gs_device_shmem_buf_init", "d0/d2a/namespacegs__device__shmem.html#abf654870de96ff5947d52613f00e75d4", null ],
+    [ "gs_device_shmem_buf_init", "d0/d2a/namespacegs__device__shmem.html#a698a0df01a06f66177f8d7e9204edce8", null ],
     [ "gs_device_shmem_free", "d0/d2a/namespacegs__device__shmem.html#ac47b0494a4a3bce988d5419447951920", null ],
     [ "gs_device_shmem_init", "d0/d2a/namespacegs__device__shmem.html#aea869741c5716a2755f9c792af9c5c05", null ],
     [ "gs_device_shmem_nbrecv", "d0/d2a/namespacegs__device__shmem.html#aad8f9216e5e6e9d6a46b8e9629c0b5c2", null ],

@@ -298,19 +298,15 @@ Time control</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>target_cfl</code>   </td><td class="markdownTableBodyNone">The desired CFL number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>0.4</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>max_update_frequency</code>   </td><td class="markdownTableBodyNone">Minimum number of time steps between two time-step updates triggered by CFL deviation   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>min_update_frequency</code>   </td><td class="markdownTableBodyNone">The maximum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>huge</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>min_update_frequency</code>   </td><td class="markdownTableBodyNone">Maximum number of time steps before forcing a time-step update   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>huge</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
-<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>max_dt_increase_factor</code>   </td><td class="markdownTableBodyNone">The maximum scaling factor to increase time step   </td><td class="markdownTableBodyNone">Positive real greater than <code>1</code>   </td><td class="markdownTableBodyNone"><code>1.2</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>min_dt_decrease_factor</code>   </td><td class="markdownTableBodyNone">The minimum scaling factor to decrease time step   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>cfl_deviation_tolerance</code>   </td><td class="markdownTableBodyNone">The tolerance of the deviation from the target CFL number   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.2</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>min_dt_decrease_factor</code>   </td><td class="markdownTableBodyNone">The minimum scaling factor to decrease time step   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>cfl_max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>cfl_deviation_tolerance</code>   </td><td class="markdownTableBodyNone">The tolerance of the deviation from the target CFL number   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.2</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>cfl_running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>   </td></tr>
 </table>
@@ -1801,7 +1797,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Jul 8 2026 04:36:49 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 9 2026 04:49:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

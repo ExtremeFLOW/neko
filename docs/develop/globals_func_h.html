@@ -143,6 +143,7 @@ $(document).ready(function(){initNavTree('globals_func_h.html',''); initResizabl
 <li>hip_coef_generate_dxyzdrst()&#160;:&#160;<a class="el" href="d9/dc3/coef_8hip.html#a1d3ebf47fb79350ef24164a3b90b0fbf">coef.hip</a></li>
 <li>hip_coef_generate_geo()&#160;:&#160;<a class="el" href="d9/dc3/coef_8hip.html#a11b254af9c7eb56124d75210e6530722">coef.hip</a></li>
 <li>hip_coef_generate_mass()&#160;:&#160;<a class="el" href="d9/dc3/coef_8hip.html#ab2ce541ca99c46f9228f3472aaf2fe82">coef.hip</a></li>
+<li>hip_coef_get_normal()&#160;:&#160;<a class="el" href="d9/dc3/coef_8hip.html#ab925860d0fb2fdb77862878b42e1385e">coef.hip</a></li>
 <li>hip_col2()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a853445d1c5227c1881b44471c1804b55">math.hip</a></li>
 <li>hip_col3()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a052ea3a4039f5f1967963692996116ce">math.hip</a></li>
 <li>hip_compute_entropy()&#160;:&#160;<a class="el" href="db/d09/compressible__ops__compute__entropy_8hip.html#a55cd3ffe3836460cf15e5a3f8c6042b8">compressible_ops_compute_entropy.hip</a></li>
@@ -176,13 +177,14 @@ $(document).ready(function(){initNavTree('globals_func_h.html',''); initResizabl
 <li>hip_glmax()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a10a0295dde2f468e56b2b4340a946ec8">math.hip</a></li>
 <li>hip_glmin()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a85996a20535a20a44f75f8ff8cef144c">math.hip</a></li>
 <li>hip_global_reduce_add()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a024b6d35cc089cfe6b50b36eb4664c89">math.hip</a></li>
+<li>hip_global_reduce_add_xp()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00">math.hip</a></li>
 <li>hip_global_reduce_max()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a62e9c13fd844f246e0e99a65377e4c6e">math.hip</a></li>
 <li>hip_global_reduce_min()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#af74e07aea4e00f0772eba26c33923a3c">math.hip</a></li>
-<li>hip_glsc2()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a6b566d868bcadee1fe3513700842f9f8">math.hip</a></li>
-<li>hip_glsc3()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a5193d5c262a07260aecbbe0fc0654576">math.hip</a></li>
-<li>hip_glsc3_many()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a8d590e7fb13ed20b5f17338bdb4af454">math.hip</a></li>
-<li>hip_glsubnorm2()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a271a55e1e6264ea7abefc3181b6874ce">math.hip</a></li>
-<li>hip_glsum()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a3c7acce018a54c588c6de75eef30b1de">math.hip</a></li>
+<li>hip_glsc2()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a729a6353677f13b259b0660500cf1289">math.hip</a></li>
+<li>hip_glsc3()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#aa6d83f409f6cdbccd3c8fc9649c8dc40">math.hip</a></li>
+<li>hip_glsc3_many()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a87e8b15974eb35428d5b7cf40e7fb841">math.hip</a></li>
+<li>hip_glsubnorm2()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a68341c5d78849b1dde1f3afc4c1e0463">math.hip</a></li>
+<li>hip_glsum()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a9e537ce0c816439a2a8ff14d6e5bfb13">math.hip</a></li>
 <li>hip_gmres_part2()&#160;:&#160;<a class="el" href="da/d1d/gmres__aux_8hip.html#ad1130bc0fe9218ff1432134acd57f48d">gmres_aux.hip</a></li>
 <li>hip_gradient_jump_penalty_finalize()&#160;:&#160;<a class="el" href="d4/dca/gradient__jump__penalty_8hip.html#a97de8797da24f6eaa153a7dd68559413">gradient_jump_penalty.hip</a></li>
 <li>hip_gs_pack()&#160;:&#160;<a class="el" href="da/d57/gs_8hip.html#a6fb58c9abf4c1e74a4cc5695173a6b68">gs.hip</a></li>
@@ -200,6 +202,9 @@ $(document).ready(function(){initNavTree('globals_func_h.html',''); initResizabl
 <li>hip_lambda2()&#160;:&#160;<a class="el" href="d2/dfe/opr__lambda2_8hip.html#a65c66ea8b83336f27decfa4bc3126b32">opr_lambda2.hip</a></li>
 <li>hip_lij_compute_part1()&#160;:&#160;<a class="el" href="d3/d45/dynamic__smagorinsky__nut_8hip.html#a13791aab9b19264b942c00c059b4bdc6">dynamic_smagorinsky_nut.hip</a></li>
 <li>hip_lij_compute_part2()&#160;:&#160;<a class="el" href="d3/d45/dynamic__smagorinsky__nut_8hip.html#ad454b73628dad03561ab16d76999105b">dynamic_smagorinsky_nut.hip</a></li>
+<li>hip_lpt_handle_elastic_wall_collisions()&#160;:&#160;<a class="el" href="d2/d92/lpt__wall__collision_8hip.html#a605e40c27da9a9984e5be75827b34f4f">lpt_wall_collision.hip</a></li>
+<li>hip_lpt_periodic_bc_wrap_rotational()&#160;:&#160;<a class="el" href="db/df4/lpt__periodic__bc_8hip.html#a0d6eb76cdfcbdc58f478cee6021f1457">lpt_periodic_bc.hip</a></li>
+<li>hip_lpt_periodic_bc_wrap_translational()&#160;:&#160;<a class="el" href="db/df4/lpt__periodic__bc_8hip.html#a315d9a1797df7881423a74e29918bbb1">lpt_periodic_bc.hip</a></li>
 <li>hip_masked_atomic_reduction()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a9585190be418b457aaae5a75fb898949">math.hip</a></li>
 <li>hip_masked_copy_0()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a96d21aab92a79328a06f18aef16914a2">math.hip</a></li>
 <li>hip_masked_copy_aligned()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a392c72090c4105181cc7e11b4b395196">math.hip</a></li>
@@ -221,6 +226,7 @@ $(document).ready(function(){initNavTree('globals_func_h.html',''); initResizabl
 <li>hip_permeability()&#160;:&#160;<a class="el" href="db/df3/mappings_8hip.html#a87db429c6af9288f51558fff88407c9c">mappings.hip</a></li>
 <li>hip_pick_facet_value_hex()&#160;:&#160;<a class="el" href="d4/dca/gradient__jump__penalty_8hip.html#af58de798388438c092feeef329e55964">gradient_jump_penalty.hip</a></li>
 <li>hip_pipecg_vecops()&#160;:&#160;<a class="el" href="da/d9a/pipecg__aux_8hip.html#a5a0e60ff01db773d2d0f0737b5982a6a">pipecg_aux.hip</a></li>
+<li>hip_power()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a1265e0dbba6cd51f8c5665ce66106225">math.hip</a></li>
 <li>hip_project_on()&#160;:&#160;<a class="el" href="d9/d09/projection_8hip.html#a520b26405c8b712cc5329f49033acfa8">projection.hip</a></li>
 <li>hip_project_ortho()&#160;:&#160;<a class="el" href="d9/d09/projection_8hip.html#a42860edd1d4001a5cd1275feeda44795">projection.hip</a></li>
 <li>hip_pwmax_sca2()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#abad08c1dc405e6702d067a281a0c3cc5">math.hip</a></li>
@@ -233,6 +239,7 @@ $(document).ready(function(){initNavTree('globals_func_h.html',''); initResizabl
 <li>hip_pwmin_vec3()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a861ebd796c1327adff171cac74220936">math.hip</a></li>
 <li>hip_radd()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#ac3bfbd7068b800c3f9707fb3635af214">math.hip</a></li>
 <li>hip_redbuf_check_alloc()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#ac869b83a9071fdaee5628e756acc7d60">math.hip</a></li>
+<li>hip_redbuf_check_alloc_xp()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe">math.hip</a></li>
 <li>hip_richardson_compute()&#160;:&#160;<a class="el" href="dc/db4/richardson_8hip.html#aa0636701ff42cc65f361346e5f0dff9d">richardson.hip</a></li>
 <li>hip_rotate_cyc()&#160;:&#160;<a class="el" href="dd/d46/opr__rotate__cyc_8hip.html#ae762ba7896b757a3f4b67ac27e346575">opr_rotate_cyc.hip</a></li>
 <li>hip_rough_log_law_compute()&#160;:&#160;<a class="el" href="d2/dea/rough__log__law_8hip.html#a0f8846c81c282f3a58568b0ee6b2ce96">rough_log_law.hip</a></li>
@@ -247,6 +254,7 @@ $(document).ready(function(){initNavTree('globals_func_h.html',''); initResizabl
 <li>hip_smagorinsky_nut_compute()&#160;:&#160;<a class="el" href="d0/d6e/smagorinsky__nut_8hip.html#a3f49a59cb103d01b3d8d0cc0ebb6993b">smagorinsky_nut.hip</a></li>
 <li>hip_smooth_step()&#160;:&#160;<a class="el" href="db/df3/mappings_8hip.html#aea90d0c27f188f936f3de64e058c1d25">mappings.hip</a></li>
 <li>hip_spalding_compute()&#160;:&#160;<a class="el" href="d1/d68/spalding_8hip.html#a1d48b24df7e5828f81a03a1d5cc0b0d0">spalding.hip</a></li>
+<li>hip_sqrt_inplace()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a9e3e9124461644804494466d6b11f04d">math.hip</a></li>
 <li>hip_step_function()&#160;:&#160;<a class="el" href="db/df3/mappings_8hip.html#a082db984af05dc076c2b7431f5ffa466">mappings.hip</a></li>
 <li>hip_sub2()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#a6a88fc774d9bb51796de7c8dad8414a2">math.hip</a></li>
 <li>hip_sub3()&#160;:&#160;<a class="el" href="de/d9b/math_8hip.html#ad7b5e197b7232b9373011456a096ed0c">math.hip</a></li>
@@ -272,7 +280,7 @@ $(document).ready(function(){initNavTree('globals_func_h.html',''); initResizabl
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Wed Jul 8 2026 04:36:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Jul 9 2026 04:49:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

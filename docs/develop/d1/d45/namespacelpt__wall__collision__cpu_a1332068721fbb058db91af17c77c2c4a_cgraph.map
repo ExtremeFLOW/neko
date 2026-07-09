@@ -1,0 +1,10 @@
+<map id="lpt_wall_collision_cpu::wall_facet_is_hit" name="lpt_wall_collision_cpu::wall_facet_is_hit">
+<area shape="rect" id="Node000001" title="Return true if the particle surface reaches a given wall facet." alt="" coords="5,93,175,133"/>
+<area shape="rect" id="Node000002" href="$d1/d45/namespacelpt__wall__collision__cpu.html#a61901e523581f2f99a5dda81dec9c696" title="Return signed distance from a point to a wall plane." alt="" coords="223,29,431,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,91,239,70,240,75,165,96"/>
+<area shape="rect" id="Node000003" href="$d1/d45/namespacelpt__wall__collision__cpu.html#aa68f2d8d46e29f3bf95c59ff393ef7af" title="Return the facet&#45;center position that matches the reflection normal." alt="" coords="239,93,414,133"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="175,111,226,111,226,116,175,116"/>
+<area shape="rect" id="Node000004" href="$d1/d45/namespacelpt__wall__collision__cpu.html#ab309ec155c62ec70a546ade0e755442c" title="Use the face&#45;center SEM normal as the reflection normal." alt="" coords="237,157,417,197"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="165,131,240,151,239,156,164,136"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="283,30,280,20,287,10,303,5,327,3,354,6,369,13,367,18,353,11,327,8,304,10,290,15,285,21,288,28"/>
+</map>

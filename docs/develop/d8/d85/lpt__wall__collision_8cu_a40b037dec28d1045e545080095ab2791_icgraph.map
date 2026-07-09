@@ -1,0 +1,7 @@
+<map id="cuda_lpt_handle_elastic_wall_collisions" name="cuda_lpt_handle_elastic_wall_collisions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="451,27,629,67"/>
+<area shape="rect" id="Node000002" href="$da/d7c/namespacelpt__wall__collision__device.html#a1d60c140e5b180c339bb165b4a99d5c4" title="Launch device kernel for elastic wall&#45;collision reflection." alt="" coords="228,13,403,82"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="437,50,403,50,403,45,437,45"/>
+<area shape="rect" id="Node000003" href="$db/de6/interfacelpt__wall__collision__device_1_1hip__lpt__handle__elastic__wall__collisions.html#a04b6ef1df987924841e5c9a0c514b792" title=" " alt="" coords="5,5,180,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="214,50,180,50,180,45,214,45"/>
+</map>

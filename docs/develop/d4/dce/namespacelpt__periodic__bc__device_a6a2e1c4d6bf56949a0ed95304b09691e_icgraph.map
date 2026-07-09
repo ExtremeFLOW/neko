@@ -1,0 +1,7 @@
+<map id="lpt_periodic_bc_device::lpt_periodic_bc_wrap_rotational_device" name="lpt_periodic_bc_device::lpt_periodic_bc_wrap_rotational_device">
+<area shape="rect" id="Node000001" title="Launch device kernel for rotational periodic wrapping." alt="" coords="265,53,436,107"/>
+<area shape="rect" id="Node000002" href="$d0/d21/interfacelpt__periodic__bc__device_1_1hip__lpt__periodic__bc__wrap__rotational.html#a932e9a0dea4b8da9972a8e58081cd3f0" title=" " alt="" coords="5,5,217,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,66,217,60,218,55,252,61"/>
+<area shape="rect" id="Node000003" href="$dd/d68/namespacelpt__periodic__bc.html#a021c8ceabe8ac82a1c0a0f6c33dfb34a" title="Wrap particle positions and optional vector histories across boundaries." alt="" coords="39,99,184,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="252,99,185,110,184,104,252,93"/>
+</map>

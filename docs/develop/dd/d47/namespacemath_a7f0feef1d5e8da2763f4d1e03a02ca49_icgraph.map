@@ -1,5 +1,7 @@
 <map id="math::absval" name="math::absval">
-<area shape="rect" id="Node000001" title="Take the absolute value of an array." alt="" coords="255,20,361,45"/>
+<area shape="rect" id="Node000001" title="Take the absolute value of an array." alt="" coords="255,56,361,81"/>
 <area shape="rect" id="Node000002" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="5,5,207,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,35,207,35,207,30,241,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,59,206,53,207,48,241,54"/>
+<area shape="rect" id="Node000003" href="$d3/d0d/namespacevector__math.html#a690f5adb95a72c23f1badaa0ea9a461b" title="Compute the pointwise absolute value of a vector ." alt="" coords="29,85,183,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,83,183,94,182,88,241,78"/>
 </map>

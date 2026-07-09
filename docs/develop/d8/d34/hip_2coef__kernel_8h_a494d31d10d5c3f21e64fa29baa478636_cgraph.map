@@ -1,0 +1,9 @@
+<map id="coef_get_normal_kernel" name="coef_get_normal_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,184,62"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="461,29,613,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,47,448,47,448,52,185,52"/>
+<area shape="rect" id="Node000003" href="$d0/d39/cuda_2coef__kernel_8h.html#ab1704ac3b488ae29041c290c9111220b" title=" " alt="" coords="232,62,413,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="185,57,219,60,218,66,184,62"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="497,30,495,20,501,10,516,5,537,3,562,6,576,13,573,18,561,11,537,8,517,10,505,15,500,21,502,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="414,61,448,57,448,63,414,67"/>
+</map>

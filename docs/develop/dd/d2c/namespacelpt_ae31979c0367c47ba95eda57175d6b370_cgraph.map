@@ -1,0 +1,55 @@
+<map id="lpt::evaluate_acceleration" name="lpt::evaluate_acceleration">
+<area shape="rect" id="Node000001" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="5,416,196,441"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#abda8796d0bcd39d41acd70781082c789" title="Add a scalar to vector ." alt="" coords="244,31,435,56"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,415,114,358,140,273,159,225,182,178,209,132,242,91,263,73,287,59,289,64,266,77,246,95,214,135,186,180,164,228,145,275,119,359,107,416"/>
+<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#a6ce84a8990d28c992750dbd6de338390" title="Set all elements to a constant c ." alt="" coords="263,105,416,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="106,415,158,324,197,264,242,206,298,152,302,156,246,209,201,267,162,327,111,417"/>
+<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237" title="Multiplication by constant c ." alt="" coords="263,219,416,259"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="116,414,301,266,304,270,120,418"/>
+<area shape="rect" id="Node000010" href="$d3/d0d/namespacevector__math.html#a6b7dd93eaf2a1c5a2530f03f83f5819e" title="Vector multiplication ." alt="" coords="246,333,433,359"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="137,413,288,361,290,366,139,418"/>
+<area shape="rect" id="Node000013" href="$d3/d0d/namespacevector__math.html#aa413a39076c9df8760b67dfa394afec6" title="Vector division ." alt="" coords="263,409,416,449"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="196,426,249,426,249,431,196,431"/>
+<area shape="rect" id="Node000016" href="$d3/d0d/namespacevector__math.html#a483a64e1a80182c7d4237f89448eb636" title="Take the power of a vector ." alt="" coords="263,498,416,538"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="137,439,273,491,271,496,135,444"/>
+<area shape="rect" id="Node000019" href="$d3/d0d/namespacevector__math.html#ab05c94f41e8cb4739ec02de9be381aa2" title="Sqrt a vector ." alt="" coords="263,613,416,653"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="119,439,306,601,302,605,115,443"/>
+<area shape="rect" id="Node000022" href="$d3/d0d/namespacevector__math.html#a40da5cd57b058d7e69b8890f04115fb4" title="Vector subtraction ." alt="" coords="244,727,435,752"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="110,440,160,537,199,602,246,663,277,692,308,717,305,721,273,696,242,666,195,605,155,540,105,443"/>
+<area shape="rect" id="Node000025" href="$d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="263,826,416,866"/>
+<area shape="poly" id="edge24_Node000001_Node000025" title=" " alt="" coords="108,441,123,496,152,578,193,672,218,718,246,762,272,791,300,815,296,820,268,795,242,765,213,721,188,674,147,580,118,497,103,443"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="533,5,627,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,31,518,22,519,27,435,36"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="537,55,623,80"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="416,104,523,78,524,83,417,109"/>
+<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="501,105,659,145"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="417,122,487,122,487,127,417,127"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="529,169,631,195"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="416,218,516,194,517,200,417,224"/>
+<area shape="rect" id="Node000009" href="$d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89" title="Multiplication by constant c ." alt="" coords="501,219,659,259"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="417,237,487,237,487,242,417,242"/>
+<area shape="rect" id="Node000011" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="535,284,625,309"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="401,331,521,306,522,311,402,336"/>
+<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="485,333,675,359"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="433,343,471,343,471,349,433,349"/>
+<area shape="rect" id="Node000014" href="$d2/d73/namespacedevice__math.html#ab9770f6ba59346cb52b53de1897526d2" title="Vector division ." alt="" coords="501,383,659,423"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="416,418,487,410,488,416,417,423"/>
+<area shape="rect" id="Node000015" href="$dd/d47/namespacemath.html#a1164b01f82dfbc02272aecd16afec842" title="Vector division ." alt="" coords="525,448,635,473"/>
+<area shape="poly" id="edge14_Node000013_Node000015" title=" " alt="" coords="417,436,511,449,511,454,416,442"/>
+<area shape="rect" id="Node000017" href="$d2/d73/namespacedevice__math.html#a8f773a6bfba5873fdac4edfedcd65fba" title="Take the power of a vector ." alt="" coords="501,498,659,538"/>
+<area shape="poly" id="edge16_Node000016_Node000017" title=" " alt="" coords="417,515,487,515,487,521,417,521"/>
+<area shape="rect" id="Node000018" href="$dd/d47/namespacemath.html#af77ee5b9be47be76c3def8ab8e12a27b" title="Take the power of a vector ." alt="" coords="528,563,632,588"/>
+<area shape="poly" id="edge17_Node000016_Node000018" title=" " alt="" coords="417,534,515,557,514,563,416,539"/>
+<area shape="rect" id="Node000020" href="$d2/d73/namespacedevice__math.html#ae947e49cb47eb325ac451a181d82d972" title="Sqrt a vector ." alt="" coords="501,613,659,653"/>
+<area shape="poly" id="edge19_Node000019_Node000020" title=" " alt="" coords="417,630,487,630,487,635,417,635"/>
+<area shape="rect" id="Node000021" href="$dd/d47/namespacemath.html#a2122203eceffeffe0edb8347c81655e4" title="Sqrt a vector ." alt="" coords="509,677,651,703"/>
+<area shape="poly" id="edge20_Node000019_Node000021" title=" " alt="" coords="417,648,513,672,512,677,416,654"/>
+<area shape="rect" id="Node000023" href="$d2/d73/namespacedevice__math.html#a15f0219911143a157a87c04479635102" title="Vector subtraction ." alt="" coords="483,727,677,752"/>
+<area shape="poly" id="edge22_Node000022_Node000023" title=" " alt="" coords="435,737,469,737,469,742,435,742"/>
+<area shape="rect" id="Node000024" href="$dd/d47/namespacemath.html#a797f1134edbf7948a9f9c040fd5061d0" title="Vector subtraction ." alt="" coords="533,776,627,801"/>
+<area shape="poly" id="edge23_Node000022_Node000024" title=" " alt="" coords="402,749,520,774,519,779,401,755"/>
+<area shape="rect" id="Node000026" href="$d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="501,826,659,866"/>
+<area shape="poly" id="edge25_Node000025_Node000026" title=" " alt="" coords="417,843,487,843,487,849,417,849"/>
+<area shape="rect" id="Node000027" href="$dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="529,891,631,916"/>
+<area shape="poly" id="edge26_Node000025_Node000027" title=" " alt="" coords="417,862,517,886,516,891,416,867"/>
+</map>
