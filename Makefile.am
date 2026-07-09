@@ -161,7 +161,8 @@ EXTRA_DIST = \
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch\
 	patches/cce_stack.patch\
-	patches/cce_time_state.patch
+	patches/cce_time_state.patch\
+	patches/fujitsu_memleak.patch
 
 if ENABLE_FLINT
 lint:
