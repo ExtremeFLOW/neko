@@ -34,10 +34,12 @@
 module opr_device
   use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp, i8
-  use device, only : device_get_ptr, device_event_sync, device_map, device_unmap
+  use device, only : device_get_ptr, device_event_sync
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
+  use vector, only : vector_t
+  use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_error
   use interpolation, only : interpolator_t
   use device_math, only : device_sub3, device_rzero, device_copy, device_col2, &
@@ -777,18 +779,20 @@ contains
     real(kind=rp), intent(inout) :: &
          du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
     type(c_ptr) :: cr_d, cs_d, ct_d, u_d
-    real(kind=rp) :: ud(Xh_GL%lx*Xh_GL%lx*Xh_GL%lx)
-    type(c_ptr) :: du_d, ud_d
+    type(vector_t), pointer :: ud
+    type(c_ptr) :: du_d
+    integer :: temp_index
     integer :: n_GL, n_GLL
 
     n_GL = coef_GL%msh%nelv * Xh_GL%lxyz
     n_GLL = coef_GL%msh%nelv * Xh_GLL%lxyz
 
-    call device_map(ud, ud_d, n_GL)
+    call neko_scratch_registry%request_vector(ud, temp_index, n_GL, .false.)
 
     du_d = device_get_ptr(du)
 
-    associate(Xh => Xh_GL, nelv => coef_GL%msh%nelv, lx => Xh_GL%lx)
+    associate(Xh => Xh_GL, nelv => coef_GL%msh%nelv, lx => Xh_GL%lx, &
+         ud_d => ud%x_d)
 #ifdef HAVE_HIP
       call hip_convect_scalar(ud_d, u_d, cr_d, cs_d, ct_d, &
            Xh%dx_d, Xh%dy_d, Xh%dz_d, nelv, lx)
@@ -805,13 +809,13 @@ contains
       call neko_error('No device backend configured')
 #endif
 
-      call GLL_to_GL%map(du, ud, nelv, Xh_GLL)
+      call GLL_to_GL%map(du, ud%x, nelv, Xh_GLL)
       call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
       call device_col2(du_d, coef_GLL%Binv_d, n_GLL)
 
     end associate
 
-    call device_unmap(ud, ud_d)
+    call neko_scratch_registry%relinquish(temp_index)
 
   end subroutine opr_device_convect_scalar
 
