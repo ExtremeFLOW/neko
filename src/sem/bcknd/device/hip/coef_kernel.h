@@ -451,4 +451,89 @@ __global__ void coef_generate_area_and_normal_kernel(T* __restrict__ area,
   }
 }
 
+template< typename T >
+__device__ inline void coef_get_normal_device(const T * __restrict__ nx,
+                                              const T * __restrict__ ny,
+                                              const T * __restrict__ nz,
+                                              const int i,
+                                              const int j,
+                                              const int k,
+                                              const int e,
+                                              const int facet,
+                                              const int lx,
+                                              T &normal_x,
+                                              T &normal_y,
+                                              T &normal_z) {
+  int a = 0;
+  int b = 0;
+
+  switch (facet) {
+  case 1:
+  case 2:
+    a = j;
+    b = k;
+    break;
+  case 3:
+  case 4:
+    a = i;
+    b = k;
+    break;
+  case 5:
+  case 6:
+    a = i;
+    b = j;
+    break;
+  default:
+    normal_x = 0.0;
+    normal_y = 0.0;
+    normal_z = 0.0;
+    return;
+  }
+
+  if (a < 1 || a > lx || b < 1 || b > lx || e < 1) {
+    normal_x = 0.0;
+    normal_y = 0.0;
+    normal_z = 0.0;
+    return;
+  }
+
+  const int normal_idx = (a - 1) + lx * ((b - 1) + lx *
+                         ((facet - 1) + 6 * (e - 1)));
+
+  normal_x = nx[normal_idx];
+  normal_y = ny[normal_idx];
+  normal_z = nz[normal_idx];
+}
+
+/**
+ * Device kernel for coef_get_normal.
+ *
+ * Query indices use the Fortran coef_get_normal convention: i, j, k, e and
+ * facet are 1-based. Output arrays are 0-based device vectors of length n.
+ */
+template< typename T >
+__global__
+void coef_get_normal_kernel(T * __restrict__ normal_x,
+                            T * __restrict__ normal_y,
+                            T * __restrict__ normal_z,
+                            const T * __restrict__ nx,
+                            const T * __restrict__ ny,
+                            const T * __restrict__ nz,
+                            const int * __restrict__ i_idx,
+                            const int * __restrict__ j_idx,
+                            const int * __restrict__ k_idx,
+                            const int * __restrict__ e_idx,
+                            const int * __restrict__ facet_idx,
+                            const int lx,
+                            const int n) {
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int p = idx; p < n; p += str) {
+    coef_get_normal_device(nx, ny, nz, i_idx[p], j_idx[p], k_idx[p], e_idx[p],
+                           facet_idx[p], lx, normal_x[p], normal_y[p],
+                           normal_z[p]);
+  }
+}
+
 #endif // __SEM_COEF_KERNEL_H__

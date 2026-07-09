@@ -356,6 +356,38 @@ __global__ void cwrap_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for sqrt_inplace
+ */
+template< typename T >
+__global__ void sqrt_inplace_kernel(T * __restrict__ a,
+                                    const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = sqrt(a[i]);
+  }
+}
+
+/**
+ * Device kernel for power
+ */
+template< typename T >
+__global__ void power_kernel(T * __restrict__ ap,
+                             const T * __restrict__ a,
+                             const T p,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    ap[i] = pow(a[i], p);
+  }
+}
+
+/**
  * Device kernel for cmult
  */
 template< typename T >

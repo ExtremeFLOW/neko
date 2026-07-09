@@ -103,6 +103,13 @@ EXTRA_DIST = \
 	examples/rayleigh_benard_cylinder/rayleigh.geo\
 	examples/rayleigh_benard_cylinder/rayleigh.case\
 	examples/rayleigh_benard_cylinder/postprocess_probes.py\
+	examples/rebounding_particles/README.md\
+	examples/rebounding_particles/particles_init.py\
+	examples/rebounding_particles/rebounding_particles_csv.case\
+	examples/rebounding_particles/rebounding_particles_h5.case\
+	examples/rebounding_particles/run.sh\
+	examples/rebounding_particles/trajectory_plot_csv.py\
+	examples/rebounding_particles/trajectory_plot_h5.py\
 	examples/api/pyneko/README.md\
 	examples/api/pyneko/cylinder.case\
 	examples/api/pyneko/cylinder.py\

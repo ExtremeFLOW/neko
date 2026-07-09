@@ -178,6 +178,25 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_cwrap
 
+     subroutine cuda_sqrt_inplace(a_d, n, strm) &
+          bind(c, name = 'cuda_sqrt_inplace')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       integer(c_int) :: n
+     end subroutine cuda_sqrt_inplace
+
+     subroutine cuda_power(ap_d, a_d, p, n, strm) &
+          bind(c, name = 'cuda_power')
+       use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: ap_d
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: p
+       integer(c_int) :: n
+     end subroutine cuda_power
+
      subroutine cuda_cfill(a_d, c, n, strm) &
           bind(c, name = 'cuda_cfill')
        use, intrinsic :: iso_c_binding, only : c_int, c_ptr

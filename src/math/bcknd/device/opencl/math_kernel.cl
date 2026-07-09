@@ -306,6 +306,32 @@ __kernel void cwrap_kernel(__global real* __restrict__ a,
 }
 
 /**
+ * Device kernel for sqrt_inplace
+ */
+__kernel void sqrt_inplace_kernel(__global real* __restrict__ a,
+                                  const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) { a[i] = sqrt(a[i]); }
+}
+
+/**
+ * Device kernel for power
+ */
+__kernel void power_kernel(__global real* __restrict__ ap,
+                           __global const real* __restrict__ a,
+                           const real p,
+                           const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) { ap[i] = pow(a[i], p); }
+}
+
+/**
  * Device kernel for cfill
  */
 __kernel void cfill_kernel(__global real* __restrict__ a,

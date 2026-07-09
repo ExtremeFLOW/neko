@@ -498,4 +498,75 @@ DEFINE_GENERATE_AREA_AND_NORMAL(14)
 DEFINE_GENERATE_AREA_AND_NORMAL(15)
 DEFINE_GENERATE_AREA_AND_NORMAL(16)
 
+/**
+ * Device kernel for coef_get_normal.
+ *
+ * Query indices use the Fortran coef_get_normal convention: i, j, k, e and
+ * facet are 1-based. Output arrays are 0-based device vectors of length n.
+ */
+__kernel
+void coef_get_normal_kernel(__global real * __restrict__ normal_x,
+                            __global real * __restrict__ normal_y,
+                            __global real * __restrict__ normal_z,
+                            __global const real * __restrict__ nx,
+                            __global const real * __restrict__ ny,
+                            __global const real * __restrict__ nz,
+                            __global const int * __restrict__ i_idx,
+                            __global const int * __restrict__ j_idx,
+                            __global const int * __restrict__ k_idx,
+                            __global const int * __restrict__ e_idx,
+                            __global const int * __restrict__ facet_idx,
+                            const int lx,
+                            const int n) {
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int p = idx; p < n; p += str) {
+    const int i = i_idx[p];
+    const int j = j_idx[p];
+    const int k = k_idx[p];
+    const int e = e_idx[p];
+    const int facet = facet_idx[p];
+    int a = 0;
+    int b = 0;
+
+    switch (facet) {
+    case 1:
+    case 2:
+      a = j;
+      b = k;
+      break;
+    case 3:
+    case 4:
+      a = i;
+      b = k;
+      break;
+    case 5:
+    case 6:
+      a = i;
+      b = j;
+      break;
+    default:
+      normal_x[p] = 0.0;
+      normal_y[p] = 0.0;
+      normal_z[p] = 0.0;
+      continue;
+    }
+
+    if (a < 1 || a > lx || b < 1 || b > lx || e < 1) {
+      normal_x[p] = 0.0;
+      normal_y[p] = 0.0;
+      normal_z[p] = 0.0;
+      continue;
+    }
+
+    const int normal_idx = (a - 1) + lx * ((b - 1) + lx *
+                           ((facet - 1) + 6 * (e - 1)));
+
+    normal_x[p] = nx[normal_idx];
+    normal_y[p] = ny[normal_idx];
+    normal_z[p] = nz[normal_idx];
+  }
+}
+
 #endif // __SEM_COEF_KERNEL_CL__

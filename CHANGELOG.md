@@ -5,6 +5,9 @@
 - *BREAKING* Changed the size of mesh velocity lag arrays in ALE to 2. 
   Old ALE restart files (before this commit) should not be used anymore. 
   Non-ALE restart files are totally unaffected.
+- Added CSV/HDF5 trajectory output options for the `lagrangian_particles`
+  simcomp, including `output_format`, `snapshots_per_file`, documentation, and
+  the `rebounding_particles` example.
 - Fixed NVSHMEM support for NVSHMEM 3.x, which no longer ships the combined
   `libnvshmem`; `configure` now detects the split `libnvshmem_host` and
   `libnvshmem_device` libraries (falling back to `-lnvshmem` for older
