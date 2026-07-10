@@ -34,7 +34,7 @@
 
 module scalar_pnpn
   use num_types, only : rp
-  use, intrinsic :: iso_fortran_env, only : error_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit, output_unit
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
@@ -506,21 +506,25 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
+                flush(output_unit)
                 write(error_unit, '(A, A, I0, A, A, I0, A)') &
                      "*** ERROR ***: ", "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
                      "does not exist in the mesh. Check scalar boundary ", &
                      "condition ", i, "."
+                flush(error_unit)
                 error stop
              end if
 
              if (marked_zones(zone_indices(j))) then
+                flush(output_unit)
                 write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
                      "Please check your boundary_conditions entry for the ", &
                      "scalar and make sure that each zone index appears only ",&
                      "in a single boundary condition."
+                flush(error_unit)
                 error stop
              else
                 marked_zones(zone_indices(j)) = .true.
@@ -537,8 +541,10 @@ contains
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
                (.not. marked_zones(i))) then
+             flush(output_unit)
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No scalar boundary condition assigned to zone ", i
+             flush(error_unit)
              error stop
           end if
        end do
@@ -546,9 +552,11 @@ contains
        ! Check that there are no labeled zones, i.e. all are periodic.
        do i = 1, size(this%msh%labeled_zones)
           if (this%msh%labeled_zones(i)%size .gt. 0) then
+             flush(output_unit)
              write(error_unit, '(A, A, A)') "*** ERROR ***: ", &
                   "No boundary_conditions entry in the case file for scalar ", &
                   this%s%name
+             flush(error_unit)
              error stop
           end if
        end do

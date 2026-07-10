@@ -195,6 +195,7 @@ contains
 
           if (argc .lt. 1) then
              if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
+             flush(output_unit)
              stop
           end if
 

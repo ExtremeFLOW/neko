@@ -94,6 +94,10 @@ contains
     call neko_log%end_section()
     call neko_log%newline()
 
+    ! Initialisation complete; persist the startup log and disable
+    ! per-section flushing before entering the time loop
+    call neko_log%end_startup()
+
   end subroutine simulation_init
 
   !> Finalize a simulation of a case
@@ -317,9 +321,13 @@ contains
        format_str = '.chkp'
     end if
     call chkpf%init(C%output_directory // 'joblimit'//trim(format_str))
-    call chkpf%write(C%chkp, t)
+    ! Log and persist the intent before the write, such that the log shows
+    ! what was being attempted if the job is killed during the checkpoint
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
+    call neko_log%flush()
+    call chkpf%write(C%chkp, t)
+    call neko_log%flush()
 
   end subroutine simulation_joblimit_chkp
 

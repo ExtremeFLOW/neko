@@ -280,6 +280,11 @@ contains
                   int(this%controllers(i)%nexecutions)
              call neko_log%message(log_buf)
 
+             ! Persist the log before a potentially large write, such that
+             ! the log shows which file was being written if the run dies
+             ! during the write
+             call neko_log%flush()
+
              call samp%output_list(i)%ptr%sample(time%t)
 
              call this%controllers(i)%register_execution()
@@ -298,6 +303,9 @@ contains
             ' Output time (s): ', sample_time
        call neko_log%message(log_buf)
        call neko_log%end_section()
+       ! Persist the log after the write, confirming the output completed
+       ! even if the run dies before the next output
+       call neko_log%flush()
     end if
     call profiler_end_region('Output controller', 22)
   end subroutine output_controller_execute

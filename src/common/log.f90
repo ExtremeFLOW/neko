@@ -54,6 +54,10 @@ module logger
      integer, private :: tab_size_
      integer, private :: level_
      integer, private :: unit_
+     !> Flush the log at section boundaries (enabled during startup, disabled
+     !! once the time loop begins, such that a crash during initialisation
+     !! cannot swallow buffered log output)
+     logical, private :: section_flush_ = .true.
 
      character(len=LOG_SIZE), private :: section_header = ""
 
@@ -71,6 +75,8 @@ module logger
      procedure, pass(this) :: warning => log_warning
      procedure, pass(this) :: deprecated => log_deprecated
      procedure, pass(this) :: end_section => log_end_section
+     procedure, pass(this) :: flush => log_flush
+     procedure, pass(this) :: end_startup => log_end_startup
 
      procedure, private, pass(this) :: print_section_header => &
           log_print_section_header
@@ -127,6 +133,8 @@ contains
        this%unit_ = stdout
     end if
 
+    this%section_flush_ = .true.
+
   end subroutine log_init
 
   !> Free a log
@@ -154,12 +162,39 @@ contains
     this%indent_ = 0
     this%level_ = NEKO_LOG_INFO
     this%unit_ = -1
+    this%section_flush_ = .true.
 
     if (allocated(deprecated_list)) then
        deallocate(deprecated_list)
     end if
 
   end subroutine log_free
+
+  !> Flush the log stream, ensuring buffered output leaves the process
+  !! @note Flushing is local to rank 0 (the only writer) and never collective,
+  !! so it is safe to call from any rank.
+  subroutine log_flush(this)
+    class(log_t), intent(in) :: this
+
+    ! The unit is compared against the sentinel value set by `log_free`, and
+    ! not simply tested for being positive, since NEWUNIT-assigned units
+    ! (used for NEKO_LOG_FILE) are always negative
+    if (pe_rank .eq. 0 .and. this%unit_ .ne. -1) then
+       flush(this%unit_)
+    end if
+
+  end subroutine log_flush
+
+  !> Mark the end of the startup (initialisation) phase of a simulation
+  !! @details Flushes the log and disables the per-section flushing used
+  !! during startup, keeping the time loop free of any flushing overhead.
+  subroutine log_end_startup(this)
+    class(log_t), intent(inout) :: this
+
+    call this%flush()
+    this%section_flush_ = .false.
+
+  end subroutine log_end_startup
 
   !> Increase indention level
   subroutine log_begin(this)
@@ -265,6 +300,7 @@ contains
        write(this%unit_, '(1X,A,A,A)') '(version: ', trim(version), ')'
        write(this%unit_, '(1X,A)') trim(build_info)
        write(this%unit_, '(A)') ''
+       flush(this%unit_)
     end if
 
   end subroutine log_header
@@ -275,8 +311,12 @@ contains
     character(len=*), intent(in) :: msg
 
     if (pe_rank .eq. 0) then
+       ! Flush buffered log output first, such that it appears before the
+       ! error message in a combined stdout/stderr stream
+       call this%flush()
        call this%indent()
        write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg), '  ***'
+       flush(stderr)
     end if
 
   end subroutine log_error
@@ -289,6 +329,7 @@ contains
     if (pe_rank .eq. 0) then
        call this%indent()
        write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg), '  ***'
+       flush(this%unit_)
     end if
 
   end subroutine log_warning
@@ -416,6 +457,13 @@ contains
        call this%indent()
        write(this%unit_, '(A)') trim(this%section_header)
        this%section_header = ""
+
+       ! During startup, persist the log up to and including the new section
+       ! header, such that the log always shows what the code is attempting
+       ! if initialisation fails
+       if (this%section_flush_) then
+          flush(this%unit_)
+       end if
     end if
 
   end subroutine log_print_section_header
@@ -431,6 +479,11 @@ contains
     end if
 
     call this%end()
+
+    ! During startup, persist the log after each completed section
+    if (this%section_flush_) then
+       call this%flush()
+    end if
 
   end subroutine log_end_section
 
@@ -475,8 +528,10 @@ contains
           msg(len:len) = c_msg(len)
        end do
 
+       call neko_log%flush()
        call neko_log%indent()
        write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg(1:len)), '  ***'
+       flush(stderr)
     end if
 
   end subroutine log_error_c
@@ -500,6 +555,7 @@ contains
        call neko_log%indent()
        write(neko_log%unit_, '(A,A,A)') &
             '*** WARNING: ', trim(msg(1:len)), '  ***'
+       flush(neko_log%unit_)
     end if
 
   end subroutine log_warning_c
