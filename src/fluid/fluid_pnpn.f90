@@ -557,7 +557,10 @@ contains
     end if
 
     call this%ale%sync_chkp(this%c_Xh, this%Xh, this%adv, chkp, this%gs_Xh)
-
+    if (this%ale%active) then
+       call this%bc_prs_surface%recompute_normals()
+       call this%bc_sym_surface%recompute_normals()
+    end if
 
   end subroutine fluid_pnpn_restart
 
@@ -783,6 +786,9 @@ contains
          ! Update the metrics used by the adv operator for delaiasing (coef_GL)
          ! Maps the updated coef_GLL to coef_GL.
          call this%adv%recompute_metrics(c_Xh, .true.)
+
+         call this%bc_prs_surface%recompute_normals()
+         call this%bc_sym_surface%recompute_normals()
          call profiler_end_region('ALE recompute metrics')
       end if
 
