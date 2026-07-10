@@ -33,7 +33,7 @@
 */
 
 /**
- * Metal host-side dispatch for the compressible Euler residual.
+ * Metal host-side dispatch for the compressible residual.
  *
  * @note Apple GPUs do not support FP64. This backend operates in FP32.
  */
@@ -62,7 +62,7 @@ static id<MTLComputePipelineState> pso_rk_sum = nil;
  * Create a compute pipeline state for the named kernel.
  */
 static id<MTLComputePipelineState>
-get_euler_res_pipeline(const char *name) {
+get_compressible_res_pipeline(const char *name) {
   id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = neko_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
@@ -82,7 +82,7 @@ get_euler_res_pipeline(const char *name) {
  * Create a compute command encoder on the global command queue.
  */
 static id<MTLComputeCommandEncoder>
-euler_res_encoder(id<MTLCommandBuffer> *cmdBuf) {
+compressible_res_encoder(id<MTLCommandBuffer> *cmdBuf) {
   id<MTLCommandQueue> queue =
     (__bridge id<MTLCommandQueue>)glb_cmd_queue;
   *cmdBuf = [queue commandBuffer];
@@ -92,7 +92,7 @@ euler_res_encoder(id<MTLCommandBuffer> *cmdBuf) {
 /**
  * Dispatch one thread per point and wait for completion.
  */
-static void euler_res_dispatch(id<MTLCommandBuffer> cmdBuf,
+static void compressible_res_dispatch(id<MTLCommandBuffer> cmdBuf,
                                id<MTLComputeCommandEncoder> enc, int n) {
   const NSUInteger nthrds = 256;
   MTLSize groupSize = MTLSizeMake(nthrds, 1, 1);
@@ -105,19 +105,19 @@ static void euler_res_dispatch(id<MTLCommandBuffer> cmdBuf,
 }
 
 /**
- * Viscous part of the Euler residual on the Metal GPU.
+ * Viscous part of the compressible residual on the Metal GPU.
  */
-void euler_res_part_visc_metal(void *rhs, void *Binv, void *lap_sol,
+void compressible_res_part_visc_metal(void *rhs, void *Binv, void *lap_sol,
                                void *effective_visc, int *n) {
 
   if (*n <= 0)
     return;
 
   if (pso_visc == nil)
-    pso_visc = get_euler_res_pipeline("euler_res_part_visc_kernel");
+    pso_visc = get_compressible_res_pipeline("compressible_res_part_visc_kernel");
 
   id<MTLCommandBuffer> cmdBuf;
-  id<MTLComputeCommandEncoder> enc = euler_res_encoder(&cmdBuf);
+  id<MTLComputeCommandEncoder> enc = compressible_res_encoder(&cmdBuf);
 
   [enc setComputePipelineState:pso_visc];
 
@@ -127,19 +127,19 @@ void euler_res_part_visc_metal(void *rhs, void *Binv, void *lap_sol,
   [enc setBuffer:(__bridge id<MTLBuffer>)effective_visc offset:0 atIndex:3];
   [enc setBytes:n length:sizeof(int) atIndex:4];
 
-  euler_res_dispatch(cmdBuf, enc, *n);
+  compressible_res_dispatch(cmdBuf, enc, *n);
 }
 
 /**
  * Shared launcher for the three momentum flux kernels.
  */
-static void euler_res_flux(id<MTLComputePipelineState> pso,
+static void inviscid_res_flux(id<MTLComputePipelineState> pso,
                            void *f_x, void *f_y, void *f_z,
                            void *m_x, void *m_y, void *m_z,
                            void *rho_field, void *p, int *n) {
 
   id<MTLCommandBuffer> cmdBuf;
-  id<MTLComputeCommandEncoder> enc = euler_res_encoder(&cmdBuf);
+  id<MTLComputeCommandEncoder> enc = compressible_res_encoder(&cmdBuf);
 
   [enc setComputePipelineState:pso];
 
@@ -153,13 +153,13 @@ static void euler_res_flux(id<MTLComputePipelineState> pso,
   [enc setBuffer:(__bridge id<MTLBuffer>)p         offset:0 atIndex:7];
   [enc setBytes:n length:sizeof(int) atIndex:8];
 
-  euler_res_dispatch(cmdBuf, enc, *n);
+  compressible_res_dispatch(cmdBuf, enc, *n);
 }
 
 /**
  * x-momentum flux on the Metal GPU.
  */
-void euler_res_part_mx_flux_metal(void *f_x, void *f_y, void *f_z,
+void inviscid_res_part_mx_flux_metal(void *f_x, void *f_y, void *f_z,
                                   void *m_x, void *m_y, void *m_z,
                                   void *rho_field, void *p, int *n) {
 
@@ -167,15 +167,15 @@ void euler_res_part_mx_flux_metal(void *f_x, void *f_y, void *f_z,
     return;
 
   if (pso_mx_flux == nil)
-    pso_mx_flux = get_euler_res_pipeline("euler_res_part_mx_flux_kernel");
+    pso_mx_flux = get_compressible_res_pipeline("inviscid_res_part_mx_flux_kernel");
 
-  euler_res_flux(pso_mx_flux, f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n);
+  inviscid_res_flux(pso_mx_flux, f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n);
 }
 
 /**
  * y-momentum flux on the Metal GPU.
  */
-void euler_res_part_my_flux_metal(void *f_x, void *f_y, void *f_z,
+void inviscid_res_part_my_flux_metal(void *f_x, void *f_y, void *f_z,
                                   void *m_x, void *m_y, void *m_z,
                                   void *rho_field, void *p, int *n) {
 
@@ -183,15 +183,15 @@ void euler_res_part_my_flux_metal(void *f_x, void *f_y, void *f_z,
     return;
 
   if (pso_my_flux == nil)
-    pso_my_flux = get_euler_res_pipeline("euler_res_part_my_flux_kernel");
+    pso_my_flux = get_compressible_res_pipeline("inviscid_res_part_my_flux_kernel");
 
-  euler_res_flux(pso_my_flux, f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n);
+  inviscid_res_flux(pso_my_flux, f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n);
 }
 
 /**
  * z-momentum flux on the Metal GPU.
  */
-void euler_res_part_mz_flux_metal(void *f_x, void *f_y, void *f_z,
+void inviscid_res_part_mz_flux_metal(void *f_x, void *f_y, void *f_z,
                                   void *m_x, void *m_y, void *m_z,
                                   void *rho_field, void *p, int *n) {
 
@@ -199,15 +199,15 @@ void euler_res_part_mz_flux_metal(void *f_x, void *f_y, void *f_z,
     return;
 
   if (pso_mz_flux == nil)
-    pso_mz_flux = get_euler_res_pipeline("euler_res_part_mz_flux_kernel");
+    pso_mz_flux = get_compressible_res_pipeline("inviscid_res_part_mz_flux_kernel");
 
-  euler_res_flux(pso_mz_flux, f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n);
+  inviscid_res_flux(pso_mz_flux, f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n);
 }
 
 /**
  * Energy flux on the Metal GPU.
  */
-void euler_res_part_E_flux_metal(void *f_x, void *f_y, void *f_z,
+void inviscid_res_part_E_flux_metal(void *f_x, void *f_y, void *f_z,
                                  void *m_x, void *m_y, void *m_z,
                                  void *rho_field, void *p, void *E, int *n) {
 
@@ -215,10 +215,10 @@ void euler_res_part_E_flux_metal(void *f_x, void *f_y, void *f_z,
     return;
 
   if (pso_E_flux == nil)
-    pso_E_flux = get_euler_res_pipeline("euler_res_part_E_flux_kernel");
+    pso_E_flux = get_compressible_res_pipeline("inviscid_res_part_E_flux_kernel");
 
   id<MTLCommandBuffer> cmdBuf;
-  id<MTLComputeCommandEncoder> enc = euler_res_encoder(&cmdBuf);
+  id<MTLComputeCommandEncoder> enc = compressible_res_encoder(&cmdBuf);
 
   [enc setComputePipelineState:pso_E_flux];
 
@@ -233,13 +233,13 @@ void euler_res_part_E_flux_metal(void *f_x, void *f_y, void *f_z,
   [enc setBuffer:(__bridge id<MTLBuffer>)E         offset:0 atIndex:8];
   [enc setBytes:n length:sizeof(int) atIndex:9];
 
-  euler_res_dispatch(cmdBuf, enc, *n);
+  compressible_res_dispatch(cmdBuf, enc, *n);
 }
 
 /**
  * Multiply the residual with the inverse multiplicity on the Metal GPU.
  */
-void euler_res_part_coef_mult_metal(void *rhs_rho, void *rhs_m_x,
+void compressible_res_part_coef_mult_metal(void *rhs_rho, void *rhs_m_x,
                                     void *rhs_m_y, void *rhs_m_z,
                                     void *rhs_E, void *mult, int *n) {
 
@@ -247,10 +247,10 @@ void euler_res_part_coef_mult_metal(void *rhs_rho, void *rhs_m_x,
     return;
 
   if (pso_coef_mult == nil)
-    pso_coef_mult = get_euler_res_pipeline("euler_res_part_coef_mult_kernel");
+    pso_coef_mult = get_compressible_res_pipeline("compressible_res_part_coef_mult_kernel");
 
   id<MTLCommandBuffer> cmdBuf;
-  id<MTLComputeCommandEncoder> enc = euler_res_encoder(&cmdBuf);
+  id<MTLComputeCommandEncoder> enc = compressible_res_encoder(&cmdBuf);
 
   [enc setComputePipelineState:pso_coef_mult];
 
@@ -262,13 +262,13 @@ void euler_res_part_coef_mult_metal(void *rhs_rho, void *rhs_m_x,
   [enc setBuffer:(__bridge id<MTLBuffer>)mult    offset:0 atIndex:5];
   [enc setBytes:n length:sizeof(int) atIndex:6];
 
-  euler_res_dispatch(cmdBuf, enc, *n);
+  compressible_res_dispatch(cmdBuf, enc, *n);
 }
 
 /**
  * Runge-Kutta stage summation on the Metal GPU.
  */
-void euler_res_part_rk_sum_metal(void *rho, void *m_x, void *m_y, void *m_z,
+void compressible_res_part_rk_sum_metal(void *rho, void *m_x, void *m_y, void *m_z,
                                  void *E, void *k_rho_i, void *k_m_x_i,
                                  void *k_m_y_i, void *k_m_z_i, void *k_E_i,
                                  real *dt, real *c, int *n) {
@@ -277,10 +277,10 @@ void euler_res_part_rk_sum_metal(void *rho, void *m_x, void *m_y, void *m_z,
     return;
 
   if (pso_rk_sum == nil)
-    pso_rk_sum = get_euler_res_pipeline("euler_res_part_rk_sum_kernel");
+    pso_rk_sum = get_compressible_res_pipeline("compressible_res_part_rk_sum_kernel");
 
   id<MTLCommandBuffer> cmdBuf;
-  id<MTLComputeCommandEncoder> enc = euler_res_encoder(&cmdBuf);
+  id<MTLComputeCommandEncoder> enc = compressible_res_encoder(&cmdBuf);
 
   [enc setComputePipelineState:pso_rk_sum];
 
@@ -298,5 +298,5 @@ void euler_res_part_rk_sum_metal(void *rho, void *m_x, void *m_y, void *m_z,
   [enc setBytes:c length:sizeof(real) atIndex:11];
   [enc setBytes:n length:sizeof(int) atIndex:12];
 
-  euler_res_dispatch(cmdBuf, enc, *n);
+  compressible_res_dispatch(cmdBuf, enc, *n);
 }

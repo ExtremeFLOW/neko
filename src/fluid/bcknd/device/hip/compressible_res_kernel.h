@@ -35,7 +35,7 @@
 #define __FLUID_EULER_RES_KERNEL__
 
 template< typename T >
-__global__ void euler_res_part_visc_kernel(T * __restrict__ rhs,
+__global__ void compressible_res_part_visc_kernel(T * __restrict__ rhs,
                                      const T * __restrict__ Binv,
                                      const T * __restrict__ lap_sol,
                                      const T * __restrict__ effective_visc,
@@ -50,7 +50,7 @@ __global__ void euler_res_part_visc_kernel(T * __restrict__ rhs,
 }
 
 template< typename T >
-__global__ void euler_res_part_mx_flux_kernel(T * __restrict__ f_x,
+__global__ void inviscid_res_part_mx_flux_kernel(T * __restrict__ f_x,
                                      T * __restrict__ f_y,
                                      T * __restrict__ f_z,
                                      const T * __restrict__ m_x,
@@ -71,7 +71,7 @@ __global__ void euler_res_part_mx_flux_kernel(T * __restrict__ f_x,
 }
 
 template< typename T >
-__global__ void euler_res_part_my_flux_kernel(T * __restrict__ f_x,
+__global__ void inviscid_res_part_my_flux_kernel(T * __restrict__ f_x,
                                      T * __restrict__ f_y,
                                      T * __restrict__ f_z,
                                      const T * __restrict__ m_x,
@@ -92,7 +92,7 @@ __global__ void euler_res_part_my_flux_kernel(T * __restrict__ f_x,
 }
 
 template< typename T >
-__global__ void euler_res_part_mz_flux_kernel(T * __restrict__ f_x,
+__global__ void inviscid_res_part_mz_flux_kernel(T * __restrict__ f_x,
                                      T * __restrict__ f_y,
                                      T * __restrict__ f_z,
                                      const T * __restrict__ m_x,
@@ -113,7 +113,7 @@ __global__ void euler_res_part_mz_flux_kernel(T * __restrict__ f_x,
 }
 
 template< typename T >
-__global__ void euler_res_part_E_flux_kernel(T * __restrict__ f_x,
+__global__ void inviscid_res_part_E_flux_kernel(T * __restrict__ f_x,
                                      T * __restrict__ f_y,
                                      T * __restrict__ f_z,
                                      const T * __restrict__ m_x,
@@ -135,7 +135,7 @@ __global__ void euler_res_part_E_flux_kernel(T * __restrict__ f_x,
 }
 
 template< typename T >
-__global__ void euler_res_part_coef_mult_kernel(T * __restrict__ rhs_rho,
+__global__ void compressible_res_part_coef_mult_kernel(T * __restrict__ rhs_rho,
                                      T * __restrict__ rhs_m_x,
                                      T * __restrict__ rhs_m_y,
                                      T * __restrict__ rhs_m_z,
@@ -156,7 +156,7 @@ __global__ void euler_res_part_coef_mult_kernel(T * __restrict__ rhs_rho,
 }
 
 template< typename T >
-__global__ void euler_res_part_rk_sum_kernel(T * __restrict__ rho,
+__global__ void compressible_res_part_rk_sum_kernel(T * __restrict__ rho,
                                     T * __restrict__ m_x,
                                     T * __restrict__ m_y,
                                     T * __restrict__ m_z,

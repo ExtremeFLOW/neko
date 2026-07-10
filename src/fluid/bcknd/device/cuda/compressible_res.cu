@@ -35,24 +35,24 @@
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 
-#include "euler_res_kernel.h"
+#include "compressible_res_kernel.h"
 
 extern "C" {
 
-  void euler_res_part_visc_cuda(void *rhs_u, void *Binv, void *lap_sol,
+  void compressible_res_part_visc_cuda(void *rhs_u, void *Binv, void *lap_sol,
                                 void *effective_visc, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    euler_res_part_visc_kernel<real>
+    compressible_res_part_visc_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) rhs_u, (real *) Binv, 
                                       (real *) lap_sol, (real *) effective_visc, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void euler_res_part_mx_flux_cuda(void *f_x, void *f_y, void *f_z,
+  void inviscid_res_part_mx_flux_cuda(void *f_x, void *f_y, void *f_z,
                                     void *m_x, void *m_y, void *m_z,
                                     void *rho_field, void *p, int *n) {
 
@@ -60,14 +60,14 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    euler_res_part_mx_flux_kernel<real>
+    inviscid_res_part_mx_flux_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) f_x, (real *) f_y, (real *) f_z,
                                       (real *) m_x, (real *) m_y, (real *) m_z,
                                       (real *) rho_field, (real *) p, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void euler_res_part_my_flux_cuda(void *f_x, void *f_y, void *f_z,
+  void inviscid_res_part_my_flux_cuda(void *f_x, void *f_y, void *f_z,
                                     void *m_x, void *m_y, void *m_z,
                                     void *rho_field, void *p, int *n) {
 
@@ -75,14 +75,14 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    euler_res_part_my_flux_kernel<real>
+    inviscid_res_part_my_flux_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) f_x, (real *) f_y, (real *) f_z,
                                       (real *) m_x, (real *) m_y, (real *) m_z,
                                       (real *) rho_field, (real *) p, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void euler_res_part_mz_flux_cuda(void *f_x, void *f_y, void *f_z,
+  void inviscid_res_part_mz_flux_cuda(void *f_x, void *f_y, void *f_z,
                                     void *m_x, void *m_y, void *m_z,
                                     void *rho_field, void *p, int *n) {
 
@@ -90,14 +90,14 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    euler_res_part_mz_flux_kernel<real>
+    inviscid_res_part_mz_flux_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) f_x, (real *) f_y, (real *) f_z,
                                       (real *) m_x, (real *) m_y, (real *) m_z,
                                       (real *) rho_field, (real *) p, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void euler_res_part_E_flux_cuda(void *f_x, void *f_y, void *f_z,
+  void inviscid_res_part_E_flux_cuda(void *f_x, void *f_y, void *f_z,
                                   void *m_x, void *m_y, void *m_z,
                                   void *rho_field, void *p, void *E,
                                   int *n) {
@@ -106,14 +106,14 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    euler_res_part_E_flux_kernel<real>
+    inviscid_res_part_E_flux_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) f_x, (real *) f_y, (real *) f_z,
                                       (real *) m_x, (real *) m_y, (real *) m_z,
                                       (real *) rho_field, (real *) p, (real *) E, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void euler_res_part_coef_mult_cuda(void *rhs_rho, void *rhs_m_x,
+  void compressible_res_part_coef_mult_cuda(void *rhs_rho, void *rhs_m_x,
                                     void *rhs_m_y, void *rhs_m_z,
                                     void *rhs_E, void *mult, int *n) {
 
@@ -121,14 +121,14 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    euler_res_part_coef_mult_kernel<real>
+    compressible_res_part_coef_mult_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) rhs_rho, (real *) rhs_m_x,
                                       (real *) rhs_m_y, (real *) rhs_m_z,
                                       (real *) rhs_E, (real *) mult, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void euler_res_part_rk_sum_cuda(void *rho, void *m_x, void *m_y,
+  void compressible_res_part_rk_sum_cuda(void *rho, void *m_x, void *m_y,
                                   void *m_z, void *E,
                                   void *k_rho_i, void *k_m_x_i, void *k_m_y_i,
                                   void *k_m_z_i, void *k_E_i,
@@ -137,7 +137,7 @@ extern "C" {
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    euler_res_part_rk_sum_kernel<real>
+    compressible_res_part_rk_sum_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) rho, (real *) m_x, (real *) m_y,
                       (real *) m_z, (real *) E,
                       (real *) k_rho_i, (real *) k_m_x_i, (real *) k_m_y_i,

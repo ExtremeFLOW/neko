@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module euler_res_device
-  use euler_residual, only : euler_rhs_t
+module compressible_res_device
+  use compressible_residual, only : compressible_rhs_t
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
@@ -53,95 +53,95 @@ module euler_res_device
   use bc_list, only : bc_list_t
   use time_state, only : time_state_t
 
-  type, public, extends(euler_rhs_t) :: euler_res_device_t
+  type, public, extends(compressible_rhs_t) :: compressible_res_device_t
    contains
      procedure, nopass :: step => advance_primitive_variables_device
      procedure, nopass :: evaluate_rhs => evaluate_rhs_device
-  end type euler_res_device_t
+  end type compressible_res_device_t
 
   !> Whether physical Navier-Stokes fluxes are active for the current step.
-  logical :: euler_res_device_add_physical_flux = .false.
+  logical :: compressible_res_device_add_physical_flux = .false.
   !> Whether physical viscous stress is active for the current step.
-  logical :: euler_res_device_add_physical_stress = .false.
+  logical :: compressible_res_device_add_physical_stress = .false.
   !> Module variable to store thermodynamic parameter set by factory.
-  real(kind=rp), public :: euler_res_device_gamma = 1.4_rp
+  real(kind=rp), public :: compressible_res_device_gamma = 1.4_rp
 
 #ifdef HAVE_HIP
   interface
-     subroutine euler_res_part_visc_hip(rhs_field_d, Binv_d, field_d, &
+     subroutine compressible_res_part_visc_hip(rhs_field_d, Binv_d, field_d, &
           artificial_visc_d, n) &
-          bind(c, name = 'euler_res_part_visc_hip')
+          bind(c, name = 'compressible_res_part_visc_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: rhs_field_d, Binv_d, field_d, artificial_visc_d
        integer(c_int) :: n
-     end subroutine euler_res_part_visc_hip
+     end subroutine compressible_res_part_visc_hip
   end interface
 
   interface
-     subroutine euler_res_part_mx_flux_hip(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_mx_flux_hip(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_mx_flux_hip')
+          bind(c, name = 'inviscid_res_part_mx_flux_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_mx_flux_hip
+     end subroutine inviscid_res_part_mx_flux_hip
   end interface
 
   interface
-     subroutine euler_res_part_my_flux_hip(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_my_flux_hip(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_my_flux_hip')
+          bind(c, name = 'inviscid_res_part_my_flux_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_my_flux_hip
+     end subroutine inviscid_res_part_my_flux_hip
   end interface
 
   interface
-     subroutine euler_res_part_mz_flux_hip(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_mz_flux_hip(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_mz_flux_hip')
+          bind(c, name = 'inviscid_res_part_mz_flux_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_mz_flux_hip
+     end subroutine inviscid_res_part_mz_flux_hip
   end interface
 
   interface
-     subroutine euler_res_part_E_flux_hip(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_E_flux_hip(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, E, n) &
-          bind(c, name = 'euler_res_part_E_flux_hip')
+          bind(c, name = 'inviscid_res_part_E_flux_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E
        integer(c_int) :: n
-     end subroutine euler_res_part_E_flux_hip
+     end subroutine inviscid_res_part_E_flux_hip
   end interface
 
   interface
-     subroutine euler_res_part_coef_mult_hip(rhs_rho_field_d, rhs_m_x_d, &
+     subroutine compressible_res_part_coef_mult_hip(rhs_rho_field_d, rhs_m_x_d, &
           rhs_m_y_d, rhs_m_z_d, &
           rhs_E_d, mult_d, n) &
-          bind(c, name = 'euler_res_part_coef_mult_hip')
+          bind(c, name = 'compressible_res_part_coef_mult_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: rhs_rho_field_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
             rhs_E_d, mult_d
        integer(c_int) :: n
-     end subroutine euler_res_part_coef_mult_hip
+     end subroutine compressible_res_part_coef_mult_hip
   end interface
 
   interface
-     subroutine euler_res_part_rk_sum_hip(rho, m_x, m_y, m_z, E, &
+     subroutine compressible_res_part_rk_sum_hip(rho, m_x, m_y, m_z, E, &
           k_rho_i, k_m_x_i, k_m_y_i, &
           k_m_z_i, k_E_i, &
           dt, b_i, n) &
-          bind(c, name = 'euler_res_part_rk_sum_hip')
+          bind(c, name = 'compressible_res_part_rk_sum_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -150,84 +150,84 @@ module euler_res_device
             k_m_z_i, k_E_i
        real(c_rp) :: dt, b_i
        integer(c_int) :: n
-     end subroutine euler_res_part_rk_sum_hip
+     end subroutine compressible_res_part_rk_sum_hip
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine euler_res_part_visc_cuda(rhs_field_d, Binv_d, field_d, &
+     subroutine compressible_res_part_visc_cuda(rhs_field_d, Binv_d, field_d, &
           artificial_visc_d, n) &
-          bind(c, name = 'euler_res_part_visc_cuda')
+          bind(c, name = 'compressible_res_part_visc_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: rhs_field_d, Binv_d, field_d, artificial_visc_d
        integer(c_int) :: n
-     end subroutine euler_res_part_visc_cuda
+     end subroutine compressible_res_part_visc_cuda
   end interface
 
   interface
-     subroutine euler_res_part_mx_flux_cuda(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_mx_flux_cuda(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_mx_flux_cuda')
+          bind(c, name = 'inviscid_res_part_mx_flux_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_mx_flux_cuda
+     end subroutine inviscid_res_part_mx_flux_cuda
   end interface
 
   interface
-     subroutine euler_res_part_my_flux_cuda(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_my_flux_cuda(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_my_flux_cuda')
+          bind(c, name = 'inviscid_res_part_my_flux_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_my_flux_cuda
+     end subroutine inviscid_res_part_my_flux_cuda
   end interface
 
   interface
-     subroutine euler_res_part_mz_flux_cuda(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_mz_flux_cuda(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_mz_flux_cuda')
+          bind(c, name = 'inviscid_res_part_mz_flux_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_mz_flux_cuda
+     end subroutine inviscid_res_part_mz_flux_cuda
   end interface
 
   interface
-     subroutine euler_res_part_E_flux_cuda(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_E_flux_cuda(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, E, n) &
-          bind(c, name = 'euler_res_part_E_flux_cuda')
+          bind(c, name = 'inviscid_res_part_E_flux_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E
        integer(c_int) :: n
-     end subroutine euler_res_part_E_flux_cuda
+     end subroutine inviscid_res_part_E_flux_cuda
   end interface
 
   interface
-     subroutine euler_res_part_coef_mult_cuda(rhs_rho_field_d, &
+     subroutine compressible_res_part_coef_mult_cuda(rhs_rho_field_d, &
           rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
           rhs_E_d, mult_d, n) &
-          bind(c, name = 'euler_res_part_coef_mult_cuda')
+          bind(c, name = 'compressible_res_part_coef_mult_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: rhs_rho_field_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
             rhs_E_d, mult_d
        integer(c_int) :: n
-     end subroutine euler_res_part_coef_mult_cuda
+     end subroutine compressible_res_part_coef_mult_cuda
   end interface
 
   interface
-     subroutine euler_res_part_rk_sum_cuda(rho, m_x, m_y, m_z, E, &
+     subroutine compressible_res_part_rk_sum_cuda(rho, m_x, m_y, m_z, E, &
           k_rho_i, k_m_x_i, k_m_y_i, &
           k_m_z_i, k_E_i, &
           dt, c, n) &
-          bind(c, name = 'euler_res_part_rk_sum_cuda')
+          bind(c, name = 'compressible_res_part_rk_sum_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -236,84 +236,84 @@ module euler_res_device
             k_m_z_i, k_E_i
        real(c_rp) :: dt, c
        integer(c_int) :: n
-     end subroutine euler_res_part_rk_sum_cuda
+     end subroutine compressible_res_part_rk_sum_cuda
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine euler_res_part_visc_opencl(rhs_field_d, Binv_d, field_d, &
+     subroutine compressible_res_part_visc_opencl(rhs_field_d, Binv_d, field_d, &
           artificial_visc_d, n) &
-          bind(c, name = 'euler_res_part_visc_opencl')
+          bind(c, name = 'compressible_res_part_visc_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: rhs_field_d, Binv_d, field_d, artificial_visc_d
        integer(c_int) :: n
-     end subroutine euler_res_part_visc_opencl
+     end subroutine compressible_res_part_visc_opencl
   end interface
 
   interface
-     subroutine euler_res_part_mx_flux_opencl(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_mx_flux_opencl(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_mx_flux_opencl')
+          bind(c, name = 'inviscid_res_part_mx_flux_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_mx_flux_opencl
+     end subroutine inviscid_res_part_mx_flux_opencl
   end interface
 
   interface
-     subroutine euler_res_part_my_flux_opencl(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_my_flux_opencl(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_my_flux_opencl')
+          bind(c, name = 'inviscid_res_part_my_flux_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_my_flux_opencl
+     end subroutine inviscid_res_part_my_flux_opencl
   end interface
 
   interface
-     subroutine euler_res_part_mz_flux_opencl(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_mz_flux_opencl(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_mz_flux_opencl')
+          bind(c, name = 'inviscid_res_part_mz_flux_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_mz_flux_opencl
+     end subroutine inviscid_res_part_mz_flux_opencl
   end interface
 
   interface
-     subroutine euler_res_part_E_flux_opencl(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_E_flux_opencl(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, E, n) &
-          bind(c, name = 'euler_res_part_E_flux_opencl')
+          bind(c, name = 'inviscid_res_part_E_flux_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E
        integer(c_int) :: n
-     end subroutine euler_res_part_E_flux_opencl
+     end subroutine inviscid_res_part_E_flux_opencl
   end interface
 
   interface
-     subroutine euler_res_part_coef_mult_opencl(rhs_rho_field_d, &
+     subroutine compressible_res_part_coef_mult_opencl(rhs_rho_field_d, &
           rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
           rhs_E_d, mult_d, n) &
-          bind(c, name = 'euler_res_part_coef_mult_opencl')
+          bind(c, name = 'compressible_res_part_coef_mult_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: rhs_rho_field_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
             rhs_E_d, mult_d
        integer(c_int) :: n
-     end subroutine euler_res_part_coef_mult_opencl
+     end subroutine compressible_res_part_coef_mult_opencl
   end interface
 
   interface
-     subroutine euler_res_part_rk_sum_opencl(rho, m_x, m_y, m_z, E, &
+     subroutine compressible_res_part_rk_sum_opencl(rho, m_x, m_y, m_z, E, &
           k_rho_i, k_m_x_i, k_m_y_i, &
           k_m_z_i, k_E_i, &
           dt, c, n) &
-          bind(c, name = 'euler_res_part_rk_sum_opencl')
+          bind(c, name = 'compressible_res_part_rk_sum_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -322,84 +322,84 @@ module euler_res_device
             k_m_z_i, k_E_i
        real(c_rp) :: dt, c
        integer(c_int) :: n
-     end subroutine euler_res_part_rk_sum_opencl
+     end subroutine compressible_res_part_rk_sum_opencl
   end interface
 #elif HAVE_METAL
   interface
-     subroutine euler_res_part_visc_metal(rhs_field_d, Binv_d, field_d, &
+     subroutine compressible_res_part_visc_metal(rhs_field_d, Binv_d, field_d, &
           effective_visc_d, n) &
-          bind(c, name = 'euler_res_part_visc_metal')
+          bind(c, name = 'compressible_res_part_visc_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: rhs_field_d, Binv_d, field_d, effective_visc_d
        integer(c_int) :: n
-     end subroutine euler_res_part_visc_metal
+     end subroutine compressible_res_part_visc_metal
   end interface
 
   interface
-     subroutine euler_res_part_mx_flux_metal(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_mx_flux_metal(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_mx_flux_metal')
+          bind(c, name = 'inviscid_res_part_mx_flux_metal')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_mx_flux_metal
+     end subroutine inviscid_res_part_mx_flux_metal
   end interface
 
   interface
-     subroutine euler_res_part_my_flux_metal(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_my_flux_metal(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_my_flux_metal')
+          bind(c, name = 'inviscid_res_part_my_flux_metal')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_my_flux_metal
+     end subroutine inviscid_res_part_my_flux_metal
   end interface
 
   interface
-     subroutine euler_res_part_mz_flux_metal(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_mz_flux_metal(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, n) &
-          bind(c, name = 'euler_res_part_mz_flux_metal')
+          bind(c, name = 'inviscid_res_part_mz_flux_metal')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
        integer(c_int) :: n
-     end subroutine euler_res_part_mz_flux_metal
+     end subroutine inviscid_res_part_mz_flux_metal
   end interface
 
   interface
-     subroutine euler_res_part_E_flux_metal(f_x, f_y, f_z, &
+     subroutine inviscid_res_part_E_flux_metal(f_x, f_y, f_z, &
           m_x, m_y, m_z, rho_field, p, E, n) &
-          bind(c, name = 'euler_res_part_E_flux_metal')
+          bind(c, name = 'inviscid_res_part_E_flux_metal')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E
        integer(c_int) :: n
-     end subroutine euler_res_part_E_flux_metal
+     end subroutine inviscid_res_part_E_flux_metal
   end interface
 
   interface
-     subroutine euler_res_part_coef_mult_metal(rhs_rho_field_d, &
+     subroutine compressible_res_part_coef_mult_metal(rhs_rho_field_d, &
           rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
           rhs_E_d, mult_d, n) &
-          bind(c, name = 'euler_res_part_coef_mult_metal')
+          bind(c, name = 'compressible_res_part_coef_mult_metal')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: rhs_rho_field_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
             rhs_E_d, mult_d
        integer(c_int) :: n
-     end subroutine euler_res_part_coef_mult_metal
+     end subroutine compressible_res_part_coef_mult_metal
   end interface
 
   interface
-     subroutine euler_res_part_rk_sum_metal(rho, m_x, m_y, m_z, E, &
+     subroutine compressible_res_part_rk_sum_metal(rho, m_x, m_y, m_z, E, &
           k_rho_i, k_m_x_i, k_m_y_i, &
           k_m_z_i, k_E_i, &
           dt, c, n) &
-          bind(c, name = 'euler_res_part_rk_sum_metal')
+          bind(c, name = 'compressible_res_part_rk_sum_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -408,7 +408,7 @@ module euler_res_device
             k_m_z_i, k_E_i
        real(c_rp) :: dt, c
        integer(c_int) :: n
-     end subroutine euler_res_part_rk_sum_metal
+     end subroutine compressible_res_part_rk_sum_metal
   end interface
 #endif
 
@@ -502,9 +502,9 @@ contains
     call k_E%assign(3, k_E_3)
     call k_E%assign(4, k_E_4)
 
-    euler_res_device_add_physical_flux = &
+    compressible_res_device_add_physical_flux = &
          any(mu%x .ne. 0.0_rp) .or. any(kappa%x .ne. 0.0_rp)
-    euler_res_device_add_physical_stress = any(mu%x .ne. 0.0_rp)
+    compressible_res_device_add_physical_stress = any(mu%x .ne. 0.0_rp)
 
     ! Runge-Kutta stages
     do i = 1, s
@@ -516,28 +516,28 @@ contains
 
        do j = 1, i-1
 #ifdef HAVE_HIP
-          call euler_res_part_rk_sum_hip(temp_rho%x_d, temp_m_x%x_d, &
+          call compressible_res_part_rk_sum_hip(temp_rho%x_d, temp_m_x%x_d, &
                temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
                k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
                k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_CUDA
-          call euler_res_part_rk_sum_cuda(temp_rho%x_d, temp_m_x%x_d, &
+          call compressible_res_part_rk_sum_cuda(temp_rho%x_d, temp_m_x%x_d, &
                temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
                k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
                k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_OPENCL
-          call euler_res_part_rk_sum_opencl(temp_rho%x_d, temp_m_x%x_d, &
+          call compressible_res_part_rk_sum_opencl(temp_rho%x_d, temp_m_x%x_d, &
                temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
                k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
                k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_METAL
-          call euler_res_part_rk_sum_metal(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
+          call compressible_res_part_rk_sum_metal(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
                temp_m_z%x_d, temp_E%x_d, &
                k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
@@ -549,14 +549,14 @@ contains
        call compressible_ops_device_update_uvw(temp_u%x_d, temp_v%x_d, &
             temp_w%x_d, temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, &
             temp_rho%x_d, n)
-       if (euler_res_device_add_physical_stress) then
+       if (compressible_res_device_add_physical_stress) then
           call bcs_vel%apply_vector(temp_u%x, temp_v%x, temp_w%x, n, time, &
                strong = .true.)
        end if
        call compressible_ops_device_update_mxyz_p_ruvw(temp_m_x%x_d, &
             temp_m_y%x_d, temp_m_z%x_d, temp_p%x_d, temp_ruvw%x_d, &
             temp_u%x_d, temp_v%x_d, temp_w%x_d, temp_E%x_d, &
-            temp_rho%x_d, euler_res_device_gamma, n)
+            temp_rho%x_d, compressible_res_device_gamma, n)
 
        call evaluate_rhs_device(k_rho%items(i)%ptr, k_m_x%items(i)%ptr, &
             k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, k_E%items(i)%ptr, &
@@ -568,28 +568,28 @@ contains
     ! Update the solution
     do i = 1, s
 #ifdef HAVE_HIP
-       call euler_res_part_rk_sum_hip(rho_field%x_d, &
+       call compressible_res_part_rk_sum_hip(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
             k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
             k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_CUDA
-       call euler_res_part_rk_sum_cuda(rho_field%x_d, &
+       call compressible_res_part_rk_sum_cuda(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
             k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
             k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_OPENCL
-       call euler_res_part_rk_sum_opencl(rho_field%x_d, &
+       call compressible_res_part_rk_sum_opencl(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
             k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
             k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_METAL
-       call euler_res_part_rk_sum_metal(rho_field%x_d, &
+       call compressible_res_part_rk_sum_metal(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
             k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
@@ -627,53 +627,53 @@ contains
     !> m = m - dt * div(rho * u * u^T + p*I)
     ! m_x
 #ifdef HAVE_HIP
-    call euler_res_part_mx_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_mx_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #elif HAVE_CUDA
-    call euler_res_part_mx_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_mx_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
-    call euler_res_part_mx_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_mx_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #elif HAVE_METAL
-    call euler_res_part_mx_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_mx_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_y
 #ifdef HAVE_HIP
-    call euler_res_part_my_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_my_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #elif HAVE_CUDA
-    call euler_res_part_my_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_my_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
-    call euler_res_part_my_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_my_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #elif HAVE_METAL
-    call euler_res_part_my_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_my_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_z
 #ifdef HAVE_HIP
-    call euler_res_part_mz_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_mz_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #elif HAVE_CUDA
-    call euler_res_part_mz_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_mz_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
-    call euler_res_part_mz_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_mz_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #elif HAVE_METAL
-    call euler_res_part_mz_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_mz_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #endif
@@ -683,19 +683,19 @@ contains
     ! Inviscid energy flux for both NS and monolithic paths.
     ! Viscous energy diffusion is handled entirely by Ax(E) below.
 #ifdef HAVE_HIP
-    call euler_res_part_E_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_E_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, E%x_d, n)
 #elif HAVE_CUDA
-    call euler_res_part_E_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_E_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, E%x_d, n)
 #elif HAVE_OPENCL
-    call euler_res_part_E_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_E_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, E%x_d, n)
 #elif HAVE_METAL
-    call euler_res_part_E_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
+    call inviscid_res_part_E_flux_metal(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, E%x_d, n)
 #endif
@@ -708,19 +708,19 @@ contains
     call gs%op(rhs_E, GS_OP_ADD)
 
 #ifdef HAVE_HIP
-    call euler_res_part_coef_mult_hip(rhs_rho_field%x_d, rhs_m_x%x_d, &
+    call compressible_res_part_coef_mult_hip(rhs_rho_field%x_d, rhs_m_x%x_d, &
          rhs_m_y%x_d, rhs_m_z%x_d, &
          rhs_E%x_d, coef%mult_d, n)
 #elif HAVE_CUDA
-    call euler_res_part_coef_mult_cuda(rhs_rho_field%x_d, rhs_m_x%x_d, &
+    call compressible_res_part_coef_mult_cuda(rhs_rho_field%x_d, rhs_m_x%x_d, &
          rhs_m_y%x_d, rhs_m_z%x_d, &
          rhs_E%x_d, coef%mult_d, n)
 #elif HAVE_OPENCL
-    call euler_res_part_coef_mult_opencl(rhs_rho_field%x_d, rhs_m_x%x_d, &
+    call compressible_res_part_coef_mult_opencl(rhs_rho_field%x_d, rhs_m_x%x_d, &
          rhs_m_y%x_d, rhs_m_z%x_d, &
          rhs_E%x_d, coef%mult_d, n)
 #elif HAVE_METAL
-    call euler_res_part_coef_mult_metal(rhs_rho_field%x_d, rhs_m_x%x_d, &
+    call compressible_res_part_coef_mult_metal(rhs_rho_field%x_d, rhs_m_x%x_d, &
          rhs_m_y%x_d, rhs_m_z%x_d, &
          rhs_E%x_d, coef%mult_d, n)
 #endif
@@ -747,7 +747,7 @@ contains
     call device_copy(coef%h1_d, artificial_visc%x_d, n)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
-    if (euler_res_device_add_physical_flux) then
+    if (compressible_res_device_add_physical_flux) then
        call add_navier_stokes_flux_device(visc_m_x, visc_m_y, visc_m_z, &
             visc_E, rho_field, p, u, v, w, mu, kappa, Ax, Ax_stress, coef)
     end if
@@ -852,7 +852,7 @@ contains
          coef%B_d, dissipation%x_d, n)
 
     call compressible_ops_device_ns_flux_temperature(div_flux%x_d, coef%h1_d, &
-         p%x_d, rho_field%x_d, kappa%x_d, euler_res_device_gamma, n)
+         p%x_d, rho_field%x_d, kappa%x_d, compressible_res_device_gamma, n)
     call Ax%compute(dudx%x, div_flux%x, coef, p%msh, p%Xh)
     call device_add2(visc_E%x_d, dudx%x_d, n)
 
@@ -860,4 +860,4 @@ contains
 
   end subroutine add_navier_stokes_flux_device
 
-end module euler_res_device
+end module compressible_res_device

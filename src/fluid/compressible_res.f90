@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 
-module euler_residual
+module compressible_residual
   use gather_scatter, only : gs_t
   use ax_product, only : Ax_t
   use field, only : field_t
@@ -43,15 +43,15 @@ module euler_residual
   private
 
   !> Abstract type to compute rhs
-  type, public, abstract :: euler_rhs_t
+  type, public, abstract :: compressible_rhs_t
      real(kind=rp) :: gamma = 1.4_rp
    contains
-     procedure(euler_rhs), nopass, deferred :: step
-  end type euler_rhs_t
+     procedure(compressible_rhs), nopass, deferred :: step
+  end type compressible_rhs_t
 
   !> Abstract interface to evaluate rhs
   abstract interface
-     subroutine euler_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
+     subroutine compressible_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
           Ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, &
           rk_scheme, dt)
        import field_t
@@ -71,17 +71,17 @@ module euler_residual
        type(time_state_t), intent(in) :: time
        class(runge_kutta_time_scheme_t), intent(in) :: rk_scheme
        real(kind=rp), intent(in) :: dt
-     end subroutine euler_rhs
+     end subroutine compressible_rhs
   end interface
 
   !> Abstract interface to choose bcknd for rhs evaluation
   interface
-     module subroutine euler_rhs_factory(object, gamma)
-       class(euler_rhs_t), allocatable, intent(inout) :: object
+     module subroutine compressible_rhs_factory(object, gamma)
+       class(compressible_rhs_t), allocatable, intent(inout) :: object
        real(kind=rp), intent(in) :: gamma
-     end subroutine euler_rhs_factory
+     end subroutine compressible_rhs_factory
   end interface
 
-  public :: euler_rhs_factory
+  public :: compressible_rhs_factory
 
-end module euler_residual
+end module compressible_residual

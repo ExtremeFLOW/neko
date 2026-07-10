@@ -30,24 +30,23 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines Pressure residual factory for the Pn-Pn formulation
-submodule (euler_residual) euler_res_fctry
+!> Defines compressible residual factory.
+submodule (compressible_residual) compressible_res_fctry
   use neko_config, only : NEKO_BCKND_DEVICE
-  use euler_res_cpu, only : euler_res_cpu_t, &
-       euler_res_cpu_gamma
-  use euler_res_device, only : euler_res_device_t, &
-       euler_res_device_gamma
+  use compressible_res_cpu, only : compressible_res_cpu_t, &
+       compressible_res_cpu_gamma
+  use compressible_res_device, only : compressible_res_device_t, &
+       compressible_res_device_gamma
   implicit none
 
 contains
 
-  !> Factory for the pressure residual computation routine for the PnPn fluid
-  !! scheme with the constant-viscosity stress formulation.
+  !> Factory for the compressible residual computation routine.
   !! @details Only selects the compute backend.
   !! @param object The object to be allocated by the factory.
   !! @param gamma Ratio of specific heats
-  module subroutine euler_rhs_factory(object, gamma)
-    class(euler_rhs_t), allocatable, intent(inout) :: object
+  module subroutine compressible_rhs_factory(object, gamma)
+    class(compressible_rhs_t), allocatable, intent(inout) :: object
     real(kind=rp), intent(in) :: gamma
 
     if (allocated(object)) then
@@ -56,9 +55,9 @@ contains
 
     !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       allocate(euler_res_device_t::object)
+       allocate(compressible_res_device_t::object)
     else
-       allocate(euler_res_cpu_t::object)
+       allocate(compressible_res_cpu_t::object)
     end if
 
     ! Set gamma in the object
@@ -66,11 +65,11 @@ contains
 
     ! Sync module-level variables for CPU/GPU backends
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       euler_res_device_gamma = gamma
+       compressible_res_device_gamma = gamma
     else
-       euler_res_cpu_gamma = gamma
+       compressible_res_cpu_gamma = gamma
     end if
 
-  end subroutine euler_rhs_factory
+  end subroutine compressible_rhs_factory
 
-end submodule euler_res_fctry
+end submodule compressible_res_fctry

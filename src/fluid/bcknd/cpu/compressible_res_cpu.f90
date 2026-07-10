@@ -30,12 +30,12 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> This implements CPU-based residual calculations for the Euler equations.
+!> This implements CPU-based residual calculations for the compressible equations.
 !! It handles the time advancement of primitive variables using
 !! Runge-Kutta methods and evaluates the right-hand side terms of the
-!! Euler equations including artificial viscosity.
-module euler_res_cpu
-  use euler_residual, only : euler_rhs_t
+!! compressible equations including artificial viscosity.
+module compressible_res_cpu
+  use compressible_residual, only : compressible_rhs_t
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
@@ -53,18 +53,18 @@ module euler_res_cpu
   implicit none
   private
 
-  type, public, extends(euler_rhs_t) :: euler_res_cpu_t
+  type, public, extends(compressible_rhs_t) :: compressible_res_cpu_t
    contains
      procedure, nopass :: step => advance_primitive_variables_cpu
      procedure, nopass :: evaluate_rhs => evaluate_rhs_cpu
-  end type euler_res_cpu_t
+  end type compressible_res_cpu_t
 
   !> Whether physical Navier-Stokes fluxes are active for the current step.
-  logical :: euler_res_cpu_add_physical_flux = .false.
+  logical :: compressible_res_cpu_add_physical_flux = .false.
   !> Whether physical viscous stress is active for the current step.
-  logical :: euler_res_cpu_add_physical_stress = .false.
+  logical :: compressible_res_cpu_add_physical_stress = .false.
   !> Module variable to store thermodynamic parameter set by factory.
-  real(kind=rp), public :: euler_res_cpu_gamma = 1.4_rp
+  real(kind=rp), public :: compressible_res_cpu_gamma = 1.4_rp
 
 
 contains
@@ -178,9 +178,9 @@ contains
     call k_E%assign(3, k_E_3)
     call k_E%assign(4, k_E_4)
 
-    euler_res_cpu_add_physical_flux = &
+    compressible_res_cpu_add_physical_flux = &
          any(mu%x .ne. 0.0_rp) .or. any(kappa%x .ne. 0.0_rp)
-    euler_res_cpu_add_physical_stress = any(mu%x .ne. 0.0_rp)
+    compressible_res_cpu_add_physical_stress = any(mu%x .ne. 0.0_rp)
 
     ! Loop over Runge-Kutta stages. One parallel region per stage covers
     ! both the initial copy and all (i-1) accumulation sweeps.
@@ -238,13 +238,13 @@ contains
        ! Evaluate RHS terms using primitive variables from the RK stage state.
        call compressible_ops_cpu_update_uvw(temp_u%x, temp_v%x, temp_w%x, &
             temp_m_x%x, temp_m_y%x, temp_m_z%x, temp_rho%x, n)
-       if (euler_res_cpu_add_physical_stress) then
+       if (compressible_res_cpu_add_physical_stress) then
           call bcs_vel%apply_vector(temp_u%x, temp_v%x, temp_w%x, n, time, &
                strong = .true.)
        end if
        call compressible_ops_cpu_update_mxyz_p_ruvw(temp_m_x%x, temp_m_y%x, &
             temp_m_z%x, temp_p%x, temp_ruvw%x, temp_u%x, temp_v%x, temp_w%x, &
-            temp_E%x, temp_rho%x, euler_res_cpu_gamma, n)
+            temp_E%x, temp_rho%x, compressible_res_cpu_gamma, n)
 
        call evaluate_rhs_cpu(k_rho%items(i)%ptr, k_m_x%items(i)%ptr, &
             k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, &
@@ -463,7 +463,7 @@ contains
     end do
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
-    if (euler_res_cpu_add_physical_flux) then
+    if (compressible_res_cpu_add_physical_flux) then
        call add_navier_stokes_flux_cpu(visc_m_x, visc_m_y, visc_m_z, visc_E, &
             rho_field, p, u, v, w, mu, kappa, Ax, Ax_stress, coef)
     end if
@@ -611,7 +611,7 @@ contains
        visc_E%x(i,1,1,1) = visc_E%x(i,1,1,1) &
             - coef%B(i,1,1,1) * dissipation%x(i,1,1,1)
        div_flux%x(i,1,1,1) = p%x(i,1,1,1) / &
-            (rho_field%x(i,1,1,1) * (euler_res_cpu_gamma - 1.0_rp))
+            (rho_field%x(i,1,1,1) * (compressible_res_cpu_gamma - 1.0_rp))
     end do
     do concurrent (i = 1:n)
        coef%h1(i,1,1,1) = kappa%x(i,1,1,1)
@@ -625,4 +625,4 @@ contains
 
   end subroutine add_navier_stokes_flux_cpu
 
-end module euler_res_cpu
+end module compressible_res_cpu

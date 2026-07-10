@@ -36,7 +36,7 @@
 #define __FLUID_EULER_RES_KERNEL__
 
 __kernel 
-void euler_res_part_visc_kernel(__global real * __restrict__ rhs,
+void compressible_res_part_visc_kernel(__global real * __restrict__ rhs,
                                 __global const real * __restrict__ Binv,
                                 __global const real * __restrict__ lap_sol,
                                 __global const real * __restrict__ effective_visc,
@@ -51,7 +51,7 @@ void euler_res_part_visc_kernel(__global real * __restrict__ rhs,
 }
 
 __kernel
-void euler_res_part_mx_flux_kernel(__global real * __restrict__ f_x,
+void inviscid_res_part_mx_flux_kernel(__global real * __restrict__ f_x,
                                    __global real * __restrict__ f_y,
                                    __global real * __restrict__ f_z,
                                    __global const real * __restrict__ m_x,
@@ -72,7 +72,7 @@ void euler_res_part_mx_flux_kernel(__global real * __restrict__ f_x,
 }
 
 __kernel
-void euler_res_part_my_flux_kernel(__global real * __restrict__ f_x,
+void inviscid_res_part_my_flux_kernel(__global real * __restrict__ f_x,
                                    __global real * __restrict__ f_y,
                                    __global real * __restrict__ f_z,
                                    __global const real * __restrict__ m_x,
@@ -93,7 +93,7 @@ void euler_res_part_my_flux_kernel(__global real * __restrict__ f_x,
 }
 
 __kernel
-void euler_res_part_mz_flux_kernel(__global real * __restrict__ f_x,
+void inviscid_res_part_mz_flux_kernel(__global real * __restrict__ f_x,
                                    __global real * __restrict__ f_y,
                                    __global real * __restrict__ f_z,
                                    __global const real * __restrict__ m_x,
@@ -114,7 +114,7 @@ void euler_res_part_mz_flux_kernel(__global real * __restrict__ f_x,
 }
 
 __kernel
-void euler_res_part_E_flux_kernel(__global real * __restrict__ f_x,
+void inviscid_res_part_E_flux_kernel(__global real * __restrict__ f_x,
                                   __global real * __restrict__ f_y,
                                   __global real * __restrict__ f_z,
                                   __global const real * __restrict__ m_x,
@@ -136,7 +136,7 @@ void euler_res_part_E_flux_kernel(__global real * __restrict__ f_x,
 }
 
 __kernel
-void euler_res_part_coef_mult_kernel(__global real * __restrict__ rhs_rho,
+void compressible_res_part_coef_mult_kernel(__global real * __restrict__ rhs_rho,
                                      __global real * __restrict__ rhs_m_x,
                                      __global real * __restrict__ rhs_m_y,
                                      __global real * __restrict__ rhs_m_z,
@@ -157,7 +157,7 @@ void euler_res_part_coef_mult_kernel(__global real * __restrict__ rhs_rho,
 }
 
 __kernel
-void euler_res_part_rk_sum_kernel(__global real * __restrict__ rho,
+void compressible_res_part_rk_sum_kernel(__global real * __restrict__ rho,
                                   __global real * __restrict__ m_x,
                                   __global real * __restrict__ m_y,
                                   __global real * __restrict__ m_z,
