@@ -126,6 +126,8 @@ contains
             start_time, hom_dir, nut_field)
     end if
 
+    nullify(u, v, w, coef)
+
   end subroutine fluid_sgs_stats_simcomp_init_from_json
 
   !> Actual constructor.
@@ -202,7 +204,8 @@ contains
     if (t .gt. this%time) this%time = t
     if (this%default_fname) then
        fname = this%stats_output%file_%get_base_fname()
-       write (prefix, '(I5)') this%stats_output%file_%get_counter()
+       write (prefix, '(I5)') &
+            this%stats_output%file_%file_type%get_start_counter()
        call filename_suffix(fname, suffix)
        last_slash_pos = &
             filename_tslash_pos(fname)

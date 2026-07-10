@@ -63,19 +63,19 @@ module field_math
   use field, only : field_t
   use mask, only : mask_t
   use device, only : device_get_ptr
-  use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, add2, &
+  use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
        add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, &
        col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glmax, glmin, &
        glsc2, glsc3, masked_gather_copy, masked_gather_copy_0, &
        masked_scatter_copy_0, glsubnorm, invcol3, pwmax2, pwmax3, cpwmax2, &
-       cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3
-  use device_math, only : device_rzero, device_rone, device_copy, device_cmult, &
+       cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, add2
+  use device_math, only : device_rzero, device_rone, device_copy, &
        device_cadd, device_cfill, device_invcol1, device_vdot3, device_add2, &
        device_add3, device_add4, device_sub2, device_sub3, device_add2s1, &
        device_add2s2, device_addsqr2s2, device_cmult2, device_invcol2, &
        device_col2, device_col3, device_subcol3, device_add3s2, &
        device_addcol3, device_addcol4, device_glsum, device_glsc2, &
-       device_glmax, device_glmin, &
+       device_glmax, device_glmin, device_cmult, &
        device_glsc3, device_masked_gather_copy_0, device_masked_scatter_copy_0,&
        device_masked_gather_copy_aligned, &
        device_glsubnorm, device_invcol3, device_pwmax2, device_pwmax3, &

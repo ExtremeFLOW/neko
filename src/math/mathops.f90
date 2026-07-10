@@ -58,8 +58,10 @@
 ! not be used for advertising or product endorsement purposes.
 !
 
- !> Collection of vector field operations operating on \f$ a_i \f$ and \f$b_i\f$.
- !! Note that in general the indices \f$i=1 \ldots gdim\f$ and \f$j=1 \ldots n\f$.
+ !> Collection of vector field operations operating on \f$ a_i \f$
+ !! and \f$b_i\f$.
+ !! Note that in general the indices \f$i=1 \ldots gdim\f$ and
+ !! \f$j=1 \ldots n\f$.
  !! \f$gdim\f$ is assumed to be either 2 or 3 only.
 
 module mathops
@@ -78,16 +80,20 @@ contains
     integer :: i
 
     if (gdim .eq. 3) then
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = -a1(i)
           a2(i) = -a2(i)
           a3(i) = -a3(i)
        end do
+       !$omp end parallel do
     else
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = -a1(i)
           a2(i) = -a2(i)
        end do
+       !$omp end parallel do
     end if
 
   end subroutine opchsign
@@ -100,16 +106,20 @@ contains
     integer :: i
 
     if (gdim .eq. 3) then
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = a1(i)*c(i)
           a2(i) = a2(i)*c(i)
           a3(i) = a3(i)*c(i)
        end do
+       !$omp end parallel do
     else
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1,n
           a1(i) = a1(i)*c(i)
           a2(i) = a2(i)*c(i)
        end do
+       !$omp end parallel do
     end if
 
   end subroutine opcolv
@@ -123,16 +133,20 @@ contains
     integer :: i
 
     if (gdim .eq. 3) then
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = b1(i)*c(i)*d
           a2(i) = b2(i)*c(i)*d
           a3(i) = b3(i)*c(i)*d
        end do
+       !$omp end parallel do
     else
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = b1(i)*c(i)*d
           a2(i) = b2(i)*c(i)*d
        end do
+       !$omp end parallel do
     end if
 
   end subroutine opcolv3c
@@ -146,16 +160,20 @@ contains
     integer :: i
 
     if (gdim .eq. 3) then
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = a1(i) + b1(i)*c
           a2(i) = a2(i) + b2(i)*c
           a3(i) = a3(i) + b3(i)*c
        end do
+       !$omp end parallel do
     else
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = a1(i) + b1(i)*c
           a2(i) = a2(i) + b2(i)*c
        end do
+       !$omp end parallel do
     end if
 
   end subroutine opadd2cm
@@ -169,16 +187,20 @@ contains
     integer :: i
 
     if (gdim .eq. 3) then
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = a1(i) + b1(i)*c(i)
           a2(i) = a2(i) + b2(i)*c(i)
           a3(i) = a3(i) + b3(i)*c(i)
        end do
+       !$omp end parallel do
     else
-       do concurrent (i = 1:n)
+       !$omp parallel do
+       do i = 1, n
           a1(i) = a1(i) + b1(i)*c(i)
           a2(i) = a2(i) + b2(i)*c(i)
        end do
+       !$omp end parallel do
     end if
 
   end subroutine opadd2col

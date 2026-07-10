@@ -31,8 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_symmetry
-  use num_types
-  use utils
+  use num_types, only : c_rp
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -40,7 +40,7 @@ module device_symmetry
   interface
      subroutine hip_symmetry_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='hip_symmetry_apply_vector')
+          bind(c, name = 'hip_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
@@ -51,7 +51,7 @@ module device_symmetry
   interface
      subroutine cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='cuda_symmetry_apply_vector')
+          bind(c, name = 'cuda_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
@@ -62,12 +62,23 @@ module device_symmetry
   interface
      subroutine opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name='opencl_symmetry_apply_vector')
+          bind(c, name = 'opencl_symmetry_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
        type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
      end subroutine opencl_symmetry_apply_vector
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+          x, y, z, m, n, l, strm) &
+          bind(c, name = 'metal_symmetry_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, l
+       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
+     end subroutine metal_symmetry_apply_vector
   end interface
 #endif
 
@@ -84,6 +95,8 @@ contains
     call cuda_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
 #elif HAVE_OPENCL
     call opencl_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
+#elif HAVE_METAL
+    call metal_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l, strm)
 #else
     call neko_error('No device backend configured')
 #endif

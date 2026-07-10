@@ -95,7 +95,7 @@ contains
 
     ! The strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
-         u_e, v_e, w_e, c_Xh)
+         u_e%x, v_e%x, w_e%x, c_Xh)
 
 
     ! Gradient of viscosity * 2
@@ -143,9 +143,7 @@ contains
     end do
 
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
-    call gs_Xh%op(ta1, GS_OP_ADD)
-    call gs_Xh%op(ta2, GS_OP_ADD)
-    call gs_Xh%op(ta3, GS_OP_ADD)
+    call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 
     do i = 1, n

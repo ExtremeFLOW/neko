@@ -69,6 +69,7 @@ void opencl_kernel_jit(const char *kernel, cl_program *program)
                           CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
 
     fprintf(stderr, "%s\n", log);
+    free(log);
 
   }
   

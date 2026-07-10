@@ -230,4 +230,30 @@ extern "C" {
     }
   }
 
+  /**
+   * Fortran wrapper for retrieving facet normals.
+   */
+  void cuda_coef_get_normal(void *normal_x, void *normal_y, void *normal_z,
+                            void *nx, void *ny, void *nz,
+                            void *i_idx, void *j_idx, void *k_idx,
+                            void *e_idx, void *facet, int *lx, int *n) {
+
+    if (*n <= 0) {
+      return;
+    }
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    coef_get_normal_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>
+      ((real *) normal_x, (real *) normal_y, (real *) normal_z,
+       (real *) nx, (real *) ny, (real *) nz,
+       (int *) i_idx, (int *) j_idx, (int *) k_idx,
+       (int *) e_idx, (int *) facet, *lx, *n);
+
+    CUDA_CHECK(cudaGetLastError());
+  }
+
 }

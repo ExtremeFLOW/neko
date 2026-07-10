@@ -52,7 +52,7 @@ module most
   use math, only: masked_gather_copy_0
   use device_math, only: device_masked_gather_copy_0
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   implicit none
   private
 
@@ -154,11 +154,13 @@ contains
     if (size(g_tmp) == 3) then
        g = g_tmp
     else
-       call neko_error("MOST WM: The gravity vector should have exactly 3 components")
+       call neko_error("MOST WM: The gravity vector should have " // &
+            "exactly 3 components")
     end if
     deallocate(g_tmp)
 
-    call this%init_from_components(scheme_name, scalar_name, coef, msk, facet, h_index, &
+    call this%init_from_components(scheme_name, scalar_name, coef, msk, &
+         facet, h_index, &
          kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
     deallocate(bc_type)
     deallocate(scalar_name)
@@ -195,7 +197,8 @@ contains
     if (size(g_tmp) == 3) then
        this%g = g_tmp
     else
-       call neko_error("MOST WM: The gravity vector should have exactly 3 components")
+       call neko_error("MOST WM: The gravity vector should have " // &
+            "exactly 3 components")
     end if
     deallocate(g_tmp)
 
@@ -301,9 +304,11 @@ contains
     class(most_t), intent(inout) :: this
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_masked_gather_copy_0(this%mu_w%x_d, this%mu%x_d, this%msk_d, &
+       call device_masked_gather_copy_0(this%mu_w%x_d, this%mu%x_d, &
+            this%msk_d, &
             this%mu%size(), this%mu_w%size())
-       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, this%msk_d, &
+       call device_masked_gather_copy_0(this%rho_w%x_d, this%rho%x_d, &
+            this%msk_d, &
             this%rho%size(), this%rho_w%size())
     else
        call masked_gather_copy_0(this%mu_w%x, this%mu%x, this%msk, &
@@ -322,7 +327,8 @@ contains
   !! @param kappa The von Karman coefficient.
   !! @param g The gravity vector.
   !! @param z0 The roughness height.
-  !! @param z0h_in The thermal roughness height. If negative, set automatically from Zilitinkevich, 1995.
+  !! @param z0h_in The thermal roughness height. If negative, set
+  !! automatically from Zilitinkevich, 1995.
   !! @param bc_type The type of bc set for temperature in the case file.
   !! @param scalar_name The name of the scalar field (temperature) for MOST.
   !! @param bc_value The heat flux at the surface boundary condition.
@@ -362,28 +368,34 @@ contains
     !> Check magnitude of g
     g_mag = sqrt(sum(g**2))
     if (g_mag < 1.0e-6_rp) then
-       call neko_error("MOST WM: Gravity magnitude is zero. Check your input configuration.")
+       call neko_error("MOST WM: Gravity magnitude is zero. Check " // &
+            "your input configuration.")
     end if
 
     !> Check alignment across all nodes (handling hills/slopes)
     max_ang = 0.0_rp
     do i = 1, this%n_nodes
-       g_dot_n = abs(g(1)*this%n_x%x(i) + g(2)*this%n_y%x(i) + g(3)*this%n_z%x(i))
+       g_dot_n = abs(g(1) * this%n_x%x(i) + g(2) * this%n_y%x(i) + &
+            g(3) * this%n_z%x(i))
        cos_alpha = g_dot_n / g_mag
        max_ang = max(max_ang, acos(min(1.0_rp, cos_alpha)))
     end do
     max_ang = max_ang * 180.0_rp / (4.0_rp * atan(1.0_rp))
     if (max_ang > 8.0_rp) then
-       write(log_buf, '(A, F6.2, A)') "MOST WM: Significant gravity-normal misalignment (max ", &
+       write(log_buf, '(A, F6.2, A)') &
+            "MOST WM: Significant gravity-normal misalignment (max ", &
             max_ang, " deg). Stability corrections will use projected gravity."
        call neko_warning(trim(log_buf))
     end if
 
     !> Check sampling height
     if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
-       call neko_error("MOST WM: Sampling height h must be greater than roughness z0.")
-    else if ( (this%z0h_in .gt. 0.0_rp) .and. (any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) ) then
-       call neko_error("MOST WM: Sampling height h must be greater than thermal roughness z0h.")
+       call neko_error("MOST WM: Sampling height h must be greater " // &
+            "than roughness z0.")
+    else if ((this%z0h_in .gt. 0.0_rp) .and. &
+         any(this%h%x(1:this%n_nodes) .le. this%z0h_in)) then
+       call neko_error("MOST WM: Sampling height h must be greater " // &
+            "than thermal roughness z0h.")
     else if (this%z0 .eq. 0.0_rp) then
        call neko_error("MOST WM: Roughness z0 must be greater than 0.")
     else if (this%z0h_in .eq. 0.0_rp) then
@@ -417,24 +429,24 @@ contains
     call this%q%free()
 
     if (allocated(this%h_x_idx)) then
+       if (c_associated(this%h_x_idx_d)) then
+          call device_unmap(this%h_x_idx, this%h_x_idx_d)
+       end if
        deallocate(this%h_x_idx)
-    end if
-    if (c_associated(this%h_x_idx_d)) then
-       call device_free(this%h_x_idx_d)
     end if
 
     if (allocated(this%h_y_idx)) then
+       if (c_associated(this%h_y_idx_d)) then
+          call device_unmap(this%h_y_idx, this%h_y_idx_d)
+       end if
        deallocate(this%h_y_idx)
-    end if
-    if (c_associated(this%h_y_idx_d)) then
-       call device_free(this%h_y_idx_d)
     end if
 
     if (allocated(this%h_z_idx)) then
+       if (c_associated(this%h_z_idx_d)) then
+          call device_unmap(this%h_z_idx, this%h_z_idx_d)
+       end if
        deallocate(this%h_z_idx)
-    end if
-    if (c_associated(this%h_z_idx_d)) then
-       call device_free(this%h_z_idx_d)
     end if
 
   end subroutine most_free
@@ -471,9 +483,11 @@ contains
             this%ind_e_d, this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
             this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
-            this%mu_w%x_d, this%rho_w%x_d, this%g, this%Pr, this%z0, this%z0h_in, &
+            this%mu_w%x_d, this%rho_w%x_d, this%g, this%Pr, this%z0, &
+            this%z0h_in, &
             this%bc_type, this%bc_value, tstep, this%Ri_b%x_d, &
-            this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, this%ts%x_d,&
+            this%L_ob%x_d, this%utau%x_d, this%magu%x_d, this%ti%x_d, &
+            this%ts%x_d, &
             this%q%x_d, this%h_x_idx_d, this%h_y_idx_d, this%h_z_idx_d)
     else
        call most_compute_cpu(u%x, v%x, w%x, temp%x, this%ind_r, &
@@ -490,6 +504,9 @@ contains
     call most_log_diagnostics(this%Ri_b, this%L_ob, &
          this%utau, this%magu, this%ti, this%ts, this%q, &
          this%n_nodes, this%bc_value)
+
+    nullify(u, v, w, temp, updated_bc_value)
+
   end subroutine most_compute
 
   subroutine most_log_diagnostics(Ri_b, L_ob, utau, magu, ti, ts, q, &

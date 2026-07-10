@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -320,7 +320,7 @@ contains
     call device_map(this%z3, this%z3_d, n)
     call device_map(this%tmp, this%tmp_d, n)
     call device_map(this%alpha, this%alpha_d, DEVICE_FUSEDCG_CPLD_P_SPACE)
-    do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE+1
+    do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
        this%p1_d(i) = C_NULL_PTR
        call device_map(this%p1(:,i), this%p1_d(i), n)
 
@@ -376,127 +376,125 @@ contains
     call this%ksp_free()
 
     if (allocated(this%w1)) then
+       if (c_associated(this%w1_d)) then
+          call device_unmap(this%w1, this%w1_d)
+       end if
        deallocate(this%w1)
     end if
 
     if (allocated(this%w2)) then
+       if (c_associated(this%w2_d)) then
+          call device_unmap(this%w2, this%w2_d)
+       end if
        deallocate(this%w2)
     end if
 
     if (allocated(this%w3)) then
+       if (c_associated(this%w3_d)) then
+          call device_unmap(this%w3, this%w3_d)
+       end if
        deallocate(this%w3)
     end if
 
     if (allocated(this%r1)) then
+       if (c_associated(this%r1_d)) then
+          call device_unmap(this%r1, this%r1_d)
+       end if
        deallocate(this%r1)
     end if
 
     if (allocated(this%r2)) then
+       if (c_associated(this%r2_d)) then
+          call device_unmap(this%r2, this%r2_d)
+       end if
        deallocate(this%r2)
     end if
 
     if (allocated(this%r3)) then
+       if (c_associated(this%r3_d)) then
+          call device_unmap(this%r3, this%r3_d)
+       end if
        deallocate(this%r3)
     end if
 
     if (allocated(this%z1)) then
+       if (c_associated(this%z1_d)) then
+          call device_unmap(this%z1, this%z1_d)
+       end if
        deallocate(this%z1)
     end if
 
     if (allocated(this%z2)) then
+       if (c_associated(this%z2_d)) then
+          call device_unmap(this%z2, this%z2_d)
+       end if
        deallocate(this%z2)
     end if
 
     if (allocated(this%z3)) then
+       if (c_associated(this%z3_d)) then
+          call device_unmap(this%z3, this%z3_d)
+       end if
        deallocate(this%z3)
     end if
 
     if (allocated(this%tmp)) then
+       if (c_associated(this%tmp_d)) then
+          call device_unmap(this%tmp, this%tmp_d)
+       end if
        deallocate(this%tmp)
     end if
 
     if (allocated(this%alpha)) then
+       if (c_associated(this%alpha_d)) then
+          call device_unmap(this%alpha, this%alpha_d)
+       end if
        deallocate(this%alpha)
     end if
 
     if (allocated(this%p1)) then
+       if (allocated(this%p1_d)) then
+          do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
+             if (c_associated(this%p1_d(i))) then
+                call device_unmap(this%p1(:,i), this%p1_d(i))
+             end if
+          end do
+       end if
        deallocate(this%p1)
     end if
 
     if (allocated(this%p2)) then
+       if (allocated(this%p2_d)) then
+          do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
+             if (c_associated(this%p2_d(i))) then
+                call device_unmap(this%p2(:,i), this%p2_d(i))
+             end if
+          end do
+       end if
        deallocate(this%p2)
     end if
 
     if (allocated(this%p3)) then
+       if (allocated(this%p3_d)) then
+          do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
+             if (c_associated(this%p3_d(i))) then
+                call device_unmap(this%p3(:,i), this%p3_d(i))
+             end if
+          end do
+       end if
        deallocate(this%p3)
     end if
 
-    if (c_associated(this%w1_d)) then
-       call device_free(this%w1_d)
-    end if
-
-    if (c_associated(this%w2_d)) then
-       call device_free(this%w2_d)
-    end if
-
-    if (c_associated(this%w3_d)) then
-       call device_free(this%w3_d)
-    end if
-
-    if (c_associated(this%r1_d)) then
-       call device_free(this%r1_d)
-    end if
-
-    if (c_associated(this%r2_d)) then
-       call device_free(this%r2_d)
-    end if
-
-    if (c_associated(this%r3_d)) then
-       call device_free(this%r3_d)
-    end if
-
-    if (c_associated(this%z1_d)) then
-       call device_free(this%z1_d)
-    end if
-
-    if (c_associated(this%z2_d)) then
-       call device_free(this%z2_d)
-    end if
-
-    if (c_associated(this%z3_d)) then
-       call device_free(this%z3_d)
-    end if
-
-    if (c_associated(this%alpha_d)) then
-       call device_free(this%alpha_d)
-    end if
-
-    if (c_associated(this%tmp_d)) then
-       call device_free(this%tmp_d)
-    end if
-
     if (allocated(this%p1_d)) then
-       do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
-          if (c_associated(this%p1_d(i))) then
-             call device_free(this%p1_d(i))
-          end if
-       end do
+       deallocate(this%p1_d)
     end if
 
     if (allocated(this%p2_d)) then
-       do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
-          if (c_associated(this%p2_d(i))) then
-             call device_free(this%p2_d(i))
-          end if
-       end do
+       deallocate(this%p2_d)
     end if
 
     if (allocated(this%p3_d)) then
-       do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
-          if (c_associated(this%p3_d(i))) then
-             call device_free(this%p3_d(i))
-          end if
-       end do
+       deallocate(this%p3_d)
     end if
 
     if (c_associated(this%p1_d_d)) then
@@ -622,17 +620,13 @@ contains
          call Ax%compute_vector(w1, w2, w3, &
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
 
-         call rotate_cyc(w1, w2, w3, 1, coef)
-         call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
+         call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
+         call gs_h%op(w1, w2, w3, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
          call blstx%apply(w1, n)
-         call gs_h%op(w2, n, GS_OP_ADD, this%gs_event2)
-         call device_event_sync(this%gs_event2)
          call blsty%apply(w2, n)
-         call gs_h%op(w3, n, GS_OP_ADD, this%gs_event3)
-         call device_event_sync(this%gs_event3)
          call blstz%apply(w3, n)
-         call rotate_cyc(w1, w2, w3, 0, coef)
+         call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &
               p2_d(p_cur), p3_d(p_cur), tmp_d, n)

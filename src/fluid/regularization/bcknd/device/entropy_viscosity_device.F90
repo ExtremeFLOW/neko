@@ -211,6 +211,63 @@ module entropy_viscosity_device
        integer(c_int), value :: n
      end subroutine opencl_entropy_visc_smooth_divide
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_entropy_visc_compute_residual(entropy_residual_d, &
+          S_d, S_lag1_d, S_lag2_d, S_lag3_d, &
+          bdf1, bdf2, bdf3, bdf4, dt, n) &
+          bind(c, name = 'metal_entropy_visc_compute_residual')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: entropy_residual_d
+       type(c_ptr), value :: S_d, S_lag1_d, S_lag2_d, S_lag3_d
+       real(c_rp), value :: bdf1, bdf2, bdf3, bdf4, dt
+       integer(c_int), value :: n
+     end subroutine metal_entropy_visc_compute_residual
+  end interface
+
+  interface
+     subroutine metal_entropy_visc_compute_viscosity(reg_coeff_d, &
+          entropy_residual_d, h_d, c_avisc_entropy, n_S, n) &
+          bind(c, name = 'metal_entropy_visc_compute_viscosity')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: reg_coeff_d, entropy_residual_d, h_d
+       real(c_rp), value :: c_avisc_entropy, n_S
+       integer(c_int), value :: n
+     end subroutine metal_entropy_visc_compute_viscosity
+  end interface
+
+  interface
+     subroutine metal_entropy_visc_apply_element_max(reg_coeff_d, lx, nelv) &
+          bind(c, name = 'metal_entropy_visc_apply_element_max')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: reg_coeff_d
+       integer(c_int), value :: lx, nelv
+     end subroutine metal_entropy_visc_apply_element_max
+  end interface
+
+  interface
+     subroutine metal_entropy_visc_clamp_to_low_order(reg_coeff_d, &
+          h_d, max_wave_speed_d, c_avisc_low, n) &
+          bind(c, name = 'metal_entropy_visc_clamp_to_low_order')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: reg_coeff_d, h_d, max_wave_speed_d
+       real(c_rp), value :: c_avisc_low
+       integer(c_int), value :: n
+     end subroutine metal_entropy_visc_clamp_to_low_order
+  end interface
+
+  interface
+     subroutine metal_entropy_visc_smooth_divide(reg_coeff_d, &
+          temp_field_d, mult_field_d, n) &
+          bind(c, name = 'metal_entropy_visc_smooth_divide')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: reg_coeff_d, temp_field_d, mult_field_d
+       integer(c_int), value :: n
+     end subroutine metal_entropy_visc_smooth_divide
+  end interface
 #endif
 
   public :: entropy_viscosity_compute_residual_device, &
@@ -242,6 +299,10 @@ contains
     call opencl_entropy_visc_compute_residual(entropy_residual_d, &
          S_d, S_lag1_d, S_lag2_d, S_lag3_d, &
          bdf_coeffs(1), bdf_coeffs(2), bdf_coeffs(3), bdf_coeffs(4), dt, n)
+#elif HAVE_METAL
+    call metal_entropy_visc_compute_residual(entropy_residual_d, &
+         S_d, S_lag1_d, S_lag2_d, S_lag3_d, &
+         bdf_coeffs(1), bdf_coeffs(2), bdf_coeffs(3), bdf_coeffs(4), dt, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -263,6 +324,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_entropy_visc_compute_viscosity(reg_coeff_d, &
          entropy_residual_d, h_d, c_avisc_entropy, n_S, n)
+#elif HAVE_METAL
+    call metal_entropy_visc_compute_viscosity(reg_coeff_d, &
+         entropy_residual_d, h_d, c_avisc_entropy, n_S, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -279,6 +343,8 @@ contains
     call cuda_entropy_visc_apply_element_max(reg_coeff_d, lx, nelv)
 #elif HAVE_OPENCL
     call opencl_entropy_visc_apply_element_max(reg_coeff_d, lx, nelv)
+#elif HAVE_METAL
+    call metal_entropy_visc_apply_element_max(reg_coeff_d, lx, nelv)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -300,6 +366,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_entropy_visc_clamp_to_low_order(reg_coeff_d, &
          h_d, max_wave_speed_d, c_avisc_low, n)
+#elif HAVE_METAL
+    call metal_entropy_visc_clamp_to_low_order(reg_coeff_d, &
+         h_d, max_wave_speed_d, c_avisc_low, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -319,6 +388,9 @@ contains
          temp_field_d, mult_field_d, n)
 #elif HAVE_OPENCL
     call opencl_entropy_visc_smooth_divide(reg_coeff_d, &
+         temp_field_d, mult_field_d, n)
+#elif HAVE_METAL
+    call metal_entropy_visc_smooth_divide(reg_coeff_d, &
          temp_field_d, mult_field_d, n)
 #else
     call neko_error('No device backend configured')

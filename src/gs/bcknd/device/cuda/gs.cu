@@ -158,4 +158,56 @@ extern "C" {
 
     CUDA_CHECK(cudaGetLastError());
   }
+
+  /**
+   * Fused nc-component pack. u_d is the compact shared buffer (component-outer,
+   * per-component stride ns); buf_d is interleaved (nc per position).
+   */
+  void cuda_gs_pack_vec(void *u_d, void *buf_d, void *dof_d,
+                        int offset, int n, int nc, int ns,
+                        cudaStream_t stream) {
+
+    const int nthrds = 1024;
+    const int nblcks = (n + nthrds - 1) / nthrds;
+
+    gs_pack_vec_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) buf_d + nc*offset,
+                                      (int *) dof_d + offset, n, nc, ns);
+
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Fused nc-component unpack/reduce.
+   */
+  void cuda_gs_unpack_vec(real *u_d, int op, real *buf_d, int *dof_d,
+                          int offset, int n, int nc, int ns,
+                          cudaStream_t stream) {
+
+    const int nthrds = 1024;
+    const int nblcks = (n + nthrds - 1) / nthrds;
+
+    switch (op) {
+    case GS_OP_ADD:
+      gs_unpack_add_vec_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + nc*offset,
+                                        dof_d + offset, n, nc, ns);
+      break;
+    case GS_OP_MIN:
+      gs_unpack_min_vec_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + nc*offset,
+                                        dof_d + offset, n, nc, ns);
+      break;
+    case GS_OP_MAX:
+      gs_unpack_max_vec_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + nc*offset,
+                                        dof_d + offset, n, nc, ns);
+      break;
+    default:
+      printf("%s: unknown gs op %d\n", __FILE__, op);
+      abort();
+    }
+
+    CUDA_CHECK(cudaGetLastError());
+  }
 }

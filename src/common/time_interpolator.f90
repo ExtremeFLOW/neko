@@ -135,10 +135,20 @@ contains
     type(c_ptr) :: f_interpolated_d
     integer :: i, l
 
-    real(kind=rp), dimension(0:this%order - 1) :: wt
+    ! Weights for up to three interpolation points; during time-scheme
+    ! start-up this%order < 3 and the weights of the missing lag
+    ! fields must stay zero
+    real(kind=rp), dimension(0:2) :: wt
+
+    if (this%order .gt. 3) then
+       call neko_error("Time interpolation of required order &
+       &is not implemented")
+    end if
+
     wt = 0
 
-    call fd_weights_full(t, tlag, this%order - 1, 0, wt) ! interpolation weights
+    ! interpolation weights
+    call fd_weights_full(t, tlag, this%order - 1, 0, wt(0:this%order - 1))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add4s3(f_interpolated%x_d, f_n%f%x_d, f_n%lf(1)%x_d, &

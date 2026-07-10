@@ -294,14 +294,15 @@ Enabling user defined initial conditions for the fluid and/or scalar is done by
 setting the `initial_condition.type` to `"user"` in the relevant sections of the
 case file, `case.fluid` and/or `case.scalar`.
 
-```.json
-
-"case": {
+```json
+{
+  "case": {
     "fluid": {
-        "initial_condition": {
-            "type": "user"
-        }
+      "initial_condition": {
+        "type": "user"
+      }
     }
+  }
 }
 ```
 
@@ -369,17 +370,18 @@ Enabling user defined source terms for the fluid and/or scalar is done by adding
 JSON Objects to the `case.fluid.source_terms` and/or `case.scalar.source_terms`
 lists.
 
-```.json
-
-"case": {
+```json
+{
+  "case": {
     "fluid": {
-        "source_terms":
-        [
-            {
-                "type": "user"
-            }
-        ]
+      "source_terms":
+      [
+        {
+          "type": "user"
+        }
+      ]
     }
+  }
 }
 ```
 
@@ -793,7 +795,7 @@ contains
     type(field_t), intent(in) :: base_shapes(:)
     type(time_state_t), intent(in) :: time
       
-    integer :: i
+    integer :: i, n
     real(kind=rp) :: t, x_dist, half_width
     real(kind=rp) :: omega_ind
     real(kind=rp) :: h_t, arg, u_tanh, uy
@@ -812,6 +814,7 @@ contains
     real(kind=rp) :: sharpness     = 4.0_rp 
       
     t = time%t
+    n = coef%dof%size()
 
     ! omega
     omega_ind = indent_freq * 2.0_rp * pi
@@ -820,9 +823,16 @@ contains
      
     half_width = 0.5_rp * indent_width
 
-    do i = 1, coef%dof%size()
+    ! Copy mesh velocity from device to host
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(wm_y%x, wm_y%x_d, n, DEVICE_TO_HOST, .true.)
+    end if
+
+    do i = 1, n
                
        ! Calculate Distance based on INITIAL mesh coordinates
+       ! When running on device, x_ref, y_ref, z_ref are copied to host memory during init. 
+       ! So no need to copy them here.
        x_dist = abs(x_ref%x(i,1,1,1)  - indent_center)
 
        ! If distance > half_width, arg becomes positive and tanh goes to 1 -> u_tanh goes to 0
@@ -831,6 +841,8 @@ contains
         
        uy  = h_t * u_tanh
 
+       ! When running on device, base_shapes are copied to host memory during init. 
+       ! So no need to copy them here.
        ! phi for bottom surface. body_ID = 1, since it's the first body registered in ale.bodies
        phi_bot = base_shapes(1)%x(i,1,1,1)
 
@@ -840,6 +852,11 @@ contains
        wm_y%x(i,1,1,1) = wm_y%x(i,1,1,1) - ((0.5_rp*uy) * phi_top) + (uy * phi_bot)
      
     end do
+
+    ! Copy mesh velocity from host to device
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(wm_y%x, wm_y%x_d, n, HOST_TO_DEVICE, .true.)
+    end if
       
   end subroutine user_indentation_motion
 end module user
@@ -858,13 +875,22 @@ The interface `ale_base_shapes` allows you to implement a user subroutine to def
 ```fortran
   subroutine user_base_shapes(base_shapes)
     type(field_t), intent(inout) :: base_shapes(:)
+    integer :: n
 
-    ! Fix the motion of the first ALE body (body_id = 1)
-    base_shapes(1) = 0.0_rp
-    
-    ! Apply the motion of the second ALE body (body_id = 2) to the entire domain
-    base_shapes(2) = 1.0_rp 
-      
+    n = base_shapes(1)%size()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       ! Fix the motion of the first ALE body (body_id = 1)
+       call device_cfill(base_shapes(1)%x_d, 0.0_rp, n)  
+       ! Apply the motion of the second ALE body (body_id = 2) to the entire domain
+       call device_cfill(base_shapes(2)%x_d, 1.0_rp, n)
+    else
+       ! Fix the motion of the first ALE body (body_id = 1)
+       call cfill(base_shapes(1)%x, 0.0_rp, n)
+       ! Apply the motion of the second ALE body (body_id = 2) to the entire domain
+       call cfill(base_shapes(2)%x, 1.0_rp, n)
+    end if
+
   end subroutine user_base_shapes
 ```
 
