@@ -54,10 +54,6 @@ module logger
      integer, private :: tab_size_
      integer, private :: level_
      integer, private :: unit_
-     !> Flush the log at section boundaries (enabled during startup, disabled
-     !! once the time loop begins, such that a crash during initialisation
-     !! cannot swallow buffered log output)
-     logical, private :: section_flush_ = .true.
 
      character(len=LOG_SIZE), private :: section_header = ""
 
@@ -75,8 +71,6 @@ module logger
      procedure, pass(this) :: warning => log_warning
      procedure, pass(this) :: deprecated => log_deprecated
      procedure, pass(this) :: end_section => log_end_section
-     procedure, pass(this) :: flush => log_flush
-     procedure, pass(this) :: end_startup => log_end_startup
 
      procedure, private, pass(this) :: print_section_header => &
           log_print_section_header
@@ -84,6 +78,20 @@ module logger
 
   !> Global log stream
   type(log_t), public :: neko_log
+
+  !> Flush the log at section boundaries (enabled during startup, disabled once
+  !! the time loop begins, such that a crash during initialisation cannot
+  !! swallow buffered log output).
+  !! @note Kept as module state rather than a component of `log_t` so that the
+  !! `log_t` derived-type layout is unchanged. Adding components or type-bound
+  !! procedures to `log_t` perturbs the module descriptor and crashes some
+  !! Fortran frontends (nvfortran) when `logger` is transitively loaded while
+  !! compiling an unrelated module (see also patches/nvhpc_*.patch).
+  logical, private :: log_section_flush = .true.
+
+  !> Flushing entry points, kept as module procedures rather than type-bound
+  !! procedures on `log_t` for the reason noted above.
+  public :: neko_log_flush, neko_log_end_startup
   !> Always logged
   integer, public, parameter :: NEKO_LOG_QUIET = 0
   !> Default log level
@@ -133,7 +141,7 @@ contains
        this%unit_ = stdout
     end if
 
-    this%section_flush_ = .true.
+    log_section_flush = .true.
 
   end subroutine log_init
 
@@ -162,7 +170,7 @@ contains
     this%indent_ = 0
     this%level_ = NEKO_LOG_INFO
     this%unit_ = -1
-    this%section_flush_ = .true.
+    log_section_flush = .true.
 
     if (allocated(deprecated_list)) then
        deallocate(deprecated_list)
@@ -170,10 +178,11 @@ contains
 
   end subroutine log_free
 
-  !> Flush the log stream, ensuring buffered output leaves the process
+  !> Flush a given log stream, ensuring buffered output leaves the process.
+  !! Private helper used internally where the log stream is already in hand.
   !! @note Flushing is local to rank 0 (the only writer) and never collective,
   !! so it is safe to call from any rank.
-  subroutine log_flush(this)
+  subroutine log_flush_stream(this)
     class(log_t), intent(in) :: this
 
     ! The unit is compared against the sentinel value set by `log_free`, and
@@ -183,18 +192,25 @@ contains
        flush(this%unit_)
     end if
 
-  end subroutine log_flush
+  end subroutine log_flush_stream
+
+  !> Flush the global log stream `neko_log`, ensuring buffered output leaves
+  !! the process. Safe to call from any rank (a no-op off rank 0).
+  subroutine neko_log_flush()
+
+    call log_flush_stream(neko_log)
+
+  end subroutine neko_log_flush
 
   !> Mark the end of the startup (initialisation) phase of a simulation
   !! @details Flushes the log and disables the per-section flushing used
   !! during startup, keeping the time loop free of any flushing overhead.
-  subroutine log_end_startup(this)
-    class(log_t), intent(inout) :: this
+  subroutine neko_log_end_startup()
 
-    call this%flush()
-    this%section_flush_ = .false.
+    call neko_log_flush()
+    log_section_flush = .false.
 
-  end subroutine log_end_startup
+  end subroutine neko_log_end_startup
 
   !> Increase indention level
   subroutine log_begin(this)
@@ -313,7 +329,7 @@ contains
     if (pe_rank .eq. 0) then
        ! Flush buffered log output first, such that it appears before the
        ! error message in a combined stdout/stderr stream
-       call this%flush()
+       call log_flush_stream(this)
        call this%indent()
        write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg), '  ***'
        flush(stderr)
@@ -461,7 +477,7 @@ contains
        ! During startup, persist the log up to and including the new section
        ! header, such that the log always shows what the code is attempting
        ! if initialisation fails
-       if (this%section_flush_) then
+       if (log_section_flush) then
           flush(this%unit_)
        end if
     end if
@@ -481,8 +497,8 @@ contains
     call this%end()
 
     ! During startup, persist the log after each completed section
-    if (this%section_flush_) then
-       call this%flush()
+    if (log_section_flush) then
+       call log_flush_stream(this)
     end if
 
   end subroutine log_end_section
@@ -528,7 +544,7 @@ contains
           msg(len:len) = c_msg(len)
        end do
 
-       call neko_log%flush()
+       call neko_log_flush()
        call neko_log%indent()
        write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg(1:len)), '  ***'
        flush(stderr)

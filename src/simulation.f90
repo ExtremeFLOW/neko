@@ -38,7 +38,7 @@ module simulation
   use num_types, only : rp, dp
   use time_scheme_controller, only : time_scheme_controller_t
   use file, only : file_t
-  use logger, only : LOG_SIZE, neko_log
+  use logger, only : LOG_SIZE, neko_log, neko_log_flush, neko_log_end_startup
   use jobctrl, only : jobctrl_time_limit
   use profiler, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
@@ -96,7 +96,7 @@ contains
 
     ! Initialisation complete; persist the startup log and disable
     ! per-section flushing before entering the time loop
-    call neko_log%end_startup()
+    call neko_log_end_startup()
 
   end subroutine simulation_init
 
@@ -325,9 +325,9 @@ contains
     ! what was being attempted if the job is killed during the checkpoint
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
-    call neko_log%flush()
+    call neko_log_flush()
     call chkpf%write(C%chkp, t)
-    call neko_log%flush()
+    call neko_log_flush()
 
   end subroutine simulation_joblimit_chkp
 
