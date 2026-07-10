@@ -70,9 +70,9 @@ module coord_hash
      integer(i8) :: mask = 0
      integer(i4) :: n = 0
    contains
-     procedure :: init  => ch_init
+     procedure :: init => ch_init
      procedure :: get_or_add => ch_get_or_add
-     procedure :: free  => ch_free
+     procedure :: free => ch_free
   end type coord_hash_t
 contains
 
@@ -113,9 +113,9 @@ contains
           this%n = this%n + 1
           this%kx(s) = x; this%ky(s) = y; this%kz(s) = z
           this%id(s) = this%n; idx = this%n; is_new = .true.; return
-       ! exact REAL(dp) equality is intentional (-Wcompare-reals): coordinates are
-       ! copied from the file, never computed, and Neko's own point dedup
-       ! (htable_pt_t) also compares them bit-exactly
+          ! exact REAL(dp) equality is intentional (-Wcompare-reals): coordinates are
+          ! copied from the file, never computed, and Neko's own point dedup
+          ! (htable_pt_t) also compares them bit-exactly
        else if (this%kx(s) == x .and. this%ky(s) == y .and. this%kz(s) == z) then
           idx = this%id(s); is_new = .false.; return
        end if
@@ -163,13 +163,13 @@ program rea2nbin_light
   integer(i4), parameter :: FACET_MAP(6) = (/3, 2, 4, 1, 5, 6/)
   ! the 4 corners of each Neko facet (facet_order), in re2-vertex indices
   integer(i4), parameter :: FACE_RE2(4,6) = reshape((/ &
-       1,5,8,4,   2,6,7,3,   1,2,6,5,   4,3,7,8,   1,2,3,4,   5,6,7,8 /), (/4,6/))
+       1,5,8,4, 2,6,7,3, 1,2,6,5, 4,3,7,8, 1,2,3,4, 5,6,7,8 /), (/4,6/))
   integer(i4), parameter :: MAXZ = 20
-  real(dp) :: PTOL = 1.0e-7_dp   ! periodic match tol; overridable via NEKO_PERIODIC_TOL
+  real(dp) :: PTOL = 1.0e-7_dp ! periodic match tol; overridable via NEKO_PERIODIC_TOL
 
   character(len=1024) :: fin, fout
-  character(len=80)   :: hdr
-  character(len=5)    :: ver
+  character(len=80) :: hdr
+  character(len=5) :: ver
   integer(i4) :: nel, ndim, nelv, nbc4
   logical :: v2
   real(sp) :: endian
@@ -246,10 +246,10 @@ program rea2nbin_light
      write(error_unit,*) 'Error: this tool supports 3D (hex) meshes only'; stop 1
   end if
 
-  write(*,'(a,a)')            '  input     : ', trim(fin)
-  write(*,'(a,a)')            '  output    : ', trim(fout)
-  write(*,'(a,i0,a,a,a)')     '  mesh      : ', nelv, ' hex elements  (format ', ver, ')'
-  write(*,'(a)')              '  [1/3] reading elements and de-duplicating points ...'
+  write(*,'(a,a)') '  input     : ', trim(fin)
+  write(*,'(a,a)') '  output    : ', trim(fout)
+  write(*,'(a,i0,a,a,a)') '  mesh      : ', nelv, ' hex elements  (format ', ver, ')'
+  write(*,'(a)') '  [1/3] reading elements and de-duplicating points ...'
 
   call ch%init(max(1024_i8, int(nelv, i8) * 2_i8))
   allocate(elem_vid(8, nelv))
@@ -286,8 +286,8 @@ program rea2nbin_light
      end do
   end do
 
-  write(*,'(a,i0,a)')        '        ', ch%n, ' unique points'
-  write(*,'(a)')             '  [2/3] reading curves and boundary conditions ...'
+  write(*,'(a,i0,a)') '        ', ch%n, ' unique points'
+  write(*,'(a)') '  [2/3] reading curves and boundary conditions ...'
 
   ! ---- tail: re2 curves + re2 BCs -> nmsh periodic & labeled zones ----
   block
@@ -300,7 +300,7 @@ program rea2nbin_light
     character(len=8) :: bt
     ! curved-element records (stored compactly, re-emitted per element)
     integer(i4), allocatable :: rc_el(:), rc_ed(:), rc_ty(:)
-    real(dp),    allocatable :: rc_d(:,:)
+    real(dp), allocatable :: rc_d(:,:)
     integer(i4), allocatable :: ccnt(:), order(:)
     integer(i4) :: ncurves, acc, cc, cur_e, idx
     real(dp) :: cbuf(5,12)
@@ -443,8 +443,8 @@ program rea2nbin_light
                     'Error: periodic BC references out-of-range partner element/face'; stop 1
             end if
             npf = npf + 1
-            p_e(npf)  = el
-            p_f(npf)  = sym_facet
+            p_e(npf) = el
+            p_f(npf) = sym_facet
             p_pe(npf) = int(b_d1(ib))
             p_pf(npf) = FACET_MAP(int(b_d2(ib)))
          case ('E','e')
@@ -468,7 +468,7 @@ program rea2nbin_light
     end do
 
     ! ---- write zones: periodic first (type 5), then labeled (type 7) ----
-    write(*,'(a)')             '  [3/3] writing zones and curved-element records ...'
+    write(*,'(a)') '  [3/3] writing zones and curved-element records ...'
     nz = npf + nzl
     write(uout) nz
     do i = 1, npf
@@ -500,18 +500,18 @@ program rea2nbin_light
        do i = 1, nelv
           if (ccnt(i) > 0) ncurves = ncurves + 1
        end do
-       acc = 1                               ! prefix-sum counts -> start offsets
+       acc = 1 ! prefix-sum counts -> start offsets
        do i = 1, nelv
           cc = ccnt(i); ccnt(i) = acc; acc = acc + cc
        end do
-       allocate(order(ncurv))                ! stable bucket by element
+       allocate(order(ncurv)) ! stable bucket by element
        do k = 1, ncurv
           order(ccnt(rc_el(k))) = k
           ccnt(rc_el(k)) = ccnt(rc_el(k)) + 1
        end do
        write(uout) ncurves
        cur_e = -1
-       do idx = 1, ncurv                     ! walk records grouped by element
+       do idx = 1, ncurv ! walk records grouped by element
           k = order(idx)
           if (rc_el(k) /= cur_e) then
              if (cur_e > 0) write(uout) cur_e, cbuf, tbuf
@@ -524,7 +524,7 @@ program rea2nbin_light
        deallocate(ccnt, order)
     else
        ncurves = 0
-       write(uout) 0_i4                       ! ncurves
+       write(uout) 0_i4 ! ncurves
        if (curve_skip) write(*,'(a)') &
             '        note: unsupported curve type (s/e/other); mesh treated as '// &
             'non-curved (ncurves=0), as Neko also does'
@@ -610,7 +610,7 @@ contains
     integer(i4) :: ia, ja, id_i, id_j, m, match
     L = 0.0_dp
     do ia = 1, 4
-       id_i = evid(FACE_RE2(ia, f),  e)
+       id_i = evid(FACE_RE2(ia, f), e)
        id_j = evid(FACE_RE2(ia, pf), pe)
        L(1) = L(1) + (cx(id_i) - cx(id_j))
        L(2) = L(2) + (cy(id_i) - cy(id_j))

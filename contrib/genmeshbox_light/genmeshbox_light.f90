@@ -78,10 +78,10 @@ program genmeshbox_light
   ! Neko facet (1..6) corners as nmsh vertex slots (1..8); the table validated
   ! byte-exact for periodic ids in rea2nbin_light.
   integer, parameter :: FCORN(4,6) = reshape((/ &
-       1,5,8,4,   2,6,7,3,   1,2,6,5,   4,3,7,8,   1,2,3,4,   5,6,7,8 /), (/4,6/))
+       1,5,8,4, 2,6,7,3, 1,2,6,5, 4,3,7,8, 1,2,3,4, 5,6,7,8 /), (/4,6/))
   ! nmsh vertex slot (1..8) -> (ix,iy,iz) corner of the reference cube
   integer, parameter :: SIJK(3,8) = reshape((/ &
-       0,0,0,  1,0,0,  1,1,0,  0,1,0,  0,0,1,  1,0,1,  1,1,1,  0,1,1 /), (/3,8/))
+       0,0,0, 1,0,0, 1,1,0, 0,1,0, 0,0,1, 1,0,1, 1,1,1, 0,1,1 /), (/3,8/))
 
   character(len=1024) :: arg, fout
   real(dp) :: x0, x1, y0, y1, z0, z1
@@ -89,8 +89,8 @@ program genmeshbox_light
   integer(i8) :: nel
   logical :: px, py, pz, direct
   character(len=1024) :: dxf, dyf, dzf
-  character(len=1024), allocatable :: av(:)         ! positional args (flags removed)
-  real(dp), allocatable :: gx(:), gy(:), gz(:)     ! grid-line coords (0..nx etc.)
+  character(len=1024), allocatable :: av(:) ! positional args (flags removed)
+  real(dp), allocatable :: gx(:), gy(:), gz(:) ! grid-line coords (0..nx etc.)
   integer(i4) :: vid, elid
   real(dp) :: xx, yy, zz
   integer(i8) :: nzones, nper, nlab
@@ -135,7 +135,7 @@ program genmeshbox_light
   if (na >= 15) then
      dxf = av(13); dyf = av(14); dzf = av(15)
   end if
-  if (na == 10 .or. na == 13 .or. na == 16) fout = av(na)  ! trailing output name
+  if (na == 10 .or. na == 13 .or. na == 16) fout = av(na) ! trailing output name
 
   if (nx < 1 .or. ny < 1 .or. nz < 1) then
      write(error_unit,*) 'Error: nelx/nely/nelz must all be >= 1 (got ', &
@@ -169,7 +169,7 @@ program genmeshbox_light
   if (i /= 0) then
      write(error_unit,*) 'Error: cannot open output file ', trim(fout); stop 1
   end if
-  write(uout) int(nel, i4), 3_i4                    ! header: nelv, gdim
+  write(uout) int(nel, i4), 3_i4 ! header: nelv, gdim
 
   ! ---- elements: genmeshbox loop order (ez outer, ey, ex inner) ----
   write(*,'(a,i0,a)') '  [1/2] writing ', nel, ' elements ...'
@@ -204,8 +204,8 @@ program genmeshbox_light
 
   ! periodic zones first, in genmeshbox marking order (x faces 1,2; y 3,4; z 5,6)
   if (px) then
-     call emit_dir_periodic(uout, 1)               ! x-low  (facet 1)
-     call emit_dir_periodic(uout, 2)               ! x-high (facet 2)
+     call emit_dir_periodic(uout, 1) ! x-low  (facet 1)
+     call emit_dir_periodic(uout, 2) ! x-high (facet 2)
   end if
   if (py) then
      call emit_dir_periodic(uout, 3)
@@ -225,7 +225,7 @@ program genmeshbox_light
      call emit_dir_labeled(uout, lbl)
   end do
 
-  write(uout) 0_i4                                   ! ncurves
+  write(uout) 0_i4 ! ncurves
   close(uout)
 
   write(*,'(a,i0,a,i0,a,i0,a,i0)') 'genmeshbox_light: ', nx, 'x', ny, 'x', nz, &
@@ -302,7 +302,7 @@ contains
     pf = opp_facet(face)
     ! marking order per direction (see genmeshbox.f90 zone loops)
     select case (face)
-    case (1, 2)                                     ! x: do e_y; do e_z
+    case (1, 2) ! x: do e_y; do e_z
        do a = 0, ny-1
           do b = 0, nz-1
              e_ey = a; e_ez = b
@@ -312,7 +312,7 @@ contains
              call wrec(u, face, e_ex, e_ey, e_ez, pf, p_ex, p_ey, p_ez)
           end do
        end do
-    case (3, 4)                                     ! y: do e_x; do e_z
+    case (3, 4) ! y: do e_x; do e_z
        do a = 0, nx-1
           do b = 0, nz-1
              e_ex = a; e_ez = b
@@ -322,7 +322,7 @@ contains
              call wrec(u, face, e_ex, e_ey, e_ez, pf, p_ex, p_ey, p_ez)
           end do
        end do
-    case (5, 6)                                     ! z: do e_x; do e_y
+    case (5, 6) ! z: do e_x; do e_y
        do a = 0, nx-1
           do b = 0, ny-1
              e_ex = a; e_ey = b
@@ -447,7 +447,7 @@ contains
              g(k+1) = a0 + ((a1 - a0) / real(n, dp)) * real(k, dp)
           end do
        else
-          g(:) = fv(:)                               ! exact grid values, verbatim
+          g(:) = fv(:) ! exact grid values, verbatim
        end if
     else
        allocate(ellen(n))

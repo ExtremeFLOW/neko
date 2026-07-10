@@ -84,8 +84,8 @@ module mc_hash
      integer(i8) :: cap = 0, mask = 0, n = 0
    contains
      procedure :: init => r_init
-     procedure :: set  => r_set
-     procedure :: get  => r_get
+     procedure :: set => r_set
+     procedure :: get => r_get
      procedure :: free => r_free
   end type rmap_t
 
@@ -97,7 +97,7 @@ module mc_hash
      integer(i8) :: cap = 0, mask = 0, n = 0
    contains
      procedure :: init => f_init
-     procedure :: add  => f_add
+     procedure :: add => f_add
      procedure :: cnt_of => f_cnt_of
      procedure :: free => f_free
   end type fhash_t
@@ -108,7 +108,7 @@ module mc_hash
      integer(i8) :: cap = 0, mask = 0, n = 0
    contains
      procedure :: init => e_init
-     procedure :: add  => e_add
+     procedure :: add => e_add
      procedure :: free => e_free
   end type ehash_t
 
@@ -453,22 +453,22 @@ program mesh_checker_light
   ! the nmsh->mesh read swap [1,2,4,3,5,6,8,7]); same table validated byte-exact
   ! for periodic glb_pt_ids in rea2nbin_light.
   integer(i4), parameter :: FACE_RE2(4,6) = reshape((/ &
-       1,5,8,4,   2,6,7,3,   1,2,6,5,   4,3,7,8,   1,2,3,4,   5,6,7,8 /), (/4,6/))
+       1,5,8,4, 2,6,7,3, 1,2,6,5, 4,3,7,8, 1,2,3,4, 5,6,7,8 /), (/4,6/))
   ! The 12 hex edges in nmsh vertex indices (edge_nodes composed with the swap).
   integer(i4), parameter :: EDGE_RE2(2,12) = reshape((/ &
-       1,2,  3,4,  5,6,  7,8,  1,4,  2,3,  5,8,  6,7,  1,5,  2,6,  4,8,  3,7 /), (/2,12/))
+       1,2, 3,4, 5,6, 7,8, 1,4, 2,3, 5,8, 6,7, 1,5, 2,6, 4,8, 3,7 /), (/2,12/))
 
   character(len=1024) :: fin
   character(len=64) :: argbuf
   integer :: uin, ios, i, f, argc
-  integer :: iphase, nphase                    ! user-facing progress counters
+  integer :: iphase, nphase ! user-facing progress counters
   integer(i4) :: nelv, gdim, elid, vidx(8), nz, ztype, zlabel
   integer(i4) :: ze, zf
   integer(i4) :: max_vidx, periodic_size, n_unlabeled
   integer(i4), allocatable :: elid_of_pos(:), pos_of_elid(:)
-  integer(i4), allocatable :: ev(:,:)          ! (8,nelv): the 8 nmsh point ids per element
-  integer(i1), allocatable :: ftype(:,:)       ! (6,nelv): 0 none, 1 labeled, 2 periodic
-  integer(i1), allocatable :: flabel(:,:)      ! (6,nelv): labeled-zone index 1..20 or 0
+  integer(i4), allocatable :: ev(:,:) ! (8,nelv): the 8 nmsh point ids per element
+  integer(i1), allocatable :: ftype(:,:) ! (6,nelv): 0 none, 1 labeled, 2 periodic
+  integer(i1), allocatable :: flabel(:,:) ! (6,nelv): labeled-zone index 1..20 or 0
   integer(i4) :: labeled_cnt(20)
   real(dp) :: xyz(3), lo(3), hi(3)
   real(dp) :: cx8(8), cy8(8), cz8(8), jmin
@@ -497,8 +497,8 @@ program mesh_checker_light
   do i = 2, argc
      call get_command_argument(i, argbuf)
      select case (trim(argbuf))
-     case ('--jacobian');            do_jac = .true.
-     case ('--write-zone-indices');  do_zone = .true.; do_jac = .true.
+     case ('--jacobian'); do_jac = .true.
+     case ('--write-zone-indices'); do_zone = .true.; do_jac = .true.
      case default
         write(error_unit,*) 'Unknown option: ', trim(argbuf); stop 1
      end select
@@ -538,7 +538,7 @@ program mesh_checker_light
   labeled_cnt = 0; max_vidx = 0; periodic_size = 0; n_unlabeled = 0; failed = .false.
   n_neg_jac = 0; first_bad = 0; min_jac = huge(1.0_dp)
   lo = huge(1.0_dp); hi = -huge(1.0_dp)
-  call fh%init(max(1024_i8, int(nelv, i8)))     ! merged unique faces, grown on demand
+  call fh%init(max(1024_i8, int(nelv, i8))) ! merged unique faces, grown on demand
   call eh%init(max(1024_i8, int(nelv, i8)))
   allocate(ev(8, nelv))
 
@@ -592,7 +592,7 @@ program mesh_checker_light
      end if
      pos_of_elid(elid_of_pos(i)) = i
   end do
-  do i = 1, nelv                 ! element ids must be a permutation of 1..nelv
+  do i = 1, nelv ! element ids must be a permutation of 1..nelv
      if (pos_of_elid(i) == 0) then
         write(error_unit,*) 'Error: element ids are not a permutation of ', &
              '1..nelv (duplicate or missing id ', i, ')'; stop 1
@@ -630,7 +630,7 @@ program mesh_checker_light
           call rm%set(ev(FACE_RE2(3,zf), pos), g3)
           call rm%set(ev(FACE_RE2(4,zf), pos), g4)
        else if (ztype == 7) then
-          zlabel = zpf                       ! label lives in the p_f field
+          zlabel = zpf ! label lives in the p_f field
           if (zlabel >= 1 .and. zlabel <= 20) labeled_cnt(zlabel) = labeled_cnt(zlabel) + 1
           ftype(zf, pos) = 1_i1
           if (do_zone .and. zlabel >= 1 .and. zlabel <= 20) flabel(zf, pos) = int(zlabel, i1)
@@ -761,14 +761,14 @@ contains
     write(u) hdr
     test_pattern = 6.54321_sp
     write(u) test_pattern
-    do e = 1, nel                                    ! element global-id list
+    do e = 1, nel ! element global-id list
        eidx = e; write(u) eidx
     end do
 
     ! mesh block: for each element, gx(1:27), gy(1:27), gz(1:27) (single prec)
     open(newunit=uf, file=meshfile, access='stream', form='unformatted', &
          status='old', action='read')
-    read(uf) eidx, eidx                              ! skip nelv, gdim
+    read(uf) eidx, eidx ! skip nelv, gdim
     do e = 1, nel
        call read_corners(uf, c8x, c8y, c8z)
        call hex_gll_xyz(c8x, c8y, c8z, gdx, gdy, gdz)

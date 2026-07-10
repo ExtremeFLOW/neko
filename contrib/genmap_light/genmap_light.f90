@@ -78,8 +78,8 @@ module gm_hash
      integer(i8) :: cap = 0, mask = 0, n = 0
    contains
      procedure :: init => im_init
-     procedure :: set  => im_set      !< insert/overwrite key -> val
-     procedure :: getor => im_getor   !< val if present, else the supplied default
+     procedure :: set => im_set !< insert/overwrite key -> val
+     procedure :: getor => im_getor !< val if present, else the supplied default
      procedure :: intern => im_intern !< map key to a dense 1..n id, assigning on first sight
      procedure :: free => im_free
   end type imap_t
@@ -205,8 +205,8 @@ module gm_rsb
   private
   public :: rsb_partition
 
-  integer, parameter :: MLANC = 100  ! Krylov dimension for the Fiedler Lanczos
-  logical :: dbg = .false.           ! GENMAP_DEBUG diagnostic prints
+  integer, parameter :: MLANC = 100 ! Krylov dimension for the Fiedler Lanczos
+  logical :: dbg = .false. ! GENMAP_DEBUG diagnostic prints
 
 contains
 
@@ -254,7 +254,7 @@ contains
     if (n1 > n - 1) n1 = n - 1
     ! bisect: reorder loc(1:n) so the first n1 form one side, the rest the other
     call bisect(loc, n, n1, cell, nv, nelv, nrnk)
-    call rsb_rec(loc(1),    n1,     q1, base,      cell, nv, nelv, nrnk, part)
+    call rsb_rec(loc(1), n1, q1, base, cell, nv, nelv, nrnk, part)
     call rsb_rec(loc(n1+1), n - n1, q2, base + q1, cell, nv, nelv, nrnk, part)
   end subroutine rsb_rec
 
@@ -278,7 +278,7 @@ contains
     real(dp) :: cut, score, bscore, bcut
     logical :: okconn, bconn
 
-    if (n <= 2) return   ! loc order is fine; first n1 vs rest
+    if (n <= 2) return ! loc order is fine; first n1 vs rest
 
     call build_dual(loc, n, cell, nv, nelv, nrnk, ia, ja, va)
 
@@ -304,7 +304,7 @@ contains
     end do
 
     if (.not. bconn) then
-       call region_grow(n, n1, bside, ia, ja)   ! guarantee connectivity
+       call region_grow(n, n1, bside, ia, ja) ! guarantee connectivity
     end if
     ! (print bcut, never bscore: the +1e12 disconnected penalty would overflow
     ! a default integer)
@@ -392,7 +392,7 @@ contains
        e = loc(i)
        do k = 1, nv
           vtx = cell(k, e)
-          v2c(v2c_ptr(vtx) + v2c_cnt(vtx)) = int(i, i4)   ! store LOCAL index
+          v2c(v2c_ptr(vtx) + v2c_cnt(vtx)) = int(i, i4) ! store LOCAL index
           v2c_cnt(vtx) = v2c_cnt(vtx) + 1
        end do
     end do
@@ -448,7 +448,7 @@ contains
           ne = nbr(k)
           ja(off + k) = int(ne, i4)
           if (ne == i) then
-             va(off + k) = 0.0_dp        ! placeholder; set to rowsum below
+             va(off + k) = 0.0_dp ! placeholder; set to rowsum below
           else
              rowsum = rowsum + wcnt(ne)
              va(off + k) = -real(wcnt(ne), dp)
@@ -509,7 +509,7 @@ contains
     mm = m
     do k = 1, m
        call ax(w, qv(1, k), ia, ja, va, n)
-       call ortho1(w, n)                          ! stay orthogonal to 1 (null space)
+       call ortho1(w, n) ! stay orthogonal to 1 (null space)
        alpha(k) = dot(w, qv(1, k), n)
        if (k == 1) then
           do i = 1, n
@@ -520,7 +520,7 @@ contains
              w(i) = w(i) - alpha(k) * qv(i, k) - bet(k-1) * qv(i, k-1)
           end do
        end if
-       do j = 1, k                                ! full reorthogonalisation
+       do j = 1, k ! full reorthogonalisation
           s = dot(w, qv(1, j), n)
           do i = 1, n
              w(i) = w(i) - s * qv(i, j)
@@ -537,8 +537,8 @@ contains
     end do
 
     allocate(dd(mm), ee(mm), zz(mm, mm), ord(mm))
-    call tql2_eig(alpha, bet, dd, ee, zz, mm, idum)   ! all eigenpairs of T
-    call rsort(dd, ord, mm)                            ! ord(1) = smallest eigenvalue
+    call tql2_eig(alpha, bet, dd, ee, zz, mm, idum) ! all eigenpairs of T
+    call rsort(dd, ord, mm) ! ord(1) = smallest eigenvalue
     kgot = min(kwant, mm)
     do c = 1, kgot
        do i = 1, n
@@ -834,22 +834,22 @@ program genmap_light
   ! the nmsh->mesh read swap [1,2,4,3,5,6,8,7]); same table validated byte-exact
   ! for periodic glb_pt_ids in rea2nbin_light / mesh_checker_light.
   integer(i4), parameter :: FACE_RE2(4,6) = reshape((/ &
-       1,5,8,4,   2,6,7,3,   1,2,6,5,   4,3,7,8,   1,2,3,4,   5,6,7,8 /), (/4,6/))
+       1,5,8,4, 2,6,7,3, 1,2,6,5, 4,3,7,8, 1,2,3,4, 5,6,7,8 /), (/4,6/))
 
   character(len=1024) :: fin, fout, argbuf
   integer :: uin, uout, ios, i, k, argc, nparts
   integer(i4) :: nelv, gdim, elid, nz, ncur, ztype
   integer(i4) :: ze, zf, zpe, zpf, g1, g2, g3, g4
   integer(i4), allocatable :: elid_of_pos(:), pos_of_elid(:)
-  integer(i4), allocatable :: ev(:,:)          ! (8,nelv) original nmsh point ids
-  real(dp), allocatable :: cx(:,:), cy(:,:), cz(:,:)  ! (8,nelv) coords
-  integer(i4), allocatable :: cell(:,:)        ! (8,nelv) merged+compressed vtx ids
+  integer(i4), allocatable :: ev(:,:) ! (8,nelv) original nmsh point ids
+  real(dp), allocatable :: cx(:,:), cy(:,:), cz(:,:) ! (8,nelv) coords
+  integer(i4), allocatable :: cell(:,:) ! (8,nelv) merged+compressed vtx ids
   integer(i4), allocatable :: part(:), newid(:), pos_of_newid(:)
-  integer(i4), allocatable :: blk(:)           ! partition prefix offsets
+  integer(i4), allocatable :: blk(:) ! partition prefix offsets
   ! zone storage
   integer(i4), allocatable :: pz_e(:), pz_f(:), pz_pe(:), pz_pf(:), pz_g(:,:)
   integer(i4), allocatable :: lz_e(:), lz_f(:), lz_lab(:)
-  integer(i4), allocatable :: xz(:,:)          ! legacy zone types, raw 9-int records
+  integer(i4), allocatable :: xz(:,:) ! legacy zone types, raw 9-int records
   integer :: npz, nlz, nxz
   ! curve storage
   integer(i4), allocatable :: cu_e(:), cu_type(:,:)
@@ -880,11 +880,11 @@ program genmap_light
   else
      block
        integer :: islash, idot
-       islash = scan(trim(fin), '/', back=.true.)   ! 0 if no directory part
-       idot   = scan(trim(fin), '.', back=.true.)
-       if (idot > islash) then                       ! a real extension to strip
+       islash = scan(trim(fin), '/', back=.true.) ! 0 if no directory part
+       idot = scan(trim(fin), '.', back=.true.)
+       if (idot > islash) then ! a real extension to strip
           fout = trim(fin(1:idot-1)) // '_' // trim(adjustl(argbuf)) // '.nmsh'
-       else                                          ! no extension (or '.' only in dir)
+       else ! no extension (or '.' only in dir)
           fout = trim(fin) // '_' // trim(adjustl(argbuf)) // '.nmsh'
        end if
      end block
@@ -896,9 +896,9 @@ program genmap_light
   write(*,'(a)') '   /    / / _/  / ,<   / /_/ /'
   write(*,'(a)') '  /_/|_/ /___/ /_/|_|  \____/   genmap_light  (spectral partitioner)'
   write(*,'(a)') ''
-  write(*,'(a,a)')    '  input     : ', trim(fin)
-  write(*,'(a,a)')    '  output    : ', trim(fout)
-  write(*,'(a,i0)')   '  nparts    : ', nparts
+  write(*,'(a,a)') '  input     : ', trim(fin)
+  write(*,'(a,a)') '  output    : ', trim(fout)
+  write(*,'(a,i0)') '  nparts    : ', nparts
 
   ! ---- read header + elements ----
   open(newunit=uin, file=trim(fin), access='stream', form='unformatted', &
@@ -935,7 +935,7 @@ program genmap_light
      end if
      pos_of_elid(elid_of_pos(i)) = int(i, i4)
   end do
-  do i = 1, nelv                 ! element ids must be a permutation of 1..nelv
+  do i = 1, nelv ! element ids must be a permutation of 1..nelv
      if (pos_of_elid(i) == 0) then
         write(error_unit,*) 'Error: element ids are not a permutation of 1..nelv', &
              ' (duplicate or missing id ', i, ').'; stop 1
@@ -1001,8 +1001,8 @@ program genmap_light
   nextid = 0
   do i = 1, nelv
      do k = 1, 8
-        vid = rm%getor(ev(k, i), ev(k, i))     ! merged id (identity if not periodic)
-        mid = comp%intern(vid, nextid)         ! dense 1..nrnk
+        vid = rm%getor(ev(k, i), ev(k, i)) ! merged id (identity if not periodic)
+        mid = comp%intern(vid, nextid) ! dense 1..nrnk
         cell(k, i) = mid
      end do
   end do
@@ -1026,7 +1026,7 @@ program genmap_light
      blk(part(i) + 1) = blk(part(i) + 1) + 1
   end do
   do i = 1, nparts
-     blk(i) = blk(i) + blk(i - 1)          ! exclusive prefix sum -> block starts
+     blk(i) = blk(i) + blk(i - 1) ! exclusive prefix sum -> block starts
   end do
   allocate(newid(nelv), pos_of_newid(nelv))
   block
@@ -1036,7 +1036,7 @@ program genmap_light
     do i = 1, nelv
        r = part(i)
        cnt(r) = cnt(r) + 1
-       newid(i) = blk(r) + cnt(r)           ! 1-based new global id
+       newid(i) = blk(r) + cnt(r) ! 1-based new global id
        pos_of_newid(newid(i)) = int(i, i4)
     end do
   end block
@@ -1049,7 +1049,7 @@ program genmap_light
      block
        integer :: pos
        pos = pos_of_newid(i)
-       write(uout) int(i, i4)               ! el_idx = new contiguous global id
+       write(uout) int(i, i4) ! el_idx = new contiguous global id
        do k = 1, 8
           write(uout) ev(k, pos), cx(k, pos), cy(k, pos), cz(k, pos)
        end do
@@ -1140,8 +1140,8 @@ contains
           ea = clist(a)
           do b = a + 1, j1
              eb = clist(b)
-             if (ea == eb) cycle       ! skip an element sharing a merged vertex
-                                       ! with itself (degenerate periodic/thin mesh)
+             if (ea == eb) cycle ! skip an element sharing a merged vertex
+             ! with itself (degenerate periodic/thin mesh)
              edges = edges + 1_i8
              if (part(ea) /= part(eb)) cut = cut + 1_i8
           end do
