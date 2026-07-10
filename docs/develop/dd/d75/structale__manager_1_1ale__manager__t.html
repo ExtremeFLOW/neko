@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.5</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.6</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -242,7 +242,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aa3b472a21b0030dfc358fd54f1acb7eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs a preview of the mesh motion to verify quality/topology.  <br /></td></tr>
 <tr class="separator:aa3b472a21b0030dfc358fd54f1acb7eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e9c1545c5f11996b9a06995038732aa" id="r_a1e9c1545c5f11996b9a06995038732aa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d75/structale__manager_1_1ale__manager__t.html#a1e9c1545c5f11996b9a06995038732aa">solve_base_mesh_displacement</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, json, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">import_base_shapes</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">abstol</a>, ksp_solver, ksp_max_iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_type</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_params</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">res_monitor</a>)</td></tr>
-<tr class="memdesc:a1e9c1545c5f11996b9a06995038732aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blending function for mesh deformation. For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries. should be modified for device support (ToDo)  <br /></td></tr>
+<tr class="memdesc:a1e9c1545c5f11996b9a06995038732aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blending function for mesh deformation. For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.  <br /></td></tr>
 <tr class="separator:a1e9c1545c5f11996b9a06995038732aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f0e592dcc5204c08b56530ec8f3cb25" id="r_a5f0e592dcc5204c08b56530ec8f3cb25"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d75/structale__manager_1_1ale__manager__t.html#a5f0e592dcc5204c08b56530ec8f3cb25">advance_mesh</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, time, nadv)</td></tr>
 <tr class="memdesc:a5f0e592dcc5204c08b56530ec8f3cb25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main routine to advance the mesh in time.  <br /></td></tr>
@@ -1496,7 +1496,7 @@ Static Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/db4/namespaceale__manager.html">ale_manager</a></li><li class="navelem"><a class="el" href="../../dd/d75/structale__manager_1_1ale__manager__t.html">ale_manager_t</a></li>
-    <li class="footer">Generated on Thu Jul 9 2026 04:49:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jul 10 2026 04:48:38 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

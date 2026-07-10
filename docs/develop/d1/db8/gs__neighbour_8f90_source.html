@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.5</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.6</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -352,177 +352,181 @@ $(document).ready(function(){initNavTree('d1/db8/gs__neighbour_8f90_source.html'
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>             <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>             <span class="comment">!DIR$ CONCURRENT</span></div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>             <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>             <span class="comment">!NEC$ IVDEP</span></div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>             <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>                u(dofs(j)) = u(dofs(j)) + this%recv_buf(off + j)</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>             <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#ae31773b2979489dde7c8c74a2ffaa2e0">gs_op_mul</a>)</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>             <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>             <span class="comment">!DIR$ CONCURRENT</span></div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>             <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>             <span class="comment">!NEC$ IVDEP</span></div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>             <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                u(dofs(j)) = u(dofs(j)) * this%recv_buf(off + j)</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>             <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#adc1310b6876429396e644c02affff7a4">gs_op_min</a>)</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>             <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>             <span class="comment">!DIR$ CONCURRENT</span></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>             <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>             <span class="comment">!NEC$ IVDEP</span></div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>             <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>                u(dofs(j)) = min(u(dofs(j)), this%recv_buf(off + j))</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>             <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e55d923b0b4abe377055b6099f0b460">gs_op_max</a>)</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>             <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>             <span class="comment">!DIR$ CONCURRENT</span></div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>             <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>             <span class="comment">!NEC$ IVDEP</span></div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>             <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>                u(dofs(j)) = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(u(dofs(j)), this%recv_buf(off + j))</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>             <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span><span class="keywordflow">          case default</span></div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown operation in gs_nbwait_neighbour&quot;</span>)</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span><span class="keywordflow">          end select</span></div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordflow">       end select</span></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>             <span class="comment">!DIR$ IVDEP</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>             <span class="comment">!GCC$ ivdep</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>             <span class="comment">!NEC$ IVDEP</span></div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>             <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>                u(dofs(j)) = u(dofs(j)) + this%recv_buf(off + j)</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>             <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#ae31773b2979489dde7c8c74a2ffaa2e0">gs_op_mul</a>)</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>             <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>             <span class="comment">!DIR$ CONCURRENT</span></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>             <span class="comment">!DIR$ IVDEP</span></div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>             <span class="comment">!GCC$ ivdep</span></div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>             <span class="comment">!NEC$ IVDEP</span></div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>             <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>                u(dofs(j)) = u(dofs(j)) * this%recv_buf(off + j)</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>             <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#adc1310b6876429396e644c02affff7a4">gs_op_min</a>)</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>             <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>             <span class="comment">!DIR$ CONCURRENT</span></div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>             <span class="comment">!DIR$ IVDEP</span></div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>             <span class="comment">!GCC$ ivdep</span></div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>             <span class="comment">!NEC$ IVDEP</span></div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>             <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>                u(dofs(j)) = min(u(dofs(j)), this%recv_buf(off + j))</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>             <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e55d923b0b4abe377055b6099f0b460">gs_op_max</a>)</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>             <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>             <span class="comment">!DIR$ CONCURRENT</span></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>             <span class="comment">!DIR$ IVDEP</span></div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>             <span class="comment">!GCC$ ivdep</span></div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>             <span class="comment">!NEC$ IVDEP</span></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>             <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>                u(dofs(j)) = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(u(dofs(j)), this%recv_buf(off + j))</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>             <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span><span class="keywordflow">          case default</span></div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown operation in gs_nbwait_neighbour&quot;</span>)</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordflow">          end select</span></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keywordflow">       end select</span></div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span> </div>
 </div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a1c351395446f33e715b8e20e14460a6b">gs_nbwait_neighbour</a></div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span> </div>
-<div class="foldopen" id="foldopen00318" data-start="" data-end="">
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno"><a class="line" href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">  318</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">gs_nbsend_vec_neighbour</a>(this, u, n, nc, tag, deps, strm)</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n, nc</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(nc*n)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tag</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: deps</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordtype">integer</span> :: i, j, c, dst, off, ndst, ierr</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span> </div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>       dst = this%send_pe(i)</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>       off = this%sdispls(i)</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>       ndst = this%sendcounts(i)</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>       <span class="keywordflow">select type</span> (dofs =&gt; this%send_dof(dst)%data)</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span><span class="keywordflow">       type is</span> (integer)</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>          <span class="keywordflow">do</span> c = 1, nc</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>             <span class="comment">!$omp simd</span></div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>             <span class="keywordflow">do</span> j = 1, ndst</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>                this%send_buf_v(nc*off + (c-1)*ndst + j) = u((c-1)*n + dofs(j))</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span><span class="keywordflow">       end select</span></div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="comment">! A neighbourhood collective is one call over neigh_comm and must be</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>    <span class="comment">! issued by a single thread. The end-do barrier above guarantees the</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="comment">! send buffer is fully packed first.</span></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>    <span class="comment">!$omp master</span></div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>       this%sendcounts_v(i) = nc * this%sendcounts(i)</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>       this%sdispls_v(i) = nc * this%sdispls(i)</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>       this%recvcounts_v(i) = nc * this%recvcounts(i)</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>       this%rdispls_v(i) = nc * this%rdispls(i)</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a1c351395446f33e715b8e20e14460a6b">gs_nbwait_neighbour</a></div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span> </div>
+<div class="foldopen" id="foldopen00322" data-start="" data-end="">
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno"><a class="line" href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">  322</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">gs_nbsend_vec_neighbour</a>(this, u, n, nc, tag, deps, strm)</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n, nc</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(nc*n)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tag</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: deps</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>    <span class="keywordtype">integer</span> :: i, j, c, dst, off, ndst, ierr</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span> </div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>       dst = this%send_pe(i)</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>       off = this%sdispls(i)</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>       ndst = this%sendcounts(i)</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>       <span class="keywordflow">select type</span> (dofs =&gt; this%send_dof(dst)%data)</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span><span class="keywordflow">       type is</span> (integer)</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>          <span class="keywordflow">do</span> c = 1, nc</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>             <span class="comment">!$omp simd</span></div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>             <span class="keywordflow">do</span> j = 1, ndst</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>                this%send_buf_v(nc*off + (c-1)*ndst + j) = u((c-1)*n + dofs(j))</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="keywordflow">       end select</span></div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>    <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    <span class="comment">! A neighbourhood collective is one call over neigh_comm and must be</span></div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    <span class="comment">! issued by a single thread. The end-do barrier above guarantees the</span></div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    <span class="comment">! send buffer is fully packed first.</span></div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    <span class="comment">!$omp master</span></div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%send_pe)</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>       this%sendcounts_v(i) = nc * this%sendcounts(i)</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>       this%sdispls_v(i) = nc * this%sdispls(i)</div>
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="keyword">call </span>mpi_ineighbor_alltoallv(this%send_buf_v, this%sendcounts_v, &amp;</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>         this%sdispls_v, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a>, this%recv_buf_v, &amp;</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>         this%recvcounts_v, this%rdispls_v, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a>, &amp;</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>         this%neigh_comm, this%request, ierr)</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="comment">!$omp end master</span></div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span> </div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>       this%recvcounts_v(i) = nc * this%recvcounts(i)</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>       this%rdispls_v(i) = nc * this%rdispls(i)</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <span class="keyword">call </span>mpi_ineighbor_alltoallv(this%send_buf_v, this%sendcounts_v, &amp;</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>         this%sdispls_v, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a>, this%recv_buf_v, &amp;</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>         this%recvcounts_v, this%rdispls_v, <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">mpi_real_precision</a>, &amp;</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>         this%neigh_comm, this%request, ierr)</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="comment">!$omp end master</span></div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span> </div>
 </div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">gs_nbsend_vec_neighbour</a></div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span> </div>
-<div class="foldopen" id="foldopen00365" data-start="" data-end="">
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno"><a class="line" href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">  365</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">gs_nbrecv_vec_neighbour</a>(this, tag, nc)</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tag, nc</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>    <span class="comment">! Nothing to do: the collective is launched in nbsend_vec.</span></div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">gs_nbsend_vec_neighbour</a></div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span> </div>
+<div class="foldopen" id="foldopen00369" data-start="" data-end="">
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno"><a class="line" href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">  369</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">gs_nbrecv_vec_neighbour</a>(this, tag, nc)</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tag, nc</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="comment">! Nothing to do: the collective is launched in nbsend_vec.</span></div>
 </div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">gs_nbrecv_vec_neighbour</a></div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
-<div class="foldopen" id="foldopen00374" data-start="" data-end="">
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno"><a class="line" href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">  374</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">gs_nbwait_vec_neighbour</a>(this, u, n, nc, op, strm)</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n, nc</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(nc*n)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    <span class="keywordtype">integer</span> :: i, j, c, src, off, nsrc, ierr</div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>    <span class="keywordtype">integer</span> :: op</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    <span class="comment">!$omp master</span></div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    <span class="keyword">call </span>mpi_wait(this%request, mpi_status_ignore, ierr)</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <span class="comment">!$omp end master</span></div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="comment">!$omp barrier</span></div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>    <span class="comment">! Serial over peers (a dof shared by 3+ ranks appears in several recv</span></div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    <span class="comment">! lists); parallelism is taken within each slab.</span></div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>       src = this%recv_pe(i)</div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>       off = this%rdispls(i)</div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>       nsrc = this%recvcounts(i)</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>       <span class="keywordflow">select type</span> (dofs =&gt; this%recv_dof(src)%data)</div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span><span class="keywordflow">       type is</span> (integer)</div>
-<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>          <span class="keywordflow">select case</span> (op)</div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>             <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
-<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>                <span class="keywordflow">do</span> c = 1, nc</div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>                   u((c-1)*n + dofs(j)) = u((c-1)*n + dofs(j)) + &amp;</div>
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>                        this%recv_buf_v(nc*off + (c-1)*nsrc + j)</div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span><span class="keywordflow">                end do</span></div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>             <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#ae31773b2979489dde7c8c74a2ffaa2e0">gs_op_mul</a>)</div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>             <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>                <span class="keywordflow">do</span> c = 1, nc</div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>                   u((c-1)*n + dofs(j)) = u((c-1)*n + dofs(j)) * &amp;</div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>                        this%recv_buf_v(nc*off + (c-1)*nsrc + j)</div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span><span class="keywordflow">                end do</span></div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>             <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#adc1310b6876429396e644c02affff7a4">gs_op_min</a>)</div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>             <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
-<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>                <span class="keywordflow">do</span> c = 1, nc</div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>                   u((c-1)*n + dofs(j)) = min(u((c-1)*n + dofs(j)), &amp;</div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>                        this%recv_buf_v(nc*off + (c-1)*nsrc + j))</div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span><span class="keywordflow">                end do</span></div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>             <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e55d923b0b4abe377055b6099f0b460">gs_op_max</a>)</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>             <span class="comment">!$omp do</span></div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
-<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>                <span class="keywordflow">do</span> c = 1, nc</div>
-<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>                   u((c-1)*n + dofs(j)) = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(u((c-1)*n + dofs(j)), &amp;</div>
-<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>                        this%recv_buf_v(nc*off + (c-1)*nsrc + j))</div>
-<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span><span class="keywordflow">                end do</span></div>
-<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span><span class="keywordflow">             end do</span></div>
-<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>             <span class="comment">!$omp end do</span></div>
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span><span class="keywordflow">          case default</span></div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown operation in gs_nbwait_vec_neighbour&quot;</span>)</div>
-<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span><span class="keywordflow">          end select</span></div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span><span class="keywordflow">       end select</span></div>
-<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span> </div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">gs_nbrecv_vec_neighbour</a></div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span> </div>
+<div class="foldopen" id="foldopen00378" data-start="" data-end="">
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno"><a class="line" href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">  378</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">gs_nbwait_vec_neighbour</a>(this, u, n, nc, op, strm)</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d8/d5d/structgs__neighbour_1_1gs__neighbour__t.html">gs_neighbour_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n, nc</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(nc*n)</span>, <span class="keywordtype">intent(inout)</span> :: u</div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">intent(inout)</span> :: strm</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    <span class="keywordtype">integer</span> :: i, j, c, src, off, nsrc, ierr</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <span class="keywordtype">integer</span> :: op</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span> </div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    <span class="comment">!$omp master</span></div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>    <span class="keyword">call </span>mpi_wait(this%request, mpi_status_ignore, ierr)</div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    <span class="comment">!$omp end master</span></div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    <span class="comment">!$omp barrier</span></div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span> </div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    <span class="comment">! Serial over peers (a dof shared by 3+ ranks appears in several recv</span></div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>    <span class="comment">! lists); parallelism is taken within each slab.</span></div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>    <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%recv_pe)</div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>       src = this%recv_pe(i)</div>
+<div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>       off = this%rdispls(i)</div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>       nsrc = this%recvcounts(i)</div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>       <span class="keywordflow">select type</span> (dofs =&gt; this%recv_dof(src)%data)</div>
+<div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span><span class="keywordflow">       type is</span> (integer)</div>
+<div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>          <span class="keywordflow">select case</span> (op)</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>             <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>                <span class="keywordflow">do</span> c = 1, nc</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>                   u((c-1)*n + dofs(j)) = u((c-1)*n + dofs(j)) + &amp;</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>                        this%recv_buf_v(nc*off + (c-1)*nsrc + j)</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span><span class="keywordflow">                end do</span></div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>             <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#ae31773b2979489dde7c8c74a2ffaa2e0">gs_op_mul</a>)</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>             <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>                <span class="keywordflow">do</span> c = 1, nc</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>                   u((c-1)*n + dofs(j)) = u((c-1)*n + dofs(j)) * &amp;</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>                        this%recv_buf_v(nc*off + (c-1)*nsrc + j)</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span><span class="keywordflow">                end do</span></div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>             <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#adc1310b6876429396e644c02affff7a4">gs_op_min</a>)</div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>             <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>                <span class="keywordflow">do</span> c = 1, nc</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>                   u((c-1)*n + dofs(j)) = min(u((c-1)*n + dofs(j)), &amp;</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>                        this%recv_buf_v(nc*off + (c-1)*nsrc + j))</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span><span class="keywordflow">                end do</span></div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>             <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>          <span class="keywordflow">case</span> (<a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e55d923b0b4abe377055b6099f0b460">gs_op_max</a>)</div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>             <span class="comment">!$omp do</span></div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>             <span class="keywordflow">do</span> j = 1, nsrc</div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>                <span class="keywordflow">do</span> c = 1, nc</div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>                   u((c-1)*n + dofs(j)) = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(u((c-1)*n + dofs(j)), &amp;</div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>                        this%recv_buf_v(nc*off + (c-1)*nsrc + j))</div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span><span class="keywordflow">                end do</span></div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span><span class="keywordflow">             end do</span></div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>             <span class="comment">!$omp end do</span></div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span><span class="keywordflow">          case default</span></div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>             <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Unknown operation in gs_nbwait_vec_neighbour&quot;</span>)</div>
+<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span><span class="keywordflow">          end select</span></div>
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span><span class="keywordflow">       end select</span></div>
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span> </div>
 </div>
-<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">gs_nbwait_vec_neighbour</a></div>
-<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span> </div>
-<div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/dc1/namespacegs__neighbour.html">gs_neighbour</a></div>
+<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">gs_nbwait_vec_neighbour</a></div>
+<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span> </div>
+<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/dc1/namespacegs__neighbour.html">gs_neighbour</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a3119ac9b00aa5192f43296a1edb405bc"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc">comm::mpi_real_precision</a></div><div class="ttdeci">type(mpi_datatype), public mpi_real_precision</div><div class="ttdoc">MPI type for working precision of REAL types.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00053">comm.F90:53</a></div></div>
@@ -531,13 +535,13 @@ $(document).ready(function(){initNavTree('d1/db8/gs__neighbour_8f90_source.html'
 <div class="ttc" id="anamespacegs__comm_html_a2b88a0ee2c4f2fe066f86ffc2a757960"><div class="ttname"><a href="../../d6/d7c/namespacegs__comm.html#a2b88a0ee2c4f2fe066f86ffc2a757960">gs_comm::gs_vec_nc</a></div><div class="ttdeci">integer, parameter, public gs_vec_nc</div><div class="ttdoc">Maximum number of components handled by the fused vector (multi-component) halo exchange used by gs_o...</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d75/gs__comm_8f90_source.html#l00049">gs_comm.f90:49</a></div></div>
 <div class="ttc" id="anamespacegs__neighbour_html"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html">gs_neighbour</a></div><div class="ttdoc">Defines gather-scatter communication using MPI neighbourhood collectives.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00034">gs_neighbour.f90:34</a></div></div>
 <div class="ttc" id="anamespacegs__neighbour_html_a1c351395446f33e715b8e20e14460a6b"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#a1c351395446f33e715b8e20e14460a6b">gs_neighbour::gs_nbwait_neighbour</a></div><div class="ttdeci">subroutine gs_nbwait_neighbour(this, u, n, op, strm)</div><div class="ttdoc">Wait for the neighbourhood collective and reduce the received slabs.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00239">gs_neighbour.f90:240</a></div></div>
-<div class="ttc" id="anamespacegs__neighbour_html_a34898fb334a7b75f54b09b0b388ef61f"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">gs_neighbour::gs_nbsend_vec_neighbour</a></div><div class="ttdeci">subroutine gs_nbsend_vec_neighbour(this, u, n, nc, tag, deps, strm)</div><div class="ttdoc">Pack the nc components and launch a single neighbourhood collective.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00318">gs_neighbour.f90:319</a></div></div>
-<div class="ttc" id="anamespacegs__neighbour_html_a49bb4a26fe493fe0fa8e53cb909531e5"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">gs_neighbour::gs_nbwait_vec_neighbour</a></div><div class="ttdeci">subroutine gs_nbwait_vec_neighbour(this, u, n, nc, op, strm)</div><div class="ttdoc">Wait for the vector collective and reduce each received slab into u. Peer i's received slab holds nc ...</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00374">gs_neighbour.f90:375</a></div></div>
+<div class="ttc" id="anamespacegs__neighbour_html_a34898fb334a7b75f54b09b0b388ef61f"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#a34898fb334a7b75f54b09b0b388ef61f">gs_neighbour::gs_nbsend_vec_neighbour</a></div><div class="ttdeci">subroutine gs_nbsend_vec_neighbour(this, u, n, nc, tag, deps, strm)</div><div class="ttdoc">Pack the nc components and launch a single neighbourhood collective.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00322">gs_neighbour.f90:323</a></div></div>
+<div class="ttc" id="anamespacegs__neighbour_html_a49bb4a26fe493fe0fa8e53cb909531e5"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#a49bb4a26fe493fe0fa8e53cb909531e5">gs_neighbour::gs_nbwait_vec_neighbour</a></div><div class="ttdeci">subroutine gs_nbwait_vec_neighbour(this, u, n, nc, op, strm)</div><div class="ttdoc">Wait for the vector collective and reduce each received slab into u. Peer i's received slab holds nc ...</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00378">gs_neighbour.f90:379</a></div></div>
 <div class="ttc" id="anamespacegs__neighbour_html_a4fc4c83b445704acd6bfa0414b34b628"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#a4fc4c83b445704acd6bfa0414b34b628">gs_neighbour::gs_nbrecv_neighbour</a></div><div class="ttdeci">subroutine gs_nbrecv_neighbour(this, tag)</div><div class="ttdoc">No-op: the neighbourhood collective issued in nbsend handles both the send and receive directions,...</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00232">gs_neighbour.f90:233</a></div></div>
 <div class="ttc" id="anamespacegs__neighbour_html_ac2db40447c0186d42068a842b4f831cd"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#ac2db40447c0186d42068a842b4f831cd">gs_neighbour::gs_neighbour_free</a></div><div class="ttdeci">subroutine gs_neighbour_free(this)</div><div class="ttdoc">Deallocate the neighbourhood-collective communication method.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00163">gs_neighbour.f90:164</a></div></div>
 <div class="ttc" id="anamespacegs__neighbour_html_ac6c2f6953923b2f0fab9d55bdfdcedd1"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#ac6c2f6953923b2f0fab9d55bdfdcedd1">gs_neighbour::gs_neighbour_init</a></div><div class="ttdeci">subroutine gs_neighbour_init(this, send_pe, recv_pe)</div><div class="ttdoc">Initialise the neighbourhood-collective communication method See gs_comm.f90 for details.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00094">gs_neighbour.f90:95</a></div></div>
 <div class="ttc" id="anamespacegs__neighbour_html_ae142e5fdd86982f94ad31a2db1d24875"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#ae142e5fdd86982f94ad31a2db1d24875">gs_neighbour::gs_nbsend_neighbour</a></div><div class="ttdeci">subroutine gs_nbsend_neighbour(this, u, n, tag, deps, strm)</div><div class="ttdoc">Pack the send buffer and initiate the neighbourhood collective. The collective covers both directions...</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00191">gs_neighbour.f90:192</a></div></div>
-<div class="ttc" id="anamespacegs__neighbour_html_aec7c0ed150a0ba20a990b76c99e4b0df"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">gs_neighbour::gs_nbrecv_vec_neighbour</a></div><div class="ttdeci">subroutine gs_nbrecv_vec_neighbour(this, tag, nc)</div><div class="ttdoc">No-op: the collective is launched in nbsend_vec.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00365">gs_neighbour.f90:366</a></div></div>
+<div class="ttc" id="anamespacegs__neighbour_html_aec7c0ed150a0ba20a990b76c99e4b0df"><div class="ttname"><a href="../../d6/dc1/namespacegs__neighbour.html#aec7c0ed150a0ba20a990b76c99e4b0df">gs_neighbour::gs_nbrecv_vec_neighbour</a></div><div class="ttdeci">subroutine gs_nbrecv_vec_neighbour(this, tag, nc)</div><div class="ttdoc">No-op: the collective is launched in nbsend_vec.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db8/gs__neighbour_8f90_source.html#l00369">gs_neighbour.f90:370</a></div></div>
 <div class="ttc" id="anamespacegs__ops_html"><div class="ttname"><a href="../../dd/d18/namespacegs__ops.html">gs_ops</a></div><div class="ttdoc">Defines Gather-scatter operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d67/gs__ops_8f90_source.html#l00034">gs_ops.f90:34</a></div></div>
 <div class="ttc" id="anamespacegs__ops_html_a9e2bcfac9de4f1625cfa4281c4eacba8"><div class="ttname"><a href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_ops::gs_op_add</a></div><div class="ttdeci">integer, parameter, public gs_op_add</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d67/gs__ops_8f90_source.html#l00036">gs_ops.f90:36</a></div></div>
 <div class="ttc" id="anamespacegs__ops_html_a9e55d923b0b4abe377055b6099f0b460"><div class="ttname"><a href="../../dd/d18/namespacegs__ops.html#a9e55d923b0b4abe377055b6099f0b460">gs_ops::gs_op_max</a></div><div class="ttdeci">integer, parameter, public gs_op_max</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d67/gs__ops_8f90_source.html#l00036">gs_ops.f90:36</a></div></div>
@@ -557,7 +561,7 @@ $(document).ready(function(){initNavTree('d1/db8/gs__neighbour_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../d1/db8/gs__neighbour_8f90.html">gs_neighbour.f90</a></li>
-    <li class="footer">Generated on Thu Jul 9 2026 04:49:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jul 10 2026 04:48:36 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
