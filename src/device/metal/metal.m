@@ -45,6 +45,7 @@
 
 #import <Metal/Metal.h>
 #import <Foundation/Foundation.h>
+#include <stdlib.h>
 #include <string.h>
 
 /*
@@ -250,9 +251,11 @@ int metal_memset(void *buf_d, int value, size_t s)
  */
 int metal_device_sync(void)
 {
-    id<MTLCommandBuffer> cb = [_mtl_glb_queue commandBuffer];
-    [cb commit];
-    [cb waitUntilCompleted];
+    @autoreleasepool {
+        id<MTLCommandBuffer> cb = [_mtl_glb_queue commandBuffer];
+        [cb commit];
+        [cb waitUntilCompleted];
+    }
     return 0;
 }
 
@@ -261,10 +264,12 @@ int metal_device_sync(void)
  */
 int metal_stream_sync(void *queue)
 {
-    id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)queue;
-    id<MTLCommandBuffer> cb = [q commandBuffer];
-    [cb commit];
-    [cb waitUntilCompleted];
+    @autoreleasepool {
+        id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)queue;
+        id<MTLCommandBuffer> cb = [q commandBuffer];
+        [cb commit];
+        [cb waitUntilCompleted];
+    }
     return 0;
 }
 
@@ -291,58 +296,74 @@ int metal_stream_destroy(void *stream)
 
 /*
  * Events
+ *
+ * An event handle wraps the shared event together with the value the
+ * most recent record will signal, so that sync/wait target the
+ * recorded state rather than whatever value happens to be signaled
+ * when they are called.
  */
+
+struct metal_event {
+    void *event;      /* retained id<MTLSharedEvent> */
+    uint64_t target;  /* value signaled by the last record */
+};
 
 int metal_event_create(void **event)
 {
     id<MTLSharedEvent> e = [_mtl_device newSharedEvent];
     if (!e) return -1;
-    *event = (__bridge_retained void *)e;
+    struct metal_event *ev = malloc(sizeof(*ev));
+    if (!ev) return -1;
+    ev->event = (__bridge_retained void *)e;
+    ev->target = 0;
+    *event = ev;
     return 0;
 }
 
 int metal_event_destroy(void *event)
 {
     if (event) {
+        struct metal_event *ev = event;
         id<MTLSharedEvent> e __attribute__((unused)) =
-            (__bridge_transfer id<MTLSharedEvent>)event;
+            (__bridge_transfer id<MTLSharedEvent>)ev->event;
+        free(ev);
     }
     return 0;
 }
 
 int metal_event_record(void *event, void *queue)
 {
-    id<MTLSharedEvent> e = (__bridge id<MTLSharedEvent>)event;
-    id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)queue;
-    uint64_t val = e.signaledValue + 1;
-    id<MTLCommandBuffer> cb = [q commandBuffer];
-    [cb encodeSignalEvent:e value:val];
-    [cb commit];
+    @autoreleasepool {
+        struct metal_event *ev = event;
+        id<MTLSharedEvent> e = (__bridge id<MTLSharedEvent>)ev->event;
+        id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)queue;
+        ev->target++;
+        id<MTLCommandBuffer> cb = [q commandBuffer];
+        [cb encodeSignalEvent:e value:ev->target];
+        [cb commit];
+    }
     return 0;
 }
 
 int metal_event_sync(void *event)
 {
-    id<MTLSharedEvent> e = (__bridge id<MTLSharedEvent>)event;
-    /* Spin-wait until the GPU signals the event. */
-    uint64_t target = e.signaledValue;
-    while (e.signaledValue < target) {
-        /*
-         * On Apple Silicon this is essentially a no-op since
-         * event_record commits the command buffer.
-         */
-    }
+    struct metal_event *ev = event;
+    id<MTLSharedEvent> e = (__bridge id<MTLSharedEvent>)ev->event;
+    /* Spin-wait until the GPU signals the last recorded value. */
+    while (e.signaledValue < ev->target);
     return 0;
 }
 
 int metal_stream_wait_event(void *queue, void *event)
 {
-    id<MTLSharedEvent> e = (__bridge id<MTLSharedEvent>)event;
-    id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)queue;
-    uint64_t val = e.signaledValue;
-    id<MTLCommandBuffer> cb = [q commandBuffer];
-    [cb encodeWaitForEvent:e value:val];
-    [cb commit];
+    @autoreleasepool {
+        struct metal_event *ev = event;
+        id<MTLSharedEvent> e = (__bridge id<MTLSharedEvent>)ev->event;
+        id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)queue;
+        id<MTLCommandBuffer> cb = [q commandBuffer];
+        [cb encodeWaitForEvent:e value:ev->target];
+        [cb commit];
+    }
     return 0;
 }
 

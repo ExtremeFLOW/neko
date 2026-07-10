@@ -248,6 +248,11 @@ contains
     end if
 
     if (.not. g%internal_dofmap) then
+       if (this%internal_dofmap) then
+          call this%dof%free()
+          deallocate(this%dof)
+          this%internal_dofmap = .false.
+       end if
        this%dof => g%dof
     else
        if (this%internal_dofmap) then

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module opencl_math
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, c_xp
   implicit none
   public
 
@@ -180,6 +180,25 @@ module opencl_math
        real(c_rp) :: max_val
        integer(c_int) :: n
      end subroutine opencl_cwrap
+
+     subroutine opencl_sqrt_inplace(a_d, n, strm) &
+          bind(c, name = 'opencl_sqrt_inplace')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       integer(c_int) :: n
+     end subroutine opencl_sqrt_inplace
+
+     subroutine opencl_power(ap_d, a_d, p, n, strm) &
+          bind(c, name = 'opencl_power')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: ap_d
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: strm
+       real(c_rp) :: p
+       integer(c_int) :: n
+     end subroutine opencl_power
 
      subroutine opencl_cfill(a_d, c, n, strm) &
           bind(c, name = 'opencl_cfill')
@@ -401,10 +420,10 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_vcross
 
-     real(c_rp) function opencl_glsc3(a_d, b_d, c_d, n, strm) &
+     real(c_xp) function opencl_glsc3(a_d, b_d, c_d, n, strm) &
           bind(c, name = 'opencl_glsc3')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d, strm
        integer(c_int) :: n
@@ -413,35 +432,35 @@ module opencl_math
      subroutine opencl_glsc3_many(h, w_d, v_d_d, mult_d, j, n, strm) &
           bind(c, name = 'opencl_glsc3_many')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        integer(c_int) :: j, n
        type(c_ptr), value :: w_d, v_d_d, mult_d, strm
-       real(c_rp) :: h(j)
+       real(c_xp) :: h(j)
      end subroutine opencl_glsc3_many
 
-     real(c_rp) function opencl_glsc2(a_d, b_d, n, strm) &
+     real(c_xp) function opencl_glsc2(a_d, b_d, n, strm) &
           bind(c, name = 'opencl_glsc2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function opencl_glsc2
 
-     real(c_rp) function opencl_glsubnorm2(a_d, b_d, n, strm) &
+     real(c_xp) function opencl_glsubnorm2(a_d, b_d, n, strm) &
           bind(c, name = 'opencl_glsubnorm2')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        type(c_ptr), value :: a_d, b_d, strm
        integer(c_int) :: n
      end function opencl_glsubnorm2
 
-     real(c_rp) function opencl_glsum(a_d, n, strm) &
+     real(c_xp) function opencl_glsum(a_d, n, strm) &
           bind(c, name = 'opencl_glsum')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
+       import c_xp
        implicit none
        type(c_ptr), value :: a_d, strm
        integer(c_int) :: n

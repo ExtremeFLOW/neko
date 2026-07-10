@@ -47,6 +47,7 @@ contains
     if (nab .eq. 3) then
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp do
        do i = 1, n
@@ -61,6 +62,7 @@ contains
     else
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp do
        do i = 1, n
@@ -93,6 +95,7 @@ contains
     !$omp parallel private(i)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -107,6 +110,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -121,6 +125,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -150,6 +155,7 @@ contains
     !$omp parallel private(i)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -160,6 +166,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -170,6 +177,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -182,13 +190,12 @@ contains
   end subroutine scalar_rhs_maker_ext_cpu
 
   subroutine rhs_maker_bdf_cpu(ulag, vlag, wlag, bfx, bfy, bfz, &
-       u, v, w, B, rho, dt, bd, nbd, n, Blag, Blaglag)
+       u, v, w, B, Blag, Blaglag, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
     type(field_series_t), intent(in) :: ulag, vlag, wlag
-    real(kind=rp), intent(in) :: Blag(n), Blaglag(n)
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
-    real(kind=rp), intent(in) :: B(n)
+    real(kind=rp), intent(in) :: B(n), Blag(n), Blaglag(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
     type(field_t), pointer :: tb1, tb2, tb3
     integer :: temp_indices(3)
@@ -201,6 +208,7 @@ contains
     !$omp parallel private(ilag, i)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -214,6 +222,7 @@ contains
        if (ilag .eq. 2) then
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
+          !DIR$ IVDEP
           !GCC$ ivdep
           !$omp do
           do i = 1, n
@@ -228,6 +237,7 @@ contains
        else if (ilag .eq. 3) then
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
+          !DIR$ IVDEP
           !GCC$ ivdep
           !$omp do
           do i = 1, n
@@ -244,6 +254,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -274,6 +285,7 @@ contains
     !$omp parallel private(i, ilag)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -284,6 +296,7 @@ contains
     do ilag = 2, nbd
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp do
        do i = 1, n
@@ -295,6 +308,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -316,6 +330,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n
@@ -336,6 +351,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n

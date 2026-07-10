@@ -4,7 +4,7 @@ neko_fortran_SOURCES = \
 	ale/ale_rigid_kinematics.f90\
 	ale/ale_manager.f90\
 	ale/bcknd/cpu/ale_routines_cpu.f90\
-	ale/bcknd/ale_routines_device.F90\
+	ale/bcknd/device/ale_routines_device.F90\
 	api/neko_api.f90\
 	api/neko_api_user.f90\
 	config/num_types.f90\
@@ -21,6 +21,7 @@ neko_fortran_SOURCES = \
 	common/log.f90\
 	comm/comm.F90\
 	comm/pfunit_comm_utils.F90\
+	comm/crystal_router.f90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
 	comm/shmem.F90\
@@ -63,6 +64,8 @@ neko_fortran_SOURCES = \
 	gs/gs_mpi.f90\
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
+	gs/gs_neighbour.f90\
+	gs/gs_utofu.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
@@ -131,6 +134,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	common/particles.f90\
 	math/vector_series.f90\
 	math/vector_list.f90\
 	math/vector_math.f90\
@@ -173,6 +177,7 @@ neko_fortran_SOURCES = \
 	io/fluid_sgs_stats_output.f90\
 	io/scalar_stats_output.f90\
 	io/scalar_sgs_stats_output.f90\
+	io/spatial_average_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
 	global_interpolation/global_interpolation.f90\
@@ -254,6 +259,7 @@ neko_fortran_SOURCES = \
 	simulation_components/fluid_sgs_stats_simcomp.f90\
 	simulation_components/scalar_stats_simcomp.f90\
 	simulation_components/scalar_sgs_stats_simcomp.f90\
+	simulation_components/spatial_average.f90\
 	simulation_components/user_stats.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
@@ -364,6 +370,16 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
+	lpt/bcknd/cpu/lpt_periodic_bc_cpu.f90\
+	lpt/bcknd/cpu/lpt_wall_collision_cpu.f90\
+	lpt/bcknd/device/lpt_periodic_bc_device.F90\
+	lpt/bcknd/device/lpt_wall_collision_device.F90\
+	lpt/lpt_periodic_bc.f90\
+	lpt/lpt_output.f90\
+	lpt/lpt.f90\
+	simulation_components/lpt_simcomp.f90\
+	lpt/lpt_migration.f90\
+	lpt/lpt_wall_collision.f90\
 	simulation_components/curl_simcomp.f90\
 	simulation_components/divergence_simcomp.f90\
 	simulation_components/weak_gradient_simcomp.f90\
@@ -473,8 +489,13 @@ if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
+if ENABLE_UTOFU
+libneko_la_SOURCES += gs/gs_utofu_aux.c
+endif
+
 if ENABLE_HIP
 libneko_la_SOURCES += \
+    ale/bcknd/device/hip/ale_kinematics.hip\
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
@@ -519,6 +540,8 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/hip/coef.hip\
 	sem/bcknd/device/hip/local_interpolation.hip\
 	filter/bcknd/device/hip/mappings.hip\
+	lpt/bcknd/device/hip/lpt_periodic_bc.hip\
+	lpt/bcknd/device/hip/lpt_wall_collision.hip\
 	source_terms/bcknd/device/hip/gradient_jump_penalty.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip\
@@ -538,6 +561,7 @@ endif
 
 if ENABLE_CUDA
 libneko_la_SOURCES += \
+    ale/bcknd/device/cuda/ale_kinematics.cu\
 	device/cuda/check.cu\
 	device/cuda/nvtx_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
@@ -562,7 +586,6 @@ libneko_la_SOURCES += \
 	krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
-	gs/bcknd/device/cuda/gs_nvshmem.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/zero_dirichlet.cu\
@@ -584,6 +607,8 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/cuda/coef.cu\
 	sem/bcknd/device/cuda/local_interpolation.cu\
 	filter/bcknd/device/cuda/mappings.cu\
+	lpt/bcknd/device/cuda/lpt_periodic_bc.cu\
+	lpt/bcknd/device/cuda/lpt_wall_collision.cu\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\
@@ -601,7 +626,44 @@ libneko_la_SOURCES += \
 	multigrid/bcknd/device/cuda/amg_cheby.cu\
 	krylov/bcknd/device/cuda/cheby_aux.cu
 
-BUILT_SOURCES = libtool_cuda
+BUILT_SOURCES = @top_builddir@/libtool_cuda
+
+if ENABLE_NVSHMEM
+#
+# Device-side NVSHMEM calls (gs_nvshmem_kernels.h) require relocatable
+# device code and a device link against libnvshmem_device. The device
+# code in gs_nvshmem.cu is self-contained, so the device link can be
+# closed here, keeping nvcc out of the final link. Built under a
+# different object name (and added to LIBADD, as with Metal) to not
+# clash with the suffix rule and .depends_device
+#
+gs/bcknd/device/cuda/gs_nvshmem_rdc.lo: gs/bcknd/device/cuda/gs_nvshmem.cu gs/bcknd/device/cuda/gs_kernels.h gs/bcknd/device/cuda/gs_nvshmem_kernels.h @top_builddir@/libtool_cuda
+	$(SHELL) @top_builddir@/libtool_cuda --tag=CC --mode=compile $(NVCC) -rdc=true @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
+
+#
+# Wrap the device linked object with a libtool object
+# (pic only; libtool falls back to the pic object for static archives)
+#
+gs/bcknd/device/cuda/gs_nvshmem_dlink.lo: gs/bcknd/device/cuda/gs_nvshmem_rdc.lo
+	$(MKDIR_P) gs/bcknd/device/cuda/.libs
+	obj=gs/bcknd/device/cuda/.libs/gs_nvshmem_rdc.o; \
+	test -f $$obj || obj=gs/bcknd/device/cuda/gs_nvshmem_rdc.o; \
+	$(NVCC) @CUDA_ARCH@ -dlink -Xcompiler -fPIC \
+		-o gs/bcknd/device/cuda/.libs/gs_nvshmem_dlink.o \
+		$$obj @NVSHMEM_LDFLAGS@ -lnvshmem_device
+	printf "%s\n" \
+		"# gs_nvshmem_dlink.lo - a libtool object file" \
+		"# Generated by libtool (hand-written NVSHMEM device link)" \
+		"pic_object='.libs/gs_nvshmem_dlink.o'" \
+		"non_pic_object=none" > $@
+
+libneko_la_LIBADD += \
+	gs/bcknd/device/cuda/gs_nvshmem_rdc.lo\
+	gs/bcknd/device/cuda/gs_nvshmem_dlink.lo
+else
+libneko_la_SOURCES += \
+	gs/bcknd/device/cuda/gs_nvshmem.cu
+endif
 
 endif
 
@@ -831,11 +893,9 @@ libneko_la_LIBADD += \
 endif
 
 
-if !ENABLE_NVSHMEM
 bin_PROGRAMS = neko
 neko_SOURCES = driver.f90
 neko_LDADD= libneko.la
-endif
 
 pkginclude_HEADERS = \
 	$(wildcard *.mod)
@@ -845,6 +905,15 @@ CLEANFILES = *.mod\
 
 if ENABLE_CUDA
 CLEANFILES += @top_builddir@/libtool_cuda
+endif
+
+if ENABLE_NVSHMEM
+CLEANFILES += \
+	gs/bcknd/device/cuda/gs_nvshmem_rdc.lo\
+	gs/bcknd/device/cuda/gs_nvshmem_rdc.o\
+	gs/bcknd/device/cuda/.libs/gs_nvshmem_rdc.o\
+	gs/bcknd/device/cuda/gs_nvshmem_dlink.lo\
+	gs/bcknd/device/cuda/.libs/gs_nvshmem_dlink.o
 endif
 
 if ENABLE_METAL
@@ -881,6 +950,7 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
+    ale/bcknd/device/cuda/ale_kinematics_kernel.h\
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
@@ -921,6 +991,8 @@ EXTRA_DIST = \
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
+	lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h\
+	lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h\
 	les/bcknd/device/cuda/sigma_nut_kernel.h\
 	les/bcknd/device/cuda/vreman_nut_kernel.h\
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
@@ -931,6 +1003,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
+    ale/bcknd/device/hip/ale_kinematics_kernel.h\
 	wall_models/bcknd/device/cuda/most_kernel.h\
 	wall_models/bcknd/device/cuda/richardson_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
@@ -980,6 +1053,8 @@ EXTRA_DIST = \
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\
+	lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h\
+	lpt/bcknd/device/hip/lpt_wall_collision_kernel.h\
 	les/bcknd/device/hip/sigma_nut_kernel.h\
 	les/bcknd/device/hip/vreman_nut_kernel.h\
 	les/bcknd/device/hip/smagorinsky_nut_kernel.h\
@@ -1105,11 +1180,11 @@ include .depends_device
 include .depends_turboneko
 
 # CUDA Build rules
-.cu.lo: @top_builddir@/libtool_cuda
+.cu.lo:
 	$(SHELL) @top_builddir@/libtool_cuda --tag=CC --mode=compile $(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
 
-libtool_cuda:
-	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_builddir@/libtool > @top_builddir@/libtool_cuda
+@top_builddir@/libtool_cuda: @top_builddir@/libtool
+	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_builddir@/libtool > $@
 
 # HIP Build rules
 .hip.lo:

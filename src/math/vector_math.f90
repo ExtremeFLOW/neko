@@ -69,10 +69,11 @@ module vector_math
        invcol2, col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glmax, &
        glmin, glsc2, glsc3, masked_gather_copy_0, face_masked_gather_copy_0, &
        masked_gather_copy, cadd2, masked_scatter_copy, &
-       masked_scatter_copy_0, glsubnorm, invcol3, cwrap
+       masked_scatter_copy_0, glsubnorm, invcol3, cwrap, &
+       sqrt_inplace, power, absval
   use device_math, only : device_rzero, device_rone, device_copy, &
        device_cmult, device_cadd, device_cfill, device_invcol1, device_vdot3, &
-       device_cadd2, &
+       device_cadd2, device_absval, &
        device_add2, device_add3, device_add4, device_sub2, device_sub3, &
        device_add2s1, device_add2s2, device_addsqr2s2, device_cmult2, &
        device_invcol2, device_col2, device_col3, device_subcol3, &
@@ -81,14 +82,14 @@ module vector_math
        device_masked_gather_copy_0, device_face_masked_gather_copy_0, &
        device_masked_gather_copy_aligned, device_masked_scatter_copy_0, &
        device_masked_scatter_copy_aligned, device_glsubnorm, device_invcol3, &
-       device_cwrap
+       device_cwrap, device_sqrt_inplace, device_power
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
   public :: vector_rzero, vector_rone, vector_copy, vector_cmult, &
        vector_cadd, vector_cfill, vector_invcol1, vector_invcol3, &
-       vector_vdot3, vector_cadd2, &
+       vector_vdot3, vector_cadd2, vector_absval, &
        vector_add2, vector_sub2, vector_sub3, vector_add2s1, &
        vector_add2s2, vector_addsqr2s2, vector_cmult2, &
        vector_invcol2, vector_col2, vector_col3, vector_subcol3, &
@@ -96,7 +97,8 @@ module vector_math
        vector_glmax, vector_glmin, vector_glsc2, vector_glsc3, vector_add3, &
        vector_masked_gather_copy_0, vector_face_masked_gather_copy_0, &
        vector_masked_gather_copy, vector_masked_scatter_copy_0, &
-       vector_masked_scatter_copy, vector_glsubnorm, vector_cwrap
+       vector_masked_scatter_copy, vector_glsubnorm, vector_cwrap, &
+       vector_sqrt_inplace, vector_power
 
 contains
 
@@ -288,7 +290,7 @@ contains
     integer, intent(in), optional :: n
     type(vector_t), intent(in) :: u1, u2, u3
     type(vector_t), intent(in) :: v1, v2, v3
-    type(vector_t), intent(out) :: dot
+    type(vector_t), intent(inout) :: dot
     integer :: size
 
     if (present(n)) then
@@ -446,7 +448,7 @@ contains
   subroutine vector_add2s2(a, b, c1, n)
     integer, intent(in), optional :: n
     type(vector_t), intent(inout) :: a
-    type(vector_t), intent(inout) :: b
+    type(vector_t), intent(in) :: b
     real(kind=rp), intent(in) :: c1
     integer :: size
 
@@ -765,6 +767,26 @@ contains
 
   end function vector_glsc3
 
+  !> Compute the pointwise absolute value of a vector \f$ a = |a| \f$
+  subroutine vector_absval(a, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_absval(a%x_d, size)
+    else
+       call absval(a%x, size)
+    end if
+
+  end subroutine vector_absval
+
   function vector_glsubnorm(a, b, n) result(norm)
     integer, intent(in), optional :: n
     type(vector_t), intent(in) :: a, b
@@ -944,6 +966,47 @@ contains
 
   end subroutine vector_cwrap
 
+  !> Sqrt a vector \f$ a = sqrt(a) \f$
+  subroutine vector_sqrt_inplace(a, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_sqrt_inplace(a%x_d, size)
+    else
+       call sqrt_inplace(a%x, size)
+    end if
+
+  end subroutine vector_sqrt_inplace
+
+  !> Take the power of a vector \f$ a^p \f$
+  subroutine vector_power(ap, a, p, n)
+    integer, intent(in), optional :: n
+    type(vector_t), intent(inout) :: ap
+    type(vector_t), intent(in) :: a
+    real(kind=rp), intent(in) :: p
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_power(ap%x_d, a%x_d, p, size)
+    else
+       call power(ap%x, a%x, p, size)
+    end if
+
+  end subroutine vector_power
 
 
 end module vector_math

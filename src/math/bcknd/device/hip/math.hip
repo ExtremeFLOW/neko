@@ -314,6 +314,33 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /** Fortran wrapper for sqrt_inplace
+   * Sqrt a vector \f$ a = sqrt(a) \f$
+   */
+  void hip_sqrt_inplace(void *a, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(sqrt_inplace_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for power
+   * Take the power of a vector \f$ a^p \f$
+   */
+  void hip_power(void *ap, void *a, real *p, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(power_kernel<real>),
+                       nblcks, nthrds, 0, strm,
+                       (real *) ap, (real *) a, *p, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
   /** Fortran wrapper for cfill
    * Multiplication by constant c \f$ a = c \cdot a \f$
    */
@@ -704,6 +731,9 @@ extern "C" {
   int red_s = 0;
   real * bufred = NULL;
   real * bufred_d = NULL;
+  int red_xp_s = 0;
+  real_xp * bufred_xp = NULL;
+  real_xp * bufred_xp_d = NULL;
 
   void hip_redbuf_check_alloc(int nb) {
     if ( nb >= red_s) {
@@ -714,6 +744,19 @@ extern "C" {
       }
       HIP_CHECK(hipHostMalloc(&bufred,red_s*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, red_s*sizeof(real)));
+    }
+  }
+
+  void hip_redbuf_check_alloc_xp(int nb) {
+    if ( nb >= red_xp_s) {
+      red_xp_s = nb+1;
+      if (bufred_xp != NULL) {
+        HIP_CHECK(hipHostFree(bufred_xp));
+        HIP_CHECK(hipFree(bufred_xp_d));
+      }
+      HIP_CHECK(hipHostMalloc(&bufred_xp, red_xp_s*sizeof(real_xp),
+                              hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&bufred_xp_d, red_xp_s*sizeof(real_xp)));
     }
   }
 
@@ -733,6 +776,27 @@ extern "C" {
         device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_SUM);
     #else
         HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
+
+  /**
+   * Global additive reduction
+   */
+  void hip_global_reduce_add_xp(real_xp * bufred, void * bufred_d, int n,
+                                const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real_xp),
+                              DEVICE_NCCL_SUM, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real_xp),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real_xp), DEVICE_MPI_SUM);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real_xp),
                                  hipMemcpyDeviceToHost, stream));
         HIP_CHECK(hipStreamSynchronize(stream));
     #endif
@@ -794,7 +858,7 @@ extern "C" {
     hip_redbuf_check_alloc(nb);
 
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(vlsc3_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) u, (real *) v,
                        (real *) w, bufred_d, *n);
@@ -814,37 +878,37 @@ extern "C" {
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
    */
-  real hip_glsc3(void *a, void *b, void *c, int *n, hipStream_t stream) {
+  real_xp hip_glsc3(void *a, void *b, void *c, int *n, hipStream_t stream) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
-    hip_redbuf_check_alloc(nb);
+    hip_redbuf_check_alloc_xp(nb);
 
     if (*n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (real *) a, (real *) b,
-                         (real *) c, bufred_d, *n);
+                         (real *) c, bufred_xp_d, *n);
       HIP_CHECK(hipGetLastError());
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, nb);
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
+                         1, 1024, 0, stream, bufred_xp_d, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
     }
-    hip_global_reduce_add(bufred, bufred_d, 1, stream);
+    hip_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
 
-    return bufred[0];
+    return bufred_xp[0];
   }
 
   /**
    * Fortran wrapper for doing an reduction to an array
    * Weighted inner product \f$ w^T v(n,1:j) c \f$
    */
-  void hip_glsc3_many(real *h, void * w, void *v,void *mult, int *j, int *n,
+  void hip_glsc3_many(real_xp *h, void * w, void *v,void *mult, int *j, int *n,
                       hipStream_t stream){
     int pow2 = 1;
     while(pow2 < (*j)){
@@ -857,111 +921,111 @@ extern "C" {
     const dim3 nblcks_red( (*j),1,1);
     const int nb = ((*n) + nt - 1)/nt;
 
-    hip_redbuf_check_alloc((*j)*nb);
+    hip_redbuf_check_alloc_xp((*j)*nb);
 
     if (*n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (const real *) w, (const real **) v,
-                         (const real *)mult, bufred_d, *j, *n);
+                         (const real *)mult, bufred_xp_d, *j, *n);
       HIP_CHECK(hipGetLastError());
 
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_reduce_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_reduce_kernel<real_xp>),
                          nblcks_red, nthrds_red, 0, stream,
-                         bufred_d, nb, *j);
+                         bufred_xp_d, nb, *j);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
     }
-    hip_global_reduce_add(h, bufred_d, (*j), stream);
+    hip_global_reduce_add_xp(h, bufred_xp_d, (*j), stream);
   }
 
   /**
    * Fortran wrapper glsc2
    * Weighted inner product \f$ a^T b \f$
    */
-  real hip_glsc2(void *a, void *b, int *n, hipStream_t stream) {
+  real_xp hip_glsc2(void *a, void *b, int *n, hipStream_t stream) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
 
-    hip_redbuf_check_alloc(nb);
+    hip_redbuf_check_alloc_xp(nb);
 
     if( *n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, (real *) b, bufred_d, *n);
+                         (real *) a, (real *) b, bufred_xp_d, *n);
       HIP_CHECK(hipGetLastError());
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, nb);
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
+                         1, 1024, 0, stream, bufred_xp_d, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
     }
-    hip_global_reduce_add(bufred, bufred_d, 1, stream);
+    hip_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
 
-    return bufred[0];
+    return bufred_xp[0];
   }
 
   /**
    * Fortran wrapper glsubnorm2
    * Weighted inner product \f$ a^T b \f$
    */
-  real hip_glsubnorm2(void* a, void* b, int* n, hipStream_t stream) {
+  real_xp hip_glsubnorm2(void* a, void* b, int* n, hipStream_t stream) {
 
       const dim3        nthrds(1024, 1, 1);
       const dim3        nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
       const int         nb     = ((*n) + 1024 - 1) / 1024;
 
-      hip_redbuf_check_alloc(nb);
+      hip_redbuf_check_alloc_xp(nb);
 
       if (*n > 0) {
-        hipLaunchKernelGGL(HIP_KERNEL_NAME(glsubnorm2_kernel<real>),
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(glsubnorm2_kernel<real, real_xp>),
                            nblcks, nthrds, 0, stream,
-                           (real*)a, (real*)b, bufred_d, *n);
+                           (real*)a, (real*)b, bufred_xp_d, *n);
         HIP_CHECK(hipGetLastError());
-        hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                           1, 1024, 0, stream, bufred_d, nb);
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
+                           1, 1024, 0, stream, bufred_xp_d, nb);
         HIP_CHECK(hipGetLastError());
       }
       else {
-        hip_rzero(bufred_d, &red_s, stream);
+        HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
       }
-      hip_global_reduce_add(bufred, bufred_d, 1, stream);
+      hip_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
 
-      return bufred[0];
+      return bufred_xp[0];
   }
 
   /**
    * Fortran wrapper glsum
    * Sum a vector of length n
    */
-  real hip_glsum(void *a, int *n, hipStream_t stream) {
+  real_xp hip_glsum(void *a, int *n, hipStream_t stream) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
-    hip_redbuf_check_alloc(nb);
+    hip_redbuf_check_alloc_xp(nb);
     if( *n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, bufred_d, *n);
+                         (real *) a, bufred_xp_d, *n);
       HIP_CHECK(hipGetLastError());
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, nb);
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
+                         1, 1024, 0, stream, bufred_xp_d, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
     }
 
-    hip_global_reduce_add(bufred, bufred_d, 1, stream);
+    hip_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
 
-    return bufred[0];
+    return bufred_xp[0];
   }
 
 

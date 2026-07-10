@@ -96,7 +96,8 @@ contains
 
   !> Initialization of chebyshev
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are
+  !! to be applied
   !! @param max_iter The number of iterations (chebyshev degree)
   subroutine amg_cheby_init(this, n, lvl, max_iter)
     class(amg_cheby_t), intent(inout), target :: this
@@ -156,15 +157,27 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
+      ! Save current random seed and set a fixed seed
+      call random_seed( size=rnd_n )
+      allocate(saved_seed(rnd_n))
+      allocate(fixed_seed(rnd_n))
+      fixed_seed = 3901
+      call random_seed( get=saved_seed )
+      call random_seed( put=fixed_seed )
+
       do i = 1, n
-         !call random_number(rn)
-         !d(i) = rn + 10.0_rp
-         d(i) = sin(real(i))
+         call random_number(rn)
+         d(i) = rn + 10.0_rp
       end do
+
+      ! Restore saved random seed
+      call random_seed( put=saved_seed )
+
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
          call blst%apply(d, n)
@@ -246,6 +259,7 @@ contains
       ! First iteration
       !OCL NORECURRENCE, NOVREC, NOALIAS
       !DIR$ CONCURRENT
+      !DIR$ IVDEP
       !GCC$ ivdep
       !$omp parallel do
       do i = 1, n
@@ -266,6 +280,7 @@ contains
          !$omp parallel private(i)
          !OCL NORECURRENCE, NOVREC, NOALIAS
          !DIR$ CONCURRENT
+         !DIR$ IVDEP
          !GCC$ ivdep
          !$omp do
          do i = 1, n
@@ -290,14 +305,28 @@ contains
     real(kind=rp), parameter :: boost = 1.1_rp
     real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
+
+      ! Save current random seed and set a fixed seed
+      call random_seed( size=rnd_n )
+      allocate(saved_seed(rnd_n))
+      allocate(fixed_seed(rnd_n))
+      fixed_seed = 3901
+      call random_seed( get=saved_seed )
+      call random_seed( put=fixed_seed )
+
       do i = 1, n
-         !TODO: replace with a better way to initialize power method
-         d(i) = sin(real(i))
+         call random_number(rn)
+         d(i) = rn + 10.0_rp
       end do
       call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
+
+      ! Restore saved random seed
+      call random_seed( put=saved_seed )
+
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
          call blst%apply(d, n)
@@ -398,7 +427,8 @@ contains
 
   !> Initialization of Jacobi (this is expensive...)
   !! @param n Number of dofs
-  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param lvl The tamg hierarchy level on which the iterations are
+  !! to be applied
   !! @param max_iter The number of iterations
   subroutine amg_jacobi_init(this, n, lvl, max_iter)
     class(amg_jacobi_t), intent(inout), target :: this

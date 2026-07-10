@@ -69,6 +69,8 @@ contains
     integer, intent(in) :: order
     integer :: s
 
+    call this%free()
+
     ! Assume number of stages is equal to the order
     s = order
     this%order = order

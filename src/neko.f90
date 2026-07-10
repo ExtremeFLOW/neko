@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2025, The Neko Authors
+! Copyright (c) 2019-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -132,7 +132,8 @@ module neko
   use field_neumann, only : field_neumann_t
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_get_or_lookup
   use bc_list, only : bc_list_t
   use les_model, only : les_model_t, les_model_allocate, register_les_model, &
        les_model_factory, les_model_allocator
@@ -284,9 +285,9 @@ contains
     call neko_user_access%free()
     call neko_log%free()
 
-    call device_finalize
     call neko_mpi_types_free
     call comm_free
+    call device_finalize
   end subroutine neko_finalize
 
 

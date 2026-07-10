@@ -67,6 +67,7 @@ contains
     mu_val = mu%x(1,1,1,1)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n
@@ -82,6 +83,7 @@ contains
     ! ta = f / rho - wa * mu / rho * B
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1,n
@@ -95,13 +97,12 @@ contains
     !$omp end parallel do
 
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
-    call gs_Xh%op(ta1, GS_OP_ADD)
-    call gs_Xh%op(ta2, GS_OP_ADD)
-    call gs_Xh%op(ta3, GS_OP_ADD)
+    call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1,n
@@ -120,6 +121,7 @@ contains
     !$omp parallel private (i)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1,n
@@ -133,6 +135,7 @@ contains
     !
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1,n
@@ -149,6 +152,7 @@ contains
     dtbd = bd / dt
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n
@@ -162,6 +166,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1,n
@@ -200,6 +205,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n
@@ -220,6 +226,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n

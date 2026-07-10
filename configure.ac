@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.3])
+AC_INIT([neko],[1.99.6])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -264,6 +264,25 @@ else
   AX_CUDA
 fi
 
+# CUDA >= 13 no longer implicitly links the host C++ runtime, so the
+# device object files fail to link with e.g. an undefined reference to
+# __cxa_guard_acquire. Link libstdc++ explicitly for CUDA >= 13, unless
+# the Cray compiler (CCE/PrgEnv-cray) is used, which provides its own C++
+# runtime. Note that PrgEnv-gnu still needs it, even though it is driven
+# through the Cray compiler wrappers (ftn/cc/CC).
+if (test "x${have_cuda}" = xyes &&
+    test "x$ax_cv_fc_compiler_vendor" != xcray); then
+   AC_MSG_CHECKING([CUDA major version])
+   cuda_version_major=`$NVCC --version 2>/dev/null | \
+                       $SED -n 's/.*release \(@<:@0-9@:>@*\).*/\1/p'`
+   AS_IF([test -n "$cuda_version_major"],
+         [AC_MSG_RESULT([$cuda_version_major])],
+         [AC_MSG_RESULT([unknown])])
+   AS_IF([test -n "$cuda_version_major" && test "$cuda_version_major" -ge 13],
+         [AC_MSG_NOTICE([Linking libstdc++ for CUDA >= 13])
+          LIBS="$LIBS -lstdc++"])
+fi
+
 # Checks for OpenCL backend
 AX_OPENCL
 
@@ -325,6 +344,9 @@ AX_RCCL
 # Checks for NVSHMEM backend
 AX_NVSHMEM
 
+# Checks for uTofu (native Tofu) gather-scatter backend
+AX_UTOFU
+
 # Checks for NVTX profiling
 AX_NVTX
 
@@ -359,6 +381,7 @@ AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 AM_CONDITIONAL([ENABLE_METAL], [test "x${have_metal}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
+AM_CONDITIONAL([ENABLE_UTOFU], [test "x${have_utofu}" = xyes])
 AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 # Set device dependent flags
@@ -392,6 +415,9 @@ AM_CONDITIONAL([ENABLE_PYTHON], [test "x${found_python}" = xyes])
 AC_SUBST(NEKO_PKG_FCFLAGS)
 FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
+# Date stamp for generated manual pages
+AC_SUBST(MAN_DATE, [`date +%Y-%m-%d`])
+
 AC_CONFIG_FILES([Makefile\
         src/Makefile\
         src/python/Makefile\
@@ -405,7 +431,9 @@ AC_CONFIG_FILES([Makefile\
         src/scripts/cltostring.sh\
         src/api/neko.h\
         makeneko\
-        neko.pc])
+        neko.pc\
+        doc/man/neko.1\
+        doc/man/makeneko.1])
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
@@ -466,7 +494,9 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/mesh_checker/Makefile\
 		    contrib/prepart/Makefile\
 		    contrib/adios2_to_nek5000/Makefile\
-		    contrib/psnr/Makefile])
+		    contrib/psnr/Makefile\
+		    contrib/rea2nbin/rea2nbin.1\
+		    contrib/prepart/prepart.1])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])

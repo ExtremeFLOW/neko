@@ -306,6 +306,32 @@ __kernel void cwrap_kernel(__global real* __restrict__ a,
 }
 
 /**
+ * Device kernel for sqrt_inplace
+ */
+__kernel void sqrt_inplace_kernel(__global real* __restrict__ a,
+                                  const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) { a[i] = sqrt(a[i]); }
+}
+
+/**
+ * Device kernel for power
+ */
+__kernel void power_kernel(__global real* __restrict__ ap,
+                           __global const real* __restrict__ a,
+                           const real p,
+                           const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) { ap[i] = pow(a[i], p); }
+}
+
+/**
  * Device kernel for cfill
  */
 __kernel void cfill_kernel(__global real* __restrict__ a,
@@ -668,16 +694,18 @@ __kernel void vcross_kernel(__global real* __restrict__ u1,
 __kernel void glsc3_kernel(__global const real* __restrict__ a,
                            __global const real* __restrict__ b,
                            __global const real* __restrict__ c,
-                           __global real* __restrict__ buf_h,
+                           __global real_xp* __restrict__ buf_h,
                            const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  __local real buf[256]; /* Make this nice...*/
-  real         tmp = 0.0;
+  __local real_xp buf[256]; /* Make this nice...*/
+  real_xp      tmp = 0.0;
 
-  for (int i = idx; i < n; i += str) { tmp += a[i] * b[i] * c[i]; }
+  for (int i = idx; i < n; i += str) {
+    tmp += (real_xp) a[i] * (real_xp) b[i] * (real_xp) c[i];
+  }
   buf[get_local_id(0)] = tmp;
   barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -699,7 +727,7 @@ __kernel void glsc3_kernel(__global const real* __restrict__ a,
 __kernel void glsc3_many_kernel(__global const real* __restrict__ a,
                                 __global const real* __restrict__ b,
                                 __global const real* __restrict__ c,
-                                __global real* __restrict__ buf_h,
+                                __global real_xp* __restrict__ buf_h,
                                 const int j,
                                 const int n) {
 
@@ -707,11 +735,12 @@ __kernel void glsc3_many_kernel(__global const real* __restrict__ a,
   const int str = get_global_size(0);
   const int y   = get_local_id(1);
 
-  __local real buf[256]; /* Make this nice...*/
-  real         tmp = 0;
+  __local real_xp buf[256]; /* Make this nice...*/
+  real_xp      tmp = 0;
   if (y < j) {
     for (int i = idx; i < n; i += str) {
-      tmp += a[i] * b[get_local_id(1) * n + i] * c[i];
+      tmp += (real_xp) a[i] * (real_xp) b[get_local_id(1) * n + i] *
+             (real_xp) c[i];
     }
   }
 
@@ -738,16 +767,18 @@ __kernel void glsc3_many_kernel(__global const real* __restrict__ a,
  */
 __kernel void glsc2_kernel(__global const real* __restrict__ a,
                            __global const real* __restrict__ b,
-                           __global real* __restrict__ buf_h,
+                           __global real_xp* __restrict__ buf_h,
                            const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  __local real buf[256]; /* Make this nice...*/
-  real         tmp = 0.0;
+  __local real_xp buf[256]; /* Make this nice...*/
+  real_xp      tmp = 0.0;
 
-  for (int i = idx; i < n; i += str) { tmp += a[i] * b[i]; }
+  for (int i = idx; i < n; i += str) {
+    tmp += (real_xp) a[i] * (real_xp) b[i];
+  }
   buf[get_local_id(0)] = tmp;
   barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -768,16 +799,18 @@ __kernel void glsc2_kernel(__global const real* __restrict__ a,
  */
 __kernel void glsubnorm2_kernel(__global const real* __restrict__ a,
                                 __global const real* __restrict__ b,
-                                __global real* __restrict__ buf_h,
+                                __global real_xp* __restrict__ buf_h,
                                 const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  __local real buf[256]; /* Make this nice...*/
-  real         tmp = 0.0;
+  __local real_xp buf[256]; /* Make this nice...*/
+  real_xp      tmp = 0.0;
 
-  for (int i = idx; i < n; i += str) { tmp += pow(a[i] - b[i], (real)2.0); }
+  for (int i = idx; i < n; i += str) {
+    tmp += (real_xp) pow(a[i] - b[i], (real) 2.0);
+  }
   buf[get_local_id(0)] = tmp;
   barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -797,14 +830,14 @@ __kernel void glsubnorm2_kernel(__global const real* __restrict__ a,
  * Device kernel for glsum
  */
 __kernel void glsum_kernel(__global const real* __restrict__ a,
-                           __global real* __restrict__ buf_h,
+                           __global real_xp* __restrict__ buf_h,
                            const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  __local real buf[256]; /* Make this nice...*/
-  real         tmp = 0.0;
+  __local real_xp buf[256]; /* Make this nice...*/
+  real_xp      tmp = 0.0;
 
   for (int i = idx; i < n; i += str) { tmp += a[i]; }
   buf[get_local_id(0)] = tmp;

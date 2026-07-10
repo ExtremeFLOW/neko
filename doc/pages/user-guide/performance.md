@@ -29,9 +29,19 @@ it could be beneficial to configure Neko to use OpenMP
 `--enable-openmp`, and launch the simulation with two threads. This
 would enable the task-parallel preconditioners inside Neko.
 
-@note In the current release, OpenMP is only used to launch jobs
-concurrently into different accelerator streams. Thus, no gains should
-be expected from OpenMP when using a CPU backend.
+### CPU specific options
+
+On CPU backends, the performance-critical path (math and solver
+kernels, Krylov solvers and preconditioners, boundary conditions,
+dealiasing, and the host gather-scatter) is threaded with OpenMP when
+Neko is configured with `--enable-openmp`, making hybrid MPI+OpenMP a
+supported execution mode: launch one rank per NUMA domain (e.g. one
+per CMG on A64FX) and set `OMP_NUM_THREADS` to the number of cores in
+it. Flat MPI (one rank per core, single-threaded) generally remains
+the fastest configuration per node, but the hybrid mode reduces the
+number of ranks -- and with it the memory footprint, initialisation
+time, and communication metadata -- which pays off at very large
+scale or under tight memory constraints.
 
 ## Simulation setup
 
@@ -142,6 +152,8 @@ MPI is available, host MPI otherwise). The supported values are:
 | `NCCL` | NCCL/RCCL (`gs_device_nccl`) | `--with-nccl=...` | Multi-GPU runs where NCCL outperforms MPI |
 | `SHMEM` | NVSHMEM (`gs_device_shmem`) on GPU builds, OpenSHMEM (`gs_shmem`) on CPU builds | `--with-nvshmem=...` (GPU) or `--with-openshmem` (CPU, Cray) | NVIDIA GPUs with NVSHMEM-capable interconnect; CPU systems with a native OpenSHMEM (e.g. Cray OpenSHMEMX) |
 | `CAF` | Coarray Fortran (`gs_caf`) | Coarray-capable Fortran compiler | Systems with a tuned coarray runtime |
+| `NEIGHBOUR` | MPI neighbourhood collective (`gs_neighbour`) | None (MPI-3) | CPU runs where one collective per gs beats many point-to-point messages (e.g. Fugaku / Tofu) |
+| `UTOFU` | Native Tofu RDMA (`gs_utofu`) | `--with-utofu` (Tofu-D, e.g. Fugaku) | CPU runs on Fugaku/Tofu; native RDMA, a faster successor to CAF |
 
 @note `MPIGPU` and `NCCL` require Neko to be built with GPU support
 and the corresponding optional dependency. `SHMEM` picks the device
@@ -151,8 +163,42 @@ which of NVSHMEM / OpenSHMEM is present at configure time.
 The backend can also be selected programmatically by passing the
 `comm_bcknd` argument to `gs%init`, using the constants `GS_COMM_MPI`,
 `GS_COMM_MPIGPU`, `GS_COMM_NCCL`, `GS_COMM_NVSHMEM`,
-`GS_COMM_OPENSHMEM`, or `GS_COMM_CAF` exposed by the `gather_scatter`
-module. The environment variable wins when both are present.
+`GS_COMM_OPENSHMEM`, `GS_COMM_CAF`, `GS_COMM_NEIGHBOUR` or `GS_COMM_UTOFU`
+exposed by the `gather_scatter` module. The environment variable wins when
+both are present.
+
+#### MPI neighbourhood collective backend {#performance-neighbour-backend}
+
+The neighbourhood backend (`NEKO_GS_COMM=NEIGHBOUR`, the spelling
+`NEIGHBOR` is also accepted) replaces the per-neighbour
+`MPI_Isend`/`MPI_Irecv` pairs of the host `MPI` backend with a single
+non-blocking neighbourhood collective, `MPI_Ineighbor_alltoallv`, over
+a distributed-graph communicator. The graph is built once at
+initialisation with `MPI_Dist_graph_create_adjacent` (sources are the
+receive peers, destinations the send peers, `reorder = .false.`), so
+the neighbour ordering matches the gs schedule and the concatenated
+per-peer send / receive buffer layout of the host MPI backend is reused
+unchanged. `nbsend` packs the send buffer and launches the collective
+from the master thread; `nbwait` completes it and reduces each received
+slab into `u` with the same serial-across-peers, parallel-within-peer
+reduction as the host MPI backend.
+
+The motivation is to collapse the N point-to-point calls of a halo
+exchange into a single entry to the MPI runtime. On platforms where the
+MPI library serialises concurrent calls internally (for example
+Fujitsu MPI on Fugaku), this is one runtime crossing per gs op instead
+of N, and it hands the striping of the transfers across the network
+interfaces to the vendor runtime. The backend is host-only and requires
+nothing beyond MPI-3, which every modern MPI implementation provides.
+
+@note Whether the collective actually overlaps with the local gs work
+depends on the MPI library making asynchronous progress; with the
+default build of many implementations, progress happens at the
+`MPI_Wait` in `nbwait`. Enable the library's asynchronous-progress
+option to test the overlap benefit. Each `gs_t` instance owns its own
+graph communicator, so multiple instances may coexist, but a given
+instance must complete its `nbsend`/`nbwait` window before the next gs
+op on the same instance.
 
 #### NVSHMEM backend {#performance-nvshmem-backend}
 
@@ -233,3 +279,80 @@ parity), shared by all gs instances. The buffer is grown on demand and
 retained for the program lifetime. Multiple `gs_t` objects can coexist
 provided they are used strictly sequentially -- no overlapping
 nbsend/nbwait windows across instances.
+
+#### uTofu backend {#performance-utofu-backend}
+
+The uTofu backend (`NEKO_GS_COMM=UTOFU`) talks to the Tofu-D
+interconnect directly through the native uTofu (`libtofucom`) API,
+bypassing both MPI and the coarray runtime. It is the
+performance-oriented successor to the CAF backend on Fugaku and other
+Tofu systems, where coarray puts are roughly an order of magnitude
+slower than MPI because every put is followed by a separate, serial
+master-thread synchronisation step.
+
+Each neighbour's contribution is packed into a per-instance send buffer
+and delivered with a one-sided `utofu_put` straight into the remote
+receive buffer. The slab tag is fused into the put's `edata` field, so
+the put's arrival *is* the completion signal -- there is one network
+operation per peer, with no separate atomic, credit message, or back
+channel. This single-op-per-peer pattern is the main win over CAF.
+
+Injection is non-blocking and thread-parallel. Packing each neighbour's
+contribution into the send buffer is parallelised over the OpenMP team
+in a single work-shared loop, and the `utofu_put` calls are as well:
+one injection VCQ is created per OpenMP thread (with
+`UTOFU_VCQ_FLAG_THREAD_SAFE`, which is what makes multithreaded uTofu
+operation defined), dealt round-robin over the `NEKO_GS_UTOFU_NTNI`
+TNIs (default `1`), and each thread fires the puts for its share of the
+peers on its own VCQ. Since Fujitsu MPI does not provide a usable
+`MPI_THREAD_MULTIPLE`, this is the only per-thread injection path
+available on Fugaku; `NEKO_GS_UTOFU_MASTER_INJECT=1` restores serial
+master-thread injection as an A/B reference. On the receive side each
+slab is reduced into `u` as soon as its remote-put notice is observed
+in the MRQ, mirroring the `Testsome`-style unpack-as-ready loop of the
+MPI backend.
+
+The send buffer is double-buffered (selected by the parity bit): each
+put's completion is charged, via its `cbdata`, to a per-(VCQ, half)
+counter, and the next `nbsend` drains only the half it is about to
+reuse -- which was last used two rounds earlier, so the drain is a
+non-blocking reap rather than a wait on the critical path. Each VCQ is
+drained by exactly one thread per round, so the counters need no
+atomics.
+
+Correctness under skew is handled by a double-buffered receive region
+selected by a parity bit (`edata = slab_tag*2 + parity`); a per-instance
+stash holds notices that arrive from a neighbour running one round ahead
+and replays them on the next round, so the unpack-as-ready path stays
+correct without a global barrier or a back-pressure channel.
+
+The backend also implements the fused vector (multi-component) halo
+exchange used by `gs_op_r3`, so a three-component gather-scatter costs
+one halo round instead of three. The vector path is a second, fully
+independent instance of the same transport: its own registered
+double-buffered slabs (sized for `GS_VEC_NC` components, each peer slab
+holding `nc` consecutive component blocks), its own receive VCQ (and
+thus private MRQ), and its own parity. The separation is what keeps the
+skew handling sound -- a neighbour racing from a vector round into a
+scalar round (or vice versa) lands its notice in the right queue. The
+scalar per-peer layout is reused scaled by `nc`, with the destination
+offsets recomputed each round from the receiver's advertised unscaled
+layout.
+
+The backend is gated on the autoconf macro `HAVE_UTOFU` and enabled at
+configure time with `--with-utofu[=DIR]` (linking `-ltofucom`); builds
+without uTofu are unaffected. Neighbour metadata (remote VCQ id,
+receive STADD, the two parity offsets, and the slab tag) is exchanged
+once at initialisation over `NEKO_COMM` via MPI; the data path
+thereafter is pure uTofu.
+
+@note The uTofu backend uses per-instance (not symmetric) send and
+receive buffers, so it carries no global-maximum sizing constraint.
+Each `gs_t` instance also gets its own receive VCQs (a set per path,
+scalar and vector, spread over the TNIs with each receive peer bound
+to one -- see `NEKO_GS_UTOFU_NRVCQ`), so an arrival notice for one
+instance or path can never be consumed by another's poll -- multiple
+`gs_t` objects can be used back to back safely. The injection VCQs
+(one per OpenMP thread) are process-global and shared across
+instances; send-completion accounting is per instance, per VCQ, and
+per buffer-half.

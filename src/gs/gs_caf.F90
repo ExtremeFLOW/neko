@@ -33,7 +33,7 @@
 !> Defines Coarray Fortran gather-scatter communication
 module gs_caf
   use num_types, only : rp
-  use gs_comm, only : gs_comm_t
+  use gs_comm, only : gs_comm_t, GS_VEC_NC
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
   use comm, only : pe_size
@@ -154,6 +154,9 @@ module gs_caf
      procedure, pass(this) :: nbsend => gs_nbsend_caf
      procedure, pass(this) :: nbrecv => gs_nbrecv_caf
      procedure, pass(this) :: nbwait => gs_nbwait_caf
+     procedure, pass(this) :: nbsend_vec => gs_nbsend_vec_caf
+     procedure, pass(this) :: nbrecv_vec => gs_nbrecv_vec_caf
+     procedure, pass(this) :: nbwait_vec => gs_nbwait_vec_caf
   end type gs_caf_t
 
 contains
@@ -240,7 +243,9 @@ contains
        send_total = send_total + this%send_len(i)
        this%send_img(i) = this%send_pe(i) + 1
     end do
-    allocate(this%send_buf(max(1, send_total)))
+    ! Sized for up to GS_VEC_NC components; scalar path uses the first
+    ! send_total elements, the fused vector path uses nc*send_total.
+    allocate(this%send_buf(max(1, GS_VEC_NC*send_total)))
 
     ! Symmetric coarray sized to twice the global max total receive
     ! count (double buffering). gs_caf_buf_size tracks the size of one
@@ -250,11 +255,16 @@ contains
     max_total = recv_total
     call co_max(max_total)
     max_total = max(1, max_total)
-    if (max_total .gt. gs_caf_buf_size) then
+    ! Half size = GS_VEC_NC * max_total, so the single double-buffered coarray
+    ! serves both the scalar path (which uses only the low max_total of each
+    ! half) and the fused vector path (which uses the full half). gs_caf_buf_size
+    ! is the half size; half_off = parity * gs_caf_buf_size in both paths.
+    if (GS_VEC_NC * max_total .gt. gs_caf_buf_size) then
        if (allocated(gs_caf_recv_buf)) deallocate(gs_caf_recv_buf)
-       allocate(gs_caf_recv_buf(2 * max_total)[*])
-       gs_caf_buf_size = max_total
+       allocate(gs_caf_recv_buf(2 * GS_VEC_NC * max_total)[*])
+       gs_caf_buf_size = GS_VEC_NC * max_total
     end if
+    this%vec_supported = .true.
 
     ! Tell each sender at what offset in our recv_buf to place their slab,
     ! and learn at what offset in each receiver's recv_buf our slab should go.
@@ -552,5 +562,222 @@ contains
     call neko_error("Coarray Fortran support not built")
 #endif
   end subroutine gs_nbwait_caf
+
+  !> Fused nc-component put. Each peer slab is nc consecutive component
+  !! blocks; the remote placement offset and slab length scale by nc, the
+  !! per-peer signalling (sync/atomic/event) is unchanged.
+  !! @param u compact shared buffer, component-outer: u((c-1)*n + idx).
+  subroutine gs_nbsend_vec_caf(this, u, n, nc, tag, deps, strm)
+    class(gs_caf_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    integer, intent(in) :: tag
+    type(c_ptr), intent(inout) :: deps
+    type(c_ptr), intent(inout) :: strm
+#ifdef HAVE_COARRAY
+    integer :: i, j, c, dst, off, dimg, ndst, doff, half_off
+    integer, pointer :: sp(:)
+    integer(kind=atomic_int_kind) :: flag
+    integer :: me_rank
+
+    half_off = this%parity * gs_caf_buf_size
+
+    if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
+          off = this%send_offset(i)
+          ndst = this%send_len(i)
+          dimg = this%send_img(i)
+          doff = this%dest_offset(i)
+          sp => this%send_dof(dst)%array()
+          do c = 1, nc
+             do concurrent (j = 1:ndst)
+                this%send_buf(nc*off + (c-1)*ndst + j) = u((c-1)*n + sp(j))
+             end do
+          end do
+          gs_caf_recv_buf(half_off + nc*doff + 1 : half_off + nc*doff + nc*ndst) &
+               [dimg] = this%send_buf(nc*off + 1 : nc*off + nc*ndst)
+       end do
+#ifdef HAVE_COARRAY_EVENTS
+    else if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
+       if (gs_caf_event_in_use) then
+          call neko_error("Event-mode coarray gather-scatter does not " // &
+               "support overlapping gs ops on different instances")
+       end if
+       gs_caf_event_in_use = .true.
+
+       if (this%send_started) then
+          if (size(this%send_pe) .gt. 0) then
+             event wait(gs_caf_buf_ready_ev, until_count=size(this%send_pe))
+          end if
+       else
+          this%send_started = .true.
+       end if
+
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
+          off = this%send_offset(i)
+          ndst = this%send_len(i)
+          dimg = this%send_img(i)
+          doff = this%dest_offset(i)
+          sp => this%send_dof(dst)%array()
+          do c = 1, nc
+             do concurrent (j = 1:ndst)
+                this%send_buf(nc*off + (c-1)*ndst + j) = u((c-1)*n + sp(j))
+             end do
+          end do
+          gs_caf_recv_buf(half_off + nc*doff + 1 : half_off + nc*doff + nc*ndst) &
+               [dimg] = this%send_buf(nc*off + 1 : nc*off + nc*ndst)
+          sync memory
+          event post(gs_caf_data_ready_ev[dimg])
+       end do
+#endif
+    else
+       me_rank = this_image() - 1
+
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
+          off = this%send_offset(i)
+          ndst = this%send_len(i)
+          sp => this%send_dof(dst)%array()
+          do c = 1, nc
+             do concurrent (j = 1:ndst)
+                this%send_buf(nc*off + (c-1)*ndst + j) = u((c-1)*n + sp(j))
+             end do
+          end do
+       end do
+
+       do i = 1, size(this%send_pe)
+          off = this%send_offset(i)
+          ndst = this%send_len(i)
+          dimg = this%send_img(i)
+          doff = this%dest_offset(i)
+
+          do
+             call atomic_ref(flag, gs_caf_buf_ready(this%send_pe(i)))
+             if (int(flag) .ge. gs_caf_send_count(this%send_pe(i)) - 1) exit
+          end do
+
+          gs_caf_recv_buf(half_off + nc*doff + 1 : half_off + nc*doff + nc*ndst) &
+               [dimg] = this%send_buf(nc*off + 1 : nc*off + nc*ndst)
+
+          gs_caf_send_count(this%send_pe(i)) = &
+               gs_caf_send_count(this%send_pe(i)) + 1
+          call atomic_define(gs_caf_data_ready(me_rank)[dimg], &
+               int(gs_caf_send_count(this%send_pe(i)), atomic_int_kind))
+       end do
+    end if
+#else
+    call neko_error("Coarray Fortran support not built")
+#endif
+  end subroutine gs_nbsend_vec_caf
+
+  !> No-op: senders push into the receiver's buffer.
+  subroutine gs_nbrecv_vec_caf(this, tag, nc)
+    class(gs_caf_t), intent(inout) :: this
+    integer, intent(in) :: tag, nc
+  end subroutine gs_nbrecv_vec_caf
+
+  !> Fused nc-component wait/reduce for the coarray backend.
+  subroutine gs_nbwait_vec_caf(this, u, n, nc, op, strm)
+    class(gs_caf_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: strm
+    integer :: op
+#ifdef HAVE_COARRAY
+    integer :: i, j, c, src, off, nsrc, half_off
+    integer, pointer :: sp(:)
+    integer(kind=atomic_int_kind) :: flag
+    integer :: me_rank
+
+    half_off = this%parity * gs_caf_buf_size
+
+    if (gs_caf_mode .eq. GS_CAF_SIGNAL_SYNC) then
+       if (allocated(this%sync_img)) then
+          if (size(this%sync_img) .gt. 0) then
+             sync images(this%sync_img)
+          end if
+       end if
+#ifdef HAVE_COARRAY_EVENTS
+    else if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
+       if (size(this%recv_pe) .gt. 0) then
+          event wait(gs_caf_data_ready_ev, until_count=size(this%recv_pe))
+       end if
+#endif
+    else
+       do i = 1, size(this%recv_pe)
+          gs_caf_recv_count(this%recv_pe(i)) = &
+               gs_caf_recv_count(this%recv_pe(i)) + 1
+          do
+             call atomic_ref(flag, gs_caf_data_ready(this%recv_pe(i)))
+             if (int(flag) .ge. gs_caf_recv_count(this%recv_pe(i))) exit
+          end do
+       end do
+    end if
+
+    do i = 1, size(this%recv_pe)
+       src = this%recv_pe(i)
+       off = this%recv_offset(i)
+       nsrc = this%recv_len(i)
+       sp => this%recv_dof(src)%array()
+       select case (op)
+       case (GS_OP_ADD)
+          do c = 1, nc
+             !NEC$ IVDEP
+             do concurrent (j = 1:nsrc)
+                u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) + &
+                     gs_caf_recv_buf(half_off + nc*off + (c-1)*nsrc + j)
+             end do
+          end do
+       case (GS_OP_MUL)
+          do c = 1, nc
+             !NEC$ IVDEP
+             do concurrent (j = 1:nsrc)
+                u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) * &
+                     gs_caf_recv_buf(half_off + nc*off + (c-1)*nsrc + j)
+             end do
+          end do
+       case (GS_OP_MIN)
+          do c = 1, nc
+             !NEC$ IVDEP
+             do concurrent (j = 1:nsrc)
+                u((c-1)*n + sp(j)) = min(u((c-1)*n + sp(j)), &
+                     gs_caf_recv_buf(half_off + nc*off + (c-1)*nsrc + j))
+             end do
+          end do
+       case (GS_OP_MAX)
+          do c = 1, nc
+             !NEC$ IVDEP
+             do concurrent (j = 1:nsrc)
+                u((c-1)*n + sp(j)) = max(u((c-1)*n + sp(j)), &
+                     gs_caf_recv_buf(half_off + nc*off + (c-1)*nsrc + j))
+             end do
+          end do
+       case default
+          call neko_error("Unknown operation in gs_nbwait_vec_caf")
+       end select
+    end do
+
+    if (gs_caf_mode .eq. GS_CAF_SIGNAL_ATOMIC) then
+       me_rank = this_image() - 1
+       do i = 1, size(this%recv_pe)
+          call atomic_define(gs_caf_buf_ready(me_rank)[this%recv_img(i)], &
+               int(gs_caf_recv_count(this%recv_pe(i)), atomic_int_kind))
+       end do
+#ifdef HAVE_COARRAY_EVENTS
+    else if (gs_caf_mode .eq. GS_CAF_SIGNAL_EVENT) then
+       do i = 1, size(this%recv_pe)
+          event post(gs_caf_buf_ready_ev[this%recv_img(i)])
+       end do
+       gs_caf_event_in_use = .false.
+#endif
+    end if
+
+    this%parity = 1 - this%parity
+#else
+    call neko_error("Coarray Fortran support not built")
+#endif
+  end subroutine gs_nbwait_vec_caf
 
 end module gs_caf

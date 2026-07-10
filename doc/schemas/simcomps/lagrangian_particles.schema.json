@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:neko:schema:simcomps:lagrangian_particles",
+  "$defs": {
+    "positiveIntegerOrAll": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "const": "all"
+        }
+      ]
+    },
+    "simulationComponent": {
+      "allOf": [
+        {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "inertia"
+          ],
+          "properties": {
+            "type": {
+              "const": "lagrangian_particles"
+            },
+            "inertia": {
+              "type": "boolean"
+            },
+            "coordinates": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberArray"
+            },
+            "points_file": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "velocities": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberArray"
+            },
+            "diameters": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberArray"
+            },
+            "densities": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberArray"
+            },
+            "migration_strategy": {
+              "type": "string",
+              "enum": [
+                "owner",
+                "none"
+              ]
+            },
+            "nonlinear_coefficient": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            },
+            "nonlinear_exponent": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            },
+            "wall_zone_indices": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArrayOrRef"
+            },
+            "interpolation": {
+              "type": "object",
+              "properties": {
+                "tolerance": {
+                  "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                },
+                "padding": {
+                  "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+                }
+              },
+              "additionalProperties": true
+            },
+            "log": {
+              "type": "boolean"
+            },
+            "start_time": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            },
+            "output_filename": {
+              "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
+            },
+            "output_format": {
+              "type": "string",
+              "enum": [
+                "csv",
+                "h5",
+                "hdf5"
+              ]
+            },
+            "snapshots_per_file": {
+              "$ref": "#/$defs/positiveIntegerOrAll"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "coordinates"
+              ]
+            },
+            {
+              "required": [
+                "points_file"
+              ]
+            }
+          ],
+          "additionalProperties": true
+        }
+      ]
+    }
+  }
+}

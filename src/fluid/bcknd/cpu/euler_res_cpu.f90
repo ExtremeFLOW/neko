@@ -161,6 +161,7 @@ contains
        ! Copy current solution state to temporary arrays for this RK stage
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp do simd
        do l = 1, n
@@ -185,6 +186,7 @@ contains
 
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
+          !DIR$ IVDEP
           !GCC$ ivdep
           !$omp do simd
           do l = 1, n
@@ -224,6 +226,7 @@ contains
 
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp do simd
        do l = 1, n
@@ -305,6 +308,7 @@ contains
     ! m_x
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -320,6 +324,7 @@ contains
     ! m_y
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -335,6 +340,7 @@ contains
     ! m_z
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -352,6 +358,7 @@ contains
     ! Compute energy flux divergence
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -368,9 +375,7 @@ contains
     ! gs
     call gs%op(rhs_rho_field, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 1, coef)
-    call gs%op(rhs_m_x, GS_OP_ADD)
-    call gs%op(rhs_m_y, GS_OP_ADD)
-    call gs%op(rhs_m_z, GS_OP_ADD)
+    call gs%op(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
 
@@ -379,6 +384,7 @@ contains
     ! coef%mult / effective_visc share L1.
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n
@@ -403,9 +409,7 @@ contains
     ! because nothing here (gs%op, rotate_cyc) reads coef%h1.
     call gs%op(visc_rho, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 1, coef)
-    call gs%op(visc_m_x, GS_OP_ADD)
-    call gs%op(visc_m_y, GS_OP_ADD)
-    call gs%op(visc_m_z, GS_OP_ADD)
+    call gs%op(visc_m_x%x, visc_m_y%x, visc_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 
@@ -414,6 +418,7 @@ contains
     ! Fused: one fork-join instead of two, and coef%Binv stays in L1.
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do simd
     do i = 1, n

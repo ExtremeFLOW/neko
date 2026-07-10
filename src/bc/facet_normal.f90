@@ -53,6 +53,7 @@ module facet_normal
   !> Dirichlet condition in facet normal direction
   type, public, extends(bc_t) :: facet_normal_t
      integer, allocatable :: unique_mask(:)
+     integer, allocatable :: msk_to_unique(:)
      type(c_ptr) :: unique_mask_d = c_null_ptr
      type(vector_t) :: nx, ny, nz, work
    contains
@@ -63,6 +64,8 @@ module facet_normal
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => &
           facet_normal_apply_surfvec_dev
+     ! > Recompute normals
+     procedure, pass(this) :: recompute_normals => facet_normal_recompute_normals
      !> Constructor.
      procedure, pass(this) :: init => facet_normal_init
      !> Constructor from components.
@@ -217,6 +220,7 @@ contains
        end if
        deallocate(this%unique_mask)
     end if
+    if (allocated(this%msk_to_unique)) deallocate(this%msk_to_unique)
 
     call this%nx%free()
     call this%ny%free()
@@ -257,6 +261,7 @@ contains
        end if
        deallocate(this%unique_mask)
     end if
+    if (allocated(this%msk_to_unique)) deallocate(this%msk_to_unique)
 
     call unique_point_idx%init(this%msk(0), htable_data)
     j = 0
@@ -276,6 +281,7 @@ contains
        call this%work%init(unique_point_idx%num_entries())
     end if
     allocate(this%unique_mask(0:unique_point_idx%num_entries()))
+    allocate(this%msk_to_unique(this%msk(0)))
 
     this%unique_mask(0) = unique_point_idx%num_entries()
     do i = 1, this%unique_mask(0)
@@ -287,6 +293,9 @@ contains
        rcode = unique_point_idx%get(this%msk(i), htable_data)
        if (rcode .ne. 0) call neko_error("Facet normal: htable get failed.")
        this%unique_mask(htable_data) = this%msk(i)
+
+       ! Save the slot so recompute_normals can use it without the hash table.
+       this%msk_to_unique(i) = htable_data
        facet = this%facet(i)
 
        idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
@@ -315,5 +324,44 @@ contains
     call unique_point_idx%free()
 
   end subroutine facet_normal_finalize
+
+  !> Recompute area-weighted normals from the current mesh.
+  subroutine facet_normal_recompute_normals(this)
+    class(facet_normal_t), target, intent(inout) :: this
+    integer :: i, htable_data, idx(4), facet
+    real(kind=rp) :: area, normal(3)
+
+    if (.not. allocated(this%unique_mask)) return
+    if (this%unique_mask(0) .eq. 0) return
+
+    do i = 1, this%unique_mask(0)
+       this%nx%x(i) = 0.0_rp
+       this%ny%x(i) = 0.0_rp
+       this%nz%x(i) = 0.0_rp
+    end do
+
+    do i = 1, this%msk(0)
+       htable_data = this%msk_to_unique(i)
+       facet = this%facet(i)
+
+       idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+       area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
+       normal = normal * area !Scale normal by area
+       this%nx%x(htable_data) = this%nx%x(htable_data) + normal(1)
+       this%ny%x(htable_data) = this%ny%x(htable_data) + normal(2)
+       this%nz%x(htable_data) = this%nz%x(htable_data) + normal(3)
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%nx%x, this%nx%x_d, &
+            this%nx%size(), HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ny%x, this%ny%x_d, &
+            this%ny%size(), HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%nz%x, this%nz%x_d, &
+            this%nz%size(), HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine facet_normal_recompute_normals
 
 end module facet_normal

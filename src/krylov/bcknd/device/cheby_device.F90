@@ -274,16 +274,27 @@ contains
     real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
-    integer :: i
+    integer, allocatable :: fixed_seed(:), saved_seed(:)
+    integer :: i, rnd_n
 
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
 
+      ! Save current random seed and set a fixed seed
+      call random_seed( size=rnd_n )
+      allocate(saved_seed(rnd_n))
+      allocate(fixed_seed(rnd_n))
+      fixed_seed = 3901
+      call random_seed( get=saved_seed )
+      call random_seed( put=fixed_seed )
+
       do i = 1, n
-         !TODO: replace with a better way to initialize power method
          call random_number(rn)
          d(i) = rn + 10.0_rp
       end do
       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
+
+      ! Restore saved random seed
+      call random_seed( put=saved_seed )
 
       call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
       call blst%apply(d, n)

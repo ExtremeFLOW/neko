@@ -36,6 +36,7 @@ module fluid_scheme_compressible
        field_cmult2, field_cmult, field_addcol3, field_add2
 
   use registry, only : neko_registry
+  use bc, only : bc_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
   use num_types, only : rp
@@ -227,6 +228,27 @@ contains
   !> @param this The compressible fluid scheme object to destroy
   subroutine fluid_scheme_compressible_free(this)
     class(fluid_scheme_compressible_t), intent(inout) :: this
+    class(bc_t), pointer :: bc
+    integer :: i
+
+    do i = 1, this%bcs_vel%size()
+       bc => this%bcs_vel%get(i)
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
+    end do
+    call this%bcs_vel%free()
+
+    do i = 1, this%bcs_prs%size()
+       bc => this%bcs_prs%get(i)
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
+    end do
+    call this%bcs_prs%free()
+
     call this%dm_Xh%free()
     call this%gs_Xh%free()
     call this%c_Xh%free()
