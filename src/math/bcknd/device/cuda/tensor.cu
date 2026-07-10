@@ -63,12 +63,18 @@ extern "C" {
     break
 
 #define CASE_LARGE(N)                                                        \
-    case N:                                                                  \
+    case N: {                                                                \
+    const size_t shmem_size = 2 * N * N * N * sizeof(real);                  \
+    CUDA_CHECK(cudaFuncSetAttribute(tnsr3d_kernel_large<real, N>,            \
+                                    cudaFuncAttributeMaxDynamicSharedMemorySize, \
+                                    shmem_size));                            \
     tnsr3d_kernel_large<real, N>                                             \
-      <<<nblcks, nthrds, 0, stream>>>((real *) v, *nv,                       \
-                                      (real *) u, *nu,                       \
-                                      (real *) A, (real *) Bt, (real *) Ct); \
+      <<<nblcks, nthrds, shmem_size, stream>>>((real *) v, *nv,              \
+                                               (real *) u, *nu,              \
+                                               (real *) A, (real *) Bt,      \
+                                               (real *) Ct);                 \
     CUDA_CHECK(cudaGetLastError());                                          \
+    }                                                                        \
     break
 
     switch(n) {
