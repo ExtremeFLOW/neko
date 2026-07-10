@@ -188,8 +188,8 @@ void inviscid_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &m_y));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &m_z));
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &rho_field));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &E));
-  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &p));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &p));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &E));
   CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;

@@ -953,6 +953,8 @@ contains
              do p = i, j - 1 ! source holder
                 if (p .eq. k) cycle
                 rp = rpos(gperm(p))
+                ! Same-rank point holders are already connected locally.
+                if (buf(rp + 3) .eq. buf(rk + 3)) cycle
                 call crystal_router_pack(cr_buf, int(buf(rk + 3)), &
                      buf(rp + 2 : rp + 1 + int(buf(rp + 1))))
              end do
