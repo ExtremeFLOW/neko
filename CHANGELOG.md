@@ -3,6 +3,8 @@
 ## Develop
 
 - Add physical viscous and conductive flux support to the compressible solver.
+- Fixed stale facet-normals in fluid_pnpn pressure surface terms.
+  This was only affecting ALE simulations containing rotations.
 - *BREAKING* Changed the size of mesh velocity lag arrays in ALE to 2. 
   Old ALE restart files (before this commit) should not be used anymore. 
   Non-ALE restart files are totally unaffected.
