@@ -965,6 +965,35 @@ void opencl_invcol2(void *a, void *b, int *n, cl_command_queue cmd_queue) {
 }
 
 /**
+ * Fortran wrapper for invcol3
+ * Vector division \f$ a = b / c \f$
+ */
+void opencl_invcol3(void *a, void *b, void *c, int *n,
+                    cl_command_queue cmd_queue) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "invcol3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel, 1, NULL,
+                                  &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/**
  * Fortran wrapper for col2
  * Vector multiplication with 2 vectors \f$ a = a \cdot b \f$
  */
