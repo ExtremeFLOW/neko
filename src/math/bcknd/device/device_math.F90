@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_math
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use num_types, only : rp, xp, c_rp, c_xp
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
