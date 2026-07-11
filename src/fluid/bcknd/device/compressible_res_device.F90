@@ -124,8 +124,8 @@ module compressible_res_device
   end interface
 
   interface
-     subroutine compressible_res_part_coef_mult_hip(rhs_rho_field_d, rhs_m_x_d, &
-          rhs_m_y_d, rhs_m_z_d, &
+     subroutine compressible_res_part_coef_mult_hip(rhs_rho_field_d, &
+          rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
           rhs_E_d, mult_d, n) &
           bind(c, name = 'compressible_res_part_coef_mult_hip')
        use, intrinsic :: iso_c_binding
@@ -240,8 +240,8 @@ module compressible_res_device
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine compressible_res_part_visc_opencl(rhs_field_d, Binv_d, field_d, &
-          artificial_visc_d, n) &
+     subroutine compressible_res_part_visc_opencl(rhs_field_d, Binv_d, &
+          field_d, artificial_visc_d, n) &
           bind(c, name = 'compressible_res_part_visc_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -537,9 +537,10 @@ contains
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_METAL
-          call compressible_res_part_rk_sum_metal(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
-               temp_m_z%x_d, temp_E%x_d, &
-               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
+         call compressible_res_part_rk_sum_metal(temp_rho%x_d, &
+              temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
+              k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
+              k_m_y%items(j)%ptr%x_d, &
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #endif
@@ -591,7 +592,8 @@ contains
 #elif HAVE_METAL
        call compressible_res_part_rk_sum_metal(rho_field%x_d, &
             m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
-            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
+           k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, &
+           k_m_y%items(i)%ptr%x_d, &
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #endif
@@ -718,8 +720,8 @@ contains
          rhs_m_y%x_d, rhs_m_z%x_d, &
          rhs_E%x_d, coef%mult_d, n)
 #elif HAVE_OPENCL
-    call compressible_res_part_coef_mult_opencl(rhs_rho_field%x_d, rhs_m_x%x_d, &
-         rhs_m_y%x_d, rhs_m_z%x_d, &
+    call compressible_res_part_coef_mult_opencl(rhs_rho_field%x_d, &
+         rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, &
          rhs_E%x_d, coef%mult_d, n)
 #elif HAVE_METAL
     call compressible_res_part_coef_mult_metal(rhs_rho_field%x_d, rhs_m_x%x_d, &
