@@ -2,7 +2,7 @@
 !
 module user
   use neko
-  use fluid_scheme_compressible_euler, only : fluid_scheme_compressible_euler_t
+  use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   implicit none
 
   ! Global user variables
@@ -77,11 +77,11 @@ contains
     if (.not. case_ready) return
 
     select type (fluid => neko_user_access%case%fluid)
-    type is (fluid_scheme_compressible_euler_t)
-       if (.not. allocated(fluid%regularization)) return
+    class is (fluid_scheme_compressible_t)
+       if (.not. associated(fluid%artificial_visc)) return
 
-       n = fluid%h%dof%size()
-       nx = fluid%h%dof%msh%glb_nelv
+       n = fluid%artificial_visc%dof%size()
+       nx = fluid%msh%glb_nelv
        mu = 1.0_rp / (nx * 30)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
