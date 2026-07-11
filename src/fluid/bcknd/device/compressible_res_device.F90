@@ -537,7 +537,7 @@ contains
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_METAL
-         call compressible_res_part_rk_sum_metal(temp_rho%x_d, &
+          call compressible_res_part_rk_sum_metal(temp_rho%x_d, &
               temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, &
               k_m_y%items(j)%ptr%x_d, &
