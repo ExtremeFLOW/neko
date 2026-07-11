@@ -1,5 +1,11 @@
 var NAVTREEINDEX118 =
 {
+"df/d8f/statistics-guide.html#fluid-sgs-statistics":[0,1,6,3],
+"df/d8f/statistics-guide.html#fluid-statistics":[0,1,6,0],
+"df/d8f/statistics-guide.html#note-to-users":[0,1,6,5],
+"df/d8f/statistics-guide.html#scalar-sgs-statistics":[0,1,6,4],
+"df/d8f/statistics-guide.html#scalar-statistics":[0,1,6,2],
+"df/d96/hip_2set__convect__rst__kernel_8h.html":[3,0,3,18,0,1,1,30],
 "df/d96/hip_2set__convect__rst__kernel_8h.html#a007d04bf5b2a42c009b8970a06ba0b93":[3,0,3,18,0,1,1,30,8],
 "df/d96/hip_2set__convect__rst__kernel_8h.html#a0259bc3d213b944d3ad29f427f997ee8":[3,0,3,18,0,1,1,30,16],
 "df/d96/hip_2set__convect__rst__kernel_8h.html#a0b65bdf50732fdf0d07b1fbf6c1d2576":[3,0,3,18,0,1,1,30,4],
@@ -243,11 +249,5 @@ var NAVTREEINDEX118 =
 "df/daa/structstl_1_1stl__triangle__t.html#ae830143363b15393d196da2860671cc9":[1,0,381,1,3],
 "df/daa/structstl_1_1stl__triangle__t.html#ae830143363b15393d196da2860671cc9":[2,0,324,1,3],
 "df/db1/namespacefacet__zone.html":[1,0,137],
-"df/db1/namespacefacet__zone.html#a0f8e08b9decf46be1bd48b1baec0a26a":[1,0,137,5],
-"df/db1/namespacefacet__zone.html#a3d9931315ef859f7784eacc4aa771b86":[1,0,137,7],
-"df/db1/namespacefacet__zone.html#a47881f6787d3c53532ff75da683a9680":[1,0,137,9],
-"df/db1/namespacefacet__zone.html#a6e596393a26de1194fe5e723ad05a345":[1,0,137,2],
-"df/db1/namespacefacet__zone.html#abc16c7c2b304ffe822a54e0fef497f0d":[1,0,137,6],
-"df/db1/namespacefacet__zone.html#ac66a60fec95115d780702caebcad3bb0":[1,0,137,4],
-"df/db1/namespacefacet__zone.html#ad0c5a38f989acadbbb970d46fc0af6c7":[1,0,137,8]
+"df/db1/namespacefacet__zone.html#a0f8e08b9decf46be1bd48b1baec0a26a":[1,0,137,5]
 };

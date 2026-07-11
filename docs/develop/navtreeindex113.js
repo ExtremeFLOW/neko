@@ -1,5 +1,11 @@
 var NAVTREEINDEX113 =
 {
+"de/dc0/spatial__average__output_8f90.html#a140e2a7dbcdc0fc4b25b19d4ebc9bb19":[3,0,3,14,27,1],
+"de/dc0/spatial__average__output_8f90.html#a2c13708f52a1278bb18507dab0fae7d7":[3,0,3,14,27,2],
+"de/dc0/spatial__average__output_8f90.html#a7c9a16eeecdcc358205d80567a127f64":[3,0,3,14,27,3],
+"de/dc0/spatial__average__output_8f90_source.html":[3,0,3,14,27],
+"de/dc2/namespacepyneko_1_1intf.html":[1,0,312,0],
+"de/dc2/namespacepyneko_1_1intf.html#a020d42f4ee8e5da16c06025947ebe581":[1,0,312,0,33],
 "de/dc2/namespacepyneko_1_1intf.html#a08d52523e95517a31f00aa97a25fa695":[1,0,312,0,5],
 "de/dc2/namespacepyneko_1_1intf.html#a08ede4a33c462ae36be07f92a827df95":[1,0,312,0,9],
 "de/dc2/namespacepyneko_1_1intf.html#a141de1e5c1e8f3732edeb5fa60ea0e9e":[1,0,312,0,4],
@@ -243,11 +249,5 @@ var NAVTREEINDEX113 =
 "de/dfe/overset__interface_8f90.html#a9a945c0e2d4849850803b1c58561101a":[3,0,3,3,14,14],
 "de/dfe/overset__interface_8f90.html#acc168fc22c30b7dbd773cac2085caba7":[3,0,3,3,14,2],
 "de/dfe/overset__interface_8f90.html#adc15c249451d3df1eb2d36a27d43fe24":[3,0,3,3,14,8],
-"de/dfe/overset__interface_8f90.html#af3c5c9c51383cd4d1ae15367c142db77":[3,0,3,3,14,12],
-"de/dfe/overset__interface_8f90_source.html":[3,0,3,3,14],
-"de/dff/interfaceoperators_1_1cfl__compressible.html":[1,0,280,1],
-"de/dff/interfaceoperators_1_1cfl__compressible.html":[2,0,238,1],
-"de/dff/interfaceoperators_1_1cfl__compressible.html#a0180c43796f27a5b2a28e6910999b264":[2,0,238,1,2],
-"de/dff/interfaceoperators_1_1cfl__compressible.html#a0180c43796f27a5b2a28e6910999b264":[1,0,280,1,2],
-"de/dff/interfaceoperators_1_1cfl__compressible.html#a5bcbd3cc988224a2928969af585a571f":[2,0,238,1,1]
+"de/dfe/overset__interface_8f90.html#af3c5c9c51383cd4d1ae15367c142db77":[3,0,3,3,14,12]
 };

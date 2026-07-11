@@ -1,5 +1,11 @@
 var NAVTREEINDEX115 =
 {
+"df/d1c/structstack_1_1stack__i4t4__t.html#a7fc4b563fbe95860e65f6a16e2a47011":[2,0,321,5,5],
+"df/d1c/structstack_1_1stack__i4t4__t.html#a8188df95ed22c94fe57b9823c24bad26":[1,0,378,5,4],
+"df/d1c/structstack_1_1stack__i4t4__t.html#a8188df95ed22c94fe57b9823c24bad26":[2,0,321,5,4],
+"df/d1c/structstack_1_1stack__i4t4__t.html#a8e6aa3301709211c1aad295879cb0e28":[1,0,378,5,9],
+"df/d1c/structstack_1_1stack__i4t4__t.html#a8e6aa3301709211c1aad295879cb0e28":[2,0,321,5,9],
+"df/d1c/structstack_1_1stack__i4t4__t.html#a9a71c8f52d97ddfb8ab902e53ca2c563":[2,0,321,5,2],
 "df/d1c/structstack_1_1stack__i4t4__t.html#a9a71c8f52d97ddfb8ab902e53ca2c563":[1,0,378,5,2],
 "df/d1c/structstack_1_1stack__i4t4__t.html#aa35c740ba63f99c3daec16818d3f47da":[2,0,321,5,0],
 "df/d1c/structstack_1_1stack__i4t4__t.html#aa35c740ba63f99c3daec16818d3f47da":[1,0,378,5,0],
@@ -243,11 +249,5 @@ var NAVTREEINDEX115 =
 "df/d2b/namespacefield__list.html#af9801bad8b44c37b57d8e1c5b3dc9f2d":[1,0,148,10],
 "df/d2d/statistics_8f90.html":[3,0,3,5,21],
 "df/d2d/statistics_8f90.html#a5265c022e4f5b9264c501767b2456db2":[3,0,3,5,21,4],
-"df/d2d/statistics_8f90.html#a87a26c52a0913d423d4be1c7fa3d4d7b":[3,0,3,5,21,5],
-"df/d2d/statistics_8f90.html#acc53c6a713ed4ac4baad91b882270034":[3,0,3,5,21,6],
-"df/d2d/statistics_8f90.html#add265154519a3e080d50a0bcd9e3a01e":[3,0,3,5,21,3],
-"df/d2d/statistics_8f90.html#afc7736ac834824c0a4ec0c765d94ad50":[3,0,3,5,21,2],
-"df/d2d/statistics_8f90_source.html":[3,0,3,5,21],
-"df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html":[2,0,64,45],
-"df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html":[1,0,77,45]
+"df/d2d/statistics_8f90.html#a87a26c52a0913d423d4be1c7fa3d4d7b":[3,0,3,5,21,5]
 };

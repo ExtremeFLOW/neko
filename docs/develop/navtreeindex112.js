@@ -1,5 +1,11 @@
 var NAVTREEINDEX112 =
 {
+"de/d9b/math_8hip.html#a9002153dd3b6313d27d53db6434c54d2":[3,0,3,18,0,1,1,13,72],
+"de/d9b/math_8hip.html#a90b175b1425afa948d7dedbbc88b02b7":[3,0,3,18,0,1,1,13,17],
+"de/d9b/math_8hip.html#a9585190be418b457aaae5a75fb898949":[3,0,3,18,0,1,1,13,41],
+"de/d9b/math_8hip.html#a96d21aab92a79328a06f18aef16914a2":[3,0,3,18,0,1,1,13,42],
+"de/d9b/math_8hip.html#a991b3d261e3d732896a933c973d5dea6":[3,0,3,18,0,1,1,13,5],
+"de/d9b/math_8hip.html#a995cb7148e2d3c3992dcb486226e0b26":[3,0,3,18,0,1,1,13,52],
 "de/d9b/math_8hip.html#a9dca3de2af2e8216531e7bf246252534":[3,0,3,18,0,1,1,13,1],
 "de/d9b/math_8hip.html#a9e3e9124461644804494466d6b11f04d":[3,0,3,18,0,1,1,13,61],
 "de/d9b/math_8hip.html#a9e537ce0c816439a2a8ff14d6e5bfb13":[3,0,3,18,0,1,1,13,36],
@@ -243,11 +249,5 @@ var NAVTREEINDEX112 =
 "de/dc0/interfacefluid__scheme__base_1_1fluid__scheme__base__compute__cfl__intrf.html":[2,0,142,3],
 "de/dc0/interfacefluid__scheme__base_1_1fluid__scheme__base__compute__cfl__intrf.html#a554a8d998ac563c990bfa1db61915532":[1,0,168,3,0],
 "de/dc0/interfacefluid__scheme__base_1_1fluid__scheme__base__compute__cfl__intrf.html#a554a8d998ac563c990bfa1db61915532":[2,0,142,3,0],
-"de/dc0/spatial__average__output_8f90.html":[3,0,3,14,27],
-"de/dc0/spatial__average__output_8f90.html#a140e2a7dbcdc0fc4b25b19d4ebc9bb19":[3,0,3,14,27,1],
-"de/dc0/spatial__average__output_8f90.html#a2c13708f52a1278bb18507dab0fae7d7":[3,0,3,14,27,2],
-"de/dc0/spatial__average__output_8f90.html#a7c9a16eeecdcc358205d80567a127f64":[3,0,3,14,27,3],
-"de/dc0/spatial__average__output_8f90_source.html":[3,0,3,14,27],
-"de/dc2/namespacepyneko_1_1intf.html":[1,0,312,0],
-"de/dc2/namespacepyneko_1_1intf.html#a020d42f4ee8e5da16c06025947ebe581":[1,0,312,0,33]
+"de/dc0/spatial__average__output_8f90.html":[3,0,3,14,27]
 };

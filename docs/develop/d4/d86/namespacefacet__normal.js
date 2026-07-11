@@ -10,5 +10,6 @@ var namespacefacet__normal =
     [ "facet_normal_finalize", "d4/d86/namespacefacet__normal.html#a502236e464de9cffcb8dc3d57a90c127", null ],
     [ "facet_normal_free", "d4/d86/namespacefacet__normal.html#ac75a7a7cab309e146a490a1c3d1c0496", null ],
     [ "facet_normal_init", "d4/d86/namespacefacet__normal.html#a55d70216af590fcbacba5aebe1ba6b02", null ],
-    [ "facet_normal_init_from_components", "d4/d86/namespacefacet__normal.html#a019c46737dca3acfe755c9ba63e04456", null ]
+    [ "facet_normal_init_from_components", "d4/d86/namespacefacet__normal.html#a019c46737dca3acfe755c9ba63e04456", null ],
+    [ "facet_normal_recompute_normals", "d4/d86/namespacefacet__normal.html#a657e7d241d62e45ac7518de5590cc8e3", null ]
 ];

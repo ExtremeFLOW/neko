@@ -1,5 +1,11 @@
 var NAVTREEINDEX116 =
 {
+"df/d2d/statistics_8f90.html#acc53c6a713ed4ac4baad91b882270034":[3,0,3,5,21,6],
+"df/d2d/statistics_8f90.html#add265154519a3e080d50a0bcd9e3a01e":[3,0,3,5,21,3],
+"df/d2d/statistics_8f90.html#afc7736ac834824c0a4ec0c765d94ad50":[3,0,3,5,21,2],
+"df/d2d/statistics_8f90_source.html":[3,0,3,5,21],
+"df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html":[2,0,64,45],
+"df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html":[1,0,77,45],
 "df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html#abc05021a060aded312d42d8132e8a130":[2,0,64,45,0],
 "df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html#abc05021a060aded312d42d8132e8a130":[1,0,77,45,0],
 "df/d32/namespacetri__mesh.html":[1,0,407],
@@ -243,11 +249,5 @@ var NAVTREEINDEX116 =
 "df/d63/structshear__stress_1_1shear__stress__t.html#a622bac879d08d3beee23a092bc73ee36":[2,0,303,0,20],
 "df/d63/structshear__stress_1_1shear__stress__t.html#a638503614447154c642fcbc9bf5df9a6":[1,0,353,0,34],
 "df/d63/structshear__stress_1_1shear__stress__t.html#a638503614447154c642fcbc9bf5df9a6":[2,0,303,0,34],
-"df/d63/structshear__stress_1_1shear__stress__t.html#a68bd617fd8509adab92e938b94eeb235":[2,0,303,0,15],
-"df/d63/structshear__stress_1_1shear__stress__t.html#a68bd617fd8509adab92e938b94eeb235":[1,0,353,0,15],
-"df/d63/structshear__stress_1_1shear__stress__t.html#a68c65ffcae8364e96c10ab4815a2658c":[1,0,353,0,36],
-"df/d63/structshear__stress_1_1shear__stress__t.html#a68c65ffcae8364e96c10ab4815a2658c":[2,0,303,0,36],
-"df/d63/structshear__stress_1_1shear__stress__t.html#a723bdd23995522630dd0b5a1adb3adc9":[1,0,353,0,11],
-"df/d63/structshear__stress_1_1shear__stress__t.html#a723bdd23995522630dd0b5a1adb3adc9":[2,0,303,0,11],
-"df/d63/structshear__stress_1_1shear__stress__t.html#a77af13b6f885bd953fff03b1afe50d0a":[2,0,303,0,44]
+"df/d63/structshear__stress_1_1shear__stress__t.html#a68bd617fd8509adab92e938b94eeb235":[2,0,303,0,15]
 };
