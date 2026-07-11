@@ -77,7 +77,7 @@ contains
     ! Write the initial logging message
     call neko_log%section('Starting simulation')
     write(log_buf, '(A, E15.7,A,E15.7,A)') &
-         'T  : [', C%time%t, ',', C%time%end_time, ']'
+         'T  : [', C%time%t, ', ', C%time%end_time, ']'
     call neko_log%message(log_buf)
     if (.not. dt_controller%is_variable_dt) then
        write(log_buf, '(A, E15.7)') 'dt :  ', C%time%dt
@@ -209,14 +209,16 @@ contains
     type(time_scheme_controller_t), intent(inout), allocatable :: ext_bdf
     integer :: i
 
-    if (allocated(ext_bdf)) then
-       do i = 10, 2, -1
-          time%tlag(i) = time%tlag(i-1)
-          time%dtlag(i) = time%dtlag(i-1)
-       end do
+    ! Always shift the time lag arrays (needed by entropy viscosity etc.)
+    do i = 10, 2, -1
+       time%tlag(i) = time%tlag(i-1)
+       time%dtlag(i) = time%dtlag(i-1)
+    end do
 
-       time%dtlag(1) = time%dt
-       time%tlag(1) = time%t
+    time%dtlag(1) = time%dt
+    time%tlag(1) = time%t
+
+    if (allocated(ext_bdf)) then
        if (ext_bdf%ndiff .eq. 0) then
           time%dtlag(2) = time%dt
           time%tlag(2) = time%t

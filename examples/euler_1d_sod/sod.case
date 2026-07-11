@@ -15,7 +15,7 @@
             "time_order": 4,
             "polynomial_order": 3,
             "c_avisc_low": 0.5,
-            "c_avisc_entropy": 20.0
+            "c_avisc_entropy": 1.0
         },
         "fluid": {
             "scheme": "compressible",
@@ -35,7 +35,7 @@
         "simulation_components": [
             {
                 "type": "field_writer",
-                "fields": ["fluid_rho", "S", "effective_visc"], // s2, s3, s4 in Paraview
+                "fields": ["fluid_rho", "S", "artificial_visc"], // s2, s3, s4 in Paraview
                 "output_control": "nsamples",
                 "output_value": 100
             }

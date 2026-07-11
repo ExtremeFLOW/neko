@@ -164,4 +164,122 @@ __global__ void update_e_kernel(T* __restrict__ E,
   }
 }
 
+/**
+ * Device kernel for update T = p / (rho * (gamma - 1))
+ */
+template< typename T>
+__global__ void update_temperature_kernel(T* __restrict__ T_field,
+                                          const T* __restrict__ p,
+                                          const T* __restrict__ rho,
+                                          const T gamma,
+                                          const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    T_field[i] = p[i] / (rho[i] * (gamma - 1.0));
+  }
+}
+
+/**
+ * Device kernel for preparing physical Navier-Stokes flux terms.
+ */
+template< typename T>
+__global__ void ns_flux_prepare_kernel(T* __restrict__ div_flux,
+                                       T* __restrict__ dissipation,
+                                       T* __restrict__ h1,
+                                       const T* __restrict__ dudx,
+                                       const T* __restrict__ dudy,
+                                       const T* __restrict__ dudz,
+                                       const T* __restrict__ dvdx,
+                                       const T* __restrict__ dvdy,
+                                       const T* __restrict__ dvdz,
+                                       const T* __restrict__ dwdx,
+                                       const T* __restrict__ dwdy,
+                                       const T* __restrict__ dwdz,
+                                       const T* __restrict__ mu,
+                                       const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    const T div_u = dudx[i] + dvdy[i] + dwdz[i];
+    const T two_thirds = 2.0 / 3.0;
+    const T tau_xx = mu[i] * (2.0 * dudx[i] - two_thirds * div_u);
+    const T tau_yy = mu[i] * (2.0 * dvdy[i] - two_thirds * div_u);
+    const T tau_zz = mu[i] * (2.0 * dwdz[i] - two_thirds * div_u);
+    const T tau_xy = mu[i] * (dudy[i] + dvdx[i]);
+    const T tau_xz = mu[i] * (dudz[i] + dwdx[i]);
+    const T tau_yz = mu[i] * (dvdz[i] + dwdy[i]);
+
+    div_flux[i] = mu[i] * div_u;
+    h1[i] = mu[i];
+    dissipation[i] = tau_xx * dudx[i] +
+      tau_xy * (dudy[i] + dvdx[i]) +
+      tau_xz * (dudz[i] + dwdx[i]) +
+      tau_yy * dvdy[i] +
+      tau_yz * (dvdz[i] + dwdy[i]) +
+      tau_zz * dwdz[i];
+  }
+}
+
+/**
+ * Device kernel for finalizing physical Navier-Stokes flux terms.
+ */
+template< typename T>
+__global__ void ns_flux_finalize_kernel(T* __restrict__ visc_m_x,
+                                        T* __restrict__ visc_m_y,
+                                        T* __restrict__ visc_m_z,
+                                        T* __restrict__ visc_E,
+                                        T* __restrict__ f_x,
+                                        T* __restrict__ f_y,
+                                        T* __restrict__ f_z,
+                                        const T* __restrict__ opgrad_x,
+                                        const T* __restrict__ opgrad_y,
+                                        const T* __restrict__ opgrad_z,
+                                        const T* __restrict__ u,
+                                        const T* __restrict__ v,
+                                        const T* __restrict__ w,
+                                        const T* __restrict__ B,
+                                        const T* __restrict__ dissipation,
+                                        const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    f_x[i] -= (2.0 / 3.0) * opgrad_x[i];
+    f_y[i] -= (2.0 / 3.0) * opgrad_y[i];
+    f_z[i] -= (2.0 / 3.0) * opgrad_z[i];
+    visc_m_x[i] += f_x[i];
+    visc_m_y[i] += f_y[i];
+    visc_m_z[i] += f_z[i];
+    visc_E[i] += u[i] * f_x[i] + v[i] * f_y[i] + w[i] * f_z[i] -
+      B[i] * dissipation[i];
+  }
+}
+
+/**
+ * Device kernel for preparing conductive energy flux terms.
+ */
+template< typename T>
+__global__ void ns_flux_temperature_kernel(T* __restrict__ div_flux,
+                                           T* __restrict__ h1,
+                                           const T* __restrict__ p,
+                                           const T* __restrict__ rho,
+                                           const T* __restrict__ kappa,
+                                           const T gamma,
+                                           const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    div_flux[i] = p[i] / (rho[i] * (gamma - 1.0));
+    h1[i] = kappa[i];
+  }
+}
+
 #endif // __FLUID_COMPRESSIBLE_OPS_KERNEL_H__

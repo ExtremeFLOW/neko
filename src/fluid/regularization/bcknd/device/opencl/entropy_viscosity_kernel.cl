@@ -145,4 +145,3 @@ __kernel void entropy_visc_smooth_divide_kernel(__global real * __restrict__ reg
     reg_coeff[i] = temp_field[i] / mult_field[i];
   }
 }
-
