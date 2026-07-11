@@ -328,7 +328,7 @@ device/hip_intf.lo : device/hip_intf.F90 common/utils.lo
 device/cuda/nvtx.lo : device/cuda/nvtx.F90 
 device/hip/roctx.lo : device/hip/roctx.F90 
 device/opencl_intf.lo : device/opencl_intf.F90 common/utils.lo config/num_types.lo 
-device/opencl/prgm_lib.lo : device/opencl/prgm_lib.F90 common/utils.lo 
+device/opencl/prgm_lib.lo : device/opencl/prgm_lib.F90 common/utils.lo device/opencl_intf.lo 
 device/metal_intf.lo : device/metal_intf.F90 common/utils.lo 
 device/device.lo : device/device.F90 device/opencl/prgm_lib.lo common/utils.lo adt/htable.lo config/neko_config.lo device/metal_intf.lo device/hip_intf.lo device/cuda_intf.lo device/opencl_intf.lo config/num_types.lo 
 math/field_math.lo : math/field_math.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo common/mask.lo field/field.lo config/num_types.lo config/neko_config.lo 
