@@ -375,10 +375,16 @@ contains
          call compressible_ops_device_update_temperature( &
               this%temperature%x_d, p%x_d, rho%x_d, this%gamma, n)
       else
-         do concurrent (i = 1:n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do simd
+         do i = 1, n
             this%temperature%x(i,1,1,1) = p%x(i,1,1,1) / &
                  (rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
          end do
+         !$omp end parallel do simd
       end if
 
       !> Update entropy lag series BEFORE computing new entropy,
