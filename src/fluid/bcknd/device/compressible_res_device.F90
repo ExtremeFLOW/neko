@@ -736,12 +736,13 @@ contains
     coef%ifh2 = .false.
 
     ! Density, momentum and energy are all stabilized by the same
-    ! artificial viscosity.
+    ! artificial viscosity. The momentum components share the operator,
+    ! so they use the fused vector apply (one kernel launch, geometric
+    ! factors and h1 are loaded once for all three components).
     call device_copy(coef%h1_d, artificial_visc%x_d, n)
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
-    call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
-    call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
-    call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
+    call Ax%compute_vector(visc_m_x%x, visc_m_y%x, visc_m_z%x, &
+         m_x%x, m_y%x, m_z%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     if (compressible_res_device_add_physical_flux) then

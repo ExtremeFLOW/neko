@@ -446,11 +446,12 @@ contains
 
     coef%ifh2 = .false.
 
-    ! Calculate artificial diffusion with variable viscosity
+    ! Calculate artificial diffusion with variable viscosity. The momentum
+    ! components share the operator, so they use the fused vector apply
+    ! (geometric factors and h1 are loaded once for all three components).
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
-    call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
-    call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
-    call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
+    call Ax%compute_vector(visc_m_x%x, visc_m_y%x, visc_m_z%x, &
+         m_x%x, m_y%x, m_z%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     if (compressible_res_cpu_add_physical_flux) then
