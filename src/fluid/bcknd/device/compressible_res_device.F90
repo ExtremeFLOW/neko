@@ -705,9 +705,7 @@ contains
 
     call gs%op(rhs_rho_field, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 1, coef)
-    call gs%op(rhs_m_x, GS_OP_ADD)
-    call gs%op(rhs_m_y, GS_OP_ADD)
-    call gs%op(rhs_m_z, GS_OP_ADD)
+    call gs%op(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
 
@@ -737,18 +735,13 @@ contains
 
     coef%ifh2 = .false.
 
-    ! Density is stabilized only by artificial viscosity.
+    ! Density, momentum and energy are all stabilized by the same
+    ! artificial viscosity.
     call device_copy(coef%h1_d, artificial_visc%x_d, n)
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
-
-    ! Momentum uses the same artificial viscosity as monolithic mode.
-    call device_copy(coef%h1_d, artificial_visc%x_d, n)
     call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
-
-    ! Energy uses the same artificial viscosity as monolithic mode.
-    call device_copy(coef%h1_d, artificial_visc%x_d, n)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     if (compressible_res_device_add_physical_flux) then
@@ -761,9 +754,7 @@ contains
 
     call gs%op(visc_rho, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 1, coef)
-    call gs%op(visc_m_x, GS_OP_ADD)
-    call gs%op(visc_m_y, GS_OP_ADD)
-    call gs%op(visc_m_z, GS_OP_ADD)
+    call gs%op(visc_m_x%x, visc_m_y%x, visc_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 

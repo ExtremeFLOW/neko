@@ -420,14 +420,14 @@ contains
 
     call gs%op(rhs_rho_field, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 1, coef)
-    call gs%op(rhs_m_x, GS_OP_ADD)
-    call gs%op(rhs_m_y, GS_OP_ADD)
-    call gs%op(rhs_m_z, GS_OP_ADD)
+    call gs%op(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, 0, coef)
     call gs%op(rhs_E, GS_OP_ADD)
 
-    ! Apply multiplicity to the inviscid RHS. Fused: one fork-join instead
-    ! of two, and coef%mult stays in L1.
+    ! Apply multiplicity to the inviscid RHS and set h1 to the artificial
+    ! viscosity for the Laplacian (density, momentum and energy are all
+    ! stabilized by the same artificial viscosity). Fused: one fork-join
+    ! instead of two, and coef%mult / artificial_visc share L1.
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
     !DIR$ IVDEP
@@ -440,29 +440,17 @@ contains
        rhs_m_y%x(i,1,1,1) = rhs_m_y%x(i,1,1,1) * coef%mult(i,1,1,1)
        rhs_m_z%x(i,1,1,1) = rhs_m_z%x(i,1,1,1) * coef%mult(i,1,1,1)
        rhs_E%x(i,1,1,1) = rhs_E%x(i,1,1,1) * coef%mult(i,1,1,1)
+       coef%h1(i,1,1,1) = artificial_visc%x(i,1,1,1)
     end do
     !$omp end parallel do simd
 
     coef%ifh2 = .false.
 
-    ! Density is stabilized only by artificial viscosity.
-    do concurrent (i = 1:n)
-       coef%h1(i,1,1,1) = artificial_visc%x(i,1,1,1)
-    end do
+    ! Calculate artificial diffusion with variable viscosity
     call Ax%compute(visc_rho%x, rho_field%x, coef, p%msh, p%Xh)
-
-    ! Momentum uses the same artificial viscosity as monolithic mode.
-    do concurrent (i = 1:n)
-       coef%h1(i,1,1,1) = artificial_visc%x(i,1,1,1)
-    end do
     call Ax%compute(visc_m_x%x, m_x%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_y%x, m_y%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
-
-    ! Energy uses the same artificial viscosity as monolithic mode.
-    do concurrent (i = 1:n)
-       coef%h1(i,1,1,1) = artificial_visc%x(i,1,1,1)
-    end do
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
     if (compressible_res_cpu_add_physical_flux) then
@@ -474,9 +462,7 @@ contains
     ! because nothing here (gs%op, rotate_cyc) reads coef%h1.
     call gs%op(visc_rho, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 1, coef)
-    call gs%op(visc_m_x, GS_OP_ADD)
-    call gs%op(visc_m_y, GS_OP_ADD)
-    call gs%op(visc_m_z, GS_OP_ADD)
+    call gs%op(visc_m_x%x, visc_m_y%x, visc_m_z%x, n, GS_OP_ADD)
     call rotate_cyc(visc_m_x%x, visc_m_y%x, visc_m_z%x, 0, coef)
     call gs%op(visc_E, GS_OP_ADD)
 
@@ -564,7 +550,14 @@ contains
     call grad(dvdx%x, dvdy%x, dvdz%x, v%x, coef)
     call grad(dwdx%x, dwdy%x, dwdz%x, w%x, coef)
 
-    do concurrent (i = 1:n)
+    ! Viscous stress tensor, dilatational flux, viscous dissipation and
+    ! h1 = mu for the stress Laplacian, fused into a single sweep.
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do simd private(div_u)
+    do i = 1, n
        div_u = dudx%x(i,1,1,1) + dvdy%x(i,1,1,1) + dwdz%x(i,1,1,1)
        div_flux%x(i,1,1,1) = mu%x(i,1,1,1) * div_u
        coef%h1(i,1,1,1) = mu%x(i,1,1,1)
@@ -580,9 +573,6 @@ contains
             (dudz%x(i,1,1,1) + dwdx%x(i,1,1,1))
        tau_yz%x(i,1,1,1) = mu%x(i,1,1,1) * &
             (dvdz%x(i,1,1,1) + dwdy%x(i,1,1,1))
-    end do
-
-    do concurrent (i = 1:n)
        dissipation%x(i,1,1,1) = &
             tau_xx%x(i,1,1,1) * dudx%x(i,1,1,1) &
             + tau_xy%x(i,1,1,1) * (dudy%x(i,1,1,1) + dvdx%x(i,1,1,1)) &
@@ -591,11 +581,22 @@ contains
             + tau_yz%x(i,1,1,1) * (dvdz%x(i,1,1,1) + dwdy%x(i,1,1,1)) &
             + tau_zz%x(i,1,1,1) * dwdz%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
 
     call Ax_stress%compute_vector(f_x%x, f_y%x, f_z%x, u%x, v%x, w%x, coef, &
          p%msh, p%Xh)
     call opgrad(dudx%x, dudy%x, dudz%x, div_flux%x, coef)
-    do concurrent (i = 1:n)
+
+    ! Accumulate the stress contribution into the viscous residual, add
+    ! the dissipation to the energy residual, compute the internal energy
+    ! (temperature) for the heat flux and set h1 = kappa for its Laplacian.
+    ! Fused: one fork-join instead of four.
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        f_x%x(i,1,1,1) = f_x%x(i,1,1,1) &
             - two_thirds * dudx%x(i,1,1,1)
        f_y%x(i,1,1,1) = f_y%x(i,1,1,1) &
@@ -608,22 +609,25 @@ contains
        visc_E%x(i,1,1,1) = visc_E%x(i,1,1,1) &
             + u%x(i,1,1,1) * f_x%x(i,1,1,1) &
             + v%x(i,1,1,1) * f_y%x(i,1,1,1) &
-            + w%x(i,1,1,1) * f_z%x(i,1,1,1)
-    end do
-
-    do concurrent (i = 1:n)
-       visc_E%x(i,1,1,1) = visc_E%x(i,1,1,1) &
+            + w%x(i,1,1,1) * f_z%x(i,1,1,1) &
             - coef%B(i,1,1,1) * dissipation%x(i,1,1,1)
        div_flux%x(i,1,1,1) = p%x(i,1,1,1) / &
             (rho_field%x(i,1,1,1) * (compressible_res_cpu_gamma - 1.0_rp))
-    end do
-    do concurrent (i = 1:n)
        coef%h1(i,1,1,1) = kappa%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
+
     call Ax%compute(dudx%x, div_flux%x, coef, p%msh, p%Xh)
-    do concurrent (i = 1:n)
+
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do simd
+    do i = 1, n
        visc_E%x(i,1,1,1) = visc_E%x(i,1,1,1) + dudx%x(i,1,1,1)
     end do
+    !$omp end parallel do simd
 
     call neko_scratch_registry%relinquish_field(tmp_indices)
 
