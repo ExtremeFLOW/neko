@@ -1,0 +1,9 @@
+<map id="inviscid_res_part_E_flux_opencl" name="inviscid_res_part_E_flux_opencl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,152,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="380,29,532,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,47,366,47,366,52,152,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="200,62,332,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="153,57,187,61,186,67,152,62"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="420,30,418,20,424,11,437,5,456,3,478,6,491,13,488,17,477,11,456,8,438,10,427,15,423,21,425,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="332,63,366,59,367,64,333,69"/>
+</map>

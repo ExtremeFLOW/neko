@@ -208,9 +208,30 @@ var annotated_dup =
     [ "compressible_ops_device", "dc/da9/namespacecompressible__ops__device.html", [
       [ "hip_compute_entropy", "d6/d93/interfacecompressible__ops__device_1_1hip__compute__entropy.html", "d6/d93/interfacecompressible__ops__device_1_1hip__compute__entropy" ],
       [ "hip_compute_max_wave_speed", "da/d9b/interfacecompressible__ops__device_1_1hip__compute__max__wave__speed.html", "da/d9b/interfacecompressible__ops__device_1_1hip__compute__max__wave__speed" ],
+      [ "hip_ns_flux_finalize", "d7/d00/interfacecompressible__ops__device_1_1hip__ns__flux__finalize.html", "d7/d00/interfacecompressible__ops__device_1_1hip__ns__flux__finalize" ],
+      [ "hip_ns_flux_prepare", "d0/db8/interfacecompressible__ops__device_1_1hip__ns__flux__prepare.html", "d0/db8/interfacecompressible__ops__device_1_1hip__ns__flux__prepare" ],
+      [ "hip_ns_flux_temperature", "d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html", "d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature" ],
       [ "hip_update_e", "d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html", "d2/d3d/interfacecompressible__ops__device_1_1hip__update__e" ],
       [ "hip_update_mxyz_p_ruvw", "d1/d98/interfacecompressible__ops__device_1_1hip__update__mxyz__p__ruvw.html", "d1/d98/interfacecompressible__ops__device_1_1hip__update__mxyz__p__ruvw" ],
+      [ "hip_update_temperature", "df/d73/interfacecompressible__ops__device_1_1hip__update__temperature.html", "df/d73/interfacecompressible__ops__device_1_1hip__update__temperature" ],
       [ "hip_update_uvw", "df/dc8/interfacecompressible__ops__device_1_1hip__update__uvw.html", "df/dc8/interfacecompressible__ops__device_1_1hip__update__uvw" ]
+    ] ],
+    [ "compressible_res_cpu", "d4/d83/namespacecompressible__res__cpu.html", [
+      [ "compressible_res_cpu_t", "d9/da2/structcompressible__res__cpu_1_1compressible__res__cpu__t.html", "d9/da2/structcompressible__res__cpu_1_1compressible__res__cpu__t" ]
+    ] ],
+    [ "compressible_res_device", "df/dcd/namespacecompressible__res__device.html", [
+      [ "compressible_res_device_t", "d9/d7c/structcompressible__res__device_1_1compressible__res__device__t.html", "d9/d7c/structcompressible__res__device_1_1compressible__res__device__t" ],
+      [ "compressible_res_part_coef_mult_hip", "d4/d59/interfacecompressible__res__device_1_1compressible__res__part__coef__mult__hip.html", "d4/d59/interfacecompressible__res__device_1_1compressible__res__part__coef__mult__hip" ],
+      [ "compressible_res_part_rk_sum_hip", "d6/d0d/interfacecompressible__res__device_1_1compressible__res__part__rk__sum__hip.html", "d6/d0d/interfacecompressible__res__device_1_1compressible__res__part__rk__sum__hip" ],
+      [ "compressible_res_part_visc_hip", "dc/dfa/interfacecompressible__res__device_1_1compressible__res__part__visc__hip.html", "dc/dfa/interfacecompressible__res__device_1_1compressible__res__part__visc__hip" ],
+      [ "inviscid_res_part_e_flux_hip", "dd/d88/interfacecompressible__res__device_1_1inviscid__res__part__e__flux__hip.html", "dd/d88/interfacecompressible__res__device_1_1inviscid__res__part__e__flux__hip" ],
+      [ "inviscid_res_part_mx_flux_hip", "d0/d80/interfacecompressible__res__device_1_1inviscid__res__part__mx__flux__hip.html", "d0/d80/interfacecompressible__res__device_1_1inviscid__res__part__mx__flux__hip" ],
+      [ "inviscid_res_part_my_flux_hip", "de/d75/interfacecompressible__res__device_1_1inviscid__res__part__my__flux__hip.html", "de/d75/interfacecompressible__res__device_1_1inviscid__res__part__my__flux__hip" ],
+      [ "inviscid_res_part_mz_flux_hip", "d3/d10/interfacecompressible__res__device_1_1inviscid__res__part__mz__flux__hip.html", "d3/d10/interfacecompressible__res__device_1_1inviscid__res__part__mz__flux__hip" ]
+    ] ],
+    [ "compressible_residual", "d7/d23/namespacecompressible__residual.html", [
+      [ "compressible_rhs", "de/d93/interfacecompressible__residual_1_1compressible__rhs.html", "de/d93/interfacecompressible__residual_1_1compressible__rhs" ],
+      [ "compressible_rhs_t", "d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html", "d3/d8a/structcompressible__residual_1_1compressible__rhs__t" ]
     ] ],
     [ "const_source_term", "d0/dd2/namespaceconst__source__term.html", [
       [ "const_source_term_t", "d9/db9/structconst__source__term_1_1const__source__term__t.html", "d9/db9/structconst__source__term_1_1const__source__term__t" ]
@@ -508,23 +529,6 @@ var annotated_dup =
       [ "hip_entropy_visc_compute_viscosity", "da/d1b/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__viscosity.html", "da/d1b/interfaceentropy__viscosity__device_1_1hip__entropy__visc__compute__viscosity" ],
       [ "hip_entropy_visc_smooth_divide", "dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide.html", "dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide" ]
     ] ],
-    [ "euler_res_cpu", "d1/d20/namespaceeuler__res__cpu.html", [
-      [ "euler_res_cpu_t", "d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html", "d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t" ]
-    ] ],
-    [ "euler_res_device", "d4/d49/namespaceeuler__res__device.html", [
-      [ "euler_res_device_t", "d9/d65/structeuler__res__device_1_1euler__res__device__t.html", "d9/d65/structeuler__res__device_1_1euler__res__device__t" ],
-      [ "euler_res_part_coef_mult_hip", "d2/d5f/interfaceeuler__res__device_1_1euler__res__part__coef__mult__hip.html", "d2/d5f/interfaceeuler__res__device_1_1euler__res__part__coef__mult__hip" ],
-      [ "euler_res_part_e_flux_hip", "dd/dbb/interfaceeuler__res__device_1_1euler__res__part__e__flux__hip.html", "dd/dbb/interfaceeuler__res__device_1_1euler__res__part__e__flux__hip" ],
-      [ "euler_res_part_mx_flux_hip", "d3/dd3/interfaceeuler__res__device_1_1euler__res__part__mx__flux__hip.html", "d3/dd3/interfaceeuler__res__device_1_1euler__res__part__mx__flux__hip" ],
-      [ "euler_res_part_my_flux_hip", "d1/d98/interfaceeuler__res__device_1_1euler__res__part__my__flux__hip.html", "d1/d98/interfaceeuler__res__device_1_1euler__res__part__my__flux__hip" ],
-      [ "euler_res_part_mz_flux_hip", "de/d8a/interfaceeuler__res__device_1_1euler__res__part__mz__flux__hip.html", "de/d8a/interfaceeuler__res__device_1_1euler__res__part__mz__flux__hip" ],
-      [ "euler_res_part_rk_sum_hip", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip.html", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip" ],
-      [ "euler_res_part_visc_hip", "df/d63/interfaceeuler__res__device_1_1euler__res__part__visc__hip.html", "df/d63/interfaceeuler__res__device_1_1euler__res__part__visc__hip" ]
-    ] ],
-    [ "euler_residual", "d1/dd1/namespaceeuler__residual.html", [
-      [ "euler_rhs", "d4/d59/interfaceeuler__residual_1_1euler__rhs.html", "d4/d59/interfaceeuler__residual_1_1euler__rhs" ],
-      [ "euler_rhs_t", "d9/d26/structeuler__residual_1_1euler__rhs__t.html", "d9/d26/structeuler__residual_1_1euler__rhs__t" ]
-    ] ],
     [ "ext_time_scheme", "d2/d75/namespaceext__time__scheme.html", [
       [ "ext_time_scheme_t", "d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html", "d2/d90/structext__time__scheme_1_1ext__time__scheme__t" ]
     ] ],
@@ -634,8 +638,8 @@ var annotated_dup =
     [ "fluid_scheme_compressible", "d3/d66/namespacefluid__scheme__compressible.html", [
       [ "fluid_scheme_compressible_t", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t" ]
     ] ],
-    [ "fluid_scheme_compressible_euler", "da/d14/namespacefluid__scheme__compressible__euler.html", [
-      [ "fluid_scheme_compressible_euler_t", "da/d12/structfluid__scheme__compressible__euler_1_1fluid__scheme__compressible__euler__t.html", "da/d12/structfluid__scheme__compressible__euler_1_1fluid__scheme__compressible__euler__t" ]
+    [ "fluid_scheme_compressible_ns", "d2/de6/namespacefluid__scheme__compressible__ns.html", [
+      [ "fluid_scheme_compressible_ns_t", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t" ]
     ] ],
     [ "fluid_scheme_incompressible", "d7/dff/namespacefluid__scheme__incompressible.html", [
       [ "fluid_scheme_incompressible_t", "d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html", "d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t" ]
@@ -1231,6 +1235,7 @@ var annotated_dup =
       [ "opencl_iadd", "dc/de6/interfaceopencl__math_1_1opencl__iadd.html", "dc/de6/interfaceopencl__math_1_1opencl__iadd" ],
       [ "opencl_invcol1", "dc/da5/interfaceopencl__math_1_1opencl__invcol1.html", "dc/da5/interfaceopencl__math_1_1opencl__invcol1" ],
       [ "opencl_invcol2", "d2/d86/interfaceopencl__math_1_1opencl__invcol2.html", "d2/d86/interfaceopencl__math_1_1opencl__invcol2" ],
+      [ "opencl_invcol3", "df/d2e/interfaceopencl__math_1_1opencl__invcol3.html", "df/d2e/interfaceopencl__math_1_1opencl__invcol3" ],
       [ "opencl_masked_copy_0", "db/dc0/interfaceopencl__math_1_1opencl__masked__copy__0.html", "db/dc0/interfaceopencl__math_1_1opencl__masked__copy__0" ],
       [ "opencl_masked_copy_aligned", "d4/dbc/interfaceopencl__math_1_1opencl__masked__copy__aligned.html", "d4/dbc/interfaceopencl__math_1_1opencl__masked__copy__aligned" ],
       [ "opencl_masked_gather_copy", "d2/df7/interfaceopencl__math_1_1opencl__masked__gather__copy.html", "d2/df7/interfaceopencl__math_1_1opencl__masked__gather__copy" ],

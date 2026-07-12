@@ -33,6 +33,7 @@ var opencl__math_8f90 =
     [ "opencl_math::opencl_add5s4", "da/d86/interfaceopencl__math_1_1opencl__add5s4.html", "da/d86/interfaceopencl__math_1_1opencl__add5s4" ],
     [ "opencl_math::opencl_invcol1", "dc/da5/interfaceopencl__math_1_1opencl__invcol1.html", "dc/da5/interfaceopencl__math_1_1opencl__invcol1" ],
     [ "opencl_math::opencl_invcol2", "d2/d86/interfaceopencl__math_1_1opencl__invcol2.html", "d2/d86/interfaceopencl__math_1_1opencl__invcol2" ],
+    [ "opencl_math::opencl_invcol3", "df/d2e/interfaceopencl__math_1_1opencl__invcol3.html", "df/d2e/interfaceopencl__math_1_1opencl__invcol3" ],
     [ "opencl_math::opencl_col2", "db/d7d/interfaceopencl__math_1_1opencl__col2.html", "db/d7d/interfaceopencl__math_1_1opencl__col2" ],
     [ "opencl_math::opencl_col3", "de/d46/interfaceopencl__math_1_1opencl__col3.html", "de/d46/interfaceopencl__math_1_1opencl__col3" ],
     [ "opencl_math::opencl_subcol3", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3.html", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3" ],

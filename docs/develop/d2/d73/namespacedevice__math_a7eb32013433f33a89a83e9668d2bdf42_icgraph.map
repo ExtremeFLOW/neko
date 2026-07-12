@@ -1,15 +1,15 @@
 <map id="device_math::device_sub2" name="device_math::device_sub2">
-<area shape="rect" id="Node000001" title="Vector substraction ." alt="" coords="504,134,699,159"/>
-<area shape="rect" id="Node000002" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="275,5,440,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="570,128,518,94,455,60,426,48,428,43,457,55,520,89,573,124"/>
-<area shape="rect" id="Node000003" href="$d4/d49/namespaceeuler__res__device.html#a01ded437cb784d33ccbdcdfbc6e2bfee" title=" " alt="" coords="259,69,456,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="533,133,442,112,444,107,534,128"/>
-<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#a3cbc556471d67156c30b2c918a4f8b20" title="Vector substraction ." alt="" coords="275,134,440,159"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="490,149,440,149,440,144,490,144"/>
-<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a7b9bb46fe1b6f32bfdce6f1230fac9d3" title="Vector substraction ." alt="" coords="260,183,455,209"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="525,165,422,186,420,181,524,159"/>
-<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#a588b98b5b338b05f30f57698f2f59126" title="Vector substraction ." alt="" coords="262,233,453,258"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="568,168,517,196,457,222,417,235,415,230,455,218,514,191,566,164"/>
-<area shape="rect" id="Node000004" href="$d4/d49/namespaceeuler__res__device.html#a771e025c93878c18be347a044796d1d7" title=" " alt="" coords="5,69,211,109"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="245,92,211,92,211,87,245,87"/>
+<area shape="rect" id="Node000001" title="Vector substraction ." alt="" coords="515,134,709,159"/>
+<area shape="rect" id="Node000002" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="287,5,452,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="581,128,528,94,466,60,437,48,439,43,468,55,531,90,584,124"/>
+<area shape="rect" id="Node000003" href="$df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="276,69,463,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="544,133,454,112,455,107,545,128"/>
+<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#a3cbc556471d67156c30b2c918a4f8b20" title="Vector substraction ." alt="" coords="287,134,452,159"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="501,149,452,149,452,144,501,144"/>
+<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a7b9bb46fe1b6f32bfdce6f1230fac9d3" title="Vector substraction ." alt="" coords="272,183,467,209"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="536,165,433,186,432,181,535,159"/>
+<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#a588b98b5b338b05f30f57698f2f59126" title="Vector substraction ." alt="" coords="274,233,465,258"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="579,168,527,196,468,222,428,235,426,230,466,218,525,191,576,164"/>
+<area shape="rect" id="Node000004" href="$df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,62,224,117"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="262,92,224,92,224,87,262,87"/>
 </map>

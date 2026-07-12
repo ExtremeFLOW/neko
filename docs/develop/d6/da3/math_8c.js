@@ -36,6 +36,7 @@ var math_8c =
     [ "opencl_iadd", "d6/da3/math_8c.html#a0247f34858e8a164d42b462c8714068a", null ],
     [ "opencl_invcol1", "d6/da3/math_8c.html#a30fa3c77f4fa0272478490b938a0f90d", null ],
     [ "opencl_invcol2", "d6/da3/math_8c.html#acd8074295555882b9bd18bbba59f8994", null ],
+    [ "opencl_invcol3", "d6/da3/math_8c.html#a3956fe7a541f8bace5cae9fdef5005c1", null ],
     [ "opencl_masked_copy_0", "d6/da3/math_8c.html#ae712363c7d505f630b25591f05b7e14e", null ],
     [ "opencl_masked_copy_aligned", "d6/da3/math_8c.html#a89a65c243a3cebc4db2889b88a70baa4", null ],
     [ "opencl_masked_gather_copy", "d6/da3/math_8c.html#a1258236f558925c28670914d60b08bf6", null ],

@@ -376,13 +376,17 @@ Material properties</h2>
 <p>When material properties are constant or only vary in time, one can use the simplified form of the viscous stress tensor in the governing equations. However, when there are spatial variations, it is necessary to use the general (full) form. The variation may come, for example, due to a turbulence model, the modifications in the above-mentioned user routine. The general form of the stress tensor requires solving the 3 equations for the velocity components in a coupled manner, which requires an appropriate linear solver. By default, Neko will use the simplified form of the tensor, and the full one must be selected by the user by setting <code>full_stress_formulation</code> to true.</p>
 <h2><a class="anchor" id="autotoc_md85"></a>
 Compressible flows</h2>
-<p>Neko supports compressible flow simulations via the compressible solver. To enable compressible flow, set <code>"scheme": "compressible"</code> in the fluid configuration. This solver integrates the compressible Euler equations (full Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time integration scheme with artificial viscosity for stability.</p>
-<p>The compressible solver requires the following parameters:</p>
+<p>Neko supports compressible flow simulations via the compressible solver. To enable compressible flow, set <code>"scheme": "compressible"</code> in the fluid configuration. This solver integrates the compressible Navier-Stokes equations using a Runge-Kutta time integration scheme with artificial viscosity for stability.</p>
+<p>The compressible solver accepts the following parameters:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>gamma</code>   </td><td class="markdownTableBodyNone">Ratio of specific heats for ideal gas   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>1.4</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>gamma</code>   </td><td class="markdownTableBodyNone">Ratio of specific heats for ideal gas   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>1.4</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>mu</code>   </td><td class="markdownTableBodyNone">Constant physical dynamic viscosity   </td><td class="markdownTableBodyNone">Non-negative real   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>kappa</code>   </td><td class="markdownTableBodyNone">Constant physical thermal conductivity   </td><td class="markdownTableBodyNone">Non-negative real   </td><td class="markdownTableBodyNone"><code>0.0</code>   </td></tr>
 </table>
 <p>Additional numerics parameters specific to compressible flows:</p>
 <table class="markdownTable">
@@ -394,6 +398,7 @@ Compressible flows</h2>
 <td class="markdownTableBodyNone"><code>c_avisc_entropy</code>   </td><td class="markdownTableBodyNone">Coefficient for entropy-based artificial viscosity   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>1.0</code>   </td></tr>
 </table>
 <p>The compressible solver uses variable time-stepping controlled by the CFL number. Set <code>variable_timestep</code> to <code>true</code> and specify <code>target_cfl</code> in the time control object.</p>
+<p>Constant physical viscosity and thermal conductivity can be specified as <code>mu</code> and <code>kappa</code> in the fluid section of the case file. Alternatively, they can be set via the <code>material_properties</code> user interface in the user file, which also allows spatially or temporally varying values. When a user material-properties routine is provided, it takes precedence over the constant JSON values. Stabilization uses the existing Laplacian artificial viscosity, computed as the minimum of entropy-based and low-order viscosities. When <code>fluid_mu</code> or <code>fluid_kappa</code> are nonzero, the solver also applies the compressible Navier-Stokes viscous stress flux and conductive energy flux. If neither property is provided, both default to zero and no physical viscous flux is added. See the user file documentation for details on implementing <code>material_properties</code>.</p>
 <p>Example configuration: </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;fluid&quot;: {</div>
 <div class="line">    &quot;scheme&quot;: &quot;compressible&quot;,</div>
@@ -1797,7 +1802,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sat Jul 11 2026 04:35:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Jul 12 2026 04:40:20 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

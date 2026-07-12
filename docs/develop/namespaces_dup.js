@@ -86,6 +86,9 @@ var namespaces_dup =
       [ "compressible_ops_cpu_update_uvw", "d7/d6d/namespacecompressible__ops__cpu.html#a326ff5f3bbac430dfbfa0f588519f826", null ]
     ] ],
     [ "compressible_ops_device", "dc/da9/namespacecompressible__ops__device.html", "dc/da9/namespacecompressible__ops__device" ],
+    [ "compressible_res_cpu", "d4/d83/namespacecompressible__res__cpu.html", "d4/d83/namespacecompressible__res__cpu" ],
+    [ "compressible_res_device", "df/dcd/namespacecompressible__res__device.html", "df/dcd/namespacecompressible__res__device" ],
+    [ "compressible_residual", "d7/d23/namespacecompressible__residual.html", "d7/d23/namespacecompressible__residual" ],
     [ "const_source_term", "d0/dd2/namespaceconst__source__term.html", "d0/dd2/namespaceconst__source__term" ],
     [ "const_source_term_cpu", "d5/d67/namespaceconst__source__term__cpu.html", [
       [ "const_source_term_compute_cpu", "d5/d67/namespaceconst__source__term__cpu.html#aa8dcf840a1e771c3bb58c89a47bd6600", null ]
@@ -203,9 +206,6 @@ var namespaces_dup =
       [ "entropy_viscosity_smooth_divide_cpu", "d4/d05/namespaceentropy__viscosity__cpu.html#a9ead36765ddba96b03e43e973a0dff3d", null ]
     ] ],
     [ "entropy_viscosity_device", "d0/d70/namespaceentropy__viscosity__device.html", "d0/d70/namespaceentropy__viscosity__device" ],
-    [ "euler_res_cpu", "d1/d20/namespaceeuler__res__cpu.html", "d1/d20/namespaceeuler__res__cpu" ],
-    [ "euler_res_device", "d4/d49/namespaceeuler__res__device.html", "d4/d49/namespaceeuler__res__device" ],
-    [ "euler_residual", "d1/dd1/namespaceeuler__residual.html", "d1/dd1/namespaceeuler__residual" ],
     [ "ext_time_scheme", "d2/d75/namespaceext__time__scheme.html", "d2/d75/namespaceext__time__scheme" ],
     [ "facet_normal", "d4/d86/namespacefacet__normal.html", "d4/d86/namespacefacet__normal" ],
     [ "facet_zone", "df/db1/namespacefacet__zone.html", "df/db1/namespacefacet__zone" ],
@@ -312,7 +312,7 @@ var namespaces_dup =
     [ "fluid_pnpn", "dc/da3/namespacefluid__pnpn.html", "dc/da3/namespacefluid__pnpn" ],
     [ "fluid_scheme_base", "df/d6a/namespacefluid__scheme__base.html", "df/d6a/namespacefluid__scheme__base" ],
     [ "fluid_scheme_compressible", "d3/d66/namespacefluid__scheme__compressible.html", "d3/d66/namespacefluid__scheme__compressible" ],
-    [ "fluid_scheme_compressible_euler", "da/d14/namespacefluid__scheme__compressible__euler.html", "da/d14/namespacefluid__scheme__compressible__euler" ],
+    [ "fluid_scheme_compressible_ns", "d2/de6/namespacefluid__scheme__compressible__ns.html", "d2/de6/namespacefluid__scheme__compressible__ns" ],
     [ "fluid_scheme_incompressible", "d7/dff/namespacefluid__scheme__incompressible.html", "d7/dff/namespacefluid__scheme__incompressible" ],
     [ "fluid_sgs_stats", "d8/dc1/namespacefluid__sgs__stats.html", "d8/dc1/namespacefluid__sgs__stats" ],
     [ "fluid_sgs_stats_output", "d3/d4c/namespacefluid__sgs__stats__output.html", "d3/d4c/namespacefluid__sgs__stats__output" ],
@@ -613,6 +613,7 @@ var namespaces_dup =
       [ "compressible_ops_compute_entropy_program", "d0/dc0/namespaceopencl__prgm__lib.html#a96d57f0c1b15dc92a27643e28b306bae", null ],
       [ "compressible_ops_compute_max_wave_speed_program", "d0/dc0/namespaceopencl__prgm__lib.html#aff43e571b46789fc2db22c512bd0cbca", null ],
       [ "compressible_ops_update_program", "d0/dc0/namespaceopencl__prgm__lib.html#a1f606b48d2927a7bab848e55d702d92d", null ],
+      [ "compressible_res_program", "d0/dc0/namespaceopencl__prgm__lib.html#a9bb2d26c5fb7db78dbabb99d9c5bac6c", null ],
       [ "compute_max_wave_speed_program", "d0/dc0/namespaceopencl__prgm__lib.html#a9e505c590c538b1cf8a7617b997f798f", null ],
       [ "conv1_program", "d0/dc0/namespaceopencl__prgm__lib.html#a304618314a0d66891d0cddf84f8d6a08", null ],
       [ "convect_scalar_program", "d0/dc0/namespaceopencl__prgm__lib.html#a136923fb1e56dcfa8e22c12f49736879", null ],
@@ -620,7 +621,6 @@ var namespaces_dup =
       [ "dong_program", "d0/dc0/namespaceopencl__prgm__lib.html#a2c768c4ac095ab3f993354ed177798c0", null ],
       [ "dudxyz_program", "d0/dc0/namespaceopencl__prgm__lib.html#a4d360f04bd9aed0ca1cfa988df9fb401", null ],
       [ "entropy_viscosity_program", "d0/dc0/namespaceopencl__prgm__lib.html#a7f9042098c1f029813a43925bda27902", null ],
-      [ "euler_res_program", "d0/dc0/namespaceopencl__prgm__lib.html#ad4c5b2264011b5645177d69ae89298ca", null ],
       [ "facet_normal_program", "d0/dc0/namespaceopencl__prgm__lib.html#ae7a5a9ac54f68a2b4846bef46bbebe97", null ],
       [ "fdm_program", "d0/dc0/namespaceopencl__prgm__lib.html#afac8ae258a2185bb6e95b4e612b29622", null ],
       [ "find_rst_legendre_program", "d0/dc0/namespaceopencl__prgm__lib.html#a9f6d03e8dd3f068053b2f880c7557254", null ],

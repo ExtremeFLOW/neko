@@ -114,6 +114,14 @@ var hierarchy =
     [ "opencl_intf::clsetusereventstatus", "d3/d9c/interfaceopencl__intf_1_1clsetusereventstatus.html", null ],
     [ "opencl_intf::clwaitforevents", "db/d99/interfaceopencl__intf_1_1clwaitforevents.html", null ],
     [ "coefs::coef_t", "d0/dea/structcoefs_1_1coef__t.html", null ],
+    [ "compressible_res_device::compressible_res_part_coef_mult_hip", "d4/d59/interfacecompressible__res__device_1_1compressible__res__part__coef__mult__hip.html", null ],
+    [ "compressible_res_device::compressible_res_part_rk_sum_hip", "d6/d0d/interfacecompressible__res__device_1_1compressible__res__part__rk__sum__hip.html", null ],
+    [ "compressible_res_device::compressible_res_part_visc_hip", "dc/dfa/interfacecompressible__res__device_1_1compressible__res__part__visc__hip.html", null ],
+    [ "compressible_residual::compressible_rhs", "de/d93/interfacecompressible__residual_1_1compressible__rhs.html", null ],
+    [ "compressible_residual::compressible_rhs_t", "d3/d8a/structcompressible__residual_1_1compressible__rhs__t.html", [
+      [ "compressible_res_cpu::compressible_res_cpu_t", "d9/da2/structcompressible__res__cpu_1_1compressible__res__cpu__t.html", null ],
+      [ "compressible_res_device::compressible_res_device_t", "d9/d7c/structcompressible__res__device_1_1compressible__res__device__t.html", null ]
+    ] ],
     [ "advection::compute_adv", "d5/d12/interfaceadvection_1_1compute__adv.html", null ],
     [ "advection::compute_ale_adv", "d2/d5d/interfaceadvection_1_1compute__ale__adv.html", null ],
     [ "ale_routines_device::compute_cheap_dist_hip", "d4/dfb/interfaceale__routines__device_1_1compute__cheap__dist__hip.html", null ],
@@ -282,18 +290,6 @@ var hierarchy =
       ] ],
       [ "point::point_t", "db/d6f/structpoint_1_1point__t.html", null ]
     ] ],
-    [ "euler_res_device::euler_res_part_coef_mult_hip", "d2/d5f/interfaceeuler__res__device_1_1euler__res__part__coef__mult__hip.html", null ],
-    [ "euler_res_device::euler_res_part_e_flux_hip", "dd/dbb/interfaceeuler__res__device_1_1euler__res__part__e__flux__hip.html", null ],
-    [ "euler_res_device::euler_res_part_mx_flux_hip", "d3/dd3/interfaceeuler__res__device_1_1euler__res__part__mx__flux__hip.html", null ],
-    [ "euler_res_device::euler_res_part_my_flux_hip", "d1/d98/interfaceeuler__res__device_1_1euler__res__part__my__flux__hip.html", null ],
-    [ "euler_res_device::euler_res_part_mz_flux_hip", "de/d8a/interfaceeuler__res__device_1_1euler__res__part__mz__flux__hip.html", null ],
-    [ "euler_res_device::euler_res_part_rk_sum_hip", "db/de9/interfaceeuler__res__device_1_1euler__res__part__rk__sum__hip.html", null ],
-    [ "euler_res_device::euler_res_part_visc_hip", "df/d63/interfaceeuler__res__device_1_1euler__res__part__visc__hip.html", null ],
-    [ "euler_residual::euler_rhs", "d4/d59/interfaceeuler__residual_1_1euler__rhs.html", null ],
-    [ "euler_residual::euler_rhs_t", "d9/d26/structeuler__residual_1_1euler__rhs__t.html", [
-      [ "euler_res_cpu::euler_res_cpu_t", "d6/d1b/structeuler__res__cpu_1_1euler__res__cpu__t.html", null ],
-      [ "euler_res_device::euler_res_device_t", "d9/d65/structeuler__res__device_1_1euler__res__device__t.html", null ]
-    ] ],
     [ "most_cpu::f_interface", "dd/d2d/interfacemost__cpu_1_1f__interface.html", null ],
     [ "facet_zone::facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", [
       [ "facet_zone::facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", null ]
@@ -329,7 +325,7 @@ var hierarchy =
     [ "fluid_scheme_base::fluid_scheme_base_step_intrf", "d1/d2d/interfacefluid__scheme__base_1_1fluid__scheme__base__step__intrf.html", null ],
     [ "fluid_scheme_base::fluid_scheme_base_t", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html", [
       [ "fluid_scheme_compressible::fluid_scheme_compressible_t", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html", [
-        [ "fluid_scheme_compressible_euler::fluid_scheme_compressible_euler_t", "da/d12/structfluid__scheme__compressible__euler_1_1fluid__scheme__compressible__euler__t.html", null ]
+        [ "fluid_scheme_compressible_ns::fluid_scheme_compressible_ns_t", "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html", null ]
       ] ],
       [ "fluid_scheme_incompressible::fluid_scheme_incompressible_t", "d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html", [
         [ "fluid_plan1::fluid_plan1_t", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html", null ],
@@ -496,6 +492,9 @@ var hierarchy =
     [ "most_device::hip_most_compute", "d7/d87/interfacemost__device_1_1hip__most__compute.html", null ],
     [ "device_neumann::hip_neumann_apply_scalar", "d9/da6/interfacedevice__neumann_1_1hip__neumann__apply__scalar.html", null ],
     [ "device_neumann::hip_neumann_apply_vector", "d2/dc5/interfacedevice__neumann_1_1hip__neumann__apply__vector.html", null ],
+    [ "compressible_ops_device::hip_ns_flux_finalize", "d7/d00/interfacecompressible__ops__device_1_1hip__ns__flux__finalize.html", null ],
+    [ "compressible_ops_device::hip_ns_flux_prepare", "d0/db8/interfacecompressible__ops__device_1_1hip__ns__flux__prepare.html", null ],
+    [ "compressible_ops_device::hip_ns_flux_temperature", "d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html", null ],
     [ "device_mathops::hip_opadd2cm", "d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html", null ],
     [ "device_mathops::hip_opadd2col", "d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html", null ],
     [ "device_mathops::hip_opchsign", "dd/d0d/interfacedevice__mathops_1_1hip__opchsign.html", null ],
@@ -540,6 +539,7 @@ var hierarchy =
     [ "tensor_device::hip_tnsr3d_el_list", "d4/d81/interfacetensor__device_1_1hip__tnsr3d__el__list.html", null ],
     [ "compressible_ops_device::hip_update_e", "d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html", null ],
     [ "compressible_ops_device::hip_update_mxyz_p_ruvw", "d1/d98/interfacecompressible__ops__device_1_1hip__update__mxyz__p__ruvw.html", null ],
+    [ "compressible_ops_device::hip_update_temperature", "df/d73/interfacecompressible__ops__device_1_1hip__update__temperature.html", null ],
     [ "compressible_ops_device::hip_update_uvw", "df/dc8/interfacecompressible__ops__device_1_1hip__update__uvw.html", null ],
     [ "hip_math::hip_vcross", "d9/dfe/interfacehip__math_1_1hip__vcross.html", null ],
     [ "hip_math::hip_vdot3", "d0/dd4/interfacehip__math_1_1hip__vdot3.html", null ],
@@ -596,6 +596,10 @@ var hierarchy =
     [ "interpolation::interpolator_t", "db/d74/structinterpolation_1_1interpolator__t.html", null ],
     [ "intersection_detector::intersect_detector_t", "d8/d91/structintersection__detector_1_1intersect__detector__t.html", null ],
     [ "aabb::intersection", "d4/d5b/interfaceaabb_1_1intersection.html", null ],
+    [ "compressible_res_device::inviscid_res_part_e_flux_hip", "dd/d88/interfacecompressible__res__device_1_1inviscid__res__part__e__flux__hip.html", null ],
+    [ "compressible_res_device::inviscid_res_part_mx_flux_hip", "d0/d80/interfacecompressible__res__device_1_1inviscid__res__part__mx__flux__hip.html", null ],
+    [ "compressible_res_device::inviscid_res_part_my_flux_hip", "de/d75/interfacecompressible__res__device_1_1inviscid__res__part__my__flux__hip.html", null ],
+    [ "compressible_res_device::inviscid_res_part_mz_flux_hip", "d3/d10/interfacecompressible__res__device_1_1inviscid__res__part__mz__flux__hip.html", null ],
     [ "jobctrl::jobctrl_set_time_limit", "da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html", null ],
     [ "json_utils::json_extract_item", "d9/d2b/interfacejson__utils_1_1json__extract__item.html", null ],
     [ "json_utils::json_get", "d7/d48/interfacejson__utils_1_1json__get.html", null ],
@@ -778,6 +782,7 @@ var hierarchy =
     [ "opencl_math::opencl_iadd", "dc/de6/interfaceopencl__math_1_1opencl__iadd.html", null ],
     [ "opencl_math::opencl_invcol1", "dc/da5/interfaceopencl__math_1_1opencl__invcol1.html", null ],
     [ "opencl_math::opencl_invcol2", "d2/d86/interfaceopencl__math_1_1opencl__invcol2.html", null ],
+    [ "opencl_math::opencl_invcol3", "df/d2e/interfaceopencl__math_1_1opencl__invcol3.html", null ],
     [ "device_jacobi::opencl_jacobi_update", "de/daf/interfacedevice__jacobi_1_1opencl__jacobi__update.html", null ],
     [ "opencl_math::opencl_masked_copy_0", "db/dc0/interfaceopencl__math_1_1opencl__masked__copy__0.html", null ],
     [ "opencl_math::opencl_masked_copy_aligned", "d4/dbc/interfaceopencl__math_1_1opencl__masked__copy__aligned.html", null ],

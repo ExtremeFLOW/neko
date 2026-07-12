@@ -34,7 +34,7 @@ var searchData=
   ['fluid_5fpnpn_31',['fluid_pnpn',['../dc/da3/namespacefluid__pnpn.html',1,'']]],
   ['fluid_5fscheme_5fbase_32',['fluid_scheme_base',['../df/d6a/namespacefluid__scheme__base.html',1,'']]],
   ['fluid_5fscheme_5fcompressible_33',['fluid_scheme_compressible',['../d3/d66/namespacefluid__scheme__compressible.html',1,'']]],
-  ['fluid_5fscheme_5fcompressible_5feuler_34',['fluid_scheme_compressible_euler',['../da/d14/namespacefluid__scheme__compressible__euler.html',1,'']]],
+  ['fluid_5fscheme_5fcompressible_5fns_34',['fluid_scheme_compressible_ns',['../d2/de6/namespacefluid__scheme__compressible__ns.html',1,'']]],
   ['fluid_5fscheme_5fincompressible_35',['fluid_scheme_incompressible',['../d7/dff/namespacefluid__scheme__incompressible.html',1,'']]],
   ['fluid_5fsgs_5fstats_36',['fluid_sgs_stats',['../d8/dc1/namespacefluid__sgs__stats.html',1,'']]],
   ['fluid_5fsgs_5fstats_5foutput_37',['fluid_sgs_stats_output',['../d3/d4c/namespacefluid__sgs__stats__output.html',1,'']]],

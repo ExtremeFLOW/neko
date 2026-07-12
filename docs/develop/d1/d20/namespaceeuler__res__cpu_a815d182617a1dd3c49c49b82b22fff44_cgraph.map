@@ -1,5 +1,0 @@
-<map id="euler_res_cpu::advance_primitive_variables_cpu" name="euler_res_cpu::advance_primitive_variables_cpu">
-<area shape="rect" id="Node000001" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,5,191,45"/>
-<area shape="rect" id="Node000002" href="$d1/d20/namespaceeuler__res__cpu.html#a35fa0f8d83814c2e8b72fdcaf50b1372" title="Evaluates the right&#45;hand side of the Euler equations Computes fluxes, divergence terms,..." alt="" coords="239,5,416,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,23,225,23,225,28,191,28"/>
-</map>

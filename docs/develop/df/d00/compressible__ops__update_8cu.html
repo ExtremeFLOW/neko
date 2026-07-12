@@ -122,8 +122,379 @@ Functions</h2></td></tr>
 <tr class="separator:ac941ffe15f898cbfff983ce76ff631aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc856b0b84db16b291a755fc6c73a2a7" id="r_adc856b0b84db16b291a755fc6c73a2a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d00/compressible__ops__update_8cu.html#adc856b0b84db16b291a755fc6c73a2a7">cuda_update_e</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">E</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *p, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ruvw</a>, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *gamma, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *n)</td></tr>
 <tr class="separator:adc856b0b84db16b291a755fc6c73a2a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a810628e6b6e3678447dd9ca855812837" id="r_a810628e6b6e3678447dd9ca855812837"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d00/compressible__ops__update_8cu.html#a810628e6b6e3678447dd9ca855812837">cuda_update_temperature</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *p, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *rho, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *gamma, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *n)</td></tr>
+<tr class="separator:a810628e6b6e3678447dd9ca855812837"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22b9f758aabb20afee1349dce148454b" id="r_a22b9f758aabb20afee1349dce148454b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d00/compressible__ops__update_8cu.html#a22b9f758aabb20afee1349dce148454b">cuda_ns_flux_prepare</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">div_flux</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dissipation</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#aeec1fbbab01c6ab2ed4fa664230071c5">h1</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dudx, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dudy, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dudz, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dvdx, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dvdy, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dvdz, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dwdx, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dwdy, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *dwdz, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *mu, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *n)</td></tr>
+<tr class="separator:a22b9f758aabb20afee1349dce148454b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c545cb29992c96b5f13d4a1626da9c3" id="r_a4c545cb29992c96b5f13d4a1626da9c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d00/compressible__ops__update_8cu.html#a4c545cb29992c96b5f13d4a1626da9c3">cuda_ns_flux_finalize</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">visc_m_x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">visc_m_y</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">visc_m_z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">visc_E</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *f_x, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *f_y, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *f_z, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">opgrad_x</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">opgrad_y</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">opgrad_z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *B, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dissipation</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *n)</td></tr>
+<tr class="separator:a4c545cb29992c96b5f13d4a1626da9c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97b993ba6ba1acb1db75ca4ac7ff5656" id="r_a97b993ba6ba1acb1db75ca4ac7ff5656"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d00/compressible__ops__update_8cu.html#a97b993ba6ba1acb1db75ca4ac7ff5656">cuda_ns_flux_temperature</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">div_flux</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#aeec1fbbab01c6ab2ed4fa664230071c5">h1</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *p, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *rho, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *kappa, <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *gamma, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *n)</td></tr>
+<tr class="separator:a97b993ba6ba1acb1db75ca4ac7ff5656"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a4c545cb29992c96b5f13d4a1626da9c3" name="a4c545cb29992c96b5f13d4a1626da9c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c545cb29992c96b5f13d4a1626da9c3">&#9670;&#160;</a></span>cuda_ns_flux_finalize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> cuda_ns_flux_finalize </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>visc_m_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>visc_m_y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>visc_m_z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>visc_E</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>f_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>f_y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>f_z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>opgrad_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>opgrad_y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>opgrad_z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>B</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dissipation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d00/compressible__ops__update_8cu_source.html#l00135">135</a> of file <a class="el" href="../../df/d00/compressible__ops__update_8cu_source.html">compressible_ops_update.cu</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a4c545cb29992c96b5f13d4a1626da9c3_cgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a4c545cb29992c96b5f13d4a1626da9c3_cgraph" alt=""/></div>
+<map name="adf/d00/compressible__ops__update_8cu_a4c545cb29992c96b5f13d4a1626da9c3_cgraph" id="adf/d00/compressible__ops__update_8cu_a4c545cb29992c96b5f13d4a1626da9c3_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,165,62"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="213,29,365,69"/>
+<area shape="poly" title=" " alt="" coords="166,47,200,47,200,52,166,52"/>
+<area shape="poly" title=" " alt="" coords="251,30,249,20,255,11,269,5,289,3,313,6,326,13,323,18,311,11,289,8,270,10,258,15,254,21,256,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a4c545cb29992c96b5f13d4a1626da9c3_icgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a4c545cb29992c96b5f13d4a1626da9c3_icgraph" alt=""/></div>
+<map name="adf/d00/compressible__ops__update_8cu_a4c545cb29992c96b5f13d4a1626da9c3_icgraph" id="adf/d00/compressible__ops__update_8cu_a4c545cb29992c96b5f13d4a1626da9c3_icgraph">
+<area shape="rect" title=" " alt="" coords="991,60,1151,85"/>
+<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a597a887b09162829f92337891966d778" title="Finish physical Navier&#45;Stokes flux assembly." alt="" coords="745,45,943,100"/>
+<area shape="poly" title=" " alt="" coords="977,75,943,75,943,70,977,70"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#ace767f94b7d0070906c0e98aef7f7dfc" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="509,5,695,60"/>
+<area shape="poly" title=" " alt="" coords="732,57,695,51,696,45,733,52"/>
+<area shape="rect" href="../../d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="507,84,697,139"/>
+<area shape="poly" title=" " alt="" coords="732,93,698,99,697,93,731,88"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="272,13,459,53"/>
+<area shape="poly" title=" " alt="" coords="495,35,459,35,459,30,495,30"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,5,224,60"/>
+<area shape="poly" title=" " alt="" coords="258,35,224,35,224,30,258,30"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a22b9f758aabb20afee1349dce148454b" name="a22b9f758aabb20afee1349dce148454b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22b9f758aabb20afee1349dce148454b">&#9670;&#160;</a></span>cuda_ns_flux_prepare()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> cuda_ns_flux_prepare </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>div_flux</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dissipation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>h1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dudx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dudy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dudz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dvdx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dvdy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dvdz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dwdx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dwdy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>dwdz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>mu</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d00/compressible__ops__update_8cu_source.html#l00112">112</a> of file <a class="el" href="../../df/d00/compressible__ops__update_8cu_source.html">compressible_ops_update.cu</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a22b9f758aabb20afee1349dce148454b_cgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a22b9f758aabb20afee1349dce148454b_cgraph" alt=""/></div>
+<map name="adf/d00/compressible__ops__update_8cu_a22b9f758aabb20afee1349dce148454b_cgraph" id="adf/d00/compressible__ops__update_8cu_a22b9f758aabb20afee1349dce148454b_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,168,62"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="216,29,368,69"/>
+<area shape="poly" title=" " alt="" coords="168,47,202,47,202,52,168,52"/>
+<area shape="poly" title=" " alt="" coords="253,30,251,20,257,11,271,5,292,3,316,6,329,13,327,18,314,11,292,8,272,10,261,15,256,21,258,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a22b9f758aabb20afee1349dce148454b_icgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a22b9f758aabb20afee1349dce148454b_icgraph" alt=""/></div>
+<map name="adf/d00/compressible__ops__update_8cu_a22b9f758aabb20afee1349dce148454b_icgraph" id="adf/d00/compressible__ops__update_8cu_a22b9f758aabb20afee1349dce148454b_icgraph">
+<area shape="rect" title=" " alt="" coords="991,60,1153,85"/>
+<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a48ed299c02a469f99c2927eac4a7cf19" title="Prepare physical Navier&#45;Stokes flux work arrays." alt="" coords="745,45,943,100"/>
+<area shape="poly" title=" " alt="" coords="977,75,943,75,943,70,977,70"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#ace767f94b7d0070906c0e98aef7f7dfc" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="509,5,695,60"/>
+<area shape="poly" title=" " alt="" coords="732,57,695,51,696,45,733,52"/>
+<area shape="rect" href="../../d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="507,84,697,139"/>
+<area shape="poly" title=" " alt="" coords="732,93,698,99,697,93,731,88"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="272,13,459,53"/>
+<area shape="poly" title=" " alt="" coords="495,35,459,35,459,30,495,30"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,5,224,60"/>
+<area shape="poly" title=" " alt="" coords="258,35,224,35,224,30,258,30"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a97b993ba6ba1acb1db75ca4ac7ff5656" name="a97b993ba6ba1acb1db75ca4ac7ff5656"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97b993ba6ba1acb1db75ca4ac7ff5656">&#9670;&#160;</a></span>cuda_ns_flux_temperature()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> cuda_ns_flux_temperature </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>div_flux</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>h1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>rho</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>kappa</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td>
+          <td class="paramname"><em>gamma</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d00/compressible__ops__update_8cu_source.html#l00159">159</a> of file <a class="el" href="../../df/d00/compressible__ops__update_8cu_source.html">compressible_ops_update.cu</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a97b993ba6ba1acb1db75ca4ac7ff5656_cgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a97b993ba6ba1acb1db75ca4ac7ff5656_cgraph" alt=""/></div>
+<map name="adf/d00/compressible__ops__update_8cu_a97b993ba6ba1acb1db75ca4ac7ff5656_cgraph" id="adf/d00/compressible__ops__update_8cu_a97b993ba6ba1acb1db75ca4ac7ff5656_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,200,62"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="248,29,400,69"/>
+<area shape="poly" title=" " alt="" coords="201,47,234,47,234,52,201,52"/>
+<area shape="poly" title=" " alt="" coords="283,30,280,20,287,10,302,5,324,3,350,6,364,13,362,18,348,11,324,8,303,10,290,15,285,21,288,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a97b993ba6ba1acb1db75ca4ac7ff5656_icgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a97b993ba6ba1acb1db75ca4ac7ff5656_icgraph" alt=""/></div>
+<map name="adf/d00/compressible__ops__update_8cu_a97b993ba6ba1acb1db75ca4ac7ff5656_icgraph" id="adf/d00/compressible__ops__update_8cu_a97b993ba6ba1acb1db75ca4ac7ff5656_icgraph">
+<area shape="rect" title=" " alt="" coords="991,60,1185,85"/>
+<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#ade5958b4b78ea420dfca766226cbb09f" title="Prepare temperature and conductivity coefficient for energy flux." alt="" coords="745,45,943,100"/>
+<area shape="poly" title=" " alt="" coords="977,75,943,75,943,70,977,70"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#ace767f94b7d0070906c0e98aef7f7dfc" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="509,5,695,60"/>
+<area shape="poly" title=" " alt="" coords="732,57,695,51,696,45,733,52"/>
+<area shape="rect" href="../../d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="507,84,697,139"/>
+<area shape="poly" title=" " alt="" coords="732,93,698,99,697,93,731,88"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="272,13,459,53"/>
+<area shape="poly" title=" " alt="" coords="495,35,459,35,459,30,495,30"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,5,224,60"/>
+<area shape="poly" title=" " alt="" coords="258,35,224,35,224,30,258,30"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="adc856b0b84db16b291a755fc6c73a2a7" name="adc856b0b84db16b291a755fc6c73a2a7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adc856b0b84db16b291a755fc6c73a2a7">&#9670;&#160;</a></span>cuda_update_e()</h2>
 
@@ -185,11 +556,11 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../df/d00/compressible__ops__update_8cu_adc856b0b84db16b291a755fc6c73a2a7_icgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_adc856b0b84db16b291a755fc6c73a2a7_icgraph" alt=""/></div>
 <map name="adf/d00/compressible__ops__update_8cu_adc856b0b84db16b291a755fc6c73a2a7_icgraph" id="adf/d00/compressible__ops__update_8cu_adc856b0b84db16b291a755fc6c73a2a7_icgraph">
-<area shape="rect" title=" " alt="" coords="511,20,631,45"/>
-<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a9f537d335bda72374c76a24bc6f84dee" title="Update E field." alt="" coords="265,5,463,60"/>
-<area shape="poly" title=" " alt="" coords="497,35,463,35,463,30,497,30"/>
-<area shape="rect" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
-<area shape="poly" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
+<area shape="rect" title=" " alt="" coords="489,20,609,45"/>
+<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a9f537d335bda72374c76a24bc6f84dee" title="Update E field." alt="" coords="244,5,441,60"/>
+<area shape="poly" title=" " alt="" coords="475,35,442,35,442,30,475,30"/>
+<area shape="rect" href="../../d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="5,5,196,60"/>
+<area shape="poly" title=" " alt="" coords="231,35,196,35,196,30,231,30"/>
 </map>
 </div>
 
@@ -298,11 +669,84 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../df/d00/compressible__ops__update_8cu_ac941ffe15f898cbfff983ce76ff631aa_icgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_ac941ffe15f898cbfff983ce76ff631aa_icgraph" alt=""/></div>
 <map name="adf/d00/compressible__ops__update_8cu_ac941ffe15f898cbfff983ce76ff631aa_icgraph" id="adf/d00/compressible__ops__update_8cu_ac941ffe15f898cbfff983ce76ff631aa_icgraph">
-<area shape="rect" title=" " alt="" coords="511,20,713,45"/>
-<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a7f8803186d719652eb1f3309b5d13409" title="Update m_x, m_y, m_z, p, ruvw, fields." alt="" coords="265,5,463,60"/>
-<area shape="poly" title=" " alt="" coords="497,35,463,35,463,30,497,30"/>
-<area shape="rect" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
-<area shape="poly" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
+<area shape="rect" title=" " alt="" coords="517,60,720,85"/>
+<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a7f8803186d719652eb1f3309b5d13409" title="Update m_x, m_y, m_z, p, ruvw, fields." alt="" coords="272,45,469,100"/>
+<area shape="poly" title=" " alt="" coords="504,75,469,75,469,70,504,70"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,5,224,60"/>
+<area shape="poly" title=" " alt="" coords="258,58,224,52,224,47,259,53"/>
+<area shape="rect" href="../../d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="19,84,210,139"/>
+<area shape="poly" title=" " alt="" coords="259,92,211,100,210,94,258,87"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a810628e6b6e3678447dd9ca855812837" name="a810628e6b6e3678447dd9ca855812837"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a810628e6b6e3678447dd9ca855812837">&#9670;&#160;</a></span>cuda_update_temperature()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> cuda_update_temperature </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>T</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td>
+          <td class="paramname"><em>rho</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td>
+          <td class="paramname"><em>gamma</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../df/d00/compressible__ops__update_8cu_source.html#l00097">97</a> of file <a class="el" href="../../df/d00/compressible__ops__update_8cu_source.html">compressible_ops_update.cu</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a810628e6b6e3678447dd9ca855812837_cgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a810628e6b6e3678447dd9ca855812837_cgraph" alt=""/></div>
+<map name="adf/d00/compressible__ops__update_8cu_a810628e6b6e3678447dd9ca855812837_cgraph" id="adf/d00/compressible__ops__update_8cu_a810628e6b6e3678447dd9ca855812837_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,199,62"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="247,29,399,69"/>
+<area shape="poly" title=" " alt="" coords="199,47,233,47,233,52,199,52"/>
+<area shape="poly" title=" " alt="" coords="282,30,279,20,286,10,300,5,323,3,348,6,362,13,360,18,347,11,323,8,302,10,289,15,284,21,287,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a810628e6b6e3678447dd9ca855812837_icgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a810628e6b6e3678447dd9ca855812837_icgraph" alt=""/></div>
+<map name="adf/d00/compressible__ops__update_8cu_a810628e6b6e3678447dd9ca855812837_icgraph" id="adf/d00/compressible__ops__update_8cu_a810628e6b6e3678447dd9ca855812837_icgraph">
+<area shape="rect" title=" " alt="" coords="489,20,683,45"/>
+<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a7cbd3dce07a91fad204e53fc12d7413f" title="Update temperature field." alt="" coords="244,5,441,60"/>
+<area shape="poly" title=" " alt="" coords="476,35,442,35,442,30,476,30"/>
+<area shape="rect" href="../../d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="5,5,196,60"/>
+<area shape="poly" title=" " alt="" coords="231,35,196,35,196,30,231,30"/>
 </map>
 </div>
 
@@ -387,11 +831,13 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../df/d00/compressible__ops__update_8cu_a57d676888e5f8f9165cb50f5bcc702f7_icgraph.png" border="0" usemap="#adf/d00/compressible__ops__update_8cu_a57d676888e5f8f9165cb50f5bcc702f7_icgraph" alt=""/></div>
 <map name="adf/d00/compressible__ops__update_8cu_a57d676888e5f8f9165cb50f5bcc702f7_icgraph" id="adf/d00/compressible__ops__update_8cu_a57d676888e5f8f9165cb50f5bcc702f7_icgraph">
-<area shape="rect" title=" " alt="" coords="511,20,649,45"/>
-<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a23078a4b8c9210537b9cf91188259d98" title="Update u,v,w fields." alt="" coords="265,5,463,60"/>
-<area shape="poly" title=" " alt="" coords="497,35,463,35,463,30,497,30"/>
-<area shape="rect" href="../../d2/d3d/interfacecompressible__ops__device_1_1hip__update__e.html#a55498647ad300072f136c952550b9973" title=" " alt="" coords="5,13,217,53"/>
-<area shape="poly" title=" " alt="" coords="252,35,218,35,218,30,252,30"/>
+<area shape="rect" title=" " alt="" coords="517,60,656,85"/>
+<area shape="rect" href="../../dc/da9/namespacecompressible__ops__device.html#a23078a4b8c9210537b9cf91188259d98" title="Update u,v,w fields." alt="" coords="272,45,469,100"/>
+<area shape="poly" title=" " alt="" coords="504,75,469,75,469,70,504,70"/>
+<area shape="rect" href="../../df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,5,224,60"/>
+<area shape="poly" title=" " alt="" coords="258,58,224,52,224,47,259,53"/>
+<area shape="rect" href="../../d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="19,84,210,139"/>
+<area shape="poly" title=" " alt="" coords="259,92,211,100,210,94,258,87"/>
 </map>
 </div>
 
@@ -403,7 +849,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../dir_b5f65a6530fedb7f0e07af7fc099c44b.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_7374202571adb652e2b6c5627e12fa59.html">device</a></li><li class="navelem"><a class="el" href="../../dir_67b99d06cb05e45fd0b73bbcd51c0d32.html">cuda</a></li><li class="navelem"><a class="el" href="../../df/d00/compressible__ops__update_8cu.html">compressible_ops_update.cu</a></li>
-    <li class="footer">Generated on Sat Jul 11 2026 04:35:33 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Jul 12 2026 04:40:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
