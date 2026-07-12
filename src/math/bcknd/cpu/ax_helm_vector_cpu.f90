@@ -2100,7 +2100,7 @@ contains
                          + Dzt(k,9) * ut(i,1,9) &
                          + Dzt(k,10) * ut(i,1,10)
 
-            av(i,1,k,e) = av(i,1,k,e) &
+             av(i,1,k,e) = av(i,1,k,e) &
                          + Dzt(k,1) * vt(i,1,1) &
                          + Dzt(k,2) * vt(i,1,2) &
                          + Dzt(k,3) * vt(i,1,3) &
@@ -2112,7 +2112,7 @@ contains
                          + Dzt(k,9) * vt(i,1,9) &
                          + Dzt(k,10) * vt(i,1,10)
 
-            aw(i,1,k,e) = aw(i,1,k,e) &
+             aw(i,1,k,e) = aw(i,1,k,e) &
                          + Dzt(k,1) * wt(i,1,1) &
                          + Dzt(k,2) * wt(i,1,2) &
                          + Dzt(k,3) * wt(i,1,3) &
