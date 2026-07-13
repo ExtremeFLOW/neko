@@ -41,6 +41,7 @@ module most
   use wall_model, only : wall_model_t
   use wall_sampler, only : wall_sampler_t
   use wall_sampler_fctry, only : wall_sampler_factory
+  use user_intf, only : user_t
   use registry, only : neko_registry, neko_const_registry
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup, json_get_or_lookup_or_default
@@ -167,15 +168,16 @@ contains
   !> Constructor from JSON.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine most_partial_init(this, coef, json)
+  subroutine most_partial_init(this, coef, scheme_name, json)
     class(most_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: g_tmp(:)
     character(len=LOG_SIZE) :: log_buf
     logical :: if_time_dependent
 
-    call this%partial_init_base(coef, json)
+    call this%partial_init_base(coef, scheme_name, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_lookup_or_default(json, "Pr", this%Pr, 1.0_rp)
     call json_get_or_lookup(json, "z0", this%z0)
@@ -226,11 +228,13 @@ contains
   !> Finalize the construction using the mask and facet arrays of the bc.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  subroutine most_finalize(this, msk, facet)
+  subroutine most_finalize(this, msk, facet, bc_name, user)
     class(most_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    call this%finalize_base(msk, facet)
+    character(len=*), optional, intent(in) :: bc_name
+    type(user_t), target, optional, intent(in) :: user
+    call this%finalize_base(msk, facet, bc_name, user)
     call this%validate_single_sample()
 
     call this%Ri_b%init(this%n_nodes)

@@ -20,6 +20,7 @@
   use datadist, only : linear_dist_t
   use wall_gll_sampler, only : wall_gll_sampler_t
   use wall_distance_sampler, only : wall_distance_sampler_t
+  use user_intf, only : user_t
   use utils, only : linear_index
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
   use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
@@ -479,6 +480,7 @@ contains
     type(vector_t) :: values, n_x, n_y, n_z
     type(wall_gll_sampler_t) :: gll_sampler
     type(wall_distance_sampler_t) :: distance_sampler
+    type(user_t), target :: user
     type(json_file) :: json
     integer :: ierr
     integer :: msk(0:1), facet(0:1)
@@ -533,6 +535,21 @@ contains
     call values%free()
     call gll_sampler%free()
 
+    call json%load_from_string('{"value":"user","n_samples":2}')
+    call gll_sampler%init(json)
+    user%wall_sampling_gll => test_user_gll_sampling
+    call gll_sampler%finalize(coef, msk, facet, n_x, n_y, n_z, &
+         'test_wall_model', user)
+    call values%init(2)
+    call gll_sampler%sample(field, values)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call values%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+    @assertEqual(values%x(1), coef%dof%x(2, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(2), coef%dof%x(3, 2, 2, 1), tolerance=tol)
+    call values%free()
+    call gll_sampler%free()
+
     call json%load_from_string('{"value":[0.25,0.5]}')
     call distance_sampler%init(json)
     @assertEqual(distance_sampler%n_samples, 2)
@@ -551,11 +568,46 @@ contains
 
     call distance_sampler%free()
     call values%free()
+
+    call json%load_from_string('{"value":"user","n_samples":1}')
+    call distance_sampler%init(json)
+    user%wall_sampling_distance => test_user_distance_sampling
+    call distance_sampler%finalize(coef, msk, facet, n_x, n_y, n_z, &
+         'test_wall_model', user)
+    call values%init(1)
+    call distance_sampler%sample(field, values)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call values%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+    @assertEqual(values%x(1), 1.0_rp + distance, tolerance=tol)
+    call distance_sampler%free()
+    call values%free()
     call field%free()
     call n_x%free()
     call n_y%free()
     call n_z%free()
   end subroutine test_wall_samplers
+
+  subroutine test_user_gll_sampling(bc_name, msk, indices)
+    character(len=*), intent(in) :: bc_name
+    integer, intent(in) :: msk(:)
+    integer, intent(out) :: indices(:,:)
+    integer :: i
+
+    if (trim(bc_name) /= 'test_wall_model') error stop
+    do i = 1, size(indices, 1)
+       indices(i,:) = i
+    end do
+  end subroutine test_user_gll_sampling
+
+  subroutine test_user_distance_sampling(bc_name, msk, distances)
+    character(len=*), intent(in) :: bc_name
+    integer, intent(in) :: msk(:)
+    real(kind=rp), intent(out) :: distances(:,:)
+
+    if (trim(bc_name) /= 'test_wall_model') error stop
+    distances = 0.25_rp
+  end subroutine test_user_distance_sampling
  
 
 end module test_glob_interp_par

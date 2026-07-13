@@ -15,11 +15,11 @@ module wall_sampler_fctry
 
 contains
 
-   !> Wall sampler factory.
-   !! @details If no `sampling` block is present, this routine falls back to
-   !! legacy behaviour using `h_index` and the GLL sampler.
-   !! @param object Allocatable wall sampler to create.
-   !! @param json Case configuration data.
+  !> Wall sampler factory.
+  !! @details If no `sampling` block is present, this routine falls back to
+  !! legacy behaviour using `h_index` and the GLL sampler.
+  !! @param object Allocatable wall sampler to create.
+  !! @param json Case configuration data.
   subroutine wall_sampler_factory(object, json)
     class(wall_sampler_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
@@ -48,9 +48,9 @@ contains
     call object%init(sampling)
   end subroutine wall_sampler_factory
 
-   !> Allocate a concrete wall sampler implementation by type name.
-   !! @param object Allocatable wall sampler to allocate.
-   !! @param type_name Sampler type identifier read from configuration.
+  !> Allocate a concrete wall sampler implementation by type name.
+  !! @param object Allocatable wall sampler to allocate.
+  !! @param type_name Sampler type identifier read from configuration.
   subroutine wall_sampler_allocator(object, type_name)
     class(wall_sampler_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name

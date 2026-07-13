@@ -36,6 +36,7 @@ module wall_sampler
   use coefs, only : coef_t
   use vector, only : vector_t
   use json_module, only : json_file
+  use user_intf, only : user_t
   implicit none
   private
 
@@ -47,6 +48,8 @@ module wall_sampler
      integer :: n_nodes = 0
      !> Number of sampling points associated with each wall node.
      integer :: n_samples = 0
+     !> True when sampling values are supplied by a user callback.
+     logical :: user_values = .false.
      !> Wall-normal distance of every sampling point. The layout is
      !! `(node - 1) * n_samples + sample`.
      type(vector_t) :: h
@@ -75,13 +78,16 @@ module wall_sampler
      !! @param n_x X-component of wall-normal vectors at wall nodes.
      !! @param n_y Y-component of wall-normal vectors at wall nodes.
      !! @param n_z Z-component of wall-normal vectors at wall nodes.
-     subroutine wall_sampler_finalize(this, coef, msk, facet, n_x, n_y, n_z)
-       import wall_sampler_t, coef_t, vector_t
+     subroutine wall_sampler_finalize(this, coef, msk, facet, n_x, n_y, n_z, &
+          bc_name, user)
+       import wall_sampler_t, coef_t, vector_t, user_t
        class(wall_sampler_t), intent(inout) :: this
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(0:)
        integer, intent(in) :: facet(0:)
        type(vector_t), intent(in) :: n_x, n_y, n_z
+       character(len=*), optional, intent(in) :: bc_name
+       type(user_t), target, optional, intent(in) :: user
      end subroutine wall_sampler_finalize
 
      !> Evaluate and store sampled field values at all sampling points.

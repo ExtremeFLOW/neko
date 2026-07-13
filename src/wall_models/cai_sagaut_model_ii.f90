@@ -41,6 +41,7 @@ module cai_sagaut_model_ii
   use wall_model, only : wall_model_t
   use wall_sampler, only : wall_sampler_t
   use wall_sampler_fctry, only : wall_sampler_factory
+  use user_intf, only : user_t
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup, json_get_or_lookup_or_default
   use cai_sagaut_model_ii_cpu, only : cai_sagaut_model_ii_compute_cpu
@@ -120,11 +121,12 @@ contains
   !> Partially initialise the wall model from the case file.
   !! @param coef The SEM coefficients.
   !! @param json The case-file parameters for this wall model.
-  subroutine cai_sagaut_model_ii_partial_init(this, coef, json)
+  subroutine cai_sagaut_model_ii_partial_init(this, coef, scheme_name, json)
     class(cai_sagaut_model_ii_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
-    call this%partial_init_base(coef, json)
+    call this%partial_init_base(coef, scheme_name, json)
     call json_get_or_lookup(json, "kappa", this%kappa)
     call json_get_or_lookup(json, "B", this%B)
     call json_get_or_lookup_or_default(json, "p", this%p, 1.138_rp)
@@ -134,12 +136,14 @@ contains
   !> Finalise allocation of derived data structures.
   !! @param msk The wall-point mask.
   !! @param facet The wall-point facet indices.
-  subroutine cai_sagaut_model_ii_finalize(this, msk, facet)
+  subroutine cai_sagaut_model_ii_finalize(this, msk, facet, bc_name, user)
     class(cai_sagaut_model_ii_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    character(len=*), optional, intent(in) :: bc_name
+    type(user_t), target, optional, intent(in) :: user
 
-    call this%finalize_base(msk, facet)
+    call this%finalize_base(msk, facet, bc_name, user)
     call this%nu%init(this%n_nodes)
     call this%rho_w%init(this%n_nodes)
     call this%validate_single_sample()

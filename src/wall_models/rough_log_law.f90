@@ -42,6 +42,7 @@ module rough_log_law
   use wall_model, only : wall_model_t
   use wall_sampler, only : wall_sampler_t
   use wall_sampler_fctry, only : wall_sampler_factory
+  use user_intf, only : user_t
   use utils, only : neko_error
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup, &
@@ -121,13 +122,14 @@ contains
   !> Constructor from JSON.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine rough_log_law_partial_init(this, coef, json)
+  subroutine rough_log_law_partial_init(this, coef, scheme_name, json)
     class(rough_log_law_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     character(len=LOG_SIZE) :: log_buf
 
-    call this%partial_init_base(coef, json)
+    call this%partial_init_base(coef, scheme_name, json)
     call json_get_or_lookup_or_default(json, "kappa", this%kappa, 0.4_rp)
     call json_get_or_lookup_or_default(json, "B", this%B, 0.0_rp)
     call json_get_or_lookup(json, "z0", this%z0)
@@ -148,12 +150,14 @@ contains
   !> Finalize the construction using the mask and facet arrays of the bc.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  subroutine rough_log_law_finalize(this, msk, facet)
+  subroutine rough_log_law_finalize(this, msk, facet, bc_name, user)
     class(rough_log_law_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    character(len=*), optional, intent(in) :: bc_name
+    type(user_t), target, optional, intent(in) :: user
 
-    call this%finalize_base(msk, facet)
+    call this%finalize_base(msk, facet, bc_name, user)
 
     call this%rho_w%init(this%n_nodes)
     call this%validate_single_sample()

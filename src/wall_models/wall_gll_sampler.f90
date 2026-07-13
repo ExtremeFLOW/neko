@@ -39,6 +39,7 @@ module wall_gll_sampler
   use json_module, only : json_file
   use json_utils, only : json_get
   use wall_sampler, only : wall_sampler_t
+  use user_intf, only : user_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error, nonlinear_index, linear_index
   use math, only : masked_gather_copy
@@ -78,6 +79,7 @@ contains
     integer, allocatable :: indices(:)
     integer :: index, var_type
     logical :: found
+    character(len=:), allocatable :: value
 
     call json%info('value', found = found, var_type = var_type)
     if (.not. found) then
@@ -91,8 +93,20 @@ contains
     case (5) ! json_integer
        call json_get(json, 'value', index)
        call this%init_from_indices([index])
+    case (7) ! json_string
+       call json_get(json, 'value', value)
+       if (trim(value) /= 'user') then
+          call neko_error('Wall GLL sampler value must be an integer, ' // &
+               'array, or user')
+       end if
+       call json_get(json, 'n_samples', this%n_samples)
+       if (this%n_samples < 1) then
+          call neko_error('Wall GLL sampler n_samples must be positive')
+       end if
+       this%user_values = .true.
     case default
-       call neko_error('Wall GLL sampler value must be an integer or array')
+       call neko_error('Wall GLL sampler value must be an integer, ' // &
+            'array, or user')
     end select
   end subroutine wall_gll_sampler_init
 
@@ -100,7 +114,7 @@ contains
     class(wall_gll_sampler_t), intent(inout) :: this
     integer, intent(in) :: indices(:)
 
-    if (any(indices < 1)) then 
+    if (any(indices < 1)) then
        call neko_error('Wall GLL sampler indices must be positive')
     end if
 
@@ -108,22 +122,41 @@ contains
     this%n_samples = size(indices)
   end subroutine wall_gll_sampler_init_from_indices
 
-  subroutine wall_gll_sampler_finalize(this, coef, msk, facet, n_x, n_y, n_z)
+  subroutine wall_gll_sampler_finalize(this, coef, msk, facet, n_x, n_y, &
+       n_z, bc_name, user)
     class(wall_gll_sampler_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(0:)
     integer, intent(in) :: facet(0:)
     type(vector_t), intent(in) :: n_x, n_y, n_z
-    integer :: i, j, p, fid, idx(4), sample(4), lx, ly, lz
+    character(len=*), optional, intent(in) :: bc_name
+    type(user_t), target, optional, intent(in) :: user
+    integer :: i, j, p, fid, idx(4), sample(4), lx, ly, lz, offwall
     real(kind=rp) :: xw, yw, zw, dx, dy, dz
+    integer, allocatable :: user_indices(:,:)
 
-    if (.not. allocated(this%indices)) then
+    if (.not. this%user_values .and. .not. allocated(this%indices)) then
        call neko_error('Wall GLL sampler has not been initialized')
     end if
 
     call this%h%free()
     this%n_nodes = msk(0)
-    this%n_samples = size(this%indices)
+    if (.not. this%user_values) this%n_samples = size(this%indices)
+
+    if (this%user_values) then
+       if (.not. present(bc_name) .or. .not. present(user)) then
+          call neko_error('Wall GLL user sampler has no configured callback')
+       end if
+
+       allocate(user_indices(this%n_samples, this%n_nodes))
+
+       call user%wall_sampling_gll(bc_name, msk(1:this%n_nodes), user_indices)
+
+       if (any(user_indices < 1)) then
+          call neko_error('Wall GLL sampler indices must be positive')
+       end if
+    end if
+
     allocate(this%sample_idx(this%n_nodes * this%n_samples))
     call this%h%init(size(this%sample_idx))
 
@@ -138,20 +171,25 @@ contains
        fid = facet(i)
        do j = 1, this%n_samples
           p = (i - 1) * this%n_samples + j
+          if (this%user_values) then
+             offwall = user_indices(j,i)
+          else
+             offwall = this%indices(j)
+          end if
           sample = idx
           select case (fid)
           case (1)
-             sample(1) = sample(1) + this%indices(j)
+             sample(1) = sample(1) + offwall
           case (2)
-             sample(1) = sample(1) - this%indices(j)
+             sample(1) = sample(1) - offwall
           case (3)
-             sample(2) = sample(2) + this%indices(j)
+             sample(2) = sample(2) + offwall
           case (4)
-             sample(2) = sample(2) - this%indices(j)
+             sample(2) = sample(2) - offwall
           case (5)
-             sample(3) = sample(3) + this%indices(j)
+             sample(3) = sample(3) + offwall
           case (6)
-             sample(3) = sample(3) - this%indices(j)
+             sample(3) = sample(3) - offwall
           case default
              call neko_error('Invalid facet in wall GLL sampler')
           end select
@@ -222,6 +260,7 @@ contains
     this%sample_idx_d = C_NULL_PTR
     this%n_nodes = 0
     this%n_samples = 0
+    this%user_values = .false.
   end subroutine wall_gll_sampler_free
 
 end module wall_gll_sampler

@@ -45,6 +45,7 @@ module wall_model
   use utils, only : neko_error, nonlinear_index
   use wall_sampler, only : wall_sampler_t
   use wall_sampler_fctry, only : wall_sampler_factory
+  use user_intf, only : user_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   use device, only : device_get_ptr
   use wall_model_device, only : wall_model_compute_mag_field_device
@@ -107,8 +108,6 @@ module wall_model
      !! stage of the bc construction. So, in this routine you cannot use the
      !! bc mask and facets. The construction can be finished by calling
      !! `finalize_base`. This generally follows the same pattern as in `bc_t`.
-     !! This constructor gets the scheme_name from the JSON. This is currently
-     !! hacked in by the `pnpn_bc_factory`.
      procedure(wall_model_partial_init), pass(this), deferred :: partial_init
      !> Finalization of the partial construction, similar to `bc_t`.
      procedure(wall_model_finalize), pass(this), deferred :: finalize
@@ -118,7 +117,7 @@ module wall_model
      procedure(wall_model_compute), pass(this), deferred :: compute
      !> Build geometry shared by wall models and samplers.
      procedure, pass(this) :: setup_geometry => wall_model_setup_geometry
-     !> Verify that a model supports the configured number of samples.
+     !> Check that n_samples is one.
      procedure, pass(this) :: validate_single_sample => &
           wall_model_validate_single_sample
   end type wall_model_t
@@ -159,11 +158,13 @@ module wall_model
      !> Partial constructor from JSON, meant to work as the first stage of
      !! initialization before the `finalize` call.
      !! @param coef SEM coefficients.
+     !! @param scheme_name Name of the owning scheme.
      !! @param json A dictionary with parameters.
-     subroutine wall_model_partial_init(this, coef, json)
-       import wall_model_t, json_file, dofmap_t, coef_t, rp
+     subroutine wall_model_partial_init(this, coef, scheme_name, json)
+       import wall_model_t, json_file, dofmap_t, coef_t, rp, user_t
        class(wall_model_t), intent(inout) :: this
        type(coef_t), intent(in) :: coef
+       character(len=*), intent(in) :: scheme_name
        type(json_file), intent(inout) :: json
      end subroutine wall_model_partial_init
   end interface
@@ -172,11 +173,13 @@ module wall_model
      !> Finilzation of partial construction, similar to `bc_t`
      !! @param msk The boundary mask.
      !! @param facet The boundary facets.
-     subroutine wall_model_finalize(this, msk, facet)
-       import wall_model_t
+     subroutine wall_model_finalize(this, msk, facet, bc_name, user)
+       import wall_model_t, user_t
        class(wall_model_t), intent(inout) :: this
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
+       character(len=*), optional, intent(in) :: bc_name
+       type(user_t), target, optional, intent(in) :: user
      end subroutine wall_model_finalize
   end interface
 
@@ -295,9 +298,10 @@ contains
   !! @param coef SEM coefficients.
   !! @param The name of the scheme for which the wall model is used.
   !! @param json A dictionary with parameters.
-  subroutine wall_model_partial_init_base(this, coef, json)
+  subroutine wall_model_partial_init_base(this, coef, scheme_name, json)
     class(wall_model_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
+    character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
 
     call this%free_base()
@@ -305,7 +309,7 @@ contains
     this%coef => coef
     this%dof => coef%dof
     call wall_sampler_factory(this%sampler, json)
-    call json_get(json, "scheme_name", this%scheme_name)
+    this%scheme_name = trim(scheme_name)
 
     this%mu => neko_registry%get_field_by_name(this%scheme_name // "_mu")
     this%rho => neko_registry%get_field_by_name(this%scheme_name // &
@@ -316,10 +320,12 @@ contains
     this%tau_field => neko_registry%get_field("tau")
   end subroutine wall_model_partial_init_base
 
-  subroutine wall_model_finalize_base(this, msk, facet)
+  subroutine wall_model_finalize_base(this, msk, facet, bc_name, user)
     class(wall_model_t), intent(inout) :: this
     integer, target, intent(in) :: msk(0:)
     integer, target, intent(in) :: facet(:)
+    character(len=*), optional, intent(in) :: bc_name
+    type(user_t), target, optional, intent(in) :: user
 
     this%msk(0:msk(0)) => msk
     if (NEKO_BCKND_DEVICE .eq. 1) this%msk_d = device_get_ptr(msk)
@@ -337,8 +343,16 @@ contains
     if (.not. allocated(this%sampler)) then
        call neko_error('Wall model sampler has not been initialized')
     end if
-    call this%sampler%finalize(this%coef, this%msk, this%facet, &
-         this%n_x, this%n_y, this%n_z)
+    if (present(bc_name) .and. present(user)) then
+       call this%sampler%finalize(this%coef, this%msk, this%facet, &
+            this%n_x, this%n_y, this%n_z, bc_name, user)
+    else
+       if (this%sampler%user_values) then
+          call neko_error('Wall model user sampler has no boundary context')
+       end if
+       call this%sampler%finalize(this%coef, this%msk, this%facet, &
+            this%n_x, this%n_y, this%n_z)
+    end if
 
   end subroutine wall_model_finalize_base
 

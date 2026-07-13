@@ -67,17 +67,13 @@ contains
     integer, intent(in) :: facet(:)
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_name
-    logical :: added_scheme_name
 
     call json_get(json, "model", type_name)
 
     call wall_model_allocator(object, type_name)
 
-    added_scheme_name = .not. json%valid_path('scheme_name')
-    if (added_scheme_name) call json%add('scheme_name', trim(scheme_name))
-    call object%partial_init(coef, json)
+    call object%partial_init(coef, scheme_name, json)
     call object%finalize(msk, facet)
-    if (added_scheme_name) call json%remove('scheme_name')
 
   end subroutine wall_model_factory
 

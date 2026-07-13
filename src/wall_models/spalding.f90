@@ -41,6 +41,7 @@ module spalding
   use wall_model, only : wall_model_t
   use wall_sampler, only : wall_sampler_t
   use wall_sampler_fctry, only : wall_sampler_factory
+  use user_intf, only : user_t
   use registry, only : neko_registry
   use json_utils, only : json_get_or_default, json_get_or_lookup
   use spalding_cpu, only : spalding_compute_cpu
@@ -115,13 +116,14 @@ contains
   !> Constructor from JSON.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine spalding_partial_init(this, coef, json)
+  subroutine spalding_partial_init(this, coef, scheme_name, json)
     class(spalding_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     character(len=LOG_SIZE) :: log_buf
 
-    call this%partial_init_base(coef, json)
+    call this%partial_init_base(coef, scheme_name, json)
     call json_get_or_lookup(json, "kappa", this%kappa)
     call json_get_or_lookup(json, "B", this%B)
 
@@ -139,12 +141,14 @@ contains
   !> Finalize the construction using the mask and facet arrays of the bc.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  subroutine spalding_finalize(this, msk, facet)
+  subroutine spalding_finalize(this, msk, facet, bc_name, user)
     class(spalding_t), intent(inout) :: this
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
+    character(len=*), optional, intent(in) :: bc_name
+    type(user_t), target, optional, intent(in) :: user
 
-    call this%finalize_base(msk, facet)
+    call this%finalize_base(msk, facet, bc_name, user)
     call this%nu%init(this%n_nodes)
     call this%rho_w%init(this%n_nodes)
     call this%validate_single_sample()
