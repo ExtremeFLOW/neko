@@ -16,6 +16,7 @@ clean-local:
 html-local: doxygen.stamp
 
 EXTRA_DIST = pages/appendices/governing-equations.md \
+			schemas \
 			pages/appendices/publications.md \
 			pages/developer-guide \
 			pages/developer-guide/accelerators.md \

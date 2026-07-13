@@ -127,4 +127,3 @@ void hip_entropy_visc_smooth_divide(void *reg_coeff,
 }
 
 }
-

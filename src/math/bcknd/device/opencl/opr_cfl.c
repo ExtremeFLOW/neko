@@ -133,6 +133,7 @@ real opencl_cfl(real *dt, void *u, void *v, void *w,
   }
 
   free(cfl);
+  CL_CHECK(clReleaseEvent(kern_wait));
   CL_CHECK(clReleaseMemObject(cfl_d));
   CL_CHECK(clReleaseKernel(kernel));
 

@@ -143,9 +143,7 @@ contains
     end do
 
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
-    call gs_Xh%op(ta1, GS_OP_ADD)
-    call gs_Xh%op(ta2, GS_OP_ADD)
-    call gs_Xh%op(ta3, GS_OP_ADD)
+    call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 
     do i = 1, n

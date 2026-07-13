@@ -33,7 +33,7 @@
 !> Defines gather-scatter communication using MPI neighbourhood collectives
 module gs_neighbour
   use num_types, only : rp
-  use gs_comm, only : gs_comm_t
+  use gs_comm, only : gs_comm_t, GS_VEC_NC
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
   use mpi_f08, only : MPI_Comm, MPI_Request, MPI_STATUS_IGNORE, &
@@ -67,6 +67,14 @@ module gs_neighbour
      type(MPI_Comm) :: neigh_comm
      !> In-flight non-blocking neighbourhood collective.
      type(MPI_Request) :: request
+     !> Fused vector (multi-component) exchange buffers, sized for up to
+     !! GS_VEC_NC components. Each peer slab holds nc consecutive component
+     !! blocks. sendcounts_v/sdispls_v etc. are the nc-scaled collective
+     !! descriptors, filled per call.
+     real(kind=rp), allocatable :: send_buf_v(:)
+     real(kind=rp), allocatable :: recv_buf_v(:)
+     integer, allocatable :: sendcounts_v(:), sdispls_v(:)
+     integer, allocatable :: recvcounts_v(:), rdispls_v(:)
    contains
      procedure, pass(this) :: init => gs_neighbour_init
      procedure, pass(this) :: free => gs_neighbour_free
@@ -74,6 +82,9 @@ module gs_neighbour
      procedure, pass(this) :: nbsend => gs_nbsend_neighbour
      procedure, pass(this) :: nbrecv => gs_nbrecv_neighbour
      procedure, pass(this) :: nbwait => gs_nbwait_neighbour
+     procedure, pass(this) :: nbsend_vec => gs_nbsend_vec_neighbour
+     procedure, pass(this) :: nbrecv_vec => gs_nbrecv_vec_neighbour
+     procedure, pass(this) :: nbwait_vec => gs_nbwait_vec_neighbour
   end type gs_neighbour_t
 
 contains
@@ -121,6 +132,17 @@ contains
     end do
     allocate(this%recv_buf(max(1, recv_total)))
 
+    ! Fused vector exchange buffers/descriptors, sized for GS_VEC_NC comps.
+    allocate(this%send_buf_v(max(1, GS_VEC_NC*send_total)))
+    allocate(this%recv_buf_v(max(1, GS_VEC_NC*recv_total)))
+    allocate(this%sendcounts_v(max(1, nsend)), this%sdispls_v(max(1, nsend)))
+    allocate(this%recvcounts_v(max(1, nrecv)), this%rdispls_v(max(1, nrecv)))
+    this%sendcounts_v = 0
+    this%sdispls_v = 0
+    this%recvcounts_v = 0
+    this%rdispls_v = 0
+    this%vec_supported = .true.
+
     ! Build a distributed-graph communicator over the halo neighbourhood.
     ! With MPI_Dist_graph_create_adjacent and reorder = .false. the order of
     ! sources/destinations is preserved, so the j-th block of the collective
@@ -148,6 +170,13 @@ contains
     if (allocated(this%sdispls)) deallocate(this%sdispls)
     if (allocated(this%recvcounts)) deallocate(this%recvcounts)
     if (allocated(this%rdispls)) deallocate(this%rdispls)
+
+    if (allocated(this%send_buf_v)) deallocate(this%send_buf_v)
+    if (allocated(this%recv_buf_v)) deallocate(this%recv_buf_v)
+    if (allocated(this%sendcounts_v)) deallocate(this%sendcounts_v)
+    if (allocated(this%sdispls_v)) deallocate(this%sdispls_v)
+    if (allocated(this%recvcounts_v)) deallocate(this%recvcounts_v)
+    if (allocated(this%rdispls_v)) deallocate(this%rdispls_v)
 
     call MPI_Comm_free(this%neigh_comm, ierr)
 
@@ -237,6 +266,7 @@ contains
           case (GS_OP_ADD)
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !NEC$ IVDEP
              !$omp do
@@ -247,6 +277,7 @@ contains
           case (GS_OP_MUL)
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !NEC$ IVDEP
              !$omp do
@@ -257,6 +288,7 @@ contains
           case (GS_OP_MIN)
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !NEC$ IVDEP
              !$omp do
@@ -267,6 +299,7 @@ contains
           case (GS_OP_MAX)
              !OCL NORECURRENCE, NOVREC, NOALIAS
              !DIR$ CONCURRENT
+             !DIR$ IVDEP
              !GCC$ ivdep
              !NEC$ IVDEP
              !$omp do
@@ -281,5 +314,131 @@ contains
     end do
 
   end subroutine gs_nbwait_neighbour
+
+  !> Pack the nc components and launch a single neighbourhood collective.
+  !! @param u compact shared buffer, component-outer: u((c-1)*n + idx).
+  !! Peer i's slab in send_buf_v holds nc consecutive blocks of sendcounts(i)
+  !! values, so the collective descriptors are simply nc times the scalar ones.
+  subroutine gs_nbsend_vec_neighbour(this, u, n, nc, tag, deps, strm)
+    class(gs_neighbour_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    integer, intent(in) :: tag
+    type(c_ptr), intent(inout) :: deps
+    type(c_ptr), intent(inout) :: strm
+    integer :: i, j, c, dst, off, ndst, ierr
+
+    !$omp do
+    do i = 1, size(this%send_pe)
+       dst = this%send_pe(i)
+       off = this%sdispls(i)
+       ndst = this%sendcounts(i)
+       select type (dofs => this%send_dof(dst)%data)
+       type is (integer)
+          do c = 1, nc
+             !$omp simd
+             do j = 1, ndst
+                this%send_buf_v(nc*off + (c-1)*ndst + j) = u((c-1)*n + dofs(j))
+             end do
+          end do
+       end select
+    end do
+    !$omp end do
+
+    ! A neighbourhood collective is one call over neigh_comm and must be
+    ! issued by a single thread. The end-do barrier above guarantees the
+    ! send buffer is fully packed first.
+    !$omp master
+    do i = 1, size(this%send_pe)
+       this%sendcounts_v(i) = nc * this%sendcounts(i)
+       this%sdispls_v(i) = nc * this%sdispls(i)
+    end do
+    do i = 1, size(this%recv_pe)
+       this%recvcounts_v(i) = nc * this%recvcounts(i)
+       this%rdispls_v(i) = nc * this%rdispls(i)
+    end do
+    call MPI_Ineighbor_alltoallv(this%send_buf_v, this%sendcounts_v, &
+         this%sdispls_v, MPI_REAL_PRECISION, this%recv_buf_v, &
+         this%recvcounts_v, this%rdispls_v, MPI_REAL_PRECISION, &
+         this%neigh_comm, this%request, ierr)
+    !$omp end master
+
+  end subroutine gs_nbsend_vec_neighbour
+
+  !> No-op: the collective is launched in nbsend_vec.
+  subroutine gs_nbrecv_vec_neighbour(this, tag, nc)
+    class(gs_neighbour_t), intent(inout) :: this
+    integer, intent(in) :: tag, nc
+    ! Nothing to do: the collective is launched in nbsend_vec.
+  end subroutine gs_nbrecv_vec_neighbour
+
+  !> Wait for the vector collective and reduce each received slab into u.
+  !! Peer i's received slab holds nc consecutive blocks of recvcounts(i)
+  !! values, matching the sender's packing convention.
+  subroutine gs_nbwait_vec_neighbour(this, u, n, nc, op, strm)
+    class(gs_neighbour_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: strm
+    integer :: i, j, c, src, off, nsrc, ierr
+    integer :: op
+
+    !$omp master
+    call MPI_Wait(this%request, MPI_STATUS_IGNORE, ierr)
+    !$omp end master
+    !$omp barrier
+
+    ! Serial over peers (a dof shared by 3+ ranks appears in several recv
+    ! lists); parallelism is taken within each slab.
+    do i = 1, size(this%recv_pe)
+       src = this%recv_pe(i)
+       off = this%rdispls(i)
+       nsrc = this%recvcounts(i)
+       select type (dofs => this%recv_dof(src)%data)
+       type is (integer)
+          select case (op)
+          case (GS_OP_ADD)
+             !$omp do
+             do j = 1, nsrc
+                do c = 1, nc
+                   u((c-1)*n + dofs(j)) = u((c-1)*n + dofs(j)) + &
+                        this%recv_buf_v(nc*off + (c-1)*nsrc + j)
+                end do
+             end do
+             !$omp end do
+          case (GS_OP_MUL)
+             !$omp do
+             do j = 1, nsrc
+                do c = 1, nc
+                   u((c-1)*n + dofs(j)) = u((c-1)*n + dofs(j)) * &
+                        this%recv_buf_v(nc*off + (c-1)*nsrc + j)
+                end do
+             end do
+             !$omp end do
+          case (GS_OP_MIN)
+             !$omp do
+             do j = 1, nsrc
+                do c = 1, nc
+                   u((c-1)*n + dofs(j)) = min(u((c-1)*n + dofs(j)), &
+                        this%recv_buf_v(nc*off + (c-1)*nsrc + j))
+                end do
+             end do
+             !$omp end do
+          case (GS_OP_MAX)
+             !$omp do
+             do j = 1, nsrc
+                do c = 1, nc
+                   u((c-1)*n + dofs(j)) = max(u((c-1)*n + dofs(j)), &
+                        this%recv_buf_v(nc*off + (c-1)*nsrc + j))
+                end do
+             end do
+             !$omp end do
+          case default
+             call neko_error("Unknown operation in gs_nbwait_vec_neighbour")
+          end select
+       end select
+    end do
+
+  end subroutine gs_nbwait_vec_neighbour
 
 end module gs_neighbour

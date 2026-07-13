@@ -259,6 +259,7 @@ contains
       ! First iteration
       !OCL NORECURRENCE, NOVREC, NOALIAS
       !DIR$ CONCURRENT
+      !DIR$ IVDEP
       !GCC$ ivdep
       !$omp parallel do
       do i = 1, n
@@ -279,6 +280,7 @@ contains
          !$omp parallel private(i)
          !OCL NORECURRENCE, NOVREC, NOALIAS
          !DIR$ CONCURRENT
+         !DIR$ IVDEP
          !GCC$ ivdep
          !$omp do
          do i = 1, n

@@ -57,7 +57,7 @@ module mesh
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use, intrinsic :: iso_fortran_env, only : error_unit
   implicit none
   private
 
@@ -194,9 +194,16 @@ contains
     integer, intent(in) :: gdim !< Geometric dimension
     integer, intent(in) :: nelv !< Local number of elements
     integer :: ierr
+    logical :: lgenc
     character(len=LOG_SIZE) :: log_buf
 
+    ! Preserve the caller's connectivity-generation choice across free(), which
+    ! resets lgenc to its .true. default (see mesh_free). Without this, setting
+    ! `msh%lgenc = .false.` before init has no effect, and connectivity is always
+    ! generated.
+    lgenc = this%lgenc
     call this%free()
+    this%lgenc = lgenc
 
     this%nelv = nelv
     this%gdim = gdim
@@ -222,9 +229,14 @@ contains
     class(mesh_t), intent(inout) :: this !< Mesh
     integer, intent(in) :: gdim !< Geometric dimension
     type(linear_dist_t), intent(in) :: dist !< Data distribution
+    logical :: lgenc
     character(len=LOG_SIZE) :: log_buf
 
+    ! Preserve the caller's connectivity-generation choice across free()
+    ! (see mesh_init_nelv / mesh_free).
+    lgenc = this%lgenc
     call this%free()
+    this%lgenc = lgenc
 
     this%nelv = dist%num_local()
     if (this%nelv < 1) then
@@ -257,7 +269,7 @@ contains
        if (this%lgenc) then
           allocate(htable_i4t4_t::this%facet_map)
           select type (fmp => this%facet_map)
-          type is(htable_i4t4_t)
+          type is (htable_i4t4_t)
              call fmp%init(this%nelv, facet_data)
           end select
 
@@ -274,7 +286,7 @@ contains
        if (this%lgenc) then
           allocate(htable_i4t2_t::this%facet_map)
           select type (fmp => this%facet_map)
-          type is(htable_i4t2_t)
+          type is (htable_i4t2_t)
              call fmp%init(this%nelv, facet_data)
           end select
 
@@ -298,7 +310,7 @@ contains
        end if
        allocate(this%point_neigh(this%gdim*this%npts*this%nelv))
        do i = 1, this%gdim*this%npts*this%nelv
-          call this%point_neigh(i)%init(size=4)
+          call this%point_neigh(i)%init(size = 4)
        end do
     end if
 
@@ -354,9 +366,9 @@ contains
 
     if (allocated(this%facet_map)) then
        select type (fmp => this%facet_map)
-       type is(htable_i4t2_t)
+       type is (htable_i4t2_t)
           call fmp%free()
-       type is(htable_i4t4_t)
+       type is (htable_i4t4_t)
           call fmp%free()
        end select
        deallocate(this%facet_map)

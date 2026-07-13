@@ -111,7 +111,7 @@ module math
        pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
        masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp, &
-       math_dstepf, math_stepf, cwrap, lambert_w0
+       math_dstepf, math_stepf, cwrap, lambert_w0, sqrt_inplace, power
 
 contains
 
@@ -879,7 +879,7 @@ contains
 
   end function vlsc3
 
-  !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
+  !> Compute multiplication sum \f$ dot = u \cdot v \f$
   function vlsc2(u, v, n) result(s)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: u, v
@@ -1873,4 +1873,33 @@ contains
     end if
   end function math_dstepf
 
+  !> Sqrt a vector \f$ a = sqrt(a) \f$
+  subroutine sqrt_inplace(a, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer :: i
+
+    !$omp parallel do
+    do i = 1, n
+       a(i) = sqrt(a(i))
+    end do
+    !$omp end parallel do
+
+  end subroutine sqrt_inplace
+
+  !> Take the power of a vector \f$ a^p \f$
+  subroutine power(ap, a, p, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: ap
+    real(kind=rp), dimension(n), intent(in) :: a
+    real(kind=rp), intent(in) :: p
+    integer :: i
+
+    !$omp parallel do
+    do i = 1, n
+       ap(i) = a(i)**p
+    end do
+    !$omp end parallel do
+
+  end subroutine power
 end module math

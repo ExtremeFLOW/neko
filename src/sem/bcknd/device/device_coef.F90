@@ -41,13 +41,14 @@ module device_coef
   public :: device_coef_generate_dxydrst
   public :: device_coef_generate_mass
   public :: device_coef_generate_area_and_normal
+  public :: device_coef_get_normal
 
 #ifdef HAVE_HIP
   interface
      subroutine hip_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
           drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
           jacinv, w3, nel, lx, gdim) &
-          bind(c, name='hip_coef_generate_geo')
+          bind(c, name = 'hip_coef_generate_geo')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
@@ -63,7 +64,7 @@ module device_coef
      subroutine hip_coef_generate_dxyzdrst(drdx, drdy, drdz, dsdx, dsdy, &
           dsdz, dtdx, dtdy, dtdz, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, &
           dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
-          bind(c, name='hip_coef_generate_dxyzdrst')
+          bind(c, name = 'hip_coef_generate_dxyzdrst')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: drdx, drdy, drdz
@@ -80,7 +81,7 @@ module device_coef
 
   interface
      subroutine hip_coef_generate_mass(B, Binv, jac, w3, lxyz, nel) &
-          bind(c, name='hip_coef_generate_mass')
+          bind(c, name = 'hip_coef_generate_mass')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: B, Binv, jac, w3
@@ -92,7 +93,7 @@ module device_coef
      subroutine hip_coef_generate_area_and_normal(area, nx, ny, nz, &
           dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
           wx, wy, wz, lx, nel, eps) &
-          bind(c, name='hip_coef_generate_area_and_normal')
+          bind(c, name = 'hip_coef_generate_area_and_normal')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -106,12 +107,25 @@ module device_coef
      end subroutine hip_coef_generate_area_and_normal
   end interface
 
+  interface
+     subroutine hip_coef_get_normal(normal_x, normal_y, normal_z, nx, ny, nz, &
+          i_idx, j_idx, k_idx, e_idx, facet, lx, n) &
+          bind(c, name = 'hip_coef_get_normal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: normal_x, normal_y, normal_z
+       type(c_ptr), value :: nx, ny, nz
+       type(c_ptr), value :: i_idx, j_idx, k_idx, e_idx, facet
+       integer(c_int) :: lx, n
+     end subroutine hip_coef_get_normal
+  end interface
+
 #elif HAVE_CUDA
   interface
      subroutine cuda_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
           drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
           jacinv, w3, nel, lx, gdim) &
-          bind(c, name='cuda_coef_generate_geo')
+          bind(c, name = 'cuda_coef_generate_geo')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
@@ -127,7 +141,7 @@ module device_coef
      subroutine cuda_coef_generate_dxyzdrst(drdx, drdy, drdz, dsdx, dsdy, &
           dsdz, dtdx, dtdy, dtdz, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, &
           dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
-          bind(c, name='cuda_coef_generate_dxyzdrst')
+          bind(c, name = 'cuda_coef_generate_dxyzdrst')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: drdx, drdy, drdz
@@ -144,7 +158,7 @@ module device_coef
 
   interface
      subroutine cuda_coef_generate_mass(B, Binv, jac, w3, lxyz, nel) &
-          bind(c, name='cuda_coef_generate_mass')
+          bind(c, name = 'cuda_coef_generate_mass')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: B, Binv, jac, w3
@@ -156,7 +170,7 @@ module device_coef
      subroutine cuda_coef_generate_area_and_normal(area, nx, ny, nz, &
           dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
           wx, wy, wz, lx, nel, eps) &
-          bind(c, name='cuda_coef_generate_area_and_normal')
+          bind(c, name = 'cuda_coef_generate_area_and_normal')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -170,12 +184,25 @@ module device_coef
      end subroutine cuda_coef_generate_area_and_normal
   end interface
 
+  interface
+     subroutine cuda_coef_get_normal(normal_x, normal_y, normal_z, nx, ny, nz, &
+          i_idx, j_idx, k_idx, e_idx, facet, lx, n) &
+          bind(c, name = 'cuda_coef_get_normal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: normal_x, normal_y, normal_z
+       type(c_ptr), value :: nx, ny, nz
+       type(c_ptr), value :: i_idx, j_idx, k_idx, e_idx, facet
+       integer(c_int) :: lx, n
+     end subroutine cuda_coef_get_normal
+  end interface
+
 #elif HAVE_OPENCL
   interface
      subroutine opencl_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
           drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
           jacinv, w3, nel, lx, gdim) &
-          bind(c, name='opencl_coef_generate_geo')
+          bind(c, name = 'opencl_coef_generate_geo')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
@@ -191,7 +218,7 @@ module device_coef
      subroutine opencl_coef_generate_dxyzdrst(drdx, drdy, drdz, dsdx, dsdy, &
           dsdz, dtdx, dtdy, dtdz, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, &
           dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
-          bind(c, name='opencl_coef_generate_dxyzdrst')
+          bind(c, name = 'opencl_coef_generate_dxyzdrst')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: drdx, drdy, drdz
@@ -208,7 +235,7 @@ module device_coef
 
   interface
      subroutine opencl_coef_generate_mass(B, Binv, jac, w3, lxyz, nel) &
-          bind(c, name='opencl_coef_generate_mass')
+          bind(c, name = 'opencl_coef_generate_mass')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: B, Binv, jac, w3
@@ -220,7 +247,7 @@ module device_coef
      subroutine opencl_coef_generate_area_and_normal(area, nx, ny, nz, &
           dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
           wx, wy, wz, lx, nel, eps) &
-          bind(c, name='opencl_coef_generate_area_and_normal')
+          bind(c, name = 'opencl_coef_generate_area_and_normal')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -234,12 +261,24 @@ module device_coef
      end subroutine opencl_coef_generate_area_and_normal
   end interface
 
+  interface
+     subroutine opencl_coef_get_normal(normal_x, normal_y, normal_z, &
+          nx, ny, nz, i_idx, j_idx, k_idx, e_idx, facet, lx, n) &
+          bind(c, name = 'opencl_coef_get_normal')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: normal_x, normal_y, normal_z
+       type(c_ptr), value :: nx, ny, nz
+       type(c_ptr), value :: i_idx, j_idx, k_idx, e_idx, facet
+       integer(c_int) :: lx, n
+     end subroutine opencl_coef_get_normal
+  end interface
 #elif HAVE_METAL
   interface
      subroutine metal_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
           drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
           jacinv, w3, nel, lx, gdim) &
-          bind(c, name='metal_coef_generate_geo')
+          bind(c, name = 'metal_coef_generate_geo')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: G11, G12, G13, G22, G23, G33
@@ -255,7 +294,7 @@ module device_coef
      subroutine metal_coef_generate_dxyzdrst(drdx, drdy, drdz, dsdx, dsdy, &
           dsdz, dtdx, dtdy, dtdz, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, &
           dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
-          bind(c, name='metal_coef_generate_dxyzdrst')
+          bind(c, name = 'metal_coef_generate_dxyzdrst')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: drdx, drdy, drdz
@@ -272,7 +311,7 @@ module device_coef
 
   interface
      subroutine metal_coef_generate_mass(B, Binv, jac, w3, lxyz, nel) &
-          bind(c, name='metal_coef_generate_mass')
+          bind(c, name = 'metal_coef_generate_mass')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: B, Binv, jac, w3
@@ -284,7 +323,7 @@ module device_coef
      subroutine metal_coef_generate_area_and_normal(area, nx, ny, nz, &
           dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, dydt, dzdt, &
           wx, wy, wz, lx, nel, eps) &
-          bind(c, name='metal_coef_generate_area_and_normal')
+          bind(c, name = 'metal_coef_generate_area_and_normal')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -441,5 +480,29 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_coef_generate_area_and_normal
+
+  subroutine device_coef_get_normal(normal_x_d, normal_y_d, normal_z_d, &
+       nx_d, ny_d, nz_d, i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d, lx, n)
+    type(c_ptr) :: normal_x_d, normal_y_d, normal_z_d
+    type(c_ptr) :: nx_d, ny_d, nz_d
+    type(c_ptr) :: i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d
+    integer :: lx, n
+
+#ifdef HAVE_HIP
+    call hip_coef_get_normal(normal_x_d, normal_y_d, normal_z_d, &
+         nx_d, ny_d, nz_d, i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d, &
+         lx, n)
+#elif HAVE_CUDA
+    call cuda_coef_get_normal(normal_x_d, normal_y_d, normal_z_d, &
+         nx_d, ny_d, nz_d, i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d, &
+         lx, n)
+#elif HAVE_OPENCL
+    call opencl_coef_get_normal(normal_x_d, normal_y_d, normal_z_d, &
+         nx_d, ny_d, nz_d, i_idx_d, j_idx_d, k_idx_d, e_idx_d, facet_d, &
+         lx, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_coef_get_normal
 
 end module device_coef

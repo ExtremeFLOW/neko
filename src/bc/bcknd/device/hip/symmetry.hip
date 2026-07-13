@@ -33,6 +33,7 @@
 */
 
 #include <hip/hip_runtime.h>
+#include <algorithm>
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include "symmetry_kernel.h"

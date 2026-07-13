@@ -47,6 +47,7 @@ contains
     if (nab .eq. 3) then
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp do
        do i = 1, n
@@ -61,6 +62,7 @@ contains
     else
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp do
        do i = 1, n
@@ -93,6 +95,7 @@ contains
     !$omp parallel private(i)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -107,6 +110,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -121,6 +125,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -150,6 +155,7 @@ contains
     !$omp parallel private(i)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -160,6 +166,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -170,6 +177,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -200,6 +208,7 @@ contains
     !$omp parallel private(ilag, i)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -213,6 +222,7 @@ contains
        if (ilag .eq. 2) then
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
+          !DIR$ IVDEP
           !GCC$ ivdep
           !$omp do
           do i = 1, n
@@ -227,6 +237,7 @@ contains
        else if (ilag .eq. 3) then
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
+          !DIR$ IVDEP
           !GCC$ ivdep
           !$omp do
           do i = 1, n
@@ -243,6 +254,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -273,6 +285,7 @@ contains
     !$omp parallel private(i, ilag)
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -283,6 +296,7 @@ contains
     do ilag = 2, nbd
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        !$omp do
        do i = 1, n
@@ -294,6 +308,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp do
     do i = 1, n
@@ -315,6 +330,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n
@@ -335,6 +351,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n

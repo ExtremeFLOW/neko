@@ -35,9 +35,6 @@
         "min_update_frequency": {
           "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"
         },
-        "running_avg_coeff": {
-          "$ref": "urn:neko:schema:common#/$defs/unitIntervalExclusiveOrRef"
-        },
         "max_dt_increase_factor": {
           "$ref": "urn:neko:schema:common#/$defs/greaterThanOneOrRef"
         },
@@ -46,9 +43,6 @@
         },
         "cfl_deviation_tolerance": {
           "$ref": "urn:neko:schema:common#/$defs/unitIntervalExclusiveOrRef"
-        },
-        "cfl_max_update_frequency": {
-          "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"
         },
         "cfl_running_avg_coeff": {
           "$ref": "urn:neko:schema:common#/$defs/unitIntervalExclusiveOrRef"

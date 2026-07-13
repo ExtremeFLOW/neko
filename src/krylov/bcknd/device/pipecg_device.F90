@@ -280,13 +280,16 @@ contains
     end if
     if (allocated(this%u)) then
        if (allocated(this%u_d)) then
-          do i = 1, DEVICE_PIPECG_P_SPACE
+          do i = 1, DEVICE_PIPECG_P_SPACE+1
              if (c_associated(this%u_d(i))) then
                 call device_unmap(this%u(:,i), this%u_d(i))
              end if
           end do
        end if
        deallocate(this%u)
+    end if
+    if (allocated(this%u_d)) then
+       deallocate(this%u_d)
     end if
     if (allocated(this%w)) then
        if (c_associated(this%w_d)) then

@@ -32,9 +32,9 @@
 !
 !> Device backend for entropy viscosity regularization
 module entropy_viscosity_device
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-  use num_types, only: rp, c_rp
-  use utils, only: neko_error
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
   implicit none
   private
 
@@ -398,4 +398,3 @@ contains
   end subroutine entropy_viscosity_smooth_divide_device
 
 end module entropy_viscosity_device
-

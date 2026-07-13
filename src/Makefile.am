@@ -64,6 +64,7 @@ neko_fortran_SOURCES = \
 	gs/gs_shmem.F90\
 	gs/gs_caf.F90\
 	gs/gs_neighbour.f90\
+	gs/gs_utofu.F90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
 	gs/bcknd/device/gs_device_shmem.F90\
@@ -132,6 +133,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/xsmm/fdm_xsmm.f90\
 	math/schwarz.f90\
 	math/vector.f90\
+	common/particles.f90\
 	math/vector_series.f90\
 	math/vector_list.f90\
 	math/vector_math.f90\
@@ -276,17 +278,17 @@ neko_fortran_SOURCES = \
 	fluid/regularization/entropy_viscosity.f90\
 	fluid/regularization/bcknd/cpu/entropy_viscosity_cpu.f90\
 	fluid/regularization/bcknd/device/entropy_viscosity_device.F90\
-	fluid/fluid_scheme_compressible_euler.f90\
+	fluid/fluid_scheme_compressible_ns.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_base_fctry.f90\
 	fluid/fluid_pnpn_bc_fctry.f90\
-	fluid/euler_bc_fctry.f90\
+	fluid/compressible_ns_bc_fctry.f90\
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
-	fluid/euler_res.f90\
-	fluid/euler_res_fctry.f90\
+	fluid/compressible_res.f90\
+	fluid/compressible_res_fctry.f90\
 	fluid/fluid_stats.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
@@ -299,8 +301,8 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
-	fluid/bcknd/cpu/euler_res_cpu.f90\
-	fluid/bcknd/device/euler_res_device.F90\
+	fluid/bcknd/cpu/compressible_res_cpu.f90\
+	fluid/bcknd/device/compressible_res_device.F90\
 	fluid/bcknd/cpu/compressible_ops_cpu.f90\
 	fluid/bcknd/device/compressible_ops_device.F90\
 	fluid/fluid_source_term.f90\
@@ -310,6 +312,7 @@ neko_fortran_SOURCES = \
 	math/ax_helm.f90\
 	math/ax_helm_full.f90\
 	math/bcknd/cpu/ax_helm_cpu.f90\
+	math/bcknd/cpu/ax_helm_vector_cpu.f90\
 	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
@@ -367,6 +370,16 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
+	lpt/bcknd/cpu/lpt_periodic_bc_cpu.f90\
+	lpt/bcknd/cpu/lpt_wall_collision_cpu.f90\
+	lpt/bcknd/device/lpt_periodic_bc_device.F90\
+	lpt/bcknd/device/lpt_wall_collision_device.F90\
+	lpt/lpt_periodic_bc.f90\
+	lpt/lpt_output.f90\
+	lpt/lpt.f90\
+	simulation_components/lpt_simcomp.f90\
+	lpt/lpt_migration.f90\
+	lpt/lpt_wall_collision.f90\
 	simulation_components/curl_simcomp.f90\
 	simulation_components/divergence_simcomp.f90\
 	simulation_components/weak_gradient_simcomp.f90\
@@ -476,6 +489,10 @@ if ENABLE_PARMETIS
 libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
+if ENABLE_UTOFU
+libneko_la_SOURCES += gs/gs_utofu_aux.c
+endif
+
 if ENABLE_HIP
 libneko_la_SOURCES += \
     ale/bcknd/device/hip/ale_kinematics.hip\
@@ -513,7 +530,7 @@ libneko_la_SOURCES += \
 	common/bcknd/device/hip/rhs_maker.hip\
 	common/bcknd/device/hip/projection.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
-	fluid/bcknd/device/hip/euler_res.hip\
+	fluid/bcknd/device/hip/compressible_res.hip\
 	fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip\
 	fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip\
 	fluid/bcknd/device/hip/compressible_ops_update.hip\
@@ -523,6 +540,8 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/hip/coef.hip\
 	sem/bcknd/device/hip/local_interpolation.hip\
 	filter/bcknd/device/hip/mappings.hip\
+	lpt/bcknd/device/hip/lpt_periodic_bc.hip\
+	lpt/bcknd/device/hip/lpt_wall_collision.hip\
 	source_terms/bcknd/device/hip/gradient_jump_penalty.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip\
@@ -567,7 +586,6 @@ libneko_la_SOURCES += \
 	krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
-	gs/bcknd/device/cuda/gs_nvshmem.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/zero_dirichlet.cu\
@@ -579,7 +597,7 @@ libneko_la_SOURCES += \
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
-	fluid/bcknd/device/cuda/euler_res.cu\
+	fluid/bcknd/device/cuda/compressible_res.cu\
 	fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu\
 	fluid/bcknd/device/cuda/compressible_ops_compute_entropy.cu\
 	fluid/bcknd/device/cuda/compressible_ops_update.cu\
@@ -589,6 +607,8 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/cuda/coef.cu\
 	sem/bcknd/device/cuda/local_interpolation.cu\
 	filter/bcknd/device/cuda/mappings.cu\
+	lpt/bcknd/device/cuda/lpt_periodic_bc.cu\
+	lpt/bcknd/device/cuda/lpt_wall_collision.cu\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\
@@ -606,7 +626,44 @@ libneko_la_SOURCES += \
 	multigrid/bcknd/device/cuda/amg_cheby.cu\
 	krylov/bcknd/device/cuda/cheby_aux.cu
 
-BUILT_SOURCES = libtool_cuda
+BUILT_SOURCES = @top_builddir@/libtool_cuda
+
+if ENABLE_NVSHMEM
+#
+# Device-side NVSHMEM calls (gs_nvshmem_kernels.h) require relocatable
+# device code and a device link against libnvshmem_device. The device
+# code in gs_nvshmem.cu is self-contained, so the device link can be
+# closed here, keeping nvcc out of the final link. Built under a
+# different object name (and added to LIBADD, as with Metal) to not
+# clash with the suffix rule and .depends_device
+#
+gs/bcknd/device/cuda/gs_nvshmem_rdc.lo: gs/bcknd/device/cuda/gs_nvshmem.cu gs/bcknd/device/cuda/gs_kernels.h gs/bcknd/device/cuda/gs_nvshmem_kernels.h @top_builddir@/libtool_cuda
+	$(SHELL) @top_builddir@/libtool_cuda --tag=CC --mode=compile $(NVCC) -rdc=true @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
+
+#
+# Wrap the device linked object with a libtool object
+# (pic only; libtool falls back to the pic object for static archives)
+#
+gs/bcknd/device/cuda/gs_nvshmem_dlink.lo: gs/bcknd/device/cuda/gs_nvshmem_rdc.lo
+	$(MKDIR_P) gs/bcknd/device/cuda/.libs
+	obj=gs/bcknd/device/cuda/.libs/gs_nvshmem_rdc.o; \
+	test -f $$obj || obj=gs/bcknd/device/cuda/gs_nvshmem_rdc.o; \
+	$(NVCC) @CUDA_ARCH@ -dlink -Xcompiler -fPIC \
+		-o gs/bcknd/device/cuda/.libs/gs_nvshmem_dlink.o \
+		$$obj @NVSHMEM_LDFLAGS@ -lnvshmem_device
+	printf "%s\n" \
+		"# gs_nvshmem_dlink.lo - a libtool object file" \
+		"# Generated by libtool (hand-written NVSHMEM device link)" \
+		"pic_object='.libs/gs_nvshmem_dlink.o'" \
+		"non_pic_object=none" > $@
+
+libneko_la_LIBADD += \
+	gs/bcknd/device/cuda/gs_nvshmem_rdc.lo\
+	gs/bcknd/device/cuda/gs_nvshmem_dlink.lo
+else
+libneko_la_SOURCES += \
+	gs/bcknd/device/cuda/gs_nvshmem.cu
+endif
 
 endif
 
@@ -644,7 +701,7 @@ libneko_la_SOURCES += \
 	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
 	fluid/stress_formulation/bcknd/device/opencl/pnpn_stress_res.c\
-	fluid/bcknd/device/opencl/euler_res.c\
+	fluid/bcknd/device/opencl/compressible_res.c\
 	fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.c\
 	fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c\
 	fluid/bcknd/device/opencl/compressible_ops_update.c\
@@ -693,7 +750,7 @@ METAL_OBJS = \
 	scalar/bcknd/device/metal/scalar_residual.lo\
 	math/bcknd/device/metal/mathops.lo\
 	common/bcknd/device/metal/rhs_maker.lo\
-	fluid/bcknd/device/metal/euler_res.lo\
+	fluid/bcknd/device/metal/compressible_res.lo\
 	fluid/bcknd/device/metal/pnpn_res.lo\
 	fluid/bcknd/device/metal/compressible_ops.lo\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity.lo\
@@ -733,7 +790,7 @@ dist_noinst_DATA = \
 	scalar/bcknd/device/metal/scalar_residual.m\
 	math/bcknd/device/metal/mathops.m\
 	common/bcknd/device/metal/rhs_maker.m\
-	fluid/bcknd/device/metal/euler_res.m\
+	fluid/bcknd/device/metal/compressible_res.m\
 	fluid/bcknd/device/metal/pnpn_res.m\
 	fluid/bcknd/device/metal/compressible_ops.m\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity.m\
@@ -770,7 +827,7 @@ METAL_KERNELS = \
 	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
 	math/bcknd/device/metal/mathops_kernel.metal\
 	common/bcknd/device/metal/rhs_maker_kernel.metal\
-	fluid/bcknd/device/metal/euler_res_kernel.metal\
+	fluid/bcknd/device/metal/compressible_res_kernel.metal\
 	fluid/bcknd/device/metal/pnpn_res_kernel.metal\
 	fluid/bcknd/device/metal/compressible_ops_kernel.metal\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity_kernel.metal\
@@ -836,11 +893,9 @@ libneko_la_LIBADD += \
 endif
 
 
-if !ENABLE_NVSHMEM
 bin_PROGRAMS = neko
 neko_SOURCES = driver.f90
 neko_LDADD= libneko.la
-endif
 
 pkginclude_HEADERS = \
 	$(wildcard *.mod)
@@ -850,6 +905,15 @@ CLEANFILES = *.mod\
 
 if ENABLE_CUDA
 CLEANFILES += @top_builddir@/libtool_cuda
+endif
+
+if ENABLE_NVSHMEM
+CLEANFILES += \
+	gs/bcknd/device/cuda/gs_nvshmem_rdc.lo\
+	gs/bcknd/device/cuda/gs_nvshmem_rdc.o\
+	gs/bcknd/device/cuda/.libs/gs_nvshmem_rdc.o\
+	gs/bcknd/device/cuda/gs_nvshmem_dlink.lo\
+	gs/bcknd/device/cuda/.libs/gs_nvshmem_dlink.o
 endif
 
 if ENABLE_METAL
@@ -921,12 +985,14 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/projection_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
-	fluid/bcknd/device/cuda/euler_res_kernel.h\
+	fluid/bcknd/device/cuda/compressible_res_kernel.h\
 	fluid/bcknd/device/cuda/compressible_ops_kernel.h\
 	fluid/regularization/bcknd/device/cuda/entropy_viscosity_kernel.h\
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
+	lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h\
+	lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h\
 	les/bcknd/device/cuda/sigma_nut_kernel.h\
 	les/bcknd/device/cuda/vreman_nut_kernel.h\
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
@@ -973,7 +1039,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/projection_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
-	fluid/bcknd/device/hip/euler_res_kernel.h\
+	fluid/bcknd/device/hip/compressible_res_kernel.h\
 	fluid/bcknd/device/hip/compressible_ops_kernel.h\
 	fluid/regularization/bcknd/device/hip/entropy_viscosity_kernel.h\
 	fluid/stress_formulation/bcknd/device/hip/prs_stress_res_kernel.h\
@@ -987,6 +1053,8 @@ EXTRA_DIST = \
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\
+	lpt/bcknd/device/hip/lpt_periodic_bc_kernel.h\
+	lpt/bcknd/device/hip/lpt_wall_collision_kernel.h\
 	les/bcknd/device/hip/sigma_nut_kernel.h\
 	les/bcknd/device/hip/vreman_nut_kernel.h\
 	les/bcknd/device/hip/smagorinsky_nut_kernel.h\
@@ -1027,7 +1095,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/rotate_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
-	fluid/bcknd/device/opencl/euler_res_kernel.cl\
+	fluid/bcknd/device/opencl/compressible_res_kernel.cl\
 	fluid/stress_formulation/bcknd/device/opencl/prs_stress_res_kernel.cl\
 	fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed_kernel.cl\
 	fluid/bcknd/device/opencl/compressible_ops_compute_entropy_kernel.cl\
@@ -1067,7 +1135,7 @@ EXTRA_DIST = \
 	scalar/bcknd/device/metal/scalar_residual_update_kernel.metal\
 	math/bcknd/device/metal/mathops_kernel.metal\
 	common/bcknd/device/metal/rhs_maker_kernel.metal\
-	fluid/bcknd/device/metal/euler_res_kernel.metal\
+	fluid/bcknd/device/metal/compressible_res_kernel.metal\
 	fluid/bcknd/device/metal/pnpn_res_kernel.metal\
 	fluid/bcknd/device/metal/compressible_ops_kernel.metal\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity_kernel.metal\
@@ -1112,11 +1180,11 @@ include .depends_device
 include .depends_turboneko
 
 # CUDA Build rules
-.cu.lo: @top_builddir@/libtool_cuda
+.cu.lo:
 	$(SHELL) @top_builddir@/libtool_cuda --tag=CC --mode=compile $(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
 
-libtool_cuda:
-	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_builddir@/libtool > @top_builddir@/libtool_cuda
+@top_builddir@/libtool_cuda: @top_builddir@/libtool
+	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_builddir@/libtool > $@
 
 # HIP Build rules
 .hip.lo:

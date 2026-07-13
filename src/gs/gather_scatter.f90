@@ -40,11 +40,13 @@ module gather_scatter
   use gs_cpu, only : gs_cpu_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
-       GS_COMM_NVSHMEM, GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR
+       GS_COMM_NVSHMEM, GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR, &
+       GS_COMM_UTOFU, GS_VEC_NC
   use gs_mpi, only : gs_mpi_t
   use gs_neighbour, only : gs_neighbour_t
   use gs_shmem, only : gs_shmem_t
   use gs_caf, only : gs_caf_t
+  use gs_utofu, only : gs_utofu_t
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
   use gs_device_shmem, only : gs_device_shmem_t
@@ -54,7 +56,7 @@ module gather_scatter
        MPI_Wtime, MPI_SUM, MPI_INTEGER, MPI_INTEGER8
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types, only : rp, dp, i8
+  use num_types, only : rp, dp, i2, i8, c_rp
   use htable, only : htable_i8_t, htable_iter_i8_t
   use stack, only : stack_i4_t, stack_i8_t
   use crystal_router, only : crystal_router_transfer, crystal_router_pack
@@ -62,13 +64,21 @@ module gather_scatter
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_sync, device_map, &
-       device_unmap
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_DEVICE, &
+       device_sync, device_map, device_unmap, device_get_ptr, &
+       device_event_record, device_deassociate
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_intptr_t, &
+       c_sizeof, c_associated, c_size_t
   !$ use omp_lib, only : omp_get_thread_num
   implicit none
   private
 
+  !> Gather-scatter kernel
+  !! @note A gs_t instance is not re-entrant: each object owns mutable
+  !! scratch buffers, backend device state and communication state that are
+  !! reused by every gather-scatter operation. Concurrent calls to @a op on
+  !! the same object must be serialised by the caller (or use one object
+  !! per thread).
   type, public :: gs_t
      real(kind=rp), allocatable :: local_gs(:) !< Buffer for local gs-ops
      integer, allocatable :: local_dof_gs(:) !< Local dof to gs mapping
@@ -76,6 +86,11 @@ module gather_scatter
      integer, allocatable :: local_blk_len(:) !< Local non-facet blocks
      integer, allocatable :: local_blk_off(:) !< Local non-facet blocks offset
      real(kind=rp), allocatable :: shared_gs(:) !< Buffer for shared gs-op
+     !> Compact multi-component shared buffer for the fused vector gs (gs_op_r3),
+     !! sized GS_VEC_NC*nshared, component-outer. On device it is device-mapped
+     !! and the fused exchange operates on its device pointer.
+     real(kind=rp), allocatable :: shared_gs_v(:)
+     type(c_ptr) :: shared_gs_v_d = C_NULL_PTR !< Dev. ptr for shared_gs_v
      integer, allocatable :: shared_dof_gs(:) !< Shared dof to gs map.
      integer, allocatable :: shared_gs_dof(:) !< Shared gs to dof map.
      integer, allocatable :: shared_blk_len(:) !< Shared non-facet blocks
@@ -94,9 +109,12 @@ module gather_scatter
      procedure, private, pass(gs) :: gs_op_fld
      procedure, private, pass(gs) :: gs_op_r4
      procedure, pass(gs) :: gs_op_vector
+     procedure, pass(gs) :: gs_op_r3
+     procedure, pass(gs) :: gs_op_vector3
      procedure, pass(gs) :: init => gs_init
      procedure, pass(gs) :: free => gs_free
-     generic :: op => gs_op_fld, gs_op_r4, gs_op_vector
+     generic :: op => gs_op_fld, gs_op_r4, gs_op_vector, gs_op_r3, &
+          gs_op_vector3
   end type gs_t
 
   ! Expose available gather-scatter operation
@@ -107,8 +125,7 @@ module gather_scatter
 
   ! Expose available gather-scatter comm. backends
   public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM, &
-       GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR
-
+       GS_COMM_OPENSHMEM, GS_COMM_CAF, GS_COMM_NEIGHBOUR, GS_COMM_UTOFU
 
 contains
 
@@ -128,6 +145,7 @@ contains
     logical :: use_host_shmem
     logical :: use_caf
     logical :: use_neighbour
+    logical :: use_utofu
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
     integer :: strtgy(4) = [int(B'00'), int(B'01'), int(B'10'), int(B'11')]
@@ -149,6 +167,7 @@ contains
     use_host_shmem = .false.
     use_caf = .false.
     use_neighbour = .false.
+    use_utofu = .false.
 
     ! Check if a comm-backend is requested via env. variables
     call get_environment_variable("NEKO_GS_COMM", env_gscomm, env_len)
@@ -170,6 +189,8 @@ contains
        else if (env_gscomm(1:env_len) .eq. "NEIGHBOUR" .or. &
             env_gscomm(1:env_len) .eq. "NEIGHBOR") then
           use_neighbour = .true.
+       else if (env_gscomm(1:env_len) .eq. "UTOFU") then
+          use_utofu = .true.
        else
           call neko_error('Unknown Gather-scatter comm. backend')
        end if
@@ -192,8 +213,8 @@ contains
        comm_bcknd_ = GS_COMM_CAF
     else if (use_neighbour) then
        comm_bcknd_ = GS_COMM_NEIGHBOUR
-    else if (use_neighbour) then
-       comm_bcknd_ = GS_COMM_NEIGHBOUR
+    else if (use_utofu) then
+       comm_bcknd_ = GS_COMM_UTOFU
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
@@ -225,6 +246,9 @@ contains
     case (GS_COMM_NEIGHBOUR)
        call neko_log%message('Comm         :   MPI neigh.')
        allocate(gs_neighbour_t::gs%comm)
+    case (GS_COMM_UTOFU)
+       call neko_log%message('Comm         :        uTofu')
+       allocate(gs_utofu_t::gs%comm)
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select
@@ -309,11 +333,12 @@ contains
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
+    ! Plain base-type assignment; setting this through a
+    ! select type (gs_device_t) miscompiles with CCE 21 at -O2/-O3,
+    ! silently leaving shared points on the host so that the scatter
+    ! overwrites the unpacked halo data with the stale host buffer
     if (use_device_mpi .or. use_device_nccl .or. use_device_shmem) then
-       select type (b => gs%bcknd)
-       type is (gs_device_t)
-          b%shared_on_host = .false.
-       end select
+       gs%bcknd%shared_on_host = .false.
     end if
 
     if (use_device_mpi) then
@@ -385,43 +410,83 @@ contains
 
     nullify(gs%dofmap)
 
+    ! The device backend lazily maps these arrays in gather/scatter,
+    ! and its free only releases the device side; remove any stale
+    ! address table entries before deallocating the host side
     if (allocated(gs%local_gs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_gs)
+       end if
        deallocate(gs%local_gs)
     end if
 
     if (allocated(gs%local_dof_gs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_dof_gs)
+       end if
        deallocate(gs%local_dof_gs)
     end if
 
     if (allocated(gs%local_gs_dof)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_gs_dof)
+       end if
        deallocate(gs%local_gs_dof)
     end if
 
     if (allocated(gs%local_blk_len)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_blk_len)
+       end if
        deallocate(gs%local_blk_len)
     end if
 
     if (allocated(gs%local_blk_off)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%local_blk_off)
+       end if
        deallocate(gs%local_blk_off)
     end if
 
     if (allocated(gs%shared_gs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_gs)
+       end if
        deallocate(gs%shared_gs)
     end if
 
+    if (allocated(gs%shared_gs_v)) then
+       if (NEKO_BCKND_DEVICE .eq. 1 .and. c_associated(gs%shared_gs_v_d)) then
+          call device_unmap(gs%shared_gs_v, gs%shared_gs_v_d)
+       end if
+       deallocate(gs%shared_gs_v)
+    end if
+
     if (allocated(gs%shared_dof_gs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_dof_gs)
+       end if
        deallocate(gs%shared_dof_gs)
     end if
 
     if (allocated(gs%shared_gs_dof)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_gs_dof)
+       end if
        deallocate(gs%shared_gs_dof)
     end if
 
     if (allocated(gs%shared_blk_len)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_blk_len)
+       end if
        deallocate(gs%shared_blk_len)
     end if
 
     if (allocated(gs%shared_blk_off)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_deassociate(gs%shared_blk_off)
+       end if
        deallocate(gs%shared_blk_off)
     end if
 
@@ -1181,6 +1246,14 @@ contains
     ! Allocate buffer for shared gs-ops
     allocate(gs%shared_gs(gs%nshared))
 
+    ! Compact multi-component shared buffer for the fused vector gs. On the
+    ! device it is mapped so the fused exchange can use its device pointer.
+    allocate(gs%shared_gs_v(max(1, GS_VEC_NC * gs%nshared)))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(gs%shared_gs_v, gs%shared_gs_v_d, &
+            max(1, GS_VEC_NC * gs%nshared))
+    end if
+
     if (gs%nshared .gt. 0) then
        call gs_qsort_dofmap(gs%shared_dof_gs, gs%shared_gs_dof, &
             gs%nshared, 1, gs%nshared)
@@ -1607,5 +1680,297 @@ contains
     call profiler_end_region("gather_scatter", 5)
     !$omp end parallel
   end subroutine gs_op_vector
+
+  !> Gather-scatter operation on a 3-component vector of rank-4 arrays
+  !! (@a u1, @a u2, @a u3) with op @a op; see gs_op_vector3.
+  subroutine gs_op_r3(gs, u1, u2, u3, n, op, event)
+    class(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: u1, u2, u3
+    type(c_ptr), optional, intent(inout) :: event
+    integer :: op
+
+    if (present(event)) then
+       call gs_op_vector3(gs, u1, u2, u3, n, op, event)
+    else
+       call gs_op_vector3(gs, u1, u2, u3, n, op)
+    end if
+
+  end subroutine gs_op_r3
+
+  !> Gather-scatter operation on a 3-component vector (@a u1, @a u2, @a u3)
+  !! with op @a op. When the comm backend supports a fused vector halo
+  !! exchange, the three components are communicated in a single round;
+  !! otherwise this falls back to three independent scalar gs_op_vector
+  !! calls (identical result, 3 rounds). The on-node gather/scatter is
+  !! always done per component (scalar), so only the communication cost is
+  !! reduced. On device backends the caller's event is recorded once, after
+  !! the last component's scatter (or superseded by hard synchronisation on
+  !! host-mirrored comms), so a single event sync covers all components.
+  subroutine gs_op_vector3(gs, u1, u2, u3, n, op, event)
+    class(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: u1, u2, u3
+    type(c_ptr), optional, intent(inout) :: event
+    integer :: m, l, op, lo, so, tid
+    integer, parameter :: nc = 3
+    type(c_ptr) :: scatter_event
+
+    ! Fall back to nc independent scalar exchanges when the comm backend has
+    ! no fused vector path.
+    if (.not. gs%comm%vec_supported) then
+       if (present(event)) then
+          call gs_op_vector(gs, u1, n, op, event)
+          call gs_op_vector(gs, u2, n, op, event)
+          call gs_op_vector(gs, u3, n, op, event)
+       else
+          call gs_op_vector(gs, u1, n, op)
+          call gs_op_vector(gs, u2, n, op)
+          call gs_op_vector(gs, u3, n, op)
+       end if
+       return
+    end if
+
+    lo = gs%local_facet_offset
+    so = -gs%shared_facet_offset
+    m = gs%nlocal
+    l = gs%nshared
+
+    tid = 0
+    !$ tid = omp_get_thread_num()
+
+    scatter_event = C_NULL_PTR
+    if (present(event)) scatter_event = event
+
+    if (NEKO_BCKND_DEVICE .eq. 0) then
+
+       !$omp parallel
+       call profiler_start_region("gather_scatter", 5)
+
+       ! Gather each component's shared dofs directly into its column of
+       ! shared_gs_v (the host backends write the actual argument), then
+       ! launch ONE fused exchange covering all nc components.
+       if (pe_size .gt. 1 .and. n .gt. 0) then
+          call gs%comm%nbrecv_vec(tid, nc)
+          call gs%bcknd%gather(gs%shared_gs_v(1), l, so, gs%shared_dof_gs, &
+               u1, n, gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+               gs%shared_blk_off, op, .true.)
+          call gs%bcknd%gather(gs%shared_gs_v(l + 1), l, so, &
+               gs%shared_dof_gs, u2, n, gs%shared_gs_dof, gs%nshared_blks, &
+               gs%shared_blk_len, gs%shared_blk_off, op, .true.)
+          call gs%bcknd%gather(gs%shared_gs_v(2*l + 1), l, so, &
+               gs%shared_dof_gs, u3, n, gs%shared_gs_dof, gs%nshared_blks, &
+               gs%shared_blk_len, gs%shared_blk_off, op, .true.)
+          call gs%comm%nbsend_vec(gs%shared_gs_v, l, nc, tid, &
+               gs%bcknd%gather_event, gs%bcknd%gs_stream)
+       end if
+
+       ! Local gather-scatter, one scalar pass per component (reuses local_gs;
+       ! the internal barriers make the sequential reuse safe).
+       call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u1, n, &
+            gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+            gs%local_blk_off, op, .false.)
+       call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u1, n, &
+            gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+            gs%local_blk_off, .false., C_NULL_PTR)
+       call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u2, n, &
+            gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+            gs%local_blk_off, op, .false.)
+       call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u2, n, &
+            gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+            gs%local_blk_off, .false., C_NULL_PTR)
+       call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u3, n, &
+            gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+            gs%local_blk_off, op, .false.)
+       call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u3, n, &
+            gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, &
+            gs%local_blk_off, .false., C_NULL_PTR)
+
+       ! Wait for the fused exchange and scatter each component back.
+       if (pe_size .gt. 1 .and. n .gt. 0) then
+          call gs%comm%nbwait_vec(gs%shared_gs_v, l, nc, op, &
+               gs%bcknd%gs_stream)
+          call gs%bcknd%scatter(gs%shared_gs_v(1), l, gs%shared_dof_gs, u1, &
+               n, gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+               gs%shared_blk_off, .true., scatter_event)
+          call gs%bcknd%scatter(gs%shared_gs_v(l + 1), l, gs%shared_dof_gs, &
+               u2, n, gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+               gs%shared_blk_off, .true., scatter_event)
+          call gs%bcknd%scatter(gs%shared_gs_v(2*l + 1), l, &
+               gs%shared_dof_gs, u3, n, gs%shared_gs_dof, gs%nshared_blks, &
+               gs%shared_blk_len, gs%shared_blk_off, .true., scatter_event)
+       end if
+
+       call profiler_end_region("gather_scatter", 5)
+       !$omp end parallel
+
+    else
+
+       call gs_op_r3_device(gs, u1, u2, u3, n, op, nc, lo, so, m, l, tid, &
+            scatter_event)
+
+    end if
+
+  end subroutine gs_op_vector3
+
+  !> Device path for the fused 3-component gs. The device backend's shared
+  !! gather/scatter always operate on its internal shared buffer, so each
+  !! component is staged between that buffer and its column of the compact
+  !! vector buffer gs%shared_gs_v: through the host mirror when the comm
+  !! backend is a host backend (shared_on_host, e.g. OpenCL/Metal or a device
+  !! build with host MPI), or with device-to-device copies when the comm is
+  !! device-resident (device MPI/NCCL/NVSHMEM). Apart from the column staging
+  !! the two modes are identical; the comm backends transparently pick the
+  !! host array or its device pointer, as in gs_op_vector.
+  subroutine gs_op_r3_device(gs, u1, u2, u3, n, op, nc, lo, so, m, l, tid, &
+       scatter_event)
+    class(gs_t), intent(inout) :: gs
+    integer, intent(in) :: n, op, nc, lo, so, m, l, tid
+    real(kind=rp), dimension(n), intent(inout) :: u1, u2, u3
+    type(c_ptr), intent(inout) :: scatter_event
+    type(c_ptr) :: sgs_d, col_d, col_event
+    integer(c_intptr_t) :: sv_addr, off_bytes
+    integer(c_size_t) :: colbytes
+    real(c_rp) :: rp_dummy
+    logical :: on_host
+
+    on_host = .true.
+    sgs_d = C_NULL_PTR
+    select type (b => gs%bcknd)
+    type is (gs_device_t)
+       on_host = b%shared_on_host
+       sgs_d = b%shared_gs_d
+    end select
+
+    sv_addr = transfer(gs%shared_gs_v_d, sv_addr)
+    colbytes = c_sizeof(rp_dummy) * int(l, c_size_t)
+    off_bytes = int(l, c_intptr_t) * int(c_sizeof(rp_dummy), c_intptr_t)
+
+    ! With a host-mirrored shared buffer, each scatter below issues an
+    ! asynchronous host-to-device copy of shared_gs; a null event makes the
+    ! scatter sync so the next column may safely overwrite the host buffer.
+    ! Device-resident staging is stream-ordered and carries the caller's
+    ! event.
+    if (on_host) then
+       col_event = C_NULL_PTR
+    else
+       col_event = scatter_event
+    end if
+
+    if (pe_size .gt. 1 .and. n .gt. 0) then
+       call gs%comm%nbrecv_vec(tid, nc)
+
+       ! Gather each component into the backend's shared buffer, then stage
+       ! it into its column of shared_gs_v.
+       call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u1, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+            gs%shared_blk_off, op, .true.)
+       if (on_host) then
+          ! The gather mirrored the shared buffer to the host (synchronous).
+          gs%shared_gs_v(1:l) = gs%shared_gs(1:l)
+       else
+          ! shared_gs_d is created lazily on the first gather.
+          if (.not. c_associated(sgs_d)) then
+             select type (b => gs%bcknd)
+             type is (gs_device_t)
+                sgs_d = b%shared_gs_d
+             end select
+          end if
+          col_d = transfer(sv_addr, col_d)
+          call device_memcpy(col_d, sgs_d, colbytes, DEVICE_TO_DEVICE, &
+               sync = .false., strm = gs%bcknd%gs_stream)
+       end if
+
+       call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u2, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+            gs%shared_blk_off, op, .true.)
+       if (on_host) then
+          gs%shared_gs_v(l + 1:2*l) = gs%shared_gs(1:l)
+       else
+          col_d = transfer(sv_addr + off_bytes, col_d)
+          call device_memcpy(col_d, sgs_d, colbytes, DEVICE_TO_DEVICE, &
+               sync = .false., strm = gs%bcknd%gs_stream)
+       end if
+
+       call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u3, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+            gs%shared_blk_off, op, .true.)
+       if (on_host) then
+          gs%shared_gs_v(2*l + 1:3*l) = gs%shared_gs(1:l)
+       else
+          col_d = transfer(sv_addr + 2_c_intptr_t*off_bytes, col_d)
+          call device_memcpy(col_d, sgs_d, colbytes, DEVICE_TO_DEVICE, &
+               sync = .false., strm = gs%bcknd%gs_stream)
+          ! Re-record the gather event so it covers the column copies above.
+          ! Comm backends that order their per-peer packing streams on this
+          ! event (NCCL, NVSHMEM) would otherwise race with the copies; the
+          ! device MPI backend packs on gs_stream itself and is unaffected.
+          call device_event_record(gs%bcknd%gather_event, gs%bcknd%gs_stream)
+       end if
+
+       call gs%comm%nbsend_vec(gs%shared_gs_v, l, nc, tid, &
+            gs%bcknd%gather_event, gs%bcknd%gs_stream)
+    end if
+
+    ! Local gather-scatter per component.
+    call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u1, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
+         op, .false.)
+    call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u1, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
+         .false., C_NULL_PTR)
+    call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u2, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
+         op, .false.)
+    call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u2, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
+         .false., C_NULL_PTR)
+    call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u3, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
+         op, .false.)
+    call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u3, n, &
+         gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
+         .false., C_NULL_PTR)
+
+    ! Wait for the fused exchange (reduces into shared_gs_v), then stage each
+    ! column back into the shared buffer and scatter.
+    if (pe_size .gt. 1 .and. n .gt. 0) then
+       call gs%comm%nbwait_vec(gs%shared_gs_v, l, nc, op, gs%bcknd%gs_stream)
+
+       if (on_host) then
+          gs%shared_gs(1:l) = gs%shared_gs_v(1:l)
+       else
+          col_d = transfer(sv_addr, col_d)
+          call device_memcpy(sgs_d, col_d, colbytes, DEVICE_TO_DEVICE, &
+               sync = .false., strm = gs%bcknd%gs_stream)
+       end if
+       call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u1, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+            gs%shared_blk_off, .true., col_event)
+
+       if (on_host) then
+          gs%shared_gs(1:l) = gs%shared_gs_v(l + 1:2*l)
+       else
+          col_d = transfer(sv_addr + off_bytes, col_d)
+          call device_memcpy(sgs_d, col_d, colbytes, DEVICE_TO_DEVICE, &
+               sync = .false., strm = gs%bcknd%gs_stream)
+       end if
+       call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u2, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+            gs%shared_blk_off, .true., col_event)
+
+       if (on_host) then
+          gs%shared_gs(1:l) = gs%shared_gs_v(2*l + 1:3*l)
+       else
+          col_d = transfer(sv_addr + 2_c_intptr_t*off_bytes, col_d)
+          call device_memcpy(sgs_d, col_d, colbytes, DEVICE_TO_DEVICE, &
+               sync = .false., strm = gs%bcknd%gs_stream)
+       end if
+       call gs%bcknd%scatter(gs%shared_gs, l, gs%shared_dof_gs, u3, n, &
+            gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, &
+            gs%shared_blk_off, .true., col_event)
+    end if
+
+  end subroutine gs_op_r3_device
 
 end module gather_scatter
