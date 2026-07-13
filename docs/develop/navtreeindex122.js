@@ -1,5 +1,9 @@
 var NAVTREEINDEX122 =
 {
+"df/df1/structspalding_1_1spalding__t.html#ab923c1e4c9d107ddf98fd72dd12847b4":[1,0,369,0,40],
+"df/df1/structspalding_1_1spalding__t.html#ac756522c2b8a27ee956b3a5367ac961e":[2,0,314,0,23],
+"df/df1/structspalding_1_1spalding__t.html#ac756522c2b8a27ee956b3a5367ac961e":[1,0,369,0,23],
+"df/df1/structspalding_1_1spalding__t.html#ac81307126c62f9f1f15f4683ab474b26":[2,0,314,0,33],
 "df/df1/structspalding_1_1spalding__t.html#ac81307126c62f9f1f15f4683ab474b26":[1,0,369,0,33],
 "df/df1/structspalding_1_1spalding__t.html#acaa5de2706b080f7358dc4d4811c697d":[1,0,369,0,46],
 "df/df1/structspalding_1_1spalding__t.html#acaa5de2706b080f7358dc4d4811c697d":[2,0,314,0,46],
@@ -245,9 +249,5 @@ var NAVTREEINDEX122 =
 "dir_9c6b613226289d4f549a5bc7de136af8.html":[3,0,3,22],
 "dir_a1c99f91a79f7bf548f96fca73db34ee.html":[3,0,3,18,0,0],
 "dir_a37eab83353f81cec631cb1cae63e167.html":[3,0,3,18,0,2],
-"dir_a40e73c31c8e12c33f36558961bd9674.html":[3,0,3,3,0,0,1],
-"dir_a54a76f3f931e6cceee52e3a5311a9de.html":[3,0,3,16,0,1],
-"dir_a753435b69305af25b1972a8c16b18f4.html":[3,0,3,18,0,1,3],
-"dir_a89e409dbd01ad4965150a75b2f35372.html":[3,0,3,21,0],
-"dir_a9823a9d26cde438c507dbaae9f44c0c.html":[3,0,3,11,2,0,1,2]
+"dir_a40e73c31c8e12c33f36558961bd9674.html":[3,0,3,3,0,0,1]
 };

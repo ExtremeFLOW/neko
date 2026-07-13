@@ -42,5 +42,6 @@ var searchData=
   ['ax_5fhelm_5ffull_5fkernel_2eh_39',['ax_helm_full_kernel.h',['../d0/d7e/cuda_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)'],['../df/d1b/hip_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)']]],
   ['ax_5fhelm_5fkernel_2eh_40',['ax_helm_kernel.h',['../db/d6f/cuda_2ax__helm__kernel_8h.html',1,'(Global Namespace)'],['../d6/da8/hip_2ax__helm__kernel_8h.html',1,'(Global Namespace)']]],
   ['ax_5fhelm_5fsx_2ef90_41',['ax_helm_sx.f90',['../dd/d7b/ax__helm__sx_8f90.html',1,'']]],
-  ['ax_5fhelm_5fxsmm_2ef90_42',['ax_helm_xsmm.F90',['../dd/de0/ax__helm__xsmm_8F90.html',1,'']]]
+  ['ax_5fhelm_5fvector_5fcpu_2ef90_42',['ax_helm_vector_cpu.f90',['../d5/dc8/ax__helm__vector__cpu_8f90.html',1,'']]],
+  ['ax_5fhelm_5fxsmm_2ef90_43',['ax_helm_xsmm.F90',['../dd/de0/ax__helm__xsmm_8F90.html',1,'']]]
 ];

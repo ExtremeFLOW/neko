@@ -1,5 +1,9 @@
 var NAVTREEINDEX121 =
 {
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a896224ab8a3c1d19a08a816447f1f8f3":[1,0,119,0,27],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a896224ab8a3c1d19a08a816447f1f8f3":[2,0,103,0,27],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a89812d676f46cff3f93e987aed40a3de":[1,0,119,0,21],
+"df/dd9/structdirichlet_1_1dirichlet__t.html#a89812d676f46cff3f93e987aed40a3de":[2,0,103,0,21],
 "df/dd9/structdirichlet_1_1dirichlet__t.html#a9dc8c42ed6136c62d4df3e3f2a694eba":[1,0,119,0,24],
 "df/dd9/structdirichlet_1_1dirichlet__t.html#a9dc8c42ed6136c62d4df3e3f2a694eba":[2,0,103,0,24],
 "df/dd9/structdirichlet_1_1dirichlet__t.html#aa41e41065c9e29dc8cf48f739eeff18a":[1,0,119,0,37],
@@ -245,9 +249,5 @@ var NAVTREEINDEX121 =
 "df/df1/structspalding_1_1spalding__t.html#ab3c18e9684f1b92453b0d237c96ef324":[1,0,369,0,30],
 "df/df1/structspalding_1_1spalding__t.html#ab48b23df2ca076c71e4cb176dc777183":[1,0,369,0,42],
 "df/df1/structspalding_1_1spalding__t.html#ab48b23df2ca076c71e4cb176dc777183":[2,0,314,0,42],
-"df/df1/structspalding_1_1spalding__t.html#ab923c1e4c9d107ddf98fd72dd12847b4":[2,0,314,0,40],
-"df/df1/structspalding_1_1spalding__t.html#ab923c1e4c9d107ddf98fd72dd12847b4":[1,0,369,0,40],
-"df/df1/structspalding_1_1spalding__t.html#ac756522c2b8a27ee956b3a5367ac961e":[2,0,314,0,23],
-"df/df1/structspalding_1_1spalding__t.html#ac756522c2b8a27ee956b3a5367ac961e":[1,0,369,0,23],
-"df/df1/structspalding_1_1spalding__t.html#ac81307126c62f9f1f15f4683ab474b26":[2,0,314,0,33]
+"df/df1/structspalding_1_1spalding__t.html#ab923c1e4c9d107ddf98fd72dd12847b4":[2,0,314,0,40]
 };
