@@ -13,6 +13,14 @@
   use vector
   use math
   use global_interpolation
+  use coefs, only : coef_t
+  use gather_scatter, only : gs_t
+  use point, only : point_t
+  use datadist, only : linear_dist_t
+  use wall_gll_sampler, only : wall_gll_sampler_t
+  use wall_distance_sampler, only : wall_distance_sampler_t
+  use utils, only : linear_index
+  use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
   use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
   use neko_config
   use neko_mpi_types
@@ -50,6 +58,45 @@ contains
     call mesh_file%read(msh)
   
   end subroutine test_glob_interp_gen_msh
+
+  !> Create a single affine element spanning [1, 2]^3.
+  subroutine test_wall_sampler_gen_coef(msh, Xh, dof, gs, coef, lx)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(dofmap_t), intent(inout) :: dof
+    type(gs_t), intent(inout) :: gs
+    type(coef_t), intent(inout) :: coef
+    integer, intent(in) :: lx
+    type(point_t) :: p(8)
+    type(linear_dist_t) :: dist
+
+    call p(1)%init(1.0_rp, 1.0_rp, 1.0_rp)
+    call p(2)%init(2.0_rp, 1.0_rp, 1.0_rp)
+    call p(3)%init(1.0_rp, 2.0_rp, 1.0_rp)
+    call p(4)%init(2.0_rp, 2.0_rp, 1.0_rp)
+    call p(5)%init(1.0_rp, 1.0_rp, 2.0_rp)
+    call p(6)%init(2.0_rp, 1.0_rp, 2.0_rp)
+    call p(7)%init(1.0_rp, 2.0_rp, 2.0_rp)
+    call p(8)%init(2.0_rp, 2.0_rp, 2.0_rp)
+    call p(1)%set_id(1)
+    call p(2)%set_id(2)
+    call p(3)%set_id(4)
+    call p(4)%set_id(3)
+    call p(5)%set_id(5)
+    call p(6)%set_id(6)
+    call p(7)%set_id(7)
+    call p(8)%set_id(8)
+
+    dist = linear_dist_t(1, pe_rank, pe_size, NEKO_COMM)
+    call msh%init(3, dist)
+    call msh%add_element(1, 1, p(1), p(2), p(3), p(4), &
+         p(5), p(6), p(7), p(8))
+    call msh%generate_conn()
+    call Xh%init(GLL, lx, lx, lx)
+    call dof%init(msh, Xh)
+    call gs%init(dof)
+    call coef%init(gs)
+  end subroutine test_wall_sampler_gen_coef
   
   @test(npes=[2])
   subroutine test_glob_interp_init(this)
@@ -417,6 +464,84 @@ contains
      
     call glob_interp%free()
   end subroutine test_glob_interp_outside
+
+  @test(npes=[1])
+  subroutine test_wall_samplers(this)
+    class(test_glob_interp), intent(inout) :: this
+    integer, parameter :: lx = 4
+    type(mesh_t) :: msh
+    type(space_t) :: Xh
+    type(dofmap_t) :: dof
+    type(gs_t) :: gs
+    type(coef_t) :: coef
+    type(field_t) :: field
+    type(vector_t) :: values, n_x, n_y, n_z
+    type(wall_gll_sampler_t) :: gll_sampler
+    type(wall_distance_sampler_t) :: distance_sampler
+    integer :: ierr
+    integer :: msk(0:1), facet(0:1)
+    real(kind=rp) :: expected(2)
+    real(kind=rp), parameter :: distance = 0.25_rp
+    real(kind=rp), parameter :: tol = 1.0e-10_rp
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call test_wall_sampler_gen_coef(msh, Xh, dof, gs, coef, lx)
+
+    msk = [1, linear_index(1, 2, 2, 1, lx, lx, lx)]
+    facet = [1, 1]
+    call n_x%init(1)
+    call n_y%init(1)
+    call n_z%init(1)
+    n_x%x = -1.0_rp
+    n_y%x = 0.0_rp
+    n_z%x = 0.0_rp
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call n_x%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call n_y%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call n_z%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    call field%init(coef%dof)
+    field%x = coef%dof%x
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call field%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    call gll_sampler%init_from_indices([1, 2])
+    call gll_sampler%finalize(coef, msk, facet, n_x, n_y, n_z)
+    call values%init(2)
+    call gll_sampler%sample(field, values)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call values%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+    @assertEqual(values%x(1), coef%dof%x(2, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(2), coef%dof%x(3, 2, 2, 1), tolerance=tol)
+    expected(1) = coef%dof%x(2, 2, 2, 1) - 1.0_rp
+    expected(2) = coef%dof%x(3, 2, 2, 1) - 1.0_rp
+    @assertEqual(gll_sampler%h%x(1), expected(1), tolerance=tol)
+    @assertEqual(gll_sampler%h%x(2), expected(2), tolerance=tol)
+    call values%free()
+    call gll_sampler%free()
+
+    call distance_sampler%init_from_distances([distance])
+    call distance_sampler%finalize(coef, msk, facet, n_x, n_y, n_z)
+    call values%init(1)
+    call distance_sampler%sample(field, values)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call values%copy_from(DEVICE_TO_HOST, sync = .true.)
+    end if
+    @assertEqual(values%x(1), 1.0_rp + distance, tolerance=tol)
+    @assertEqual(distance_sampler%h%x(1), distance, tolerance=tol)
+
+    call distance_sampler%free()
+    call values%free()
+    call field%free()
+    call n_x%free()
+    call n_y%free()
+    call n_z%free()
+  end subroutine test_wall_samplers
  
 
 end module test_glob_interp_par

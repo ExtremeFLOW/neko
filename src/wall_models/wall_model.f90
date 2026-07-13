@@ -43,12 +43,10 @@ module wall_model
   use device, only : device_memcpy, HOST_TO_DEVICE
   use vector, only : vector_t
   use utils, only : neko_error, nonlinear_index
-  use math, only : glmin, glmax
-  use comm, only : pe_rank
-  use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
-  use file, only : file_t
+  use wall_sampler, only : wall_sampler_t
+  use wall_sampler_fctry, only : wall_sampler_factory
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
-  use device, only : device_map, device_unmap, device_get_ptr
+  use device, only : device_get_ptr
   use wall_model_device, only : wall_model_compute_mag_field_device
   use json_utils, only : json_get, json_get_or_lookup
   implicit none
@@ -85,22 +83,8 @@ module wall_model
      type(vector_t) :: n_y
      !> The z component of the normal.
      type(vector_t) :: n_z
-     !> The r indices of the sampling points
-     integer, allocatable :: ind_r(:)
-     type(c_ptr) :: ind_r_d = C_NULL_PTR
-     !> The s indices of the sampling points
-     integer, allocatable :: ind_s(:)
-     type(c_ptr) :: ind_s_d = C_NULL_PTR
-     !> The t indices of the sampling points
-     integer, allocatable :: ind_t(:)
-     type(c_ptr) :: ind_t_d = C_NULL_PTR
-     !> The element indices of the sampling points
-     integer, allocatable :: ind_e(:)
-     type(c_ptr) :: ind_e_d = C_NULL_PTR
-     !> The sampling height
-     type(vector_t) :: h
-     !> Sampling index
-     integer :: h_index = 0
+     !> Strategy used to sample solution fields away from the wall.
+     class(wall_sampler_t), allocatable :: sampler
      !> Number of nodes in the boundary
      integer :: n_nodes = 0
      !> The 3D field with the computed stress magnitude at the boundary.
@@ -132,8 +116,11 @@ module wall_model
      procedure(wall_model_free), pass(this), deferred :: free
      !> Compute the wall shear stress.
      procedure(wall_model_compute), pass(this), deferred :: compute
-     !> Find the sampling points based on the value of `h_index`.
-     procedure, pass(this) :: find_points => wall_model_find_points
+     !> Build geometry shared by wall models and samplers.
+     procedure, pass(this) :: setup_geometry => wall_model_setup_geometry
+     !> Verify that a model supports the configured number of samples.
+     procedure, pass(this) :: validate_single_sample => &
+          wall_model_validate_single_sample
   end type wall_model_t
 
   abstract interface
@@ -278,20 +265,23 @@ contains
   !! @param msk The underlying mask of the boundary condition.
   !! @param facet, The underlying facet index list of the boundary condition.
   !! @param scheme_name The name of the scheme for which the wall model is used.
-  !! @param index The off-wall index of the sampling point.
-  subroutine wall_model_init_base(this, scheme_name, coef, msk, facet, index)
+  !! @param sampler Configured sampling strategy; ownership is transferred.
+  subroutine wall_model_init_base(this, scheme_name, coef, msk, facet, sampler)
     class(wall_model_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     integer, target, intent(in) :: msk(0:)
     integer, target, intent(in) :: facet(0:)
     character(len=*) :: scheme_name
-    integer, intent(in) :: index
+    class(wall_sampler_t), allocatable, intent(inout) :: sampler
 
     call this%free_base
 
     this%coef => coef
     this%dof => coef%dof
-    this%h_index = index
+    if (.not. allocated(sampler)) then
+       call neko_error('Wall model sampler has not been initialized')
+    end if
+    call move_alloc(sampler, this%sampler)
     this%scheme_name = trim(scheme_name)
     this%mu => neko_registry%get_field_by_name(this%scheme_name // "_mu")
     this%rho => neko_registry%get_field_by_name(this%scheme_name // &
@@ -317,7 +307,7 @@ contains
 
     this%coef => coef
     this%dof => coef%dof
-    call json_get_or_lookup(json, "h_index", this%h_index)
+    call wall_sampler_factory(this%sampler, json)
     call json_get(json, "scheme_name", this%scheme_name)
 
     this%mu => neko_registry%get_field_by_name(this%scheme_name // "_mu")
@@ -342,33 +332,16 @@ contains
     call this%tau_y%init(this%msk(0))
     call this%tau_z%init(this%msk(0))
 
-    allocate(this%ind_r(this%msk(0)))
-    allocate(this%ind_s(this%msk(0)))
-    allocate(this%ind_t(this%msk(0)))
-    allocate(this%ind_e(this%msk(0)))
-
-    call this%h%init(this%msk(0))
     call this%n_x%init(this%msk(0))
     call this%n_y%init(this%msk(0))
     call this%n_z%init(this%msk(0))
 
-    call this%find_points()
-
-    ! Initialize pointers for device
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%ind_r, this%ind_r_d, this%n_nodes)
-       call device_map(this%ind_s, this%ind_s_d, this%n_nodes)
-       call device_map(this%ind_t, this%ind_t_d, this%n_nodes)
-       call device_map(this%ind_e, this%ind_e_d, this%n_nodes)
-       call device_memcpy(this%ind_r, this%ind_r_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%ind_s, this%ind_s_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%ind_t, this%ind_t_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%ind_e, this%ind_e_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .false.)
+    call this%setup_geometry()
+    if (.not. allocated(this%sampler)) then
+       call neko_error('Wall model sampler has not been initialized')
     end if
+    call this%sampler%finalize(this%coef, this%msk, this%facet, &
+         this%n_x, this%n_y, this%n_z)
 
   end subroutine wall_model_finalize_base
 
@@ -388,39 +361,15 @@ contains
     call this%tau_y%free()
     call this%tau_z%free()
 
-
-    if (allocated(this%ind_r)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%ind_r, this%ind_r_d)
-       end if
-       deallocate(this%ind_r)
+    if (allocated(this%sampler)) then
+       call this%sampler%free()
+       deallocate(this%sampler)
     end if
-    if (allocated(this%ind_s)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%ind_s, this%ind_s_d)
-       end if
-       deallocate(this%ind_s)
-    end if
-    if (allocated(this%ind_t)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%ind_t, this%ind_t_d)
-       end if
-       deallocate(this%ind_t)
-    end if
-    if (allocated(this%ind_e)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%ind_e, this%ind_e_d)
-       end if
-       deallocate(this%ind_e)
-    end if
-
 
     if (allocated(this%scheme_name)) then
        deallocate(this%scheme_name)
     end if
 
-
-    call this%h%free()
     call this%n_x%free()
     call this%n_y%free()
     call this%n_z%free()
@@ -428,23 +377,14 @@ contains
     nullify(this%dof)
   end subroutine wall_model_free_base
 
-  !> Find sampling points based on the requested index.
-  subroutine wall_model_find_points(this)
+  !> Build wall-node normals independently of the sampling strategy.
+  subroutine wall_model_setup_geometry(this)
     class(wall_model_t), intent(inout) :: this
     integer :: n_nodes, fid, idx(4), i, linear
-    real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, magp
-    real(kind=rp) :: hmin, hmax
-    type(field_t), pointer :: h_field
-    type(file_t) :: h_file
-    character(len=LOG_SIZE), allocatable :: log_msg
+    real(kind=rp) :: normal(3)
 
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
-
-    call neko_registry%add_field(this%coef%dof, "sampling_height", &
-         ignore_existing = .true.)
-
-    h_field => neko_registry%get_field_by_name("sampling_height")
 
     do i = 1, n_nodes
        linear = this%msk(i)
@@ -457,84 +397,9 @@ contains
        this%n_y%x(i) = normal(2)
        this%n_z%x(i) = normal(3)
 
-       ! inward normal
-       normal = -normal
-
-       select case (fid)
-       case (1)
-          this%ind_r(i) = idx(1) + this%h_index
-          this%ind_s(i) = idx(2)
-          this%ind_t(i) = idx(3)
-       case (2)
-          this%ind_r(i) = idx(1) - this%h_index
-          this%ind_s(i) = idx(2)
-          this%ind_t(i) = idx(3)
-       case (3)
-          this%ind_r(i) = idx(1)
-          this%ind_s(i) = idx(2) + this%h_index
-          this%ind_t(i) = idx(3)
-       case (4)
-          this%ind_r(i) = idx(1)
-          this%ind_s(i) = idx(2) - this%h_index
-          this%ind_t(i) = idx(3)
-       case (5)
-          this%ind_r(i) = idx(1)
-          this%ind_s(i) = idx(2)
-          this%ind_t(i) = idx(3) + this%h_index
-       case (6)
-          this%ind_r(i) = idx(1)
-          this%ind_s(i) = idx(2)
-          this%ind_t(i) = idx(3) - this%h_index
-       case default
-          call neko_error("The face index is not correct ")
-       end select
-       this%ind_e(i) = idx(4)
-
-       ! Location of the wall node
-       xw = this%dof%x(idx(1), idx(2), idx(3), idx(4))
-       yw = this%dof%y(idx(1), idx(2), idx(3), idx(4))
-       zw = this%dof%z(idx(1), idx(2), idx(3), idx(4))
-
-       ! Location of the sampling point
-       x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-            this%ind_e(i))
-       y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-            this%ind_e(i))
-       z = this%dof%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-            this%ind_e(i))
-
-       ! Vector from the sampling point to the wall
-       p(1) = x - xw
-       p(2) = y - yw
-       p(3) = z - zw
-
-       ! Total distance to the sampling point
-       magp = sqrt(p(1)**2 + p(2)**2 + p(3)**2)
-
-       ! Project on the normal direction to get h
-       this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
-
-       h_field%x(linear,1,1,1) = this%h%x(i)
-
-       ! Look at how much the total distance distance from the normal and warn
-       ! if significant
-       if ((this%h%x(i) - magp) / magp > 0.1) then
-          write(log_msg,*) "Significant misalignment between wall normal and"
-          call neko_log%message(log_msg, NEKO_LOG_DEBUG)
-          write(log_msg,*) "sampling point direction at wall node", xw, yw, zw
-          call neko_log%message(log_msg, NEKO_LOG_DEBUG)
-       end if
     end do
 
-!    hmin = glmin(this%h%x, n_nodes)
-!    hmax = glmax(this%h%x, n_nodes)
-!    if (pe_rank .eq. 0) then
-!       write(*, "(A, F10.4, F10.4)") "   h min / max:", hmin, hmax
-!    end if
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
-            sync = .false.)
        call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
             sync = .false.)
        call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
@@ -543,11 +408,15 @@ contains
             sync = .true.)
     end if
 
-    ! Each wall_model bc will do a write unfortunately... But very helpful
-    ! for setup debugging.
-    call h_file%init("sampling_height.fld")
-    call h_file%write(h_field)
-  end subroutine wall_model_find_points
+  end subroutine wall_model_setup_geometry
+
+  subroutine wall_model_validate_single_sample(this)
+    class(wall_model_t), intent(inout) :: this
+
+    if (this%sampler%n_samples /= 1) then
+       call neko_error('This wall model requires exactly one sample per node')
+    end if
+  end subroutine wall_model_validate_single_sample
 
   subroutine wall_model_compute_mag_field(this)
     class(wall_model_t), intent(inout) :: this

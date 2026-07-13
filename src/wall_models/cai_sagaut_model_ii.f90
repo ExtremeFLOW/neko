@@ -39,6 +39,8 @@ module cai_sagaut_model_ii
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
+  use wall_sampler, only : wall_sampler_t
+  use wall_gll_sampler, only : wall_gll_sampler_t
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup, json_get_or_lookup_or_default
   use cai_sagaut_model_ii_cpu, only : cai_sagaut_model_ii_compute_cpu
@@ -67,6 +69,7 @@ module cai_sagaut_model_ii
      type(vector_t) :: nu
      !> The fluid density at the boundary.
      type(vector_t) :: rho_w
+     type(vector_t) :: u_s, v_s, w_s
    contains
      !> Initialise the wall model from the case file.
      procedure, pass(this) :: init => cai_sagaut_model_ii_init
@@ -139,6 +142,10 @@ contains
     call this%finalize_base(msk, facet)
     call this%nu%init(this%n_nodes)
     call this%rho_w%init(this%n_nodes)
+    call this%validate_single_sample()
+    call this%u_s%init(this%n_nodes)
+    call this%v_s%init(this%n_nodes)
+    call this%w_s%init(this%n_nodes)
   end subroutine cai_sagaut_model_ii_finalize
 
   !> Initialise the wall model from explicit components.
@@ -160,9 +167,15 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: kappa, B, p, s
+    class(wall_sampler_t), allocatable :: sampler
 
     call this%free()
-    call this%init_base(scheme_name, coef, msk, facet, h_index)
+    allocate(wall_gll_sampler_t :: sampler)
+    select type (sampler)
+    type is (wall_gll_sampler_t)
+       call sampler%init_from_indices([h_index])
+    end select
+    call this%init_base(scheme_name, coef, msk, facet, sampler)
 
     this%kappa = kappa
     this%B = B
@@ -171,6 +184,10 @@ contains
 
     call this%nu%init(this%n_nodes)
     call this%rho_w%init(this%n_nodes)
+    call this%validate_single_sample()
+    call this%u_s%init(this%n_nodes)
+    call this%v_s%init(this%n_nodes)
+    call this%w_s%init(this%n_nodes)
   end subroutine cai_sagaut_model_ii_init_from_components
 
   !> Gather viscosity and density values at the wall-model points.
@@ -203,6 +220,9 @@ contains
 
     call this%rho_w%free()
     call this%nu%free()
+    call this%u_s%free()
+    call this%v_s%free()
+    call this%w_s%free()
     call this%free_base()
   end subroutine cai_sagaut_model_ii_free
 
@@ -223,18 +243,24 @@ contains
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
 
+    call this%sampler%sample(u, this%u_s)
+    call this%sampler%sample(v, this%v_s)
+    call this%sampler%sample(w, this%w_s)
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call cai_sagaut_model_ii_compute_device(u%x_d, v%x_d, w%x_d, &
-            this%ind_r_d, this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+       call cai_sagaut_model_ii_compute_device(this%u_s%x_d, this%v_s%x_d, &
+            this%w_s%x_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, this%nu%x_d, &
-            this%rho_w%x_d, this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
-            this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, this%B, &
+            this%rho_w%x_d, this%sampler%h%x_d, this%tau_x%x_d, &
+            this%tau_y%x_d, &
+            this%tau_z%x_d, this%n_nodes, this%kappa, this%B, &
             this%p, this%s)
     else
-       call cai_sagaut_model_ii_compute_cpu(u%x, v%x, w%x, this%ind_r, &
-            this%ind_s, this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, &
-            this%n_z%x, this%nu%x, this%rho_w%x, this%h%x, this%tau_x%x, &
-            this%tau_y%x, this%tau_z%x, this%n_nodes, u%Xh%lx, u%msh%nelv, &
+       call cai_sagaut_model_ii_compute_cpu(this%u_s%x, this%v_s%x, &
+            this%w_s%x, this%n_x%x, this%n_y%x, &
+            this%n_z%x, this%nu%x, this%rho_w%x, this%sampler%h%x, &
+            this%tau_x%x, &
+            this%tau_y%x, this%tau_z%x, this%n_nodes, &
             this%kappa, this%B, this%p, this%s)
     end if
 

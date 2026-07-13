@@ -40,6 +40,8 @@ module rough_log_law
   use neko_config, only : NEKO_BCKND_DEVICE
   use vector, only : vector_t
   use wall_model, only : wall_model_t
+  use wall_sampler, only : wall_sampler_t
+  use wall_gll_sampler, only : wall_gll_sampler_t
   use utils, only : neko_error
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup, &
@@ -67,6 +69,8 @@ module rough_log_law
      real(kind=rp) :: z0
      ! The fluid density at the boundary
      type(vector_t) :: rho_w
+     !> The sampled velocity.
+     type(vector_t) :: u_s, v_s, w_s
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => rough_log_law_init
@@ -152,6 +156,11 @@ contains
     call this%finalize_base(msk, facet)
 
     call this%rho_w%init(this%n_nodes)
+    call this%validate_single_sample()
+    call this%u_s%init(this%n_nodes)
+    call this%v_s%init(this%n_nodes)
+    call this%w_s%init(this%n_nodes)
+    call rough_log_law_validate_sampling_height(this)
 
   end subroutine rough_log_law_finalize
 
@@ -187,32 +196,49 @@ contains
     integer, intent(in) :: facet(:)
     integer, intent(in) :: h_index
     real(kind=rp), intent(in) :: kappa, B, z0
+    class(wall_sampler_t), allocatable :: sampler
 
     call this%free()
-    call this%init_base(scheme_name, coef, msk, facet, h_index)
+    allocate(wall_gll_sampler_t :: sampler)
+    select type (sampler)
+    type is (wall_gll_sampler_t)
+       call sampler%init_from_indices([h_index])
+    end select
+    call this%init_base(scheme_name, coef, msk, facet, sampler)
 
     this%kappa = kappa
     this%B = B
     this%z0 = z0
 
     call this%rho_w%init(this%n_nodes)
+    call this%validate_single_sample()
+    call this%u_s%init(this%n_nodes)
+    call this%v_s%init(this%n_nodes)
+    call this%w_s%init(this%n_nodes)
 
-    ! Check that the sampling height is above the roughness length
-    if (any(this%h%x(1:this%n_nodes) .le. this%z0)) then
+    call rough_log_law_validate_sampling_height(this)
+
+  end subroutine rough_log_law_init_from_components
+
+  subroutine rough_log_law_validate_sampling_height(this)
+    class(rough_log_law_t), intent(in) :: this
+
+    if (any(this%sampler%h%x(1:this%n_nodes) .le. this%z0)) then
        call neko_error("Roughlog WM: Sampling height h must be greater " // &
-            "than roughness z0. " // &
-            "Increase h_index or decrease z0.")
+            "than roughness z0. Increase the sampling height or decrease z0.")
     else if (this%z0 .eq. 0.0_rp) then
        call neko_error("Roughlog WM: Roughness z0 must be greater than 0.")
     end if
-
-  end subroutine rough_log_law_init_from_components
+  end subroutine rough_log_law_validate_sampling_height
 
   !> Destructor for the rough_log_law_t (base) class.
   subroutine rough_log_law_free(this)
     class(rough_log_law_t), intent(inout) :: this
 
     call this%rho_w%free()
+    call this%u_s%free()
+    call this%v_s%free()
+    call this%w_s%free()
     call this%free_base()
 
   end subroutine rough_log_law_free
@@ -235,18 +261,22 @@ contains
     v => neko_registry%get_field("v")
     w => neko_registry%get_field("w")
 
+    call this%sampler%sample(u, this%u_s)
+    call this%sampler%sample(v, this%v_s)
+    call this%sampler%sample(w, this%w_s)
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call rough_log_law_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
-            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+       call rough_log_law_compute_device(this%u_s%x_d, this%v_s%x_d, &
+            this%w_s%x_d, &
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-            this%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
-            this%tau_z%x_d, this%n_nodes, u%Xh%lx, this%kappa, &
+            this%sampler%h%x_d, this%tau_x%x_d, this%tau_y%x_d, &
+            this%tau_z%x_d, this%n_nodes, this%kappa, &
             this%rho_w%x_d, this%B, this%z0, tstep)
     else
-       call rough_log_law_compute_cpu(u%x, v%x, w%x, this%ind_r, this%ind_s, &
-            this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
-            this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
-            this%n_nodes, u%Xh%lx, u%msh%nelv, this%kappa, &
+       call rough_log_law_compute_cpu(this%u_s%x, this%v_s%x, this%w_s%x, &
+            this%n_x%x, this%n_y%x, this%n_z%x, &
+            this%sampler%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+            this%n_nodes, this%kappa, &
             this%rho_w%x, this%B, this%z0, tstep)
     end if
 

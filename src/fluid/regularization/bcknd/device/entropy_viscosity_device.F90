@@ -271,10 +271,10 @@ module entropy_viscosity_device
 #endif
 
   public :: entropy_viscosity_compute_residual_device, &
-            entropy_viscosity_compute_viscosity_device, &
-            entropy_viscosity_apply_element_max_device, &
-            entropy_viscosity_clamp_to_low_order_device, &
-            entropy_viscosity_smooth_divide_device
+       entropy_viscosity_compute_viscosity_device, &
+       entropy_viscosity_apply_element_max_device, &
+       entropy_viscosity_clamp_to_low_order_device, &
+       entropy_viscosity_smooth_divide_device
 
 contains
 
