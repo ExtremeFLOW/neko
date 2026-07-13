@@ -40,7 +40,7 @@ module cai_sagaut_model_ii
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use wall_sampler, only : wall_sampler_t
-  use wall_gll_sampler, only : wall_gll_sampler_t
+  use wall_sampler_fctry, only : wall_sampler_factory
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup, json_get_or_lookup_or_default
   use cai_sagaut_model_ii_cpu, only : cai_sagaut_model_ii_compute_cpu
@@ -95,25 +95,25 @@ contains
   !! @param coef The SEM coefficients.
   !! @param msk The wall-point mask.
   !! @param facet The wall-point facet indices.
-  !! @param h_index The GLL index used for wall-model sampling.
   !! @param json The case-file parameters for this wall model.
   subroutine cai_sagaut_model_ii_init(this, scheme_name, coef, msk, facet, &
-       h_index, json)
+       json)
     class(cai_sagaut_model_ii_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B, p, s
+    class(wall_sampler_t), allocatable :: sampler
 
     call json_get_or_lookup(json, "kappa", kappa)
     call json_get_or_lookup(json, "B", B)
     call json_get_or_lookup_or_default(json, "p", p, 1.138_rp)
     call json_get_or_lookup_or_default(json, "s", s, 217.8_rp)
 
-    call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
+    call wall_sampler_factory(sampler, json)
+    call this%init_from_components(scheme_name, coef, msk, facet, sampler, &
          kappa, B, p, s)
   end subroutine cai_sagaut_model_ii_init
 
@@ -153,28 +153,22 @@ contains
   !! @param coef The SEM coefficients.
   !! @param msk The wall-point mask.
   !! @param facet The wall-point facet indices.
-  !! @param h_index The GLL index used for wall-model sampling.
+  !! @param sampler The sampling strategy. Ownership is transferred.
   !! @param kappa The von Karman coefficient.
   !! @param B The log-law intercept.
   !! @param p The blending exponent.
   !! @param s The blending scale.
   subroutine cai_sagaut_model_ii_init_from_components(this, scheme_name, coef, &
-       msk, facet, h_index, kappa, B, p, s)
+       msk, facet, sampler, kappa, B, p, s)
     class(cai_sagaut_model_ii_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
+    class(wall_sampler_t), allocatable, intent(inout) :: sampler
     real(kind=rp), intent(in) :: kappa, B, p, s
-    class(wall_sampler_t), allocatable :: sampler
 
     call this%free()
-    allocate(wall_gll_sampler_t :: sampler)
-    select type (sampler)
-    type is (wall_gll_sampler_t)
-       call sampler%init_from_indices([h_index])
-    end select
     call this%init_base(scheme_name, coef, msk, facet, sampler)
 
     this%kappa = kappa

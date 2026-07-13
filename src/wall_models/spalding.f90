@@ -40,7 +40,7 @@ module spalding
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use wall_sampler, only : wall_sampler_t
-  use wall_gll_sampler, only : wall_gll_sampler_t
+  use wall_sampler_fctry, only : wall_sampler_factory
   use registry, only : neko_registry
   use json_utils, only : json_get_or_default, json_get_or_lookup
   use spalding_cpu, only : spalding_compute_cpu
@@ -93,22 +93,22 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine spalding_init(this, scheme_name, coef, msk, facet, h_index, json)
+  subroutine spalding_init(this, scheme_name, coef, msk, facet, json)
     class(spalding_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, B
+    class(wall_sampler_t), allocatable :: sampler
 
     call json_get_or_lookup(json, "kappa", kappa)
     call json_get_or_lookup(json, "B", B)
 
-    call this%init_from_components(scheme_name, coef, msk, facet, h_index, &
+    call wall_sampler_factory(sampler, json)
+    call this%init_from_components(scheme_name, coef, msk, facet, sampler, &
          kappa, B)
   end subroutine spalding_init
 
@@ -158,27 +158,21 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
+  !! @param sampler The sampling strategy. Ownership is transferred.
   !! @param kappa The von Karman coefficient.
   !! @param B The log-law intercept.
   subroutine spalding_init_from_components(this, scheme_name, coef, msk, &
-       facet, h_index, kappa, B)
+       facet, sampler, kappa, B)
     class(spalding_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
+    class(wall_sampler_t), allocatable, intent(inout) :: sampler
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: B
-    class(wall_sampler_t), allocatable :: sampler
 
     call this%free()
-    allocate(wall_gll_sampler_t :: sampler)
-    select type (sampler)
-    type is (wall_gll_sampler_t)
-       call sampler%init_from_indices([h_index])
-    end select
     call this%init_base(scheme_name, coef, msk, facet, sampler)
 
     this%kappa = kappa

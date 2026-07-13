@@ -14,6 +14,7 @@
   use math
   use global_interpolation
   use coefs, only : coef_t
+  use json_module, only : json_file
   use gather_scatter, only : gs_t
   use point, only : point_t
   use datadist, only : linear_dist_t
@@ -478,6 +479,7 @@ contains
     type(vector_t) :: values, n_x, n_y, n_z
     type(wall_gll_sampler_t) :: gll_sampler
     type(wall_distance_sampler_t) :: distance_sampler
+    type(json_file) :: json
     integer :: ierr
     integer :: msk(0:1), facet(0:1)
     real(kind=rp) :: expected(2)
@@ -509,7 +511,13 @@ contains
        call field%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
 
-    call gll_sampler%init_from_indices([1, 2])
+    call json%load_from_string('{"value":1}')
+    call gll_sampler%init(json)
+    @assertEqual(gll_sampler%n_samples, 1)
+    call gll_sampler%free()
+
+    call json%load_from_string('{"value":[1,2]}')
+    call gll_sampler%init(json)
     call gll_sampler%finalize(coef, msk, facet, n_x, n_y, n_z)
     call values%init(2)
     call gll_sampler%sample(field, values)
@@ -525,7 +533,13 @@ contains
     call values%free()
     call gll_sampler%free()
 
-    call distance_sampler%init_from_distances([distance])
+    call json%load_from_string('{"value":[0.25,0.5]}')
+    call distance_sampler%init(json)
+    @assertEqual(distance_sampler%n_samples, 2)
+    call distance_sampler%free()
+
+    call json%load_from_string('{"value":0.25}')
+    call distance_sampler%init(json)
     call distance_sampler%finalize(coef, msk, facet, n_x, n_y, n_z)
     call values%init(1)
     call distance_sampler%sample(field, values)

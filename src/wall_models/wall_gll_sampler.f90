@@ -76,9 +76,24 @@ contains
     class(wall_gll_sampler_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     integer, allocatable :: indices(:)
+    integer :: index, var_type
+    logical :: found
 
-    call json_get(json, 'indices', indices)
-    call this%init_from_indices(indices)
+    call json%info('value', found = found, var_type = var_type)
+    if (.not. found) then
+       call neko_error('Wall GLL sampler requires a value')
+    end if
+
+    select case (var_type)
+    case (3) ! json_array
+       call json_get(json, 'value', indices)
+       call this%init_from_indices(indices)
+    case (5) ! json_integer
+       call json_get(json, 'value', index)
+       call this%init_from_indices([index])
+    case default
+       call neko_error('Wall GLL sampler value must be an integer or array')
+    end select
   end subroutine wall_gll_sampler_init
 
   subroutine wall_gll_sampler_init_from_indices(this, indices)

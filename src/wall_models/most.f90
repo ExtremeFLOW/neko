@@ -40,7 +40,7 @@ module most
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use wall_sampler, only : wall_sampler_t
-  use wall_gll_sampler, only : wall_gll_sampler_t
+  use wall_sampler_fctry, only : wall_sampler_factory
   use registry, only : neko_registry, neko_const_registry
   use json_utils, only : json_get, json_get_or_default, &
        json_get_or_lookup, json_get_or_lookup_or_default
@@ -110,16 +110,14 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
   subroutine most_init(this, scheme_name, coef, msk, facet, &
-       h_index, json)
+       json)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
     real(kind=rp) :: kappa, z0, z0h_in, Pr
     character(len=:), allocatable :: bc_type
@@ -128,6 +126,7 @@ contains
     real(kind=rp), allocatable :: g_tmp(:)
     real(kind=rp) :: g(3)
     logical :: if_time_dependent
+    class(wall_sampler_t), allocatable :: sampler
 
     call json_get_or_lookup_or_default(json, "kappa", kappa, 0.4_rp)
     call json_get_or_lookup_or_default(json, "Pr", Pr, 1.0_rp)
@@ -157,8 +156,9 @@ contains
     end if
     deallocate(g_tmp)
 
+    call wall_sampler_factory(sampler, json)
     call this%init_from_components(scheme_name, scalar_name, coef, msk, &
-         facet, h_index, &
+         facet, sampler, &
          kappa, g, Pr, z0, z0h_in, bc_type, bc_value)
     deallocate(bc_type)
     deallocate(scalar_name)
@@ -275,7 +275,7 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
+  !! @param sampler The sampling strategy. Ownership is transferred.
   !! @param kappa The von Karman coefficient.
   !! @param g The gravity vector.
   !! @param z0 The roughness height.
@@ -285,7 +285,7 @@ contains
   !! @param scalar_name The name of the scalar field (temperature) for MOST.
   !! @param bc_value The heat flux at the surface boundary condition.
   subroutine most_init_from_components(this, scheme_name, scalar_name, &
-       coef, msk, facet, h_index, kappa, g, Pr, z0, &
+       coef, msk, facet, sampler, kappa, g, Pr, z0, &
        z0h_in, bc_type, bc_value)
     class(most_t), intent(inout) :: this
     character(len=*), intent(in) :: scheme_name
@@ -294,21 +294,15 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
-    integer, intent(in) :: h_index
+    class(wall_sampler_t), allocatable, intent(inout) :: sampler
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp) :: g_mag, g_dot_n, cos_alpha, max_ang
     integer :: i
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: z0, z0h_in, bc_value, Pr
     character(len=LOG_SIZE) :: log_buf
-    class(wall_sampler_t), allocatable :: sampler
 
     call this%free()
-    allocate(wall_gll_sampler_t :: sampler)
-    select type (sampler)
-    type is (wall_gll_sampler_t)
-       call sampler%init_from_indices([h_index])
-    end select
     call this%init_base(scheme_name, coef, msk, facet, sampler)
 
     this%kappa = kappa

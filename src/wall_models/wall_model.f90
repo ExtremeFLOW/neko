@@ -142,17 +142,15 @@ module wall_model
      !! @param coef SEM coefficients.
      !! @param msk The boundary mask.
      !! @param facet The boundary facets.
-     !! @param h_index The off-wall index of the sampling cell.
      !! @param json A dictionary with parameters.
      subroutine wall_model_init(this, scheme_name, coef, msk, facet, &
-          h_index, json)
+          json)
        import wall_model_t, json_file, dofmap_t, coef_t, rp
        class(wall_model_t), intent(inout) :: this
        character(len=*), intent(in) :: scheme_name
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
-       integer, intent(in) :: h_index
        type(json_file), intent(inout) :: json
      end subroutine wall_model_init
   end interface
@@ -198,7 +196,6 @@ module wall_model
      !! @param coef SEM coefficients.
      !! @param msk The boundary mask.
      !! @param facet The boundary facets.
-     !! @param h_index The off-wall index of the sampling cell.
      !! @param json A dictionary with parameters.
      module subroutine wall_model_factory(object, scheme_name, coef, msk, &
           facet, json)
