@@ -186,7 +186,7 @@ contains
        do k = 1, lx
           do j = 1, lx
              !$omp simd
-             do i = 1, lx*lx*lx
+             do i = 1, lx
                 d(i,j,k,e) = 0.0_rp
              end do
           end do

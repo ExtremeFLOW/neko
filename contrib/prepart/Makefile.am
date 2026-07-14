@@ -4,4 +4,4 @@ prepart_LDADD = $(top_builddir)/src/libneko.la
 prepart_LDFLAGS = $(LDFLAGS) $(LIBS) 
 AM_FCFLAGS = -I@top_builddir@/src
 
-dist_man_MANS = prepart.1
+man_MANS = prepart.1

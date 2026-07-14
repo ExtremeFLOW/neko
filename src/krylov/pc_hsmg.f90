@@ -117,7 +117,8 @@ module hsmg
      type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(scalar_bc_resolver_t) :: bc_resolver_crs, bc_resolver_mg, &
           bc_resolver_reg
-     type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
+     type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz
+     !! decompositions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
@@ -203,7 +204,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call this%free()
-    !> @note I do not think we actually use the same grids as they do in the original!
+    !> @note I do not think we actually use the same grids as they do
+    !! in the original!
     this%nlvls = 3
     lx_crs = 2
     if (coef%Xh%lx .lt. 5) then
@@ -446,6 +448,11 @@ contains
     if (allocated(this%crs_solver)) then
        call this%crs_solver%free()
        deallocate(this%crs_solver)
+    end if
+
+    if (allocated(this%amg_solver)) then
+       call this%amg_solver%free()
+       deallocate(this%amg_solver)
     end if
 
     if (allocated(this%pc_crs)) then

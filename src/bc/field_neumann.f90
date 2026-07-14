@@ -69,7 +69,8 @@ module field_neumann
      !> Constructor.
      procedure, pass(this) :: init => field_neumann_init
      !> Constructor from components.
-     procedure, pass(this) :: init_from_components => field_neumann_init_from_components
+     procedure, pass(this) :: init_from_components => &
+          field_neumann_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => field_neumann_free
      !> Finalize.

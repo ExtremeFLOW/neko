@@ -327,3 +327,47 @@ void opencl_coef_generate_area_and_normal(void *area,
     AREA_CASE(16);
   }
 }
+
+/**
+ * Fortran wrapper for retrieving facet normals.
+ */
+void opencl_coef_get_normal(void *normal_x, void *normal_y, void *normal_z,
+                            void *nx, void *ny, void *nz,
+                            void *i_idx, void *j_idx, void *k_idx,
+                            void *e_idx, void *facet, int *lx, int *n) {
+
+  if (*n <= 0) {
+    return;
+  }
+
+  cl_int err;
+  if (coef_program == NULL)
+    opencl_kernel_jit(coef_kernel, (cl_program *) &coef_program);
+
+  const size_t local_item_size = 256;
+  const size_t global_item_size = local_item_size *
+    (((size_t) *n + local_item_size - 1) / local_item_size);
+
+  cl_kernel kernel = clCreateKernel(coef_program, "coef_get_normal_kernel",
+                                    &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &normal_x));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &normal_y));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &normal_z));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &nx));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &ny));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &nz));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &i_idx));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &j_idx));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &k_idx));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &e_idx));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &facet));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(int), lx));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), n));
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,
+                                  kernel, 1, NULL, &global_item_size,
+                                  &local_item_size, 0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}

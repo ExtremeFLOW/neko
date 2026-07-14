@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -322,7 +322,7 @@ contains
     call device_map(this%z3, this%z3_d, n)
     call device_map(this%tmp, this%tmp_d, n)
     call device_map(this%alpha, this%alpha_d, DEVICE_FUSEDCG_CPLD_P_SPACE)
-    do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE+1
+    do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
        this%p1_d(i) = C_NULL_PTR
        call device_map(this%p1(:,i), this%p1_d(i), n)
 
@@ -487,6 +487,18 @@ contains
        deallocate(this%p3)
     end if
 
+    if (allocated(this%p1_d)) then
+       deallocate(this%p1_d)
+    end if
+
+    if (allocated(this%p2_d)) then
+       deallocate(this%p2_d)
+    end if
+
+    if (allocated(this%p3_d)) then
+       deallocate(this%p3_d)
+    end if
+
     if (c_associated(this%p1_d_d)) then
        call device_free(this%p1_d_d)
     end if
@@ -609,12 +621,8 @@ contains
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
 
          call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
-         call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
+         call gs_h%op(w1, w2, w3, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
-         call gs_h%op(w2, n, GS_OP_ADD, this%gs_event2)
-         call device_event_sync(this%gs_event2)
-         call gs_h%op(w3, n, GS_OP_ADD, this%gs_event3)
-         call device_event_sync(this%gs_event3)
          call bc_resolver%apply(w1, w2, w3, n)
          call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 

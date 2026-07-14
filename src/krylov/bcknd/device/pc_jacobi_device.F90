@@ -93,6 +93,17 @@ module device_jacobi
      end subroutine opencl_jacobi_update
   end interface
 
+  interface
+     subroutine metal_jacobi_update(d_d, dxt_d, dyt_d, dzt_d, &
+          G11_d, G22_d, G33_d, G12_d, G13_d, G23_d, nelv, lx) &
+          bind(c, name='metal_jacobi_update')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: d_d, dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: G11_d, G22_d, G33_d, G12_d, G13_d, G23_d
+       integer(c_int) :: nelv, lx
+     end subroutine metal_jacobi_update
+  end interface
+
 contains
 
   subroutine device_jacobi_init(this, coef, dof, gs_h)
@@ -174,6 +185,11 @@ contains
            nelv, lx)
 #elif HAVE_OPENCL
       call opencl_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
+#elif HAVE_METAL
+      call metal_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
            coef%G11_d, coef%G22_d, coef%G33_d, &
            coef%G12_d, coef%G13_d, coef%G23_d, &
            nelv, lx)

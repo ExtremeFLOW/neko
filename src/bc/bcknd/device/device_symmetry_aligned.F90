@@ -31,6 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_symmetry_aligned
+  use num_types, only : c_rp
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
@@ -68,6 +69,17 @@ module device_symmetry_aligned
        type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
      end subroutine opencl_symmetry_aligned_apply_vector
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+          x, y, z, m, n, l, strm) &
+          bind(c, name = 'metal_symmetry_apply_vector')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, n, l
+       type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
+     end subroutine metal_symmetry_apply_vector
+  end interface
 #endif
 
 contains
@@ -86,6 +98,9 @@ contains
 #elif HAVE_OPENCL
     call opencl_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, x, y, z, &
          m, n, l, strm)
+#elif HAVE_METAL
+    call metal_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, &
+         n, l, strm)
 #else
     call neko_error('No device backend configured')
 #endif

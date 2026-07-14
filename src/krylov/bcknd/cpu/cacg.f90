@@ -133,7 +133,8 @@ contains
   end subroutine cacg_free
 
   !> S-step CA PCG solve
-  function cacg_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) result(ksp_results)
+  function cacg_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
+       result(ksp_results)
     class(cacg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x

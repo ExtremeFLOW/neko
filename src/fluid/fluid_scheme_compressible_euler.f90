@@ -248,6 +248,8 @@ contains
   !> @param this The fluid scheme object to destroy
   subroutine fluid_scheme_compressible_euler_free(this)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    class(bc_t), pointer :: bc
+    integer :: i
 
     call this%scheme_free()
 
@@ -271,6 +273,13 @@ contains
        deallocate(this%regularization)
     end if
 
+    do i = 1, this%bcs_density%size()
+       bc => this%bcs_density%get(i)
+       if (associated(bc)) then
+          call bc%free()
+          deallocate(bc)
+       end if
+    end do
     call this%bcs_density%free()
     call this%bcs_vel_resolver%free()
 

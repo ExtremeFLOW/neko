@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -408,10 +408,13 @@ contains
 
          !> Map finest level matvec back to output level
          call rzero(vec_out, this%lvl(lvl)%nnodes)
+         !$omp parallel do private(cdof)
          do i = 1, n
             cdof = this%lvl(lvl)%map_finest2lvl(i)
+            !$omp atomic
             vec_out(cdof) = vec_out(cdof) + wrk_out( i )
          end do
+         !$omp end parallel do
        end associate
     end if
   end subroutine tamg_matvec_flat_impl

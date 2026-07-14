@@ -131,6 +131,7 @@ contains
   subroutine field_dirichlet_vector_free(this)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
 
+    call this%free_base()
     call this%bc_u%free()
     call this%bc_v%free()
     call this%bc_w%free()

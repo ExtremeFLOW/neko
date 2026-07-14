@@ -1,5 +1,5 @@
 .\" Manual page for makeneko
-.TH MAKENEKO 1 "2026-05-22" "Neko" "User Commands"
+.TH MAKENEKO 1 "@MAN_DATE@" "Neko @PACKAGE_VERSION@" "User Commands"
 .SH NAME
 makeneko \- build a custom Neko executable with user-defined modules
 .SH SYNOPSIS
