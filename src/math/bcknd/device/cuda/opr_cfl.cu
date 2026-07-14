@@ -36,6 +36,7 @@
 #include "cfl_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <device/cuda/buffer.h>
 
 
 #ifdef HAVE_NVSHMEM
@@ -54,17 +55,19 @@ extern "C" {
 #endif
 
   /**
-   * @todo Make sure that this gets deleted at some point...
+   * Device-only work buffer for the CFL reduction, owned by the
+   * device layer and released on device teardown
+   * (cuda_buffer_free_all in cuda_finalize)
    */
-  void *cfl_d = NULL;
+  cuda_buffer_t cfl_buf = CUDA_BUFFER_INIT_DEV;
 
 #ifdef HAVE_NVSHMEM
   /**
    * Symmetric one-element buffer for the NVSHMEM reduction; the work
-   * buffer cfl_d cannot live on the symmetric heap since its size
+   * buffer cfl_buf cannot live on the symmetric heap since its size
    * (nel) differs between PEs
    */
-  void *cfl_red_d = NULL;
+  cuda_buffer_t cfl_red_buf = CUDA_BUFFER_INIT_SYMM;
 #endif
 
   /**
@@ -81,12 +84,12 @@ extern "C" {
     const dim3 nblcks((*nel), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    if (cfl_d == NULL) {
-      CUDA_CHECK(cudaMalloc(&cfl_d, (*nel) * sizeof(real)));
+    cuda_buffer_reserve(&cfl_buf, (*nel) * sizeof(real));
+    real *cfl_d = (real *) cfl_buf.dev;
 #ifdef HAVE_NVSHMEM
-      cfl_red_d = (real *) nvshmem_malloc(sizeof(real));
+    cuda_buffer_reserve(&cfl_red_buf, sizeof(real));
+    real *cfl_red_d = (real *) cfl_red_buf.dev;
 #endif
-    }
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \

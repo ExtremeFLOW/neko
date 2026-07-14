@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module fluid_scheme_compressible_euler
+module fluid_scheme_compressible_ns
   use comm, only : NEKO_COMM
   use advection, only : advection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
@@ -55,7 +55,7 @@ module fluid_scheme_compressible_euler
   use time_step_controller, only : time_step_controller_t
   use ax_product, only : ax_t, ax_helm_factory
   use coefs, only : coef_t
-  use euler_residual, only : euler_rhs_t, euler_rhs_factory
+  use compressible_residual, only : compressible_rhs_t, compressible_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use bc_list, only : bc_list_t
@@ -68,7 +68,9 @@ module fluid_scheme_compressible_euler
        compressible_ops_cpu_update_e
   use compressible_ops_device, only : compressible_ops_device_update_uvw, &
        compressible_ops_device_update_mxyz_p_ruvw, &
-       compressible_ops_device_update_e
+       compressible_ops_device_update_e, &
+       compressible_ops_device_update_temperature
+  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use regularization, only : regularization_t, regularization_factory
   use vector_bc_resolver, only : vector_bc_resolver_t, &
@@ -77,14 +79,15 @@ module fluid_scheme_compressible_euler
   private
 
   type, public, extends(fluid_scheme_compressible_t) &
-       :: fluid_scheme_compressible_euler_t
+       :: fluid_scheme_compressible_ns_t
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
      type(field_t) :: h
      real(kind=rp) :: c_avisc_low
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
-     class(euler_rhs_t), allocatable :: euler_rhs
+     class(ax_t), allocatable :: Ax_stress
+     class(compressible_rhs_t), allocatable :: compressible_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
      class(regularization_t), allocatable :: regularization
@@ -93,29 +96,30 @@ module fluid_scheme_compressible_euler
      type(coupled_vector_bc_resolver_t):: bcs_vel_resolver
      !> List of boundary conditions for density.
      type(bc_list_t) :: bcs_density
+
    contains
-     procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
-     procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
-     procedure, pass(this) :: step => fluid_scheme_compressible_euler_step
-     procedure, pass(this) :: restart => fluid_scheme_compressible_euler_restart
+     procedure, pass(this) :: init => fluid_scheme_compressible_ns_init
+     procedure, pass(this) :: free => fluid_scheme_compressible_ns_free
+     procedure, pass(this) :: step => fluid_scheme_compressible_ns_step
+     procedure, pass(this) :: restart => fluid_scheme_compressible_ns_restart
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs &
-          => fluid_scheme_compressible_euler_setup_bcs
+          => fluid_scheme_compressible_ns_setup_bcs
      procedure, pass(this) :: compute_h
      procedure, pass(this), private :: setup_regularization
-  end type fluid_scheme_compressible_euler_t
+  end type fluid_scheme_compressible_ns_t
 
   interface
      !> Boundary condition factory for density.
      !! @details Will mark a mesh zone for the bc and finalize.
      !! @param[inout] object The object to be allocated.
-     !! @param[in] scheme The `fluid_scheme_compressible_euler_t` scheme.
+     !! @param[in] scheme The `fluid_scheme_compressible_ns_t` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
      !! @param[in] user The user interface.
      module subroutine density_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+       type(fluid_scheme_compressible_ns_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), intent(in) :: coef
        type(user_t), intent(in) :: user
@@ -126,13 +130,13 @@ module fluid_scheme_compressible_euler
      !> Boundary condition factory for pressure.
      !! @details Will mark a mesh zone for the bc and finalize.
      !! @param[inout] object The object to be allocated.
-     !! @param[in] scheme The `fluid_scheme_compressible_euler_t` scheme.
+     !! @param[in] scheme The `fluid_scheme_compressible_ns_t` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
      !! @param[in] user The user interface.
      module subroutine pressure_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_scheme_compressible_euler_t), intent(inout) :: scheme
+       type(fluid_scheme_compressible_ns_t), intent(inout) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), intent(in) :: coef
        type(user_t), intent(in) :: user
@@ -143,13 +147,13 @@ module fluid_scheme_compressible_euler
      !> Boundary condition factory for velocity
      !! @details Will mark a mesh zone for the bc and finalize.
      !! @param[inout] object The object to be allocated.
-     !! @param[in] scheme The `fluid_scheme_compressible_euler_t` scheme.
+     !! @param[in] scheme The `fluid_scheme_compressible_ns_t` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
      !! @param[in] user The user interface.
      module subroutine velocity_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+       type(fluid_scheme_compressible_ns_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), intent(in) :: coef
        type(user_t), intent(in) :: user
@@ -157,16 +161,16 @@ module fluid_scheme_compressible_euler
   end interface
 
 contains
-  !> Initialize the compressible Euler fluid scheme
+  !> Initialize the compressible Navier-Stokes fluid scheme
   !! @param this The fluid scheme object
   !! @param msh Mesh data structure
   !! @param lx Polynomial order in x-direction
   !! @param params JSON configuration parameters
   !! @param user User-defined parameters and functions
   !! @param chkp Checkpoint to write to
-  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user, &
+  subroutine fluid_scheme_compressible_ns_init(this, msh, lx, params, user, &
        chkp)
-    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+    class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
@@ -180,7 +184,7 @@ contains
     ! Initialize base class
     call this%scheme_init(msh, lx, params, scheme, user)
 
-    call euler_rhs_factory(this%euler_rhs)
+    call compressible_rhs_factory(this%compressible_rhs, this%gamma)
 
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
@@ -198,7 +202,7 @@ contains
        associate(p => this%p, rho => this%rho, &
             u => this%u, v => this%v, w => this%w, &
             m_x => this%m_x, m_y => this%m_y, m_z => this%m_z, &
-            effective_visc => this%effective_visc)
+            artificial_visc => this%artificial_visc)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(rho%x, rho%x_d, rho%dof%size(), &
@@ -215,13 +219,14 @@ contains
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
-         call device_memcpy(effective_visc%x, effective_visc%x_d, &
-              effective_visc%dof%size(), HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(artificial_visc%x, artificial_visc%x_d, &
+              artificial_visc%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
 
-    ! Initialize the diffusion operator
+    ! Initialize the diffusion operators
     call ax_helm_factory(this%Ax, full_formulation = .false.)
+    call ax_helm_factory(this%Ax_stress, full_formulation = .true.)
 
     ! Initialize the velocity BC resolver. The coupled resolver builds the
     ! local bases required by non-axis aligned mixed velocity conditions.
@@ -242,12 +247,12 @@ contains
     call this%setup_bcs(user, params)
     call neko_log%end_section()
 
-  end subroutine fluid_scheme_compressible_euler_init
+  end subroutine fluid_scheme_compressible_ns_init
 
   !> Free allocated memory and cleanup
   !> @param this The fluid scheme object to destroy
-  subroutine fluid_scheme_compressible_euler_free(this)
-    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+  subroutine fluid_scheme_compressible_ns_free(this)
+    class(fluid_scheme_compressible_ns_t), intent(inout) :: this
     class(bc_t), pointer :: bc
     integer :: i
 
@@ -257,8 +262,12 @@ contains
        deallocate(this%Ax)
     end if
 
-    if (allocated(this%euler_rhs)) then
-       deallocate(this%euler_rhs)
+    if (allocated(this%Ax_stress)) then
+       deallocate(this%Ax_stress)
+    end if
+
+    if (allocated(this%compressible_rhs)) then
+       deallocate(this%compressible_rhs)
     end if
 
     call this%drho%free()
@@ -283,16 +292,16 @@ contains
     call this%bcs_density%free()
     call this%bcs_vel_resolver%free()
 
-  end subroutine fluid_scheme_compressible_euler_free
+  end subroutine fluid_scheme_compressible_ns_free
 
   !> Advance the fluid simulation one timestep
   !> @param this The fluid scheme object
   !> @param time Current simulation time state
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
-  subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
+  subroutine fluid_scheme_compressible_ns_step(this, time, dt_controller)
     use entropy_viscosity, only : entropy_viscosity_t
-    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+    class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
     type(field_t), pointer :: temp
@@ -315,18 +324,21 @@ contains
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
          dm_z => this%dm_z, dE => this%dE, &
-         euler_rhs => this%euler_rhs, h => this%h, &
+         compressible_rhs => this%compressible_rhs, h => this%h, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
       ! Compute artificial viscosity
       call this%regularization%compute(time, time%tstep, time%dt)
 
-      ! Execute RHS step with effective viscosity field
-      call euler_rhs%step(rho, m_x, m_y, m_z, E, &
-           p, u, v, w, Ax, &
-           c_Xh, gs_Xh, h, this%effective_visc, &
-           rk_scheme, dt)
+      ! Refresh user-specified physical viscosity/conductivity before RHS.
+      call this%update_material_properties(time)
+
+      ! Execute RHS step with artificial viscosity field
+      call compressible_rhs%step(rho, m_x, m_y, m_z, E, &
+           p, u, v, w, this%Ax, &
+           this%Ax_stress, c_Xh, gs_Xh, h, this%artificial_visc, this%mu, &
+           this%kappa, this%bcs_vel, time, rk_scheme, dt)
 
       !> Apply density boundary conditions
       call this%bcs_density%apply(rho, time)
@@ -367,17 +379,35 @@ contains
          call compressible_ops_cpu_update_e(E%x, p%x, temp%x, this%gamma, n)
       end if
 
+      !> Update temperature T = p / (rho * (gamma - 1))
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call compressible_ops_device_update_temperature( &
+              this%temperature%x_d, p%x_d, rho%x_d, this%gamma, n)
+      else
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do simd
+         do i = 1, n
+            this%temperature%x(i,1,1,1) = p%x(i,1,1,1) / &
+                 (rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
+         end do
+         !$omp end parallel do simd
+      end if
 
-      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
-      call this%compute_entropy()
-
-      !> Update entropy lag series for entropy viscosity
+      !> Update entropy lag series BEFORE computing new entropy,
+      !> so that S_lag(1) holds the previous step's S (not the current).
+      !> This ensures BDF3 has 4 distinct time levels.
       if (allocated(this%regularization)) then
          select type (reg => this%regularization)
          type is (entropy_viscosity_t)
             call reg%update_lag()
          end select
       end if
+
+      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+      call this%compute_entropy()
 
       !> Update maximum wave speed for CFL computation
       call this%compute_max_wave_speed()
@@ -403,14 +433,14 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
-  end subroutine fluid_scheme_compressible_euler_step
+  end subroutine fluid_scheme_compressible_ns_step
 
   !> Set up boundary conditions for the fluid scheme
   !> @param this The fluid scheme object
   !> @param user User-defined boundary conditions
   !> @param params Configuration parameters
-  subroutine fluid_scheme_compressible_euler_setup_bcs(this, user, params)
-    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+  subroutine fluid_scheme_compressible_ns_setup_bcs(this, user, params)
+    class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
     type(json_file), intent(inout) :: params
     integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr
@@ -514,14 +544,14 @@ contains
     end if
 
     call this%bcs_vel_resolver%finalize(rebuild_mask = .true.)
-  end subroutine fluid_scheme_compressible_euler_setup_bcs
+  end subroutine fluid_scheme_compressible_ns_setup_bcs
 
   !> Copied from les_model_compute_delta in les_model.f90
   !> TODO: move to a separate module
   !> Compute characteristic mesh size h
   !> @param this The fluid scheme object
   subroutine compute_h(this)
-    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    class(fluid_scheme_compressible_ns_t), intent(inout) :: this
     integer :: lx, ly, lz
 
     lx = this%c_Xh%Xh%lx
@@ -591,15 +621,15 @@ contains
   !! @param this The fluid scheme object
   !! @param dtlag Previous timestep sizes
   !! @param tlag Previous time values
-  subroutine fluid_scheme_compressible_euler_restart(this, chkp)
-    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+  subroutine fluid_scheme_compressible_ns_restart(this, chkp)
+    class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-  end subroutine fluid_scheme_compressible_euler_restart
+  end subroutine fluid_scheme_compressible_ns_restart
 
   subroutine setup_regularization(this, params)
     use entropy_viscosity, only : entropy_viscosity_t, &
          entropy_viscosity_set_fields
-    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+    class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(json_file) :: reg_json
     type(json_core) :: json_core_inst
@@ -626,7 +656,7 @@ contains
     regularization_type = 'entropy_viscosity'
 
     call regularization_factory(this%regularization, regularization_type, &
-         reg_json, this%c_Xh, this%dm_Xh, this%effective_visc)
+         reg_json, this%c_Xh, this%dm_Xh, this%artificial_visc)
 
     select type (reg => this%regularization)
     type is (entropy_viscosity_t)
@@ -638,4 +668,4 @@ contains
 
   end subroutine setup_regularization
 
-end module fluid_scheme_compressible_euler
+end module fluid_scheme_compressible_ns

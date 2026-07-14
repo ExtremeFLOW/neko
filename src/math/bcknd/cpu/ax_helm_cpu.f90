@@ -44,7 +44,36 @@ module ax_helm_cpu
    contains
      !> Compute the product.
      procedure, nopass :: compute => ax_helm_compute
+     !> Compute the product (vector version).
+     procedure, pass(this) :: compute_vector => ax_helm_compute_vector
   end type ax_helm_cpu_t
+
+  interface
+     !> Compute \f$ Ax \f$ product, taking three
+     !! components of a vector field in an uncoupled manner.
+     !! @param au Result for the first component of the vector.
+     !! @param av Result for the first component of the vector.
+     !! @param aw Result for the first component of the vector.
+     !! @param u The first component of the vector.
+     !! @param v The second component of the vector.
+     !! @param w The third component of the vector.
+     !! @param coef Coefficients.
+     !! @param msh Mesh.
+     !! @param Xh Function space \f$ X_h \f$.
+     module subroutine ax_helm_compute_vector(this, au, av, aw, &
+          u, v, w, coef, msh, Xh)
+       class(ax_helm_cpu_t), intent(in) :: this
+       type(mesh_t), intent(in) :: msh
+       type(space_t), intent(in) :: Xh
+       type(coef_t), intent(in) :: coef
+       real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(in) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+       real(kind=rp), intent(in) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+     end subroutine ax_helm_compute_vector
+  end interface
 
 contains
 

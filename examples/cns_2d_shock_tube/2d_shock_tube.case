@@ -1,0 +1,48 @@
+{
+    "version": 1.0,
+    "case": {
+        "mesh_file": "box.nmsh",
+        "output_at_end": true,
+        "output_boundary": false,
+        "output_checkpoints": false,
+        "time": {
+            "end_time": 0.6,
+            "timestep": 1e-4,
+            "variable_timestep": true,
+            "target_cfl": 0.2
+        },
+        "numerics": {
+            "time_order": 3,
+            "polynomial_order": 3,
+            "c_avisc_low": 0.5,
+            "c_avisc_entropy": 0.5
+        },
+        "fluid": {
+            "scheme": "compressible",
+            "gamma": 1.4,
+            "initial_condition": {
+                "type": "user"
+            },
+            "boundary_conditions": [
+                {
+                    "type": "symmetry",
+                    "zone_indices": [ 1, 2 ]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [ 3, 4 ]
+                }
+            ],
+            "output_control": "nsamples",
+            "output_value": 100
+        },
+        "simulation_components": [
+            {
+                "type": "field_writer",
+                "fields": ["fluid_rho", "S", "artificial_visc"],
+                "output_control": "nsamples",
+                "output_value": 100
+            }
+        ]
+    }
+}

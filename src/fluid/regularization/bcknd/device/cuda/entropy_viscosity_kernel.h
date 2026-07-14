@@ -156,4 +156,3 @@ __global__ void entropy_visc_smooth_divide_kernel(T * __restrict__ reg_coeff,
 }
 
 #endif // __FLUID_ENTROPY_VISCOSITY_KERNEL_H__
-

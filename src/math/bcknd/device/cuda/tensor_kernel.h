@@ -159,8 +159,9 @@ __global__ void tnsr3d_kernel_large(T  * __restrict__  v,
                                     const T * __restrict__ A,
                                     const T * __restrict__ Bt,
                                     const T * __restrict__ Ct) {
-  __shared__ T shwork[N*N*N];
-  T shwork2[N*N*N];
+  extern __shared__ T shmem[];
+  T *shwork = shmem;
+  T *shwork2 = shmem + N*N*N;
   
   const int idx = threadIdx.x;
   const int str = blockDim.x;

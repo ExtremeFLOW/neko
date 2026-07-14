@@ -36,31 +36,31 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 
-#include "euler_res_kernel.h"
+#include "compressible_res_kernel.h"
 
 extern "C" {
 
-  void euler_res_part_visc_hip(void *rhs, void *Binv, void *lap_sol,
+  void compressible_res_part_visc_hip(void *rhs, void *Binv, void *lap_sol,
                               void *effective_visc, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_visc_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( compressible_res_part_visc_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) rhs, (real *) Binv, 
                        (real *) lap_sol, (real *) effective_visc, *n);
     HIP_CHECK(hipGetLastError());
   }
 
-  void euler_res_part_mx_flux_hip(void *f_x, void *f_y, void *f_z,
+  void inviscid_res_part_mx_flux_hip(void *f_x, void *f_y, void *f_z,
                            void *m_x, void *m_y, void *m_z,
                            void *rho_field, void *p, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_mx_flux_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( inviscid_res_part_mx_flux_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) f_x, (real *) f_y, (real *) f_z,
                        (real *) m_x, (real *) m_y, (real *) m_z,
@@ -68,14 +68,14 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void euler_res_part_my_flux_hip(void *f_x, void *f_y, void *f_z,
+  void inviscid_res_part_my_flux_hip(void *f_x, void *f_y, void *f_z,
                            void *m_x, void *m_y, void *m_z,
                            void *rho_field, void *p, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_my_flux_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( inviscid_res_part_my_flux_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) f_x, (real *) f_y, (real *) f_z,
                        (real *) m_x, (real *) m_y, (real *) m_z,
@@ -83,14 +83,14 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void euler_res_part_mz_flux_hip(void *f_x, void *f_y, void *f_z,
+  void inviscid_res_part_mz_flux_hip(void *f_x, void *f_y, void *f_z,
                            void *m_x, void *m_y, void *m_z,
                            void *rho_field, void *p, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_mz_flux_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( inviscid_res_part_mz_flux_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) f_x, (real *) f_y, (real *) f_z,
                        (real *) m_x, (real *) m_y, (real *) m_z,
@@ -98,7 +98,7 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void euler_res_part_E_flux_hip(void *f_x, void *f_y, void *f_z,
+  void inviscid_res_part_E_flux_hip(void *f_x, void *f_y, void *f_z,
                            void *m_x, void *m_y, void *m_z,
                            void *rho_field, void *p, void *E,
                            int *n) {
@@ -106,7 +106,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_E_flux_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( inviscid_res_part_E_flux_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) f_x, (real *) f_y, (real *) f_z,
                        (real *) m_x, (real *) m_y, (real *) m_z,
@@ -114,13 +114,13 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void euler_res_part_coef_mult_hip(void *rhs_rho, void *rhs_m_x,
+  void compressible_res_part_coef_mult_hip(void *rhs_rho, void *rhs_m_x,
                               void *rhs_m_y, void *rhs_m_z,
                               void *rhs_E, void *mult, int *n) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_coef_mult_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( compressible_res_part_coef_mult_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) rhs_rho, (real *) rhs_m_x,
                        (real *) rhs_m_y, (real *) rhs_m_z,
@@ -128,7 +128,7 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
-  void euler_res_part_rk_sum_hip(void *rho, void *m_x, void *m_y,
+  void compressible_res_part_rk_sum_hip(void *rho, void *m_x, void *m_y,
                                   void *m_z, void *E,
                                   void *k_rho_i, void *k_m_x_i, void *k_m_y_i,
                                   void *k_m_z_i, void *k_E_i,
@@ -136,7 +136,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_rk_sum_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( compressible_res_part_rk_sum_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) rho, (real *) m_x, (real *) m_y,
                        (real *) m_z, (real *) E,

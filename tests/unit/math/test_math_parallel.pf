@@ -4,6 +4,7 @@ module test_math_parallel
   use math
   use num_types
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
 
 contains
@@ -457,7 +458,7 @@ contains
     real(kind=rp) :: res, expected
     integer :: i, ierr
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call comm_init_test(this%getMpiCommunicator())
 
     do i = 1, n
        a(i) = 1.0_rp
@@ -470,6 +471,7 @@ contains
     @assertEqual(expected, res)
     @MPIassertEqual(expected, res)
 
+    call comm_free_test()
   end subroutine test_math_glsc3
 
   ! ========================================================================== !

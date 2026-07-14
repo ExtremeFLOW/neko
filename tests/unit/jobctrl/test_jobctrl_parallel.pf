@@ -5,20 +5,33 @@ module test_jobctrl_parallel
   use jobctrl
   use signal
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: test_jobctrl
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_jobctrl
 
 contains
 
+  subroutine setUp(this)
+    class(test_jobctrl), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_jobctrl), intent(inout) :: this
+    call comm_free_test()
+  end subroutine tearDown
+
   @test(npes=[1])
   subroutine test_jobctrl_set_time_limit(this)
-    class (MpiTestMethod), intent(inout) :: this
+    class (test_jobctrl), intent(inout) :: this
     type(mesh_t) :: m ! Dummy type to avoid link issues
     integer :: ierr
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     call jobctrl_init()
 
