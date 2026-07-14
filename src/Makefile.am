@@ -497,6 +497,7 @@ if ENABLE_HIP
 libneko_la_SOURCES += \
     ale/bcknd/device/hip/ale_kinematics.hip\
 	device/hip/check.hip\
+	device/hip/buffer.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
 	math/bcknd/device/hip/tensor.hip\
@@ -563,6 +564,7 @@ if ENABLE_CUDA
 libneko_la_SOURCES += \
     ale/bcknd/device/cuda/ale_kinematics.cu\
 	device/cuda/check.cu\
+	device/cuda/buffer.cu\
 	device/cuda/nvtx_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/schwarz.cu\
@@ -671,6 +673,7 @@ if ENABLE_OPENCL
 libneko_la_SOURCES += \
 	device/opencl/check.c\
 	device/opencl/jit.c\
+	device/opencl/buffer.c\
 	math/bcknd/device/opencl/math.c\
 	math/bcknd/device/opencl/schwarz.c\
 	math/bcknd/device/opencl/tensor.c\
@@ -1179,6 +1182,9 @@ EXTRA_DIST = \
 	device/opencl/check.h\
 	device/hip/check.h\
 	device/cuda/check.h\
+	device/cuda/buffer.h\
+	device/hip/buffer.h\
+	device/opencl/buffer.h\
 	comm/comm_nccl.h\
 	comm/comm.h\
 	common/neko_log.h

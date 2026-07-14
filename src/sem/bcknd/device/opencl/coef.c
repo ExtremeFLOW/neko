@@ -277,12 +277,10 @@ void opencl_coef_generate_area_and_normal(void *area,
 #define AREA_CASE(LX)                                                           \
   case LX:                                                                      \
     {                                                                           \
-      printf("%s\n",  STR(coef_generate_area_and_normal_kernel_lx##LX));        \
       cl_kernel kernel =                                                        \
         clCreateKernel(coef_program,                                            \
                        STR(coef_generate_area_and_normal_kernel_lx##LX), &err); \
       CL_CHECK(err);                                                            \
-      printf("Done\n"); \
                                                                                 \
       CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &area));      \
       CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &nx));        \
