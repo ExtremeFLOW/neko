@@ -323,13 +323,9 @@ if (test "x${have_cuda}" = xyes ||
 
          # Device-aware MPI needs atomicAdd (>= sm_60), and picking the
          # wrong architecture for the target GPU silently hurts performance
-         # rather than failing to build -- worse than a clear error. Builds
-         # are also often cross-compiled on a host with no GPU present, so
-         # there is nothing reliable to auto-detect against. Require the
-         # user to state the target architecture explicitly instead of
-         # guessing.
+         # rather than failing to build -- worse than a clear error.
          AS_IF([test -z "$CUDA_ARCH"],
-               [AC_MSG_ERROR([CUDA_ARCH must be set explicitly for --enable-device-mpi CUDA builds, e.g. CUDA_ARCH="-arch sm_80".])])
+               [AC_MSG_ERROR([CUDA_ARCH must be set explicitly to a value >= sm_60 for device-aware MPI])])
       fi
 
       if  test "x${have_hip}" = xyes; then
