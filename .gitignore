@@ -36,6 +36,7 @@ device_config.h
 neko_config.f90
 num_types.f90
 comm.F90
+pfunit_comm_utils.F90
 missing
 test-driver
 Doxyfile
