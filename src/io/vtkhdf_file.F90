@@ -52,8 +52,9 @@ module vtkhdf_file
 #ifdef HAVE_HDF5
   use hdf5, only : &
        hid_t, hsize_t, size_t, &
-       h5open_f, h5close_f, &
-       h5fcreate_f, h5fopen_f, h5fclose_f, &
+       h5open_f, &
+       h5fcreate_f, h5fopen_f, h5fclose_f, h5fflush_f, h5fget_obj_count_f, &
+       H5F_OBJ_ALL_F, H5F_SCOPE_GLOBAL_F, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
        h5acreate_f, h5aopen_f, h5awrite_f, h5aread_f, h5aclose_f, h5aexists_f, &
        h5aopen_by_name_f, &
@@ -93,6 +94,11 @@ module vtkhdf_file
   end type vtkhdf_file_t
 
   integer, dimension(2), parameter :: vtkhdf_version = [2, 6]
+
+#ifdef HAVE_HDF5
+  !> True once the HDF5 library has been initialised by this module
+  logical :: hdf5_session_started = .false.
+#endif
 
 contains
 
@@ -149,6 +155,22 @@ contains
   ! -------------------------------------------------------------------------- !
   ! HDF5 Required subroutines
 
+  !> Initialise the HDF5 library once for the lifetime of the process
+  !!
+  !! The library is intentionally never closed again. With HDF5 >= 1.14.4,
+  !! h5close_f destroys the Fortran predefined datatype handles, and a
+  !! subsequent h5open_f refuses to recreate them while any HDF5 id is
+  !! still open (H5OPEN_NUM_OBJ guard), leaving every later write with
+  !! invalid datatype handles ("invalid datatype" / "not a datatype").
+  subroutine hdf5_session_start(ierr)
+    integer, intent(out) :: ierr
+    ierr = 0
+    if (.not. hdf5_session_started) then
+       call h5open_f(ierr)
+       hdf5_session_started = .true.
+    end if
+  end subroutine hdf5_session_start
+
   !> Write data in HDF5 format following official VTKHDF UnstructuredGrid
   !! specification
   subroutine vtkhdf_file_write(this, data, t)
@@ -181,11 +203,14 @@ contains
        dof => data%dof
        n_fields = 1
        call fields%init(1)
-       call fields%assign(1, data)
+       ! Call the specific bindings; resolving the assign generic here
+       ! requires matching a TARGET actual to a POINTER, INTENT(IN) dummy
+       ! (F2008), which the Fujitsu compiler rejects
+       call fields%assign_to_field(1, data)
     type is (field_list_t)
        msh => data%msh(1)
        dof => data%dof(1)
-       call fields%assign(data)
+       call fields%assign_to_list(data)
     class default
        call neko_error('Invalid data type for vtkhdf_file_write')
     end select
@@ -219,7 +244,7 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    call h5open_f(ierr)
+    call hdf5_session_start(ierr)
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
@@ -284,8 +309,22 @@ contains
 
     call h5gclose_f(vtkhdf_grp, ierr)
     call h5pclose_f(plist_id, ierr)
+
+    ! A leaked id defers the real (weak) close indefinitely, so the
+    ! metadata cache would never reach disk; flush explicitly and warn
+    ! if anything besides the file itself is still open.
+    block
+      integer(size_t) :: obj_count
+      character(len=80) :: wrn_buf
+      call h5fget_obj_count_f(file_id, H5F_OBJ_ALL_F, obj_count, ierr)
+      if (obj_count .gt. 1_size_t .and. pe_rank .eq. 0) then
+         write(wrn_buf, '(A,I0,A)') 'VTKHDF: ', obj_count - 1, &
+              ' HDF5 id(s) still open at file close'
+         call neko_warning(trim(wrn_buf))
+      end if
+    end block
+    call h5fflush_f(file_id, H5F_SCOPE_GLOBAL_F, ierr)
     call h5fclose_f(file_id, ierr)
-    call h5close_f(ierr)
 
     call fields%free()
 
@@ -1489,7 +1528,7 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    call h5open_f(ierr)
+    call hdf5_session_start(ierr)
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
@@ -1503,16 +1542,17 @@ contains
     if (ierr .ne. 0) then
        call h5fclose_f(file_id, ierr)
        call h5pclose_f(plist_id, ierr)
-       call h5close_f(ierr)
        call neko_error('VTKHDF group not found in file: ' // trim(fname))
     end if
 
     select type (data)
     type is (field_t)
        call fields%init(1)
-       call fields%assign(1, data)
+       ! Specific bindings instead of the assign generic (see
+       ! vtkhdf_file_write); Fujitsu frt cannot resolve the generic
+       call fields%assign_to_field(1, data)
     type is (field_list_t)
-       call fields%assign(data)
+       call fields%assign_to_list(data)
     class default
        call neko_error("Unsupported data type in vtkhdf_file_read")
     end select
@@ -1525,7 +1565,6 @@ contains
     call h5gclose_f(vtkhdf_grp, ierr)
     call h5fclose_f(file_id, ierr)
     call h5pclose_f(plist_id, ierr)
-    call h5close_f(ierr)
 
     call fields%free()
 
