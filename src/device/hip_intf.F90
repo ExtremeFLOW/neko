@@ -129,6 +129,10 @@ module hip_intf
        implicit none
      end function hipDeviceReset
 
+     subroutine hip_buffer_free_all() &
+          bind(c, name = 'hip_buffer_free_all')
+     end subroutine hip_buffer_free_all
+
      integer(c_int) function hipDeviceGetName(name, len, device) &
           bind(c, name = 'hipDeviceGetName')
        use, intrinsic :: iso_c_binding
@@ -263,7 +267,10 @@ contains
   subroutine hip_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
-    integer(c_int) :: ierr
+    integer :: ierr
+
+    ! Release all device buffers held by the device layer
+    call hip_buffer_free_all()
 
     if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying main stream')

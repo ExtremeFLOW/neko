@@ -80,8 +80,8 @@ module opencl_prgm_lib
   !> Device pnpn residual kernels (stress formulation)
   type(c_ptr), public, bind(c) :: pnpn_stress_res_program = C_NULL_PTR
 
-  !> Device euler residual kernels
-  type(c_ptr), public, bind(c) :: euler_res_program = C_NULL_PTR
+  !> Device compressible residual kernels
+  type(c_ptr), public, bind(c) :: compressible_res_program = C_NULL_PTR
 
   !> Device compressible ops kernels
   type(c_ptr), public, bind(c) :: &
@@ -279,11 +279,11 @@ contains
        pnpn_stress_res_program = C_NULL_PTR
     end if
 
-    if (c_associated(euler_res_program)) then
-       if (clReleaseProgram(euler_res_program) .ne. CL_SUCCESS) then
+    if (c_associated(compressible_res_program)) then
+       if (clReleaseProgram(compressible_res_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       euler_res_program = C_NULL_PTR
+       compressible_res_program = C_NULL_PTR
     end if
 
     if (c_associated(compressible_ops_compute_max_wave_speed_program)) then

@@ -147,6 +147,7 @@ contains
     ! Determine static stability and length scale
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do private(i, N2, l, s11, s22, s33, s12, s13, s23, &
     !$omp& shear, buoyancy, dissipation)

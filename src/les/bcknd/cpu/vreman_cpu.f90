@@ -142,6 +142,7 @@ contains
     do e = 1, coef%msh%nelv
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
+       !DIR$ IVDEP
        !GCC$ ivdep
        do i = 1, coef%Xh%lxyz
           ! beta_ij = alpha_mi alpha_mj
@@ -191,6 +192,7 @@ contains
        do e = 1, coef%msh%nelv
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
+          !DIR$ IVDEP
           !GCC$ ivdep
           do i = 1, coef%Xh%lxyz
 

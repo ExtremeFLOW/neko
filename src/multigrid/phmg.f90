@@ -301,6 +301,62 @@ contains
 
   subroutine phmg_free(this)
     class(phmg_t), intent(inout) :: this
+    integer :: i
+
+    call this%amg_solver%free()
+
+    if (allocated(this%intrp)) then
+       do i = 1, size(this%intrp)
+          call this%intrp(i)%free()
+       end do
+       deallocate(this%intrp)
+    end if
+
+    if (allocated(this%ax)) then
+       deallocate(this%ax)
+    end if
+
+    if (allocated(this%phmg_hrchy%lvl)) then
+       do i = lbound(this%phmg_hrchy%lvl, 1), ubound(this%phmg_hrchy%lvl, 1)
+          call this%phmg_hrchy%lvl(i)%r%free()
+          call this%phmg_hrchy%lvl(i)%w%free()
+          call this%phmg_hrchy%lvl(i)%z%free()
+
+          call this%phmg_hrchy%lvl(i)%cheby%free()
+          call this%phmg_hrchy%lvl(i)%cheby_device%free()
+          call this%phmg_hrchy%lvl(i)%jacobi%free()
+          call this%phmg_hrchy%lvl(i)%device_jacobi%free()
+
+          if (allocated(this%phmg_hrchy%lvl(i)%schwarz%work1)) then
+             call this%phmg_hrchy%lvl(i)%schwarz%free()
+          end if
+
+          call this%phmg_hrchy%lvl(i)%bclst%free()
+          call this%phmg_hrchy%lvl(i)%bc%free()
+
+          ! Level 0 borrows Xh, dm_Xh, gs_h and coef from the caller,
+          ! all other levels own them
+          if (this%phmg_hrchy%lvl(i)%lvl .gt. 0) then
+             call this%phmg_hrchy%lvl(i)%coef%free()
+             call this%phmg_hrchy%lvl(i)%gs_h%free()
+             call this%phmg_hrchy%lvl(i)%dm_Xh%free()
+             call this%phmg_hrchy%lvl(i)%Xh%free()
+             deallocate(this%phmg_hrchy%lvl(i)%coef)
+             deallocate(this%phmg_hrchy%lvl(i)%gs_h)
+             deallocate(this%phmg_hrchy%lvl(i)%dm_Xh)
+             deallocate(this%phmg_hrchy%lvl(i)%Xh)
+          end if
+
+          nullify(this%phmg_hrchy%lvl(i)%coef)
+          nullify(this%phmg_hrchy%lvl(i)%gs_h)
+          nullify(this%phmg_hrchy%lvl(i)%dm_Xh)
+          nullify(this%phmg_hrchy%lvl(i)%Xh)
+       end do
+       deallocate(this%phmg_hrchy%lvl)
+    end if
+
+    nullify(this%msh)
+
   end subroutine phmg_free
 
   subroutine phmg_solve(this, z, r, n)
@@ -329,6 +385,7 @@ contains
       else
          !OCL NORECURRENCE, NOVREC, NOALIAS
          !DIR$ CONCURRENT
+         !DIR$ IVDEP
          !GCC$ ivdep
          !$omp parallel do
          do i = 1, n
@@ -344,6 +401,7 @@ contains
 
          !OCL NORECURRENCE, NOVREC, NOALIAS
          !DIR$ CONCURRENT
+         !DIR$ IVDEP
          !GCC$ ivdep
          !$omp parallel do
          do i = 1, n
@@ -404,6 +462,7 @@ contains
            else
               !OCL NORECURRENCE, NOVREC, NOALIAS
               !DIR$ CONCURRENT
+              !DIR$ IVDEP
               !GCC$ ivdep
               !$omp parallel do
               do i = 1, mg(lvl)%dm_Xh%size()
@@ -436,6 +495,7 @@ contains
            else
               !OCL NORECURRENCE, NOVREC, NOALIAS
               !DIR$ CONCURRENT
+              !DIR$ IVDEP
               !GCC$ ivdep
               !$omp parallel do
               do i = 1, mg(lvl+1)%dm_Xh%size()
@@ -483,6 +543,7 @@ contains
            else
               !OCL NORECURRENCE, NOVREC, NOALIAS
               !DIR$ CONCURRENT
+              !DIR$ IVDEP
               !GCC$ ivdep
               !$omp parallel do
               do i = 1, mg(lvl)%dm_Xh%size()

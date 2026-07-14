@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.5])
+AC_INIT([neko],[1.99.6])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -422,6 +422,9 @@ AM_CONDITIONAL([ENABLE_PYTHON], [test "x${found_python}" = xyes])
 AC_SUBST(NEKO_PKG_FCFLAGS)
 FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
+# Date stamp for generated manual pages
+AC_SUBST(MAN_DATE, [`date +%Y-%m-%d`])
+
 AC_CONFIG_FILES([Makefile\
         src/Makefile\
         src/python/Makefile\
@@ -434,7 +437,9 @@ AC_CONFIG_FILES([Makefile\
         src/scripts/cltostring.sh\
         src/api/neko.h\
         makeneko\
-        neko.pc])
+        neko.pc\
+        doc/man/neko.1\
+        doc/man/makeneko.1])
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
@@ -495,7 +500,9 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/mesh_checker/Makefile\
 		    contrib/prepart/Makefile\
 		    contrib/adios2_to_nek5000/Makefile\
-		    contrib/psnr/Makefile])
+		    contrib/psnr/Makefile\
+		    contrib/rea2nbin/rea2nbin.1\
+		    contrib/prepart/prepart.1])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])

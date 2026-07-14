@@ -7,6 +7,12 @@
   compile (Pascal support was dropped). `configure` now requires `CUDA_ARCH`
   to be set explicitly for such builds and errors out otherwise, rather than
   silently guessing an architecture that may not match the target GPU.
+- Add physical viscous and conductive flux support to the compressible solver.
+- Fixed stale facet-normals in fluid_pnpn pressure surface terms.
+  This was only affecting ALE simulations containing rotations.
+- *BREAKING* Changed the size of mesh velocity lag arrays in ALE to 2. 
+  Old ALE restart files (before this commit) should not be used anymore. 
+  Non-ALE restart files are totally unaffected.
 - Added CSV/HDF5 trajectory output options for the `lagrangian_particles`
   simcomp, including `output_format`, `snapshots_per_file`, documentation, and
   the `rebounding_particles` example.

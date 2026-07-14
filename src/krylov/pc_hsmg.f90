@@ -453,6 +453,11 @@ contains
        deallocate(this%crs_solver)
     end if
 
+    if (allocated(this%amg_solver)) then
+       call this%amg_solver%free()
+       deallocate(this%amg_solver)
+    end if
+
     if (allocated(this%pc_crs)) then
        call precon_destroy(this%pc_crs)
     end if
