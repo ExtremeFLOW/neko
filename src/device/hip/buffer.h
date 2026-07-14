@@ -49,19 +49,22 @@ extern "C" {
  * demand after a subsequent device init
  */
 struct hip_buffer {
-  void *host;              /**< Pinned host buffer */
+  void *host;              /**< Pinned host buffer (NULL if device-only) */
   void *dev;               /**< Device buffer */
   size_t size;             /**< Capacity in bytes */
+  int dev_only;            /**< Device buffer only, no pinned host buffer */
   int registered;          /**< Buffer linked into the registry */
   struct hip_buffer *next; /**< Registry link */
 };
 typedef struct hip_buffer hip_buffer_t;
 
-#define HIP_BUFFER_INIT {NULL, NULL, 0, 0, NULL}
+#define HIP_BUFFER_INIT {NULL, NULL, 0, 0, 0, NULL}
+#define HIP_BUFFER_INIT_DEV {NULL, NULL, 0, 1, 0, NULL}
 
 /**
  * Ensure that a buffer holds at least @a size bytes on both the
- * host and the device side, growing it if necessary
+ * host and the device side (device side only for device-only
+ * buffers), growing it if necessary
  */
 void hip_buffer_reserve(hip_buffer_t *buf, size_t size);
 

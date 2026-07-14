@@ -35,16 +35,17 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
+#include <device/hip/buffer.h>
 
 #include "projection_kernel.h"
 #include <math/bcknd/device/hip/math_kernel.h>
 
 
 /*
- * Reduction buffer
+ * Device-only reduction buffer, owned by the device layer and
+ * released on device teardown (hip_buffer_free_all in hip_finalize)
  */
-int proj_red_s = 0;
-real * proj_bufred_d = NULL;
+hip_buffer_t proj_bufred = HIP_BUFFER_INIT_DEV;
 
 extern "C" {
 
@@ -62,13 +63,8 @@ extern "C" {
     const dim3 glsc3_nthrds(pow2, nt, 1);
     const dim3 glsc3_nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int glsc3_nb = ((*n) + nt - 1)/nt;
-    if((*j)*glsc3_nb>proj_red_s){
-      proj_red_s = (*j)*glsc3_nb;
-      if (proj_bufred_d != NULL) {
-	HIP_CHECK(hipFree(proj_bufred_d));
-      }
-      HIP_CHECK(hipMalloc(&proj_bufred_d, (*j)*glsc3_nb*sizeof(real)));
-    }
+    hip_buffer_reserve(&proj_bufred, (*j)*glsc3_nb*sizeof(real));
+    real *proj_bufred_d = (real *) proj_bufred.dev;
 
     /* First glsc3_many call */
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_many_kernel<real> ),
@@ -135,13 +131,8 @@ extern "C" {
     const dim3 glsc3_nthrds(pow2, nt, 1);
     const dim3 glsc3_nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int glsc3_nb = ((*n) + nt - 1)/nt;
-    if((*j)*glsc3_nb>proj_red_s){
-      proj_red_s = (*j)*glsc3_nb;
-      if (proj_bufred_d != NULL) {
-	HIP_CHECK(hipFree(proj_bufred_d));
-      }
-      HIP_CHECK(hipMalloc(&proj_bufred_d, (*j)*glsc3_nb*sizeof(real)));
-    }
+    hip_buffer_reserve(&proj_bufred, (*j)*glsc3_nb*sizeof(real));
+    real *proj_bufred_d = (real *) proj_bufred.dev;
 
     /* First glsc3_many call */
     hipLaunchKernelGGL(HIP_KERNEL_NAME( glsc3_many_kernel<real> ),

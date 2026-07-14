@@ -49,12 +49,14 @@ extern "C" {
     if (size <= buf->size)
       return;
 
-    if (buf->host != NULL) {
-      HIP_CHECK(hipHostFree(buf->host));
+    if (buf->dev != NULL) {
+      if (buf->host != NULL)
+        HIP_CHECK(hipHostFree(buf->host));
       HIP_CHECK(hipFree(buf->dev));
     }
 
-    HIP_CHECK(hipHostMalloc(&buf->host, size, hipHostMallocDefault));
+    if (!buf->dev_only)
+      HIP_CHECK(hipHostMalloc(&buf->host, size, hipHostMallocDefault));
     HIP_CHECK(hipMalloc(&buf->dev, size));
     buf->size = size;
 
@@ -73,6 +75,8 @@ extern "C" {
       if (buf->host != NULL) {
         HIP_CHECK(hipHostFree(buf->host));
         buf->host = NULL;
+      }
+      if (buf->dev != NULL) {
         HIP_CHECK(hipFree(buf->dev));
         buf->dev = NULL;
       }

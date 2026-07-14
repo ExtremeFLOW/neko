@@ -52,8 +52,9 @@ extern "C" {
     if (size <= buf->size)
       return;
 
-    if (buf->host != NULL) {
-      CUDA_CHECK(cudaFreeHost(buf->host));
+    if (buf->dev != NULL) {
+      if (buf->host != NULL)
+        CUDA_CHECK(cudaFreeHost(buf->host));
 #ifdef HAVE_NVSHMEM
       if (buf->symm)
         nvshmem_free(buf->dev);
@@ -64,7 +65,8 @@ extern "C" {
 #endif
     }
 
-    CUDA_CHECK(cudaMallocHost(&buf->host, size));
+    if (!buf->dev_only)
+      CUDA_CHECK(cudaMallocHost(&buf->host, size));
 #ifdef HAVE_NVSHMEM
     if (buf->symm)
       buf->dev = nvshmem_malloc(size);
@@ -90,6 +92,8 @@ extern "C" {
       if (buf->host != NULL) {
         CUDA_CHECK(cudaFreeHost(buf->host));
         buf->host = NULL;
+      }
+      if (buf->dev != NULL) {
 #ifdef HAVE_NVSHMEM
         if (buf->symm)
           nvshmem_free(buf->dev);
