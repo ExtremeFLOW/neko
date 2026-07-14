@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -280,9 +280,17 @@ contains
        call neko_error('Error destroying aux stream')
     end if
 
-    ! Best-effort context teardown to release runtime-owned allocations.
     ierr = hipDeviceSynchronize()
+
+    ! Best-effort context teardown to release runtime-owned allocations.
+    ! Skipped in pFUnit-enabled builds: unit tests cycle device
+    ! init/finalize with MPI still up, and device-aware communication
+    ! backends (GPU-aware MPI, RCCL) cache device state from first
+    ! use; resetting the device here would leave them with dangling
+    ! handles
+#ifndef HAVE_PFUNIT
     ierr = hipDeviceReset()
+#endif
   end subroutine hip_finalize
 
   subroutine hip_device_name(name)
