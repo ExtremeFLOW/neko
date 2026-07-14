@@ -87,7 +87,7 @@ build-cuda:
       - ml pfunit/4.15.0-gcc-14.3.0-oai37od
   script:
     - ./regen.sh
-    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-cuda=/usr/local/cuda --enable-device-mpi --prefix=${CI_BUILDS_DIR}/pkg
+    - ./configure FC=mpif90 CC=mpicc FCFLAGS="-O3" CUDA_ARCH="-arch sm_90" --with-pfunit=${PFUNIT_ROOT}/PFUNIT-4.15/ --with-parmetis --with-metis --with-cuda=/usr/local/cuda --enable-device-mpi --prefix=${CI_BUILDS_DIR}/pkg
     - make -j 128 install
   cache:
     key: "$CI_COMMIT_REF_SLUG+cuda"
