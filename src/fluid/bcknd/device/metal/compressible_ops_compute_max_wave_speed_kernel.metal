@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2025, The Neko Authors
+ Copyright (c) 2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,32 +32,31 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <cublas.h>
-#include <device/device_config.h>
-#include <device/cuda/check.h>
-#include <math/bcknd/device/cuda/mathops_kernel.h>
+/**
+ * Metal compute kernel for the compressible flow maximum wave speed.
+ *
+ * @note Apple GPUs do not support FP64; all arithmetic uses float.
+ */
 
-extern "C" {
+#include <metal_stdlib>
+using namespace metal;
 
-void cuda_compute_entropy(void *S_d, 
-                          void *p_d, void *rho_d,
-                          real *gamma, 
-                          int *n) {
-  
-  const dim3 nthrds(1024, 1, 1);
-  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-  
-  compute_entropy_kernel<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) S_d, 
-                                     (real *) p_d, (real *) rho_d, 
-                                     *gamma, *n);
-  CUDA_CHECK(cudaGetLastError());
-  
+/**
+ * Device kernel for computing the maximum wave speed |u| + c
+ */
+kernel void compute_max_wave_speed_kernel(device float *max_wave_speed[[ buffer(0) ]],
+                                          device const float *u[[ buffer(1) ]],
+                                          device const float *v[[ buffer(2) ]],
+                                          device const float *w[[ buffer(3) ]],
+                                          constant float &gamma[[ buffer(4) ]],
+                                          device const float *p[[ buffer(5) ]],
+                                          device const float *rho[[ buffer(6) ]],
+                                          constant int &n[[ buffer(7) ]],
+                                          uint idx [[ thread_position_in_grid ]]) {
+  if (idx >= (uint)n) return;
+  const float vel_mag = sqrt(u[idx] * u[idx]
+                             + v[idx] * v[idx]
+                             + w[idx] * w[idx]);
+  const float sound_speed = sqrt(gamma * p[idx] / rho[idx]);
+  max_wave_speed[idx] = vel_mag + sound_speed;
 }
-
-} 

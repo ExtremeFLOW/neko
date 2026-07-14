@@ -422,6 +422,56 @@ module compressible_ops_device
        integer(c_int), value :: n
      end subroutine metal_update_e
   end interface
+
+  interface
+     subroutine metal_update_temperature(T_d, p_d, rho_d, gamma, n) &
+       bind(c, name = 'metal_update_temperature')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: T_d, p_d, rho_d
+       real(c_rp), value :: gamma
+       integer(c_int), value :: n
+     end subroutine metal_update_temperature
+  end interface
+
+  interface
+     subroutine metal_ns_flux_prepare(div_flux_d, dissipation_d, h1_d, &
+          dudx_d, dudy_d, dudz_d, dvdx_d, dvdy_d, dvdz_d, &
+          dwdx_d, dwdy_d, dwdz_d, mu_d, n) &
+          bind(c, name = 'metal_ns_flux_prepare')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: div_flux_d, dissipation_d, h1_d
+       type(c_ptr), value :: dudx_d, dudy_d, dudz_d
+       type(c_ptr), value :: dvdx_d, dvdy_d, dvdz_d
+       type(c_ptr), value :: dwdx_d, dwdy_d, dwdz_d, mu_d
+       integer(c_int), value :: n
+     end subroutine metal_ns_flux_prepare
+  end interface
+
+  interface
+     subroutine metal_ns_flux_finalize(visc_m_x_d, visc_m_y_d, visc_m_z_d, &
+          visc_E_d, f_x_d, f_y_d, f_z_d, opgrad_x_d, opgrad_y_d, &
+          opgrad_z_d, u_d, v_d, w_d, B_d, dissipation_d, n) &
+          bind(c, name = 'metal_ns_flux_finalize')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: visc_m_x_d, visc_m_y_d, visc_m_z_d, visc_E_d
+       type(c_ptr), value :: f_x_d, f_y_d, f_z_d
+       type(c_ptr), value :: opgrad_x_d, opgrad_y_d, opgrad_z_d
+       type(c_ptr), value :: u_d, v_d, w_d, B_d, dissipation_d
+       integer(c_int), value :: n
+     end subroutine metal_ns_flux_finalize
+  end interface
+
+  interface
+     subroutine metal_ns_flux_temperature(div_flux_d, h1_d, p_d, rho_d, &
+          kappa_d, gamma, n) bind(c, name = 'metal_ns_flux_temperature')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: div_flux_d, h1_d, p_d, rho_d, kappa_d
+       real(c_rp), value :: gamma
+       integer(c_int), value :: n
+     end subroutine metal_ns_flux_temperature
+  end interface
 #endif
 
   public :: compressible_ops_device_compute_max_wave_speed, &
@@ -566,6 +616,8 @@ contains
     call cuda_update_temperature(T_d, p_d, rho_d, gamma, n)
 #elif HAVE_OPENCL
     call opencl_update_temperature(T_d, p_d, rho_d, gamma, n)
+#elif HAVE_METAL
+    call metal_update_temperature(T_d, p_d, rho_d, gamma, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -592,6 +644,10 @@ contains
          mu_d, n)
 #elif HAVE_OPENCL
     call opencl_ns_flux_prepare(div_flux_d, dissipation_d, h1_d, dudx_d, &
+         dudy_d, dudz_d, dvdx_d, dvdy_d, dvdz_d, dwdx_d, dwdy_d, dwdz_d, &
+         mu_d, n)
+#elif HAVE_METAL
+    call metal_ns_flux_prepare(div_flux_d, dissipation_d, h1_d, dudx_d, &
          dudy_d, dudz_d, dvdx_d, dvdy_d, dvdz_d, dwdx_d, dwdy_d, dwdz_d, &
          mu_d, n)
 #else
@@ -622,6 +678,10 @@ contains
     call opencl_ns_flux_finalize(visc_m_x_d, visc_m_y_d, visc_m_z_d, &
          visc_E_d, f_x_d, f_y_d, f_z_d, opgrad_x_d, opgrad_y_d, &
          opgrad_z_d, u_d, v_d, w_d, B_d, dissipation_d, n)
+#elif HAVE_METAL
+    call metal_ns_flux_finalize(visc_m_x_d, visc_m_y_d, visc_m_z_d, &
+         visc_E_d, f_x_d, f_y_d, f_z_d, opgrad_x_d, opgrad_y_d, &
+         opgrad_z_d, u_d, v_d, w_d, B_d, dissipation_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -644,6 +704,9 @@ contains
          gamma, n)
 #elif HAVE_OPENCL
     call opencl_ns_flux_temperature(div_flux_d, h1_d, p_d, rho_d, kappa_d, &
+         gamma, n)
+#elif HAVE_METAL
+    call metal_ns_flux_temperature(div_flux_d, h1_d, p_d, rho_d, kappa_d, &
          gamma, n)
 #else
     call neko_error('No device backend configured')
