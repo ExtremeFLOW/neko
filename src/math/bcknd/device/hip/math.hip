@@ -939,10 +939,10 @@ extern "C" {
     if( *n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, (real *) b, redbuf_xp.dev, *n);
+                         (real *) a, (real *) b, (real_xp *) redbuf_xp.dev, *n);
       HIP_CHECK(hipGetLastError());
       hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
-                         1, 1024, 0, stream, (real_xp * ) redbuf_xp.dev, nb);
+                         1, 1024, 0, stream, (real_xp *) redbuf_xp.dev, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
