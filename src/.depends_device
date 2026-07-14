@@ -165,8 +165,10 @@ device/metal/metal.lo : device/metal/metal.m device/metal/check.h
 device/metal/neko_metallib.lo : device/metal/neko_metallib.c
 math/bcknd/device/metal/math.lo : math/bcknd/device/metal/math.m
 math/bcknd/device/metal/ax_helm.lo : math/bcknd/device/metal/ax_helm.m
+math/bcknd/device/metal/ax_helm_full.lo : math/bcknd/device/metal/ax_helm_full.m device/metal/check.h
 gs/bcknd/device/metal/gs.lo : gs/bcknd/device/metal/gs.m
 sem/bcknd/device/metal/coef.lo : sem/bcknd/device/metal/coef.m
+sem/bcknd/device/metal/local_interpolation.lo : sem/bcknd/device/metal/local_interpolation.m device/metal/check.h
 bc/bcknd/device/metal/dirichlet.lo : bc/bcknd/device/metal/dirichlet.m bc/bcknd/device/metal/bc_utils.h
 bc/bcknd/device/metal/inflow.lo : bc/bcknd/device/metal/inflow.m bc/bcknd/device/metal/bc_utils.h
 bc/bcknd/device/metal/zero_dirichlet.lo : bc/bcknd/device/metal/zero_dirichlet.m bc/bcknd/device/metal/bc_utils.h
@@ -195,6 +197,9 @@ math/bcknd/device/metal/mathops.lo : math/bcknd/device/metal/mathops.m device/me
 common/bcknd/device/metal/rhs_maker.lo : common/bcknd/device/metal/rhs_maker.m device/metal/check.h
 fluid/bcknd/device/metal/compressible_res.lo : fluid/bcknd/device/metal/compressible_res.m device/metal/check.h
 fluid/bcknd/device/metal/pnpn_res.lo : fluid/bcknd/device/metal/pnpn_res.m device/metal/check.h
-fluid/bcknd/device/metal/compressible_ops.lo : fluid/bcknd/device/metal/compressible_ops.m device/metal/check.h
+fluid/stress_formulation/bcknd/device/metal/pnpn_stress_res.lo : fluid/stress_formulation/bcknd/device/metal/pnpn_stress_res.m device/metal/check.h
+fluid/bcknd/device/metal/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/metal/compressible_ops_compute_max_wave_speed.m device/metal/check.h
+fluid/bcknd/device/metal/compressible_ops_compute_entropy.lo : fluid/bcknd/device/metal/compressible_ops_compute_entropy.m device/metal/check.h
+fluid/bcknd/device/metal/compressible_ops_update.lo : fluid/bcknd/device/metal/compressible_ops_update.m device/metal/check.h
 fluid/regularization/bcknd/device/metal/entropy_viscosity.lo : fluid/regularization/bcknd/device/metal/entropy_viscosity.m device/metal/check.h
 filter/bcknd/device/metal/mappings.lo : filter/bcknd/device/metal/mappings.m device/metal/check.h
