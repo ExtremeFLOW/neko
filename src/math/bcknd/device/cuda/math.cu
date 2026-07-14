@@ -35,6 +35,7 @@
 #include "math_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <device/cuda/buffer.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -701,59 +702,24 @@ extern "C" {
 
 
   /*
-   * Reduction buffer
+   * Reduction buffers, owned by the device layer and released
+   * on device teardown (cuda_buffer_free_all in cuda_finalize)
    */
-  int red_s = 0;
-  real * bufred = NULL;
-  void * bufred_d = NULL;
-  int red_xp_s = 0;
-  real_xp * bufred_xp = NULL;
-  void * bufred_xp_d = NULL;
+  cuda_buffer_t redbuf = CUDA_BUFFER_INIT_SYMM;
+  cuda_buffer_t redbuf_xp = CUDA_BUFFER_INIT_SYMM;
 
   /**
    *Checks and allocates a buffer of size nb*sizeof(real) for reductions
   */
   void cuda_redbuf_check_alloc(int nb) {
-    if ( nb >= red_s) {
-      red_s = nb+1;
-      if (bufred != NULL) {
-        CUDA_CHECK(cudaFreeHost(bufred));
-#ifdef HAVE_NVSHMEM
-        nvshmem_free(bufred_d);
-#else
-        CUDA_CHECK(cudaFree(bufred_d));
-#endif
-      }
-      CUDA_CHECK(cudaMallocHost(&bufred,red_s*sizeof(real)));
-#ifdef HAVE_NVSHMEM
-      bufred_d = (real *) nvshmem_malloc(red_s*sizeof(real));
-#else
-      CUDA_CHECK(cudaMalloc(&bufred_d, red_s*sizeof(real)));
-#endif
-    }
+    cuda_buffer_reserve(&redbuf, (nb + 1) * sizeof(real));
   }
 
   /**
    *Checks and allocates a buffer of size nb*sizeof(real_xp) for reductions
   */
   void cuda_redbuf_check_alloc_xp(int nb) {
-    if ( nb >= red_xp_s) {
-      red_xp_s = nb+1;
-      if (bufred_xp != NULL) {
-        CUDA_CHECK(cudaFreeHost(bufred_xp));
-#ifdef HAVE_NVSHMEM
-        nvshmem_free(bufred_xp_d);
-#else
-        CUDA_CHECK(cudaFree(bufred_xp_d));
-#endif
-      }
-      CUDA_CHECK(cudaMallocHost(&bufred_xp, red_xp_s*sizeof(real_xp)));
-#ifdef HAVE_NVSHMEM
-      bufred_xp_d = (real_xp *) nvshmem_malloc(red_xp_s*sizeof(real_xp));
-#else
-      CUDA_CHECK(cudaMalloc(&bufred_xp_d, red_xp_s*sizeof(real_xp)));
-#endif
-    }
+    cuda_buffer_reserve(&redbuf_xp, (nb + 1) * sizeof(real_xp));
   }
 
   /**
@@ -918,16 +884,16 @@ extern "C" {
     cuda_redbuf_check_alloc(nb);
 
     vlsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
-      ((real *) u, (real *) v, (real *) w, (real *) bufred_d, *n);
+      ((real *) u, (real *) v, (real *) w, (real *) redbuf.dev, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
+    reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) redbuf.dev, nb);
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+    CUDA_CHECK(cudaMemcpyAsync(((real *) redbuf.host), redbuf.dev, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 
-    return bufred[0];
+    return ((real *) redbuf.host)[0];
   }
 
 
@@ -947,17 +913,17 @@ extern "C" {
 
     if ( *n > 0) {
       glsc3_kernel<real, real_xp><<<nblcks, nthrds, 0, stream>>>
-        ((real *) a, (real *) b, (real *) c, (real_xp *) bufred_xp_d, *n);
+        ((real *) a, (real *) b, (real *) c, (real_xp *) redbuf_xp.dev, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) bufred_xp_d, nb);
+      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) redbuf_xp.dev, nb);
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      CUDA_CHECK(cudaMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      CUDA_CHECK(cudaMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    cuda_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
+    cuda_global_reduce_add_xp(((real_xp *) redbuf_xp.host), redbuf_xp.dev, 1, stream);
 
-    return bufred_xp[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
@@ -980,16 +946,16 @@ extern "C" {
     if ( *n > 0) {
       glsc3_many_kernel<real, real_xp><<<nblcks, nthrds, 0, stream>>>
         ((const real *) w, (const real **) v,
-         (const real *)mult, (real_xp *)bufred_xp_d, *j, *n);
+         (const real *)mult, (real_xp *)redbuf_xp.dev, *j, *n);
       CUDA_CHECK(cudaGetLastError());
       glsc3_reduce_kernel<real_xp>
-        <<<(*j), 1024, 0, stream>>>((real_xp *) bufred_xp_d, nb, *j);
+        <<<(*j), 1024, 0, stream>>>((real_xp *) redbuf_xp.dev, nb, *j);
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      CUDA_CHECK(cudaMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      CUDA_CHECK(cudaMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    cuda_global_reduce_add_xp(h, bufred_xp_d, (*j), stream);
+    cuda_global_reduce_add_xp(h, redbuf_xp.dev, (*j), stream);
   }
 
   /**
@@ -1008,17 +974,17 @@ extern "C" {
       glsc2_kernel<real, real_xp>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
                                         (real *) b,
-                                        (real_xp *) bufred_xp_d, *n);
+                                        (real_xp *) redbuf_xp.dev, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) bufred_xp_d, nb);
+      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) redbuf_xp.dev, nb);
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      CUDA_CHECK(cudaMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      CUDA_CHECK(cudaMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    cuda_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
+    cuda_global_reduce_add_xp(((real_xp *) redbuf_xp.host), redbuf_xp.dev, 1, stream);
 
-    return bufred_xp[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
@@ -1037,17 +1003,17 @@ extern "C" {
       glsubnorm2_kernel<real, real_xp>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
                                         (real *) b,
-                                        (real_xp *) bufred_xp_d, *n);
+                                        (real_xp *) redbuf_xp.dev, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) bufred_xp_d, nb);
+      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) redbuf_xp.dev, nb);
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      CUDA_CHECK(cudaMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      CUDA_CHECK(cudaMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    cuda_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
+    cuda_global_reduce_add_xp(((real_xp *) redbuf_xp.host), redbuf_xp.dev, 1, stream);
 
-    return bufred_xp[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
    /**
@@ -1063,18 +1029,18 @@ extern "C" {
     if ( *n > 0) {
       glsum_kernel<real, real_xp>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
-                                        (real_xp *) bufred_xp_d, *n);
+                                        (real_xp *) redbuf_xp.dev, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) bufred_xp_d, nb);
+      reduce_kernel<real_xp><<<1, 1024, 0, stream>>> ((real_xp *) redbuf_xp.dev, nb);
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      CUDA_CHECK(cudaMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      CUDA_CHECK(cudaMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
 
-    cuda_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
+    cuda_global_reduce_add_xp(((real_xp *) redbuf_xp.host), redbuf_xp.dev, 1, stream);
 
-    return bufred_xp[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
@@ -1090,19 +1056,20 @@ extern "C" {
     if ( *n > 0) {
       glmax_kernel<real>
         <<<nblcks, nthrds, 0, stream>>>((real *) a, *ninf,
-                                        (real *) bufred_d, *n);
+                                        (real *) redbuf.dev, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_max_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d,
+      reduce_max_kernel<real><<<1, 1024, 0, stream>>> ((real *) redbuf.dev,
                                                         *ninf, nb);
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      cuda_rzero(bufred_d, &red_s, stream);
+      int nel = (int) (redbuf.size / sizeof(real));
+      cuda_rzero(redbuf.dev, &nel, stream);
     }
 
-    cuda_global_reduce_max(bufred, bufred_d, 1, stream);
+    cuda_global_reduce_max(((real *) redbuf.host), redbuf.dev, 1, stream);
 
-    return bufred[0];
+    return ((real *) redbuf.host)[0];
   }
 
   /**
@@ -1118,19 +1085,20 @@ extern "C" {
     if ( *n > 0) {
       glmin_kernel<real>
         <<<nblcks, nthrds, 0, stream>>>((real *) a, *pinf,
-                                        (real *) bufred_d, *n);
+                                        (real *) redbuf.dev, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_min_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d,
+      reduce_min_kernel<real><<<1, 1024, 0, stream>>> ((real *) redbuf.dev,
                                                         *pinf, nb);
       CUDA_CHECK(cudaGetLastError());
     }
     else {
-      cuda_rzero(bufred_d, &red_s, stream);
+      int nel = (int) (redbuf.size / sizeof(real));
+      cuda_rzero(redbuf.dev, &nel, stream);
     }
 
-    cuda_global_reduce_min(bufred, bufred_d, 1, stream);
+    cuda_global_reduce_min(((real *) redbuf.host), redbuf.dev, 1, stream);
 
-    return bufred[0];
+    return ((real *) redbuf.host)[0];
   }
 
   /**
