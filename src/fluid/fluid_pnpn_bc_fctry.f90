@@ -204,6 +204,9 @@ contains
        allocate(shear_stress_t::object)
     case ("wall_model")
        allocate(wall_model_bc_t::object)
+       ! Kind of hack, but  OK for now
+       call json%add("scheme_name", scheme%name)
+
        select type (wall_bc => object)
        type is (wall_model_bc_t)
           wall_bc%user => user
@@ -236,12 +239,7 @@ contains
     default_name = trim(buf)
     call json_get_or_default(json, "name", bc_name, default_name)
 
-    select type (wall_bc => object)
-    type is (wall_model_bc_t)
-       call wall_bc%init_wall_model(coef, json, scheme%name)
-    class default
-       call object%init(coef, json)
-    end select
+    call object%init(coef, json)
     do i = 1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
