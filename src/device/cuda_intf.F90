@@ -295,6 +295,7 @@ contains
   subroutine cuda_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    integer :: ierr
 
     ! Release all device buffers held by the device layer
     call cuda_buffer_free_all()
