@@ -111,6 +111,10 @@ module cuda_intf
        implicit none
      end function cudaDeviceReset
 
+     subroutine cuda_buffer_free_all() &
+          bind(c, name = 'cuda_buffer_free_all')
+     end subroutine cuda_buffer_free_all
+
      integer(c_int) function cudaGetDeviceProperties(prop, device) &
           bind(c, name = 'cudaGetDeviceProperties')
        use, intrinsic :: iso_c_binding
@@ -291,7 +295,10 @@ contains
   subroutine cuda_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
-    integer(c_int) :: ierr
+    integer :: ierr
+
+    ! Release all device buffers held by the device layer
+    call cuda_buffer_free_all()
 
     if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying main stream')

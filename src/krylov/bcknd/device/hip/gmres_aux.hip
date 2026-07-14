@@ -37,6 +37,7 @@
 #include "gmres_kernel.h"
 #include <device/device_config.h>
 #include <device/hip/check.h>
+#include <device/hip/buffer.h>
 
 extern "C" {
 
@@ -49,11 +50,10 @@ extern "C" {
 #endif
 
   /**
-   * @todo Make sure that this gets deleted at some point...
+   * Reduction buffer, owned by the device layer and released on
+   * device teardown (hip_buffer_free_all in hip_finalize)
    */
-  real * gmres_bf1 = NULL;
-  real * gmres_bfd1 = NULL;
-  int gmres_bf_len = 0;  
+  hip_buffer_t gmres_redbuf = HIP_BUFFER_INIT;
 
   real hip_gmres_part2(void *w, void *v, void *h, void * mult, int *j, int *n) {
 	
@@ -61,17 +61,9 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     
-    if (gmres_bf1 != NULL && gmres_bf_len < nb) {
-      HIP_CHECK(hipHostFree(gmres_bf1));
-      HIP_CHECK(hipFree(gmres_bfd1));
-      gmres_bf1 = NULL;
-    }
-
-    if (gmres_bf1 == NULL){
-      HIP_CHECK(hipHostMalloc(&gmres_bf1, nb*sizeof(real)));
-      HIP_CHECK(hipMalloc(&gmres_bfd1, nb*sizeof(real)));
-      gmres_bf_len = nb;
-    }
+    hip_buffer_reserve(&gmres_redbuf, nb*sizeof(real));
+    real *gmres_bf1 = (real *) gmres_redbuf.host;
+    real *gmres_bfd1 = (real *) gmres_redbuf.dev;
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(gmres_part2_kernel<real>),
 		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
