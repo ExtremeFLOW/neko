@@ -90,6 +90,26 @@ module hip_intf
        type(c_ptr), value :: ptr_d
      end function hipFree
 
+     !> Map host memory to the device (zero-copy on unified memory
+     !! architectures, e.g. MI300A, see device/hip/unified.hip)
+     integer(c_int) function hipMap(ptr_d, ptr_h, s) &
+          bind(c, name = 'hip_map')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: ptr_d
+       type(c_ptr), value :: ptr_h
+       integer(c_size_t), value :: s
+     end function hipMap
+
+     !> Free a device pointer obtained from hipMap
+     !! (no-op for pointers aliasing host memory)
+     integer(c_int) function hipMapFree(ptr_d) &
+          bind(c, name = 'hip_map_free')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+     end function hipMapFree
+
      integer(c_int) function hipMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name = 'hipMemcpy')
        use, intrinsic :: iso_c_binding

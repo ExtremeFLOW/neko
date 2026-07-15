@@ -239,7 +239,9 @@ contains
   subroutine device_free(x_d)
     type(c_ptr), intent(inout) :: x_d
 #ifdef HAVE_HIP
-    if (hipfree(x_d) .ne. hipSuccess) then
+    ! Free via the mapping layer, which leaves zero-copy pointers
+    ! aliasing host memory untouched (unified memory architectures)
+    if (hipMapFree(x_d) .ne. hipSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
 #elif HAVE_CUDA
@@ -505,20 +507,29 @@ contains
     end if
 
 #ifdef HAVE_HIP
+    ! Copies where the device pointer aliases the host pointer
+    ! (zero-copy mappings on unified memory) are skipped; a
+    ! requested sync still synchronizes the stream below
     if (dir .eq. HOST_TO_DEVICE) then
-       if (hipMemcpyAsync(x_d, ptr_h, s, &
-            hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
-          call neko_error('Device memcpy async (host-to-device) failed')
+       if (.not. c_associated(x_d, ptr_h)) then
+          if (hipMemcpyAsync(x_d, ptr_h, s, &
+               hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
+             call neko_error('Device memcpy async (host-to-device) failed')
+          end if
        end if
     else if (dir .eq. DEVICE_TO_HOST) then
-       if (hipMemcpyAsync(ptr_h, x_d, s, &
-            hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
-          call neko_error('Device memcpy async (device-to-host) failed')
+       if (.not. c_associated(ptr_h, x_d)) then
+          if (hipMemcpyAsync(ptr_h, x_d, s, &
+               hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
+             call neko_error('Device memcpy async (device-to-host) failed')
+          end if
        end if
     else if (dir .eq. DEVICE_TO_DEVICE) then
-       if (hipMemcpyAsync(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
-            .ne. hipSuccess) then
-          call neko_error('Device memcpy async (device-to-device) failed')
+       if (.not. c_associated(ptr_h, x_d)) then
+          if (hipMemcpyAsync(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
+               .ne. hipSuccess) then
+             call neko_error('Device memcpy async (device-to-device) failed')
+          end if
        end if
     else
        call neko_error('Device memcpy failed (invalid direction')
@@ -875,6 +886,16 @@ contains
     end if
 
     if (metalMap(x_d, ptr_h, s) .ne. metalSuccess) then
+       call neko_error('Memory map on device failed')
+    end if
+#elif HAVE_HIP
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = C_NULL_PTR
+       return
+    end if
+
+    if (hipMap(x_d, ptr_h, s) .ne. hipSuccess) then
        call neko_error('Memory map on device failed')
     end if
 #else

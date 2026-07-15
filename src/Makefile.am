@@ -499,6 +499,7 @@ libneko_la_SOURCES += \
     ale/bcknd/device/hip/ale_kinematics.hip\
 	device/hip/check.hip\
 	device/hip/buffer.hip\
+	device/hip/unified.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
 	math/bcknd/device/hip/tensor.hip\
@@ -1185,6 +1186,7 @@ EXTRA_DIST = \
 	device/cuda/check.h\
 	device/cuda/buffer.h\
 	device/hip/buffer.h\
+	device/hip/unified.h\
 	device/opencl/buffer.h\
 	comm/comm_nccl.h\
 	comm/comm.h\

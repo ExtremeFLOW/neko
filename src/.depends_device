@@ -1,5 +1,6 @@
 device/hip/check.lo : device/hip/check.hip device/hip/check.h
 device/hip/buffer.lo : device/hip/buffer.hip device/hip/buffer.h
+device/hip/unified.lo : device/hip/unified.hip device/hip/unified.h
 math/bcknd/device/hip/math.lo : math/bcknd/device/hip/math.hip math/bcknd/device/hip/math_kernel.h device/hip/buffer.lo
 math/bcknd/device/hip/mathops.lo : math/bcknd/device/hip/mathops.hip math/bcknd/device/hip/mathops_kernel.h
 math/bcknd/device/hip/opr_dudxyz.lo : math/bcknd/device/hip/opr_dudxyz.hip math/bcknd/device/hip/dudxyz_kernel.h
