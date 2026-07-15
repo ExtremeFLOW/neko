@@ -254,7 +254,7 @@ contains
              ! Re-orthogonalize basis if requested
              if (this%prj_reorthogonalize_basis .and. present(gs_h) &
                   .and. present(Ax) .and. present(bclst)) then
-                call this%reortho_basis (Ax, coef, gs_h, bclst, n)
+                call this%reortho_basis(Ax, coef, gs_h, bclst, n)
              end if
              ! activate projection some steps after dt is changed
              ! note that dt_last_change start from 0
@@ -267,7 +267,7 @@ contains
           ! Re-orthogonalize basis if requested
           if (this%prj_reorthogonalize_basis .and. present(gs_h) &
                .and. present(Ax) .and. present(bclst)) then
-             call this%reortho_basis (Ax, coef, gs_h, bclst, n)
+             call this%reortho_basis(Ax, coef, gs_h, bclst, n)
           end if
           call this%project_on(b, coef, n)
           if (present(string)) then
@@ -356,7 +356,7 @@ contains
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
-  subroutine bcknd_reorthogonalize_basis (this, Ax, coef, gs_h, blst, n)
+  subroutine bcknd_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
     class(projection_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
@@ -373,7 +373,7 @@ contains
     call profiler_end_region('Project reortho basis')
   end subroutine bcknd_reorthogonalize_basis
 
-  subroutine cpu_reorthogonalize_basis (this, Ax, coef, gs_h, blst, n)
+  subroutine cpu_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
     class(projection_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef
@@ -422,7 +422,7 @@ contains
     end associate
   end subroutine cpu_reorthogonalize_basis
 
-  subroutine device_reorthogonalize_basis (this, Ax, coef, gs_h, blst, n)
+  subroutine device_reorthogonalize_basis(this, Ax, coef, gs_h, blst, n)
     class(projection_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     class(coef_t), intent(in) :: coef

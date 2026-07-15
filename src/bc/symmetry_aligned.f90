@@ -126,7 +126,7 @@ contains
          bc_facet = bfp(i)
          facet = bc_facet%x(1)
          el = bc_facet%x(2)
-         call this%get_normal_axis (sx, sy, sz, facet, el)
+         call this%get_normal_axis(sx, sy, sz, facet, el)
 
          if (sx .lt. TOL) call this%bc_x%mark_facet(facet, el)
          if (sy .lt. TOL) call this%bc_y%mark_facet(facet, el)

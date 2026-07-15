@@ -329,7 +329,7 @@ contains
   !! @param[out] sz Deviation from a z-aligned normal.
   !! @param[in] facet Facet id on the reference hex.
   !! @param[in] el Element id.
-  subroutine non_normal_aligned_get_normal_axis (this, sx, sy, sz, facet, el)
+  subroutine non_normal_aligned_get_normal_axis(this, sx, sy, sz, facet, el)
     class(non_normal_aligned_t), target, intent(inout) :: this
     real(kind=rp), intent(out) :: sx, sy, sz
     integer, intent(in) :: facet
@@ -394,7 +394,7 @@ contains
          bc_facet = bfp(i)
          facet = bc_facet%x(1)
          el = bc_facet%x(2)
-         call this%get_normal_axis (sx, sy, sz, facet, el)
+         call this%get_normal_axis(sx, sy, sz, facet, el)
 
          if (sx .lt. TOL) then
             call this%bc_y%mark_facet(facet, el)
