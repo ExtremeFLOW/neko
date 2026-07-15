@@ -47,6 +47,19 @@ The list of criteria to check are:
   or deallocated. This applies to both local variables and type components.
 - Pay attention to object ownership when `pointer` or `allocatable` components
   are involved. Make sure ownership is correctly handled.
+- If a procedure captures a persistent pointer to one of its dummy arguments
+  (`this%x => y`, where `y` is a dummy argument or reached through one), that
+  dummy must have the `target` attribute, **and so must every dummy along the
+  full call chain back to real storage** — a `target` on the outermost caller's
+  variable does not by itself make an intermediate dummy argument `target` in
+  its own procedure's scope (F2008 §12.5.2.4(5)). Check this especially for:
+  abstract deferred interfaces (every concrete implementation is forced to
+  match whatever attribute the interface declares, so a missing `target` there
+  breaks every implementer), and secondary/alternate constructors that
+  independently redeclare the same dummy argument instead of forwarding the
+  original. This bug class is not caught by Neko's own CI (GNU build runs with
+  `-w`, all warnings suppressed) nor reliably by `gfortran -Wall -Wextra` for
+  the cross-procedure case — review is the only check that catches it today.
 - Make sure types are fully instantiated in the `init` routines. If there are
   several such routines, makes sure they all do it.
 - If a type has a constructor (`init` or similar) from a `json_file` and one
