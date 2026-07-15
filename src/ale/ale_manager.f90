@@ -2266,7 +2266,7 @@ contains
 
   ! Register ALE fields for checkpointing.
   subroutine register_checkpoint_fields(this, coef, checkpoint)
-    class(ale_manager_t), intent(inout) :: this
+    class(ale_manager_t), intent(inout), target :: this
     type(coef_t), intent(inout) :: coef
     type(chkp_t), intent(inout) :: checkpoint
     integer :: i

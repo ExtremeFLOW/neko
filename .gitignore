@@ -103,5 +103,8 @@ install
 # Codex
 .codex
 
+# Claude
+.claude
+
 # Directory to stash temporary files during development
 .temp
