@@ -71,14 +71,14 @@ module device_symmetry_aligned
   end interface
 #elif HAVE_METAL
   interface
-     subroutine metal_symmetry_apply_vector(xmsk, ymsk, zmsk, &
+     subroutine metal_symmetry_aligned_apply_vector(xmsk, ymsk, zmsk, &
           x, y, z, m, n, l, strm) &
-          bind(c, name = 'metal_symmetry_apply_vector')
+          bind(c, name = 'metal_symmetry_aligned_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, n, l
        type(c_ptr), value :: xmsk, ymsk, zmsk, x, y, z, strm
-     end subroutine metal_symmetry_apply_vector
+     end subroutine metal_symmetry_aligned_apply_vector
   end interface
 #endif
 
