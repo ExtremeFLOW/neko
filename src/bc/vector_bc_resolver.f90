@@ -811,7 +811,12 @@ contains
             size(this%constraint_t2))
     end if
 
-    do concurrent (i = 1:mixed_mask_size)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, mixed_mask_size
        j = mixed_mask_values(i)
 
        if (node_type_field%x(j,1,1,1) .lt. 1.9_rp) then
@@ -834,8 +839,7 @@ contains
           this%constraint_t2(i) = 0
        end if
     end do
-
-    !write(*,*) "Filled mixed node constraints in coupled vector BC resolver."
+    !$omp end do
 
     if (allocated(dirichlet_mask_values)) deallocate(dirichlet_mask_values)
     if (allocated(mixed_mask_values)) deallocate(mixed_mask_values)
@@ -885,9 +889,16 @@ contains
     ! in the mixed_dof_mask.
     allocate(dof_to_mixed_idx(dof_size))
     dof_to_mixed_idx = 0
-    do concurrent (i = 1:m)
+
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, m
        dof_to_mixed_idx(mixed_dof_values(i)) = i
     end do
+    !$omp end do
 
     ! this%face_type stores the face-based bc_type values, and this%node_type
     ! stores them node-wise, after propagation with min reduction.
@@ -1134,7 +1145,13 @@ contains
 
     ! Normalize normals and build tangential directions for all mixed nodes.
     ! Populate this into the basis components in the type.
-    do concurrent (i = 1:m)
+
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp do
+    do i = 1, m
        j = mixed_dof_values(i)
 
        ! Normalize the normal
@@ -1172,8 +1189,7 @@ contains
           this%t2%x(:,i) = t2_vec / len
        end if
     end do
-
-    !write(*,*) "Finished building local basis for coupled vector BC resolver."
+    !$omp end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%constraint_n, this%constraint_n_d, &
