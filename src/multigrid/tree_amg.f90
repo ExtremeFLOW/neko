@@ -44,7 +44,7 @@ module tree_amg
   use ax_product, only : ax_t
   use scalar_bc_resolver, only : scalar_bc_resolver_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use device, only: device_map, device_unmap, &
+  use device, only : device_map, device_unmap, &
        device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding

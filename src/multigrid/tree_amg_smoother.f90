@@ -163,7 +163,7 @@ contains
          msh => amg%msh, Xh => amg%Xh, bc_resolver => amg%bc_resolver)
 
       ! Save current random seed and set a fixed seed
-        call random_seed(size = rnd_n)
+      call random_seed(size = rnd_n)
       allocate(saved_seed(rnd_n))
       allocate(fixed_seed(rnd_n))
       fixed_seed = 3901
@@ -312,7 +312,7 @@ contains
          msh => amg%msh, Xh => amg%Xh, bc_resolver => amg%bc_resolver)
 
       ! Save current random seed and set a fixed seed
-        call random_seed(size = rnd_n)
+      call random_seed(size = rnd_n)
       allocate(saved_seed(rnd_n))
       allocate(fixed_seed(rnd_n))
       fixed_seed = 3901

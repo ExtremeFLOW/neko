@@ -166,7 +166,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-      if (abscmp(rnorm, zero)) then
+    if (abscmp(rnorm, zero)) then
        ksp_results%converged = .true.
        return
     end if

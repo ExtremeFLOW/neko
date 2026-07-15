@@ -199,7 +199,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-      if (abscmp(rnorm, 0.0_rp)) then
+    if (abscmp(rnorm, 0.0_rp)) then
        ksp_results%converged = .true.
        return
     end if
