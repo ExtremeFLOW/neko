@@ -127,7 +127,7 @@ module device
        device_finalize, device_stream_wait_event, device_count, &
        device_memset, device_stream_create_with_priority
 
-  private :: device_memcpy_common
+  private :: device_memcpy_common, device_map_common
 
 contains
 
@@ -858,11 +858,37 @@ contains
 
   end subroutine device_deassociate_r4
 
+  !> Allocate device memory backing a mapped host array
+  !! @note On unified memory architectures (Metal) the device pointer
+  !! aliases the host array whenever possible, such that host and
+  !! device share a single allocation instead of replicating data
+  subroutine device_map_common(ptr_h, x_d, s)
+    type(c_ptr), intent(in) :: ptr_h
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_size_t), intent(in) :: s
+
+#ifdef HAVE_METAL
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = C_NULL_PTR
+       return
+    end if
+
+    if (metalMap(x_d, ptr_h, s) .ne. metalSuccess) then
+       call neko_error('Memory map on device failed')
+    end if
+#else
+    call device_alloc(x_d, s)
+#endif
+
+  end subroutine device_map_common
+
   !> Map a Fortran rank 1 array to a device (allocate and associate)
   subroutine device_map_r1(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -872,17 +898,21 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
+    call device_map_common(ptr_h, x_d, s)
     call device_associate(x, x_d, n)
 
   end subroutine device_map_r1
@@ -892,6 +922,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -901,17 +932,21 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
+    call device_map_common(ptr_h, x_d, s)
     call device_associate(x, x_d, n)
 
   end subroutine device_map_r2
@@ -921,6 +956,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -930,17 +966,21 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
+    call device_map_common(ptr_h, x_d, s)
     call device_associate(x, x_d, n)
 
   end subroutine device_map_r3
@@ -950,6 +990,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -959,17 +1000,21 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
+    call device_map_common(ptr_h, x_d, s)
     call device_associate(x, x_d, n)
 
   end subroutine device_map_r4
