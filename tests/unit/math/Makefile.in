@@ -13,7 +13,7 @@ check: math_suite
 
 
 math_suite_TESTS := test_math_parallel.pf
-math_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
+math_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,math_suite))
 math_suite.inc: Makefile
 
