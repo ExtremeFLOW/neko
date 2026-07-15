@@ -35,7 +35,7 @@ module cheby
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp
+  use num_types, only : rp
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
@@ -140,12 +140,12 @@ contains
     associate(w => this%w, d => this%d, r => this%r)
 
       ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
+      call random_seed (size = rnd_n)
       allocate(saved_seed(rnd_n))
       allocate(fixed_seed(rnd_n))
       fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      call random_seed (get = saved_seed)
+      call random_seed (put = fixed_seed)
 
       do i = 1, n
          call random_number(rn)
@@ -153,7 +153,7 @@ contains
       end do
 
       ! Restore saved random seed
-      call random_seed( put=saved_seed )
+      call random_seed (put = saved_seed)
 
       call gs_h%op(d, n, GS_OP_ADD)
       call bc_resolver%apply(d, n)

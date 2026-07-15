@@ -35,7 +35,7 @@ module gmres_sx
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp
+  use num_types, only : rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -98,10 +98,10 @@ contains
     allocate(this%s(this%lgmres))
     allocate(this%gam(this%lgmres + 1))
 
-    allocate(this%z(n,this%lgmres))
-    allocate(this%v(n,this%lgmres))
+    allocate(this%z(n, this%lgmres))
+    allocate(this%v(n, this%lgmres))
 
-    allocate(this%h(this%lgmres,this%lgmres))
+    allocate(this%h(this%lgmres, this%lgmres))
 
 
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
@@ -224,22 +224,22 @@ contains
     do while (.not. conv .and. iter .lt. max_iter)
        outer = outer + 1
 
-       if(iter.eq.0) then
-          call col3(this%r,this%ml,f,n)
+       if (iter .eq. 0) then
+          call col3(this%r, this%ml, f, n)
        else
           !update residual
           call copy (this%r,f,n)
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_h%op(this%w, n, GS_OP_ADD)
           call bc_resolver%apply(this%w, n)
-          call add2s2(this%r,this%w,-one,n)
-          call col2(this%r,this%ml,n)
-       endif
+          call add2s2(this%r, this%w, -one, n)
+          call col2(this%r, this%ml, n)
+       end if
        this%gam(1) = sqrt(glsc3(this%r, this%r, coef%mult, n))
-       if(iter.eq.0) then
+       if (iter .eq. 0) then
           div0 = this%gam(1) * norm_fac
           ksp_results%res_start = div0
-       endif
+       end if
 
        if (abscmp(this%gam(1), 0.0_rp)) exit
 
@@ -278,7 +278,7 @@ contains
           end do
 
           !apply Givens rotations to new column
-          do i=1,j-1
+          do i = 1, j-1
              temp = this%h(i,j)
              this%h(i ,j) = this%c(i)*temp + this%s(i)*this%h(i+1,j)
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
@@ -286,7 +286,7 @@ contains
 
           alpha = sqrt(glsc3(this%w, this%w, coef%mult, n))
           rnorm = 0.0_rp
-          if(abscmp(alpha, 0.0_rp)) then
+          if (abscmp(alpha, 0.0_rp)) then
              conv = .true.
              exit
           end if
@@ -308,10 +308,10 @@ contains
 
           if (iter + 1 .gt. max_iter) exit
 
-          if( j .lt. this%lgmres) then
+          if (j .lt. this%lgmres) then
              temp = one / alpha
              call cmult2(this%v(1,j+1), this%w, temp, n)
-          endif
+          end if
        end do
        j = min(j, this%lgmres)
        !back substitution
@@ -319,9 +319,9 @@ contains
           temp = this%gam(k)
           do i = j, k+1, -1
              temp = temp - this%h(k,i) * this%c(i)
-          enddo
+          end do
           this%c(k) = temp / this%h(k,k)
-       enddo
+       end do
        !sum up Arnoldi vectors
        do i = 1, j
           do k = 1, n

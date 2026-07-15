@@ -33,7 +33,7 @@
 !> Defines various Conjugate Gradient methods
 module cg
   use neko_config, only : NEKO_BLK_SIZE
-  use num_types, only: rp, xp
+  use num_types, only : rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -81,7 +81,7 @@ contains
 
     allocate(this%w(n))
     allocate(this%r(n))
-    allocate(this%p(n,CG_P_SPACE))
+    allocate(this%p(n, CG_P_SPACE))
     allocate(this%z(n))
     allocate(this%alpha(CG_P_SPACE))
 
@@ -183,7 +183,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if
@@ -200,15 +200,15 @@ contains
          if (iter .eq. 1) beta = 0.0_rp
          !$omp parallel do
          do i = 1, n
-            p(i,p_cur) = z(i) + beta * p(i,p_prev)
+            p(i, p_cur) = z(i) + beta * p(i, p_prev)
          end do
          !$omp end parallel do
 
-         call Ax%compute(w, p(1,p_cur), coef, x%msh, x%Xh)
+         call Ax%compute (w, p(1, p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
          call bc_resolver%apply(w, n)
 
-         pap = glsc3(w, coef%mult, p(1,p_cur), n)
+         pap = glsc3(w, coef%mult, p(1, p_cur), n)
 
          alpha(p_cur) = rtz1 / pap
          call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)

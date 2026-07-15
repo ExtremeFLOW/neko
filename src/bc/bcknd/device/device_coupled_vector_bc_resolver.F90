@@ -40,7 +40,7 @@ module device_coupled_vector_bc_resolver
   interface
      subroutine hip_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name='hip_coupled_vector_bc_resolver_apply')
+          bind(c, name = 'hip_coupled_vector_bc_resolver_apply')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: m
@@ -53,7 +53,7 @@ module device_coupled_vector_bc_resolver
   interface
      subroutine cuda_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name='cuda_coupled_vector_bc_resolver_apply')
+          bind(c, name = 'cuda_coupled_vector_bc_resolver_apply')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: m
@@ -66,7 +66,7 @@ module device_coupled_vector_bc_resolver
   interface
      subroutine opencl_coupled_vector_bc_resolver_apply(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name='opencl_coupled_vector_bc_resolver_apply')
+          bind(c, name = 'opencl_coupled_vector_bc_resolver_apply')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: m

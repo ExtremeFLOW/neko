@@ -94,7 +94,7 @@ module pipecg_device
   interface
      subroutine cuda_pipecg_vecops(p_d, q_d, r_d, s_d, u_d1, u_d2, &
           w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
-          bind(c, name='cuda_pipecg_vecops')
+          bind(c, name = 'cuda_pipecg_vecops')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -108,7 +108,7 @@ module pipecg_device
   interface
      subroutine cuda_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
           p_cur, p_space, n) &
-          bind(c, name='cuda_cg_update_xp')
+          bind(c, name = 'cuda_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
@@ -119,7 +119,7 @@ module pipecg_device
   interface
      subroutine hip_pipecg_vecops(p_d, q_d, r_d, s_d, u_d1, u_d2, &
           w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
-          bind(c, name='hip_pipecg_vecops')
+          bind(c, name = 'hip_pipecg_vecops')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -133,7 +133,7 @@ module pipecg_device
   interface
      subroutine hip_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
           p_cur, p_space, n) &
-          bind(c, name='hip_cg_update_xp')
+          bind(c, name = 'hip_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
@@ -225,7 +225,7 @@ contains
     call device_alloc(this%u_d_d, u_size)
     ptr = c_loc(this%u_d)
     call device_memcpy(ptr,this%u_d_d, u_size, &
-         HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync = .false.)
 
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
@@ -400,7 +400,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if
@@ -453,9 +453,9 @@ contains
               coef%mult_d, reduction, n)
          if (p_cur .eq. DEVICE_PIPECG_P_SPACE) then
             call device_memcpy(alpha, alpha_d, p_cur, &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_memcpy(beta, beta_d, p_cur, &
-                 HOST_TO_DEVICE, sync=.false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
                  DEVICE_PIPECG_P_SPACE, n)
             p_prev = p_cur
@@ -471,8 +471,8 @@ contains
       end do
 
       if ( p_cur .ne. 1) then
-         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE, sync=.false.)
+         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE, sync = .false.)
          call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
               DEVICE_PIPECG_P_SPACE, n)
       end if

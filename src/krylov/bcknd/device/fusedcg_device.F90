@@ -81,7 +81,7 @@ module fusedcg_device
 #ifdef HAVE_CUDA
   interface
      subroutine cuda_fusedcg_update_p(p_d, z_d, po_d, beta, n) &
-          bind(c, name='cuda_fusedcg_update_p')
+          bind(c, name = 'cuda_fusedcg_update_p')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -93,7 +93,7 @@ module fusedcg_device
 
   interface
      subroutine cuda_fusedcg_update_x(x_d, p_d, alpha, p_cur, n) &
-          bind(c, name='cuda_fusedcg_update_x')
+          bind(c, name = 'cuda_fusedcg_update_x')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, alpha
@@ -103,7 +103,7 @@ module fusedcg_device
 
   interface
      real(c_rp) function cuda_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, &
-          p_cur, n) bind(c, name='cuda_fusedcg_part2')
+          p_cur, n) bind(c, name = 'cuda_fusedcg_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -115,7 +115,7 @@ module fusedcg_device
 #elif HAVE_HIP
   interface
      subroutine hip_fusedcg_update_p(p_d, z_d, po_d, beta, n) &
-          bind(c, name='hip_fusedcg_update_p')
+          bind(c, name = 'hip_fusedcg_update_p')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -127,7 +127,7 @@ module fusedcg_device
 
   interface
      subroutine hip_fusedcg_update_x(x_d, p_d, alpha, p_cur, n) &
-          bind(c, name='hip_fusedcg_update_x')
+          bind(c, name = 'hip_fusedcg_update_x')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, alpha
@@ -137,7 +137,7 @@ module fusedcg_device
 
   interface
      real(c_rp) function hip_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, &
-          p_cur, n) bind(c, name='hip_fusedcg_part2')
+          p_cur, n) bind(c, name = 'hip_fusedcg_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -239,7 +239,7 @@ contains
     call device_alloc(this%p_d_d, p_size)
     ptr = c_loc(this%p_d)
     call device_memcpy(ptr, this%p_d_d, p_size, &
-         HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync = .false.)
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
     else if (present(rel_tol) .and. present(abs_tol)) then
@@ -369,7 +369,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if

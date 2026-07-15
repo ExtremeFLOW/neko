@@ -44,7 +44,7 @@ module tree_amg_smoother
   use scalar_bc_resolver, only : scalar_bc_resolver_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
   use device_tree_amg_smoother, only : amg_device_cheby_solve_part1, &
        amg_device_cheby_solve_part2
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -163,12 +163,12 @@ contains
          msh => amg%msh, Xh => amg%Xh, bc_resolver => amg%bc_resolver)
 
       ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
+        call random_seed(size = rnd_n)
       allocate(saved_seed(rnd_n))
       allocate(fixed_seed(rnd_n))
       fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      call random_seed(get = saved_seed)
+      call random_seed(put = fixed_seed)
 
       do i = 1, n
          call random_number(rn)
@@ -176,7 +176,7 @@ contains
       end do
 
       ! Restore saved random seed
-      call random_seed( put=saved_seed )
+      call random_seed(put = saved_seed)
 
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO
@@ -312,12 +312,12 @@ contains
          msh => amg%msh, Xh => amg%Xh, bc_resolver => amg%bc_resolver)
 
       ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
+        call random_seed(size = rnd_n)
       allocate(saved_seed(rnd_n))
       allocate(fixed_seed(rnd_n))
       fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      call random_seed(get = saved_seed)
+      call random_seed(put = fixed_seed)
 
       do i = 1, n
          call random_number(rn)
@@ -326,7 +326,7 @@ contains
       call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
 
       ! Restore saved random seed
-      call random_seed( put=saved_seed )
+      call random_seed(put = saved_seed)
 
       if (this%lvl .eq. 0) then
          call gs_h%op(d, n, GS_OP_ADD)!TODO

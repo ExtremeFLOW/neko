@@ -32,7 +32,7 @@
 !
 !> Defines a coupled Conjugate Gradient methods
 module cg_cpld
-  use num_types, only: rp, xp
+  use num_types, only : rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t

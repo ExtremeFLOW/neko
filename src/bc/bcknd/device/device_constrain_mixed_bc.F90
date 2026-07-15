@@ -47,7 +47,7 @@ module device_constrain_mixed_bc
   interface
      subroutine hip_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name='hip_constrain_mixed_bc_zero')
+          bind(c, name = 'hip_constrain_mixed_bc_zero')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: constraint_n, constraint_t1, constraint_t2
@@ -58,7 +58,7 @@ module device_constrain_mixed_bc
      subroutine hip_constrain_mixed_bc_set(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
           values_n, values_t1, values_t2, m, strm) &
-          bind(c, name='hip_constrain_mixed_bc_set')
+          bind(c, name = 'hip_constrain_mixed_bc_set')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: constraint_n, constraint_t1, constraint_t2
@@ -70,7 +70,7 @@ module device_constrain_mixed_bc
      subroutine hip_constrain_mixed_bc_set_const(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
           value_n, value_t1, value_t2, m, strm) &
-          bind(c, name='hip_constrain_mixed_bc_set_const')
+          bind(c, name = 'hip_constrain_mixed_bc_set_const')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        implicit none
@@ -84,7 +84,7 @@ module device_constrain_mixed_bc
   interface
      subroutine cuda_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name='cuda_constrain_mixed_bc_zero')
+          bind(c, name = 'cuda_constrain_mixed_bc_zero')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: constraint_n, constraint_t1, constraint_t2
@@ -95,7 +95,7 @@ module device_constrain_mixed_bc
      subroutine cuda_constrain_mixed_bc_set(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
           values_n, values_t1, values_t2, m, strm) &
-          bind(c, name='cuda_constrain_mixed_bc_set')
+          bind(c, name = 'cuda_constrain_mixed_bc_set')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: constraint_n, constraint_t1, constraint_t2
@@ -107,7 +107,7 @@ module device_constrain_mixed_bc
      subroutine cuda_constrain_mixed_bc_set_const(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
           value_n, value_t1, value_t2, m, strm) &
-          bind(c, name='cuda_constrain_mixed_bc_set_const')
+          bind(c, name = 'cuda_constrain_mixed_bc_set_const')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        implicit none
@@ -121,7 +121,7 @@ module device_constrain_mixed_bc
   interface
      subroutine opencl_constrain_mixed_bc_zero(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, m, strm) &
-          bind(c, name='opencl_constrain_mixed_bc_zero')
+          bind(c, name = 'opencl_constrain_mixed_bc_zero')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: constraint_n, constraint_t1, constraint_t2
@@ -132,7 +132,7 @@ module device_constrain_mixed_bc
      subroutine opencl_constrain_mixed_bc_set(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
           values_n, values_t1, values_t2, m, strm) &
-          bind(c, name='opencl_constrain_mixed_bc_set')
+          bind(c, name = 'opencl_constrain_mixed_bc_set')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        integer(c_int) :: constraint_n, constraint_t1, constraint_t2
@@ -144,7 +144,7 @@ module device_constrain_mixed_bc
      subroutine opencl_constrain_mixed_bc_set_const(mixed_msk, x, y, z, &
           constraint_n, constraint_t1, constraint_t2, n, t1, t2, &
           value_n, value_t1, value_t2, m, strm) &
-          bind(c, name='opencl_constrain_mixed_bc_set_const')
+          bind(c, name = 'opencl_constrain_mixed_bc_set_const')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        implicit none

@@ -826,7 +826,7 @@ contains
          if (iter .eq. 1) then
             call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, &
                  dt_controller, Ax = Ax_prs, gs_h = gs_Xh, &
-                 bclst = this%bcs_prs_resolver, string='Pressure')
+                 bclst = this%bcs_prs_resolver, string = 'Pressure')
          end if
 
          call this%pc_prs%update()
@@ -1042,9 +1042,9 @@ contains
                 ! we have the dirichlet dofs component-wise. This is stored
                 ! in the nested bcs. Of course, we rely on axis-alignment of
                 ! the geometry.
-                call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
-                call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
-                call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
+                call this%bcs_vel_resolver%mark(bc_i%bc_x, component = 'x')
+                call this%bcs_vel_resolver%mark(bc_i%bc_y, component = 'y')
+                call this%bcs_vel_resolver%mark(bc_i%bc_z, component = 'z')
                 call this%bcs_vel%append(bc_i)
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
              type is (symmetry_t)
@@ -1059,9 +1059,9 @@ contains
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
              type is (non_normal_aligned_t)
                 ! The situation is the same as symmetry.
-                call this%bcs_vel_resolver%mark(bc_i%bc_x, component='x')
-                call this%bcs_vel_resolver%mark(bc_i%bc_y, component='y')
-                call this%bcs_vel_resolver%mark(bc_i%bc_z, component='z')
+                call this%bcs_vel_resolver%mark(bc_i%bc_x, component = 'x')
+                call this%bcs_vel_resolver%mark(bc_i%bc_y, component = 'y')
+                call this%bcs_vel_resolver%mark(bc_i%bc_z, component = 'z')
                 call this%bcs_vel%append(bc_i)
              type is (non_normal_t)
                 call this%bcs_vel_resolver%mark(bc_i)
@@ -1086,9 +1086,9 @@ contains
                 if (bc_i%bc_type .eq. BC_TYPES%DIRICHLET) then
                    call this%bc_prs_surface%mark_labeled_zones( &
                         bc_i%zone_indices)
-                   call this%bcs_vel_resolver%mark(bc_i, component='x')
-                   call this%bcs_vel_resolver%mark(bc_i, component='y')
-                   call this%bcs_vel_resolver%mark(bc_i, component='z')
+                   call this%bcs_vel_resolver%mark(bc_i, component = 'x')
+                   call this%bcs_vel_resolver%mark(bc_i, component = 'y')
+                   call this%bcs_vel_resolver%mark(bc_i, component = 'z')
                 end if
 
                 call this%bcs_vel%append(bc_i)

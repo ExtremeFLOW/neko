@@ -174,7 +174,7 @@ contains
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
       iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
       end if
       call this%monitor_start('CACG')
@@ -324,7 +324,7 @@ contains
               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
          rnorm = norm_fac*sqrt(tmp)
          call this%monitor_iter(iter, rnorm)
-         if( rnorm <= this%abs_tol) exit
+         if (rnorm <= this%abs_tol) exit
       end do
       call this%monitor_stop()
       ksp_results%res_final = rnorm

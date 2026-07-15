@@ -76,7 +76,7 @@ module fluid_volflow
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
+  use json_utils, only : json_get, json_get_or_default, json_get_or_lookup
   use scratch_registry, only : neko_scratch_registry
   use scalar_bc_resolver, only : scalar_bc_resolver_t
   use vector_bc_resolver, only : vector_bc_resolver_t

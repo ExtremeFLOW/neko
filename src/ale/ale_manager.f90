@@ -402,7 +402,7 @@ contains
              this%config%bodies(i)%name = tmp_str
           else
              write(this%config%bodies(i)%name, '(A,I0)') 'body_', i
-          endif
+          end if
 
           if (body_sub%valid_path('zone_indices')) then
              call json_get(body_sub, 'zone_indices', zone_indices)
@@ -411,7 +411,7 @@ contains
              call neko_error("ALE: body " // &
                   trim(this%config%bodies(i)%name) // &
                   " must have 'zone_indices'")
-          endif
+          end if
 
           ! Oscillation
           this%config%bodies(i)%osc_amp = 0.0_rp
@@ -2088,7 +2088,7 @@ contains
           idx = i
        end if
 
-       R = this%body_rot_matrices(:,:,idx)
+       R = this%body_rot_matrices(:, :, idx)
 
        ! Angles
        yaw_deg = atan2(R(2,1), R(1,1)) * rad_to_deg

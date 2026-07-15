@@ -56,7 +56,7 @@ contains
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess, rho
 
-    do i=1, n_nodes
+    do i = 1, n_nodes
        ! Sample the velocity
        ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
        vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
@@ -111,7 +111,7 @@ contains
 
     maxiter = 100
 
-    do k=1, maxiter
+    do k = 1, maxiter
        up = u / utau
        yp = y * utau / nu
        niter = k
@@ -132,9 +132,9 @@ contains
 
        if (error < 1e-3) then
           exit
-       endif
+       end if
 
-    enddo
+    end do
 
     if (niter .eq. maxiter) then
        write(log_msg, *) "Newton not converged", error, utau

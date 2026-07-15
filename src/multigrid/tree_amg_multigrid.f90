@@ -61,7 +61,7 @@ module tree_amg_multigrid
   use tree_amg_smoother, only : amg_cheby_t
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_unmap, device_memcpy, HOST_TO_DEVICE, &
+  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE, &
        device_get_ptr
   use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding

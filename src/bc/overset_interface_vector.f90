@@ -33,7 +33,7 @@
 !> Defines overset interface vector boundary conditions
 module overset_interface_vector
   use comm, only : NEKO_GLOBAL_COMM
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE
   use registry, only : neko_registry
   use num_types, only : rp
   use coefs, only : coef_t
@@ -52,7 +52,7 @@ module overset_interface_vector
   use dofmap, only : dofmap_t
   use vector, only : vector_t
   use vector_list, only : vector_list_t
-  use vector_series, only: vector_series_t
+  use vector_series, only : vector_series_t
   use vector_math, only : vector_masked_gather_copy, &
        vector_masked_scatter_copy, vector_add2s2, &
        vector_cmult2, vector_glsc2
@@ -62,7 +62,7 @@ module overset_interface_vector
   use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
   use overset_interface, only : morph_overset_interface
   use utils, only : neko_error, nonlinear_index, linear_index
-  use stack, only: stack_i4_t
+  use stack, only : stack_i4_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
   use field_list, only : field_list_t
