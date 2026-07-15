@@ -40,12 +40,12 @@ module wall_gll_sampler
   use json_utils, only : json_get
   use wall_sampler, only : wall_sampler_t
   use user_intf, only : user_t
+  use mask, only : mask_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error, nonlinear_index, linear_index
   use math, only : masked_gather_copy
   use device_math, only : device_masked_gather_copy_aligned
-  use device, only : device_map, device_unmap, device_memcpy, HOST_TO_DEVICE
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use device, only : HOST_TO_DEVICE
   implicit none
   private
 
@@ -54,9 +54,7 @@ module wall_gll_sampler
      !> Off-wall indices for each sampling point.
      integer, allocatable :: indices(:)
      !> Linear indices into the sampled fields.
-     integer, allocatable :: sample_idx(:)
-     !> Device pointer to linear indices into the sampled fields.
-     type(c_ptr) :: sample_idx_d = C_NULL_PTR
+     type(mask_t) :: sample_idx
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => wall_gll_sampler_init
@@ -133,7 +131,7 @@ contains
     type(user_t), target, optional, intent(in) :: user
     integer :: i, j, p, fid, idx(4), sample(4), lx, ly, lz, offwall
     real(kind=rp) :: xw, yw, zw, dx, dy, dz
-    integer, allocatable :: user_indices(:,:)
+    integer, allocatable :: user_indices(:,:), sample_idx(:)
 
     if (.not. this%user_values .and. .not. allocated(this%indices)) then
        call neko_error('Wall GLL sampler has not been initialized')
@@ -157,8 +155,8 @@ contains
        end if
     end if
 
-    allocate(this%sample_idx(this%n_nodes * this%n_samples))
-    call this%h%init(size(this%sample_idx))
+    allocate(sample_idx(this%n_nodes * this%n_samples))
+    call this%h%init(size(sample_idx))
 
     lx = coef%Xh%lx
     ly = coef%Xh%ly
@@ -200,7 +198,7 @@ contains
              call neko_error('Wall GLL sampling index lies outside element')
           end if
 
-          this%sample_idx(p) = linear_index(sample(1), sample(2), sample(3), &
+          sample_idx(p) = linear_index(sample(1), sample(2), sample(3), &
                sample(4), lx, ly, lz)
 
           dx = coef%dof%x(sample(1), sample(2), sample(3), sample(4)) - xw
@@ -210,12 +208,9 @@ contains
        end do
     end do
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%sample_idx, this%sample_idx_d, size(this%sample_idx))
-       call device_memcpy(this%sample_idx, this%sample_idx_d, &
-            size(this%sample_idx), HOST_TO_DEVICE, sync = .false.)
-       call this%h%copy_from(HOST_TO_DEVICE, sync = .true.)
-    end if
+    call this%sample_idx%init(sample_idx, size(sample_idx))
+    if (NEKO_BCKND_DEVICE .eq. 1) &
+         call this%h%copy_from(HOST_TO_DEVICE, sync = .true.)
   end subroutine wall_gll_sampler_finalize
 
   !> Sample the solution field at the sampling points.
@@ -235,9 +230,9 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_masked_gather_copy_aligned(values%x_d, field%x_d, &
-            this%sample_idx_d, field%size(), n)
+            this%sample_idx%get_d(), field%size(), n)
     else
-       call masked_gather_copy(values%x, field%x, this%sample_idx, &
+       call masked_gather_copy(values%x, field%x, this%sample_idx%get(), &
             field%size(), n)
     end if
   end subroutine wall_gll_sampler_sample
@@ -246,18 +241,12 @@ contains
   subroutine wall_gll_sampler_free(this)
     class(wall_gll_sampler_t), intent(inout) :: this
 
-    if (allocated(this%sample_idx)) then
-       if (c_associated(this%sample_idx_d)) then
-          call device_unmap(this%sample_idx, this%sample_idx_d)
-       end if
-       deallocate(this%sample_idx)
-    end if
+    call this%sample_idx%free()
 
     if (allocated(this%indices)) deallocate(this%indices)
 
     call this%h%free()
 
-    this%sample_idx_d = C_NULL_PTR
     this%n_nodes = 0
     this%n_samples = 0
     this%user_values = .false.
