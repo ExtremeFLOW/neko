@@ -1,9 +1,12 @@
 <map id="hip_project_ortho" name="hip_project_ortho">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,140,62"/>
 <area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="400,29,552,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,44,188,43,352,43,386,43,386,49,352,48,188,48,140,49"/>
-<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="188,57,352,97"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="141,56,175,61,174,66,140,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,34,147,23,188,15,270,7,352,15,397,23,396,29,352,20,270,13,188,20,148,28,111,39"/>
+<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="188,29,352,69"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="140,47,174,47,174,52,140,52"/>
+<area shape="rect" id="Node000004" href="$d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="199,94,341,119"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="118,59,213,88,212,93,116,65"/>
 <area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="437,30,435,20,441,11,455,5,476,3,500,6,513,13,511,18,498,11,476,8,456,10,445,15,440,21,442,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="352,64,386,59,387,64,353,69"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="352,47,386,47,386,52,352,52"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="316,91,390,70,391,76,317,97"/>
 </map>

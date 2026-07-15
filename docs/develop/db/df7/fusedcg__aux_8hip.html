@@ -108,6 +108,7 @@ $(document).ready(function(){initNavTree('db/df7/fusedcg__aux_8hip.html','../../
 <code>#include &quot;<a class="el" href="../../db/d87/hip_2fusedcg__kernel_8h_source.html">fusedcg_kernel.h</a>&quot;</code><br />
 <code>#include &lt;<a class="el" href="../../d8/dc8/device__config_8h_source.html">device/device_config.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d4/d7a/hip_2check_8h_source.html">device/hip/check.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="../../db/d68/hip_2buffer_8h_source.html">device/hip/buffer.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d0/d4a/device__mpi__reduce_8h_source.html">math/bcknd/device/device_mpi_reduce.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../db/d37/device__mpi__op_8h_source.html">math/bcknd/device/device_mpi_op.h</a>&gt;</code><br />
 </div>
@@ -124,12 +125,8 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a3c11c680acb37b52f5c94a8180033ed5" id="r_a3c11c680acb37b52f5c94a8180033ed5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/df7/fusedcg__aux_8hip.html#a3c11c680acb37b52f5c94a8180033ed5">fusedcg_buf</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:a3c11c680acb37b52f5c94a8180033ed5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac34760a53b58764019f0f9e05c65d319" id="r_ac34760a53b58764019f0f9e05c65d319"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/df7/fusedcg__aux_8hip.html#ac34760a53b58764019f0f9e05c65d319">fusedcg_buf_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:ac34760a53b58764019f0f9e05c65d319"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3bb97d83a29a2bb0c5c38a56470b18bb" id="r_a3bb97d83a29a2bb0c5c38a56470b18bb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/df7/fusedcg__aux_8hip.html#a3bb97d83a29a2bb0c5c38a56470b18bb">fusedcg_buf_len</a> = 0</td></tr>
-<tr class="separator:a3bb97d83a29a2bb0c5c38a56470b18bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ebdd26c95c36220f023f2bb4d21b00a" id="r_a4ebdd26c95c36220f023f2bb4d21b00a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d68/hip_2buffer_8h.html#a7df18d5fe9d36931d97a84ccc80466ce">hip_buffer_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/df7/fusedcg__aux_8hip.html#a4ebdd26c95c36220f023f2bb4d21b00a">fusedcg_redbuf</a> = <a class="el" href="../../db/d68/hip_2buffer_8h.html#acbe3214211e62be3d94e436b65497692">HIP_BUFFER_INIT</a></td></tr>
+<tr class="separator:a4ebdd26c95c36220f023f2bb4d21b00a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a115cf98ddf6ab441ca3e3806db6d1945" name="a115cf98ddf6ab441ca3e3806db6d1945"></a>
@@ -194,16 +191,19 @@ Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../db/df7/fusedcg__aux_8hip_a115cf98ddf6ab441ca3e3806db6d1945_cgraph.png" border="0" usemap="#adb/df7/fusedcg__aux_8hip_a115cf98ddf6ab441ca3e3806db6d1945_cgraph" alt=""/></div>
 <map name="adb/df7/fusedcg__aux_8hip_a115cf98ddf6ab441ca3e3806db6d1945_cgraph" id="adb/df7/fusedcg__aux_8hip_a115cf98ddf6ab441ca3e3806db6d1945_cgraph">
-<area shape="rect" title=" " alt="" coords="5,37,147,62"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="408,29,560,69"/>
-<area shape="poly" title=" " alt="" coords="124,34,194,21,277,16,360,21,395,26,394,32,360,27,277,21,195,27,125,39"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="195,37,359,62"/>
-<area shape="poly" title=" " alt="" coords="147,47,182,47,182,52,147,52"/>
-<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="195,86,360,111"/>
-<area shape="poly" title=" " alt="" coords="129,59,212,80,211,85,128,65"/>
-<area shape="poly" title=" " alt="" coords="445,30,443,20,449,11,463,5,484,3,508,6,521,13,519,18,506,11,484,8,464,10,453,15,448,21,450,28"/>
-<area shape="poly" title=" " alt="" coords="360,47,394,47,394,52,360,52"/>
-<area shape="poly" title=" " alt="" coords="331,83,394,68,395,73,332,89"/>
+<area shape="rect" title=" " alt="" coords="5,54,147,80"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="408,47,560,87"/>
+<area shape="poly" title=" " alt="" coords="98,52,141,31,194,14,240,5,277,3,314,6,361,14,398,24,433,39,431,43,397,29,359,19,314,11,277,8,241,11,195,19,143,36,101,57"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="195,29,359,54"/>
+<area shape="poly" title=" " alt="" coords="146,55,182,51,182,56,147,61"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="195,78,360,104"/>
+<area shape="poly" title=" " alt="" coords="147,73,181,77,181,82,146,78"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="206,128,349,153"/>
+<area shape="poly" title=" " alt="" coords="107,77,196,112,221,121,219,126,194,117,105,82"/>
+<area shape="poly" title=" " alt="" coords="445,47,443,37,449,28,463,22,484,20,508,23,521,31,519,35,506,28,484,26,464,28,453,32,448,38,450,46"/>
+<area shape="poly" title=" " alt="" coords="360,49,395,53,394,59,360,54"/>
+<area shape="poly" title=" " alt="" coords="360,79,394,75,394,80,361,84"/>
+<area shape="poly" title=" " alt="" coords="321,125,359,112,420,90,422,95,361,117,322,130"/>
 </map>
 </div>
 <div class="dynheader">
@@ -364,50 +364,18 @@ Here is the caller graph for this function:</div>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="a3c11c680acb37b52f5c94a8180033ed5" name="a3c11c680acb37b52f5c94a8180033ed5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3c11c680acb37b52f5c94a8180033ed5">&#9670;&#160;</a></span>fusedcg_buf</h2>
+<a id="a4ebdd26c95c36220f023f2bb4d21b00a" name="a4ebdd26c95c36220f023f2bb4d21b00a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ebdd26c95c36220f023f2bb4d21b00a">&#9670;&#160;</a></span>fusedcg_redbuf</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>* fusedcg_buf = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
+          <td class="memname"><a class="el" href="../../db/d68/hip_2buffer_8h.html#a7df18d5fe9d36931d97a84ccc80466ce">hip_buffer_t</a> fusedcg_redbuf = <a class="el" href="../../db/d68/hip_2buffer_8h.html#acbe3214211e62be3d94e436b65497692">HIP_BUFFER_INIT</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000023">Todo:</a></b></dt><dd>Make sure that this gets deleted at some point... </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="../../db/df7/fusedcg__aux_8hip_source.html#l00043">43</a> of file <a class="el" href="../../db/df7/fusedcg__aux_8hip_source.html">fusedcg_aux.hip</a>.</p>
-
-</div>
-</div>
-<a id="ac34760a53b58764019f0f9e05c65d319" name="ac34760a53b58764019f0f9e05c65d319"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac34760a53b58764019f0f9e05c65d319">&#9670;&#160;</a></span>fusedcg_buf_d</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>* fusedcg_buf_d = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../db/df7/fusedcg__aux_8hip_source.html#l00044">44</a> of file <a class="el" href="../../db/df7/fusedcg__aux_8hip_source.html">fusedcg_aux.hip</a>.</p>
-
-</div>
-</div>
-<a id="a3bb97d83a29a2bb0c5c38a56470b18bb" name="a3bb97d83a29a2bb0c5c38a56470b18bb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3bb97d83a29a2bb0c5c38a56470b18bb">&#9670;&#160;</a></span>fusedcg_buf_len</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> fusedcg_buf_len = 0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
+<p>Reduction buffer, owned by the device layer and released on device teardown (hip_buffer_free_all in hip_finalize) </p>
 
 <p class="definition">Definition at line <a class="el" href="../../db/df7/fusedcg__aux_8hip_source.html#l00045">45</a> of file <a class="el" href="../../db/df7/fusedcg__aux_8hip_source.html">fusedcg_aux.hip</a>.</p>
 
@@ -419,7 +387,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_5b344269ce3b5a4183603946c5547674.html">device</a></li><li class="navelem"><a class="el" href="../../dir_edaefd6da295fdc8f67d2bf8b2e26cee.html">hip</a></li><li class="navelem"><a class="el" href="../../db/df7/fusedcg__aux_8hip.html">fusedcg_aux.hip</a></li>
-    <li class="footer">Generated on Tue Jul 14 2026 04:31:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jul 15 2026 04:31:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

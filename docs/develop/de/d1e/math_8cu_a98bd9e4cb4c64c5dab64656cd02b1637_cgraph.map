@@ -1,18 +1,21 @@
 <map id="cuda_glsum" name="cuda_glsum">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,58,105,84"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="623,51,775,91"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,56,153,36,271,15,364,4,457,6,575,23,643,43,641,48,574,28,457,12,364,10,271,20,154,42,89,61"/>
-<area shape="rect" id="Node000003" href="$de/d1e/math_8cu.html#a4d2c5da3296a29955b19e81fb0961c31" title=" " alt="" coords="182,51,333,91"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="105,68,168,68,168,74,105,74"/>
-<area shape="rect" id="Node000006" href="$de/d1e/math_8cu.html#a6b5651ef2d73761ec9d8e4d3932a4f8c" title=" " alt="" coords="153,137,361,162"/>
-<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="90,81,212,129,210,134,88,86"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="660,51,658,41,664,32,678,26,699,24,723,27,736,34,733,39,721,32,699,30,679,31,667,36,663,42,665,50"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="332,53,409,43,492,38,575,43,609,48,609,53,574,48,492,43,410,48,333,59"/>
-<area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="410,58,574,84"/>
-<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="333,68,396,68,396,74,333,74"/>
-<area shape="rect" id="Node000005" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="409,108,575,133"/>
-<area shape="poly" id="edge7_Node000003_Node000005" title=" " alt="" coords="333,84,418,102,417,107,332,89"/>
-<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="575,68,609,68,609,74,575,74"/>
-<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="545,105,608,90,610,95,546,110"/>
-<area shape="poly" id="edge10_Node000006_Node000002" title=" " alt="" coords="361,159,465,160,521,154,574,143,621,123,661,97,664,101,623,128,575,148,521,160,466,165,361,164"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,66,105,91"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="623,84,775,124"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,63,153,44,271,20,365,5,410,3,459,6,513,14,575,29,622,48,662,73,660,78,620,53,574,34,512,19,458,11,410,8,365,10,272,25,154,49,89,68"/>
+<area shape="rect" id="Node000003" href="$de/d1e/math_8cu.html#a4d2c5da3296a29955b19e81fb0961c31" title=" " alt="" coords="182,58,333,98"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="105,76,168,76,168,81,105,81"/>
+<area shape="rect" id="Node000006" href="$de/d1e/math_8cu.html#a6b5651ef2d73761ec9d8e4d3932a4f8c" title=" " alt="" coords="153,166,361,191"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="84,89,220,157,217,162,81,94"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="660,84,658,74,664,65,678,59,699,57,723,60,736,67,733,72,721,65,699,62,679,64,667,69,663,75,665,83"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="332,58,386,50,447,44,512,43,575,50,613,61,648,75,646,80,611,66,574,56,511,48,447,49,387,55,333,64"/>
+<area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="410,66,574,91"/>
+<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="333,76,396,76,396,81,333,81"/>
+<area shape="rect" id="Node000005" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="409,115,575,140"/>
+<area shape="poly" id="edge7_Node000003_Node000005" title=" " alt="" coords="333,91,418,109,417,115,332,97"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="575,86,609,90,609,95,574,91"/>
+<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="575,115,608,111,609,117,575,121"/>
+<area shape="poly" id="edge10_Node000006_Node000002" title=" " alt="" coords="361,174,465,167,574,149,641,127,643,132,575,154,466,172,362,180"/>
+<area shape="rect" id="Node000007" href="$db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="415,216,569,242"/>
+<area shape="poly" id="edge11_Node000006_Node000007" title=" " alt="" coords="318,188,420,211,419,216,317,194"/>
+<area shape="poly" id="edge12_Node000007_Node000002" title=" " alt="" coords="531,214,573,195,621,163,663,131,666,135,624,168,576,199,533,219"/>
 </map>

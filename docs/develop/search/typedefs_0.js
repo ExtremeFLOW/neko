@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['neko_5freal_0',['neko_real',['../da/d03/neko_8h.html#a3045186832ed32a6c2a29377ae4758d8',1,'neko.h']]]
+  ['cuda_5fbuffer_5ft_0',['cuda_buffer_t',['../de/d4f/cuda_2buffer_8h.html#a95e2434ebac05ce76cfc05414646f5e8',1,'buffer.h']]]
 ];

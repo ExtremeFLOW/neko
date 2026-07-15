@@ -107,6 +107,7 @@ $(document).ready(function(){initNavTree('d9/d09/projection_8hip.html','../../')
 <div class="textblock"><code>#include &lt;hip/hip_runtime.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d8/dc8/device__config_8h_source.html">device/device_config.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d4/d7a/hip_2check_8h_source.html">device/hip/check.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="../../db/d68/hip_2buffer_8h_source.html">device/hip/buffer.h</a>&gt;</code><br />
 <code>#include &quot;<a class="el" href="../../d9/d19/hip_2projection__kernel_8h_source.html">projection_kernel.h</a>&quot;</code><br />
 <code>#include &lt;<a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math/bcknd/device/hip/math_kernel.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d0/d4a/device__mpi__reduce_8h_source.html">math/bcknd/device/device_mpi_reduce.h</a>&gt;</code><br />
@@ -123,10 +124,8 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a96fba13aeeb6a88f2b95177129d5db93" id="r_a96fba13aeeb6a88f2b95177129d5db93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d09/projection_8hip.html#a96fba13aeeb6a88f2b95177129d5db93">proj_red_s</a> = 0</td></tr>
-<tr class="separator:a96fba13aeeb6a88f2b95177129d5db93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad77229d5b446c36e39e3ba693d11b16" id="r_aad77229d5b446c36e39e3ba693d11b16"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d09/projection_8hip.html#aad77229d5b446c36e39e3ba693d11b16">proj_bufred_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:aad77229d5b446c36e39e3ba693d11b16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2393d147755bdf091c380434523f02dd" id="r_a2393d147755bdf091c380434523f02dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d68/hip_2buffer_8h.html#a7df18d5fe9d36931d97a84ccc80466ce">hip_buffer_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d09/projection_8hip.html#a2393d147755bdf091c380434523f02dd">proj_bufred</a> = <a class="el" href="../../db/d68/hip_2buffer_8h.html#ac40d7bf39bc2ec33aa06a03730c9ace9">HIP_BUFFER_INIT_DEV</a></td></tr>
+<tr class="separator:a2393d147755bdf091c380434523f02dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a520b26405c8b712cc5329f49033acfa8" name="a520b26405c8b712cc5329f49033acfa8"></a>
@@ -191,7 +190,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d09/projection_8hip_source.html#l00054">54</a> of file <a class="el" href="../../d9/d09/projection_8hip_source.html">projection.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d09/projection_8hip_source.html#l00055">55</a> of file <a class="el" href="../../d9/d09/projection_8hip_source.html">projection.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -199,11 +198,14 @@ Here is the call graph for this function:</div>
 <map name="ad9/d09/projection_8hip_a520b26405c8b712cc5329f49033acfa8_cgraph" id="ad9/d09/projection_8hip_a520b26405c8b712cc5329f49033acfa8_cgraph">
 <area shape="rect" title=" " alt="" coords="5,37,123,62"/>
 <area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="383,29,535,69"/>
-<area shape="poly" title=" " alt="" coords="123,44,171,43,335,43,369,43,369,49,335,48,171,48,123,49"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="171,57,335,97"/>
-<area shape="poly" title=" " alt="" coords="124,55,157,61,157,66,123,61"/>
+<area shape="poly" title=" " alt="" coords="98,34,132,23,170,15,253,7,335,15,380,23,379,29,334,20,253,13,171,20,134,28,99,39"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="171,29,335,69"/>
+<area shape="poly" title=" " alt="" coords="123,47,157,47,157,52,123,52"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="181,94,324,119"/>
+<area shape="poly" title=" " alt="" coords="107,60,198,87,197,93,106,65"/>
 <area shape="poly" title=" " alt="" coords="420,30,418,20,424,11,438,5,459,3,483,6,496,13,493,18,481,11,459,8,439,10,427,15,423,21,425,28"/>
-<area shape="poly" title=" " alt="" coords="335,64,369,59,370,64,335,69"/>
+<area shape="poly" title=" " alt="" coords="335,47,369,47,369,52,335,52"/>
+<area shape="poly" title=" " alt="" coords="298,91,373,70,374,76,300,97"/>
 </map>
 </div>
 
@@ -277,7 +279,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d09/projection_8hip_source.html#l00127">127</a> of file <a class="el" href="../../d9/d09/projection_8hip_source.html">projection.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d09/projection_8hip_source.html#l00123">123</a> of file <a class="el" href="../../d9/d09/projection_8hip_source.html">projection.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -285,46 +287,33 @@ Here is the call graph for this function:</div>
 <map name="ad9/d09/projection_8hip_a42860edd1d4001a5cd1275feeda44795_cgraph" id="ad9/d09/projection_8hip_a42860edd1d4001a5cd1275feeda44795_cgraph">
 <area shape="rect" title=" " alt="" coords="5,37,140,62"/>
 <area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="400,29,552,69"/>
-<area shape="poly" title=" " alt="" coords="140,44,188,43,352,43,386,43,386,49,352,48,188,48,140,49"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="188,57,352,97"/>
-<area shape="poly" title=" " alt="" coords="141,56,175,61,174,66,140,62"/>
+<area shape="poly" title=" " alt="" coords="109,34,147,23,188,15,270,7,352,15,397,23,396,29,352,20,270,13,188,20,148,28,111,39"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="188,29,352,69"/>
+<area shape="poly" title=" " alt="" coords="140,47,174,47,174,52,140,52"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="199,94,341,119"/>
+<area shape="poly" title=" " alt="" coords="118,59,213,88,212,93,116,65"/>
 <area shape="poly" title=" " alt="" coords="437,30,435,20,441,11,455,5,476,3,500,6,513,13,511,18,498,11,476,8,456,10,445,15,440,21,442,28"/>
-<area shape="poly" title=" " alt="" coords="352,64,386,59,387,64,353,69"/>
+<area shape="poly" title=" " alt="" coords="352,47,386,47,386,52,352,52"/>
+<area shape="poly" title=" " alt="" coords="316,91,390,70,391,76,317,97"/>
 </map>
 </div>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="aad77229d5b446c36e39e3ba693d11b16" name="aad77229d5b446c36e39e3ba693d11b16"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aad77229d5b446c36e39e3ba693d11b16">&#9670;&#160;</a></span>proj_bufred_d</h2>
+<a id="a2393d147755bdf091c380434523f02dd" name="a2393d147755bdf091c380434523f02dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2393d147755bdf091c380434523f02dd">&#9670;&#160;</a></span>proj_bufred</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>* proj_bufred_d = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
+          <td class="memname"><a class="el" href="../../db/d68/hip_2buffer_8h.html#a7df18d5fe9d36931d97a84ccc80466ce">hip_buffer_t</a> proj_bufred = <a class="el" href="../../db/d68/hip_2buffer_8h.html#ac40d7bf39bc2ec33aa06a03730c9ace9">HIP_BUFFER_INIT_DEV</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d09/projection_8hip_source.html#l00047">47</a> of file <a class="el" href="../../d9/d09/projection_8hip_source.html">projection.hip</a>.</p>
-
-</div>
-</div>
-<a id="a96fba13aeeb6a88f2b95177129d5db93" name="a96fba13aeeb6a88f2b95177129d5db93"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a96fba13aeeb6a88f2b95177129d5db93">&#9670;&#160;</a></span>proj_red_s</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> proj_red_s = 0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d9/d09/projection_8hip_source.html#l00046">46</a> of file <a class="el" href="../../d9/d09/projection_8hip_source.html">projection.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d09/projection_8hip_source.html#l00048">48</a> of file <a class="el" href="../../d9/d09/projection_8hip_source.html">projection.hip</a>.</p>
 
 </div>
 </div>
@@ -334,7 +323,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../dir_bb5a773d526be8522818f3cc0f870e6e.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_af5a957af1210e22cc65fb8f80c75e1b.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a991fe790c056ae3d4768d74615c5e65.html">hip</a></li><li class="navelem"><a class="el" href="../../d9/d09/projection_8hip.html">projection.hip</a></li>
-    <li class="footer">Generated on Tue Jul 14 2026 04:31:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jul 15 2026 04:31:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

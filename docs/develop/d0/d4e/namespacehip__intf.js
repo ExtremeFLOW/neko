@@ -1,5 +1,6 @@
 var namespacehip__intf =
 [
+    [ "hip_buffer_free_all", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all" ],
     [ "hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
     [ "hipdevicegetstreampriorityrange", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange" ],
     [ "hipdevicereset", "df/dd3/interfacehip__intf_1_1hipdevicereset.html", "df/dd3/interfacehip__intf_1_1hipdevicereset" ],

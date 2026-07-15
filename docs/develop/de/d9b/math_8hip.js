@@ -68,10 +68,6 @@ var math_8hip =
     [ "hip_vcross", "de/d9b/math_8hip.html#a25f952490ea653ec77a2ad9a321800c7", null ],
     [ "hip_vdot3", "de/d9b/math_8hip.html#a0104c70cc5951778b0e61430722d9cf2", null ],
     [ "hip_vlsc3", "de/d9b/math_8hip.html#a4b5a87b7faf83821d28aaf81350b5dd8", null ],
-    [ "bufred", "de/d9b/math_8hip.html#a6cdfbdf0e87be0023af50b3b86363cf8", null ],
-    [ "bufred_d", "de/d9b/math_8hip.html#af2b29d9e78591ec289f96218f220a6e7", null ],
-    [ "bufred_xp", "de/d9b/math_8hip.html#a04d765d5b314339587492eda7221854d", null ],
-    [ "bufred_xp_d", "de/d9b/math_8hip.html#a561741c29613da4d369dd76c2c8b6a42", null ],
-    [ "red_s", "de/d9b/math_8hip.html#a9002153dd3b6313d27d53db6434c54d2", null ],
-    [ "red_xp_s", "de/d9b/math_8hip.html#a50abc203e9e7dd9e11a034ecf4110f60", null ]
+    [ "redbuf", "de/d9b/math_8hip.html#aaa82c2f0b93f11c401595171611cd70b", null ],
+    [ "redbuf_xp", "de/d9b/math_8hip.html#aca29a122a1758b6f3d94f5e60dd6b394", null ]
 ];

@@ -1,6 +1,9 @@
 <map id="cuda_pipecg_vecops" name="cuda_pipecg_vecops">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,161,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="209,29,361,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,47,196,47,196,52,162,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="248,30,245,20,251,11,265,5,285,3,309,6,322,13,319,18,307,11,285,8,266,10,255,15,251,21,253,28"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="412,29,564,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,47,398,47,398,52,162,52"/>
+<area shape="rect" id="Node000003" href="$db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="209,62,364,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="162,56,196,61,195,66,161,62"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="450,30,448,20,454,11,468,5,488,3,512,6,524,13,522,18,510,11,488,8,469,10,457,15,453,21,455,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="364,62,398,58,399,63,365,68"/>
 </map>

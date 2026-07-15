@@ -676,6 +676,7 @@ var namespaces_dup =
     [ "particles", "d5/dbf/namespaceparticles.html", "d5/dbf/namespaceparticles" ],
     [ "pde_filter", "d8/da5/namespacepde__filter.html", "d8/da5/namespacepde__filter" ],
     [ "pe_finder", "d6/d1c/namespacepe__finder.html", "d6/d1c/namespacepe__finder" ],
+    [ "pfunit_comm_utils", "d2/d0d/namespacepfunit__comm__utils.html", "d2/d0d/namespacepfunit__comm__utils" ],
     [ "phmg", "d1/d38/namespacephmg.html", "d1/d38/namespacephmg" ],
     [ "pipecg", "de/d49/namespacepipecg.html", "de/d49/namespacepipecg" ],
     [ "pipecg_device", "da/d46/namespacepipecg__device.html", "da/d46/namespacepipecg__device" ],

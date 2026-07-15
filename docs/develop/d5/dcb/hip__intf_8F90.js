@@ -7,6 +7,7 @@ var hip__intf_8F90 =
     [ "hip_intf::hipmemsetasync", "d0/dac/interfacehip__intf_1_1hipmemsetasync.html", "d0/dac/interfacehip__intf_1_1hipmemsetasync" ],
     [ "hip_intf::hipdevicesynchronize", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize" ],
     [ "hip_intf::hipdevicereset", "df/dd3/interfacehip__intf_1_1hipdevicereset.html", "df/dd3/interfacehip__intf_1_1hipdevicereset" ],
+    [ "hip_intf::hip_buffer_free_all", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all" ],
     [ "hip_intf::hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
     [ "hip_intf::hipgetdevicecount", "db/d7a/interfacehip__intf_1_1hipgetdevicecount.html", "db/d7a/interfacehip__intf_1_1hipgetdevicecount" ],
     [ "hip_intf::hipstreamcreate", "da/da9/interfacehip__intf_1_1hipstreamcreate.html", "da/da9/interfacehip__intf_1_1hipstreamcreate" ],

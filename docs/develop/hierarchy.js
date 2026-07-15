@@ -114,6 +114,7 @@ var hierarchy =
     [ "opencl_intf::clsetusereventstatus", "d3/d9c/interfaceopencl__intf_1_1clsetusereventstatus.html", null ],
     [ "opencl_intf::clwaitforevents", "db/d99/interfaceopencl__intf_1_1clwaitforevents.html", null ],
     [ "coefs::coef_t", "d0/dea/structcoefs_1_1coef__t.html", null ],
+    [ "pfunit_comm_utils::comm_init_test", "dc/d36/interfacepfunit__comm__utils_1_1comm__init__test.html", null ],
     [ "compressible_res_device::compressible_res_part_coef_mult_hip", "d4/d59/interfacecompressible__res__device_1_1compressible__res__part__coef__mult__hip.html", null ],
     [ "compressible_res_device::compressible_res_part_rk_sum_hip", "d6/d0d/interfacecompressible__res__device_1_1compressible__res__part__rk__sum__hip.html", null ],
     [ "compressible_res_device::compressible_res_part_visc_hip", "dc/dfa/interfacecompressible__res__device_1_1compressible__res__part__visc__hip.html", null ],
@@ -146,6 +147,8 @@ var hierarchy =
     [ "cuda_math::cuda_addcol3s2", "dc/dca/interfacecuda__math_1_1cuda__addcol3s2.html", null ],
     [ "cuda_math::cuda_addcol4", "d1/d08/interfacecuda__math_1_1cuda__addcol4.html", null ],
     [ "cuda_math::cuda_addsqr2s2", "d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html", null ],
+    [ "cuda_buffer", "db/d62/structcuda__buffer.html", null ],
+    [ "cuda_intf::cuda_buffer_free_all", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all.html", null ],
     [ "cuda_math::cuda_cadd2", "d5/d64/interfacecuda__math_1_1cuda__cadd2.html", null ],
     [ "cuda_math::cuda_cdiv", "d9/d90/interfacecuda__math_1_1cuda__cdiv.html", null ],
     [ "cuda_math::cuda_cdiv2", "dc/d8a/interfacecuda__math_1_1cuda__cdiv2.html", null ],
@@ -409,6 +412,8 @@ var hierarchy =
     [ "ax_helm_full_device::hip_ax_helm_stress_vector_part2", "da/de5/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector__part2.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector_part2", "d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2.html", null ],
+    [ "hip_buffer", "d3/d16/structhip__buffer.html", null ],
+    [ "hip_intf::hip_buffer_free_all", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html", null ],
     [ "hip_math::hip_cadd2", "d3/da8/interfacehip__math_1_1hip__cadd2.html", null ],
     [ "cai_sagaut_model_ii_device::hip_cai_sagaut_model_ii_compute", "da/d6a/interfacecai__sagaut__model__ii__device_1_1hip__cai__sagaut__model__ii__compute.html", null ],
     [ "hip_math::hip_cdiv", "d1/d5e/interfacehip__math_1_1hip__cdiv.html", null ],
@@ -732,6 +737,7 @@ var hierarchy =
     [ "neko_api_user::neko_api_user_cb_get_field", "d0/ddf/interfaceneko__api__user_1_1neko__api__user__cb__get__field.html", null ],
     [ "pyneko.intf.neko_coef_t", "d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html", null ],
     [ "comm::neko_comm_wrapper_init", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html", null ],
+    [ "pfunit_comm_utils::neko_comm_wrapper_init", "d5/dee/interfacepfunit__comm__utils_1_1neko__comm__wrapper__init.html", null ],
     [ "pyneko.intf.neko_dofmap_t", "d1/d11/classpyneko_1_1intf_1_1neko__dofmap__t.html", null ],
     [ "utils::neko_error", "d7/d83/interfaceutils_1_1neko__error.html", null ],
     [ "pyneko.intf.neko_field_t", "d3/dc9/classpyneko_1_1intf_1_1neko__field__t.html", null ],
@@ -760,6 +766,8 @@ var hierarchy =
     [ "opencl_math::opencl_addcol3s2", "dd/d62/interfaceopencl__math_1_1opencl__addcol3s2.html", null ],
     [ "opencl_math::opencl_addcol4", "dd/ddf/interfaceopencl__math_1_1opencl__addcol4.html", null ],
     [ "opencl_math::opencl_addsqr2s2", "d7/d89/interfaceopencl__math_1_1opencl__addsqr2s2.html", null ],
+    [ "opencl_buffer", "d5/da0/structopencl__buffer.html", null ],
+    [ "opencl_intf::opencl_buffer_free_all", "db/dd0/interfaceopencl__intf_1_1opencl__buffer__free__all.html", null ],
     [ "opencl_math::opencl_cadd2", "d5/dc0/interfaceopencl__math_1_1opencl__cadd2.html", null ],
     [ "opencl_math::opencl_cdiv", "dc/d84/interfaceopencl__math_1_1opencl__cdiv.html", null ],
     [ "opencl_math::opencl_cdiv2", "dd/dbc/interfaceopencl__math_1_1opencl__cdiv2.html", null ],
@@ -924,14 +932,12 @@ var hierarchy =
     [ "rhs_maker::rhs_maker_bdf_t", "d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t.html", [
       [ "rhs_maker_cpu::rhs_maker_bdf_cpu_t", "d8/d77/structrhs__maker__cpu_1_1rhs__maker__bdf__cpu__t.html", null ],
       [ "rhs_maker_device::rhs_maker_bdf_device_t", "d2/d5e/structrhs__maker__device_1_1rhs__maker__bdf__device__t.html", null ],
-      [ "rhs_maker_device::rhs_maker_bdf_device_t", "d2/d5e/structrhs__maker__device_1_1rhs__maker__bdf__device__t.html", null ],
       [ "rhs_maker_sx::rhs_maker_bdf_sx_t", "da/d10/structrhs__maker__sx_1_1rhs__maker__bdf__sx__t.html", null ]
     ] ],
     [ "rhs_maker::rhs_maker_ext", "d2/dc6/interfacerhs__maker_1_1rhs__maker__ext.html", null ],
     [ "rhs_maker_device::rhs_maker_ext_hip", "d5/dff/interfacerhs__maker__device_1_1rhs__maker__ext__hip.html", null ],
     [ "rhs_maker::rhs_maker_ext_t", "d8/d03/structrhs__maker_1_1rhs__maker__ext__t.html", [
       [ "rhs_maker_cpu::rhs_maker_ext_cpu_t", "d2/d47/structrhs__maker__cpu_1_1rhs__maker__ext__cpu__t.html", null ],
-      [ "rhs_maker_device::rhs_maker_ext_device_t", "d6/d58/structrhs__maker__device_1_1rhs__maker__ext__device__t.html", null ],
       [ "rhs_maker_device::rhs_maker_ext_device_t", "d6/d58/structrhs__maker__device_1_1rhs__maker__ext__device__t.html", null ],
       [ "rhs_maker_sx::rhs_maker_ext_sx_t", "d7/d0d/structrhs__maker__sx_1_1rhs__maker__ext__sx__t.html", null ]
     ] ],
@@ -946,7 +952,6 @@ var hierarchy =
     [ "rhs_maker_device::rhs_maker_sumab_hip", "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html", null ],
     [ "rhs_maker::rhs_maker_sumab_t", "df/daa/structrhs__maker_1_1rhs__maker__sumab__t.html", [
       [ "rhs_maker_cpu::rhs_maker_sumab_cpu_t", "df/dbe/structrhs__maker__cpu_1_1rhs__maker__sumab__cpu__t.html", null ],
-      [ "rhs_maker_device::rhs_maker_sumab_device_t", "d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t.html", null ],
       [ "rhs_maker_device::rhs_maker_sumab_device_t", "d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t.html", null ],
       [ "rhs_maker_sx::rhs_maker_sumab_sx_t", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html", null ]
     ] ],

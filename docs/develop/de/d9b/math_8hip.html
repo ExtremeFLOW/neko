@@ -107,6 +107,7 @@ $(document).ready(function(){initNavTree('de/d9b/math_8hip.html','../../'); init
 <div class="textblock"><code>#include &lt;hip/hip_runtime.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d8/dc8/device__config_8h_source.html">device/device_config.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d4/d7a/hip_2check_8h_source.html">device/hip/check.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="../../db/d68/hip_2buffer_8h_source.html">device/hip/buffer.h</a>&gt;</code><br />
 <code>#include &quot;<a class="el" href="../../d8/d17/hip_2math__kernel_8h_source.html">math_kernel.h</a>&quot;</code><br />
 <code>#include &lt;<a class="el" href="../../d0/d4a/device__mpi__reduce_8h_source.html">math/bcknd/device/device_mpi_reduce.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../db/d37/device__mpi__op_8h_source.html">math/bcknd/device/device_mpi_op.h</a>&gt;</code><br />
@@ -207,13 +208,13 @@ Functions</h2></td></tr>
 <tr class="separator:ac869b83a9071fdaee5628e756acc7d60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a422482b76c3866de8c15f43633c17efe" id="r_a422482b76c3866de8c15f43633c17efe"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe">hip_redbuf_check_alloc_xp</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">nb</a>)</td></tr>
 <tr class="separator:a422482b76c3866de8c15f43633c17efe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a024b6d35cc089cfe6b50b36eb4664c89" id="r_a024b6d35cc089cfe6b50b36eb4664c89"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a024b6d35cc089cfe6b50b36eb4664c89">hip_global_reduce_add</a> (<a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *<a class="el" href="../../de/d1e/math_8cu.html#a6cdfbdf0e87be0023af50b3b86363cf8">bufred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../de/d1e/math_8cu.html#a3a2670843e4ebd4649493e1b709fa1d8">bufred_d</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
+<tr class="memitem:a024b6d35cc089cfe6b50b36eb4664c89" id="r_a024b6d35cc089cfe6b50b36eb4664c89"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a024b6d35cc089cfe6b50b36eb4664c89">hip_global_reduce_add</a> (<a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bufred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bufred_d</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
 <tr class="separator:a024b6d35cc089cfe6b50b36eb4664c89"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8f93c7f15f101b810204b97257eac00" id="r_aa8f93c7f15f101b810204b97257eac00"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00">hip_global_reduce_add_xp</a> (<a class="el" href="../../d8/dc8/device__config_8h.html#ace2494fb512e34148900a2ebcbda007d">real_xp</a> *<a class="el" href="../../de/d1e/math_8cu.html#a6cdfbdf0e87be0023af50b3b86363cf8">bufred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../de/d1e/math_8cu.html#a3a2670843e4ebd4649493e1b709fa1d8">bufred_d</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
+<tr class="memitem:aa8f93c7f15f101b810204b97257eac00" id="r_aa8f93c7f15f101b810204b97257eac00"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00">hip_global_reduce_add_xp</a> (<a class="el" href="../../d8/dc8/device__config_8h.html#ace2494fb512e34148900a2ebcbda007d">real_xp</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bufred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bufred_d</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
 <tr class="separator:aa8f93c7f15f101b810204b97257eac00"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62e9c13fd844f246e0e99a65377e4c6e" id="r_a62e9c13fd844f246e0e99a65377e4c6e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a62e9c13fd844f246e0e99a65377e4c6e">hip_global_reduce_max</a> (<a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *<a class="el" href="../../de/d1e/math_8cu.html#a6cdfbdf0e87be0023af50b3b86363cf8">bufred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../de/d1e/math_8cu.html#a3a2670843e4ebd4649493e1b709fa1d8">bufred_d</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
+<tr class="memitem:a62e9c13fd844f246e0e99a65377e4c6e" id="r_a62e9c13fd844f246e0e99a65377e4c6e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a62e9c13fd844f246e0e99a65377e4c6e">hip_global_reduce_max</a> (<a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bufred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bufred_d</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
 <tr class="separator:a62e9c13fd844f246e0e99a65377e4c6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af74e07aea4e00f0772eba26c33923a3c" id="r_af74e07aea4e00f0772eba26c33923a3c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#af74e07aea4e00f0772eba26c33923a3c">hip_global_reduce_min</a> (<a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *<a class="el" href="../../de/d1e/math_8cu.html#a6cdfbdf0e87be0023af50b3b86363cf8">bufred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../de/d1e/math_8cu.html#a3a2670843e4ebd4649493e1b709fa1d8">bufred_d</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
+<tr class="memitem:af74e07aea4e00f0772eba26c33923a3c" id="r_af74e07aea4e00f0772eba26c33923a3c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#af74e07aea4e00f0772eba26c33923a3c">hip_global_reduce_min</a> (<a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bufred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bufred_d</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
 <tr class="separator:af74e07aea4e00f0772eba26c33923a3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b5a87b7faf83821d28aaf81350b5dd8" id="r_a4b5a87b7faf83821d28aaf81350b5dd8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a4b5a87b7faf83821d28aaf81350b5dd8">hip_vlsc3</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *<a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> *n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a> stream)</td></tr>
 <tr class="separator:a4b5a87b7faf83821d28aaf81350b5dd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -254,18 +255,10 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a9002153dd3b6313d27d53db6434c54d2" id="r_a9002153dd3b6313d27d53db6434c54d2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a9002153dd3b6313d27d53db6434c54d2">red_s</a> = 0</td></tr>
-<tr class="separator:a9002153dd3b6313d27d53db6434c54d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6cdfbdf0e87be0023af50b3b86363cf8" id="r_a6cdfbdf0e87be0023af50b3b86363cf8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a6cdfbdf0e87be0023af50b3b86363cf8">bufred</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:a6cdfbdf0e87be0023af50b3b86363cf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af2b29d9e78591ec289f96218f220a6e7" id="r_af2b29d9e78591ec289f96218f220a6e7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#af2b29d9e78591ec289f96218f220a6e7">bufred_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:af2b29d9e78591ec289f96218f220a6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a50abc203e9e7dd9e11a034ecf4110f60" id="r_a50abc203e9e7dd9e11a034ecf4110f60"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a50abc203e9e7dd9e11a034ecf4110f60">red_xp_s</a> = 0</td></tr>
-<tr class="separator:a50abc203e9e7dd9e11a034ecf4110f60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04d765d5b314339587492eda7221854d" id="r_a04d765d5b314339587492eda7221854d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#ace2494fb512e34148900a2ebcbda007d">real_xp</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a04d765d5b314339587492eda7221854d">bufred_xp</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:a04d765d5b314339587492eda7221854d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a561741c29613da4d369dd76c2c8b6a42" id="r_a561741c29613da4d369dd76c2c8b6a42"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#ace2494fb512e34148900a2ebcbda007d">real_xp</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#a561741c29613da4d369dd76c2c8b6a42">bufred_xp_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:a561741c29613da4d369dd76c2c8b6a42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa82c2f0b93f11c401595171611cd70b" id="r_aaa82c2f0b93f11c401595171611cd70b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d68/hip_2buffer_8h.html#a7df18d5fe9d36931d97a84ccc80466ce">hip_buffer_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#aaa82c2f0b93f11c401595171611cd70b">redbuf</a> = <a class="el" href="../../db/d68/hip_2buffer_8h.html#acbe3214211e62be3d94e436b65497692">HIP_BUFFER_INIT</a></td></tr>
+<tr class="separator:aaa82c2f0b93f11c401595171611cd70b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca29a122a1758b6f3d94f5e60dd6b394" id="r_aca29a122a1758b6f3d94f5e60dd6b394"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d68/hip_2buffer_8h.html#a7df18d5fe9d36931d97a84ccc80466ce">hip_buffer_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d9b/math_8hip.html#aca29a122a1758b6f3d94f5e60dd6b394">redbuf_xp</a> = <a class="el" href="../../db/d68/hip_2buffer_8h.html#acbe3214211e62be3d94e436b65497692">HIP_BUFFER_INIT</a></td></tr>
+<tr class="separator:aca29a122a1758b6f3d94f5e60dd6b394"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a240b36cb26df59e48feb7b08f07885bb" name="a240b36cb26df59e48feb7b08f07885bb"></a>
@@ -301,7 +294,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Fortran wrapper for absval \( a = abs(a) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01092">1092</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01082">1082</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -355,7 +348,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add2 Vector addition \( a = a + b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00364">364</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00365">365</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -415,7 +408,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add2s1 Vector addition with scalar multiplication \( a = c_1 a + b \) (multiplication on first argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00410">410</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00411">411</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -475,7 +468,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add2s2 Vector addition with scalar multiplication \( a = a + c_1 b \) (multiplication on second argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00426">426</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00427">427</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -541,7 +534,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add2s2 Vector addition with scalar multiplication \( x = x + c_1 p1 + c_2p2 + ... + c_jpj \) (multiplication on second argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00443">443</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00444">444</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -601,7 +594,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add4 Vector addition \( a = b + c + d\) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00379">379</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00380">380</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -673,7 +666,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add3s2 Vector addition with scalar multiplication \( a = c_1 b + c_2 c \) (multiplication on second argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00477">477</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00478">478</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -739,7 +732,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add4 Vector addition \( a = b + c + d\) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00394">394</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00395">395</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -823,7 +816,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add4s3 Vector addition with scalar multiplication \( a = c_1 b + c_2 c + c_3 d \) (multiplication on second argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00494">494</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00495">495</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -919,7 +912,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for add5s4 Vector addition with scalar multiplication \( a = a + c_1 b + c_2 c + c_3 d + c_4 e \) (multiplication on second argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00511">511</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00512">512</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -979,7 +972,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for addcol3 \( a = a + b * c \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00646">646</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00647">647</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1045,7 +1038,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for addcol3s2 \( a = a + s(b * c) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00677">677</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00678">678</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1111,7 +1104,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for addcol4 \( a = a + b * c * d \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00661">661</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00662">662</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1171,7 +1164,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for addsqr2s2 Vector addition with scalar multiplication \( a = a + c_1 (b * b) \) (multiplication on second argument) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00461">461</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00462">462</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1231,7 +1224,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cadd2 Add a scalar to a vector \( a = b + s \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00291">291</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00292">292</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1285,7 +1278,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cdiv Division of constant c by array \( a = c / a \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00249">249</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00250">250</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1345,7 +1338,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cdiv Division of constant c by \( a = c / b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00263">263</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00264">264</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1399,7 +1392,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cfill Multiplication by constant c \( a = c \cdot a \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00347">347</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00348">348</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1465,7 +1458,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cfill_mask Fill a scalar to vector \( a_i = s, for i \in mask \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00198">198</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00199">199</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1519,7 +1512,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cmult Multiplication by constant c \( a = c \cdot a \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00221">221</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00222">222</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1579,7 +1572,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cmult Multiplication by constant c \( a = c \cdot b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00235">235</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00236">236</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1633,7 +1626,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for col2 Vector multiplication with 2 vectors \( a = a \cdot b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00571">571</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00572">572</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1693,7 +1686,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for col3 Vector multiplication with 3 vectors \( a = b \cdot c \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00586">586</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00587">587</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1747,7 +1740,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for copy Copy a vector \( a = b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00053">53</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00054">54</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1807,7 +1800,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cwrap Wrap values in a vector to interval [min_val, max_val) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00305">305</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00306">306</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1903,7 +1896,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for face-masked gather copy Copy a face-local field \( a(i) = b(face(mask(i), facet(i))) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00127">127</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00128">128</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1957,31 +1950,34 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper glmax Take the maxmum of a vector of length n </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01036">1036</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01022">1022</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_a10a0295dde2f468e56b2b4340a946ec8_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_a10a0295dde2f468e56b2b4340a946ec8_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_a10a0295dde2f468e56b2b4340a946ec8_cgraph" id="ade/d9b/math_8hip_a10a0295dde2f468e56b2b4340a946ec8_cgraph">
-<area shape="rect" title=" " alt="" coords="5,94,96,119"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="591,75,743,115"/>
-<area shape="poly" title=" " alt="" coords="77,91,157,59,211,40,273,23,339,10,407,4,476,5,543,18,591,38,632,64,629,69,589,43,542,23,476,11,407,9,339,16,274,28,213,45,159,64,79,96"/>
+<area shape="rect" title=" " alt="" coords="5,130,96,155"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="581,97,733,137"/>
+<area shape="poly" title=" " alt="" coords="62,128,96,96,143,65,203,40,252,28,368,16,452,4,489,4,534,16,563,29,589,47,631,85,628,89,586,51,560,34,532,21,488,10,452,9,368,21,253,33,204,46,145,70,99,101,66,132"/>
 <area shape="rect" href="../../de/d9b/math_8hip.html#a62e9c13fd844f246e0e99a65377e4c6e" title=" " alt="" coords="144,81,320,106"/>
-<area shape="poly" title=" " alt="" coords="96,101,130,98,130,104,96,106"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#ac869b83a9071fdaee5628e756acc7d60" title=" " alt="" coords="368,155,543,181"/>
-<area shape="poly" title=" " alt="" coords="97,111,358,151,357,156,96,116"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#a1236077aaa60547eaf820ded37dffe9d" title=" " alt="" coords="191,194,273,219"/>
-<area shape="poly" title=" " alt="" coords="68,118,102,145,145,172,179,188,177,192,143,177,99,149,65,122"/>
-<area shape="poly" title=" " alt="" coords="627,75,625,65,631,56,645,50,667,48,691,51,705,58,702,63,690,56,667,53,646,55,634,60,630,66,632,74"/>
-<area shape="poly" title=" " alt="" coords="258,78,308,58,367,42,417,34,455,31,494,33,543,42,581,52,616,66,614,71,579,57,542,47,494,39,455,36,417,39,369,47,310,63,260,83"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="373,57,537,82"/>
-<area shape="poly" title=" " alt="" coords="320,81,359,77,360,82,321,87"/>
-<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="373,106,538,131"/>
-<area shape="poly" title=" " alt="" coords="321,101,359,105,358,111,320,106"/>
-<area shape="poly" title=" " alt="" coords="538,77,577,81,577,87,537,82"/>
-<area shape="poly" title=" " alt="" coords="538,107,577,102,577,108,539,112"/>
-<area shape="poly" title=" " alt="" coords="502,153,542,140,603,117,605,122,544,145,503,158"/>
-<area shape="poly" title=" " alt="" coords="274,210,328,215,396,216,470,209,542,191,569,178,594,161,636,123,640,127,598,165,572,182,544,196,471,215,397,221,328,220,273,215"/>
+<area shape="poly" title=" " alt="" coords="95,128,171,107,172,112,97,133"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#ac869b83a9071fdaee5628e756acc7d60" title=" " alt="" coords="145,155,319,181"/>
+<area shape="poly" title=" " alt="" coords="97,146,132,151,131,156,96,151"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#a1236077aaa60547eaf820ded37dffe9d" title=" " alt="" coords="191,230,273,255"/>
+<area shape="poly" title=" " alt="" coords="76,153,197,221,195,225,74,158"/>
+<area shape="poly" title=" " alt="" coords="619,97,616,88,623,78,636,73,657,71,681,73,695,81,692,85,680,78,657,76,638,78,626,83,622,88,624,96"/>
+<area shape="poly" title=" " alt="" coords="258,78,308,57,367,40,451,27,488,30,534,40,582,60,623,87,620,91,579,65,533,45,487,35,451,33,369,45,309,62,260,83"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="369,55,533,81"/>
+<area shape="poly" title=" " alt="" coords="320,80,355,76,355,82,321,86"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="368,105,533,130"/>
+<area shape="poly" title=" " alt="" coords="321,100,354,104,354,109,320,106"/>
+<area shape="poly" title=" " alt="" coords="505,78,568,93,567,98,504,83"/>
+<area shape="poly" title=" " alt="" coords="534,115,567,115,567,120,534,120"/>
+<area shape="poly" title=" " alt="" coords="319,160,422,151,533,139,567,133,568,138,534,144,422,157,320,165"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="379,206,522,231"/>
+<area shape="poly" title=" " alt="" coords="288,178,383,200,382,205,287,183"/>
+<area shape="poly" title=" " alt="" coords="487,203,532,184,610,142,613,147,534,189,489,208"/>
+<area shape="poly" title=" " alt="" coords="274,250,327,259,393,264,464,260,499,253,532,241,564,223,592,199,634,147,639,151,596,203,567,227,534,246,500,258,465,265,393,269,327,264,273,255"/>
 </map>
 </div>
 
@@ -2026,31 +2022,34 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper glmin Take the minimum of a vector of length n </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01064">1064</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01052">1052</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_a85996a20535a20a44f75f8ff8cef144c_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_a85996a20535a20a44f75f8ff8cef144c_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_a85996a20535a20a44f75f8ff8cef144c_cgraph" id="ade/d9b/math_8hip_a85996a20535a20a44f75f8ff8cef144c_cgraph">
-<area shape="rect" title=" " alt="" coords="5,94,92,119"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="583,75,735,115"/>
-<area shape="poly" title=" " alt="" coords="75,91,154,59,207,40,268,23,333,10,401,4,469,5,535,17,583,38,624,64,621,69,581,42,534,22,468,11,401,9,334,16,269,29,209,45,156,64,77,96"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#af74e07aea4e00f0772eba26c33923a3c" title=" " alt="" coords="140,81,312,106"/>
-<area shape="poly" title=" " alt="" coords="92,101,126,98,127,103,92,106"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#ac869b83a9071fdaee5628e756acc7d60" title=" " alt="" coords="360,155,535,181"/>
-<area shape="poly" title=" " alt="" coords="92,110,351,150,350,156,92,116"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#a1236077aaa60547eaf820ded37dffe9d" title=" " alt="" coords="185,194,267,219"/>
-<area shape="poly" title=" " alt="" coords="66,117,99,144,141,172,173,187,170,192,139,177,96,149,63,122"/>
-<area shape="poly" title=" " alt="" coords="619,75,617,65,623,56,637,50,659,48,683,51,697,58,694,63,682,56,659,53,638,55,626,60,622,66,624,74"/>
-<area shape="poly" title=" " alt="" coords="252,78,301,58,359,41,409,33,447,30,486,33,535,41,573,52,608,66,606,71,571,57,534,47,486,38,447,36,409,39,361,47,303,63,254,83"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="365,57,529,82"/>
-<area shape="poly" title=" " alt="" coords="312,81,351,77,352,82,313,87"/>
-<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="365,106,530,131"/>
-<area shape="poly" title=" " alt="" coords="313,100,352,105,351,110,312,106"/>
-<area shape="poly" title=" " alt="" coords="530,76,569,81,569,86,529,82"/>
-<area shape="poly" title=" " alt="" coords="530,107,569,102,569,107,531,112"/>
-<area shape="poly" title=" " alt="" coords="494,153,534,140,595,117,597,122,536,145,495,158"/>
-<area shape="poly" title=" " alt="" coords="268,210,322,215,390,216,463,209,534,191,561,178,586,160,628,123,632,127,590,165,564,182,536,196,464,214,390,221,322,220,267,215"/>
+<area shape="rect" title=" " alt="" coords="5,130,92,155"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="576,97,728,137"/>
+<area shape="poly" title=" " alt="" coords="60,128,93,96,139,66,198,40,247,28,362,16,447,4,484,4,529,16,557,29,583,47,626,85,622,89,580,51,555,34,527,21,483,10,447,9,363,21,248,33,200,45,141,70,96,100,63,132"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#af74e07aea4e00f0772eba26c33923a3c" title=" " alt="" coords="141,81,313,106"/>
+<area shape="poly" title=" " alt="" coords="91,128,167,107,168,112,93,133"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#ac869b83a9071fdaee5628e756acc7d60" title=" " alt="" coords="140,155,315,181"/>
+<area shape="poly" title=" " alt="" coords="93,146,127,151,126,156,92,151"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#a1236077aaa60547eaf820ded37dffe9d" title=" " alt="" coords="186,230,269,255"/>
+<area shape="poly" title=" " alt="" coords="74,153,193,221,190,225,71,158"/>
+<area shape="poly" title=" " alt="" coords="613,97,611,88,617,78,631,73,652,71,676,73,689,81,687,85,674,78,652,76,632,78,621,83,616,88,618,96"/>
+<area shape="poly" title=" " alt="" coords="253,78,303,57,362,40,446,27,483,30,529,40,577,60,617,87,615,91,574,65,527,45,482,35,446,33,363,45,304,62,255,83"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="363,55,527,81"/>
+<area shape="poly" title=" " alt="" coords="313,81,349,76,350,82,314,86"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="363,105,528,130"/>
+<area shape="poly" title=" " alt="" coords="314,100,349,104,348,109,313,105"/>
+<area shape="poly" title=" " alt="" coords="500,78,563,93,562,98,499,83"/>
+<area shape="poly" title=" " alt="" coords="528,115,562,115,562,120,528,120"/>
+<area shape="poly" title=" " alt="" coords="315,160,417,151,528,139,562,133,563,138,528,144,417,157,315,165"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="374,206,517,231"/>
+<area shape="poly" title=" " alt="" coords="284,178,378,200,376,205,282,183"/>
+<area shape="poly" title=" " alt="" coords="481,203,527,184,605,142,607,147,529,189,483,208"/>
+<area shape="poly" title=" " alt="" coords="269,250,323,259,388,264,459,260,494,253,527,241,559,223,587,199,629,147,633,151,591,203,562,227,529,246,495,258,460,265,388,269,322,264,268,255"/>
 </map>
 </div>
 
@@ -2095,7 +2094,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Global additive reduction </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00766">766</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00747">747</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2155,7 +2154,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Global additive reduction </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00787">787</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00768">768</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2233,7 +2232,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Global maximise reduction </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00809">809</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00790">790</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2303,7 +2302,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Global minimise reduction </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00830">830</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00811">811</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2373,28 +2372,31 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper glsc2 Weighted inner product \( a^T b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00948">948</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00930">930</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_a729a6353677f13b259b0660500cf1289_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_a729a6353677f13b259b0660500cf1289_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_a729a6353677f13b259b0660500cf1289_cgraph" id="ade/d9b/math_8hip_a729a6353677f13b259b0660500cf1289_cgraph">
-<area shape="rect" title=" " alt="" coords="5,55,88,81"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="595,48,747,88"/>
-<area shape="poly" title=" " alt="" coords="86,53,135,40,250,18,341,6,432,5,547,20,615,40,613,45,546,25,432,10,341,11,251,24,137,45,87,58"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="137,55,332,81"/>
-<area shape="poly" title=" " alt="" coords="88,65,124,65,124,71,88,71"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="136,130,333,155"/>
-<area shape="poly" title=" " alt="" coords="81,78,190,122,188,127,79,83"/>
-<area shape="poly" title=" " alt="" coords="632,48,630,38,636,29,650,23,671,21,695,24,708,31,705,36,693,29,671,27,651,29,639,33,635,39,637,47"/>
-<area shape="poly" title=" " alt="" coords="295,53,381,40,464,35,547,40,581,45,581,50,546,45,464,40,382,45,295,58"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="382,55,546,81"/>
-<area shape="poly" title=" " alt="" coords="332,65,368,65,368,71,332,71"/>
-<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="381,105,547,130"/>
-<area shape="poly" title=" " alt="" coords="295,78,391,99,390,104,294,83"/>
-<area shape="poly" title=" " alt="" coords="547,65,581,65,581,71,547,71"/>
-<area shape="poly" title=" " alt="" coords="517,102,580,87,582,92,518,107"/>
-<area shape="poly" title=" " alt="" coords="326,153,433,156,490,151,546,140,593,120,633,94,636,98,595,125,547,145,491,157,433,161,326,158"/>
+<area shape="rect" title=" " alt="" coords="5,57,88,83"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="595,75,747,115"/>
+<area shape="poly" title=" " alt="" coords="86,55,171,32,286,11,350,5,417,3,483,8,547,21,594,40,634,65,632,69,592,45,546,26,482,13,416,8,351,10,287,16,172,37,88,60"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="137,57,332,83"/>
+<area shape="poly" title=" " alt="" coords="88,67,124,67,124,73,88,73"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="136,157,333,183"/>
+<area shape="poly" title=" " alt="" coords="73,81,199,148,196,153,71,85"/>
+<area shape="poly" title=" " alt="" coords="632,76,630,66,636,56,650,51,671,49,695,52,708,59,705,64,693,57,671,54,651,56,639,61,635,67,637,74"/>
+<area shape="poly" title=" " alt="" coords="287,55,341,44,406,37,477,35,547,42,585,53,620,67,618,72,583,58,546,47,477,40,406,42,341,50,288,60"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="382,57,546,83"/>
+<area shape="poly" title=" " alt="" coords="332,67,368,67,368,73,332,73"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="381,107,547,132"/>
+<area shape="poly" title=" " alt="" coords="295,80,391,101,390,106,294,85"/>
+<area shape="poly" title=" " alt="" coords="547,77,581,82,581,87,546,83"/>
+<area shape="poly" title=" " alt="" coords="547,107,580,103,581,108,547,112"/>
+<area shape="poly" title=" " alt="" coords="333,166,437,159,546,141,613,118,615,123,547,146,437,164,334,171"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="393,208,535,233"/>
+<area shape="poly" title=" " alt="" coords="294,180,393,202,392,208,293,185"/>
+<area shape="poly" title=" " alt="" coords="503,205,545,186,593,155,635,122,638,126,596,159,548,191,505,210"/>
 </map>
 </div>
 
@@ -2445,28 +2447,31 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper glsc3 Weighted inner product \( a^T b c \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00881">881</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00862">862</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_aa6d83f409f6cdbccd3c8fc9649c8dc40_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_aa6d83f409f6cdbccd3c8fc9649c8dc40_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_aa6d83f409f6cdbccd3c8fc9649c8dc40_cgraph" id="ade/d9b/math_8hip_aa6d83f409f6cdbccd3c8fc9649c8dc40_cgraph">
-<area shape="rect" title=" " alt="" coords="5,55,88,81"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="595,48,747,88"/>
-<area shape="poly" title=" " alt="" coords="86,53,135,40,250,18,341,6,432,5,547,20,615,40,613,45,546,25,432,10,341,11,251,24,137,45,87,58"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="137,55,332,81"/>
-<area shape="poly" title=" " alt="" coords="88,65,124,65,124,71,88,71"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="136,130,333,155"/>
-<area shape="poly" title=" " alt="" coords="81,78,190,122,188,127,79,83"/>
-<area shape="poly" title=" " alt="" coords="632,48,630,38,636,29,650,23,671,21,695,24,708,31,705,36,693,29,671,27,651,29,639,33,635,39,637,47"/>
-<area shape="poly" title=" " alt="" coords="295,53,381,40,464,35,547,40,581,45,581,50,546,45,464,40,382,45,295,58"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="382,55,546,81"/>
-<area shape="poly" title=" " alt="" coords="332,65,368,65,368,71,332,71"/>
-<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="381,105,547,130"/>
-<area shape="poly" title=" " alt="" coords="295,78,391,99,390,104,294,83"/>
-<area shape="poly" title=" " alt="" coords="547,65,581,65,581,71,547,71"/>
-<area shape="poly" title=" " alt="" coords="517,102,580,87,582,92,518,107"/>
-<area shape="poly" title=" " alt="" coords="326,153,433,156,490,151,546,140,593,120,633,94,636,98,595,125,547,145,491,157,433,161,326,158"/>
+<area shape="rect" title=" " alt="" coords="5,57,88,83"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="595,75,747,115"/>
+<area shape="poly" title=" " alt="" coords="86,55,171,32,286,11,350,5,417,3,483,8,547,21,594,40,634,65,632,69,592,45,546,26,482,13,416,8,351,10,287,16,172,37,88,60"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="137,57,332,83"/>
+<area shape="poly" title=" " alt="" coords="88,67,124,67,124,73,88,73"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="136,157,333,183"/>
+<area shape="poly" title=" " alt="" coords="73,81,199,148,196,153,71,85"/>
+<area shape="poly" title=" " alt="" coords="632,76,630,66,636,56,650,51,671,49,695,52,708,59,705,64,693,57,671,54,651,56,639,61,635,67,637,74"/>
+<area shape="poly" title=" " alt="" coords="287,55,341,44,406,37,477,35,547,42,585,53,620,67,618,72,583,58,546,47,477,40,406,42,341,50,288,60"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="382,57,546,83"/>
+<area shape="poly" title=" " alt="" coords="332,67,368,67,368,73,332,73"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="381,107,547,132"/>
+<area shape="poly" title=" " alt="" coords="295,80,391,101,390,106,294,85"/>
+<area shape="poly" title=" " alt="" coords="547,77,581,82,581,87,546,83"/>
+<area shape="poly" title=" " alt="" coords="547,107,580,103,581,108,547,112"/>
+<area shape="poly" title=" " alt="" coords="333,166,437,159,546,141,613,118,615,123,547,146,437,164,334,171"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="393,208,535,233"/>
+<area shape="poly" title=" " alt="" coords="294,180,393,202,392,208,293,185"/>
+<area shape="poly" title=" " alt="" coords="503,205,545,186,593,155,635,122,638,126,596,159,548,191,505,210"/>
 </map>
 </div>
 
@@ -2529,28 +2534,31 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for doing an reduction to an array Weighted inner product \( w^T v(n,1:j) c \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00911">911</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00893">893</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_a87e8b15974eb35428d5b7cf40e7fb841_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_a87e8b15974eb35428d5b7cf40e7fb841_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_a87e8b15974eb35428d5b7cf40e7fb841_cgraph" id="ade/d9b/math_8hip_a87e8b15974eb35428d5b7cf40e7fb841_cgraph">
-<area shape="rect" title=" " alt="" coords="5,49,132,74"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="639,42,791,82"/>
-<area shape="poly" title=" " alt="" coords="118,46,207,28,325,10,458,3,525,5,591,14,659,34,657,39,590,19,525,11,458,8,325,16,208,33,119,52"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="181,49,376,74"/>
-<area shape="poly" title=" " alt="" coords="132,59,167,59,167,64,132,64"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="180,124,377,149"/>
-<area shape="poly" title=" " alt="" coords="107,72,230,117,229,122,105,77"/>
-<area shape="poly" title=" " alt="" coords="676,42,674,32,680,23,694,17,715,15,739,18,752,25,749,30,737,23,715,20,695,22,683,27,679,33,681,41"/>
-<area shape="poly" title=" " alt="" coords="339,46,425,34,508,29,591,34,625,39,625,44,590,39,508,34,426,39,339,52"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="426,49,590,74"/>
-<area shape="poly" title=" " alt="" coords="376,59,412,59,412,64,376,64"/>
-<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="425,98,591,124"/>
-<area shape="poly" title=" " alt="" coords="339,72,435,93,434,98,338,77"/>
-<area shape="poly" title=" " alt="" coords="591,59,625,59,625,64,591,64"/>
-<area shape="poly" title=" " alt="" coords="561,96,624,81,626,86,562,101"/>
-<area shape="poly" title=" " alt="" coords="370,146,477,150,534,145,590,134,637,114,677,88,680,92,639,119,591,139,535,150,477,155,370,152"/>
+<area shape="rect" title=" " alt="" coords="5,58,132,84"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="639,76,791,116"/>
+<area shape="poly" title=" " alt="" coords="109,56,197,32,317,11,385,5,454,3,524,8,591,22,638,41,678,66,676,70,636,46,590,27,523,14,454,9,385,10,318,16,198,38,110,61"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="181,58,376,84"/>
+<area shape="poly" title=" " alt="" coords="132,68,167,68,167,74,132,74"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="180,158,377,184"/>
+<area shape="poly" title=" " alt="" coords="98,81,240,150,238,155,96,86"/>
+<area shape="poly" title=" " alt="" coords="676,77,674,67,680,58,694,52,715,50,739,53,752,60,749,65,737,58,715,55,695,57,683,62,679,68,681,75"/>
+<area shape="poly" title=" " alt="" coords="331,56,385,46,450,38,521,36,591,43,629,54,664,68,662,73,627,59,590,48,521,41,450,43,385,51,332,61"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="426,58,590,84"/>
+<area shape="poly" title=" " alt="" coords="376,68,412,68,412,74,376,74"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="425,108,591,133"/>
+<area shape="poly" title=" " alt="" coords="339,81,435,102,434,107,338,86"/>
+<area shape="poly" title=" " alt="" coords="591,78,625,83,625,88,590,84"/>
+<area shape="poly" title=" " alt="" coords="591,108,624,104,625,109,591,113"/>
+<area shape="poly" title=" " alt="" coords="377,167,481,160,590,142,657,119,659,124,591,147,481,165,378,172"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="437,209,579,234"/>
+<area shape="poly" title=" " alt="" coords="338,181,437,203,436,209,337,186"/>
+<area shape="poly" title=" " alt="" coords="547,207,589,187,637,156,679,123,682,127,640,160,592,192,549,211"/>
 </map>
 </div>
 
@@ -2595,28 +2603,31 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper glsubnorm2 Weighted inner product \( a^T b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00978">978</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00961">961</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_a68341c5d78849b1dde1f3afc4c1e0463_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_a68341c5d78849b1dde1f3afc4c1e0463_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_a68341c5d78849b1dde1f3afc4c1e0463_cgraph" id="ade/d9b/math_8hip_a68341c5d78849b1dde1f3afc4c1e0463_cgraph">
-<area shape="rect" title=" " alt="" coords="5,49,132,74"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="639,42,791,82"/>
-<area shape="poly" title=" " alt="" coords="118,46,207,28,325,10,458,3,525,5,591,14,659,34,657,39,590,19,525,11,458,8,325,16,208,33,119,52"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="181,49,376,74"/>
-<area shape="poly" title=" " alt="" coords="132,59,167,59,167,64,132,64"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="180,124,377,149"/>
-<area shape="poly" title=" " alt="" coords="107,72,230,117,229,122,105,77"/>
-<area shape="poly" title=" " alt="" coords="676,42,674,32,680,23,694,17,715,15,739,18,752,25,749,30,737,23,715,20,695,22,683,27,679,33,681,41"/>
-<area shape="poly" title=" " alt="" coords="339,46,425,34,508,29,591,34,625,39,625,44,590,39,508,34,426,39,339,52"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="426,49,590,74"/>
-<area shape="poly" title=" " alt="" coords="376,59,412,59,412,64,376,64"/>
-<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="425,98,591,124"/>
-<area shape="poly" title=" " alt="" coords="339,72,435,93,434,98,338,77"/>
-<area shape="poly" title=" " alt="" coords="591,59,625,59,625,64,591,64"/>
-<area shape="poly" title=" " alt="" coords="561,96,624,81,626,86,562,101"/>
-<area shape="poly" title=" " alt="" coords="370,146,477,150,534,145,590,134,637,114,677,88,680,92,639,119,591,139,535,150,477,155,370,152"/>
+<area shape="rect" title=" " alt="" coords="5,58,132,84"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="639,76,791,116"/>
+<area shape="poly" title=" " alt="" coords="109,56,197,32,317,11,385,5,454,3,524,8,591,22,638,41,678,66,676,70,636,46,590,27,523,14,454,9,385,10,318,16,198,38,110,61"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="181,58,376,84"/>
+<area shape="poly" title=" " alt="" coords="132,68,167,68,167,74,132,74"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="180,158,377,184"/>
+<area shape="poly" title=" " alt="" coords="98,81,240,150,238,155,96,86"/>
+<area shape="poly" title=" " alt="" coords="676,77,674,67,680,58,694,52,715,50,739,53,752,60,749,65,737,58,715,55,695,57,683,62,679,68,681,75"/>
+<area shape="poly" title=" " alt="" coords="331,56,385,46,450,38,521,36,591,43,629,54,664,68,662,73,627,59,590,48,521,41,450,43,385,51,332,61"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="426,58,590,84"/>
+<area shape="poly" title=" " alt="" coords="376,68,412,68,412,74,376,74"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="425,108,591,133"/>
+<area shape="poly" title=" " alt="" coords="339,81,435,102,434,107,338,86"/>
+<area shape="poly" title=" " alt="" coords="591,78,625,83,625,88,590,84"/>
+<area shape="poly" title=" " alt="" coords="591,108,624,104,625,109,591,113"/>
+<area shape="poly" title=" " alt="" coords="377,167,481,160,590,142,657,119,659,124,591,147,481,165,378,172"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="437,209,579,234"/>
+<area shape="poly" title=" " alt="" coords="338,181,437,203,436,209,337,186"/>
+<area shape="poly" title=" " alt="" coords="547,207,589,187,637,156,679,123,682,127,640,160,592,192,549,211"/>
 </map>
 </div>
 
@@ -2655,28 +2666,31 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper glsum Sum a vector of length n </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01007">1007</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00992">992</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_a9e537ce0c816439a2a8ff14d6e5bfb13_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_a9e537ce0c816439a2a8ff14d6e5bfb13_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_a9e537ce0c816439a2a8ff14d6e5bfb13_cgraph" id="ade/d9b/math_8hip_a9e537ce0c816439a2a8ff14d6e5bfb13_cgraph">
-<area shape="rect" title=" " alt="" coords="5,55,95,80"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="601,48,753,88"/>
-<area shape="poly" title=" " alt="" coords="90,52,142,40,257,19,348,6,439,5,554,20,622,40,620,45,553,25,438,10,348,11,258,24,143,45,92,58"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="144,55,339,80"/>
-<area shape="poly" title=" " alt="" coords="95,65,130,65,130,70,95,70"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="143,130,340,155"/>
-<area shape="poly" title=" " alt="" coords="85,78,196,122,195,127,83,83"/>
-<area shape="poly" title=" " alt="" coords="639,48,636,38,643,29,656,23,677,21,701,24,715,31,712,36,700,29,677,26,658,28,646,33,642,39,644,47"/>
-<area shape="poly" title=" " alt="" coords="301,52,388,40,471,35,554,40,588,45,587,50,553,45,471,40,388,45,302,58"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="389,55,553,80"/>
-<area shape="poly" title=" " alt="" coords="339,65,375,65,375,70,339,70"/>
-<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="388,104,553,130"/>
-<area shape="poly" title=" " alt="" coords="302,78,398,99,397,104,300,83"/>
-<area shape="poly" title=" " alt="" coords="553,65,587,65,587,70,553,70"/>
-<area shape="poly" title=" " alt="" coords="524,102,587,87,588,92,525,107"/>
-<area shape="poly" title=" " alt="" coords="333,152,440,156,497,151,553,140,599,120,640,94,643,98,602,125,554,145,498,156,440,161,333,158"/>
+<area shape="rect" title=" " alt="" coords="5,57,95,83"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="601,75,753,115"/>
+<area shape="poly" title=" " alt="" coords="89,55,174,32,290,11,355,5,422,3,489,8,554,21,601,40,641,65,638,69,598,45,553,26,488,13,422,8,355,10,291,16,175,37,91,60"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#aa8f93c7f15f101b810204b97257eac00" title=" " alt="" coords="144,57,339,83"/>
+<area shape="poly" title=" " alt="" coords="95,67,130,67,130,73,95,73"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#a422482b76c3866de8c15f43633c17efe" title=" " alt="" coords="143,157,340,183"/>
+<area shape="poly" title=" " alt="" coords="77,81,205,149,203,153,74,85"/>
+<area shape="poly" title=" " alt="" coords="639,76,636,66,643,57,656,51,677,49,701,52,715,59,712,64,700,57,677,54,658,56,646,61,642,67,644,74"/>
+<area shape="poly" title=" " alt="" coords="293,55,347,45,413,37,484,35,554,42,592,53,627,67,625,72,590,58,553,47,483,40,413,42,348,50,294,60"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="389,57,553,83"/>
+<area shape="poly" title=" " alt="" coords="339,67,375,67,375,73,339,73"/>
+<area shape="rect" href="../../d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="388,107,553,132"/>
+<area shape="poly" title=" " alt="" coords="302,80,398,101,397,106,300,85"/>
+<area shape="poly" title=" " alt="" coords="554,78,588,82,587,87,553,83"/>
+<area shape="poly" title=" " alt="" coords="553,107,587,103,588,109,554,112"/>
+<area shape="poly" title=" " alt="" coords="340,166,443,159,553,141,620,118,622,123,554,146,444,164,341,172"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="399,208,542,233"/>
+<area shape="poly" title=" " alt="" coords="300,180,400,203,399,208,299,186"/>
+<area shape="poly" title=" " alt="" coords="510,206,552,186,600,155,642,122,645,127,603,159,555,191,512,211"/>
 </map>
 </div>
 
@@ -2721,7 +2735,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cadd Add a scalar to vector \( a = \sum a_i + s \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01229">1229</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01219">1219</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2769,7 +2783,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for invcol1 Invert a vector \( a = 1 / a \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00528">528</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00529">529</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2823,7 +2837,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for invcol2 Vector division \( a = a / b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00542">542</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00543">543</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2883,7 +2897,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for invcol3 Vector division \( a = b / c \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00556">556</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00557">557</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2949,7 +2963,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for masked atomic reduction update a vector \( a += b(mask) \) where mask is not unique </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00181">181</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00182">182</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3015,7 +3029,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for masked copy Copy a vector \( a(mask) = b(mask) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00061">61</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00062">62</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3081,7 +3095,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for masked copy Copy a vector \( a(mask) = b(mask) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00078">78</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00079">79</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3147,7 +3161,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for masked gather copy Copy a vector \( a = b(mask) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00095">95</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00096">96</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3213,7 +3227,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for masked gather copy with mask_t Copy a vector \( a = b(mask) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00111">111</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00112">112</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3279,7 +3293,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for masked scatter copy Copy a vector \( a(mask) = b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00147">147</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00148">148</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3345,7 +3359,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for masked scatter copy for aligned mask Copy a vector \( a(mask) = b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00164">164</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00165">165</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3405,7 +3419,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for power Take the power of a vector \( a^p \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00333">333</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00334">334</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3460,7 +3474,7 @@ Here is the call graph for this function:</div>
 <p>Fortran wrapper for pwmax_sca2</p>
 <p>Compute the maximum of vector and scalar \( a = \max(a, c) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01139">1139</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01129">1129</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3521,7 +3535,7 @@ Here is the call graph for this function:</div>
 <p>Fortran wrapper for pwmax_sca3</p>
 <p>Compute the maximum of vector and scalar \( a = \max(b, c) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01153">1153</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01143">1143</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3576,7 +3590,7 @@ Here is the call graph for this function:</div>
 <p>Fortran wrapper for pwmax_vec2</p>
 <p>Compute the maximum of two vectors \( a = \max(a, b) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01110">1110</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01100">1100</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3637,7 +3651,7 @@ Here is the call graph for this function:</div>
 <p>Fortran wrapper for pwmax_vec3</p>
 <p>Compute the maximum of two vectors \( a = \max(b, c) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01124">1124</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01114">1114</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3692,7 +3706,7 @@ Here is the call graph for this function:</div>
 <p>Fortran wrapper for pwmin_sca2</p>
 <p>Compute the minimum of vector and scalar \( a = \min(a, c) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01198">1198</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01188">1188</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3753,7 +3767,7 @@ Here is the call graph for this function:</div>
 <p>Fortran wrapper for pwmin_sca3</p>
 <p>Compute the minimum of vector and scalar \( a = \min(b, c) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01213">1213</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01203">1203</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3808,7 +3822,7 @@ Here is the call graph for this function:</div>
 <p>Fortran wrapper for pwmin_vec2</p>
 <p>Compute the minimum of two vectors \( a = \min(a, b) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01168">1168</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01158">1158</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3869,7 +3883,7 @@ Here is the call graph for this function:</div>
 <p>Fortran wrapper for pwmin_vec3</p>
 <p>Compute the minimum of two vectors \( a = \min(b, c) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01183">1183</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l01173">1173</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3923,7 +3937,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for cadd Add a scalar to vector \( a = \sum a_i + s \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00277">277</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00278">278</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -3954,16 +3968,19 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00738">738</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00736">736</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_ac869b83a9071fdaee5628e756acc7d60_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_ac869b83a9071fdaee5628e756acc7d60_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_ac869b83a9071fdaee5628e756acc7d60_cgraph" id="ade/d9b/math_8hip_ac869b83a9071fdaee5628e756acc7d60_cgraph">
 <area shape="rect" title=" " alt="" coords="5,37,180,62"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="228,29,380,69"/>
-<area shape="poly" title=" " alt="" coords="180,47,214,47,214,52,180,52"/>
-<area shape="poly" title=" " alt="" coords="264,30,262,20,268,10,283,5,304,3,329,6,342,13,340,18,327,11,304,8,284,10,272,15,267,21,270,28"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="419,29,571,69"/>
+<area shape="poly" title=" " alt="" coords="180,47,405,47,405,52,180,52"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="228,62,371,87"/>
+<area shape="poly" title=" " alt="" coords="181,57,214,62,214,67,180,63"/>
+<area shape="poly" title=" " alt="" coords="458,30,456,20,462,11,475,5,495,3,518,6,530,13,527,17,516,11,495,8,476,10,465,15,461,21,463,28"/>
+<area shape="poly" title=" " alt="" coords="370,63,405,58,405,64,371,68"/>
 </map>
 </div>
 <div class="dynheader">
@@ -3999,16 +4016,19 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00750">750</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00740">740</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_a422482b76c3866de8c15f43633c17efe_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_a422482b76c3866de8c15f43633c17efe_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_a422482b76c3866de8c15f43633c17efe_cgraph" id="ade/d9b/math_8hip_a422482b76c3866de8c15f43633c17efe_cgraph">
 <area shape="rect" title=" " alt="" coords="5,37,203,62"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="251,29,403,69"/>
-<area shape="poly" title=" " alt="" coords="203,47,237,47,237,52,203,52"/>
-<area shape="poly" title=" " alt="" coords="285,30,283,20,289,10,304,5,327,3,353,6,367,13,364,18,351,11,327,8,305,10,293,15,288,21,290,28"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="441,29,593,69"/>
+<area shape="poly" title=" " alt="" coords="203,47,427,47,427,52,203,52"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="251,62,393,87"/>
+<area shape="poly" title=" " alt="" coords="203,58,237,62,237,67,203,63"/>
+<area shape="poly" title=" " alt="" coords="481,30,478,20,484,11,497,5,517,3,540,6,553,13,550,17,539,11,517,8,499,10,488,15,484,21,486,28"/>
+<area shape="poly" title=" " alt="" coords="393,63,427,58,428,64,394,68"/>
 </map>
 </div>
 <div class="dynheader">
@@ -4065,7 +4085,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for rzero Zero a real vector </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00214">214</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00215">215</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4125,7 +4145,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for sqrt_inplace Sqrt a vector \( a = sqrt(a) \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00320">320</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00321">321</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4179,7 +4199,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for sub2 Vector subtraction \( a = a - b \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00616">616</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00617">617</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4239,7 +4259,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for sub3 Vector subtraction \( a = b - c \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00631">631</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00632">632</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4299,7 +4319,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for subcol3 Vector multiplication with 3 vectors \( a = b \cdot c \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00601">601</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00602">602</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4395,7 +4415,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for vdot3 \( u = v \times w \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00711">711</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00712">712</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4479,7 +4499,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper for vdot3 \( dot = u \cdot v \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00693">693</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00694">694</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -4539,49 +4559,36 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Fortran wrapper vlsc3 Compute multiplication sum \( dot = u \cdot v \cdot w \) </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00852">852</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00833">833</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../de/d9b/math_8hip_a4b5a87b7faf83821d28aaf81350b5dd8_cgraph.png" border="0" usemap="#ade/d9b/math_8hip_a4b5a87b7faf83821d28aaf81350b5dd8_cgraph" alt=""/></div>
 <map name="ade/d9b/math_8hip_a4b5a87b7faf83821d28aaf81350b5dd8_cgraph" id="ade/d9b/math_8hip_a4b5a87b7faf83821d28aaf81350b5dd8_cgraph">
-<area shape="rect" title=" " alt="" coords="5,37,88,62"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="359,29,511,69"/>
-<area shape="poly" title=" " alt="" coords="88,47,345,47,345,52,88,52"/>
-<area shape="rect" href="../../de/d9b/math_8hip.html#ac869b83a9071fdaee5628e756acc7d60" title=" " alt="" coords="136,62,311,87"/>
-<area shape="poly" title=" " alt="" coords="89,53,123,58,122,63,88,58"/>
-<area shape="poly" title=" " alt="" coords="395,30,393,20,399,10,413,5,435,3,459,6,473,13,470,18,458,11,435,8,414,10,402,15,398,21,400,28"/>
-<area shape="poly" title=" " alt="" coords="310,62,344,57,345,63,311,67"/>
+<area shape="rect" title=" " alt="" coords="5,11,88,37"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="549,29,701,69"/>
+<area shape="poly" title=" " alt="" coords="88,20,267,18,384,20,502,28,536,32,535,37,501,33,384,26,267,23,88,25"/>
+<area shape="rect" href="../../de/d9b/math_8hip.html#ac869b83a9071fdaee5628e756acc7d60" title=" " alt="" coords="136,37,311,62"/>
+<area shape="poly" title=" " alt="" coords="89,27,123,32,122,37,88,33"/>
+<area shape="poly" title=" " alt="" coords="589,30,586,20,592,11,605,5,625,3,648,6,661,13,658,17,647,11,625,8,607,10,596,15,592,21,594,28"/>
+<area shape="poly" title=" " alt="" coords="311,47,535,47,535,52,311,52"/>
+<area shape="rect" href="../../d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="359,87,501,113"/>
+<area shape="poly" title=" " alt="" coords="277,60,365,81,364,87,276,65"/>
+<area shape="poly" title=" " alt="" coords="479,85,535,70,537,75,481,90"/>
 </map>
 </div>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="a6cdfbdf0e87be0023af50b3b86363cf8" name="a6cdfbdf0e87be0023af50b3b86363cf8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6cdfbdf0e87be0023af50b3b86363cf8">&#9670;&#160;</a></span>bufred</h2>
+<a id="aaa82c2f0b93f11c401595171611cd70b" name="aaa82c2f0b93f11c401595171611cd70b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa82c2f0b93f11c401595171611cd70b">&#9670;&#160;</a></span>redbuf</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>* bufred = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00732">732</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
-
-</div>
-</div>
-<a id="af2b29d9e78591ec289f96218f220a6e7" name="af2b29d9e78591ec289f96218f220a6e7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af2b29d9e78591ec289f96218f220a6e7">&#9670;&#160;</a></span>bufred_d</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>* bufred_d = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
+          <td class="memname"><a class="el" href="../../db/d68/hip_2buffer_8h.html#a7df18d5fe9d36931d97a84ccc80466ce">hip_buffer_t</a> redbuf = <a class="el" href="../../db/d68/hip_2buffer_8h.html#acbe3214211e62be3d94e436b65497692">HIP_BUFFER_INIT</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -4590,62 +4597,14 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a04d765d5b314339587492eda7221854d" name="a04d765d5b314339587492eda7221854d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a04d765d5b314339587492eda7221854d">&#9670;&#160;</a></span>bufred_xp</h2>
+<a id="aca29a122a1758b6f3d94f5e60dd6b394" name="aca29a122a1758b6f3d94f5e60dd6b394"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca29a122a1758b6f3d94f5e60dd6b394">&#9670;&#160;</a></span>redbuf_xp</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#ace2494fb512e34148900a2ebcbda007d">real_xp</a>* bufred_xp = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00735">735</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
-
-</div>
-</div>
-<a id="a561741c29613da4d369dd76c2c8b6a42" name="a561741c29613da4d369dd76c2c8b6a42"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a561741c29613da4d369dd76c2c8b6a42">&#9670;&#160;</a></span>bufred_xp_d</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#ace2494fb512e34148900a2ebcbda007d">real_xp</a>* bufred_xp_d = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00736">736</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
-
-</div>
-</div>
-<a id="a9002153dd3b6313d27d53db6434c54d2" name="a9002153dd3b6313d27d53db6434c54d2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9002153dd3b6313d27d53db6434c54d2">&#9670;&#160;</a></span>red_s</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> red_s = 0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../de/d9b/math_8hip_source.html#l00731">731</a> of file <a class="el" href="../../de/d9b/math_8hip_source.html">math.hip</a>.</p>
-
-</div>
-</div>
-<a id="a50abc203e9e7dd9e11a034ecf4110f60" name="a50abc203e9e7dd9e11a034ecf4110f60"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a50abc203e9e7dd9e11a034ecf4110f60">&#9670;&#160;</a></span>red_xp_s</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> red_xp_s = 0</td>
+          <td class="memname"><a class="el" href="../../db/d68/hip_2buffer_8h.html#a7df18d5fe9d36931d97a84ccc80466ce">hip_buffer_t</a> redbuf_xp = <a class="el" href="../../db/d68/hip_2buffer_8h.html#acbe3214211e62be3d94e436b65497692">HIP_BUFFER_INIT</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -4660,7 +4619,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_f48359d827d7566deae6b1b647b520e2.html">hip</a></li><li class="navelem"><a class="el" href="../../de/d9b/math_8hip.html">math.hip</a></li>
-    <li class="footer">Generated on Tue Jul 14 2026 04:31:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jul 15 2026 04:31:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

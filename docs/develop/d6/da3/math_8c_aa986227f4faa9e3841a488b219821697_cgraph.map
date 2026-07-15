@@ -1,9 +1,12 @@
 <map id="opencl_glsc2" name="opencl_glsc2">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,112,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="340,29,492,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,47,326,47,326,52,112,52"/>
-<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="160,62,292,87"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="113,55,147,60,146,65,112,60"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="380,30,378,20,384,11,397,5,416,3,438,6,451,13,448,17,437,11,416,8,398,10,387,15,383,21,385,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="292,63,326,59,327,64,293,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="375,29,527,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,34,160,21,243,15,327,21,361,26,361,32,326,27,243,20,160,27,101,39"/>
+<area shape="rect" id="Node000003" href="$d3/d8b/buffer_8c.html#aba09ed2cd695ac30f3e89bf3065f19f9" title=" " alt="" coords="160,37,327,62"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="112,47,147,47,147,52,112,52"/>
+<area shape="rect" id="Node000004" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="177,86,309,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="108,59,182,80,181,85,106,65"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="412,30,410,20,416,11,430,5,451,3,475,6,488,13,485,18,473,11,451,8,431,10,419,15,415,21,417,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="327,47,361,47,361,52,327,52"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="297,83,360,68,362,73,298,89"/>
 </map>

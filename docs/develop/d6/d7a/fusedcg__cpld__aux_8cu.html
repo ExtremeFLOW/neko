@@ -107,6 +107,7 @@ $(document).ready(function(){initNavTree('d6/d7a/fusedcg__cpld__aux_8cu.html','.
 <div class="textblock"><code>#include &quot;<a class="el" href="../../d3/d59/cuda_2fusedcg__cpld__kernel_8h_source.html">fusedcg_cpld_kernel.h</a>&quot;</code><br />
 <code>#include &lt;<a class="el" href="../../d8/dc8/device__config_8h_source.html">device/device_config.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d5/d08/cuda_2check_8h_source.html">device/cuda/check.h</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="../../de/d4f/cuda_2buffer_8h_source.html">device/cuda/buffer.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../d0/d4a/device__mpi__reduce_8h_source.html">math/bcknd/device/device_mpi_reduce.h</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="../../db/d37/device__mpi__op_8h_source.html">math/bcknd/device/device_mpi_op.h</a>&gt;</code><br />
 </div>
@@ -125,12 +126,8 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a90ddbfa89f8cb3920a48125a868e7872" id="r_a90ddbfa89f8cb3920a48125a868e7872"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu.html#a90ddbfa89f8cb3920a48125a868e7872">fusedcg_cpld_buf</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:a90ddbfa89f8cb3920a48125a868e7872"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36a62a65c0170f926e7d91f749746ca2" id="r_a36a62a65c0170f926e7d91f749746ca2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu.html#a36a62a65c0170f926e7d91f749746ca2">fusedcg_cpld_buf_d</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td></tr>
-<tr class="separator:a36a62a65c0170f926e7d91f749746ca2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a575de297d0cd696f31cc9a20bc968102" id="r_a575de297d0cd696f31cc9a20bc968102"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu.html#a575de297d0cd696f31cc9a20bc968102">fusedcg_cpld_buf_len</a> = 0</td></tr>
-<tr class="separator:a575de297d0cd696f31cc9a20bc968102"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8440ef2850a7562795f73ff5c498ec0a" id="r_a8440ef2850a7562795f73ff5c498ec0a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../de/d4f/cuda_2buffer_8h.html#a95e2434ebac05ce76cfc05414646f5e8">cuda_buffer_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu.html#a8440ef2850a7562795f73ff5c498ec0a">fusedcg_cpld_redbuf</a> = <a class="el" href="../../de/d4f/cuda_2buffer_8h.html#af39eb944ac2861bb37dc7308ca0e4f6b">CUDA_BUFFER_INIT_SYMM</a></td></tr>
+<tr class="separator:a8440ef2850a7562795f73ff5c498ec0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a66de58f40a22421c383f9f469ca2a217" name="a66de58f40a22421c383f9f469ca2a217"></a>
@@ -298,11 +295,14 @@ Here is the call graph for this function:</div>
 <map name="ad6/d7a/fusedcg__cpld__aux_8cu_a7eb899723f69645a53a58f36f4430a0a_cgraph" id="ad6/d7a/fusedcg__cpld__aux_8cu_a7eb899723f69645a53a58f36f4430a0a_cgraph">
 <area shape="rect" title=" " alt="" coords="5,37,192,62"/>
 <area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="452,29,604,69"/>
-<area shape="poly" title=" " alt="" coords="192,47,438,47,438,52,192,52"/>
-<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="240,62,404,87"/>
-<area shape="poly" title=" " alt="" coords="193,57,227,61,226,66,192,63"/>
+<area shape="poly" title=" " alt="" coords="157,34,240,21,322,16,404,21,439,26,438,32,404,27,322,21,240,27,157,39"/>
+<area shape="rect" href="../../db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="245,37,399,62"/>
+<area shape="poly" title=" " alt="" coords="192,47,231,47,231,52,192,52"/>
+<area shape="rect" href="../../d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="240,86,404,111"/>
+<area shape="poly" title=" " alt="" coords="157,59,251,80,250,86,156,65"/>
 <area shape="poly" title=" " alt="" coords="489,30,487,20,493,11,507,5,528,3,552,6,565,13,563,18,550,11,528,8,508,10,497,15,492,21,494,28"/>
-<area shape="poly" title=" " alt="" coords="404,62,438,58,439,63,405,67"/>
+<area shape="poly" title=" " alt="" coords="400,47,439,47,439,52,400,52"/>
+<area shape="poly" title=" " alt="" coords="375,83,438,68,439,73,376,89"/>
 </map>
 </div>
 
@@ -487,50 +487,18 @@ Here is the call graph for this function:</div>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="a90ddbfa89f8cb3920a48125a868e7872" name="a90ddbfa89f8cb3920a48125a868e7872"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a90ddbfa89f8cb3920a48125a868e7872">&#9670;&#160;</a></span>fusedcg_cpld_buf</h2>
+<a id="a8440ef2850a7562795f73ff5c498ec0a" name="a8440ef2850a7562795f73ff5c498ec0a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8440ef2850a7562795f73ff5c498ec0a">&#9670;&#160;</a></span>fusedcg_cpld_redbuf</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>* fusedcg_cpld_buf = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
+          <td class="memname"><a class="el" href="../../de/d4f/cuda_2buffer_8h.html#a95e2434ebac05ce76cfc05414646f5e8">cuda_buffer_t</a> fusedcg_cpld_redbuf = <a class="el" href="../../de/d4f/cuda_2buffer_8h.html#af39eb944ac2861bb37dc7308ca0e4f6b">CUDA_BUFFER_INIT_SYMM</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000020">Todo:</a></b></dt><dd>Make sure that this gets deleted at some point... </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu_source.html#l00047">47</a> of file <a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu_source.html">fusedcg_cpld_aux.cu</a>.</p>
-
-</div>
-</div>
-<a id="a36a62a65c0170f926e7d91f749746ca2" name="a36a62a65c0170f926e7d91f749746ca2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a36a62a65c0170f926e7d91f749746ca2">&#9670;&#160;</a></span>fusedcg_cpld_buf_d</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>* fusedcg_cpld_buf_d = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NULL</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu_source.html#l00048">48</a> of file <a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu_source.html">fusedcg_cpld_aux.cu</a>.</p>
-
-</div>
-</div>
-<a id="a575de297d0cd696f31cc9a20bc968102" name="a575de297d0cd696f31cc9a20bc968102"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a575de297d0cd696f31cc9a20bc968102">&#9670;&#160;</a></span>fusedcg_cpld_buf_len</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> fusedcg_cpld_buf_len = 0</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
+<p>Reduction buffer, owned by the device layer and released on device teardown (cuda_buffer_free_all in cuda_finalize) </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu_source.html#l00049">49</a> of file <a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu_source.html">fusedcg_cpld_aux.cu</a>.</p>
 
@@ -542,7 +510,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_5b344269ce3b5a4183603946c5547674.html">device</a></li><li class="navelem"><a class="el" href="../../dir_8850d82bd0faac3f045c57e64e6deb3b.html">cuda</a></li><li class="navelem"><a class="el" href="../../d6/d7a/fusedcg__cpld__aux_8cu.html">fusedcg_cpld_aux.cu</a></li>
-    <li class="footer">Generated on Tue Jul 14 2026 04:31:48 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jul 15 2026 04:31:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

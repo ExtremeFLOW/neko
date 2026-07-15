@@ -10,16 +10,19 @@
 <area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="172,187,226,187,226,192,172,192"/>
 <area shape="rect" id="Node000008" href="$da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0" title=" " alt="" coords="235,233,402,273"/>
 <area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="162,207,234,227,233,232,161,212"/>
-<area shape="rect" id="Node000010" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="240,297,397,337"/>
-<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="114,207,162,245,221,283,236,290,233,295,219,288,159,250,111,212"/>
-<area shape="rect" id="Node000011" href="$d2/d73/namespacedevice__math.html#a95cc8e9b0db9b0662baa3d33529f1767" title="Compute multiplication sum ." alt="" coords="240,361,397,401"/>
-<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="103,208,149,276,183,314,222,347,231,353,228,357,218,351,179,318,145,280,99,211"/>
-<area shape="rect" id="Node000003" href="$da/d9a/pipecg__aux_8hip.html#a4ac59ecc540cb19e2ceca9beeaae179b" title=" " alt="" coords="469,58,607,83"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,40,463,53,462,58,402,45"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="659,120,811,160"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="576,81,665,113,663,118,574,86"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="698,120,696,110,702,101,715,95,735,93,758,96,770,104,767,108,756,101,735,99,716,101,705,105,701,111,703,119"/>
-<area shape="rect" id="Node000009" href="$da/d9a/pipecg__aux_8hip.html#a5a0e60ff01db773d2d0f0737b5982a6a" title=" " alt="" coords="465,151,611,177"/>
-<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="384,231,416,219,499,181,501,185,418,224,386,236"/>
-<area shape="poly" id="edge10_Node000009_Node000004" title=" " alt="" coords="611,152,644,148,645,154,611,158"/>
+<area shape="rect" id="Node000011" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="240,297,397,337"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="114,207,162,245,221,283,236,290,233,295,219,288,159,250,111,212"/>
+<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#a95cc8e9b0db9b0662baa3d33529f1767" title="Compute multiplication sum ." alt="" coords="240,361,397,401"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="103,208,149,276,183,314,222,347,231,353,228,357,218,351,179,318,145,280,99,211"/>
+<area shape="rect" id="Node000003" href="$da/d9a/pipecg__aux_8hip.html#a4ac59ecc540cb19e2ceca9beeaae179b" title=" " alt="" coords="661,45,799,70"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="402,29,647,48,647,54,402,34"/>
+<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="849,120,1001,160"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="762,68,866,112,864,117,760,73"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="889,120,886,110,892,101,905,95,925,93,948,96,961,104,958,108,947,101,925,99,907,101,896,105,892,111,894,119"/>
+<area shape="rect" id="Node000009" href="$da/d9a/pipecg__aux_8hip.html#a5a0e60ff01db773d2d0f0737b5982a6a" title=" " alt="" coords="465,178,611,203"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="388,231,479,205,480,210,390,236"/>
+<area shape="poly" id="edge10_Node000009_Node000004" title=" " alt="" coords="593,175,658,163,835,143,836,149,659,168,594,180"/>
+<area shape="rect" id="Node000010" href="$d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="659,178,801,203"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="611,188,645,188,645,193,611,193"/>
+<area shape="poly" id="edge12_Node000010_Node000004" title=" " alt="" coords="779,175,835,161,837,166,781,180"/>
 </map>

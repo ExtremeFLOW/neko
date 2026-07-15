@@ -1,6 +1,9 @@
 <map id="cuda_redbuf_check_alloc" name="cuda_redbuf_check_alloc">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,191,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="239,29,391,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,47,225,47,225,52,191,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="274,30,272,20,278,10,293,5,315,3,340,6,354,13,351,18,338,11,315,8,294,10,281,15,277,21,279,28"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="441,29,593,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,47,428,47,428,52,191,52"/>
+<area shape="rect" id="Node000003" href="$db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="239,62,393,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="192,58,225,61,225,67,191,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="480,30,477,20,483,11,497,5,517,3,541,6,554,13,551,18,539,11,517,8,498,10,487,15,483,21,485,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="393,62,427,58,428,63,394,68"/>
 </map>

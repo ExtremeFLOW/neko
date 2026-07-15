@@ -247,6 +247,7 @@ var annotated_dup =
       [ "csv_file_t", "d3/d88/structcsv__file_1_1csv__file__t.html", "d3/d88/structcsv__file_1_1csv__file__t" ]
     ] ],
     [ "cuda_intf", "db/d9a/namespacecuda__intf.html", [
+      [ "cuda_buffer_free_all", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all.html", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all" ],
       [ "cudadevicegetstreampriorityrange", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange.html", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange" ],
       [ "cudadevicereset", "d5/d22/interfacecuda__intf_1_1cudadevicereset.html", "d5/d22/interfacecuda__intf_1_1cudadevicereset" ],
       [ "cudadevicesynchronize", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize.html", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize" ],
@@ -802,6 +803,7 @@ var annotated_dup =
       [ "hex_t", "d6/d66/structhex_1_1hex__t.html", "d6/d66/structhex_1_1hex__t" ]
     ] ],
     [ "hip_intf", "d0/d4e/namespacehip__intf.html", [
+      [ "hip_buffer_free_all", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all" ],
       [ "hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
       [ "hipdevicegetstreampriorityrange", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange" ],
       [ "hipdevicereset", "df/dd3/interfacehip__intf_1_1hipdevicereset.html", "df/dd3/interfacehip__intf_1_1hipdevicereset" ],
@@ -1191,7 +1193,8 @@ var annotated_dup =
       [ "clreleasememobject", "dd/d85/interfaceopencl__intf_1_1clreleasememobject.html", "dd/d85/interfaceopencl__intf_1_1clreleasememobject" ],
       [ "clreleaseprogram", "d6/d07/interfaceopencl__intf_1_1clreleaseprogram.html", "d6/d07/interfaceopencl__intf_1_1clreleaseprogram" ],
       [ "clsetusereventstatus", "d3/d9c/interfaceopencl__intf_1_1clsetusereventstatus.html", "d3/d9c/interfaceopencl__intf_1_1clsetusereventstatus" ],
-      [ "clwaitforevents", "db/d99/interfaceopencl__intf_1_1clwaitforevents.html", "db/d99/interfaceopencl__intf_1_1clwaitforevents" ]
+      [ "clwaitforevents", "db/d99/interfaceopencl__intf_1_1clwaitforevents.html", "db/d99/interfaceopencl__intf_1_1clwaitforevents" ],
+      [ "opencl_buffer_free_all", "db/dd0/interfaceopencl__intf_1_1opencl__buffer__free__all.html", "db/dd0/interfaceopencl__intf_1_1opencl__buffer__free__all" ]
     ] ],
     [ "opencl_mappings", "d5/dc8/namespaceopencl__mappings.html", [
       [ "opencl_permeability", "dc/dd0/interfaceopencl__mappings_1_1opencl__permeability.html", "dc/dd0/interfaceopencl__mappings_1_1opencl__permeability" ],
@@ -1312,6 +1315,10 @@ var annotated_dup =
       [ "pe_finder_find_batch", "da/dad/interfacepe__finder_1_1pe__finder__find__batch.html", "da/dad/interfacepe__finder_1_1pe__finder__find__batch" ],
       [ "pe_finder_free", "d7/ded/interfacepe__finder_1_1pe__finder__free.html", "d7/ded/interfacepe__finder_1_1pe__finder__free" ],
       [ "pe_finder_t", "dd/dfc/structpe__finder_1_1pe__finder__t.html", "dd/dfc/structpe__finder_1_1pe__finder__t" ]
+    ] ],
+    [ "pfunit_comm_utils", "d2/d0d/namespacepfunit__comm__utils.html", [
+      [ "comm_init_test", "dc/d36/interfacepfunit__comm__utils_1_1comm__init__test.html", "dc/d36/interfacepfunit__comm__utils_1_1comm__init__test" ],
+      [ "neko_comm_wrapper_init", "d5/dee/interfacepfunit__comm__utils_1_1neko__comm__wrapper__init.html", "d5/dee/interfacepfunit__comm__utils_1_1neko__comm__wrapper__init" ]
     ] ],
     [ "phmg", "d1/d38/namespacephmg.html", [
       [ "phmg_hrchy_t", "da/dde/structphmg_1_1phmg__hrchy__t.html", "da/dde/structphmg_1_1phmg__hrchy__t" ],
@@ -1879,6 +1886,9 @@ var annotated_dup =
     [ "zero_dirichlet", "da/ddc/namespacezero__dirichlet.html", [
       [ "zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t" ]
     ] ],
+    [ "cuda_buffer", "db/d62/structcuda__buffer.html", "db/d62/structcuda__buffer" ],
     [ "gs_utofu_ctx_t", "d3/d60/structgs__utofu__ctx__t.html", "d3/d60/structgs__utofu__ctx__t" ],
-    [ "kinematics_params_t", "df/dc7/structkinematics__params__t.html", "df/dc7/structkinematics__params__t" ]
+    [ "hip_buffer", "d3/d16/structhip__buffer.html", "d3/d16/structhip__buffer" ],
+    [ "kinematics_params_t", "df/dc7/structkinematics__params__t.html", "df/dc7/structkinematics__params__t" ],
+    [ "opencl_buffer", "d5/da0/structopencl__buffer.html", "d5/da0/structopencl__buffer" ]
 ];

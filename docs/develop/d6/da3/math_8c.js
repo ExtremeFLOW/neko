@@ -61,10 +61,5 @@ var math_8c =
     [ "opencl_subcol3", "d6/da3/math_8c.html#aba2fdd72436c04b0d09a52e8a166a147", null ],
     [ "opencl_vcross", "d6/da3/math_8c.html#a11c81d82d7e10b501c58fb6d97b084fc", null ],
     [ "opencl_vdot3", "d6/da3/math_8c.html#a80e26aa473b35272405c7c8eedac2c92", null ],
-    [ "bufred", "d6/da3/math_8c.html#a6cdfbdf0e87be0023af50b3b86363cf8", null ],
-    [ "bufred_d", "d6/da3/math_8c.html#aab88c682258215d2d5ab90a3444bb0f6", null ],
-    [ "bufred_xp", "d6/da3/math_8c.html#a04d765d5b314339587492eda7221854d", null ],
-    [ "bufred_xp_d", "d6/da3/math_8c.html#aaf7ba1e5659019c50f7c361291e14a09", null ],
-    [ "red_s", "d6/da3/math_8c.html#a9002153dd3b6313d27d53db6434c54d2", null ],
-    [ "red_xp_s", "d6/da3/math_8c.html#a50abc203e9e7dd9e11a034ecf4110f60", null ]
+    [ "redbuf_xp", "d6/da3/math_8c.html#a6acd46a8fd26f76c8510c50555669f2e", null ]
 ];

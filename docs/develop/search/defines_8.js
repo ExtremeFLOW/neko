@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['parmetis_5fidx_0',['parmetis_idx',['../d1/d66/parmetis_8F90.html#af54d487cc9098d94ba9297726d18d81a',1,'parmetis.F90']]],
-  ['parmetis_5freal_1',['parmetis_real',['../d1/d66/parmetis_8F90.html#a393e18b70064559977fd7a246269ae94',1,'parmetis.F90']]]
+  ['opencl_5fbuffer_5finit_0',['OPENCL_BUFFER_INIT',['../de/d3d/opencl_2buffer_8h.html#aa5664d0bc8c99c63c0b1f90bcbe263b2',1,'buffer.h']]]
 ];

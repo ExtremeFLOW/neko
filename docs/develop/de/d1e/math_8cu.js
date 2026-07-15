@@ -68,10 +68,6 @@ var math_8cu =
     [ "cuda_vcross", "de/d1e/math_8cu.html#a79959889259e99453fb32cfdfc9ccb1f", null ],
     [ "cuda_vdot3", "de/d1e/math_8cu.html#a0e558c27f69ee1fa8aab3939bc1bca12", null ],
     [ "cuda_vlsc3", "de/d1e/math_8cu.html#a8727d5636bf0f7be86b285c72b7aeb39", null ],
-    [ "bufred", "de/d1e/math_8cu.html#a6cdfbdf0e87be0023af50b3b86363cf8", null ],
-    [ "bufred_d", "de/d1e/math_8cu.html#a3a2670843e4ebd4649493e1b709fa1d8", null ],
-    [ "bufred_xp", "de/d1e/math_8cu.html#a04d765d5b314339587492eda7221854d", null ],
-    [ "bufred_xp_d", "de/d1e/math_8cu.html#a385edb5dd24b4863e34b89c01a001c01", null ],
-    [ "red_s", "de/d1e/math_8cu.html#a9002153dd3b6313d27d53db6434c54d2", null ],
-    [ "red_xp_s", "de/d1e/math_8cu.html#a50abc203e9e7dd9e11a034ecf4110f60", null ]
+    [ "redbuf", "de/d1e/math_8cu.html#ab2a404c8667b55c4f6114b459e91b2fe", null ],
+    [ "redbuf_xp", "de/d1e/math_8cu.html#a971f178e3e6b0e0e8f4dc60c8f3e5614", null ]
 ];

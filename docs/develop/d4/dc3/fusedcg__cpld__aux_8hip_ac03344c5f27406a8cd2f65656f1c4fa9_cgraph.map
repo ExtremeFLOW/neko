@@ -1,9 +1,12 @@
 <map id="hip_fusedcg_cpld_part2" name="hip_fusedcg_cpld_part2">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,180,62"/>
 <area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="440,29,592,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,47,426,47,426,52,180,52"/>
-<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="228,62,392,87"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="180,57,215,61,214,66,180,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,34,228,21,310,16,392,21,427,26,426,32,392,27,310,21,228,27,149,39"/>
+<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="228,37,392,62"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="180,47,214,47,214,52,180,52"/>
+<area shape="rect" id="Node000004" href="$d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="239,86,381,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="150,59,241,80,239,86,149,65"/>
 <area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="477,30,475,20,481,11,495,5,516,3,540,6,553,13,551,18,538,11,516,8,496,10,485,15,480,21,482,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="392,62,426,58,427,63,393,67"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="392,47,426,47,426,52,392,52"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="363,83,426,68,427,73,364,89"/>
 </map>
