@@ -507,8 +507,14 @@ contains
 
     ! Note we assume that lx = ly = lz
     facet_size = lx**2
-    allocate(this%facet_msk(0:facet_size * this%marked_facet%size()))
-    allocate(this%facet(0:facet_size * this%marked_facet%size()))
+    n = facet_size * this%marked_facet%size()
+    allocate(this%facet_msk(0:n))
+    allocate(this%facet(0:n))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%facet_msk, this%facet_msk_d, n + 1)
+       call device_map(this%facet, this%facet_d, n + 1)
+    end if
 
     msk_c = 0
     bfp => this%marked_facet%array()
@@ -577,10 +583,8 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = msk_c + 1
-       call device_map(this%facet_msk, this%facet_msk_d, n)
        call device_memcpy(this%facet_msk, this%facet_msk_d, n, &
             HOST_TO_DEVICE, sync = .true.)
-       call device_map(this%facet, this%facet_d, n)
        call device_memcpy(this%facet, this%facet_d, n, &
             HOST_TO_DEVICE, sync = .true.)
     end if

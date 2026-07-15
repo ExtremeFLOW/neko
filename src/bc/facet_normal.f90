@@ -274,7 +274,7 @@ contains
        call this%work%init(unique_point_idx%num_entries())
     end if
     allocate(this%unique_mask(0:unique_point_idx%num_entries()))
-    allocate(this%msk_to_unique(this%msk(0)))
+    allocate(this%msk_to_unique(this%facet_msk(0)))
 
     this%unique_mask(0) = unique_point_idx%num_entries()
     do i = 1, this%unique_mask(0)
@@ -334,11 +334,12 @@ contains
        this%nz%x(i) = 0.0_rp
     end do
 
-    do i = 1, this%msk(0)
+    do i = 1, this%facet_msk(0)
        htable_data = this%msk_to_unique(i)
        facet = this%facet(i)
 
-       idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       idx = nonlinear_index(this%facet_msk(i), this%Xh%lx, this%Xh%lx, &
+            this%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
        area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
        normal = normal * area !Scale normal by area
