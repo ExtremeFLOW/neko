@@ -78,7 +78,7 @@
             {
                 "type": "force_torque",
                 "compute_control": "tsteps",
-                "compute_value": 10.0,
+                "compute_value": 10,
                 "zone_id": 4,
                 "zone_name": "Top wall",
                 "center": [ 0.0, 0.0, 0.0 ]

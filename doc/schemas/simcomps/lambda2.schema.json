@@ -8,6 +8,9 @@
           "$ref": "urn:neko:schema:simulation-components#/$defs/simcompBase"
         },
         {
+          "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFieldWriterOptions"
+        },
+        {
           "type": "object",
           "properties": {
             "type": {

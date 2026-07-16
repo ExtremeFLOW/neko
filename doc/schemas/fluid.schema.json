@@ -6,17 +6,29 @@
       "type": "object",
       "required": [
         "direction",
-        "value"
+        "value",
+        "use_averaged_flow"
       ],
       "properties": {
         "direction": {
-          "type": "integer",
-          "minimum": 1
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3
+            },
+            {
+              "$ref": "urn:neko:schema:common#/$defs/constRef"
+            }
+          ]
         },
         "value": {
           "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
         },
         "use_averaged_flow": {
+          "type": "boolean"
+        },
+        "log": {
           "type": "boolean"
         }
       },
@@ -88,13 +100,16 @@
           "type": "object",
           "required": [
             "type",
-            "name"
+            "zone_name",
+            "base_value",
+            "zone_value"
           ],
           "properties": {
             "type": {
               "const": "point_zone"
             },
-            "name": {
+            "name": false,
+            "zone_name": {
               "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "base_value": {
@@ -142,6 +157,42 @@
         }
       ]
     },
+    "compressibleBoundaryCondition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "zone_indices", "value"],
+          "properties": {
+            "type": {"const": "velocity_value"},
+            "zone_indices": {"$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"},
+            "name": {"$ref": "urn:neko:schema:common#/$defs/nonEmptyString"},
+            "value": {"$ref": "urn:neko:schema:common#/$defs/vector3OrRef"}
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "zone_indices", "value"],
+          "properties": {
+            "type": {"enum": ["density_value", "pressure_value"]},
+            "zone_indices": {"$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"},
+            "name": {"$ref": "urn:neko:schema:common#/$defs/nonEmptyString"},
+            "value": {"$ref": "urn:neko:schema:common#/$defs/numberOrRef"}
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "zone_indices"],
+          "properties": {
+            "type": {"enum": ["no_slip", "symmetry", "outflow", "normal_outflow"]},
+            "zone_indices": {"$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"},
+            "name": {"$ref": "urn:neko:schema:common#/$defs/nonEmptyString"}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
     "ale": {
       "type": "object",
       "required": [
@@ -152,7 +203,47 @@
           "type": "boolean"
         },
         "solver": {
-          "$ref": "urn:neko:schema:common#/$defs/linearSolver"
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["cg", "gmres"]
+            },
+            "preconditioner": {
+              "$ref": "urn:neko:schema:common#/$defs/preconditioner"
+            },
+            "absolute_tolerance": {
+              "type": "number",
+              "x-neko-real": true,
+              "exclusiveMinimum": 0
+            },
+            "max_iterations": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "monitor": {
+              "type": "boolean"
+            },
+            "output_base_shape": {
+              "type": "boolean"
+            },
+            "output_stiffness": {
+              "type": "boolean"
+            },
+            "import_base_shape": {
+              "type": "boolean"
+            },
+            "mesh_stiffness": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "built-in"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
         },
         "mesh_preview": {
           "type": "object",
@@ -161,16 +252,23 @@
               "type": "boolean"
             },
             "start_time": {
-              "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+              "type": "number",
+              "x-neko-real": true,
+              "minimum": 0
             },
             "end_time": {
-              "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+              "type": "number",
+              "x-neko-real": true,
+              "exclusiveMinimum": 0
             },
             "output_freq": {
-              "$ref": "urn:neko:schema:common#/$defs/integerOrRef"
+              "type": "integer",
+              "minimum": 1
             },
             "dt": {
-              "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+              "type": "number",
+              "x-neko-real": true,
+              "exclusiveMinimum": 0
             }
           },
           "additionalProperties": true
@@ -180,7 +278,6 @@
           "items": {
             "type": "object",
             "required": [
-              "name",
               "zone_indices"
             ],
             "properties": {
@@ -188,81 +285,201 @@
                 "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
               },
               "zone_indices": {
-                "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+                "$ref": "urn:neko:schema:common#/$defs/integerArray"
               },
               "oscillation": {
                 "type": "object",
+                "required": [
+                  "amplitude",
+                  "frequency"
+                ],
                 "properties": {
                   "amplitude": {
-                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/vector3"
                   },
                   "frequency": {
-                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/vector3"
                   }
                 },
-                "additionalProperties": true
+                "additionalProperties": false
               },
               "rotation": {
-                "type": "object",
-                "properties": {
-                  "amplitude": {
-                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": ["type", "amplitude_deg", "frequency"],
+                    "properties": {
+                      "type": {"const": "harmonic"},
+                      "amplitude_deg": {"$ref": "urn:neko:schema:common#/$defs/vector3"},
+                      "frequency": {"$ref": "urn:neko:schema:common#/$defs/vector3"}
+                    },
+                    "additionalProperties": false
                   },
-                  "frequency": {
-                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+                  {
+                    "type": "object",
+                    "required": ["type", "ramp_t0", "ramp_omega0"],
+                    "properties": {
+                      "type": {"const": "ramp"},
+                      "ramp_t0": {"$ref": "urn:neko:schema:common#/$defs/vector3"},
+                      "ramp_omega0": {"$ref": "urn:neko:schema:common#/$defs/vector3"}
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": ["type", "step_control_times", "target_angle_deg"],
+                    "properties": {
+                      "type": {"const": "smooth_step"},
+                      "axis": {"type": "integer", "minimum": 1, "maximum": 3},
+                      "step_control_times": {
+                        "type": "array",
+                        "items": {
+                          "type": "number",
+                          "x-neko-real": true
+                        },
+                        "minItems": 4,
+                        "maxItems": 4
+                      },
+                      "target_angle_deg": {
+                        "type": "number",
+                        "x-neko-real": true
+                      }
+                    },
+                    "additionalProperties": false
                   }
-                },
-                "additionalProperties": true
+                ]
               },
               "pivot": {
                 "type": "object",
+                "required": [
+                  "value"
+                ],
                 "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["relative", "relative_sin"]
+                  },
                   "value": {
-                    "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+                    "$ref": "urn:neko:schema:common#/$defs/vector3"
                   }
                 },
-                "additionalProperties": true
+                "additionalProperties": false
               },
               "stiff_geom": {
                 "type": "object",
+                "required": ["type", "gain", "decay_profile"],
                 "properties": {
                   "type": {
-                    "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+                    "type": "string",
+                    "enum": ["cylinder", "sphere", "cheap_dist"]
                   },
                   "stiff_dist": {
-                    "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+                    "type": "number",
+                    "x-neko-real": true,
+                    "exclusiveMinimum": 0
                   },
                   "decay_profile": {
-                    "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+                    "type": "string",
+                    "enum": ["gaussian", "tanh"]
                   },
                   "gain": {
-                    "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+                    "type": "number",
+                    "x-neko-real": true,
+                    "exclusiveMinimum": 0
+                  },
+                  "cutoff_coef": {
+                    "type": "number",
+                    "x-neko-real": true,
+                    "exclusiveMinimum": 0
+                  },
+                  "center": {
+                    "$ref": "urn:neko:schema:common#/$defs/vector3"
+                  },
+                  "radius": {
+                    "type": "number",
+                    "x-neko-real": true,
+                    "exclusiveMinimum": 0
                   }
                 },
-                "additionalProperties": true
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "type": {"enum": ["cylinder", "sphere"]}
+                      },
+                      "required": ["type"]
+                    },
+                    "then": {"required": ["center", "radius"]}
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "type": {"const": "cheap_dist"}
+                      },
+                      "required": ["type"]
+                    },
+                    "then": {"required": ["stiff_dist"]}
+                  }
+                ],
+                "additionalProperties": false
+              },
+              "base_shape_import_file": {
+                "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
               }
             },
-            "additionalProperties": true
+            "allOf": [
+              {
+                "if": {"required": ["rotation"]},
+                "then": {"required": ["pivot"]}
+              }
+            ],
+            "additionalProperties": false
           }
         }
       },
-      "additionalProperties": true
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mesh_preview": {
+                "type": "object",
+                "properties": {
+                  "enabled": {"const": true}
+                },
+                "required": ["enabled"]
+              }
+            },
+            "required": ["mesh_preview"]
+          },
+          "then": {
+            "properties": {
+              "mesh_preview": {
+                "required": ["start_time", "end_time", "output_freq", "dt"]
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
     },
     "fluid": {
       "type": "object",
       "required": [
         "scheme",
         "initial_condition",
-        "output_control",
-        "output_value"
+        "output_control"
       ],
       "properties": {
+        "variable_material_properties": false,
         "scheme": {
           "type": "string",
           "enum": [
             "pnpn",
             "compressible"
           ]
+        },
+        "name": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "Re": {
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
@@ -271,7 +488,10 @@
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
         "mu": {
-          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+        },
+        "kappa": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
         },
         "gamma": {
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
@@ -279,11 +499,23 @@
         "freeze": {
           "type": "boolean"
         },
-        "variable_material_properties": {
-          "type": "boolean"
-        },
         "full_stress_formulation": {
           "type": "boolean"
+        },
+        "cyclic": {
+          "type": "boolean"
+        },
+        "strict_convergence": {
+          "type": "boolean"
+        },
+        "allow_stabilization": {
+          "type": "boolean"
+        },
+        "advection": {
+          "type": "boolean"
+        },
+        "schwarz_iterations": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"
         },
         "nut_field": {
           "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
@@ -314,16 +546,80 @@
           }
         },
         "output_control": {
-          "$ref": "urn:neko:schema:common#/$defs/frequencyControl"
+          "type": "string",
+          "enum": ["simulationtime", "tsteps", "nsamples", "never", "org"]
         },
         "output_value": {
-          "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/numericOrRef"
+        },
+        "output_filename": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+        },
+        "output_format": {
+          "type": "string",
+          "enum": ["fld", "nek5000", "adios2", "vtkhdf"]
+        },
+        "output_mesh_in_all_files": {
+          "type": "boolean"
+        },
+        "output_subdivide": {
+          "type": "boolean"
+        },
+        "wall_zone_indices": {
+          "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
         },
         "ale": {
           "$ref": "#/$defs/ale"
         }
       },
       "allOf": [
+        {
+          "if": {
+            "properties": {
+              "output_control": {
+                "enum": ["simulationtime", "tsteps", "nsamples"]
+              }
+            },
+            "required": ["output_control"]
+          },
+          "then": {
+            "required": ["output_value"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "output_control": {
+                "enum": ["tsteps", "nsamples"]
+              }
+            },
+            "required": ["output_control"]
+          },
+          "then": {
+            "properties": {
+              "output_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "output_control": {
+                "const": "simulationtime"
+              }
+            },
+            "required": ["output_control"]
+          },
+          "then": {
+            "properties": {
+              "output_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+              }
+            }
+          }
+        },
         {
           "if": {
             "properties": {
@@ -360,25 +656,10 @@
               "boundary_conditions": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/$defs/compressibleBoundaryCondition"
                 }
               }
             }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "scheme": {
-                "const": "compressible"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "gamma"
-            ]
           }
         }
       ],
