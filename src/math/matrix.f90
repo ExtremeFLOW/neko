@@ -96,6 +96,9 @@ contains
     m%x = 0.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(m%x_d, 0.0_rp, m%n)
+       ! Order the async fill against host writes; on unified memory
+       ! the device pointer may alias m%x
+       call device_sync()
     end if
 
     if (present(name)) then
