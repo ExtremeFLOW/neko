@@ -1037,7 +1037,7 @@ contains
                      " is invalid as this zone has 0 size, meaning it ", &
                      "is not in the mesh. Check fluid boundary condition ", &
                      i, "."
-                neko_error(error_unit)
+                call neko_error(error_unit)
              end if
 
              if (marked_zones(zone_indices(j))) then
@@ -1047,7 +1047,7 @@ contains
                      "Please check your boundary_conditions entry for the ", &
                      "fluid and make sure that each zone index appears only ", &
                      "in a single boundary condition."
-                neko_error(error_unit)
+                call neko_error(error_unit)
              else
                 marked_zones(zone_indices(j)) = .true.
              end if
@@ -1135,7 +1135,7 @@ contains
                (.not. marked_zones(i))) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No fluid boundary condition assigned to zone ", i
-             neko_error(error_unit)
+             call neko_error(error_unit)
           end if
        end do
 

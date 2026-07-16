@@ -512,7 +512,7 @@ contains
                      " is invalid as this zone has 0 size, meaning it ", &
                      "does not exist in the mesh. Check scalar boundary ", &
                      "condition ", i, "."
-                neko_error(error_unit)
+                call neko_error(error_unit)
                 error stop
              end if
 
@@ -523,7 +523,7 @@ contains
                      "Please check your boundary_conditions entry for the ", &
                      "scalar and make sure that each zone index appears only ",&
                      "in a single boundary condition."
-                neko_error(error_unit)
+                call neko_error(error_unit)
                 error stop
              else
                 marked_zones(zone_indices(j)) = .true.
@@ -542,7 +542,7 @@ contains
                (.not. marked_zones(i))) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No scalar boundary condition assigned to zone ", i
-             neko_error(error_unit)
+             call neko_error(error_unit)
              error stop
           end if
        end do
@@ -553,7 +553,7 @@ contains
              write(error_unit, '(A, A, A)') "*** ERROR ***: ", &
                   "No boundary_conditions entry in the case file for scalar ", &
                   this%s%name
-             neko_error(error_unit)
+             call neko_error(error_unit)
              error stop
           end if
        end do

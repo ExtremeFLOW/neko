@@ -439,12 +439,6 @@ contains
        write(this%unit_, '(A)') trim(this%section_header)
        this%section_header = ""
 
-       ! During startup, persist the log up to and including the new section
-       ! header, such that the log always shows what the code is attempting
-       ! if initialisation fails
-       if (this%section_flush_) then
-          flush(this%unit_)
-       end if
     end if
 
   end subroutine log_print_section_header
@@ -460,11 +454,6 @@ contains
     end if
 
     call this%end()
-
-    ! During startup, persist the log after each completed section
-    if (this%section_flush_) then
-       call this%flush()
-    end if
 
   end subroutine log_end_section
 
