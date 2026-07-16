@@ -697,7 +697,7 @@ contains
     call h5open_f(ierr)
 
     mpi_info = MPI_INFO_NULL%mpi_val
-    i_comm = NEKO_COMM%mpi_val
+    mpi_comm = NEKO_COMM%mpi_val
     call h5pcreate_f(H5P_FILE_ACCESS_F, this%plist_id, ierr)
     call h5pset_fapl_mpio_f(this%plist_id, mpi_comm, mpi_info, ierr)
 
