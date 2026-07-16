@@ -390,9 +390,6 @@ contains
          !$omp end parallel do simd
       end if
 
-      !> Compute entropy S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
-      call this%compute_entropy()
-
       !> Update maximum wave speed for CFL computation
       call this%compute_max_wave_speed()
 
