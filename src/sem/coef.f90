@@ -1066,14 +1066,14 @@ contains
           end do
 
           ! match is found; mapping(e) is redundant
-          if ( diff <= ctol ) then
+          if ( diff .le. ctol ) then
              c%compression_inds(e) = m
              exit
           end if
        end do
 
        ! never found a match
-       if ( diff > ctol ) then
+       if ( diff .gt. ctol ) then
           m_max = m_max + 1
           c%compression_inds(e) = m_max
           c_inds_rev(m_max) = e

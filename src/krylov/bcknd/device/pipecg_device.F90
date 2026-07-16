@@ -35,7 +35,7 @@ module pipecg_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
+  use num_types, only : rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -94,7 +94,7 @@ module pipecg_device
   interface
      subroutine cuda_pipecg_vecops(p_d, q_d, r_d, s_d, u_d1, u_d2, &
           w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
-          bind(c, name='cuda_pipecg_vecops')
+          bind(c, name = 'cuda_pipecg_vecops')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -108,7 +108,7 @@ module pipecg_device
   interface
      subroutine cuda_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
           p_cur, p_space, n) &
-          bind(c, name='cuda_cg_update_xp')
+          bind(c, name = 'cuda_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
@@ -119,7 +119,7 @@ module pipecg_device
   interface
      subroutine hip_pipecg_vecops(p_d, q_d, r_d, s_d, u_d1, u_d2, &
           w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n) &
-          bind(c, name='hip_pipecg_vecops')
+          bind(c, name = 'hip_pipecg_vecops')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -133,7 +133,7 @@ module pipecg_device
   interface
      subroutine hip_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
           p_cur, p_space, n) &
-          bind(c, name='hip_cg_update_xp')
+          bind(c, name = 'hip_cg_update_xp')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
@@ -152,16 +152,19 @@ contains
     real(c_rp) :: alpha, beta, reduction(3)
 #ifdef HAVE_HIP
     call hip_pipecg_vecops(p_d, q_d, r_d,&
-         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, &
+         mult_d, reduction,n)
 #elif HAVE_CUDA
     call cuda_pipecg_vecops(p_d, q_d, r_d,&
-         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, &
+         mult_d, reduction,n)
 #else
     call neko_error('No device backend configured')
 #endif
   end subroutine device_pipecg_vecops
 
-  subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n)
+  subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
+       p_cur, p_space, n)
     use, intrinsic :: iso_c_binding
     type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
     integer(c_int) :: p_cur, n, p_space
@@ -175,7 +178,8 @@ contains
   end subroutine device_cg_update_xp
 
   !> Initialise a pipelined PCG solver
-  subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
+       monitor)
     class(pipecg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -225,7 +229,7 @@ contains
     call device_alloc(this%u_d_d, u_size)
     ptr = c_loc(this%u_d)
     call device_memcpy(ptr,this%u_d_d, u_size, &
-         HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync = .false.)
 
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
@@ -389,8 +393,8 @@ contains
       call device_copy(r_d, f_d, n)
       !apply u=M^-1r
       !call device_copy(u_d(u_prev), r_d, n)
-      call this%M%solve(u(1,u_prev), r, n)
-      call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
+      call this%M%solve(u(1, u_prev), r, n)
+      call Ax%compute(w, u(1, u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call device_event_sync(this%gs_event)
       call blst%apply_scalar(w, n)
@@ -400,7 +404,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if

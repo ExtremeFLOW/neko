@@ -35,7 +35,7 @@ module fusedcg_cpld_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
+  use num_types, only : rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -103,7 +103,7 @@ module fusedcg_cpld_device
 #ifdef HAVE_CUDA
   interface
      subroutine cuda_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
-          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name='cuda_fusedcg_cpld_part1')
+          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name = 'cuda_fusedcg_cpld_part1')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -114,7 +114,8 @@ module fusedcg_cpld_device
 
   interface
      subroutine cuda_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-          po1_d, po2_d, po3_d, beta, n) bind(c, name='cuda_fusedcg_cpld_update_p')
+          po1_d, po2_d, po3_d, beta, n) &
+          bind(c, name = 'cuda_fusedcg_cpld_update_p')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -127,7 +128,7 @@ module fusedcg_cpld_device
 
   interface
      subroutine cuda_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, &
-          alpha, p_cur, n) bind(c, name='cuda_fusedcg_cpld_update_x')
+          alpha, p_cur, n) bind(c, name = 'cuda_fusedcg_cpld_update_x')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
@@ -138,7 +139,7 @@ module fusedcg_cpld_device
   interface
      real(c_rp) function cuda_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
           c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n) &
-          bind(c, name='cuda_fusedcg_cpld_part2')
+          bind(c, name = 'cuda_fusedcg_cpld_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -151,7 +152,8 @@ module fusedcg_cpld_device
 #elif HAVE_HIP
   interface
      subroutine hip_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
-          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name='hip_fusedcg_cpld_part1')
+          b1_d, b2_d, b3_d, tmp_d, n) &
+          bind(c, name = 'hip_fusedcg_cpld_part1')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -162,7 +164,8 @@ module fusedcg_cpld_device
 
   interface
      subroutine hip_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-          po1_d, po2_d, po3_d, beta, n) bind(c, name='hip_fusedcg_cpld_update_p')
+          po1_d, po2_d, po3_d, beta, n) &
+          bind(c, name = 'hip_fusedcg_cpld_update_p')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -175,7 +178,7 @@ module fusedcg_cpld_device
 
   interface
      subroutine hip_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, &
-          alpha, p_cur, n) bind(c, name='hip_fusedcg_cpld_update_x')
+          alpha, p_cur, n) bind(c, name = 'hip_fusedcg_cpld_update_x')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
@@ -186,7 +189,7 @@ module fusedcg_cpld_device
   interface
      real(c_rp) function hip_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
           c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n) &
-          bind(c, name='hip_fusedcg_cpld_part2')
+          bind(c, name = 'hip_fusedcg_cpld_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -599,7 +602,7 @@ contains
       ksp_results%res_final = rnorm
       ksp_results(1)%iter = 0
       ksp_results(2:3)%iter = -1
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if

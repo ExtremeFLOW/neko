@@ -32,7 +32,7 @@
 !
 !> Defines various Conjugate Gradient methods for accelerators
 module cg_device
-  use num_types, only: rp
+  use num_types, only : rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -159,7 +159,8 @@ contains
   end subroutine cg_device_free
 
   !> Standard PCG solve
-  function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -196,7 +197,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(abscmp(rnorm, zero)) then
+    if (abscmp(rnorm, zero)) then
        ksp_results%converged = .true.
        return
     end if
