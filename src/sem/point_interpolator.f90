@@ -33,16 +33,15 @@
 !> Routines to interpolate fields on a given element
 !! on a point in that element with given r,s,t coordinates
 module point_interpolator
-  use tensor, only: triple_tensor_product
-  use space, only: space_t, GL, GLL
-  use num_types, only: rp
-  use point, only: point_t
-  use math, only: abscmp
-  use fast3d, only: fd_weights_full
-  use utils, only: neko_error
-  use device
-  use device_math, only: device_rzero
-  use neko_config, only: NEKO_BCKND_DEVICE
+  use tensor, only : triple_tensor_product
+  use space, only : space_t, GL, GLL
+  use num_types, only : rp
+  use point, only : point_t
+  use math, only : abscmp
+  use fast3d, only : fd_weights_full
+  use utils, only : neko_error
+  use device_math, only : device_rzero
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -145,7 +144,7 @@ contains
     real(kind=rp), allocatable :: res(:)
 
     real(kind=rp) :: hr(this%Xh%lx), hs(this%Xh%ly), ht(this%Xh%lz)
-    integer :: lx,ly,lz, i
+    integer :: lx, ly, lz, i
     integer :: N
     lx = this%Xh%lx
     ly = this%Xh%ly

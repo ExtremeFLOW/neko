@@ -46,7 +46,9 @@ module cheby_device
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy, &
        device_sub3, device_cmult, device_add2
-  use device
+  use device, only : glb_cmd_queue, device_map, device_event_create, &
+       device_unmap, device_event_destroy, device_memcpy, HOST_TO_DEVICE, &
+       device_get_ptr
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, &
        C_NULL_PTR, c_associated
   implicit none
@@ -280,12 +282,12 @@ contains
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
 
       ! Save current random seed and set a fixed seed
-      call random_seed( size=rnd_n )
+      call random_seed( size = rnd_n )
       allocate(saved_seed(rnd_n))
       allocate(fixed_seed(rnd_n))
       fixed_seed = 3901
-      call random_seed( get=saved_seed )
-      call random_seed( put=fixed_seed )
+      call random_seed( get = saved_seed )
+      call random_seed( put = fixed_seed )
 
       do i = 1, n
          call random_number(rn)
@@ -294,7 +296,7 @@ contains
       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
 
       ! Restore saved random seed
-      call random_seed( put=saved_seed )
+      call random_seed( put = saved_seed )
 
       call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
       call blst%apply(d, n)

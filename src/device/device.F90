@@ -116,7 +116,7 @@ module device
   end interface device_sync
 
   !> Table of host to device address mappings
-  type(htable_cptr_t), private :: device_addrtbl
+  type(htable_cptr_t) :: device_addrtbl
 
   public :: device_memcpy, device_map, device_unmap, device_associate, &
        device_associated, device_deassociate, device_get_ptr, device_sync, &
@@ -126,8 +126,6 @@ module device
        device_event_destroy, device_event_record, device_event_sync, &
        device_finalize, device_stream_wait_event, device_count, &
        device_memset, device_stream_create_with_priority
-
-  private :: device_memcpy_common, device_map_common
 
 contains
 

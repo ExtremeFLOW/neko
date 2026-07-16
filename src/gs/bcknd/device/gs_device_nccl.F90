@@ -37,7 +37,10 @@ module gs_device_nccl
   use stack, only : stack_i4_t
   use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
-  use device
+  use device, only : device_alloc, device_memcpy, HOST_TO_DEVICE, device_free, &
+       device_stream_create_with_priority, STRM_HIGH_PRIO, &
+       device_event_create, device_stream_destroy, device_event_destroy, &
+       device_get_ptr, device_stream_wait_event, device_event_record
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated, c_int

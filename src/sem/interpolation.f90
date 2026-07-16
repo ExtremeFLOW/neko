@@ -34,7 +34,7 @@
 module interpolation
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use device
+  use device, only : device_map, device_memcpy, HOST_TO_DEVICE, device_unmap
   use fast3d, only : setup_intp
   use tensor, only : tnsr3d
   use tensor_cpu, only : tnsr3d_cpu
