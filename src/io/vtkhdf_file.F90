@@ -52,7 +52,7 @@ module vtkhdf_file
 #ifdef HAVE_HDF5
   use hdf5, only : &
        hid_t, hsize_t, size_t, &
-       h5open_f, &
+       h5open_f, h5close_f, &
        h5fcreate_f, h5fopen_f, h5fclose_f, h5fflush_f, h5fget_obj_count_f, &
        H5F_OBJ_ALL_F, H5F_SCOPE_GLOBAL_F, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &

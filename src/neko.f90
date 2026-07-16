@@ -151,12 +151,10 @@ module neko
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
   use ale_manager, only : neko_ale
+  use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
   use, intrinsic :: iso_fortran_env
   use mpi_f08
   !$ use omp_lib
-#ifdef HAVE_HDF5
-  use hdf5, only: h5open_f, h5close_f
-#endif
   implicit none
 
 contains
@@ -170,7 +168,7 @@ contains
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc, i, ierr
+    integer :: argc, i
 
     call date_and_time(time = time, date = date)
 
@@ -178,10 +176,7 @@ contains
     call neko_mpi_types_init
     call jobctrl_init
     call device_init
-#ifdef HAVE_HDF5
-    call h5open_f(ierr)
-    if (ierr .ne. 0) call neko_error('Failed to initialize HDF5')
-#endif
+    call hdf5_session_init
 
     call neko_log%init()
     call neko_registry%init()
@@ -276,7 +271,6 @@ contains
   !> Finalize Neko
   subroutine neko_finalize(C)
     type(case_t), intent(inout), optional :: C
-    integer :: ierr
 
     call neko_rt_stats%report()
     call neko_rt_stats%free()
@@ -293,10 +287,7 @@ contains
     call neko_user_access%free()
     call neko_log%free()
 
-#ifdef HAVE_HDF5
-    call h5close_f(ierr)
-    if (ierr .ne. 0) call neko_error('Failed to close HDF5')
-#endif
+    call hdf5_session_finalize
 
     call neko_mpi_types_free
     call comm_free
