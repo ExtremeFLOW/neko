@@ -51,16 +51,20 @@ module wall_gll_sampler
 
   !> Wall sampler implementation for GLL nodes at prescribed off-wall indices.
   type, public, extends(wall_sampler_t) :: wall_gll_sampler_t
-     !> Off-wall indices for each sampling point.
+     !> Off-wall GLL indices for each sampling point per wall node.
      integer, allocatable :: indices(:)
      !> Linear indices into the sampled fields.
      type(mask_t) :: sample_idx
    contains
-     !> Constructor from JSON.
+     !> Partial constructor from JSON.
      procedure, pass(this) :: init => wall_gll_sampler_init
-     !> Constructor from off-wall indices.
+     !> Partial constructor from off-wall GLL indices.
      procedure, pass(this) :: init_from_indices => &
           wall_gll_sampler_init_from_indices
+     !> Fully construct a sampler from its resolved components.
+     procedure, pass(this) :: init_from_components => &
+          wall_gll_sampler_init_from_components
+     !> Construct field indices and wall-normal distances for sampling.
      procedure, pass(this) :: finalize => wall_gll_sampler_finalize
      !> Sample the solution field at the sampling points.
      procedure, pass(this) :: sample => wall_gll_sampler_sample
@@ -70,7 +74,8 @@ module wall_gll_sampler
 
 contains
 
-  !> Constructor from JSON.
+  !> Partial constructor from JSON.
+  !! @param json Sampler configuration data.
   subroutine wall_gll_sampler_init(this, json)
     class(wall_gll_sampler_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -108,6 +113,9 @@ contains
     end select
   end subroutine wall_gll_sampler_init
 
+  !> Partial constructor from off-wall GLL indices.
+  !! @param indices Positive GLL indices, one for each sampling point per
+  !! wall node.
   subroutine wall_gll_sampler_init_from_indices(this, indices)
     class(wall_gll_sampler_t), intent(inout) :: this
     integer, intent(in) :: indices(:)
@@ -120,6 +128,46 @@ contains
     this%n_samples = size(indices)
   end subroutine wall_gll_sampler_init_from_indices
 
+  !> Fully construct a GLL sampler from its resolved components.
+  !! @note No compatibility checks are performed, input data is assumed to be
+  !! valid. Checking would require geometric information.
+  !! @param indices Off-wall GLL indices for each sample per wall node.
+  !! @param sample_idx Linear sampled-field indices in sampler ordering.
+  !! @param h Wall-normal distances in sampler ordering.
+  subroutine wall_gll_sampler_init_from_components(this, indices, sample_idx, h)
+    class(wall_gll_sampler_t), intent(inout) :: this
+    integer, intent(in) :: indices(:)
+    integer, intent(in) :: sample_idx(:)
+    type(vector_t), intent(in) :: h
+    integer :: n_nodes
+
+    if (size(indices) < 1 .or. any(indices < 1)) then
+       call neko_error('Wall GLL sampler indices must be positive')
+    end if
+    if (size(sample_idx) < 1 .or. any(sample_idx < 1)) then
+       call neko_error('Wall GLL sampler sample indices must be positive')
+    end if
+    if (mod(size(sample_idx), size(indices)) /= 0) then
+       call neko_error('Wall GLL sampler sample indices have an invalid size')
+    end if
+
+    n_nodes = size(sample_idx) / size(indices)
+    call this%free()
+    call this%init_base(n_nodes, size(indices), h)
+    this%indices = indices
+    call this%sample_idx%init(sample_idx, size(sample_idx))
+  end subroutine wall_gll_sampler_init_from_components
+
+  !> Construct field indices and wall-normal distances for sampling. Completes
+  !! initialization.
+  !! @param coef SEM coefficients.
+  !! @param msk Mask selecting local wall nodes.
+  !! @param facet Facet index for each selected wall node.
+  !! @param n_x X-component of wall-normal vectors at wall nodes.
+  !! @param n_y Y-component of wall-normal vectors at wall nodes.
+  !! @param n_z Z-component of wall-normal vectors at wall nodes.
+  !! @param bc_name Name of the owning boundary condition for user values.
+  !! @param user User interface providing the GLL-sampling callback.
   subroutine wall_gll_sampler_finalize(this, coef, msk, facet, n_x, n_y, &
        n_z, bc_name, user)
     class(wall_gll_sampler_t), intent(inout) :: this

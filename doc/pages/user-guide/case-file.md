@@ -564,7 +564,7 @@ A more detailed description of each boundary condition is provided below.
   }
   ```
 
-* `wall_model`. A shear stress condition, where the values is computed by a wall
+* `wall_model`. A shear stress condition where the values are computed by a wall
    model. Meant to be used for wall-modelled large-eddy simulation. Only works
    with axis-aligned boundaries. The model is selected using the `model`
    keyword. Additional configuration depends on the model selected.
@@ -587,20 +587,23 @@ A more detailed description of each boundary condition is provided below.
 
    * The `richardson` model is similar to the `most` model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given [below](#richardson-wall-model).
 
-    All wall models specify their sampling strategy with the `sampling` object.
+    All wall models specify their sampling strategy with a `sampling` object.
     Its `type` is either `gll`, for sampling at an off-wall GLL node, or
     `distance`, for sampling at a physical wall-normal distance using global
     interpolation. The `value` entry specifies the GLL index or distance,
-    respectively. It may be a scalar or an array; current wall models use one
-    sampling point, so the scalar form is the usual configuration. GLL indices
-    start at 1 and may not exceed the polynomial order plus 1. Distances must
-    be positive.
+    respectively. It may be a scalar or an array. Current wall models require
+    exactly one sampling point per wall node, so use the scalar form. GLL
+    indices start at 1 and may not exceed the polynomial order plus 1.
+    Distances must be positive. If `sampling` is omitted, the legacy `h_index`
+    keyword remains available for GLL sampling.
 
     To set sampling values separately for every wall node, set `value` to
-    `"user"` and provide `n_samples`. The latter sets the number of sampler per wall node. Neko then calls the corresponding user
-    sampling routine once during setup; see [user wall sampling](user-file.md#user-file_wall-sampling).
-    The user routine exposes the boundary condition name, so setting good names
-    in the case file is helpful when you have multiple wall modelled boundaries.
+    `"user"` and provide `n_samples`. It specifies the number of samples per
+    wall node and must currently be `1`. Neko then calls the corresponding user
+    sampling routine once during setup; see [user wall
+    sampling](user-file.md#user-file_wall-sampling). The user routine receives
+    the boundary-condition name, so descriptive names are helpful when there
+    are multiple wall-modelled boundaries.
 
     A 3D field with the name `tau` will be registered in the field registry. At
     the boundary it will store the magnitude of the predicted stress. This can

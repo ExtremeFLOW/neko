@@ -94,6 +94,10 @@ module user_intf
      end subroutine user_mesh_setup_intf
   end interface
 
+  !> Abstract interface for user-defined GLL sampling for wall models.
+  !! @param bc_name Name of the wall-model boundary condition.
+  !! @param msk Linear indices of local wall nodes.
+  !! @param indices GLL indices with shape `(n_samples, n_nodes)`.
   abstract interface
      subroutine user_wall_sampling_gll_intf(bc_name, msk, indices)
        character(len=*), intent(in) :: bc_name
@@ -102,6 +106,10 @@ module user_intf
      end subroutine user_wall_sampling_gll_intf
   end interface
 
+  !> Abstract interface for user-defined physical-distance for wall models.
+  !! @param bc_name Name of the wall-model boundary condition.
+  !! @param msk Linear indices of local wall nodes.
+  !! @param distances Positive distances with shape `(n_samples, n_nodes)`.
   abstract interface
      subroutine user_wall_sampling_distance_intf(bc_name, msk, distances)
        import rp
@@ -472,6 +480,10 @@ contains
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_mesh_setup
 
+  !> Dummy user-defined GLL wall-sampling callback.
+  !! @param bc_name Name of the wall-model boundary condition.
+  !! @param msk Linear indices of local wall nodes.
+  !! @param indices GLL indices with shape `(n_samples, n_nodes)`.
   subroutine dummy_user_wall_sampling_gll(bc_name, msk, indices)
     character(len=*), intent(in) :: bc_name
     integer, intent(in) :: msk(:)
@@ -481,6 +493,10 @@ contains
          ' is configured as user, but wall_sampling_gll is not set')
   end subroutine dummy_user_wall_sampling_gll
 
+  !> Dummy user-defined physical-distance wall-sampling callback.
+  !! @param bc_name Name of the wall-model boundary condition.
+  !! @param msk Linear indices of local wall nodes.
+  !! @param distances Positive distances with shape `(n_samples, n_nodes)`.
   subroutine dummy_user_wall_sampling_distance(bc_name, msk, distances)
     character(len=*), intent(in) :: bc_name
     integer, intent(in) :: msk(:)

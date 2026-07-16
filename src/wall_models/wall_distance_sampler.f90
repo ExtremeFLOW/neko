@@ -1,6 +1,35 @@
 ! Copyright (c) 2026, The Neko Authors
 ! All rights reserved.
 !
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above copyright
+!     notice, this list of conditions and the following disclaimer in
+!     the documentation and/or other materials provided with the
+!     distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
 !> Implements `wall_distance_sampler_t`.
 module wall_distance_sampler
   use num_types, only : rp
@@ -22,16 +51,19 @@ module wall_distance_sampler
   type, public, extends(wall_sampler_t) :: wall_distance_sampler_t
      !> Physical distances from the wall for each sampling point.
      real(kind=rp), allocatable :: distances(:)
-     !> Sampling point locations.
+     !> Sampling point locations with shape `(3, n_nodes * n_samples)`.
      real(kind=rp), allocatable :: xyz(:,:)
      !> Interpolator for sampling the solution field at the sampling points.
      type(global_interpolation_t) :: interpolator
    contains
-     !> Constructor from JSON.
+     !> Partial constructor from JSON.
      procedure, pass(this) :: init => wall_distance_sampler_init
-     !> Constructor from physical distances.
+     !> Partial constructor from physical wall-normal distances.
      procedure, pass(this) :: init_from_distances => &
           wall_distance_sampler_init_from_distances
+     !> Fully construct a sampler from its resolved components.
+     procedure, pass(this) :: init_from_components => &
+          wall_distance_sampler_init_from_components
      !> Finalize by computing sampling point locations and building the
      !! interpolator.
      procedure, pass(this) :: finalize => wall_distance_sampler_finalize
@@ -43,6 +75,8 @@ module wall_distance_sampler
 
 contains
 
+  !> Partial constructor from JSON.
+  !! @param json Sampler configuration data.
   subroutine wall_distance_sampler_init(this, json)
     class(wall_distance_sampler_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -81,6 +115,9 @@ contains
     end select
   end subroutine wall_distance_sampler_init
 
+  !> Partial constructor from physical wall-normal distances.
+  !! @param distances Positive distances, one for each sampling point per
+  !! wall node.
   subroutine wall_distance_sampler_init_from_distances(this, distances)
     class(wall_distance_sampler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: distances(:)
@@ -92,6 +129,52 @@ contains
     this%n_samples = size(distances)
   end subroutine wall_distance_sampler_init_from_distances
 
+  !> Fully construct a distance sampler from its resolved components.
+  !! @note No compatibility checks are performed, input data is assumed to be
+  !! valid. Checking would require geometric information.
+  !! @param coef SEM coefficients used to construct global interpolation.
+  !! @param distances Physical distances, one for each sample per wall node.
+  !! @param xyz Sampling locations with shape `(3, n_nodes * n_samples)`.
+  !! @param h Wall-normal distances in sampler ordering.
+  subroutine wall_distance_sampler_init_from_components(this, coef, distances, &
+       xyz, h)
+    class(wall_distance_sampler_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(in) :: distances(:)
+    real(kind=rp), intent(in) :: xyz(:,:)
+    type(vector_t), intent(in) :: h
+    integer :: n_nodes, n_points
+
+    if (size(distances) < 1 .or. any(distances <= 0.0_rp)) then
+       call neko_error('Wall sampling distances must be positive')
+    end if
+    if (size(xyz, 1) /= 3) then
+       call neko_error('Wall sampler coordinates must have three components')
+    end if
+
+    n_points = size(xyz, 2)
+    if (n_points < 1 .or. mod(n_points, size(distances)) /= 0) then
+       call neko_error('Wall sampler coordinates have an invalid size')
+    end if
+
+    n_nodes = n_points / size(distances)
+    call this%free()
+    call this%init_base(n_nodes, size(distances), h)
+    this%distances = distances
+    this%xyz = xyz
+    call this%interpolator%init(coef%dof)
+    call this%interpolator%find_points(this%xyz, n_points)
+  end subroutine wall_distance_sampler_init_from_components
+
+  !> Construct sampling locations and initialise global interpolation.
+  !! @param coef SEM coefficients.
+  !! @param msk Mask selecting local wall nodes.
+  !! @param facet Facet index for each selected wall node.
+  !! @param n_x X-component of wall-normal vectors at wall nodes.
+  !! @param n_y Y-component of wall-normal vectors at wall nodes.
+  !! @param n_z Z-component of wall-normal vectors at wall nodes.
+  !! @param bc_name Name of the owning boundary condition for user values.
+  !! @param user User interface providing the distance-sampling callback.
   subroutine wall_distance_sampler_finalize(this, coef, msk, facet, &
        n_x, n_y, n_z, bc_name, user)
     class(wall_distance_sampler_t), intent(inout) :: this
@@ -161,6 +244,9 @@ contains
     end if
   end subroutine wall_distance_sampler_finalize
 
+  !> Sample a field at the configured physical locations.
+  !! @param field Field to be sampled.
+  !! @param values Output sampled values in sampler ordering.
   subroutine wall_distance_sampler_sample(this, field, values)
     class(wall_distance_sampler_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
@@ -176,6 +262,7 @@ contains
          NEKO_BCKND_DEVICE .eq. 0)
   end subroutine wall_distance_sampler_sample
 
+  !> Release sampler resources.
   subroutine wall_distance_sampler_free(this)
     class(wall_distance_sampler_t), intent(inout) :: this
 

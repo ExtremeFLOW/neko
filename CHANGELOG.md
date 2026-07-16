@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Added configurable wall-model field samplers. Wall models can now sample at
+  GLL nodes or physical wall-normal distances using global interpolation. The
+  sampling values can also be supplied per wall node through new user hooks.
 - Fixed stale facet-normals in fluid_pnpn pressure surface terms.
   This was only affecting ALE simulations containing rotations.
 - *BREAKING* Changed the size of mesh velocity lag arrays in ALE to 2. 

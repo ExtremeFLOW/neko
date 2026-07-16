@@ -37,6 +37,7 @@ module wall_sampler
   use vector, only : vector_t
   use json_module, only : json_file
   use user_intf, only : user_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -54,17 +55,21 @@ module wall_sampler
      !! `(node - 1) * n_samples + sample`.
      type(vector_t) :: h
    contains
-     !> Parse sampler-specific configuration.
+     !> Initialise state common to all fully constructed wall samplers.
+     procedure, pass(this) :: init_base => wall_sampler_init_base
+     !> Parse sampler-specific configuration from JSON.
      procedure(wall_sampler_init), pass(this), deferred :: init
-     !> Final initialization step, mirroring the wall_model_t interface.
+     !> Complete sampler setup after geometric and wall-node data are known.
      procedure(wall_sampler_finalize), pass(this), deferred :: finalize
      !> Sample the solution field at the sampling points.
      procedure(wall_sampler_sample), pass(this), deferred :: sample
-     !> Destructor.
+     !> Release sampler resources.
      procedure(wall_sampler_free), pass(this), deferred :: free
   end type wall_sampler_t
 
   abstract interface
+     !> Parse sampler-specific configuration from JSON.
+     !! @param json Sampler configuration data.
      subroutine wall_sampler_init(this, json)
        import wall_sampler_t, json_file
        class(wall_sampler_t), intent(inout) :: this
@@ -78,6 +83,10 @@ module wall_sampler
      !! @param n_x X-component of wall-normal vectors at wall nodes.
      !! @param n_y Y-component of wall-normal vectors at wall nodes.
      !! @param n_z Z-component of wall-normal vectors at wall nodes.
+     !! @param bc_name Name of the owning boundary condition when user values
+     !! are requested.
+     !! @param user User interface providing sampling callbacks when user
+     !! values are requested.
      subroutine wall_sampler_finalize(this, coef, msk, facet, n_x, n_y, n_z, &
           bc_name, user)
        import wall_sampler_t, coef_t, vector_t, user_t
@@ -100,11 +109,37 @@ module wall_sampler
        type(vector_t), intent(inout) :: values
      end subroutine wall_sampler_sample
 
-     !> Destructor
+     !> Release sampler resources.
      subroutine wall_sampler_free(this)
        import wall_sampler_t
        class(wall_sampler_t), intent(inout) :: this
      end subroutine wall_sampler_free
   end interface
+
+contains
+
+  !> Initialise state common to all fully constructed wall samplers.
+  !! @param n_nodes Number of local wall nodes.
+  !! @param n_samples Number of samples at each wall node.
+  !! @param h Wall-normal distances in sampler ordering.
+  subroutine wall_sampler_init_base(this, n_nodes, n_samples, h)
+    class(wall_sampler_t), intent(inout) :: this
+    integer, intent(in) :: n_nodes
+    integer, intent(in) :: n_samples
+    type(vector_t), intent(in) :: h
+
+    if (n_nodes < 1 .or. n_samples < 1) then
+       call neko_error('Wall sampler dimensions must be positive')
+    end if
+    if (h%size() /= n_nodes * n_samples) then
+       call neko_error('Wall sampler distances have an invalid size')
+    end if
+
+    call this%h%free()
+    this%n_nodes = n_nodes
+    this%n_samples = n_samples
+    this%user_values = .false.
+    this%h = h
+  end subroutine wall_sampler_init_base
 
 end module wall_sampler
