@@ -52,7 +52,7 @@ module compressible_residual
   !> Abstract interface to evaluate rhs
   abstract interface
      subroutine compressible_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-          Ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, &
+          Ax_stress, coef, gs, artificial_visc, mu, kappa, bcs_vel, time, &
           rk_scheme, dt)
        import field_t
        import Ax_t
@@ -63,7 +63,7 @@ module compressible_residual
        import bc_list_t
        import time_state_t
        type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-       type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
+       type(field_t), intent(in) :: p, u, v, w, artificial_visc, mu, kappa
        class(Ax_t), intent(inout) :: Ax, Ax_stress
        type(coef_t), intent(inout) :: coef
        type(gs_t), intent(inout) :: gs

@@ -415,10 +415,10 @@ module compressible_res_device
 contains
   subroutine advance_primitive_variables_device(rho_field, &
        m_x, m_y, m_z, E, p, u, v, w, Ax, &
-       Ax_stress, coef, gs, h, artificial_visc, mu, kappa, bcs_vel, time, &
+       Ax_stress, coef, gs, artificial_visc, mu, kappa, bcs_vel, time, &
        rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-    type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
+    type(field_t), intent(in) :: p, u, v, w, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax, Ax_stress
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
@@ -563,7 +563,7 @@ contains
             k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, k_E%items(i)%ptr, &
             temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
             temp_p, temp_u, temp_v, temp_w, Ax, &
-            Ax_stress, coef, gs, h, artificial_visc, mu, kappa)
+            Ax_stress, coef, gs, artificial_visc, mu, kappa)
     end do
 
     ! Update the solution
@@ -605,11 +605,11 @@ contains
   subroutine evaluate_rhs_device(rhs_rho_field, rhs_m_x, rhs_m_y, &
        rhs_m_z, rhs_E, rho_field, &
        m_x, m_y, m_z, E, p, u, v, w, Ax, &
-       Ax_stress, coef, gs, h, artificial_visc, mu, kappa)
+       Ax_stress, coef, gs, artificial_visc, mu, kappa)
     type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, &
          rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-    type(field_t), intent(in) :: p, u, v, w, h, artificial_visc, mu, kappa
+    type(field_t), intent(in) :: p, u, v, w, artificial_visc, mu, kappa
     class(Ax_t), intent(inout) :: Ax, Ax_stress
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
