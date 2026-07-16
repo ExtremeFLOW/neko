@@ -19,7 +19,7 @@
               "const": "boundary_operation"
             },
             "zone_indices": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArray"
             },
             "field_name": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"

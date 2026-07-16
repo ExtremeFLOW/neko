@@ -27,6 +27,11 @@ files against that schema.
 Since some shipped example files use `//` comments and trailing commas, the
 helper parses the input using a JSON5-compatible frontend before applying the
 schema.
+Neko distinguishes JSON integers such as `10` from JSON reals such as `10.0`,
+even though the JSON Schema specification considers both to be numbers and
+considers `10.0` to satisfy the `integer` type. The schemas mark real-only
+values with the Neko-specific `x-neko-real` annotation, and the validation
+helper enforces both that annotation and strict JSON integer encoding.
 
 ## High-level structure
 The current high-level structure of the case file is shown below.
@@ -67,9 +72,11 @@ The frequency is controlled by two parameters, ending with `_control` and
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
 
-The `_value` parameter is a *real* number, that defines the output frequency,
-but the interpretation of that number depends on the choice of `_control`. The
-three following options are possible.
+The `_value` parameter defines the output frequency, but both its JSON type and
+interpretation depend on the choice of `_control`. Neko requires an integer
+literal for `tsteps` and `nsamples`, and a real literal for `simulationtime`.
+For example, use `10` for ten time steps but `10.0` for ten simulation-time
+units. The following options are possible.
 1. `simulationtime`, then `_value` is the time interval between the outputs.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
@@ -88,7 +95,6 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
-| `output_format`       | The file format of field data.                                                                        | `nek5000`, `adios2`, or `vtkhdf`                | `nek5000`     |
 | `output_precision`    | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
@@ -828,7 +834,7 @@ file documentation.
       - `tanh`, hyperbolic tangent approximation of Savaş (2012). In this case `delta` is the 99\% thickness.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
@@ -1819,6 +1825,7 @@ concisely directly in the table.
 | `nut_field`                                        | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                                   | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                                     | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_format`                                    | The file format of field data.                                                                     | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
 | `output_mesh_in_all_files`                         | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                                  | The output filename.                                                                              | String                                                      | `field`       |
 | `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
@@ -1955,7 +1962,7 @@ file documentation.
    keyword.
 3. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 4. `field`, where the initial condition is retrieved from a field file. Works
    in the same way as for the fluid. See the

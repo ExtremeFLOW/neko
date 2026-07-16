@@ -26,9 +26,14 @@
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
             },
             "polynomial_order": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/integerOrRef"
+              "type": "integer",
+              "minimum": 1
             }
           },
+          "anyOf": [
+            {"required": ["point_zone"]},
+            {"required": ["polynomial_order"]}
+          ],
           "additionalProperties": true
         }
       ]
