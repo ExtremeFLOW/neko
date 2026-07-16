@@ -43,7 +43,9 @@ module pipecg_device
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, &
        device_glsc3, device_vlsc3
-  use device
+  use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
+       device_event_create, device_unmap, device_free, device_event_destroy, &
+       device_get_ptr, device_event_sync
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Iallreduce, MPI_Status, &

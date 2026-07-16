@@ -47,7 +47,8 @@ module coefs
        device_coef_generate_dxydrst, device_coef_generate_mass, &
        device_coef_generate_area_and_normal
   use mxm_wrapper, only : mxm
-  use device
+  use device, only : device_map, device_memcpy, DEVICE_TO_HOST, &
+       HOST_TO_DEVICE, device_unmap
   use utils, only : index_is_on_facet, linear_index, &
        neko_error
   use comm, only : NEKO_COMM

@@ -40,7 +40,6 @@ module point_interpolator
   use math, only: abscmp
   use fast3d, only: fd_weights_full
   use utils, only: neko_error
-  use device
   use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
   implicit none

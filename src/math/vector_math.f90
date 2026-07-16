@@ -62,7 +62,7 @@ module vector_math
   use num_types, only : rp
   use vector, only : vector_t
   use mask, only : mask_t
-  use device
+  use device, only : device_get_ptr
   use utils, only : neko_error
   use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
        add2, add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, &

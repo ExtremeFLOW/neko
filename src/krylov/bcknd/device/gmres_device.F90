@@ -47,7 +47,9 @@ module gmres_device
        device_add2s2, device_add2s1, device_rone, &
        device_cmult2, device_add2s2_many, device_glsc3_many,&
        device_sub2
-  use device
+  use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
+       device_event_create, device_unmap, device_free, device_event_destroy, &
+       device_get_ptr, device_event_sync
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_SUM, MPI_Allreduce

@@ -46,7 +46,9 @@ module cheby_device
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy, &
        device_sub3, device_cmult, device_add2
-  use device
+  use device, only : glb_cmd_queue, device_map, device_event_create, &
+       device_unmap, device_event_destroy, device_memcpy, HOST_TO_DEVICE, &
+       device_get_ptr
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, &
        C_NULL_PTR, c_associated
   implicit none

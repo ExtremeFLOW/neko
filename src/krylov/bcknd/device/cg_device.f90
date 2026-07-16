@@ -41,11 +41,13 @@ module cg_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : abscmp
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  private
 
   !> Device based preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_device_t

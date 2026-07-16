@@ -42,7 +42,7 @@ module local_interpolation
   use utils, only : neko_error
   use field, only : field_t
   use field_list, only : field_list_t
-  use device
+  use device, only : device_map, device_memcpy, HOST_TO_DEVICE, device_unmap
   use math, only : matinv3, matinv39
   use device_math, only : device_rzero
   use neko_config, only : NEKO_BCKND_DEVICE
