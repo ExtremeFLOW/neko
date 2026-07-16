@@ -116,8 +116,17 @@ cudaError_t cuda_map(void **ptr_d, void *ptr_h, size_t s)
     *ptr_d = ptr_h;
     /* Placement only; ignore failures */
     if (cudaGetDevice(&dev) == cudaSuccess) {
+#if CUDART_VERSION >= 13000
+      /* CUDA 13 dropped the int-device overloads */
+      struct cudaMemLocation loc;
+      loc.type = cudaMemLocationTypeDevice;
+      loc.id = dev;
+      (void) cudaMemAdvise(ptr_h, s, cudaMemAdviseSetPreferredLocation, loc);
+      (void) cudaMemPrefetchAsync(ptr_h, s, loc, 0, 0);
+#else
       (void) cudaMemAdvise(ptr_h, s, cudaMemAdviseSetPreferredLocation, dev);
       (void) cudaMemPrefetchAsync(ptr_h, s, dev, 0);
+#endif
     }
     (void) cudaGetLastError();
     return cudaSuccess;
