@@ -35,6 +35,18 @@ DEFAULT_SCHEMA = (
 )
 
 
+def validate_neko_real(validator, expected, instance, schema):
+    """Require a JSON real, rather than an integer-valued JSON number."""
+    if (
+        expected
+        and isinstance(instance, (int, float))
+        and not isinstance(instance, (bool, float))
+    ):
+        yield jsonschema.ValidationError(
+            f"{instance!r} is not encoded as a JSON real"
+        )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -91,7 +103,22 @@ def load_schema(path: Path) -> jsonschema.protocols.Validator:
     # instance that resolves `$ref`s through the preloaded registry above.
     validator_cls = jsonschema.validators.validator_for(schema)
     validator_cls.check_schema(schema)
-    return validator_cls(schema, registry=registry)
+
+    # JSON Schema treats integral-valued reals such as 10.0 as integers. Neko's
+    # JSON reader distinguishes the stored JSON types, however, and rejects
+    # 10.0 where an integer is requested. Match Neko's stricter behavior.
+    strict_type_checker = validator_cls.TYPE_CHECKER.redefine(
+        "integer",
+        lambda checker, instance: (
+            isinstance(instance, int) and not isinstance(instance, bool)
+        ),
+    )
+    strict_validator_cls = jsonschema.validators.extend(
+        validator_cls,
+        validators={"x-neko-real": validate_neko_real},
+        type_checker=strict_type_checker,
+    )
+    return strict_validator_cls(schema, registry=registry)
 
 
 def main() -> int:

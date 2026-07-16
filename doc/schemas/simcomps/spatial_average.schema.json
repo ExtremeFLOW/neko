@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:neko:schema:simcomps:user_stats",
+  "$id": "urn:neko:schema:simcomps:spatial_average",
   "$defs": {
     "simulationComponent": {
       "allOf": [
@@ -10,17 +10,15 @@
         {
           "type": "object",
           "required": [
-            "fields"
+            "fields",
+            "avg_direction"
           ],
           "properties": {
             "type": {
-              "const": "user_stats"
+              "const": "spatial_average"
             },
             "fields": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields"
-            },
-            "start_time": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
             },
             "avg_direction": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/simcompAvgDirection"

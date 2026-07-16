@@ -20,7 +20,6 @@
         "fluid": {
             "scheme": "pnpn",
             "Ra": 1e8,
-            "variable_material_properties": false,
             "source_terms": [
                 {
                     "type": "boussinesq",
@@ -57,7 +56,7 @@
                 "max_iterations": 800
             },
             "output_control": "nsamples",
-            "output_value": 10.0,
+            "output_value": 10,
             "boundary_conditions": [
                 {
                     "type": "no_slip",
