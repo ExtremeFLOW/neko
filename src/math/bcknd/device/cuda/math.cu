@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -59,8 +59,11 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void cuda_copy(void *a, void *b, int *n, cudaStream_t strm) {
-    CUDA_CHECK(cudaMemcpyAsync(a, b, (*n) * sizeof(real),
-                               cudaMemcpyDeviceToDevice, strm));
+    /* Under zero-copy the pointers may alias pageable host memory;
+       let the runtime infer the direction from the actual pointers */
+    const enum cudaMemcpyKind kind = cuda_zerocopy() ?
+      cudaMemcpyDefault : cudaMemcpyDeviceToDevice;
+    CUDA_CHECK(cudaMemcpyAsync(a, b, (*n) * sizeof(real), kind, strm));
   }
 
   /** Fortran wrapper for masked copy

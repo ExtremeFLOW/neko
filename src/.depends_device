@@ -19,8 +19,8 @@ math/bcknd/device/hip/tensor.lo : math/bcknd/device/hip/tensor.hip math/bcknd/de
 math/bcknd/device/hip/fdm.lo : math/bcknd/device/hip/fdm.hip math/bcknd/device/hip/fdm_kernel.h
 krylov/bcknd/device/hip/pc_jacobi.lo : krylov/bcknd/device/hip/pc_jacobi.hip
 krylov/bcknd/device/hip/pipecg_aux.lo : krylov/bcknd/device/hip/pipecg_aux.hip krylov/bcknd/device/hip/pipecg_kernel.h device/hip/buffer.lo
-krylov/bcknd/device/hip/fusedcg_aux.lo : krylov/bcknd/device/hip/fusedcg_aux.hip krylov/bcknd/device/hip/fusedcg_kernel.h device/hip/buffer.lo
-krylov/bcknd/device/hip/fusedcg_cpld_aux.lo : krylov/bcknd/device/hip/fusedcg_cpld_aux.hip krylov/bcknd/device/hip/fusedcg_cpld_kernel.h device/hip/buffer.lo
+krylov/bcknd/device/hip/fusedcg_aux.lo : krylov/bcknd/device/hip/fusedcg_aux.hip krylov/bcknd/device/hip/fusedcg_kernel.h device/hip/unified.h device/hip/buffer.lo
+krylov/bcknd/device/hip/fusedcg_cpld_aux.lo : krylov/bcknd/device/hip/fusedcg_cpld_aux.hip krylov/bcknd/device/hip/fusedcg_cpld_kernel.h device/hip/unified.h device/hip/buffer.lo
 krylov/bcknd/device/hip/gmres_aux.lo : krylov/bcknd/device/hip/gmres_aux.hip krylov/bcknd/device/hip/gmres_kernel.h device/hip/buffer.lo
 gs/bcknd/device/hip/gs.lo : gs/bcknd/device/hip/gs.hip gs/bcknd/device/hip/gs_kernels.h
 bc/bcknd/device/hip/dirichlet.lo : bc/bcknd/device/hip/dirichlet.hip bc/bcknd/device/hip/dirichlet_kernel.h
@@ -75,8 +75,8 @@ math/bcknd/device/cuda/tensor.lo : math/bcknd/device/cuda/tensor.cu math/bcknd/d
 math/bcknd/device/cuda/fdm.lo : math/bcknd/device/cuda/fdm.cu math/bcknd/device/cuda/fdm_kernel.h
 krylov/bcknd/device/cuda/pc_jacobi.lo : krylov/bcknd/device/cuda/pc_jacobi.cu
 krylov/bcknd/device/cuda/pipecg_aux.lo : krylov/bcknd/device/cuda/pipecg_aux.cu krylov/bcknd/device/cuda/pipecg_kernel.h device/cuda/buffer.lo
-krylov/bcknd/device/cuda/fusedcg_aux.lo : krylov/bcknd/device/cuda/fusedcg_aux.cu krylov/bcknd/device/cuda/fusedcg_kernel.h device/cuda/buffer.lo
-krylov/bcknd/device/cuda/fusedcg_cpld_aux.lo : krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h device/cuda/buffer.lo
+krylov/bcknd/device/cuda/fusedcg_aux.lo : krylov/bcknd/device/cuda/fusedcg_aux.cu krylov/bcknd/device/cuda/fusedcg_kernel.h device/cuda/unified.h device/cuda/buffer.lo
+krylov/bcknd/device/cuda/fusedcg_cpld_aux.lo : krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h device/cuda/unified.h device/cuda/buffer.lo
 krylov/bcknd/device/cuda/gmres_aux.lo : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h device/cuda/buffer.lo
 gs/bcknd/device/cuda/gs.lo : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h
 gs/bcknd/device/cuda/gs_nvshmem.lo : gs/bcknd/device/cuda/gs_nvshmem.cu gs/bcknd/device/cuda/gs_kernels.h gs/bcknd/device/cuda/gs_nvshmem_kernels.h

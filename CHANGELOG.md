@@ -2,6 +2,10 @@
 
 ## Develop
 
+- Added zero-copy `device_map` on unified memory architectures (Apple Silicon
+  Metal, MI300A HIP, Grace Hopper CUDA): mapped arrays alias their host
+  allocation instead of being replicated, halving their footprint; discrete
+  GPUs are unaffected. Disable with `NEKO_{METAL,HIP,CUDA}_ZEROCOPY=0`.
 - Removed the hardcoded `CUDA_ARCH="-arch sm_60"` fallback used for
   `--enable-device-mpi` CUDA builds, which CUDA >= 13 toolkits can no longer
   compile (Pascal support was dropped). `configure` now requires `CUDA_ARCH`

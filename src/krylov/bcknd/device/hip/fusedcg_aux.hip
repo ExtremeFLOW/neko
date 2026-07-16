@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include <device/hip/buffer.h>
+#include <device/hip/unified.h>
 
 /**
  * Reduction buffer, owned by the device layer and released on device
@@ -102,7 +103,9 @@ extern "C" {
     /* Update alpha_d(p_cur) = alpha(p_cur) */
     real *alpha_d_p_cur = ((real *) alpha_d) + ((*p_cur - 1));   
     HIP_CHECK(hipMemcpyAsync(alpha_d_p_cur, &fusedcg_buf[1], sizeof(real),
-                               hipMemcpyHostToDevice, stream));
+                               hip_zerocopy() ?
+                               hipMemcpyDefault : hipMemcpyHostToDevice,
+                               stream));
    
     hipLaunchKernelGGL(HIP_KERNEL_NAME(fusedcg_part2_kernel<real>),
                        nblcks, nthrds, 0, stream,

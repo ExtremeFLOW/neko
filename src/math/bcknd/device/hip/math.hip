@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -53,8 +53,11 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void hip_copy(void *a, void *b, int *n, hipStream_t strm) {
-    HIP_CHECK(hipMemcpyAsync(a, b, (*n) * sizeof(real),
-                             hipMemcpyDeviceToDevice, strm));
+    /* Under zero-copy the pointers may alias pageable host memory;
+       let the runtime infer the direction from the actual pointers */
+    const hipMemcpyKind kind = hip_zerocopy() ?
+      hipMemcpyDefault : hipMemcpyDeviceToDevice;
+    HIP_CHECK(hipMemcpyAsync(a, b, (*n) * sizeof(real), kind, strm));
   }
 
   /** Fortran wrapper for masked copy

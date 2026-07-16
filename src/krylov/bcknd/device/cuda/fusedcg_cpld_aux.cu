@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2024-2025, The Neko Authors
+ Copyright (c) 2024-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 #include <device/cuda/buffer.h>
+#include <device/cuda/unified.h>
 
 #ifdef HAVE_NVSHMEM
 #include <nvshmem.h>
@@ -122,7 +123,8 @@ extern "C" {
     /* Update alpha_d(p_cur) = alpha(p_cur) */
     real *alpha_d_p_cur = ((real *) alpha_d) + ((*p_cur - 1));
     CUDA_CHECK(cudaMemcpyAsync(alpha_d_p_cur, &fusedcg_cpld_buf[1],
-                               sizeof(real), cudaMemcpyHostToDevice,
+                               sizeof(real), cuda_zerocopy() ?
+                               cudaMemcpyDefault : cudaMemcpyHostToDevice,
                                stream));
 
 

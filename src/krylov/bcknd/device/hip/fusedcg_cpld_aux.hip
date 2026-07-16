@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2024, The Neko Authors
+ Copyright (c) 2024-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include <device/hip/buffer.h>
+#include <device/hip/unified.h>
 #include "fusedcg_cpld_kernel.h"
 
 /**
@@ -122,7 +123,8 @@ extern "C" {
     /* Update alpha_d(p_cur) = alpha(p_cur) */
     real *alpha_d_p_cur = ((real *) alpha_d) + ((*p_cur - 1));   
     HIP_CHECK(hipMemcpyAsync(alpha_d_p_cur, &fusedcg_cpld_buf[1],
-                               sizeof(real), hipMemcpyHostToDevice,
+                               sizeof(real), hip_zerocopy() ?
+                               hipMemcpyDefault : hipMemcpyHostToDevice,
                                stream));
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(fusedcg_cpld_part2_kernel<real>),
