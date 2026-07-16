@@ -38,12 +38,10 @@ module fluid_scheme_compressible_ns
   use field_series, only : field_series_t
   use bdf_time_scheme, only : bdf_time_scheme_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : col2
-  use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use scratch_registry, only : neko_scratch_registry
-  use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
+  use gs_ops, only : GS_OP_MIN, GS_OP_MAX
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
@@ -106,7 +104,6 @@ module fluid_scheme_compressible_ns
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_ns_setup_bcs
-     procedure, pass(this) :: compute_h
      procedure, pass(this), private :: setup_viscous_regularization
   end type fluid_scheme_compressible_ns_t
 
@@ -319,7 +316,7 @@ contains
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
          dm_z => this%dm_z, dE => this%dE, &
-         compressible_rhs => this%compressible_rhs, h => this%h, &
+         compressible_rhs => this%compressible_rhs, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
@@ -334,7 +331,7 @@ contains
       ! Execute RHS step with artificial viscosity field
       call compressible_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, this%Ax, &
-           this%Ax_stress, c_Xh, gs_Xh, h, this%artificial_visc, this%mu, &
+           this%Ax_stress, c_Xh, gs_Xh, this%artificial_visc, this%mu, &
            this%kappa, this%bcs_vel, time, rk_scheme, real(dt, kind=rp))
 
       !> Apply density boundary conditions
@@ -532,77 +529,6 @@ contains
 
     call this%bcs_vel_projector%finalize(rebuild_mask = .true.)
   end subroutine fluid_scheme_compressible_ns_setup_bcs
-
-  !> Copied from les_model_compute_delta in les_model.f90
-  !> TODO: move to a separate module
-  !> Compute characteristic mesh size h
-  !> @param this The fluid scheme object
-  subroutine compute_h(this)
-    class(fluid_scheme_compressible_ns_t), intent(inout) :: this
-    integer :: lx, ly, lz
-
-    lx = this%c_Xh%Xh%lx
-    ly = this%c_Xh%Xh%ly
-    lz = this%c_Xh%Xh%lz
-    call compute_h_cpu(this%h%x, this%c_Xh%dof%x, this%c_Xh%dof%y, &
-         this%c_Xh%dof%z, lx, ly, lz, this%c_Xh%msh%nelv)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%h%x, this%h%x_d, this%h%dof%size(),&
-            HOST_TO_DEVICE, sync = .false.)
-       call this%gs_Xh%op(this%h, GS_OP_ADD)
-       call device_col2(this%h%x_d, this%c_Xh%mult_d, this%h%dof%size())
-    else
-       call this%gs_Xh%op(this%h, GS_OP_ADD)
-       call col2(this%h%x, this%c_Xh%mult, this%h%dof%size())
-    end if
-
-  end subroutine compute_h
-
-  subroutine compute_h_cpu(h, x, y, z, lx, ly, lz, nelv)
-    integer, intent(in) :: lx, ly, lz, nelv
-    real(kind=rp), intent(out) :: h(lx, ly, lz, nelv)
-    real(kind=rp), intent(in) :: x(lx, ly, lz, nelv)
-    real(kind=rp), intent(in) :: y(lx, ly, lz, nelv)
-    real(kind=rp), intent(in) :: z(lx, ly, lz, nelv)
-    integer :: e, i, j, k
-    integer :: im, ip, jm, jp, km, kp
-    real(kind=rp) :: di, dj, dk
-
-    !$omp parallel do private(i, j, k, im, ip, jm, jp, km, kp, di, dj, dk)
-    do e = 1, nelv
-       do k = 1, lz
-          km = max(1, k - 1)
-          kp = min(lz, k + 1)
-          do j = 1, ly
-             jm = max(1, j - 1)
-             jp = min(ly, j + 1)
-             do i = 1, lx
-                im = max(1, i - 1)
-                ip = min(lx, i + 1)
-
-                di = (x(ip, j, k, e) - x(im, j, k, e))**2 &
-                     + (y(ip, j, k, e) - y(im, j, k, e))**2 &
-                     + (z(ip, j, k, e) - z(im, j, k, e))**2
-
-                dj = (x(i, jp, k, e) - x(i, jm, k, e))**2 &
-                     + (y(i, jp, k, e) - y(i, jm, k, e))**2 &
-                     + (z(i, jp, k, e) - z(i, jm, k, e))**2
-
-                dk = (x(i, j, kp, e) - x(i, j, km, e))**2 &
-                     + (y(i, j, kp, e) - y(i, j, km, e))**2 &
-                     + (z(i, j, kp, e) - z(i, j, km, e))**2
-
-                di = sqrt(di) / (ip - im)
-                dj = sqrt(dj) / (jp - jm)
-                dk = sqrt(dk) / (kp - km)
-                h(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
-             end do
-          end do
-       end do
-    end do
-    !$omp end parallel do
-  end subroutine compute_h_cpu
 
   !> Restart the simulation from saved state
   !! @param this The fluid scheme object
