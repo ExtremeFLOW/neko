@@ -52,6 +52,17 @@ module metal_intf
        integer(c_size_t), value :: s
      end function metalAlloc
 
+     !> Map host memory to a Metal buffer of @a s bytes
+     !! (zero-copy on unified memory when the host allocation allows it)
+     integer(c_int) function metalMap(ptr_d, ptr_h, s) &
+          bind(c, name = 'metal_map')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: ptr_d
+       type(c_ptr), value :: ptr_h
+       integer(c_size_t), value :: s
+     end function metalMap
+
      !> Free a Metal buffer
      integer(c_int) function metalFree(ptr_d) &
           bind(c, name = 'metal_free')
