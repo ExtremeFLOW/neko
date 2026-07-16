@@ -96,7 +96,7 @@ contains
 
     ! Initialisation complete; persist the startup log and disable
     ! per-section flushing before entering the time loop
-    call neko_log%end_startup()
+    call neko_log%flush()
 
   end subroutine simulation_init
 

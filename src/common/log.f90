@@ -54,10 +54,6 @@ module logger
      integer, private :: tab_size_
      integer, private :: level_
      integer, private :: unit_
-     !> Flush the log at section boundaries (enabled during startup, disabled
-     !! once the time loop begins, such that a crash during initialisation
-     !! cannot swallow buffered log output)
-     logical, private :: section_flush_ = .true.
 
      character(len=LOG_SIZE), private :: section_header = ""
 
@@ -76,7 +72,6 @@ module logger
      procedure, pass(this) :: deprecated => log_deprecated
      procedure, pass(this) :: end_section => log_end_section
      procedure, pass(this) :: flush => log_flush
-     procedure, pass(this) :: end_startup => log_end_startup
 
      procedure, private, pass(this) :: print_section_header => &
           log_print_section_header
@@ -133,8 +128,6 @@ contains
        this%unit_ = stdout
     end if
 
-    this%section_flush_ = .true.
-
   end subroutine log_init
 
   !> Free a log
@@ -162,7 +155,6 @@ contains
     this%indent_ = 0
     this%level_ = NEKO_LOG_INFO
     this%unit_ = -1
-    this%section_flush_ = .true.
 
     if (allocated(deprecated_list)) then
        deallocate(deprecated_list)
@@ -184,17 +176,6 @@ contains
     end if
 
   end subroutine log_flush
-
-  !> Mark the end of the startup (initialisation) phase of a simulation
-  !! @details Flushes the log and disables the per-section flushing used
-  !! during startup, keeping the time loop free of any flushing overhead.
-  subroutine log_end_startup(this)
-    class(log_t), intent(inout) :: this
-
-    call this%flush()
-    this%section_flush_ = .false.
-
-  end subroutine log_end_startup
 
   !> Increase indention level
   subroutine log_begin(this)
