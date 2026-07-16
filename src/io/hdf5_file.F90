@@ -56,11 +56,6 @@ module hdf5_file
   implicit none
   private
 
-#ifdef HAVE_HDF5
-  !> True once the HDF5 library has been initialised by this module
-  logical :: hdf5_session_started = .false.
-#endif
-
   !> Interface for HDF5 files
   type, public, extends(generic_file_t) :: hdf5_file_t
 
@@ -143,22 +138,6 @@ contains
   ! General methods
   ! ===============
 
-  !> Initialise the HDF5 library once for the lifetime of the process
-  !!
-  !! The library is intentionally never closed again. With HDF5 >= 1.14.4,
-  !! h5close_f destroys the Fortran predefined datatype handles, and a
-  !! subsequent h5open_f refuses to recreate them while any HDF5 id is
-  !! still open (H5OPEN_NUM_OBJ guard), leaving every later write with
-  !! invalid datatype handles ("invalid datatype" / "not a datatype").
-  subroutine hdf5_session_start(ierr)
-    integer, intent(out) :: ierr
-    ierr = 0
-    if (.not. hdf5_session_started) then
-       call h5open_f(ierr)
-       hdf5_session_started = .true.
-    end if
-  end subroutine hdf5_session_start
-
   !> Write data in HDF5 format
   subroutine hdf5_file_write(this, data, t)
     class(hdf5_file_t), intent(inout) :: this
@@ -184,7 +163,7 @@ contains
     if (.not. this%overwrite) call this%increment_counter()
     fname = trim(this%get_fname())
 
-    call hdf5_session_start(ierr)
+    call h5open_f(ierr)
 
     call hdf5_file_determine_real(H5T_NEKO_REAL)
 
@@ -339,6 +318,7 @@ contains
 
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
+    call h5close_f(ierr)
 
   end subroutine hdf5_file_write
 
@@ -362,10 +342,9 @@ contains
 
     fname = trim(this%get_fname())
 
+    call h5open_f(ierr)
+
     call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
-
-    call hdf5_session_start(ierr)
-
     call hdf5_file_determine_real(H5T_NEKO_REAL)
 
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
@@ -491,6 +470,7 @@ contains
 
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
+    call h5close_f(ierr)
 
   end subroutine hdf5_file_read
 
@@ -714,9 +694,10 @@ contains
     counter = this%get_counter() - this%get_start_counter()
 
     ! Set the configuration for MPI IO
+    call h5open_f(ierr)
+
     mpi_info = MPI_INFO_NULL%mpi_val
-    mpi_comm = NEKO_COMM%mpi_val
-    call hdf5_session_start(ierr)
+    i_comm = NEKO_COMM%mpi_val
     call h5pcreate_f(H5P_FILE_ACCESS_F, this%plist_id, ierr)
     call h5pset_fapl_mpio_f(this%plist_id, mpi_comm, mpi_info, ierr)
 
@@ -754,6 +735,7 @@ contains
     this%plist_id = -1_hid_t
     call h5fclose_f(this%file_id, ierr)
     this%file_id = -1_hid_t
+    call h5close_f(ierr)
 
     call neko_log%message("Closed HDF5 file: " // trim(this%get_fname()), &
          lvl = NEKO_LOG_DEBUG)
