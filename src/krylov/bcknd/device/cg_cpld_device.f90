@@ -32,7 +32,7 @@
 !
 !> Defines a coupled  Conjugate Gradient methods for accelerators
 module cg_cpld_device
-  use num_types, only: rp
+  use num_types, only : rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -41,7 +41,8 @@ module cg_cpld_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : abscmp
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_rzero, device_copy, &
        device_add2s1, device_vdot3, device_glsc2
   use device_mathops, only : device_opadd2cm
@@ -49,6 +50,7 @@ module cg_cpld_device
   use operators, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  private
 
   !> Device based coupled preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_cpld_device_t
@@ -96,7 +98,8 @@ module cg_cpld_device
 contains
 
   !> Initialise a device based PCG solver
-  subroutine cg_cpld_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine cg_cpld_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
+       monitor)
     class(cg_cpld_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -350,7 +353,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if
