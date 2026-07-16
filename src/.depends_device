@@ -55,6 +55,7 @@ krylov/bcknd/device/hip/cheby_aux.lo : krylov/bcknd/device/hip/cheby_aux.hip
 comm/bcknd/device/cuda/nvshmem.lo : comm/bcknd/device/cuda/nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
 device/cuda/buffer.lo : device/cuda/buffer.cu device/cuda/buffer.h
+device/cuda/unified.lo : device/cuda/unified.cu device/cuda/unified.h
 device/cuda/nvtx_wrapper.lo : device/cuda/nvtx_wrapper.cu
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h device/cuda/buffer.lo
 math/bcknd/device/cuda/mathops.lo : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h

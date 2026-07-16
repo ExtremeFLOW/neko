@@ -245,6 +245,8 @@ $ ./configure  --with-cuda=/usr/local/cuda CUDA_CFLAGS=-O3  CUDA_ARCH=-arch=sm_8
   cluster's GPUs when cross-compiling.
 * Build using `make && make install`
 
+@note On cache-coherent CPU-GPU platforms (e.g. NVIDIA Grace Hopper), mapped arrays alias their host allocation zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. Mapped arrays are prefetched to device memory (HBM) and stay resident there, remaining accessible from the host over the coherent interconnect. Zero-copy mapping can be disabled at runtime by setting the environment variable `NEKO_CUDA_ZEROCOPY=0`, which restores fully replicated buffers. Conventional PCIe-attached GPUs always use replicated buffers.
+
 #### Compiling Neko for AMD GPUs
 To compile Neko for AMD GPUs
 * Make sure you have the ROCm Toolkit installed

@@ -110,6 +110,18 @@ module hip_intf
        type(c_ptr), value :: ptr_d
      end function hipMapFree
 
+     !> Memset on a device pointer obtained from hipMap
+     !! (host-side memset for pointers aliasing host memory)
+     integer(c_int) function hipMapMemset(ptr_d, v, s, stream) &
+          bind(c, name = 'hip_map_memset')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+       integer(c_int), value :: v
+       integer(c_size_t), value :: s
+       type(c_ptr), value :: stream
+     end function hipMapMemset
+
      integer(c_int) function hipMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name = 'hipMemcpy')
        use, intrinsic :: iso_c_binding

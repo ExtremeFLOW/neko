@@ -72,6 +72,39 @@ module cuda_intf
        type(c_ptr), value :: ptr_d
      end function cudaFree
 
+     !> Map host memory to the device (zero-copy on coherent
+     !! unified memory platforms, e.g. Grace Hopper,
+     !! see device/cuda/unified.cu)
+     integer(c_int) function cudaMap(ptr_d, ptr_h, s) &
+          bind(c, name = 'cuda_map')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: ptr_d
+       type(c_ptr), value :: ptr_h
+       integer(c_size_t), value :: s
+     end function cudaMap
+
+     !> Free a device pointer obtained from cudaMap
+     !! (no-op for pointers aliasing host memory)
+     integer(c_int) function cudaMapFree(ptr_d) &
+          bind(c, name = 'cuda_map_free')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+     end function cudaMapFree
+
+     !> Memset on a device pointer obtained from cudaMap
+     !! (host-side memset for pointers aliasing host memory)
+     integer(c_int) function cudaMapMemset(ptr_d, v, s, stream) &
+          bind(c, name = 'cuda_map_memset')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+       integer(c_int), value :: v
+       integer(c_size_t), value :: s
+       type(c_ptr), value :: stream
+     end function cudaMapMemset
+
      integer(c_int) function cudaMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name = 'cudaMemcpy')
        use, intrinsic :: iso_c_binding

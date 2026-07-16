@@ -1,5 +1,5 @@
-#ifndef __HIP_UNIFIED_H
-#define __HIP_UNIFIED_H
+#ifndef __CUDA_UNIFIED_H
+#define __CUDA_UNIFIED_H
 /*
  Copyright (c) 2026, The Neko Authors
  All rights reserved.
@@ -34,16 +34,16 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <hip/hip_runtime.h>
+#include <cuda_runtime.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int hip_zerocopy(void);
-hipError_t hip_map(void **ptr_d, void *ptr_h, size_t s);
-hipError_t hip_map_free(void *ptr_d);
-hipError_t hip_map_memset(void *ptr_d, int value, size_t s, void *stream);
+int cuda_zerocopy(void);
+cudaError_t cuda_map(void **ptr_d, void *ptr_h, size_t s);
+cudaError_t cuda_map_free(void *ptr_d);
+cudaError_t cuda_map_memset(void *ptr_d, int value, size_t s, void *stream);
 
 #ifdef __cplusplus
 }

@@ -243,7 +243,9 @@ contains
        call neko_error('Memory deallocation on device failed')
     end if
 #elif HAVE_CUDA
-    if (cudafree(x_d) .ne. cudaSuccess) then
+    ! Free via the mapping layer, which leaves zero-copy pointers
+    ! aliasing host memory untouched (unified memory architectures)
+    if (cudaMapFree(x_d) .ne. cudaSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
 #elif HAVE_OPENCL
@@ -281,11 +283,15 @@ contains
     end if
 
 #ifdef HAVE_HIP
-    if (hipMemsetAsync(x_d, v, s, stream) .ne. hipSuccess) then
+    ! Memset via the mapping layer, which handles zero-copy pointers
+    ! aliasing host memory (unified memory architectures)
+    if (hipMapMemset(x_d, v, s, stream) .ne. hipSuccess) then
        call neko_error('Device memset async failed')
     end if
 #elif HAVE_CUDA
-    if (cudaMemsetAsync(x_d, v, s, stream) .ne. cudaSuccess) then
+    ! Memset via the mapping layer, which handles zero-copy pointers
+    ! aliasing host memory (unified memory architectures)
+    if (cudaMapMemset(x_d, v, s, stream) .ne. cudaSuccess) then
        call neko_error('Device memset async failed')
     end if
 #elif HAVE_OPENCL
@@ -536,20 +542,29 @@ contains
        call device_sync_stream(stream)
     end if
 #elif HAVE_CUDA
+    ! Copies where the device pointer aliases the host pointer
+    ! (zero-copy mappings on unified memory) are skipped; a
+    ! requested sync still synchronizes the stream below
     if (dir .eq. HOST_TO_DEVICE) then
-       if (cudaMemcpyAsync(x_d, ptr_h, s, cudaMemcpyHostToDevice, stream) &
-            .ne. cudaSuccess) then
-          call neko_error('Device memcpy async (host-to-device) failed')
+       if (.not. c_associated(x_d, ptr_h)) then
+          if (cudaMemcpyAsync(x_d, ptr_h, s, cudaMemcpyHostToDevice, stream) &
+               .ne. cudaSuccess) then
+             call neko_error('Device memcpy async (host-to-device) failed')
+          end if
        end if
     else if (dir .eq. DEVICE_TO_HOST) then
-       if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToHost, stream) &
-            .ne. cudaSuccess) then
-          call neko_error('Device memcpy async (device-to-host) failed')
+       if (.not. c_associated(ptr_h, x_d)) then
+          if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToHost, stream) &
+               .ne. cudaSuccess) then
+             call neko_error('Device memcpy async (device-to-host) failed')
+          end if
        end if
     else if (dir .eq. DEVICE_TO_DEVICE) then
-       if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToDevice, stream) &
-            .ne. cudaSuccess) then
-          call neko_error('Device memcpy async (device-to-device) failed')
+       if (.not. c_associated(ptr_h, x_d)) then
+          if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToDevice, &
+               stream) .ne. cudaSuccess) then
+             call neko_error('Device memcpy async (device-to-device) failed')
+          end if
        end if
     else
        call neko_error('Device memcpy failed (invalid direction')
@@ -894,6 +909,16 @@ contains
     end if
 
     if (hipMap(x_d, ptr_h, s) .ne. hipSuccess) then
+       call neko_error('Memory map on device failed')
+    end if
+#elif HAVE_CUDA
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = C_NULL_PTR
+       return
+    end if
+
+    if (cudaMap(x_d, ptr_h, s) .ne. cudaSuccess) then
        call neko_error('Memory map on device failed')
     end if
 #else

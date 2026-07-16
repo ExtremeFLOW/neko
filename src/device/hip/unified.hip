@@ -44,6 +44,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <hip/hip_runtime.h>
 #include <device/hip/unified.h>
 
@@ -121,6 +122,24 @@ hipError_t hip_map(void **ptr_d, void *ptr_h, size_t s)
 }
 
 /**
+ * Whether \p ptr_d is a device allocation (hipMalloc); zero-copy
+ * mappings are unregistered host pointers.
+ */
+static int hip_is_device_alloc(void *ptr_d)
+{
+  hipPointerAttribute_t attr;
+  if (hipPointerGetAttributes(&attr, ptr_d) != hipSuccess) {
+    (void) hipGetLastError();
+    return 0;
+  }
+#if HIP_VERSION_MAJOR >= 6
+  return (attr.type == hipMemoryTypeDevice);
+#else
+  return (attr.memoryType == hipMemoryTypeDevice);
+#endif
+}
+
+/**
  * Free a device pointer obtained from hip_map (or hipMalloc).
  *
  * Pointers aliasing host memory are left untouched; their
@@ -128,23 +147,30 @@ hipError_t hip_map(void **ptr_d, void *ptr_h, size_t s)
  */
 hipError_t hip_map_free(void *ptr_d)
 {
-  if (hip_zerocopy()) {
-    hipPointerAttribute_t attr;
-    if (hipPointerGetAttributes(&attr, ptr_d) != hipSuccess) {
-      /* Unregistered host pointer, i.e. a zero-copy mapping */
-      (void) hipGetLastError();
-      return hipSuccess;
-    }
-#if HIP_VERSION_MAJOR >= 6
-    if (attr.type != hipMemoryTypeDevice)
-      return hipSuccess;
-#else
-    if (attr.memoryType != hipMemoryTypeDevice)
-      return hipSuccess;
-#endif
-  }
+  if (hip_zerocopy() && !hip_is_device_alloc(ptr_d))
+    return hipSuccess;
 
   return hipFree(ptr_d);
+}
+
+/**
+ * Memset on a device pointer obtained from hip_map (or hipMalloc).
+ *
+ * hipMemset only accepts device allocations, so pointers aliasing
+ * host memory are set on the host instead, ordered after any
+ * in-flight device work on \p stream.
+ */
+hipError_t hip_map_memset(void *ptr_d, int value, size_t s, void *stream)
+{
+  if (hip_zerocopy() && !hip_is_device_alloc(ptr_d)) {
+    hipError_t err = hipStreamSynchronize((hipStream_t) stream);
+    if (err != hipSuccess)
+      return err;
+    memset(ptr_d, value, s);
+    return hipSuccess;
+  }
+
+  return hipMemsetAsync(ptr_d, value, s, (hipStream_t) stream);
 }
 
 } /* extern "C" */
