@@ -65,6 +65,8 @@ module entropy_viscosity
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
        entropy_viscosity_smooth_divide_device
+  use compressible_ops_cpu, only : compressible_ops_cpu_compute_entropy
+  use compressible_ops_device, only : compressible_ops_device_compute_entropy
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   implicit none
   private
@@ -72,9 +74,12 @@ module entropy_viscosity
   type, public, extends(avm_t) :: entropy_viscosity_t
      real(kind=rp) :: c_avisc_entropy
      real(kind=rp) :: c_avisc_low
+     real(kind=rp) :: gamma
      type(field_t) :: entropy_residual
      type(field_series_t) :: S_lag
-     type(field_t), pointer :: S => null()
+     type(field_t) :: S
+     type(field_t), pointer :: p => null()
+     type(field_t), pointer :: rho => null()
      type(field_t), pointer :: u => null()
      type(field_t), pointer :: v => null()
      type(field_t), pointer :: w => null()
@@ -90,6 +95,8 @@ module entropy_viscosity
      procedure, pass(this) :: compute => entropy_viscosity_update_lag
      procedure, pass(this) :: compute_h => entropy_viscosity_compute_h
      procedure, pass(this) :: set_fields => entropy_viscosity_set_fields
+     procedure, pass(this) :: compute_entropy => &
+          entropy_viscosity_compute_entropy
      procedure, pass(this), private :: compute_residual => &
           entropy_viscosity_compute_residual
      procedure, pass(this), private :: compute_viscosity => &
@@ -123,9 +130,14 @@ contains
 
     select type (fluid => case%fluid)
     class is (fluid_scheme_compressible_t)
-       call this%set_fields(fluid%S, fluid%u, fluid%v, &
-            fluid%w, fluid%max_wave_speed, fluid%msh, fluid%Xh, fluid%gs_Xh)
+       call this%set_fields(fluid%p, fluid%rho, fluid%u, fluid%v, &
+            fluid%w, fluid%max_wave_speed, fluid%msh, fluid%Xh, fluid%gs_Xh, &
+            fluid%gamma)
     end select
+
+    call this%S%init(this%dof, 'entropy_viscosity_S')
+    call this%compute_entropy()
+    call this%S_lag%init(this%S, 3)
 
     call this%h%init(this%dof, 'h')
     call this%compute_h()
@@ -138,9 +150,11 @@ contains
     call this%free_base()
     call this%entropy_residual%free()
     call this%S_lag%free()
+    call this%S%free()
     call this%h%free()
 
-    nullify(this%S)
+    nullify(this%p)
+    nullify(this%rho)
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)
@@ -353,16 +367,17 @@ contains
 
   end subroutine entropy_viscosity_apply_element_max
 
-  subroutine entropy_viscosity_set_fields(this, S, u, v, w, max_wave_speed, &
-       msh, Xh, gs)
+  subroutine entropy_viscosity_set_fields(this, p, rho, u, v, w, &
+       max_wave_speed, msh, Xh, gs, gamma)
     class(entropy_viscosity_t), intent(inout) :: this
-    type(field_t), target, intent(inout) :: S
-    type(field_t), target, intent(in) :: u, v, w, max_wave_speed
+    type(field_t), target, intent(in) :: p, rho, u, v, w, max_wave_speed
     type(mesh_t), target, intent(in) :: msh
     type(space_t), target, intent(in) :: Xh
     type(gs_t), target, intent(in) :: gs
+    real(kind=rp), intent(in) :: gamma
 
-    this%S => S
+    this%p => p
+    this%rho => rho
     this%u => u
     this%v => v
     this%w => w
@@ -370,16 +385,33 @@ contains
     this%msh => msh
     this%Xh => Xh
     this%gs => gs
-
-    call this%S_lag%init(S, 3)
+    this%gamma = gamma
 
   end subroutine entropy_viscosity_set_fields
+
+  subroutine entropy_viscosity_compute_entropy(this)
+    class(entropy_viscosity_t), intent(inout) :: this
+    integer :: n
+
+    n = this%dof%size()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, &
+            this%gamma, n)
+    else
+       call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, &
+            this%rho%x, this%gamma, n)
+    end if
+
+  end subroutine entropy_viscosity_compute_entropy
 
   subroutine entropy_viscosity_update_lag(this, time)
     class(entropy_viscosity_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
+    call this%compute_entropy()
     call this%S_lag%update()
+
 
   end subroutine entropy_viscosity_update_lag
 

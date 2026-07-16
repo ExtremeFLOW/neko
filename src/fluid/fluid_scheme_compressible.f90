@@ -51,11 +51,9 @@ module fluid_scheme_compressible
   use operators, only : cfl_compressible
   use device, only : device_memcpy, HOST_TO_DEVICE
   use compressible_ops_cpu, only : &
-       compressible_ops_cpu_compute_max_wave_speed, &
-       compressible_ops_cpu_compute_entropy
+       compressible_ops_cpu_compute_max_wave_speed
   use compressible_ops_device, only : &
-       compressible_ops_device_compute_max_wave_speed, &
-       compressible_ops_device_compute_entropy
+       compressible_ops_device_compute_max_wave_speed
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE
@@ -74,7 +72,6 @@ module fluid_scheme_compressible
      type(field_t), pointer :: E => null() !< Total energy
      type(field_t), pointer :: temperature => null() !< Temperature field
      type(field_t), pointer :: max_wave_speed => null() !< Maximum wave speed field
-     type(field_t), pointer :: S => null() !< Entropy field
      type(field_t), pointer :: artificial_visc => null() !< Artificial viscosity field (without physical)
      type(field_t), pointer :: kappa => null() !< Thermal conductivity
 
@@ -102,9 +99,6 @@ module fluid_scheme_compressible
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
           fluid_scheme_compressible_update_material_properties
-     !> Compute entropy field
-     procedure, pass(this) :: compute_entropy => &
-          fluid_scheme_compressible_compute_entropy
      !> Compute maximum wave speed
      procedure, pass(this) :: compute_max_wave_speed => &
           fluid_scheme_compressible_compute_max_wave_speed
@@ -186,11 +180,6 @@ contains
     call neko_registry%add_field(this%dm_Xh, "max_wave_speed")
     this%max_wave_speed => neko_registry%get_field("max_wave_speed")
     call this%max_wave_speed%init(this%dm_Xh, "max_wave_speed")
-
-    ! Assign entropy field
-    call neko_registry%add_field(this%dm_Xh, "S")
-    this%S => neko_registry%get_field("S")
-    call this%S%init(this%dm_Xh, "S")
 
     ! Assign artificial viscosity field (without physical viscosity)
     call neko_registry%add_field(this%dm_Xh, "artificial_visc")
@@ -291,10 +280,6 @@ contains
        call this%max_wave_speed%free()
     end if
 
-    if (associated(this%S)) then
-       call this%S%free()
-    end if
-
     if (associated(this%f_x)) then
        call this%f_x%free()
        deallocate(this%f_x)
@@ -320,7 +305,6 @@ contains
     nullify(this%E)
     nullify(this%temperature)
     nullify(this%max_wave_speed)
-    nullify(this%S)
 
     nullify(this%u)
     nullify(this%v)
@@ -457,25 +441,6 @@ contains
          time)
 
   end subroutine fluid_scheme_compressible_update_material_properties
-
-  !> Compute entropy field S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
-  !> @param this The compressible fluid scheme object
-  subroutine fluid_scheme_compressible_compute_entropy(this)
-    class(fluid_scheme_compressible_t), intent(inout) :: this
-    integer :: n
-
-    n = this%S%dof%size()
-
-    !> TODO: Add support for SX
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, &
-            this%gamma, n)
-    else
-       call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, &
-            this%rho%x, this%gamma, n)
-    end if
-
-  end subroutine fluid_scheme_compressible_compute_entropy
 
   !> Compute maximum wave speed for compressible flows
   !> @param this The compressible fluid scheme object
