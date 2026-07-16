@@ -111,7 +111,7 @@ contains
     !> Get the number of stat fields and their names
     call json%info('fields', n_children = this%n_avg_fields)
     call json_get(json, 'fields', this%field_names)
-    call json_get_or_lookup_default(json, 'start_time', this%start_time, 0.0_rp)
+    call json_get_or_lookup_or_default(json, 'start_time', this%start_time, 0.0_rp)
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
 
     if (json%valid_path('output_filename')) then
