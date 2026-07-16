@@ -36,6 +36,7 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include <device/hip/buffer.h>
+#include <device/hip/unified.h>
 #include "math_kernel.h"
 
 extern "C" {
@@ -213,6 +214,18 @@ extern "C" {
    * Zero a real vector
    */
   void hip_rzero(void *a, int *n, hipStream_t strm) {
+    if (hip_zerocopy()) {
+      /* a may alias pageable host memory, which hipMemset rejects;
+         zero with a kernel instead (works on any pointer) */
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
+                         nblcks, nthrds, 0, strm,
+                         (real *) a, (real) 0.0, *n);
+      HIP_CHECK(hipGetLastError());
+      return;
+    }
     HIP_CHECK(hipMemsetAsync(a, 0, (*n) * sizeof(real), strm));
   }
 

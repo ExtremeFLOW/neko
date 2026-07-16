@@ -35,6 +35,7 @@
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 #include <device/cuda/buffer.h>
+#include <device/cuda/unified.h>
 
 #include "projection_kernel.h"
 #include <math/bcknd/device/cuda/math_kernel.h>
@@ -78,7 +79,19 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
                                cudaMemcpyDeviceToDevice, stream));
-    CUDA_CHECK(cudaMemsetAsync(xbar, 0, (*n) * sizeof(real), stream));
+    if (cuda_zerocopy()) {
+      /* xbar may alias pageable host memory, which cudaMemset rejects;
+         zero with a kernel instead (works on any pointer) */
+      const dim3 zero_nthrds(1024, 1, 1);
+      const dim3 zero_nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+      cfill_kernel<real><<<zero_nblcks, zero_nthrds, 0, stream>>>
+        ((real *) xbar, (real) 0.0, *n);
+      CUDA_CHECK(cudaGetLastError());
+    }
+    else {
+      CUDA_CHECK(cudaMemsetAsync(xbar, 0, (*n) * sizeof(real), stream));
+    }
 
     cudaStreamSynchronize(stream);
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);

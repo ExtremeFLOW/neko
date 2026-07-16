@@ -36,6 +36,7 @@
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 #include <device/cuda/buffer.h>
+#include <device/cuda/unified.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -203,6 +204,17 @@ extern "C" {
    * Zero a real vector
    */
   void cuda_rzero(void *a, int *n, cudaStream_t strm) {
+    if (cuda_zerocopy()) {
+      /* a may alias pageable host memory, which cudaMemset rejects;
+         zero with a kernel instead (works on any pointer) */
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+      cfill_kernel<real><<<nblcks, nthrds, 0, strm>>>((real *) a,
+                                                      (real) 0.0, *n);
+      CUDA_CHECK(cudaGetLastError());
+      return;
+    }
     CUDA_CHECK(cudaMemsetAsync(a, 0, (*n) * sizeof(real), strm));
   }
 
