@@ -36,7 +36,10 @@ module gs_device_shmem
   use gs_comm, only : gs_comm_t, GS_VEC_NC
   use stack, only : stack_i4_t
   use htable, only : htable_i4_t
-  use device
+  use device, only : device_alloc, device_memcpy, HOST_TO_DEVICE, device_free, &
+       device_stream_create_with_priority, STRM_HIGH_PRIO, &
+       device_event_create, device_stream_destroy, device_event_destroy, &
+       device_get_ptr, device_stream_wait_event, device_event_record
   use comm, only : pe_size, pe_rank, NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_Alltoall, MPI_INTEGER, MPI_MAX
   use utils, only : neko_error

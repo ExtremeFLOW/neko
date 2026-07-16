@@ -67,14 +67,15 @@ module hsmg
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use bc, only: bc_t
+  use bc, only : bc_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_copy, device_col2, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
   use space, only : space_t, GLL
