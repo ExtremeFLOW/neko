@@ -47,6 +47,8 @@
 #include <hip/hip_runtime.h>
 #include <device/hip/unified.h>
 
+extern "C" {
+
 /**
  * Whether mapped arrays may alias host allocations (zero-copy).
  *
@@ -144,3 +146,5 @@ hipError_t hip_map_free(void *ptr_d)
 
   return hipFree(ptr_d);
 }
+
+} /* extern "C" */

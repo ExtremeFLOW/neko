@@ -36,8 +36,16 @@
 
 #include <hip/hip_runtime.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int hip_zerocopy(void);
 hipError_t hip_map(void **ptr_d, void *ptr_h, size_t s);
 hipError_t hip_map_free(void *ptr_d);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
