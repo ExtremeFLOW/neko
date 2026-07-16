@@ -295,7 +295,7 @@ contains
 
 #ifdef HAVE_HDF5
     call h5close_f(ierr)
-    if (ierr .ne. 0) call neko_error('Failed to initialize HDF5')
+    if (ierr .ne. 0) call neko_error('Failed to close HDF5')
 #endif
 
     call neko_mpi_types_free
