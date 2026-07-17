@@ -47,7 +47,8 @@ module coefs
        device_coef_generate_dxydrst, device_coef_generate_mass, &
        device_coef_generate_area_and_normal
   use mxm_wrapper, only : mxm
-  use device
+  use device, only : device_map, device_memcpy, DEVICE_TO_HOST, &
+       HOST_TO_DEVICE, device_unmap
   use utils, only : index_is_on_facet, linear_index, &
        neko_error
   use comm, only : NEKO_COMM
@@ -1065,14 +1066,14 @@ contains
           end do
 
           ! match is found; mapping(e) is redundant
-          if ( diff <= ctol ) then
+          if ( diff .le. ctol ) then
              c%compression_inds(e) = m
              exit
           end if
        end do
 
        ! never found a match
-       if ( diff > ctol ) then
+       if ( diff .gt. ctol ) then
           m_max = m_max + 1
           c%compression_inds(e) = m_max
           c_inds_rev(m_max) = e

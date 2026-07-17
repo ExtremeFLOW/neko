@@ -12,6 +12,17 @@
     "numberOrRef": {
       "oneOf": [
         {
+          "type": "number",
+          "x-neko-real": true
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "numericOrRef": {
+      "oneOf": [
+        {
           "type": "number"
         },
         {
@@ -32,14 +43,16 @@
     "numberArray": {
       "type": "array",
       "items": {
-        "type": "number"
+        "type": "number",
+        "x-neko-real": true
       },
       "minItems": 1
     },
     "integerArray": {
       "type": "array",
       "items": {
-        "type": "integer"
+        "type": "integer",
+        "minimum": 1
       },
       "minItems": 1
     },
@@ -56,7 +69,8 @@
     "vector3": {
       "type": "array",
       "items": {
-        "type": "number"
+        "type": "number",
+        "x-neko-real": true
       },
       "minItems": 3,
       "maxItems": 3
@@ -123,33 +137,178 @@
           "$ref": "#/$defs/nonEmptyString"
         },
         "order": {
-          "$ref": "#/$defs/integerOrRef"
+          "type": "integer"
         },
         "preprocess_control": {
           "$ref": "#/$defs/simcompComputeControl"
         },
         "preprocess_value": {
-          "$ref": "#/$defs/numberOrRef"
+          "$ref": "#/$defs/numericOrRef"
         },
         "compute_control": {
           "$ref": "#/$defs/simcompComputeControl"
         },
         "compute_value": {
-          "$ref": "#/$defs/numberOrRef"
+          "$ref": "#/$defs/numericOrRef"
         },
         "output_control": {
           "$ref": "#/$defs/simcompOutputControl"
         },
         "output_value": {
-          "$ref": "#/$defs/numberOrRef"
+          "$ref": "#/$defs/numericOrRef"
         },
         "comment": {
           "$ref": "#/$defs/nonEmptyString"
         },
         "is_user": {
-          "type": "boolean"
+          "const": false
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "preprocess_control": {
+                "enum": ["tsteps", "nsamples"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "preprocess_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "compute_control": {
+                "enum": ["tsteps", "nsamples"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "compute_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "preprocess_control": {
+                "const": "simulationtime"
+              }
+            },
+            "required": ["preprocess_control"]
+          },
+          "then": {
+            "properties": {
+              "preprocess_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "compute_control": {
+                "const": "simulationtime"
+              }
+            },
+            "required": ["compute_control"]
+          },
+          "then": {
+            "properties": {
+              "compute_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "output_control": {
+                "enum": ["tsteps", "nsamples"]
+              }
+            },
+            "required": ["output_control"]
+          },
+          "then": {
+            "properties": {
+              "output_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "output_control": {
+                "const": "simulationtime"
+              }
+            },
+            "required": ["output_control"]
+          },
+          "then": {
+            "properties": {
+              "output_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "allOf": [
+              {"not": {"required": ["output_control"]}},
+              {
+                "properties": {
+                  "compute_control": {
+                    "enum": ["tsteps", "nsamples"]
+                  }
+                }
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "output_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "allOf": [
+              {"not": {"required": ["output_control"]}},
+              {
+                "properties": {
+                  "compute_control": {
+                    "const": "simulationtime"
+                  }
+                },
+                "required": ["compute_control"]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "output_value": {
+                "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+              }
+            }
+          }
+        }
+      ],
       "additionalProperties": true
     },
     "simcompFields": {
@@ -184,6 +343,7 @@
           "type": "string",
           "enum": [
             "nek5000",
+            "fld",
             "vtkhdf",
             "adios2"
           ]
@@ -198,54 +358,59 @@
       "additionalProperties": true
     },
     "simcompProbesPoint": {
-      "type": "object",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "file",
-            "points",
-            "line",
-            "plane",
-            "circle",
-            "point_zone"
-          ]
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "file_name"],
+          "properties": {
+            "type": {"const": "file"},
+            "file_name": {"$ref": "#/$defs/nonEmptyString"}
+          },
+          "additionalProperties": false
         },
-        "file_name": {
-          "$ref": "#/$defs/nonEmptyString"
+        {
+          "type": "object",
+          "required": ["type", "coordinates"],
+          "properties": {
+            "type": {"const": "points"},
+            "coordinates": {"$ref": "#/$defs/numberArray"}
+          },
+          "additionalProperties": false
         },
-        "coordinates": {
-          "$ref": "#/$defs/numberArray"
+        {
+          "type": "object",
+          "required": ["type", "start", "end", "amount"],
+          "properties": {
+            "type": {"const": "line"},
+            "start": {"$ref": "#/$defs/vector3OrRef"},
+            "end": {"$ref": "#/$defs/vector3OrRef"},
+            "amount": {"$ref": "#/$defs/integerOrRef"}
+          },
+          "additionalProperties": false
         },
-        "start": {
-          "$ref": "#/$defs/vector3"
+        {
+          "type": "object",
+          "required": ["type", "center", "normal", "radius", "amount", "axis"],
+          "properties": {
+            "type": {"const": "circle"},
+            "center": {"$ref": "#/$defs/vector3OrRef"},
+            "normal": {"$ref": "#/$defs/vector3OrRef"},
+            "radius": {"$ref": "#/$defs/numberOrRef"},
+            "amount": {"$ref": "#/$defs/integerOrRef"},
+            "axis": {"$ref": "#/$defs/nonEmptyString"}
+          },
+          "additionalProperties": false
         },
-        "end": {
-          "$ref": "#/$defs/vector3"
-        },
-        "amount": {
-          "$ref": "#/$defs/integerOrRef"
-        },
-        "center": {
-          "$ref": "#/$defs/vector3"
-        },
-        "radius": {
-          "$ref": "#/$defs/numberOrRef"
-        },
-        "normal": {
-          "$ref": "#/$defs/vector3"
-        },
-        "axis": {
-          "$ref": "#/$defs/nonEmptyString"
-        },
-        "name": {
-          "$ref": "#/$defs/nonEmptyString"
+        {
+          "type": "object",
+          "required": ["type", "name"],
+          "properties": {
+            "type": {"const": "point_zone"},
+            "name": {"$ref": "#/$defs/nonEmptyString"}
+          },
+          "additionalProperties": false
         }
-      },
-      "additionalProperties": true
+      ]
     },
     "simcompAlphat": {
       "type": "object",
@@ -341,55 +506,23 @@
       "additionalProperties": true
     },
     "lesModelTestFilter": {
-      "oneOf": [
-        {
-          "type": "object",
-          "properties": {
-            "type": {
-              "const": "elementwise"
-            },
-            "elementwise_filter_type": {
-              "type": "string",
-              "enum": [
-                "Boyd",
-                "nonBoyd"
-              ]
-            },
-            "transfer_function": {
-              "$ref": "#/$defs/numberArray"
-            }
-          },
-          "additionalProperties": true
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "elementwise"
         },
-        {
-          "type": "object",
-          "required": [
-            "filter"
-          ],
-          "properties": {
-            "filter": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "const": "elementwise"
-                },
-                "elementwise_filter_type": {
-                  "type": "string",
-                  "enum": [
-                    "Boyd",
-                    "nonBoyd"
-                  ]
-                },
-                "transfer_function": {
-                  "$ref": "#/$defs/numberArray"
-                }
-              },
-              "additionalProperties": true
-            }
-          },
-          "additionalProperties": true
+        "elementwise_filter_type": {
+          "type": "string",
+          "enum": [
+            "Boyd",
+            "nonBoyd"
+          ]
+        },
+        "transfer_function": {
+          "$ref": "#/$defs/numberArray"
         }
-      ]
+      },
+      "additionalProperties": false
     },
     "simulationComponent": {
       "oneOf": [
@@ -446,6 +579,9 @@
         },
         {
           "$ref": "urn:neko:schema:simcomps:force_torque#/$defs/simulationComponent"
+        },
+        {
+          "$ref": "urn:neko:schema:simcomps:spatial_average#/$defs/simulationComponent"
         },
         {
           "$ref": "urn:neko:schema:simcomps:les_model#/$defs/simulationComponent"

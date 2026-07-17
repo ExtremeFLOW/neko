@@ -12,7 +12,8 @@
     "numberOrRef": {
       "oneOf": [
         {
-          "type": "number"
+          "type": "number",
+          "x-neko-real": true
         },
         {
           "$ref": "#/$defs/constRef"
@@ -23,6 +24,7 @@
       "oneOf": [
         {
           "type": "number",
+          "x-neko-real": true,
           "exclusiveMinimum": 0
         },
         {
@@ -34,6 +36,7 @@
       "oneOf": [
         {
           "type": "number",
+          "x-neko-real": true,
           "minimum": 0
         },
         {
@@ -45,6 +48,16 @@
       "oneOf": [
         {
           "type": "integer"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
+    },
+    "numericOrRef": {
+      "oneOf": [
+        {
+          "type": "number"
         },
         {
           "$ref": "#/$defs/constRef"
@@ -77,6 +90,7 @@
       "oneOf": [
         {
           "type": "number",
+          "x-neko-real": true,
           "exclusiveMinimum": 0,
           "exclusiveMaximum": 1
         },
@@ -89,6 +103,7 @@
       "oneOf": [
         {
           "type": "number",
+          "x-neko-real": true,
           "exclusiveMinimum": 1
         },
         {
@@ -99,14 +114,16 @@
     "numberArray": {
       "type": "array",
       "items": {
-        "type": "number"
+        "type": "number",
+        "x-neko-real": true
       },
       "minItems": 1
     },
     "integerArray": {
       "type": "array",
       "items": {
-        "type": "integer"
+        "type": "integer",
+        "minimum": 1
       },
       "minItems": 1
     },
@@ -133,10 +150,30 @@
     "vector3": {
       "type": "array",
       "items": {
-        "type": "number"
+        "type": "number",
+        "x-neko-real": true
       },
       "minItems": 3,
       "maxItems": 3
+    },
+    "vector2": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "x-neko-real": true
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "vector2OrRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/vector2"
+        },
+        {
+          "$ref": "#/$defs/constRef"
+        }
+      ]
     },
     "vector3OrRef": {
       "oneOf": [
@@ -316,7 +353,9 @@
     "linearSolver": {
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "preconditioner",
+        "absolute_tolerance"
       ],
       "properties": {
         "type": {
@@ -331,6 +370,9 @@
         "projection_reorthogonalize_basis": {
           "type": "boolean"
         },
+        "projection_hold_steps": {
+          "$ref": "#/$defs/nonNegativeIntegerOrRef"
+        },
         "absolute_tolerance": {
           "$ref": "#/$defs/numberOrRef"
         },
@@ -338,7 +380,7 @@
           "$ref": "#/$defs/numberOrRef"
         },
         "max_iterations": {
-          "$ref": "#/$defs/integerOrRef"
+          "$ref": "#/$defs/positiveIntegerOrRef"
         },
         "monitor": {
           "type": "boolean"

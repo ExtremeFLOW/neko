@@ -71,7 +71,7 @@
                 }
             ],
             "output_control": "nsamples",
-            "output_value": 400.0
+            "output_value": 400
         }
     }
 }

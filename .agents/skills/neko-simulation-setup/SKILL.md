@@ -29,6 +29,9 @@ needed to run a case.
 
 - Use `doc/pages/user-guide/case-file.md` as the definitive reference for case
   file contents, and acknowledge that you got access to this file.
+- The `doc/schema` folder contains JSON schema files that define the structure 
+  of case files. Use these to validate generated case files. You can use the 
+  `contrib/validate_case_schema.py` script to that end.
 - Name generated case files after the case folder, using `.json` unless the user
   specifically asks for `.case`.
 - Pretty-format generated JSON.
