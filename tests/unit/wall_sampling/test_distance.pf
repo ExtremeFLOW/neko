@@ -1,7 +1,7 @@
 !> Unit tests for wall-normal sampling through global interpolation.
 module test_distance
   use pfunit
-  use num_types, only : rp
+  use num_types, only : dp, rp
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
@@ -63,14 +63,14 @@ contains
     type(linear_dist_t) :: dist
 
     ! The coordinate field is linear, so interpolation has exact expectations.
-    call p(1)%init(1.0_rp, 1.0_rp, 1.0_rp)
-    call p(2)%init(2.0_rp, 1.0_rp, 1.0_rp)
-    call p(3)%init(1.0_rp, 2.0_rp, 1.0_rp)
-    call p(4)%init(2.0_rp, 2.0_rp, 1.0_rp)
-    call p(5)%init(1.0_rp, 1.0_rp, 2.0_rp)
-    call p(6)%init(2.0_rp, 1.0_rp, 2.0_rp)
-    call p(7)%init(1.0_rp, 2.0_rp, 2.0_rp)
-    call p(8)%init(2.0_rp, 2.0_rp, 2.0_rp)
+    call p(1)%init(1.0_dp, 1.0_dp, 1.0_dp)
+    call p(2)%init(2.0_dp, 1.0_dp, 1.0_dp)
+    call p(3)%init(1.0_dp, 2.0_dp, 1.0_dp)
+    call p(4)%init(2.0_dp, 2.0_dp, 1.0_dp)
+    call p(5)%init(1.0_dp, 1.0_dp, 2.0_dp)
+    call p(6)%init(2.0_dp, 1.0_dp, 2.0_dp)
+    call p(7)%init(1.0_dp, 2.0_dp, 2.0_dp)
+    call p(8)%init(2.0_dp, 2.0_dp, 2.0_dp)
     call p(1)%set_id(1)
     call p(2)%set_id(2)
     call p(3)%set_id(4)
