@@ -151,6 +151,7 @@ module neko
        register_source_term, source_term_factory, source_term_allocator
   use user_access_singleton, only : neko_user_access
   use ale_manager, only : neko_ale
+  use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
   use, intrinsic :: iso_fortran_env
   use mpi_f08
   !$ use omp_lib
@@ -175,6 +176,7 @@ contains
     call neko_mpi_types_init
     call jobctrl_init
     call device_init
+    call hdf5_session_init
 
     call neko_log%init()
     call neko_registry%init()
@@ -284,6 +286,8 @@ contains
     call neko_registry%free()
     call neko_user_access%free()
     call neko_log%free()
+
+    call hdf5_session_finalize
 
     call neko_mpi_types_free
     call comm_free
