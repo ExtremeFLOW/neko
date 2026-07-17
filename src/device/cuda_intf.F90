@@ -93,8 +93,20 @@ module cuda_intf
        type(c_ptr), value :: ptr_d
      end function cudaMapFree
 
+     !> Copy between device/host pointers via the mapping layer
+     !! (kernel-based copy under zero-copy, where either side may
+     !! alias pageable host memory)
+     integer(c_int) function cudaMapMemcpy(ptr_dst, ptr_src, s, dir, stream) &
+          bind(c, name = 'cuda_map_memcpy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
+       integer(c_size_t), value :: s
+       integer(c_int), value :: dir
+     end function cudaMapMemcpy
+
      !> Memset on a device pointer obtained from cudaMap
-     !! (host-side memset for pointers aliasing host memory)
+     !! (kernel-based memset for pointers aliasing host memory)
      integer(c_int) function cudaMapMemset(ptr_d, v, s, stream) &
           bind(c, name = 'cuda_map_memset')
        use, intrinsic :: iso_c_binding
@@ -104,6 +116,17 @@ module cuda_intf
        integer(c_size_t), value :: s
        type(c_ptr), value :: stream
      end function cudaMapMemset
+
+     !> Prefetch a zero-copy mapping to device memory (stands in for
+     !! the host-to-device copy of an aliased mapping)
+     integer(c_int) function cudaMapPrefetch(ptr_d, s, stream) &
+          bind(c, name = 'cuda_map_prefetch')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+       integer(c_size_t), value :: s
+       type(c_ptr), value :: stream
+     end function cudaMapPrefetch
 
      integer(c_int) function cudaMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name = 'cudaMemcpy')

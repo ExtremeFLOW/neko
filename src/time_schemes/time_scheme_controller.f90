@@ -38,7 +38,8 @@ module time_scheme_controller
   use bdf_time_scheme, only : bdf_time_scheme_t
   use ext_time_scheme, only : ext_time_scheme_t
   use ab_time_scheme, only : ab_time_scheme_t
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_free, device_map, device_memcpy, device_sync, &
+       HOST_TO_DEVICE
   use vector, only : vector_t
   use, intrinsic :: iso_c_binding
   implicit none
@@ -161,6 +162,13 @@ contains
       ndiff = min(ndiff, this%diffusion_time_order)
       nadv = nadv + 1
       nadv = min(nadv, this%advection_time_order)
+
+      ! On unified memory backends the coefficient arrays may alias
+      ! their device pointers; drain in-flight device work reading
+      ! them before rewriting on the host
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_sync()
+      end if
 
       call this%bdf%compute_coeffs(diff_coeffs%x, dt, ndiff)
 

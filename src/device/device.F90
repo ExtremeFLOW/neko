@@ -75,6 +75,11 @@ module device
   end interface device_memcpy
 
   !> Map a Fortran array to a device (allocate and associate)
+  !! @note On unified memory backends the device pointer may alias the
+  !! host array (zero-copy) and host-device copies of the pair become
+  !! no-ops. The host side must then not be written while device work
+  !! touching the array may be in flight; call device_sync before
+  !! host-side writes to a mapped array.
   interface device_map
      module procedure device_map_r1, device_map_r2, &
           device_map_r3, device_map_r4
@@ -513,24 +518,26 @@ contains
 #ifdef HAVE_HIP
     ! Copies where the device pointer aliases the host pointer
     ! (zero-copy mappings on unified memory) are skipped; a
-    ! requested sync still synchronizes the stream below
+    ! requested sync still synchronizes the stream below. Other
+    ! copies go via the mapping layer, which handles zero-copy
+    ! pointers aliasing pageable host memory
     if (dir .eq. HOST_TO_DEVICE) then
        if (.not. c_associated(x_d, ptr_h)) then
-          if (hipMemcpyAsync(x_d, ptr_h, s, &
+          if (hipMapMemcpy(x_d, ptr_h, s, &
                hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
              call neko_error('Device memcpy async (host-to-device) failed')
           end if
        end if
     else if (dir .eq. DEVICE_TO_HOST) then
        if (.not. c_associated(ptr_h, x_d)) then
-          if (hipMemcpyAsync(ptr_h, x_d, s, &
+          if (hipMapMemcpy(ptr_h, x_d, s, &
                hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
              call neko_error('Device memcpy async (device-to-host) failed')
           end if
        end if
     else if (dir .eq. DEVICE_TO_DEVICE) then
        if (.not. c_associated(ptr_h, x_d)) then
-          if (hipMemcpyAsync(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
+          if (hipMapMemcpy(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
                .ne. hipSuccess) then
              call neko_error('Device memcpy async (device-to-device) failed')
           end if
@@ -544,24 +551,32 @@ contains
 #elif HAVE_CUDA
     ! Copies where the device pointer aliases the host pointer
     ! (zero-copy mappings on unified memory) are skipped; a
-    ! requested sync still synchronizes the stream below
+    ! requested sync still synchronizes the stream below. Other
+    ! copies go via the mapping layer, which handles zero-copy
+    ! pointers aliasing pageable host memory
     if (dir .eq. HOST_TO_DEVICE) then
        if (.not. c_associated(x_d, ptr_h)) then
-          if (cudaMemcpyAsync(x_d, ptr_h, s, cudaMemcpyHostToDevice, stream) &
+          if (cudaMapMemcpy(x_d, ptr_h, s, cudaMemcpyHostToDevice, stream) &
                .ne. cudaSuccess) then
              call neko_error('Device memcpy async (host-to-device) failed')
+          end if
+       else
+          ! Migrate host-resident pages to device memory in place of
+          ! the copy (placement only, no-op on a single physical memory)
+          if (cudaMapPrefetch(x_d, s, stream) .ne. cudaSuccess) then
+             call neko_error('Device prefetch (host-to-device) failed')
           end if
        end if
     else if (dir .eq. DEVICE_TO_HOST) then
        if (.not. c_associated(ptr_h, x_d)) then
-          if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToHost, stream) &
+          if (cudaMapMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToHost, stream) &
                .ne. cudaSuccess) then
              call neko_error('Device memcpy async (device-to-host) failed')
           end if
        end if
     else if (dir .eq. DEVICE_TO_DEVICE) then
        if (.not. c_associated(ptr_h, x_d)) then
-          if (cudaMemcpyAsync(ptr_h, x_d, s, cudaMemcpyDeviceToDevice, &
+          if (cudaMapMemcpy(ptr_h, x_d, s, cudaMemcpyDeviceToDevice, &
                stream) .ne. cudaSuccess) then
              call neko_error('Device memcpy async (device-to-device) failed')
           end if

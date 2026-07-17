@@ -44,6 +44,9 @@ int cuda_zerocopy(void);
 cudaError_t cuda_map(void **ptr_d, void *ptr_h, size_t s);
 cudaError_t cuda_map_free(void *ptr_d);
 cudaError_t cuda_map_memset(void *ptr_d, int value, size_t s, void *stream);
+cudaError_t cuda_map_prefetch(void *ptr_d, size_t s, void *stream);
+cudaError_t cuda_map_memcpy(void *dst, void *src, size_t s, int kind,
+                            void *stream);
 
 #ifdef __cplusplus
 }

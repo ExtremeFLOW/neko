@@ -59,11 +59,22 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void cuda_copy(void *a, void *b, int *n, cudaStream_t strm) {
-    /* Under zero-copy the pointers may alias pageable host memory;
-       let the runtime infer the direction from the actual pointers */
-    const enum cudaMemcpyKind kind = cuda_zerocopy() ?
-      cudaMemcpyDefault : cudaMemcpyDeviceToDevice;
-    CUDA_CHECK(cudaMemcpyAsync(a, b, (*n) * sizeof(real), kind, strm));
+    if (cuda_zerocopy()) {
+      if (*n == 0) return;
+      /* The pointers may alias pageable host memory, which cudaMemcpy
+         treats as a staged pageable copy (slow, serializing); copy
+         with a kernel instead, which runs at full memory bandwidth
+         on any pointer */
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+      copy_kernel<real><<<nblcks, nthrds, 0, strm>>>((real *) a,
+                                                     (const real *) b, *n);
+      CUDA_CHECK(cudaGetLastError());
+      return;
+    }
+    CUDA_CHECK(cudaMemcpyAsync(a, b, (*n) * sizeof(real),
+                               cudaMemcpyDeviceToDevice, strm));
   }
 
   /** Fortran wrapper for masked copy
@@ -208,6 +219,7 @@ extern "C" {
    */
   void cuda_rzero(void *a, int *n, cudaStream_t strm) {
     if (cuda_zerocopy()) {
+      if (*n == 0) return;
       /* a may alias pageable host memory, which cudaMemset rejects;
          zero with a kernel instead (works on any pointer) */
       const dim3 nthrds(1024, 1, 1);

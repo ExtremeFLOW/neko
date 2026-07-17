@@ -44,6 +44,8 @@ int hip_zerocopy(void);
 hipError_t hip_map(void **ptr_d, void *ptr_h, size_t s);
 hipError_t hip_map_free(void *ptr_d);
 hipError_t hip_map_memset(void *ptr_d, int value, size_t s, void *stream);
+hipError_t hip_map_memcpy(void *dst, void *src, size_t s, int kind,
+                          void *stream);
 
 #ifdef __cplusplus
 }

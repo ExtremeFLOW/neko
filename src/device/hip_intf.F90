@@ -110,8 +110,20 @@ module hip_intf
        type(c_ptr), value :: ptr_d
      end function hipMapFree
 
+     !> Copy between device/host pointers via the mapping layer
+     !! (kernel-based copy under zero-copy, where either side may
+     !! alias pageable host memory)
+     integer(c_int) function hipMapMemcpy(ptr_dst, ptr_src, s, dir, stream) &
+          bind(c, name = 'hip_map_memcpy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
+       integer(c_size_t), value :: s
+       integer(c_int), value :: dir
+     end function hipMapMemcpy
+
      !> Memset on a device pointer obtained from hipMap
-     !! (host-side memset for pointers aliasing host memory)
+     !! (kernel-based memset for pointers aliasing host memory)
      integer(c_int) function hipMapMemset(ptr_d, v, s, stream) &
           bind(c, name = 'hip_map_memset')
        use, intrinsic :: iso_c_binding

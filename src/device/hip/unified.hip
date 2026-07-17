@@ -45,8 +45,45 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <hip/hip_runtime.h>
 #include <device/hip/unified.h>
+
+/**
+ * Grid-stride byte memset kernel for zero-copy mappings.
+ */
+__global__ void hip_unified_memset_kernel(unsigned char *a,
+                                          unsigned char v, size_t n)
+{
+  const size_t idx = blockIdx.x * (size_t) blockDim.x + threadIdx.x;
+  const size_t str = (size_t) blockDim.x * gridDim.x;
+  for (size_t i = idx; i < n; i += str)
+    a[i] = v;
+}
+
+/**
+ * Grid-stride copy kernels for zero-copy mappings (word and byte
+ * variants).
+ */
+__global__ void hip_unified_copy8_kernel(unsigned long long * __restrict__ a,
+                                         const unsigned long long
+                                         * __restrict__ b, size_t n)
+{
+  const size_t idx = blockIdx.x * (size_t) blockDim.x + threadIdx.x;
+  const size_t str = (size_t) blockDim.x * gridDim.x;
+  for (size_t i = idx; i < n; i += str)
+    a[i] = b[i];
+}
+
+__global__ void hip_unified_copy1_kernel(unsigned char * __restrict__ a,
+                                         const unsigned char * __restrict__ b,
+                                         size_t n)
+{
+  const size_t idx = blockIdx.x * (size_t) blockDim.x + threadIdx.x;
+  const size_t str = (size_t) blockDim.x * gridDim.x;
+  for (size_t i = idx; i < n; i += str)
+    a[i] = b[i];
+}
 
 extern "C" {
 
@@ -74,6 +111,8 @@ extern "C" {
 int hip_zerocopy(void)
 {
   static int zerocopy = -1;
+  /* Cached on first use; device selection must already have
+     happened (device_init runs before any map/memset/copy) */
   if (zerocopy < 0) {
     int dev = 0, integrated = 0, pageable = 0;
     const char *env = getenv("NEKO_HIP_ZEROCOPY");
@@ -142,32 +181,80 @@ static int hip_is_device_alloc(void *ptr_d)
 /**
  * Free a device pointer obtained from hip_map (or hipMalloc).
  *
- * Pointers aliasing host memory are left untouched; their
- * allocation is owned by the host side.
+ * Pointers aliasing host memory are left untouched; their allocation
+ * is owned by the host side.  hipFree implicitly synchronizes the
+ * device, and the host typically deallocates right after an unmap,
+ * so preserve that barrier for aliased mappings such that the
+ * allocation cannot be released under in-flight device work.
  */
 hipError_t hip_map_free(void *ptr_d)
 {
   if (hip_zerocopy() && !hip_is_device_alloc(ptr_d))
-    return hipSuccess;
+    return hipDeviceSynchronize();
 
   return hipFree(ptr_d);
+}
+
+/**
+ * Memcpy between device pointers obtained from hip_map (or
+ * hipMalloc) and/or host pointers.
+ *
+ * Under zero-copy either side may alias pageable host memory, which
+ * hipMemcpy treats as a staged pageable copy (slow, serializing);
+ * copy with a kernel instead, which runs at full memory bandwidth
+ * and stays stream-ordered (on a unified memory APU any pointer is
+ * dereferenceable from the device).
+ */
+hipError_t hip_map_memcpy(void *dst, void *src, size_t s,
+                          int kind, void *stream)
+{
+  if (hip_zerocopy()) {
+    if (s == 0)
+      return hipSuccess;
+    if ((((uintptr_t) dst | (uintptr_t) src | s) & 7) == 0) {
+      const size_t n = s / 8;
+      const size_t nb = (n + 1024 - 1) / 1024;
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks((unsigned int) (nb > 65535 ? 65535 : nb), 1, 1);
+      hipLaunchKernelGGL(hip_unified_copy8_kernel, nblcks, nthrds, 0,
+                         (hipStream_t) stream,
+                         (unsigned long long *) dst,
+                         (const unsigned long long *) src, n);
+    }
+    else {
+      const size_t nb = (s + 1024 - 1) / 1024;
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks((unsigned int) (nb > 65535 ? 65535 : nb), 1, 1);
+      hipLaunchKernelGGL(hip_unified_copy1_kernel, nblcks, nthrds, 0,
+                         (hipStream_t) stream,
+                         (unsigned char *) dst,
+                         (const unsigned char *) src, s);
+    }
+    return hipGetLastError();
+  }
+
+  return hipMemcpyAsync(dst, src, s, (hipMemcpyKind) kind,
+                        (hipStream_t) stream);
 }
 
 /**
  * Memset on a device pointer obtained from hip_map (or hipMalloc).
  *
  * hipMemset only accepts device allocations, so pointers aliasing
- * host memory are set on the host instead, ordered after any
- * in-flight device work on \p stream.
+ * host memory are set with a kernel instead, which also keeps the
+ * operation stream-ordered.
  */
 hipError_t hip_map_memset(void *ptr_d, int value, size_t s, void *stream)
 {
   if (hip_zerocopy() && !hip_is_device_alloc(ptr_d)) {
-    hipError_t err = hipStreamSynchronize((hipStream_t) stream);
-    if (err != hipSuccess)
-      return err;
-    memset(ptr_d, value, s);
-    return hipSuccess;
+    const size_t nb = (s + 1024 - 1) / 1024;
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks((unsigned int) (nb > 65535 ? 65535 :
+                                      (nb == 0 ? 1 : nb)), 1, 1);
+    hipLaunchKernelGGL(hip_unified_memset_kernel, nblcks, nthrds, 0,
+                       (hipStream_t) stream,
+                       (unsigned char *) ptr_d, (unsigned char) value, s);
+    return hipGetLastError();
   }
 
   return hipMemsetAsync(ptr_d, value, s, (hipStream_t) stream);
