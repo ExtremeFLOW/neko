@@ -37,8 +37,8 @@ contains
     end if
 
 #ifndef HAVE_MPI_PARAM_DTYPE
-    MPI_REAL_PRECISION = @NEKO_MPI_REAL_TYPE@
-    MPI_EXTRA_PRECISION = @NEKO_MPI_XREAL_TYPE@
+    MPI_REAL_PRECISION%mpi_val = @NEKO_MPI_REAL_TYPE@
+    MPI_EXTRA_PRECISION%mpi_val = @NEKO_MPI_XREAL_TYPE@
 #endif
 
     call MPI_Comm_dup(ext_comm, NEKO_GLOBAL_COMM%mpi_val, ierr)
