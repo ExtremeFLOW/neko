@@ -47,6 +47,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#ifdef __linux__
+#include <unistd.h>
+#include <sys/mman.h>
+#endif
 #include <hip/hip_runtime.h>
 #include <device/hip/unified.h>
 
@@ -162,6 +166,18 @@ hipError_t hip_map(void **ptr_d, void *ptr_h, size_t s)
       }
     }
     (void) hipGetLastError();
+#ifdef __linux__
+    /* Best effort: back the mapping with transparent huge pages,
+       reducing GPU TLB pressure (system pages are much smaller than
+       the large pages backing hipMalloc allocations) */
+    {
+      const uintptr_t pgsz = (uintptr_t) sysconf(_SC_PAGESIZE);
+      const uintptr_t beg = ((uintptr_t) ptr_h + pgsz - 1) & ~(pgsz - 1);
+      const uintptr_t end = ((uintptr_t) ptr_h + s) & ~(pgsz - 1);
+      if (end > beg)
+        (void) madvise((void *) beg, end - beg, MADV_HUGEPAGE);
+    }
+#endif
     return hipSuccess;
   }
 
