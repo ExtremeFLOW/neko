@@ -37,7 +37,7 @@ module wall_distance_sampler
   use coefs, only : coef_t
   use vector, only : vector_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default
   use wall_sampler, only : wall_sampler_t
   use user_intf, only : user_t
   use global_interpolation, only : global_interpolation_t
@@ -61,6 +61,9 @@ module wall_distance_sampler
      !> Partial constructor from physical wall-normal distances.
      procedure, pass(this) :: init_from_distances => &
           wall_distance_sampler_init_from_distances
+     !> Partial constructor for user-provided sampling distances.
+     procedure, private, pass(this) :: init_from_user => &
+          wall_distance_sampler_init_from_user
      !> Fully construct a sampler from its resolved components.
      procedure, pass(this) :: init_from_components => &
           wall_distance_sampler_init_from_components
@@ -82,9 +85,11 @@ contains
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: distances(:)
     real(kind=rp) :: distance
-    integer :: var_type
-    logical :: found
+    integer :: n_samples, var_type
+    logical :: found, output_h
     character(len=:), allocatable :: value
+
+    call json_get_or_default(json, 'output_h', output_h, .true.)
 
     call json%info('value', found = found, var_type = var_type)
     if (.not. found) then
@@ -94,21 +99,18 @@ contains
     select case (var_type)
     case (3) ! json_array
        call json_get(json, 'value', distances)
-       call this%init_from_distances(distances)
+       call this%init_from_distances(distances, output_h)
     case (5, 6) ! json_integer, json_real
        call json_get(json, 'value', distance)
-       call this%init_from_distances([distance])
+       call this%init_from_distances([distance], output_h)
     case (7) ! json_string
        call json_get(json, 'value', value)
        if (trim(value) /= 'user') then
           call neko_error('Wall distance sampler value must be a real,' // &
                ' array, or user')
        end if
-       call json_get(json, 'n_samples', this%n_samples)
-       if (this%n_samples < 1) then
-          call neko_error('Wall distance sampler n_samples must be positive')
-       end if
-       this%user_values = .true.
+       call json_get(json, 'n_samples', n_samples)
+       call this%init_from_user(n_samples, output_h)
     case default
        call neko_error('Wall distance sampler value must be a real, array,' // &
             ' or user')
@@ -118,16 +120,38 @@ contains
   !> Partial constructor from physical wall-normal distances.
   !! @param distances Positive distances, one for each sampling point per
   !! wall node.
-  subroutine wall_distance_sampler_init_from_distances(this, distances)
+  !! @param output_h Whether to write the sampling-distance diagnostic.
+  subroutine wall_distance_sampler_init_from_distances(this, distances, &
+       output_h)
     class(wall_distance_sampler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: distances(:)
+    logical, intent(in) :: output_h
 
     if (size(distances) < 1 .or. any(distances <= 0.0_rp)) then
        call neko_error('Wall sampling distances must be positive')
     end if
     this%distances = distances
     this%n_samples = size(distances)
+    this%user_values = .false.
+    this%output_h_enabled = output_h
   end subroutine wall_distance_sampler_init_from_distances
+
+  !> Partial constructor for user-provided sampling distances.
+  !! @param n_samples Number of samples per wall node.
+  !! @param output_h Whether to write the sampling-distance diagnostic.
+  subroutine wall_distance_sampler_init_from_user(this, n_samples, output_h)
+    class(wall_distance_sampler_t), intent(inout) :: this
+    integer, intent(in) :: n_samples
+    logical, intent(in) :: output_h
+
+    if (n_samples < 1) then
+       call neko_error('Wall distance sampler n_samples must be positive')
+    end if
+
+    this%n_samples = n_samples
+    this%user_values = .true.
+    this%output_h_enabled = output_h
+  end subroutine wall_distance_sampler_init_from_user
 
   !> Fully construct a distance sampler from its resolved components.
   !! @note No compatibility checks are performed, input data is assumed to be
@@ -136,13 +160,15 @@ contains
   !! @param distances Physical distances, one for each sample per wall node.
   !! @param xyz Sampling locations with shape `(3, n_nodes * n_samples)`.
   !! @param h Wall-normal distances in sampler ordering.
+  !! @param output_h Sampling-distance diagnostic output flag.
   subroutine wall_distance_sampler_init_from_components(this, coef, distances, &
-       xyz, h)
+       xyz, h, output_h)
     class(wall_distance_sampler_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     real(kind=rp), intent(in) :: distances(:)
     real(kind=rp), intent(in) :: xyz(:,:)
     type(vector_t), intent(in) :: h
+    logical, intent(in) :: output_h
     integer :: n_nodes, n_points
 
     if (size(distances) < 1 .or. any(distances <= 0.0_rp)) then
@@ -159,7 +185,7 @@ contains
 
     n_nodes = n_points / size(distances)
     call this%free()
-    call this%init_base(n_nodes, size(distances), h)
+    call this%init_base(n_nodes, size(distances), h, output_h)
     this%distances = distances
     this%xyz = xyz
     call this%interpolator%init(coef%dof)
@@ -242,6 +268,10 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call this%h%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
+
+    if (this%output_h_enabled .and. present(bc_name)) then
+       call this%output_h(coef, msk, bc_name)
+    end if
   end subroutine wall_distance_sampler_finalize
 
   !> Sample a field at the configured physical locations.
@@ -273,6 +303,7 @@ contains
     this%n_nodes = 0
     this%n_samples = 0
     this%user_values = .false.
+    this%output_h_enabled = .true.
   end subroutine wall_distance_sampler_free
 
 end module wall_distance_sampler

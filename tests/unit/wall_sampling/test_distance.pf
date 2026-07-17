@@ -108,13 +108,14 @@ contains
   subroutine test_distance_json_configuration(this)
     class(test_distance_case), intent(inout) :: this
     type(wall_distance_sampler_t) :: sampler
-    type(json_file) :: json
+    type(json_file) :: json, json_disabled
 
     ! A scalar configures the usual one sampling point per wall node.
     call json%load_from_string('{"value":0.25}')
     call sampler%init(json)
     @assertEqual(sampler%n_samples, 1)
     @assertEqual(sampler%distances(1), 0.25_rp, tolerance=tol)
+    @assertTrue(sampler%output_h_enabled)
     call sampler%free()
 
     ! An array provides multiple static distances in sampler order.
@@ -124,8 +125,16 @@ contains
     @assertEqual(sampler%distances(2), 0.5_rp, tolerance=tol)
     call sampler%free()
 
+    ! The diagnostic is enabled by default but may be disabled explicitly.
+    call json_disabled%load_from_string( &
+         '{"value":0.25,"output_h":false}')
+    call sampler%init(json_disabled)
+    @assertFalse(sampler%output_h_enabled)
+    call sampler%free()
+
     ! User values defer distances until finalisation supplies wall nodes.
-    call json%load_from_string('{"value":"user","n_samples":2}')
+    call json%load_from_string( &
+         '{"value":"user","n_samples":2,"output_h":false}')
     call sampler%init(json)
     @assertTrue(sampler%user_values)
     @assertEqual(sampler%n_samples, 2)
@@ -161,7 +170,8 @@ contains
        call h%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
 
-    call sampler%init_from_components(coef, [0.25_rp, 0.50_rp], xyz, h)
+    call sampler%init_from_components(coef, [0.25_rp, 0.50_rp], xyz, h, &
+         .true.)
     call values%init(4)
     call sampler%sample(field, values)
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -262,7 +272,8 @@ contains
     n_y%x = 0.0_rp
     n_z%x = 0.0_rp
 
-    call json%load_from_string('{"value":"user","n_samples":2}')
+    call json%load_from_string( &
+         '{"value":"user","n_samples":2,"output_h":false}')
     call sampler%init(json)
     user%wall_sampling_distance => distance_test_user_values
     call sampler%finalize(coef, msk, facet, n_x, n_y, n_z, &

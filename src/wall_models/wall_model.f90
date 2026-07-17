@@ -343,9 +343,14 @@ contains
     if (.not. allocated(this%sampler)) then
        call neko_error('Wall model sampler has not been initialized')
     end if
-    if (present(bc_name) .and. present(user)) then
-       call this%sampler%finalize(this%coef, this%msk, this%facet, &
-            this%n_x, this%n_y, this%n_z, bc_name, user)
+    if (present(bc_name)) then
+       if (present(user)) then
+          call this%sampler%finalize(this%coef, this%msk, this%facet, &
+               this%n_x, this%n_y, this%n_z, bc_name, user)
+       else
+          call this%sampler%finalize(this%coef, this%msk, this%facet, &
+               this%n_x, this%n_y, this%n_z, bc_name)
+       end if
     else
        if (this%sampler%user_values) then
           call neko_error('Wall model user sampler has no boundary context')

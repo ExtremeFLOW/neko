@@ -67,6 +67,10 @@
                 },
                 "n_samples": {
                   "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+                },
+                "output_h": {
+                  "type": "boolean",
+                  "default": true
                 }
               },
               "allOf": [
@@ -118,6 +122,10 @@
                 },
                 "n_samples": {
                   "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+                },
+                "output_h": {
+                  "type": "boolean",
+                  "default": true
                 }
               },
               "allOf": [

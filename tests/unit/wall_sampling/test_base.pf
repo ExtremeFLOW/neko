@@ -58,7 +58,7 @@ contains
        call h%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
 
-    call sampler%init_base(2, 2, h)
+    call sampler%init_base(2, 2, h, .true.)
 
     ! Changing the source verifies that the sampler owns its vector copy.
     h%x = 0.0_rp

@@ -66,7 +66,7 @@ contains
        call wall_sampler_allocator(object, 'gll')
        select type (object)
        type is (wall_gll_sampler_t)
-          call object%init_from_indices([h_index])
+          call object%init_from_indices([h_index], .true.)
        end select
        return
     end if

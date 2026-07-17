@@ -37,7 +37,7 @@ module wall_gll_sampler
   use coefs, only : coef_t
   use vector, only : vector_t
   use json_module, only : json_file
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default
   use wall_sampler, only : wall_sampler_t
   use user_intf, only : user_t
   use mask, only : mask_t
@@ -61,6 +61,9 @@ module wall_gll_sampler
      !> Partial constructor from off-wall GLL indices.
      procedure, pass(this) :: init_from_indices => &
           wall_gll_sampler_init_from_indices
+     !> Partial constructor for user-provided GLL indices.
+     procedure, private, pass(this) :: init_from_user => &
+          wall_gll_sampler_init_from_user
      !> Fully construct a sampler from its resolved components.
      procedure, pass(this) :: init_from_components => &
           wall_gll_sampler_init_from_components
@@ -80,9 +83,11 @@ contains
     class(wall_gll_sampler_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     integer, allocatable :: indices(:)
-    integer :: index, var_type
-    logical :: found
+    integer :: index, n_samples, var_type
+    logical :: found, output_h
     character(len=:), allocatable :: value
+
+    call json_get_or_default(json, 'output_h', output_h, .true.)
 
     call json%info('value', found = found, var_type = var_type)
     if (.not. found) then
@@ -92,21 +97,18 @@ contains
     select case (var_type)
     case (3) ! json_array
        call json_get(json, 'value', indices)
-       call this%init_from_indices(indices)
+       call this%init_from_indices(indices, output_h)
     case (5) ! json_integer
        call json_get(json, 'value', index)
-       call this%init_from_indices([index])
+       call this%init_from_indices([index], output_h)
     case (7) ! json_string
        call json_get(json, 'value', value)
        if (trim(value) /= 'user') then
           call neko_error('Wall GLL sampler value must be an integer, ' // &
                'array, or user')
        end if
-       call json_get(json, 'n_samples', this%n_samples)
-       if (this%n_samples < 1) then
-          call neko_error('Wall GLL sampler n_samples must be positive')
-       end if
-       this%user_values = .true.
+       call json_get(json, 'n_samples', n_samples)
+       call this%init_from_user(n_samples, output_h)
     case default
        call neko_error('Wall GLL sampler value must be an integer, ' // &
             'array, or user')
@@ -116,9 +118,11 @@ contains
   !> Partial constructor from off-wall GLL indices.
   !! @param indices Positive GLL indices, one for each sampling point per
   !! wall node.
-  subroutine wall_gll_sampler_init_from_indices(this, indices)
+  !! @param output_h Whether to write the sampling-distance diagnostic.
+  subroutine wall_gll_sampler_init_from_indices(this, indices, output_h)
     class(wall_gll_sampler_t), intent(inout) :: this
     integer, intent(in) :: indices(:)
+    logical, intent(in) :: output_h
 
     if (any(indices < 1)) then
        call neko_error('Wall GLL sampler indices must be positive')
@@ -126,7 +130,26 @@ contains
 
     this%indices = indices
     this%n_samples = size(indices)
+    this%user_values = .false.
+    this%output_h_enabled = output_h
   end subroutine wall_gll_sampler_init_from_indices
+
+  !> Partial constructor for user-provided GLL sampling indices.
+  !! @param n_samples Number of samples per wall node.
+  !! @param output_h Whether to write the sampling-distance diagnostic.
+  subroutine wall_gll_sampler_init_from_user(this, n_samples, output_h)
+    class(wall_gll_sampler_t), intent(inout) :: this
+    integer, intent(in) :: n_samples
+    logical, intent(in) :: output_h
+
+    if (n_samples < 1) then
+       call neko_error('Wall GLL sampler n_samples must be positive')
+    end if
+
+    this%n_samples = n_samples
+    this%user_values = .true.
+    this%output_h_enabled = output_h
+  end subroutine wall_gll_sampler_init_from_user
 
   !> Fully construct a GLL sampler from its resolved components.
   !! @note No compatibility checks are performed, input data is assumed to be
@@ -134,11 +157,14 @@ contains
   !! @param indices Off-wall GLL indices for each sample per wall node.
   !! @param sample_idx Linear sampled-field indices in sampler ordering.
   !! @param h Wall-normal distances in sampler ordering.
-  subroutine wall_gll_sampler_init_from_components(this, indices, sample_idx, h)
+  !! @param output_h Sampling-distance diagnostic output flag.
+  subroutine wall_gll_sampler_init_from_components(this, indices, sample_idx, &
+       h, output_h)
     class(wall_gll_sampler_t), intent(inout) :: this
     integer, intent(in) :: indices(:)
     integer, intent(in) :: sample_idx(:)
     type(vector_t), intent(in) :: h
+    logical, intent(in) :: output_h
     integer :: n_nodes
 
     if (size(indices) < 1 .or. any(indices < 1)) then
@@ -153,7 +179,7 @@ contains
 
     n_nodes = size(sample_idx) / size(indices)
     call this%free()
-    call this%init_base(n_nodes, size(indices), h)
+    call this%init_base(n_nodes, size(indices), h, output_h)
     this%indices = indices
     call this%sample_idx%init(sample_idx, size(sample_idx))
   end subroutine wall_gll_sampler_init_from_components
@@ -259,6 +285,10 @@ contains
     call this%sample_idx%init(sample_idx, size(sample_idx))
     if (NEKO_BCKND_DEVICE .eq. 1) &
          call this%h%copy_from(HOST_TO_DEVICE, sync = .true.)
+
+    if (this%output_h_enabled .and. present(bc_name)) then
+       call this%output_h(coef, msk, bc_name)
+    end if
   end subroutine wall_gll_sampler_finalize
 
   !> Sample the solution field at the sampling points.
@@ -298,6 +328,7 @@ contains
     this%n_nodes = 0
     this%n_samples = 0
     this%user_values = .false.
+    this%output_h_enabled = .true.
   end subroutine wall_gll_sampler_free
 
 end module wall_gll_sampler

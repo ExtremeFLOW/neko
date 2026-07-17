@@ -32,11 +32,17 @@
 !
 !> Defines the abstract interface for wall-model field samplers.
 module wall_sampler
+  use num_types, only : rp
   use field, only : field_t
   use coefs, only : coef_t
   use vector, only : vector_t
   use json_module, only : json_file
   use user_intf, only : user_t
+  use scratch_registry, only : neko_scratch_registry
+  use vector_math, only : vector_masked_scatter_copy_0
+  use fld_file_output, only : fld_file_output_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device, only : HOST_TO_DEVICE
   use utils, only : neko_error
   implicit none
   private
@@ -51,12 +57,16 @@ module wall_sampler
      integer :: n_samples = 0
      !> True when sampling values are supplied by a user callback.
      logical :: user_values = .false.
+     !> True when the wall-normal sampling distance is written to a field.
+     logical :: output_h_enabled = .true.
      !> Wall-normal distance of every sampling point. The layout is
      !! `(node - 1) * n_samples + sample`.
      type(vector_t) :: h
    contains
      !> Initialise state common to all fully constructed wall samplers.
      procedure, pass(this) :: init_base => wall_sampler_init_base
+     !> Write the wall-normal sampling distance as a field file.
+     procedure, pass(this) :: output_h => wall_sampler_output_h
      !> Parse sampler-specific configuration from JSON.
      procedure(wall_sampler_init), pass(this), deferred :: init
      !> Complete sampler setup after geometric and wall-node data are known.
@@ -122,11 +132,13 @@ contains
   !! @param n_nodes Number of local wall nodes.
   !! @param n_samples Number of samples at each wall node.
   !! @param h Wall-normal distances in sampler ordering.
-  subroutine wall_sampler_init_base(this, n_nodes, n_samples, h)
+  !! @param output_h Whether to write the sampling-distance diagnostic.
+  subroutine wall_sampler_init_base(this, n_nodes, n_samples, h, output_h)
     class(wall_sampler_t), intent(inout) :: this
     integer, intent(in) :: n_nodes
     integer, intent(in) :: n_samples
     type(vector_t), intent(in) :: h
+    logical, intent(in) :: output_h
 
     if (n_nodes < 1 .or. n_samples < 1) then
        call neko_error('Wall sampler dimensions must be positive')
@@ -139,7 +151,53 @@ contains
     this%n_nodes = n_nodes
     this%n_samples = n_samples
     this%user_values = .false.
+    this%output_h_enabled = output_h
     this%h = h
   end subroutine wall_sampler_init_base
+
+  !> Write the first sampling distance at every wall node to a field file.
+  !! @details The first sample is written to retain a scalar diagnostic field
+  !! when samplers support multiple points per wall node.
+  !! @param coef SEM coefficients defining the output field.
+  !! @param msk Mask selecting local wall nodes.
+  !! @param bc_name Name of the owning boundary condition.
+  subroutine wall_sampler_output_h(this, coef, msk, bc_name)
+    class(wall_sampler_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: msk(0:)
+    character(len=*), intent(in) :: bc_name
+    type(field_t), pointer :: h_field
+    type(vector_t) :: h_at_wall
+    type(fld_file_output_t) :: output
+    integer :: i, scratch_index
+
+    if (msk(0) /= this%n_nodes) then
+       call neko_error('Wall sampler mask has an invalid size')
+    end if
+
+    ! Extract the first sample associated with every wall node. Current wall
+    ! models use one sample, while this also keeps the diagnostic valid for
+    ! future multi-sample models.
+    call h_at_wall%init(this%n_nodes)
+    do i = 1, this%n_nodes
+       h_at_wall%x(i) = this%h%x((i - 1) * this%n_samples + 1)
+    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call h_at_wall%copy_from(HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    call neko_scratch_registry%set_dofmap(coef%dof)
+    call neko_scratch_registry%request_field(h_field, scratch_index, .true.)
+    call vector_masked_scatter_copy_0(h_field%x(:,1,1,1), h_at_wall, msk, &
+         h_field%size(), this%n_nodes)
+
+    call output%init(rp, 'wall_model_h_' // trim(bc_name), 1)
+    call output%fields%assign_to_ptr(1, h_field)
+    call output%sample(0.0_rp)
+    call output%free()
+
+    call neko_scratch_registry%relinquish_field(scratch_index)
+    call h_at_wall%free()
+  end subroutine wall_sampler_output_h
 
 end module wall_sampler

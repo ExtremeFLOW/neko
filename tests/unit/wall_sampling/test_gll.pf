@@ -109,13 +109,14 @@ contains
   subroutine test_gll_json_configuration(this)
     class(test_gll_case), intent(inout) :: this
     type(wall_gll_sampler_t) :: sampler
-    type(json_file) :: json
+    type(json_file) :: json, json_disabled
 
     ! A scalar value represents the common single-sample case.
     call json%load_from_string('{"value":1}')
     call sampler%init(json)
     @assertEqual(sampler%n_samples, 1)
     @assertEqual(sampler%indices(1), 1)
+    @assertTrue(sampler%output_h_enabled)
     call sampler%free()
 
     ! An array configures multiple static GLL indices per wall node.
@@ -125,8 +126,15 @@ contains
     @assertEqual(sampler%indices(2), 2)
     call sampler%free()
 
+    ! The diagnostic is enabled by default but may be disabled explicitly.
+    call json_disabled%load_from_string('{"value":1,"output_h":false}')
+    call sampler%init(json_disabled)
+    @assertFalse(sampler%output_h_enabled)
+    call sampler%free()
+
     ! User values retain only their sample count until finalisation.
-    call json%load_from_string('{"value":"user","n_samples":2}')
+    call json%load_from_string( &
+         '{"value":"user","n_samples":2,"output_h":false}')
     call sampler%init(json)
     @assertTrue(sampler%user_values)
     @assertEqual(sampler%n_samples, 2)
@@ -162,7 +170,7 @@ contains
        call h%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
 
-    call sampler%init_from_components([1, 2], sample_idx, h)
+    call sampler%init_from_components([1, 2], sample_idx, h, .true.)
     call values%init(4)
     call sampler%sample(field, values)
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -271,7 +279,8 @@ contains
     n_y%x = 0.0_rp
     n_z%x = 0.0_rp
 
-    call json%load_from_string('{"value":"user","n_samples":2}')
+    call json%load_from_string( &
+         '{"value":"user","n_samples":2,"output_h":false}')
     call sampler%init(json)
     user%wall_sampling_gll => gll_test_user_indices
     call sampler%finalize(coef, msk, facet, n_x, n_y, n_z, 'gll_wall', user)

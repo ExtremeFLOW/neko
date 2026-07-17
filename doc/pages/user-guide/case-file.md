@@ -618,6 +618,12 @@ A more detailed description of each boundary condition is provided below.
     Distances must be positive. If `sampling` is omitted, the legacy `h_index`
     keyword remains available for GLL sampling.
 
+    The optional `output_h` entry in `sampling` controls whether Neko writes a
+    diagnostic field containing the resolved wall-normal sampling distance. It
+    defaults to `true`. The output uses the base name `wall_model_h_<bc_name>`,
+    where `<bc_name>` is the boundary-condition name. The field is zero away
+    from the wall boundary and contains the sampling distance at wall nodes.
+
     To set sampling values separately for every wall node, set `value` to
     `"user"` and provide `n_samples`. It specifies the number of samples per
     wall node and must currently be `1`. Neko then calls the corresponding user
@@ -628,8 +634,7 @@ A more detailed description of each boundary condition is provided below.
 
     A 3D field with the name `tau` will be registered in the field registry. At
     the boundary it will store the magnitude of the predicted stress. This can
-    be used to post-process the predictions. Additionally, the sampling points
-    are marked with values -1 in this field, for verification purposes.
+    be used to post-process the predictions.
   ```json
   {
     "type": "wall_model",
