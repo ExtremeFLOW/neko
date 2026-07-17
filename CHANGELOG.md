@@ -1,6 +1,9 @@
 # Changelog
 
 ## Develop
+- Modularized the entropy viscosity in the compressible Navier-Stokes solver
+  by computing it in simcomp as an `artificial viscosity model` and
+  applying it via a new object `viscous_regularization`.
 
 - *BREAKING*, normal_outflow conditions now require specifying `value`, which
   is used to set the value of the tangential components of velocity.
