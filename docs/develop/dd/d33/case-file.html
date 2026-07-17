@@ -164,7 +164,7 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
-<p>An initial JSON Schema for the case file is available in <code>doc/schemas/</code>. The schema is split logically by case-object substructure (see below), with dedicated files for <code>time</code>, <code>numerics</code>, <code>fluid</code>, <code>scalar</code>, <code>source_terms</code>, <code>point_zones</code>, and <code>simulation_components</code>, plus a shared <code>doc/schemas/common.schema.json</code> for reusable definitions. The simulation-component schema is further split into per-component files under <code>doc/schemas/simcomps/</code>. The helper <code>contrib/validate_case_schema.py</code> can be used to validate case files against that schema. Since some shipped example files use <code>//</code> comments and trailing commas, the helper parses the input using a JSON5-compatible frontend before applying the schema.</p>
+<p>An initial JSON Schema for the case file is available in <code>doc/schemas/</code>. The schema is split logically by case-object substructure (see below), with dedicated files for <code>time</code>, <code>numerics</code>, <code>fluid</code>, <code>scalar</code>, <code>source_terms</code>, <code>point_zones</code>, and <code>simulation_components</code>, plus a shared <code>doc/schemas/common.schema.json</code> for reusable definitions. The simulation-component schema is further split into per-component files under <code>doc/schemas/simcomps/</code>. The helper <code>contrib/validate_case_schema.py</code> can be used to validate case files against that schema. Since some shipped example files use <code>//</code> comments and trailing commas, the helper parses the input using a JSON5-compatible frontend before applying the schema. Neko distinguishes JSON integers such as <code>10</code> from JSON reals such as <code>10.0</code>, even though the JSON Schema specification considers both to be numbers and considers <code>10.0</code> to satisfy the <code>integer</code> type. The schemas mark real-only values with the Neko-specific <code>x-neko-real</code> annotation, and the validation helper enforces both that annotation and strict JSON integer encoding.</p>
 <h1><a class="anchor" id="autotoc_md76"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
@@ -186,7 +186,7 @@ High-level structure</h1>
 Output frequency control</h1>
 <p>A common scheme for controlling the output frequency is applied for various outputs. It is described already now in order to clarify the meaning of several parameters found in the tables below.</p>
 <p>The frequency is controlled by two parameters, ending with <code>_control</code> and <code>_value</code>, respectively. The latter name is perhaps not ideal, but it is somewhat difficult to come up with a good one, suggestions are welcome.</p>
-<p>The <code>_value</code> parameter is a <em>real</em> number, that defines the output frequency, but the interpretation of that number depends on the choice of <code>_control</code>. The three following options are possible.</p><ol type="1">
+<p>The <code>_value</code> parameter defines the output frequency, but both its JSON type and interpretation depend on the choice of <code>_control</code>. Neko requires an integer literal for <code>tsteps</code> and <code>nsamples</code>, and a real literal for <code>simulationtime</code>. For example, use <code>10</code> for ten time steps but <code>10.0</code> for ten simulation-time units. The following options are possible.</p><ol type="1">
 <li><code>simulationtime</code>, then <code>_value</code> is the time interval between the outputs.</li>
 <li><code>tsteps</code>, then <code>_value</code> is the number of time steps between the outputs.</li>
 <li><code>nsamples</code>, then <code>_value</code> is the total number of outputs that will be performed in the course of the simulation.</li>
@@ -207,34 +207,32 @@ The case object</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_directory</code>   </td><td class="markdownTableBodyNone">Folder for redirecting solver output. Note that the folder has to exist!   </td><td class="markdownTableBodyNone">Path to an existing directory   </td><td class="markdownTableBodyNone"><code>.</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>output_format</code>   </td><td class="markdownTableBodyNone">The file format of field data.   </td><td class="markdownTableBodyNone"><code>nek5000</code>, <code>adios2</code>, or <code>vtkhdf</code>   </td><td class="markdownTableBodyNone"><code>nek5000</code>    </td></tr>
-<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_precision</code>   </td><td class="markdownTableBodyNone">Whether to output snapshots in single or double precision   </td><td class="markdownTableBodyNone"><code>single</code> or <code>double</code>   </td><td class="markdownTableBodyNone"><code>single</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_layout</code>   </td><td class="markdownTableBodyNone">Data layout for <code>adios2</code> files. (Choose <code>2</code> or <code>3</code> for ADIOS2 supported compressors BigWhoop or ZFP.)   </td><td class="markdownTableBodyNone">Positive integer <code>1</code>, <code>2</code>, <code>3</code>   </td><td class="markdownTableBodyNone"><code>1</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>load_balancing</code>   </td><td class="markdownTableBodyNone">Whether to apply load balancing.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_partitions</code>   </td><td class="markdownTableBodyNone">Whether to write a <code>partitions.vtk</code> file with domain partitioning.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>output_checkpoints</code>   </td><td class="markdownTableBodyNone">Whether to output checkpoints, i.e. restart files.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>checkpoint_control</code>   </td><td class="markdownTableBodyNone">Defines the interpretation of <code>checkpoint_value</code> to define the frequency of writing checkpoint files.   </td><td class="markdownTableBodyNone"><code>nsamples</code>, <code>simulationtime</code>, <code>tsteps</code>, <code>never</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>checkpoint_value</code>   </td><td class="markdownTableBodyNone">The frequency of sampling in terms of <code>checkpoint_control</code>.   </td><td class="markdownTableBodyNone">Positive real or integer   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>checkpoint_filename</code>   </td><td class="markdownTableBodyNone">The filename of written checkpoint.   </td><td class="markdownTableBodyNone">Strings such as <code>my_name</code>   </td><td class="markdownTableBodyNone"><code>fluid</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>checkpoint_format</code>   </td><td class="markdownTableBodyNone">The file format of checkpoints   </td><td class="markdownTableBodyNone"><code>chkp</code> or <code>hdf5</code>   </td><td class="markdownTableBodyNone"><code>chkp</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>restart_file</code>   </td><td class="markdownTableBodyNone">checkpoint to use for a restart from previous data   </td><td class="markdownTableBodyNone">Strings ending with <code>.chkp</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>restart_mesh_file</code>   </td><td class="markdownTableBodyNone">If the restart file is on a different mesh, specify the .nmsh file used to generate it here   </td><td class="markdownTableBodyNone">Strings ending with <code>.nmsh</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>mesh2mesh_tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the restart when restarting from another mesh   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">1e-6    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>job_timelimit</code>   </td><td class="markdownTableBodyNone">The maximum wall clock duration of the simulation.   </td><td class="markdownTableBodyNone">String formatted as [[[DD-]HH:]MM:]SS   </td><td class="markdownTableBodyNone">No limit    </td></tr>
+<td class="markdownTableBodyNone"><code>mesh2mesh_tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the restart when restarting from another mesh   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">1e-6    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>job_timelimit</code>   </td><td class="markdownTableBodyNone">The maximum wall clock duration of the simulation.   </td><td class="markdownTableBodyNone">String formatted as [[[DD-]HH:]MM:]SS   </td><td class="markdownTableBodyNone">No limit    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_at_end</code>   </td><td class="markdownTableBodyNone">Whether to always write all enabled output at the end of the run.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>   </td></tr>
 </table>
 <p>Some additional practical comments are provided regarding the output triggered by <code>job_timelimit</code> and <code>output_at_end</code> keywords.</p>
@@ -732,7 +730,7 @@ Initial conditions</h2>
 </li>
 </ol>
 </li>
-<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
+<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>zone_name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><p class="startli"><code>field</code>, where the initial condition is retrieved from a field file. The following keywords can be used: </p><table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
@@ -1578,90 +1576,92 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_value</code>   </td><td class="markdownTableBodyNone">The frequency of sampling in terms of <code>output_control</code>.   </td><td class="markdownTableBodyNone">Positive real or integer   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>output_format</code>   </td><td class="markdownTableBodyNone">The file format of field data.   </td><td class="markdownTableBodyNone"><code>nek5000</code>, <code>adios2</code>, or <code>vtkhdf</code>   </td><td class="markdownTableBodyNone"><code>nek5000</code>    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_mesh_in_all_files</code>   </td><td class="markdownTableBodyNone">Indicates if the mesh should be written in every output fld file.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">The output filename.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>field</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_subdivide</code>   </td><td class="markdownTableBodyNone">Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>inflow_condition.type</code>   </td><td class="markdownTableBodyNone">Velocity inflow condition type.   </td><td class="markdownTableBodyNone"><code>user</code>, <code>uniform</code>, <code>blasius</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>inflow_condition.value</code>   </td><td class="markdownTableBodyNone">Value of the inflow velocity.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.type</code>   </td><td class="markdownTableBodyNone">Initial condition type.   </td><td class="markdownTableBodyNone"><code>user</code>, <code>uniform</code>, <code>blasius</code>, <code>field</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.value</code>   </td><td class="markdownTableBodyNone">Value of the velocity initial condition.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.file_name</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, the path to the field file to read from.   </td><td class="markdownTableBodyNone">String ending with <code>.fld</code>, <code>.chkp</code>, <code>.nek5000</code> or <code>f*****</code>.   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.sample_index</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>fld</code> or <code>nek5000</code>, the index of the file to sampled.   </td><td class="markdownTableBodyNone">Positive integer.   </td><td class="markdownTableBodyNone">-1    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.previous_mesh</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>chkp</code>, the previous mesh from which to interpolate.   </td><td class="markdownTableBodyNone">String ending with <code>.nmsh</code>.   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.tolerance</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>chkp</code>, tolerance to use for mesh interpolation.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone">1e-6    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>blasius.delta</code>   </td><td class="markdownTableBodyNone">Boundary layer thickness in the Blasius profile.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>blasius.freestream_velocity</code>   </td><td class="markdownTableBodyNone">Free-stream velocity in the Blasius profile.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>blasius.approximation</code>   </td><td class="markdownTableBodyNone">Numerical approximation of the Blasius profile.   </td><td class="markdownTableBodyNone"><code>linear</code>, <code>quadratic</code>, <code>cubic</code>, <code>quartic</code>, <code>sin</code>, <code>tanh</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>shear_stress.value</code>   </td><td class="markdownTableBodyNone">The shear stress vector value for <code>sh</code> boundaries   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone"><code>[0, 0, 0]</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>wall_modelling.type</code>   </td><td class="markdownTableBodyNone">The wall model type for <code>wm</code> boundaries. See documentation for additional config parameters.   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code>, <code>spalding</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>source_terms</code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional source terms.   </td><td class="markdownTableBodyNone">See list of source terms above   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional gradient jump penalty.   </td><td class="markdownTableBodyNone">See list of gradient jump penalty above   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>boundary_types</code>   </td><td class="markdownTableBodyNone">Boundary types/conditions labels.   </td><td class="markdownTableBodyNone">Array of strings   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.preconditioner.type</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the momentum equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.preconditioner.type</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the pressure equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_reorthogonalize_basis</code>   </td><td class="markdownTableBodyNone">Whether to enable pressure projection basis reorthogonalization.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>flow_rate_force.direction</code>   </td><td class="markdownTableBodyNone">Direction of the forced flow.   </td><td class="markdownTableBodyNone">0, 1, 2   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>flow_rate_force.value</code>   </td><td class="markdownTableBodyNone">Bulk velocity or volumetric flow rate.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>flow_rate_force.use_averaged_flow</code>   </td><td class="markdownTableBodyNone">Whether bulk velocity or volumetric flow rate is given by the <code>value</code> parameter.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>flow_rate_force.log</code>   </td><td class="markdownTableBodyNone">Whether to print the flow-rate forcing log message during the volume-flow adjustment.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>freeze</code>   </td><td class="markdownTableBodyNone">Whether to fix the velocity field at initial conditions.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>strict_convergence</code>   </td><td class="markdownTableBodyNone">Whether to enforce strict convergence in the linear solvers.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>full_stress_formulation</code>   </td><td class="markdownTableBodyNone">Whether to use the full form of the visous stress tensor term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
 </table>
 <h1><a class="anchor" id="case-file_scalar"></a>
@@ -1716,7 +1716,7 @@ Initial conditions</h2>
 <ol type="1">
 <li><code>user</code>, the values are set inside the compiled user file as explained in the <a class="el" href="../../d6/def/user-file.html#user-file_user-ic">user defined initial condition</a> section of the user file documentation.</li>
 <li><code>uniform</code>, the value is a constant scalar, looked up under the <code>value</code> keyword.</li>
-<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
+<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>zone_name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><code>field</code>, where the initial condition is retrieved from a field file. Works in the same way as for the fluid. See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid section</a> for detailed explanations.</li>
 </ol>
 <h2><a class="anchor" id="autotoc_md108"></a>
@@ -1802,7 +1802,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Jul 16 2026 04:34:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jul 17 2026 04:34:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

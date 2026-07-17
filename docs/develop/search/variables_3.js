@@ -25,7 +25,7 @@ var searchData=
   ['dev_22',['dev',['../db/d62/structcuda__buffer.html#a645020f9e787482f1ca8c1bf793e2304',1,'cuda_buffer::dev'],['../d3/d16/structhip__buffer.html#afa616274ecb7fe28eb6e4e981a7549be',1,'hip_buffer::dev'],['../d5/da0/structopencl__buffer.html#aa50be5522f3d69843f7661ff7ed79c2d',1,'opencl_buffer::dev']]],
   ['dev_5fonly_23',['dev_only',['../db/d62/structcuda__buffer.html#a3cd1fcd6aae61f48a05a00be6440272c',1,'cuda_buffer::dev_only'],['../d3/d16/structhip__buffer.html#aa93c0c6e1fa302aba7e681191729614b',1,'hip_buffer::dev_only']]],
   ['dev_5ftol_24',['dev_tol',['../d5/dab/structtime__step__controller_1_1time__step__controller__t.html#ae4363097173a149b4ca3902444c89740',1,'time_step_controller::time_step_controller_t']]],
-  ['device_5faddrtbl_25',['device_addrtbl',['../d0/dbe/namespacedevice.html#a6069899e2df7b89a7e764f792b306c41',1,'device']]],
+  ['device_5faddrtbl_25',['device_addrtbl',['../d0/dbe/namespacedevice.html#a5945e076a0c21d3be9eff44910a59438',1,'device']]],
   ['device_5farray_5fptr_26',['device_array_ptr',['../df/db9/structregistry__entry_1_1registry__entry__t.html#a6d95b75176db0f34c6f14c709fca46a2',1,'registry_entry::registry_entry_t']]],
   ['device_5ffusedcg_5fcpld_5fp_5fspace_27',['device_fusedcg_cpld_p_space',['../d3/dbc/namespacefusedcg__cpld__device.html#ae4234a844948e6bfd78f14dcfc0f6641',1,'fusedcg_cpld_device']]],
   ['device_5ffusedcg_5fp_5fspace_28',['device_fusedcg_p_space',['../dd/d04/namespacefusedcg__device.html#a57400999ef9bfe9a038fd940583c5dd7',1,'fusedcg_device']]],

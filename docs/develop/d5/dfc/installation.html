@@ -351,6 +351,8 @@ Compiling Neko for Apple Silicon GPUs</h3>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>Apple GPUs do not support double precision; the Metal backend requires Neko to be configured with single precision (<code>--enable-real=sp</code>).</dd>
 <dd>
+On devices with unified memory (Apple Silicon), the Metal backend maps arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data. Zero-copy mapping can be disabled at runtime by setting the environment variable <code>NEKO_METAL_ZEROCOPY=0</code>, which restores fully replicated buffers. On GPUs without unified memory (e.g. AMD GPUs in Intel-based Macs), buffers are always replicated.</dd>
+<dd>
 More examples, and instructions for specific machines can be found on Neko's <a href="https://github.com/ExtremeFLOW/neko/discussions">user discussions</a> pages.</dd></dl>
 <h3><a class="anchor" id="autotoc_md156"></a>
 Compiling Neko with a collective communications library</h3>
@@ -411,7 +413,7 @@ Using a Docker container</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Thu Jul 16 2026 04:34:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Jul 17 2026 04:34:45 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

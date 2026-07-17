@@ -1,5 +1,7 @@
 var NAVTREEINDEX116 =
 {
+"df/d21/structrough__log__law_1_1rough__log__law__t.html#a49904ef2abde7af1e2e19b8395591e61":[1,0,331,0,39],
+"df/d21/structrough__log__law_1_1rough__log__law__t.html#a4a803b0009a4065f9e4f50132e142024":[1,0,331,0,34],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a4a803b0009a4065f9e4f50132e142024":[2,0,283,0,34],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a4af85dbdc6ac0eb6cbf753f7c1c33184":[1,0,331,0,35],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a4af85dbdc6ac0eb6cbf753f7c1c33184":[2,0,283,0,35],
@@ -247,7 +249,5 @@ var NAVTREEINDEX116 =
 "df/d53/namespacepipecg__sx.html#ab459493f959c81eade61fbd4812f237c":[1,0,297,3],
 "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html":[2,0,173,10],
 "df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html":[1,0,199,10],
-"df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a066342db8ef95c6ead29ffe3e3f9b2eb":[2,0,173,10,19],
-"df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a066342db8ef95c6ead29ffe3e3f9b2eb":[1,0,199,10,19],
-"df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a15c3c8f10bd826c9df2d7cea29aab3f4":[1,0,199,10,12]
+"df/d63/structgs__device__shmem_1_1gs__device__shmem__t.html#a066342db8ef95c6ead29ffe3e3f9b2eb":[2,0,173,10,19]
 };
