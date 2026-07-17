@@ -13,7 +13,7 @@
   use vector
   use math
   use global_interpolation
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config
   use neko_mpi_types
@@ -53,7 +53,7 @@ contains
     call mesh_file%read(msh)
   
   end subroutine test_glob_interp_gen_msh
-
+  
   @test(npes=[2])
   subroutine test_glob_interp_init(this)
     class (test_glob_interp), intent(inout) :: this
@@ -396,5 +396,6 @@ contains
      
     call glob_interp%free()
   end subroutine test_glob_interp_outside
+ 
 
 end module test_glob_interp_par
