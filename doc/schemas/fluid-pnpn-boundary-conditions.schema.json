@@ -7,8 +7,19 @@
       "required": [
         "type",
         "zone_indices",
-        "model",
-        "h_index"
+        "model"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "h_index"
+          ]
+        },
+        {
+          "required": [
+            "sampling"
+          ]
+        }
       ],
       "properties": {
         "type": {
@@ -21,7 +32,113 @@
           "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "h_index": {
-          "$ref": "urn:neko:schema:common#/$defs/integerOrRef"
+          "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+        },
+        "sampling": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "type",
+                "value"
+              ],
+              "properties": {
+                "type": {
+                  "const": "gll"
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "minItems": 1
+                    },
+                    {
+                      "const": "user"
+                    }
+                  ]
+                },
+                "n_samples": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "value": {
+                        "const": "user"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "n_samples"
+                    ]
+                  }
+                }
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": [
+                "type",
+                "value"
+              ],
+              "properties": {
+                "type": {
+                  "const": "distance"
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "minItems": 1
+                    },
+                    {
+                      "const": "user"
+                    }
+                  ]
+                },
+                "n_samples": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "value": {
+                        "const": "user"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "n_samples"
+                    ]
+                  }
+                }
+              ],
+              "additionalProperties": false
+            }
+          ]
         }
       },
       "additionalProperties": true
