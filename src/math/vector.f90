@@ -98,8 +98,10 @@ contains
     call v%alloc(n)
     call cfill(v%x, 0.0_rp, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(v%x_d, 0.0_rp, n)
-       call device_sync()
+       ! Copy the host-side zeros instead of a device-side fill: safe
+       ! against aliased host/device pointers on unified memory, where
+       ! this also places the array in device memory
+       call device_memcpy(v%x, v%x_d, n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     if (present(name)) then

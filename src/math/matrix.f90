@@ -35,7 +35,7 @@ module matrix
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, xp
   use device, only : device_map, device_unmap, device_memcpy, &
-       device_sync
+       device_sync, HOST_TO_DEVICE
   use device_math, only : device_copy, device_cfill
   use utils, only : neko_error, NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
@@ -95,10 +95,10 @@ contains
     call m%alloc(nrows, ncols)
     m%x = 0.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(m%x_d, 0.0_rp, m%n)
-       ! Order the async fill against host writes; on unified memory
-       ! the device pointer may alias m%x
-       call device_sync()
+       ! Copy the host-side zeros instead of a device-side fill: safe
+       ! against aliased host/device pointers on unified memory, where
+       ! this also places the array in device memory
+       call device_memcpy(m%x, m%x_d, m%n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     if (present(name)) then
@@ -122,11 +122,14 @@ contains
     m%nrows = nrows
     m%ncols = ncols
     m%n = nrows*ncols
+    m%x = 0.0_rp
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(m%x, m%x_d, m%n)
-       call device_cfill(m%x_d, 0.0_rp, m%n)
-       call device_sync()
+       ! Copy the host-side zeros instead of a device-side fill: safe
+       ! against aliased host/device pointers on unified memory, where
+       ! this also places the array in device memory
+       call device_memcpy(m%x, m%x_d, m%n, HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine matrix_allocate
