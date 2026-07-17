@@ -1,6 +1,9 @@
 # Changelog
 
 ## Develop
+- Modularized the entropy viscosity in the compressible Navier-Stokes solver
+  by computing it in simcomp as an `artificial viscosity model` and
+  applying it via a new object `viscous_regularization`.
 
 - Added runtime registration of user-defined scalar boundary-condition types
   through `register_scalar_pnpn_bc`.
