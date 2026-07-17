@@ -567,7 +567,6 @@ libneko_la_SOURCES += \
     ale/bcknd/device/cuda/ale_kinematics.cu\
 	device/cuda/check.cu\
 	device/cuda/buffer.cu\
-	device/cuda/unified.cu\
 	device/cuda/nvtx_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/schwarz.cu\
@@ -1186,7 +1185,6 @@ EXTRA_DIST = \
 	device/hip/check.h\
 	device/cuda/check.h\
 	device/cuda/buffer.h\
-	device/cuda/unified.h\
 	device/hip/buffer.h\
 	device/hip/unified.h\
 	device/opencl/buffer.h\

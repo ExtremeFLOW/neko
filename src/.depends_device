@@ -55,9 +55,8 @@ krylov/bcknd/device/hip/cheby_aux.lo : krylov/bcknd/device/hip/cheby_aux.hip
 comm/bcknd/device/cuda/nvshmem.lo : comm/bcknd/device/cuda/nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
 device/cuda/buffer.lo : device/cuda/buffer.cu device/cuda/buffer.h
-device/cuda/unified.lo : device/cuda/unified.cu device/cuda/unified.h
 device/cuda/nvtx_wrapper.lo : device/cuda/nvtx_wrapper.cu
-math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h device/cuda/unified.h device/cuda/buffer.lo
+math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h device/cuda/buffer.lo
 math/bcknd/device/cuda/mathops.lo : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
 math/bcknd/device/cuda/opr_dudxyz.lo : math/bcknd/device/cuda/opr_dudxyz.cu math/bcknd/device/cuda/dudxyz_kernel.h
 math/bcknd/device/cuda/opr_cdtp.lo : math/bcknd/device/cuda/opr_cdtp.cu math/bcknd/device/cuda/cdtp_kernel.h
@@ -89,7 +88,7 @@ bc/bcknd/device/cuda/neumann.lo : bc/bcknd/device/cuda/neumann.cu bc/bcknd/devic
 bc/bcknd/device/cuda/inhom_dirichlet.lo : bc/bcknd/device/cuda/inhom_dirichlet.cu bc/bcknd/device/cuda/inhom_dirichlet_kernel.h
 bc/bcknd/device/cuda/dong_outflow.lo : bc/bcknd/device/cuda/dong_outflow.cu bc/bcknd/device/cuda/dong_outflow_kernel.h
 common/bcknd/device/cuda/rhs_maker.lo : common/bcknd/device/cuda/rhs_maker.cu common/bcknd/device/cuda/sumab_kernel.h common/bcknd/device/cuda/makeext_kernel.h common/bcknd/device/cuda/makebdf_kernel.h common/bcknd/device/cuda/makeoifs_kernel.h
-common/bcknd/device/cuda/projection.lo : common/bcknd/device/cuda/projection.cu common/bcknd/device/cuda/projection_kernel.h device/cuda/unified.h device/cuda/buffer.lo
+common/bcknd/device/cuda/projection.lo : common/bcknd/device/cuda/projection.cu common/bcknd/device/cuda/projection_kernel.h device/cuda/buffer.lo
 fluid/bcknd/device/cuda/pnpn_res.lo : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h
 fluid/bcknd/device/cuda/compressible_res.lo : fluid/bcknd/device/cuda/compressible_res.cu fluid/bcknd/device/cuda/compressible_res_kernel.h
 fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
