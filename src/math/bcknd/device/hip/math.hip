@@ -53,6 +53,21 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void hip_copy(void *a, void *b, int *n, hipStream_t strm) {
+    if (hip_zerocopy()) {
+      if (*n == 0) return;
+      /* The pointers may alias pageable host memory, which hipMemcpy
+         treats as a staged pageable copy (slow, serializing); copy
+         with a kernel instead, which runs at full memory bandwidth
+         on any pointer */
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(copy_kernel<real>),
+                         nblcks, nthrds, 0, strm,
+                         (real *) a, (const real *) b, *n);
+      HIP_CHECK(hipGetLastError());
+      return;
+    }
     HIP_CHECK(hipMemcpyAsync(a, b, (*n) * sizeof(real),
                              hipMemcpyDeviceToDevice, strm));
   }
@@ -215,6 +230,7 @@ extern "C" {
    */
   void hip_rzero(void *a, int *n, hipStream_t strm) {
     if (hip_zerocopy()) {
+      if (*n == 0) return;
       /* a may alias pageable host memory, which hipMemset rejects;
          zero with a kernel instead (works on any pointer) */
       const dim3 nthrds(1024, 1, 1);

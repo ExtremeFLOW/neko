@@ -85,7 +85,7 @@ extern "C" {
       /* xbar may alias pageable host memory, which hipMemset rejects;
          zero with a kernel instead (works on any pointer) */
       const dim3 zero_nthrds(1024, 1, 1);
-      const dim3 zero_nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const dim3 zero_nblcks((*n) > 0 ? ((*n) + 1024 - 1) / 1024 : 1, 1, 1);
 
       hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
                          zero_nblcks, zero_nthrds, 0,

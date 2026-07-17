@@ -257,7 +257,7 @@ $ ./configure  --with-hip=/opt/rocm/hip
 $ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc
 ```
 
-@note On APUs with unified physical memory (e.g. AMD Instinct MI300A) and XNACK enabled (`HSA_XNACK=1`), mapped arrays alias their host allocation zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data. Zero-copy mapping can be disabled at runtime by setting the environment variable `NEKO_HIP_ZEROCOPY=0`, which restores fully replicated buffers. Discrete GPUs (e.g. MI250X) always use replicated buffers, regardless of the XNACK setting.
+@note On APUs with unified physical memory (e.g. AMD Instinct MI300A) and XNACK enabled (`HSA_XNACK=1`), mapped arrays alias their host allocation zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data. Zero-copy mapping can be disabled at runtime by setting the environment variable `NEKO_HIP_ZEROCOPY=0`, which restores fully replicated buffers. Discrete GPUs (e.g. MI250X) always use replicated buffers, regardless of the XNACK setting. Since host and device share one allocation under zero-copy, host code (e.g. user routines) must not write to a mapped array while device work touching it may be in flight; synchronize with `device_sync` first.
 
 #### Compiling Neko for Apple Silicon GPUs
 To compile Neko for Apple Silicon GPUs (macOS only)
