@@ -235,6 +235,14 @@ $ ./configure  --with-cuda=/usr/local/cuda
 ```shell
 $ ./configure  --with-cuda=/usr/local/cuda CUDA_CFLAGS=-O3  CUDA_ARCH=-arch=sm_80 NVCC=/usr/local/cuda/bin/nvcc
 ```
+* If `--enable-device-mpi` is also given, `CUDA_ARCH` is **required**:
+  `configure` will error out rather than guess an architecture, since
+  targeting the wrong one silently hurts performance instead of failing to
+  build, and Neko is often cross-compiled on a host with no GPU present to
+  detect against. Find the right value for the target GPU with e.g.
+  `nvidia-smi --query-gpu=compute_cap --format=csv,noheader` on the target
+  machine, or the vendor's published compute capability for the target
+  cluster's GPUs when cross-compiling.
 * Build using `make && make install`
 
 #### Compiling Neko for AMD GPUs

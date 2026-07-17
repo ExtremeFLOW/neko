@@ -44,17 +44,17 @@
 #include <device/opencl/prgm_lib.h>
 #include <device/opencl/check.h>
 
-#include "euler_res_kernel.cl.h"
+#include "compressible_res_kernel.cl.h"
 
-void euler_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
+void compressible_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
                                 void *effective_visc, int *n) {
   cl_int err;
   
-  if (euler_res_program == NULL)
-    opencl_kernel_jit(euler_res_kernel, (cl_program *) &euler_res_program);
+  if (compressible_res_program == NULL)
+    opencl_kernel_jit(compressible_res_kernel, (cl_program *) &compressible_res_program);
 
-  cl_kernel kernel = clCreateKernel(euler_res_program,
-                                    "euler_res_part_visc_kernel", &err);
+  cl_kernel kernel = clCreateKernel(compressible_res_program,
+                                    "compressible_res_part_visc_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &rhs_u));
@@ -73,16 +73,16 @@ void euler_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
-void euler_res_part_mx_flux_opencl(void *f_x, void *f_y, void *f_z,
+void inviscid_res_part_mx_flux_opencl(void *f_x, void *f_y, void *f_z,
                                    void *m_x, void *m_y, void *m_z,
                                    void *rho_field, void *p, int *n) {
   cl_int err;
   
-  if (euler_res_program == NULL)
-    opencl_kernel_jit(euler_res_kernel, (cl_program *) &euler_res_program);
+  if (compressible_res_program == NULL)
+    opencl_kernel_jit(compressible_res_kernel, (cl_program *) &compressible_res_program);
   
-  cl_kernel kernel = clCreateKernel(euler_res_program,
-                                    "euler_res_part_mx_flux_kernel", &err);
+  cl_kernel kernel = clCreateKernel(compressible_res_program,
+                                    "inviscid_res_part_mx_flux_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &f_x));
@@ -105,16 +105,16 @@ void euler_res_part_mx_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
-void euler_res_part_my_flux_opencl(void *f_x, void *f_y, void *f_z,
+void inviscid_res_part_my_flux_opencl(void *f_x, void *f_y, void *f_z,
                                    void *m_x, void *m_y, void *m_z,
                                    void *rho_field, void *p, int *n) {
   cl_int err;
   
-  if (euler_res_program == NULL)
-    opencl_kernel_jit(euler_res_kernel, (cl_program *) &euler_res_program);
+  if (compressible_res_program == NULL)
+    opencl_kernel_jit(compressible_res_kernel, (cl_program *) &compressible_res_program);
   
-  cl_kernel kernel = clCreateKernel(euler_res_program,
-                                    "euler_res_part_my_flux_kernel", &err);
+  cl_kernel kernel = clCreateKernel(compressible_res_program,
+                                    "inviscid_res_part_my_flux_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &f_x));
@@ -137,16 +137,16 @@ void euler_res_part_my_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
-void euler_res_part_mz_flux_opencl(void *f_x, void *f_y, void *f_z,
+void inviscid_res_part_mz_flux_opencl(void *f_x, void *f_y, void *f_z,
                                    void *m_x, void *m_y, void *m_z,
                                    void *rho_field, void *p, int *n) {
   cl_int err;
   
-  if (euler_res_program == NULL)
-    opencl_kernel_jit(euler_res_kernel, (cl_program *) &euler_res_program);
+  if (compressible_res_program == NULL)
+    opencl_kernel_jit(compressible_res_kernel, (cl_program *) &compressible_res_program);
   
-  cl_kernel kernel = clCreateKernel(euler_res_program,
-                                    "euler_res_part_mz_flux_kernel", &err);
+  cl_kernel kernel = clCreateKernel(compressible_res_program,
+                                    "inviscid_res_part_mz_flux_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &f_x));
@@ -169,16 +169,16 @@ void euler_res_part_mz_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
-void euler_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
+void inviscid_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
                                   void *m_x, void *m_y, void *m_z,
                                   void *rho_field, void *p, void * E, int *n) {
   cl_int err;
   
-  if (euler_res_program == NULL)
-    opencl_kernel_jit(euler_res_kernel, (cl_program *) &euler_res_program);
+  if (compressible_res_program == NULL)
+    opencl_kernel_jit(compressible_res_kernel, (cl_program *) &compressible_res_program);
   
-  cl_kernel kernel = clCreateKernel(euler_res_program,
-                                    "euler_res_part_E_flux_kernel", &err);
+  cl_kernel kernel = clCreateKernel(compressible_res_program,
+                                    "inviscid_res_part_E_flux_kernel", &err);
   CL_CHECK(err);
   
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &f_x));
@@ -188,8 +188,8 @@ void euler_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &m_y));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &m_z));
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &rho_field));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &E));
-  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &p));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &p));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &E));
   CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;
@@ -202,16 +202,16 @@ void euler_res_part_E_flux_opencl(void *f_x, void *f_y, void *f_z,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
-void euler_res_part_coef_mult_opencl(void *rhs_rho, void *rhs_m_x,
+void compressible_res_part_coef_mult_opencl(void *rhs_rho, void *rhs_m_x,
                                      void *rhs_m_y, void *rhs_m_z,
                                      void *rhs_E, void *mult, int *n) {
   cl_int err;
   
-  if (euler_res_program == NULL)
-    opencl_kernel_jit(euler_res_kernel, (cl_program *) &euler_res_program);
+  if (compressible_res_program == NULL)
+    opencl_kernel_jit(compressible_res_kernel, (cl_program *) &compressible_res_program);
   
-  cl_kernel kernel = clCreateKernel(euler_res_program,
-                                    "euler_res_part_coef_mult_kernel", &err);
+  cl_kernel kernel = clCreateKernel(compressible_res_program,
+                                    "compressible_res_part_coef_mult_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &rhs_rho));
@@ -232,17 +232,17 @@ void euler_res_part_coef_mult_opencl(void *rhs_rho, void *rhs_m_x,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
-void euler_res_part_rk_sum_opencl(void *rho, void *m_x, void *m_y, void *m_z,
+void compressible_res_part_rk_sum_opencl(void *rho, void *m_x, void *m_y, void *m_z,
                                   void *E, void *k_rho_i, void *k_m_x_i,
                                   void *k_m_y_i, void *k_m_z_i, void *k_E_i,
                                   real *dt, real *c, int *n) {
   cl_int err;
   
-  if (euler_res_program == NULL)
-    opencl_kernel_jit(euler_res_kernel, (cl_program *) &euler_res_program);
+  if (compressible_res_program == NULL)
+    opencl_kernel_jit(compressible_res_kernel, (cl_program *) &compressible_res_program);
   
-  cl_kernel kernel = clCreateKernel(euler_res_program,
-                                    "euler_res_part_rk_sum_kernel", &err);
+  cl_kernel kernel = clCreateKernel(compressible_res_program,
+                                    "compressible_res_part_rk_sum_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &rho));

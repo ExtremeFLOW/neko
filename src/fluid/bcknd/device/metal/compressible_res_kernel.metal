@@ -33,7 +33,7 @@
 */
 
 /**
- * Metal compute kernels for the compressible Euler residual.
+ * Metal compute kernels for the compressible residual.
  *
  * @note Apple GPUs do not support FP64; all arithmetic uses float.
  */
@@ -42,9 +42,9 @@
 using namespace metal;
 
 /**
- * Device kernel for the viscous part of the Euler residual
+ * Device kernel for the viscous part of the compressible residual
  */
-kernel void euler_res_part_visc_kernel(device float *rhs[[ buffer(0) ]],
+kernel void compressible_res_part_visc_kernel(device float *rhs[[ buffer(0) ]],
                                        device const float *Binv[[ buffer(1) ]],
                                        device const float *lap_sol[[ buffer(2) ]],
                                        device const float *effective_visc[[ buffer(3) ]],
@@ -57,7 +57,7 @@ kernel void euler_res_part_visc_kernel(device float *rhs[[ buffer(0) ]],
 /**
  * Device kernel for the x-momentum flux
  */
-kernel void euler_res_part_mx_flux_kernel(device float *f_x[[ buffer(0) ]],
+kernel void inviscid_res_part_mx_flux_kernel(device float *f_x[[ buffer(0) ]],
                                           device float *f_y[[ buffer(1) ]],
                                           device float *f_z[[ buffer(2) ]],
                                           device const float *m_x[[ buffer(3) ]],
@@ -76,7 +76,7 @@ kernel void euler_res_part_mx_flux_kernel(device float *f_x[[ buffer(0) ]],
 /**
  * Device kernel for the y-momentum flux
  */
-kernel void euler_res_part_my_flux_kernel(device float *f_x[[ buffer(0) ]],
+kernel void inviscid_res_part_my_flux_kernel(device float *f_x[[ buffer(0) ]],
                                           device float *f_y[[ buffer(1) ]],
                                           device float *f_z[[ buffer(2) ]],
                                           device const float *m_x[[ buffer(3) ]],
@@ -95,7 +95,7 @@ kernel void euler_res_part_my_flux_kernel(device float *f_x[[ buffer(0) ]],
 /**
  * Device kernel for the z-momentum flux
  */
-kernel void euler_res_part_mz_flux_kernel(device float *f_x[[ buffer(0) ]],
+kernel void inviscid_res_part_mz_flux_kernel(device float *f_x[[ buffer(0) ]],
                                           device float *f_y[[ buffer(1) ]],
                                           device float *f_z[[ buffer(2) ]],
                                           device const float *m_x[[ buffer(3) ]],
@@ -114,7 +114,7 @@ kernel void euler_res_part_mz_flux_kernel(device float *f_x[[ buffer(0) ]],
 /**
  * Device kernel for the energy flux
  */
-kernel void euler_res_part_E_flux_kernel(device float *f_x[[ buffer(0) ]],
+kernel void inviscid_res_part_E_flux_kernel(device float *f_x[[ buffer(0) ]],
                                          device float *f_y[[ buffer(1) ]],
                                          device float *f_z[[ buffer(2) ]],
                                          device const float *m_x[[ buffer(3) ]],
@@ -134,7 +134,7 @@ kernel void euler_res_part_E_flux_kernel(device float *f_x[[ buffer(0) ]],
 /**
  * Device kernel for multiplying the residual with the inverse multiplicity
  */
-kernel void euler_res_part_coef_mult_kernel(device float *rhs_rho[[ buffer(0) ]],
+kernel void compressible_res_part_coef_mult_kernel(device float *rhs_rho[[ buffer(0) ]],
                                             device float *rhs_m_x[[ buffer(1) ]],
                                             device float *rhs_m_y[[ buffer(2) ]],
                                             device float *rhs_m_z[[ buffer(3) ]],
@@ -153,7 +153,7 @@ kernel void euler_res_part_coef_mult_kernel(device float *rhs_rho[[ buffer(0) ]]
 /**
  * Device kernel for the Runge-Kutta stage summation
  */
-kernel void euler_res_part_rk_sum_kernel(device float *rho[[ buffer(0) ]],
+kernel void compressible_res_part_rk_sum_kernel(device float *rho[[ buffer(0) ]],
                                          device float *m_x[[ buffer(1) ]],
                                          device float *m_y[[ buffer(2) ]],
                                          device float *m_z[[ buffer(3) ]],

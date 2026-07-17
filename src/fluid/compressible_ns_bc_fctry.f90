@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-submodule(fluid_scheme_compressible_euler) euler_bc_fctry
+submodule(fluid_scheme_compressible_ns) compressible_ns_bc_fctry
   use dirichlet, only : dirichlet_t
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
@@ -40,7 +40,7 @@ submodule(fluid_scheme_compressible_euler) euler_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: EULER_KNOWN_BCS(7) = [character(len=25) :: &
+  character(len=25) :: COMPRESSIBLE_KNOWN_BCS(7) = [character(len=25) :: &
        "velocity_value", &
        "density_value", &
        "pressure_value", &
@@ -52,13 +52,13 @@ submodule(fluid_scheme_compressible_euler) euler_bc_fctry
 contains
   !> Factory routine for pressure boundary conditions.
   !! @param object The boundary condition to be allocated.
-  !! @param scheme The `fluid_scheme_compressible_euler_t`  scheme.
+  !! @param scheme The `fluid_scheme_compressible_ns_t`  scheme.
   !! @param json The parameter dictionary for the boundary.
   !! @param coef The SEM coeffcients.
   !! @param user The user interface.
   module subroutine density_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+    type(fluid_scheme_compressible_ns_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
@@ -74,11 +74,11 @@ contains
     case ("density_value")
        allocate(dirichlet_t::object)
     case default
-       do i = 1, size(EULER_KNOWN_BCS)
-          if (trim(type) .eq. trim(EULER_KNOWN_BCS(i))) return
+       do i = 1, size(COMPRESSIBLE_KNOWN_BCS)
+          if (trim(type) .eq. trim(COMPRESSIBLE_KNOWN_BCS(i))) return
        end do
-       call neko_type_error("compressible_euler boundary conditions", type, &
-            EULER_KNOWN_BCS)
+       call neko_type_error("compressible boundary conditions", type, &
+            COMPRESSIBLE_KNOWN_BCS)
     end select
 
     call json_get_or_lookup(json, "zone_indices", zone_indices)
@@ -88,7 +88,7 @@ contains
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
 
-    write(buf,'("density_bc_",I0)') zone_indices(1)
+    write(buf, '("density_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
     object%zone_indices = zone_indices
@@ -97,13 +97,13 @@ contains
 
   !> Factory routine for pressure boundary conditions.
   !! @param object The boundary condition to be allocated.
-  !! @param scheme The `fluid_scheme_compressible_euler_t`  scheme.
+  !! @param scheme The `fluid_scheme_compressible_ns_t`  scheme.
   !! @param json The parameter dictionary for the boundary.
   !! @param coef The SEM coeffcients.
   !! @param user The user interface.
   module subroutine pressure_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_scheme_compressible_euler_t), intent(inout) :: scheme
+    type(fluid_scheme_compressible_ns_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
@@ -121,11 +121,11 @@ contains
     case ("pressure_value")
        allocate(dirichlet_t::object)
     case default
-       do i = 1, size(EULER_KNOWN_BCS)
-          if (trim(type) .eq. trim(EULER_KNOWN_BCS(i))) return
+       do i = 1, size(COMPRESSIBLE_KNOWN_BCS)
+          if (trim(type) .eq. trim(COMPRESSIBLE_KNOWN_BCS(i))) return
        end do
-       call neko_type_error("compressible_euler boundary conditions", type, &
-            EULER_KNOWN_BCS)
+       call neko_type_error("compressible boundary conditions", type, &
+            COMPRESSIBLE_KNOWN_BCS)
     end select
 
     call json_get_or_lookup(json, "zone_indices", zone_indices)
@@ -135,7 +135,7 @@ contains
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
 
-    write(buf,'("pressure_bc_",I0)') zone_indices(1)
+    write(buf, '("pressure_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
     object%zone_indices = zone_indices
@@ -156,13 +156,13 @@ contains
 
   !> Factory routine for velocity boundary conditions.
   !! @param object The boundary condition to be allocated.
-  !! @param scheme The `fluid_scheme_compressible_euler_t` scheme.
+  !! @param scheme The `fluid_scheme_compressible_ns_t` scheme.
   !! @param json The parameter dictionary for the boundary.
   !! @param coef The SEM coeffcients.
   !! @param user The user interface.
   module subroutine velocity_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+    type(fluid_scheme_compressible_ns_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
@@ -182,11 +182,11 @@ contains
     case ("velocity_value")
        allocate(inflow_t::object)
     case default
-       do i = 1, size(EULER_KNOWN_BCS)
-          if (trim(type) .eq. trim(EULER_KNOWN_BCS(i))) return
+       do i = 1, size(COMPRESSIBLE_KNOWN_BCS)
+          if (trim(type) .eq. trim(COMPRESSIBLE_KNOWN_BCS(i))) return
        end do
-       call neko_type_error("compressible_euler boundary conditions", type, &
-            EULER_KNOWN_BCS)
+       call neko_type_error("compressible boundary conditions", type, &
+            COMPRESSIBLE_KNOWN_BCS)
     end select
 
     call json_get_or_lookup(json, "zone_indices", zone_indices)
@@ -195,7 +195,7 @@ contains
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
 
-    write(buf,'("velocity_bc_",I0)') zone_indices(1)
+    write(buf, '("velocity_bc_",I0)') zone_indices(1)
     default_name = trim(buf)
     call json_get_or_default(json, "name", object%name, default_name)
     object%zone_indices = zone_indices
@@ -203,4 +203,4 @@ contains
 
   end subroutine velocity_bc_factory
 
-end submodule euler_bc_fctry
+end submodule compressible_ns_bc_fctry

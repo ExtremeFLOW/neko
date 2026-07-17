@@ -24,6 +24,7 @@
   use utils, only : linear_index
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
   use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use neko_config
   use neko_mpi_types
   implicit none
@@ -39,10 +40,10 @@ contains
 
   subroutine setUp(this)
     class(test_glob_interp), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
-    call comm_init
     call neko_mpi_types_init
   end subroutine setUp
 
@@ -51,6 +52,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_finalize
    end if
+   call neko_mpi_types_free
+   call comm_free_test()
  end subroutine tearDown
 
   subroutine test_glob_interp_gen_msh(msh)
@@ -111,9 +114,6 @@ contains
     type(field_t) :: test_field
     integer :: ierr, i
     real(kind=rp) :: temp, cord, test_tol
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
@@ -162,10 +162,6 @@ contains
     if (NEKO_BCKND_OPENCL .eq. 1) then
        return
     end if
-    
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
@@ -223,10 +219,6 @@ contains
     if (NEKO_BCKND_OPENCL .eq. 1) then
        return
     end if
-    
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
@@ -289,11 +281,6 @@ contains
     if (NEKO_BCKND_OPENCL .eq. 1) then
        return
     end if
-    
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
@@ -343,10 +330,6 @@ contains
     if (NEKO_BCKND_OPENCL .eq. 1) then
        return
     end if
-    
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
@@ -426,10 +409,6 @@ contains
     if (NEKO_BCKND_OPENCL .eq. 1) then
        return
     end if
-    
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)

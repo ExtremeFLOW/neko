@@ -7,7 +7,8 @@ module test_vector_parallel
   use device
   use math
   use vector_math
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -22,10 +23,10 @@ contains
 
   subroutine setUp(this)
     class(test_vector), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
     if ((NEKO_BCKND_DEVICE .eq. 1)) then
        call device_init
     end if
-    call comm_init
   end subroutine setUp
 
   subroutine tearDown(this)
@@ -33,6 +34,7 @@ contains
     if ((NEKO_BCKND_DEVICE .eq. 1)) then
        call device_finalize
     end if
+    call comm_free_test()
   end subroutine tearDown
 
   @test(npes=[1])
@@ -41,8 +43,6 @@ contains
     integer, parameter :: n = 42
     type(vector_t) :: v, w
     integer :: ierr
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call v%init(n)
     @assertTrue(allocated(v%x))
@@ -64,8 +64,6 @@ contains
     integer, parameter :: n = 42
     type(vector_t) :: v
     integer :: ierr
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     call v%init(n)
     call v%free()

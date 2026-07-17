@@ -35,6 +35,7 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
+#include <device/hip/buffer.h>
 #include "math_kernel.h"
 
 extern "C" {
@@ -726,38 +727,18 @@ extern "C" {
 
 
   /*
-   * Reduction buffer
+   * Reduction buffers, owned by the device layer and released
+   * on device teardown (hip_buffer_free_all in hip_finalize)
    */
-  int red_s = 0;
-  real * bufred = NULL;
-  real * bufred_d = NULL;
-  int red_xp_s = 0;
-  real_xp * bufred_xp = NULL;
-  real_xp * bufred_xp_d = NULL;
+  hip_buffer_t redbuf = HIP_BUFFER_INIT;
+  hip_buffer_t redbuf_xp = HIP_BUFFER_INIT;
 
   void hip_redbuf_check_alloc(int nb) {
-    if ( nb >= red_s) {
-      red_s = nb+1;
-      if (bufred != NULL) {
-        HIP_CHECK(hipHostFree(bufred));
-        HIP_CHECK(hipFree(bufred_d));
-      }
-      HIP_CHECK(hipHostMalloc(&bufred,red_s*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, red_s*sizeof(real)));
-    }
+    hip_buffer_reserve(&redbuf, (nb + 1) * sizeof(real));
   }
 
   void hip_redbuf_check_alloc_xp(int nb) {
-    if ( nb >= red_xp_s) {
-      red_xp_s = nb+1;
-      if (bufred_xp != NULL) {
-        HIP_CHECK(hipHostFree(bufred_xp));
-        HIP_CHECK(hipFree(bufred_xp_d));
-      }
-      HIP_CHECK(hipHostMalloc(&bufred_xp, red_xp_s*sizeof(real_xp),
-                              hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_xp_d, red_xp_s*sizeof(real_xp)));
-    }
+    hip_buffer_reserve(&redbuf_xp, (nb + 1) * sizeof(real_xp));
   }
 
   /**
@@ -861,17 +842,17 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(vlsc3_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) u, (real *) v,
-                       (real *) w, bufred_d, *n);
+                       (real *) w, (real *) redbuf.dev, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0, stream, bufred_d, nb);
+                       1, 1024, 0, stream, (real *) redbuf.dev, nb);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
+    HIP_CHECK(hipMemcpyAsync(((real *) redbuf.host), (real *) redbuf.dev,
+                             sizeof(real), hipMemcpyDeviceToHost, stream));
     HIP_CHECK(hipStreamSynchronize(stream));
 
-    return bufred[0];
+    return ((real *) redbuf.host)[0];
   }
 
   /**
@@ -890,18 +871,19 @@ extern "C" {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (real *) a, (real *) b,
-                         (real *) c, bufred_xp_d, *n);
+                         (real *) c, (real_xp *) redbuf_xp.dev, *n);
       HIP_CHECK(hipGetLastError());
       hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
-                         1, 1024, 0, stream, bufred_xp_d, nb);
+                         1, 1024, 0, stream, (real_xp * ) redbuf_xp.dev, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    hip_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
+    hip_global_reduce_add_xp(((real_xp *) redbuf_xp.host),
+                             (real_xp *) redbuf_xp.dev, 1, stream);
 
-    return bufred_xp[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
@@ -927,18 +909,18 @@ extern "C" {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (const real *) w, (const real **) v,
-                         (const real *)mult, bufred_xp_d, *j, *n);
+                         (const real *)mult, (real_xp *) redbuf_xp.dev, *j, *n);
       HIP_CHECK(hipGetLastError());
 
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_reduce_kernel<real_xp>),
                          nblcks_red, nthrds_red, 0, stream,
-                         bufred_xp_d, nb, *j);
+                         (real_xp *) redbuf_xp.dev, nb, *j);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    hip_global_reduce_add_xp(h, bufred_xp_d, (*j), stream);
+    hip_global_reduce_add_xp(h, redbuf_xp.dev, (*j), stream);
   }
 
   /**
@@ -957,18 +939,19 @@ extern "C" {
     if( *n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, (real *) b, bufred_xp_d, *n);
+                         (real *) a, (real *) b, (real_xp *) redbuf_xp.dev, *n);
       HIP_CHECK(hipGetLastError());
       hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
-                         1, 1024, 0, stream, bufred_xp_d, nb);
+                         1, 1024, 0, stream, (real_xp *) redbuf_xp.dev, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    hip_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
+    hip_global_reduce_add_xp(((real_xp *) redbuf_xp.host),
+                             (real_xp *) redbuf_xp.dev, 1, stream);
 
-    return bufred_xp[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
@@ -986,18 +969,20 @@ extern "C" {
       if (*n > 0) {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(glsubnorm2_kernel<real, real_xp>),
                            nblcks, nthrds, 0, stream,
-                           (real*)a, (real*)b, bufred_xp_d, *n);
+                           (real *) a, (real *) b,
+                           (real_xp *) redbuf_xp.dev, *n);
         HIP_CHECK(hipGetLastError());
         hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
-                           1, 1024, 0, stream, bufred_xp_d, nb);
+                           1, 1024, 0, stream, (real_xp *) redbuf_xp.dev, nb);
         HIP_CHECK(hipGetLastError());
       }
       else {
-        HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+        HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
       }
-      hip_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
+      hip_global_reduce_add_xp(((real_xp *) redbuf_xp.host),
+                               (real_xp *) redbuf_xp.dev, 1, stream);
 
-      return bufred_xp[0];
+      return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
@@ -1013,19 +998,20 @@ extern "C" {
     if( *n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, bufred_xp_d, *n);
+                         (real *) a, (real_xp * ) redbuf_xp.dev, *n);
       HIP_CHECK(hipGetLastError());
       hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
-                         1, 1024, 0, stream, bufred_xp_d, nb);
+                         1, 1024, 0, stream, (real_xp *) redbuf_xp.dev, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      HIP_CHECK(hipMemsetAsync(bufred_xp_d, 0, red_xp_s * sizeof(real_xp), stream));
+      HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
 
-    hip_global_reduce_add_xp(bufred_xp, bufred_xp_d, 1, stream);
+    hip_global_reduce_add_xp(((real_xp *) redbuf_xp.host),
+                             redbuf_xp.dev, 1, stream);
 
-    return bufred_xp[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
 
@@ -1042,19 +1028,21 @@ extern "C" {
     if( *n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glmax_kernel<real>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, *ninf, bufred_d, *n);
+                         (real *) a, *ninf, (real *) redbuf.dev, *n);
       HIP_CHECK(hipGetLastError());
       hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_max_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, *ninf, nb);
+                         1, 1024, 0, stream, (real *) redbuf.dev, *ninf, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      int nel = (int) (redbuf.size / sizeof(real));
+      hip_rzero(redbuf.dev, &nel, stream);
     }
 
-    hip_global_reduce_max(bufred, bufred_d, 1, stream);
+    hip_global_reduce_max(((real *) redbuf.host),
+                          (real *) redbuf.dev, 1, stream);
 
-    return bufred[0];
+    return ((real *) redbuf.host)[0];
   }
 
   /**
@@ -1070,19 +1058,21 @@ extern "C" {
     if( *n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glmin_kernel<real>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, *pinf, bufred_d, *n);
+                         (real *) a, *pinf, (real *) redbuf.dev, *n);
       HIP_CHECK(hipGetLastError());
       hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_min_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, *pinf, nb);
+                         1, 1024, 0, stream, (real *) redbuf.dev, *pinf, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      int nel = (int) (redbuf.size / sizeof(real));
+      hip_rzero(redbuf.dev, &nel, stream);
     }
 
-    hip_global_reduce_min(bufred, bufred_d, 1, stream);
+    hip_global_reduce_min(((real *) redbuf.host),
+                          (real *) redbuf.dev, 1, stream);
 
-    return bufred[0];
+    return ((real *) redbuf.host)[0];
   }
 
   /**

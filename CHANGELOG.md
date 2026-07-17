@@ -5,6 +5,12 @@
 - Added configurable wall-model field samplers. Wall models can now sample at
   GLL nodes or physical wall-normal distances using global interpolation. The
   sampling values can also be supplied per wall node through new user hooks.
+- Removed the hardcoded `CUDA_ARCH="-arch sm_60"` fallback used for
+  `--enable-device-mpi` CUDA builds, which CUDA >= 13 toolkits can no longer
+  compile (Pascal support was dropped). `configure` now requires `CUDA_ARCH`
+  to be set explicitly for such builds and errors out otherwise, rather than
+  silently guessing an architecture that may not match the target GPU.
+- Add physical viscous and conductive flux support to the compressible solver.
 - Fixed stale facet-normals in fluid_pnpn pressure surface terms.
   This was only affecting ALE simulations containing rotations.
 - *BREAKING* Changed the size of mesh velocity lag arrays in ALE to 2. 

@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -128,6 +128,10 @@ module hip_intf
        use, intrinsic :: iso_c_binding
        implicit none
      end function hipDeviceReset
+
+     subroutine hip_buffer_free_all() &
+          bind(c, name = 'hip_buffer_free_all')
+     end subroutine hip_buffer_free_all
 
      integer(c_int) function hipDeviceGetName(name, len, device) &
           bind(c, name = 'hipDeviceGetName')
@@ -263,7 +267,10 @@ contains
   subroutine hip_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
-    integer(c_int) :: ierr
+    integer :: ierr
+
+    ! Release all device buffers held by the device layer
+    call hip_buffer_free_all()
 
     if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying main stream')
@@ -273,9 +280,17 @@ contains
        call neko_error('Error destroying aux stream')
     end if
 
-    ! Best-effort context teardown to release runtime-owned allocations.
     ierr = hipDeviceSynchronize()
+
+    ! Best-effort context teardown to release runtime-owned allocations.
+    ! Skipped in pFUnit-enabled builds: unit tests cycle device
+    ! init/finalize with MPI still up, and device-aware communication
+    ! backends (GPU-aware MPI, RCCL) cache device state from first
+    ! use; resetting the device here would leave them with dangling
+    ! handles
+#ifndef HAVE_PFUNIT
     ierr = hipDeviceReset()
+#endif
   end subroutine hip_finalize
 
   subroutine hip_device_name(name)

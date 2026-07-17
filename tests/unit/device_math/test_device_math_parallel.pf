@@ -6,7 +6,8 @@ module test_device_math_parallel
   use device_math
   use neko_config
   use num_types
-  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use, intrinsic :: iso_c_binding
   implicit none
 
@@ -21,10 +22,10 @@ contains
 
   subroutine setUp(this)
     class(test_device_math), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
-    call comm_init
   end subroutine setUp
 
   subroutine tearDown(this)
@@ -32,6 +33,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call comm_free_test()
   end subroutine tearDown
 
   @test
@@ -622,8 +624,6 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
        do i = 1, n
           a(i) = 1.0_rp
           b(i) = 1.0_rp
@@ -658,8 +658,6 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
        do i = 1, n
           a(i) = 1.0_rp
           b(i) = 1.0_rp
@@ -690,8 +688,6 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
        do i = 1, n
           a(i) = 1.0_rp
        end do
@@ -719,8 +715,6 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
        do i = 1, n
           a(i) = real(i, rp) + 10.0_rp * real(pe_rank, rp)
        end do
@@ -747,8 +741,6 @@ contains
     integer :: i, ierr
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-
-       call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
        do i = 1, n
           a(i) = real(i, rp) + 10.0_rp * real(pe_rank, rp)

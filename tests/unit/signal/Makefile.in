@@ -12,7 +12,7 @@ check: signal_test
 
 
 signal_test_TESTS := test_signal.pf
-signal_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
+signal_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,signal_test))
 signal_test.inc: Makefile
 

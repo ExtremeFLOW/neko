@@ -204,4 +204,3 @@ void opencl_entropy_visc_smooth_divide(void *reg_coeff,
                                   0, NULL, NULL));
   CL_CHECK(clReleaseKernel(kernel));
 }
-

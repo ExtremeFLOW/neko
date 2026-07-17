@@ -9,6 +9,7 @@ module test_mesh_parallel
   use point
   use tuple
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
 
 contains
@@ -19,7 +20,7 @@ contains
     type(mesh_t) :: m
     integer :: ierr, gdim, nelv, expected
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call comm_init_test(this%getMpiCommunicator())
 
     do gdim = 2, 3
        nelv = 42
@@ -38,6 +39,7 @@ contains
        @MPIassertEqual(expected, m%glb_nelv)
     end do
 
+    call comm_free_test()
   end subroutine test_mesh_init_nelv
 
   @test(npes=[1,2])
@@ -47,7 +49,7 @@ contains
     type(linear_dist_t) :: dist
     integer :: ierr, gdim
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(42, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -66,6 +68,7 @@ contains
        @MPIassertEqual(dist%num_global(), m%glb_nelv)
     end do
 
+    call comm_free_test()
   end subroutine test_mesh_init_dist
 
   @test(npes=[1,2])
@@ -78,10 +81,7 @@ contains
     integer :: ierr, i
     integer, parameter :: gdim = 2
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -156,6 +156,7 @@ contains
        end if
     end if
 
+    call comm_free_test()
   end subroutine test_mesh_add_element_quad
 
   @test(npes=[1,2])
@@ -168,7 +169,7 @@ contains
     integer :: ierr, i
     integer, parameter :: gdim = 3
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -276,6 +277,7 @@ contains
        end if
     end if
 
+    call comm_free_test()
   end subroutine test_mesh_add_element_hex
 
   @test(npes=[1,2])
@@ -288,10 +290,7 @@ contains
     integer :: ierr, i, p_local_idx
     integer, parameter :: gdim = 2
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -395,6 +394,7 @@ contains
        end if
     end if
 
+    call comm_free_test()
   end subroutine test_mesh_quad_conn
 
   @test(npes=[1,2])
@@ -407,10 +407,7 @@ contains
     integer :: ierr, i, p_local_idx
     integer, parameter :: gdim = 3
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init_test(this%getMpiCommunicator())
 
     dist = linear_dist_t(2, this%getProcessRank(), &
          this%getNumProcesses(), NEKO_COMM)
@@ -606,6 +603,7 @@ contains
        end if
     end if
 
+    call comm_free_test()
   end subroutine test_mesh_hex_conn
 
   @test
