@@ -354,6 +354,10 @@ var namespaces_dup =
     [ "gs_sx", "d2/dc3/namespacegs__sx.html", "d2/dc3/namespacegs__sx" ],
     [ "gs_utofu", "d3/d29/namespacegs__utofu.html", "d3/d29/namespacegs__utofu" ],
     [ "hdf5_file", "d6/dbe/namespacehdf5__file.html", "d6/dbe/namespacehdf5__file" ],
+    [ "hdf5_session", "d3/d0b/namespacehdf5__session.html", [
+      [ "hdf5_session_finalize", "d3/d0b/namespacehdf5__session.html#af2d2199022ad9fb4f55158546daca5ba", null ],
+      [ "hdf5_session_init", "d3/d0b/namespacehdf5__session.html#a83255e673de14b58b0fefebf44b26395", null ]
+    ] ],
     [ "hex", "d3/da1/namespacehex.html", "d3/da1/namespacehex" ],
     [ "hip_intf", "d0/d4e/namespacehip__intf.html", "d0/d4e/namespacehip__intf" ],
     [ "hip_mappings", "d8/d04/namespacehip__mappings.html", "d8/d04/namespacehip__mappings" ],
