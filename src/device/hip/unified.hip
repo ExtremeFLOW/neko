@@ -95,9 +95,18 @@ extern "C" {
 /**
  * Whether mapped arrays may alias host allocations (zero-copy).
  *
- * Zero-copy is only possible on an APU with unified physical memory
- * and XNACK enabled, such that system allocations are directly and
- * coherently accessible from the device:
+ * Zero-copy is OFF by default and must be opted into with
+ * NEKO_HIP_ZEROCOPY=1: it is correct on a unified-memory APU but
+ * currently slower than replicated buffers on MI300A (the gather-
+ * scatter exchange in particular), so replication is the default
+ * until that overhead is understood.  It also halves the memory
+ * footprint of mapped data, which is its reason to exist as an
+ * opt-in capacity mode.
+ *
+ * When opted in, zero-copy is still only possible on an APU with
+ * unified physical memory and XNACK enabled, such that system
+ * allocations are directly and coherently accessible from the
+ * device:
  *
  *  - The integrated attribute identifies an APU (e.g. MI300A, as
  *    opposed to the discrete MI300X, which shares the same gfx942
@@ -109,31 +118,36 @@ extern "C" {
  *    the process (HSA_XNACK=1, kernel support and xnack-capable
  *    code objects); on an APU with XNACK off it reports 0 and we
  *    fall back to replicated buffers.
- *
- * On capable devices, zero-copy can be disabled with
- * NEKO_HIP_ZEROCOPY=0.
  */
 int hip_zerocopy(void)
 {
   static int zerocopy = -1;
   if (zerocopy < 0) {
-    int dev = 0, integrated = 0, pageable = 0;
     const char *env = getenv("NEKO_HIP_ZEROCOPY");
 
-    if (hipGetDevice(&dev) == hipSuccess &&
-        hipDeviceGetAttribute(&integrated,
-                              hipDeviceAttributeIntegrated,
-                              dev) == hipSuccess &&
-        hipDeviceGetAttribute(&pageable,
-                              hipDeviceAttributePageableMemoryAccess,
-                              dev) == hipSuccess)
-      zerocopy = (integrated && pageable);
-    else
-      zerocopy = 0;
-    (void) hipGetLastError();
+    if (env != NULL && atoi(env) != 0) {
+      int dev = 0, integrated = 0, pageable = 0;
+      if (hipGetDevice(&dev) == hipSuccess &&
+          hipDeviceGetAttribute(&integrated,
+                                hipDeviceAttributeIntegrated,
+                                dev) == hipSuccess &&
+          hipDeviceGetAttribute(&pageable,
+                                hipDeviceAttributePageableMemoryAccess,
+                                dev) == hipSuccess)
+        zerocopy = (integrated && pageable);
+      else
+        zerocopy = 0;
+      (void) hipGetLastError();
 
-    if (zerocopy && env != NULL && atoi(env) == 0)
+      if (!zerocopy)
+        fprintf(stderr,
+                "Neko: warning: NEKO_HIP_ZEROCOPY=1 requested but this "
+                "device does not support zero-copy mapping (needs a "
+                "unified-memory APU with XNACK); using replicated "
+                "buffers\n");
+    } else {
       zerocopy = 0;
+    }
   }
   return zerocopy;
 }

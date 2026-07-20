@@ -38,7 +38,8 @@ module time_scheme_controller
   use bdf_time_scheme, only : bdf_time_scheme_t
   use ext_time_scheme, only : ext_time_scheme_t
   use ab_time_scheme, only : ab_time_scheme_t
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_free, device_map, device_memcpy, device_sync, &
+       HOST_TO_DEVICE
   use vector, only : vector_t
   use, intrinsic :: iso_c_binding
   implicit none
@@ -155,6 +156,20 @@ contains
 
       adv_coeffs_old = adv_coeffs%x
       diff_coeffs_old = diff_coeffs%x
+
+      ! On unified memory backends the coefficient arrays may alias
+      ! their device pointers, and the host-side rewrite below races
+      ! in-flight device work reading them. Rewriting identical values
+      ! is benign, so only drain the device when the coefficients can
+      ! actually change (scheme order still ramping up, or a varying
+      ! time step)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         if ((ndiff .lt. this%diffusion_time_order) .or. &
+              (nadv .lt. this%advection_time_order) .or. &
+              (dt(1) .ne. dt(2))) then
+            call device_sync()
+         end if
+      end if
 
       ! Increment the order of the scheme if below time_order
       ndiff = ndiff + 1
