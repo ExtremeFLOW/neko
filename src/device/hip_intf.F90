@@ -90,6 +90,50 @@ module hip_intf
        type(c_ptr), value :: ptr_d
      end function hipFree
 
+     !> Map host memory to the device (zero-copy on unified memory
+     !! architectures, e.g. MI300A, see device/hip/unified.hip)
+     integer(c_int) function hipMap(ptr_d, ptr_h, s) &
+          bind(c, name = 'hip_map')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: ptr_d
+       type(c_ptr), value :: ptr_h
+       integer(c_size_t), value :: s
+     end function hipMap
+
+     !> Free a device pointer obtained from hipMap
+     !! (no-op for pointers aliasing host memory)
+     integer(c_int) function hipMapFree(ptr_d) &
+          bind(c, name = 'hip_map_free')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+     end function hipMapFree
+
+     !> Memset on a device pointer obtained from hipMap
+     !! (host-side memset for pointers aliasing host memory)
+     integer(c_int) function hipMapMemset(ptr_d, v, s, stream) &
+          bind(c, name = 'hip_map_memset')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+       integer(c_int), value :: v
+       integer(c_size_t), value :: s
+       type(c_ptr), value :: stream
+     end function hipMapMemset
+
+     !> Copy between device/host pointers via the mapping layer
+     !! (kernel-based copy under zero-copy, where either side may
+     !! alias pageable host memory)
+     integer(c_int) function hipMapMemcpy(ptr_dst, ptr_src, s, dir, stream) &
+          bind(c, name = 'hip_map_memcpy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
+       integer(c_size_t), value :: s
+       integer(c_int), value :: dir
+     end function hipMapMemcpy
+
      integer(c_int) function hipMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name = 'hipMemcpy')
        use, intrinsic :: iso_c_binding

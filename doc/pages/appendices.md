@@ -23,6 +23,7 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_GS_COMM`           | Gather-scatter communication backend                                  | Unset         |
 | `NEKO_GS_CAF_SIGNALING`  | Coarray Fortran gather-scatter signaling mode                         | Unset         |
 | `NEKO_COMM_ID`           | Communicator id for this process (non-negative integer)               | 0             |
+| `NEKO_HIP_ZEROCOPY`      | Zero-copy host/device mapping on unified memory (HIP), 1 enables      | 0             |
 | `NEKO_METAL_ZEROCOPY`    | Zero-copy host/device mapping on unified memory (Metal), 0 disables   | 1             |
 | `NEKO_MPI_THREAD_LEVEL`  | Requested MPI (and SHMEM) thread support level                        | Unset         |
 | `NEKO_DEPRECATION_ERROR` | Whether to treat deprecated features as errors (boolean)              | Unset         |
