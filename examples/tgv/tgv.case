@@ -6,7 +6,7 @@
         "output_boundary": true,
         "output_checkpoints": false,
         "output_at_end": true,
-        "load_balance": false,
+        "load_balancing": false,
         "job_timelimit": "00:00:00",
         "time": {
             "end_time": 3.0,

@@ -18,7 +18,7 @@
               "const": "boundary_flux"
             },
             "zone_indices": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArrayOrRef"
+              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArray"
             },
             "field_names": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/simcompFields3"

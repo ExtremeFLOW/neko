@@ -48,6 +48,19 @@
           "$ref": "urn:neko:schema:common#/$defs/unitIntervalExclusiveOrRef"
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "variable_timestep": {"const": true}
+            },
+            "required": ["variable_timestep"]
+          },
+          "else": {
+            "required": ["timestep"]
+          }
+        }
+      ],
       "additionalProperties": false
     }
   }

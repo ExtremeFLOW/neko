@@ -35,7 +35,7 @@ module pipecg_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
+  use num_types, only : rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -45,7 +45,9 @@ module pipecg_device
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, &
        device_glsc3, device_vlsc3
-  use device
+  use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
+       device_event_create, device_unmap, device_free, device_event_destroy, &
+       device_get_ptr, device_event_sync
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Iallreduce, MPI_Status, &
@@ -152,16 +154,19 @@ contains
     real(c_rp) :: alpha, beta, reduction(3)
 #ifdef HAVE_HIP
     call hip_pipecg_vecops(p_d, q_d, r_d,&
-         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, &
+         mult_d, reduction,n)
 #elif HAVE_CUDA
     call cuda_pipecg_vecops(p_d, q_d, r_d,&
-         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, mult_d, reduction,n)
+         s_d, u_d1, u_d2, w_d, z_d, ni_d, mi_d, alpha, beta, &
+         mult_d, reduction,n)
 #else
     call neko_error('No device backend configured')
 #endif
   end subroutine device_pipecg_vecops
 
-  subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, p_cur, p_space, n)
+  subroutine device_cg_update_xp(x_d, p_d, u_d_d, alpha, beta, &
+       p_cur, p_space, n)
     use, intrinsic :: iso_c_binding
     type(c_ptr), value :: x_d, p_d, u_d_d, alpha, beta
     integer(c_int) :: p_cur, n, p_space
@@ -175,7 +180,8 @@ contains
   end subroutine device_cg_update_xp
 
   !> Initialise a pipelined PCG solver
-  subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
+       monitor)
     class(pipecg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -389,8 +395,8 @@ contains
       call device_copy(r_d, f_d, n)
       !apply u=M^-1r
       !call device_copy(u_d(u_prev), r_d, n)
-      call this%M%solve(u(1,u_prev), r, n)
-      call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
+      call this%M%solve(u(1, u_prev), r, n)
+      call Ax%compute(w, u(1, u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call device_event_sync(this%gs_event)
       call bc_resolver%apply(w, n)

@@ -22,6 +22,9 @@
         },
         "h_index": {
           "$ref": "urn:neko:schema:common#/$defs/integerOrRef"
+        },
+        "model": {
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         }
       },
       "additionalProperties": true
@@ -57,10 +60,8 @@
             "type": {
               "enum": [
                 "outflow",
-                "outflow+dong",
                 "outflow+user",
                 "normal_outflow",
-                "normal_outflow+dong",
                 "normal_outflow+user"
               ]
             },
@@ -84,6 +85,37 @@
           ],
           "properties": {
             "type": {
+              "enum": [
+                "outflow+dong",
+                "normal_outflow+dong"
+              ]
+            },
+            "zone_indices": {
+              "$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"
+            },
+            "name": {
+              "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
+            },
+            "value": {
+              "$ref": "urn:neko:schema:common#/$defs/vector3OrRef"
+            },
+            "delta": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "velocity_scale": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "zone_indices"
+          ],
+          "properties": {
+            "type": {
               "const": "overset_interface"
             },
             "zone_indices": {
@@ -93,6 +125,26 @@
               "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             },
             "couple_pressure": {
+              "type": "boolean"
+            },
+            "interpolation": {
+              "type": "object",
+              "properties": {
+                "tolerance": {
+                  "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+                },
+                "padding": {
+                  "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+                }
+              },
+              "additionalProperties": false
+            },
+            "order": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3
+            },
+            "log": {
               "type": "boolean"
             }
           },
@@ -142,6 +194,38 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/wallModelBase"
+            },
+            {
+              "type": "object",
+              "required": [
+                "kappa",
+                "B"
+              ],
+              "properties": {
+                "model": {
+                  "const": "cai_sagaut_model_ii"
+                },
+                "kappa": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "B": {
+                  "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+                },
+                "p": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "s": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
         },
         {
           "allOf": [
@@ -331,7 +415,8 @@
           "type": "object",
           "required": [
             "type",
-            "zone_indices"
+            "zone_indices",
+            "value"
           ],
           "properties": {
             "type": {

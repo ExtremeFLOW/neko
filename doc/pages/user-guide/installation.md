@@ -269,6 +269,8 @@ $ ./configure --with-metal --enable-real=sp
 
 @note Apple GPUs do not support double precision; the Metal backend requires Neko to be configured with single precision (`--enable-real=sp`).
 
+@note On devices with unified memory (Apple Silicon), the Metal backend maps arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data. Zero-copy mapping can be disabled at runtime by setting the environment variable `NEKO_METAL_ZEROCOPY=0`, which restores fully replicated buffers. On GPUs without unified memory (e.g. AMD GPUs in Intel-based Macs), buffers are always replicated.
+
 @note More examples, and instructions for specific machines can be found on Neko's [user discussions](https://github.com/ExtremeFLOW/neko/discussions) pages.
 
 #### Compiling Neko with a collective communications library

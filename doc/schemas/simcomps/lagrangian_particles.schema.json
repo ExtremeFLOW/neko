@@ -24,6 +24,7 @@
             "inertia"
           ],
           "properties": {
+            "wall_zone_indices": false,
             "type": {
               "const": "lagrangian_particles"
             },
@@ -53,13 +54,12 @@
               ]
             },
             "nonlinear_coefficient": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+              "type": "number",
+              "x-neko-real": true
             },
             "nonlinear_exponent": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
-            },
-            "wall_zone_indices": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/integerArrayOrRef"
+              "type": "number",
+              "x-neko-real": true
             },
             "interpolation": {
               "type": "object",
@@ -77,7 +77,8 @@
               "type": "boolean"
             },
             "start_time": {
-              "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+              "type": "number",
+              "x-neko-real": true
             },
             "output_filename": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/nonEmptyString"
@@ -94,16 +95,21 @@
               "$ref": "#/$defs/positiveIntegerOrAll"
             }
           },
-          "oneOf": [
+          "allOf": [
             {
-              "required": [
-                "coordinates"
+              "anyOf": [
+                {"required": ["coordinates"]},
+                {"required": ["points_file"]}
               ]
             },
             {
-              "required": [
-                "points_file"
-              ]
+              "if": {
+                "properties": {"inertia": {"const": true}},
+                "required": ["inertia", "coordinates"]
+              },
+              "then": {
+                "required": ["velocities", "diameters", "densities"]
+              }
             }
           ],
           "additionalProperties": true

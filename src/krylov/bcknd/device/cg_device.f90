@@ -32,7 +32,7 @@
 !
 !> Defines various Conjugate Gradient methods for accelerators
 module cg_device
-  use num_types, only: rp
+  use num_types, only : rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -43,11 +43,13 @@ module cg_device
   use vector_bc_resolver, only : vector_bc_resolver_t, &
        vector_bc_resolver_components
   use math, only : abscmp
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  private
 
   !> Device based preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_device_t
@@ -159,7 +161,8 @@ contains
   end subroutine cg_device_free
 
   !> Standard PCG solve
-  function cg_device_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) result(ksp_results)
+  function cg_device_solve(this, Ax, x, f, n, coef, bc_resolver, gs_h, niter) &
+       result(ksp_results)
     class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
