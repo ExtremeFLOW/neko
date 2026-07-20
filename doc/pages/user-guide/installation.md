@@ -257,6 +257,8 @@ $ ./configure  --with-hip=/opt/rocm/hip
 $ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc
 ```
 
+@note On APUs with unified physical memory (e.g. AMD Instinct MI300A) and XNACK enabled (`HSA_XNACK=1`), Neko can map arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data, but is currently slower per step than replicated buffers on MI300A, so it is **off by default** and is intended as an opt-in capacity mode for running larger cases. Enable it at runtime by setting the environment variable `NEKO_HIP_ZEROCOPY=1`; it then activates only on a supported APU with XNACK (discrete GPUs such as MI250X always use replicated buffers, and requesting it there prints a warning and falls back). Since host and device share one allocation under zero-copy, host code (e.g. user routines) must not write to a mapped array while device work touching it may be in flight; synchronize with `device_sync` first.
+
 #### Compiling Neko for Apple Silicon GPUs
 To compile Neko for Apple Silicon GPUs (macOS only)
 * Make sure you have Xcode with the Metal shader compiler installed (since Xcode 26 the Metal toolchain is a separate download, install via `xcodebuild -downloadComponent MetalToolchain`)

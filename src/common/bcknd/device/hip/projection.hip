@@ -36,6 +36,7 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include <device/hip/buffer.h>
+#include <device/hip/unified.h>
 
 #include "projection_kernel.h"
 #include <math/bcknd/device/hip/math_kernel.h>
@@ -80,7 +81,21 @@ extern "C" {
     HIP_CHECK(hipMemcpyAsync(alpha, proj_bufred_d, (*j) * sizeof(real),
                              hipMemcpyDeviceToDevice,
                              (hipStream_t) glb_cmd_queue));
-    HIP_CHECK(hipMemsetAsync(xbar, 0, (*n) * sizeof(real)));
+    if (hip_zerocopy()) {
+      /* xbar may alias pageable host memory, which hipMemset rejects;
+         zero with a kernel instead (works on any pointer) */
+      const dim3 zero_nthrds(1024, 1, 1);
+      const dim3 zero_nblcks((*n) > 0 ? ((*n) + 1024 - 1) / 1024 : 1, 1, 1);
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
+                         zero_nblcks, zero_nthrds, 0,
+                         (hipStream_t) glb_cmd_queue,
+                         (real *) xbar, (real) 0.0, *n);
+      HIP_CHECK(hipGetLastError());
+    }
+    else {
+      HIP_CHECK(hipMemsetAsync(xbar, 0, (*n) * sizeof(real)));
+    }
 
     HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
