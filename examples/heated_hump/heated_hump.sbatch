@@ -20,7 +20,7 @@ export LD_LIBRARY_PATH=$HOME/json-fortran-install/jsonfortran-gnu-9.2.0/lib:$LD_
 # Add the LOW-MACH Neko fork to PATH  (NOT $HOME/neko-install -- that one has no lowmach)
 export PATH=$HOME/neko-lowmach-install/bin:$PATH
 # Change to project directory
-cd /proj/liu2/users/x_adigh/neko_low_mach_solver/
+cd /proj/liu-compute-2026-4/users/x_adigh/neko_low_mach_solver/
 echo "Working directory: $(pwd)"
 # Get total number of MPI ranks
 NPROCS=$(( SLURM_JOB_NUM_NODES * 32 ))
