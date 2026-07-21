@@ -70,7 +70,7 @@ contains
              do i = 2, s%Xh%lx-1
                 rand = cos(real(e + s%msh%offset_el, rp) * real(i*j*k, rp))
                 z = s%dof%z(i,j,k,e)
-                s%x(i,j,k,e) = 2.0_rp - z + 0.0001_rp*rand* &
+                s%x(i,j,k,e) = 2.0_rp - z + 0.01_rp*rand* &
                      sin(4.0_rp*pi/4.5_rp * s%dof%x(i,j,k,e)) &
                      * sin(4.0_rp*pi/4.5_rp * s%dof%y(i,j,k,e))
              end do

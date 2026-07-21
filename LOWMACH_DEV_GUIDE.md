@@ -64,8 +64,8 @@ operators, the krylov solvers, the AB/BDF time scheme) and adds:
 
 | member | meaning |
 |---|---|
-| `low_mach_enabled` | master switch; if false, `step` runs vanilla pnpn |
 | `P0, R_specific` | EOS constants (`case.fluid.low_mach.P0 / .R_specific`) |
+| `property_model` | optional built-in `mu(T)`/`lambda(T)` law (`none`/`sutherland`/`power_law`) |
 | `T_eos_min, T_eos_max` | clamp on T used in the EOS (robustness, §3) |
 | `k_cond, cp` | fallback constant conductivity / cp (used only if the scalar fields are absent) |
 | `T_field_name, T_ptr` | name + lazily-resolved pointer to the temperature field |
@@ -214,13 +214,16 @@ density ratios; cache the `p`-independent part of the residual.
 --------------------------------------------------------------------------------
 ## 8. Variable-density RHS makers
 
-`lm_rhs_ext_field_rho`, `lm_rhs_bdf_field_rho`, `lm_rhs_oifs_field_rho` are
-variable-ρ counterparts of `rhs_maker_*_cpu`: they assemble the AB-extrapolated
-forcing history and the BDF lagged-velocity term weighting **per node by ρ(x)**
-instead of a scalar ρ. Consequence for source terms: a user `source_term`
-provides an **acceleration**; the rhs-maker multiplies it by ρ to get the body
-force. (So gravity is passed as `(ρ_ref/ρ − 1) g` → ×ρ → `−(ρ−ρ_ref) g`, the
-reduced buoyancy.)
+The **standard** rhs makers (`rhs_maker_ext/bdf/oifs`, `src/common/rhs_maker.f90`)
+take the density as a **field array** `rho(n)`, so the low-Mach scheme reuses
+them unchanged — it passes the full `rho` field exactly where the incompressible
+solver passes the (uniform) `rho` field. There are no low-Mach-specific maker
+types. The CPU and SX backends weight per node by `rho(i)`; the device backend
+currently passes the constant `rho(1)` (variable-density on device is a TODO,
+matching §13). Consequence for source terms: a user `source_term` provides an
+**acceleration**; the rhs-maker multiplies it by ρ(x) to get the body force.
+(So gravity is passed as `(ρ_ref/ρ − 1) g` → ×ρ → `−(ρ−ρ_ref) g`, the reduced
+buoyancy.)
 
 --------------------------------------------------------------------------------
 ## 9. Time step — `fluid_lowmach_pnpn_step`
@@ -243,11 +246,20 @@ explicit coupling — standard, fine).
 --------------------------------------------------------------------------------
 ## 10. Material properties / coupling (user side)
 
-Variable `μ(T)`, `λ(T)`, `cp` are supplied through the Neko `material_properties`
-user hook:
-- `scheme_name == 'fluid'`  → `properties = [rho, mu]`; set `mu = μ(T)`
-  (Sutherland). `ax_helm_full` then uses it (variable-μ stress). Do **not**
-  overwrite `rho` (the EOS owns it).
+Variable `μ(T)`, `λ(T)`, `cp` can be supplied two ways:
+
+**(a) Built-in property model (no user code).** Set
+`case.fluid.low_mach.property_model.type` to `sutherland` or `power_law` and the
+scheme fills `mu` and the scalar's `lambda` from the law each step
+(`lowmach_update_properties`), keeping the `_tot` fields in sync so the Q_T
+assembly and both Helmholtz solves see the fresh values. Config keys:
+`mu_ref`, `lambda_ref`, `T_ref`, `exponent` (power_law), `S_mu`, `S_lambda`
+(sutherland). See `examples/heated_channel/heated_channel_builtin.{case,f90}` for
+a hook-free example. Default `type` is `none` (use the hook below).
+
+**(b) The Neko `material_properties` user hook** (overrides the built-in model):
+- `scheme_name == 'fluid'`  → `properties = [rho, mu]`; set `mu = μ(T)`. Do
+  **not** overwrite `rho` (the EOS owns it).
 - `scheme_name == 'temperature'` → `properties = [cp, lambda]`; set
   `lambda = λ(T)`, `cp`. `Q_T` reads the same `λ`/`cp` fields ⇒ consistent.
 
@@ -257,19 +269,25 @@ a user `source_term`.
 --------------------------------------------------------------------------------
 ## 11. Required configuration
 
+Selecting `"scheme": "lowmach"` makes the scheme low-Mach unconditionally (there
+is no `enabled` toggle — use `"scheme": "pnpn"` for the incompressible solver).
+`full_stress_formulation` and a `coupled_cg` velocity solver are **forced in code**
+(`init` injects them before the parent init), so they may be omitted.
+
 ```jsonc
 "fluid": {
   "scheme": "lowmach",
-  "full_stress_formulation": true,          // REQUIRED (coupled stress operator)
-  "velocity_solver": { "type": "coupled_cg", ... },   // REQUIRED with full stress
   "pressure_solver": { "type": "gmres", "preconditioner": {"type":"hsmg"},
                        "absolute_tolerance": 1e-6 },   // tight inner tol
   "low_mach": {
-     "enabled": true,
      "P0": 101325.0, "R_specific": 287.0,   // EOS (air); default 1.0 (non-dim)
      "cp": 1005.0, "k_conductivity": 0.06,  // fallback consts if no scalar fields
-     "T_eos_min": 250.0, "T_eos_max": 700.0,
-     "temperature_field": "temperature"
+     "T_eos_min": 250.0, "T_eos_max": 1800.0,
+     "temperature_field": "temperature",
+     // Optional built-in property model (else use a material_properties hook):
+     "property_model": { "type": "sutherland", "mu_ref": 1.716e-5,
+                         "lambda_ref": 0.0241, "T_ref": 273.0,
+                         "S_mu": 110.4, "S_lambda": 194.0 }
   }
 },
 "scalar": { "name": "temperature", "enabled": true, ... }   // the energy equation
