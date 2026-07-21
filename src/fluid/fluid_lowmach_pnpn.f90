@@ -66,7 +66,7 @@ module fluid_lowmach_pnpn
   use time_step_controller, only : time_step_controller_t
   use profiler, only : profiler_start_region, profiler_end_region
   use field_math, only : field_add2, field_copy
-  use math, only : glsc2, glmin, glmax, rzero
+  use math, only : glsc2, rzero
   use, intrinsic :: iso_c_binding, only : c_ptr
   use operators, only : ortho, rotate_cyc, opgrad, cdtp, dudxyz
   use scratch_registry, only : neko_scratch_registry
@@ -128,6 +128,8 @@ module fluid_lowmach_pnpn
      procedure, pass(this) :: init => fluid_lowmach_pnpn_init
      procedure, pass(this) :: free => fluid_lowmach_pnpn_free
      procedure, pass(this) :: step => fluid_lowmach_pnpn_step
+     procedure, pass(this) :: prepare_scalar_coupling => &
+          lowmach_prepare_scalar_coupling
   end type fluid_lowmach_pnpn_t
 
 contains
@@ -158,6 +160,12 @@ contains
     call this%fluid_pnpn_t%init(msh, lx, params, user, chkp)
 
     ! Low-Mach parameters — all under case.fluid.low_mach, all optional.
+    ! heat_first: Nek5000 step ordering (scalar solve, then rho/properties/Q_T
+    ! from the fresh T^{n+1}, then fluid). Default ON for low-Mach; set to
+    ! false to recover the stock fluid-first ordering (one-step rho/Q_T lag)
+    ! for comparisons.
+    call json_get_or_default(params, 'case.fluid.low_mach.heat_first', &
+         this%scalar_first, .true.)
     call json_get_or_default(params, 'case.fluid.low_mach.P0', &
          this%P0, 1.0_rp)
     call json_get_or_default(params, 'case.fluid.low_mach.R_specific', &
@@ -275,6 +283,19 @@ contains
 
   !> Update the density field from the temperature field using the ideal-gas
   !! EOS rho = P0 / (R_specific * T).
+  !> Fill rho = P0/(R T) and mu(T)/lambda(T) from the CURRENT temperature so a
+  !! scalar-first step (case.fluid.low_mach.heat_first) has valid coupled
+  !! fields — Nek5000's setprop-at-init equivalence. Needed at step 1, where
+  !! the fluid's own start-of-step updates have never run and rho would
+  !! otherwise still hold its constant init value; for later steps it
+  !! recomputes the values the previous fluid step left (T unchanged since),
+  !! so it is idempotent.
+  subroutine lowmach_prepare_scalar_coupling(this)
+    class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
+    call lowmach_update_density(this)
+    call lowmach_update_properties(this)
+  end subroutine lowmach_prepare_scalar_coupling
+
   subroutine lowmach_update_density(this)
     class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
     integer :: i, n
@@ -369,9 +390,10 @@ contains
   !! divergence (div u = Q_T) for an ideal gas with constant background
   !! pressure (no volumetric heat release, open domain so dP0/dt = 0).
   !!
-  !! This mirrors Nek5000 userqtl_scig (plan4.f): grad T (weak) -> assemble ->
-  !! 1/B (strong grad) -> multiply by the conductivity field lambda -> weak
-  !! divergence -> assemble -> 1/B (strong) -> divide by (rho cp T). The
+  !! This mirrors Nek5000 userqtl_scig (plan4.f): strong grad T weighted by
+  !! the local mass B -> assemble -> Binv (mass-weighted C0 gradient) ->
+  !! multiply by the conductivity field lambda -> strong divergence, again
+  !! B -> assemble -> Binv -> divide by (rho cp T). The
   !! crucial point is that lambda and cp here are the SAME spatially varying
   !! fields the scalar (energy) equation uses (Nek5000's vdiff/vtrans of the
   !! temperature field), so the imposed velocity divergence is consistent with
@@ -428,25 +450,38 @@ contains
     call dudxyz(gz%x, this%T_ptr%x, this%c_Xh%drdz, this%c_Xh%dsdz, &
          this%c_Xh%dtdz, this%c_Xh)
 
-    ! Make the gradient continuous (gs_op ADD then average via mult = 1/count)
-    ! and multiply by the conductivity lambda(T) (else constant k_cond).
+    ! Make the gradient continuous with a MASS-WEIGHTED average: weight the
+    ! discontinuous element derivatives by the local mass matrix B, assemble
+    ! (gs_op ADD), then multiply by Binv = 1/(assembled B). This is exactly
+    ! Nek5000's B-weight -> dssum -> binvm1 (opgrad/opdssum/binvm1) and
+    ! nekRS's JW -> oogs -> invLMM. A plain multiplicity average (mult =
+    ! 1/count) coincides with it only where neighbouring elements have equal
+    ! Jacobians at the shared points; on graded (boundary-layer) meshes it
+    ! biases the interface values, and the bias enters TWICE (gradient and
+    ! divergence). Then multiply by the conductivity lambda(T) (else the
+    ! constant k_cond).
+    do concurrent (i = 1:n)
+       gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%B(i,1,1,1)
+       gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%B(i,1,1,1)
+       gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%B(i,1,1,1)
+    end do
     call this%gs_Xh%op(gx, GS_OP_ADD)
     call this%gs_Xh%op(gy, GS_OP_ADD)
     call this%gs_Xh%op(gz, GS_OP_ADD)
     if (have_lambda) then
        do concurrent (i = 1:n)
-          gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) &
+          gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) &
                * this%lambda_ptr%x(i,1,1,1)
-          gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) &
+          gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) &
                * this%lambda_ptr%x(i,1,1,1)
-          gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) &
+          gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) &
                * this%lambda_ptr%x(i,1,1,1)
        end do
     else
        do concurrent (i = 1:n)
-          gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) * this%k_cond
-          gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) * this%k_cond
-          gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%mult(i,1,1,1) * this%k_cond
+          gx%x(i,1,1,1) = gx%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
+          gy%x(i,1,1,1) = gy%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
+          gz%x(i,1,1,1) = gz%x(i,1,1,1) * this%c_Xh%Binv(i,1,1,1) * this%k_cond
        end do
     end if
 
@@ -464,10 +499,16 @@ contains
        this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) + w1%x(i,1,1,1)
     end do
 
+    ! Same mass-weighted assembly for the divergence: B -> gs_op ADD -> Binv
+    ! (Nek5000 dssum(qtl) + col2(qtl, binvm1); nekRS oogs + invLMM).
+    do concurrent (i = 1:n)
+       this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
+            * this%c_Xh%B(i,1,1,1)
+    end do
     call this%gs_Xh%op(this%Q_T_field, GS_OP_ADD)
     do concurrent (i = 1:n)
        this%Q_T_field%x(i,1,1,1) = this%Q_T_field%x(i,1,1,1) &
-            * this%c_Xh%mult(i,1,1,1)
+            * this%c_Xh%Binv(i,1,1,1)
     end do
 
     ! Add the volumetric heat source q (STRONG form, point values) so that
@@ -689,10 +730,10 @@ contains
   !! spatially varying 1/rho; the preconditioner only accelerates.
   !!
   !! We reproduce that here WITHOUT touching the shared hsmg or the
-  !! incompressible solver: pc_prs%update is called while c_Xh%h1 holds a single
-  !! constant cref, so hsmg only ever sees a uniform coefficient (exactly as in
-  !! the constant-density case); c_Xh%h1 is then restored to 1/rho(x) for the
-  !! GMRES operator. One GMRES pass per step -- no defect-correction loop.
+  !! incompressible solver: pc_prs%update is called while c_Xh%h1 holds the
+  !! constant 1, so hsmg only ever sees a uniform unit coefficient (exactly as
+  !! in the constant-density case); c_Xh%h1 is then restored to 1/rho(x) for
+  !! the GMRES operator. One GMRES pass per step -- no defect-correction loop.
   subroutine lowmach_pressure_solve(this, time, dt_controller, bd, dt, n, &
        ksp_result)
     class(fluid_lowmach_pnpn_t), target, intent(inout) :: this
@@ -702,7 +743,6 @@ contains
     integer, intent(in) :: n
     type(ksp_monitor_t), intent(out) :: ksp_result
     type(c_ptr) :: event
-    real(kind=rp) :: cref, hmin, hmax
     integer :: i, nl
 
     associate (c_Xh => this%c_Xh, gs_Xh => this%gs_Xh, Ax_prs => this%Ax_prs, &
@@ -731,15 +771,19 @@ contains
            dt_controller, Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
            string = 'Pressure')
 
-      ! 3. Refresh the preconditioner on a CONSTANT-coefficient operator
-      !    (Nek5000 h1mg uses mg_h1 = const). cref = midpoint of the 1/rho
-      !    range. hsmg only ever sees a uniform h1 here, so neither pc_hsmg
-      !    nor the incompressible solver is affected.
-      hmin = glmin(c_Xh%h1, n)
-      hmax = glmax(c_Xh%h1, n)
-      cref = 0.5_rp * (hmin + hmax)
+      ! 3. Refresh the preconditioner on a CONSTANT-coefficient operator with
+      !    h1 = 1, exactly like Nek5000: its Schwarz/FDM smoothers are
+      !    geometry-only (scale 1) and its coarse XXT matrix is assembled with
+      !    h1 = 1 (navier8.f). In Neko's additive hsmg the coefficient enters
+      !    ONLY the coarse-level solve, so any constant h1 = cref /= 1 damps
+      !    the coarse correction by 1/cref relative to the (implicitly
+      !    scale-1) Schwarz terms -- a component-relative skew that GMRES
+      !    cannot absorb (only a GLOBAL rescale of the whole preconditioner
+      !    leaves the iterates unchanged). h1 = 1 keeps every preconditioner
+      !    component mutually consistent, matching Nek5000 and nekRS (which
+      !    uses one constant lambda0Avg on all pMG levels AND its coarse AMG).
       do concurrent (i = 1:n)
-         c_Xh%h1(i,1,1,1) = cref
+         c_Xh%h1(i,1,1,1) = 1.0_rp
       end do
       c_Xh%ifh2 = .false.
       call this%pc_prs%update()

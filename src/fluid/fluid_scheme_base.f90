@@ -107,6 +107,13 @@ module fluid_scheme_base
      !> Is the fluid frozen at the moment
      logical :: freeze = .false.
 
+     !> Step the scalars BEFORE the fluid inside each time step (Nek5000
+     !! low-Mach ordering heat -> properties -> Q_T -> fluid, so rho and Q_T
+     !! are built from T^{n+1} instead of lagging one step). Default .false.
+     !! keeps the stock fluid-first ordering; the low-Mach scheme enables it
+     !! via case.fluid.low_mach.heat_first.
+     logical :: scalar_first = .false.
+
      !> User material properties routine
      procedure(user_material_properties_intf), nopass, pointer :: &
           user_material_properties => null()
@@ -131,6 +138,10 @@ module fluid_scheme_base
      !> Set rho and mu
      procedure(update_material_properties), pass(this), deferred :: &
           update_material_properties
+     !> Prepare coupled fields (e.g. EOS density) the scalar needs when it
+     !! steps BEFORE the fluid (scalar_first); default no-op.
+     procedure, pass(this) :: prepare_scalar_coupling => &
+          fluid_base_prepare_scalar_coupling
   end type fluid_scheme_base_t
 
   !> Initialize all fields
@@ -290,4 +301,14 @@ module fluid_scheme_base
        character(len=*) :: type_name
      end subroutine fluid_scheme_base_factory
   end interface
+contains
+
+  !> Default no-op. Schemes whose scalars depend on fluid-owned coupled fields
+  !! (low-Mach: rho = P0/(R T), mu(T)/lambda(T)) override this so those fields
+  !! are valid BEFORE the first scalar-first step (bootstrap: at step 1 the
+  !! fluid has not yet run its start-of-step updates).
+  subroutine fluid_base_prepare_scalar_coupling(this)
+    class(fluid_scheme_base_t), target, intent(inout) :: this
+  end subroutine fluid_base_prepare_scalar_coupling
+
 end module fluid_scheme_base

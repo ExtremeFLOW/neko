@@ -151,6 +151,18 @@ contains
     call neko_simcomps%preprocess(C%time)
     call neko_log%end_section()
 
+    ! Scalar step BEFORE the fluid when the scheme requests it (Nek5000
+    ! low-Mach ordering: heat -> properties/Q_T from T^{n+1} -> fluid).
+    if (C%fluid%scalar_first .and. allocated(C%scalars)) then
+       start_time = MPI_WTIME()
+       call neko_log%section('Scalar')
+       call C%fluid%prepare_scalar_coupling()
+       call C%scalars%step(C%time, C%fluid%ext_bdf, dt_controller)
+       end_time = MPI_WTIME()
+       write(log_buf, '(A,6X,E15.7)') 'Scalar step time:', end_time - start_time
+       call neko_log%end_section(log_buf)
+    end if
+
     ! Fluid step
     call neko_log%section('Fluid')
     start_time = MPI_WTIME()
@@ -159,8 +171,8 @@ contains
     write(log_buf, '(A,3X,E15.7)') 'Fluid step time (s):', end_time - start_time
     call neko_log%end_section(log_buf)
 
-    ! Scalar step
-    if (allocated(C%scalars)) then
+    ! Scalar step (stock ordering)
+    if ((.not. C%fluid%scalar_first) .and. allocated(C%scalars)) then
        start_time = MPI_WTIME()
        call neko_log%section('Scalar')
        call C%scalars%step(C%time, C%fluid%ext_bdf, dt_controller)
