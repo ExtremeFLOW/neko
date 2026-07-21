@@ -1,28 +1,18 @@
 ! =====================================================================
 !  Flow over a wall-mounted hump, low-Mach, with:
-!   * SUSTAINED turbulent inflow  -> recycling (global_interpolation): the
-!     flow from a plane x_rec upstream of the hump is re-injected at the
-!     inlet every step (bulk-velocity rescaled), so genuine turbulent
-!     structures feed the inlet indefinitely. Seeded by a turbulent IC and
-!     kept lit by a small near-inlet trip.
+!   * STEADY inlet: a fixed PARABOLIC (fully-developed laminar) profile, zero at
+!     the walls, bulk = U_in exactly, smooth near-wall layer (no thin-shear
+!     corner). NO recycling. LOW Reynolds number (~500) -> laminar & stable;
+!     raise Re later, once the case runs cleanly.
 !   * HEATED lower wall for x > x_heat (T ramps T_cold -> T_hot=2), cold
 !     elsewhere; ideal-gas rho = P0/(R T) = 1/T.
 !   * GRAVITY / buoyancy (reduced-gravity body force in -y).
 !
-!  Incremental switches (do_heat / do_gravity / do_trip) let us validate
-!  the recycling isothermally first, then turn on heating and gravity.
+!  Incremental switches (do_heat / do_gravity / do_trip) let us isolate.
 ! =====================================================================
 module user
   use neko
   implicit none
-
-  ! ---- recycling state (mirrors examples/recycling/recycling.f90) ----
-  type(global_interpolation_t) :: interp
-  type(matrix_t) :: xyz
-  type(vector_t) :: res, Bw
-  real(kind=rp) :: vol
-  integer :: n_pts = 0
-  logical :: rec_init = .false.
 
   ! ---- geometry / flow parameters (nondimensional) ----
   real(kind=rp), parameter :: U_in   = 1.0_rp
@@ -30,7 +20,7 @@ module user
   real(kind=rp), parameter :: Ly     = 3.0_rp
   real(kind=rp), parameter :: Lz     = 4.0_rp
   real(kind=rp), parameter :: Hhump  = 1.0_rp          ! hump height = length scale
-  real(kind=rp), parameter :: Re_in  = 500.0_rp     ! lower Re -> larger mu_ref (more dissipation)
+  real(kind=rp), parameter :: Re_in  = 500.0_rp     ! LOW Re -> laminar, stable (raise later once running)
   real(kind=rp), parameter :: Pr     = 0.71_rp
   real(kind=rp), parameter :: rho_ref = 1.0_rp         ! cold reference density
   real(kind=rp), parameter :: mu_ref = rho_ref*U_in*Hhump/Re_in
@@ -41,20 +31,17 @@ module user
   real(kind=rp), parameter :: T_hot  = 2.0_rp          ! "heating a bit, ~2"
   real(kind=rp), parameter :: x_heat = 11.0_rp         ! heated wall starts (hump ends x=8)
   real(kind=rp), parameter :: dx_ramp = 1.0_rp         ! smoothstep ramp width
-  real(kind=rp), parameter :: g_nd   = 0.5_rp          ! buoyancy magnitude (reduced for stability)
+  real(kind=rp), parameter :: g_nd   = 0.15_rp         ! buoyancy magnitude (reduced for stability)
 
-  ! ---- recycling plane: x = inlet + x_rec, upstream of hump foot (x=4) ----
-  real(kind=rp), parameter :: x_rec  = 3.0_rp
-
-  ! ---- near-inlet trip (insurance for sustained transition) ----
+  ! ---- near-inlet trip (seeds transition for the steady inlet) ----
   real(kind=rp), parameter :: trip_x0 = 0.5_rp, trip_x1 = 1.0_rp
   real(kind=rp), parameter :: trip_yh = 0.4_rp         ! within this height of the lower wall
-  real(kind=rp), parameter :: trip_A  = 0.2_rp        ! reduced trip amplitude
+  real(kind=rp), parameter :: trip_A  = 0.2_rp         ! trip amplitude
 
   ! ---- incremental switches ----
   logical, parameter :: do_heat    = .true.
-  logical, parameter :: do_gravity = .true.
-  logical, parameter :: do_trip    = .true.
+  logical, parameter :: do_gravity = .false.   ! OFF to isolate: buoyancy (Rayleigh-Benard off the heated wall) is the prime late-blow-up suspect
+  logical, parameter :: do_trip    = .false.   ! OFF: the hump trips the flow; the trip was destabilizing the laminar inlet
 
 contains
 
@@ -74,6 +61,16 @@ contains
     call params%add("case.scalar.lambda", k_ref)
     call params%add("case.scalar.cp", 1.0_rp)
   end subroutine startup
+
+  !> Steady PARABOLIC inlet profile (fully-developed laminar): 0 at the walls,
+  !! smooth, peak 1.5 at the centre, bulk = U_in EXACTLY (no thin-shear corner,
+  !! no bulk-flux over-supply -- both fix the prior blunt-profile blow-up).
+  pure function uin_profile(y) result(uu)
+    real(kind=rp), intent(in) :: y
+    real(kind=rp) :: uu, yn
+    yn = min(max(y/Ly, 0.0_rp), 1.0_rp)
+    uu = U_in * 1.5_rp * (1.0_rp - (2.0_rp*yn - 1.0_rp)**2)
+  end function uin_profile
 
   !> Constant transport properties (robust first build): mu, lambda, cp.
   subroutine material_properties(scheme_name, properties, time)
@@ -99,35 +96,32 @@ contains
     end if
   end subroutine material_properties
 
-  !> IC: fluid -> turbulent (blunt channel mean + multi-scale perturbations +
-  !! random kick) so the recycle plane is turbulent from step 1; temperature
-  !! -> uniform cold (the wall heating builds the hot layer downstream).
+  !> IC: fluid -> the steady inlet mean profile + GENTLE perturbations (seed
+  !! transition without a violent impulsive start); temperature -> uniform cold
+  !! (the wall heating builds the hot layer downstream).
   subroutine ics(scheme_name, fields)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
     type(field_t), pointer :: u, v, w, s
     integer :: i, n
-    real(kind=rp) :: xx, yy, zz, yn, um, gy, r1, r2, r3
+    real(kind=rp) :: xx, yy, zz, um, gy, r1, r2, r3
 
     if (scheme_name .eq. 'fluid') then
        u => fields%items(1)%ptr; v => fields%items(2)%ptr; w => fields%items(3)%ptr
        n = u%dof%size()
        do i = 1, n
           xx = u%dof%x(i,1,1,1); yy = u%dof%y(i,1,1,1); zz = u%dof%z(i,1,1,1)
-          yn = min(max(yy/Ly, 0.0_rp), 1.0_rp)
-          ! blunt turbulent-like mean (0 at walls, flat core), bulk ~ U_in
-          um = U_in * 1.25_rp * (1.0_rp - (2.0_rp*yn - 1.0_rp)**8)
-          ! near-wall localisation of the perturbations
+          um = uin_profile(yy)
+          ! near-wall localisation of the (gentle) perturbations
           gy = exp(-((yy - 0.3_rp)/0.3_rp)**2) + exp(-((yy - (Ly-0.3_rp))/0.3_rp)**2)
           call random_number(r1); call random_number(r2); call random_number(r3)
           u%x(i,1,1,1) = um &
-               + 0.10_rp*gy*sin(3.0_rp*2.0_rp*pi*xx/Lx)*cos(4.0_rp*2.0_rp*pi*zz/Lz) &
-               + 0.03_rp*gy*sin(17.0_rp*2.0_rp*pi*xx/Lx)*cos(13.0_rp*2.0_rp*pi*zz/Lz) &
-               + 0.02_rp*(r1 - 0.5_rp)
-          v%x(i,1,1,1) = 0.08_rp*gy*cos(3.0_rp*2.0_rp*pi*xx/Lx)*sin(4.0_rp*2.0_rp*pi*zz/Lz) &
-               + 0.02_rp*(r2 - 0.5_rp)
-          w%x(i,1,1,1) = 0.08_rp*gy*sin(3.0_rp*2.0_rp*pi*xx/Lx)*cos(4.0_rp*2.0_rp*pi*zz/Lz) &
-               + 0.02_rp*(r3 - 0.5_rp)
+               + 0.03_rp*gy*sin(3.0_rp*2.0_rp*pi*xx/Lx)*cos(4.0_rp*2.0_rp*pi*zz/Lz) &
+               + 0.01_rp*(r1 - 0.5_rp)
+          v%x(i,1,1,1) = 0.02_rp*gy*cos(3.0_rp*2.0_rp*pi*xx/Lx)*sin(4.0_rp*2.0_rp*pi*zz/Lz) &
+               + 0.01_rp*(r2 - 0.5_rp)
+          w%x(i,1,1,1) = 0.02_rp*gy*sin(3.0_rp*2.0_rp*pi*xx/Lx)*cos(4.0_rp*2.0_rp*pi*zz/Lz) &
+               + 0.01_rp*(r3 - 0.5_rp)
        end do
     else if (scheme_name .eq. 'temperature') then
        s => fields%items(1)%ptr
@@ -152,61 +146,30 @@ contains
     T = T_cold + (T_hot - T_cold)*t01
   end function Twall
 
-  !> Dirichlet hook: velocity inlet (recycling) AND temperature (cold inlet +
-  !! heated lower wall). Branch on the field name (velocity list starts with 'u').
+  !> Dirichlet hook: STEADY velocity inlet (fixed blunt profile) AND temperature
+  !! (cold inlet + heated lower wall). Branch on field name (velocity list -> 'u').
   subroutine inflow_and_wall(field_bc_list, bc, time)
     type(field_list_t), intent(inout) :: field_bc_list
     type(field_dirichlet_t), intent(in) :: bc
     type(time_state_t), intent(in) :: time
-    type(coef_t), pointer :: coef
-    type(field_t), pointer :: field, s
+    type(field_t), pointer :: s
     type(dofmap_t), pointer :: dof
-    real(kind=rp) :: scale
     integer :: i, msk_idx
 
+    dof => field_bc_list%dof(1)
     if (field_bc_list%items(1)%ptr%name .eq. "u") then
-       ! ---------- RECYCLING velocity inflow ----------
-       coef => neko_user_access%case%fluid%c_Xh
-       if (time%tstep .eq. 1 .and. .not. rec_init) then
-          n_pts = bc%msk(0)
-          call xyz%init(3, n_pts); call Bw%init(n_pts)
-          do i = 1, n_pts
-             msk_idx = bc%msk(i)
-             xyz%x(1,i) = coef%dof%x(msk_idx,1,1,1) + x_rec   ! recycle plane upstream
-             xyz%x(2,i) = coef%dof%y(msk_idx,1,1,1)
-             xyz%x(3,i) = coef%dof%z(msk_idx,1,1,1)
-             Bw%x(i)    = coef%B(msk_idx,1,1,1)
-          end do
-          vol = glsum(Bw%x, n_pts)
-          call xyz%copy_from(HOST_TO_DEVICE, .false.)
-          call Bw%copy_from(HOST_TO_DEVICE, .false.)
-          call interp%init(coef%dof)
-          call interp%find_points(xyz%x, n_pts)
-          call res%init(n_pts)
-          rec_init = .true.
-       end if
+       ! ---------- STEADY blunt-profile velocity inlet (no recycling) ----------
        associate(u => field_bc_list%items(1)%ptr, &
             v => field_bc_list%items(2)%ptr, w => field_bc_list%items(3)%ptr)
-          field => neko_registry%get_field('u')
-          call interp%evaluate(res%x, field%x, .false.)
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             scale = 1.0_rp/(device_glsc2(res%x_d, Bw%x_d, n_pts)/vol)
-             call device_cmult(res%x_d, scale, n_pts)
-          else
-             scale = 1.0_rp/(glsc2(res%x, Bw%x, n_pts)/vol)
-             call cmult(res%x, scale, n_pts)
-          end if
-          call field_masked_scatter_copy_0(u, res%x, bc%msk, u%size(), n_pts)
-          field => neko_registry%get_field('v')
-          call interp%evaluate(res%x, field%x, .false.)
-          call field_masked_scatter_copy_0(v, res%x, bc%msk, u%size(), n_pts)
-          field => neko_registry%get_field('w')
-          call interp%evaluate(res%x, field%x, .false.)
-          call field_masked_scatter_copy_0(w, res%x, bc%msk, u%size(), n_pts)
+          do i = 1, bc%msk(0)
+             msk_idx = bc%msk(i)
+             u%x(msk_idx,1,1,1) = uin_profile(dof%y(msk_idx,1,1,1))
+             v%x(msk_idx,1,1,1) = 0.0_rp
+             w%x(msk_idx,1,1,1) = 0.0_rp
+          end do
        end associate
     else
        ! ---------- TEMPERATURE: cold inlet + heated lower wall (x-ramp) ----------
-       dof => field_bc_list%dof(1)
        s => field_bc_list%items(1)%ptr
        do i = 1, bc%msk(0)
           msk_idx = bc%msk(i)
