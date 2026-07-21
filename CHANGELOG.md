@@ -2,6 +2,12 @@
 
 ## Develop
 
+- Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
+  MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
+  alias their host allocation instead of being replicated on the device,
+  roughly halving the memory footprint of mapped data. Off by default
+  (currently slower per step than replicated buffers on MI300A); discrete GPUs
+  always use replicated buffers.
 - Added `only_facets = .true.` to `bc%finalize` in force_torque.
 - Removed the hardcoded `CUDA_ARCH="-arch sm_60"` fallback used for
   `--enable-device-mpi` CUDA builds, which CUDA >= 13 toolkits can no longer
