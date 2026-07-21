@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 !
 !> Defines a coupled  Conjugate Gradient methods for accelerators
 module cg_cpld_device
-  use num_types, only: rp
+  use num_types, only : rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -41,14 +41,16 @@ module cg_cpld_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : abscmp
-  use device
-  use device_math, only : device_rzero, device_copy, device_glsc3, &
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
+  use device_math, only : device_rzero, device_copy, &
        device_add2s1, device_vdot3, device_glsc2
   use device_mathops, only : device_opadd2cm
   use utils, only : neko_error
   use operators, only : rotate_cyc
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  private
 
   !> Device based coupled preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_cpld_device_t
@@ -96,7 +98,8 @@ module cg_cpld_device
 contains
 
   !> Initialise a device based PCG solver
-  subroutine cg_cpld_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+  subroutine cg_cpld_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
+       monitor)
     class(cg_cpld_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -167,110 +170,97 @@ contains
     call this%ksp_free()
 
     if (allocated(this%w1)) then
+       if (c_associated(this%w1_d)) then
+          call device_unmap(this%w1, this%w1_d)
+       end if
        deallocate(this%w1)
     end if
 
     if (allocated(this%w2)) then
+       if (c_associated(this%w2_d)) then
+          call device_unmap(this%w2, this%w2_d)
+       end if
        deallocate(this%w2)
     end if
 
     if (allocated(this%w3)) then
+       if (c_associated(this%w3_d)) then
+          call device_unmap(this%w3, this%w3_d)
+       end if
        deallocate(this%w3)
     end if
 
     if (allocated(this%r1)) then
+       if (c_associated(this%r1_d)) then
+          call device_unmap(this%r1, this%r1_d)
+       end if
        deallocate(this%r1)
     end if
 
     if (allocated(this%r2)) then
+       if (c_associated(this%r2_d)) then
+          call device_unmap(this%r2, this%r2_d)
+       end if
        deallocate(this%r2)
     end if
 
     if (allocated(this%r3)) then
+       if (c_associated(this%r3_d)) then
+          call device_unmap(this%r3, this%r3_d)
+       end if
        deallocate(this%r3)
     end if
 
     if (allocated(this%p1)) then
+       if (c_associated(this%p1_d)) then
+          call device_unmap(this%p1, this%p1_d)
+       end if
        deallocate(this%p1)
     end if
 
     if (allocated(this%p2)) then
+       if (c_associated(this%p2_d)) then
+          call device_unmap(this%p2, this%p2_d)
+       end if
        deallocate(this%p2)
     end if
 
     if (allocated(this%p3)) then
+       if (c_associated(this%p3_d)) then
+          call device_unmap(this%p3, this%p3_d)
+       end if
        deallocate(this%p3)
     end if
 
     if (allocated(this%z1)) then
+       if (c_associated(this%z1_d)) then
+          call device_unmap(this%z1, this%z1_d)
+       end if
        deallocate(this%z1)
     end if
 
     if (allocated(this%z2)) then
+       if (c_associated(this%z2_d)) then
+          call device_unmap(this%z2, this%z2_d)
+       end if
        deallocate(this%z2)
     end if
 
     if (allocated(this%z3)) then
+       if (c_associated(this%z3_d)) then
+          call device_unmap(this%z3, this%z3_d)
+       end if
        deallocate(this%z3)
     end if
 
     if (allocated(this%tmp)) then
+       if (c_associated(this%tmp_d)) then
+          call device_unmap(this%tmp, this%tmp_d)
+       end if
        deallocate(this%tmp)
     end if
 
     nullify(this%M)
-
-    if (c_associated(this%w1_d)) then
-       call device_free(this%w1_d)
-    end if
-
-    if (c_associated(this%w2_d)) then
-       call device_free(this%w2_d)
-    end if
-
-    if (c_associated(this%w3_d)) then
-       call device_free(this%w3_d)
-    end if
-
-    if (c_associated(this%r1_d)) then
-       call device_free(this%r1_d)
-    end if
-
-    if (c_associated(this%r2_d)) then
-       call device_free(this%r2_d)
-    end if
-
-    if (c_associated(this%r3_d)) then
-       call device_free(this%r3_d)
-    end if
-
-    if (c_associated(this%p1_d)) then
-       call device_free(this%p1_d)
-    end if
-
-    if (c_associated(this%p2_d)) then
-       call device_free(this%p2_d)
-    end if
-
-    if (c_associated(this%p3_d)) then
-       call device_free(this%p3_d)
-    end if
-
-    if (c_associated(this%z1_d)) then
-       call device_free(this%z1_d)
-    end if
-
-    if (c_associated(this%z2_d)) then
-       call device_free(this%z2_d)
-    end if
-
-    if (c_associated(this%z3_d)) then
-       call device_free(this%z3_d)
-    end if
-
-    if (c_associated(this%tmp_d)) then
-       call device_free(this%tmp_d)
-    end if
 
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
@@ -334,7 +324,7 @@ contains
     else
        max_iter = this%max_iter
     end if
-    norm_fac = 1.0_rp / coef%volume
+    norm_fac = 1.0_rp / sqrt(coef%volume)
 
     associate (p1_d => this%p1_d, p2_d => this%p2_d, p3_d => this%p3_d, &
          z1_d => this%z1_d, z2_d => this%z2_d, z3_d => this%z3_d, &
@@ -358,12 +348,12 @@ contains
       call device_vdot3(tmp_d, r1_d, r2_d, r3_d, r1_d, r2_d, r3_d, n)
 
 
-      rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+      rtr = device_glsc2(tmp_d, coef%mult_d, n)
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if
@@ -388,14 +378,11 @@ contains
          call Ax%compute_vector(this%w1, this%w2, this%w3, &
               this%p1, this%p2, this%p3, coef, x%msh, x%Xh)
 
-         call rotate_cyc(this%w1, this%w2, this%w3, 1, coef)
-         call gs_h%op(this%w1, n, GS_OP_ADD, this%gs_event)
+         call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
+         call gs_h%op(this%w1, this%w2, this%w3, n, GS_OP_ADD, &
+              this%gs_event)
          call device_event_sync(this%gs_event)
-         call gs_h%op(this%w2, n, GS_OP_ADD, this%gs_event)
-         call device_event_sync(this%gs_event)
-         call gs_h%op(this%w3, n, GS_OP_ADD, this%gs_event)
-         call device_event_sync(this%gs_event)
-         call rotate_cyc(this%w1, this%w2, this%w3, 0, coef)
+         call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
          call blstx%apply(this%w1, n)
          call blsty%apply(this%w2, n)
@@ -413,7 +400,7 @@ contains
               w1_d, w2_d, w3_d, alphm, n, gdim)
          call device_vdot3(tmp_d, r1_d, r2_d, r3_d, r1_d, r2_d, r3_d, n)
 
-         rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+         rtr = device_glsc2(tmp_d, coef%mult_d, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr) * norm_fac
          call this%monitor_iter(iter, rnorm)

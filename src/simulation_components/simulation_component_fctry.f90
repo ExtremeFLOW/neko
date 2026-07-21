@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,15 @@
 !
 !> Defines a factory subroutine for simulation components.
 submodule (simulation_component) simulation_component_fctry
+  use boundary_operation, only : boundary_operation_t
+  use boundary_flux, only : boundary_flux_t
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
+  use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
+  use lpt_simcomp, only : lpt_simcomp_t
   use scalar_stats_simcomp, only : scalar_stats_simcomp_t
+  use scalar_sgs_stats_simcomp, only : scalar_sgs_stats_simcomp_t
+  use spatial_average, only : spatial_average_t
   use user_stats, only : user_stats_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
@@ -48,25 +54,35 @@ submodule (simulation_component) simulation_component_fctry
   use divergence_simcomp, only : divergence_t
   use derivative_simcomp, only : derivative_t
   use spectral_error, only : spectral_error_t
+  use data_streamer_simcomp, only : data_streamer_simcomp_t
+  use field_subsampler, only : field_subsampler_t
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(14) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(22) = [character(len=20) :: &
+       "boundary_operation", &
+       "boundary_flux", &
+       "lagrangian_particles", &
        "lambda2", &
        "probes", &
        "les_model", &
        "field_writer", &
        "fluid_stats", &
+       "fluid_sgs_stats", &
        "scalar_stats", &
-       "grad", &
-       "div", &
+       "scalar_sgs_stats", &
+       "gradient", &
+       "divergence", &
        "curl", &
        "derivative", &
-       "weak_grad", &
+       "weak_gradient", &
        "force_torque", &
+       "spatial_average", &
        "user_stats", &
-       "spectral_error"]
+       "spectral_error", &
+       "data_streamer", &
+       "field_subsampler"]
 
 contains
 
@@ -105,7 +121,18 @@ contains
     character(len=*), intent(in):: type_name
     integer :: i
 
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
+
     select case (trim(type_name))
+    case ("boundary_operation")
+       allocate(boundary_operation_t::object)
+    case ("boundary_flux")
+       allocate(boundary_flux_t::object)
+    case ("lagrangian_particles")
+       allocate(lpt_simcomp_t::object)
     case ("lambda2")
        allocate(lambda2_t::object)
     case ("probes")
@@ -114,26 +141,36 @@ contains
        allocate(les_simcomp_t::object)
     case ("field_writer")
        allocate(field_writer_t::object)
-    case ("weak_grad")
+    case ("weak_gradient")
        allocate(weak_gradient_t::object)
-    case ("grad")
+    case ("gradient")
        allocate(gradient_t::object)
     case ("derivative")
        allocate(derivative_t::object)
     case ("curl")
        allocate(curl_t::object)
-    case ("div")
+    case ("divergence")
        allocate(divergence_t::object)
     case ("force_torque")
        allocate(force_torque_t::object)
+    case ("spatial_average")
+       allocate(spatial_average_t::object)
     case ("fluid_stats")
        allocate(fluid_stats_simcomp_t::object)
+    case ("fluid_sgs_stats")
+       allocate(fluid_sgs_stats_simcomp_t::object)
     case ("scalar_stats")
        allocate(scalar_stats_simcomp_t::object)
+    case ("scalar_sgs_stats")
+       allocate(scalar_sgs_stats_simcomp_t::object)
     case ("user_stats")
        allocate(user_stats_t::object)
     case ("spectral_error")
        allocate(spectral_error_t::object)
+    case ("data_streamer")
+       allocate(data_streamer_simcomp_t::object)
+    case ("field_subsampler")
+       allocate(field_subsampler_t::object)
     case default
        do i = 1, simcomp_registry_size
           if (trim(type_name) == &

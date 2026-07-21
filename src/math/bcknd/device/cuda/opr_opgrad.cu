@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
 
 extern "C" {
 
-  /** 
+  /**
    * Fortran wrapper for device cuda convective terms
    */
   void cuda_opgrad(void *ux, void *uy, void *uz, void *u,
@@ -64,11 +64,11 @@ extern "C" {
                    void *w3, int *nel, int *lx) {
 
     static int autotune[17] = { 0 };
-    
+
     const dim3 nthrds_1d(1024, 1, 1);
     const dim3 nthrds_kstep((*lx), (*lx), 1);
     const dim3 nblcks((*nel), 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
 #define CASE_1D(LX)                                                             \
     opgrad_kernel_1d<real, LX, 1024>                                            \
@@ -79,7 +79,7 @@ extern "C" {
        (real *) drdy, (real *) dsdy, (real *) dtdy,                             \
        (real *) drdz, (real *) dsdz, (real *) dtdz,                             \
        (real *) w3);                                                            \
-    CUDA_CHECK(cudaGetLastError());                                             
+    CUDA_CHECK(cudaGetLastError());
 
 
 #define CASE_KSTEP(LX)                                                          \
@@ -90,7 +90,7 @@ extern "C" {
        (real *) drdy, (real *) dsdy, (real *) dtdy,                             \
        (real *) drdz, (real *) dsdz, (real *) dtdz,                             \
        (real *) w3);                                                            \
-    CUDA_CHECK(cudaGetLastError());                                             
+    CUDA_CHECK(cudaGetLastError());
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
@@ -107,7 +107,7 @@ extern "C" {
         CASE_KSTEP(LX);                                                         \
       }                                                                         \
       break
-    
+
     switch(*lx) {
       CASE(2);
       CASE(3);
@@ -130,7 +130,7 @@ extern "C" {
         exit(1);
       }
     }
-  } 
+  }
 }
 
 template < const int LX >
@@ -148,18 +148,18 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
   const dim3 nthrds_kstep((*lx), (*lx), 1);
   const dim3 nblcks((*nel), 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-  
+
   char *env_value = NULL;
   char neko_log_buf[80];
-  
+
   env_value=getenv("NEKO_AUTOTUNE");
 
   sprintf(neko_log_buf, "Autotune opgrad (lx: %d)", *lx);
   log_section(neko_log_buf);
-  
+
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
-      CASE_1D(LX);       
+      CASE_1D(LX);
       sprintf(neko_log_buf,"Set by env : 1 (1D)");
       log_message(neko_log_buf);
       log_end_section();
@@ -170,7 +170,7 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
       log_message(neko_log_buf);
       log_end_section();
       return 2;
-    } else {       
+    } else {
        sprintf(neko_log_buf, "Invalid value set for NEKO_AUTOTUNE");
        log_error(neko_log_buf);
     }
@@ -178,27 +178,32 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
 
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-  
-  cudaEventRecord(start,0);
-   
+
+  /* Warmup */
+  for(int i = 0; i < 10; i++) {
+    CASE_1D(LX);
+  }
+
+  cudaEventRecord(start, stream);
+
   for(int i = 0; i < 100; i++) {
     CASE_1D(LX);
   }
-  
-  cudaEventRecord(stop,0); 
+
+  cudaEventRecord(stop, stream);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&time1, start, stop);
-  
-  cudaEventRecord(start,0);
-   
+
+  cudaEventRecord(start, stream);
+
   for(int i = 0; i < 100; i++) {
      CASE_KSTEP(LX);
    }
-  
-  cudaEventRecord(stop,0); 
+
+  cudaEventRecord(stop, stream);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&time2, start, stop);
-  
+
   if(time1 < time2) {
      retval = 1;
   } else {
@@ -211,4 +216,3 @@ int tune_opgrad(void *ux, void *uy, void *uz, void *u,
   log_end_section();
   return retval;
 }
-

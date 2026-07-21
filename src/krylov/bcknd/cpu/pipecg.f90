@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ module pipecg
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, rzero, copy, abscmp
+  use math, only : glsc3, abscmp
   use comm, only : MPI_REAL_PRECISION, NEKO_COMM
   use mpi_f08, only : MPI_Iallreduce, MPI_IN_PLACE, MPI_SUM, MPI_Wait, &
        MPI_Request, MPI_Status
@@ -191,12 +191,16 @@ contains
       p_prev = PIPECG_P_SPACE
       u_prev = PIPECG_P_SPACE+1
       p_cur = 1
-      call rzero(x%x, n)
-      call rzero(z, n)
-      call rzero(q, n)
-      call rzero(p, n)
-      call rzero(s, n)
-      call copy(r, f, n)
+      !$omp parallel do
+      do i = 1, n
+         x%x(i,1,1,1) = 0.0_rp
+         z(i) = 0.0_rp
+         q(i) = 0.0_rp
+         p(i) = 0.0_rp
+         s(i) = 0.0_rp
+         r(i) = f(i)
+      end do
+      !$omp end parallel do
       call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
@@ -217,11 +221,13 @@ contains
       tmp1 = 0.0_rp
       tmp2 = 0.0_rp
       tmp3 = 0.0_rp
+      !$omp parallel do reduction(+:tmp1,tmp2,tmp3)
       do i = 1, n
          tmp1 = tmp1 + r(i) * coef%mult(i,1,1,1) * u(i,u_prev)
          tmp2 = tmp2 + w(i) * coef%mult(i,1,1,1) * u(i,u_prev)
          tmp3 = tmp3 + r(i) * coef%mult(i,1,1,1) * r(i)
       end do
+      !$omp end parallel do
       reduction(1) = tmp1
       reduction(2) = tmp2
       reduction(3) = tmp3
@@ -257,8 +263,10 @@ contains
          tmp1 = 0.0_rp
          tmp2 = 0.0_rp
          tmp3 = 0.0_rp
-         do i = 0, n, NEKO_BLK_SIZE
+         !$omp parallel do private(k) reduction(+:tmp1,tmp2,tmp3)
+         do i = 0, n-1, NEKO_BLK_SIZE
             if (i + NEKO_BLK_SIZE .le. n) then
+               !$omp simd reduction(+:tmp1,tmp2,tmp3)
                do k = 1, NEKO_BLK_SIZE
                   z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
@@ -271,7 +279,7 @@ contains
                   tmp3 = tmp3 + r(i+k) * coef%mult(i+k,1,1,1) * r(i+k)
                end do
             else
-               do k = 1, n-i
+               do k = 1, n - i
                   z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
@@ -284,43 +292,52 @@ contains
                end do
             end if
          end do
-
+         !$omp end parallel do
          reduction(1) = tmp1
          reduction(2) = tmp2
          reduction(3) = tmp3
 
          if (p_cur .eq. PIPECG_P_SPACE) then
-            do i = 0, n, NEKO_BLK_SIZE
+            !$omp parallel do private(k, j, p_prev, x_plus)
+            do i = 0, n-1, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
+                  !$omp simd
                   do k = 1, NEKO_BLK_SIZE
                      x_plus(k) = 0.0_rp
                   end do
                   p_prev = PIPECG_P_SPACE+1
                   do j = 1, p_cur
+                     !$omp simd
                      do k = 1, NEKO_BLK_SIZE
                         p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
                         x_plus(k) = x_plus(k) + alpha(j) * p(i+k)
                      end do
                      p_prev = j
                   end do
+                  !$omp simd
                   do k = 1, NEKO_BLK_SIZE
                      x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                      u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                   end do
                else
-                  do k = 1, n-i
-                     x_plus(1) = 0.0_rp
-                     p_prev = PIPECG_P_SPACE + 1
-                     do j = 1, p_cur
+                  do k = 1, n - i
+                     x_plus(k) = 0.0_rp
+                  end do
+                  p_prev = PIPECG_P_SPACE+1
+                  do j = 1, p_cur
+                     do k = 1, n - i
                         p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
-                        x_plus(1) = x_plus(1) + alpha(j) * p(i+k)
-                        p_prev = j
+                        x_plus(k) = x_plus(k) + alpha(j) * p(i+k)
                      end do
-                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
+                     p_prev = j
+                  end do
+                  do k = 1, n - i
+                     x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                      u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                   end do
                end if
             end do
+            !$omp end parallel do
             p_prev = p_cur
             u_prev = PIPECG_P_SPACE+1
             alpha(1) = alpha(p_cur)
@@ -334,37 +351,46 @@ contains
       end do
 
       if ( p_cur .ne. 1) then
-         do i = 0, n, NEKO_BLK_SIZE
+         !$omp parallel do private(k, j, p_prev, x_plus)
+         do i = 0, n-1, NEKO_BLK_SIZE
             if (i + NEKO_BLK_SIZE .le. n) then
+               !$omp simd
                do k = 1, NEKO_BLK_SIZE
                   x_plus(k) = 0.0_rp
                end do
                p_prev = PIPECG_P_SPACE+1
                do j = 1, p_cur
+                  !$omp simd
                   do k = 1, NEKO_BLK_SIZE
                      p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
                      x_plus(k) = x_plus(k) + alpha(j) * p(i+k)
                   end do
                   p_prev = j
                end do
+               !$omp simd
                do k = 1, NEKO_BLK_SIZE
                   x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                   u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                end do
             else
-               do k = 1, n-i
-                  x_plus(1) = 0.0_rp
-                  p_prev = PIPECG_P_SPACE + 1
-                  do j = 1, p_cur
+               do k = 1, n - i
+                  x_plus(k) = 0.0_rp
+               end do
+               p_prev = PIPECG_P_SPACE+1
+               do j = 1, p_cur
+                  do k = 1, n - i
                      p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
-                     x_plus(1) = x_plus(1) + alpha(j) * p(i+k)
-                     p_prev = j
+                     x_plus(k) = x_plus(k) + alpha(j) * p(i+k)
                   end do
-                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(1)
+                  p_prev = j
+               end do
+               do k = 1, n - i
+                  x%x(i+k,1,1,1) = x%x(i+k,1,1,1) + x_plus(k)
                   u(i+k,PIPECG_P_SPACE+1) = u(i+k,PIPECG_P_SPACE)
                end do
             end if
          end do
+         !$omp end parallel do
       end if
       call this%monitor_stop()
       ksp_results%res_final = rnorm
@@ -402,5 +428,3 @@ contains
   end function pipecg_solve_coupled
 
 end module pipecg
-
-

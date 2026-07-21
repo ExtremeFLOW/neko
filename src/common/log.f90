@@ -32,10 +32,10 @@
 !
 !> Logging routines
 module logger
+  use neko_config, only : NEKO_VERSION
   use comm, only : pe_rank
-  use num_types, only : rp
-  use utils, only: neko_error
-  use, intrinsic :: iso_fortran_env, only: stdout => output_unit, &
+  use utils, only : neko_error, neko_warning
+  use, intrinsic :: iso_fortran_env, only : stdout => output_unit, &
        stderr => error_unit
   implicit none
   private
@@ -44,6 +44,9 @@ module logger
   !! @note This adjust for the leading space applied by `write`. 80 character
   !! output log leaves 79 characters for the message.
   integer, public, parameter :: LOG_SIZE = 79
+
+  !> Length of the section header
+  integer, public, parameter :: SEC_HEAD_SIZE = 30
 
   type, public :: log_t
      integer, private :: indent_
@@ -66,6 +69,7 @@ module logger
      procedure, pass(this) :: header => log_header
      procedure, pass(this) :: error => log_error
      procedure, pass(this) :: warning => log_warning
+     procedure, pass(this) :: deprecated => log_deprecated
      procedure, pass(this) :: end_section => log_end_section
 
      procedure, private, pass(this) :: print_section_header => &
@@ -80,8 +84,13 @@ module logger
   integer, public, parameter :: NEKO_LOG_INFO = 1
   !> Verbose log level
   integer, public, parameter :: NEKO_LOG_VERBOSE = 2
+  !> Deprecation log level
+  integer, public, parameter :: NEKO_LOG_DEPRECATION = 5
   !> Debug log level
   integer, public, parameter :: NEKO_LOG_DEBUG = 10
+
+  !> List of already logged deprecated features
+  character(len=50), dimension(:), allocatable :: deprecated_list
 
 contains
 
@@ -123,9 +132,19 @@ contains
   !> Free a log
   subroutine log_free(this)
     class(log_t), intent(inout) :: this
+    integer :: i
 
     if (this%section_id_ .ne. 0) then
        call neko_error("Log is unbalanced")
+    end if
+
+    if (allocated(deprecated_list)) then
+       call this%section("Deprecated features summary", NEKO_LOG_DEPRECATION)
+
+       do i = 1, size(deprecated_list)
+          call this%message(trim(deprecated_list(i)), NEKO_LOG_DEPRECATION)
+       end do
+       call this%end_section()
     end if
 
     if (this%unit_ .ne. stdout) then
@@ -135,6 +154,10 @@ contains
     this%indent_ = 0
     this%level_ = NEKO_LOG_INFO
     this%unit_ = -1
+
+    if (allocated(deprecated_list)) then
+       deallocate(deprecated_list)
+    end if
 
   end subroutine log_free
 
@@ -270,6 +293,76 @@ contains
 
   end subroutine log_warning
 
+  !> Write a deprecation warning to a log
+  !! @param feature Name of the deprecated feature
+  !! @param removal_version Optional version when the feature will be removed
+  !! @param extra_info Optional additional message to print
+  subroutine log_deprecated(this, feature, removal_version, extra_info)
+    class(log_t), intent(inout) :: this
+    character(len=*), intent(in) :: feature
+    character(len=*), intent(in) :: removal_version
+    character(len=*), intent(in), optional :: extra_info
+    character(len=50), dimension(:), allocatable :: tmp_list
+    character(len=255) :: deprecation_error
+    character(len=LOG_SIZE) :: msg
+    integer :: i
+
+    if (pe_rank .ne. 0) return
+
+    if (this%level_ .ge. NEKO_LOG_DEPRECATION .or. &
+         is_deprecated(removal_version)) then
+
+       ! Check that the feature have not already been logged
+       if (.not. allocated(deprecated_list)) then
+          allocate(character(len=50) :: deprecated_list(1))
+          deprecated_list = trim(feature)
+       else
+          do i = 1, size(deprecated_list)
+             if (trim(deprecated_list(i)) .eq. trim(feature)) return
+          end do
+
+          ! Save the feature to the list of deprecated features
+          call move_alloc(deprecated_list, tmp_list)
+          allocate(character(len=50)::deprecated_list(size(tmp_list)+1))
+          deprecated_list(1:size(tmp_list)) = tmp_list
+          deprecated_list(size(tmp_list) + 1) = trim(feature)
+          deallocate(tmp_list)
+       end if
+
+       ! Construct deprecation message
+       write(msg, '(A,A)') '*** DEPRECATION: ', trim(feature)
+       call this%message(msg, NEKO_LOG_DEPRECATION)
+       write(msg, '(A,A,A)') 'The feature "', trim(feature), '" is deprecated.'
+       call this%message(msg, NEKO_LOG_DEPRECATION)
+       write(msg, '(A,A,A)') 'It will be removed in version ', &
+            trim(removal_version), '.'
+       call this%message(msg, NEKO_LOG_DEPRECATION)
+
+       if (present(extra_info)) then
+          call this%message(extra_info, NEKO_LOG_DEPRECATION)
+       end if
+
+       call this%message('***', NEKO_LOG_DEPRECATION)
+
+       deprecation_error = ""
+       call get_environment_variable("NEKO_DEPRECATION_ERROR", &
+            deprecation_error)
+
+       if (trim(deprecation_error) .eq. "1") then
+          call neko_error('Deprecated feature "' // trim(feature) // &
+               '" is scheduled for removal in version: ' // &
+               trim(removal_version) // ' (current version: ' // &
+               trim(NEKO_VERSION) // ').')
+       else if (is_deprecated(removal_version)) then
+          call neko_warning('Deprecated feature "' // trim(feature) // &
+               '" is scheduled for removal in version: ' // &
+               trim(removal_version) // ' (current version: ' // &
+               trim(NEKO_VERSION) // ').')
+       end if
+    end if
+
+  end subroutine log_deprecated
+
   !> Begin a new log section
   subroutine log_section(this, msg, lvl)
     class(log_t), intent(inout) :: this
@@ -288,8 +381,16 @@ contains
        pre = (30 - len_trim(msg)) / 2
        pos = 30 - (len_trim(msg) + pre)
 
-       write(this%section_header, '(A,A,A)') &
-            repeat('-', pre), trim(msg), repeat('-', pos)
+       if (pre .lt. 0 .or. pos .lt. 0) then
+          pre = 1
+          pos = 1
+          write(this%section_header, '(A,A,A)') &
+               repeat('-', pre), trim(msg(1: SEC_HEAD_SIZE - 2)), &
+               repeat('-', pos)
+       else
+          write(this%section_header, '(A,A,A)') &
+               repeat('-', pre), trim(msg), repeat('-', pos)
+       end if
     end if
 
   end subroutine log_section
@@ -324,7 +425,6 @@ contains
     class(log_t), intent(inout) :: this
     character(len=*), intent(in), optional :: msg
     integer, optional :: lvl
-    integer :: lvl_
 
     if (present(msg)) then
        call this%message(msg, lvl)
@@ -433,4 +533,59 @@ contains
 
   end subroutine log_end_section_c
 
+  !> Compare version strings
+  !! @param version_removal Version string when the feature will be removed
+  !! @return .true. if the current version is newer than or equal to the removal
+  !! version, .false. otherwise
+  logical function is_deprecated(version_removal)
+    character(len=*), intent(in) :: version_removal
+    character(len=50) :: current_str, removal_str
+    integer :: current_number(3), removal_number(3)
+    integer :: i, current_size, removal_size
+    integer :: iostat_current, iostat_removal
+    logical :: versions_are_valid, is_newer_than_removal
+
+    current_str = trim(NEKO_VERSION)
+    removal_str = trim(version_removal)
+
+    current_size = 1
+    do i = 1, len_trim(current_str)
+       if (current_str(i:i) .eq. '.') then
+          current_str(i:i) = ' '
+          current_size = current_size + 1
+       end if
+    end do
+
+    removal_size = 1
+    do i = 1, len_trim(removal_str)
+       if (removal_str(i:i) .eq. '.') then
+          removal_str(i:i) = ' '
+          removal_size = removal_size + 1
+       end if
+    end do
+
+    read(current_str, *, iostat = iostat_current) &
+         current_number(1:current_size)
+    read(removal_str, *, iostat = iostat_removal) &
+         removal_number(1:removal_size)
+    versions_are_valid = (iostat_current .eq. 0 .and. iostat_removal .eq. 0)
+
+    if (.not. versions_are_valid) then
+       call neko_error('Invalid version string in deprecation check: ' // &
+            'NEKO_VERSION=' // trim(NEKO_VERSION) // ', ' // &
+            'removal_version=' // trim(version_removal))
+    end if
+
+    is_deprecated = .true.
+    do i = 1, current_size
+       if (current_number(i) .gt. removal_number(i)) then
+          is_deprecated = .true.
+          exit
+       else if (current_number(i) .lt. removal_number(i)) then
+          is_deprecated = .false.
+          exit
+       end if
+    end do
+
+  end function is_deprecated
 end module logger

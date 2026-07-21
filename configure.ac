@@ -1,14 +1,16 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.0.4])
+AC_INIT([neko],[1.1.0])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
-AC_LANG(Fortran)
+AC_LANG([Fortran])
 AC_PROG_INSTALL
 AC_PROG_SED
 AC_PROG_MAKE_SET
+AC_LANG_PUSH([C])
 LT_INIT([disable-shared])
+AC_LANG_POP([C])
 LT_LANG([Fortran])
 
 AC_ARG_ENABLE(contrib,
@@ -25,7 +27,7 @@ AC_ARG_ENABLE(real,
 
 AC_ARG_ENABLE(blk_size,
               AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
-              [blk_size=${enableval}], [blk_size="10000"])
+              [blk_size=${enableval}], [blk_size="1024"])
 
 AC_ARG_ENABLE(device-mpi,
           AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
@@ -39,9 +41,10 @@ AC_ARG_ENABLE(python, AC_HELP_STRING([--enable-python],
               [enable_python=${enableval}],[enable_python=no])
 
 # Test for a sane fortran environment (^-^)
-AC_LANG(Fortran)
+AC_LANG([Fortran])
 AC_PROG_FC(,90)
 AX_COARRAY
+AX_COARRAY_EVENTS
 AX_DTYPE_IO
 AX_REAL128
 
@@ -50,19 +53,20 @@ AX_MPI([have_mpi=yes], [have_mpi=no])
 if test "x${have_mpi}" != xno; then
    FC="$MPIFC"
    LIBS="$MPILIBS $LIBS"
-   AC_LANG(C)
+   AC_LANG_PUSH([C])
    AX_MPI([have_mpi=yes],[have_mpi=no])
    if  test "x${have_mpi}" != xno; then
        CC="$MPICC"
    else
        AC_MSG_ERROR([Can't find a suitable C MPI compiler])
    fi
-   AC_LANG(C++)
+   AC_LANG_POP([C])
+   AC_LANG_PUSH([C++])
    AX_MPI([have_mpi=yes],[have_mpi=no])
    if  test "x${have_mpi}" != xno; then
        CXX="$MPICXX"
    fi
-   AC_LANG(Fortran)
+   AC_LANG_POP([C++])
 else
    AC_MSG_ERROR([Can't find a suitable MPI compiler])
 fi
@@ -74,12 +78,12 @@ if test "x${enable_openmp}" != xno; then
    AX_OPENMP([have_openmp=yes], [have_openmp=no])
    if test "x${have_openmp}" != xno; then
       NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $OPENMP_FCFLAGS"
-      AC_LANG(C)
+      AC_LANG_PUSH([C])
       AX_OPENMP([have_openmp=yes], [have_openmp=no])
       if test "x${have_openmp}" != xno; then
          CFLAGS="$CFLAGS $OPENMP_CFLAGS"
       fi
-      AC_LANG(Fortran)
+      AC_LANG_POP([C])
    fi
 fi
 
@@ -260,8 +264,30 @@ else
   AX_CUDA
 fi
 
+# CUDA >= 13 no longer implicitly links the host C++ runtime, so the
+# device object files fail to link with e.g. an undefined reference to
+# __cxa_guard_acquire. Link libstdc++ explicitly for CUDA >= 13, unless
+# the Cray compiler (CCE/PrgEnv-cray) is used, which provides its own C++
+# runtime. Note that PrgEnv-gnu still needs it, even though it is driven
+# through the Cray compiler wrappers (ftn/cc/CC).
+if (test "x${have_cuda}" = xyes &&
+    test "x$ax_cv_fc_compiler_vendor" != xcray); then
+   AC_MSG_CHECKING([CUDA major version])
+   cuda_version_major=`$NVCC --version 2>/dev/null | \
+                       $SED -n 's/.*release \(@<:@0-9@:>@*\).*/\1/p'`
+   AS_IF([test -n "$cuda_version_major"],
+         [AC_MSG_RESULT([$cuda_version_major])],
+         [AC_MSG_RESULT([unknown])])
+   AS_IF([test -n "$cuda_version_major" && test "$cuda_version_major" -ge 13],
+         [AC_MSG_NOTICE([Linking libstdc++ for CUDA >= 13])
+          LIBS="$LIBS -lstdc++"])
+fi
+
 # Checks for OpenCL backend
 AX_OPENCL
+
+# Checks for Metal backend
+AX_METAL
 
 # Set the NEKO_BCKND variable
 if test "x${have_cuda}" = xyes; then
@@ -270,6 +296,8 @@ elif test "x${have_hip}" = xyes; then
    AC_SUBST(NEKO_BCKND, "HIP")
 elif test "x${have_opencl}" = xyes; then
    AC_SUBST(NEKO_BCKND, "OpenCL")
+elif test "x${have_metal}" = xyes; then
+   AC_SUBST(NEKO_BCKND, "Metal")
 elif test "x${is_sx}" = x1; then
    AC_SUBST(NEKO_BCKND, "SX-Aurora")
 else
@@ -293,8 +321,11 @@ if (test "x${have_cuda}" = xyes ||
       if test "x${have_cuda}" = xyes; then
          CUDA_CFLAGS="$CUDA_CFLAGS -DHAVE_DEVICE_MPI=1"
 
-         # Make sure we have support for atomicAdd
-           AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+         # Device-aware MPI needs atomicAdd (>= sm_60), and picking the
+         # wrong architecture for the target GPU silently hurts performance
+         # rather than failing to build -- worse than a clear error.
+         AS_IF([test -z "$CUDA_ARCH"],
+               [AC_MSG_ERROR([CUDA_ARCH must be set explicitly to a value >= sm_60 for device-aware MPI])])
       fi
 
       if  test "x${have_hip}" = xyes; then
@@ -316,6 +347,9 @@ AX_RCCL
 # Checks for NVSHMEM backend
 AX_NVSHMEM
 
+# Checks for uTofu (native Tofu) gather-scatter backend
+AX_UTOFU
+
 # Checks for NVTX profiling
 AX_NVTX
 
@@ -329,9 +363,15 @@ else
    AX_HDF5
 fi
 
+# Checks for OpenSHMEM
+if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
+   AX_CRAY_SHMEM
+fi
+
+
 
 # JSON-Fortran
-PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
+PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
 NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $JSON_Fortran_CFLAGS"
 
@@ -341,8 +381,11 @@ AM_CONDITIONAL([ENABLE_ADIOS2_FORTRAN], [test "x${have_adios2_fortran}" = xyes])
 AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
+AM_CONDITIONAL([ENABLE_METAL], [test "x${have_metal}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
 AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
+AM_CONDITIONAL([ENABLE_UTOFU], [test "x${have_utofu}" = xyes])
+AM_CONDITIONAL([ENABLE_HDF5], [test "x${have_hdf5}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
@@ -352,7 +395,8 @@ AC_SUBST(HIP_HIPCC_FLAGS)
 # Set device backend if requested (and found)
 if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
-    test "x${have_opencl}" = xyes); then
+    test "x${have_opencl}" = xyes ||
+    test "x${have_metal}" = xyes); then
     AC_SUBST(device_bcknd, "1")
 else
     AC_SUBST(device_bcknd, "0")
@@ -374,11 +418,15 @@ AM_CONDITIONAL([ENABLE_PYTHON], [test "x${found_python}" = xyes])
 AC_SUBST(NEKO_PKG_FCFLAGS)
 FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
+# Date stamp for generated manual pages
+AC_SUBST(MAN_DATE, [2026-07-14])
+
 AC_CONFIG_FILES([Makefile\
         src/Makefile\
         src/python/Makefile\
         tests/unit/Makefile\
         src/comm/comm.F90\
+        src/comm/pfunit_comm_utils.F90\
         src/config/neko_config.f90\
         src/config/num_types.f90\
         src/device/device_config.h\
@@ -386,7 +434,9 @@ AC_CONFIG_FILES([Makefile\
         src/scripts/cltostring.sh\
         src/api/neko.h\
         makeneko\
-        neko.pc])
+        neko.pc\
+        doc/man/neko.1\
+        doc/man/makeneko.1])
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
@@ -410,13 +460,16 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/bc/Makefile\
         tests/unit/signal/Makefile\
         tests/unit/jobctrl/Makefile\
+        tests/unit/vtkhdf/Makefile\
         tests/unit/device/Makefile\
+        tests/unit/data_types/Makefile\
         tests/unit/device_math/Makefile\
         tests/unit/mathops/Makefile\
         tests/unit/device_mathops/Makefile\
         tests/unit/octree/Makefile\
         tests/unit/vector/Makefile\
         tests/unit/matrix/Makefile\
+        tests/unit/case_file_utils/Makefile\
         tests/unit/scratch_registry/Makefile\
         tests/unit/registry/Makefile\
         tests/unit/fast3d/Makefile\
@@ -425,12 +478,17 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/runge_kutta_scheme/Makefile\
         tests/unit/time_based_controller/Makefile\
         tests/unit/json_utils/Makefile\
-        tests/unit/point_interpolation/Makefile])
+        tests/unit/utils/Makefile\
+        tests/unit/point_interpolation/Makefile\
+        tests/unit/templates/parallel/Makefile\
+        tests/unit/boundary_operation/Makefile\
+        tests/unit/templates/serial/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
 		    contrib/rea2nbin/Makefile\
 		    contrib/genmeshbox/Makefile\
+		    contrib/create_periodic_zones/Makefile\
 		    contrib/average_fields_in_time/Makefile\
 		    contrib/calc_lift_from_field/Makefile\
 		    contrib/postprocess_fluid_stats/Makefile\
@@ -439,7 +497,9 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/mesh_checker/Makefile\
 		    contrib/prepart/Makefile\
 		    contrib/adios2_to_nek5000/Makefile\
-		    contrib/psnr/Makefile])
+		    contrib/psnr/Makefile\
+		    contrib/rea2nbin/rea2nbin.1\
+		    contrib/prepart/prepart.1])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])

@@ -8,7 +8,7 @@
         "output_at_end": false,
         "output_checkpoints": false,
         "time": {
-            "end_time": 300,
+            "end_time": 300.0,
             "variable_timestep": true,
             "max_timestep": 0.25e-2,
             // some options for timestepping to play around
@@ -22,10 +22,10 @@
         },
         "fluid": {
             "scheme": "pnpn",
-            "Re": 3000,
+            "Re": 3000.0,
             "initial_condition": {
                 "type": "uniform",
-                "value": [0, 0, 0]
+                "value": [0.0, 0.0, 0.0]
             },
             // frequency of postprocessing (energy and enstrophy)
             "ipostproc": 50,
@@ -36,7 +36,7 @@
                 },
                 "absolute_tolerance": 1e-7,
                 "max_iterations": 200,
-                "projection_space_size": 8,
+                "projection_space_size": 8
             },
             "pressure_solver": {
                 "type": "gmres",

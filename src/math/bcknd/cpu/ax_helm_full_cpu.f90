@@ -1,4 +1,4 @@
-! Copyright (c) 2023-2024, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,6 @@ module ax_helm_full_cpu
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
-  use math, only : addcol4
-  use utils, only : neko_error
   implicit none
   private
 
@@ -61,7 +59,7 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
+  subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh, &
                                          Xh)
     class(ax_helm_full_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
@@ -73,7 +71,9 @@ contains
     real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    integer :: i
 
+    !$omp parallel
     select case (Xh%lx)
     case (14)
        call ax_helm_stress_lx14(au, av, aw, u, v, w, Xh%dx, Xh%dy, Xh%dz, &
@@ -162,10 +162,19 @@ contains
     end select
 
     if (coef%ifh2) then
-       call addcol4 (au, coef%h2, coef%B, u, coef%dof%size())
-       call addcol4 (av, coef%h2, coef%B, v, coef%dof%size())
-       call addcol4 (aw, coef%h2, coef%B, w, coef%dof%size())
+       !$omp do private(i)
+       do i = 1, coef%dof%size()
+          au(i,1,1,1) = au(i,1,1,1) + &
+               coef%h2(i,1,1,1) * coef%B(i,1,1,1) * u(i,1,1,1)
+          av(i,1,1,1) = av(i,1,1,1) + &
+               coef%h2(i,1,1,1) * coef%B(i,1,1,1) * v(i,1,1,1)
+          aw(i,1,1,1) = aw(i,1,1,1) + &
+               coef%h2(i,1,1,1) * coef%B(i,1,1,1) * w(i,1,1,1)
+       end do
+       !$omp end do
+
     end if
+    !$omp end parallel
 
   end subroutine ax_helm_full_compute_vector
 
@@ -215,6 +224,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do private(e,i,j,k,l)
     do e = 1, n
 
        do j = 1, lx * lx
@@ -361,10 +371,11 @@ contains
           end do
        end do
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx
 
-  subroutine ax_helm_stress_lx14(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx14(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 14
@@ -410,6 +421,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -763,7 +775,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx14
 
   subroutine ax_helm_stress_lx13(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -812,6 +824,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -1146,7 +1159,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx13
 
   subroutine ax_helm_stress_lx12(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -1195,6 +1208,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -1511,10 +1525,11 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx12
 
-  subroutine ax_helm_stress_lx11(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx11(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 11
@@ -1560,6 +1575,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -1857,10 +1873,11 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx11
 
-  subroutine ax_helm_stress_lx10(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
+  subroutine ax_helm_stress_lx10(au, av, aw, u, v, w, Dx, Dy, Dz, &
+       Dxt, Dyt, Dzt, &
        h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 10
@@ -1906,6 +1923,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2185,7 +2203,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx10
 
   subroutine ax_helm_stress_lx9(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -2234,6 +2252,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2495,7 +2514,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx9
 
   subroutine ax_helm_stress_lx8(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -2544,6 +2563,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2788,7 +2808,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx8
 
   subroutine ax_helm_stress_lx7(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -2837,6 +2857,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3064,7 +3085,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx7
 
   subroutine ax_helm_stress_lx6(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3113,6 +3134,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3320,7 +3342,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx6
 
   subroutine ax_helm_stress_lx5(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3369,6 +3391,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3559,7 +3582,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx5
 
   subroutine ax_helm_stress_lx4(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3608,6 +3631,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3779,7 +3803,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx4
 
   subroutine ax_helm_stress_lx3(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3828,6 +3852,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3981,7 +4006,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx3
 
   subroutine ax_helm_stress_lx2(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -4030,6 +4055,7 @@ contains
     real(kind=rp) :: s11, s22, s33, s12, s13, s23
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
 
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -4165,7 +4191,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx2
 
 end module ax_helm_full_cpu

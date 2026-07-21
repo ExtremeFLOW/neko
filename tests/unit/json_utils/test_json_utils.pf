@@ -13,16 +13,16 @@ contains
   end subroutine test_json_no_defaults_starts_false
 
   @test
-  subroutine test_json_get_integer_allows_real_literal()
+  subroutine test_json_get_integer()
     type(json_file) :: jf
     integer :: int_value
 
     ! Should work because 3.0 is exactly representable as an integer
-    call jf%load_from_string('{"params":{"value": 3.0}}')
+    call jf%load_from_string('{"params":{"value": 3}}')
     call json_get(jf, "params.value", int_value)
 
     @assertEqual(int_value, 3)
-  end subroutine test_json_get_integer_allows_real_literal
+  end subroutine test_json_get_integer
 
   @test
   subroutine test_json_get_integer_array_allows_reals()

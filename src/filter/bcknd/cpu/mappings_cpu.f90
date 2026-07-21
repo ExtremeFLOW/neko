@@ -32,7 +32,7 @@
 !
 !> CPU implementations of the mapping functions.
 module mappings_cpu
-  use num_types, only: rp
+  use num_types, only : rp
   implicit none
   private
   public :: smooth_step_cpu, step_function_cpu, permeability_cpu

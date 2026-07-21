@@ -67,14 +67,15 @@ module hsmg
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use bc, only: bc_t
+  use bc, only : bc_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_copy, device_col2, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
   use space, only : space_t, GLL
@@ -115,7 +116,8 @@ module hsmg
      type(coef_t) :: c_crs, c_mg
      type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
-     type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
+     type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz
+     !! decompositions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
@@ -179,7 +181,7 @@ contains
          crs_tamg_itrs, 1)
 
     call json_get_or_default(hsmg_params, 'coarse_grid.cheby_degree', &
-         crs_tamg_cheby_degree, 5)
+         crs_tamg_cheby_degree, 4)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
          crs_monitor, crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree)
@@ -201,7 +203,8 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call this%free()
-    !> @note I do not think we actually use the same grids as they do in the original!
+    !> @note I do not think we actually use the same grids as they do
+    !! in the original!
     this%nlvls = 3
     lx_crs = 2
     if (coef%Xh%lx .lt. 5) then
@@ -410,19 +413,17 @@ contains
     end if
 
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
 
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
-    end if
-
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
     end if
 
     call this%schwarz%free()
@@ -451,6 +452,11 @@ contains
     if (allocated(this%crs_solver)) then
        call this%crs_solver%free()
        deallocate(this%crs_solver)
+    end if
+
+    if (allocated(this%amg_solver)) then
+       call this%amg_solver%free()
+       deallocate(this%amg_solver)
     end if
 
     if (allocated(this%pc_crs)) then

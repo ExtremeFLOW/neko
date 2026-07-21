@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -90,6 +90,50 @@ module hip_intf
        type(c_ptr), value :: ptr_d
      end function hipFree
 
+     !> Map host memory to the device (zero-copy on unified memory
+     !! architectures, e.g. MI300A, see device/hip/unified.hip)
+     integer(c_int) function hipMap(ptr_d, ptr_h, s) &
+          bind(c, name = 'hip_map')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr) :: ptr_d
+       type(c_ptr), value :: ptr_h
+       integer(c_size_t), value :: s
+     end function hipMap
+
+     !> Free a device pointer obtained from hipMap
+     !! (no-op for pointers aliasing host memory)
+     integer(c_int) function hipMapFree(ptr_d) &
+          bind(c, name = 'hip_map_free')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+     end function hipMapFree
+
+     !> Memset on a device pointer obtained from hipMap
+     !! (host-side memset for pointers aliasing host memory)
+     integer(c_int) function hipMapMemset(ptr_d, v, s, stream) &
+          bind(c, name = 'hip_map_memset')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_d
+       integer(c_int), value :: v
+       integer(c_size_t), value :: s
+       type(c_ptr), value :: stream
+     end function hipMapMemset
+
+     !> Copy between device/host pointers via the mapping layer
+     !! (kernel-based copy under zero-copy, where either side may
+     !! alias pageable host memory)
+     integer(c_int) function hipMapMemcpy(ptr_dst, ptr_src, s, dir, stream) &
+          bind(c, name = 'hip_map_memcpy')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: ptr_dst, ptr_src, stream
+       integer(c_size_t), value :: s
+       integer(c_int), value :: dir
+     end function hipMapMemcpy
+
      integer(c_int) function hipMemcpy(ptr_dst, ptr_src, s, dir) &
           bind(c, name = 'hipMemcpy')
        use, intrinsic :: iso_c_binding
@@ -122,6 +166,16 @@ module hip_intf
        use, intrinsic :: iso_c_binding
        implicit none
      end function hipDeviceSynchronize
+
+     integer(c_int) function hipDeviceReset() &
+          bind(c, name = 'hipDeviceReset')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function hipDeviceReset
+
+     subroutine hip_buffer_free_all() &
+          bind(c, name = 'hip_buffer_free_all')
+     end subroutine hip_buffer_free_all
 
      integer(c_int) function hipDeviceGetName(name, len, device) &
           bind(c, name = 'hipDeviceGetName')
@@ -185,7 +239,7 @@ module hip_intf
      end function hipStreamWaitEvent
 
      integer(c_int) function hipDeviceGetStreamPriorityRange(low_prio, &
-                                                             high_prio) &
+          high_prio) &
           bind(c, name = 'hipDeviceGetStreamPriorityRange')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -239,17 +293,17 @@ contains
     integer, intent(inout) :: STRM_LOW_PRIO
 
     if (hipDeviceGetStreamPriorityRange(STRM_LOW_PRIO, STRM_HIGH_PRIO) &
-        .ne. hipSuccess) then
+         .ne. hipSuccess) then
        call neko_error('Error retrieving stream priority range')
     end if
 
     if (hipStreamCreateWithPriority(glb_cmd_queue, 1, STRM_HIGH_PRIO) &
-        .ne. hipSuccess) then
+         .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
 
     if (hipStreamCreateWithPriority(aux_cmd_queue, 1, STRM_LOW_PRIO) &
-        .ne. hipSuccess) then
+         .ne. hipSuccess) then
        call neko_error('Error creating main stream')
     end if
   end subroutine hip_init
@@ -257,6 +311,10 @@ contains
   subroutine hip_finalize(glb_cmd_queue, aux_cmd_queue)
     type(c_ptr), intent(inout) :: glb_cmd_queue
     type(c_ptr), intent(inout) :: aux_cmd_queue
+    integer :: ierr
+
+    ! Release all device buffers held by the device layer
+    call hip_buffer_free_all()
 
     if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying main stream')
@@ -265,6 +323,18 @@ contains
     if (hipStreamDestroy(aux_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying aux stream')
     end if
+
+    ierr = hipDeviceSynchronize()
+
+    ! Best-effort context teardown to release runtime-owned allocations.
+    ! Skipped in pFUnit-enabled builds: unit tests cycle device
+    ! init/finalize with MPI still up, and device-aware communication
+    ! backends (GPU-aware MPI, RCCL) cache device state from first
+    ! use; resetting the device here would leave them with dangling
+    ! handles
+#ifndef HAVE_PFUNIT
+    ierr = hipDeviceReset()
+#endif
   end subroutine hip_finalize
 
   subroutine hip_device_name(name)

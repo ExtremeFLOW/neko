@@ -32,22 +32,22 @@
 !
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module adv_oifs
-  use advection, only: advection_t
-  use num_types, only: rp
-  use space, only: space_t, GL
-  use field, only: field_t
-  use coefs, only: coef_t
-  use math, only: copy, rzero
-  use operators, only: runge_kutta, set_convect_rst
-  use neko_config, only: NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
-  use interpolation, only: interpolator_t
-  use time_interpolator, only: time_interpolator_t
-  use field_series, only: field_series_t
-  use field_list, only: field_list_t
-  use time_scheme_controller, only: time_scheme_controller_t
-  use device, only: device_map, device_free
-  use device_math, only: device_addcol3s2, device_rzero
-  use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
+  use advection, only : advection_t
+  use num_types, only : rp
+  use space, only : space_t, GL
+  use field, only : field_t
+  use coefs, only : coef_t
+  use math, only : copy, rzero
+  use operators, only : runge_kutta, set_convect_rst
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
+  use interpolation, only : interpolator_t
+  use time_interpolator, only : time_interpolator_t
+  use field_series, only : field_series_t
+  use field_list, only : field_list_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use device, only : device_map, device_unmap
+  use device_math, only : device_addcol3s2, device_rzero
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -108,6 +108,11 @@ module adv_oifs
      procedure, pass(this) :: set_conv_velocity_fst
      !> Destructor
      procedure, pass(this) :: free => adv_oifs_free
+     !> add the advection term for ALE, i.e. \f$(u - w_m) \cdot \nabla s \f$, to
+     !> the RHS
+     procedure, pass(this) :: compute_ale => adv_oifs_compute_ale
+     !> Update any metrics needed for the advection computation in ALE.
+     procedure, pass(this) :: recompute_metrics => recompute_metrics_oifs
   end type adv_oifs_t
 
 contains
@@ -344,22 +349,22 @@ contains
     nullify(this%ct_k4)
 
     if (allocated(this%cx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cx, this%cx_d)
+       end if
        deallocate(this%cx)
     end if
     if (allocated(this%cy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cy, this%cy_d)
+       end if
        deallocate(this%cy)
     end if
     if (allocated(this%cz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cz, this%cz_d)
+       end if
        deallocate(this%cz)
-    end if
-    if (c_associated(this%cx_d)) then
-       call device_free(this%cx_d)
-    end if
-    if (c_associated(this%cy_d)) then
-       call device_free(this%cy_d)
-    end if
-    if (c_associated(this%cz_d)) then
-       call device_free(this%cz_d)
     end if
 
   end subroutine adv_oifs_free
@@ -454,44 +459,44 @@ contains
          if (NEKO_BCKND_DEVICE .eq. 1) then
             if (ilag .eq. 1) then
                call device_addcol3s2(fx%x_d, vx%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(2), n)
+                    oifs_scheme%diffusion_coeffs%x(2), n)
                call device_addcol3s2(fy%x_d, vy%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(2), n)
+                    oifs_scheme%diffusion_coeffs%x(2), n)
                call device_addcol3s2(fz%x_d, vz%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(2), n)
+                    oifs_scheme%diffusion_coeffs%x(2), n)
             else
                call device_addcol3s2(fx%x_d, ulag%lf(ilag-1)%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(ilag+1), n)
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
                call device_addcol3s2(fy%x_d, vlag%lf(ilag-1)%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(ilag+1), n)
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
                call device_addcol3s2(fz%x_d, wlag%lf(ilag-1)%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(ilag+1), n)
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
             end if
          else
             if (ilag .eq. 1) then
                do i = 1, n
                   fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(2) &
+                       oifs_scheme%diffusion_coeffs%x(2) &
                        * vx%x(i,1,1,1) * coef%B(i,1,1,1)
                   fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(2) &
+                       oifs_scheme%diffusion_coeffs%x(2) &
                        * vy%x(i,1,1,1) * coef%B(i,1,1,1)
                   fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(2) &
+                       oifs_scheme%diffusion_coeffs%x(2) &
                        * vz%x(i,1,1,1) * coef%B(i,1,1,1)
                end do
             else
                do i = 1, n
                   fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(ilag+1) &
+                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
                        * ulag%lf(ilag-1)%x(i,1,1,1) &
                        * coef%B(i,1,1,1)
                   fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(ilag+1) &
+                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
                        * vlag%lf(ilag-1)%x(i,1,1,1) &
                        * coef%B(i,1,1,1)
                   fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(ilag+1) &
+                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
                        * wlag%lf(ilag-1)%x(i,1,1,1) &
                        * coef%B(i,1,1,1)
                end do
@@ -580,22 +585,22 @@ contains
          if (NEKO_BCKND_DEVICE .eq. 1) then
             if (ilag .eq. 1) then
                call device_addcol3s2(fs%x_d, s%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(2), n)
+                    oifs_scheme%diffusion_coeffs%x(2), n)
             else
                call device_addcol3s2(fs%x_d, slag%lf(ilag-1)%x_d, coef%B_d, &
-                    oifs_scheme%diffusion_coeffs(ilag+1), n)
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
             end if
          else
             if (ilag .eq. 1) then
                do i = 1, n
                   fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(2) &
+                       oifs_scheme%diffusion_coeffs%x(2) &
                        * s%x(i,1,1,1) * coef%B(i,1,1,1)
                end do
             else
                do i = 1, n
                   fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs(ilag+1) &
+                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
                        * slag%lf(ilag-1)%x(i,1,1,1) * coef%B(i,1,1,1)
                end do
             end if
@@ -623,5 +628,24 @@ contains
     end associate
 
   end subroutine adv_oifs_compute_scalar
+  subroutine recompute_metrics_oifs(this, coef, moving_boundary)
+    class(adv_oifs_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    logical, intent(in) :: moving_boundary
+    ! no-op
+  end subroutine recompute_metrics_oifs
 
+
+  subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, &
+       fx, fy, fz, Xh, coef, n, dt)
+    class(adv_oifs_t), intent(inout) :: this
+    type(field_t), intent(inout) :: vx, vy, vz
+    type(field_t), intent(inout) :: wm_x, wm_y, wm_z
+    type(field_t), intent(inout) :: fx, fy, fz
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
+    ! no-op
+  end subroutine adv_oifs_compute_ale
 end module adv_oifs

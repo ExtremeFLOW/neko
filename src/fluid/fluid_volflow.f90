@@ -1,5 +1,5 @@
 ! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -67,6 +67,7 @@ module fluid_volflow
   use dofmap, only : dofmap_t
   use field, only : field_t
   use coefs, only : coef_t
+  use time_state, only : time_state_t
   use time_scheme_controller, only : time_scheme_controller_t
   use math, only : copy, glsc2, glmin, glmax, add2, abscmp
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -75,12 +76,13 @@ module fluid_volflow
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default, json_get_or_lookup
   use scratch_registry, only : neko_scratch_registry
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -88,9 +90,10 @@ module fluid_volflow
   type, public :: fluid_volflow_t
      integer :: flow_dir !< these two should be moved to params
      logical :: avflow
+     logical :: log = .true.
      real(kind=rp) :: flow_rate
      real(kind=rp) :: dtlag = 0d0
-     real(kind=rp) :: bdlag = 0d0 !< Really quite pointless since we do not vary the timestep
+     real(kind=rp) :: bdlag = 0d0 !< Pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
      real(kind=rp) :: domain_length, base_flow
    contains
@@ -106,20 +109,24 @@ contains
     class(fluid_volflow_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dm_Xh
     type(json_file), intent(inout) :: params
-    logical average
+    logical average, log_output
     integer :: direction
     real(kind=rp) :: rate
 
     call this%free()
 
     !Initialize vol_flow (if there is a forced volume flow)
-    call json_get(params, 'case.fluid.flow_rate_force.direction', direction)
-    call json_get(params, 'case.fluid.flow_rate_force.value', rate)
+    call json_get_or_lookup(params, 'case.fluid.flow_rate_force.direction', &
+         direction)
+    call json_get_or_lookup(params, 'case.fluid.flow_rate_force.value', rate)
     call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
          average)
+    call json_get_or_default(params, 'case.fluid.flow_rate_force.log', &
+         log_output, .true.)
 
     this%flow_dir = direction
     this%avflow = average
+    this%log = log_output
     this%flow_rate = rate
 
     if (this%flow_dir .ne. 0) then
@@ -147,7 +154,8 @@ contains
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
        ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
+       vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(coef_t), intent(inout) :: c_Xh
@@ -273,11 +281,9 @@ contains
       end if
       c_Xh%ifh2 = .true.
 
-      call rotate_cyc(u_res%x, v_res%x, w_res%x, 1, c_Xh)
-      call gs_Xh%op(u_res, GS_OP_ADD)
-      call gs_Xh%op(v_res, GS_OP_ADD)
-      call gs_Xh%op(w_res, GS_OP_ADD)
-      call rotate_cyc(u_res%x, v_res%x, w_res%x, 0, c_Xh)
+      call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
+      call gs_Xh%op(u_res%x, v_res%x, w_res%x, n, GS_OP_ADD)
+      call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
       call bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()
@@ -332,9 +338,10 @@ contains
   !!
   !! pff 6/28/98
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
-       c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
+       c_Xh, gs_Xh, ext_bdf, rho, mu, dt, time, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
+       vel_max_iter)
 
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w, p
@@ -342,6 +349,7 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
+    type(time_state_t), intent(in) :: time
     real(kind=rp), intent(in) :: rho, dt
     type(field_t) :: mu
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
@@ -354,6 +362,10 @@ contains
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr, i
+    character(len=5) :: flow_dir_label
+    character(len=12) :: step_str
+
+    character(len=200) :: log_buf
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)
@@ -366,19 +378,19 @@ contains
       ifcomp = 0.0_rp
 
       if ((.not. abscmp(dt, this%dtlag)) .or. &
-           (.not. abscmp(ext_bdf%diffusion_coeffs(1), this%bdlag))) then
+           (.not. abscmp(ext_bdf%diffusion_coeffs%x(1), this%bdlag))) then
          ifcomp = 1.0_rp
       end if
 
       this%dtlag = dt
-      this%bdlag = ext_bdf%diffusion_coeffs(1)
+      this%bdlag = ext_bdf%diffusion_coeffs%x(1)
 
       call MPI_Allreduce(MPI_IN_PLACE, ifcomp, 1, &
            MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
       if (ifcomp .gt. 0d0) then
          call this%compute(u_res, v_res, w_res, p_res, &
-              ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &
+              ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs%x(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
               Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
               vel_max_iter)
@@ -415,6 +427,26 @@ contains
       delta_flow = flow_rate - current_flow
       scale = delta_flow / this%base_flow
 
+      if (this%log .and. pe_rank .eq. 0) then
+         if (this%flow_dir .eq. 1) then
+            flow_dir_label = '    x'
+         else if (this%flow_dir .eq. 2) then
+            flow_dir_label = '    y'
+         else if (this%flow_dir .eq. 3) then
+            flow_dir_label = '    z'
+         end if
+         write(step_str, '(I12)') time%tstep
+         step_str = adjustl(step_str)
+         write(log_buf, '(A,A3,A5,1X,5A18)') &
+              'Flow rate   ', ' | ', 'Dir.:', 'Time:', 'Scale:', 'Rate:', &
+              'Current:', 'Base:'
+         call neko_log%message(log_buf)
+         write(log_buf, '(A12,A3,A5,1X,5E18.9)') step_str, ' | ', &
+              flow_dir_label, time%t, scale, flow_rate, current_flow, &
+              this%base_flow
+         call neko_log%message(log_buf)
+      end if
+
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_add2s2(u%x_d, u_vol%x_d, scale, n)
          call device_add2s2(v%x_d, v_vol%x_d, scale, n)
@@ -431,6 +463,5 @@ contains
     end associate
 
   end subroutine fluid_vol_flow
-
 
 end module fluid_volflow

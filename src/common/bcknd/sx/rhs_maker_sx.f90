@@ -3,7 +3,7 @@ module rhs_maker_sx
        rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
-  use num_types, only : rp, c_rp
+  use num_types, only : rp
   use scratch_registry, only : neko_scratch_registry
   implicit none
   private
@@ -135,12 +135,12 @@ contains
   end subroutine scalar_rhs_maker_ext_sx
 
   subroutine rhs_maker_bdf_sx(ulag, vlag, wlag, bfx, bfy, bfz, &
-       u, v, w, B, rho, dt, bd, nbd, n)
+       u, v, w, B, Blag, Blaglag, rho, dt, bd, nbd, n)
     integer, intent(in) :: n, nbd
     type(field_t), intent(in) :: u, v, w
     type(field_series_t), intent(in) :: ulag, vlag, wlag
     real(kind=rp), intent(inout) :: bfx(n), bfy(n), bfz(n)
-    real(kind=rp), intent(in) :: B(n)
+    real(kind=rp), intent(in) :: B(n), Blag(n), Blaglag(n)
     real(kind=rp), intent(in) :: dt, rho, bd(4)
     type(field_t), pointer :: tb1, tb2, tb3
     type(field_t), pointer :: ta1, ta2, ta3

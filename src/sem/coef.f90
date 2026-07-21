@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,19 +34,21 @@
 module coefs
   use gather_scatter, only : gs_t
   use gs_ops, only : GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_OPENCL
   use num_types, only : rp
   use dofmap, only : dofmap_t
-  use space, only: space_t
+  use space, only : space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
        chsign, rzero, invers2, glsum, NEKO_EPS
   use mesh, only : mesh_t
   use device_math, only : device_rone, device_invcol1, &
-       device_glsum
+       device_glsum, device_copy
   use device_coef, only : device_coef_generate_geo, &
-       device_coef_generate_dxydrst
+       device_coef_generate_dxydrst, device_coef_generate_mass, &
+       device_coef_generate_area_and_normal
   use mxm_wrapper, only : mxm
-  use device
+  use device, only : device_map, device_memcpy, DEVICE_TO_HOST, &
+       HOST_TO_DEVICE, device_unmap
   use utils, only : index_is_on_facet, linear_index, &
        neko_error
   use comm, only : NEKO_COMM
@@ -72,6 +74,21 @@ module coefs
      !> Geometric factors \f$ G_{23} \f$
      real(kind=rp), allocatable :: G23(:,:,:,:)
 
+     !> Compressed geometric factors \f$ G_{11} \f$
+     real(kind=rp), allocatable :: G11_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{22} \f$
+     real(kind=rp), allocatable :: G22_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{33} \f$
+     real(kind=rp), allocatable :: G33_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{12} \f$
+     real(kind=rp), allocatable :: G12_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{13} \f$
+     real(kind=rp), allocatable :: G13_compressed(:,:,:,:)
+     !> Compressed geometric factors \f$ G_{23} \f$
+     real(kind=rp), allocatable :: G23_compressed(:,:,:,:)
+     !> Compressed geometric factors lookup indices
+     integer, allocatable :: compression_inds(:)
+
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      !> generate mapping data between element and reference element
      !! \f$ dx/dr, dy/dr, dz/dr \f$
@@ -95,7 +112,8 @@ module coefs
      real(kind=rp), allocatable :: jacinv(:,:,:,:) !< Inverted Jacobian
      real(kind=rp), allocatable :: B(:,:,:,:) !< Mass matrix/volume matrix
      real(kind=rp), allocatable :: Binv(:,:,:,:) !< Inverted Mass matrix/volume matrix
-
+     real(kind=rp), pointer :: Blag(:,:,:,:) => null() !< Lagged Mass matrix/volume matrix
+     real(kind=rp), pointer :: Blaglag(:,:,:,:) => null() !< lag-lagged Mass matrix/volume matrix
      real(kind=rp), allocatable :: area(:,:,:,:) !< Facet area
      real(kind=rp), allocatable :: nx(:,:,:,:) !< x-direction of facet normal
      real(kind=rp), allocatable :: ny(:,:,:,:) !< y-direction of facet normal
@@ -104,6 +122,10 @@ module coefs
      integer, allocatable :: cyc_msk(:)
      real(kind=rp), allocatable :: R11(:) !< entry of 2D rotation matrix at index (1,1)
      real(kind=rp), allocatable :: R12(:) !< entry of 2D rotation matrix at index (1,2)
+
+     !! True if geometric metrics have been initialized
+     logical, private :: coef_metrics_initialized = .false.
+
      !> Pointers to main fields
 
      real(kind=rp) :: volume
@@ -147,6 +169,8 @@ module coefs
      type(c_ptr) :: jac_d = C_NULL_PTR
      type(c_ptr) :: jacinv_d = C_NULL_PTR
      type(c_ptr) :: B_d = C_NULL_PTR
+     type(c_ptr) :: Blag_d = C_NULL_PTR
+     type(c_ptr) :: Blaglag_d = C_NULL_PTR
      type(c_ptr) :: Binv_d = C_NULL_PTR
      type(c_ptr) :: area_d = C_NULL_PTR
      type(c_ptr) :: nx_d = C_NULL_PTR
@@ -165,6 +189,9 @@ module coefs
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
      procedure, pass(this) :: generate_cyclic_bc => coef_generate_cyclic_bc
+     procedure, pass(this) :: recompute_metrics => coef_recompute_metrics
+     procedure, pass(this) :: enable_B_history => coef_enable_lagged_mass
+     procedure, pass(this) :: update_B_history => coef_update_lagged_mass
      generic :: init => init_empty, init_all
   end type coef_t
 
@@ -218,7 +245,7 @@ contains
 
   !> Initialize coefficients
   subroutine coef_init_all(this, gs_h)
-    class(coef_t), intent(inout) :: this
+    class(coef_t), intent(inout), target :: this
     type(gs_t), intent(inout), target :: gs_h
     integer :: n, m, ncyc
     call this%free()
@@ -274,6 +301,10 @@ contains
     allocate(this%B(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%Binv(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
+    ! We do this so in a static simulation we don't allocate extra memory
+    this%Blag => this%B
+    this%Blaglag => this%B
+
     allocate(this%h1(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%h2(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
@@ -326,6 +357,9 @@ contains
        call device_map(this%B, this%B_d, n)
        call device_map(this%Binv, this%Binv_d, n)
 
+       this%Blag_d = this%B_d
+       this%Blaglag_d = this%B_d
+
        m = this%Xh%lx * this%Xh%ly * 6 * this%msh%nelv
 
        call device_map(this%area, this%area_d, m)
@@ -339,9 +373,13 @@ contains
 
     call coef_generate_geo(this)
 
+    ! call coef_generate_geo_compressed(this)
+
     call coef_generate_area_and_normal(this)
 
     call coef_generate_mass(this)
+
+    this%coef_metrics_initialized = .true.
 
 
     ! This is a placeholder, just for now
@@ -350,9 +388,9 @@ contains
        call device_rone(this%h1_d, n)
        call device_rone(this%h2_d, n)
        call device_memcpy(this%h1, this%h1_d, n, &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
        call device_memcpy(this%h2, this%h2_d, n, &
-            DEVICE_TO_HOST, sync=.false.)
+            DEVICE_TO_HOST, sync = .false.)
     else
        call rone(this%h1,n)
        call rone(this%h2,n)
@@ -374,7 +412,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(this%mult_d, n)
        call device_memcpy(this%mult, this%mult_d, n, &
-            DEVICE_TO_HOST, sync=.true.)
+            DEVICE_TO_HOST, sync = .true.)
     else
        call invcol1(this%mult, n)
     end if
@@ -395,9 +433,12 @@ contains
           call device_map(this%R11, this%R11_d, ncyc)
           call device_map(this%R12, this%R12_d, ncyc)
 
-          call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(this%R11, this%R11_d, ncyc, HOST_TO_DEVICE, sync=.false.)
-          call device_memcpy(this%R12, this%R12_d, ncyc, HOST_TO_DEVICE, sync=.false.)
+          call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%R11, this%R11_d, ncyc, &
+               HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(this%R12, this%R12_d, ncyc, &
+               HOST_TO_DEVICE, sync = .false.)
        end if
 
     end if
@@ -405,157 +446,259 @@ contains
 
   !> Deallocate coefficients
   subroutine coef_free(this)
-    class(coef_t), intent(inout) :: this
+    class(coef_t), intent(inout), target :: this
 
     if (allocated(this%G11)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G11, this%G11_d)
        deallocate(this%G11)
     end if
 
     if (allocated(this%G22)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G22, this%G22_d)
        deallocate(this%G22)
     end if
 
     if (allocated(this%G33)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G33, this%G33_d)
        deallocate(this%G33)
     end if
 
     if (allocated(this%G12)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G12, this%G12_d)
        deallocate(this%G12)
     end if
 
     if (allocated(this%G13)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G13, this%G13_d)
        deallocate(this%G13)
     end if
 
     if (allocated(this%G23)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%G23, this%G23_d)
        deallocate(this%G23)
     end if
 
+    if (allocated(this%G11_compressed)) then
+       deallocate(this%G11_compressed)
+    end if
+
+    if (allocated(this%compression_inds)) then
+       deallocate(this%compression_inds)
+    end if
+
+    if (allocated(this%G22_compressed)) then
+       deallocate(this%G22_compressed)
+    end if
+
+    if (allocated(this%G33_compressed)) then
+       deallocate(this%G33_compressed)
+    end if
+
+    if (allocated(this%G12_compressed)) then
+       deallocate(this%G12_compressed)
+    end if
+
+    if (allocated(this%G13_compressed)) then
+       deallocate(this%G13_compressed)
+    end if
+
+    if (allocated(this%G23_compressed)) then
+       deallocate(this%G23_compressed)
+    end if
+
     if (allocated(this%mult)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%mult, this%mult_d)
        deallocate(this%mult)
     end if
 
+    if (associated(this%Blag) .and. &
+         .not. associated(this%Blag, this%B)) then
+       if (c_associated(this%Blag_d) .and. &
+            .not. c_associated(this%Blag_d, this%B_d)) then
+          call device_unmap(this%Blag, this%Blag_d)
+       end if
+       deallocate(this%Blag)
+    end if
+    nullify(this%Blag)
+
+    if (associated(this%Blaglag) .and. &
+         .not. associated(this%Blaglag, this%B)) then
+       if (c_associated(this%Blaglag_d) .and. &
+            .not. c_associated(this%Blaglag_d, this%B_d)) then
+          call device_unmap(this%Blaglag, this%Blaglag_d)
+       end if
+       deallocate(this%Blaglag)
+    end if
+    nullify(this%Blaglag)
+
+    if (c_associated(this%Blag_d) .and. &
+         .not. c_associated(this%Blag_d, this%B_d)) then
+       this%Blag_d = C_NULL_PTR
+    end if
+    this%Blag_d = C_NULL_PTR
+
+    if (c_associated(this%Blaglag_d) .and. &
+         .not. c_associated(this%Blaglag_d, this%B_d)) then
+       this%Blaglag_d = C_NULL_PTR
+    end if
+    this%Blaglag_d = C_NULL_PTR
+
     if (allocated(this%B)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%B, this%B_d)
        deallocate(this%B)
     end if
 
     if (allocated(this%Binv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%Binv, this%Binv_d)
        deallocate(this%Binv)
     end if
 
-    if(allocated(this%dxdr)) then
+    if (allocated(this%dxdr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxdr, this%dxdr_d)
        deallocate(this%dxdr)
     end if
 
-    if(allocated(this%dxds)) then
+    if (allocated(this%dxds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxds, this%dxds_d)
        deallocate(this%dxds)
     end if
 
-    if(allocated(this%dxdt)) then
+    if (allocated(this%dxdt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxdt, this%dxdt_d)
        deallocate(this%dxdt)
     end if
 
-    if(allocated(this%dydr)) then
+    if (allocated(this%dydr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dydr, this%dydr_d)
        deallocate(this%dydr)
     end if
 
-    if(allocated(this%dyds)) then
+    if (allocated(this%dyds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dyds, this%dyds_d)
        deallocate(this%dyds)
     end if
 
-    if(allocated(this%dydt)) then
+    if (allocated(this%dydt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dydt, this%dydt_d)
        deallocate(this%dydt)
     end if
 
-    if(allocated(this%dzdr)) then
+    if (allocated(this%dzdr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzdr, this%dzdr_d)
        deallocate(this%dzdr)
     end if
 
-    if(allocated(this%dzds)) then
+    if (allocated(this%dzds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzds, this%dzds_d)
        deallocate(this%dzds)
     end if
 
-    if(allocated(this%dzdt)) then
+    if (allocated(this%dzdt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzdt, this%dzdt_d)
        deallocate(this%dzdt)
     end if
 
-    if(allocated(this%drdx)) then
+    if (allocated(this%drdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdx, this%drdx_d)
        deallocate(this%drdx)
     end if
 
-    if(allocated(this%dsdx)) then
+    if (allocated(this%dsdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdx, this%dsdx_d)
        deallocate(this%dsdx)
     end if
 
-    if(allocated(this%dtdx)) then
+    if (allocated(this%dtdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdx, this%dtdx_d)
        deallocate(this%dtdx)
     end if
 
-    if(allocated(this%drdy)) then
+    if (allocated(this%drdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdy, this%drdy_d)
        deallocate(this%drdy)
     end if
 
-    if(allocated(this%dsdy)) then
+    if (allocated(this%dsdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdy, this%dsdy_d)
        deallocate(this%dsdy)
     end if
 
-    if(allocated(this%dtdy)) then
+    if (allocated(this%dtdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdy, this%dtdy_d)
        deallocate(this%dtdy)
     end if
 
-    if(allocated(this%drdz)) then
+    if (allocated(this%drdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdz, this%drdz_d)
        deallocate(this%drdz)
     end if
 
-    if(allocated(this%dsdz)) then
+    if (allocated(this%dsdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdz, this%dsdz_d)
        deallocate(this%dsdz)
     end if
 
-    if(allocated(this%dtdz)) then
+    if (allocated(this%dtdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdz, this%dtdz_d)
        deallocate(this%dtdz)
     end if
 
-    if(allocated(this%jac)) then
+    if (allocated(this%jac)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%jac, this%jac_d)
        deallocate(this%jac)
     end if
 
-    if(allocated(this%jacinv)) then
+    if (allocated(this%jacinv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%jacinv, this%jacinv_d)
+       end if
        deallocate(this%jacinv)
     end if
 
-    if(allocated(this%h1)) then
+    if (allocated(this%h1)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%h1, this%h1_d)
        deallocate(this%h1)
     end if
 
-    if(allocated(this%h2)) then
+    if (allocated(this%h2)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%h2, this%h2_d)
        deallocate(this%h2)
     end if
 
     if (allocated(this%area)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%area, this%area_d)
        deallocate(this%area)
     end if
 
     if (allocated(this%nx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%nx, this%nx_d)
        deallocate(this%nx)
     end if
 
     if (allocated(this%ny)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%ny, this%ny_d)
        deallocate(this%ny)
     end if
 
     if (allocated(this%nz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%nz, this%nz_d)
        deallocate(this%nz)
     end if
 
     if (allocated(this%cyc_msk)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%cyc_msk, this%cyc_msk_d)
+       end if
        deallocate(this%cyc_msk)
     end if
 
     if (allocated(this%R11)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%R11, this%R11_d)
        deallocate(this%R11)
     end if
 
     if (allocated(this%R12)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%R12, this%R12_d)
        deallocate(this%R12)
     end if
 
@@ -565,171 +708,14 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
 
-    !
-    ! Cleanup the device (if present)
-    !
-
-    if (c_associated(this%G11_d)) then
-       call device_free(this%G11_d)
-    end if
-
-    if (c_associated(this%G22_d)) then
-       call device_free(this%G22_d)
-    end if
-
-    if (c_associated(this%G33_d)) then
-       call device_free(this%G33_d)
-    end if
-
-    if (c_associated(this%G12_d)) then
-       call device_free(this%G12_d)
-    end if
-
-    if (c_associated(this%G13_d)) then
-       call device_free(this%G13_d)
-    end if
-
-    if (c_associated(this%G23_d)) then
-       call device_free(this%G23_d)
-    end if
-
-    if (c_associated(this%dxdr_d)) then
-       call device_Free(this%dxdr_d)
-    end if
-
-    if (c_associated(this%dydr_d)) then
-       call device_Free(this%dydr_d)
-    end if
-
-    if (c_associated(this%dzdr_d)) then
-       call device_Free(this%dzdr_d)
-    end if
-
-    if (c_associated(this%dxds_d)) then
-       call device_Free(this%dxds_d)
-    end if
-
-    if (c_associated(this%dyds_d)) then
-       call device_free(this%dyds_d)
-    end if
-
-    if (c_associated(this%dzds_d)) then
-       call device_free(this%dzds_d)
-    end if
-
-    if (c_associated(this%dxdt_d)) then
-       call device_free(this%dxdt_d)
-    end if
-
-    if (c_associated(this%dydt_d)) then
-       call device_free(this%dydt_d)
-    end if
-
-    if (c_associated(this%dzdt_d)) then
-       call device_free(this%dzdt_d)
-    end if
-
-    if (c_associated(this%drdx_d)) then
-       call device_Free(this%drdx_d)
-    end if
-
-    if (c_associated(this%drdy_d)) then
-       call device_Free(this%drdy_d)
-    end if
-
-    if (c_associated(this%drdz_d)) then
-       call device_Free(this%drdz_d)
-    end if
-
-    if (c_associated(this%dsdx_d)) then
-       call device_Free(this%dsdx_d)
-    end if
-
-    if (c_associated(this%dsdy_d)) then
-       call device_free(this%dsdy_d)
-    end if
-
-    if (c_associated(this%dsdz_d)) then
-       call device_free(this%dsdz_d)
-    end if
-
-    if (c_associated(this%dtdx_d)) then
-       call device_free(this%dtdx_d)
-    end if
-
-    if (c_associated(this%dtdy_d)) then
-       call device_free(this%dtdy_d)
-    end if
-
-    if (c_associated(this%dtdz_d)) then
-       call device_free(this%dtdz_d)
-    end if
-
-    if (c_associated(this%mult_d)) then
-       call device_free(this%mult_d)
-    end if
-
-    if (c_associated(this%h1_d)) then
-       call device_free(this%h1_d)
-    end if
-
-    if (c_associated(this%h2_d)) then
-       call device_free(this%h2_d)
-    end if
-
-    if (c_associated(this%jac_d)) then
-       call device_free(this%jac_d)
-    end if
-
-    if (c_associated(this%jacinv_d)) then
-       call device_free(this%jacinv_d)
-    end if
-
-    if (c_associated(this%B_d)) then
-       call device_free(this%B_d)
-    end if
-
-    if (c_associated(this%Binv_d)) then
-       call device_free(this%Binv_d)
-    end if
-
-    if (c_associated(this%area_d)) then
-       call device_free(this%area_d)
-    end if
-
-    if (c_associated(this%nx_d)) then
-       call device_free(this%nx_d)
-    end if
-
-    if (c_associated(this%ny_d)) then
-       call device_free(this%ny_d)
-    end if
-
-    if (c_associated(this%nz_d)) then
-       call device_Free(this%nz_d)
-    end if
-
-    if (c_associated(this%cyc_msk_d)) then
-       call device_free(this%cyc_msk_d)
-    end if
-
-    if (c_associated(this%R11_d)) then
-       call device_free(this%R11_d)
-    end if
-
-    if (c_associated(this%R12_d)) then
-       call device_free(this%R12_d)
-    end if
-
-
   end subroutine coef_free
 
   subroutine coef_generate_dxyzdrst(c)
     type(coef_t), intent(inout) :: c
-    integer :: e,i,lxy,lyz,ntot
+    integer :: e, i, lxy, lyz, ntot
 
-    lxy=c%Xh%lx*c%Xh%ly
-    lyz=c%Xh%ly*c%Xh%lz
+    lxy = c%Xh%lx*c%Xh%ly
+    lyz = c%Xh%ly*c%Xh%lz
     ntot = c%dof%size()
 
     associate(drdx => c%drdx, drdy => c%drdy, drdz => c%drdz, &
@@ -753,29 +739,52 @@ contains
               c%dof%x_d, c%dof%y_d, c%dof%z_d, c%jacinv_d, c%jac_d, &
               c%Xh%lx, c%msh%nelv)
 
-         call device_memcpy(dxdr, c%dxdr_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dydr, c%dydr_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dzdr, c%dzdr_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dxds, c%dxds_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dyds, c%dyds_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dzds, c%dzds_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dxdt, c%dxdt_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dydt, c%dydt_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dzdt, c%dzdt_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(drdx, c%drdx_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(drdy, c%drdy_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(drdz, c%drdz_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dsdx, c%dsdx_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dsdy, c%dsdy_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dsdz, c%dsdz_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dtdx, c%dtdx_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dtdy, c%dtdy_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(dtdz, c%dtdz_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(jac, c%jac_d, ntot, DEVICE_TO_HOST, sync=.false.)
-         call device_memcpy(jacinv, c%jacinv_d, ntot, &
-              DEVICE_TO_HOST, sync=.true.)
+         ! copy to host only at initialization.
+         if (.not. c%coef_metrics_initialized) then
+            call device_memcpy(dxdr, c%dxdr_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dydr, c%dydr_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dzdr, c%dzdr_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dxds, c%dxds_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dyds, c%dyds_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dzds, c%dzds_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dxdt, c%dxdt_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dydt, c%dydt_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dzdt, c%dzdt_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(drdx, c%drdx_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(drdy, c%drdy_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(drdz, c%drdz_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dsdx, c%dsdx_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dsdy, c%dsdy_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dsdz, c%dsdz_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dtdx, c%dtdx_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dtdy, c%dtdy_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(dtdz, c%dtdz_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(jac, c%jac_d, ntot, DEVICE_TO_HOST, &
+                 sync = .false.)
+            call device_memcpy(jacinv, c%jacinv_d, ntot, DEVICE_TO_HOST, &
+                 sync = .true.)
+         end if
 
       else
+         !$omp parallel do private(i)
          do e = 1, c%msh%nelv
             call mxm(dx, lx, x(1,1,1,e), lx, dxdr(1,1,1,e), lyz)
             call mxm(dx, lx, y(1,1,1,e), lx, dydr(1,1,1,e), lyz)
@@ -788,7 +797,7 @@ contains
             end do
 
             ! We actually take 2d into account, wow, need to do that for the rest.
-            if(c%msh%gdim .eq. 3) then
+            if (c%msh%gdim .eq. 3) then
                call mxm(x(1,1,1,e), lxy, dzt, lz, dxdt(1,1,1,e), lz)
                call mxm(y(1,1,1,e), lxy, dzt, lz, dydt(1,1,1,e), lz)
                call mxm(z(1,1,1,e), lxy, dzt, lz, dzdt(1,1,1,e), lz)
@@ -798,6 +807,7 @@ contains
                call rone(dzdt(1,1,1,e), lxy)
             end if
          end do
+         !$omp end parallel do
 
          if (c%msh%gdim .eq. 2) then
             call rzero (jac, ntot)
@@ -813,11 +823,13 @@ contains
             call rzero (dsdz, ntot)
             call rone (dtdz, ntot)
          else
-
+            !$omp parallel private(i)
+            !$omp do simd
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = 0.0_rp
             end do
-
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxdr(i, 1, 1, 1) &
                     * c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) )
@@ -828,7 +840,8 @@ contains
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) + ( c%dxds(i, 1, 1, 1) &
                     * c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
-
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdr(i, 1, 1, 1) &
                     * c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) )
@@ -839,7 +852,8 @@ contains
                c%jac(i, 1, 1, 1) = c%jac(i, 1, 1, 1) - ( c%dxdt(i, 1, 1, 1) &
                     * c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) )
             end do
-
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%drdx(i, 1, 1, 1) = c%dyds(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1) &
                     - c%dydt(i, 1, 1, 1) * c%dzds(i, 1, 1, 1)
@@ -850,7 +864,8 @@ contains
                c%drdz(i, 1, 1, 1) = c%dxds(i, 1, 1, 1) * c%dydt(i, 1, 1, 1) &
                     - c%dxdt(i, 1, 1, 1) * c%dyds(i, 1, 1, 1)
             end do
-
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%dsdx(i, 1, 1, 1) = c%dydt(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1) &
                     - c%dydr(i, 1, 1, 1) * c%dzdt(i, 1, 1, 1)
@@ -861,7 +876,8 @@ contains
                c%dsdz(i, 1, 1, 1) = c%dxdt(i, 1, 1, 1) * c%dydr(i, 1, 1, 1) &
                     - c%dxdr(i, 1, 1, 1) * c%dydt(i, 1, 1, 1)
             end do
-
+            !$omp end do simd
+            !$omp do simd
             do i = 1, ntot
                c%dtdx(i, 1, 1, 1) = c%dydr(i, 1, 1, 1) * c%dzds(i, 1, 1, 1) &
                     - c%dyds(i, 1, 1, 1) * c%dzdr(i, 1, 1, 1)
@@ -872,7 +888,8 @@ contains
                c%dtdz(i, 1, 1, 1) = c%dxdr(i, 1, 1, 1) * c%dyds(i, 1, 1, 1) &
                     - c%dxds(i, 1, 1, 1) * c%dydr(i, 1, 1, 1)
             end do
-
+            !$omp end do simd
+            !$omp end parallel
          end if
          call invers2(jacinv, jac, ntot)
       end if
@@ -899,15 +916,24 @@ contains
             c%jacinv_d, c%Xh%w3_d, c%msh%nelv, &
             c%Xh%lx, c%msh%gdim)
 
-       call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, sync=.false.)
-       call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, sync=.true.)
+       ! copy to host only at initialization.
+       if (.not. c%coef_metrics_initialized) then
+          call device_memcpy(c%G11, c%G11_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G22, c%G22_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G33, c%G33_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G12, c%G12_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G13, c%G13_d, ntot, DEVICE_TO_HOST, &
+               sync = .false.)
+          call device_memcpy(c%G23, c%G23_d, ntot, DEVICE_TO_HOST, &
+               sync = .true.)
+       end if
 
     else
-       if(c%msh%gdim .eq. 2) then
+       if (c%msh%gdim .eq. 2) then
 
           do i = 1, ntot
              c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
@@ -938,7 +964,8 @@ contains
           end do
 
        else
-
+          !$omp parallel private(i)
+          !$omp do
           do i = 1, ntot
              c%G11(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%drdx(i, 1, 1, 1) &
                   + c%drdy(i, 1, 1, 1) * c%drdy(i, 1, 1, 1) &
@@ -952,13 +979,15 @@ contains
                   + c%dtdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
                   + c%dtdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
           end do
-
+          !$omp end do
+          !$omp do
           do i = 1, ntot
              c%G11(i, 1, 1, 1) = c%G11(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G22(i, 1, 1, 1) = c%G22(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G33(i, 1, 1, 1) = c%G33(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
           end do
-
+          !$omp end do
+          !$omp do
           do i = 1, ntot
              c%G12(i, 1, 1, 1) = c%drdx(i, 1, 1, 1) * c%dsdx(i, 1, 1, 1) &
                   + c%drdy(i, 1, 1, 1) * c%dsdy(i, 1, 1, 1) &
@@ -972,14 +1001,16 @@ contains
                   + c%dsdy(i, 1, 1, 1) * c%dtdy(i, 1, 1, 1) &
                   + c%dsdz(i, 1, 1, 1) * c%dtdz(i, 1, 1, 1)
           end do
-
+          !$omp end do
+          !$omp do
           do i = 1, ntot
              c%G12(i, 1, 1, 1) = c%G12(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G13(i, 1, 1, 1) = c%G13(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
              c%G23(i, 1, 1, 1) = c%G23(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
           end do
-
-          do concurrent (e = 1:c%msh%nelv)
+          !$omp end do
+          !$omp do
+          do e = 1, c%msh%nelv
              do concurrent (i = 1:lxyz)
                 c%G11(i,1,1,e) = c%G11(i,1,1,e) * c%Xh%w3(i,1,1)
                 c%G22(i,1,1,e) = c%G22(i,1,1,e) * c%Xh%w3(i,1,1)
@@ -990,11 +1021,90 @@ contains
                 c%G23(i,1,1,e) = c%G23(i,1,1,e) * c%Xh%w3(i,1,1)
              end do
           end do
-
+          !$omp end do
+          !$omp end parallel
        end if
     end if
 
   end subroutine coef_generate_geo
+
+  !> Compute processor-local compressed versions of mappings Gij
+  !! @note This could be faster with various tweaks
+  subroutine coef_generate_geo_compressed(c)
+    type(coef_t), intent(inout) :: c
+    integer :: e, m, i, lxyz, m_max
+    integer, allocatable :: c_inds_rev(:) ! reverse compression indices map
+    real(kind=rp) :: ctol = 1.0E-7_rp
+    real(kind=rp) :: diff = 0.0_rp
+
+    ! First step, allocate full-size lookup structure for entire mesh
+    allocate(c%compression_inds(c%msh%nelv))
+    allocate(c_inds_rev(c%msh%nelv))
+
+    ! Second step, loop over all elements, compute compression mapping
+    ! First entry must be itself to get started
+    m_max = 1
+    c%compression_inds(1) = 1
+    c_inds_rev = 0
+    c_inds_rev(1) = 1
+
+    ! Loop over elements, but skip first
+    lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
+    do e = 2, c%msh%nelv
+       ! Loop over possible compression candidates
+       do m = 1, m_max
+          diff = 0.0_rp
+          ! Loop over quadrature points
+          do i = 1, lxyz
+             ! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_l1 )
+             diff = diff + abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &
+                         + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
+                         + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
+                         + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
+                         + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
+                         + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
+          end do
+
+          ! match is found; mapping(e) is redundant
+          if ( diff .le. ctol ) then
+             c%compression_inds(e) = m
+             exit
+          end if
+       end do
+
+       ! never found a match
+       if ( diff .gt. ctol ) then
+          m_max = m_max + 1
+          c%compression_inds(e) = m_max
+          c_inds_rev(m_max) = e
+       end if
+    end do
+
+    write(*,*)
+    write(*,*) '------Mapping Compression-----'
+    write(*,*) 'Compressed from ', c%msh%nelv, ' to ', m_max
+
+    ! Third step, allocate and fill Gij_compressed objects
+    allocate(c%G11_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G22_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G33_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G12_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G13_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G23_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    do m = 1, m_max
+       do i = 1, lxyz
+          c%G11_compressed(i,1,1,m) = c%G11(i,1,1,c_inds_rev(m))
+          c%G22_compressed(i,1,1,m) = c%G22(i,1,1,c_inds_rev(m))
+          c%G33_compressed(i,1,1,m) = c%G33(i,1,1,c_inds_rev(m))
+          c%G12_compressed(i,1,1,m) = c%G12(i,1,1,c_inds_rev(m))
+          c%G13_compressed(i,1,1,m) = c%G13(i,1,1,c_inds_rev(m))
+          c%G23_compressed(i,1,1,m) = c%G23(i,1,1,c_inds_rev(m))
+       end do
+    end do
+
+    deallocate(c_inds_rev)
+
+  end subroutine coef_generate_geo_compressed
 
   !> Generate mass matrix B for the given mesh and space
   !! @note This is also a stapleholder, we need to go through the coef class properly.
@@ -1005,25 +1115,32 @@ contains
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
     ntot = c%dof%size()
 
-    !> @todo rewrite this nest into a device kernel
-    do concurrent (e = 1:c%msh%nelv)
-       ! Here we need to handle things differently for axis symmetric elements
-       do concurrent (i = 1:lxyz)
-          c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
-          c%Binv(i,1,1,e) = c%B(i,1,1,e)
-       end do
-    end do
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(c%B, c%B_d, ntot, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(c%Binv, c%Binv_d, ntot, HOST_TO_DEVICE, sync=.false.)
+       call device_coef_generate_mass(c%B_d, c%Binv_d, c%jac_d, c%Xh%w3_d, &
+            lxyz, c%msh%nelv)
+       ! copy to host only at initialization.
+       if (.not. c%coef_metrics_initialized) then
+          call device_memcpy(c%B, c%B_d, ntot, DEVICE_TO_HOST, sync = .false.)
+       end if
+    else
+       do concurrent (e = 1:c%msh%nelv)
+          ! Here we need to handle things differently for axis symmetric elements
+          do concurrent (i = 1:lxyz)
+             c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
+             c%Binv(i,1,1,e) = c%B(i,1,1,e)
+          end do
+       end do
     end if
 
     call c%gs_h%op(c%Binv, ntot, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol1(c%Binv_d, ntot)
-       call device_memcpy(c%Binv, c%Binv_d, ntot, DEVICE_TO_HOST, sync=.true.)
+       ! copy to host only at initialization.
+       if (.not. c%coef_metrics_initialized) then
+          call device_memcpy(c%Binv, c%Binv_d, ntot, &
+               DEVICE_TO_HOST, sync = .true.)
+       end if
     else
        call invcol1(c%Binv, ntot)
     end if
@@ -1043,15 +1160,15 @@ contains
     real(kind=rp) :: normal(3)
 
     select case (facet)
-    case(1,2)
+    case (1, 2)
        normal(1) = this%nx(j, k, facet, e)
        normal(2) = this%ny(j, k, facet, e)
        normal(3) = this%nz(j, k, facet, e)
-    case(3,4)
+    case (3, 4)
        normal(1) = this%nx(i, k, facet, e)
        normal(2) = this%ny(i, k, facet, e)
        normal(3) = this%nz(i, k, facet, e)
-    case(5,6)
+    case (5, 6)
        normal(1) = this%nx(i, j, facet, e)
        normal(2) = this%ny(i, j, facet, e)
        normal(3) = this%nz(i, j, facet, e)
@@ -1064,11 +1181,11 @@ contains
     real(kind=rp) :: area
 
     select case (facet)
-    case(1,2)
+    case (1, 2)
        area = this%area(j, k, facet, e)
-    case(3,4)
+    case (3, 4)
        area = this%area(i, k, facet, e)
-    case(5,6)
+    case (5, 6)
        area = this%area(i, j, facet, e)
     end select
   end function coef_get_area
@@ -1081,144 +1198,172 @@ contains
     real(kind=rp), allocatable :: b(:,:,:,:)
     real(kind=rp), allocatable :: c(:,:,:,:)
     real(kind=rp), allocatable :: dot(:,:,:,:)
-    integer :: n, e, i, j, k, lx
+    integer :: n, m, e, i, j, k, lx
     real(kind=rp) :: weight, len
     n = coef%dof%size()
     lx = coef%Xh%lx
 
-    allocate(a(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
-    allocate(b(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
-    allocate(c(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
-    allocate(dot(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
-
-    ! ds x dt
-    do i = 1, n
-       a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
-            - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
-
-       b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
-            - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
-
-       c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
-            - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
-    end do
-
-    do i = 1, n
-       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
-    end do
-
-    do concurrent (e = 1:coef%msh%nelv)
-       do concurrent (k = 1:coef%Xh%lx)
-          do concurrent (j = 1:coef%Xh%lx)
-             weight = coef%Xh%wy(j) * coef%Xh%wz(k)
-             coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
-             coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
-             coef%nx(j,k, 1, e) = -A(1, j, k, e)
-             coef%nx(j,k, 2, e) = A(lx, j, k, e)
-             coef%ny(j,k, 1, e) = -B(1, j, k, e)
-             coef%ny(j,k, 2, e) = B(lx, j, k, e)
-             coef%nz(j,k, 1, e) = -C(1, j, k, e)
-             coef%nz(j,k, 2, e) = C(lx, j, k, e)
-          end do
-       end do
-    end do
-
-    ! dr x dt
-    do i = 1, n
-       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
-            - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
-
-       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
-            - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
-
-       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
-            - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
-    end do
-
-    do i = 1, n
-       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
-    end do
-
-    do concurrent (e = 1:coef%msh%nelv)
-       do concurrent (k = 1:coef%Xh%lx)
-          do concurrent (j = 1:coef%Xh%lx)
-             weight = coef%Xh%wx(j) * coef%Xh%wz(k)
-             coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
-             coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
-             coef%nx(j,k, 3, e) = A(j, 1, k, e)
-             coef%nx(j,k, 4, e) = -A(j, lx, k, e)
-             coef%ny(j,k, 3, e) = B(j, 1, k, e)
-             coef%ny(j,k, 4, e) = -B(j, lx, k, e)
-             coef%nz(j,k, 3, e) = C(j, 1, k, e)
-             coef%nz(j,k, 4, e) = -C(j, lx, k, e)
-          end do
-       end do
-    end do
-
-    ! dr x ds
-    do i = 1, n
-       a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &
-            - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
-
-       b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &
-            - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)
-
-       c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &
-            - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
-    end do
-
-    do i = 1, n
-       dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
-            + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
-            + c(i, 1, 1, 1) * c(i, 1, 1, 1)
-    end do
-
-    do concurrent (e = 1:coef%msh%nelv)
-       do concurrent (k = 1:coef%Xh%lx)
-          do concurrent (j = 1:coef%Xh%lx)
-             weight = coef%Xh%wx(j) * coef%Xh%wy(k)
-             coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
-             coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight
-             coef%nx(j,k, 5, e) = -A(j, k, 1, e)
-             coef%nx(j,k, 6, e) = A(j, k, lx, e)
-             coef%ny(j,k, 5, e) = -B(j, k, 1, e)
-             coef%ny(j,k, 6, e) = B(j, k, lx, e)
-             coef%nz(j,k, 5, e) = -C(j, k, 1, e)
-             coef%nz(j,k, 6, e) = C(j, k, lx, e)
-          end do
-       end do
-    end do
-
-    ! Normalize
-    do j = 1, size(coef%nz)
-       len = sqrt(coef%nx(j,1,1,1)**2 + &
-            coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
-       if (len .gt. NEKO_EPS) then
-          coef%nx(j,1,1,1) = coef%nx(j,1,1,1) / len
-          coef%ny(j,1,1,1) = coef%ny(j,1,1,1) / len
-          coef%nz(j,1,1,1) = coef%nz(j,1,1,1) / len
-       end if
-    end do
-
-    deallocate(dot)
-    deallocate(c)
-    deallocate(b)
-    deallocate(a)
-    !>  @todo cleanup once we have device math in place
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       n = size(coef%area)
-       call device_memcpy(coef%area, coef%area_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(coef%nx, coef%nx_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(coef%ny, coef%ny_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(coef%nz, coef%nz_d, n, &
-            HOST_TO_DEVICE, sync=.false.)
+
+       call device_coef_generate_area_and_normal( &
+            coef%area_d, coef%nx_d, coef%ny_d, coef%nz_d, &
+            coef%dxdr_d, coef%dydr_d, coef%dzdr_d, &
+            coef%dxds_d, coef%dyds_d, coef%dzds_d, &
+            coef%dxdt_d, coef%dydt_d, coef%dzdt_d, &
+            coef%Xh%wx_d, coef%Xh%wy_d, coef%Xh%wz_d, &
+            lx, coef%msh%nelv, NEKO_EPS)
+
+       ! Here, we always copy back to host.
+       m = size(coef%area)
+       call device_memcpy(coef%area, coef%area_d, m, &
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(coef%nx, coef%nx_d, m, &
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(coef%ny, coef%ny_d, m, &
+            DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(coef%nz, coef%nz_d, &
+            m, DEVICE_TO_HOST, sync = .true.)
+
+    else
+
+       allocate(a(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+       allocate(b(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+       allocate(c(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+       allocate(dot(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx, coef%msh%nelv))
+
+       !$omp parallel private (e, i, j, k, weight, len)
+
+       ! ds x dt
+       !$omp do simd
+       do i = 1, n
+          a(i, 1, 1, 1) = coef%dyds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
+               - coef%dzds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+
+          b(i, 1, 1, 1) = coef%dzds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
+               - coef%dxds(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
+
+          c(i, 1, 1, 1) = coef%dxds(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
+               - coef%dyds(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+       end do
+       !$omp end do simd
+       !$omp do simd
+       do i = 1, n
+          dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+       end do
+       !$omp end do simd
+       !$omp do
+       do e = 1, coef%msh%nelv
+          do concurrent (k = 1:coef%Xh%lx)
+             do concurrent (j = 1:coef%Xh%lx)
+                weight = coef%Xh%wy(j) * coef%Xh%wz(k)
+                coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
+                coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
+                coef%nx(j,k, 1, e) = -A(1, j, k, e)
+                coef%nx(j,k, 2, e) = A(lx, j, k, e)
+                coef%ny(j,k, 1, e) = -B(1, j, k, e)
+                coef%ny(j,k, 2, e) = B(lx, j, k, e)
+                coef%nz(j,k, 1, e) = -C(1, j, k, e)
+                coef%nz(j,k, 2, e) = C(lx, j, k, e)
+             end do
+          end do
+       end do
+       !$omp end do
+
+       ! dr x dt
+       !$omp do simd
+       do i = 1, n
+          a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1) &
+               - coef%dzdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1)
+
+          b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1) &
+               - coef%dxdr(i, 1, 1, 1) * coef%dzdt(i, 1, 1, 1)
+
+          c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dydt(i, 1, 1, 1) &
+               - coef%dydr(i, 1, 1, 1) * coef%dxdt(i, 1, 1, 1)
+       end do
+       !$omp end do simd
+       !$omp do simd
+       do i = 1, n
+          dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+       end do
+       !$omp end do simd
+       !$omp do
+       do e = 1, coef%msh%nelv
+          do concurrent (k = 1:coef%Xh%lx)
+             do concurrent (j = 1:coef%Xh%lx)
+                weight = coef%Xh%wx(j) * coef%Xh%wz(k)
+                coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
+                coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
+                coef%nx(j,k, 3, e) = A(j, 1, k, e)
+                coef%nx(j,k, 4, e) = -A(j, lx, k, e)
+                coef%ny(j,k, 3, e) = B(j, 1, k, e)
+                coef%ny(j,k, 4, e) = -B(j, lx, k, e)
+                coef%nz(j,k, 3, e) = C(j, 1, k, e)
+                coef%nz(j,k, 4, e) = -C(j, lx, k, e)
+             end do
+          end do
+       end do
+       !$omp end do
+       ! dr x ds
+       !$omp do simd
+       do i = 1, n
+          a(i, 1, 1, 1) = coef%dydr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1) &
+               - coef%dzdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1)
+
+          b(i, 1, 1, 1) = coef%dzdr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1) &
+               - coef%dxdr(i, 1, 1, 1) * coef%dzds(i, 1, 1, 1)
+
+          c(i, 1, 1, 1) = coef%dxdr(i, 1, 1, 1) * coef%dyds(i, 1, 1, 1) &
+               - coef%dydr(i, 1, 1, 1) * coef%dxds(i, 1, 1, 1)
+       end do
+       !$omp end do simd
+       !$omp do simd
+       do i = 1, n
+          dot(i, 1, 1, 1) = a(i, 1, 1, 1) * a(i, 1, 1, 1) &
+               + b(i, 1, 1, 1) * b(i, 1, 1, 1) &
+               + c(i, 1, 1, 1) * c(i, 1, 1, 1)
+       end do
+       !$omp end do simd
+       !$omp do
+       do e = 1, coef%msh%nelv
+          do concurrent (k = 1:coef%Xh%lx)
+             do concurrent (j = 1:coef%Xh%lx)
+                weight = coef%Xh%wx(j) * coef%Xh%wy(k)
+                coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
+                coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight
+                coef%nx(j,k, 5, e) = -A(j, k, 1, e)
+                coef%nx(j,k, 6, e) = A(j, k, lx, e)
+                coef%ny(j,k, 5, e) = -B(j, k, 1, e)
+                coef%ny(j,k, 6, e) = B(j, k, lx, e)
+                coef%nz(j,k, 5, e) = -C(j, k, 1, e)
+                coef%nz(j,k, 6, e) = C(j, k, lx, e)
+             end do
+          end do
+       end do
+       !$omp end do
+       ! Normalize
+       !$omp do
+       do j = 1, size(coef%nz)
+          len = sqrt(coef%nx(j,1,1,1)**2 + &
+               coef%ny(j,1,1,1)**2 + coef%nz(j,1,1,1)**2)
+          if (len .gt. NEKO_EPS) then
+             coef%nx(j,1,1,1) = coef%nx(j,1,1,1) / len
+             coef%ny(j,1,1,1) = coef%ny(j,1,1,1) / len
+             coef%nz(j,1,1,1) = coef%nz(j,1,1,1) / len
+          end if
+       end do
+       !$omp end do
+       !$omp end parallel
+
+       deallocate(dot)
+       deallocate(c)
+       deallocate(b)
+       deallocate(a)
+
     end if
 
   end subroutine coef_generate_area_and_normal
@@ -1281,11 +1426,85 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%R11, this%R11_d, ncyc, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(this%R12, this%R12_d, ncyc, HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%R11, this%R11_d, ncyc, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%R12, this%R12_d, ncyc, &
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine coef_generate_cyclic_bc
+
+
+  !> Recompute and update geometric factors (ALE)
+  subroutine coef_recompute_metrics(this)
+    class(coef_t), intent(inout) :: this
+
+    call coef_generate_dxyzdrst(this)
+    call coef_generate_geo(this)
+    call coef_generate_area_and_normal(this)
+    call coef_generate_mass(this)
+    if (this%cyclic) then
+       call coef_generate_cyclic_bc(this)
+    end if
+  end subroutine coef_recompute_metrics
+
+
+  !> Enable separate memory for lagged B matrices if needed.
+  !> For eg. when mesh moves.
+  subroutine coef_enable_lagged_mass(this)
+    class(coef_t), intent(inout), target :: this
+    integer :: n
+
+    ! Return if already allocated distinctly
+    if (.not. associated(this%Blag, this%B)) return
+
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+
+
+    nullify(this%Blag)
+    nullify(this%Blaglag)
+
+    allocate(this%Blag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+    allocate(this%Blaglag(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
+
+    this%Blag = this%B
+    this%Blaglag = this%B
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+
+       this%Blag_d = C_NULL_PTR
+       this%Blaglag_d = C_NULL_PTR
+
+       call device_map(this%Blag, this%Blag_d, n)
+       call device_map(this%Blaglag, this%Blaglag_d, n)
+
+       call device_memcpy(this%Blag, this%Blag_d, n, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%Blaglag, this%Blaglag_d, n, &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine coef_enable_lagged_mass
+
+
+  !> Update history: Blaglag = Blag, Blag = B
+  subroutine coef_update_lagged_mass(this)
+    class(coef_t), intent(inout), target :: this
+    integer :: n
+
+    ! If this%Blag does not have separate memory, we don't need to update it.
+    if (associated(this%Blag, this%B)) return
+    n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_copy(this%Blaglag_d, this%Blag_d, n)
+       call device_copy(this%Blag_d, this%B_d, n)
+    else
+       this%Blaglag = this%Blag
+       this%Blag = this%B
+    end if
+
+  end subroutine coef_update_lagged_mass
 
 end module coefs

@@ -32,7 +32,7 @@
 !
 !> Defines a checkpoint
 module checkpoint
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, dp
   use field_series, only : field_series_t
   use field_series_list, only : field_series_list_t
@@ -41,8 +41,11 @@ module checkpoint
        device_sync, glb_cmd_queue
   use field, only : field_t, field_ptr_t
   use utils, only : neko_error
-  use mesh, only: mesh_t
+  use mesh, only : mesh_t
   use math, only : NEKO_EPS
+  use global_interpolation, only : GLOB_INTERP_TOL
+  use time_state, only : time_state_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -71,7 +74,6 @@ module checkpoint
      type(field_t), pointer :: abz1 => null()
      type(field_t), pointer :: abz2 => null()
 
-
      type(field_t), pointer :: s => null()
      type(field_series_t), pointer :: slag => null()
      type(field_t), pointer :: abs1 => null()
@@ -80,33 +82,369 @@ module checkpoint
      type(field_series_list_t) :: scalar_lags
 
      !> Multi-scalar ABX fields
-     type(field_ptr_t), allocatable :: scalar_abx1(:) !< ABX1 fields for each scalar
-     type(field_ptr_t), allocatable :: scalar_abx2(:) !< ABX2 fields for each scalar
+     type(field_ptr_t), allocatable :: scalar_abx1(:) !< ABX1 fields
+     !! for each scalar
+     type(field_ptr_t), allocatable :: scalar_abx2(:) !< ABX2 fields
+     !! for each scalar
 
-     real(kind=dp) :: t !< Restart time (valid after load)
+     real(kind=dp) :: t = 0d0 !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
      type(space_t) :: previous_Xh
-     real(kind=rp) :: mesh2mesh_tol = NEKO_EPS*1e3_rp
+     real(kind=dp) :: mesh2mesh_tol = GLOB_INTERP_TOL
 
+     !> ALE fields
+     type(field_t), pointer :: wm_x => null()
+     type(field_t), pointer :: wm_y => null()
+     type(field_t), pointer :: wm_z => null()
+     type(field_series_t), pointer :: wm_x_lag => null()
+     type(field_series_t), pointer :: wm_y_lag => null()
+     type(field_series_t), pointer :: wm_z_lag => null()
+     real(kind=rp), pointer :: msh_x(:,:,:,:) => null()
+     real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
+     real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
+     type(c_ptr) :: msh_x_d = C_NULL_PTR
+     type(c_ptr) :: msh_y_d = C_NULL_PTR
+     type(c_ptr) :: msh_z_d = C_NULL_PTR
+     real(kind=rp), pointer :: pivot_pos(:) => null()
+     real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
+     real(kind=rp), pointer :: Blag(:,:,:,:) => null()
+     real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
+     type(c_ptr) :: Blag_d = C_NULL_PTR
+     type(c_ptr) :: Blaglag_d = C_NULL_PTR
+     real(kind=rp), pointer :: basis_pos(:) => null()
+     real(kind=rp), pointer :: basis_vel_lag(:,:) => null()
    contains
      procedure, pass(this) :: init => chkp_init
      procedure, pass(this) :: sync_host => chkp_sync_host
      procedure, pass(this) :: sync_device => chkp_sync_device
+     procedure, pass(this) :: add_fluid => chkp_add_fluid
      procedure, pass(this) :: add_lag => chkp_add_lag
      procedure, pass(this) :: add_scalar => chkp_add_scalar
+     procedure, pass(this) :: add_ale => chkp_add_ale
      procedure, pass(this) :: restart_time => chkp_restart_time
-     final :: chkp_free
+     procedure, pass(this) :: set_time_state => chkp_set_time_state
+     procedure, pass(this) :: free => chkp_free
   end type chkp_t
 
 contains
 
   !> Initialize checkpoint structure with mandatory data
-  subroutine chkp_init(this, u, v, w, p)
+  subroutine chkp_init(this)
     class(chkp_t), intent(inout) :: this
-    type(field_t), intent(in), target :: u
-    type(field_t), intent(in), target :: v
-    type(field_t), intent(in), target :: w
-    type(field_t), intent(in), target :: p
+
+    ! Make sure the object is clean
+    call this%free()
+
+  end subroutine chkp_init
+
+  !> Reset checkpoint
+  subroutine chkp_free(this)
+    class(chkp_t), intent(inout) :: this
+
+    this%t = 0d0
+
+    if (associated(this%u)) nullify(this%u)
+    if (associated(this%v)) nullify(this%v)
+    if (associated(this%w)) nullify(this%w)
+    if (associated(this%p)) nullify(this%p)
+
+    if (associated(this%ulag)) nullify(this%ulag)
+    if (associated(this%vlag)) nullify(this%vlag)
+    if (associated(this%wlag)) nullify(this%wlag)
+
+    if (associated(this%tlag)) nullify(this%tlag)
+    if (associated(this%dtlag)) nullify(this%dtlag)
+
+    ! ALE cleanup
+    if (associated(this%wm_x)) nullify(this%wm_x)
+    if (associated(this%wm_y)) nullify(this%wm_y)
+    if (associated(this%wm_z)) nullify(this%wm_z)
+    if (associated(this%wm_x_lag)) nullify(this%wm_x_lag)
+    if (associated(this%wm_y_lag)) nullify(this%wm_y_lag)
+    if (associated(this%wm_z_lag)) nullify(this%wm_z_lag)
+    if (associated(this%basis_vel_lag)) nullify(this%basis_vel_lag)
+    if (associated(this%msh_x)) nullify(this%msh_x)
+    if (associated(this%msh_y)) nullify(this%msh_y)
+    if (associated(this%msh_z)) nullify(this%msh_z)
+    this%msh_x_d = C_NULL_PTR
+    this%msh_y_d = C_NULL_PTR
+    this%msh_z_d = C_NULL_PTR
+    if (associated(this%pivot_pos)) nullify(this%pivot_pos)
+    if (associated(this%pivot_vel_lag)) nullify(this%pivot_vel_lag)
+    if (associated(this%Blag)) nullify(this%Blag)
+    if (associated(this%Blaglag)) nullify(this%Blaglag)
+    this%Blag_d = C_NULL_PTR
+    this%Blaglag_d = C_NULL_PTR
+    if (associated(this%basis_pos)) nullify(this%basis_pos)
+
+    if (associated(this%abx1)) nullify(this%abx1)
+    if (associated(this%abx2)) nullify(this%abx2)
+    if (associated(this%aby1)) nullify(this%aby1)
+    if (associated(this%aby2)) nullify(this%aby2)
+    if (associated(this%abz1)) nullify(this%abz1)
+    if (associated(this%abz2)) nullify(this%abz2)
+
+    if (associated(this%s)) nullify(this%s)
+    if (associated(this%slag)) nullify(this%slag)
+    if (associated(this%abs1)) nullify(this%abs1)
+    if (associated(this%abs2)) nullify(this%abs2)
+
+    call this%scalar_lags%free()
+
+    if (allocated(this%scalar_abx1)) then
+       deallocate(this%scalar_abx1)
+    end if
+
+    if (allocated(this%scalar_abx2)) then
+       deallocate(this%scalar_abx2)
+    end if
+
+    call this%previous_mesh%free()
+    call this%previous_Xh%free()
+
+  end subroutine chkp_free
+
+  !> Synchronize checkpoint with device
+  subroutine chkp_sync_host(this)
+    class(chkp_t), intent(inout) :: this
+    integer :: i, j
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       associate(u => this%u, v => this%v, w => this%w, &
+            ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
+            p => this%p)
+
+         if (associated(this%u) .and. associated(this%v) .and. &
+              associated(this%w) .and. associated(this%p)) then
+            call u%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call v%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call w%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call p%copy_from(DEVICE_TO_HOST, sync = .false.)
+         end if
+
+         if (associated(this%ulag) .and. associated(this%vlag) .and. &
+              associated(this%wlag)) then
+            call ulag%lf(1)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call ulag%lf(2)%copy_from(DEVICE_TO_HOST, sync = .false.)
+
+            call vlag%lf(1)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call vlag%lf(2)%copy_from(DEVICE_TO_HOST, sync = .false.)
+
+            call wlag%lf(1)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call wlag%lf(2)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abx1%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abx2%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%aby1%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%aby2%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abz1%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abz2%copy_from(DEVICE_TO_HOST, sync = .false.)
+         end if
+
+         if (associated(this%s)) then
+            call this%s%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%slag%lf(1)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%slag%lf(2)%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abs1%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%abs2%copy_from(DEVICE_TO_HOST, sync = .false.)
+         end if
+
+         ! ALE field synchronization
+         if (associated(this%wm_x) .and. associated(this%wm_y) .and. &
+              associated(this%wm_z)) then
+            call this%wm_x%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%wm_y%copy_from(DEVICE_TO_HOST, sync = .false.)
+            call this%wm_z%copy_from(DEVICE_TO_HOST, sync = .false.)
+
+            if (associated(this%wm_x_lag) .and. associated(this%wm_y_lag) &
+                 .and. associated(this%wm_z_lag)) then
+
+               call this%wm_x_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_x_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+
+               call this%wm_y_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_y_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+
+               call this%wm_z_lag%lf(1)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%wm_z_lag%lf(2)%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+            end if
+
+            if (associated(this%msh_x) .and. c_associated(this%msh_x_d)) then
+               call device_memcpy(this%msh_x, this%msh_x_d, &
+                    size(this%msh_x), DEVICE_TO_HOST, .false.)
+               call device_memcpy(this%msh_y, this%msh_y_d, &
+                    size(this%msh_y), DEVICE_TO_HOST, .false.)
+               call device_memcpy(this%msh_z, this%msh_z_d, &
+                    size(this%msh_z), DEVICE_TO_HOST, .false.)
+            end if
+            if (associated(this%Blag) .and. c_associated(this%Blag_d)) then
+               call device_memcpy(this%Blag, this%Blag_d, size(this%Blag), &
+                    DEVICE_TO_HOST, .false.)
+            end if
+            if (associated(this%Blaglag) .and. c_associated(this%Blaglag_d)) then
+               call device_memcpy(this%Blaglag, this%Blaglag_d, &
+                    size(this%Blaglag), DEVICE_TO_HOST, .false.)
+            end if
+         end if
+
+         ! Multi-scalar lag field synchronization
+         do i = 1, this%scalar_lags%size()
+            block
+              type(field_series_t), pointer :: slag
+              integer :: slag_size
+              slag => this%scalar_lags%get(i)
+              slag_size = slag%size()
+              do j = 1, slag_size
+                 call slag%lf(j)%copy_from(DEVICE_TO_HOST, sync = .false.)
+              end do
+            end block
+         end do
+
+         ! Multi-scalar ABX field synchronization
+         if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
+            do i = 1, size(this%scalar_abx1)
+               call this%scalar_abx1(i)%ptr%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+               call this%scalar_abx2(i)%ptr%copy_from(DEVICE_TO_HOST, &
+                    sync = .false.)
+            end do
+         end if
+       end associate
+       call device_sync(glb_cmd_queue)
+    end if
+
+  end subroutine chkp_sync_host
+
+  !> Synchronize device with checkpoint
+  subroutine chkp_sync_device(this)
+    class(chkp_t), intent(inout) :: this
+    integer :: i, j
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       associate(u => this%u, v => this%v, w => this%w, &
+            ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
+            p => this%p)
+
+         if (associated(this%u) .and. associated(this%v) .and. &
+              associated(this%w)) then
+            call u%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call v%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call w%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call p%copy_from(HOST_TO_DEVICE, sync = .false.)
+         end if
+
+         if (associated(this%ulag) .and. associated(this%vlag) .and. &
+              associated(this%wlag)) then
+            call ulag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call ulag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
+
+            call vlag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call vlag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
+
+            call wlag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call wlag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
+         end if
+
+         if (associated(this%s)) then
+            call this%s%copy_from(HOST_TO_DEVICE, sync = .false.)
+
+            call this%slag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%slag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%abs1%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%abs2%copy_from(HOST_TO_DEVICE, sync = .false.)
+         end if
+
+         ! ALE field synchronization
+         if (associated(this%wm_x) .and. associated(this%wm_y) .and. &
+              associated(this%wm_z)) then
+
+            call this%wm_x%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%wm_y%copy_from(HOST_TO_DEVICE, sync = .false.)
+            call this%wm_z%copy_from(HOST_TO_DEVICE, sync = .false.)
+
+            if (associated(this%wm_x_lag) .and. &
+                 associated(this%wm_y_lag) .and. &
+                 associated(this%wm_z_lag)) then
+               call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+
+               call this%wm_y_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_y_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+
+               call this%wm_z_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%wm_z_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+            end if
+
+            if (associated(this%msh_x) .and. c_associated(this%msh_x_d)) then
+               call device_memcpy(this%msh_x, this%msh_x_d, &
+                    size(this%msh_x), HOST_TO_DEVICE, .false.)
+               call device_memcpy(this%msh_y, this%msh_y_d, &
+                    size(this%msh_y), HOST_TO_DEVICE, .false.)
+               call device_memcpy(this%msh_z, this%msh_z_d, &
+                    size(this%msh_z), HOST_TO_DEVICE, .false.)
+            end if
+
+            if (associated(this%Blag) .and. c_associated(this%Blag_d)) then
+               call device_memcpy(this%Blag, this%Blag_d, size(this%Blag), &
+                    HOST_TO_DEVICE, .false.)
+            end if
+
+            if (associated(this%Blaglag) .and. &
+                 c_associated(this%Blaglag_d)) then
+               call device_memcpy(this%Blaglag, this%Blaglag_d, &
+                    size(this%Blaglag), HOST_TO_DEVICE, .false.)
+            end if
+         end if
+
+         ! Multi-scalar lag field synchronization
+         if (allocated(this%scalar_lags%items) .and. &
+              this%scalar_lags%size() > 0) then
+            do i = 1, this%scalar_lags%size()
+               block
+                 type(field_series_t), pointer :: slag
+                 integer :: slag_size, dof_size
+                 slag => this%scalar_lags%get(i)
+                 slag_size = slag%size()
+                 dof_size = slag%f%dof%size()
+                 do j = 1, slag_size
+                    call slag%lf(j)%copy_from(HOST_TO_DEVICE, sync = .false.)
+                 end do
+               end block
+            end do
+         end if
+
+         ! Multi-scalar ABX field synchronization
+         if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
+            do i = 1, size(this%scalar_abx1)
+               call this%scalar_abx1(i)%ptr%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+               call this%scalar_abx2(i)%ptr%copy_from(HOST_TO_DEVICE, &
+                    sync = .false.)
+            end do
+         end if
+       end associate
+    end if
+
+  end subroutine chkp_sync_device
+
+  !> Add a fluid to the checkpoint
+  subroutine chkp_add_fluid(this, u, v, w, p)
+    class(chkp_t), intent(inout) :: this
+    type(field_t), target :: u
+    type(field_t), target :: v
+    type(field_t), target :: w
+    type(field_t), target :: p
 
     ! Check that all velocity components are defined on the same
     ! function space
@@ -125,219 +463,7 @@ contains
     this%w => w
     this%p => p
 
-    this%t = 0d0
-
-  end subroutine chkp_init
-
-  !> Reset checkpoint
-  subroutine chkp_free(this)
-    type(chkp_t), intent(inout) :: this
-
-    nullify(this%u)
-    nullify(this%v)
-    nullify(this%w)
-    nullify(this%p)
-
-    nullify(this%ulag)
-    nullify(this%vlag)
-    nullify(this%wlag)
-
-    ! Scalar cleanup
-    nullify(this%s)
-    nullify(this%slag)
-    nullify(this%abs1)
-    nullify(this%abs2)
-
-    ! Free scalar lag list if it was initialized
-    if (allocated(this%scalar_lags%items)) then
-       call this%scalar_lags%free()
-    end if
-
-    ! Free multi-scalar ABX field arrays
-    if (allocated(this%scalar_abx1)) then
-       deallocate(this%scalar_abx1)
-    end if
-    if (allocated(this%scalar_abx2)) then
-       deallocate(this%scalar_abx2)
-    end if
-
-  end subroutine chkp_free
-
-  !> Synchronize checkpoint with device
-  subroutine chkp_sync_host(this)
-    class(chkp_t), intent(inout) :: this
-    integer :: i, j
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(u=>this%u, v=>this%v, w=>this%w, &
-            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag, &
-            p=>this%p)
-
-         if (associated(this%u) .and. associated(this%v) .and. &
-              associated(this%w) .and. associated(this%p)) then
-            call device_memcpy(u%x, u%x_d, u%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(v%x, v%x_d, v%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(w%x, w%x_d, w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(p%x, p%x_d, p%dof%size(), DEVICE_TO_HOST, sync=.false.)
-         end if
-
-         if (associated(this%ulag) .and. associated(this%vlag) .and. &
-              associated(this%wlag)) then
-            call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                 u%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                 u%dof%size(), DEVICE_TO_HOST, sync=.false.)
-
-            call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                 v%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                 v%dof%size(), DEVICE_TO_HOST, sync=.false.)
-
-            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-         end if
-         if (associated(this%s)) then
-            call device_memcpy(this%s%x, this%s%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                 this%s%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%abs1%x, this%abs1%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            call device_memcpy(this%abs2%x, this%abs2%x_d, &
-                 w%dof%size(), DEVICE_TO_HOST, sync=.false.)
-         end if
-
-         ! Multi-scalar lag field synchronization
-         if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
-            do i = 1, this%scalar_lags%size()
-               block
-                 type(field_series_t), pointer :: slag
-                 integer :: slag_size, dof_size
-                 slag => this%scalar_lags%get(i)
-                 slag_size = slag%size()
-                 dof_size = slag%f%dof%size()
-                 do j = 1, slag_size
-                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         dof_size, DEVICE_TO_HOST, sync=.false.)
-                 end do
-               end block
-            end do
-         end if
-
-         ! Multi-scalar ABX field synchronization
-         if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
-            do i = 1, size(this%scalar_abx1)
-               call device_memcpy(this%scalar_abx1(i)%ptr%x, this%scalar_abx1(i)%ptr%x_d, &
-                    this%scalar_abx1(i)%ptr%dof%size(), DEVICE_TO_HOST, sync=.false.)
-               call device_memcpy(this%scalar_abx2(i)%ptr%x, this%scalar_abx2(i)%ptr%x_d, &
-                    this%scalar_abx2(i)%ptr%dof%size(), DEVICE_TO_HOST, sync=.false.)
-            end do
-         end if
-       end associate
-       call device_sync(glb_cmd_queue)
-    end if
-
-  end subroutine chkp_sync_host
-
-  !> Synchronize device with checkpoint
-  subroutine chkp_sync_device(this)
-    class(chkp_t), intent(inout) :: this
-    integer :: i, j
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(u=>this%u, v=>this%v, w=>this%w, &
-            ulag=>this%ulag, vlag=>this%vlag, wlag=>this%wlag,&
-            p=>this%p)
-
-         if (associated(this%u) .and. associated(this%v) .and. &
-              associated(this%w)) then
-            call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-         end if
-
-         if (associated(this%ulag) .and. associated(this%vlag) .and. &
-              associated(this%wlag)) then
-            call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, u%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-
-            call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, v%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-
-            call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, w%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, w%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-         end if
-         if (associated(this%s)) then
-            call device_memcpy(this%s%x, this%s%x_d, this%s%dof%size(), &
-                 HOST_TO_DEVICE, sync=.false.)
-
-            call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                 this%s%dof%size(), HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                 this%s%dof%size(), HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(this%abs1%x, this%abs1%x_d, &
-                 w%dof%size(), HOST_TO_DEVICE, sync=.false.)
-            call device_memcpy(this%abs2%x, this%abs2%x_d, &
-                 w%dof%size(), HOST_TO_DEVICE, sync=.false.)
-         end if
-
-         ! Multi-scalar lag field synchronization
-         if (allocated(this%scalar_lags%items) .and. this%scalar_lags%size() > 0) then
-            do i = 1, this%scalar_lags%size()
-               block
-                 type(field_series_t), pointer :: slag
-                 integer :: slag_size, dof_size
-                 slag => this%scalar_lags%get(i)
-                 slag_size = slag%size()
-                 dof_size = slag%f%dof%size()
-                 do j = 1, slag_size
-                    call device_memcpy(slag%lf(j)%x, slag%lf(j)%x_d, &
-                         dof_size, HOST_TO_DEVICE, sync=.false.)
-                 end do
-               end block
-            end do
-         end if
-
-         ! Multi-scalar ABX field synchronization
-         if (allocated(this%scalar_abx1) .and. allocated(this%scalar_abx2)) then
-            do i = 1, size(this%scalar_abx1)
-               call device_memcpy(this%scalar_abx1(i)%ptr%x, this%scalar_abx1(i)%ptr%x_d, &
-                    this%scalar_abx1(i)%ptr%dof%size(), HOST_TO_DEVICE, sync=.false.)
-               call device_memcpy(this%scalar_abx2(i)%ptr%x, this%scalar_abx2(i)%ptr%x_d, &
-                    this%scalar_abx2(i)%ptr%dof%size(), HOST_TO_DEVICE, sync=.false.)
-            end do
-         end if
-       end associate
-    end if
-
-  end subroutine chkp_sync_device
+  end subroutine chkp_add_fluid
 
   !> Add lagged velocity terms
   subroutine chkp_add_lag(this, ulag, vlag, wlag)
@@ -369,6 +495,43 @@ contains
 
   end subroutine chkp_add_scalar
 
+  !> Add mesh velocity and other required variables to checkpointing for ALE
+  subroutine chkp_add_ale(this, x, y, z, x_d, y_d, z_d, &
+       Blag, Blaglag, Blag_d, Blaglag_d, wm_x, wm_y, wm_z, &
+       wm_x_lag, wm_y_lag, wm_z_lag, pivot_pos, pivot_vel_lag, &
+       basis_pos, basis_vel_lag)
+    class(chkp_t), intent(inout) :: this
+    type(field_t), target, intent(in) :: wm_x, wm_y, wm_z
+    real(kind=rp), intent(in), pointer :: pivot_pos(:), pivot_vel_lag(:,:)
+    type(field_series_t), target, intent(in) :: wm_x_lag, wm_y_lag, wm_z_lag
+    real(kind=rp), intent(in), pointer :: x(:,:,:,:), y(:,:,:,:), z(:,:,:,:)
+    real(kind=rp), pointer, intent(in) :: Blag(:,:,:,:), Blaglag(:,:,:,:)
+    real(kind=rp), intent(in), pointer :: basis_pos(:)
+    real(kind=rp), intent(in), pointer :: basis_vel_lag(:,:)
+    type(c_ptr), intent(in), value :: x_d, y_d, z_d
+    type(c_ptr), intent(in), value :: Blag_d, Blaglag_d
+
+    this%msh_x => x
+    this%msh_y => y
+    this%msh_z => z
+    this%msh_x_d = x_d
+    this%msh_y_d = y_d
+    this%msh_z_d = z_d
+    this%wm_x => wm_x
+    this%wm_y => wm_y
+    this%wm_z => wm_z
+    this%wm_x_lag => wm_x_lag
+    this%wm_y_lag => wm_y_lag
+    this%wm_z_lag => wm_z_lag
+    this%Blag => Blag
+    this%Blaglag => Blaglag
+    this%Blag_d = Blag_d
+    this%Blaglag_d = Blaglag_d
+    this%pivot_pos => pivot_pos
+    this%pivot_vel_lag => pivot_vel_lag
+    this%basis_pos => basis_pos
+    this%basis_vel_lag => basis_vel_lag
+  end subroutine chkp_add_ale
 
   !> Return restart time from a loaded checkpoint
   pure function chkp_restart_time(this) result(rtime)
@@ -377,5 +540,15 @@ contains
 
     rtime = this%t
   end function chkp_restart_time
+
+  !> Set time state
+  subroutine chkp_set_time_state(this, time_state)
+    class(chkp_t), intent(in) :: this
+    type(time_state_t), intent(inout) :: time_state
+
+    time_state%t = this%t
+    time_state%dtlag = this%dtlag
+    time_state%tlag = this%tlag
+  end subroutine chkp_set_time_state
 
 end module checkpoint

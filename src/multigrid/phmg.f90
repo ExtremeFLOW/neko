@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -54,11 +54,11 @@ module phmg
   use interpolation, only : interpolator_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get
-  use math, only : copy, col2, add2, sub3, add2s2
+  use math, only : copy, col2, add2, add2s2, add2s1
   use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
        glb_cmd_event
-  use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
-       device_add2s2, device_invcol2, device_glsc2, device_col2
+  use device_math, only : device_rzero, device_copy, device_add2, &
+       device_add2s2, device_invcol2, device_glsc2, device_col2, device_add2s1
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
@@ -121,7 +121,7 @@ contains
     integer, allocatable :: pcrs_sched(:)
 
     call json_get_or_default(phmg_params, 'smoother_iterations', &
-         smoother_itrs, 10)
+         smoother_itrs, 3)
 
     call json_get_or_default(phmg_params, 'smoother_cheby_acc', &
          cheby_acc, "jacobi")
@@ -133,7 +133,7 @@ contains
          crs_tamg_itrs, 1)
 
     call json_get_or_default(phmg_params, 'coarse_grid.cheby_degree', &
-         crs_tamg_cheby_degree, 5)
+         crs_tamg_cheby_degree, 4)
 
     if (phmg_params%valid_path('pcoarsening_schedule')) then
        call json_get(phmg_params, 'pcoarsening_schedule', pcrs_sched)
@@ -301,6 +301,62 @@ contains
 
   subroutine phmg_free(this)
     class(phmg_t), intent(inout) :: this
+    integer :: i
+
+    call this%amg_solver%free()
+
+    if (allocated(this%intrp)) then
+       do i = 1, size(this%intrp)
+          call this%intrp(i)%free()
+       end do
+       deallocate(this%intrp)
+    end if
+
+    if (allocated(this%ax)) then
+       deallocate(this%ax)
+    end if
+
+    if (allocated(this%phmg_hrchy%lvl)) then
+       do i = lbound(this%phmg_hrchy%lvl, 1), ubound(this%phmg_hrchy%lvl, 1)
+          call this%phmg_hrchy%lvl(i)%r%free()
+          call this%phmg_hrchy%lvl(i)%w%free()
+          call this%phmg_hrchy%lvl(i)%z%free()
+
+          call this%phmg_hrchy%lvl(i)%cheby%free()
+          call this%phmg_hrchy%lvl(i)%cheby_device%free()
+          call this%phmg_hrchy%lvl(i)%jacobi%free()
+          call this%phmg_hrchy%lvl(i)%device_jacobi%free()
+
+          if (allocated(this%phmg_hrchy%lvl(i)%schwarz%work1)) then
+             call this%phmg_hrchy%lvl(i)%schwarz%free()
+          end if
+
+          call this%phmg_hrchy%lvl(i)%bclst%free()
+          call this%phmg_hrchy%lvl(i)%bc%free()
+
+          ! Level 0 borrows Xh, dm_Xh, gs_h and coef from the caller,
+          ! all other levels own them
+          if (this%phmg_hrchy%lvl(i)%lvl .gt. 0) then
+             call this%phmg_hrchy%lvl(i)%coef%free()
+             call this%phmg_hrchy%lvl(i)%gs_h%free()
+             call this%phmg_hrchy%lvl(i)%dm_Xh%free()
+             call this%phmg_hrchy%lvl(i)%Xh%free()
+             deallocate(this%phmg_hrchy%lvl(i)%coef)
+             deallocate(this%phmg_hrchy%lvl(i)%gs_h)
+             deallocate(this%phmg_hrchy%lvl(i)%dm_Xh)
+             deallocate(this%phmg_hrchy%lvl(i)%Xh)
+          end if
+
+          nullify(this%phmg_hrchy%lvl(i)%coef)
+          nullify(this%phmg_hrchy%lvl(i)%gs_h)
+          nullify(this%phmg_hrchy%lvl(i)%dm_Xh)
+          nullify(this%phmg_hrchy%lvl(i)%Xh)
+       end do
+       deallocate(this%phmg_hrchy%lvl)
+    end if
+
+    nullify(this%msh)
+
   end subroutine phmg_free
 
   subroutine phmg_solve(this, z, r, n)
@@ -310,6 +366,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: ksp_results
+    integer :: i
 
     call profiler_start_region('PHMG_solve', 8)
     associate( mglvl => this%phmg_hrchy%lvl)
@@ -326,15 +383,31 @@ contains
 
          call device_copy(z_d, mglvl(0)%z%x_d, n)
       else
-         !We should not work with the input
-         call copy(mglvl(0)%r%x, r, n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do
+         do i = 1, n
+            !We should not work with the input
+            mglvl(0)%r%x(i,1,1,1) = r(i)
 
-         mglvl(0)%z%x = 0.0_rp
-         mglvl(0)%w%x = 0.0_rp
+            mglvl(0)%z%x(i,1,1,1) = 0.0_rp
+            mglvl(0)%w%x(i,1,1,1) = 0.0_rp
+         end do
+         !$omp end parallel do
 
          call this%mg_cycle()
 
-         call copy(z, mglvl(0)%z%x, n)
+         !OCL NORECURRENCE, NOVREC, NOALIAS
+         !DIR$ CONCURRENT
+         !DIR$ IVDEP
+         !GCC$ ivdep
+         !$omp parallel do
+         do i = 1, n
+            z(i) = mglvl(0)%z%x(i,1,1,1)
+         end do
+         !$omp end parallel do
       end if
     end associate
     call profiler_end_region('PHMG_solve', 8)
@@ -350,10 +423,10 @@ contains
     class(phmg_t), intent(inout) :: this
     type(ksp_monitor_t) :: ksp_results
     character(len=2) :: lvl_name
-    integer :: lvl
+    integer :: lvl, i
 
     associate(mg => this%phmg_hrchy%lvl, intrp => this%intrp, &
-        msh => this%msh, Ax => this%Ax)
+         msh => this%msh, Ax => this%Ax)
       do lvl = 0, this%nlvls-2
          write(lvl_name, '(I0)') lvl
          call profiler_start_region( "PHMG_level_" // trim(lvl_name))
@@ -379,14 +452,23 @@ contains
            !  Residual  !
            !------------!
            call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
            call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
-              call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+              call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg(lvl)%dm_Xh%size())
            else
-              w%x = r%x - w%x
+              !OCL NORECURRENCE, NOVREC, NOALIAS
+              !DIR$ CONCURRENT
+              !DIR$ IVDEP
+              !GCC$ ivdep
+              !$omp parallel do
+              do i = 1, mg(lvl)%dm_Xh%size()
+                 w%x(i,1,1,1) = r%x(i,1,1,1) - w%x(i,1,1,1)
+              end do
+              !$omp end parallel do
            end if
 
            !------------!
@@ -411,7 +493,15 @@ contains
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
            else
-              mg(lvl+1)%z%x = 0.0_rp
+              !OCL NORECURRENCE, NOVREC, NOALIAS
+              !DIR$ CONCURRENT
+              !DIR$ IVDEP
+              !GCC$ ivdep
+              !$omp parallel do
+              do i = 1, mg(lvl+1)%dm_Xh%size()
+                 mg(lvl+1)%z%x(i,1,1,1) = 0.0_rp
+              end do
+              !$omp end parallel do
            end if
          end associate
          call profiler_end_region( "PHMG_level_" // trim(lvl_name))
@@ -435,7 +525,8 @@ contains
            !------------!
            call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                glb_cmd_event)
            call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -450,7 +541,15 @@ contains
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_add2(z%x_d, w%x_d, mg(lvl)%dm_Xh%size())
            else
-              z%x = z%x + w%x
+              !OCL NORECURRENCE, NOVREC, NOALIAS
+              !DIR$ CONCURRENT
+              !DIR$ IVDEP
+              !GCC$ ivdep
+              !$omp parallel do
+              do i = 1, mg(lvl)%dm_Xh%size()
+                 z%x(i,1,1,1) = z%x(i,1,1,1) + w%x(i,1,1,1)
+              end do
+              !$omp end parallel do
            end if
 
            !------------!
@@ -489,7 +588,7 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(field_t), intent(inout) :: z, r, w
     integer, intent(in) :: n, lvl
-    integer :: i, iblk, ni, niblk
+    integer :: i, j, iblk, ni, niblk
 
     ni = mg%smoother_itrs
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -498,7 +597,7 @@ contains
           call mg%gs_h%op(w%x, n, GS_OP_ADD, glb_cmd_event)
           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
           call mg%bclst%apply_scalar(w%x, n)
-          call device_sub3(w%x_d, r%x_d, w%x_d, n)
+          call device_add2s1(w%x_d, r%x_d, -1.0_rp, n)
 
           call mg%device_jacobi%solve(w%x, w%x, n)
 
@@ -509,7 +608,7 @@ contains
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
           call mg%gs_h%op(w%x, n, GS_OP_ADD)
           call mg%bclst%apply_scalar(w%x, n)
-          call sub3(w%x, r%x, w%x, n)
+          call add2s1(w%x, r%x, -1.0_rp, n)
 
           call mg%jacobi%solve(w%x, w%x, n)
 
@@ -530,7 +629,7 @@ contains
     call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
     call mg%gs_h%op(w%x, mg%dm_Xh%size(), GS_OP_ADD)
     call mg%bclst%apply_scalar(w%x, mg%dm_Xh%size())
-    call device_sub3(w%x_d, r%x_d, w%x_d, mg%dm_Xh%size())
+    call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg%dm_Xh%size())
     val = device_glsc2(w%x_d, w%x_d, mg%dm_Xh%size())
     if (typ .eq. 1) then
        write(log_buf, '(A15,I4,F12.6)') 'PRESMOO - PRE', lvl, val

@@ -59,9 +59,10 @@
 !
 module math
   use num_types, only : rp, dp, sp, qp, i4, xp
-  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
-  use mpi_f08, only: MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
+  use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_Allreduce
+  use utils, only : nonlinear_index
   implicit none
   private
 
@@ -105,10 +106,12 @@ module math
        add3s2, add4s3, add5s4, subcol4, addcol3, addcol4, addcol3s2, ascol5, &
        p_update, x_update, glsc2, glsc3, glsc4, sort, masked_copy_0, &
        cfill_mask, relcmp, glimax, glimin, swap, reord, flipv, cadd2, &
-       masked_gather_copy_0, absval, matinv3, matinv39, &
+       masked_gather_copy_0, face_masked_gather_copy_0, absval, matinv3, &
+       matinv39, &
        pwmax2, pwmax3, cpwmax2, cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, &
        masked_scatter_copy_0, cdiv, cdiv2, glsubnorm, &
-       masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp
+       masked_copy, masked_gather_copy, masked_scatter_copy, sabscmp, dabscmp, &
+       math_dstepf, math_stepf, cwrap, lambert_w0, sqrt_inplace, power
 
 contains
 
@@ -157,7 +160,8 @@ contains
 
   end function qabscmp
 
-  !> Return single precision relative comparison \f$ | x - y |<= \epsilon*|y| \f$
+  !> Return single precision relative comparison
+  !! \f$ | x - y |<= \epsilon*|y| \f$
   pure function srelcmp(x, y, eps)
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
@@ -171,7 +175,8 @@ contains
 
   end function srelcmp
 
-  !> Return double precision relative comparison \f$ | x - y |/|y| < \epsilon \f$
+  !> Return double precision relative comparison
+  !! \f$ | x - y |/|y| < \epsilon \f$
   pure function drelcmp(x, y, eps)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
@@ -200,15 +205,43 @@ contains
 
   end function qrelcmp
 
+  !> Approximate the principal real branch of the Lambert W function for
+  !! non-negative real x.
+  !! @details The reference is Iacono and Boyd, DOI: 10.1007/s10444-017-9530-3
+  !! The iterative algorithm converges very fast, and 1 iteration is typically
+  !! sufficient.
+  pure function lambert_w0(x, niter) result(w)
+    real(kind=rp), intent(in) :: x
+    integer, intent(in) :: niter
+    real(kind=rp) :: w
+    real(kind=rp) :: a
+    integer :: k
+
+    if (x == 0.0_rp) then
+       w = 0.0_rp
+       return
+    end if
+
+    a = 1.0_rp / (1.0_rp + 0.5_rp * log(1.0_rp + x))
+    w = log(1.0_rp + a * x)
+
+    do k = 1, max(niter, 0)
+       w = w / (1.0_rp + w) * (1.0_rp + log(x / w))
+    end do
+  end function lambert_w0
+
   !> Zero a real vector
   subroutine rzero(a, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = 0.0_rp
     end do
+    !$omp end parallel do
+
   end subroutine rzero
 
   !> Zero an integer vector
@@ -217,9 +250,12 @@ contains
     integer, dimension(n), intent(inout) :: a
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = 0
     end do
+    !$omp end parallel do
+
   end subroutine izero
 
   !> Sets row e to 0 in matrix a
@@ -228,9 +264,12 @@ contains
     real(kind=rp), intent(inout) :: a(m,n)
     integer :: j
 
-    do j = 1,n
+    !$omp parallel do
+    do j = 1, n
        a(e,j) = 0.0_rp
     end do
+    !$omp end parallel do
+
   end subroutine row_zero
 
   !> Set all elements to one
@@ -239,9 +278,12 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = 1.0_rp
     end do
+    !$omp end parallel do
+
   end subroutine rone
 
   !> Copy a vector \f$ a = b \f$
@@ -251,9 +293,11 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = b(i)
     end do
+    !$omp end parallel do
 
   end subroutine copy
 
@@ -271,10 +315,12 @@ contains
     integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
+    !$omp parallel do private(i, j)
     do i = 1, n_mask
        j = mask(i)
        a(j) = b(j)
     end do
+    !$omp end parallel do
 
   end subroutine masked_copy_0
 
@@ -292,10 +338,12 @@ contains
     integer, dimension(n_mask) :: mask
     integer :: i, j
 
+    !$omp parallel do private(i, j)
     do i = 1, n_mask
        j = mask(i)
        a(j) = b(j)
     end do
+    !$omp end parallel do
 
   end subroutine masked_copy
 
@@ -315,18 +363,55 @@ contains
     integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
+    !$omp parallel do private(i, j)
     do i = 1, n_mask
        j = mask(i)
        a(i) = b(j)
     end do
+    !$omp end parallel do
 
   end subroutine masked_gather_copy_0
+
+  !> Gather values from a face-local SEM field to a reduced contiguous vector.
+  !! @param a Destination array of size `n_mask`.
+  !! @param b Source face-local array indexed as `b(:, :, facet, element)`.
+  !! @param mask Mask array of length `n_mask + 1`, where `mask(0) = n_mask`.
+  !! @param facet Facet ids associated with the masked points.
+  !! @param lx Number of points in the first SEM direction.
+  !! @param ly Number of points in the second SEM direction.
+  !! @param lz Number of points in the third SEM direction.
+  !! @param n_mask Size of the mask and destination arrays.
+  subroutine face_masked_gather_copy_0(a, b, mask, facet, lx, ly, lz, n_mask)
+    integer, intent(in) :: lx, ly, lz, n_mask
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    real(kind=rp), dimension(:, :, :, :), intent(in) :: b
+    integer, dimension(0:n_mask), intent(in) :: mask
+    integer, dimension(0:n_mask), intent(in) :: facet
+    integer :: l
+    integer :: idx(4)
+
+    !$omp parallel do private(l, idx)
+    do l = 1, n_mask
+       idx = nonlinear_index(mask(l), lx, ly, lz)
+
+       select case (facet(l))
+       case (1, 2)
+          a(l) = b(idx(2), idx(3), facet(l), idx(4))
+       case (3, 4)
+          a(l) = b(idx(1), idx(3), facet(l), idx(4))
+       case (5, 6)
+          a(l) = b(idx(1), idx(2), facet(l), idx(4))
+       end select
+    end do
+    !$omp end parallel do
+
+  end subroutine face_masked_gather_copy_0
 
   !> Gather a masked vector to reduced contigous vector
   !! \f$ a = b(mask) \f$.
   !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
+  !! @param mask Mask array of length n_mask.
   !! the length of the mask array.
   !! @param n Size of the array `b`.
   !! @param n_mask Size of the mask array `mask` and `a`.
@@ -338,10 +423,12 @@ contains
     integer, dimension(n_mask) :: mask
     integer :: i, j
 
+    !$omp parallel do private(i, j)
     do i = 1, n_mask
        j = mask(i)
        a(i) = b(j)
     end do
+    !$omp end parallel do
 
   end subroutine masked_gather_copy
 
@@ -361,10 +448,12 @@ contains
     integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
+    !$omp parallel do private(i, j)
     do i = 1, n_mask
        j = mask(i)
        a(j) = b(i)
     end do
+    !$omp end parallel do
 
   end subroutine masked_scatter_copy_0
 
@@ -384,10 +473,12 @@ contains
     integer, dimension(n_mask) :: mask
     integer :: i, j
 
+    !$omp parallel do private(i, j)
     do i = 1, n_mask
        j = mask(i)
        a(j) = b(i)
     end do
+    !$omp end parallel do
 
   end subroutine masked_scatter_copy
 
@@ -400,9 +491,11 @@ contains
     integer, dimension(n_mask), intent(in) :: mask
     integer :: i
 
+    !$omp parallel do
     do i = 1, n_mask
        a(mask(i)) = c
     end do
+    !$omp end parallel do
 
   end subroutine cfill_mask
 
@@ -413,9 +506,12 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = c * a(i)
     end do
+    !$omp end parallel do
+
   end subroutine cmult
 
   !> Multiplication by constant c \f$ a = c \cdot b \f$
@@ -426,9 +522,11 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = c * b(i)
     end do
+    !$omp end parallel do
 
   end subroutine cmult2
 
@@ -439,9 +537,12 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = c / a(i)
     end do
+    !$omp end parallel do
+
   end subroutine cdiv
 
   !> Division of constant c by elements of a \f$ a = c / b \f$
@@ -452,9 +553,12 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = c / b(i)
     end do
+    !$omp end parallel do
+
   end subroutine cdiv2
 
   !> Add a scalar to vector \f$ a_i = a_i + s \f$
@@ -464,9 +568,12 @@ contains
     real(kind=rp), intent(in) :: s
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = a(i) + s
     end do
+    !$omp end parallel do
+
   end subroutine cadd
 
   !> Add a scalar to vector \f$ a_i = b_i + s \f$
@@ -477,9 +584,12 @@ contains
     real(kind=rp), intent(in) :: s
     integer :: i
 
-    do i = 1, n
+    !$omp parallel do
+    do i = 1,n
        a(i) = b(i) + s
     end do
+    !$omp end parallel do
+
   end subroutine cadd2
 
   !> Set all elements to a constant c \f$ a = c \f$
@@ -489,10 +599,30 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = c
     end do
+    !$omp end parallel do
+
   end subroutine cfill
+
+  !> Wrap value around a range [min, max)
+  subroutine cwrap(a, min_val, max_val, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: min_val, max_val
+    integer :: i
+
+    if (n .lt. 1 .or. max_val .le. min_val) return
+
+    !$omp parallel do
+    do i = 1, n
+       a(i) = modulo(a(i) - min_val, max_val - min_val) + min_val
+    end do
+    !$omp end parallel do
+
+  end subroutine cwrap
 
   !> Sum a vector of length n
   function glsum(a, n)
@@ -501,10 +631,14 @@ contains
     real(kind=rp) :: glsum
     real(kind=xp) :: tmp
     integer :: i, ierr
+
     tmp = 0.0_rp
+    !$omp parallel do reduction(+:tmp)
     do i = 1, n
        tmp = tmp + a(i)
     end do
+    !$omp end parallel do
+
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
          MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
     glsum = tmp
@@ -519,11 +653,15 @@ contains
     integer :: i, ierr
 
     tmp = -huge(0.0_rp)
+    !$omp parallel do reduction(max:tmp)
     do i = 1, n
        tmp = max(tmp,a(i))
     end do
+    !$omp end parallel do
+
     call MPI_Allreduce(tmp, glmax, 1, &
          MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+
   end function glmax
 
   !>Max of an integer vector of length n
@@ -534,11 +672,15 @@ contains
     integer :: i, ierr
 
     tmp = -huge(0)
+    !$omp parallel do reduction(max:tmp)
     do i = 1, n
        tmp = max(tmp,a(i))
     end do
+    !$omp end parallel do
+
     call MPI_Allreduce(tmp, glimax, 1, &
          MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
   end function glimax
 
   !>Min of a vector of length n
@@ -549,11 +691,15 @@ contains
     integer :: i, ierr
 
     tmp = huge(0.0_rp)
+    !$omp parallel do reduction(min:tmp)
     do i = 1, n
        tmp = min(tmp,a(i))
     end do
+    !$omp end parallel do
+
     call MPI_Allreduce(tmp, glmin, 1, &
          MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+
   end function glmin
 
   !>Min of an integer vector of length n
@@ -564,15 +710,16 @@ contains
     integer :: i, ierr
 
     tmp = huge(0)
+    !$omp parallel do reduction(min:tmp)
     do i = 1, n
        tmp = min(tmp,a(i))
     end do
+    !$omp end parallel do
+
     call MPI_Allreduce(tmp, glimin, 1, &
          MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
+
   end function glimin
-
-
-
 
   !> Change sign of vector \f$ a = -a \f$
   subroutine chsign(a, n)
@@ -580,9 +727,11 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = -a(i)
     end do
+    !$omp end parallel do
 
   end subroutine chsign
 
@@ -591,10 +740,14 @@ contains
     integer :: n, i
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmax
+
     tmax = real(-99d20, rp)
+    !$omp parallel do reduction(max:tmax)
     do i = 1, n
        tmax = max(tmax, vec(i))
     end do
+    !$omp end parallel do
+
   end function vlmax
 
   !> minimun value of a vector of length @a n
@@ -603,10 +756,14 @@ contains
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmin
     integer :: i
+
     tmin = real(99.0e20, rp)
+    !$omp parallel do reduction(min:tmin)
     do i = 1, n
        tmin = min(tmin, vec(i))
     end do
+    !$omp end parallel do
+
   end function vlmin
 
   !> Invert a vector \f$ a = 1 / a \f$
@@ -615,9 +772,11 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
-       a(i) = 1.0_xp / real(a(i),xp)
+       a(i) = 1.0_xp / real(a(i), xp)
     end do
+    !$omp end parallel do
 
   end subroutine invcol1
 
@@ -625,12 +784,14 @@ contains
   subroutine invcol3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b,c
+    real(kind=rp), dimension(n), intent(in) :: b, c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
-       a(i) = real(b(i),xp) / c(i)
+       a(i) = real(b(i), xp) / c(i)
     end do
+    !$omp end parallel do
 
   end subroutine invcol3
 
@@ -641,9 +802,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
-       a(i) = 1.0_xp / real(b(i),xp)
+       a(i) = 1.0_xp / real(b(i), xp)
     end do
+    !$omp end parallel do
 
   end subroutine invers2
 
@@ -656,11 +819,13 @@ contains
     real(kind=rp), dimension(n), intent(out) :: u1, u2, u3
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        u1(i) = v2(i)*w3(i) - v3(i)*w2(i)
        u2(i) = v3(i)*w1(i) - v1(i)*w3(i)
        u3(i) = v1(i)*w2(i) - v2(i)*w1(i)
     end do
+    !$omp end parallel do
 
   end subroutine vcross
 
@@ -672,9 +837,12 @@ contains
     real(kind=rp), dimension(n), intent(in) :: v1, v2
     real(kind=rp), dimension(n), intent(out) :: dot
     integer :: i
+
+    !$omp parallel do
     do i = 1, n
        dot(i) = u1(i)*v1(i) + u2(i)*v2(i)
     end do
+    !$omp end parallel do
 
   end subroutine vdot2
 
@@ -687,9 +855,11 @@ contains
     real(kind=rp), dimension(n), intent(out) :: dot
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        dot(i) = u1(i)*v1(i) + u2(i)*v2(i) + u3(i)*v3(i)
     end do
+    !$omp end parallel do
 
   end subroutine vdot3
 
@@ -701,13 +871,15 @@ contains
     integer :: i
 
     s = 0.0_rp
+    !$omp parallel do reduction(+:s)
     do i = 1, n
        s = s + u(i)*v(i)*w(i)
     end do
+    !$omp end parallel do
 
   end function vlsc3
 
-  !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
+  !> Compute multiplication sum \f$ dot = u \cdot v \f$
   function vlsc2(u, v, n) result(s)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: u, v
@@ -715,9 +887,11 @@ contains
     integer :: i
 
     s = 0.0_rp
+    !$omp parallel do reduction(+:s)
     do i = 1, n
        s = s + u(i)*v(i)
     end do
+    !$omp end parallel do
 
   end function vlsc2
 
@@ -728,9 +902,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = a(i) + b(i)
     end do
+    !$omp end parallel do
 
   end subroutine add2
 
@@ -742,9 +918,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = b(i) + c(i)
     end do
+    !$omp end parallel do
 
   end subroutine add3
 
@@ -757,9 +935,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = b(i) + c(i) + d(i)
     end do
+    !$omp end parallel do
 
   end subroutine add4
 
@@ -770,9 +950,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = a(i) - b(i)
     end do
+    !$omp end parallel do
 
   end subroutine sub2
 
@@ -784,9 +966,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = b(i) - c(i)
     end do
+    !$omp end parallel do
 
   end subroutine sub3
 
@@ -800,9 +984,11 @@ contains
     real(kind=rp), intent(in) :: c1
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = c1 * a(i) + b(i)
     end do
+    !$omp end parallel do
 
   end subroutine add2s1
 
@@ -815,9 +1001,11 @@ contains
     real(kind=rp), intent(in) :: c1
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = a(i) + c1 * b(i)
     end do
+    !$omp end parallel do
 
   end subroutine add2s2
 
@@ -829,9 +1017,11 @@ contains
     real(kind=rp), intent(in) :: c1
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = a(i) + c1 * ( b(i) * b(i) )
     end do
+    !$omp end parallel do
 
   end subroutine addsqr2s2
 
@@ -842,9 +1032,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
-       a(i) = real(a(i),xp) /b(i)
+       a(i) = real(a(i), xp) / b(i)
     end do
+    !$omp end parallel do
 
   end subroutine invcol2
 
@@ -856,9 +1048,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = a(i) * b(i)
     end do
+    !$omp end parallel do
 
   end subroutine col2
 
@@ -870,9 +1064,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = b(i) * c(i)
     end do
+    !$omp end parallel do
 
   end subroutine col3
 
@@ -884,9 +1080,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = a(i) - b(i) * c(i)
     end do
+    !$omp end parallel do
 
   end subroutine subcol3
 
@@ -899,9 +1097,11 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = c1 * b(i) + c2 * c(i)
     end do
+    !$omp end parallel do
 
   end subroutine add3s2
 
@@ -915,9 +1115,11 @@ contains
     real(kind=rp), intent(in) :: c1, c2, c3
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = c1 * b(i) + c2 * c(i) + c3 * d(i)
     end do
+    !$omp end parallel do
 
   end subroutine add4s3
 
@@ -932,9 +1134,11 @@ contains
     real(kind=rp), intent(in) :: c1, c2, c3, c4
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = a(i) + c1 * b(i) + c2 * c(i) + c3 * d(i) + c4 * e(i)
     end do
+    !$omp end parallel do
 
   end subroutine add5s4
 
@@ -947,9 +1151,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: d
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = a(i) - b(i) * c(i) * d(i)
     end do
+    !$omp end parallel do
 
   end subroutine subcol4
 
@@ -961,9 +1167,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = a(i) + b(i) * c(i)
     end do
+    !$omp end parallel do
 
   end subroutine addcol3
 
@@ -976,9 +1184,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: d
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = a(i) + b(i) * c(i) * d(i)
     end do
+    !$omp end parallel do
 
   end subroutine addcol4
 
@@ -991,9 +1201,11 @@ contains
     real(kind=rp), intent(in) :: s
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = a(i) + s * b(i) * c(i)
     end do
+    !$omp end parallel do
 
   end subroutine addcol3s2
 
@@ -1007,9 +1219,11 @@ contains
     real(kind=rp), dimension(n), intent(in) :: e
     integer :: i
 
-    do i = 1,n
-       a(i) = b(i)*c(i)-d(i)*e(i)
+    !$omp parallel do
+    do i = 1, n
+       a(i) = b(i)*c(i) - d(i)*e(i)
     end do
+    !$omp end parallel do
 
   end subroutine ascol5
 
@@ -1022,9 +1236,11 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = b(i) + c1*(a(i)-c2*c(i))
     end do
+    !$omp end parallel do
 
   end subroutine p_update
 
@@ -1037,9 +1253,11 @@ contains
     real(kind=rp), intent(in) :: c1, c2
     integer :: i
 
-    do i = 1,n
+    !$omp parallel do
+    do i = 1, n
        a(i) = a(i) + c1*b(i)+c2*c(i)
     end do
+    !$omp end parallel do
 
   end subroutine x_update
 
@@ -1053,9 +1271,11 @@ contains
     integer :: i, ierr
 
     tmp = 0.0_xp
+    !$omp parallel do reduction(+:tmp)
     do i = 1, n
        tmp = tmp + a(i) * b(i)
     end do
+    !$omp end parallel do
 
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
          MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -1073,9 +1293,11 @@ contains
     integer :: i, ierr
 
     tmp = 0.0_xp
+    !$omp parallel do reduction(+:tmp)
     do i = 1, n
        tmp = tmp + a(i) * b(i) * c(i)
     end do
+    !$omp end parallel do
 
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
          MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -1093,9 +1315,11 @@ contains
     integer :: i, ierr
 
     tmp = 0.0_xp
+    !$omp parallel do reduction(+:tmp)
     do i = 1, n
        tmp = tmp + a(i) * b(i) * c(i) * d(i)
     end do
+    !$omp end parallel do
 
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
          MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -1114,9 +1338,11 @@ contains
     integer :: i, ierr
 
     tmp = 0.0_xp
+    !$omp parallel do reduction(+:tmp)
     do i = 1, n
        tmp = tmp + (a(i) - b(i))**2
     end do
+    !$omp end parallel do
 
     call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
          MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
@@ -1250,13 +1476,20 @@ contains
     real(kind=rp) :: temp(n)
     integer :: i, jj
 
+    !$omp parallel private(i, jj)
+    !$omp do
     do i = 1, n
        temp(i) = b(i)
     end do
+    !$omp end do
+    !$omp do
     do i = 1, n
        jj = ind(i)
        b(i) = temp(jj)
     end do
+    !$omp end do
+    !$omp end parallel
+
   end subroutine swapdp
 
   !> sort single integer array acording to ind vector
@@ -1270,13 +1503,20 @@ contains
     integer(i4) :: temp(n)
     integer :: i, jj
 
+    !$omp parallel private(i, jj)
+    !$omp do
     do i = 1, n
        temp(i) = b(i)
     end do
+    !$omp end do
+    !$omp do
     do i = 1, n
        jj = ind(i)
        b(i) = temp(jj)
     end do
+    !$omp end do
+    !$omp end parallel
+
   end subroutine swapi4
 
   !> reorder double precision array - inverse of swap
@@ -1290,13 +1530,20 @@ contains
     real(kind=rp) :: temp(n)
     integer :: i, jj
 
+    !$omp parallel private(i, jj)
+    !$omp do
     do i = 1, n
        temp(i) = b(i)
     end do
+    !$omp end do
+    !$omp do
     do i = 1, n
        jj = ind(i)
        b(jj) = temp(i)
     end do
+    !$omp end do
+    !$omp end parallel
+
   end subroutine reorddp
 
   !> reorder single integer array - inverse of swap
@@ -1310,13 +1557,20 @@ contains
     integer(i4) :: temp(n)
     integer :: i, jj
 
+    !$omp parallel private(i, jj)
+    !$omp do
     do i = 1, n
        temp(i) = b(i)
     end do
+    !$omp end do
+    !$omp do
     do i = 1, n
        jj = ind(i)
        b(jj) = temp(i)
     end do
+    !$omp end do
+    !$omp end parallel
+
   end subroutine reordi4
 
   !> Flip double precision vector b and ind
@@ -1331,15 +1585,22 @@ contains
     integer :: tempind(n)
     integer :: i, jj
 
+    !$omp parallel private(i, jj)
+    !$omp do
     do i = 1, n
        jj = n+1-i
        temp(jj) = b(i)
        tempind(jj) = ind(i)
     end do
+    !$omp end do
+    !$omp do
     do i = 1,n
        b(i) = temp(i)
        ind(i) = tempind(i)
     end do
+    !$omp end do
+    !$omp end parallel
+
   end subroutine flipvdp
 
   !> Flip single integer vector b and ind
@@ -1354,15 +1615,22 @@ contains
     integer :: tempind(n)
     integer :: i, jj
 
+    !$omp parallel private(i, jj)
+    !$omp do
     do i = 1, n
        jj = n+1-i
        temp(jj) = b(i)
        tempind(jj) = ind(i)
     end do
+    !$omp end do
+    !$omp do
     do i = 1,n
        b(i) = temp(i)
        ind(i) = tempind(i)
     end do
+    !$omp end do
+    !$omp end parallel
+
   end subroutine flipvi4
 
   !> Take the absolute value of an array
@@ -1372,9 +1640,13 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     integer :: i
+
+    !$omp parallel do
     do i = 1, n
        a(i) = abs(a(i))
     end do
+    !$omp end parallel do
+
   end subroutine absval
 
   ! ========================================================================== !
@@ -1387,9 +1659,12 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = max(a(i), b(i))
     end do
+    !$omp end parallel do
+
   end subroutine pwmax2
 
   !> Point-wise maximum of two vectors \f$ a = \max(b, c) \f$
@@ -1399,9 +1674,12 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b, c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = max(b(i), c(i))
     end do
+    !$omp end parallel do
+
   end subroutine pwmax3
 
   !> Point-wise maximum of scalar and vector \f$ a = \max(a, b) \f$
@@ -1411,9 +1689,12 @@ contains
     real(kind=rp), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = max(a(i), b)
     end do
+    !$omp end parallel do
+
   end subroutine cpwmax2
 
   !> Point-wise maximum of scalar and vector \f$ a = \max(b, c) \f$
@@ -1424,9 +1705,12 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = max(b(i), c)
     end do
+    !$omp end parallel do
+
   end subroutine cpwmax3
 
   !> Point-wise minimum of two vectors \f$ a = \min(a, b) \f$
@@ -1436,9 +1720,12 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = min(a(i), b(i))
     end do
+    !$omp end parallel do
+
   end subroutine pwmin2
 
   !> Point-wise minimum of two vectors \f$ a = \min(b, c) \f$
@@ -1448,9 +1735,12 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b, c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = min(b(i), c(i))
     end do
+    !$omp end parallel do
+
   end subroutine pwmin3
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(a, b) \f$
@@ -1460,9 +1750,12 @@ contains
     real(kind=rp), intent(in) :: b
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = min(a(i), b)
     end do
+    !$omp end parallel do
+
   end subroutine cpwmin2
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(b, c) \f$
@@ -1473,9 +1766,12 @@ contains
     real(kind=rp), intent(in) :: c
     integer :: i
 
+    !$omp parallel do
     do i = 1, n
        a(i) = min(b(i), c)
     end do
+    !$omp end parallel do
+
   end subroutine cpwmin3
 
   ! M33INV and M44INV by David G. Simpson pure function version from
@@ -1510,9 +1806,9 @@ contains
 
     ! Calculate the inverse determinant of the matrix
     ! first index x,y,z, second r, s, t
-    detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
+    detinv = 1.0_xp / real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2) &
          - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
-         + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
+         + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1), xp)
     ! Calculate the inverse of the matrix
     ! first index r, s, t, second x, y, z
     B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))
@@ -1526,4 +1822,84 @@ contains
     B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
   end function matinv3
 
+  !> Smooth step function S(x)
+  !> Returns 0 for x <= 0, 1 for x >= 1, and smooth transition in between.
+  function math_stepf(x) result(val)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: val
+    real(kind=rp), parameter :: xdmin = 0.0001_rp
+    real(kind=rp), parameter :: xdmax = 0.9999_rp
+    real(kind=rp) :: g
+
+    if (x <= xdmin) then
+       ! Below the lower bound, the function is 0
+       val = 0.0_rp
+    else if (x >= xdmax) then
+       ! Above the upper bound, the function is 1
+       val = 1.0_rp
+    else
+       ! g(x) = 1/(x-1) + 1/x
+       g = (1.0_rp / (x - 1.0_rp)) + (1.0_rp / x)
+
+       ! The sigmoid: S(x) = 1 / (1 + exp(g))
+       val = 1.0_rp / (1.0_rp + exp(g))
+    end if
+  end function math_stepf
+
+  !> Derivative of math_stepf with respect to x: d(stepf)/dx
+  function math_dstepf(x) result(val)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: val
+    real(kind=rp), parameter :: xdmin = 0.0001_rp
+    real(kind=rp), parameter :: xdmax = 0.9999_rp
+    real(kind=rp) :: arg, g, dg, s_val
+
+    if (x <= xdmin .or. x >= xdmax) then
+       val = 0.0_rp
+    else
+       ! The step function is S(x) = 1 / (1 + exp(g(x)))
+       ! where g(x) = 1/(x-1) + 1/x
+       ! S'(x) = -S(x) * (1 - S(x)) * g'(x)
+
+       g = (1.0_rp / (x - 1.0_rp)) + (1.0_rp / x)
+
+       ! Derivative of g(x)
+       dg = -(1.0_rp / ((x - 1.0_rp)**2)) - (1.0_rp / (x**2))
+
+       ! Recompute S(x) locally
+       s_val = 1.0_rp / (1.0_rp + exp(g))
+
+       val = -s_val * (1.0_rp - s_val) * dg
+    end if
+  end function math_dstepf
+
+  !> Sqrt a vector \f$ a = sqrt(a) \f$
+  subroutine sqrt_inplace(a, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer :: i
+
+    !$omp parallel do
+    do i = 1, n
+       a(i) = sqrt(a(i))
+    end do
+    !$omp end parallel do
+
+  end subroutine sqrt_inplace
+
+  !> Take the power of a vector \f$ a^p \f$
+  subroutine power(ap, a, p, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: ap
+    real(kind=rp), dimension(n), intent(in) :: a
+    real(kind=rp), intent(in) :: p
+    integer :: i
+
+    !$omp parallel do
+    do i = 1, n
+       ap(i) = a(i)**p
+    end do
+    !$omp end parallel do
+
+  end subroutine power
 end module math

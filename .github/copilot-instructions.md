@@ -1,0 +1,72 @@
+# Neko — code review instructions
+
+This file provides LLM instructions for reviewing pull requests.
+
+**MOST IMPORTANT**: Follow the workflow steps and associated checklists below!
+
+## General workflow
+
+1. Read the AGENTS.md file in the root of the repository, it provides a
+   high-level overview of the project.
+2. Determine if you are being run in a GitHub environment, or locally.
+   If it is GitHub, you will
+   - Add your comments directly at relevant lines in the PR.
+   - No need to write a summary.
+
+   If ran locally, you will make a neat listed summary of your comments, with
+   references to line numbers and files.
+3. Conduct a review of Fortran code based on the criteria listed under "Fortran
+   code review" below. Stick to the criteria!
+4. See if you find any *critical* issues outside of above criteria, including in
+   device code. If you do, report them, but you must be very sure the issues are
+   real.
+4. Carefully read the `doc/AGENTS.md` file to understand rules related to
+   documentation and the associated code review checklist (section "Reviewing
+   documentation"). Following that particular checklist is **mandatory**.
+5. Conduct the review of the documentation based on the checklist.
+
+# Fortran code review
+
+Your review is limited to the criteria listed below. Do not give general
+opinions about code style or design unless they violate the rules stated here.
+You are more or less acting as an intelligent static analyser. A **very
+important** focus area of your analysis is memory management.
+
+The list of criteria to check are:
+
+- Any subroutine that creates a local `allocatable` must also manually
+  `deallocate` it before returning.
+- Any type that has `pointer` or `allocatable` components must have a routine
+  that nullifies pointers and deallocates allocatables. In concrete types this
+  routine must be called `free`; in abstract types with `deferred` procedures it
+  may be called `free_base` or similar, always with a `free_` prefix.
+- If a type has both a destructor (`free` or similar) and a constructor (`init`
+  or similar), the constructor must begin by calling the destructor.
+- If a map is established between a Fortran pointer and a device pointer, the
+  link must be severed by calling `device_unmap` before the pointer is nullified
+  or deallocated. This applies to both local variables and type components.
+- Pay attention to object ownership when `pointer` or `allocatable` components
+  are involved. Make sure ownership is correctly handled.
+- If a procedure captures a persistent pointer to one of its dummy arguments
+  (`this%x => y`, where `y` is a dummy argument or reached through one), that
+  dummy must have the `target` attribute, **and so must every dummy along the
+  full call chain back to real storage** — a `target` on the outermost caller's
+  variable does not by itself make an intermediate dummy argument `target` in
+  its own procedure's scope (F2008 §12.5.2.4(5)). Check this especially for:
+  abstract deferred interfaces (every concrete implementation is forced to
+  match whatever attribute the interface declares, so a missing `target` there
+  breaks every implementer), and secondary/alternate constructors that
+  independently redeclare the same dummy argument instead of forwarding the
+  original. This bug class is not caught by Neko's own CI (GNU build runs with
+  `-w`, all warnings suppressed) nor reliably by `gfortran -Wall -Wextra` for
+  the cross-procedure case — review is the only check that catches it today.
+- Make sure types are fully instantiated in the `init` routines. If there are
+  several such routines, makes sure they all do it.
+- If a type has a constructor (`init` or similar) from a `json_file` and one
+  that directly accepts dummy arguments for the type components, the former
+  should call the latter. In particular, the `json_file` constructor should not
+  contain any logic to set the type components, but should just read the values
+  from the JSON file, validate them, and then call the other constructor with
+  the values read from the JSON file.
+- If the new code modifies the case file structure, make sure that the existing
+  json schema files under `doc/schemas` are updated accordingly.

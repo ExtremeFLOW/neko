@@ -33,12 +33,14 @@
 !> Compound scheme for the advection and diffusion operators in a transport
 !! equation.
 module time_scheme_controller
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use bdf_time_scheme, only: bdf_time_scheme_t
-  use ext_time_scheme, only: ext_time_scheme_t
-  use ab_time_scheme, only: ab_time_scheme_t
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+  use bdf_time_scheme, only : bdf_time_scheme_t
+  use ext_time_scheme, only : ext_time_scheme_t
+  use ab_time_scheme, only : ab_time_scheme_t
+  use device, only : device_free, device_map, device_memcpy, device_sync, &
+       HOST_TO_DEVICE
+  use vector, only : vector_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -74,9 +76,9 @@ module time_scheme_controller
      type(bdf_time_scheme_t) :: bdf
 
      !> Time coefficients for the advection operator
-     real(kind=rp) :: advection_coeffs(4) = 0
+     type(vector_t) :: advection_coeffs
      !> Time coefficients for the diffusion operator
-     real(kind=rp) :: diffusion_coeffs(4) = 0
+     type(vector_t) :: diffusion_coeffs
      !> Controls the actual order of the diffusion scheme,
      !!  e.g. 1 at the first time-step
      integer :: ndiff = 0
@@ -99,7 +101,7 @@ module time_scheme_controller
      procedure, pass(this) :: free => time_scheme_controller_free
      !> Set the time coefficients
      procedure, pass(this) :: set_coeffs => &
-       time_scheme_controller_set_coeffs
+          time_scheme_controller_set_coeffs
   end type time_scheme_controller_t
 
 contains
@@ -112,6 +114,8 @@ contains
     class(time_scheme_controller_t) :: this
     integer :: torder
 
+    call this%free()
+
     this%diffusion_time_order = torder
 
     ! Force 1st order advection when diffusion is 1st order
@@ -119,10 +123,8 @@ contains
        this%advection_time_order = 1
     end if
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%advection_coeffs, this%advection_coeffs_d, 4)
-       call device_map(this%diffusion_coeffs, this%diffusion_coeffs_d, 4)
-    end if
+    call this%advection_coeffs%init(4)
+    call this%diffusion_coeffs%init(4)
   end subroutine time_scheme_controller_init
 
   !> Destructor
@@ -130,12 +132,8 @@ contains
     implicit none
     class(time_scheme_controller_t) :: this
 
-    if (c_associated(this%advection_coeffs_d)) then
-       call device_free(this%advection_coeffs_d)
-    end if
-    if (c_associated(this%diffusion_coeffs_d)) then
-       call device_free(this%diffusion_coeffs_d)
-    end if
+    call this%advection_coeffs%free()
+    call this%diffusion_coeffs%free()
   end subroutine time_scheme_controller_free
 
   !> Set the time coefficients
@@ -149,15 +147,29 @@ contains
     real(kind=rp), dimension(4) :: diff_coeffs_old
 
     associate( &
-      nadv          => this%nadv, &
-      ndiff         => this%ndiff, &
-      adv_coeffs    => this%advection_coeffs, &
-      adv_coeffs_d  => this%advection_coeffs_d, &
-      diff_coeffs   => this%diffusion_coeffs, &
-      diff_coeffs_d => this%diffusion_coeffs_d)
+         nadv => this%nadv, &
+         ndiff => this%ndiff, &
+         adv_coeffs => this%advection_coeffs, &
+         adv_coeffs_d => this%advection_coeffs_d, &
+         diff_coeffs => this%diffusion_coeffs, &
+         diff_coeffs_d => this%diffusion_coeffs_d)
 
-      adv_coeffs_old = adv_coeffs
-      diff_coeffs_old = diff_coeffs
+      adv_coeffs_old = adv_coeffs%x
+      diff_coeffs_old = diff_coeffs%x
+
+      ! On unified memory backends the coefficient arrays may alias
+      ! their device pointers, and the host-side rewrite below races
+      ! in-flight device work reading them. Rewriting identical values
+      ! is benign, so only drain the device when the coefficients can
+      ! actually change (scheme order still ramping up, or a varying
+      ! time step)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         if ((ndiff .lt. this%diffusion_time_order) .or. &
+              (nadv .lt. this%advection_time_order) .or. &
+              (dt(1) .ne. dt(2))) then
+            call device_sync()
+         end if
+      end if
 
       ! Increment the order of the scheme if below time_order
       ndiff = ndiff + 1
@@ -165,44 +177,39 @@ contains
       nadv = nadv + 1
       nadv = min(nadv, this%advection_time_order)
 
-      call this%bdf%compute_coeffs(diff_coeffs, dt, ndiff)
+      call this%bdf%compute_coeffs(diff_coeffs%x, dt, ndiff)
 
       if (nadv .eq. 1) then
          ! Forward euler
-         call this%ext%compute_coeffs(adv_coeffs, dt, nadv)
+         call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
       else if (nadv .eq. 2) then
          if (ndiff .eq. 1) then
             ! 2nd order Adam-Bashforth, currently never used
-            call this%ab%compute_coeffs(adv_coeffs, dt, nadv)
+            call this%ab%compute_coeffs(adv_coeffs%x, dt, nadv)
          else
             ! Linear extrapolation
-            call this%ext%compute_coeffs(adv_coeffs, dt, nadv)
+            call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
          end if
       else if (nadv .eq. 3) then
          if (ndiff .eq. 1) then
             ! 3rd order Adam-Bashforth, currently never used
-            call this%ab%compute_coeffs(adv_coeffs, dt, nadv)
+            call this%ab%compute_coeffs(adv_coeffs%x, dt, nadv)
          else if (ndiff .eq. 2) then
             ! The modified EXT scheme
-            call this%ext%compute_modified_coeffs(adv_coeffs, dt)
+            call this%ext%compute_modified_coeffs(adv_coeffs%x, dt)
          else
             ! Quadratic extrapolation
-            call this%ext%compute_coeffs(adv_coeffs, dt, nadv)
+            call this%ext%compute_coeffs(adv_coeffs%x, dt, nadv)
          end if
       end if
 
-
-      if (c_associated(adv_coeffs_d)) then
-         if (maxval(abs(adv_coeffs - adv_coeffs_old)) .gt. 1e-10_rp) then
-            call device_memcpy(adv_coeffs, adv_coeffs_d, 4, &
-                               HOST_TO_DEVICE, sync=.false.)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         if (maxval(abs(adv_coeffs%x - adv_coeffs_old)) .gt. 1e-10_rp) then
+            call adv_coeffs%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
-      end if
 
-      if (c_associated(diff_coeffs_d)) then
-         if (maxval(abs(diff_coeffs - diff_coeffs_old)) .gt. 1e-10_rp) then
-            call device_memcpy(diff_coeffs, diff_coeffs_d, 4, &
-                               HOST_TO_DEVICE, sync=.false.)
+         if (maxval(abs(diff_coeffs%x - diff_coeffs_old)) .gt. 1e-10_rp) then
+            call diff_coeffs%copy_from(HOST_TO_DEVICE, sync = .false.)
          end if
       end if
     end associate

@@ -35,22 +35,28 @@ module time_step_controller
   use num_types, only : rp
   use logger, only : neko_log, LOG_SIZE
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
+  use comm, only : pe_size, global_pe_size, NEKO_GLOBAL_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_MIN, MPI_IN_PLACE, MPI_Allreduce
   implicit none
   private
 
   !> Provides a tool to set time step dt
   type, public :: time_step_controller_t
      logical :: is_variable_dt
-     real(kind=rp) :: cfl_trg
-     real(kind=rp) :: cfl_avg
-     real(kind=rp) :: max_dt, min_dt
-     integer :: max_update_frequency, min_update_frequency
-     integer :: dt_last_change
-     real(kind=rp) :: alpha !< coefficient of running average
-     real(kind=rp) :: max_dt_increase_factor, min_dt_decrease_factor
-     real(kind=rp) :: dev_tol
+     real(kind=rp) :: cfl_trg = 0.0_rp
+     real(kind=rp) :: cfl_avg = 0.0_rp
+     real(kind=rp) :: init_dt = huge(0.0_rp)
+     real(kind=rp) :: max_dt = 0.0_rp
+     real(kind=rp) :: min_dt = 0.0_rp
+     integer :: max_update_frequency = 0
+     integer :: min_update_frequency = 0
+     integer :: dt_last_change = 0
+     real(kind=rp) :: alpha = 0.0_rp !< coefficient of running average
+     real(kind=rp) :: max_dt_increase_factor = 0.0_rp
+     real(kind=rp) :: min_dt_decrease_factor = 0.0_rp
+     real(kind=rp) :: dev_tol = 0.0_rp
    contains
      !> Initialize object.
      procedure, pass(this) :: init => time_step_controller_init
@@ -70,24 +76,28 @@ contains
     this%dt_last_change = -1
     call json_get_or_default(params, 'variable_timestep', &
          this%is_variable_dt, .false.)
-    call json_get_or_default(params, 'target_cfl', &
-         this%cfl_trg, 0.4_rp)
-    call json_get_or_default(params, 'max_timestep', &
-         this%max_dt, huge(0.0_rp))
-    call json_get_or_default(params, 'min_timestep', &
-         this%min_dt, 0.0_rp)
-    call json_get_or_default(params, 'max_update_frequency',&
-         this%max_update_frequency, 0)
-    call json_get_or_default(params, 'min_update_frequency',&
-         this%min_update_frequency, huge(0))
-    call json_get_or_default(params, 'cfl_running_avg_coeff', &
-         this%alpha, 0.5_rp)
-    call json_get_or_default(params, 'max_dt_increase_factor', &
-         this%max_dt_increase_factor, 1.2_rp)
-    call json_get_or_default(params, 'min_dt_decrease_factor', &
-         this%min_dt_decrease_factor, 0.5_rp)
-    call json_get_or_default(params, 'cfl_deviation_tolerance', &
-         this%dev_tol, 0.2_rp)
+    if (this%is_variable_dt) then
+       call json_get_or_lookup_or_default(params, 'target_cfl', &
+            this%cfl_trg, 0.4_rp)
+       call json_get_or_lookup_or_default(params, 'timestep', &
+            this%init_dt, huge(0.0_rp))
+       call json_get_or_lookup_or_default(params, 'max_timestep', &
+            this%max_dt, huge(0.0_rp))
+       call json_get_or_lookup_or_default(params, 'min_timestep', &
+            this%min_dt, 0.0_rp)
+       call json_get_or_lookup_or_default(params, 'max_update_frequency',&
+            this%max_update_frequency, 0)
+       call json_get_or_lookup_or_default(params, 'min_update_frequency',&
+            this%min_update_frequency, huge(0))
+       call json_get_or_lookup_or_default(params, 'cfl_running_avg_coeff', &
+            this%alpha, 0.5_rp)
+       call json_get_or_lookup_or_default(params, 'max_dt_increase_factor', &
+            this%max_dt_increase_factor, 1.2_rp)
+       call json_get_or_lookup_or_default(params, 'min_dt_decrease_factor', &
+            this%min_dt_decrease_factor, 0.5_rp)
+       call json_get_or_lookup_or_default(params, 'cfl_deviation_tolerance', &
+            this%dev_tol, 0.2_rp)
+    end if
 
   end subroutine time_step_controller_init
 
@@ -102,8 +112,9 @@ contains
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
     real(kind=rp), intent(in) :: cfl
-    real(kind=rp) :: dt_old, scaling_factor
+    real(kind=rp) :: dt_old, scaling_factor, global_min_dt
     character(len=LOG_SIZE) :: log_buf
+    integer :: ierr
 
     ! Check if variable dt is requested
     if (.not. this%is_variable_dt) return
@@ -115,9 +126,10 @@ contains
 
     if (this%dt_last_change .eq. -1) then
 
-       ! set the first dt for desired cfl
-       time%dt = max(min(this%cfl_trg / cfl * time%dt, &
-            this%max_dt), this%min_dt)
+       ! Set the first dt for desired cfl, or use the provided initial dt if it
+       ! is smaller. Then clamp between max and min dt if provided.
+       time%dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
+       time%dt = max(min(time%dt, this%max_dt), this%min_dt)
        this%dt_last_change = 0
        this%cfl_avg = cfl
 
@@ -154,6 +166,19 @@ contains
 
        else
           this%dt_last_change = this%dt_last_change + 1
+       end if
+    end if
+
+    ! If running in mpmd, the new dt is the minimum across simulations
+    if (pe_size .ne. global_pe_size) then
+       global_min_dt = time%dt
+       call MPI_Allreduce(MPI_IN_PLACE, global_min_dt, 1, MPI_REAL_PRECISION, &
+            MPI_MIN, NEKO_GLOBAL_COMM, ierr)
+
+       ! If my dt is larger that the global min, mark a change
+       if (time%dt .gt. global_min_dt) then
+          time%dt = global_min_dt
+          this%dt_last_change = 0
        end if
     end if
 

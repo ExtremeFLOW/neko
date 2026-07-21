@@ -89,7 +89,8 @@ contains
     call neko_scratch_registry%request_field(s23, temp_indices(6), .false.)
 
     ! Compute the strain rate tensor
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
+    call strain_rate(s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         u%x_d, v%x_d, w%x_d, coef)
 
     call coef%gs_h%op(s11, GS_OP_ADD)
     call coef%gs_h%op(s22, GS_OP_ADD)

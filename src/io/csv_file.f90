@@ -33,12 +33,12 @@
 !> File format for .csv files, used for any read/write operations involving
 !! floating point data.
 module csv_file
-  use vector, only: vector_t
-  use matrix, only: matrix_t
-  use generic_file, only: generic_file_t
-  use utils, only: neko_error
-  use num_types, only: rp
-  use logger, only: neko_log, log_size
+  use vector, only : vector_t
+  use matrix, only : matrix_t
+  use generic_file, only : generic_file_t
+  use utils, only : neko_error
+  use num_types, only : rp
+  use logger, only : neko_log, log_size
   use comm
   implicit none
 
@@ -127,8 +127,9 @@ contains
 
     ! Delete file if overwrite is enabled and header hasn't been written yet
     if (f%overwrite .and. .not. f%header_is_written) then
-       open(unit=999, file=trim(f%get_fname()), status="old", iostat=ierr)
-       if (ierr == 0) close(999, status="delete")
+       open(unit = 999, file = trim(f%get_fname()), status = "old", &
+            iostat = ierr)
+       if (ierr == 0) close(999, status = "delete")
     end if
 
     open(file = trim(f%get_fname()), position = "append", iostat = ierr, &
@@ -148,7 +149,7 @@ contains
 
     n = data%size()
     write (file_unit, '(*(g0,","))', advance = "no") data%x(1:n-1)
-    write (file_unit,'(g0)') data%x(n)
+    write (file_unit, '(g0)') data%x(n)
 
     close(file_unit)
 
@@ -167,8 +168,9 @@ contains
 
     ! Delete file if overwrite is enabled and header hasn't been written yet
     if (f%overwrite .and. .not. f%header_is_written) then
-       open(unit=999, file=trim(f%get_fname()), status="old", iostat=ierr)
-       if (ierr == 0) close(999, status="delete")
+       open(unit = 999, file = trim(f%get_fname()), status = "old", &
+            iostat = ierr)
+       if (ierr == 0) close(999, status = "delete")
     end if
 
     open(file = trim(f%get_fname()), position = "append", iostat = ierr, &

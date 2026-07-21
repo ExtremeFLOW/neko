@@ -1,6 +1,6 @@
 !> Interfxace to ROCTX
 module roctx
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_char, C_NULL_CHAR
   implicit none
   private
 
@@ -8,14 +8,14 @@ module roctx
 
 #ifdef HAVE_ROCTX
   interface roctxRangePushA
-     subroutine roctxRangePushA(name) bind(C, name='roctxRangePushA')
-       use iso_c_binding
+     subroutine roctxRangePushA(name) bind(C, name = 'roctxRangePushA')
+       use, intrinsic :: iso_c_binding
        character(kind=c_char) :: name(256)
      end subroutine roctxRangePushA
   end interface roctxRangePushA
 
   interface roctxRangePop
-     subroutine roctxRangePop() bind(C, name='roctxRangePop')
+     subroutine roctxRangePop() bind(C, name = 'roctxRangePop')
      end subroutine roctxRangePop
   end interface roctxRangePop
 
@@ -24,7 +24,7 @@ module roctx
 contains
 
   subroutine roctxStartRange(name)
-    character(kind=c_char,len=*) :: name
+    character(kind=c_char, len=*) :: name
     character :: c_name(ROCTX_MAX_LEN)
     integer:: i, str_len
 

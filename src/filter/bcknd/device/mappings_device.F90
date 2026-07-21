@@ -32,16 +32,18 @@
 !
 !> Device implementations of the mapping functions.
 module mappings_device
-  use num_types, only: rp, c_rp
-  use, intrinsic :: iso_c_binding, only: c_ptr
-  use utils, only: neko_error
+  use num_types, only : rp, c_rp
+  use, intrinsic :: iso_c_binding, only : c_ptr
+  use utils, only : neko_error
 
-  use cuda_mappings, only: &
+  use cuda_mappings, only : &
        cuda_smooth_step, cuda_step_function, cuda_permeability
-  use hip_mappings, only: &
+  use hip_mappings, only : &
        hip_smooth_step, hip_step_function, hip_permeability
-  use opencl_mappings, only: &
+  use opencl_mappings, only : &
        opencl_smooth_step, opencl_step_function, opencl_permeability
+  use metal_mappings, only : &
+       metal_smooth_step, metal_step_function, metal_permeability
 
   implicit none
 
@@ -63,6 +65,8 @@ contains
     call cuda_smooth_step(x, edge0, edge1, n)
 #elif HAVE_OPENCL == 1
     call opencl_smooth_step(x, edge0, edge1, n)
+#elif HAVE_METAL
+    call metal_smooth_step(x, edge0, edge1, n)
 #else
     call neko_error(&
          "Smooth step function not implemented for the current device.")
@@ -82,6 +86,8 @@ contains
     call cuda_step_function(x, x_step, value0, value1, n)
 #elif HAVE_OPENCL == 1
     call opencl_step_function(x, x_step, value0, value1, n)
+#elif HAVE_METAL
+    call metal_step_function(x, x_step, value0, value1, n)
 #else
     call neko_error(&
          "Step function not implemented for the current device.")
@@ -101,6 +107,8 @@ contains
     call cuda_permeability(x, k_0, k_1, q, n)
 #elif HAVE_OPENCL == 1
     call opencl_permeability(x, k_0, k_1, q, n)
+#elif HAVE_METAL
+    call metal_permeability(x, k_0, k_1, q, n)
 #else
     call neko_error(&
          "Permeability function not implemented for the current device.")

@@ -39,14 +39,14 @@ module ax_helm_full_device
   use device_math, only : device_addcol4
   use device, only : device_get_ptr
   use num_types, only : rp
-  use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
 
   type, public, extends(ax_helm_full_t) :: ax_helm_full_device_t
    contains
-     procedure, pass(this) :: compute_vector => ax_helm_full_device_compute_vector
+     procedure, pass(this) :: compute_vector => &
+          ax_helm_full_device_compute_vector
   end type ax_helm_full_device_t
 
 #ifdef HAVE_HIP
@@ -72,8 +72,9 @@ module ax_helm_full_device
   end interface
 
   interface
-     subroutine hip_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-          h2_d, B_d, n) bind(c, name='hip_ax_helm_stress_vector_part2')
+     subroutine hip_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, &
+          v_d, w_d, h2_d, B_d, n) &
+          bind(c, name='hip_ax_helm_stress_vector_part2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: au_d, av_d, aw_d
        type(c_ptr), value :: u_d, v_d, w_d
@@ -105,8 +106,9 @@ module ax_helm_full_device
   end interface
 
   interface
-     subroutine cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-          h2_d, B_d, n) bind(c, name='cuda_ax_helm_stress_vector_part2')
+     subroutine cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, &
+          u_d, v_d, w_d, h2_d, B_d, n) &
+          bind(c, name='cuda_ax_helm_stress_vector_part2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: au_d, av_d, aw_d
        type(c_ptr), value :: u_d, v_d, w_d
@@ -138,14 +140,48 @@ module ax_helm_full_device
   end interface
 
   interface
-     subroutine opencl_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-          h2_d, B_d, n) bind(c, name='opencl_ax_helm_stress_vector_part2')
+     subroutine opencl_ax_helm_stress_vector_part2(au_d, av_d, aw_d, &
+          u_d, v_d, w_d, h2_d, B_d, n) &
+          bind(c, name='opencl_ax_helm_stress_vector_part2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: au_d, av_d, aw_d
        type(c_ptr), value :: u_d, v_d, w_d
        type(c_ptr), value :: h2_d, B_d
        integer(c_int) :: n
      end subroutine opencl_ax_helm_stress_vector_part2
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_ax_helm_stress_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
+          dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d,&
+          h1_d, drdx_d, drdy_d, drdz_d, &
+          dsdx_d, dsdy_d, dsdz_d, &
+          dtdx_d, dtdy_d, dtdz_d, jacinv_d, weight3_d, nelv, lx) &
+          bind(c, name='metal_ax_helm_stress_vector')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: h1_d
+       type(c_ptr), value :: drdx_d, drdy_d, drdz_d
+       type(c_ptr), value :: dsdx_d, dsdy_d, dsdz_d
+       type(c_ptr), value :: dtdx_d, dtdy_d, dtdz_d
+       type(c_ptr), value :: jacinv_d, weight3_d
+       integer(c_int) :: nelv, lx
+     end subroutine metal_ax_helm_stress_vector
+  end interface
+
+  interface
+     subroutine metal_ax_helm_stress_vector_part2(au_d, av_d, aw_d, &
+          u_d, v_d, w_d, h2_d, B_d, n) &
+          bind(c, name='metal_ax_helm_stress_vector_part2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: h2_d, B_d
+       integer(c_int) :: n
+     end subroutine metal_ax_helm_stress_vector_part2
   end interface
 #endif
 
@@ -195,6 +231,13 @@ contains
          coef%dsdx_d, coef%dsdy_d, coef%dsdz_d, &
          coef%dtdx_d, coef%dtdy_d, coef%dtdz_d, &
          coef%jacinv_d, Xh%w3_d, msh%nelv, Xh%lx)
+#elif HAVE_METAL
+    call metal_ax_helm_stress_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
+         Xh%dx_d, Xh%dy_d, Xh%dz_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
+         coef%drdx_d, coef%drdy_d, coef%drdz_d, &
+         coef%dsdx_d, coef%dsdy_d, coef%dsdz_d, &
+         coef%dtdx_d, coef%dtdy_d, coef%dtdz_d, &
+         coef%jacinv_d, Xh%w3_d, msh%nelv, Xh%lx)
 #endif
 
     if (coef%ifh2) then
@@ -205,8 +248,11 @@ contains
        call cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
             coef%h2_d, coef%B_d, coef%dof%size())
 #elif HAVE_OPENCL
-       call opencl_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-            coef%h2_d, coef%B_d, coef%dof%size())
+       call opencl_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, &
+            w_d, coef%h2_d, coef%B_d, coef%dof%size())
+#elif HAVE_METAL
+       call metal_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, &
+            w_d, coef%h2_d, coef%B_d, coef%dof%size())
 #endif
     end if
 

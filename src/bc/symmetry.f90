@@ -76,7 +76,7 @@ contains
   subroutine symmetry_init(this, coef, json)
     class(symmetry_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
-    type(json_file), intent(inout) ::json
+    type(json_file), intent(inout) :: json
 
     call this%init_from_components(coef)
 

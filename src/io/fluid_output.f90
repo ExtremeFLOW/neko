@@ -39,17 +39,19 @@ module fluid_output
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device
+  use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use scalars, only : scalars_t
   use registry, only : neko_registry
   use field, only : field_t
+  use fld_file, only : fld_file_t
   implicit none
   private
 
   !> Fluid output
   type, public, extends(output_t) :: fluid_output_t
      type(field_list_t) :: fluid
+     logical :: always_write_mesh = .false.
    contains
      procedure, pass(this) :: init => fluid_output_init
      procedure, pass(this) :: sample => fluid_output_sample
@@ -58,8 +60,8 @@ module fluid_output
 
 contains
 
-  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, path, &
-       fmt, layout)
+  subroutine fluid_output_init(this, precision, fluid, scalar_fields, name, &
+       path, fmt, layout, always_write_mesh)
     class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
     class(fluid_scheme_base_t), intent(in), target :: fluid
@@ -67,6 +69,7 @@ contains
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     character(len=*), intent(in), optional :: fmt
+    logical, intent(in), optional :: always_write_mesh
     integer, intent(in), optional :: layout
     character(len=1024) :: fname
     integer :: i, j, n_scalars
@@ -78,7 +81,13 @@ contains
     if (present(fmt)) then
        if (fmt .eq. 'adios2') then
           suffix = '.bp'
+       else if (fmt .eq. 'vtkhdf') then
+          suffix = '.vtkhdf'
        end if
+    end if
+
+    if (present(always_write_mesh)) then
+       this%always_write_mesh = always_write_mesh
     end if
 
     if (present(name) .and. present(path)) then
@@ -142,7 +151,7 @@ contains
     if (present(scalar_fields)) then
        do j = 1, n_scalars
           i = i + 1
-          call this%fluid%assign(i, scalar_fields%scalar_fields(j)%s)
+          call this%fluid%assign(i, scalar_fields%scalar_fields(j)%scalar%s)
        end do
     end if
 
@@ -165,6 +174,7 @@ contains
   subroutine fluid_output_free(this)
     class(fluid_output_t), intent(inout) :: this
 
+    call this%free_base()
     call this%fluid%free()
 
   end subroutine fluid_output_free
@@ -174,7 +184,6 @@ contains
     class(fluid_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        associate(fields => this%fluid%items)
@@ -187,7 +196,29 @@ contains
 
     end if
 
-    call this%file_%write(this%fluid, t)
+    select type (ft => this%file_%file_type)
+       ! Only fld files have the option to write the mesh at command
+    type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
+       ft%write_mesh = this%always_write_mesh
+       if (ft%write_mesh) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             associate(mesh => this%fluid%items(2)%ptr%dof)
+               call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .false.)
+               call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .false.)
+               call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
+                    DEVICE_TO_HOST, sync = .true.)
+             end associate
+          end if
+       end if
+       call ft%write(this%fluid, t)
+    class default
+       call ft%write(this%fluid, t)
+    end select
 
   end subroutine fluid_output_sample
 

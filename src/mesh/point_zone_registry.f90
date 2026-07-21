@@ -39,7 +39,7 @@ module point_zone_registry
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use utils, only : neko_error
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_lookup
   use json_module, only : json_file, json_core, json_value
   implicit none
   private
@@ -117,7 +117,7 @@ contains
     type(dofmap_t) :: dof
 
 
-    call json_get(json, 'case.numerics.polynomial_order', order)
+    call json_get_or_lookup(json, 'case.numerics.polynomial_order', order)
     order = order + 1 ! add 1 to get poly order
 
     if (msh%gdim .eq. 2) then

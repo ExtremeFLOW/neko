@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a registry entry for storing and requesting temporary objects
-!! This is used in the scratch registries to store temporary fields, vectors,
-!! and matrices.
+!! This is used in the registries to store a scalar, host array, device array,
+!! vector, matrix or field.
 module registry_entry
-  use field, only : field_t
+  use num_types, only : rp
+  use host_array, only : host_array_t
+  use device_array, only : device_array_t
   use vector, only : vector_t
   use matrix, only : matrix_t
+  use field, only : field_t
 
   use dofmap, only : dofmap_t
   use utils, only : neko_error
@@ -44,52 +47,95 @@ module registry_entry
   private
 
   type, public :: registry_entry_t
-
-     character(len=:), private, allocatable :: name
-     character(len=:), private, allocatable :: type
+     !> Name of the registry entry
+     character(len=80), private :: name = ""
+     !> Type of the registry entry; must be supported.
+     character(len=80), private :: type = ""
+     !> Whether the entry is allocated
      logical, private :: allocated = .false.
 
-     type(field_t), private, pointer :: field_ptr => null()
+     ! Storage. Only one of these will be allocated at a time.
+     real(kind=rp), private :: real_scalar = 0.0_rp
+     integer, private :: integer_scalar = 0
+     type(host_array_t), private, pointer :: host_array_ptr => null()
+     type(device_array_t), private, pointer :: device_array_ptr => null()
      type(vector_t), private, pointer :: vector_ptr => null()
      type(matrix_t), private, pointer :: matrix_ptr => null()
+     type(field_t), private, pointer :: field_ptr => null()
 
    contains
-     procedure, pass(this) :: init_field => init_register_field
+     ! Constructors
+     procedure, pass(this) :: init_real_scalar => init_register_real_scalar
+     procedure, pass(this) :: init_integer_scalar => &
+          init_register_integer_scalar
+     procedure, pass(this) :: init_host_array => init_register_host_array
+     procedure, pass(this) :: init_device_array => init_register_device_array
      procedure, pass(this) :: init_vector => init_register_vector
      procedure, pass(this) :: init_matrix => init_register_matrix
+     procedure, pass(this) :: init_field => init_register_field
+     !> Destructor
      procedure, pass(this) :: free => free_register
 
+     !> Getters that return a pointer to the object in the entry.
      procedure, pass(this) :: get_name
      procedure, pass(this) :: get_type
-     procedure, pass(this) :: get_field
+     procedure, pass(this) :: get_real_scalar
+     procedure, pass(this) :: get_integer_scalar
+     procedure, pass(this) :: get_host_array
+     procedure, pass(this) :: get_device_array
      procedure, pass(this) :: get_vector
      procedure, pass(this) :: get_matrix
+     procedure, pass(this) :: get_field
      procedure, pass(this) :: is_allocated
+
+     procedure, pass(this) :: move_from => move_from_registry_entry
   end type registry_entry_t
 
 contains
 
-!> Initialize a register entry
-  subroutine init_register_field(this, dof, name)
+  !> Initialize by a host array
+  subroutine init_register_host_array(this, n, name)
     class(registry_entry_t), intent(inout) :: this
-    type(dofmap_t), target, intent(in) :: dof
-    character(len=*), intent(in) :: name
+    integer, intent(in) :: n
+    character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_field: " &
-            // "Register entry is already allocated.")
+       call neko_error("init_register_host_array: " // &
+            "Register entry is already allocated.")
     end if
 
     call this%free()
 
-    allocate(this%field_ptr)
-    call this%field_ptr%init(dof, trim(name))
+    allocate(this%host_array_ptr)
+    call this%host_array_ptr%init(n)
 
-    this%name = trim(name)
-    this%type = 'field'
+    if (present(name)) this%name = trim(name)
+    this%type = 'host_array'
     this%allocated = .true.
 
-  end subroutine init_register_field
+  end subroutine init_register_host_array
+
+  !> Initialize by a device array
+  subroutine init_register_device_array(this, n, name)
+    class(registry_entry_t), intent(inout) :: this
+    integer, intent(in) :: n
+    character(len=*), optional, intent(in) :: name
+
+    if (this%allocated) then
+       call neko_error("init_register_device_array: " // &
+            "Register entry is already allocated.")
+    end if
+
+    call this%free()
+
+    allocate(this%device_array_ptr)
+    call this%device_array_ptr%init(n)
+
+    if (present(name)) this%name = trim(name)
+    this%type = 'device_array'
+    this%allocated = .true.
+
+  end subroutine init_register_device_array
 
   !> Initialize a register entry
   subroutine init_register_vector(this, n, name)
@@ -98,7 +144,7 @@ contains
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_vector: " &
+       call neko_error("init_register_vector: " &
             // "Register entry is already allocated.")
     end if
 
@@ -120,7 +166,7 @@ contains
     character(len=*), optional, intent(in) :: name
 
     if (this%allocated) then
-       call neko_error("scratch_registry::init_register_matrix: " &
+       call neko_error("init_register_matrix: " &
             // "Register entry is already allocated.")
     end if
 
@@ -135,13 +181,82 @@ contains
 
   end subroutine init_register_matrix
 
+  !> Initialize a register entry
+  subroutine init_register_field(this, dof, name)
+    class(registry_entry_t), intent(inout) :: this
+    type(dofmap_t), target, intent(in) :: dof
+    character(len=*), intent(in) :: name
+
+    if (this%allocated) then
+       call neko_error("init_register_field: " &
+            // "Register entry is already allocated.")
+    end if
+
+    call this%free()
+
+    allocate(this%field_ptr)
+    call this%field_ptr%init(dof, trim(name))
+
+    this%name = trim(name)
+    this%type = 'field'
+    this%allocated = .true.
+
+  end subroutine init_register_field
+
+  !> Initialize a scalar register entry
+  subroutine init_register_real_scalar(this, val, name)
+    class(registry_entry_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: val
+    character(len=*), optional, intent(in) :: name
+
+    if (this%allocated) then
+       call neko_error("init_register_real_scalar: " &
+            // "Register entry is already allocated.")
+    end if
+
+    call this%free()
+
+    this%real_scalar = val
+
+    if (present(name)) this%name = trim(name)
+    this%type = 'real_scalar'
+    this%allocated = .true.
+
+  end subroutine init_register_real_scalar
+
+  !> Initialize an integer scalar register entry
+  subroutine init_register_integer_scalar(this, val, name)
+    class(registry_entry_t), intent(inout) :: this
+    integer, intent(in) :: val
+    character(len=*), optional, intent(in) :: name
+
+    if (this%allocated) then
+       call neko_error("init_register_integer_scalar: " &
+            // "Register entry is already allocated.")
+    end if
+
+    call this%free()
+
+    this%integer_scalar = val
+
+    if (present(name)) this%name = trim(name)
+    this%type = 'integer_scalar'
+    this%allocated = .true.
+
+  end subroutine init_register_integer_scalar
+
   !> Free a register entry
   subroutine free_register(this)
     class(registry_entry_t), intent(inout) :: this
 
-    if (associated(this%field_ptr)) then
-       call this%field_ptr%free()
-       deallocate(this%field_ptr)
+    if (associated(this%host_array_ptr)) then
+       call this%host_array_ptr%free()
+       deallocate(this%host_array_ptr)
+    end if
+
+    if (associated(this%device_array_ptr)) then
+       call this%device_array_ptr%free()
+       deallocate(this%device_array_ptr)
     end if
 
     if (associated(this%vector_ptr)) then
@@ -154,8 +269,16 @@ contains
        deallocate(this%matrix_ptr)
     end if
 
-    if (allocated(this%name)) deallocate(this%name)
-    if (allocated(this%type)) deallocate(this%type)
+    if (associated(this%field_ptr)) then
+       call this%field_ptr%free()
+       deallocate(this%field_ptr)
+    end if
+
+    this%real_scalar = 0.0_rp
+    this%integer_scalar = 0
+
+    this%name = ""
+    this%type = ""
     this%allocated = .false.
 
   end subroutine free_register
@@ -181,16 +304,28 @@ contains
     allocated = this%allocated
   end function is_allocated
 
-  !> Get the field pointer of the registry entry
-  function get_field(this) result(field_ptr)
+
+  !> Get the host array pointer of the registry entry
+  function get_host_array(this) result(host_array_ptr)
     class(registry_entry_t), target, intent(in) :: this
-    type(field_t), pointer :: field_ptr
-    if (this%get_type() .ne. 'field') then
-       call neko_error("registry_entry::get_field: " &
-            // "Registry entry is not of type 'field'.")
+    type(host_array_t), pointer :: host_array_ptr
+    if (this%get_type() .ne. 'host_array') then
+       call neko_error("registry_entry::get_host_array: " &
+            // "Registry entry is not of type 'host_array'.")
     end if
-    field_ptr => this%field_ptr
-  end function get_field
+    host_array_ptr => this%host_array_ptr
+  end function get_host_array
+
+  !> Get the device_array pointer of the registry entry
+  function get_device_array(this) result(device_array_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    type(device_array_t), pointer :: device_array_ptr
+    if (this%get_type() .ne. 'device_array') then
+       call neko_error("registry_entry::get_device_array: " &
+            // "Registry entry is not of type 'device_array'.")
+    end if
+    device_array_ptr => this%device_array_ptr
+  end function get_device_array
 
   !> Get the vector pointer of the registry entry
   function get_vector(this) result(vector_ptr)
@@ -214,4 +349,78 @@ contains
     matrix_ptr => this%matrix_ptr
   end function get_matrix
 
+  !> Get the field pointer of the registry entry
+  function get_field(this) result(field_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    type(field_t), pointer :: field_ptr
+    if (this%get_type() .ne. 'field') then
+       call neko_error("registry_entry::get_field: " &
+            // "Registry entry is not of type 'field'.")
+    end if
+    field_ptr => this%field_ptr
+  end function get_field
+
+  !> Get the real scalar pointer of the registry entry
+  function get_real_scalar(this) result(scalar_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    real(kind=rp), pointer :: scalar_ptr
+    if (this%get_type() .ne. 'real_scalar') then
+       call neko_error("registry_entry::get_real_scalar: " &
+            // "Registry entry is not of type 'real_scalar'.")
+    end if
+    scalar_ptr => this%real_scalar
+  end function get_real_scalar
+
+  !> Get the integer scalar pointer of the registry entry
+  function get_integer_scalar(this) result(scalar_ptr)
+    class(registry_entry_t), target, intent(in) :: this
+    integer, pointer :: scalar_ptr
+    if (this%get_type() .ne. 'integer_scalar') then
+       call neko_error("registry_entry::get_integer_scalar: " &
+            // "Registry entry is not of type 'integer_scalar'.")
+    end if
+    scalar_ptr => this%integer_scalar
+  end function get_integer_scalar
+
+  !> Move a registry entry from another entry.
+  subroutine move_from_registry_entry(this, source)
+    class(registry_entry_t), intent(inout) :: this
+    class(registry_entry_t), intent(inout) :: source
+
+    if (.not. source%is_allocated()) return
+    call this%free()
+
+    this%name = source%name
+    this%type = source%type
+    this%allocated = source%allocated
+
+    select case (trim(this%type))
+    case ('real_scalar')
+       this%real_scalar = source%real_scalar
+    case ('integer_scalar')
+       this%integer_scalar = source%integer_scalar
+    case ('host_array')
+       this%host_array_ptr => source%host_array_ptr
+       nullify(source%host_array_ptr)
+    case ('device_array')
+       this%device_array_ptr => source%device_array_ptr
+       nullify(source%device_array_ptr)
+    case ('vector')
+       this%vector_ptr => source%vector_ptr
+       nullify(source%vector_ptr)
+    case ('matrix')
+       this%matrix_ptr => source%matrix_ptr
+       nullify(source%matrix_ptr)
+    case ('field')
+       this%field_ptr => source%field_ptr
+       nullify(source%field_ptr)
+    case default
+       call neko_error("move_from_registry_entry: " // &
+            "Unsupported registry entry type: " // trim(this%type))
+    end select
+
+    ! Free the source entry after moving
+    call source%free()
+
+  end subroutine move_from_registry_entry
 end module registry_entry

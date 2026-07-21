@@ -32,7 +32,7 @@
 !
 !> Defines various Conjugate Gradient methods for accelerators
 module cg_device
-  use num_types, only: rp
+  use num_types, only : rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -41,11 +41,13 @@ module cg_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : abscmp
-  use device
+  use device, only : device_map, device_event_create, device_unmap, &
+       device_event_destroy, device_get_ptr, device_event_sync
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  private
 
   !> Device based preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_device_t
@@ -121,38 +123,34 @@ contains
     call this%ksp_free()
 
     if (allocated(this%w)) then
+       if (c_associated(this%w_d)) then
+          call device_unmap(this%w, this%w_d)
+       end if
        deallocate(this%w)
     end if
 
     if (allocated(this%r)) then
+       if (c_associated(this%r_d)) then
+          call device_unmap(this%r, this%r_d)
+       end if
        deallocate(this%r)
     end if
 
     if (allocated(this%p)) then
+       if (c_associated(this%p_d)) then
+          call device_unmap(this%p, this%p_d)
+       end if
        deallocate(this%p)
     end if
 
     if (allocated(this%z)) then
+       if (c_associated(this%z_d)) then
+          call device_unmap(this%z, this%z_d)
+       end if
        deallocate(this%z)
     end if
 
     nullify(this%M)
-
-    if (c_associated(this%w_d)) then
-       call device_free(this%w_d)
-    end if
-
-    if (c_associated(this%r_d)) then
-       call device_free(this%r_d)
-    end if
-
-    if (c_associated(this%p_d)) then
-       call device_free(this%p_d)
-    end if
-
-    if (c_associated(this%z_d)) then
-       call device_free(this%z_d)
-    end if
 
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
@@ -161,7 +159,8 @@ contains
   end subroutine cg_device_free
 
   !> Standard PCG solve
-  function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(cg_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -198,7 +197,7 @@ contains
     ksp_results%res_start = rnorm
     ksp_results%res_final = rnorm
     ksp_results%iter = 0
-    if(abscmp(rnorm, zero)) then
+    if (abscmp(rnorm, zero)) then
        ksp_results%converged = .true.
        return
     end if

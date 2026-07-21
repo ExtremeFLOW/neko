@@ -37,7 +37,7 @@ module centrifugal_source_term
   use num_types, only : rp
   use field_list, only : field_list_t
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
+  use json_utils, only: json_get_or_lookup_or_default, json_get_or_lookup
   use source_term, only : source_term_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -93,18 +93,18 @@ contains
     real(kind=rp), allocatable :: rotation_vec(:), ref_point(:)
     real(kind=rp) :: start_time, end_time
 
-    call json_get_or_default(json, "start_time", start_time, 0.0_rp)
-    call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
+    call json_get_or_lookup_or_default(json, "start_time", start_time, 0.0_rp)
+    call json_get_or_lookup_or_default(json, "end_time", end_time, huge(0.0_rp))
 
     if (json%valid_path("rotation_vector")) then
-       call json_get(json, "rotation_vector", rotation_vec)
+       call json_get_or_lookup(json, "rotation_vector", rotation_vec)
     else
        call neko_error("Specify rotation_vector &
        &for the centrifugal source term.")
     end if
 
     if (json%valid_path("reference_point")) then
-       call json_get(json, "reference_point", ref_point)
+       call json_get_or_lookup(json, "reference_point", ref_point)
     else
        call neko_error("Specify reference_point &
        &for the centrifugal source term.")

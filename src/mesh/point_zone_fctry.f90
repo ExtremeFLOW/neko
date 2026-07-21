@@ -58,7 +58,6 @@ contains
     type(json_file), intent(inout) :: json
     type(dofmap_t), intent(inout), optional :: dof
     character(len=:), allocatable :: type_name
-    character(len=:), allocatable :: type_string
 
     call json_get(json, "geometry", type_name)
 
@@ -81,7 +80,10 @@ contains
     character(len=:), allocatable, intent(in) :: type_name
     integer :: i
 
-    if (allocated(object)) deallocate(object)
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
+    end if
 
     select case (trim(type_name))
     case ('box')

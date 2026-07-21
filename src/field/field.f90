@@ -35,11 +35,12 @@ module field
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_add2, device_cadd, device_cfill, device_copy
   use num_types, only : rp, c_rp
-  use device, only : device_map, device_free, device_memset, device_memcpy
+  use device, only : device_map, device_unmap, device_memset, device_memcpy
   use math, only : add2, copy, cadd, cfill
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
+  use utils, only : NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -52,7 +53,7 @@ module field
      type(dofmap_t), pointer :: dof !< Dofmap
 
      logical :: internal_dofmap = .false. !< Does the field have an own dofmap
-     character(len=80) :: name = "" !< Name of the field
+     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the field
      type(c_ptr) :: x_d = C_NULL_PTR
    contains
      procedure, private, pass(this) :: init_common => field_init_common
@@ -81,7 +82,30 @@ module field
   !> field_ptr_t, To easily obtain a pointer to a field
   type, public :: field_ptr_t
      type(field_t), pointer :: ptr => null()
+   contains
+     !> Constructor. Just assigns the pointer.
+     procedure, pass(this) :: init => field_ptr_init
+     !> Destructor. Just nullifies the pointer.
+     procedure, pass(this) :: free => field_ptr_free
   end type field_ptr_t
+
+  !> field_wrapper_t, used to wrap an allocated field for use in a field list
+  type, public :: field_wrapper_t
+     type(field_t), pointer :: field => null()
+   contains
+     !> Constructor. Allocates a field and assigns the pointer.
+     generic :: init => init_field, init_internal_dof, init_external_dof
+     !> Initialize a field wrapper with an allocated field
+     procedure, pass(this) :: init_field => field_wrapper_init_field
+     !> Initialize a field wrapper with an internal dofmap
+     procedure, pass(this) :: init_internal_dof => &
+          field_wrapper_init_internal_dof
+     !> Initialize a field wrapper with an external dofmap
+     procedure, pass(this) :: init_external_dof => &
+          field_wrapper_init_external_dof
+     !> Destructor. Frees the field and nullifies the pointer.
+     procedure, pass(this) :: free => field_wrapper_free
+  end type field_wrapper_t
 
 contains
 
@@ -135,13 +159,14 @@ contains
     character(len=*), optional :: fld_name !< Name of the field
     integer :: ierr
     integer :: n
+    logical :: fresh
 
     associate(lx => this%Xh%lx, ly => this%Xh%ly, &
          lz => this%Xh%lz, nelv => this%msh%nelv)
 
-      if (.not. allocated(this%x)) then
+      fresh = .not. allocated(this%x)
+      if (fresh) then
          allocate(this%x(lx, ly, lz, nelv), stat = ierr)
-         this%x = 0.0_rp
       end if
 
       if (present(fld_name)) then
@@ -160,6 +185,14 @@ contains
            call device_memset(this%x_d, 0, s, sync = .true.)
          end block
       end if
+
+      ! Zero on the host after the device-side memset: under zero-copy
+      ! the device then faults the pages first (device first touch),
+      ! which gives contiguous physical mappings and thus better GPU
+      ! TLB utilisation; rewriting the zeros on the host is benign
+      if (fresh) then
+         this%x = 0.0_rp
+      end if
     end associate
 
   end subroutine field_init_common
@@ -170,10 +203,14 @@ contains
 
     this%name = ""
     if (allocated(this%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%x, this%x_d)
+       end if
        deallocate(this%x)
     end if
 
     if (this%internal_dofmap) then
+       call this%dof%free()
        deallocate(this%dof)
        this%internal_dofmap = .false.
     end if
@@ -181,10 +218,6 @@ contains
     nullify(this%msh)
     nullify(this%Xh)
     nullify(this%dof)
-
-    if (c_associated(this%x_d)) then
-       call device_free(this%x_d)
-    end if
 
   end subroutine field_free
 
@@ -224,6 +257,11 @@ contains
     end if
 
     if (.not. g%internal_dofmap) then
+       if (this%internal_dofmap) then
+          call this%dof%free()
+          deallocate(this%dof)
+          this%internal_dofmap = .false.
+       end if
        this%dof => g%dof
     else
        if (this%internal_dofmap) then
@@ -257,7 +295,6 @@ contains
   subroutine field_assign_scalar(this, a)
     class(field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: a
-    integer :: i, j, k, l
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%x_d, a, this%size())
@@ -304,5 +341,73 @@ contains
 
     size = this%dof%size()
   end function field_size
+
+  ! ========================================================================== !
+  ! Field pointer type subroutines
+
+  subroutine field_ptr_init(this, ptr)
+    class(field_ptr_t), intent(inout) :: this
+    type(field_t), target, intent(in) :: ptr
+
+    call this%free()
+
+    this%ptr => ptr
+
+  end subroutine field_ptr_init
+
+  subroutine field_ptr_free(this)
+    class(field_ptr_t), intent(inout) :: this
+
+    if (associated(this%ptr)) then
+       nullify(this%ptr)
+    end if
+
+  end subroutine field_ptr_free
+
+  ! ========================================================================== !
+  ! Field wrapper type subroutines
+
+  subroutine field_wrapper_init_field(this, f)
+    class(field_wrapper_t), intent(inout) :: this
+    type(field_t), intent(in) :: f
+
+    call this%free()
+    allocate(this%field)
+    this%field = f
+
+  end subroutine field_wrapper_init_field
+
+  subroutine field_wrapper_init_internal_dof(this, msh, space, fld_name)
+    class(field_wrapper_t), intent(inout) :: this
+    type(mesh_t), target, intent(in) :: msh
+    type(space_t), target, intent(in) :: space
+    character(len=*), optional :: fld_name
+
+    call this%free()
+    allocate(this%field)
+    call this%field%init(msh, space, fld_name)
+
+  end subroutine field_wrapper_init_internal_dof
+
+  subroutine field_wrapper_init_external_dof(this, dof, fld_name)
+    class(field_wrapper_t), intent(inout) :: this
+    type(dofmap_t), target, intent(in) :: dof
+    character(len=*), optional :: fld_name
+
+    call this%free()
+    allocate(this%field)
+    call this%field%init(dof, fld_name)
+
+  end subroutine field_wrapper_init_external_dof
+
+  subroutine field_wrapper_free(this)
+    class(field_wrapper_t), intent(inout) :: this
+
+    if (associated(this%field)) then
+       call this%field%free()
+       deallocate(this%field)
+    end if
+
+  end subroutine field_wrapper_free
 
 end module field

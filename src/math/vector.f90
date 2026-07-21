@@ -32,15 +32,15 @@
 !
 !> Defines a vector
 module vector
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use num_types, only: rp
-  use device, only: device_map, device_free, device_deassociate, &
-       device_memcpy, device_sync
-  use math, only: cfill, copy
-  use device_math, only: device_copy, device_cfill, device_cmult, &
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use device, only : device_map, device_unmap, &
+       device_memcpy, device_sync, HOST_TO_DEVICE
+  use math, only : cfill, copy
+  use device_math, only : device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
        device_col2, device_invcol3, device_cdiv2
-  use utils, only: neko_error
+  use utils, only : neko_error, NEKO_VARNAME_LEN
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -48,6 +48,7 @@ module vector
   type, public :: vector_t
      !> Vector entries.
      real(kind=rp), allocatable :: x(:)
+     character(len=NEKO_VARNAME_LEN) :: name = "" !< Name of the vector
      !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
      !> Size of vector.
@@ -65,10 +66,12 @@ module vector
      procedure, pass(v) :: vector_assign_vector
      !> Assignment \f$ v = s \f$.
      procedure, pass(v) :: vector_assign_scalar
+     !> Assignment \f$ v = array \f$.
+     procedure, pass(v) :: vector_assign_array
 
      !> Assignments
      generic :: assignment(=) => vector_assign_vector, &
-          vector_assign_scalar
+          vector_assign_scalar, vector_assign_array
 
      ! Private interfaces
      procedure, pass(a), private :: alloc => vector_allocate
@@ -76,21 +79,34 @@ module vector
   end type vector_t
 
   type, public :: vector_ptr_t
-     type(vector_t), pointer :: ptr
+     type(vector_t), pointer :: ptr => null()
+   contains
+     !> Constructor. Just assigns the pointer
+     procedure, pass(this) :: init => vector_ptr_init
+     !> Destructor. Just nullifies the pointer.
+     procedure, pass(this) :: free => vector_ptr_free
   end type vector_ptr_t
 
 contains
 
   !> Initialise a vector of size @a n.
-  subroutine vector_init(v, n)
+  subroutine vector_init(v, n, name)
     class(vector_t), intent(inout) :: v
     integer, intent(in) :: n
+    character(len=*), intent(in), optional :: name
 
     call v%alloc(n)
-    call cfill(v%x, 0.0_rp, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       ! Zero the device side first: under zero-copy the device then
+       ! faults the pages (device first touch), which gives contiguous
+       ! physical mappings and thus better GPU TLB utilisation
        call device_cfill(v%x_d, 0.0_rp, n)
        call device_sync()
+    end if
+    call cfill(v%x, 0.0_rp, n)
+
+    if (present(name)) then
+       v%name = name
     end if
 
   end subroutine vector_init
@@ -117,15 +133,14 @@ contains
     class(vector_t), intent(inout) :: v
 
     if (allocated(v%x)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(v%x, v%x_d)
+       end if
        deallocate(v%x)
     end if
 
-    if (c_associated(v%x_d)) then
-       call device_deassociate(v%x)
-       call device_free(v%x_d)
-    end if
-
     v%n = 0
+    v%name = ""
 
   end subroutine vector_free
 
@@ -164,6 +179,8 @@ contains
        call copy(v%x, w%x, v%n)
     end if
 
+    v%name = w%name
+
   end subroutine vector_assign_vector
 
   !> Assignment \f$ v = s \f$.
@@ -178,5 +195,39 @@ contains
     end if
 
   end subroutine vector_assign_scalar
+
+  !> Assignment \f$ v = array \f$.
+  subroutine vector_assign_array(v, array)
+    class(vector_t), intent(inout) :: v
+    real(kind=rp), intent(in) :: array(:)
+
+    call v%alloc(size(array))
+    v%x = array
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call v%copy_from(HOST_TO_DEVICE, .true.)
+    end if
+
+  end subroutine vector_assign_array
+
+  ! ========================================================================== !
+  ! vector pointer type subroutines
+
+  subroutine vector_ptr_init(this, ptr)
+    class(vector_ptr_t), intent(inout) :: this
+    type(vector_t), target, intent(in) :: ptr
+
+    call this%free()
+    this%ptr => ptr
+  end subroutine vector_ptr_init
+
+  subroutine vector_ptr_free(this)
+    class(vector_ptr_t), intent(inout) :: this
+
+    if (associated(this%ptr)) then
+       nullify(this%ptr)
+    end if
+
+  end subroutine vector_ptr_free
 
 end module vector

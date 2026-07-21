@@ -33,8 +33,8 @@
 !> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
-  use num_types, only: rp
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use num_types, only : rp
+  use, intrinsic :: iso_fortran_env, only : error_unit
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
@@ -48,8 +48,7 @@ module scalar_pnpn
   use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
-  use field_series, only: field_series_t
-  use registry, only: neko_registry
+  use field_series, only : field_series_t
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
   use device_math, only : device_add2s2, device_col2
@@ -212,11 +211,9 @@ contains
 
       call this%s_res%init(dm_Xh, "s_res")
 
-      call this%abx1%init(dm_Xh, trim(this%name)//"_abx1")
-      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx1", ignore_existing = .true.)
+      call this%abx1%init(dm_Xh, trim(this%name) // "_abx1")
 
-      call this%abx2%init(dm_Xh, trim(this%name)//"_abx2")
-      call neko_registry%add_field(dm_Xh, trim(this%name)//"_abx2", ignore_existing = .true.)
+      call this%abx2%init(dm_Xh, trim(this%name) // "_abx2")
 
       call this%advs%init(dm_Xh, "advs")
 
@@ -385,7 +382,7 @@ contains
               Xh, this%c_Xh, dm_Xh%size())
 
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
          call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), dt,&
               n)
@@ -396,14 +393,14 @@ contains
 
          ! At this point the RHS contains the sum of the advection operator,
          ! Neumann boundary sources and additional source terms, evaluated using
-         ! the scalar field from the previous time-step. Now, this value is used in
-         ! the explicit time scheme to advance these terms in time.
+         ! the scalar field from the previous time-step. Now, this value is
+         ! used in the explicit time scheme to advance these terms in time.
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho%x(1,1,1,1), &
-              dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+              dt, ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
       end if
 
       call slag%update()
@@ -417,7 +414,7 @@ contains
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)
       call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
-           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs(1), dt, &
+           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs%x(1), dt, &
            dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
@@ -509,15 +506,15 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
-                     "Zone index ", zone_indices(j), &
+                write(error_unit, '(A, A, I0, A, A, I0, A)') &
+                     "*** ERROR ***: ", "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
-                     "does not exist in the mesh. Check scalar boundary condition ", &
-                     i, "."
+                     "does not exist in the mesh. Check scalar boundary ", &
+                     "condition ", i, "."
                 error stop
              end if
 
-             if (marked_zones(zone_indices(j)) .eqv. .true.) then
+             if (marked_zones(zone_indices(j))) then
                 write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
@@ -539,7 +536,7 @@ contains
        ! Make sure all labeled zones with non-zero size have been marked
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
-               (marked_zones(i) .eqv. .false.)) then
+               (.not. marked_zones(i))) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No scalar boundary condition assigned to zone ", i
              error stop

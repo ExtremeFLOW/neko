@@ -41,15 +41,19 @@ module user_stats
   use field, only : field_t
   use case, only : case_t
   use mean_field_output, only : mean_field_output_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, &
+      json_get_or_lookup_or_default
   use mean_field, only : mean_field_t
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use time_based_controller, only : time_based_controller_t
+  use utils, only : NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos, &
+       NEKO_VARNAME_LEN
   implicit none
   private
 
-  !> A simulation component that computes the averages of fields in the registry.
+  !> A simulation component that computes the averages of fields in
+  !! the registry.
   type, public, extends(simulation_component_t) :: user_stats_t
 
      !> When to start averaging.
@@ -61,9 +65,10 @@ module user_stats
      !> Number of fields to average.
      integer :: n_avg_fields = 0
      !> The names of the fields to average.
-     character(len=20), allocatable :: field_names(:)
+     character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
      !> Output writer.
      type(mean_field_output_t), private :: output
+     logical :: default_fname = .true.
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -98,28 +103,58 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
     character(len=:), allocatable :: avg_dir
+    character(len=:), allocatable :: name
 
+    call json_get_or_default(json, "name", name, "user_stats")
     call this%init_base(json, case)
 
     !> Get the number of stat fields and their names
     call json%info('fields', n_children = this%n_avg_fields)
     call json_get(json, 'fields', this%field_names)
-    call json_get_or_default(json, 'start_time', this%start_time, 0.0_rp)
+    call json_get_or_lookup_or_default(json, 'start_time', this%start_time, 0.0_rp)
     call json_get_or_default(json, 'avg_direction', avg_dir, 'none')
-    call json_get_or_default(json, 'output_file', filename, 'user_stats')
 
-    call user_stats_init_common(this, this%start_time, &
-         case%fluid%c_Xh, avg_dir, filename = filename)
+    if (json%valid_path('output_filename')) then
+       call json_get(json, 'output_filename', filename)
+       call user_stats_init_common(this, name, this%start_time, &
+            case%fluid%c_Xh, avg_dir, filename = filename)
+    else
+       call user_stats_init_common(this, name, this%start_time, &
+            case%fluid%c_Xh, avg_dir)
+    end if
+
   end subroutine user_stats_init_from_json
 
   subroutine user_stats_restart(this, time)
     class(user_stats_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-
-    if (time%t .gt. this%time) this%time = time%t
+    character(len=NEKO_FNAME_LEN) :: fname
+    character(len=5) :: prefix, suffix
+    integer :: last_slash_pos
+    real(kind=rp) :: t
+    t = time%t
+    if (t .gt. this%time) this%time = t
+    if (this%default_fname) then
+       fname = this%output%file_%get_base_fname()
+       write (prefix, '(I5)') &
+            this%output%file_%file_type%get_start_counter()
+       call filename_suffix(fname, suffix)
+       last_slash_pos = &
+            filename_tslash_pos(fname)
+       if (last_slash_pos .ne. 0) then
+          fname = &
+               trim(fname(1:last_slash_pos))// &
+               "user_stats"//trim(adjustl(prefix))//"."//suffix
+       else
+          fname = "user_stats"// &
+               trim(adjustl(prefix))//"."//suffix
+       end if
+       call this%output%init_base(fname)
+    end if
   end subroutine user_stats_restart
 
   !> Constructor from components, passing controllers.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller The controller for running preprocessing.
@@ -131,10 +166,11 @@ contains
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine user_stats_init_from_controllers(this, case, order, &
+  subroutine user_stats_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
        start_time, coef, avg_dir, filename, precision)
     class(user_stats_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     type(time_based_controller_t), intent(in) :: preprocess_controller
@@ -148,12 +184,13 @@ contains
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%init_common(start_time, coef, avg_dir, filename, precision)
+    call this%init_common(name, start_time, coef, avg_dir, filename, precision)
 
   end subroutine user_stats_init_from_controllers
 
   !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
+  !! @param name The unique name of the simcomp.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller Control mode for preprocessing.
@@ -169,11 +206,12 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine user_stats_init_from_controllers_properties(this, &
+  subroutine user_stats_init_from_controllers_properties(this, name, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, start_time, coef, avg_dir, &
        filename, precision)
     class(user_stats_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
@@ -191,41 +229,60 @@ contains
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%init_common(start_time, coef, avg_dir, filename, precision)
+    call this%init_common(name, start_time, coef, avg_dir, filename, precision)
 
   end subroutine user_stats_init_from_controllers_properties
 
 
   !> Common part of constructors
+  !! @param name The unique name of the simcomp.
   !! @param start_time The start time for gathering samples for the average.
   !! @param coef The SEM coefficients.
   !! @param avg_dir The averaging direction.
-  subroutine user_stats_init_common(this, start_time, coef, avg_dir, &
+  subroutine user_stats_init_common(this, name, start_time, coef, avg_dir, &
        filename, precision)
     class(user_stats_t), intent(inout) :: this
-    character(len=*), intent(in) :: filename
+    character(len=*), intent(in) :: name
+    character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
     real(kind=rp), intent(in) :: start_time
     character(len=*), intent(in) :: avg_dir
     type(coef_t), intent(inout) :: coef
     integer :: i
     type(field_t), pointer :: field_to_avg
+    character(len=NEKO_FNAME_LEN) :: stats_fname
 
+    character(len=1024) :: unique_name
+    unique_name = name // "/"
+
+    this%name = name
     this%start_time = start_time
     this%time = start_time
+
+    if (present(filename)) then
+       this%default_fname = .false.
+       stats_fname = filename
+    else
+       stats_fname = "user_stats0"
+       this%default_fname = .true.
+    end if
 
     !> Allocate and initialize the mean fields
     allocate(this%mean_fields(this%n_avg_fields))
     do i = 1, this%n_avg_fields
        field_to_avg => neko_registry%get_field(trim(this%field_names(i)))
-       call this%mean_fields(i)%init(field_to_avg)
+       call this%mean_fields(i)%init(field_to_avg, trim(unique_name) // &
+            "mean_" // trim(this%field_names(i)))
     end do
 
     call this%output%init(this%mean_fields, this%n_avg_fields, &
-         this%start_time, coef, avg_dir, name=filename)
+         this%start_time, coef, avg_dir, name = filename)
     call this%case%output_controller%add(this%output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
+
+    nullify(field_to_avg)
+
   end subroutine user_stats_init_common
 
   !> Destructor.

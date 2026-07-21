@@ -22,6 +22,8 @@ where again you need to provide the path
 ```
 Make sure that in the output you see it says `pFUnit ... yes` at some point.
 
+Additionally, pFUnit requires a Python interpreter to work.
+
 ## Running the tests
 To run the tests you should execute
 ```bash
@@ -34,7 +36,17 @@ hopefully says that all tests have passed!
 ## Adding a new test
 The first step is of course to read the documentation for pFUnit to understand
 how it works. It is up to you to learn how to write `.pf` files. Here, we only
-cover how to incorporate the test into the Neko build system.
+cover how to incorporate the test into the Neko build system. However, we note
+the following two important points:
+- The name of the `module` inside the `.pf` must coincide with the base name of
+the `.pf` file. So `test_a.pf` should containt `module test_a`.
+- The name of the test subroutines must be at most 44 characters long,
+  otherwise pFUnit will throw the following obscure error:
+  `Error: Syntax error in argument list at (1)`
+
+Finally, the AGENTS.md file in the root folder of Neko contains instructions for
+LLMs on how to add a test, so you can try to let  your favorite agent to do the
+work of adding all the necessary files for you and then just edit the `.pf`.
 
 The tests are located in the `tests` folder. Unlike some other software, the
 structure of the `tests` folder does not follow that of `src`. Instead each

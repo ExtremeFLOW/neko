@@ -32,10 +32,9 @@
 !
 !> Dirichlet condition applied in the facet normal direction
 module facet_normal
-  use device_facet_normal
   use num_types, only : rp
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only: cfill_mask
+  use math, only : cfill_mask
   use device_math, only : device_col2, device_masked_gather_copy_0, &
        device_masked_scatter_copy_0
   use vector, only : vector_t
@@ -45,7 +44,7 @@ module facet_normal
   use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, c_associated
   use htable, only : htable_i4_t
-  use device, only : device_map, device_memcpy, device_free, &
+  use device, only : device_map, device_memcpy, device_unmap, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue
   use time_state, only : time_state_t
   implicit none
@@ -54,6 +53,7 @@ module facet_normal
   !> Dirichlet condition in facet normal direction
   type, public, extends(bc_t) :: facet_normal_t
      integer, allocatable :: unique_mask(:)
+     integer, allocatable :: msk_to_unique(:)
      type(c_ptr) :: unique_mask_d = c_null_ptr
      type(vector_t) :: nx, ny, nz, work
    contains
@@ -64,6 +64,8 @@ module facet_normal
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => &
           facet_normal_apply_surfvec_dev
+     ! > Recompute normals
+     procedure, pass(this) :: recompute_normals => facet_normal_recompute_normals
      !> Constructor.
      procedure, pass(this) :: init => facet_normal_init
      !> Constructor from components.
@@ -83,7 +85,7 @@ contains
   subroutine facet_normal_init(this, coef, json)
     class(facet_normal_t), intent(inout), target :: this
     type(coef_t), target, intent(in) :: coef
-    type(json_file), intent(inout) ::json
+    type(json_file), intent(inout) :: json
 
     call this%init_from_components(coef)
   end subroutine facet_normal_init
@@ -109,7 +111,7 @@ contains
   !> No-op scalar apply on device
   subroutine facet_normal_apply_scalar_dev(this, x_d, time, strong, strm)
     class(facet_normal_t), intent(inout), target :: this
-    type(c_ptr),intent(inout) :: x_d
+    type(c_ptr), intent(inout) :: x_d
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout) :: strm
@@ -155,13 +157,16 @@ contains
     real(kind=rp) :: normal(3), area
 
     m = this%unique_mask(0)
-
+    ! Since apply_surfvec is called outside of the parallel region, we
+    ! need to open a separate parallel region here
+    !$omp parallel do
     do i = 1, m
        k = this%unique_mask(i)
        x(k) = u(k) * this%nx%x(i)
        y(k) = v(k) * this%ny%x(i)
        z(k) = w(k) * this%nz%x(i)
     end do
+    !$omp end parallel do
 
   end subroutine facet_normal_apply_surfvec
 
@@ -185,18 +190,18 @@ contains
     end if
 
     if (m .gt. 0) then
-       call device_masked_gather_copy_0(this%work%x_d, u_d, this%unique_mask_d, &
-            n, m, strm_)
+       call device_masked_gather_copy_0(this%work%x_d, u_d, &
+            this%unique_mask_d, n, m, strm_)
        call device_col2(this%work%x_d, this%nx%x_d, m, strm_)
        call device_masked_scatter_copy_0(x_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
-       call device_masked_gather_copy_0(this%work%x_d, v_d, this%unique_mask_d, &
-            n , m, strm_)
+       call device_masked_gather_copy_0(this%work%x_d, v_d, &
+            this%unique_mask_d, n, m, strm_)
        call device_col2(this%work%x_d, this%ny%x_d, m, strm_)
        call device_masked_scatter_copy_0(y_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
-       call device_masked_gather_copy_0(this%work%x_d, w_d, this%unique_mask_d, &
-            n, m, strm_)
+       call device_masked_gather_copy_0(this%work%x_d, w_d, &
+            this%unique_mask_d, n, m, strm_)
        call device_col2(this%work%x_d, this%nz%x_d, m, strm)
        call device_masked_scatter_copy_0(z_d, this%work%x_d, &
             this%unique_mask_d, n, m, strm_)
@@ -210,11 +215,12 @@ contains
 
     call this%free_base()
     if (allocated(this%unique_mask)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%unique_mask, this%unique_mask_d)
+       end if
        deallocate(this%unique_mask)
     end if
-    if (c_associated(this%unique_mask_d)) then
-       call device_free(this%unique_mask_d)
-    end if
+    if (allocated(this%msk_to_unique)) deallocate(this%msk_to_unique)
 
     call this%nx%free()
     call this%ny%free()
@@ -233,7 +239,7 @@ contains
     real(kind=rp) :: area, normal(3)
 
     if (present(only_facets)) then
-       if (only_facets .eqv. .false.) then
+       if (.not. only_facets) then
           call neko_error("For facet_normal_t, only_facets has to be true.")
        end if
     end if
@@ -250,16 +256,17 @@ contains
     ! we also ensure that we only visit each point once
     ! and create a new mask with only unique points (this%unique_mask).
     if (allocated(this%unique_mask)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%unique_mask, this%unique_mask_d)
+       end if
        deallocate(this%unique_mask)
     end if
-    if (c_associated(this%unique_mask_d)) then
-       call device_free(this%unique_mask_d)
-    end if
+    if (allocated(this%msk_to_unique)) deallocate(this%msk_to_unique)
 
     call unique_point_idx%init(this%msk(0), htable_data)
     j = 0
     do i = 1, this%msk(0)
-       if (unique_point_idx%get(this%msk(i),htable_data) .ne. 0) then
+       if (unique_point_idx%get(this%msk(i), htable_data) .ne. 0) then
           j = j + 1
           htable_data = j
           call unique_point_idx%set(this%msk(i), j)
@@ -274,6 +281,7 @@ contains
        call this%work%init(unique_point_idx%num_entries())
     end if
     allocate(this%unique_mask(0:unique_point_idx%num_entries()))
+    allocate(this%msk_to_unique(this%msk(0)))
 
     this%unique_mask(0) = unique_point_idx%num_entries()
     do i = 1, this%unique_mask(0)
@@ -285,6 +293,9 @@ contains
        rcode = unique_point_idx%get(this%msk(i), htable_data)
        if (rcode .ne. 0) call neko_error("Facet normal: htable get failed.")
        this%unique_mask(htable_data) = this%msk(i)
+
+       ! Save the slot so recompute_normals can use it without the hash table.
+       this%msk_to_unique(i) = htable_data
        facet = this%facet(i)
 
        idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
@@ -313,5 +324,44 @@ contains
     call unique_point_idx%free()
 
   end subroutine facet_normal_finalize
+
+  !> Recompute area-weighted normals from the current mesh.
+  subroutine facet_normal_recompute_normals(this)
+    class(facet_normal_t), target, intent(inout) :: this
+    integer :: i, htable_data, idx(4), facet
+    real(kind=rp) :: area, normal(3)
+
+    if (.not. allocated(this%unique_mask)) return
+    if (this%unique_mask(0) .eq. 0) return
+
+    do i = 1, this%unique_mask(0)
+       this%nx%x(i) = 0.0_rp
+       this%ny%x(i) = 0.0_rp
+       this%nz%x(i) = 0.0_rp
+    end do
+
+    do i = 1, this%msk(0)
+       htable_data = this%msk_to_unique(i)
+       facet = this%facet(i)
+
+       idx = nonlinear_index(this%msk(i), this%Xh%lx, this%Xh%lx, this%Xh%lx)
+       normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+       area = this%coef%get_area(idx(1), idx(2), idx(3), idx(4), facet)
+       normal = normal * area !Scale normal by area
+       this%nx%x(htable_data) = this%nx%x(htable_data) + normal(1)
+       this%ny%x(htable_data) = this%ny%x(htable_data) + normal(2)
+       this%nz%x(htable_data) = this%nz%x(htable_data) + normal(3)
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%nx%x, this%nx%x_d, &
+            this%nx%size(), HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ny%x, this%ny%x_d, &
+            this%ny%size(), HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%nz%x, this%nz%x_d, &
+            this%nz%size(), HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine facet_normal_recompute_normals
 
 end module facet_normal

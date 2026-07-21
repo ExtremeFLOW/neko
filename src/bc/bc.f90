@@ -35,8 +35,8 @@ module bc
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device, only : HOST_TO_DEVICE, device_memcpy, &
-       device_free, device_map, DEVICE_TO_HOST, glb_cmd_queue
-  use iso_c_binding, only: c_associated
+       device_unmap, device_map, DEVICE_TO_HOST, glb_cmd_queue
+  use iso_c_binding, only : c_associated
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use space, only : space_t
@@ -48,6 +48,7 @@ module bc
   use gs_ops, only : GS_OP_ADD
   use math, only : relcmp
   use utils, only : neko_error, linear_index, split_string
+  use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   use json_module, only : json_file
   use time_state, only : time_state_t
@@ -85,6 +86,10 @@ module bc
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations
      logical :: updated = .false.
+     !!> Name of the bc
+     character(len=:), allocatable :: name
+     !!> Zone indices where the bc is applied
+     integer, allocatable :: zone_indices(:)
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base
@@ -271,21 +276,25 @@ contains
     nullify(this%coef)
 
     if (allocated(this%msk)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%msk, this%msk_d)
+       end if
        deallocate(this%msk)
     end if
 
     if (allocated(this%facet)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%facet, this%facet_d)
+       end if
        deallocate(this%facet)
     end if
 
-    if (c_associated(this%msk_d)) then
-       call device_free(this%msk_d)
-       this%msk_d = C_NULL_PTR
+    if (allocated(this%name)) then
+       deallocate(this%name)
     end if
 
-    if (c_associated(this%facet_d)) then
-       call device_free(this%facet_d)
-       this%facet_d = C_NULL_PTR
+    if (allocated(this%zone_indices)) then
+       deallocate(this%zone_indices)
     end if
 
   end subroutine bc_free_base
@@ -427,6 +436,7 @@ contains
     logical :: only_facet = .false.
     integer :: i, j, k, l, msk_c
     integer :: lx, ly, lz, n
+    character(len=LOG_SIZE) :: log_buf
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
@@ -524,13 +534,13 @@ contains
        end do
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
-               HOST_TO_DEVICE, sync=.true.)
+               HOST_TO_DEVICE, sync = .true.)
        end if
        !Check if some point that was not zeroed was zeroed on another element
        call this%coef%gs_h%op(test_field, GS_OP_ADD)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
-               DEVICE_TO_HOST, sync=.true.)
+               DEVICE_TO_HOST, sync = .true.)
        end if
        msk_c = 0
        do i = 1, this%dof%size()
@@ -560,6 +570,20 @@ contains
        call device_memcpy(this%msk, this%msk_d, n, &
             HOST_TO_DEVICE, sync = .true.)
     end if
+
+    if (.not. allocated(this%name)) then
+! gives plenty of empty info lines during AMR restart
+!       this%name = ""
+    else
+       write(log_buf, '(A,A)') 'BC assigned name :   ', trim(this%name)
+       call neko_log%message(log_buf)
+    end if
+
+! causes trouble for AMR restart
+!    if (.not. allocated(this%zone_indices)) then
+!       allocate(this%zone_indices(1))
+!       this%zone_indices(1) = -1
+!    end if
 
   end subroutine bc_finalize_base
 

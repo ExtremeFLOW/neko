@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ module fluid_stats
   use device_math, only : device_col3, device_col2, device_cfill, &
        device_invcol2, device_addcol3
   use num_types, only : rp
-  use math, only : invers2, col2, addcol3, col3, copy, subcol3
+  use math, only : col2, addcol3, col3, copy, subcol3
   use operators, only : opgrad
   use coefs, only : coef_t
   use field, only : field_t
@@ -164,11 +164,15 @@ contains
   !! @param p The pressure.
   !! @param set Specifies the subset of the statistics to be collected.
   !! Optional. Either `basic` or `full`, defaults to `full`.
-  subroutine fluid_stats_init(this, coef, u, v, w, p, set)
+  subroutine fluid_stats_init(this, coef, u, v, w, p, set, name)
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(in) :: u, v, w, p
     character(*), intent(in), optional :: set
+    character(*), intent(in), optional :: name
+
+    character(len=1024) :: unique_name
+    unique_name = ""
 
     call this%free()
     this%coef => coef
@@ -188,22 +192,28 @@ contains
        this%n_stats = 44
     end if
 
+    if (present(name)) then
+       unique_name = name // "/"
+    else
+       unique_name = "fluid_stats/"
+    end if
+
     call this%stats_work%init(this%u%dof, 'stats')
     call this%stats_u%init(this%u%dof, 'u temp')
     call this%stats_v%init(this%u%dof, 'v temp')
     call this%stats_w%init(this%u%dof, 'w temp')
     call this%stats_p%init(this%u%dof, 'p temp')
-    call this%u_mean%init(this%u)
-    call this%v_mean%init(this%v)
-    call this%w_mean%init(this%w)
-    call this%p_mean%init(this%p)
-    call this%uu%init(this%stats_u, 'uu')
-    call this%vv%init(this%stats_v, 'vv')
-    call this%ww%init(this%stats_w, 'ww')
-    call this%uv%init(this%stats_work, 'uv')
-    call this%uw%init(this%stats_work, 'uw')
-    call this%vw%init(this%stats_work, 'vw')
-    call this%pp%init(this%stats_p, 'pp')
+    call this%u_mean%init(this%u, trim(unique_name) // 'mean_u')
+    call this%v_mean%init(this%v, trim(unique_name) // 'mean_v')
+    call this%w_mean%init(this%w, trim(unique_name) // 'mean_w')
+    call this%p_mean%init(this%p, trim(unique_name) // 'mean_p')
+    call this%uu%init(this%stats_u , trim(unique_name) // 'mean_uu')
+    call this%vv%init(this%stats_v , trim(unique_name) // 'mean_vv')
+    call this%ww%init(this%stats_w , trim(unique_name) // 'mean_ww')
+    call this%uv%init(this%stats_work, trim(unique_name) // 'mean_uv')
+    call this%uw%init(this%stats_work, trim(unique_name) // 'mean_uw')
+    call this%vw%init(this%stats_work, trim(unique_name) // 'mean_vw')
+    call this%pp%init(this%stats_p , trim(unique_name) // 'mean_pp')
 
     if (this%n_stats .eq. 44) then
        call this%dudx%init(this%u%dof, 'dudx')
@@ -216,43 +226,43 @@ contains
        call this%dwdy%init(this%u%dof, 'dwdy')
        call this%dwdz%init(this%u%dof, 'dwdz')
 
-       call this%uuu%init(this%stats_work, 'uuu')
-       call this%vvv%init(this%stats_work, 'vvv')
-       call this%www%init(this%stats_work, 'www')
-       call this%uuv%init(this%stats_work, 'uuv')
-       call this%uuw%init(this%stats_work, 'uuw')
-       call this%uvv%init(this%stats_work, 'uvv')
-       call this%uvw%init(this%stats_work, 'uvw')
-       call this%vvw%init(this%stats_work, 'vvw')
-       call this%uww%init(this%stats_work, 'uww')
-       call this%vww%init(this%stats_work, 'vww')
-       call this%uuuu%init(this%stats_work, 'uuuu')
-       call this%vvvv%init(this%stats_work, 'vvvv')
-       call this%wwww%init(this%stats_work, 'wwww')
+       call this%uuu%init(this%stats_work, trim(unique_name) // 'mean_uuu')
+       call this%vvv%init(this%stats_work, trim(unique_name) // 'mean_vvv')
+       call this%www%init(this%stats_work, trim(unique_name) // 'mean_www')
+       call this%uuv%init(this%stats_work, trim(unique_name) // 'mean_uuv')
+       call this%uuw%init(this%stats_work, trim(unique_name) // 'mean_uuw')
+       call this%uvv%init(this%stats_work, trim(unique_name) // 'mean_uvv')
+       call this%uvw%init(this%stats_work, trim(unique_name) // 'mean_uvw')
+       call this%vvw%init(this%stats_work, trim(unique_name) // 'mean_vvw')
+       call this%uww%init(this%stats_work, trim(unique_name) // 'mean_uww')
+       call this%vww%init(this%stats_work, trim(unique_name) // 'mean_vww')
+       call this%uuuu%init(this%stats_work, trim(unique_name) // 'mean_uuuu')
+       call this%vvvv%init(this%stats_work, trim(unique_name) // 'mean_vvvv')
+       call this%wwww%init(this%stats_work, trim(unique_name) // 'mean_wwww')
        !> Pressure
-       call this%ppp%init(this%stats_work, 'ppp')
-       call this%pppp%init(this%stats_work, 'pppp')
+       call this%ppp%init(this%stats_work , trim(unique_name) // 'mean_ppp')
+       call this%pppp%init(this%stats_work, trim(unique_name) // 'mean_pppp')
        !> Pressure * velocity
-       call this%pu%init(this%stats_work, 'pu')
-       call this%pv%init(this%stats_work, 'pv')
-       call this%pw%init(this%stats_work, 'pw')
+       call this%pu%init(this%stats_work, trim(unique_name) // 'mean_pu')
+       call this%pv%init(this%stats_work, trim(unique_name) // 'mean_pv')
+       call this%pw%init(this%stats_work, trim(unique_name) // 'mean_pw')
 
-       call this%pdudx%init(this%stats_work, 'pdudx')
-       call this%pdudy%init(this%stats_work, 'pdudy')
-       call this%pdudz%init(this%stats_work, 'pdudz')
-       call this%pdvdx%init(this%stats_work, 'pdvdx')
-       call this%pdvdy%init(this%stats_work, 'pdvdy')
-       call this%pdvdz%init(this%stats_work, 'pdvdz')
-       call this%pdwdx%init(this%stats_work, 'pdwdx')
-       call this%pdwdy%init(this%stats_work, 'pdwdy')
-       call this%pdwdz%init(this%stats_work, 'pdwdz')
+       call this%pdudx%init(this%stats_work, trim(unique_name) // 'mean_pdudx')
+       call this%pdudy%init(this%stats_work, trim(unique_name) // 'mean_pdudy')
+       call this%pdudz%init(this%stats_work, trim(unique_name) // 'mean_pdudz')
+       call this%pdvdx%init(this%stats_work, trim(unique_name) // 'mean_pdvdx')
+       call this%pdvdy%init(this%stats_work, trim(unique_name) // 'mean_pdvdy')
+       call this%pdvdz%init(this%stats_work, trim(unique_name) // 'mean_pdvdz')
+       call this%pdwdx%init(this%stats_work, trim(unique_name) // 'mean_pdwdx')
+       call this%pdwdy%init(this%stats_work, trim(unique_name) // 'mean_pdwdy')
+       call this%pdwdz%init(this%stats_work, trim(unique_name) // 'mean_pdwdz')
 
-       call this%e11%init(this%stats_work, 'e11')
-       call this%e22%init(this%stats_work, 'e22')
-       call this%e33%init(this%stats_work, 'e33')
-       call this%e12%init(this%stats_work, 'e12')
-       call this%e13%init(this%stats_work, 'e13')
-       call this%e23%init(this%stats_work, 'e23')
+       call this%e11%init(this%stats_work, trim(unique_name) // 'mean_e11')
+       call this%e22%init(this%stats_work, trim(unique_name) // 'mean_e22')
+       call this%e33%init(this%stats_work, trim(unique_name) // 'mean_e33')
+       call this%e12%init(this%stats_work, trim(unique_name) // 'mean_e12')
+       call this%e13%init(this%stats_work, trim(unique_name) // 'mean_e13')
+       call this%e23%init(this%stats_work, trim(unique_name) // 'mean_e23')
     end if
 
     call this%stat_fields%init(this%n_stats)
@@ -709,7 +719,8 @@ contains
   ! Convert computed weak gradients to strong.
   subroutine fluid_stats_make_strong_grad(this)
     class(fluid_stats_t) :: this
-    integer :: n
+    integer :: n, i
+    real(kind=rp) :: wrk, wrk_sqr
 
     if (this%n_stats .eq. 11) return
 
@@ -738,25 +749,29 @@ contains
 
 
     else
-       call invers2(this%stats_work%x, this%coef%B, n)
-       call col2(this%pdudx%mf%x, this%stats_work%x, n)
-       call col2(this%pdudy%mf%x, this%stats_work%x, n)
-       call col2(this%pdudz%mf%x, this%stats_work%x, n)
-       call col2(this%pdvdx%mf%x, this%stats_work%x, n)
-       call col2(this%pdvdy%mf%x, this%stats_work%x, n)
-       call col2(this%pdvdz%mf%x, this%stats_work%x, n)
-       call col2(this%pdwdx%mf%x, this%stats_work%x, n)
-       call col2(this%pdwdy%mf%x, this%stats_work%x, n)
-       call col2(this%pdwdz%mf%x, this%stats_work%x, n)
+       do concurrent (i = 1:n)
+          wrk = 1.0_rp / this%coef%B(i,1,1,1)
+          this%pdudx%mf%x(i,1,1,1) = this%pdudx%mf%x(i,1,1,1) * wrk
+          this%pdudy%mf%x(i,1,1,1) = this%pdudy%mf%x(i,1,1,1) * wrk
+          this%pdudz%mf%x(i,1,1,1) = this%pdudz%mf%x(i,1,1,1) * wrk
 
-       call col2(this%stats_work%x, this%stats_work%x, n)
-       call col2(this%e11%mf%x, this%stats_work%x, n)
-       call col2(this%e22%mf%x, this%stats_work%x, n)
-       call col2(this%e33%mf%x, this%stats_work%x, n)
-       call col2(this%e12%mf%x, this%stats_work%x, n)
-       call col2(this%e13%mf%x, this%stats_work%x, n)
-       call col2(this%e23%mf%x, this%stats_work%x, n)
+          this%pdvdx%mf%x(i,1,1,1) = this%pdvdx%mf%x(i,1,1,1) * wrk
+          this%pdvdy%mf%x(i,1,1,1) = this%pdvdy%mf%x(i,1,1,1) * wrk
+          this%pdvdz%mf%x(i,1,1,1) = this%pdvdz%mf%x(i,1,1,1) * wrk
 
+          this%pdwdx%mf%x(i,1,1,1) = this%pdwdx%mf%x(i,1,1,1) * wrk
+          this%pdwdy%mf%x(i,1,1,1) = this%pdwdy%mf%x(i,1,1,1) * wrk
+          this%pdwdz%mf%x(i,1,1,1) = this%pdwdz%mf%x(i,1,1,1) * wrk
+
+          wrk_sqr = wrk * wrk
+          this%e11%mf%x(i,1,1,1) = this%e11%mf%x(i,1,1,1) * wrk_sqr
+          this%e22%mf%x(i,1,1,1) = this%e22%mf%x(i,1,1,1) * wrk_sqr
+          this%e33%mf%x(i,1,1,1) = this%e33%mf%x(i,1,1,1) * wrk_sqr
+
+          this%e12%mf%x(i,1,1,1) = this%e12%mf%x(i,1,1,1) * wrk_sqr
+          this%e13%mf%x(i,1,1,1) = this%e13%mf%x(i,1,1,1) * wrk_sqr
+          this%e23%mf%x(i,1,1,1) = this%e23%mf%x(i,1,1,1) * wrk_sqr
+       end do
     end if
 
   end subroutine fluid_stats_make_strong_grad
@@ -773,7 +788,8 @@ contains
     type(field_list_t), intent(in), optional :: skewness_tensor
     type(field_list_t), intent(inout), optional :: mean_vel_grad
     type(field_list_t), intent(in), optional :: dissipation_tensor
-    integer :: n
+    integer :: n, i
+    real(kind=rp) :: wrk
 
     if (present(mean)) then
        n = mean%item_size(1)
@@ -873,25 +889,21 @@ contains
           call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
                this%w_mean%mf%x, this%coef)
        end if
-       call invers2(this%stats_work%x, this%coef%B,n)
-       call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(2)%ptr%x, this%dudy%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(3)%ptr%x, this%dudz%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(4)%ptr%x, this%dvdx%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(5)%ptr%x, this%dvdy%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(6)%ptr%x, this%dvdz%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(7)%ptr%x, this%dwdx%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(8)%ptr%x, this%dwdy%x, &
-            this%stats_work%x, n)
-       call col3(mean_vel_grad%items(9)%ptr%x, this%dwdz%x, &
-            this%stats_work%x, n)
+
+       do concurrent (i = 1:n)
+          wrk = 1.0_rp / this%coef%B(i,1,1,1)
+          mean_vel_grad%items(1)%ptr%x(i,1,1,1) = this%dudx%x(i,1,1,1) * wrk
+          mean_vel_grad%items(2)%ptr%x(i,1,1,1) = this%dudy%x(i,1,1,1) * wrk
+          mean_vel_grad%items(3)%ptr%x(i,1,1,1) = this%dudz%x(i,1,1,1) * wrk
+
+          mean_vel_grad%items(4)%ptr%x(i,1,1,1) = this%dvdx%x(i,1,1,1) * wrk
+          mean_vel_grad%items(5)%ptr%x(i,1,1,1) = this%dvdy%x(i,1,1,1) * wrk
+          mean_vel_grad%items(6)%ptr%x(i,1,1,1) = this%dvdz%x(i,1,1,1) * wrk
+
+          mean_vel_grad%items(7)%ptr%x(i,1,1,1) = this%dwdx%x(i,1,1,1) * wrk
+          mean_vel_grad%items(8)%ptr%x(i,1,1,1) = this%dwdy%x(i,1,1,1) * wrk
+          mean_vel_grad%items(9)%ptr%x(i,1,1,1) = this%dwdz%x(i,1,1,1) * wrk
+       end do
 
     end if
 

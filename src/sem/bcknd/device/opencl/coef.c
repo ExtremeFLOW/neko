@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2023, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -221,6 +221,151 @@ void opencl_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
   
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         
                                   kernel, 1, NULL, &global_item_size_drst,  
+                                  &local_item_size, 0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+/**
+ * Fortran wrapper for generating mass matrix
+ */
+void opencl_coef_generate_mass(void *B, void *Binv, void *jac, 
+                               void *w3, int *lxyz, int *nel)  {
+  cl_int err;
+  int i;
+  if (coef_program == NULL)
+    opencl_kernel_jit(coef_kernel, (cl_program *) &coef_program);
+  
+  const size_t global_item_size = 256 * (*nel);
+  const size_t local_item_size = 256;
+
+  cl_kernel kernel = clCreateKernel(coef_program,
+                                    "coef_generate_mass_kernel", &err);
+  CL_CHECK(err);                     
+  
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &B));      
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &Binv));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &jac));      
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &w3));      
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), lxyz));      
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), nel));
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         
+                                  kernel, 1, NULL, &global_item_size,  
+                                  &local_item_size, 0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+
+/**
+ * Fortran wrapper for generating facet area and surface normals
+ */
+void opencl_coef_generate_area_and_normal(void *area, 
+                                          void *nx, void *ny, void *nz,
+                                          void *dxdr, void *dydr, void *dzdr,
+                                          void *dxds, void *dyds, void *dzds,
+                                          void *dxdt, void *dydt, void *dzdt,
+                                          void *wx, void *wy, void *wz,
+                                          int *lx, int *nel, real eps) {
+
+  cl_int err;
+  if (coef_program == NULL)
+    opencl_kernel_jit(coef_kernel, (cl_program *) &coef_program);
+  
+  const size_t global_item_size = 256 * (*nel);
+  const size_t local_item_size = 256;
+
+#define STR(X) #X
+#define AREA_CASE(LX)                                                           \
+  case LX:                                                                      \
+    {                                                                           \
+      cl_kernel kernel =                                                        \
+        clCreateKernel(coef_program,                                            \
+                       STR(coef_generate_area_and_normal_kernel_lx##LX), &err); \
+      CL_CHECK(err);                                                            \
+                                                                                \
+      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &area));      \
+      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &nx));        \
+      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &ny));        \
+      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &nz));        \
+      CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &dxdr));      \
+      CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dydr));      \
+      CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dzdr));      \
+      CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dxds));      \
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &dyds));      \
+      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &dzds));      \
+      CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &dxdt));     \
+      CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &dydt));     \
+      CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &dzdt));     \
+      CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &wx));       \
+      CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &wy));       \
+      CL_CHECK(clSetKernelArg(kernel, 15, sizeof(cl_mem), (void *) &wz));       \
+      CL_CHECK(clSetKernelArg(kernel, 16, sizeof(real), &eps));                 \
+                                                                                \
+      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
+                                      kernel, 1, NULL, &global_item_size,       \
+                                      &local_item_size, 0, NULL, NULL));        \
+      CL_CHECK(clReleaseKernel(kernel));                                        \
+    }                                                                           \
+    break
+    
+  switch(*lx) {
+    AREA_CASE(2);
+    AREA_CASE(3);
+    AREA_CASE(4);
+    AREA_CASE(5);
+    AREA_CASE(6);
+    AREA_CASE(7);
+    AREA_CASE(8);
+    AREA_CASE(9);
+    AREA_CASE(10);
+    AREA_CASE(11);
+    AREA_CASE(12);
+    AREA_CASE(13);
+    AREA_CASE(14);
+    AREA_CASE(15);
+    AREA_CASE(16);
+  }
+}
+
+/**
+ * Fortran wrapper for retrieving facet normals.
+ */
+void opencl_coef_get_normal(void *normal_x, void *normal_y, void *normal_z,
+                            void *nx, void *ny, void *nz,
+                            void *i_idx, void *j_idx, void *k_idx,
+                            void *e_idx, void *facet, int *lx, int *n) {
+
+  if (*n <= 0) {
+    return;
+  }
+
+  cl_int err;
+  if (coef_program == NULL)
+    opencl_kernel_jit(coef_kernel, (cl_program *) &coef_program);
+
+  const size_t local_item_size = 256;
+  const size_t global_item_size = local_item_size *
+    (((size_t) *n + local_item_size - 1) / local_item_size);
+
+  cl_kernel kernel = clCreateKernel(coef_program, "coef_get_normal_kernel",
+                                    &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &normal_x));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &normal_y));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &normal_z));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &nx));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &ny));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &nz));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &i_idx));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &j_idx));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &k_idx));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &e_idx));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &facet));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(int), lx));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), n));
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,
+                                  kernel, 1, NULL, &global_item_size,
                                   &local_item_size, 0, NULL, NULL));
   CL_CHECK(clReleaseKernel(kernel));
 }

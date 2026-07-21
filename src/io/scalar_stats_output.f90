@@ -41,6 +41,7 @@ module scalar_stats_output
   use device, only : device_memcpy, DEVICE_TO_HOST
   use output, only : output_t
   use matrix, only : matrix_t
+  use fld_file, only : fld_file_t
   implicit none
   private
 
@@ -59,6 +60,8 @@ module scalar_stats_output
    contains
      !> Constructor.
      procedure, pass(this) :: init => scalar_stats_output_init
+     !> Destructor
+     procedure, pass(this) :: free => scalar_stats_output_free
      !> Samples the fields computed by the `stats` component.
      procedure, pass(this) :: sample => scalar_stats_output_sample
   end type scalar_stats_output_t
@@ -114,9 +117,29 @@ contains
     end if
 
     call this%init_base(fname)
+
+    select type (ft => this%file_%file_type)
+    type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
+    end select
+
     this%stats => stats
     this%T_begin = T_begin
   end subroutine scalar_stats_output_init
+
+  !> Destructor
+  subroutine scalar_stats_output_free(this)
+    class(scalar_stats_output_t), intent(inout) :: this
+
+    call this%free_base()
+
+    nullify(this%stats)
+    call this%map_1d%free()
+    call this%map_2d%free()
+
+  end subroutine scalar_stats_output_free
 
   !> Sample scalar_stats at time @a t
   subroutine scalar_stats_output_sample(this, t)

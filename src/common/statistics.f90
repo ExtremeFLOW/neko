@@ -151,7 +151,7 @@ contains
        ! There is technically an issue here for the last sample if we
        ! reset the stats If the reset is not on a multiple of
        ! samp_interval the weight of the last sample is wrong.
-       if (mod(tstep,this%samp_interval) .eq. 0) then
+       if (mod(tstep, this%samp_interval) .eq. 0) then
           call neko_log%section('Statistics')
           call MPI_Barrier(NEKO_COMM, ierr)
           sample_start_time = MPI_WTIME()
@@ -162,7 +162,7 @@ contains
           call MPI_Barrier(NEKO_COMM, ierr)
           sample_end_time = MPI_WTIME()
           sample_time = sample_end_time - sample_start_time
-          write(log_buf,'(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
+          write(log_buf, '(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
                ' Sampling time (s): ', sample_time
           call neko_log%message(log_buf)
           call neko_log%end_section()

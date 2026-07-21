@@ -29,6 +29,12 @@ void neko_registry_init();
 /* Destroy a Neko registry */
 void neko_registry_free();
 
+/* Initialise a Neko scratch registry */
+void neko_scratch_registry_init();
+
+/* Destroy a Neko scratch registry */
+void neko_scratch_registry_free();
+
 /* Allocate memory for a Neko case */
 void neko_case_allocate(int **case_iptr);
 

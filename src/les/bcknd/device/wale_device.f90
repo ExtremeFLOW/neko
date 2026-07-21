@@ -94,17 +94,17 @@ contains
 
 
     ! Compute the derivatives of the velocity (the alpha tensor)
-    call dudxyz (g11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (g12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (g13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(g11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(g12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(g13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call dudxyz (g21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (g22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (g23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(g21%x_d, v%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(g22%x_d, v%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(g23%x_d, v%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call dudxyz (g31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(g31%x_d, w%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
+    call dudxyz(g32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
+    call dudxyz(g33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
     call coef%gs_h%op(g11, GS_OP_ADD)
     call coef%gs_h%op(g12, GS_OP_ADD)

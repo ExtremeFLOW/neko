@@ -61,7 +61,7 @@ contains
 
     call this%check_exists()
 
-    select type(data)
+    select type (data)
     type is (map_t)
        nm => data
     class default
@@ -69,7 +69,7 @@ contains
     end select
 
     fname = trim(this%get_fname())
-    open(newunit=file_unit, file=fname, status='old', iostat=ierr)
+    open(newunit = file_unit, file = fname, status = 'old', iostat = ierr)
     if (pe_rank .eq. 0) then
        write(*, '(A,A)') " Reading NEKTON map file ", trim(fname)
     end if
@@ -79,10 +79,10 @@ contains
     !> @todo Check if neli matches map%nel
 
     do j = 1, nm%nel
-       read(file_unit, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)
+       read(file_unit, *) nm%imap(j), (nm%vertex(k, j), k = 1, nm%nlv)
     end do
 
-    close(unit=file_unit)
+    close(unit = file_unit)
 
   end subroutine map_file_read
 

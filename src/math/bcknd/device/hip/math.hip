@@ -35,6 +35,8 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
+#include <device/hip/buffer.h>
+#include <device/hip/unified.h>
 #include "math_kernel.h"
 
 extern "C" {
@@ -51,6 +53,21 @@ extern "C" {
    * Copy a vector \f$ a = b \f$
    */
   void hip_copy(void *a, void *b, int *n, hipStream_t strm) {
+    if (hip_zerocopy()) {
+      if (*n == 0) return;
+      /* The pointers may alias pageable host memory, which hipMemcpy
+         treats as a staged pageable copy (slow, serializing); copy
+         with a kernel instead, which runs at full memory bandwidth
+         on any pointer */
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(copy_kernel<real>),
+                         nblcks, nthrds, 0, strm,
+                         (real *) a, (const real *) b, *n);
+      HIP_CHECK(hipGetLastError());
+      return;
+    }
     HIP_CHECK(hipMemcpyAsync(a, b, (*n) * sizeof(real),
                              hipMemcpyDeviceToDevice, strm));
   }
@@ -58,13 +75,30 @@ extern "C" {
   /** Fortran wrapper for masked copy
    * Copy a vector \f$ a(mask) = b(mask) \f$
    */
-  void hip_masked_copy(void *a, void *b, void *mask,
+  void hip_masked_copy_0(void *a, void *b, void *mask,
                        int *n, int *m, hipStream_t strm) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_copy_kernel<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_copy_kernel_0<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  }
+  
+  /** Fortran wrapper for masked copy
+   * Copy a vector \f$ a(mask) = b(mask) \f$
+   */
+  void hip_masked_copy_aligned(void *a, void *b, void *mask,
+                       int *n, int *m, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_copy_kernel_aligned<real>),
                        nblcks, nthrds, 0, strm, (real *) a,
                        (real *) b, (int *) mask, *n, *m);
 
@@ -87,6 +121,42 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
+  
+  /** Fortran wrapper for masked gather copy with mask_t
+   * Copy a vector \f$ a = b(mask) \f$
+   */
+  void hip_masked_gather_copy_aligned(void *a, void *b, void *mask,
+                              int *n, int *m, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_gather_copy_aligned_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       (real *) b, (int *) mask, *n, *m);
+    HIP_CHECK(hipGetLastError());
+
+  }
+
+  /** Fortran wrapper for face-masked gather copy
+   * Copy a face-local field \f$ a(i) = b(face(mask(i), facet(i))) \f$
+   */
+  void hip_face_masked_gather_copy(void *a, void *b, void *mask,
+                                   void *facet, int *n1, int *n2, int *lx,
+                                   int *ly, int *lz, int *m,
+                                   hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(face_masked_gather_copy_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a, (real *) b,
+                       (int *) mask, (int *) facet, *n1, *n2, *lx, *ly, *lz,
+                       *m);
+    HIP_CHECK(hipGetLastError());
+
+  }
+
 
   /** Fortran wrapper for masked scatter copy
    * Copy a vector \f$ a(mask) = b \f$
@@ -98,6 +168,23 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_scatter_copy_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  }
+  
+  /** Fortran wrapper for masked scatter copy for aligned mask
+   * Copy a vector \f$ a(mask) = b \f$
+   */
+  void hip_masked_scatter_copy_aligned(void *a, void *b, void *mask,
+                               int *n, int *m, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_scatter_copy_aligned_kernel<real>),
                        nblcks, nthrds, 0, strm, (real *) a,
                        (real *) b, (int *) mask, *n, *m);
 
@@ -142,6 +229,19 @@ extern "C" {
    * Zero a real vector
    */
   void hip_rzero(void *a, int *n, hipStream_t strm) {
+    if (hip_zerocopy()) {
+      if (*n == 0) return;
+      /* a may alias pageable host memory, which hipMemset rejects;
+         zero with a kernel instead (works on any pointer) */
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
+                         nblcks, nthrds, 0, strm,
+                         (real *) a, (real) 0.0, *n);
+      HIP_CHECK(hipGetLastError());
+      return;
+    }
     HIP_CHECK(hipMemsetAsync(a, 0, (*n) * sizeof(real), strm));
   }
 
@@ -225,6 +325,49 @@ extern "C" {
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cadd2_kernel<real>),
                        nblcks, nthrds, 0, strm, (real *) a, (real *) b, *c, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for cwrap
+   * Wrap values in a vector to interval [min_val, max_val)
+   */
+  void hip_cwrap(void *a, real *min_val, real *max_val, int *n,
+                 hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cwrap_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a,
+                       *min_val, *max_val, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for sqrt_inplace
+   * Sqrt a vector \f$ a = sqrt(a) \f$
+   */
+  void hip_sqrt_inplace(void *a, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(sqrt_inplace_kernel<real>),
+                       nblcks, nthrds, 0, strm, (real *) a, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for power
+   * Take the power of a vector \f$ a^p \f$
+   */
+  void hip_power(void *ap, void *a, real *p, int *n, hipStream_t strm) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(power_kernel<real>),
+                       nblcks, nthrds, 0, strm,
+                       (real *) ap, (real *) a, *p, *n);
     HIP_CHECK(hipGetLastError());
   }
 
@@ -613,22 +756,18 @@ extern "C" {
 
 
   /*
-   * Reduction buffer
+   * Reduction buffers, owned by the device layer and released
+   * on device teardown (hip_buffer_free_all in hip_finalize)
    */
-  int red_s = 0;
-  real * bufred = NULL;
-  real * bufred_d = NULL;
+  hip_buffer_t redbuf = HIP_BUFFER_INIT;
+  hip_buffer_t redbuf_xp = HIP_BUFFER_INIT;
 
   void hip_redbuf_check_alloc(int nb) {
-    if ( nb >= red_s) {
-      red_s = nb+1;
-      if (bufred != NULL) {
-        HIP_CHECK(hipHostFree(bufred));
-        HIP_CHECK(hipFree(bufred_d));
-      }
-      HIP_CHECK(hipHostMalloc(&bufred,red_s*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, red_s*sizeof(real)));
-    }
+    hip_buffer_reserve(&redbuf, (nb + 1) * sizeof(real));
+  }
+
+  void hip_redbuf_check_alloc_xp(int nb) {
+    hip_buffer_reserve(&redbuf_xp, (nb + 1) * sizeof(real_xp));
   }
 
   /**
@@ -653,6 +792,70 @@ extern "C" {
   }
 
   /**
+   * Global additive reduction
+   */
+  void hip_global_reduce_add_xp(real_xp * bufred, void * bufred_d, int n,
+                                const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real_xp),
+                              DEVICE_NCCL_SUM, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real_xp),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real_xp), DEVICE_MPI_SUM);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real_xp),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
+
+
+  /**
+   * Global maximise reduction
+   */
+  void hip_global_reduce_max(real * bufred, void * bufred_d, int n,
+                             const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+                              DEVICE_NCCL_MAX, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_MAX);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
+
+  /**
+   * Global minimise reduction
+   */
+  void hip_global_reduce_min(real * bufred, void * bufred_d, int n,
+                             const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+                              DEVICE_NCCL_MIN, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_MIN);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
+
+  /**
    * Fortran wrapper vlsc3
    * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
    */
@@ -665,57 +868,58 @@ extern "C" {
     hip_redbuf_check_alloc(nb);
 
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(vlsc3_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) u, (real *) v,
-                       (real *) w, bufred_d, *n);
+                       (real *) w, (real *) redbuf.dev, *n);
     HIP_CHECK(hipGetLastError());
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                       1, 1024, 0, stream, bufred_d, nb);
+                       1, 1024, 0, stream, (real *) redbuf.dev, nb);
     HIP_CHECK(hipGetLastError());
 
-    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
+    HIP_CHECK(hipMemcpyAsync(((real *) redbuf.host), (real *) redbuf.dev,
+                             sizeof(real), hipMemcpyDeviceToHost, stream));
     HIP_CHECK(hipStreamSynchronize(stream));
 
-    return bufred[0];
+    return ((real *) redbuf.host)[0];
   }
 
   /**
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
    */
-  real hip_glsc3(void *a, void *b, void *c, int *n, hipStream_t stream) {
+  real_xp hip_glsc3(void *a, void *b, void *c, int *n, hipStream_t stream) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
-    hip_redbuf_check_alloc(nb);
+    hip_redbuf_check_alloc_xp(nb);
 
     if (*n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (real *) a, (real *) b,
-                         (real *) c, bufred_d, *n);
+                         (real *) c, (real_xp *) redbuf_xp.dev, *n);
       HIP_CHECK(hipGetLastError());
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, nb);
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
+                         1, 1024, 0, stream, (real_xp * ) redbuf_xp.dev, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    hip_global_reduce_add(bufred, bufred_d, 1, stream);
+    hip_global_reduce_add_xp(((real_xp *) redbuf_xp.host),
+                             (real_xp *) redbuf_xp.dev, 1, stream);
 
-    return bufred[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
    * Fortran wrapper for doing an reduction to an array
    * Weighted inner product \f$ w^T v(n,1:j) c \f$
    */
-  void hip_glsc3_many(real *h, void * w, void *v,void *mult, int *j, int *n,
+  void hip_glsc3_many(real_xp *h, void * w, void *v,void *mult, int *j, int *n,
                       hipStream_t stream){
     int pow2 = 1;
     while(pow2 < (*j)){
@@ -728,111 +932,176 @@ extern "C" {
     const dim3 nblcks_red( (*j),1,1);
     const int nb = ((*n) + nt - 1)/nt;
 
-    hip_redbuf_check_alloc((*j)*nb);
+    hip_redbuf_check_alloc_xp((*j)*nb);
 
     if (*n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
                          (const real *) w, (const real **) v,
-                         (const real *)mult, bufred_d, *j, *n);
+                         (const real *)mult, (real_xp *) redbuf_xp.dev, *j, *n);
       HIP_CHECK(hipGetLastError());
 
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_reduce_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_reduce_kernel<real_xp>),
                          nblcks_red, nthrds_red, 0, stream,
-                         bufred_d, nb, *j);
+                         (real_xp *) redbuf_xp.dev, nb, *j);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    hip_global_reduce_add(h, bufred_d, (*j), stream);
+    hip_global_reduce_add_xp(h, redbuf_xp.dev, (*j), stream);
   }
 
   /**
    * Fortran wrapper glsc2
    * Weighted inner product \f$ a^T b \f$
    */
-  real hip_glsc2(void *a, void *b, int *n, hipStream_t stream) {
+  real_xp hip_glsc2(void *a, void *b, int *n, hipStream_t stream) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
 
-    hip_redbuf_check_alloc(nb);
+    hip_redbuf_check_alloc_xp(nb);
 
     if( *n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real, real_xp>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, (real *) b, bufred_d, *n);
+                         (real *) a, (real *) b, (real_xp *) redbuf_xp.dev, *n);
       HIP_CHECK(hipGetLastError());
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, nb);
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
+                         1, 1024, 0, stream, (real_xp *) redbuf_xp.dev, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
     }
-    hip_global_reduce_add(bufred, bufred_d, 1, stream);
+    hip_global_reduce_add_xp(((real_xp *) redbuf_xp.host),
+                             (real_xp *) redbuf_xp.dev, 1, stream);
 
-    return bufred[0];
+    return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
    * Fortran wrapper glsubnorm2
    * Weighted inner product \f$ a^T b \f$
    */
-  real hip_glsubnorm2(void* a, void* b, int* n, hipStream_t stream) {
+  real_xp hip_glsubnorm2(void* a, void* b, int* n, hipStream_t stream) {
 
       const dim3        nthrds(1024, 1, 1);
       const dim3        nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
       const int         nb     = ((*n) + 1024 - 1) / 1024;
 
-      hip_redbuf_check_alloc(nb);
+      hip_redbuf_check_alloc_xp(nb);
 
       if (*n > 0) {
-        hipLaunchKernelGGL(HIP_KERNEL_NAME(glsubnorm2_kernel<real>),
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(glsubnorm2_kernel<real, real_xp>),
                            nblcks, nthrds, 0, stream,
-                           (real*)a, (real*)b, bufred_d, *n);
+                           (real *) a, (real *) b,
+                           (real_xp *) redbuf_xp.dev, *n);
         HIP_CHECK(hipGetLastError());
-        hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                           1, 1024, 0, stream, bufred_d, nb);
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
+                           1, 1024, 0, stream, (real_xp *) redbuf_xp.dev, nb);
         HIP_CHECK(hipGetLastError());
       }
       else {
-        hip_rzero(bufred_d, &red_s, stream);
+        HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
       }
-      hip_global_reduce_add(bufred, bufred_d, 1, stream);
+      hip_global_reduce_add_xp(((real_xp *) redbuf_xp.host),
+                               (real_xp *) redbuf_xp.dev, 1, stream);
 
-      return bufred[0];
+      return ((real_xp *) redbuf_xp.host)[0];
   }
 
   /**
    * Fortran wrapper glsum
    * Sum a vector of length n
    */
-  real hip_glsum(void *a, int *n, hipStream_t stream) {
+  real_xp hip_glsum(void *a, int *n, hipStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+
+    hip_redbuf_check_alloc_xp(nb);
+    if( *n > 0) {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real, real_xp>),
+                         nblcks, nthrds, 0, stream,
+                         (real *) a, (real_xp * ) redbuf_xp.dev, *n);
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real_xp>),
+                         1, 1024, 0, stream, (real_xp *) redbuf_xp.dev, nb);
+      HIP_CHECK(hipGetLastError());
+    }
+    else {
+      HIP_CHECK(hipMemsetAsync(redbuf_xp.dev, 0, redbuf_xp.size, stream));
+    }
+
+    hip_global_reduce_add_xp(((real_xp *) redbuf_xp.host),
+                             redbuf_xp.dev, 1, stream);
+
+    return ((real_xp *) redbuf_xp.host)[0];
+  }
+
+
+  /**
+   * Fortran wrapper glmax
+   * Take the maxmum of a vector of length n
+   */
+  real hip_glmax(void *a, real *ninf, int *n, hipStream_t stream) {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
 
     hip_redbuf_check_alloc(nb);
     if( *n > 0) {
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glmax_kernel<real>),
                          nblcks, nthrds, 0, stream,
-                         (real *) a, bufred_d, *n);
+                         (real *) a, *ninf, (real *) redbuf.dev, *n);
       HIP_CHECK(hipGetLastError());
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
-                         1, 1024, 0, stream, bufred_d, nb);
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_max_kernel<real>),
+                         1, 1024, 0, stream, (real *) redbuf.dev, *ninf, nb);
       HIP_CHECK(hipGetLastError());
     }
     else {
-      hip_rzero(bufred_d, &red_s, stream);
+      int nel = (int) (redbuf.size / sizeof(real));
+      hip_rzero(redbuf.dev, &nel, stream);
     }
 
-    hip_global_reduce_add(bufred, bufred_d, 1, stream);
+    hip_global_reduce_max(((real *) redbuf.host),
+                          (real *) redbuf.dev, 1, stream);
 
-    return bufred[0];
+    return ((real *) redbuf.host)[0];
+  }
+
+  /**
+   * Fortran wrapper glmin
+   * Take the minimum of a vector of length n
+   */
+  real hip_glmin(void *a, real *pinf, int *n, hipStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+
+    hip_redbuf_check_alloc(nb);
+    if( *n > 0) {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glmin_kernel<real>),
+                         nblcks, nthrds, 0, stream,
+                         (real *) a, *pinf, (real *) redbuf.dev, *n);
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_min_kernel<real>),
+                         1, 1024, 0, stream, (real *) redbuf.dev, *pinf, nb);
+      HIP_CHECK(hipGetLastError());
+    }
+    else {
+      int nel = (int) (redbuf.size / sizeof(real));
+      hip_rzero(redbuf.dev, &nel, stream);
+    }
+
+    hip_global_reduce_min(((real *) redbuf.host),
+                          (real *) redbuf.dev, 1, stream);
+
+    return ((real *) redbuf.host)[0];
   }
 
   /**

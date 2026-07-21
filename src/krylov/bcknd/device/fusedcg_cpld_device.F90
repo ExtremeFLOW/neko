@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,16 @@ module fusedcg_cpld_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon, only : pc_t
   use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
+  use num_types, only : rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
-  use device
+  use device_math, only : device_rzero, device_copy, device_glsc2
+  use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
+       device_event_create, device_unmap, device_free, device_event_destroy, &
+       device_get_ptr, device_event_sync
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_Allreduce, &
@@ -101,7 +103,7 @@ module fusedcg_cpld_device
 #ifdef HAVE_CUDA
   interface
      subroutine cuda_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
-          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name='cuda_fusedcg_cpld_part1')
+          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name = 'cuda_fusedcg_cpld_part1')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -112,7 +114,8 @@ module fusedcg_cpld_device
 
   interface
      subroutine cuda_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-          po1_d, po2_d, po3_d, beta, n) bind(c, name='cuda_fusedcg_cpld_update_p')
+          po1_d, po2_d, po3_d, beta, n) &
+          bind(c, name = 'cuda_fusedcg_cpld_update_p')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -125,7 +128,7 @@ module fusedcg_cpld_device
 
   interface
      subroutine cuda_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, &
-          alpha, p_cur, n) bind(c, name='cuda_fusedcg_cpld_update_x')
+          alpha, p_cur, n) bind(c, name = 'cuda_fusedcg_cpld_update_x')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
@@ -136,7 +139,7 @@ module fusedcg_cpld_device
   interface
      real(c_rp) function cuda_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
           c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n) &
-          bind(c, name='cuda_fusedcg_cpld_part2')
+          bind(c, name = 'cuda_fusedcg_cpld_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -149,7 +152,8 @@ module fusedcg_cpld_device
 #elif HAVE_HIP
   interface
      subroutine hip_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
-          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name='hip_fusedcg_cpld_part1')
+          b1_d, b2_d, b3_d, tmp_d, n) &
+          bind(c, name = 'hip_fusedcg_cpld_part1')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -160,7 +164,8 @@ module fusedcg_cpld_device
 
   interface
      subroutine hip_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-          po1_d, po2_d, po3_d, beta, n) bind(c, name='hip_fusedcg_cpld_update_p')
+          po1_d, po2_d, po3_d, beta, n) &
+          bind(c, name = 'hip_fusedcg_cpld_update_p')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -173,7 +178,7 @@ module fusedcg_cpld_device
 
   interface
      subroutine hip_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, &
-          alpha, p_cur, n) bind(c, name='hip_fusedcg_cpld_update_x')
+          alpha, p_cur, n) bind(c, name = 'hip_fusedcg_cpld_update_x')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
@@ -184,7 +189,7 @@ module fusedcg_cpld_device
   interface
      real(c_rp) function hip_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
           c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n) &
-          bind(c, name='hip_fusedcg_cpld_part2')
+          bind(c, name = 'hip_fusedcg_cpld_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -320,7 +325,7 @@ contains
     call device_map(this%z3, this%z3_d, n)
     call device_map(this%tmp, this%tmp_d, n)
     call device_map(this%alpha, this%alpha_d, DEVICE_FUSEDCG_CPLD_P_SPACE)
-    do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE+1
+    do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
        this%p1_d(i) = C_NULL_PTR
        call device_map(this%p1(:,i), this%p1_d(i), n)
 
@@ -376,127 +381,125 @@ contains
     call this%ksp_free()
 
     if (allocated(this%w1)) then
+       if (c_associated(this%w1_d)) then
+          call device_unmap(this%w1, this%w1_d)
+       end if
        deallocate(this%w1)
     end if
 
     if (allocated(this%w2)) then
+       if (c_associated(this%w2_d)) then
+          call device_unmap(this%w2, this%w2_d)
+       end if
        deallocate(this%w2)
     end if
 
     if (allocated(this%w3)) then
+       if (c_associated(this%w3_d)) then
+          call device_unmap(this%w3, this%w3_d)
+       end if
        deallocate(this%w3)
     end if
 
     if (allocated(this%r1)) then
+       if (c_associated(this%r1_d)) then
+          call device_unmap(this%r1, this%r1_d)
+       end if
        deallocate(this%r1)
     end if
 
     if (allocated(this%r2)) then
+       if (c_associated(this%r2_d)) then
+          call device_unmap(this%r2, this%r2_d)
+       end if
        deallocate(this%r2)
     end if
 
     if (allocated(this%r3)) then
+       if (c_associated(this%r3_d)) then
+          call device_unmap(this%r3, this%r3_d)
+       end if
        deallocate(this%r3)
     end if
 
     if (allocated(this%z1)) then
+       if (c_associated(this%z1_d)) then
+          call device_unmap(this%z1, this%z1_d)
+       end if
        deallocate(this%z1)
     end if
 
     if (allocated(this%z2)) then
+       if (c_associated(this%z2_d)) then
+          call device_unmap(this%z2, this%z2_d)
+       end if
        deallocate(this%z2)
     end if
 
     if (allocated(this%z3)) then
+       if (c_associated(this%z3_d)) then
+          call device_unmap(this%z3, this%z3_d)
+       end if
        deallocate(this%z3)
     end if
 
     if (allocated(this%tmp)) then
+       if (c_associated(this%tmp_d)) then
+          call device_unmap(this%tmp, this%tmp_d)
+       end if
        deallocate(this%tmp)
     end if
 
     if (allocated(this%alpha)) then
+       if (c_associated(this%alpha_d)) then
+          call device_unmap(this%alpha, this%alpha_d)
+       end if
        deallocate(this%alpha)
     end if
 
     if (allocated(this%p1)) then
+       if (allocated(this%p1_d)) then
+          do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
+             if (c_associated(this%p1_d(i))) then
+                call device_unmap(this%p1(:,i), this%p1_d(i))
+             end if
+          end do
+       end if
        deallocate(this%p1)
     end if
 
     if (allocated(this%p2)) then
+       if (allocated(this%p2_d)) then
+          do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
+             if (c_associated(this%p2_d(i))) then
+                call device_unmap(this%p2(:,i), this%p2_d(i))
+             end if
+          end do
+       end if
        deallocate(this%p2)
     end if
 
     if (allocated(this%p3)) then
+       if (allocated(this%p3_d)) then
+          do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
+             if (c_associated(this%p3_d(i))) then
+                call device_unmap(this%p3(:,i), this%p3_d(i))
+             end if
+          end do
+       end if
        deallocate(this%p3)
     end if
 
-    if (c_associated(this%w1_d)) then
-       call device_free(this%w1_d)
-    end if
-
-    if (c_associated(this%w2_d)) then
-       call device_free(this%w2_d)
-    end if
-
-    if (c_associated(this%w3_d)) then
-       call device_free(this%w3_d)
-    end if
-
-    if (c_associated(this%r1_d)) then
-       call device_free(this%r1_d)
-    end if
-
-    if (c_associated(this%r2_d)) then
-       call device_free(this%r2_d)
-    end if
-
-    if (c_associated(this%r3_d)) then
-       call device_free(this%r3_d)
-    end if
-
-    if (c_associated(this%z1_d)) then
-       call device_free(this%z1_d)
-    end if
-
-    if (c_associated(this%z2_d)) then
-       call device_free(this%z2_d)
-    end if
-
-    if (c_associated(this%z3_d)) then
-       call device_free(this%z3_d)
-    end if
-
-    if (c_associated(this%alpha_d)) then
-       call device_free(this%alpha_d)
-    end if
-
-    if (c_associated(this%tmp_d)) then
-       call device_free(this%tmp_d)
-    end if
-
     if (allocated(this%p1_d)) then
-       do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
-          if (c_associated(this%p1_d(i))) then
-             call device_free(this%p1_d(i))
-          end if
-       end do
+       deallocate(this%p1_d)
     end if
 
     if (allocated(this%p2_d)) then
-       do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
-          if (c_associated(this%p2_d(i))) then
-             call device_free(this%p2_d(i))
-          end if
-       end do
+       deallocate(this%p2_d)
     end if
 
     if (allocated(this%p3_d)) then
-       do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE
-          if (c_associated(this%p3_d(i))) then
-             call device_free(this%p3_d(i))
-          end if
-       end do
+       deallocate(this%p3_d)
     end if
 
     if (c_associated(this%p1_d_d)) then
@@ -592,14 +595,14 @@ contains
       call device_fusedcg_cpld_part1(r1_d, r2_d, r3_d, r1_d, &
            r2_d, r3_d, tmp_d, n)
 
-      rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
+      rtr = device_glsc2(tmp_d, coef%mult_d, n)
 
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results(1)%iter = 0
       ksp_results(2:3)%iter = -1
-      if(abscmp(rnorm, 0.0_rp)) then
+      if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          return
       end if
@@ -622,17 +625,13 @@ contains
          call Ax%compute_vector(w1, w2, w3, &
               p1(1, p_cur), p2(1, p_cur), p3(1, p_cur), coef, x%msh, x%Xh)
 
-         call rotate_cyc(w1, w2, w3, 1, coef)
-         call gs_h%op(w1, n, GS_OP_ADD, this%gs_event1)
+         call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
+         call gs_h%op(w1, w2, w3, n, GS_OP_ADD, this%gs_event1)
          call device_event_sync(this%gs_event1)
          call blstx%apply(w1, n)
-         call gs_h%op(w2, n, GS_OP_ADD, this%gs_event2)
-         call device_event_sync(this%gs_event2)
          call blsty%apply(w2, n)
-         call gs_h%op(w3, n, GS_OP_ADD, this%gs_event3)
-         call device_event_sync(this%gs_event3)
          call blstz%apply(w3, n)
-         call rotate_cyc(w1, w2, w3, 0, coef)
+         call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &
               p2_d(p_cur), p3_d(p_cur), tmp_d, n)
