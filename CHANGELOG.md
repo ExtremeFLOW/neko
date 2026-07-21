@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Added `only_facets = .true.` to `bc%finalize` in force_torque.
 - Removed the hardcoded `CUDA_ARCH="-arch sm_60"` fallback used for
   `--enable-device-mpi` CUDA builds, which CUDA >= 13 toolkits can no longer
   compile (Pascal support was dropped). `configure` now requires `CUDA_ARCH`
