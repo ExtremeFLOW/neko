@@ -1,0 +1,20 @@
+# Generated mesh
+box.nmsh
+genmeshbox*.log
+# Compiled executable
+neko
+*.mod
+*.smod
+*.o
+# Run outputs
+*.fld
+*.f0000*
+*.nek5000
+*.chkp
+*.log
+field0.*
+props0.*
+# Renders
+*.png
+*.gif
+*.mp4

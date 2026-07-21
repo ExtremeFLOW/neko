@@ -1,0 +1,127 @@
+{
+  "version": 1.0,
+  "case": {
+    "mesh_file": "../box.nmsh",
+    "output_at_end": true,
+    "output_boundary": false,
+    "output_checkpoints": false,
+    "comment": "Turbulent heated channel, low-Mach, Re_tau~180, 4x density ratio (T 4/1). See README.md.",
+    "time": {
+      "end_time": 0.5,
+      "variable_timestep": true,
+      "target_cfl": 0.5,
+      "max_timestep": 0.02
+    },
+    "numerics": {
+      "time_order": 3,
+      "polynomial_order": 7,
+      "dealias": true
+    },
+    "fluid": {
+      "scheme": "lowmach",
+      "full_stress_formulation": true,
+      "initial_condition": {
+        "type": "user"
+      },
+      "velocity_solver": {
+        "type": "coupled_cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 0.0001,
+        "max_iterations": 800
+      },
+      "pressure_solver": {
+        "type": "gmres",
+        "preconditioner": {
+          "type": "hsmg",
+          "coarse_grid": {
+            "solver": "cg",
+            "iterations": 100,
+            "preconditioner": "jacobi"
+          }
+        },
+        "projection_space_size": 4,
+        "absolute_tolerance": 1e-07,
+        "max_iterations": 800,
+        "projection_reorthogonalize_basis": true
+      },
+      "flow_rate_force": {
+        "direction": 1,
+        "value": 1.0,
+        "use_averaged_flow": true
+      },
+      "boundary_conditions": [
+        {
+          "type": "no_slip",
+          "zone_indices": [
+            3,
+            4
+          ]
+        }
+      ],
+      "low_mach": {
+        "enabled": true,
+        "P0": 1.0,
+        "R_specific": 1.0,
+        "cp": 1.0,
+        "k_conductivity": 0.0005030181,
+        "T_eos_min": 0.5,
+        "T_eos_max": 8.0,
+        "temperature_field": "temperature"
+      },
+      "output_control": "nsamples",
+      "output_value": 2
+    },
+    "scalar": {
+      "name": "temperature",
+      "enabled": true,
+      "low_mach": {
+        "enabled": true
+      },
+      "solver": {
+        "type": "cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "boundary_conditions": [
+        {
+          "type": "dirichlet",
+          "value": 4.0,
+          "zone_indices": [
+            3
+          ]
+        },
+        {
+          "type": "dirichlet",
+          "value": 1.0,
+          "zone_indices": [
+            4
+          ]
+        }
+      ],
+      "initial_condition": {
+        "type": "user"
+      }
+    },
+    "simulation_components": [
+      {
+        "type": "field_writer",
+        "fields": [
+          "fluid_rho",
+          "fluid_mu_tot",
+          "temperature_lambda",
+          "temperature"
+        ],
+        "output_filename": "props",
+        "output_control": "nsamples",
+        "output_value": 2
+      }
+    ]
+  }
+}
