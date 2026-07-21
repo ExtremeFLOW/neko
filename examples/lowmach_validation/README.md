@@ -93,3 +93,58 @@ The adversarial audit also confirmed the **momentum** side is structurally exact
 at the manufactured solution (field-ρ advection, the `(4/3)μ u''` viscous trace
 split is not double-counted in `ax_helm_full`, the `-(2/3)∇(μQ_T)` dilatation,
 `∇μ = 0` since μ=1, BDF cancellation) — it is not a source of error.
+
+## Paper-style convergence test: linear initial condition
+
+The hold test above starts AT the analytic steady state. Tomboulides & Orszag
+instead converge TO it, which additionally exercises the scheme during a strong
+density transient. The user file supports this via the optional case key
+`"linear_ic": true` (read in `startup`): the IC becomes the straight line
+between the same x = ±1 boundary values, u = T = 1.5 + 0.5·tanh(1/δ)·x, and the
+run must find the tanh front on its own.
+
+```bash
+cd run_linear_ic && LD_LIBRARY_PATH=/home/hochi/json-fortran-install/lib \
+  ../neko linear_ic.case   # end_time 4.0 (≈6 transient time constants)
+```
+
+Result (dt = 1e-3, t = 4.0, `Normal end`): errors decay exponentially from
+O(1) and land on the SAME discretization floor as the hold test —
+
+| quantity | linear IC, t=4 | hold test |
+|----------|---------------|-----------|
+| `u`   | 2.03e-5 | 2.0e-5 |
+| `T`   | 4.4e-7  | 3.0e-7 |
+| `Q_T` | 7.17e-3 | 7.2e-3 |
+
+### Bug 4 (found by this test): pressure projection is unsafe under a ρ transient
+
+With `pressure_solver.projection_space_size: 4` (the hold-test setting) the
+transient run **blows up at t ≈ 0.45**: clean decay for ~470 steps, then a
+high-wavenumber velocity disturbance grows ~35%/step to NaN, while every KSP
+solve still converges to tolerance. Discriminating experiments
+(`run_linic_dthalf/`, `run_linic_noproj/`):
+
+- dt 1e-3, projection 4 → NaN at t ≈ 0.47
+- dt 5e-4, projection 4 → NaN at t ≈ 0.42 (same PHYSICAL time — not a CFL/dt issue;
+  log shows `WARNING: New vector not linearly indepependent!` at onset)
+- dt 1e-3, projection 0 → stable, converges to the floor above
+
+Cause: the projection basis stores `A·x_i` products for the pressure operator
+`A = ∇·(1/ρ ∇)`, but in low-Mach ρ(x,t) evolves every step, so the stored
+products go stale; at onset the projection step AMPLIFIED the pre-projection
+residual 25× (6.4e-3 → 0.16) instead of reducing it, and the injected pressure
+error feeds back through u → T → ρ. The hold test never sees this because ρ is
+time-constant from step one.
+
+**Fix (verified, recommended): keep projection but set
+`pressure_solver.projection_reorthogonalize_basis: true`** — the existing flag
+the 2026-07-01 audit predicted would be needed (its mechanism 4). Verified in
+`run_linic_reorth/`: dt 1e-3, projection 4 + reorthogonalize runs the full
+transient to `Normal end` with final errors BIT-FOR-BIT identical to the
+projection-off run (u 2.027e-5, T 4.421e-7, Q_T 7.173e-3), zero
+linear-dependence warnings, AND keeps the acceleration: ~2 pressure
+iterations/step late-run vs ~40 with projection off. Use this in any low-Mach
+case with a density transient (e.g. heated-case startups);
+`projection_space_size: 0` is the fallback. Nek5000's projection has the same
+structural staleness.

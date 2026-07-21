@@ -19,6 +19,12 @@ module user
 
   real(kind=rp), parameter :: delta = 0.2_rp
 
+  !> IC selector: .false. = analytic tanh steady state (default, Nek5000-style
+  !! "hold" test); .true. = linear profile between the same x = +/-1 boundary
+  !! values, so the run must CONVERGE to the steady state (paper-style test).
+  !! Set via the optional case-file key "case.linear_ic".
+  logical :: linear_ic = .false.
+
 contains
 
   subroutine user_setup(user)
@@ -38,6 +44,23 @@ contains
     f = 0.5_rp * (3.0_rp + tanh(x / delta))
   end function fprof
 
+  pure function flin(x) result(f)         ! linear IC with the same end values
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: f
+    f = 1.5_rp + 0.5_rp * tanh(1.0_rp / delta) * x
+  end function flin
+
+  !> Profile used for the initial condition (BCs always use fprof).
+  pure function icprof(x) result(f)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: f
+    if (linear_ic) then
+       f = flin(x)
+    else
+       f = fprof(x)
+    end if
+  end function icprof
+
   pure function qtl_ex(x) result(q)       ! QTL = 0.5/d (1 - tanh^2)
     real(kind=rp), intent(in) :: x
     real(kind=rp) :: q, th
@@ -55,8 +78,14 @@ contains
 
   subroutine startup(params)
     type(json_file), intent(inout) :: params
+    logical :: found
+    character(len=256) :: log_buf
     call params%add("case.fluid.mu", 1.0_rp)
     call params%add("case.fluid.rho", 1.0_rp)
+    call params%get("case.linear_ic", linear_ic, found)
+    if (.not. found) linear_ic = .false.
+    write(log_buf, '(A,L1)') '   [validate] linear_ic = ', linear_ic
+    call neko_log%message(log_buf)
   end subroutine startup
 
   !> Constant properties: mu=1 (fluid), lambda=1, cp=1 (temperature). Setting
@@ -85,8 +114,9 @@ contains
     end if
   end subroutine material_properties
 
-  !> IC: u = T = analytical tanh. Also create + fill the registry field
-  !! "temperature_qdot" with q(x) so the low-Mach Q_T routine picks it up.
+  !> IC: u = T = analytical tanh (or linear profile when case.linear_ic).
+  !! Also create + fill the registry field "temperature_qdot" with q(x) so
+  !! the low-Mach Q_T routine picks it up.
   subroutine initial_conditions(scheme_name, fields)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
@@ -101,7 +131,7 @@ contains
        n = u%dof%size()
        do i = 1, n
           xx = u%dof%x(i,1,1,1)
-          u%x(i,1,1,1) = fprof(xx)
+          u%x(i,1,1,1) = icprof(xx)
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
        end do
@@ -109,7 +139,7 @@ contains
        s => fields%items(1)%ptr
        n = s%dof%size()
        do i = 1, n
-          s%x(i,1,1,1) = fprof(s%dof%x(i,1,1,1))
+          s%x(i,1,1,1) = icprof(s%dof%x(i,1,1,1))
        end do
        ! Create + fill the heat-source field read by lowmach_update_Q_T.
        if (.not. neko_registry%field_exists('temperature_qdot')) &
@@ -194,7 +224,17 @@ contains
 
     ! Diagnostic: ranges of the denominator components (rho, cp, T) and Q_T.
     ! Analytical: T in [1,2], rho=1/T in [0.5,1], cp=1, Q_T in [0, 0.5/delta=2.5].
+    ! EOS consistency: max|rho*T - 1| measures the one-step rho/T lag (rho built
+    ! from T^n vs current T^{n+1}); with heat-first ordering it should sit at
+    ! roundoff during the transient instead of O(dt*dT/dt).
     rho => neko_registry%get_field('fluid_rho')
+    eu = 0.0_rp
+    do i = 1, n
+       eu = max(eu, abs(rho%x(i,1,1,1) * s%x(i,1,1,1) - 1.0_rp))
+    end do
+    red(1) = eu; eu = glmax(red, 1)
+    write(log_buf, '(A,ES11.3)') '   [diag] max|rho*T - 1| = ', eu
+    call neko_log%message(log_buf)
     write(log_buf, '(A,2ES11.3,A,2ES11.3,A,2ES11.3)') &
          '   [diag] T[', glmin(s%x,n), glmax(s%x,n), '] rho[', &
          glmin(rho%x,n), glmax(rho%x,n), '] Q_T[', glmin(qt%x,n), glmax(qt%x,n)
