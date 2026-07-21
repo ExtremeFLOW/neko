@@ -1,0 +1,5 @@
+<map id="gs_shmem::gs_shmem_buf_t" name="gs_shmem::gs_shmem_buf_t">
+<area shape="rect" id="Node000001" title="Symmetric buffer for one direction of OpenSHMEM communication." alt="" coords="5,93,177,133"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="64,5,119,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,44,94,93,89,93,89,44"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="lpt_output::lpt_output_init_file" name="lpt_output::lpt_output_init_file">
+<area shape="rect" id="Node000001" title="Initialise the currently active LPT output file." alt="" coords="5,5,168,45"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="216,13,375,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,23,202,23,202,28,168,28"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="423,13,611,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,23,409,23,409,28,375,28"/>
+</map>

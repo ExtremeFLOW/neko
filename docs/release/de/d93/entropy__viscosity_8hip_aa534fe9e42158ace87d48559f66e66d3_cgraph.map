@@ -1,0 +1,6 @@
+<map id="hip_entropy_visc_compute_residual" name="hip_entropy_visc_compute_residual">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,201,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="249,29,401,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,47,235,47,235,52,202,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="284,30,281,20,288,10,303,5,325,3,351,6,365,13,363,18,350,11,325,8,304,10,291,15,287,21,289,28"/>
+</map>

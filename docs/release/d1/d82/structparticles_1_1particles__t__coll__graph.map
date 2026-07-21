@@ -1,0 +1,7 @@
+<map id="particles::particles_t" name="particles::particles_t">
+<area shape="rect" id="Node000001" title="Particle positions, velocities, properties, and time&#45;history data." alt="" coords="5,328,160,353"/>
+<area shape="rect" id="Node000002" href="$d3/d5b/structvector_1_1vector__t.html" title=" " alt="" coords="21,93,145,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,133,85,328,80,328,80,133"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="55,5,110,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="85,45,85,93,80,93,80,45"/>
+</map>

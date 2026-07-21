@@ -1,0 +1,6 @@
+<map id="hip_power" name="hip_power">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,95,62"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="143,29,295,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,47,129,47,129,52,95,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="187,30,185,20,190,11,201,5,219,3,239,6,250,13,247,17,237,11,219,8,203,10,193,15,190,21,192,28"/>
+</map>

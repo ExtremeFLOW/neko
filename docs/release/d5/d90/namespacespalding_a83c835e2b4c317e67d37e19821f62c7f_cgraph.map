@@ -1,14 +1,14 @@
 <map id="spalding::spalding_compute" name="spalding::spalding_compute">
 <area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,37,145,77"/>
-<area shape="rect" id="Node000002" href="$da/d2d/namespacespalding__cpu.html#afd6970b97485675fee90233dc7157276" title="Compute the wall shear stress on cpu using Spalding&#39;s model." alt="" coords="203,5,374,45"/>
+<area shape="rect" id="Node000002" href="$da/d2d/namespacespalding__cpu.html#a32a37dba89e5039728d993dea147ff2d" title="Compute the wall shear stress on cpu using Spalding&#39;s model." alt="" coords="203,5,374,45"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,44,189,38,190,43,146,49"/>
-<area shape="rect" id="Node000004" href="$d2/d9a/namespacespalding__device.html#ac149667d03538653fd32c48f973e2766" title="Compute the wall shear stress on device using Spalding&#39;s model." alt="" coords="193,69,384,109"/>
+<area shape="rect" id="Node000004" href="$d2/d9a/namespacespalding__device.html#af08b00b00fdead6bca10119122bd63aa" title="Compute the wall shear stress on device using Spalding&#39;s model." alt="" coords="193,69,384,109"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="146,65,181,70,180,76,145,70"/>
 <area shape="rect" id="Node000003" href="$da/d2d/namespacespalding__cpu.html#a7ad0d1c56c5c9ea6633c4b5724472dca" title="Newton solver for the algebraic equation defined by the law on cpu." alt="" coords="432,13,612,38"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,23,418,23,418,28,375,28"/>
-<area shape="rect" id="Node000005" href="$d3/d8b/spalding_8cu.html#a0fc0674ca4b27dfeb155bc1e6be9f53b" title=" " alt="" coords="433,77,611,102"/>
+<area shape="rect" id="Node000005" href="$d3/d8b/spalding_8cu.html#a8d8d6f4c5c8cc8ddad65e3a15868387b" title=" " alt="" coords="433,77,611,102"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="384,87,419,87,419,92,384,92"/>
-<area shape="rect" id="Node000006" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="660,69,824,109"/>
+<area shape="rect" id="Node000006" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="660,69,812,109"/>
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="612,87,646,87,646,92,612,92"/>
-<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="701,70,699,60,705,50,720,45,742,43,768,46,782,53,779,58,766,51,742,48,721,50,708,55,704,61,706,68"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="696,70,694,60,700,50,714,45,736,43,761,46,775,53,772,58,759,51,736,48,716,50,703,55,699,61,701,68"/>
 </map>

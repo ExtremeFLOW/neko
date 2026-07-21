@@ -10,12 +10,17 @@ var namespacegs__device__mpi =
     [ "gs_device_mpi_buf_t", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t" ],
     [ "gs_device_mpi_t", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t" ],
     [ "hip_gs_pack", "d3/d98/interfacegs__device__mpi_1_1hip__gs__pack.html", "d3/d98/interfacegs__device__mpi_1_1hip__gs__pack" ],
+    [ "hip_gs_pack_vec", "d6/d45/interfacegs__device__mpi_1_1hip__gs__pack__vec.html", "d6/d45/interfacegs__device__mpi_1_1hip__gs__pack__vec" ],
     [ "hip_gs_unpack", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack.html", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack" ],
+    [ "hip_gs_unpack_vec", "d7/d9d/interfacegs__device__mpi_1_1hip__gs__unpack__vec.html", "d7/d9d/interfacegs__device__mpi_1_1hip__gs__unpack__vec" ],
     [ "gs_device_mpi_buf_free", "d9/dfa/namespacegs__device__mpi.html#abb045b3b7a92b5de7ffeed36d4da2a26", null ],
     [ "gs_device_mpi_buf_init", "d9/dfa/namespacegs__device__mpi.html#a1ffb2ff8429c63efe7920436e7fd21d6", null ],
     [ "gs_device_mpi_free", "d9/dfa/namespacegs__device__mpi.html#a467e70ece8c5500ace71594579ccd501", null ],
     [ "gs_device_mpi_init", "d9/dfa/namespacegs__device__mpi.html#afe2c32b8ff7fe4f3941b8653b47ec885", null ],
-    [ "gs_device_mpi_nbrecv", "d9/dfa/namespacegs__device__mpi.html#a3ab4035ed7c118c87f8902cdded702b9", null ],
-    [ "gs_device_mpi_nbsend", "d9/dfa/namespacegs__device__mpi.html#a832a9f3cba26a0e8c899d4897e697c69", null ],
-    [ "gs_device_mpi_nbwait", "d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518", null ]
+    [ "gs_device_mpi_nbrecv", "d9/dfa/namespacegs__device__mpi.html#aff2aa34c6b655038a9f29d0da998f7b3", null ],
+    [ "gs_device_mpi_nbrecv_vec", "d9/dfa/namespacegs__device__mpi.html#a5bce0fee1d8049dd5b5162b4b8b4732b", null ],
+    [ "gs_device_mpi_nbsend", "d9/dfa/namespacegs__device__mpi.html#af149a413dba89bc1fed2d20d646cc066", null ],
+    [ "gs_device_mpi_nbsend_vec", "d9/dfa/namespacegs__device__mpi.html#a17db3c0e3beb34c55469decf725739af", null ],
+    [ "gs_device_mpi_nbwait", "d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518", null ],
+    [ "gs_device_mpi_nbwait_vec", "d9/dfa/namespacegs__device__mpi.html#a5ff8b80324d32c136ca9c472c80ba066", null ]
 ];

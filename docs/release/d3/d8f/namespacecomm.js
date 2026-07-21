@@ -9,6 +9,7 @@ var namespacecomm =
     [ "mpi_real_precision", "d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc", null ],
     [ "neko_comm", "d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d", null ],
     [ "neko_global_comm", "d3/d8f/namespacecomm.html#a18e98b3ee477514f502cf3a518062ecb", null ],
+    [ "neko_mpi_thread_provided", "d3/d8f/namespacecomm.html#a84340aedcfd2d541b686ecbdedb718f7", null ],
     [ "nio", "d3/d8f/namespacecomm.html#a0ccb24a83a4a6180bf03c191ca525bb8", null ],
     [ "pe_rank", "d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde", null ],
     [ "pe_size", "d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d", null ]

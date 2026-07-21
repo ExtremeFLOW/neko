@@ -1,6 +1,6 @@
 <map id="hip_jacobi_update" name="hip_jacobi_update">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,145,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="193,29,357,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="193,29,345,69"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,47,180,47,180,52,146,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="238,30,235,20,241,11,255,5,275,3,299,6,312,13,309,18,297,11,275,8,256,10,245,15,241,21,243,28"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="233,30,231,20,237,11,250,5,269,3,292,6,304,13,302,17,290,11,269,8,251,10,240,15,236,21,238,28"/>
 </map>

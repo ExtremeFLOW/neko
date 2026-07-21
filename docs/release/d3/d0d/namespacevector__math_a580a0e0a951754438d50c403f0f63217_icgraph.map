@@ -1,0 +1,13 @@
+<map id="vector_math::vector_masked_gather_copy" name="vector_math::vector_masked_gather_copy">
+<area shape="rect" id="Node000001" title="Gather a vector to reduced contigous array ." alt="" coords="237,141,404,181"/>
+<area shape="rect" id="Node000002" href="$d1/da5/namespaceoverset__interface.html#a3a71e1559bf234006ae3ad429081a342" title="Gather interface dofs." alt="" coords="12,5,183,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="287,134,242,96,188,60,163,48,165,43,191,55,245,92,291,130"/>
+<area shape="rect" id="Node000003" href="$d6/de1/namespaceoverset__interface__vector.html#ad555470637dc93b888bd040d43bcc4ba" title="Gather interface dofs." alt="" coords="5,69,189,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="244,140,159,112,161,107,246,135"/>
+<area shape="rect" id="Node000004" href="$dd/de1/namespaceglobal__interpolation.html#ae9c17253d0dc29559d194d89a868d56c" title="Evaluate the interpolated value in a masked field." alt="" coords="17,134,177,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,164,178,164,178,159,224,159"/>
+<area shape="rect" id="Node000005" href="$d1/da5/namespaceoverset__interface.html#a7d61c39526e32be5660aa9cb6641ef1c" title="Log interface RMSE for the scalar field." alt="" coords="21,213,173,253"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="246,188,161,216,159,211,244,183"/>
+<area shape="rect" id="Node000006" href="$d6/de1/namespaceoverset__interface__vector.html#a39ae73c70e1d995c7ffc543278df54b6" title="Log interface RMSE for each vector component." alt="" coords="5,277,189,317"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="291,193,245,231,191,268,165,280,163,275,188,263,242,227,287,189"/>
+</map>

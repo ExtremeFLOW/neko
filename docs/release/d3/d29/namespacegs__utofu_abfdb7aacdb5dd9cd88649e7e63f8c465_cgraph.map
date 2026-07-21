@@ -1,0 +1,14 @@
+<map id="gs_utofu::gs_utofu_free" name="gs_utofu::gs_utofu_free">
+<area shape="rect" id="Node000001" title="Deallocate the uTofu communication method." alt="" coords="5,37,180,62"/>
+<area shape="rect" id="Node000002" href="$d0/d1b/gs__utofu__aux_8c.html#a85f0fa51f38f3d20bffdc22e52ad6773" title=" " alt="" coords="228,37,367,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,47,214,47,214,52,180,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="611,29,763,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="345,34,414,21,489,16,563,21,597,26,597,32,562,27,489,22,415,27,346,39"/>
+<area shape="rect" id="Node000004" href="$d0/d1b/gs__utofu__aux_8c.html#a925dc619d045f40b2ab8bb2d7cdb098c" title=" " alt="" coords="416,37,561,62"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="367,47,402,47,402,52,367,52"/>
+<area shape="rect" id="Node000005" href="$d0/d1b/gs__utofu__aux_8c.html#ab61df2ef6c04e7351af46603b3af56b7" title=" " alt="" coords="415,86,563,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="348,59,426,80,424,85,347,65"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="649,30,647,20,653,11,666,5,687,3,710,6,723,13,720,18,708,11,687,8,668,10,657,15,652,21,655,28"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="562,47,597,47,597,52,562,52"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="540,83,596,69,598,74,541,89"/>
+</map>

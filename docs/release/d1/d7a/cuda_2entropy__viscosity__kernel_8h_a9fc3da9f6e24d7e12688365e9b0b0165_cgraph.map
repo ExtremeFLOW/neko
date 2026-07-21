@@ -1,0 +1,8 @@
+<map id="entropy_visc_apply_element_max_kernel" name="entropy_visc_apply_element_max_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,172,79"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="239,5,353,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,40,224,29,226,35,173,45"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="220,79,372,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,73,207,79,206,85,172,78"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="257,80,255,70,261,61,275,55,296,53,320,56,333,63,331,68,318,61,296,58,276,60,265,65,260,71,262,78"/>
+</map>

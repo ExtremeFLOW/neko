@@ -1,86 +1,91 @@
 <map id="registry_entry::registry_entry_t" name="registry_entry::registry_entry_t">
-<area shape="rect" id="Node000001" title=" " alt="" coords="2303,953,2473,993"/>
-<area shape="rect" id="Node000002" href="$d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="2099,810,2197,835"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2183,841,2356,951,2354,955,2180,845"/>
-<area shape="rect" id="Node000003" href="$da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1489,810,1608,835"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1622,820,2098,820,2098,825,1622,825"/>
-<area shape="rect" id="Node000031" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1780,711,1923,737"/>
-<area shape="poly" id="edge45_Node000031_Node000003" title=" " alt="" coords="1601,803,1810,734,1812,739,1602,808"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="1261,918,1316,943"/>
-<area shape="poly" id="edge47_Node000002_Node000004" title=" " alt="" coords="1329,924,1465,909,1829,863,2098,827,2099,832,1830,869,1466,915,1330,929"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1329,922,1394,908,1464,883,1502,859,1532,834,1536,838,1505,863,1467,888,1395,913,1330,928"/>
-<area shape="poly" id="edge46_Node000031_Node000004" title=" " alt="" coords="1299,905,1351,798,1379,748,1398,722,1451,697,1507,683,1565,676,1623,676,1678,681,1730,689,1810,709,1809,714,1728,695,1678,687,1623,682,1566,682,1508,688,1453,702,1402,726,1383,751,1356,800,1304,907"/>
-<area shape="rect" id="Node000032" href="$d3/d5b/structvector_1_1vector__t.html" title=" " alt="" coords="1632,1022,1756,1047"/>
-<area shape="poly" id="edge49_Node000032_Node000004" title=" " alt="" coords="1316,951,1354,980,1401,1004,1461,1021,1522,1030,1632,1035,1632,1040,1522,1036,1459,1026,1399,1009,1351,984,1312,955"/>
-<area shape="rect" id="Node000033" href="$da/d95/structmatrix_1_1matrix__t.html" title=" " alt="" coords="1947,961,2075,986"/>
-<area shape="poly" id="edge51_Node000033_Node000004" title=" " alt="" coords="1330,936,1400,947,1554,960,1706,968,1946,971,1946,977,1706,973,1553,965,1400,952,1329,941"/>
-<area shape="rect" id="Node000005" href="$d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1491,475,1606,501"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="1608,502,1704,535,1825,584,1890,615,1955,650,2018,689,2076,733,2114,772,2141,808,2137,812,2110,776,2073,737,2015,694,1952,654,1888,619,1823,589,1702,540,1607,507"/>
-<area shape="poly" id="edge44_Node000031_Node000005" title=" " alt="" coords="1570,510,1599,544,1634,578,1685,619,1739,656,1828,709,1825,713,1736,660,1682,623,1630,582,1595,547,1566,514"/>
-<area shape="rect" id="Node000006" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1235,343,1343,369"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1357,362,1412,375,1467,399,1490,416,1511,437,1541,474,1537,477,1507,440,1487,420,1464,404,1410,380,1355,367"/>
-<area shape="rect" id="Node000007" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="847,390,964,415"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="977,391,1234,360,1235,365,978,397"/>
-<area shape="rect" id="Node000008" href="$d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1201,393,1376,418"/>
-<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="1390,415,1466,436,1502,454,1531,473,1529,477,1499,458,1464,441,1389,421"/>
-<area shape="rect" id="Node000009" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="452,622,595,647"/>
-<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="608,633,754,632,945,626,1160,613,1376,591,1422,586,1441,582,1464,571,1487,555,1507,535,1537,499,1541,502,1511,539,1490,559,1467,576,1443,587,1423,591,1376,596,1160,619,945,631,754,637,609,638"/>
-<area shape="rect" id="Node000018" href="$d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="847,685,964,710"/>
-<area shape="poly" id="edge23_Node000018_Node000009" title=" " alt="" coords="609,646,634,651,847,685,846,691,633,656,608,652"/>
-<area shape="rect" id="Node000010" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="249,631,373,657"/>
-<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="387,638,452,635,452,640,387,643"/>
-<area shape="rect" id="Node000012" href="$d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="1021,747,1177,773"/>
-<area shape="poly" id="edge13_Node000012_Node000010" title=" " alt="" coords="362,661,390,679,406,701,413,722,421,741,439,756,478,775,520,791,607,811,696,819,783,817,867,809,942,797,1056,770,1057,775,943,802,867,815,784,823,695,824,606,816,518,796,476,780,436,761,417,744,408,724,401,703,386,683,359,665"/>
-<area shape="rect" id="Node000013" href="$da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="633,563,789,589"/>
-<area shape="poly" id="edge15_Node000013_Node000010" title=" " alt="" coords="365,625,437,607,539,590,633,580,633,585,540,596,438,612,366,630"/>
-<area shape="rect" id="Node000011" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,669,136,694"/>
-<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="150,666,249,651,250,656,150,672"/>
-<area shape="poly" id="edge11_Node000011_Node000011" title=" " alt="" coords="48,654,55,645,71,642,84,644,93,651,95,660,91,670,86,667,89,660,88,654,82,649,71,647,57,650,52,657"/>
-<area shape="rect" id="Node000021" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="235,693,388,718"/>
-<area shape="poly" id="edge26_Node000021_Node000011" title=" " alt="" coords="150,692,160,693,235,699,234,705,160,699,149,697"/>
-<area shape="poly" id="edge12_Node000005_Node000012" title=" " alt="" coords="1190,746,1256,733,1328,711,1399,679,1433,660,1464,637,1494,604,1516,565,1541,500,1546,502,1521,568,1498,607,1467,641,1436,664,1402,684,1329,716,1257,738,1191,752"/>
-<area shape="poly" id="edge14_Node000005_Node000013" title=" " alt="" coords="803,564,1491,491,1491,497,804,569"/>
-<area shape="rect" id="Node000014" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="1034,443,1165,469"/>
-<area shape="poly" id="edge16_Node000005_Node000014" title=" " alt="" coords="1179,459,1491,481,1491,487,1179,464"/>
-<area shape="rect" id="Node000015" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="255,245,367,270"/>
-<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="349,274,438,315,542,353,623,380,706,402,814,424,930,441,1034,450,1033,455,929,446,813,429,705,407,621,385,540,359,436,320,347,279"/>
-<area shape="rect" id="Node000017" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="451,281,595,306"/>
-<area shape="poly" id="edge20_Node000017_Node000015" title=" " alt="" coords="382,267,452,279,451,284,381,272"/>
-<area shape="rect" id="Node000027" href="$df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="639,225,783,250"/>
-<area shape="poly" id="edge38_Node000027_Node000015" title=" " alt="" coords="381,251,639,238,639,244,381,257"/>
-<area shape="rect" id="Node000030" href="$d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="446,55,601,81"/>
-<area shape="poly" id="edge42_Node000030_Node000015" title=" " alt="" coords="335,233,506,79,509,83,339,237"/>
-<area shape="rect" id="Node000016" href="$d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1215,557,1363,582"/>
-<area shape="poly" id="edge18_Node000005_Node000016" title=" " alt="" coords="1376,568,1421,562,1464,550,1504,526,1534,499,1537,503,1507,530,1466,554,1422,567,1377,573"/>
-<area shape="poly" id="edge19_Node000016_Node000017" title=" " alt="" coords="556,311,634,361,746,425,880,490,951,518,1022,541,1071,553,1122,560,1215,567,1214,572,1121,566,1070,558,1021,547,949,523,878,495,744,430,631,365,553,316"/>
-<area shape="rect" id="Node000022" href="$d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="813,277,997,302"/>
-<area shape="poly" id="edge30_Node000022_Node000017" title=" " alt="" coords="609,290,813,288,813,293,609,295"/>
-<area shape="rect" id="Node000025" href="$d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1203,212,1375,252"/>
-<area shape="poly" id="edge34_Node000025_Node000017" title=" " alt="" coords="600,306,682,319,781,329,889,333,997,325,1065,312,1132,292,1242,250,1244,255,1134,297,1067,317,998,331,889,338,781,334,681,324,599,311"/>
-<area shape="poly" id="edge21_Node000016_Node000018" title=" " alt="" coords="969,710,1017,717,1071,718,1125,711,1151,703,1176,691,1185,683,1189,674,1199,651,1236,611,1270,580,1273,584,1239,615,1204,653,1194,676,1189,686,1179,696,1153,708,1127,716,1071,724,1016,722,968,715"/>
-<area shape="rect" id="Node000019" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="474,671,573,697"/>
-<area shape="poly" id="edge22_Node000018_Node000019" title=" " alt="" coords="587,684,847,693,846,698,586,689"/>
-<area shape="rect" id="Node000020" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="437,721,609,746"/>
-<area shape="poly" id="edge24_Node000018_Node000020" title=" " alt="" coords="623,724,789,709,846,703,847,708,790,715,623,729"/>
-<area shape="poly" id="edge25_Node000020_Node000021" title=" " alt="" coords="402,715,438,719,437,725,401,720"/>
-<area shape="poly" id="edge27_Node000005_Node000022" title=" " alt="" coords="1011,287,1132,291,1265,301,1329,310,1386,321,1433,336,1467,354,1496,383,1519,416,1545,474,1541,476,1514,419,1492,386,1464,358,1431,341,1384,326,1328,315,1265,307,1132,296,1011,292"/>
-<area shape="poly" id="edge32_Node000025_Node000022" title=" " alt="" coords="1004,272,1202,242,1203,247,1005,277"/>
-<area shape="rect" id="Node000023" href="$d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="460,173,587,198"/>
-<area shape="poly" id="edge28_Node000022_Node000023" title=" " alt="" coords="601,185,709,193,757,202,791,215,800,225,804,236,808,246,815,255,850,274,847,279,812,259,803,248,799,238,796,228,788,220,756,207,708,199,600,190"/>
-<area shape="poly" id="edge33_Node000025_Node000023" title=" " alt="" coords="600,170,633,167,711,163,791,164,948,175,1090,193,1203,212,1202,217,1089,198,947,180,791,169,711,169,634,172,601,175"/>
-<area shape="rect" id="Node000024" href="$d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="257,139,365,165"/>
-<area shape="poly" id="edge29_Node000023_Node000024" title=" " alt="" coords="379,160,460,173,459,178,378,165"/>
-<area shape="rect" id="Node000026" href="$dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="644,99,779,125"/>
-<area shape="poly" id="edge36_Node000026_Node000024" title=" " alt="" coords="379,143,644,116,644,121,379,148"/>
-<area shape="poly" id="edge31_Node000005_Node000025" title=" " alt="" coords="1389,237,1430,251,1467,274,1489,297,1506,324,1530,382,1544,436,1549,475,1544,476,1538,437,1525,383,1501,326,1484,300,1464,278,1428,256,1387,242"/>
-<area shape="poly" id="edge35_Node000025_Node000026" title=" " alt="" coords="792,97,875,90,973,89,1078,101,1129,113,1178,130,1208,146,1235,167,1274,210,1271,214,1231,171,1205,150,1176,134,1128,118,1077,106,973,95,875,95,793,102"/>
-<area shape="poly" id="edge37_Node000025_Node000027" title=" " alt="" coords="797,234,1202,230,1202,235,797,239"/>
-<area shape="rect" id="Node000028" href="$dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="848,9,963,34"/>
-<area shape="poly" id="edge39_Node000005_Node000028" title=" " alt="" coords="977,23,1085,39,1150,53,1218,72,1286,98,1353,131,1414,172,1467,222,1491,254,1509,289,1534,362,1546,429,1550,475,1544,475,1540,430,1528,363,1504,291,1486,257,1463,226,1411,176,1350,136,1284,103,1216,78,1149,58,1084,44,976,29"/>
-<area shape="rect" id="Node000029" href="$d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="440,6,607,31"/>
-<area shape="poly" id="edge40_Node000028_Node000029" title=" " alt="" coords="621,17,848,18,848,24,621,22"/>
-<area shape="poly" id="edge41_Node000028_Node000030" title=" " alt="" coords="614,58,789,39,847,29,848,35,790,44,614,63"/>
-<area shape="poly" id="edge43_Node000002_Node000031" title=" " alt="" coords="1904,739,2109,807,2108,812,1903,744"/>
-<area shape="poly" id="edge48_Node000001_Node000032" title=" " alt="" coords="1770,1029,1912,1023,2074,1011,2302,983,2302,988,2075,1016,1912,1028,1770,1035"/>
-<area shape="poly" id="edge50_Node000001_Node000033" title=" " alt="" coords="2088,971,2303,971,2303,976,2088,976"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="2452,1055,2623,1095"/>
+<area shape="rect" id="Node000002" href="$d9/d61/structhost__array_1_1host__array__t.html" title="Host&#45;only temporary array." alt="" coords="2127,931,2305,957"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2300,957,2364,974,2429,999,2475,1025,2513,1052,2510,1057,2472,1029,2427,1004,2363,980,2299,962"/>
+<area shape="rect" id="Node000003" href="$d7/d53/structdevice__array_1_1device__array__t.html" title="Device&#45;only temporary array." alt="" coords="1632,1105,1788,1145"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1802,1117,2452,1077,2452,1083,1802,1122"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="1261,1045,1316,1070"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1330,1071,1401,1093,1522,1112,1632,1121,1632,1126,1521,1118,1399,1099,1328,1076"/>
+<area shape="rect" id="Node000005" href="$d3/d5b/structvector_1_1vector__t.html" title=" " alt="" coords="1979,1165,2103,1190"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="1326,1074,1400,1109,1444,1126,1490,1139,1625,1161,1761,1173,1883,1177,1978,1177,1978,1182,1883,1182,1761,1178,1625,1166,1489,1144,1443,1131,1398,1114,1323,1079"/>
+<area shape="rect" id="Node000006" href="$da/d95/structmatrix_1_1matrix__t.html" title=" " alt="" coords="1646,1062,1774,1087"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="1330,1062,1400,1071,1531,1075,1646,1074,1646,1080,1531,1081,1400,1076,1329,1067"/>
+<area shape="rect" id="Node000007" href="$d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="2167,981,2265,1006"/>
+<area shape="poly" id="edge54_Node000007_Node000004" title=" " alt="" coords="1330,1052,2166,994,2166,999,1330,1057"/>
+<area shape="rect" id="Node000008" href="$da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1489,950,1608,975"/>
+<area shape="poly" id="edge10_Node000008_Node000004" title=" " alt="" coords="1328,1041,1464,992,1515,973,1516,978,1466,997,1330,1046"/>
+<area shape="rect" id="Node000035" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1812,837,1955,862"/>
+<area shape="poly" id="edge53_Node000035_Node000004" title=" " alt="" coords="1291,1031,1302,985,1321,929,1353,875,1374,851,1399,831,1457,804,1519,789,1584,784,1648,787,1709,796,1765,808,1850,834,1848,839,1764,814,1708,801,1648,793,1584,789,1520,794,1458,809,1401,836,1377,854,1357,878,1326,932,1307,987,1296,1032"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="2117,1179,2184,1180,2263,1175,2346,1163,2427,1142,2473,1119,2510,1092,2513,1097,2475,1123,2429,1146,2347,1169,2264,1180,2184,1185,2117,1185"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="1788,1072,2452,1072,2452,1077,1788,1077"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="2279,1006,2458,1052,2457,1057,2278,1012"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="1622,963,2167,988,2167,994,1622,969"/>
+<area shape="poly" id="edge52_Node000035_Node000008" title=" " alt="" coords="1599,943,1844,860,1846,865,1601,948"/>
+<area shape="rect" id="Node000009" href="$d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1491,474,1606,499"/>
+<area shape="poly" id="edge11_Node000007_Node000009" title=" " alt="" coords="1603,501,1692,537,1742,560,1789,587,1891,649,1970,701,2005,729,2038,764,2071,807,2105,860,2112,876,2115,891,2114,918,2115,943,2119,955,2129,967,2146,980,2167,987,2165,992,2144,985,2125,971,2115,957,2110,944,2109,918,2110,891,2107,877,2100,863,2066,810,2034,767,2001,733,1967,705,1888,653,1787,592,1739,565,1690,542,1601,506"/>
+<area shape="poly" id="edge51_Node000035_Node000009" title=" " alt="" coords="1565,510,1594,561,1634,617,1697,686,1764,748,1867,835,1864,839,1760,752,1693,689,1630,620,1590,564,1560,513"/>
+<area shape="rect" id="Node000010" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1235,793,1343,818"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="1356,796,1420,785,1447,777,1464,767,1490,737,1510,701,1525,662,1535,623,1544,550,1545,500,1551,500,1550,550,1540,624,1530,664,1515,703,1494,740,1467,771,1449,782,1422,790,1357,801"/>
+<area shape="rect" id="Node000011" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="847,801,964,826"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="977,809,1234,804,1234,809,978,815"/>
+<area shape="rect" id="Node000012" href="$d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1201,130,1376,155"/>
+<area shape="poly" id="edge14_Node000009_Node000012" title=" " alt="" coords="1390,139,1431,150,1467,173,1484,196,1499,231,1523,320,1539,410,1548,473,1543,474,1534,411,1518,321,1494,233,1479,199,1464,177,1429,155,1389,144"/>
+<area shape="rect" id="Node000013" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="452,146,595,171"/>
+<area shape="poly" id="edge15_Node000009_Node000013" title=" " alt="" coords="609,154,790,154,1015,163,1127,172,1229,186,1315,205,1349,217,1377,231,1412,257,1443,288,1470,322,1493,358,1527,425,1546,473,1541,475,1522,427,1488,361,1466,325,1439,291,1409,261,1375,236,1347,222,1313,210,1228,191,1127,177,1015,168,790,160,609,160"/>
+<area shape="rect" id="Node000022" href="$d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="847,257,964,282"/>
+<area shape="poly" id="edge30_Node000022_Node000013" title=" " alt="" coords="582,173,861,254,860,259,581,178"/>
+<area shape="rect" id="Node000014" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="249,175,373,201"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="387,175,452,166,452,171,388,180"/>
+<area shape="rect" id="Node000016" href="$d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="1021,211,1177,237"/>
+<area shape="poly" id="edge20_Node000016_Node000014" title=" " alt="" coords="387,189,1021,218,1021,223,387,194"/>
+<area shape="rect" id="Node000017" href="$da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="633,86,789,111"/>
+<area shape="poly" id="edge22_Node000017_Node000014" title=" " alt="" coords="347,167,389,147,437,131,538,110,633,100,633,105,539,115,438,136,391,152,350,171"/>
+<area shape="rect" id="Node000015" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,226,136,251"/>
+<area shape="poly" id="edge17_Node000014_Node000015" title=" " alt="" coords="145,220,250,198,251,203,146,226"/>
+<area shape="poly" id="edge18_Node000015_Node000015" title=" " alt="" coords="48,211,55,203,71,199,84,202,93,208,95,218,91,227,86,225,89,217,88,211,82,207,71,205,57,207,52,215"/>
+<area shape="rect" id="Node000025" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="235,250,388,275"/>
+<area shape="poly" id="edge33_Node000025_Node000015" title=" " alt="" coords="134,252,160,256,235,261,234,266,160,261,133,257"/>
+<area shape="poly" id="edge19_Node000009_Node000016" title=" " alt="" coords="1173,238,1178,240,1264,272,1331,299,1393,334,1467,387,1511,432,1541,472,1537,475,1507,435,1464,391,1390,338,1328,304,1262,277,1176,245,1171,243"/>
+<area shape="poly" id="edge21_Node000009_Node000017" title=" " alt="" coords="761,79,821,62,898,43,988,28,1086,18,1188,19,1239,25,1288,35,1337,49,1383,68,1427,93,1467,123,1487,150,1503,191,1527,295,1542,401,1549,474,1544,474,1537,401,1522,296,1498,192,1482,153,1463,127,1424,97,1381,73,1335,54,1287,40,1238,30,1188,25,1087,24,989,33,899,49,822,67,762,84"/>
+<area shape="rect" id="Node000018" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="1034,323,1165,349"/>
+<area shape="poly" id="edge23_Node000009_Node000018" title=" " alt="" coords="1126,356,1160,383,1202,408,1278,437,1357,457,1430,471,1491,479,1491,484,1429,476,1355,462,1277,442,1200,413,1157,388,1122,360"/>
+<area shape="rect" id="Node000019" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="255,467,367,493"/>
+<area shape="poly" id="edge24_Node000018_Node000019" title=" " alt="" coords="343,458,386,434,436,413,518,391,602,373,770,349,920,337,1034,333,1034,339,920,342,770,354,603,378,519,396,438,419,388,439,345,463"/>
+<area shape="rect" id="Node000021" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="451,429,595,454"/>
+<area shape="poly" id="edge27_Node000021_Node000019" title=" " alt="" coords="380,465,453,451,454,457,381,470"/>
+<area shape="rect" id="Node000031" href="$df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="639,501,783,526"/>
+<area shape="poly" id="edge45_Node000031_Node000019" title=" " alt="" coords="381,483,640,505,639,510,381,488"/>
+<area shape="rect" id="Node000034" href="$d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="446,703,601,729"/>
+<area shape="poly" id="edge49_Node000034_Node000019" title=" " alt="" coords="332,503,390,592,412,635,422,653,439,673,461,689,486,701,483,706,459,693,436,677,417,657,407,638,386,595,327,506"/>
+<area shape="rect" id="Node000020" href="$d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1215,359,1363,385"/>
+<area shape="poly" id="edge25_Node000009_Node000020" title=" " alt="" coords="1348,386,1406,406,1467,432,1531,472,1528,476,1464,437,1404,411,1346,391"/>
+<area shape="poly" id="edge26_Node000020_Node000021" title=" " alt="" coords="585,423,633,413,795,394,957,381,1214,370,1214,376,957,386,796,399,634,419,586,428"/>
+<area shape="rect" id="Node000026" href="$d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="813,638,997,663"/>
+<area shape="poly" id="edge37_Node000026_Node000021" title=" " alt="" coords="588,455,634,465,680,470,719,468,754,472,773,481,791,497,802,512,807,528,805,558,803,588,806,602,815,617,827,628,842,636,839,640,824,632,811,620,801,604,797,588,800,557,802,528,798,514,787,500,770,486,753,478,718,473,680,475,633,471,587,460"/>
+<area shape="rect" id="Node000029" href="$d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1203,531,1375,571"/>
+<area shape="poly" id="edge41_Node000029_Node000021" title=" " alt="" coords="609,440,790,451,985,476,1178,517,1220,528,1218,533,1177,523,984,481,789,456,609,445"/>
+<area shape="poly" id="edge28_Node000020_Node000022" title=" " alt="" coords="978,281,1022,289,1101,299,1135,305,1178,316,1227,336,1267,357,1265,362,1224,341,1176,321,1134,310,1100,305,1021,295,977,286"/>
+<area shape="rect" id="Node000023" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="474,247,573,273"/>
+<area shape="poly" id="edge29_Node000022_Node000023" title=" " alt="" coords="587,259,847,265,846,271,586,264"/>
+<area shape="rect" id="Node000024" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="437,297,609,322"/>
+<area shape="poly" id="edge31_Node000022_Node000024" title=" " alt="" coords="623,300,789,284,846,276,847,281,790,289,623,305"/>
+<area shape="poly" id="edge32_Node000024_Node000025" title=" " alt="" coords="384,276,465,294,464,299,382,281"/>
+<area shape="poly" id="edge34_Node000009_Node000026" title=" " alt="" coords="1011,652,1092,650,1185,641,1282,624,1375,595,1421,572,1465,545,1530,497,1534,502,1468,550,1424,577,1377,600,1283,629,1186,647,1093,655,1011,657"/>
+<area shape="poly" id="edge39_Node000029_Node000026" title=" " alt="" coords="1011,637,1093,623,1177,601,1216,586,1251,568,1253,573,1218,591,1178,607,1094,628,1012,642"/>
+<area shape="rect" id="Node000027" href="$d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="460,638,587,663"/>
+<area shape="poly" id="edge35_Node000026_Node000027" title=" " alt="" coords="600,648,813,648,813,653,600,653"/>
+<area shape="poly" id="edge40_Node000029_Node000027" title=" " alt="" coords="598,663,680,677,780,688,888,693,997,687,1090,674,1129,663,1176,642,1228,606,1267,569,1271,573,1231,610,1179,646,1131,668,1091,680,998,692,889,698,779,693,679,682,597,669"/>
+<area shape="rect" id="Node000028" href="$d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="257,606,365,631"/>
+<area shape="poly" id="edge36_Node000027_Node000028" title=" " alt="" coords="379,626,460,639,459,644,378,631"/>
+<area shape="rect" id="Node000030" href="$dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="644,579,779,605"/>
+<area shape="poly" id="edge43_Node000030_Node000028" title=" " alt="" coords="379,612,644,594,644,599,379,617"/>
+<area shape="poly" id="edge38_Node000009_Node000029" title=" " alt="" coords="1383,525,1495,497,1497,502,1385,530"/>
+<area shape="poly" id="edge42_Node000029_Node000030" title=" " alt="" coords="792,584,1202,554,1203,559,793,589"/>
+<area shape="poly" id="edge44_Node000029_Node000031" title=" " alt="" coords="797,516,1203,542,1202,548,797,521"/>
+<area shape="rect" id="Node000032" href="$dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="848,751,963,777"/>
+<area shape="poly" id="edge46_Node000009_Node000032" title=" " alt="" coords="976,756,1059,746,1161,728,1270,700,1324,682,1375,660,1404,644,1431,624,1478,578,1514,532,1537,498,1542,501,1519,535,1482,581,1434,628,1407,648,1377,665,1325,687,1271,705,1162,733,1060,751,976,762"/>
+<area shape="rect" id="Node000033" href="$d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="440,770,607,795"/>
+<area shape="poly" id="edge47_Node000032_Node000033" title=" " alt="" coords="621,783,703,783,789,779,847,772,848,777,790,784,703,788,621,788"/>
+<area shape="poly" id="edge48_Node000032_Node000034" title=" " alt="" coords="602,728,634,733,848,757,848,762,633,739,602,734"/>
+<area shape="poly" id="edge50_Node000007_Node000035" title=" " alt="" coords="1941,864,2021,895,2064,917,2104,942,2116,955,2128,967,2168,983,2166,988,2125,972,2113,959,2101,946,2061,921,2019,900,1939,869"/>
 </map>

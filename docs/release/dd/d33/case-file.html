@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,75 +102,97 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md44">High-level structure</a></li>
-<li class="level1"><a href="#autotoc_md45">Output frequency control</a></li>
-<li class="level1"><a href="#autotoc_md46">The case object</a><ul><li class="level2"><a href="#autotoc_md47">Time control</a></li>
-<li class="level2"><a href="#autotoc_md48">Restarts and joblimit</a></li>
-<li class="level2"><a href="#autotoc_md49">Boundary type numbering in the &quot;output_boundary&quot; field</a></li>
+<ul><li class="level1"><a href="#autotoc_md76">High-level structure</a></li>
+<li class="level1"><a href="#autotoc_md77">Output frequency control</a></li>
+<li class="level1"><a href="#autotoc_md78">The case object</a><ul><li class="level2"><a href="#autotoc_md79">Constants</a></li>
+<li class="level2"><a href="#autotoc_md80">Time control</a></li>
+<li class="level2"><a href="#autotoc_md81">Restarts and joblimit</a></li>
+<li class="level2"><a href="#autotoc_md82">Boundary type numbering in the &quot;output_boundary&quot; field</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md50">Numerics</a></li>
-<li class="level1"><a href="#autotoc_md51">Fluid</a><ul><li class="level2"><a href="#autotoc_md52">Material properties</a></li>
-<li class="level2"><a href="#autotoc_md53">Turbulence modelling</a></li>
-<li class="level2"><a href="#case-file_fluid-boundary-conditions">Boundary conditions</a><ul><li class="level3"><a href="#autotoc_md54">Specifying the boundaries</a></li>
-<li class="level3"><a href="#autotoc_md55">Available conditions</a></li>
+<li class="level1"><a href="#autotoc_md83">Numerics</a></li>
+<li class="level1"><a href="#case-file_fluid">Fluid</a><ul><li class="level2"><a href="#autotoc_md84">Material properties</a></li>
+<li class="level2"><a href="#autotoc_md85">Compressible flows</a><ul><li class="level3"><a href="#autotoc_md86">Compressible boundary conditions</a></li>
 </ul>
 </li>
+<li class="level2"><a href="#autotoc_md87">Turbulence modelling</a></li>
+<li class="level2"><a href="#autotoc_md88">Schwarz iterations</a></li>
+<li class="level2"><a href="#case-file_fluid-boundary-conditions">Boundary conditions</a><ul><li class="level3"><a href="#autotoc_md89">Specifying the boundaries</a></li>
+<li class="level3"><a href="#autotoc_md90">Available conditions</a></li>
+<li class="level3"><a href="#most-wall-model">MOST wall model</a></li>
+</ul>
+</li>
+<li class="level2"><a href="#richardson-wall-model">Richardson wall model</a></li>
 <li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
-<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md56">Brinkman</a></li>
-<li class="level3"><a href="#autotoc_md57">Gradient Jump Penalty</a></li>
-<li class="level3"><a href="#autotoc_md58">Sponge</a></li>
+<li class="level2"><a href="#case-file_fluid-source-term">Source terms</a><ul><li class="level3"><a href="#autotoc_md91">Brinkman</a></li>
+<li class="level3"><a href="#autotoc_md92">Gradient Jump Penalty</a></li>
+<li class="level3"><a href="#autotoc_md93">Sponge</a></li>
+</ul>
+</li>
+<li class="level2"><a href="#case-file_fluid-ale">Arbitrary Lagrangian-Eulerian Framework</a><ul><li class="level3"><a href="#case-file_fluid-ale-solver">Solver</a><ul><li class="level4"><a href="#autotoc_md94">Output Files and Diagnostics</a></li>
+</ul>
+</li>
+<li class="level3"><a href="#autotoc_md95">Mesh preview</a></li>
+<li class="level3"><a href="#autotoc_md96">Bodies</a><ul><li class="level4"><a href="#autotoc_md97">Oscillation</a></li>
+<li class="level4"><a href="#autotoc_md98">Rotation</a></li>
+<li class="level4"><a href="#case-file_fluid-ale-pivot">Pivot</a></li>
+<li class="level4"><a href="#case-file_fluid_ale_stiff_geom">Mesh Stiffness</a></li>
+</ul>
+</li>
+<li class="level3"><a href="#autotoc_md99">Restarting ALE simulations</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md59">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md60">Multilevel preconditioners</a></li>
-<li class="level2"><a href="#autotoc_md61">Flow rate forcing</a></li>
-<li class="level2"><a href="#autotoc_md62">Full parameter table</a></li>
+<li class="level1"><a href="#autotoc_md100">Linear solver configuration</a><ul><li class="level2"><a href="#autotoc_md101">Multilevel preconditioners</a></li>
+<li class="level2"><a href="#autotoc_md102">Flow rate forcing</a></li>
+<li class="level2"><a href="#autotoc_md103">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md63">Material properties</a></li>
-<li class="level2"><a href="#autotoc_md64">Turbulence modelling</a></li>
-<li class="level2"><a href="#autotoc_md65">Boundary conditions</a></li>
-<li class="level2"><a href="#autotoc_md66">Initial conditions</a></li>
-<li class="level2"><a href="#autotoc_md67">Source terms</a></li>
-<li class="level2"><a href="#autotoc_md68">Linear solver configuration</a></li>
-<li class="level2"><a href="#autotoc_md69">Full parameter table</a></li>
+<li class="level1"><a href="#case-file_scalar">Scalar</a><ul><li class="level2"><a href="#autotoc_md104">Material properties</a></li>
+<li class="level2"><a href="#autotoc_md105">Turbulence modelling</a></li>
+<li class="level2"><a href="#autotoc_md106">Boundary conditions</a></li>
+<li class="level2"><a href="#autotoc_md107">Initial conditions</a></li>
+<li class="level2"><a href="#autotoc_md108">Source terms</a></li>
+<li class="level2"><a href="#autotoc_md109">Linear solver configuration</a></li>
+<li class="level2"><a href="#autotoc_md110">Full parameter table</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md70">Simulation components</a></li>
-<li class="level1"><a href="#autotoc_md71">Point zones</a></li>
-<li class="level1"><a href="#autotoc_md72">Runtime statistics</a></li>
+<li class="level1"><a href="#autotoc_md111">Simulation components</a></li>
+<li class="level1"><a href="#autotoc_md112">Point zones</a></li>
+<li class="level1"><a href="#autotoc_md113">Runtime statistics</a></li>
 </ul>
 </div>
-<div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and, and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
-<h1><a class="anchor" id="autotoc_md44"></a>
+<div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
+<p>An initial JSON Schema for the case file is available in <code>doc/schemas/</code>. The schema is split logically by case-object substructure (see below), with dedicated files for <code>time</code>, <code>numerics</code>, <code>fluid</code>, <code>scalar</code>, <code>source_terms</code>, <code>point_zones</code>, and <code>simulation_components</code>, plus a shared <code>doc/schemas/common.schema.json</code> for reusable definitions. The simulation-component schema is further split into per-component files under <code>doc/schemas/simcomps/</code>. The helper <code>contrib/validate_case_schema.py</code> can be used to validate case files against that schema. Since some shipped example files use <code>//</code> comments and trailing commas, the helper parses the input using a JSON5-compatible frontend before applying the schema. Neko distinguishes JSON integers such as <code>10</code> from JSON reals such as <code>10.0</code>, even though the JSON Schema specification considers both to be numbers and considers <code>10.0</code> to satisfy the <code>integer</code> type. The schemas mark real-only values with the Neko-specific <code>x-neko-real</code> annotation, and the validation helper enforces both that annotation and strict JSON integer encoding.</p>
+<h1><a class="anchor" id="autotoc_md76"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">    &quot;version&quot;: 1.0</div>
+<div class="line">    &quot;version&quot;: 1.0,</div>
 <div class="line">    &quot;case&quot;: {</div>
-<div class="line">        &quot;time&quot;: {}</div>
-<div class="line">        &quot;numerics&quot;: {}</div>
-<div class="line">        &quot;fluid&quot;: {}</div>
-<div class="line">        &quot;scalar&quot;: {}</div>
-<div class="line">        &quot;simulation_components&quot; : []</div>
+<div class="line">        &quot;constants&quot;: [],</div>
+<div class="line">        &quot;time&quot;: {},</div>
+<div class="line">        &quot;numerics&quot;: {},</div>
+<div class="line">        &quot;fluid&quot;: {},</div>
+<div class="line">        &quot;scalar&quot;: {},</div>
+<div class="line">        &quot;simulation_components&quot; : [],</div>
 <div class="line">        &quot;point_zones&quot; : []</div>
 <div class="line">    }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p> Neko also supports multiple scalar fields, using the keyword <code>scalars</code> in the case object. Users can define multiple scalar fields, and each field can have its own boundary conditions, source terms, and solver settings. When using multiple scalar fields, the <code>name</code> property of each scalar field is used to identify the scalar field in the user file, defaulted to <code>s_1, s_2, ...</code>.</p>
-<p>The <code>version</code> keyword is reserved to track changes in the format of the file. The subsections below we list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
-<h1><a class="anchor" id="autotoc_md45"></a>
+<p>The <code>version</code> keyword is reserved to track changes in the format of the file. The subsections below list all the configuration options for each of the high-level objects. Some parameters will have default values, and are therefore optional.</p>
+<h1><a class="anchor" id="autotoc_md77"></a>
 Output frequency control</h1>
 <p>A common scheme for controlling the output frequency is applied for various outputs. It is described already now in order to clarify the meaning of several parameters found in the tables below.</p>
 <p>The frequency is controlled by two parameters, ending with <code>_control</code> and <code>_value</code>, respectively. The latter name is perhaps not ideal, but it is somewhat difficult to come up with a good one, suggestions are welcome.</p>
-<p>The <code>_value</code> parameter is a number, that defines the output frequency, but the interpretation of that number depends on the choice of <code>_control</code>. The three following options are possible.</p><ol type="1">
+<p>The <code>_value</code> parameter defines the output frequency, but both its JSON type and interpretation depend on the choice of <code>_control</code>. Neko requires an integer literal for <code>tsteps</code> and <code>nsamples</code>, and a real literal for <code>simulationtime</code>. For example, use <code>10</code> for ten time steps but <code>10.0</code> for ten simulation-time units. The following options are possible.</p><ol type="1">
 <li><code>simulationtime</code>, then <code>_value</code> is the time interval between the outputs.</li>
 <li><code>tsteps</code>, then <code>_value</code> is the number of time steps between the outputs.</li>
 <li><code>nsamples</code>, then <code>_value</code> is the total number of outputs that will be performed in the course of the simulation.</li>
 <li><code>never</code>, then <code>_value</code> is ignored and output is never performed.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md46"></a>
+<h1><a class="anchor" id="autotoc_md78"></a>
 The case object</h1>
 <p>This object is mostly used as a high-level container for all the other objects, but also defines several parameters that pertain to the simulation as a whole.</p>
 <table class="markdownTable">
@@ -185,44 +207,82 @@ The case object</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_directory</code>   </td><td class="markdownTableBodyNone">Folder for redirecting solver output. Note that the folder has to exist!   </td><td class="markdownTableBodyNone">Path to an existing directory   </td><td class="markdownTableBodyNone"><code>.</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>output_format</code>   </td><td class="markdownTableBodyNone">The file format of field data.   </td><td class="markdownTableBodyNone"><code>nek5000</code> or <code>adios2</code>   </td><td class="markdownTableBodyNone"><code>nek5000</code>    </td></tr>
-<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_precision</code>   </td><td class="markdownTableBodyNone">Whether to output snapshots in single or double precision   </td><td class="markdownTableBodyNone"><code>single</code> or <code>double</code>   </td><td class="markdownTableBodyNone"><code>single</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_layout</code>   </td><td class="markdownTableBodyNone">Data layout for <code>adios2</code> files. (Choose <code>2</code> or <code>3</code> for ADIOS2 supported compressors BigWhoop or ZFP.)   </td><td class="markdownTableBodyNone">Positive integer <code>1</code>, <code>2</code>, <code>3</code>   </td><td class="markdownTableBodyNone"><code>1</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>load_balancing</code>   </td><td class="markdownTableBodyNone">Whether to apply load balancing.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_partitions</code>   </td><td class="markdownTableBodyNone">Whether to write a <code>partitions.vtk</code> file with domain partitioning.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>output_checkpoints</code>   </td><td class="markdownTableBodyNone">Whether to output checkpoints, i.e. restart files.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>output_checkpoints</code>   </td><td class="markdownTableBodyNone">Whether to output checkpoints, i.e. restart files.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>checkpoint_control</code>   </td><td class="markdownTableBodyNone">Defines the interpretation of <code>checkpoint_value</code> to define the frequency of writing checkpoint files.   </td><td class="markdownTableBodyNone"><code>nsamples</code>, <code>simulationtime</code>, <code>tsteps</code>, <code>never</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>checkpoint_value</code>   </td><td class="markdownTableBodyNone">The frequency of sampling in terms of <code>checkpoint_control</code>.   </td><td class="markdownTableBodyNone">Positive real or integer   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>checkpoint_filename</code>   </td><td class="markdownTableBodyNone">The filename of written checkpoint.   </td><td class="markdownTableBodyNone">Strings such as <code>my_name</code>   </td><td class="markdownTableBodyNone"><code>fluid</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>checkpoint_format</code>   </td><td class="markdownTableBodyNone">The file format of checkpoints   </td><td class="markdownTableBodyNone"><code>chkp</code> or <code>hdf5</code>   </td><td class="markdownTableBodyNone"><code>chkp</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>restart_file</code>   </td><td class="markdownTableBodyNone">checkpoint to use for a restart from previous data   </td><td class="markdownTableBodyNone">Strings ending with <code>.chkp</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>restart_mesh_file</code>   </td><td class="markdownTableBodyNone">If the restart file is on a different mesh, specify the .nmsh file used to generate it here   </td><td class="markdownTableBodyNone">Strings ending with <code>.nmsh</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>mesh2mesh_tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the restart when restarting from another mesh   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">1e-6    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>job_timelimit</code>   </td><td class="markdownTableBodyNone">The maximum wall clock duration of the simulation.   </td><td class="markdownTableBodyNone">String formatted as HH:MM:SS   </td><td class="markdownTableBodyNone">No limit    </td></tr>
+<td class="markdownTableBodyNone"><code>mesh2mesh_tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the restart when restarting from another mesh   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">1e-6    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>job_timelimit</code>   </td><td class="markdownTableBodyNone">The maximum wall clock duration of the simulation.   </td><td class="markdownTableBodyNone">String formatted as [[[DD-]HH:]MM:]SS   </td><td class="markdownTableBodyNone">No limit    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_at_end</code>   </td><td class="markdownTableBodyNone">Whether to always write all enabled output at the end of the run.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md47"></a>
+<p>Some additional practical comments are provided regarding the output triggered by <code>job_timelimit</code> and <code>output_at_end</code> keywords.</p>
+<p>If <code>output_at_end</code> is set to <code>true</code>, an additional write is performed after the execution of the simulation time-loop is finished. This triggers most outputs, like the fluid solvers, the checkpoint, etc. Note that if your case settings are such that a particular output is written at the last time step regardless of <code>output_at_end</code> (e.g. <code>end_time: 5</code>, <code>checkpoint_value: 5</code>, <code>checkpoint_control: simulationtime</code> ) you will get two outputs with the same values: one from your ordinary write and one triggered by <code>output_at_end</code>.</p>
+<dl class="section note"><dt>Note</dt><dd>This has a rather detrimental effect on outputs from various statistics-related <a class="el" href="../../d3/d84/simcomps.html">simulation components</a>. Since the collected statistics are reset on write, the data written by <code>output_at_end</code> will be just zeroes.</dd></dl>
+<p>The purpose of <code>job_timelimit</code> is to gracefully stop the simulation in a typical supercomputer environment, where your runtime is limited. When Neko detects that the time of the run exceeds the <code>job_timelimit</code>, it exits the time-loop. At this point, if one sets <code>output_at_end</code> to <code>true</code>, this will trigger a write as per usual. However, if <code>output_at_end</code> is <code>false</code>, Neko will still write a special checkpoint file, with the filename called <code>joblimit#####.chkp</code>. This is done so that the user is at least provided a restart file, and none of the computer time spent on the simulation is wasted. Generally, however, it is recommended to have <code>output_at_end</code> set to <code>true</code> in tandem with <code>job_timelimit</code>, so that what exactly gets written is controlled by the case file settings. Note that the time format is flexible. For example, <code>1-01:00:00</code> and <code>25:00:00</code> are both valid ways to specify a 25-hour time limit.</p>
+<h2><a class="anchor" id="autotoc_md79"></a>
+Constants</h2>
+<p>The <code>constants</code> array allows the user to define parameters that are global to the case file, and can be referred to when setting the values of other parameters. Two types of parameters can be defined: scalars and arrays. Each is represented as a subobject inside the <code>constants</code> object and should containt two entries: <code>name</code> and <code>value</code>. Here is an example:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;constants&quot;:</div>
+<div class="line">  [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;name&quot;: &quot;const1&quot;,</div>
+<div class="line">      &quot;value&quot;: 3.5</div>
+<div class="line">    },</div>
+<div class="line">    {</div>
+<div class="line">      &quot;name&quot;: &quot;vector1&quot;,</div>
+<div class="line">      &quot;value&quot;: [1, 0, 1]</div>
+<div class="line">    }</div>
+<div class="line">  ]</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>Other parameters in the case file that require a scalar or array entry, can instead be defined as a string, pointing to the name of the corresponding parameter in the <code>constants</code> object. As an example, recall that output frequency is controlled by the keyword <code>output_value</code>. It is a plausible scenario that the frequency is the same for multiple solvers, simulation components, etc. Assuming a simulation with both <a class="el" href="../../dd/d33/case-file.html#case-file_fluid">fluid</a> and [scalar](<a class="el" href="../../dd/d33/case-file.html#case-file_scalar">Scalar</a>) solvers active, the following could be used.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;constants&quot;:</div>
+<div class="line">  [</div>
+<div class="line">    {</div>
+<div class="line">      &quot;name&quot;: &quot;common_output_value&quot;,</div>
+<div class="line">      &quot;value&quot;: 10</div>
+<div class="line">    }</div>
+<div class="line">  ],</div>
+<div class="line">  &quot;fluid&quot;:</div>
+<div class="line">  {</div>
+<div class="line">    &quot;output_value&quot;: &quot;common_output_value&quot;</div>
+<div class="line">  },</div>
+<div class="line">  &quot;scalar&quot;:</div>
+<div class="line">  {</div>
+<div class="line">    &quot;output_value&quot;: &quot;common_output_value&quot;</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p> The advantage is that this guarantees that the fluid and scalar output will be in sync, and if one wants to change the frequency only does that in one place in the case file. Another use case is demonstrated in the <code>hemi</code> example, where the freestream velocity is defined under <code>constants</code> and then used to setup both initial and boundary conditions.</p>
+<p>Under the hood, Neko stores the constants in an object called <code>neko_const_registry</code>, which is of the type <code>registry_t</code> (same as <code>neko_registry</code>). The object is accessible in the <a class="el" href="../../d6/def/user-file.html">user file</a>.</p>
+<h2><a class="anchor" id="autotoc_md80"></a>
 Time control</h2>
-<p>The time control object is used to define the time-stepping of the simulation, including the time-step size, the start and end time, and the variables related to the variable time-stepping algorithm.</p>
+<p>The <code>time</code> object is used to define the time-stepping of the simulation, including the time-step size, the start and end time, and the variables related to the variable time-stepping algorithm. For the variable timestep, one can specify a <code>timestep</code>, such that the first timestep will be assigned to the smallest of <code>timestep</code> and the value calculated from the target CFL number.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>start_time</code>   </td><td class="markdownTableBodyNone">Start time at which the simulation is initiated.   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>start_time</code>   </td><td class="markdownTableBodyNone">Start time at which the simulation is initiated.   </td><td class="markdownTableBodyNone">Non-negative reals   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>end_time</code>   </td><td class="markdownTableBodyNone">Final time after which the simulation is stopped.   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -232,38 +292,34 @@ Time control</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>max_timestep</code>   </td><td class="markdownTableBodyNone">Maximum time-step size when variable time step is activated   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>huge</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>min_timestep</code>   </td><td class="markdownTableBodyNone">Minimum time-step size when variable time step is activated   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>min_timestep</code>   </td><td class="markdownTableBodyNone">Minimum time-step size when variable time step is activated   </td><td class="markdownTableBodyNone">Non-negative reals   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>target_cfl</code>   </td><td class="markdownTableBodyNone">The desired CFL number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>0.4</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>max_update_frequency</code>   </td><td class="markdownTableBodyNone">Minimum number of time steps between two time-step updates triggered by CFL deviation   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>min_update_frequency</code>   </td><td class="markdownTableBodyNone">The maximum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>huge</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>min_update_frequency</code>   </td><td class="markdownTableBodyNone">Maximum number of time steps before forcing a time-step update   </td><td class="markdownTableBodyNone">Non-negative integer   </td><td class="markdownTableBodyNone"><code>huge</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
-<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>max_dt_increase_factor</code>   </td><td class="markdownTableBodyNone">The maximum scaling factor to increase time step   </td><td class="markdownTableBodyNone">Positive real greater than <code>1</code>   </td><td class="markdownTableBodyNone"><code>1.2</code>    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>min_dt_decrease_factor</code>   </td><td class="markdownTableBodyNone">The minimum scaling factor to decrease time step   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>cfl_deviation_tolerance</code>   </td><td class="markdownTableBodyNone">The tolerance of the deviation from the target CFL number   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.2</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>min_dt_decrease_factor</code>   </td><td class="markdownTableBodyNone">The minimum scaling factor to decrease time step   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>cfl_max_update_frequency</code>   </td><td class="markdownTableBodyNone">The minimum interval between two time-step-updating steps in terms of time steps   </td><td class="markdownTableBodyNone">Integer   </td><td class="markdownTableBodyNone"><code>0</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>cfl_deviation_tolerance</code>   </td><td class="markdownTableBodyNone">The tolerance of the deviation from the target CFL number   </td><td class="markdownTableBodyNone">Positive real less than <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.2</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>cfl_running_avg_coeff</code>   </td><td class="markdownTableBodyNone">The running average coefficient <code>a</code> where <code>cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old</code>   </td><td class="markdownTableBodyNone">Positive real between <code>0</code> and <code>1</code>   </td><td class="markdownTableBodyNone"><code>0.5</code>   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md48"></a>
+<h2><a class="anchor" id="autotoc_md81"></a>
 Restarts and joblimit</h2>
 <p>Restarts will restart the simulation from the exact state at a given time that the checkpoint was written. This means that the flow field and potential scalars will be at the exact same values before as after restarts. However, derived quantities from the flow field and any observables are not guaranteed to be restarted. In addition, Neko does not guarantee that any files are not overwritten. As such, it is recommended to run in different directories if doing large scale simulations that require many restarts. Unless <code>output_at_end</code> is disabled Neko will also ensure that all output is written to file when reaching the <code>end_time</code> or the <code>job_timelimit</code>. In particular, unless <code>output_checkpoints</code> and <code>output_at_end</code> are set to false a checkpoint at the final time will be written as to avoid losing progress as far as possible.</p>
 <dl class="section attention"><dt>Attention</dt><dd>For simulations requiring restarts, it is recommended to run each restart in a different output directory as a precaution to avoid potential overwritings of files.</dd></dl>
-<h2><a class="anchor" id="autotoc_md49"></a>
+<h2><a class="anchor" id="autotoc_md82"></a>
 Boundary type numbering in the "output_boundary" field</h2>
 <p>When the <code>output_boundary</code> setting is set to <code>true</code>, and additional <code>.fld</code> file will be stored in the beginning of the simulation, where the recognized boundary conditions for the fluid will be marked with an integer number. This is a good way to debug the simulation setup. The value of the number depends on the type of the boundary as follows.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Boundary Condition   </th><th class="markdownTableHeadNone">Key    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">no_slip   </td><td class="markdownTableBodyNone">1    </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a> (stationary wall)   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">velocity_value   </td><td class="markdownTableBodyNone">2    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -281,10 +337,12 @@ Boundary type numbering in the "output_boundary" field</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a>   </td><td class="markdownTableBodyNone">10    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">blasius_profile   </td><td class="markdownTableBodyNone">11   </td></tr>
+<td class="markdownTableBodyNone">blasius_profile   </td><td class="markdownTableBodyNone">11    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a> (moving wall)   </td><td class="markdownTableBodyNone">12   </td></tr>
 </table>
 <p>For a description of the boundary conditions themselves, see below.</p>
-<h1><a class="anchor" id="autotoc_md50"></a>
+<h1><a class="anchor" id="autotoc_md83"></a>
 Numerics</h1>
 <p>Used to define the properties of the numerical discretization.</p>
 <table class="markdownTable">
@@ -303,10 +361,10 @@ Numerics</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>oifs_target_cfl</code>   </td><td class="markdownTableBodyNone">The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>1.9</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md51"></a>
+<h1><a class="anchor" id="case-file_fluid"></a>
 Fluid</h1>
 <p>The configuration of the fluid solver and the flow problem. Contains multiple subobjects for various parts of the setup.</p>
-<h2><a class="anchor" id="autotoc_md52"></a>
+<h2><a class="anchor" id="autotoc_md84"></a>
 Material properties</h2>
 <p>As per the governing equations, Neko requires the value of the density and dynamic viscosity to define the flow problem. These can be provided as <code>rho</code> and <code>mu</code> in the case file.</p>
 <p>Alternatively, one may opt to provide the Reynolds number, <code>Re</code>, which corresponds to a non-dimensional formulation of the Navier-Stokes equations. This formulation can effectively be obtained by setting \( \rho = 1 \) and \(
@@ -314,30 +372,118 @@ Material properties</h2>
 <p>Note that if both <code>Re</code> and any of the dimensional material properties are provided, the simulation will issue an error.</p>
 <p>As an alternative to providing material properties in the case file, it is possible to do that in a special routine in the user file. This is demonstrated in the <code>rayleigh_benard_cylinder</code> example. Ultimately, both <code>rho</code> and <code>mu</code> have to be set in the subroutine. Additionally, this allows to change the material properties in time. Yet another options is to directly manipulate the case file programmatically in the <code>user_startup</code> routine and inject the material properties there. This is demonstrated in the <code>rayleigh_benard</code> example.</p>
 <p>When material properties are constant or only vary in time, one can use the simplified form of the viscous stress tensor in the governing equations. However, when there are spatial variations, it is necessary to use the general (full) form. The variation may come, for example, due to a turbulence model, the modifications in the above-mentioned user routine. The general form of the stress tensor requires solving the 3 equations for the velocity components in a coupled manner, which requires an appropriate linear solver. By default, Neko will use the simplified form of the tensor, and the full one must be selected by the user by setting <code>full_stress_formulation</code> to true.</p>
-<h2><a class="anchor" id="autotoc_md53"></a>
+<h2><a class="anchor" id="autotoc_md85"></a>
+Compressible flows</h2>
+<p>Neko supports compressible flow simulations via the compressible solver. To enable compressible flow, set <code>"scheme": "compressible"</code> in the fluid configuration. This solver integrates the compressible Navier-Stokes equations using a Runge-Kutta time integration scheme with artificial viscosity for stability.</p>
+<p>The compressible solver accepts the following parameters:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>gamma</code>   </td><td class="markdownTableBodyNone">Ratio of specific heats for ideal gas   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>1.4</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>mu</code>   </td><td class="markdownTableBodyNone">Constant physical dynamic viscosity   </td><td class="markdownTableBodyNone">Non-negative real   </td><td class="markdownTableBodyNone"><code>0.0</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>kappa</code>   </td><td class="markdownTableBodyNone">Constant physical thermal conductivity   </td><td class="markdownTableBodyNone">Non-negative real   </td><td class="markdownTableBodyNone"><code>0.0</code>   </td></tr>
+</table>
+<p>Additional numerics parameters specific to compressible flows:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>c_avisc_low</code>   </td><td class="markdownTableBodyNone">Coefficient for low-order artificial viscosity   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>0.5</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>c_avisc_entropy</code>   </td><td class="markdownTableBodyNone">Coefficient for entropy-based artificial viscosity   </td><td class="markdownTableBodyNone">Positive reals   </td><td class="markdownTableBodyNone"><code>1.0</code>   </td></tr>
+</table>
+<p>The compressible solver uses variable time-stepping controlled by the CFL number. Set <code>variable_timestep</code> to <code>true</code> and specify <code>target_cfl</code> in the time control object.</p>
+<p>Constant physical viscosity and thermal conductivity can be specified as <code>mu</code> and <code>kappa</code> in the fluid section of the case file. Alternatively, they can be set via the <code>material_properties</code> user interface in the user file, which also allows spatially or temporally varying values. When a user material-properties routine is provided, it takes precedence over the constant JSON values. Stabilization uses the existing Laplacian artificial viscosity, computed as the minimum of entropy-based and low-order viscosities. When <code>fluid_mu</code> or <code>fluid_kappa</code> are nonzero, the solver also applies the compressible Navier-Stokes viscous stress flux and conductive energy flux. If neither property is provided, both default to zero and no physical viscous flux is added. See the user file documentation for details on implementing <code>material_properties</code>.</p>
+<p>Example configuration: </p><div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;fluid&quot;: {</div>
+<div class="line">    &quot;scheme&quot;: &quot;compressible&quot;,</div>
+<div class="line">    &quot;gamma&quot;: 1.4,</div>
+<div class="line">    &quot;initial_condition&quot;: {</div>
+<div class="line">      &quot;type&quot;: &quot;user&quot;</div>
+<div class="line">    },</div>
+<div class="line">    &quot;boundary_conditions&quot;: [</div>
+<div class="line">      {</div>
+<div class="line">        &quot;type&quot;: &quot;velocity_value&quot;,</div>
+<div class="line">        &quot;zone_indices&quot;: [1],</div>
+<div class="line">        &quot;value&quot;: [3, 0, 0]</div>
+<div class="line">      },</div>
+<div class="line">      {</div>
+<div class="line">        &quot;type&quot;: &quot;density_value&quot;,</div>
+<div class="line">        &quot;zone_indices&quot;: [1],</div>
+<div class="line">        &quot;value&quot;: 1.4</div>
+<div class="line">      },</div>
+<div class="line">      {</div>
+<div class="line">        &quot;type&quot;: &quot;pressure_value&quot;,</div>
+<div class="line">        &quot;zone_indices&quot;: [1],</div>
+<div class="line">        &quot;value&quot;: 1</div>
+<div class="line">      }</div>
+<div class="line">    ],</div>
+<div class="line">    &quot;output_control&quot;: &quot;nsamples&quot;,</div>
+<div class="line">    &quot;output_value&quot;: 20</div>
+<div class="line">  },</div>
+<div class="line">  &quot;numerics&quot;: {</div>
+<div class="line">    &quot;time_order&quot;: 3,</div>
+<div class="line">    &quot;polynomial_order&quot;: 5,</div>
+<div class="line">    &quot;c_avisc_low&quot;: 0.5,</div>
+<div class="line">    &quot;c_avisc_entropy&quot;: 0.5</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md86"></a>
+Compressible boundary conditions</h3>
+<p>The compressible solver supports the following boundary conditions:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Boundary Condition   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">velocity_value   </td><td class="markdownTableBodyNone">Dirichlet condition for velocity (inflow)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">density_value   </td><td class="markdownTableBodyNone">Dirichlet condition for density    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">pressure_value   </td><td class="markdownTableBodyNone">Dirichlet condition for pressure    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a>   </td><td class="markdownTableBodyNone">Zero velocity wall    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">Symmetry plane    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">outflow   </td><td class="markdownTableBodyNone">Pressure outlet (zero gradient)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">normal_outflow   </td><td class="markdownTableBodyNone">Normal outflow condition   </td></tr>
+</table>
+<p>For examples of compressible flow setups, see the <code>euler_1d_sod</code>, <code>euler_2d_forward_facing_step</code>, and <code>euler_tgv</code> examples.</p>
+<h2><a class="anchor" id="autotoc_md87"></a>
 Turbulence modelling</h2>
 <p>Neko currently provides several LES models via the <code><a class="el" href="../../dd/dfc/namespaceles__model.html" title="Implements les_model_t.">les_model</a></code> simulation component. The simcomp computes the viscosity and stores in the field registry under the name selected in the case file. For more details, see the documentation of the simcomp. To enable LES in the fluid solver, one simply has to add the <code>nut_field</code> keyword to the configuration and set it to the name of the field generated by the <code><a class="el" href="../../dd/dfc/namespaceles__model.html" title="Implements les_model_t.">les_model</a></code> simcomp. This will automatically change the governing equations to feature the full viscous stress tensor, as required for a variable viscosity field.</p>
 <p>Note that the full viscous stress tensor requires the equations for the 3 velocity components to be solved in a coupled manner. Therefore, the <code>coupled_cg</code> (or <code>fused_coupled_cg</code>) solver should be used for velocity.</p>
+<h2><a class="anchor" id="autotoc_md88"></a>
+Schwarz iterations</h2>
+<p>This feature is enabled by setting the <code>schwarz_iterations</code> keyword inside the <code>fluid</code> group to an integer larger than zero. In this case, each fluid timestep solves for velocity and pressure multiple times.</p>
+<p>The total number of passes is <code>1 + schwarz_iterations</code>. This feature is often needed to increase the stability of solutions when using <code><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a></code> boundary conditions, i.e., when there are multiple coupled simulations running in tandem.</p>
+<dl class="section note"><dt>Note</dt><dd>In each sub-step, the right-hand-side and forcing terms that are intended to operate at the beginning or end of a real timestep are frozen. However, the boundary conditions are re-applied at each sub-step. This is the intended behaviour for overset boundaries, but functionalities such as user Dirichlet will also be called multiple times. Note that the <code>t</code> and <code>tstep</code> variables are only updated across real timesteps. Therefore, if your user conditions depend on these variables, they remain valid.</dd></dl>
 <h2><a class="anchor" id="case-file_fluid-boundary-conditions"></a>
 Boundary conditions</h2>
 <p>The optional <code>boundary_conditions</code> keyword can be used to specify boundary conditions. The reason for it being optional, is that periodic boundary conditions are built into the definition of the mesh, so for a periodic box nothings needs to be added to the case file. The TGV example is such a case, for instance. The value of the keyword is an array of JSON objects, each specifying a single boundary condition.</p>
-<h3><a class="anchor" id="autotoc_md54"></a>
+<h3><a class="anchor" id="autotoc_md89"></a>
 Specifying the boundaries</h3>
-<p>In Neko we usually refer to boundaries as "zones", which in this case are face zones, i.e. a collection of element faces. Which zones the boundary condition is applied to is controlled by the <code>zone_indices</code> keyword, which takes an array of integers. It is up to the user whether to apply a single condition to multiple zones or specify several conditions applied to one zone each. For example, if you have two zones, which should be no-slip walls, you can either create two <code>no_slip</code> conditions, one for each zone, or just create a single condition and apply it to both.</p>
+<p>In Neko we usually refer to boundaries as "zones", which in this case are face zones, i.e. a collection of element faces. Which zones the boundary condition is applied to is controlled by the <code>zone_indices</code> keyword, which takes an array of integers. It is up to the user whether to apply a single condition to multiple zones or specify several conditions applied to one zone each. For example, if you have two zones, which should be no-slip walls, you can either create two <code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code> conditions, one for each zone, or just create a single condition and apply it to both.</p>
 <p>The indices your boundaries have is determined by the mesh. To check them, you can use the <code>mesh_checker</code> utility with the optional <code>--write_zone_indices</code> argument. This will output a <code>zone_indices0.f00000</code> file that you can inspect in Paraview, and the boundaries will be marked by their index value.</p>
 <p>Recall that periodic conditions are built into the mesh, since they are topological in nature. This means that you must not specify any conditions for the corresponding zones. For example, in the <code>turb_pipe</code> example, which is a periodic pipe simulation, two periodic zones comprise the boundary conditions in the streamwise direction. Only one condition, corresponding to zone index 3 (the wall) is the specified in the case file.</p>
-<h3><a class="anchor" id="autotoc_md55"></a>
+<p>It is possible to assign specific names to the boundary conditions through the <code>name</code> keyword. Boundary conditions can then be retireved in the code by using the name or the <code>zone_index</code> where it is applied.</p>
+<p>The default name of the boundary conditions is given by the <code>&lt;variable&gt;_bc_&lt;zone_index&gt;</code> pattern. i.e., the pressure boundary condition that applies in zone index 5 can be retrieved by the <code>pressure_bc_5</code> name.</p>
+<h3><a class="anchor" id="autotoc_md90"></a>
 Available conditions</h3>
 <p>The conditions to apply is specified by <code>type</code> keyword inside each of the JSON objects. The full list of possible conditions for the fluid is specified in the table below.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Boundary Condition   </th><th class="markdownTableHeadNone">Description    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">A symmetry plain. Must be axis-aligned.    </td></tr>
+<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">A symmetry plane. Must be axis-aligned.    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">velocity_value   </td><td class="markdownTableBodyNone">A Dirichlet condition for velocity.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">no_slip   </td><td class="markdownTableBodyNone">A no-slip wall.    </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a>   </td><td class="markdownTableBodyNone">A no-slip wall. It can be stationary or moving.    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">outflow   </td><td class="markdownTableBodyNone">A pressure outlet.    </td></tr>
 <tr class="markdownTableRowOdd">
@@ -359,11 +505,13 @@ Available conditions</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">user_velocity   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_vector_t</code> user-defined Dirichlet condition for velocity.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.   </td></tr>
+<td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a>   </td><td class="markdownTableBodyNone">A Dirichlet condition that prescribes values from another neko simulation running concurrently.   </td></tr>
 </table>
 <p>A more detailed description of each boundary condition is provided below.</p>
 <ul>
-<li><code>symmetry</code>. A symmetry plain that must be axis-aligned. Sets the surface-normal velocity to 0 and applies a homogenous Neumann condition to the surface-parallel components. Requires no additional keywords. <div class="fragment"><div class="line">{</div>
+<li><code>symmetry</code>. A symmetry plane that must be axis-aligned. Sets the surface-normal velocity to 0 and applies a homogenous Neumann condition to the surface-parallel components. Requires no additional keywords. <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;symmetry&quot;,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
@@ -375,9 +523,10 @@ Available conditions</h3>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
-<li><code>no_slip</code>. A standard no-slip wall, which sets velocity to zero. Requires no additional keywords. <div class="fragment"><div class="line">{</div>
+<li><code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code>. A standard no-slip wall, which sets velocity to zero relative to the wall. For moving walls, setting the optional argument <code>"moving": true</code> is required. This also requires setting up the ALE module separately. further details can be found in <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ale">ALE user guide</a>. For stationary walls, no additional keyword is needed. <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;no_slip&quot;,</div>
-<div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
+<div class="line">  &quot;zone_indices&quot;: [1, 2],</div>
+<div class="line">  &quot;moving&quot;: false</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 <li><code>outflow</code>. A standard pressure outlet condition. Requires no additional keywords. <div class="fragment"><div class="line">{</div>
@@ -400,22 +549,24 @@ Available conditions</h3>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
-<li><p class="startli"><code><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a></code>. A shear stress condition, where the values is computed by a wall model. Meant to be used for wall-modelled large-eddy simulation. Only works with axis-aligned boundaries. The model is selected using the <code>model</code> keyword. Additional configuration depends on the model selected.</p><ul>
+<li><code><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a></code>. A shear stress condition, where the values is computed by a wall model. Meant to be used for wall-modelled large-eddy simulation. Only works with axis-aligned boundaries. The model is selected using the <code>model</code> keyword. Additional configuration depends on the model selected.<ul>
 <li>The <code>spalding</code>model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants. This model is suitable for smooth walls.</li>
-<li><p class="startli">The <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants, and <code>z0</code>, which is the characteristic roughness height.</p>
+<li>The <code><a class="el" href="../../d0/d21/namespacecai__sagaut__model__ii.html" title="Implements cai_sagaut_model_ii_t.">cai_sagaut_model_ii</a></code> model is a smooth-wall explicit algebraic wall model defined as Model-II of Cai and Sagaut (DOI: <code>10.1063/5.0048563</code>). It uses the same <code>kappa</code> and <code>B</code> parameters as <code>spalding</code>, and also accepts optional blending parameters <code>p</code> and <code>s</code>, which default to the paper calibration values <code>1.138</code> and <code>217.8</code>. The main advantage of this model is that it is explicit.</li>
+<li>The <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> model requires specifying <code>kappa</code> and <code>B</code>, which are the log-law constants, and <code>z0</code>, which is the characteristic roughness height.</li>
+<li>The <code>most</code> model is a version of the <code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code> adapted for flows with temperature stratification, such as atmospheric boundary layer (ABL) flows. The model uses Monin-Obukhov stability theory (MOST) to account for the local temperature gradient. More details and required keywords are given <a class="el" href="../../dd/d33/case-file.html#most-wall-model">below</a>.</li>
+<li><p class="startli">The <code>richardson</code> model is similar to the <code>most</code> model, but it assesses the stability dependence based on the Richardson number instead of the Obukhov length. More details and required keywords are given <a class="el" href="../../dd/d33/case-file.html#richardson-wall-model">below</a>.</p>
 <p class="startli">For all wall models, the distance to the sampling point has to be specified based on the off-wall index in the wall-normal direction. Thus, the sampling is currently from a GLL node and arbitrary distances are not yet supported. The index is set by the <code>h_index</code> keyword, with 1 being the minimal value, and the polynomial order + 1 being the maximum.</p>
-<p class="startli">A 3D field with the name <code>tau</code> will be registered in the field registry. At the boundary it will store the magnitude of the predicted stress. This can be used to post-process the predictions. Additionally, the sampling points are marked with values -1 in this field, for verification purposes.</p>
-</li>
-</ul>
-<div class="fragment"><div class="line">{</div>
+<p class="startli">A 3D field with the name <code>tau</code> will be registered in the field registry. At the boundary it will store the magnitude of the predicted stress. This can be used to post-process the predictions. Additionally, the sampling points are marked with values -1 in this field, for verification purposes. </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;wall_model&quot;,</div>
-<div class="line">  &quot;model&quot;: &quot;spalding&quot;,</div>
+<div class="line">  &quot;model&quot;: &quot;cai_sagaut_model_ii&quot;,</div>
 <div class="line">  &quot;kappa&quot;: 0.41,</div>
 <div class="line">  &quot;B&quot;: 5.2,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2],</div>
 <div class="line">  &quot;h_index&quot;: 1</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
+</ul>
+</li>
 <li><code>user_velocity</code>, a Dirichlet boundary for more complex velocity profiles. This boundary condition uses a <a class="el" href="../../d6/def/user-file.html#user-file_field-dirichlet-update">more advanced user interface</a>. <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;user_velocity&quot;,</div>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
@@ -426,7 +577,139 @@ Available conditions</h3>
 <div class="line">  &quot;zone_indices&quot;: [1, 2]</div>
 <div class="line">}</div>
 </div><!-- fragment --></li>
+<li><p class="startli"><code><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a></code>, a Dirichlet boundary condition that retrieves values from another simulation with an overlapping domain. For this case, it is recommended that all zone indices that need to be considered as an overset interface are included in one boundary. This avoids repeated calls to interpolation routines.</p>
+<p class="startli">As a note, both meshes must be overlapping with at least one element.</p>
+<p class="startli">Since this requires another concurrent simulation, you must execute neko in <a class="el" href="../../d6/def/user-file.html#user-file_tips_mpmd">multiple-program-multiple-data (MPMD)</a> mode. Note that both simulations are otherwise independent, therefore the rest of the user case can be modified as seen fit.</p>
+<p class="startli">The <em>time-step</em> must be the same between the simulations. A variable time-step is not supported at the moment.</p>
+<p class="startli">The keyword <code>couple_pressure</code> is <code>false</code> by default and controls whether the pressure BC is also set from the coupled simulation. This should, for the time being, be left as <code>false</code>.</p>
+<p class="startli">The keyword <code>order</code> is <code>1</code> by default and defines the interface extrapolation scheme order at every timestep. Generally, you want to keep the order of the extrapolation consistent with your time integration scheme, however, note that a higher order might need help with stabilization, specifically by increasing the number of <code>Schwarz-like</code> iterations.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;overset_interface&quot;,</div>
+<div class="line">  &quot;zone_indices&quot;: [1, 2],</div>
+<div class="line">  &quot;couple_pressure&quot; : false,</div>
+<div class="line">  &quot;order&quot; : 3</div>
+<div class="line">}</div>
+</div><!-- fragment --></li>
 </ul>
+<h3><a class="anchor" id="most-wall-model"></a>
+MOST wall model</h3>
+<p>The <code>most</code> model is based on Monin-Obukhov similarity theory (Monin and Obukhov, 1954) and adds a correction to the rough log law according to</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+   \frac{\partial{V}}{\partial z} &amp;=&amp; \frac{u_*}{\kappa z}\phi_m\left(\frac{z}{L}\right), \\
+   \frac{\partial{\theta}}{\partial z} &amp;=&amp; \frac{\overline{(w&#39;\theta&#39;)}}{u_* \kappa z}\phi_h\left(\frac{z}{L}\right),
+ \end{eqnarray*}
+</p>
+<p>where \(V\) is the horizontal wind speed (given that \(z\) is the wall-normal direction) and \(\theta\) is the potential temperature.</p>
+<p>The formulations of the correction functions \(\phi_m\) and \(\phi_h\) are taken from Dyer 1974 for the convective regime, and from Holstlag and De Bruin 1988 for the stable regime.</p>
+<p>The keywords for this model are:</p><ul>
+<li><code>kappa</code>: The von Kàrmàn constant, defaults to 0.4 (as is the standard in the ABL literature).</li>
+<li><code>Pr</code>: The turbulent Prandtl number, defaults to 1.0.</li>
+<li><code>z0</code>: The characteristic roughness length for momentum.</li>
+<li><code>z0h</code>: The characteristic roughness length for heat. If a negative value is given, the roughness length for heat is computed using the formula of Zilitinkevich 1995, with the provided value acting as the constant \(-A_0\) in the Zilitinkevich formula. Defaults to be the same as <code>z0</code>.</li>
+<li><code>type_of_temp_bc</code>: Accepted values are the lowercase strings <code>neumann</code> or <code>dirichlet</code>. If <code>neumann</code>, the provided value of <code>bottom_bc_flux_or_temp</code> is used directly as the surface heat flux in the computation of the wall stress. If <code>dirichlet</code>, the value of <code>bottom_bc_flux_or_temp</code> is interpreted as a surface temperature, which is then used to compute a heat flux using the MOST relationship.</li>
+<li><code>bottom_bc_flux_or_temp</code>: Value of the surface heat flux if <code>type_of_temp_bc</code> is <code>neumann</code>, or value of the surface temperature if <code>type_of_temp_bc</code> is <code>dirichlet</code>.</li>
+<li><code>scalar_field</code>: The name of the scalar field to be used as the potential temperature in the equations.</li>
+<li><code>time_dependent_temp_bc</code>: Boolean. If <code>false</code> the value of <code>bottom_bc_flux_or_temp</code> will be kept constant throughout the simulation. If <code>true</code>, the wall model will look for <code>bc_value</code> in <code>neko_const_registry</code> and assign that value at each time step. The value of <code>bc_value</code> can then be updated in the user file, for example in <code>user_check</code>. <details >
+<summary >
+<b><u>Example of user file implementation</u></b></summary>
+<p></p>
+<div class="fragment"><div class="line"> <span class="keyword">subroutine </span>user_check(time)</div>
+<div class="line">    <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">pointer</span> :: bc_value</div>
+<div class="line"> </div>
+<div class="line">    bc_value =&gt; neko_const_registry%get_real_scalar(<span class="stringliteral">&quot;bc_value&quot;</span>)</div>
+<div class="line"> </div>
+<div class="line">    bc_value = scalar_bc</div>
+<div class="line"> </div>
+<div class="line"> <span class="keyword">end subroutine </span>user_check</div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">subroutine </span>dirichlet_update(fields, bc, time)</div>
+<div class="line">  <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span> :: fields</div>
+<div class="line">  <span class="keywordtype">type</span>(field_dirichlet_t), <span class="keywordtype">intent(in)</span> :: bc</div>
+<div class="line">  <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line">  <span class="keywordtype">integer</span> i</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">if</span> (fields%items(1)%ptr%name .eq. <span class="stringliteral">&quot;temperature&quot;</span>) <span class="keywordflow">then</span></div>
+<div class="line"> </div>
+<div class="line">     associate(s =&gt; fields%items(1)%ptr)</div>
+<div class="line">          <span class="keywordflow">do</span> i = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(0)</div>
+<div class="line">             s%x(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%msk(i), 1, 1, 1) = scalar_bc(time)</div>
+<div class="line"><span class="keywordflow">          end do</span></div>
+<div class="line">          <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line">             <span class="keyword">call </span>device_memcpy(s%x, s%x_d, s%size(), &amp;</div>
+<div class="line">                   host_to_device, sync=.false.)</div>
+<div class="line"><span class="keywordflow">          end if</span></div>
+<div class="line">       <span class="keyword">end </span>associate</div>
+<div class="line"><span class="keywordflow">    end if</span></div>
+<div class="line"> <span class="keyword">end subroutine </span>dirichlet_update</div>
+<div class="line"> </div>
+<div class="line"> <span class="keyword">function </span>scalar_bc(time) <span class="keyword">result</span>(bc)</div>
+<div class="line">    <span class="keywordtype">type</span>(time_state_t), <span class="keywordtype">intent(in)</span> :: time</div>
+<div class="line"><span class="keywordtype">    real</span>(kind=rp) :: <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
+<div class="line"> </div>
+<div class="line">    <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a> = 265.0_rp - 0.25_rp/3600.0_rp*time%t</div>
+<div class="line"> </div>
+<div class="line"> <span class="keyword">end function </span>scalar_bc</div>
+<div class="ttc" id="anamespacebc_html"><div class="ttname"><a href="../../d0/dc0/namespacebc.html">bc</a></div><div class="ttdoc">Defines a boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00034">bc.f90:34</a></div></div>
+</div><!-- fragment --><p></p>
+</details>
+</li>
+</ul>
+<dl class="section attention"><dt>Attention</dt><dd>This wall model uses a <code>neumann</code> or <code>dirichlet</code> value for the scalar field to compute the surface shear stress, but it does not set the boundary condition for the scalar. The same boundary condition should be set separately for the scalar (see <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">Boundary conditions</a>).</dd></dl>
+<details >
+<summary >
+<b><u>Example code snippet</u></b></summary>
+<p></p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;wall_model&quot;,</div>
+<div class="line">  &quot;model&quot;: &quot;most&quot;,</div>
+<div class="line">  &quot;kappa&quot;: 0.4,</div>
+<div class="line">  &quot;Pr&quot;: 1.0,</div>
+<div class="line">  &quot;z0&quot;: 0.1,</div>
+<div class="line">  &quot;z0h&quot;: 0.1,</div>
+<div class="line">  &quot;type_of_temp_bc&quot;: &quot;neumann&quot;,</div>
+<div class="line">  &quot;bottom_bc_flux_or_temp&quot;: 0.05,</div>
+<div class="line">  &quot;scalar_field&quot;: &quot;temperature&quot;,</div>
+<div class="line">  &quot;time_dependent_temp_bc&quot;: &quot;false&quot;,</div>
+<div class="line">  &quot;zone_indices&quot;: [5],</div>
+<div class="line">  &quot;h_index&quot;: 1</div>
+<div class="line">}</div>
+</div><!-- fragment --><p></p>
+</details>
+<details >
+<summary >
+<b><u>References</u></b></summary>
+<p></p>
+<p>Dyer, A. J. (1974). A review of flux-profile relationships. Boundary-Layer Meteorology, 7(3), 363–372. <a href="https://doi.org/10.1007/BF00240838">https://doi.org/10.1007/BF00240838</a></p>
+<p>Holtslag, A. A. M., &amp; De Bruin, H. A. R. (1988). Applied Modeling of the Nighttime Surface Energy Balance over Land. Journal of Applied Meteorology, 27(6), 689–704. <a href="https://doi.org/10.1175/1520-0450(1988)027%253C0689:AMOTNS%253E2.0.CO;2">https://doi.org/10.1175/1520-0450(1988)027%253C0689:AMOTNS%253E2.0.CO;2</a></p>
+<p>Monin, A. S., &amp; Obukhov, A. M. (1954). Basic laws of turbulent mixing in the surface layer of the atmosphere. Tr Akad Nauk SSSR Geofiz Inst, 24(151), 163–187.</p>
+<p>Zilitinkevich, S. S., 1995: Non-local turbulent transport: Pollution dispersion aspects of coherent structure of convective flows. Air Pollution III, H. Power, N. Moussiopoulos, and C. A. Brebbia, Eds., Vol. 1, Air Pollution Theory and Simulation, Computational Mechanics Publications, 53–60. </p>
+</details>
+<h2><a class="anchor" id="richardson-wall-model"></a>
+Richardson wall model</h2>
+<p>This Richardson-number based wall model is conceptually similar to the more well-known MOST-based wall model, but it computes the effect of the temperature stratification based on the bulk Richardson number instead of the Obukhov length.</p>
+<p>In the convective regime, the surface shear stress, \(\tau\), and surface heat flux, \(\overline{u&#39;\theta&#39;}\) are computed using the formulations of Louis 1979:  </p><p class="formulaDsp">
+\begin{eqnarray*}
+\tau &amp;=&amp; a^2 V^2 F_m\left(\frac{z}{z_0}, \mathrm{Ri}_b\right), \\
+\overline{u&#39;\theta&#39;} &amp;=&amp; \frac{a^2}{R}\, V\, \Delta\theta \, F_h\left(\frac{z}{z_{0h}}, \mathrm{Ri}_b\right).
+\end{eqnarray*}
+</p>
+<p>Here, \(V\) is the horizontal wind speed (given that \(z\) is the wall-normal direction); \(\theta\) is the potential temperature; \(\mathrm{Ri}_b\) is the bulk Richardson number; \(z_0\) and \(z_{0h}\) are the roughness lengths for momentum and heat, respectively; \(F_m\) and \(F_h\) are stability functions as defined in Louis 1979; and \(a\) and \(R\) are constants, also as defined in Louis 1979.</p>
+<p>In the stable regime, the surface shear stress and surface heat flux are computed based on Mauritsen et al. 2007:  </p><p class="formulaDsp">
+\begin{eqnarray*}
+\tau &amp;=&amp; \frac{V^2}{\left[\ln\left(\dfrac{z}{z_0}\right)\right]^2} \,\frac{f_{\tau}(\mathrm{Ri}_b)}{f_{\tau}(0)} \left(\frac{\ell}{z}\right)^2, \\
+\overline{u&#39;\theta&#39;} &amp;=&amp; \frac{\Delta\theta}{\ln\left(\dfrac{z}{z_{0h}}\right)} \,\frac{f_{\theta}(\mathrm{Ri}_b)}{\left|f_{\theta}(0)\right|} \left(\frac{\ell}{z}\right) \frac{u_*}{\mathrm{Pr}}.
+\end{eqnarray*}
+</p>
+<p>Here, \(V, \theta, \mathrm{Ri}_b, z_0\), and \(z_{0h}\) are the same as above; \(f_{\tau}\) and \(f_{\theta}\) are defined in Mauritsen et al. 2007; \(l\) is a lengthscale (we use \(l = \kappa z\), where \(\kappa=0.4\) is the von Kàrmàn constant); \(u_*\) is the friction velocity, and \(\mathrm{Pr}\) is the turbulent Prandtl number.</p>
+<p>The keywords for this wall model are the same as for the <a class="el" href="../../dd/d33/case-file.html#most-wall-model">MOST model</a>, and a time-varying temperature boundary condition can be applied in the same way as described for the MOST model.</p>
+<details >
+<summary >
+<b><u>References</u></b></summary>
+<p>Louis, J.-F. (1979). A parametric model of vertical eddy fluxes in the atmosphere. Boundary-Layer Meteorology, 17(2), 187–202. <a href="https://doi.org/10.1007/BF00117978">https://doi.org/10.1007/BF00117978</a>.</p>
+<p>Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., &amp; Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. <a href="https://doi.org/10.1175/2007JAS2294.1">https://doi.org/10.1175/2007JAS2294.1</a>. </p>
+</details>
 <h2><a class="anchor" id="case-file_fluid-ic"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. Note that this currently pertains to both the fluid, but also scalars. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
@@ -447,7 +730,7 @@ Initial conditions</h2>
 </li>
 </ol>
 </li>
-<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
+<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>zone_name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><p class="startli"><code>field</code>, where the initial condition is retrieved from a field file. The following keywords can be used: </p><table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
@@ -456,9 +739,11 @@ Initial conditions</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>interpolate</code>   </td><td class="markdownTableBodyNone">Whether to interpolate the velocity and pressure fields from the field file onto the current mesh.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the point search.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone"><code>1e-6</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>mesh_file_name</code>   </td><td class="markdownTableBodyNone">If interpolation is enabled, the name of the field file that contains the mesh coordinates.   </td><td class="markdownTableBodyNone">Strings ending with <code>f*****</code>   </td><td class="markdownTableBodyNone"><code>file_name</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>mesh_file_name</code>   </td><td class="markdownTableBodyNone">If interpolation is enabled, the name of the field file that contains the mesh coordinates.   </td><td class="markdownTableBodyNone">Strings ending with <code>f*****</code>   </td><td class="markdownTableBodyNone"><code>file_name</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>interpolation.tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the point search.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone"><code>NEKO_EPS*1e3</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>interpolation.padding</code>   </td><td class="markdownTableBodyNone">Padding for the point search.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone"><code>1e-2</code>   </td></tr>
 </table>
 <dl class="section attention"><dt>Attention</dt><dd>Interpolating a field from the same mesh but different polynomial order is performed implicitly and does not require to enable interpolation.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>It is recommended to interpolate from <code>fld</code> files that were written in double precision. To check if your <code>fld</code> file was written in double precision, run the command: <div class="fragment"><div class="line">head -1 field0.f00000</div>
@@ -507,8 +792,22 @@ Source terms</h2>
 <li><code>brinkman</code>, Brinkman permeability forcing inside a pre-defined region.</li>
 <li><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>, perform gradient_jump_penalisation.</li>
 <li><code>sponge</code>, adds a sponge term based on a reference velocity field, which is applied in a user-specified region of the domain.</li>
+<li><code>field</code>, uses fields in the <code>neko_registry</code> as values of the source term. The fields are selected with the <code>field_names</code> keyword.</li>
+<li><code>hpfrt</code>, adds a high-pass filter relaxation term to the momentum equation. This source term damps the highest elementwise Legendre modes of the velocity field. It is configured with <code>filter_weight</code>, the damping strength, and <code>filter_modes</code>, the number of highest modes affected by the filter. See <a class="el" href="../../df/d4a/filter.html#filter_hpfrt">High-pass filter relaxation source term</a> for the definition of the filter and the source term.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md56"></a>
+<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
+<div class="line">   {</div>
+<div class="line">      &quot;type&quot;: &quot;hpfrt&quot;,</div>
+<div class="line">      &quot;filter_weight&quot;: 5.0,</div>
+<div class="line">      &quot;filter_modes&quot;: 2</div>
+<div class="line">   }</div>
+<div class="line">]</div>
+</div><!-- fragment --><p>The same source-term object can be used for scalars. In this case it is added to the scalar <code>source_terms</code> array and acts on that scalar field.</p><ol type="1">
+<li><p class="startli"><code>translation</code> Adds a forcing term corresponding to a domain translating with constant velocity. The term comes from the ALE formulation and is written as \( (\mathbf{w}\cdot\nabla)\mathbf{u} \), or, for spatially constant mesh velocity \( \nabla\cdot\mathbf{w} = 0 \), equivalently in conservative form as \( \nabla\cdot(\mathbf{u}\otimes\mathbf{w}) \). The keyword to be provided in the case file is <code>domain_velocity</code>, which expects an array with 3 values.</p>
+<p class="startli">Note that in this case, we still solve for the absolute velocity, not the relative one. It is simply advection that is affected. Useful to perform simulations on domains that are moving on a periodic direction.</p>
+</li>
+</ol>
+<h3><a class="anchor" id="autotoc_md91"></a>
 Brinkman</h3>
 <p>The Brinkman source term introduces regions of resistance in the fluid domain. The volume force \( f_i \) applied in the selected regions are proportional to the fluid velocity component \( u_i \).</p>
 <p class="formulaDsp">
@@ -522,6 +821,8 @@ Brinkman</h3>
 <ol type="1">
 <li><code>boundary_mesh</code>, the indicator function for a boundary mesh is computed in two steps. First, the signed distance function is computed for the boundary mesh. Then, the indicator function is computed using the distance transform function specified in the case file. This is currently not very well optimized, it will scale by <code>O(log(M)*N)</code>, where <code>M</code> is the number of triangles in the boundary mesh and <code>N</code> is the number of grid points in the simulation. To avoid recomputing the distance field for multiple simulations with the same boundary mesh and numerical discretization, the distance field can be cached to a file. This is controlled by the <code>cache</code> keyword. If set to <code>true</code>, the distance field will be saved to a file specified by the <code>cache_file</code> keyword. If the file already exists, it will be loaded instead of recomputing it. The distance field is stored in the Nek5000 <code>.fld</code> file format.</li>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the indicator function is defined as 1 inside the point zone and 0 outside.</li>
+<li><code>field</code>, the indicator function is directly taken from a field in the <code>neko_registry</code>. The field name should be specified in the <code>name</code> keyword.</li>
+<li><code>file</code>, the indicator function is directly taken from a field file. The file name should be specified in the <code>file_name</code> keyword. This requires the user to specify the field name in the file, which should be done by setting the <code>field_name</code> keyword.</li>
 </ol>
 <p>Each object are added to a common indicator field by means of a point-wise max operator. This means that the indicator field will be the union of all the regions defined by the objects.</p>
 <p>To assist correct placement and scaling of objects from external sources, the meshes can be transformed using the <code>mesh_transform</code> object. The object can be used to apply a transformation to the boundary mesh. The following types are currently implemented.</p>
@@ -588,7 +889,7 @@ Brinkman</h3>
 <div class="line">      }</div>
 <div class="line">   }</div>
 <div class="line">]</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md57"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md92"></a>
 Gradient Jump Penalty</h3>
 <p>The optional <code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code> object can be used to perform gradient jump penalty as an continuous interior penalty option. The penalty term is performed on the weak form equation of quantity \( T \) (could either be velocity or scalar) as a right hand side term</p>
 <p>\( - &lt; \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}&gt;\),</p>
@@ -604,7 +905,7 @@ Gradient Jump Penalty</h3>
 <li><code>scaling_factor</code>, the scaling parameter \( a \) for \( P &gt; 1 \), default to be <code>0.8</code>.</li>
 <li><code>scaling_exponent</code>, the scaling parameter \( b \) for \( P &gt; 1 \), default to be <code>4.0</code>.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md58"></a>
+<h3><a class="anchor" id="autotoc_md93"></a>
 Sponge</h3>
 <p>The sponge source term adds a term to each of the momentum equations of the form</p>
 <p>\( \mathbf{\lambda} f(\mathbf{x}) ( \mathbf{u}^{bf} - \mathbf{u}) \)</p>
@@ -620,58 +921,63 @@ Sponge</h3>
 <details >
 <summary >
 <b><u>Example code snippet</u></b></summary>
-<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
-<div class="line">   {</div>
-<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
-<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
-<div class="line">      &quot;baseflow&quot;: {</div>
-<div class="line">          &quot;method&quot;: &quot;constant&quot;,</div>
-<div class="line">          &quot;value&quot;: [2.0, 0.0, 0.0]</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">   &quot;source_terms&quot;: [</div>
+<div class="line">      {</div>
+<div class="line">         &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">         &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">         &quot;baseflow&quot;: {</div>
+<div class="line">             &quot;method&quot;: &quot;constant&quot;,</div>
+<div class="line">             &quot;value&quot;: [2.0, 0.0, 0.0]</div>
+<div class="line">         }</div>
 <div class="line">      }</div>
-<div class="line">   }</div>
-<div class="line">]</div>
+<div class="line">   ]</div>
+<div class="line">}</div>
 </div><!-- fragment --> </details>
 </li>
 <li><code>field</code>, where the velocity fields are retrieved from an <code>fld</code> file. Uses the same parameters as the field initial condition. <dl class="section note"><dt>Note</dt><dd>The same parameters as the <code>field</code> initial condition apply here.</dd></dl>
 <details >
 <summary >
 <b><u>Example code snippet</u></b></summary>
-<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
-<div class="line">   {</div>
-<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
-<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
-<div class="line">      &quot;baseflow&quot;: {</div>
-<div class="line">          &quot;method&quot;: &quot;field&quot;,</div>
-<div class="line">          &quot;file_name&quot;: &quot;my_field0.f00016&quot;,</div>
-<div class="line">          &quot;mesh_file_name&quot;: &quot;my_field0.f00000&quot;,</div>
-<div class="line">          &quot;interpolate&quot;: true,</div>
-<div class="line">          &quot;tolerance&quot;: 1e-6</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">   &quot;source_terms&quot;: [</div>
+<div class="line">      {</div>
+<div class="line">         &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">         &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">         &quot;baseflow&quot;: {</div>
+<div class="line">             &quot;method&quot;: &quot;field&quot;,</div>
+<div class="line">             &quot;file_name&quot;: &quot;my_field0.f00016&quot;,</div>
+<div class="line">             &quot;mesh_file_name&quot;: &quot;my_field0.f00000&quot;,</div>
+<div class="line">             &quot;interpolate&quot;: true</div>
+<div class="line">         }</div>
 <div class="line">      }</div>
-<div class="line">   }</div>
-<div class="line">]</div>
+<div class="line">   ]</div>
+<div class="line">}</div>
 </div><!-- fragment --> </details>
 </li>
 <li><code>user</code>, where the velocity field is set according to what is defined in the user file. Useful for setting velocity fields manually. In this case, the base flow fields must be created and added to the <code>neko_registry</code> (see fortran code snippet below). <details >
 <summary >
 <b><u>Example code snippet</u></b></summary>
-<div class="fragment"><div class="line">&quot;source_terms&quot;: [</div>
-<div class="line">   {</div>
-<div class="line">      &quot;type&quot;: &quot;sponge&quot;,</div>
-<div class="line">      &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
-<div class="line">      &quot;baseflow&quot;: {</div>
-<div class="line">          &quot;method&quot;: &quot;user&quot;</div>
+<div class="fragment"><div class="line">{</div>
+<div class="line">   &quot;source_terms&quot;: [</div>
+<div class="line">      {</div>
+<div class="line">         &quot;type&quot;: &quot;sponge&quot;,</div>
+<div class="line">         &quot;amplitudes&quot;: [1.0, 1.0, 1.0],</div>
+<div class="line">         &quot;baseflow&quot;: {</div>
+<div class="line">             &quot;method&quot;: &quot;user&quot;</div>
+<div class="line">         }</div>
 <div class="line">      }</div>
-<div class="line">   }</div>
-<div class="line">]</div>
+<div class="line">   ]</div>
+<div class="line">}</div>
 </div><!-- fragment --> </details>
 </li>
 </ol>
-<p>Finally, the fringe function field must be filled by the user. This must be done through the user file by adding the fringe field to the <code>neko_registry</code> in either <code>user_init_modules</code> or <code>fluid_user_ic</code> (more specifically, before the first call to compute the sponge source term).</p>
+<p>Finally, the fringe function field must be filled by the user. This must be done through the user file by adding the fringe field to the <code>neko_registry</code> in either <code>initialize</code> or <code>initial_conditions</code> (more specifically, before the first call to compute the sponge source term). Note that <code>initial_conditions</code> is not called when doing a restart from a checkpoint file, so if restarts will be done the sponge should be implemented in <code>user_init_modules</code>.</p>
 <p>The fringe field must be set by adding a field to the <code>neko_registry</code> under a specific name that can be retrieved internally. By default, Neko will search for the field <code>"sponge_fringe"</code> in the registry, but this can be changed by setting the parameter <code>fringe_registry_name</code>, which is important when using more than one sponge source term.</p>
 <p>The same principle applies for the base flow fields (if <code>"method": "user"</code>). By default, neko will search for the base flow fields in the registry using the prefix <code>"sponge_bf_"</code>, meaning that <code>u</code> will be in <code>sponge_bf_u</code>, etc. This prefix can be changed by setting the parameter <code>bf_registry_prefix</code>.</p>
 <details >
 <summary >
-<b><u>Example using <code>user_init_modules</code></u></b></summary>
+<b><u>Example using <code>initialize</code></u></b></summary>
 <p></p>
 <div class="fragment"><div class="line"><span class="keyword">module</span> <a class="code hl_namespace" href="../../dc/d44/namespaceuser.html">user</a></div>
 <div class="line">  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d62/namespaceneko.html">neko</a></div>
@@ -748,7 +1054,8 @@ Sponge</h3>
 <div class="line"> </div>
 <div class="line"><span class="keywordflow">    end do</span></div>
 <div class="line"> </div>
-<div class="line">    wbf = 0.0_rp</div>
+<div class="line">    wbf%x = 0.0_rp</div>
+<div class="line"> </div>
 <div class="line">    <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line">       <span class="keyword">call </span>device_memcpy(ubf%x, ubf%x_d, ubf%size(), &amp;</div>
 <div class="line">            host_to_device, .false.)</div>
@@ -818,7 +1125,357 @@ Sponge</h3>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>dump_file_name</code>   </td><td class="markdownTableBodyNone">Name of the <code>fld</code> file in which to dump the base flow and fringe fields   </td><td class="markdownTableBodyNone">String ending with <code>fld</code>   </td><td class="markdownTableBodyNone"><code>spng_fields.fld</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md59"></a>
+<h2><a class="anchor" id="case-file_fluid-ale"></a>
+Arbitrary Lagrangian-Eulerian Framework</h2>
+<p>Neko supports the simulation of moving walls through the Arbitrary Lagrangian-Eulerian (ALE) framework. The current implementation allows for an arbitrary number of individually moving or deformable walls, collectively referred to as bodies.</p>
+<dl class="section note"><dt>Note</dt><dd>Currently, the ALE framework supports CPU backend, as well as HIP and CUDA backends for GPU acceleration.</dd></dl>
+<p>The <code>"ale"</code> block in case file is part of the <code>"fluid"</code> object, and has the following high-level structure:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;fluid&quot;: {</div>
+<div class="line"> </div>
+<div class="line">    &quot;ale&quot;: {</div>
+<div class="line">      &quot;enabled&quot;: true,</div>
+<div class="line"> </div>
+<div class="line">      &quot;solver&quot;: {</div>
+<div class="line">        // Linear solver configuration to obtain the base shape for smooth blending function used for mesh deformation</div>
+<div class="line">      },</div>
+<div class="line"> </div>
+<div class="line">      &quot;mesh_preview&quot;: {</div>
+<div class="line">        // Settings to preview mesh motion prior to full simulation</div>
+<div class="line">      },</div>
+<div class="line"> </div>
+<div class="line">      &quot;bodies&quot;: [</div>
+<div class="line">        // Array of registered moving bodies</div>
+<div class="line">      ]</div>
+<div class="line">    },</div>
+<div class="line">  },</div>
+<div class="line"> </div>
+<div class="line">}</div>
+</div><!-- fragment --><p> To run an ALE simulation, the framework must be set up as follows:</p>
+<ul>
+<li><b>Boundary Conditions:</b> Under the <code>"boundary_condition"</code> block, any moving wall must be set to <code>"no_slip"</code> with <code>"moving": true</code>.</li>
+<li><b>Enable ALE:</b> Under the <code>"ale"</code> block, the keyword <code>"enabled"</code> must be set to <code>true</code>.</li>
+</ul>
+<dl class="section attention"><dt>Attention</dt><dd>If the <code>"ale"</code> block is present, the <code>"enabled"</code> keyword is mandatory.</dd></dl>
+<ul>
+<li><b>Body Registration:</b> There must be a strict mapping between moving boundaries and ALE bodies:<ul>
+<li>Any <code>"no_slip"</code> boundary marked as <code>"moving": true</code> <b>must</b> be registered as an ALE body under the <code>"bodies"</code> object.</li>
+<li>Conversely, any boundary registered as an ALE body <b>must</b> be defined as a <code>"no_slip"</code> boundary with <code>"moving": true</code>.</li>
+<li>A single boundary zone can only be assigned to a maximum of one ALE body.</li>
+<li>If any of these rules are violated, Neko will not start the simulation loop and will print an informative error message.</li>
+</ul>
+</li>
+</ul>
+<p>In the following, the main blocks of <code>"ale"</code> object are explained.</p>
+<h3><a class="anchor" id="case-file_fluid-ale-solver"></a>
+Solver</h3>
+<p>To smoothly move the mesh during an ALE simulation, we use a global smooth blending function, \( \phi_{total} \). This function is found by solving the following variable stiffness Laplace equation:</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ \nabla \cdot (h(\mathbf{x}) \nabla \phi_{total}) = 0,
+\end{eqnarray*}
+</p>
+<p>where \( h(\mathbf{x}) \) is the spatial mesh stiffness. Due to the linearity of the Laplace operator, the total blending function can be decomposed into the sum of individual base shapes \( \phi_i \) associated with each registered body \( i \):</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ \phi_{total}(\mathbf{x}) = \sum_{i} \phi_i(\mathbf{x}).
+\end{eqnarray*}
+</p>
+<p>Consequently, the problem reduces to solving a separate Laplace equation for each individual body:</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ \nabla \cdot (h(\mathbf{x}) \nabla \phi_i) = 0.
+\end{eqnarray*}
+</p>
+<p>Currently, the base shapes \( \phi_i \) are computed only once during initialization, and these same blending functions are used throughout the entire simulation.</p>
+<p>During the simulation, the mesh velocity \( \mathbf{w}_{mesh}(\mathbf{x}, t) \) at any given grid point \( \mathbf{x} \) is calculated by multiplying the prescribed velocity \( \mathbf{v}_i(\mathbf{x}, t) \) of each body by its local base shape value \( \phi_i(\mathbf{x}) \), and summing the contributions across all registered bodies:</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ \mathbf{w}_{mesh}(\mathbf{x}, t) = \sum_{i} \phi_i(\mathbf{x}) \mathbf{v}_i(\mathbf{x}, t)
+\end{eqnarray*}
+</p>
+<dl class="section note"><dt>Note</dt><dd>A separate Laplace equation is solved for each registered body. During the solve for body \( i \), the Dirichlet boundary conditions are set such that \( \phi_i = 1 \) on its own moving boundary, and \( \phi_i = 0 \) on all other boundaries (including fixed walls and other moving bodies), with the exception of periodic boundaries. This guarantees that body \( i \) deforms or moves as intended, while other ALE bodies remain unaffected by this motion, and all other boundaries which define the simulation domain remain fixed. The value of \( \phi_i \) on periodic boundaries is determined naturally by solving the Laplace equation.</dd></dl>
+<p>Details regarding the configuration of the mesh stiffness \( h(\mathbf{x}) \) can be found in the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid_ale_stiff_geom">Mesh Stiffness</a> section.</p>
+<p>Within the <code>"solver"</code> block, the parameters of the linear solver used to solve the Laplace equation are set. This block accepts the following keywords:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Name   </th><th class="markdownTableHeadLeft">Description   </th><th class="markdownTableHeadLeft">Admissible values   </th><th class="markdownTableHeadLeft">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>type</code>   </td><td class="markdownTableBodyLeft">Type of linear solver for the Laplace equation   </td><td class="markdownTableBodyLeft"><code>"cg"</code>, <code>"gmres"</code>   </td><td class="markdownTableBodyLeft"><code>"cg"</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>preconditioner.type</code>   </td><td class="markdownTableBodyLeft">Type of preconditioner to use   </td><td class="markdownTableBodyLeft"><code>"jacobi"</code>, <code>"hsmg"</code>, <code>"phmg"</code>   </td><td class="markdownTableBodyLeft"><code>"jacobi"</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>absolute_tolerance</code>   </td><td class="markdownTableBodyLeft">Absolute tolerance for solver convergence   </td><td class="markdownTableBodyLeft">Positive real   </td><td class="markdownTableBodyLeft"><code>1.0e-10</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>max_iterations</code>   </td><td class="markdownTableBodyLeft">Maximum number of linear solver iterations   </td><td class="markdownTableBodyLeft">Positive integer   </td><td class="markdownTableBodyLeft"><code>10000</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>monitor</code>   </td><td class="markdownTableBodyLeft">Monitor residuals in the linear solver   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>output_base_shape</code>   </td><td class="markdownTableBodyLeft">Enables output of the base shape field \( \phi \)   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>true</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>output_stiffness</code>   </td><td class="markdownTableBodyLeft">Enables output of the computed mesh stiffness field \( h(\mathbf{x}) \)   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>import_base_shape</code>   </td><td class="markdownTableBodyLeft">Whether to import \( \phi \) fields from file   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>   </td></tr>
+</table>
+<h4><a class="anchor" id="autotoc_md94"></a>
+Output Files and Diagnostics</h4>
+<p>If the output flags are enabled, Neko will generate <code>.fld</code> files during the initialization phase. These files are highly useful for verifying that the mesh deformation fields and stiffness regions are configured correctly before running the simulation:</p>
+<ul>
+<li><code>phi_&lt;body_name&gt;0.f00000</code>: Generated if <code>"output_base_shape": true</code>. Contains the computed base shape \( \phi_i \) for a specific body.</li>
+<li><code>phi_total0.f00000</code>: Generated if <code>"output_base_shape": true</code> <b>and</b> there is more than one body registered. Contains the sum of all base shapes ( \( \phi_{total} = \sum \phi_i \)).</li>
+<li><code>stiffness0.f00000</code>: Generated if <code>"output_stiffness": true</code>. Contains the global spatial mesh stiffness field \( h(\mathbf{x}) \).</li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>Due to the linearity and the maximum principle of the Laplace equation, the combined base shape field \( \phi_{total} \) is guaranteed to be strictly bounded between 0 and 1 everywhere in the domain, provided that the solver's <code>absolute_tolerance</code> is set appropriately.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>It is also possible to provide a custom base shape \( \phi \) using a <code>user_ale_base_shapes</code> user subroutine. In this case, the internal Laplace solver is bypassed entirely, even if the custom subroutine is only used for one of the ALE bodies. It is thus up to the user to ensure the validity of the base shape. Setting <code>"output_base_shape": true</code> will still write your custom user shapes to <code>.fld</code> files, allowing you to easily visualize and debug your custom implementations. More details about implementing this user subroutine can be found <a class="el" href="../../d6/def/user-file.html#user-file_ale-base-shapes">here</a>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If the option <code>import_base_shape</code> is set to <code>true</code>, the Laplace solve will be skipped entirely, and the \( \phi \) fields are instead loaded from previously computed <code>.fld</code> files. When this feature is enabled, the file to be loaded for each body must be specified using the <code>base_shape_import_file</code> keyword within the <code>"bodies"</code> block.</dd></dl>
+<h3><a class="anchor" id="autotoc_md95"></a>
+Mesh preview</h3>
+<p>One of the available features in the Neko ALE module is the Mesh Preview. This allows users to investigate mesh quality over time <b>without</b> running an expensive full fluid simulation. The preview applies the exact same prescribed motion configured by the user, ensuring the visualized mesh motion perfectly mirrors what will happen during the actual simulation. Enabling this feature generates <code>.fld</code> files named <code>mesh_preview0.f*****</code>, which contain the deformed mesh and the mass matrix.</p>
+<p>The <code>"mesh_preview"</code> block accepts the following keywords:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Name   </th><th class="markdownTableHeadLeft">Description   </th><th class="markdownTableHeadLeft">Admissible values   </th><th class="markdownTableHeadLeft">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>enabled</code>   </td><td class="markdownTableBodyLeft">Toggles the mesh preview feature on or off   </td><td class="markdownTableBodyLeft"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyLeft"><code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>start_time</code>   </td><td class="markdownTableBodyLeft">Start time for the mesh preview simulation   </td><td class="markdownTableBodyLeft">Positive real   </td><td class="markdownTableBodyLeft">0.0    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>end_time</code>   </td><td class="markdownTableBodyLeft">End time for the mesh preview simulation   </td><td class="markdownTableBodyLeft">Positive real   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>output_freq</code>   </td><td class="markdownTableBodyLeft">Number of timesteps between each generated output file   </td><td class="markdownTableBodyLeft">Positive integer   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>dt</code>   </td><td class="markdownTableBodyLeft">Constant time step size used for the mesh preview   </td><td class="markdownTableBodyLeft">Positive real   </td><td class="markdownTableBodyLeft">-   </td></tr>
+</table>
+<dl class="section attention"><dt>Attention</dt><dd>The <code>"mesh_preview"</code> feature is strictly a pre-processing step. Once the preview completes, whether successfully or due to a failure, the Neko run will terminate and output a corresponding success or failure message. To proceed with the actual fluid simulation, the user <b>must</b> set <code>"mesh_preview.enabled: false"</code> in order for the actual simulation to run. Additionally, if the solver detects an inverted mesh element during the preview phase, it will save the exact time step at which the Jacobian becomes negative to assist with debugging.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The <code>"mesh_preview"</code> feature uses the same time integration order as defined in <code>"case.numerics.time_order"</code>. However, the <code>start_time</code>, <code>end_time</code>, constant <code>dt</code>, and <code>output_freq</code> parameters must be explicitly defined within the <code>"mesh_preview"</code> block itself.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>When the ALE module is <code>enabled</code>, Neko will <b>always</b> save the mesh in the <code>.fld</code> files at every output step.</dd></dl>
+<h3><a class="anchor" id="autotoc_md96"></a>
+Bodies</h3>
+<p>The <code>"bodies"</code> block defines an array of objects, where each object represents an individually controlled ALE body. Each body must map to corresponding physical boundary zone using <code>"bodies.zone_indices"</code>.</p>
+<p>Each individual body object accepts the following general keywords and base kinematics:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Name   </th><th class="markdownTableHeadLeft">Description   </th><th class="markdownTableHeadLeft">Admissible values   </th><th class="markdownTableHeadLeft">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>name</code>   </td><td class="markdownTableBodyLeft">The name identifier of the body   </td><td class="markdownTableBodyLeft">String   </td><td class="markdownTableBodyLeft"><code>"body_&lt;body_ID&gt;"</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>zone_indices</code>   </td><td class="markdownTableBodyLeft">The physical boundary zones associated with this body   </td><td class="markdownTableBodyLeft">Array of positive integers   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>oscillation</code>   </td><td class="markdownTableBodyLeft">Sub-object defining the translational oscillation kinematics   </td><td class="markdownTableBodyLeft">JSON object   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>rotation</code>   </td><td class="markdownTableBodyLeft">Sub-object defining the rotational kinematics applied to the body   </td><td class="markdownTableBodyLeft">JSON object   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>pivot</code>   </td><td class="markdownTableBodyLeft">Sub-object defining the center point for rotational kinematics   </td><td class="markdownTableBodyLeft">JSON object   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>stiff_geom</code>   </td><td class="markdownTableBodyLeft">Sub-object defining the mesh stiffness region   </td><td class="markdownTableBodyLeft">JSON object   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>base_shape_import_file</code>   </td><td class="markdownTableBodyLeft">Name of the \( \phi \) field file to import   </td><td class="markdownTableBodyLeft">String ending with <code>f00000</code>   </td><td class="markdownTableBodyLeft">-   </td></tr>
+</table>
+<dl class="section note"><dt>Note</dt><dd>The body_ID for ALE bodies is defined based on the order in which they are added to the <code>"bodies"</code> array, not based on their <code>"zone_indices"</code>.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>If multiple moving <code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code> zone IDs are assigned to <code>"zone_indices"</code> of a single ALE body, the code will treat all those boundaries as a unified rigid body.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The <code>base_shape_import_file</code> keyword is only mandatory if the solver option <code>"ale.solver.import_base_shape"</code> is set to <code>true</code>. In this case, this keyword should be provided for <b>every</b> single registered body.</dd></dl>
+<h4><a class="anchor" id="autotoc_md97"></a>
+Oscillation</h4>
+<p>The <code>"oscillation"</code> sub-object defines the harmonic translational motion of the body. It takes the following mandatory keywords:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Name   </th><th class="markdownTableHeadLeft">Description   </th><th class="markdownTableHeadLeft">Admissible values   </th><th class="markdownTableHeadLeft">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>oscillation.amplitude</code>   </td><td class="markdownTableBodyLeft">Amplitude of translational oscillation in \( [x, y, z] \)   </td><td class="markdownTableBodyLeft">Array of 3 reals   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>oscillation.frequency</code>   </td><td class="markdownTableBodyLeft">Frequency of translational oscillation in \( [x, y, z] \)   </td><td class="markdownTableBodyLeft">Array of 3 reals   </td><td class="markdownTableBodyLeft">-   </td></tr>
+</table>
+<dl class="section warning"><dt>Warning</dt><dd>If the <code>"oscillation"</code> block is included in the case file, both <code>"amplitude"</code> and <code>"frequency"</code> become <b>mandatory</b>.</dd></dl>
+<p>When translational oscillation is configured, the displacement \( x_i(t) \) and velocity \( v_i(t) \) of the body follow a simple harmonic motion for each active directional component \( i \in \{x, y, z\} \):</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+  x_i(t) &amp;=&amp; A_i \sin(2\pi f_i t), \\
+  v_i(t) &amp;=&amp; 2\pi f_i A_i \cos(2\pi f_i t),
+\end{eqnarray*}
+</p>
+<p>where \( A_i \) is the <code>oscillation.amplitude</code> and \( f_i \) is the <code>oscillation.frequency</code> for that specific direction.</p>
+<h4><a class="anchor" id="autotoc_md98"></a>
+Rotation</h4>
+<p>If the body undergoes rotational motion, the <code>"rotation"</code> sub-object can be configured. Depending on the <code>rotation.type</code>, different parameters become applicable:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Name   </th><th class="markdownTableHeadLeft">Description   </th><th class="markdownTableHeadLeft">Admissible values   </th><th class="markdownTableHeadLeft">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>rotation.type</code>   </td><td class="markdownTableBodyLeft">The type of rotational kinematics applied   </td><td class="markdownTableBodyLeft"><code>"harmonic"</code>, <code>"ramp"</code>, <code>"smooth_step"</code>   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>rotation.amplitude_deg</code>   </td><td class="markdownTableBodyLeft">Rotational amplitude in <b>degrees</b> <em>(only for </em><code>harmonic</code><em>)</em>   </td><td class="markdownTableBodyLeft">Array of 3 reals   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>rotation.frequency</code>   </td><td class="markdownTableBodyLeft">Rotational frequency <em>(only for </em><code>harmonic</code><em>)</em>   </td><td class="markdownTableBodyLeft">Array of 3 reals   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>rotation.ramp_omega0</code>   </td><td class="markdownTableBodyLeft">Target angular velocity <em>(only for </em><code>ramp</code><em>)</em>   </td><td class="markdownTableBodyLeft">Array of 3 reals   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>rotation.ramp_t0</code>   </td><td class="markdownTableBodyLeft">Time constant for the ramp <em>(only for </em><code>ramp</code><em>)</em>   </td><td class="markdownTableBodyLeft">Array of 3 reals   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>rotation.axis</code>   </td><td class="markdownTableBodyLeft">Axis of rotation <em>(only for </em><code>smooth_step</code><em>)</em>   </td><td class="markdownTableBodyLeft"><code>1</code> (x), <code>2</code> (y), <code>3</code> (z)   </td><td class="markdownTableBodyLeft"><code>3</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>rotation.target_angle_deg</code>   </td><td class="markdownTableBodyLeft">Target rotation angle in <b>degrees</b> <em>(only for </em><code>smooth_step</code><em>)</em>   </td><td class="markdownTableBodyLeft">Real   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>rotation.step_control_times</code>   </td><td class="markdownTableBodyLeft">Control times \( [t_0, t_1, t_2, t_3] \) <em>(only for </em><code>smooth_step</code><em>)</em>   </td><td class="markdownTableBodyLeft">Array of 4 reals   </td><td class="markdownTableBodyLeft">-   </td></tr>
+</table>
+<dl class="section warning"><dt>Warning</dt><dd>If the <code>"rotation"</code> block is included in the case file, a valid <code>"pivot"</code> block to specify the center of rotation must be defined. The <code>"pivot"</code> object is explained <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ale-pivot">here</a>. Additionally, the specific parameters corresponding to the chosen <code>rotation.type</code> become <b>mandatory</b>.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>Positive rotation is defined counter-clockwise in a right-handed coordinate system.</dd></dl>
+<p>The angular velocity vector \( \mathbf{\omega}(t) \) and angular position vector \( \mathbf{\theta}(t) \) are computed based on the selected <code>rotation.type</code> as follows:</p>
+<p><b>1. Harmonic Rotation</b> (<code>"harmonic"</code>) Applies a simple harmonic oscillation to the angular velocity and position for each axis \( i \in \{x, y, z\} \):</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ \omega_i(t) &amp;=&amp; A_{rad,i} (2\pi f_i) \cos(2\pi f_i t), \\
+ \theta_i(t) &amp;=&amp; A_{rad,i} \sin(2\pi f_i t),
+\end{eqnarray*}
+</p>
+<p>where \( A_{rad,i} \) is the <code>amplitude_deg</code> converted to radians, and \( f_i \) is the <code>frequency</code>.</p>
+<p><b>2. Ramp Rotation</b> (<code>"ramp"</code>) Gradually ramps up the angular velocity to a target value for each axis \( i \in \{x, y, z\} \):</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ \omega_i(t) &amp;=&amp; \Omega_{0,i} \left( 1 - \exp\left(-4.6 \frac{t}{t_{0,i}}\right) \right), \\
+ \theta_i(t) &amp;=&amp; \Omega_{0,i} \left[ t - \frac{t_{0,i}}{4.6} \left( 1 - \exp\left(-4.6 \frac{t}{t_{0,i}}\right) \right) \right],
+\end{eqnarray*}
+</p>
+<p>where \( \Omega_{0,i} \) is the target angular velocity (<code>ramp_omega0</code>) and \( t_{0,i}\) is the time constant (<code>ramp_t0</code>). The factor of 4.6 ensures the velocity reaches approximately 99% of its target at \( t = t_{0,i} \). At times beyond the ramp parameter ( \( t \gt t_{0,i} \)), the body achieves a steady rotation rate \( \Omega_{0,i} \).</p>
+<p><b>3. Smooth Step Rotation</b> (<code>"smooth_step"</code>) Applies a smooth rotation around a single specified <code>axis</code> using a derivative step function, \( \text{dstep}(\tau) \), to reach a target angle and return to zero. The motion along the chosen axis is divided into four phases defined by <code>step_control_times</code> \( [t_0, t_1, t_2, t_3] \), prescribing both the angular velocity \( \omega(t) \) and angular position \( \theta(t) \):</p>
+<ul>
+<li><b>Rise Phase</b> ( \( t_0 \le t &lt; t_1 \)):</li>
+</ul>
+<p class="formulaDsp">
+\begin{eqnarray*}
+     \omega(t) &amp;=&amp; \frac{\theta_{rad}}{t_1 - t_0} \text{dstep}\left(\frac{t - t_0}{t_1 - t_0}\right), \\
+     \theta(t) &amp;=&amp; \theta_{rad} \, S\left(\frac{t - t_0}{t_1 - t_0}\right)
+    \end{eqnarray*}
+</p>
+<ul>
+<li><b>Hold Phase</b> ( \( t_1 \le t &lt; t_2 \)):</li>
+</ul>
+<p class="formulaDsp">
+\begin{eqnarray*}
+     \omega(t) &amp;=&amp; 0, \\
+     \theta(t) &amp;=&amp; \theta_{rad}
+    \end{eqnarray*}
+</p>
+<ul>
+<li><b>Fall Phase</b> ( \( t_2 \le t &lt; t_3 \)):</li>
+</ul>
+<p class="formulaDsp">
+\begin{eqnarray*}
+     \omega(t) &amp;=&amp; -\frac{\theta_{rad}}{t_3 - t_2} \text{dstep}\left(\frac{t - t_2}{t_3 - t_2}\right), \\
+     \theta(t) &amp;=&amp; \theta_{rad} \left[ 1 - S\left(\frac{t - t_2}{t_3 - t_2}\right) \right]
+    \end{eqnarray*}
+</p>
+<ul>
+<li><b>Rest Phase</b> ( \( t &lt; t_0\) or \( t \ge t_3 \)):  <p class="formulaDsp">
+\begin{eqnarray*}
+     \omega(t) &amp;= 0, \\
+     \theta(t) &amp;= 0,
+    \end{eqnarray*}
+</p>
+ where \( \theta_{rad} \) is the <code>target_angle_deg</code> converted to radians.</li>
+</ul>
+<p>The base smooth step function \( S(\tau) \) and its analytical derivative \( \text{dstep}(\tau) \) are defined for \( \tau \in (0, 1) \) as:</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ S(\tau) &amp;=&amp; \frac{1}{1 + \exp(g(\tau))}, \quad \text{where} \quad g(\tau) = \frac{1}{\tau - 1} + \frac{1}{\tau}, \\
+ \text{dstep}(\tau) &amp;=&amp; -S(\tau)(1 - S(\tau))g&#39;(\tau), \quad \text{where} \quad g&#39;(\tau) = -\frac{1}{(\tau - 1)^2} - \frac{1}{\tau^2}.
+\end{eqnarray*}
+</p>
+<p>For bounds where \( \tau \le 0 \), \( S(\tau) = 0 \) and \( \text{dstep}(\tau) = 0 \). For bounds where \( \tau \ge 1 \), \( S(\tau) = 1 \) and \( \text{dstep}(\tau) = 0 \).</p>
+<dl class="section attention"><dt>Attention</dt><dd>Within the case file, both translational oscillation and rotational motion can be applied simultaneously to a body. However, only one rotation mode can be active at a time.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>A custom motion logic can always be applied to a body via custom <code>user_ale_rigid_kinematics</code> or <code>user_ale_mesh_velocity</code> subroutines in the user file (see <a class="el" href="../../d6/def/user-file.html#user-file_ale-rigid_motion">here</a> for more information). The example <code>"Double_ocyl_cylinder"</code> shows an example for this usage. More details regarding the supported ALE interfaces and subroutines can be found <a class="el" href="../../d6/def/user-file.html#user-file_ale">here</a>.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>There are several ways to calculate torque on a moving ALE body. The user is referred to <a class="el" href="../../d3/d84/simcomps.html#simcomp_force_torque">this part of the documentation</a> for more information.</dd></dl>
+<h4><a class="anchor" id="case-file_fluid-ale-pivot"></a>
+Pivot</h4>
+<p>The <code>"pivot"</code> sub-object defines the center point around which the body rotates.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Name   </th><th class="markdownTableHeadLeft">Description   </th><th class="markdownTableHeadLeft">Admissible values   </th><th class="markdownTableHeadLeft">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>pivot.type</code>   </td><td class="markdownTableBodyLeft">Type of pivot definition   </td><td class="markdownTableBodyLeft"><code>"relative"</code>   </td><td class="markdownTableBodyLeft"><code>"relative"</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>pivot.value</code>   </td><td class="markdownTableBodyLeft">The spatial coordinates of the rotation center \( [x, y, z] \)   </td><td class="markdownTableBodyLeft">Array of 3 reals   </td><td class="markdownTableBodyLeft">-   </td></tr>
+</table>
+<dl class="section note"><dt>Note</dt><dd>The rotation center (i.e., the <code>"pivot"</code>) moves rigidly with the body. This means that if a body undergoes both translational oscillation and rotation, <code>"pivot.value"</code> defines the initial position of the rotation center. Throughout the simulation, the location of the pivot point is numerically updated using the translational velocity of the body, even if a custom rigid motion is applied using a <code>user_ale_rigid_kinematics</code> subroutine (see <a class="el" href="../../d6/def/user-file.html#user-file_ale-rigid_motion">here</a> for more information).</dd></dl>
+<h4><a class="anchor" id="case-file_fluid_ale_stiff_geom"></a>
+Mesh Stiffness</h4>
+<p>The <code>"stiff_geom"</code> sub-object defines a local geometric region where the mesh is kept highly rigid to maintain the original mesh quality in regions of interest, e.g., within the boundary layer.</p>
+<p>The global mesh stiffness field \( h(\mathbf{x}) \) is constructed by taking a base stiffness of \( 1.0 \) and adding the maximum local stiffness contribution from all registered bodies:</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ h(\mathbf{x}) = 1.0 + \max_{b \in \text{bodies}} (\text{Stiffness}_b(\mathbf{x})).
+\end{eqnarray*}
+</p>
+<dl class="section attention"><dt>Attention</dt><dd>A valid <code>"stiff_geom"</code> definition is <b>mandatory</b> for every registered body.</dd></dl>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Name   </th><th class="markdownTableHeadLeft">Description   </th><th class="markdownTableHeadLeft">Admissible values   </th><th class="markdownTableHeadLeft">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>stiff_geom.type</code>   </td><td class="markdownTableBodyLeft">The shape of the stiffness region   </td><td class="markdownTableBodyLeft"><code>"cylinder"</code>, <code>"sphere"</code>, <code>"cheap_dist"</code>   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>stiff_geom.decay_profile</code>   </td><td class="markdownTableBodyLeft">How the stiffness decays away from the body   </td><td class="markdownTableBodyLeft"><code>"gaussian"</code>, <code>"tanh"</code>   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>stiff_geom.gain</code>   </td><td class="markdownTableBodyLeft">The gain multiplier for the stiffness field   </td><td class="markdownTableBodyLeft">Positive real   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>stiff_geom.cutoff_coef</code>   </td><td class="markdownTableBodyLeft">Controls the steepness of the spatial decay   </td><td class="markdownTableBodyLeft">Positive real   </td><td class="markdownTableBodyLeft"><code>9.0</code> (gaussian), <code>3.5</code> (tanh)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>stiff_geom.center</code>   </td><td class="markdownTableBodyLeft">Center coordinates \( [x, y, z] \) <em>(only for </em><code>cylinder</code><em>, </em><code>sphere</code><em>)</em>   </td><td class="markdownTableBodyLeft">Array of 3 reals   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>stiff_geom.radius</code>   </td><td class="markdownTableBodyLeft">Radius of the geometry <em>(only for </em><code>cylinder</code><em>, </em><code>sphere</code><em>)</em>   </td><td class="markdownTableBodyLeft">Positive real   </td><td class="markdownTableBodyLeft">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>stiff_geom.stiff_dist</code>   </td><td class="markdownTableBodyLeft">Distance to maintain stiffness <em>(only for </em><code>cheap_dist</code><em>)</em>   </td><td class="markdownTableBodyLeft">Positive real   </td><td class="markdownTableBodyLeft">-   </td></tr>
+</table>
+<h5>Local stiffness</h5>
+<p>The local stiffness contribution from a body, \( \text{Stiffness}_b(\mathbf{x}) \), is evaluated based on the chosen <code>decay_profile</code>. These profiles depend on a raw distance \( r \) (detailed in the next section) and a characteristic decay length \( d \), which is defined as:</p>
+<ul>
+<li>\( d \) = <code>"radius"</code> if <code>"type"</code> is <code>"cylinder"</code> or <code>"sphere"</code>.</li>
+<li>\( d \) = <code>"stiff_dist"</code> if <code>"type"</code> is <code>"cheap_dist"</code>.</li>
+</ul>
+<p>Based on the <code>decay_profile</code>, the stiffness is calculated as follows:</p>
+<p><b>1. Gaussian Profile</b> (<code>"gaussian"</code>) Applies an exponential decay based on the squared normalized distance:</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ \text{Stiffness}_b(\mathbf{x}) = \text{gain} \cdot \exp\left( -\left(\frac{r}{d}\right)^2 \cdot \text{cutoff_coef} \right).
+\end{eqnarray*}
+</p>
+<p><b>2. Tanh Profile</b> (<code>"tanh"</code>) Applies a smooth hyperbolic tangent transition:</p>
+<p class="formulaDsp">
+\begin{eqnarray*}
+ \text{Stiffness}_b(\mathbf{x}) = \text{gain} \cdot \left[ 1 - \tanh\left( \frac{r}{d} \cdot \text{cutoff_coef} \right) \right].
+\end{eqnarray*}
+</p>
+<h5>Distance Calculation</h5>
+<p>For a given coordinate \( \mathbf{x} = (x, y, z) \), the raw distance \( r \) used in the stiffness formulas above is calculated based on the selected <code>stiff_geom.type</code> and the body's stiffness center \( C = (c_x, c_y, c_z) \):</p>
+<ul>
+<li><b>Sphere</b> (<code>"sphere"</code>):</li>
+</ul>
+<p class="formulaDsp">
+\begin{eqnarray*}
+   r = \sqrt{(x - c_x)^2 + (y - c_y)^2 + (z - c_z)^2}.
+  \end{eqnarray*}
+</p>
+<ul>
+<li><b>Cylinder</b> (<code>"cylinder"</code>): Calculates the distance to the Z-axis passing through the center \( (c_x, c_y) \).</li>
+</ul>
+<p class="formulaDsp">
+\begin{eqnarray*}
+   r = \sqrt{(x - c_x)^2 + (y - c_y)^2}.
+  \end{eqnarray*}
+</p>
+<ul>
+<li><b>Wall Distance</b> (<code>"cheap_dist"</code>): \( r \) is assigned from a precomputed pseudo distance field based on the boundary <code>zone_indices</code>.</li>
+</ul>
+<dl class="section attention"><dt>Attention</dt><dd>Within the region defined by <code>radius</code> (from the center) or <code>stiff_dist</code> (from the boundary), the mesh stiffness is at its highest. If the <code>gain</code> parameter is set large enough, the mesh within this region moves rigidly with the body, preserving its original element quality without deformation. Users are encouraged to check the <code>ocyl_cylinder3D</code>, <code>ocyl_ellipse3D</code>, and <code>Double_ocyl_cylinder</code> examples to get a better idea of how these parameters are configured in practice.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Setting a very large value for <code>gain</code> (e.g., <code>1.0e6</code>) is recommended if the mesh immediately surrounding the body is intended to be fully rigid (i.e., \( \phi_i \approx 1 \)). Conversely, if two moving objects are in close proximity, the <code>gain</code> should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated <code>phi_total0.f00000</code> file, and checking the mesh quality using <code>mesh_preview</code> are highly recommended.</dd></dl>
+<h3><a class="anchor" id="autotoc_md99"></a>
+Restarting ALE simulations</h3>
+<p>Neko supports checkpointing and restarting for ALE simulations from <code>.chkp</code> files. No additional parameters need to be set apart from the usual configuration for saving these files.</p>
+<p><b>Restart Capabilities:</b></p><ul>
+<li><b>Exact Restart:</b> Restarting from the same mesh and the same polynomial order is an exact restart.</li>
+<li><b>Different Polynomial Order:</b> Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in <code>BDF2</code> and <code>BDF3</code> time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.</li>
+<li><b>Different Mesh:</b> Restarting from a different mesh is not yet supported for ALE simulations.</li>
+</ul>
+<dl class="section attention"><dt>Attention</dt><dd>A <code>.chkp</code> file generated from a standard static simulation (i.e., <code>"ale.enabled": false</code>) cannot be used as <code>"restart_file"</code> to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an <code>initial_condition</code> for a subsequent ALE simulation. In this case, saving the file in <code>double precision</code> is recommended.</dd></dl>
+<h1><a class="anchor" id="autotoc_md100"></a>
 Linear solver configuration</h1>
 <p>The mandatory <code>velocity_solver</code> and <code>pressure_solver</code> objects are used to configure the solvers for the momentum and pressure-Poisson equation. The following keywords are used, with the corresponding options.</p>
 <ul>
@@ -844,10 +1501,11 @@ Linear solver configuration</h1>
 <li><code>max_iterations</code>, maximum number of iterations before giving up.</li>
 <li><code>projection_space_size</code>, size of the vector space used for accelerating the solution procedure. If 0, then the projection space is not used. More important for the pressure equation.</li>
 <li><code>projection_hold_steps</code>, steps for which the simulation does not use projection after starting or time step changes. E.g. if 5, then the projection space will start to update at the 6th time step and the space will be utilized at the 7th time step.</li>
+<li><code>projection_reorthogonalize_basis</code>, logical flag to update and re-orthogonalize the projection basis at each time. This option works only for pressure projection.</li>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
 <p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated. This can in some situations cause issues if the initial condition is far from a valid solution. Therefore a user can allow an initial stabilization phase by setting the <code>case.fluid.allow_stabilization</code> keyword to <code>true</code>. In this case, the strict convergence will be ignored untill all components of the velocity field converge within the specified tolerance. After this initial stabilization phase, strict convergence will be enforced for the rest of the simulation.</p>
-<h2><a class="anchor" id="autotoc_md60"></a>
+<h2><a class="anchor" id="autotoc_md101"></a>
 Multilevel preconditioners</h2>
 <p>The multilevel preconditioners, <code>hsmg</code> and <code>phmg</code>, come with an additional set of parameters related to the solution of the coarse grid problem. These parameters are specified as a <code>coarse_grid</code> block under <code>preconditioner</code>.</p>
 <p>For <code>hsmg</code>, the following keywords are used:</p>
@@ -867,7 +1525,7 @@ Multilevel preconditioners</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>coarse_grid.iterations</code>   </td><td class="markdownTableBodyNone">Number of AMG iterations (only valid for <code>solver</code> type <code>tamg</code>)   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">5   </td></tr>
+<td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">4   </td></tr>
 </table>
 <p>For <code>phmg</code>, the following keywords are used:</p>
 <table class="markdownTable">
@@ -876,25 +1534,26 @@ Multilevel preconditioners</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pcoarsening_schedule</code>   </td><td class="markdownTableBodyNone">P-multigrid coarsening schedule (polynomial order, high to low)   </td><td class="markdownTableBodyNone">Array of integers   </td><td class="markdownTableBodyNone"><code>[3, 1]</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>smoother_iterations</code>   </td><td class="markdownTableBodyNone">Number of smoother iterations in the p-multigrid parts   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">10    </td></tr>
+<td class="markdownTableBodyNone"><code>smoother_iterations</code>   </td><td class="markdownTableBodyNone">Number of smoother iterations in the p-multigrid parts   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">3    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>smoother_cheby_acc</code>   </td><td class="markdownTableBodyNone">Type of Chebyshev acceleration (non-accelerated semi-iterative Chebyshev method if not set)   </td><td class="markdownTableBodyNone"><code>jacobi</code> or <code>schwarz</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>smoother_cheby_acc</code>   </td><td class="markdownTableBodyNone">Type of Chebyshev acceleration   </td><td class="markdownTableBodyNone"><code>none</code>, <code>jacobi</code> or <code>schwarz</code>   </td><td class="markdownTableBodyNone"><code>jacobi</code>    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>coarse_grid.levels</code>   </td><td class="markdownTableBodyNone">Number of AMG levels to construct (only valid for <code>solver</code> type <code>tamg</code>)   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">3    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>coarse_grid.iterations</code>   </td><td class="markdownTableBodyNone">Number of linear solver iterations for coarse grid solver   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">1    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">5   </td></tr>
+<td class="markdownTableBodyNone"><code>coarse_grid.cheby_degree</code>   </td><td class="markdownTableBodyNone">Degree of the Chebyshev based AMG smoother   </td><td class="markdownTableBodyNone">An integer   </td><td class="markdownTableBodyNone">4   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md61"></a>
+<h2><a class="anchor" id="autotoc_md102"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
 <ul>
 <li><code>direction</code>, the direction of the flow, defined as 0, 1, or 2, corresponding to x, y or z, respectively.</li>
 <li><code>value</code>, the desired flow rate.</li>
 <li><code>use_averaged_flow</code>, whether <code>value</code> specifies the domain-averaged (bulk) velocity or the volume flow rate.</li>
+<li><code>log</code>, whether to print the flow-rate forcing log message each time the forcing is adjusted. Defaults to <code>true</code>.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md62"></a>
+<h2><a class="anchor" id="autotoc_md103"></a>
 Full parameter table</h2>
 <p>All the parameters are summarized in the table below. This includes all the subobjects discussed above, as well as keyword parameters that can be described concisely directly in the table.</p>
 <table class="markdownTable">
@@ -917,65 +1576,73 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_value</code>   </td><td class="markdownTableBodyNone">The frequency of sampling in terms of <code>output_control</code>.   </td><td class="markdownTableBodyNone">Positive real or integer   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>output_format</code>   </td><td class="markdownTableBodyNone">The file format of field data.   </td><td class="markdownTableBodyNone"><code>nek5000</code>, <code>adios2</code>, or <code>vtkhdf</code>   </td><td class="markdownTableBodyNone"><code>nek5000</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>output_mesh_in_all_files</code>   </td><td class="markdownTableBodyNone">Indicates if the mesh should be written in every output fld file.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>output_filename</code>   </td><td class="markdownTableBodyNone">The output filename.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone"><code>field</code>    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>output_subdivide</code>   </td><td class="markdownTableBodyNone">Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>inflow_condition.type</code>   </td><td class="markdownTableBodyNone">Velocity inflow condition type.   </td><td class="markdownTableBodyNone"><code>user</code>, <code>uniform</code>, <code>blasius</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>inflow_condition.value</code>   </td><td class="markdownTableBodyNone">Value of the inflow velocity.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.type</code>   </td><td class="markdownTableBodyNone">Initial condition type.   </td><td class="markdownTableBodyNone"><code>user</code>, <code>uniform</code>, <code>blasius</code>, <code>field</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.value</code>   </td><td class="markdownTableBodyNone">Value of the velocity initial condition.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.file_name</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, the path to the field file to read from.   </td><td class="markdownTableBodyNone">String ending with <code>.fld</code>, <code>.chkp</code>, <code>.nek5000</code> or <code>f*****</code>.   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.sample_index</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>fld</code> or <code>nek5000</code>, the index of the file to sampled.   </td><td class="markdownTableBodyNone">Positive integer.   </td><td class="markdownTableBodyNone">-1    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>initial_condition.previous_mesh</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>chkp</code>, the previous mesh from which to interpolate.   </td><td class="markdownTableBodyNone">String ending with <code>.nmsh</code>.   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.tolerance</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>chkp</code>, tolerance to use for mesh interpolation.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone">1e-6    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>blasius.delta</code>   </td><td class="markdownTableBodyNone">Boundary layer thickness in the Blasius profile.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>blasius.freestream_velocity</code>   </td><td class="markdownTableBodyNone">Free-stream velocity in the Blasius profile.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>blasius.approximation</code>   </td><td class="markdownTableBodyNone">Numerical approximation of the Blasius profile.   </td><td class="markdownTableBodyNone"><code>linear</code>, <code>quadratic</code>, <code>cubic</code>, <code>quartic</code>, <code>sin</code>, <code>tanh</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>shear_stress.value</code>   </td><td class="markdownTableBodyNone">The shear stress vector value for <code>sh</code> boundaries   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone"><code>[0, 0, 0]</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>wall_modelling.type</code>   </td><td class="markdownTableBodyNone">The wall model type for <code>wm</code> boundaries. See documentation for additional config parameters.   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d7/d0f/namespacerough__log__law.html" title="Implements rough_log_law_t.">rough_log_law</a></code>, <code>spalding</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>source_terms</code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional source terms.   </td><td class="markdownTableBodyNone">See list of source terms above   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code><a class="el" href="../../d6/def/namespacegradient__jump__penalty.html" title="Implements gradient_jump_penalty_t.">gradient_jump_penalty</a></code>   </td><td class="markdownTableBodyNone">Array of JSON objects, defining additional gradient jump penalty.   </td><td class="markdownTableBodyNone">See list of gradient jump penalty above   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>boundary_types</code>   </td><td class="markdownTableBodyNone">Boundary types/conditions labels.   </td><td class="markdownTableBodyNone">Array of strings   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.preconditioner.type</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the momentum equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the momentum equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>velocity_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the momentum equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>velocity_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the momentum equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.type</code>   </td><td class="markdownTableBodyNone">Linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>cg</code>, <code>pipecg</code>, <code>bicgstab</code>, <code>cacg</code>, <code>gmres</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.preconditioner.type</code>   </td><td class="markdownTableBodyNone">Linear solver preconditioner for the pressure equation.   </td><td class="markdownTableBodyNone"><code>ident</code>, <code>hsmg</code>, <code>jacobi</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowOdd">
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>pressure_solver.absolute_tolerance</code>   </td><td class="markdownTableBodyNone">Linear solver convergence criterion for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>pressure_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>pressure_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
+<td class="markdownTableBodyNone"><code>pressure_solver.maxiter</code>   </td><td class="markdownTableBodyNone">Linear solver max iteration count for the pressure equation.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">800    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>pressure_solver.projection_space_size</code>   </td><td class="markdownTableBodyNone">Projection space size for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">0    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the pressure equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>pressure_solver.projection_reorthogonalize_basis</code>   </td><td class="markdownTableBodyNone">Whether to enable pressure projection basis reorthogonalization.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>pressure_solver.monitor</code>   </td><td class="markdownTableBodyNone">Monitor residuals in the linear solver for the pressure equation.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
@@ -985,27 +1652,43 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>flow_rate_force.use_averaged_flow</code>   </td><td class="markdownTableBodyNone">Whether bulk velocity or volumetric flow rate is given by the <code>value</code> parameter.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>flow_rate_force.log</code>   </td><td class="markdownTableBodyNone">Whether to print the flow-rate forcing log message during the volume-flow adjustment.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>freeze</code>   </td><td class="markdownTableBodyNone">Whether to fix the velocity field at initial conditions.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowEven">
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>strict_convergence</code>   </td><td class="markdownTableBodyNone">Whether to enforce strict convergence in the linear solvers.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
-<tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<td class="markdownTableBodyNone"><code>allow_stabilization</code>   </td><td class="markdownTableBodyNone">Whether to allow an initial stabilization phase before enforcing strict convergence.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>advection</code>   </td><td class="markdownTableBodyNone">Whether to compute the advection term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>true</code>    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>full_stress_formulation</code>   </td><td class="markdownTableBodyNone">Whether to use the full form of the visous stress tensor term.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
 </table>
 <h1><a class="anchor" id="case-file_scalar"></a>
 Scalar</h1>
 <p>The scalar object allows to add a scalar transport equation to the solution. The solution variable is called <code>s</code> by default, but can be controlled by the <code>field_name</code> entry in the case file. In the fld files, it is saved as <code>temperature</code>. Some properties of the object are inherited from <code>fluid</code>: the value of the density, and the output control.</p>
-<h2><a class="anchor" id="autotoc_md63"></a>
+<h2><a class="anchor" id="autotoc_md104"></a>
 Material properties</h2>
 <p>The scalar equation requires defining additional material properties: the specific heat capacity and thermal conductivity. These are provided as <code>cp</code> and <code>lambda</code>. Similarly to the fluid, one can provide the Peclet number, <code>Pe</code>, as an alternative. In this case, <code>cp</code> is set to 1 and <code>lambda</code> to the inverse of <code>Pe</code>.</p>
-<p>As for the fluid, turbulence modelling is enabled by setting the <code>nut_field</code> to the name matching that set for the simulation component with the LES model. Additionally, the turbulent Prandtl number, <code>Pr_t</code> should be set. The eddy viscosity values will be divided by it to produce eddy diffusivity.</p>
-<h2><a class="anchor" id="autotoc_md64"></a>
+<p>Different from the setup in the fluid, turbulence modelling is enabled by setting the <code>alphat</code> json entry.</p>
+<h2><a class="anchor" id="autotoc_md105"></a>
 Turbulence modelling</h2>
-<p>The configuration is identical to the Fluid, however, one additionally has to provide the value of the turbulent Prandl number via the <code>Pr_t</code> keyword.</p>
-<h2><a class="anchor" id="autotoc_md65"></a>
+<p>The user could choose to either relate the eddy diffusivity field to the eddy viscosity field in the Fluid, or model the eddy diffusivity field by some particular SGS models, by setting up the <code>nut_dependency</code> entry. If the eddy diffusivity field is associated to the eddy viscosity field by a coefficient <code>Pr_t</code>, the eddy viscosity values will be divided by it to produce eddy diffusivity. And the corresponding setting could be done by the following:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;alphat&quot;: {</div>
+<div class="line">    &quot;nut_dependency&quot;: true,</div>
+<div class="line">    &quot;nut_field&quot;: &quot;nut&quot;,</div>
+<div class="line">    &quot;Pr_t&quot;: 0.7</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>Otherwise one could have some SGS models providing an eddy diffusivity field, and the user could set it up by the following manner to include an eddy diffusivity field called <code>temperature_alphat</code>:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;alphat&quot;: {</div>
+<div class="line">    &quot;nut_dependency&quot;: false,</div>
+<div class="line">    &quot;alphat_field&quot;: &quot;temperature_alphat&quot;</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md106"></a>
 Boundary conditions</h2>
 <p>The boundary conditions for the scalar are specified through the <code>boundary_conditions</code> keyword, which follows the same format as the fluid, for specifying the type of the condition and where it is applied. Four types of conditions are available for the scalar:</p>
 <ul>
@@ -1027,22 +1710,22 @@ Boundary conditions</h2>
 <div class="line">}</div>
 </div><!-- fragment --></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md66"></a>
+<h2><a class="anchor" id="autotoc_md107"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
 <ol type="1">
 <li><code>user</code>, the values are set inside the compiled user file as explained in the <a class="el" href="../../d6/def/user-file.html#user-file_user-ic">user defined initial condition</a> section of the user file documentation.</li>
 <li><code>uniform</code>, the value is a constant scalar, looked up under the <code>value</code> keyword.</li>
-<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
+<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>zone_name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about <a class="el" href="../../da/dd0/point-zones.html">point zones</a>.</li>
 <li><code>field</code>, where the initial condition is retrieved from a field file. Works in the same way as for the fluid. See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid section</a> for detailed explanations.</li>
 </ol>
-<h2><a class="anchor" id="autotoc_md67"></a>
+<h2><a class="anchor" id="autotoc_md108"></a>
 Source terms</h2>
 <p>The configuration of source terms is the same as for the fluid. A demonstration of using source terms for the scalar can be found in the <code>scalar_mms</code> example.</p>
-<h2><a class="anchor" id="autotoc_md68"></a>
+<h2><a class="anchor" id="autotoc_md109"></a>
 Linear solver configuration</h2>
 <p>Should be provided as an object under the <code>solver</code> keyword. For available configuration options, see the corresponding documentation for the fliud. A standard choice would be <code>"type": "cg"</code> and <code>"preconditioner": "jacobi"</code>.</p>
-<h2><a class="anchor" id="autotoc_md69"></a>
+<h2><a class="anchor" id="autotoc_md110"></a>
 Full parameter table</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -1060,9 +1743,13 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>lambda</code>   </td><td class="markdownTableBodyNone">Thermal conductivity.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>nut_field</code>   </td><td class="markdownTableBodyNone">Name of the turbulent kinematic viscosity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">Empty string    </td></tr>
+<td class="markdownTableBodyNone"><code>alphat.nut_dependency</code>   </td><td class="markdownTableBodyNone">Whether the eddy diffusivity depends on the eddy kinematic viscosity.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>Pr_t</code>   </td><td class="markdownTableBodyNone">Turbulent Prandtl number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>alphat.alphat_field</code>   </td><td class="markdownTableBodyNone">Name of the turbulent diffusivity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">Empty string    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>alphat.nut_field</code>   </td><td class="markdownTableBodyNone">Name of the turbulent kinematic viscosity field.   </td><td class="markdownTableBodyNone">String   </td><td class="markdownTableBodyNone">Empty string    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>alphat.Pr_t</code>   </td><td class="markdownTableBodyNone">Turbulent Prandtl number   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>boundary_types</code>   </td><td class="markdownTableBodyNone">Boundary types/conditions labels.   </td><td class="markdownTableBodyNone">Array of strings   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
@@ -1088,16 +1775,16 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>solver.projection_hold_steps</code>   </td><td class="markdownTableBodyNone">Holding steps of the projection for the scalar equation.   </td><td class="markdownTableBodyNone">Positive integer   </td><td class="markdownTableBodyNone">5   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md70"></a>
+<h1><a class="anchor" id="autotoc_md111"></a>
 Simulation components</h1>
 <p>Simulation components enable the user to perform various additional operations, which are not strictly necessary to run the solver. An example could be computing and output of additional fields, e.g. vorticity.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../d3/d84/simcomps.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md71"></a>
+<h1><a class="anchor" id="autotoc_md112"></a>
 Point zones</h1>
-<p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Two predefined geometric shapes are selectable from the case file, boxes and spheres.</p>
+<p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Three predefined geometric shapes are selectable from the case file: boxes, spheres, and cylinders.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md72"></a>
+<h1><a class="anchor" id="autotoc_md113"></a>
 Runtime statistics</h1>
 <p>This object adds the collection of runtime statistics (timings) for identified profiling regions. A region is defined as all functions between a call to <code>profiler_start_region(name, id)</code> and <code>profiler_end_region(name, id)</code>. Neko currently supports 50 regions, with id 1..25 being reserved for internal use.</p>
 <table class="markdownTable">
@@ -1115,7 +1802,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

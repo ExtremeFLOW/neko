@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -110,6 +110,15 @@ $(document).ready(function(){initNavTree('d9/dbc/namespaceuser__intf.html','../.
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d9e/interfaceuser__intf_1_1user__ale__base__shapes__intf.html">user_ale_base_shapes_intf</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for user defined ALE base shapes.  <a href="../../d7/d9e/interfaceuser__intf_1_1user__ale__base__shapes__intf.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/df9/interfaceuser__intf_1_1user__ale__mesh__velocity__intf.html">user_ale_mesh_velocity_intf</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for user defined ALE mesh velocity.  <a href="../../dc/df9/interfaceuser__intf_1_1user__ale__mesh__velocity__intf.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d04/interfaceuser__intf_1_1user__ale__rigid__kinematics__intf.html">user_ale_rigid_kinematics_intf</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for user defined ALE rigid body kinematics.  <a href="../../d6/d04/interfaceuser__intf_1_1user__ale__rigid__kinematics__intf.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/db4/interfaceuser__intf_1_1user__compute__intf.html">user_compute_intf</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for user defined check functions.  <a href="../../de/db4/interfaceuser__intf_1_1user__compute__intf.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,32 +149,42 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a4911daad15c30f88e758295cdd047be9" id="r_a4911daad15c30f88e758295cdd047be9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9">user_intf_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memitem:a4911daad15c30f88e758295cdd047be9" id="r_a4911daad15c30f88e758295cdd047be9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9">user_intf_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a4911daad15c30f88e758295cdd047be9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a4911daad15c30f88e758295cdd047be9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e93458d4a9d937b4da6e42fd969f3ca" id="r_a7e93458d4a9d937b4da6e42fd969f3ca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a7e93458d4a9d937b4da6e42fd969f3ca">dummy_startup</a> (params)</td></tr>
+<tr class="memitem:a7e93458d4a9d937b4da6e42fd969f3ca" id="r_a7e93458d4a9d937b4da6e42fd969f3ca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a7e93458d4a9d937b4da6e42fd969f3ca">dummy_startup</a> (params)</td></tr>
 <tr class="memdesc:a7e93458d4a9d937b4da6e42fd969f3ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user startup.  <br /></td></tr>
 <tr class="separator:a7e93458d4a9d937b4da6e42fd969f3ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac588ec14b17a02a48e4da7a0903cc18b" id="r_ac588ec14b17a02a48e4da7a0903cc18b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#ac588ec14b17a02a48e4da7a0903cc18b">dummy_user_initial_conditions</a> (scheme_name, fields)</td></tr>
+<tr class="memitem:ac588ec14b17a02a48e4da7a0903cc18b" id="r_ac588ec14b17a02a48e4da7a0903cc18b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#ac588ec14b17a02a48e4da7a0903cc18b">dummy_user_initial_conditions</a> (scheme_name, fields)</td></tr>
 <tr class="memdesc:ac588ec14b17a02a48e4da7a0903cc18b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user initial condition.  <br /></td></tr>
 <tr class="separator:ac588ec14b17a02a48e4da7a0903cc18b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3dc1c52b1295c8f99f3a6e2d8b441ab5" id="r_a3dc1c52b1295c8f99f3a6e2d8b441ab5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a3dc1c52b1295c8f99f3a6e2d8b441ab5">dummy_user_source_term</a> (scheme_name, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">rhs</a>, time)</td></tr>
+<tr class="memitem:a3dc1c52b1295c8f99f3a6e2d8b441ab5" id="r_a3dc1c52b1295c8f99f3a6e2d8b441ab5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a3dc1c52b1295c8f99f3a6e2d8b441ab5">dummy_user_source_term</a> (scheme_name, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">rhs</a>, time)</td></tr>
 <tr class="memdesc:a3dc1c52b1295c8f99f3a6e2d8b441ab5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user <a class="el" href="../../de/de7/namespacesource__term.html" title="Implements the source_term_t type and a wrapper source_term_wrapper_t.">source_term</a>.  <br /></td></tr>
 <tr class="separator:a3dc1c52b1295c8f99f3a6e2d8b441ab5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac41cc7514c9d17b187c2e6672280f13" id="r_aac41cc7514c9d17b187c2e6672280f13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#aac41cc7514c9d17b187c2e6672280f13">dummy_user_mesh_setup</a> (msh, time)</td></tr>
+<tr class="memitem:aac41cc7514c9d17b187c2e6672280f13" id="r_aac41cc7514c9d17b187c2e6672280f13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#aac41cc7514c9d17b187c2e6672280f13">dummy_user_mesh_setup</a> (msh, time)</td></tr>
 <tr class="memdesc:aac41cc7514c9d17b187c2e6672280f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user mesh apply.  <br /></td></tr>
 <tr class="separator:aac41cc7514c9d17b187c2e6672280f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfdf4e006e4d70aa9db3fe3b6d08899e" id="r_acfdf4e006e4d70aa9db3fe3b6d08899e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#acfdf4e006e4d70aa9db3fe3b6d08899e">dummy_user_compute</a> (time)</td></tr>
+<tr class="memitem:acfdf4e006e4d70aa9db3fe3b6d08899e" id="r_acfdf4e006e4d70aa9db3fe3b6d08899e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#acfdf4e006e4d70aa9db3fe3b6d08899e">dummy_user_compute</a> (time)</td></tr>
 <tr class="memdesc:acfdf4e006e4d70aa9db3fe3b6d08899e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dummy user compute.  <br /></td></tr>
 <tr class="separator:acfdf4e006e4d70aa9db3fe3b6d08899e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e36cf17596f21a88059eb8f873c9973" id="r_a4e36cf17596f21a88059eb8f873c9973"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a4e36cf17596f21a88059eb8f873c9973">dummy_initialize</a> (time)</td></tr>
+<tr class="memitem:a4e36cf17596f21a88059eb8f873c9973" id="r_a4e36cf17596f21a88059eb8f873c9973"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a4e36cf17596f21a88059eb8f873c9973">dummy_initialize</a> (time)</td></tr>
 <tr class="separator:a4e36cf17596f21a88059eb8f873c9973"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1568cdc2b40c7bec798cf341ed892cc4" id="r_a1568cdc2b40c7bec798cf341ed892cc4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a1568cdc2b40c7bec798cf341ed892cc4">dummy_user_finalize</a> (time)</td></tr>
+<tr class="memitem:a1568cdc2b40c7bec798cf341ed892cc4" id="r_a1568cdc2b40c7bec798cf341ed892cc4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a1568cdc2b40c7bec798cf341ed892cc4">dummy_user_finalize</a> (time)</td></tr>
 <tr class="separator:a1568cdc2b40c7bec798cf341ed892cc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9d76b696c09264a3f87ada150d8b6c4" id="r_aa9d76b696c09264a3f87ada150d8b6c4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#aa9d76b696c09264a3f87ada150d8b6c4">dirichlet_do_nothing</a> (fields, bc, time)</td></tr>
+<tr class="memitem:aa9d76b696c09264a3f87ada150d8b6c4" id="r_aa9d76b696c09264a3f87ada150d8b6c4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#aa9d76b696c09264a3f87ada150d8b6c4">dirichlet_do_nothing</a> (fields, bc, time)</td></tr>
 <tr class="separator:aa9d76b696c09264a3f87ada150d8b6c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7313300d3e61b6b1fb37eab24752bacc" id="r_a7313300d3e61b6b1fb37eab24752bacc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a7313300d3e61b6b1fb37eab24752bacc">dummy_user_material_properties</a> (scheme_name, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">properties</a>, time)</td></tr>
+<tr class="memitem:a18b06fc9c75c42c91aecbbbb1910d369" id="r_a18b06fc9c75c42c91aecbbbb1910d369"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a18b06fc9c75c42c91aecbbbb1910d369">neumann_do_nothing</a> (fields, bc, time)</td></tr>
+<tr class="separator:a18b06fc9c75c42c91aecbbbb1910d369"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7313300d3e61b6b1fb37eab24752bacc" id="r_a7313300d3e61b6b1fb37eab24752bacc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a7313300d3e61b6b1fb37eab24752bacc">dummy_user_material_properties</a> (scheme_name, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">properties</a>, time)</td></tr>
 <tr class="separator:a7313300d3e61b6b1fb37eab24752bacc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af17c5c0fbf25f153143ad35fd5b3ecd8" id="r_af17c5c0fbf25f153143ad35fd5b3ecd8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#af17c5c0fbf25f153143ad35fd5b3ecd8">dummy_morph_overset_interface</a> (interface_dof, interface_field, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">interface_mask</a>, time, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bc_name</a>, find_interface)</td></tr>
+<tr class="separator:af17c5c0fbf25f153143ad35fd5b3ecd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2282c4450a5adf841e54bbe7f7d3123a" id="r_a2282c4450a5adf841e54bbe7f7d3123a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#a2282c4450a5adf841e54bbe7f7d3123a">dummy_user_ale_mesh_velocity</a> (wm_x, wm_y, wm_z, coef, x_ref, y_ref, z_ref, base_shapes, time)</td></tr>
+<tr class="separator:a2282c4450a5adf841e54bbe7f7d3123a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab71276a797a070246953294097e951e1" id="r_ab71276a797a070246953294097e951e1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#ab71276a797a070246953294097e951e1">dummy_user_ale_base_shapes</a> (base_shapes)</td></tr>
+<tr class="separator:ab71276a797a070246953294097e951e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af305e4599dbbb70ab3450d2a4dac0bc7" id="r_af305e4599dbbb70ab3450d2a4dac0bc7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dbc/namespaceuser__intf.html#af305e4599dbbb70ab3450d2a4dac0bc7">dummy_user_ale_rigid_kinematics</a> (body_id, time, vel_trans, vel_ang)</td></tr>
+<tr class="separator:af305e4599dbbb70ab3450d2a4dac0bc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="aa9d76b696c09264a3f87ada150d8b6c4" name="aa9d76b696c09264a3f87ada150d8b6c4"></a>
@@ -178,21 +197,21 @@ Functions/Subroutines</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::dirichlet_do_nothing </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dirichlet_do_nothing </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>fields</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html">field_dirichlet_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html">field_dirichlet_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>bc</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>time</em>&#160;</td>
         </tr>
         <tr>
@@ -208,7 +227,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00340">340</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00448">448</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -232,9 +251,9 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::dummy_initialize </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_initialize </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>time</em></td><td>)</td>
           <td></td>
         </tr>
@@ -246,7 +265,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00332">332</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00440">440</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -255,6 +274,78 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="224,5,423,31"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,5,176,31"/>
 <area shape="poly" title=" " alt="" coords="210,21,176,21,176,15,210,15"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="af17c5c0fbf25f153143ad35fd5b3ecd8" name="af17c5c0fbf25f153143ad35fd5b3ecd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af17c5c0fbf25f153143ad35fd5b3ecd8">&#9670;&#160;</a></span>dummy_morph_overset_interface()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_morph_overset_interface </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d45/structvector__list_1_1vector__list__t.html">vector_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>interface_dof</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d45/structvector__list_1_1vector__list__t.html">vector_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>interface_field</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d2/df5/structmask_1_1mask__t.html">mask_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>interface_mask</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>bc_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>find_interface</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00466">466</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dbc/namespaceuser__intf_af17c5c0fbf25f153143ad35fd5b3ecd8_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_af17c5c0fbf25f153143ad35fd5b3ecd8_icgraph" alt=""/></div>
+<map name="ad9/dbc/namespaceuser__intf_af17c5c0fbf25f153143ad35fd5b3ecd8_icgraph" id="ad9/dbc/namespaceuser__intf_af17c5c0fbf25f153143ad35fd5b3ecd8_icgraph">
+<area shape="rect" title=" " alt="" coords="224,5,409,45"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,13,176,38"/>
+<area shape="poly" title=" " alt="" coords="210,28,176,28,176,23,210,23"/>
 </map>
 </div>
 
@@ -270,9 +361,9 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::dummy_startup </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_startup </td>
           <td>(</td>
-          <td class="paramtype">type(json_file), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>params</em></td><td>)</td>
           <td></td>
         </tr>
@@ -284,7 +375,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00301">301</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00409">409</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -293,6 +384,190 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title="Dummy user startup." alt="" coords="224,5,413,31"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,5,176,31"/>
 <area shape="poly" title=" " alt="" coords="210,21,176,21,176,15,210,15"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ab71276a797a070246953294097e951e1" name="ab71276a797a070246953294097e951e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab71276a797a070246953294097e951e1">&#9670;&#160;</a></span>dummy_user_ale_base_shapes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> user_intf::dummy_user_ale_base_shapes </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>base_shapes</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00486">486</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dbc/namespaceuser__intf_ab71276a797a070246953294097e951e1_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_ab71276a797a070246953294097e951e1_icgraph" alt=""/></div>
+<map name="ad9/dbc/namespaceuser__intf_ab71276a797a070246953294097e951e1_icgraph" id="ad9/dbc/namespaceuser__intf_ab71276a797a070246953294097e951e1_icgraph">
+<area shape="rect" title=" " alt="" coords="281,77,452,117"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aeb40eb6b82f696a5696324c68d7f9501" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="5,5,233,31"/>
+<area shape="poly" title=" " alt="" coords="309,74,233,45,190,33,191,28,234,39,311,69"/>
+<area shape="rect" href="../../d7/da0/structuser__intf_1_1user__t.html#acce1164ad09d873988b2931b92d5013c" title="Constructor that points non&#45;associated routines to dummy ones. Calling a dummy routine causes an erro..." alt="" coords="42,55,197,80"/>
+<area shape="poly" title=" " alt="" coords="267,88,197,79,197,74,268,82"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aaec889c954567207a1fe41e8961ac448" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="20,105,219,145"/>
+<area shape="poly" title=" " alt="" coords="268,110,219,116,219,111,267,105"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="34,169,205,195"/>
+<area shape="poly" title=" " alt="" coords="316,125,234,159,189,172,187,167,232,154,314,120"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a2282c4450a5adf841e54bbe7f7d3123a" name="a2282c4450a5adf841e54bbe7f7d3123a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2282c4450a5adf841e54bbe7f7d3123a">&#9670;&#160;</a></span>dummy_user_ale_mesh_velocity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> user_intf::dummy_user_ale_mesh_velocity </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>wm_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>wm_y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>wm_z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>x_ref</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>y_ref</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>z_ref</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>base_shapes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00477">477</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dbc/namespaceuser__intf_a2282c4450a5adf841e54bbe7f7d3123a_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_a2282c4450a5adf841e54bbe7f7d3123a_icgraph" alt=""/></div>
+<map name="ad9/dbc/namespaceuser__intf_a2282c4450a5adf841e54bbe7f7d3123a_icgraph" id="ad9/dbc/namespaceuser__intf_a2282c4450a5adf841e54bbe7f7d3123a_icgraph">
+<area shape="rect" title=" " alt="" coords="281,77,452,117"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aeb40eb6b82f696a5696324c68d7f9501" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="5,5,233,31"/>
+<area shape="poly" title=" " alt="" coords="309,74,233,45,190,33,191,28,234,39,311,69"/>
+<area shape="rect" href="../../d7/da0/structuser__intf_1_1user__t.html#acce1164ad09d873988b2931b92d5013c" title="Constructor that points non&#45;associated routines to dummy ones. Calling a dummy routine causes an erro..." alt="" coords="42,55,197,80"/>
+<area shape="poly" title=" " alt="" coords="267,88,197,79,197,74,268,82"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46" title="Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodi..." alt="" coords="39,105,199,145"/>
+<area shape="poly" title=" " alt="" coords="268,111,200,118,199,113,267,105"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="34,169,205,195"/>
+<area shape="poly" title=" " alt="" coords="316,125,234,159,189,172,187,167,232,154,314,120"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="af305e4599dbbb70ab3450d2a4dac0bc7" name="af305e4599dbbb70ab3450d2a4dac0bc7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af305e4599dbbb70ab3450d2a4dac0bc7">&#9670;&#160;</a></span>dummy_user_ale_rigid_kinematics()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> user_intf::dummy_user_ale_rigid_kinematics </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>body_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>vel_trans</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>vel_ang</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00490">490</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dbc/namespaceuser__intf_af305e4599dbbb70ab3450d2a4dac0bc7_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_af305e4599dbbb70ab3450d2a4dac0bc7_icgraph" alt=""/></div>
+<map name="ad9/dbc/namespaceuser__intf_af305e4599dbbb70ab3450d2a4dac0bc7_icgraph" id="ad9/dbc/namespaceuser__intf_af305e4599dbbb70ab3450d2a4dac0bc7_icgraph">
+<area shape="rect" title=" " alt="" coords="281,105,452,145"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aeb40eb6b82f696a5696324c68d7f9501" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="5,5,233,31"/>
+<area shape="poly" title=" " alt="" coords="327,99,283,70,232,44,197,33,199,28,234,40,286,65,330,94"/>
+<area shape="rect" href="../../d7/da0/structuser__intf_1_1user__t.html#acce1164ad09d873988b2931b92d5013c" title="Constructor that points non&#45;associated routines to dummy ones. Calling a dummy routine causes an erro..." alt="" coords="42,55,197,80"/>
+<area shape="poly" title=" " alt="" coords="270,104,233,95,177,83,179,77,234,90,271,99"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aac167b897bea579bf09e978a4c525069" title=" " alt="" coords="32,105,207,145"/>
+<area shape="poly" title=" " alt="" coords="267,127,207,127,207,122,267,122"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46" title="Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodi..." alt="" coords="39,169,199,209"/>
+<area shape="poly" title=" " alt="" coords="276,151,198,171,196,166,275,146"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="34,233,205,259"/>
+<area shape="poly" title=" " alt="" coords="335,156,290,191,234,223,198,236,196,231,232,218,287,187,332,151"/>
 </map>
 </div>
 
@@ -308,9 +583,9 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::dummy_user_compute </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_user_compute </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>time</em></td><td>)</td>
           <td></td>
         </tr>
@@ -322,7 +597,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00328">328</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00436">436</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -346,9 +621,9 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::dummy_user_finalize </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_user_finalize </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>time</em></td><td>)</td>
           <td></td>
         </tr>
@@ -360,7 +635,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00336">336</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00444">444</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -384,15 +659,15 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::dummy_user_initial_conditions </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_user_initial_conditions </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>scheme_name</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>fields</em>&#160;</td>
         </tr>
         <tr>
@@ -408,7 +683,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00306">306</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00414">414</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -429,21 +704,21 @@ Here is the caller graph for this function:</div>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> user_intf::dummy_user_material_properties </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> user_intf::dummy_user_material_properties </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>scheme_name</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>properties</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>time</em>&#160;</td>
         </tr>
         <tr>
@@ -454,7 +729,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00346">346</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00460">460</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -484,15 +759,15 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::dummy_user_mesh_setup </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_user_mesh_setup </td>
           <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>msh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>time</em>&#160;</td>
         </tr>
         <tr>
@@ -508,7 +783,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00322">322</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00430">430</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -532,21 +807,21 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::dummy_user_source_term </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::dummy_user_source_term </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>scheme_name</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>rhs</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>time</em>&#160;</td>
         </tr>
         <tr>
@@ -562,13 +837,67 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00314">314</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00422">422</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/dbc/namespaceuser__intf_a3dc1c52b1295c8f99f3a6e2d8b441ab5_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_a3dc1c52b1295c8f99f3a6e2d8b441ab5_icgraph" alt=""/></div>
 <map name="ad9/dbc/namespaceuser__intf_a3dc1c52b1295c8f99f3a6e2d8b441ab5_icgraph" id="ad9/dbc/namespaceuser__intf_a3dc1c52b1295c8f99f3a6e2d8b441ab5_icgraph">
 <area shape="rect" title="Dummy user source_term." alt="" coords="224,5,395,45"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,13,176,38"/>
+<area shape="poly" title=" " alt="" coords="210,28,176,28,176,23,210,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="a18b06fc9c75c42c91aecbbbb1910d369" name="a18b06fc9c75c42c91aecbbbb1910d369"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18b06fc9c75c42c91aecbbbb1910d369">&#9670;&#160;</a></span>neumann_do_nothing()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::neumann_do_nothing </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>fields</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../df/dd4/structfield__neumann_1_1field__neumann__t.html">field_neumann_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>bc</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00454">454</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dbc/namespaceuser__intf_a18b06fc9c75c42c91aecbbbb1910d369_icgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_a18b06fc9c75c42c91aecbbbb1910d369_icgraph" alt=""/></div>
+<map name="ad9/dbc/namespaceuser__intf_a18b06fc9c75c42c91aecbbbb1910d369_icgraph" id="ad9/dbc/namespaceuser__intf_a18b06fc9c75c42c91aecbbbb1910d369_icgraph">
+<area shape="rect" title=" " alt="" coords="224,5,371,45"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4911daad15c30f88e758295cdd047be9" title="Constructor." alt="" coords="5,13,176,38"/>
 <area shape="poly" title=" " alt="" coords="210,28,176,28,176,23,210,23"/>
 </map>
@@ -583,40 +912,50 @@ Here is the caller graph for this function:</div>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> user_intf::user_intf_init </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> user_intf::user_intf_init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00195">195</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d30/user__intf_8f90_source.html#l00263">263</a> of file <a class="el" href="../../d7/d30/user__intf_8f90_source.html">user_intf.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/dbc/namespaceuser__intf_a4911daad15c30f88e758295cdd047be9_cgraph.png" border="0" usemap="#ad9/dbc/namespaceuser__intf_a4911daad15c30f88e758295cdd047be9_cgraph" alt=""/></div>
 <map name="ad9/dbc/namespaceuser__intf_a4911daad15c30f88e758295cdd047be9_cgraph" id="ad9/dbc/namespaceuser__intf_a4911daad15c30f88e758295cdd047be9_cgraph">
-<area shape="rect" title="Constructor." alt="" coords="5,241,176,266"/>
+<area shape="rect" title="Constructor." alt="" coords="5,402,176,427"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#aa9d76b696c09264a3f87ada150d8b6c4" title=" " alt="" coords="254,5,393,45"/>
-<area shape="poly" title=" " alt="" coords="95,239,111,203,138,153,176,101,198,77,222,55,240,44,243,49,226,59,202,80,180,104,143,156,116,205,100,241"/>
+<area shape="poly" title=" " alt="" coords="90,401,98,340,118,248,135,196,157,145,186,98,222,55,240,43,243,47,226,59,191,101,162,148,140,198,123,249,103,341,95,402"/>
 <area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a4e36cf17596f21a88059eb8f873c9973" title=" " alt="" coords="224,70,423,95"/>
-<area shape="poly" title=" " alt="" coords="98,239,145,174,181,136,223,104,235,98,238,103,225,109,184,140,149,178,102,242"/>
-<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a7e93458d4a9d937b4da6e42fd969f3ca" title="Dummy user startup." alt="" coords="229,119,418,145"/>
-<area shape="poly" title=" " alt="" coords="104,238,154,197,187,175,223,155,244,146,246,151,225,160,190,179,157,202,108,243"/>
-<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#acfdf4e006e4d70aa9db3fe3b6d08899e" title="Dummy user compute." alt="" coords="238,169,409,209"/>
-<area shape="poly" title=" " alt="" coords="137,238,236,210,237,216,139,243"/>
-<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a1568cdc2b40c7bec798cf341ed892cc4" title=" " alt="" coords="238,233,409,273"/>
-<area shape="poly" title=" " alt="" coords="176,251,224,251,224,256,176,256"/>
-<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#ac588ec14b17a02a48e4da7a0903cc18b" title="Dummy user initial condition." alt="" coords="238,297,409,337"/>
-<area shape="poly" title=" " alt="" coords="139,264,237,291,236,296,137,269"/>
-<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a7313300d3e61b6b1fb37eab24752bacc" title=" " alt="" coords="238,361,409,401"/>
-<area shape="poly" title=" " alt="" coords="108,264,158,304,225,347,240,354,238,359,223,352,155,309,105,268"/>
-<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#aac41cc7514c9d17b187c2e6672280f13" title="Dummy user mesh apply." alt="" coords="238,425,409,465"/>
-<area shape="poly" title=" " alt="" coords="101,265,148,334,183,375,226,411,235,417,232,421,222,415,180,379,143,337,97,268"/>
-<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a3dc1c52b1295c8f99f3a6e2d8b441ab5" title="Dummy user source_term." alt="" coords="238,489,409,529"/>
-<area shape="poly" title=" " alt="" coords="98,265,113,306,139,362,177,423,200,451,226,475,232,480,229,484,222,479,196,455,172,426,134,365,108,308,93,267"/>
+<area shape="poly" title=" " alt="" coords="91,401,100,347,123,267,140,224,162,181,189,141,222,106,231,100,234,104,226,110,193,144,166,183,145,226,128,269,106,348,96,402"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#af17c5c0fbf25f153143ad35fd5b3ecd8" title=" " alt="" coords="231,120,416,160"/>
+<area shape="poly" title=" " alt="" coords="93,401,106,357,132,295,170,228,194,197,222,170,229,165,232,169,226,174,198,201,175,231,137,298,111,359,98,403"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a7e93458d4a9d937b4da6e42fd969f3ca" title="Dummy user startup." alt="" coords="229,185,418,210"/>
+<area shape="poly" title=" " alt="" coords="95,400,111,364,138,316,175,264,198,241,222,220,234,213,237,218,226,225,201,245,179,268,142,318,116,367,100,403"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#ab71276a797a070246953294097e951e1" title=" " alt="" coords="238,235,409,275"/>
+<area shape="poly" title=" " alt="" coords="100,400,149,345,184,313,223,284,234,278,237,283,225,289,187,317,152,349,104,404"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a2282c4450a5adf841e54bbe7f7d3123a" title=" " alt="" coords="238,299,409,339"/>
+<area shape="poly" title=" " alt="" coords="115,399,223,348,242,341,244,346,225,353,117,404"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#af305e4599dbbb70ab3450d2a4dac0bc7" title=" " alt="" coords="238,363,409,403"/>
+<area shape="poly" title=" " alt="" coords="176,400,224,394,225,399,177,406"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#acfdf4e006e4d70aa9db3fe3b6d08899e" title="Dummy user compute." alt="" coords="238,427,409,467"/>
+<area shape="poly" title=" " alt="" coords="177,424,225,430,224,436,176,429"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a1568cdc2b40c7bec798cf341ed892cc4" title=" " alt="" coords="238,491,409,531"/>
+<area shape="poly" title=" " alt="" coords="117,425,225,476,244,484,242,489,223,481,115,430"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#ac588ec14b17a02a48e4da7a0903cc18b" title="Dummy user initial condition." alt="" coords="238,555,409,595"/>
+<area shape="poly" title=" " alt="" coords="104,426,152,481,187,513,225,540,237,547,234,551,223,545,184,517,149,484,100,429"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a7313300d3e61b6b1fb37eab24752bacc" title=" " alt="" coords="238,619,409,659"/>
+<area shape="poly" title=" " alt="" coords="100,426,116,462,143,510,180,561,226,605,233,610,230,614,222,609,176,564,139,513,112,464,95,429"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#aac41cc7514c9d17b187c2e6672280f13" title="Dummy user mesh apply." alt="" coords="238,683,409,723"/>
+<area shape="poly" title=" " alt="" coords="97,427,110,472,135,538,173,608,197,640,226,669,231,673,228,677,222,673,193,644,169,611,130,540,105,474,92,428"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a3dc1c52b1295c8f99f3a6e2d8b441ab5" title="Dummy user source_term." alt="" coords="238,747,409,787"/>
+<area shape="poly" title=" " alt="" coords="96,427,106,483,128,565,145,610,166,655,193,696,226,733,231,737,228,741,222,737,189,700,162,657,140,612,123,567,100,484,91,428"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#a18b06fc9c75c42c91aecbbbb1910d369" title=" " alt="" coords="250,811,397,851"/>
+<area shape="poly" title=" " alt="" coords="95,427,101,492,120,591,137,646,159,701,189,752,226,797,239,807,236,811,222,801,184,755,154,703,132,648,115,592,96,493,90,428"/>
 </map>
 </div>
 
@@ -628,7 +967,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/dbc/namespaceuser__intf.html">user_intf</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -37,6 +37,7 @@ var namespacemesh =
     [ "mesh_mark_labeled_facet", "db/dfc/namespacemesh.html#a5a9eae917e07b024e8b94de82fe83859", null ],
     [ "mesh_mark_periodic_facet", "db/dfc/namespacemesh.html#a631f6d53e1dfc9170d456dec2b3b6008", null ],
     [ "mesh_reset_periodic_ids", "db/dfc/namespacemesh.html#a928322e5f872129051a18bb1c0b97081", null ],
+    [ "mesh_subset_by_mask", "db/dfc/namespacemesh.html#af9743aa9ecd1b5d6a4d6f742bdb02577", null ],
     [ "parallelepiped_signed_volume", "db/dfc/namespacemesh.html#a5ba533721b041548bfa9c2d163124151", null ],
     [ "neko_msh_max_zlbl_len", "db/dfc/namespacemesh.html#a6174f191806cc80974be1c3d763e5151", null ],
     [ "neko_msh_max_zlbls", "db/dfc/namespacemesh.html#a1be52124a36c4199f586988ce76e2b01", null ]

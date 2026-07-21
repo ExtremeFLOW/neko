@@ -1,5 +1,14 @@
 <map id="nmsh_file::nmsh_file_read" name="nmsh_file::nmsh_file_read">
-<area shape="rect" id="Node000001" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,13,197,38"/>
-<area shape="rect" id="Node000002" href="$da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,5,401,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,23,232,23,232,28,198,28"/>
+<area shape="rect" id="Node000001" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,70,197,95"/>
+<area shape="rect" id="Node000002" href="$da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,63,401,103"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,80,232,80,232,85,198,85"/>
+<area shape="rect" id="Node000003" href="$da/dd2/namespacenmsh__file.html#a6fe1cf661ee2e9908ca960741e2358e7" title="Read curve element data in chunks and ring&#45;pass between ranks, avoiding storage of the full curve lis..." alt="" coords="449,5,605,45"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="151,67,245,48,343,36,435,28,435,33,344,41,246,53,152,73"/>
+<area shape="rect" id="Node000006" href="$da/dd2/namespacenmsh__file.html#ad5c5a80ca8071fe608fd63d07e3b04fb" title="Read zone data in chunks and ring&#45;pass between ranks, avoiding storage of the full zone list on every..." alt="" coords="245,127,401,167"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="147,93,241,120,240,125,146,98"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="394,60,442,47,443,52,396,65"/>
+<area shape="rect" id="Node000004" href="$da/dd2/namespacenmsh__file.html#adf328213f6a6b2ec1af91348c50f8086" title="Read zone data in chunks and ring&#45;pass between ranks for the 2D thin&#45;slab path. Two ring traversals a..." alt="" coords="449,69,605,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="401,83,436,84,436,89,401,88"/>
+<area shape="rect" id="Node000005" href="$da/dd2/namespacenmsh__file.html#a147eb31a60f5d8a4226a76a49d3b753d" title="Compute the extruded periodic point ids for the 2D thin&#45;slab path. Pure function of the zone fields; ..." alt="" coords="653,69,817,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="606,87,639,87,639,92,606,92"/>
 </map>

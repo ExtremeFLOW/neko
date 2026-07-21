@@ -1,0 +1,14 @@
+<map id="device_coef::device_coef_generate_area_and_normal" name="device_coef::device_coef_generate_area_and_normal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,27,164,82"/>
+<area shape="rect" id="Node000002" href="$d4/d95/coef_8cu.html#a8276c4946f9a1f78e5c217207a037d3e" title=" " alt="" coords="425,5,579,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,46,412,29,412,34,165,52"/>
+<area shape="rect" id="Node000004" href="$d6/da9/coef_8c.html#ad414c2650ec561e6690ca2e6a701c365" title=" " alt="" coords="212,63,377,103"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="165,63,199,67,198,72,164,68"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="627,63,779,103"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="573,43,620,56,619,61,572,48"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="665,63,663,53,669,44,682,38,703,36,726,39,739,46,736,51,724,44,703,41,684,43,672,48,668,54,670,62"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="378,80,613,80,613,85,378,85"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="436,121,568,146"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="378,100,437,115,435,120,376,105"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="553,118,612,103,614,108,554,123"/>
+</map>

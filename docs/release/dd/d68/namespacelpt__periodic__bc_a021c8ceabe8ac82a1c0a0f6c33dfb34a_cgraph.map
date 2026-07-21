@@ -1,0 +1,25 @@
+<map id="lpt_periodic_bc::lpt_periodic_bc_wrap" name="lpt_periodic_bc::lpt_periodic_bc_wrap">
+<area shape="rect" id="Node000001" title="Wrap particle positions and optional vector histories across boundaries." alt="" coords="5,170,151,210"/>
+<area shape="rect" id="Node000002" href="$dd/d68/namespacelpt__periodic__bc.html#a5fa666d5fba585d86c4ad4056f09b433" title="Copy wrapped particle coordinates and optional histories back to host." alt="" coords="199,5,377,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,168,138,120,197,69,204,65,207,69,200,73,141,123,98,171"/>
+<area shape="rect" id="Node000003" href="$d7/d06/namespacelpt__periodic__bc__cpu.html#ae685a730165d30d21ea0ffe9076a19bc" title="Wrap particles through a rotational periodic sector on the CPU." alt="" coords="205,84,371,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="131,167,201,141,202,146,133,172"/>
+<area shape="rect" id="Node000005" href="$d4/dce/namespacelpt__periodic__bc__device.html#a6a2e1c4d6bf56949a0ed95304b09691e" title="Launch device kernel for rotational periodic wrapping." alt="" coords="203,163,373,217"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="151,187,189,187,189,193,151,193"/>
+<area shape="rect" id="Node000008" href="$d7/d06/namespacelpt__periodic__bc__cpu.html#a5b4754646f996f76631a7914f9778bd4" title="Wrap particle coordinates through translational periodic directions." alt="" coords="205,241,371,296"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="133,208,202,234,201,239,131,213"/>
+<area shape="rect" id="Node000010" href="$d4/dce/namespacelpt__periodic__bc__device.html#af876bd0d02464b158bb50f74417161ec" title="Launch device kernel for translational periodic wrapping." alt="" coords="203,320,373,375"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="98,208,142,256,200,305,209,311,206,315,197,309,138,259,94,212"/>
+<area shape="rect" id="Node000004" href="$d7/d06/namespacelpt__periodic__bc__cpu.html#afe9107922a569d9fe5f1b4ee2c8a3e01" title="Rotate a two&#45;component vector in the x&#45;y plane." alt="" coords="429,91,580,131"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="371,109,415,109,415,114,371,114"/>
+<area shape="rect" id="Node000006" href="$de/d35/lpt__periodic__bc_8cu.html#a91b6a5dbdbfc9b7411d1d5a65c4d0adf" title=" " alt="" coords="425,173,584,213"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="374,188,412,189,412,194,374,194"/>
+<area shape="rect" id="Node000007" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="632,249,784,289"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="560,210,642,241,640,246,558,215"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="670,249,668,239,674,230,687,224,708,222,732,225,745,232,742,237,730,230,708,227,689,229,677,234,673,240,675,248"/>
+<area shape="rect" id="Node000009" href="$d7/d06/namespacelpt__periodic__bc__cpu.html#a4ac7e866dc8a96c79bb3d23ba494474c" title="Extract one translational periodic slot from scalar storage." alt="" coords="427,241,583,296"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="371,266,413,266,413,271,371,271"/>
+<area shape="rect" id="Node000011" href="$de/d35/lpt__periodic__bc_8cu.html#a9448b78b78182eae88fd00bbb65c9787" title=" " alt="" coords="425,323,584,363"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="374,343,412,342,412,348,374,348"/>
+<area shape="poly" id="edge12_Node000011_Node000007" title=" " alt="" coords="559,321,639,291,641,296,561,326"/>
+</map>

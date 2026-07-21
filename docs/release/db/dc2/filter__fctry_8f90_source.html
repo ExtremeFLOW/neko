@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -153,40 +153,43 @@ $(document).ready(function(){initNavTree('db/dc2/filter__fctry_8f90_source.html'
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <span class="keyword">module</span> subroutine filter_factory(object, type_name, json, coef)</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">class</span>(filter_t), <span class="keywordtype">allocatable</span>, <span class="keywordtype">intent(inout)</span> :: object</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: type_name</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: coef</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: json</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: type_string</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(object)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>       <span class="keyword">deallocate</span>(object)</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&#39;elementwise&#39;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a>::object)</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&#39;PDE&#39;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../dc/d26/structpde__filter_1_1pde__filter__t.html">pde_filter_t</a>::object)</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a>(<span class="stringliteral">&quot;filter type: &quot;</span>, type_name, &amp;</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>            filter_known_types)</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keyword">call </span>object%init(json, coef)</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>  <span class="keyword">end subroutine </span>filter_factory</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>       <span class="keyword">call </span>object%free()</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>       <span class="keyword">deallocate</span>(object)</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&#39;elementwise&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a>::object)</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (trim(type_name) .eq. <span class="stringliteral">&#39;PDE&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>       <span class="keyword">allocate</span>(<a class="code hl_struct" href="../../dc/d26/structpde__filter_1_1pde__filter__t.html">pde_filter_t</a>::object)</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a>(<span class="stringliteral">&quot;filter type: &quot;</span>, type_name, &amp;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>            filter_known_types)</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="keywordflow">    end if</span></div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="keyword">end </span>submodule filter_fctry</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keyword">call </span>object%init(json, coef)</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keyword">end subroutine </span>filter_factory</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keyword">end </span>submodule filter_fctry</div>
 <div class="ttc" id="anamespaceelementwise__filter_html"><div class="ttname"><a href="../../dd/d52/namespaceelementwise__filter.html">elementwise_filter</a></div><div class="ttdoc">Implements elementwise_filter_t.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d9a/elementwise__filter_8f90_source.html#l00035">elementwise_filter.f90:35</a></div></div>
 <div class="ttc" id="anamespacefilter_html"><div class="ttname"><a href="../../d1/da4/namespacefilter.html">filter</a></div><div class="ttdoc">Filter to be applied to a scalar field.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/d99/filter_8f90_source.html#l00038">filter.f90:38</a></div></div>
 <div class="ttc" id="anamespacepde__filter_html"><div class="ttname"><a href="../../d8/da5/namespacepde__filter.html">pde_filter</a></div><div class="ttdoc">A PDE based filter.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00036">PDE_filter.f90:36</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
-<div class="ttc" id="anamespaceutils_html_a1118aac17fca960a9444986355db28ad"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">utils::concat_string_array</a></div><div class="ttdeci">character(:) function, allocatable, public concat_string_array(array, sep, prepend)</div><div class="ttdoc">Concatenate an array of strings into one string with array items separated by spaces.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00355">utils.f90:356</a></div></div>
-<div class="ttc" id="anamespaceutils_html_ac2aece3826d2efe73113379fc55ae05b"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">utils::neko_type_error</a></div><div class="ttdeci">subroutine, public neko_type_error(base_type, wrong_type, known_types)</div><div class="ttdoc">Reports an error allocating a type for a particular base pointer class.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00312">utils.f90:313</a></div></div>
-<div class="ttc" id="astructelementwise__filter_1_1elementwise__filter__t_html"><div class="ttname"><a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter::elementwise_filter_t</a></div><div class="ttdoc">Implements the elementwise filter for SEM.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d9a/elementwise__filter_8f90_source.html#l00056">elementwise_filter.f90:56</a></div></div>
-<div class="ttc" id="astructpde__filter_1_1pde__filter__t_html"><div class="ttname"><a href="../../dc/d26/structpde__filter_1_1pde__filter__t.html">pde_filter::pde_filter_t</a></div><div class="ttdoc">A PDE based filter mapping $\rho \mapsto \tilde{\rho}$, see Lazarov &amp; O. Sigmund 2010,...</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00072">PDE_filter.f90:72</a></div></div>
+<div class="ttc" id="anamespaceutils_html_a1118aac17fca960a9444986355db28ad"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad">utils::concat_string_array</a></div><div class="ttdeci">character(:) function, allocatable, public concat_string_array(array, sep, prepend)</div><div class="ttdoc">Concatenate an array of strings into one string with array items separated by spaces.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00407">utils.f90:408</a></div></div>
+<div class="ttc" id="anamespaceutils_html_ac2aece3826d2efe73113379fc55ae05b"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">utils::neko_type_error</a></div><div class="ttdeci">subroutine, public neko_type_error(base_type, wrong_type, known_types)</div><div class="ttdoc">Reports an error allocating a type for a particular base pointer class.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00364">utils.f90:365</a></div></div>
+<div class="ttc" id="astructelementwise__filter_1_1elementwise__filter__t_html"><div class="ttname"><a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter::elementwise_filter_t</a></div><div class="ttdoc">Implements the elementwise filter for SEM.</div><div class="ttdef"><b>Definition</b> <a href="../../df/d9a/elementwise__filter_8f90_source.html#l00057">elementwise_filter.f90:57</a></div></div>
+<div class="ttc" id="astructpde__filter_1_1pde__filter__t_html"><div class="ttname"><a href="../../dc/d26/structpde__filter_1_1pde__filter__t.html">pde_filter::pde_filter_t</a></div><div class="ttdoc">A PDE based filter mapping , see Lazarov &amp; O. Sigmund 2010, by solving an equation of the form .</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d9d/PDE__filter_8f90_source.html#l00072">PDE_filter.f90:72</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_8681a82a265081a91d191144ff606af9.html">filter</a></li><li class="navelem"><a class="el" href="../../db/dc2/filter__fctry_8f90.html">filter_fctry.f90</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

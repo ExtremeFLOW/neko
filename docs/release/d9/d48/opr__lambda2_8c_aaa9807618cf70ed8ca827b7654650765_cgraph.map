@@ -1,9 +1,9 @@
 <map id="opencl_lambda2" name="opencl_lambda2">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,135,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="363,29,527,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,47,349,47,349,52,135,52"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="363,29,515,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,47,348,47,348,52,135,52"/>
 <area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="183,62,315,87"/>
 <area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="135,56,169,61,169,66,134,61"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="408,30,406,20,412,11,425,5,445,3,468,6,480,13,477,17,466,11,445,8,426,10,415,15,411,21,413,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="315,64,349,59,349,64,315,69"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="403,30,401,20,406,11,419,5,439,3,461,6,473,13,470,17,459,11,439,8,421,10,410,15,406,21,408,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="315,63,349,59,349,64,315,69"/>
 </map>

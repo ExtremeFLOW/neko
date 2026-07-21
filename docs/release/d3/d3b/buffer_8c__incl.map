@@ -1,0 +1,16 @@
+<map id="/home/runner/work/neko/neko/src/device/opencl/buffer.c" name="/home/runner/work/neko/neko/src/device/opencl/buffer.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="192,5,372,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,108,76,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,63,87,106,85,101,207,58"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="101,108,271,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="254,62,211,101,207,97,251,58"/>
+<area shape="rect" id="Node000004" href="$d0/d05/opencl_2check_8h.html" title=" " alt="" coords="296,108,463,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="313,58,358,97,354,101,310,62"/>
+<area shape="rect" id="Node000006" href="$de/d3d/opencl_2buffer_8h.html" title=" " alt="" coords="487,108,653,133"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="371,58,519,102,518,107,369,63"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="395,181,460,207"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="389,132,414,169,410,172,385,135"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="548,136,464,177,462,173,546,131"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="533,181,607,207"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="573,134,573,168,567,168,567,134"/>
+</map>

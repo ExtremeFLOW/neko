@@ -23,6 +23,8 @@ var neko__api_8f90 =
     [ "neko_api_output_ctrl_execute", "d4/d6f/neko__api_8f90.html#a5c1d3f1515b68fe4143251e11195ed7a", null ],
     [ "neko_api_registry_free", "d4/d6f/neko__api_8f90.html#ab56cde4b331af6941b42456d16cfd4bd", null ],
     [ "neko_api_registry_init", "d4/d6f/neko__api_8f90.html#a4b7b3d38b17b2a3aa182bce4502a1b5d", null ],
+    [ "neko_api_scratch_registry_free", "d4/d6f/neko__api_8f90.html#a9e526a03b763b9d785de9f5a5aa5a949", null ],
+    [ "neko_api_scratch_registry_init", "d4/d6f/neko__api_8f90.html#a92caec830432e9d1dccc1d86c21ff0e9", null ],
     [ "neko_api_solve", "d4/d6f/neko__api_8f90.html#aa2e5d30535577ecbd6961683b9b644a7", null ],
     [ "neko_api_step", "d4/d6f/neko__api_8f90.html#a3ab40aa9d20ed1039a44d6f37c94adbf", null ],
     [ "neko_api_user_cb_field_by_index", "d4/d6f/neko__api_8f90.html#a876c2a70e4f0363034b88b2a30135100", null ],

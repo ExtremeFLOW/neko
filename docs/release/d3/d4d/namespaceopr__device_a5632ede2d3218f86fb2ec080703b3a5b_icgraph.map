@@ -1,0 +1,7 @@
+<map id="opr_device::opr_device_dudxyz" name="opr_device::opr_device_dudxyz">
+<area shape="rect" id="Node000001" title=" " alt="" coords="200,37,372,77"/>
+<area shape="rect" id="Node000002" href="$db/d5a/interfaceoperators_1_1dudxyz.html#a09aeed57ec3a82e68b48218c8c403ffd" title="Compute derivative of a scalar field along a single direction." alt="" coords="5,5,152,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="186,45,152,39,152,34,187,39"/>
+<area shape="rect" id="Node000003" href="$db/d5a/interfaceoperators_1_1dudxyz.html#ad6ccdb3f34539d2dd3273b0cf92ebadd" title="Compute derivative of a scalar field along a single direction." alt="" coords="5,69,152,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="187,75,152,81,152,75,186,70"/>
+</map>

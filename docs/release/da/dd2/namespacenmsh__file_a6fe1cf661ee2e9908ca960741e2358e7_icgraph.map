@@ -1,0 +1,8 @@
+<map id="nmsh_file::nmsh_file_read_curves" name="nmsh_file::nmsh_file_read_curves">
+<area shape="rect" id="Node000001" title="Read curve element data in chunks and ring&#45;pass between ranks, avoiding storage of the full curve lis..." alt="" coords="449,5,605,45"/>
+<area shape="rect" id="Node000002" href="$da/dd2/namespacenmsh__file.html#a57b84eb8737b8753bc695fa4da897b6d" title="Load a mesh from a binary Neko nmsh file." alt="" coords="5,13,197,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="435,25,401,24,245,24,197,25,197,20,245,19,401,19,436,19"/>
+<area shape="rect" id="Node000003" href="$da/dd2/namespacenmsh__file.html#ab673df5350f29af1e48f356c8d001c1c" title="Load a mesh from a binary Neko nmsh file." alt="" coords="245,33,401,73"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="436,41,402,45,401,40,436,35"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="232,44,197,40,198,35,232,39"/>
+</map>

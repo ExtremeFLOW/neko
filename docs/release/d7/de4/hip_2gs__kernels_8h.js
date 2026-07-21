@@ -11,8 +11,12 @@ var hip_2gs__kernels_8h =
     [ "gather_kernel_min", "d7/de4/hip_2gs__kernels_8h.html#a1fa0235c2e66d16811a01d4222f8d6c1", null ],
     [ "gather_kernel_mul", "d7/de4/hip_2gs__kernels_8h.html#a55ab6943adf15f637e2c15c12abf8a26", null ],
     [ "gs_pack_kernel", "d7/de4/hip_2gs__kernels_8h.html#a64ac741deea31872a313aa1486f1c27a", null ],
+    [ "gs_pack_vec_kernel", "d7/de4/hip_2gs__kernels_8h.html#af0fd772817b81d84c64bd95a07d6d08a", null ],
     [ "gs_unpack_add_kernel", "d7/de4/hip_2gs__kernels_8h.html#aa5cdc2c6437075685e4dfc49d2aee6f1", null ],
+    [ "gs_unpack_add_vec_kernel", "d7/de4/hip_2gs__kernels_8h.html#a497c17c7427afa67b955836114786dfa", null ],
     [ "gs_unpack_max_kernel", "d7/de4/hip_2gs__kernels_8h.html#a193b09c56933818591dae07c052e3888", null ],
+    [ "gs_unpack_max_vec_kernel", "d7/de4/hip_2gs__kernels_8h.html#a4b54207953f9f014b0f74894dea93097", null ],
     [ "gs_unpack_min_kernel", "d7/de4/hip_2gs__kernels_8h.html#a6517aee583142293b4a366032f27b6ae", null ],
+    [ "gs_unpack_min_vec_kernel", "d7/de4/hip_2gs__kernels_8h.html#abe44df3df104255f340152220e6cd006", null ],
     [ "scatter_kernel", "d7/de4/hip_2gs__kernels_8h.html#a3816439a3e2ad8b1797c1f478a707bd9", null ]
 ];

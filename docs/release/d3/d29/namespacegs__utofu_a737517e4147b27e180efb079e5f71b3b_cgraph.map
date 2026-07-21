@@ -1,0 +1,11 @@
+<map id="gs_utofu::gs_nbwait_utofu" name="gs_utofu::gs_nbwait_utofu">
+<area shape="rect" id="Node000001" title="Poll for incoming puts, reducing each slab into u as it lands, then wait for our own sends to drain a..." alt="" coords="5,29,157,69"/>
+<area shape="rect" id="Node000002" href="$d0/d1b/gs__utofu__aux_8c.html#a933e997097e9331b7b9d5666f74da666" title=" " alt="" coords="205,37,349,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,47,192,47,192,52,157,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="604,29,756,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="350,47,590,47,590,52,350,52"/>
+<area shape="rect" id="Node000004" href="$d0/d1b/gs__utofu__aux_8c.html#a3e966e383fadee266a5c9474473104e4" title=" " alt="" coords="397,62,556,87"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="350,56,384,60,383,66,349,61"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="642,30,640,20,646,11,659,5,680,3,704,6,717,13,714,18,702,11,680,8,661,10,649,15,645,21,647,28"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="556,62,590,58,591,63,556,67"/>
+</map>

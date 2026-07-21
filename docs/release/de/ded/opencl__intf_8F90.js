@@ -25,6 +25,7 @@ var opencl__intf_8F90 =
     [ "opencl_intf::clreleaseevent", "dd/df4/interfaceopencl__intf_1_1clreleaseevent.html", "dd/df4/interfaceopencl__intf_1_1clreleaseevent" ],
     [ "opencl_intf::clflush", "d6/d7d/interfaceopencl__intf_1_1clflush.html", "d6/d7d/interfaceopencl__intf_1_1clflush" ],
     [ "opencl_intf::clfinish", "d6/d52/interfaceopencl__intf_1_1clfinish.html", "d6/d52/interfaceopencl__intf_1_1clfinish" ],
+    [ "opencl_intf::opencl_buffer_free_all", "db/dd0/interfaceopencl__intf_1_1opencl__buffer__free__all.html", "db/dd0/interfaceopencl__intf_1_1opencl__buffer__free__all" ],
     [ "opencl_device_count", "de/ded/opencl__intf_8F90.html#a476f3dd0418dfa1401fb91a1a75635d8", null ],
     [ "opencl_device_name", "de/ded/opencl__intf_8F90.html#a07ec4ed5818678cf793c11b2b44543ca", null ],
     [ "opencl_finalize", "de/ded/opencl__intf_8F90.html#a43488c7c45d719e3bb5d729808f523ce", null ],

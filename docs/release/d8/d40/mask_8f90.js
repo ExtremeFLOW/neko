@@ -4,6 +4,7 @@ var mask_8f90 =
     [ "init_from_array", "d8/d40/mask_8f90.html#a5bcbcdcb0fd409cfe8220f805949f26e", null ],
     [ "init_from_array_device", "d8/d40/mask_8f90.html#afbf2bb9a70312fb4e4384eb419a28954", null ],
     [ "init_from_mask", "d8/d40/mask_8f90.html#a5f6fec856767ccec6c651057948d23c5", null ],
+    [ "invert_mask", "d8/d40/mask_8f90.html#a2627130cf96d7082cbfe3eb2d7323b03", null ],
     [ "mask_allocate", "d8/d40/mask_8f90.html#a7d70dbc0314ea546361087022eb1f47e", null ],
     [ "mask_free", "d8/d40/mask_8f90.html#adc0a76a50c65de49d3480c79e9f9ffce", null ],
     [ "mask_get", "d8/d40/mask_8f90.html#a5491ea05cd44f83c613e598fdf2a41d9", null ],

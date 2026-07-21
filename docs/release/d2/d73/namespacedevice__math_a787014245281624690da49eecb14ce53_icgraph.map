@@ -1,7 +1,9 @@
 <map id="device_math::device_cadd2" name="device_math::device_cadd2">
-<area shape="rect" id="Node000001" title="Add a scalar to vector ." alt="" coords="513,13,671,53"/>
+<area shape="rect" id="Node000001" title="Add a scalar to vector ." alt="" coords="513,49,671,89"/>
 <area shape="rect" id="Node000002" href="$d6/d36/namespacecentrifugal__source__term__device.html#a0ede37d4bfa65edfd3239e3396e21d84" title="Computes the centrifugal source term on the device." alt="" coords="241,5,465,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="499,35,465,35,465,30,499,30"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="499,57,465,52,466,47,500,52"/>
+<area shape="rect" id="Node000004" href="$d3/d0d/namespacevector__math.html#a6bbeb377bf494c51ed06c9e03620b908" title="Add a scalar to vector ." alt="" coords="277,85,430,125"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="500,85,431,96,430,91,499,80"/>
 <area shape="rect" id="Node000003" href="$d5/d7a/namespacecentrifugal__source__term.html#afcb36f41c5d339ad0f9bea50689ab2e6" title="Computes the source term and adds the result to fields." alt="" coords="5,5,193,60"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="228,35,193,35,193,30,228,30"/>
 </map>

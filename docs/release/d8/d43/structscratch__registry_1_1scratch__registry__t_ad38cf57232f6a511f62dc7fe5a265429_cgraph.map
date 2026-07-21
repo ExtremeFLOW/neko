@@ -1,0 +1,15 @@
+<map id="scratch_registry::scratch_registry_t::request" name="scratch_registry::scratch_registry_t::request">
+<area shape="rect" id="Node000001" title="Generic request procedure." alt="" coords="5,133,185,173"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#acfea81da46d6f5c58a6a914ee18d6f5f" title="Get a device_array from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,131,170,93,232,55,246,48,249,53,235,60,173,98,123,135"/>
+<area shape="rect" id="Node000003" href="$d7/dda/namespacescratch__registry.html#a3323d64c81fd680132b725888d8d8d16" title="Get a field from the registry by assigning it to a pointer." alt="" coords="233,69,416,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,131,239,110,240,116,168,136"/>
+<area shape="rect" id="Node000004" href="$d7/dda/namespacescratch__registry.html#a68ad7eb7e444ec99369f1fa935802c0a" title="Get a host_array from the registry by assigning it to a pointer." alt="" coords="233,133,416,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,151,219,151,219,156,186,156"/>
+<area shape="rect" id="Node000006" href="$d7/dda/namespacescratch__registry.html#ab56e8bccbcc5ed446b6a1c0fab6979bb" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="233,197,416,237"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="168,171,240,191,239,196,167,176"/>
+<area shape="rect" id="Node000007" href="$d7/dda/namespacescratch__registry.html#abb82d6f812046c663d7068b900e88998" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="233,261,416,301"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="123,171,173,209,235,247,249,254,246,259,232,252,170,213,119,176"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="464,141,561,166"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="416,151,450,151,450,156,416,156"/>
+</map>

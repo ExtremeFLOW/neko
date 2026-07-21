@@ -1,5 +1,8 @@
 var structscalar__stats__output_1_1scalar__stats__output__t =
 [
+    [ "free", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#aaa2b400cbc57484459d3e37d5ad0fe2c", null ],
+    [ "free", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#ab7617e667b98bfa3a67947d21fe59f7a", null ],
+    [ "free_base", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#a1525d15484f840f09a5585a8127b1d62", null ],
     [ "init", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#afd5f63328506e942e5286788e3c8cebb", null ],
     [ "init_base", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#aa9853130252151809a431108e99384fa", null ],
     [ "sample", "dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html#af5d4cdfe7ed6d35653ed43bd9367359f", null ],

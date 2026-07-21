@@ -1,0 +1,11 @@
+<map id="field_subsampler::field_subsampler_init_json" name="field_subsampler::field_subsampler_init_json">
+<area shape="rect" id="Node000001" title="Constructor." alt="" coords="5,69,175,109"/>
+<area shape="rect" id="Node000002" href="$d8/dae/namespacefield__subsampler.html#a74f5c37c6627358a5b2b09eff7eb5053" title="Actual constructor." alt="" coords="223,69,420,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,87,209,87,209,92,175,92"/>
+<area shape="rect" id="Node000003" href="$d8/dae/namespacefield__subsampler.html#a136c66ae0b92db07a78c36985fdf9989" title="Subsample the fields based only on a point zone, no space&#45;to&#45;space interpolation." alt="" coords="480,5,671,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,67,482,46,483,51,402,72"/>
+<area shape="rect" id="Node000004" href="$d8/dae/namespacefield__subsampler.html#a371e39ef618b543f9090fafbc7ecc34a" title="Subsample the fields based a point zone, and with space&#45;to&#45;space interpolation enabled." alt="" coords="468,69,683,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="420,87,454,87,454,92,420,92"/>
+<area shape="rect" id="Node000005" href="$d8/dae/namespacefield__subsampler.html#a72bb6eda9a54ec2a022a42d5cf79e5dd" title="Subsample fields wihout any point zone, only space&#45;to&#45;space interpolation is enabled." alt="" coords="479,133,671,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="402,107,483,127,482,133,401,112"/>
+</map>

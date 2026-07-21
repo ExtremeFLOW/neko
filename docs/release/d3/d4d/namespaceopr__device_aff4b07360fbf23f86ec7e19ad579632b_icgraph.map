@@ -1,0 +1,37 @@
+<map id="opr_device::opr_device_opgrad" name="opr_device::opr_device_opgrad">
+<area shape="rect" id="Node000001" title=" " alt="" coords="981,373,1153,413"/>
+<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="796,381,933,406"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="968,396,933,396,933,391,968,391"/>
+<area shape="rect" id="Node000003" href="$d4/d83/namespacecompressible__res__cpu.html#a157c7aac3b25131e4e2b34085f9b4705" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="536,5,748,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="859,368,852,305,834,223,820,179,800,136,776,96,746,61,728,48,732,43,750,57,780,93,805,134,825,177,839,222,857,305,865,367"/>
+<area shape="rect" id="Node000006" href="$df/dcd/namespacecompressible__res__device.html#ace767f94b7d0070906c0e98aef7f7dfc" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="549,70,735,125"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="856,368,844,319,822,258,790,195,770,165,746,139,730,127,733,123,750,135,774,162,795,192,827,256,849,318,861,366"/>
+<area shape="rect" id="Node000009" href="$d9/df7/namespaceadv__dealias.html#a4ad2c5d9b00cd1275c1786415a359ab9" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="559,149,725,189"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="852,369,837,332,815,287,784,242,746,203,724,190,727,185,750,199,789,239,819,284,842,329,857,367"/>
+<area shape="rect" id="Node000010" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="579,213,705,253"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="845,371,804,318,777,291,747,268,704,249,706,244,749,263,781,287,808,315,850,367"/>
+<area shape="rect" id="Node000011" href="$d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="569,277,715,317"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="830,376,747,332,715,320,716,315,749,327,833,371"/>
+<area shape="rect" id="Node000012" href="$d2/de4/namespacepnpn__res__cpu.html#a43bf48bf3b10c70759c96eb91cd2b452" title=" " alt="" coords="557,341,727,381"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="782,384,727,376,728,371,783,379"/>
+<area shape="rect" id="Node000013" href="$d8/dea/namespacepnpn__res__device.html#a7634678695c23385c494115658ff88cd" title=" " alt="" coords="547,405,737,445"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="782,408,738,414,737,409,782,403"/>
+<area shape="rect" id="Node000014" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a986698f8eee1fe0a1178677cd9f304ed" title=" " alt="" coords="561,470,723,525"/>
+<area shape="poly" id="edge13_Node000002_Node000014" title=" " alt="" coords="832,415,749,460,720,472,718,468,747,455,830,411"/>
+<area shape="rect" id="Node000015" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="553,549,731,603"/>
+<area shape="poly" id="edge14_Node000002_Node000015" title=" " alt="" coords="852,419,811,479,782,511,750,539,731,551,728,546,746,535,778,507,807,475,847,416"/>
+<area shape="rect" id="Node000016" href="$d4/da3/namespacepnpn__res__sx.html#ad2586259b3e34e72aebb30cd0a05fb69" title=" " alt="" coords="557,628,727,668"/>
+<area shape="poly" id="edge15_Node000002_Node000016" title=" " alt="" coords="860,420,846,463,824,516,792,571,772,596,750,618,729,631,726,627,746,614,768,592,788,568,819,514,841,461,854,418"/>
+<area shape="rect" id="Node000017" href="$dc/d5e/namespacescalar__stats.html#aa5566a78671c59995c5eeb1d7fd19c5a" title="Updates all fields with a new sample." alt="" coords="569,692,715,732"/>
+<area shape="poly" id="edge16_Node000002_Node000017" title=" " alt="" coords="863,420,853,475,833,545,818,582,800,618,777,652,750,682,717,702,714,697,746,678,773,649,795,616,813,580,828,543,848,474,858,419"/>
+<area shape="rect" id="Node000018" href="$d4/dd6/namespaceweak__gradient__simcomp.html#ae236a24b2d3afb8a0cdb2f3fe182d75c" title="Compute the weak_gradient field." alt="" coords="547,756,737,796"/>
+<area shape="poly" id="edge17_Node000002_Node000018" title=" " alt="" coords="865,420,859,485,842,573,827,619,807,665,782,708,750,746,734,758,731,754,746,742,777,705,802,663,822,617,836,571,854,485,860,420"/>
+<area shape="rect" id="Node000004" href="$d4/d83/namespacecompressible__res__cpu.html#a758165caa9c40474f1011ad71633f123" title="Evaluates the right&#45;hand side of the compressible equations. Inviscid terms are evaluated through div..." alt="" coords="311,5,478,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="522,28,478,28,478,23,522,23"/>
+<area shape="rect" id="Node000005" href="$d4/d83/namespacecompressible__res__cpu.html#a97f4d91ee2dafadca4d3865ee272fa1c" title="Advances the primitive variables (density, momentum, energy) in time using a Runge&#45;Kutta scheme." alt="" coords="5,5,253,45"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="298,28,253,28,253,23,298,23"/>
+<area shape="rect" id="Node000007" href="$df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="301,77,488,117"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="535,100,488,100,488,95,535,95"/>
+<area shape="rect" id="Node000008" href="$df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="20,70,239,125"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="288,100,239,100,239,95,288,95"/>
+</map>

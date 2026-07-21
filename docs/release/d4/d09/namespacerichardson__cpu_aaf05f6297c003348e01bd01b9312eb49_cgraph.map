@@ -1,0 +1,23 @@
+<map id="richardson_cpu::set_stability_regime" name="richardson_cpu::set_stability_regime">
+<area shape="rect" id="Node000001" title="Sets the stability regime based on the Richardson number value (quite arbitrary)." alt="" coords="5,165,153,205"/>
+<area shape="rect" id="Node000002" href="$d4/d09/namespacerichardson__cpu.html#ae2a1a18c41380055570461e78f9fc460" title=" " alt="" coords="201,5,359,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,163,138,111,167,81,200,55,209,49,212,54,203,60,171,85,141,114,97,167"/>
+<area shape="rect" id="Node000004" href="$d4/d09/namespacerichardson__cpu.html#aa1d14c0356a07368401dc45fd80ad8f9" title=" " alt="" coords="201,69,359,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="115,163,200,119,214,113,216,117,202,124,118,167"/>
+<area shape="rect" id="Node000005" href="$d4/d09/namespacerichardson__cpu.html#ac65702a18f549ba9e98986a5c3fa63da" title=" " alt="" coords="201,133,359,173"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="153,171,187,165,188,171,154,176"/>
+<area shape="rect" id="Node000007" href="$d4/d09/namespacerichardson__cpu.html#aad60ac4880c365954c227fef2da1fbf3" title="Similarity laws and corrections for the UNSTABLE (convective) regime: Based on Louis 1979." alt="" coords="205,197,355,237"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="154,195,192,201,191,206,153,200"/>
+<area shape="rect" id="Node000009" href="$d4/d09/namespacerichardson__cpu.html#ae3de5d9714ed6f02b18489132c52bb3c" title="Similarity laws and corrections for the NEUTRAL regime:" alt="" coords="205,261,355,301"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="118,203,202,247,216,253,214,258,200,252,115,208"/>
+<area shape="rect" id="Node000010" href="$d4/d09/namespacerichardson__cpu.html#adaef487b1907f0417dd37aacf242e5b3" title="Similarity laws and corrections for the STABLE regime: Based on Mauritsen et al. 2007." alt="" coords="205,325,355,365"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="97,204,141,257,171,285,203,311,212,317,209,321,200,316,167,289,138,260,93,207"/>
+<area shape="rect" id="Node000003" href="$d4/d09/namespacerichardson__cpu.html#a1cfb1cb627afde4381eeadec3f1f55f8" title=" " alt="" coords="407,5,581,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,23,393,23,393,28,359,28"/>
+<area shape="rect" id="Node000006" href="$d4/d09/namespacerichardson__cpu.html#aa8fe7b01731eb4ac5c408cf4b4548eca" title=" " alt="" coords="407,133,581,173"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="359,151,393,151,393,156,359,156"/>
+<area shape="rect" id="Node000008" href="$d4/d09/namespacerichardson__cpu.html#ab4ba78a64b7945c05e5527144d4e2c43" title=" " alt="" coords="413,197,575,237"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="355,215,400,215,400,220,355,220"/>
+<area shape="rect" id="Node000011" href="$d4/d09/namespacerichardson__cpu.html#a70162ab3de40f999dcfb319aedc50793" title=" " alt="" coords="413,325,575,365"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="355,343,400,343,400,348,355,348"/>
+</map>

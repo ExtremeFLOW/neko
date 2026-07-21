@@ -1,9 +1,11 @@
 <map id="device_math::device_pwmax2" name="device_math::device_pwmax2">
-<area shape="rect" id="Node000001" title="Compute the point&#45;wise maximum of two vectors ." alt="" coords="464,37,621,77"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a978fc2b6f0ad5b6c281a17a8db6a3c15" title="Point&#45;wise max operation ." alt="" coords="225,45,416,70"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="450,60,416,60,416,55,450,55"/>
-<area shape="rect" id="Node000003" href="$d0/d7b/namespacebrinkman__source__term.html#a35bde13a18b619fc56d9856fcdb60ecb" title="Initializes the source term from a boundary mesh." alt="" coords="5,5,177,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="215,45,177,40,178,35,216,40"/>
-<area shape="rect" id="Node000004" href="$d0/d7b/namespacebrinkman__source__term.html#a34a09d4f75fd09e6858941e79f0229ae" title="Initializes the source term from a point zone." alt="" coords="5,69,177,109"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="216,75,178,80,177,75,215,69"/>
+<area shape="rect" id="Node000001" title="Compute the point&#45;wise maximum of two vectors ." alt="" coords="464,69,621,109"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a978fc2b6f0ad5b6c281a17a8db6a3c15" title="Point&#45;wise max operation ." alt="" coords="225,77,416,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="450,92,416,92,416,87,450,87"/>
+<area shape="rect" id="Node000003" href="$d0/d7b/namespacebrinkman__source__term.html#a28d5e8158ec54017a00179b4e19a5ac3" title="Initializes the source term from a boundary mesh." alt="" coords="5,5,177,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="260,75,163,48,165,43,262,70"/>
+<area shape="rect" id="Node000004" href="$d0/d7b/namespacebrinkman__source__term.html#aee650c8fca67a7168bd548a1ea0e412a" title="Initializes the source term from a file." alt="" coords="5,69,177,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="212,92,177,92,177,87,212,87"/>
+<area shape="rect" id="Node000005" href="$d0/d7b/namespacebrinkman__source__term.html#a8423df88b2e8ade7e260c37befae40f8" title="Initializes the source term from a point zone." alt="" coords="5,133,177,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="262,108,165,136,163,131,260,103"/>
 </map>

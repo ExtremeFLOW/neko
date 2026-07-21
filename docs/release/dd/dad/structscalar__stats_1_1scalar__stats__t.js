@@ -1,7 +1,7 @@
 var structscalar__stats_1_1scalar__stats__t =
 [
     [ "free", "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a45b96f5deae089972968e118844b668a", null ],
-    [ "init", "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a21b4c67157f48e29a6c2f496cf08a59a", null ],
+    [ "init", "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a8f4d8d6fad6b9167d9ffa040be4277c4", null ],
     [ "make_strong_grad", "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a81be7b248d4b190e863e364d654e8d66", null ],
     [ "reset", "dd/dad/structscalar__stats_1_1scalar__stats__t.html#adea415d496cf516f19823d423c9cf962", null ],
     [ "update", "dd/dad/structscalar__stats_1_1scalar__stats__t.html#a81e4215c85045782c3b9a91855b21a5e", null ],

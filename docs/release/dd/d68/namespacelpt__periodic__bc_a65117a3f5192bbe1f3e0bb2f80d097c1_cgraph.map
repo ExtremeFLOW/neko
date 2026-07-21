@@ -1,0 +1,5 @@
+<map id="lpt_periodic_bc::lpt_get_periodic_center" name="lpt_periodic_bc::lpt_get_periodic_center">
+<area shape="rect" id="Node000001" title="Compute the geometric center of a periodic source facet." alt="" coords="5,5,163,45"/>
+<area shape="rect" id="Node000002" href="$dd/d68/namespacelpt__periodic__bc.html#a6dee6f5b54002741e0c39a3034a599d9" title="Gather the corner points of a mesh facet." alt="" coords="211,5,356,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,23,197,23,197,28,163,28"/>
+</map>

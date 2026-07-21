@@ -1,0 +1,7 @@
+<map id="vector_math::vector_cwrap" name="vector_math::vector_cwrap">
+<area shape="rect" id="Node000001" title="Wrap vector elements into the range [min_value, max_value)" alt="" coords="5,27,159,67"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a514c2529ddf65bed07454ff3d3a0bbe6" title="Wrap value around a range [min, max)" alt="" coords="234,5,337,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,34,220,25,220,30,160,39"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#ac2cc79d6e963d221736dbad216a4e78f" title="Wrap value around a range (min, max)" alt="" coords="207,55,364,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,55,194,60,193,65,159,61"/>
+</map>

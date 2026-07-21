@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,25 +102,30 @@ $(document).ready(function(){initNavTree('d5/dfc/installation.html','../../'); i
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md108">Building from source</a><ul><li class="level2"><a href="#autotoc_md109">Dependencies</a><ul><li class="level3"><a href="#autotoc_md110">Building JSON Fortran</a></li>
-<li class="level3"><a href="#autotoc_md111">Building HDF5 (optional, but highly recommended)</a></li>
-<li class="level3"><a href="#autotoc_md112">Building ParMETIS (optional)</a></li>
-<li class="level3"><a href="#autotoc_md113">Bulding PFunit (optional)</a></li>
+<ul><li class="level1"><a href="#autotoc_md146">Building from source</a><ul><li class="level2"><a href="#autotoc_md147">Dependencies</a><ul><li class="level3"><a href="#autotoc_md148">Building JSON Fortran</a></li>
+<li class="level3"><a href="#autotoc_md149">Building HDF5 (optional, but highly recommended)</a></li>
+<li class="level3"><a href="#autotoc_md150">Building ParMETIS (optional)</a></li>
+<li class="level3"><a href="#autotoc_md151">Bulding PFunit (optional)</a></li>
+<li class="level3"><a href="#deps-python">Python (optional)</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#autotoc_md114">Building Neko</a><ul><li class="level3"><a href="#autotoc_md115">Compiling Neko for CPU or SX-Aurora</a></li>
-<li class="level3"><a href="#autotoc_md116">Compiling Neko for NVIDIA GPUs</a></li>
-<li class="level3"><a href="#autotoc_md117">Compiling Neko for AMD GPUs</a></li>
-<li class="level3"><a href="#autotoc_md118">Compiling Neko with a collective communications library</a></li>
+<li class="level2"><a href="#building-neko">Building Neko</a><ul><li class="level3"><a href="#compute-backends">Compute backends and support tiers</a></li>
+<li class="level3"><a href="#communication-backends">Communication backends</a></li>
+<li class="level3"><a href="#autotoc_md152">Compiling Neko for CPU or SX-Aurora</a></li>
+<li class="level3"><a href="#autotoc_md153">Compiling Neko for NVIDIA GPUs</a></li>
+<li class="level3"><a href="#autotoc_md154">Compiling Neko for AMD GPUs</a></li>
+<li class="level3"><a href="#autotoc_md155">Compiling Neko for Apple Silicon GPUs</a></li>
+<li class="level3"><a href="#autotoc_md156">Compiling Neko with a collective communications library</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md119">Installing via Spack</a><ul><li class="level2"><a href="#autotoc_md120">Quick start guide with Spack</a></li>
+<li class="level1"><a href="#autotoc_md157">Installing via Spack</a><ul><li class="level2"><a href="#autotoc_md158">Quick start guide with Spack</a></li>
 </ul>
 </li>
-<li class="level1"><a href="#autotoc_md121">Installing using pixi</a></li>
-<li class="level1"><a href="#autotoc_md122">Using a Docker container</a></li>
+<li class="level1"><a href="#autotoc_md159">Installing using pixi</a></li>
+<li class="level1"><a href="#autotoc_md160">Installing via FreeBSD ports</a></li>
+<li class="level1"><a href="#autotoc_md161">Using a Docker container</a></li>
 </ul>
 </div>
 <div class="textblock"><p>Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via tools like Spack, pixi, and Docker. What to use comes down to personal preference, but here are some rough guidelines.</p>
@@ -130,13 +135,13 @@ $(document).ready(function(){initNavTree('d5/dfc/installation.html','../../'); i
 <li>Use Docker if you are a fan of containers.</li>
 <li>Build from source if you want full control over the build parameters and environment and don't want to use a package manager.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md108"></a>
+<h1><a class="anchor" id="autotoc_md146"></a>
 Building from source</h1>
 <p>To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (<code>mpi_f08</code>), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, HDF5 and ParMETIS.</p>
 <p>Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).</p>
-<h2><a class="anchor" id="autotoc_md109"></a>
+<h2><a class="anchor" id="autotoc_md147"></a>
 Dependencies</h2>
-<h3><a class="anchor" id="autotoc_md110"></a>
+<h3><a class="anchor" id="autotoc_md148"></a>
 Building JSON Fortran</h3>
 <p>Download and compile, at least version 0.7.1 of JSON Fortran from the main repository. </p><dl class="section note"><dt>Note</dt><dd>Neko requires JSON Fortran to be configured with <code>USE_GNU_INSTALL_CONVENTION</code>.</dd></dl>
 <div class="fragment"><div class="line">git clone --depth=1 https://github.com/jacobwilliams/json-fortran.git</div>
@@ -146,7 +151,7 @@ Building JSON Fortran</h3>
 </div><!-- fragment --><p> Now ad the installation path to <code>PKG_CONFIG_PATH</code> (and if needed <code>LD_LIBRARY_PATH</code>). </p><dl class="section note"><dt>Note</dt><dd>On certain systems <code>lib</code> should be substituted with <code>lib64</code></dd></dl>
 <div class="fragment"><div class="line">export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH</div>
 <div class="line">export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md111"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md149"></a>
 Building HDF5 (optional, but highly recommended)</h3>
 <p>Download and compile at least version 1.14 of HDF5, with Fortran and MPI support. Note that you may need to adjust the compilers depending on you machine (for example, on Cray supercomputers <code>mpifort</code> is usually replaced with <code>ftn</code>, and so on).</p>
 <div class="fragment"><div class="line">wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz</div>
@@ -162,7 +167,7 @@ Building HDF5 (optional, but highly recommended)</h3>
 <p>Similar to <code>json-fortran</code>, populate relevant environmental variables. </p><div class="fragment"><div class="line">export PATH=:/path/to/installation/bin:$PATH</div>
 <div class="line">export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH</div>
 <div class="line">export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md112"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md150"></a>
 Building ParMETIS (optional)</h3>
 <p>The following steps is an example on how to build and install ParMETIS</p>
 <div class="fragment"><div class="line"> shell</div>
@@ -170,10 +175,19 @@ Building ParMETIS (optional)</h3>
 <div class="line">$ wget https://github.com/mfem/tpls/raw/refs/heads/gh-pages/parmetis-4.0.3.tar.gz</div>
 <div class="line">$ tar xzf parmetis-4.0.3.tar.gz &amp;&amp; cd parmetis-4.0.3 &amp;&amp; make config prefix=${PARMETIS_INSTALL} &amp;&amp; make install</div>
 <div class="line">$ cd metis &amp;&amp; make config prefix=${PARMETIS_INSTALL} &amp;&amp; make install &amp;&amp; cd ../..</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md113"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md151"></a>
 Bulding PFunit (optional)</h3>
 <p>To build the PFunit testing framework, please refers to the <a class="el" href="../../d5/d75/testing.html">Testing</a> page</p>
-<h2><a class="anchor" id="autotoc_md114"></a>
+<h3><a class="anchor" id="deps-python"></a>
+Python (optional)</h3>
+<p>Neko itself does not depend on Python, however, it is necessary for the following:</p>
+<ul>
+<li>Running unit tests; only depends on an interpreter.</li>
+<li>Running integration tests; requires <code>pytest</code>.</li>
+<li>Using the <code>lint.sh</code> and <code>format.sh</code> tools under <code>contrib</code>; requires <code>findent</code> and <code>flinter==0.4.0</code>.</li>
+<li>Running Python post-processing scripts for selected examples. A dependency of note is <a href="https://github.com/ExtremeFLOW/pySEMTools"><code>pySEMtools</code></a>, which is the package we recommend for post-processing Neko simulation results.</li>
+</ul>
+<h2><a class="anchor" id="building-neko"></a>
 Building Neko</h2>
 <p>Neko uses autotools as its build system. The first step is to run the <code>configure</code> script, located in the top directory.</p>
 <div class="fragment"><div class="line"> shell</div>
@@ -230,13 +244,17 @@ Building Neko</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>--with-opencl=DIR</code>   </td><td class="markdownTableBodyNone">Compile with OpenCL backend    </td></tr>
 <tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>--with-metal</code>   </td><td class="markdownTableBodyNone">Compile with Metal backend (macOS only)    </td></tr>
+<tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>--with-nvtx=DIR</code>   </td><td class="markdownTableBodyNone">Compile with support for NVTX    </td></tr>
-<tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>--with-roctx=DIR</code>   </td><td class="markdownTableBodyNone">Compile with support for ROCTX    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>--with-nccl=DIR</code>   </td><td class="markdownTableBodyNone">Compiler with support for NCCL    </td></tr>
+<td class="markdownTableBodyNone"><code>--with-roctx=DIR</code>   </td><td class="markdownTableBodyNone">Compile with support for ROCTX    </td></tr>
 <tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>--with-nccl=DIR</code>   </td><td class="markdownTableBodyNone">Compiler with support for NCCL    </td></tr>
+<tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>--with-rccl=DIR</code>   </td><td class="markdownTableBodyNone">Compiler with support for RCCL    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>--with-utofu=DIR</code>   </td><td class="markdownTableBodyNone">Compile with support for the native Tofu interconnect (uTofu)    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>--with-hdf5</code>   </td><td class="markdownTableBodyNone">Compile with support for HDF5    </td></tr>
 <tr class="markdownTableRowEven">
@@ -244,12 +262,65 @@ Building Neko</h2>
 </table>
 <dl class="section note"><dt>Note</dt><dd>Accelerators backends are not enabled as a feature in Neko, but rather via optional packages.</dd></dl>
 <p>Once configured, to compile and install Neko issue <code>make</code> followed by <code>make install</code></p>
-<h3><a class="anchor" id="autotoc_md115"></a>
+<h3><a class="anchor" id="compute-backends"></a>
+Compute backends and support tiers</h3>
+<p>Neko's compute kernels are provided by several interchangeable backends, selected at configure time. The CPU backend is always available; the remaining backends are enabled through their respective optional packages (see the table above). The backends share a common interface, so a case runs unmodified regardless of the backend it is built against. Their current level of support is summarised below.</p>
+<p>Support tiers are defined as follows:</p>
+<ul>
+<li><b>Tier 0</b> &mdash; Primary, fully supported backends. Regularly tested and expected to support all features.</li>
+<li><b>Tier 1</b> &mdash; Supported and maintained, but tested less extensively and may trail Tier 0 in features or performance.</li>
+<li><b>Tier 2</b> &mdash; Experimental or optional. Under active development or provided as an optional optimisation; feature coverage may be incomplete.</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Backend   </th><th class="markdownTableHeadNone">Target hardware   </th><th class="markdownTableHeadNone">Tier   </th><th class="markdownTableHeadNone">Notes    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">CPU   </td><td class="markdownTableBodyNone">Any CPU (portable Fortran)   </td><td class="markdownTableBodyNone">Tier 0   </td><td class="markdownTableBodyNone">Always available; reference implementation    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">CUDA   </td><td class="markdownTableBodyNone">NVIDIA GPUs   </td><td class="markdownTableBodyNone">Tier 0   </td><td class="markdownTableBodyNone"></td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">HIP   </td><td class="markdownTableBodyNone">AMD GPUs   </td><td class="markdownTableBodyNone">Tier 0   </td><td class="markdownTableBodyNone"></td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">OpenCL   </td><td class="markdownTableBodyNone">Cross-vendor GPUs and accelerators   </td><td class="markdownTableBodyNone">Tier 1   </td><td class="markdownTableBodyNone"></td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">SX-Aurora   </td><td class="markdownTableBodyNone">NEC SX-Aurora TSUBASA vector engines   </td><td class="markdownTableBodyNone">Tier 1   </td><td class="markdownTableBodyNone"></td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Metal   </td><td class="markdownTableBodyNone">Apple Silicon GPUs (macOS)   </td><td class="markdownTableBodyNone">Tier 2   </td><td class="markdownTableBodyNone">Single precision only (<code>--enable-real=sp</code>)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">libxsmm   </td><td class="markdownTableBodyNone">x86 CPUs (JIT small matrix multiply)   </td><td class="markdownTableBodyNone">Tier 2   </td><td class="markdownTableBodyNone">Accelerates the CPU backend   </td></tr>
+</table>
+<h3><a class="anchor" id="communication-backends"></a>
+Communication backends</h3>
+<p>Neko's gather&ndash;scatter layer, which performs the halo exchange between elements and MPI ranks, can use several communication backends. The backend is selected automatically at runtime (device-aware MPI when available, otherwise host MPI), but can be overridden through the <code>NEKO_GS_COMM</code> environment variable. The supported backends are listed below.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Backend   </th><th class="markdownTableHeadNone">Mechanism / target   </th><th class="markdownTableHeadNone">Compute backends   </th><th class="markdownTableHeadNone">Enable (configure)   </th><th class="markdownTableHeadNone"><code>NEKO_GS_COMM</code>    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">MPI   </td><td class="markdownTableBodyNone">Standard MPI on host buffers (default)   </td><td class="markdownTableBodyNone">All backends   </td><td class="markdownTableBodyNone">always available   </td><td class="markdownTableBodyNone"><code>MPI</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Device-aware MPI   </td><td class="markdownTableBodyNone">MPI directly on device buffers (GPUDirect)   </td><td class="markdownTableBodyNone">CUDA, HIP   </td><td class="markdownTableBodyNone"><code>--enable-device-mpi</code>   </td><td class="markdownTableBodyNone"><code>MPIGPU</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">NCCL / RCCL   </td><td class="markdownTableBodyNone">Collective comms library on GPUs (NVIDIA / AMD)   </td><td class="markdownTableBodyNone">CUDA, HIP   </td><td class="markdownTableBodyNone"><code>--with-nccl</code> / <code>--with-rccl</code>   </td><td class="markdownTableBodyNone"><code>NCCL</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">NVSHMEM   </td><td class="markdownTableBodyNone">NVIDIA OpenSHMEM, one-sided on device buffers   </td><td class="markdownTableBodyNone">CUDA   </td><td class="markdownTableBodyNone"><code>--with-nvshmem</code>   </td><td class="markdownTableBodyNone"><code>SHMEM</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">OpenSHMEM   </td><td class="markdownTableBodyNone">Host OpenSHMEM, one-sided   </td><td class="markdownTableBodyNone">CPU   </td><td class="markdownTableBodyNone"><code>--with-openshmem</code>   </td><td class="markdownTableBodyNone"><code>SHMEM</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Co-Array Fortran   </td><td class="markdownTableBodyNone">Fortran coarrays   </td><td class="markdownTableBodyNone">CPU   </td><td class="markdownTableBodyNone">coarray-capable compiler   </td><td class="markdownTableBodyNone"><code>CAF</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">uTofu   </td><td class="markdownTableBodyNone">Native Tofu interconnect, one-sided RDMA   </td><td class="markdownTableBodyNone">CPU   </td><td class="markdownTableBodyNone"><code>--with-utofu</code>   </td><td class="markdownTableBodyNone"><code>UTOFU</code>   </td></tr>
+</table>
+<dl class="section note"><dt>Note</dt><dd>Every device backend (CUDA, HIP, OpenCL, Metal) can use host <code>MPI</code>, which stages data through host memory before the exchange. The device-resident backends &mdash; device-aware MPI, NCCL/RCCL and NVSHMEM &mdash; are implemented only for CUDA and HIP (NVSHMEM is CUDA-only), so OpenCL and Metal builds fall back to host <code>MPI</code>.</dd>
+<dd>
+<code>NEKO_GS_COMM=SHMEM</code> selects NVSHMEM on a device (GPU) build and host OpenSHMEM otherwise.</dd>
+<dd>
+<code>UTOFU</code> targets the native Tofu interconnect (Tofu-D, e.g. Fugaku) and requires the <code>libtofucom</code> library; it is a host (CPU) backend. The number of Tofu network interfaces used for injection is set with <code>NEKO_GS_UTOFU_NTNI</code> (default <code>1</code>).</dd></dl>
+<h3><a class="anchor" id="autotoc_md152"></a>
 Compiling Neko for CPU or SX-Aurora</h3>
 <p>For a standard CPU or SX-Aurora build of Neko, simply run the <code>configure</code> script as given above, using appropriate compilers and compiler flags, e.g:</p>
 <div class="fragment"><div class="line">$ ./configure FC=gfortran FCFLAGS=&quot;-O2 -pedantic -std=f2008&quot; --prefix=/opt/pkg/neko</div>
 <div class="line">$ make &amp;&amp; make install</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md116"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md153"></a>
 Compiling Neko for NVIDIA GPUs</h3>
 <p>To compile Neko for NVIDIA GPUs</p><ul>
 <li>Make sure you have the CUDA Toolkit installed (e.g. <code>nvidia-cuda-toolkit</code>)</li>
@@ -257,9 +328,10 @@ Compiling Neko for NVIDIA GPUs</h3>
 </div><!-- fragment --></li>
 <li>CUDA compiler flags and options can be passed using <code>CUDA_CFLAGS</code>, <code>CUDA_ARCH</code> and <code>NVCC</code> respectively, e.g: <div class="fragment"><div class="line">$ ./configure  --with-cuda=/usr/local/cuda CUDA_CFLAGS=-O3  CUDA_ARCH=-arch=sm_80 NVCC=/usr/local/cuda/bin/nvcc</div>
 </div><!-- fragment --></li>
+<li>If <code>--enable-device-mpi</code> is also given, <code>CUDA_ARCH</code> is <b>required</b>: <code>configure</code> will error out rather than guess an architecture, since targeting the wrong one silently hurts performance instead of failing to build, and Neko is often cross-compiled on a host with no GPU present to detect against. Find the right value for the target GPU with e.g. <code>nvidia-smi --query-gpu=compute_cap --format=csv,noheader</code> on the target machine, or the vendor's published compute capability for the target cluster's GPUs when cross-compiling.</li>
 <li>Build using <code>make &amp;&amp; make install</code></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md117"></a>
+<h3><a class="anchor" id="autotoc_md154"></a>
 Compiling Neko for AMD GPUs</h3>
 <p>To compile Neko for AMD GPUs</p><ul>
 <li>Make sure you have the ROCm Toolkit installed</li>
@@ -268,18 +340,32 @@ Compiling Neko for AMD GPUs</h3>
 <li>HIP compiler flags and options can be passed using HIP_HIPCC_FLAGS and HIPCC, respectively, e.g.: <div class="fragment"><div class="line">$ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc</div>
 </div><!-- fragment --></li>
 </ul>
-<dl class="section note"><dt>Note</dt><dd>More examples, and instructions for specific machines can be found on Neko's <a href="https://github.com/ExtremeFLOW/neko/discussions">user discussions</a> pages.</dd></dl>
-<h3><a class="anchor" id="autotoc_md118"></a>
+<dl class="section note"><dt>Note</dt><dd>On APUs with unified physical memory (e.g. AMD Instinct MI300A) and XNACK enabled (<code>HSA_XNACK=1</code>), Neko can map arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data, but is currently slower per step than replicated buffers on MI300A, so it is <b>off by default</b> and is intended as an opt-in capacity mode for running larger cases. Enable it at runtime by setting the environment variable <code>NEKO_HIP_ZEROCOPY=1</code>; it then activates only on a supported APU with XNACK (discrete GPUs such as MI250X always use replicated buffers, and requesting it there prints a warning and falls back). Since host and device share one allocation under zero-copy, host code (e.g. user routines) must not write to a mapped array while device work touching it may be in flight; synchronize with <code>device_sync</code> first.</dd></dl>
+<h3><a class="anchor" id="autotoc_md155"></a>
+Compiling Neko for Apple Silicon GPUs</h3>
+<p>To compile Neko for Apple Silicon GPUs (macOS only)</p><ul>
+<li>Make sure you have Xcode with the Metal shader compiler installed (since Xcode 26 the Metal toolchain is a separate download, install via <code>xcodebuild -downloadComponent MetalToolchain</code>)</li>
+<li>Configure Neko to use Metal using the <code>--with-metal</code> argument to <code>configure</code>, e.g.: <div class="fragment"><div class="line">$ ./configure --with-metal --enable-real=sp</div>
+</div><!-- fragment --></li>
+<li>The Objective-C compiler and flags can be passed using <code>OBJC</code> and <code>OBJCFLAGS</code>, respectively (defaults to <code>clang</code>)</li>
+<li>Build using <code>make &amp;&amp; make install</code></li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>Apple GPUs do not support double precision; the Metal backend requires Neko to be configured with single precision (<code>--enable-real=sp</code>).</dd>
+<dd>
+On devices with unified memory (Apple Silicon), the Metal backend maps arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data. Zero-copy mapping can be disabled at runtime by setting the environment variable <code>NEKO_METAL_ZEROCOPY=0</code>, which restores fully replicated buffers. On GPUs without unified memory (e.g. AMD GPUs in Intel-based Macs), buffers are always replicated.</dd>
+<dd>
+More examples, and instructions for specific machines can be found on Neko's <a href="https://github.com/ExtremeFLOW/neko/discussions">user discussions</a> pages.</dd></dl>
+<h3><a class="anchor" id="autotoc_md156"></a>
 Compiling Neko with a collective communications library</h3>
 <p>To compile Neko to use a collective communcations library on GPUs</p><ul>
 <li>Configure Neko to use NCCL (on NVIDIA GPUs) using the <code>--with-nccl=/path/to/nccl</code> argument to <code>configure</code></li>
 <li>Configure Neko to use RCCL (on AMD GPUs) using the <code>--with-rccl=/path/to/rccl</code> argument to <code>configure</code></li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>This will change all collective communications (reductions etc) during a simulation step to use NCCL/RCCL, while gather-scatter operations still uses MPI.</dd></dl>
-<h1><a class="anchor" id="autotoc_md119"></a>
+<h1><a class="anchor" id="autotoc_md157"></a>
 Installing via Spack</h1>
 <p>Neko is distributed as part of the package manager Spack as <code>neko</code>. The package can install releases of Neko as well as the latest commit to the <code>develop</code> branch, for most of Neko's supported backends. For a list of all supported variants, see <code>spack info neko</code></p>
-<h2><a class="anchor" id="autotoc_md120"></a>
+<h2><a class="anchor" id="autotoc_md158"></a>
 Quick start guide with Spack</h2>
 <p>To install a CPU build of Neko using Spack, follow the steps below:</p>
 <div class="fragment"><div class="line"> shell</div>
@@ -291,19 +377,28 @@ Quick start guide with Spack</h2>
 <div class="fragment"><div class="line"> shell</div>
 <div class="line">$ spack install neko+cuda</div>
 </div><!-- fragment --><p>For a more detailed guide on getting started with Spack, please refer to the offical documentation: <a href="https://spack.readthedocs.io/en/latest/getting_started.html">https://spack.readthedocs.io/en/latest/getting_started.html</a></p>
-<h1><a class="anchor" id="autotoc_md121"></a>
+<h1><a class="anchor" id="autotoc_md159"></a>
 Installing using pixi</h1>
 <p>Pixi is a package managment tool using conda under the hood. It is very easy to install. For more information see (pixi.sh)[pixi.sh].</p>
 <div class="fragment"><div class="line">curl -fsSL https://pixi.sh/install.sh | sh</div>
 </div><!-- fragment --><p>Pixi will leverage conda to install all the dependencies, including basic ones like <code>gfortran</code> and <code>openmpi</code>. All of these will be installed inside an isolated environment. So, to install Neko simply clone the repo with git, and run the following command inside it</p>
 <div class="fragment"><div class="line">pixi run install-neko-cpu</div>
-</div><!-- fragment --><p>This will give you a double-precision CPU build charged with all optional dependencies: hdf5, and parmetis. For now, this is the only configuration that can be installed automatically with pixi.</p>
+</div><!-- fragment --><p>This will give you a double-precision CPU build charged with optional dependencies: HDF5, pFUnit, and ParMETIS. You can, however choose the precision of reals, by appending either <code>sp</code> or <code>dp</code> to the command above. Only CPU builds are currently supported with pixi.</p>
 <p>To use Neko, you need to drop into a shell, where the pixi environment will be activated. For that run</p>
 <div class="fragment"><div class="line">pixi shell</div>
 </div><!-- fragment --><p>The <code>neko</code> and <code>makeneko</code> executables are already be in your <code>PATH</code>, so you can start running cases!</p>
 <p>The installed executables, libraries, etc. are all located inside the <code>install</code> folder in the repo.</p>
 <p>Note that you can use this pixi environment as you like, including manually <code>configuring</code> and building Neko (as per instructions for building from source), for example, with single precision reals or even with a different backend.</p>
-<h1><a class="anchor" id="autotoc_md122"></a>
+<p>Pixi also provides the option to create a Python environment, which is just an ordinary <code>conda</code> environment underneath. This can be convenient because Neko's unit and integration tests, some post-processing in examples, and developer tools like <code>flinter</code> require Python.</p>
+<p>Running </p><div class="fragment"><div class="line">pixi shell -e python</div>
+</div><!-- fragment --><p> will drop into a shell, which, in addition to Neko, has a Python interpreter with <code>pytest</code>, <code>findent</code>, and <code>flinter</code> installed. Additional packages can be installed manually.</p>
+<h1><a class="anchor" id="autotoc_md160"></a>
+Installing via FreeBSD ports</h1>
+<p>Neko is available in the FreeBSD ports collection under <code>science/neko</code>. The port tracks Neko releases and pulls in all required dependencies (MPI, BLAS/LAPACK, JSON-Fortran, etc.) automatically.</p>
+<p>To install from the ports tree:</p>
+<div class="fragment"><div class="line">cd /usr/ports/science/neko</div>
+<div class="line">make install clean</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md161"></a>
 Using a Docker container</h1>
 <p>Perhaps the easiest way to quickly give Neko a try is using a Docker container. Below we assume that you have Docker up and running on your system. The released container images can be found here: <a href="https://gitlab.com/ExtremeFLOW/neko/container_registry">https://gitlab.com/ExtremeFLOW/neko/container_registry</a>. Select the image with the release you want to use. Here we will use version 0.6.1, but in most cases you will want to simply pick up the latest version available. To the left of every image there is a button with three dots. Click on it to get the full path to the image in the correct format for Docker. For our release this is <code>registry.gitlab.com/extremeflow/neko/release-0.6.1-ubunut20.04-x86_64-gcc-12.3</code>. To get the image on you machine use <code>docker pull</code>:</p>
 <div class="fragment"><div class="line">docker pull registry.gitlab.com/extremeflow/neko/release-0.6.1-ubunut20.04-x86_64-gcc-12.3</div>
@@ -319,7 +414,7 @@ Using a Docker container</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

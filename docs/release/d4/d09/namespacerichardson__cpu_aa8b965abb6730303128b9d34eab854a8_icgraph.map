@@ -1,0 +1,5 @@
+<map id="richardson_cpu::richardson_compute_cpu" name="richardson_cpu::richardson_compute_cpu">
+<area shape="rect" id="Node000001" title="Main routine to compute the surface stresses based on richardson." alt="" coords="220,5,416,45"/>
+<area shape="rect" id="Node000002" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,5,172,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+</map>

@@ -1,13 +1,27 @@
 <map id="device_math::device_glsum" name="device_math::device_glsum">
-<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="228,119,385,159"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="5,5,180,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="272,112,230,78,179,46,147,33,149,28,181,41,233,73,276,108"/>
-<area shape="rect" id="Node000003" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="20,55,165,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,118,159,98,161,93,227,113"/>
-<area shape="rect" id="Node000004" href="$dc/d12/namespacematrix__math.html#a134fab8efe57504296cae27152a3d657" title="Global sum of all elements in a matrix ." alt="" coords="14,119,171,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="214,142,171,142,171,137,214,137"/>
-<area shape="rect" id="Node000005" href="$dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="29,184,156,209"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="219,166,142,186,140,181,218,160"/>
-<area shape="rect" id="Node000006" href="$d3/d0d/namespacevector__math.html#a83da312e1061e280d36d8ae363663f0f" title=" " alt="" coords="16,234,169,274"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="268,170,227,197,181,223,152,236,150,232,179,218,224,192,265,165"/>
+<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="695,152,852,192"/>
+<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#a98b6c537e40cda3676ab93c5523d7bc7" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="487,5,631,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="743,144,700,101,645,60,622,48,625,43,648,55,703,97,747,140"/>
+<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="472,70,647,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="724,148,646,110,609,98,611,93,648,106,726,143"/>
+<area shape="rect" id="Node000005" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="487,120,632,160"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="681,161,632,153,633,148,681,156"/>
+<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a134fab8efe57504296cae27152a3d657" title="Global sum of all elements in a matrix ." alt="" coords="481,184,638,224"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="681,188,639,195,638,190,681,183"/>
+<area shape="rect" id="Node000007" href="$dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="496,249,623,274"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="726,201,648,238,611,251,609,246,646,234,724,196"/>
+<area shape="rect" id="Node000008" href="$d3/d0d/namespacevector__math.html#a83da312e1061e280d36d8ae363663f0f" title=" " alt="" coords="483,299,636,339"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="747,204,703,246,648,288,622,301,620,296,645,283,699,242,743,200"/>
+<area shape="rect" id="Node000004" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="221,55,423,110"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="458,85,423,85,423,80,458,80"/>
+<area shape="rect" id="Node000009" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="242,227,402,282"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="471,298,402,279,403,274,472,292"/>
+<area shape="rect" id="Node000010" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="220,306,424,331"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="469,321,424,321,424,316,469,316"/>
+<area shape="rect" id="Node000012" href="$d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="239,356,405,396"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="470,343,406,359,405,353,468,338"/>
+<area shape="rect" id="Node000011" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="9,306,169,331"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="206,321,169,321,169,316,206,316"/>
+<area shape="rect" id="Node000013" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,356,172,396"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="224,379,172,379,172,373,224,373"/>
 </map>

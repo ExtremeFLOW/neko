@@ -4,6 +4,8 @@ var gs__device__mpi_8F90 =
     [ "gs_device_mpi::gs_device_mpi_t", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t" ],
     [ "gs_device_mpi::hip_gs_pack", "d3/d98/interfacegs__device__mpi_1_1hip__gs__pack.html", "d3/d98/interfacegs__device__mpi_1_1hip__gs__pack" ],
     [ "gs_device_mpi::hip_gs_unpack", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack.html", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack" ],
+    [ "gs_device_mpi::hip_gs_pack_vec", "d6/d45/interfacegs__device__mpi_1_1hip__gs__pack__vec.html", "d6/d45/interfacegs__device__mpi_1_1hip__gs__pack__vec" ],
+    [ "gs_device_mpi::hip_gs_unpack_vec", "d7/d9d/interfacegs__device__mpi_1_1hip__gs__unpack__vec.html", "d7/d9d/interfacegs__device__mpi_1_1hip__gs__unpack__vec" ],
     [ "gs_device_mpi::device_mpi_init_reqs", "d2/dfc/interfacegs__device__mpi_1_1device__mpi__init__reqs.html", "d2/dfc/interfacegs__device__mpi_1_1device__mpi__init__reqs" ],
     [ "gs_device_mpi::device_mpi_free_reqs", "d1/d45/interfacegs__device__mpi_1_1device__mpi__free__reqs.html", "d1/d45/interfacegs__device__mpi_1_1device__mpi__free__reqs" ],
     [ "gs_device_mpi::device_mpi_isend", "d2/dd4/interfacegs__device__mpi_1_1device__mpi__isend.html", "d2/dd4/interfacegs__device__mpi_1_1device__mpi__isend" ],
@@ -15,7 +17,10 @@ var gs__device__mpi_8F90 =
     [ "gs_device_mpi_buf_init", "d3/d6c/gs__device__mpi_8F90.html#a1ffb2ff8429c63efe7920436e7fd21d6", null ],
     [ "gs_device_mpi_free", "d3/d6c/gs__device__mpi_8F90.html#a467e70ece8c5500ace71594579ccd501", null ],
     [ "gs_device_mpi_init", "d3/d6c/gs__device__mpi_8F90.html#afe2c32b8ff7fe4f3941b8653b47ec885", null ],
-    [ "gs_device_mpi_nbrecv", "d3/d6c/gs__device__mpi_8F90.html#a3ab4035ed7c118c87f8902cdded702b9", null ],
-    [ "gs_device_mpi_nbsend", "d3/d6c/gs__device__mpi_8F90.html#a832a9f3cba26a0e8c899d4897e697c69", null ],
-    [ "gs_device_mpi_nbwait", "d3/d6c/gs__device__mpi_8F90.html#a3c4cdecb2527137b5665bfbb823e0518", null ]
+    [ "gs_device_mpi_nbrecv", "d3/d6c/gs__device__mpi_8F90.html#aff2aa34c6b655038a9f29d0da998f7b3", null ],
+    [ "gs_device_mpi_nbrecv_vec", "d3/d6c/gs__device__mpi_8F90.html#a5bce0fee1d8049dd5b5162b4b8b4732b", null ],
+    [ "gs_device_mpi_nbsend", "d3/d6c/gs__device__mpi_8F90.html#af149a413dba89bc1fed2d20d646cc066", null ],
+    [ "gs_device_mpi_nbsend_vec", "d3/d6c/gs__device__mpi_8F90.html#a17db3c0e3beb34c55469decf725739af", null ],
+    [ "gs_device_mpi_nbwait", "d3/d6c/gs__device__mpi_8F90.html#a3c4cdecb2527137b5665bfbb823e0518", null ],
+    [ "gs_device_mpi_nbwait_vec", "d3/d6c/gs__device__mpi_8F90.html#a5ff8b80324d32c136ca9c472c80ba066", null ]
 ];

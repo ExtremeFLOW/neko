@@ -1,0 +1,10 @@
+<map id="richardson::richardson_log_diagnostics" name="richardson::richardson_log_diagnostics">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,172,87"/>
+<area shape="rect" id="Node000002" href="$d3/d0d/namespacevector__math.html#a83da312e1061e280d36d8ae363663f0f" title=" " alt="" coords="220,47,373,87"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,64,206,64,206,69,172,69"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a2bfbeed670b2e6b704a1a2c4e5bc03c4" title="Sum a vector of length n." alt="" coords="421,5,579,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,48,407,41,408,47,374,54"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="448,94,552,119"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="374,79,435,91,434,96,373,84"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="467,96,460,86,463,76,477,70,500,67,528,71,540,80,536,84,526,76,500,73,478,75,467,79,465,85,471,92"/>
+</map>

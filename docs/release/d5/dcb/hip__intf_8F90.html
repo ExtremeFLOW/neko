@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -115,6 +115,18 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d5c/interfacehip__intf_1_1hipfree.html">hip_intf::hipfree</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d19/interfacehip__intf_1_1hipmap.html">hip_intf::hipmap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map host memory to the device (zero-copy on unified memory architectures, e.g. MI300A, see <a class="el" href="../../dd/d8d/unified_8hip.html">device/hip/unified.hip</a>)  <a href="../../d7/d19/interfacehip__intf_1_1hipmap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df5/interfacehip__intf_1_1hipmapfree.html">hip_intf::hipmapfree</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a device pointer obtained from hipMap (no-op for pointers aliasing host memory)  <a href="../../d2/df5/interfacehip__intf_1_1hipmapfree.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dfc/interfacehip__intf_1_1hipmapmemset.html">hip_intf::hipmapmemset</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memset on a device pointer obtained from hipMap (host-side memset for pointers aliasing host memory)  <a href="../../dd/dfc/interfacehip__intf_1_1hipmapmemset.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html">hip_intf::hipmapmemcpy</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy between device/host pointers via the mapping layer (kernel-based copy under zero-copy, where either side may alias pageable host memory)  <a href="../../d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de9/interfacehip__intf_1_1hipmemcpy.html">hip_intf::hipmemcpy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d39/interfacehip__intf_1_1hipmemcpyasync.html">hip_intf::hipmemcpyasync</a></td></tr>
@@ -122,6 +134,10 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dac/interfacehip__intf_1_1hipmemsetasync.html">hip_intf::hipmemsetasync</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html">hip_intf::hipdevicesynchronize</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd3/interfacehip__intf_1_1hipdevicereset.html">hip_intf::hipdevicereset</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html">hip_intf::hip_buffer_free_all</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d41/interfacehip__intf_1_1hipdevicegetname.html">hip_intf::hipdevicegetname</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -207,13 +223,13 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a71cf325d479bbed01658a08561e54a48" id="r_a71cf325d479bbed01658a08561e54a48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48">hip_intf::hip_init</a> (glb_cmd_queue, aux_cmd_queue, strm_high_prio, strm_low_prio)</td></tr>
+<tr class="memitem:a71cf325d479bbed01658a08561e54a48" id="r_a71cf325d479bbed01658a08561e54a48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48">hip_intf::hip_init</a> (glb_cmd_queue, aux_cmd_queue, strm_high_prio, strm_low_prio)</td></tr>
 <tr class="separator:a71cf325d479bbed01658a08561e54a48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89de67459398a401efed275ac5c3dc07" id="r_a89de67459398a401efed275ac5c3dc07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07">hip_intf::hip_finalize</a> (glb_cmd_queue, aux_cmd_queue)</td></tr>
+<tr class="memitem:a89de67459398a401efed275ac5c3dc07" id="r_a89de67459398a401efed275ac5c3dc07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07">hip_intf::hip_finalize</a> (glb_cmd_queue, aux_cmd_queue)</td></tr>
 <tr class="separator:a89de67459398a401efed275ac5c3dc07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c8e3cf5e89ffe1b50253b6b38e45a93" id="r_a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93">hip_intf::hip_device_name</a> (name)</td></tr>
+<tr class="memitem:a1c8e3cf5e89ffe1b50253b6b38e45a93" id="r_a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93">hip_intf::hip_device_name</a> (name)</td></tr>
 <tr class="separator:a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae76e470dcd046e7ef62b0273edd6c56d" id="r_ae76e470dcd046e7ef62b0273edd6c56d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d">hip_intf::hip_device_count</a> ()</td></tr>
+<tr class="memitem:ae76e470dcd046e7ef62b0273edd6c56d" id="r_ae76e470dcd046e7ef62b0273edd6c56d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d">hip_intf::hip_device_count</a> ()</td></tr>
 <tr class="memdesc:ae76e470dcd046e7ef62b0273edd6c56d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of available HIP devices.  <br /></td></tr>
 <tr class="separator:ae76e470dcd046e7ef62b0273edd6c56d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -223,7 +239,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_16dc92632bab467dc50b01bd02b3341a.html">device</a></li><li class="navelem"><a class="el" href="../../d5/dcb/hip__intf_8F90.html">hip_intf.F90</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

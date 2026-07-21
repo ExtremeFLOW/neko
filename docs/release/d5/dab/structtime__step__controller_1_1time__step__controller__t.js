@@ -7,6 +7,7 @@ var structtime__step__controller_1_1time__step__controller__t =
     [ "cfl_trg", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a75853f5701a8179d6f7553eb47ee8f5b", null ],
     [ "dev_tol", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#ae4363097173a149b4ca3902444c89740", null ],
     [ "dt_last_change", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#aa924533aa901bae7b0bb60aa32087ef0", null ],
+    [ "init_dt", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a3878f67765dbfe4c34db16a60c82fb92", null ],
     [ "is_variable_dt", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a439f22eea49d553aac2d34fce88d8169", null ],
     [ "max_dt", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a8a499994ff79700765deb37e44f83656", null ],
     [ "max_dt_increase_factor", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#ac17f2e006c3890a2ae006cf3ab048125", null ],

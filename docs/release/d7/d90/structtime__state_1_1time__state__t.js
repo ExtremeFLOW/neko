@@ -6,7 +6,6 @@ var structtime__state_1_1time__state__t =
     [ "init_from_json", "d7/d90/structtime__state_1_1time__state__t.html#a09af67e1b82f2fa3293db7342bdcd1c8", null ],
     [ "is_done", "d7/d90/structtime__state_1_1time__state__t.html#aa1aa53ad1607be833f29e829ed6ab215", null ],
     [ "reset", "d7/d90/structtime__state_1_1time__state__t.html#ad9099a94fb73996970cfc54e979911c6", null ],
-    [ "restart", "d7/d90/structtime__state_1_1time__state__t.html#a8cabce1052218d85eec133f3180842e1", null ],
     [ "status", "d7/d90/structtime__state_1_1time__state__t.html#a00e3a56b7a48905dd361722a422b39b2", null ],
     [ "dt", "d7/d90/structtime__state_1_1time__state__t.html#a01c9a3d0e48bee1fa7ae08c4bcf6bef6", null ],
     [ "dtlag", "d7/d90/structtime__state_1_1time__state__t.html#a7f71e7a8d97351975bab219365dcb9b3", null ],

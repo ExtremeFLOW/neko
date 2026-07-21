@@ -1,0 +1,11 @@
+<map id="device::device_map_common" name="device::device_map_common">
+<area shape="rect" id="Node000001" title="Allocate device memory backing a mapped host array." alt="" coords="205,101,357,141"/>
+<area shape="rect" id="Node000002" href="$da/db0/interfacedevice_1_1device__map.html#ab1886d1a491a6a865722981bb1672493" title="Map a Fortran rank 1 array to a device (allocate and associate)" alt="" coords="5,5,157,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,97,156,60,130,48,132,43,158,55,233,93"/>
+<area shape="rect" id="Node000003" href="$da/db0/interfacedevice_1_1device__map.html#aea9502d8994e14383cbaa31e5f69ba91" title="Map a Fortran rank 2 array to a device (allocate and associate)" alt="" coords="5,69,157,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,110,157,104,158,99,192,104"/>
+<area shape="rect" id="Node000004" href="$da/db0/interfacedevice_1_1device__map.html#a4cf19244e0c4488482616c7463c7d541" title="Map a Fortran rank 3 array to a device (allocate and associate)" alt="" coords="5,133,157,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="192,138,158,144,157,139,191,133"/>
+<area shape="rect" id="Node000005" href="$da/db0/interfacedevice_1_1device__map.html#aecdbf1e7dacdf791acb53309363660a6" title="Map a Fortran rank 4 array to a device (allocate and associate)" alt="" coords="5,197,157,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="233,150,158,188,132,200,130,195,156,183,230,145"/>
+</map>

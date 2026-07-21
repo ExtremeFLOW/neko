@@ -1,0 +1,5 @@
+<map id="gather_scatter::gs_op_r3_device" name="gather_scatter::gs_op_r3_device">
+<area shape="rect" id="Node000001" title="Device path for the fused 3&#45;component gs. The device backend&#39;s shared gather/scatter always operate o..." alt="" coords="5,5,144,45"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="192,5,352,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,23,178,23,178,28,144,28"/>
+</map>

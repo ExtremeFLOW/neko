@@ -43,6 +43,7 @@ var structwall__model__bc_1_1wall__model__bc__t =
     [ "msh", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#ac9c45a8ed2e761cf3d3460567cbc4336", null ],
     [ "msk", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a638503614447154c642fcbc9bf5df9a6", null ],
     [ "msk_d", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a78a0e4bbf8808775dd18c3a5e041d92e", null ],
+    [ "name", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a68c65ffcae8364e96c10ab4815a2658c", null ],
     [ "neumann_x", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a5f3f6c0bc2e08e299917afe7687a9c8c", null ],
     [ "neumann_y", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a00055a0f0dd7fb685151c51b4bf6e621", null ],
     [ "neumann_z", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a98f963780f89d65acf9fa94de4b640df", null ],
@@ -50,5 +51,6 @@ var structwall__model__bc_1_1wall__model__bc__t =
     [ "symmetry", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#ac6b06b70bdf56b017c498aa4342d0c44", null ],
     [ "updated", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#acec6ac3a12e639a12be6344c9b4e3208", null ],
     [ "wall_model", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a4c50e0431a8945a79f146c25221bbaa6", null ],
-    [ "xh", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ]
+    [ "xh", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ],
+    [ "zone_indices", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html#a77af13b6f885bd953fff03b1afe50d0a", null ]
 ];

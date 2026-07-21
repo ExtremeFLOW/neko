@@ -1,7 +1,9 @@
 var namespacehip__intf =
 [
+    [ "hip_buffer_free_all", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all" ],
     [ "hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
     [ "hipdevicegetstreampriorityrange", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange" ],
+    [ "hipdevicereset", "df/dd3/interfacehip__intf_1_1hipdevicereset.html", "df/dd3/interfacehip__intf_1_1hipdevicereset" ],
     [ "hipdevicesynchronize", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize" ],
     [ "hipeventcreate", "d7/d1a/interfacehip__intf_1_1hipeventcreate.html", "d7/d1a/interfacehip__intf_1_1hipeventcreate" ],
     [ "hipeventcreatewithflags", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags.html", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags" ],
@@ -11,6 +13,10 @@ var namespacehip__intf =
     [ "hipfree", "d0/d5c/interfacehip__intf_1_1hipfree.html", "d0/d5c/interfacehip__intf_1_1hipfree" ],
     [ "hipgetdevicecount", "db/d7a/interfacehip__intf_1_1hipgetdevicecount.html", "db/d7a/interfacehip__intf_1_1hipgetdevicecount" ],
     [ "hipmalloc", "dd/de4/interfacehip__intf_1_1hipmalloc.html", "dd/de4/interfacehip__intf_1_1hipmalloc" ],
+    [ "hipmap", "d7/d19/interfacehip__intf_1_1hipmap.html", "d7/d19/interfacehip__intf_1_1hipmap" ],
+    [ "hipmapfree", "d2/df5/interfacehip__intf_1_1hipmapfree.html", "d2/df5/interfacehip__intf_1_1hipmapfree" ],
+    [ "hipmapmemcpy", "d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html", "d8/ddd/interfacehip__intf_1_1hipmapmemcpy" ],
+    [ "hipmapmemset", "dd/dfc/interfacehip__intf_1_1hipmapmemset.html", "dd/dfc/interfacehip__intf_1_1hipmapmemset" ],
     [ "hipmemcpy", "d0/de9/interfacehip__intf_1_1hipmemcpy.html", "d0/de9/interfacehip__intf_1_1hipmemcpy" ],
     [ "hipmemcpyasync", "d3/d39/interfacehip__intf_1_1hipmemcpyasync.html", "d3/d39/interfacehip__intf_1_1hipmemcpyasync" ],
     [ "hipmemsetasync", "d0/dac/interfacehip__intf_1_1hipmemsetasync.html", "d0/dac/interfacehip__intf_1_1hipmemsetasync" ],

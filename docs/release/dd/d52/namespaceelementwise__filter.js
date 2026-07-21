@@ -5,6 +5,6 @@ var namespaceelementwise__filter =
     [ "build_1d_cpu", "dd/d52/namespaceelementwise__filter.html#a106ce51f62e266dfa441bde829ddff19", null ],
     [ "elementwise_field_filter_3d", "dd/d52/namespaceelementwise__filter.html#af3e61989d0b375cd71de6d1550ddf803", null ],
     [ "elementwise_filter_free", "dd/d52/namespaceelementwise__filter.html#abde18bcf3f47a3c2901cb23b24d5564d", null ],
-    [ "elementwise_filter_init_from_components", "dd/d52/namespaceelementwise__filter.html#ad09c2b30e39c1053855b29d95d2cd001", null ],
+    [ "elementwise_filter_init_from_components", "dd/d52/namespaceelementwise__filter.html#a809075f358333a3dd230ecf3caff48ab", null ],
     [ "elementwise_filter_init_from_json", "dd/d52/namespaceelementwise__filter.html#a8d185608967d02d5b1dced875e039576", null ]
 ];

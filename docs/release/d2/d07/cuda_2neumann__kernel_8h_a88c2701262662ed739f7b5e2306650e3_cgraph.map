@@ -1,9 +1,10 @@
 <map id="neumann_apply_scalar_kernel" name="neumann_apply_scalar_kernel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,71,177,111"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="225,29,389,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,72,211,65,212,70,178,77"/>
-<area shape="rect" id="Node000003" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="244,118,371,143"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="178,104,231,114,230,119,177,109"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="267,30,264,20,271,10,285,5,307,3,333,6,346,13,344,18,331,11,307,8,287,10,274,15,270,21,272,28"/>
-<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="272,120,264,110,268,100,283,94,307,91,337,95,349,104,346,108,335,100,307,97,284,99,272,104,270,109,276,116"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,177,69"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="400,29,552,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,38,225,35,289,33,352,35,386,37,386,42,352,40,289,38,225,40,178,43"/>
+<area shape="rect" id="Node000003" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="225,74,352,99"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="178,63,212,70,211,75,177,68"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="441,30,439,20,444,11,457,5,476,3,498,6,510,13,507,17,496,11,476,8,458,10,448,15,444,21,446,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="351,72,386,65,387,70,353,77"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="258,75,251,66,255,56,267,50,289,47,314,51,325,60,322,64,312,56,289,53,269,55,259,59,256,65,262,72"/>
 </map>

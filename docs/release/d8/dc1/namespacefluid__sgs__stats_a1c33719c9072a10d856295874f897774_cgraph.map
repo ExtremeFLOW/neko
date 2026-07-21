@@ -1,0 +1,15 @@
+<map id="fluid_sgs_stats::fluid_sgs_stats_update" name="fluid_sgs_stats::fluid_sgs_stats_update">
+<area shape="rect" id="Node000001" title="Updates all fields with a new sample." alt="" coords="5,85,160,125"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="208,63,379,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,91,194,86,195,92,161,97"/>
+<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#a9ccc5f5cad26fed38137ab6e122de6c1" title="Vector multiplication with 3 vectors ." alt="" coords="213,120,374,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="161,112,200,118,199,123,160,118"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="471,5,573,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="344,60,457,31,458,37,345,65"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89" title="Multiplication by constant c ." alt="" coords="443,55,601,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="379,73,430,73,430,78,379,78"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="477,120,567,145"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="374,130,463,130,463,135,374,135"/>
+<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23" title="Vector multiplication with 3 vectors ." alt="" coords="427,169,617,195"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="353,143,449,164,448,169,352,148"/>
+</map>

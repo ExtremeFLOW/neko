@@ -1,5 +1,7 @@
 <map id="atomicMinFloat" name="atomicMinFloat">
-<area shape="rect" id="Node000001" title=" " alt="" coords="224,5,348,31"/>
-<area shape="rect" id="Node000002" href="$d0/dc4/cuda_2gs__kernels_8h.html#a6517aee583142293b4a366032f27b6ae" title=" " alt="" coords="5,5,176,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,21,176,21,176,15,210,15"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="253,31,377,56"/>
+<area shape="rect" id="Node000002" href="$d0/dc4/cuda_2gs__kernels_8h.html#a6517aee583142293b4a366032f27b6ae" title=" " alt="" coords="20,5,191,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,37,190,31,191,26,240,32"/>
+<area shape="rect" id="Node000003" href="$d0/dc4/cuda_2gs__kernels_8h.html#abe44df3df104255f340152220e6cd006" title=" " alt="" coords="5,55,205,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="240,55,206,59,205,53,239,49"/>
 </map>

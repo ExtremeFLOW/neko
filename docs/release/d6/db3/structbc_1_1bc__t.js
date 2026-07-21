@@ -24,7 +24,9 @@ var structbc_1_1bc__t =
     [ "msh", "d6/db3/structbc_1_1bc__t.html#ac9c45a8ed2e761cf3d3460567cbc4336", null ],
     [ "msk", "d6/db3/structbc_1_1bc__t.html#a638503614447154c642fcbc9bf5df9a6", null ],
     [ "msk_d", "d6/db3/structbc_1_1bc__t.html#a78a0e4bbf8808775dd18c3a5e041d92e", null ],
+    [ "name", "d6/db3/structbc_1_1bc__t.html#a68c65ffcae8364e96c10ab4815a2658c", null ],
     [ "strong", "d6/db3/structbc_1_1bc__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a", null ],
     [ "updated", "d6/db3/structbc_1_1bc__t.html#acec6ac3a12e639a12be6344c9b4e3208", null ],
-    [ "xh", "d6/db3/structbc_1_1bc__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ]
+    [ "xh", "d6/db3/structbc_1_1bc__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ],
+    [ "zone_indices", "d6/db3/structbc_1_1bc__t.html#a77af13b6f885bd953fff03b1afe50d0a", null ]
 ];

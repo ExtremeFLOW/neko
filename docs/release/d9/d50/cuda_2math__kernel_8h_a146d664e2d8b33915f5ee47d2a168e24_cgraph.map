@@ -1,6 +1,6 @@
 <map id="add4s3_kernel" name="add4s3_kernel">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,37,121,62"/>
-<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="169,29,333,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,47,156,47,156,52,122,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="216,30,214,20,220,11,232,5,251,3,273,6,285,13,283,17,272,11,251,8,234,10,223,15,219,21,221,28"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="169,29,321,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,47,156,47,156,52,121,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="211,30,209,20,214,11,227,5,245,3,267,6,279,13,276,17,265,11,245,8,228,10,218,15,214,21,216,28"/>
 </map>

@@ -16,6 +16,8 @@ var matrix__math_8f90 =
     [ "matrix_col2", "d5/d20/matrix__math_8f90.html#ad87b2df5d20a59259453c2a781debcf7", null ],
     [ "matrix_col3", "d5/d20/matrix__math_8f90.html#a63a310500bdfdce9bf1456cca312fad5", null ],
     [ "matrix_copy", "d5/d20/matrix__math_8f90.html#a20673dc1052c7361ff17585f456e89e6", null ],
+    [ "matrix_glmax", "d5/d20/matrix__math_8f90.html#a0d31fef5fc2197fff35a09c6cc5a8ed0", null ],
+    [ "matrix_glmin", "d5/d20/matrix__math_8f90.html#ab1468fdad7c27872a14742a06390e40a", null ],
     [ "matrix_glsc2", "d5/d20/matrix__math_8f90.html#ab3645fb1dae6f08db6168e31896482cb", null ],
     [ "matrix_glsc3", "d5/d20/matrix__math_8f90.html#a799a21b14e5cf9f8e45b40ecd13cd0e7", null ],
     [ "matrix_glsubnorm", "d5/d20/matrix__math_8f90.html#ad06fcb14eebfb3cfeb59eb768bd49b76", null ],

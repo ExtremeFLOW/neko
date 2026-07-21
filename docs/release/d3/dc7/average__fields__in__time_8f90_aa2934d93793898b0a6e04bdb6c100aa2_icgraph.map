@@ -1,0 +1,7 @@
+<map id="determine_size_of_csv_sample" name="determine_size_of_csv_sample">
+<area shape="rect" id="Node000001" title="Finds the size of a statistics sample based on when the time stamp changes." alt="" coords="436,5,607,45"/>
+<area shape="rect" id="Node000002" href="$d3/dc7/average__fields__in__time_8f90.html#a94bb28b2780122870989be681cdd2b12" title="Average fields from a series of csv files." alt="" coords="227,13,388,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="422,28,388,28,388,23,422,23"/>
+<area shape="rect" id="Node000003" href="$d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="5,13,179,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="213,28,179,28,179,23,213,23"/>
+</map>

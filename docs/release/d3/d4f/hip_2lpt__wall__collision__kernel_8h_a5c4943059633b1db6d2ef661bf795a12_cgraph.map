@@ -1,0 +1,6 @@
+<map id="lpt_wall_mask_idx" name="lpt_wall_mask_idx">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,148,62"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="196,29,348,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,47,182,47,182,52,148,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="235,30,233,20,239,11,252,5,272,3,295,6,307,13,305,17,293,11,272,8,253,10,242,15,238,21,240,28"/>
+</map>

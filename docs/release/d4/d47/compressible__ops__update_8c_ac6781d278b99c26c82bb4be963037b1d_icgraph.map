@@ -1,0 +1,13 @@
+<map id="opencl_ns_flux_temperature" name="opencl_ns_flux_temperature">
+<area shape="rect" id="Node000001" title=" " alt="" coords="991,60,1197,85"/>
+<area shape="rect" id="Node000002" href="$dc/da9/namespacecompressible__ops__device.html#ade5958b4b78ea420dfca766226cbb09f" title="Prepare temperature and conductivity coefficient for energy flux." alt="" coords="745,45,943,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="977,75,943,75,943,70,977,70"/>
+<area shape="rect" id="Node000003" href="$df/dcd/namespacecompressible__res__device.html#ace767f94b7d0070906c0e98aef7f7dfc" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="509,5,695,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="732,57,695,51,696,45,733,52"/>
+<area shape="rect" id="Node000006" href="$d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="507,84,697,139"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="732,93,698,99,697,93,731,88"/>
+<area shape="rect" id="Node000004" href="$df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="272,13,459,53"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="495,35,459,35,459,30,495,30"/>
+<area shape="rect" id="Node000005" href="$df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,5,224,60"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="258,35,224,35,224,30,258,30"/>
+</map>

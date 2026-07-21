@@ -1,6 +1,8 @@
 var namespacecuda__intf =
 [
+    [ "cuda_buffer_free_all", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all.html", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all" ],
     [ "cudadevicegetstreampriorityrange", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange.html", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange" ],
+    [ "cudadevicereset", "d5/d22/interfacecuda__intf_1_1cudadevicereset.html", "d5/d22/interfacecuda__intf_1_1cudadevicereset" ],
     [ "cudadevicesynchronize", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize.html", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize" ],
     [ "cudaeventcreate", "d9/de3/interfacecuda__intf_1_1cudaeventcreate.html", "d9/de3/interfacecuda__intf_1_1cudaeventcreate" ],
     [ "cudaeventcreatewithflags", "d5/d17/interfacecuda__intf_1_1cudaeventcreatewithflags.html", "d5/d17/interfacecuda__intf_1_1cudaeventcreatewithflags" ],

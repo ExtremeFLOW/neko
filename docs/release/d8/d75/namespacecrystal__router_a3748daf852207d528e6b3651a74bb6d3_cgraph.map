@@ -1,0 +1,13 @@
+<map id="crystal_router::crystal_router_transfer" name="crystal_router::crystal_router_transfer">
+<area shape="rect" id="Node000001" title="Route packed records to their destination ranks." alt="" coords="5,133,169,173"/>
+<area shape="rect" id="Node000002" href="$d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="217,5,349,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,131,159,94,216,55,225,49,228,54,219,60,162,99,115,135"/>
+<area shape="rect" id="Node000003" href="$d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="217,69,349,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="148,131,208,111,210,116,150,136"/>
+<area shape="rect" id="Node000004" href="$d8/d75/namespacecrystal__router.html#a6545979889a469f3d0108e0d3fa36c41" title="Rebuild buf as the concatenation a(1:na) ++ b(1:nb)." alt="" coords="217,133,349,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="170,151,204,151,204,156,170,156"/>
+<area shape="rect" id="Node000005" href="$d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="217,197,349,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="150,171,210,191,208,196,148,176"/>
+<area shape="rect" id="Node000006" href="$d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="217,261,349,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="115,171,162,208,219,247,228,253,225,257,216,252,159,212,111,176"/>
+</map>

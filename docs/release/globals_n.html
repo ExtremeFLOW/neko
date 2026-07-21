@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -111,7 +111,7 @@ $(document).ready(function(){initNavTree('globals_n.html',''); initResizable(); 
 <li>neko_case_init()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a4b48f287c32ac564538fdb8ddd814536">neko.h</a></li>
 <li>neko_case_time()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a9fe993dee625e8df2d748bd357fe508b">neko.h</a></li>
 <li>neko_case_tstep()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a17500eaf0dffb387e7da0534c0207d76">neko.h</a></li>
-<li>NEKO_COMM&#160;:&#160;<a class="el" href="d4/de4/comm__wrapper_8c.html#a5f6af647bf5078d75f1b6b0889de43cd">comm_wrapper.c</a>, <a class="el" href="d8/db4/comm_8h.html#a5f6af647bf5078d75f1b6b0889de43cd">comm.h</a></li>
+<li>NEKO_COMM&#160;:&#160;<a class="el" href="d8/db4/comm_8h.html#a5f6af647bf5078d75f1b6b0889de43cd">comm.h</a>, <a class="el" href="d4/de4/comm__wrapper_8c.html#a5f6af647bf5078d75f1b6b0889de43cd">comm_wrapper.c</a></li>
 <li>neko_comm_wrapper_init()&#160;:&#160;<a class="el" href="d4/de4/comm__wrapper_8c.html#acac1f8dfbd4a50a78c202ccd02fa7a74">comm_wrapper.c</a></li>
 <li>neko_device_finalize()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a32d8749e5cddcf7d20c6aab8a401ad16">neko.h</a></li>
 <li>neko_device_init()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#adc51755755e35053a8bfed0a9c144cc8">neko.h</a></li>
@@ -128,19 +128,24 @@ $(document).ready(function(){initNavTree('globals_n.html',''); initResizable(); 
 <li>neko_real&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a3045186832ed32a6c2a29377ae4758d8">neko.h</a></li>
 <li>neko_registry_free()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a1a0e383849a8f011229741a86cd2e461">neko.h</a></li>
 <li>neko_registry_init()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a52ec4c2b143fc649b038f46a996249bc">neko.h</a></li>
+<li>neko_scratch_registry_free()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#ac03386e4d7e415935bd2cdc745c59b1b">neko.h</a></li>
+<li>neko_scratch_registry_init()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a1996f1cf62114a3b8a00a48084a1440f">neko.h</a></li>
 <li>neko_solve()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a937491990815e3e52c66bb02f86353b9">neko.h</a></li>
 <li>neko_step()&#160;:&#160;<a class="el" href="da/d03/neko_8h.html#a02ef7d9d94140acc06c4e994ae456c50">neko.h</a></li>
 <li>neumann_apply_scalar_kernel()&#160;:&#160;<a class="el" href="d2/d07/cuda_2neumann__kernel_8h.html#a88c2701262662ed739f7b5e2306650e3">neumann_kernel.h</a></li>
-<li>neumann_apply_vector_kernel()&#160;:&#160;<a class="el" href="d2/d07/cuda_2neumann__kernel_8h.html#a24ac13fbd1bd8e8463a3c196eb1fe0f1">neumann_kernel.h</a></li>
+<li>neumann_apply_vector_kernel()&#160;:&#160;<a class="el" href="dd/d84/hip_2neumann__kernel_8h.html#a24ac13fbd1bd8e8463a3c196eb1fe0f1">neumann_kernel.h</a></li>
 <li>neumann_program&#160;:&#160;<a class="el" href="d1/df7/prgm__lib_8h.html#aa05e10c89c271db39e550b7f26f65d5d">prgm_lib.h</a></li>
-<li>nonlinear_index()&#160;:&#160;<a class="el" href="d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">bc_utils.h</a></li>
+<li>nonlinear_index()&#160;:&#160;<a class="el" href="d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d">bc_utils.h</a>, <a class="el" href="d9/da9/bc__shader__utils_8h.html#adc6955e9f356598ec75e809ec0a98458">bc_shader_utils.h</a>, <a class="el" href="d3/d13/opencl_2bc__utils_8h.html#aec403df680831c6a6ff3db4468517b40">bc_utils.h</a></li>
+<li>ns_flux_finalize_kernel()&#160;:&#160;<a class="el" href="df/d89/cuda_2compressible__ops__kernel_8h.html#af7e7e47e6bb4c384633993cc75037dd1">compressible_ops_kernel.h</a></li>
+<li>ns_flux_prepare_kernel()&#160;:&#160;<a class="el" href="df/d89/cuda_2compressible__ops__kernel_8h.html#ababa54e93bb0d1a454faea2c295eccc3">compressible_ops_kernel.h</a></li>
+<li>ns_flux_temperature_kernel()&#160;:&#160;<a class="el" href="df/d89/cuda_2compressible__ops__kernel_8h.html#a45836eebdf653d0c02de53862f28c1aa">compressible_ops_kernel.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Sat May 16 2026 04:31:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

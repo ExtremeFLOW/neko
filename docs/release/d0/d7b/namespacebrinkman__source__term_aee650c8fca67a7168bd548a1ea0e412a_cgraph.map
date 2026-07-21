@@ -1,0 +1,13 @@
+<map id="brinkman_source_term::add_file" name="brinkman_source_term::add_file">
+<area shape="rect" id="Node000001" title="Initializes the source term from a file." alt="" coords="5,88,177,128"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a978fc2b6f0ad5b6c281a17a8db6a3c15" title="Point&#45;wise max operation ." alt="" coords="225,70,416,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,96,211,92,212,97,178,101"/>
+<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="241,119,400,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="178,114,228,120,227,125,177,120"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#af6c2291122daaceb4dd620805f8c5b6e" title="Compute the point&#45;wise maximum of two vectors ." alt="" coords="479,5,637,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,67,466,45,467,50,375,73"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a860a0d4194678be13a04d1fe06e7314a" title="Point&#45;wise maximum of two vectors ." alt="" coords="498,70,618,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="416,80,484,80,484,85,416,85"/>
+<area shape="rect" id="Node000006" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="464,119,652,145"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="400,129,450,129,450,135,400,135"/>
+</map>

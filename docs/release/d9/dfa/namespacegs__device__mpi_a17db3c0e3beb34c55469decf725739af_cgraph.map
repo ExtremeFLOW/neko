@@ -1,0 +1,8 @@
+<map id="gs_device_mpi::gs_device_mpi_nbsend_vec" name="gs_device_mpi::gs_device_mpi_nbsend_vec">
+<area shape="rect" id="Node000001" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="5,29,197,69"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#abbdfc79a5ca52e6d7e0af8c53fcc0fe6" title=" " alt="" coords="245,37,388,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,47,232,47,232,52,198,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="436,29,588,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,47,422,47,422,52,388,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="475,30,473,20,479,11,492,5,512,3,535,6,547,13,545,17,533,11,512,8,493,10,482,15,478,21,480,28"/>
+</map>

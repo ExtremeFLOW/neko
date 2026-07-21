@@ -7,6 +7,7 @@ var fluid__scheme__compressible_8f90 =
     [ "fluid_scheme_compressible_free", "d9/d00/fluid__scheme__compressible_8f90.html#a6d764c9c085ccee00e5087bf7c6abc10", null ],
     [ "fluid_scheme_compressible_init", "d9/d00/fluid__scheme__compressible_8f90.html#acb6812095efba4a414478c6ba9e87db7", null ],
     [ "fluid_scheme_compressible_log_solver_info", "d9/d00/fluid__scheme__compressible_8f90.html#a3a872e975017374135cc5ce283181e36", null ],
+    [ "fluid_scheme_compressible_set_material_properties", "d9/d00/fluid__scheme__compressible_8f90.html#a8cae19a530036249d8567f444468afe8", null ],
     [ "fluid_scheme_compressible_update_material_properties", "d9/d00/fluid__scheme__compressible_8f90.html#a7da544aef7e93a07fe8365dd40b744d6", null ],
     [ "fluid_scheme_compressible_validate", "d9/d00/fluid__scheme__compressible_8f90.html#aead24bdf8d441e371475ee0191f2d0f4", null ]
 ];

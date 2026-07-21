@@ -38,10 +38,10 @@
 <area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="624,264,871,248,872,253,625,269"/>
 <area shape="rect" id="Node000010" href="$d6/da9/coef_8c.html#aafbd283d930483605855d2397a10ab8d" title=" " alt="" coords="672,282,837,322"/>
 <area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="625,282,658,287,658,292,624,287"/>
-<area shape="rect" id="Node000009" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1087,282,1251,322"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1035,262,1083,276,1082,281,1034,267"/>
-<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="1130,282,1128,272,1134,263,1148,257,1169,255,1193,258,1206,266,1203,270,1191,263,1169,261,1149,263,1137,267,1133,273,1135,281"/>
-<area shape="poly" id="edge11_Node000010_Node000009" title=" " alt="" coords="838,317,886,323,962,328,1038,323,1073,319,1074,324,1039,329,962,333,885,329,837,322"/>
+<area shape="rect" id="Node000009" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1087,282,1239,322"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1033,262,1080,276,1079,281,1032,267"/>
+<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="1125,282,1123,272,1129,263,1142,257,1163,255,1186,258,1199,266,1196,270,1184,263,1163,261,1144,263,1132,267,1128,273,1130,281"/>
+<area shape="poly" id="edge11_Node000010_Node000009" title=" " alt="" coords="838,317,886,323,962,328,1038,323,1073,319,1073,324,1039,329,962,333,885,329,837,322"/>
 <area shape="rect" id="Node000011" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="896,289,1028,315"/>
 <area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="837,299,882,299,882,305,837,305"/>
 <area shape="poly" id="edge13_Node000011_Node000009" title=" " alt="" coords="1028,299,1073,299,1073,305,1028,305"/>

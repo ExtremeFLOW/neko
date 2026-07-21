@@ -1,0 +1,10 @@
+<map id="utils::set_error_or_throw" name="utils::set_error_or_throw">
+<area shape="rect" id="Node000001" title="Raise parser error or set ierr, depending on call mode." alt="" coords="456,35,592,75"/>
+<area shape="rect" id="Node000002" href="$dd/d91/interfaceutils_1_1read__duration.html#a6764e3ba6923040be686b23eb2db9e0f" title="Parse runtime string to components. The output array maps to the largest unit available based on size..." alt="" coords="5,5,212,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="442,52,212,35,212,30,443,46"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a931836197cc78152e442216f5559cdd6" title="Parse runtime string to total seconds." alt="" coords="260,63,408,103"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="442,69,409,74,408,69,442,64"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="246,63,187,48,189,43,247,58"/>
+<area shape="rect" id="Node000004" href="$dd/d91/interfaceutils_1_1read__duration.html#a97f452e1419064560dd380442928f356" title="Parse runtime string to total seconds. Supported formats are:" alt="" coords="25,69,192,109"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="246,88,192,90,192,84,246,83"/>
+</map>

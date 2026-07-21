@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -111,9 +111,13 @@ $(document).ready(function(){initNavTree('d0/d4e/namespacehip__intf.html','../..
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html">hip_buffer_free_all</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d41/interfacehip__intf_1_1hipdevicegetname.html">hipdevicegetname</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html">hipdevicegetstreampriorityrange</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/dd3/interfacehip__intf_1_1hipdevicereset.html">hipdevicereset</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html">hipdevicesynchronize</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,6 +136,18 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d7a/interfacehip__intf_1_1hipgetdevicecount.html">hipgetdevicecount</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de4/interfacehip__intf_1_1hipmalloc.html">hipmalloc</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d19/interfacehip__intf_1_1hipmap.html">hipmap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map host memory to the device (zero-copy on unified memory architectures, e.g. MI300A, see <a class="el" href="../../dd/d8d/unified_8hip.html">device/hip/unified.hip</a>)  <a href="../../d7/d19/interfacehip__intf_1_1hipmap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df5/interfacehip__intf_1_1hipmapfree.html">hipmapfree</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a device pointer obtained from hipMap (no-op for pointers aliasing host memory)  <a href="../../d2/df5/interfacehip__intf_1_1hipmapfree.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html">hipmapmemcpy</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy between device/host pointers via the mapping layer (kernel-based copy under zero-copy, where either side may alias pageable host memory)  <a href="../../d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dfc/interfacehip__intf_1_1hipmapmemset.html">hipmapmemset</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memset on a device pointer obtained from hipMap (host-side memset for pointers aliasing host memory)  <a href="../../dd/dfc/interfacehip__intf_1_1hipmapmemset.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de9/interfacehip__intf_1_1hipmemcpy.html">hipmemcpy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -201,13 +217,13 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a71cf325d479bbed01658a08561e54a48" id="r_a71cf325d479bbed01658a08561e54a48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48">hip_init</a> (glb_cmd_queue, aux_cmd_queue, strm_high_prio, strm_low_prio)</td></tr>
+<tr class="memitem:a71cf325d479bbed01658a08561e54a48" id="r_a71cf325d479bbed01658a08561e54a48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48">hip_init</a> (glb_cmd_queue, aux_cmd_queue, strm_high_prio, strm_low_prio)</td></tr>
 <tr class="separator:a71cf325d479bbed01658a08561e54a48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89de67459398a401efed275ac5c3dc07" id="r_a89de67459398a401efed275ac5c3dc07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07">hip_finalize</a> (glb_cmd_queue, aux_cmd_queue)</td></tr>
+<tr class="memitem:a89de67459398a401efed275ac5c3dc07" id="r_a89de67459398a401efed275ac5c3dc07"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07">hip_finalize</a> (glb_cmd_queue, aux_cmd_queue)</td></tr>
 <tr class="separator:a89de67459398a401efed275ac5c3dc07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c8e3cf5e89ffe1b50253b6b38e45a93" id="r_a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93">hip_device_name</a> (name)</td></tr>
+<tr class="memitem:a1c8e3cf5e89ffe1b50253b6b38e45a93" id="r_a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93">hip_device_name</a> (name)</td></tr>
 <tr class="separator:a1c8e3cf5e89ffe1b50253b6b38e45a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae76e470dcd046e7ef62b0273edd6c56d" id="r_ae76e470dcd046e7ef62b0273edd6c56d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d">hip_device_count</a> ()</td></tr>
+<tr class="memitem:ae76e470dcd046e7ef62b0273edd6c56d" id="r_ae76e470dcd046e7ef62b0273edd6c56d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d">hip_device_count</a> ()</td></tr>
 <tr class="memdesc:ae76e470dcd046e7ef62b0273edd6c56d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of available HIP devices.  <br /></td></tr>
 <tr class="separator:ae76e470dcd046e7ef62b0273edd6c56d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -219,7 +235,7 @@ Functions/Subroutines</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">anonymous</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">enum</a></td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">anonymous</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">enum</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -260,7 +276,7 @@ Functions/Subroutines</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">anonymous</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">enum</a></td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">anonymous</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">enum</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -284,12 +300,12 @@ Functions/Subroutines</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a> hip_intf::hip_device_count</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a> hip_intf::hip_device_count</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00287">287</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00357">357</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -311,7 +327,7 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="480,27,470,18,445,15,424,17,413,22,410,28,416,35,412,38,405,28,409,18,422,12,445,10,472,14,483,22"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="173,37,317,62"/>
 <area shape="poly" title=" " alt="" coords="351,52,318,52,318,47,351,47"/>
-<area shape="rect" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="5,37,125,62"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="5,37,125,62"/>
 <area shape="poly" title=" " alt="" coords="159,52,126,52,126,47,159,47"/>
 </map>
 </div>
@@ -325,16 +341,16 @@ Here is the caller graph for this function:</div>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> hip_intf::hip_device_name </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> hip_intf::hip_device_name </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>name</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00270">270</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00340">340</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -357,15 +373,15 @@ Here is the caller graph for this function:</div>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> hip_intf::hip_finalize </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> hip_intf::hip_finalize </td>
           <td>(</td>
-          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>glb_cmd_queue</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>aux_cmd_queue</em>&#160;</td>
         </tr>
         <tr>
@@ -376,7 +392,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00257">257</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00311">311</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -399,27 +415,27 @@ Here is the caller graph for this function:</div>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> hip_intf::hip_init </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> hip_intf::hip_init </td>
           <td>(</td>
-          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>glb_cmd_queue</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(c_ptr), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>aux_cmd_queue</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>strm_high_prio</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>strm_low_prio</em>&#160;</td>
         </tr>
         <tr>
@@ -430,7 +446,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00234">234</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00288">288</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -439,7 +455,7 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="365,5,492,31"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#aea8ac0b8d51031f74cc45d8e69a30bdb" title=" " alt="" coords="173,5,317,31"/>
 <area shape="poly" title=" " alt="" coords="352,21,318,21,318,15,352,15"/>
-<area shape="rect" href="../../dd/d62/namespaceneko.html#a647e539d6b0950b6569c6752b8f007ff" title="Initialise Neko." alt="" coords="5,5,125,31"/>
+<area shape="rect" href="../../dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="5,5,125,31"/>
 <area shape="poly" title=" " alt="" coords="159,21,126,21,126,15,159,15"/>
 </map>
 </div>
@@ -452,7 +468,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d4e/namespacehip__intf.html">hip_intf</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

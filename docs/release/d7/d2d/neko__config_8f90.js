@@ -3,6 +3,7 @@ var neko__config_8f90 =
     [ "neko_bcknd_cuda", "d7/d2d/neko__config_8f90.html#ad9bfad217bb0181e4bcc9692bc114006", null ],
     [ "neko_bcknd_device", "d7/d2d/neko__config_8f90.html#ac196ccb4b3efd94171f0cfbfedaa7b9d", null ],
     [ "neko_bcknd_hip", "d7/d2d/neko__config_8f90.html#a1d9feaab1563d5590372a3f369510ccd", null ],
+    [ "neko_bcknd_metal", "d7/d2d/neko__config_8f90.html#adca2ffdd8aa09621a388e174daad4ae5", null ],
     [ "neko_bcknd_opencl", "d7/d2d/neko__config_8f90.html#ac4dce70cfd078aaaf45861d9f702b8ae", null ],
     [ "neko_bcknd_sx", "d7/d2d/neko__config_8f90.html#a13c7db96ad80fa8aa04f81574ebd39db", null ],
     [ "neko_bcknd_xsmm", "d7/d2d/neko__config_8f90.html#add791e211e40d85e93174767b4679294", null ],

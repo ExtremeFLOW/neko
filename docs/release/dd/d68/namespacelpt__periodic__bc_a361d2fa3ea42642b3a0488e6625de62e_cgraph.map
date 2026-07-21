@@ -1,0 +1,13 @@
+<map id="lpt_periodic_bc::lpt_periodic_bc_init_translational" name="lpt_periodic_bc::lpt_periodic_bc_init_translational">
+<area shape="rect" id="Node000001" title="Detect unique translational periodic directions from facet pairs." alt="" coords="5,101,225,141"/>
+<area shape="rect" id="Node000002" href="$dd/d68/namespacelpt__periodic__bc.html#a65117a3f5192bbe1f3e0bb2f80d097c1" title="Compute the geometric center of a periodic source facet." alt="" coords="304,5,461,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,99,272,55,296,47,297,52,274,60,163,104"/>
+<area shape="rect" id="Node000004" href="$dd/d68/namespacelpt__periodic__bc.html#ad9b51bd4631d5cb6196f005d4f715b6c" title="Normalise a 3&#45;vector when its norm is above LPT periodic tolerance." alt="" coords="310,69,455,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="225,106,296,97,297,102,226,111"/>
+<area shape="rect" id="Node000005" href="$dd/d68/namespacelpt__periodic__bc.html#ab2f9fabbc3e890e1f8b62000f1dac537" title=" " alt="" coords="305,133,460,173"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="226,132,292,140,291,145,225,137"/>
+<area shape="rect" id="Node000006" href="$dd/d68/namespacelpt__periodic__bc.html#a44970e58f1d7d0049a37d5768bea26b2" title="Store one translational periodic wrapping direction." alt="" coords="273,197,492,237"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="163,139,274,183,297,191,296,196,272,188,161,144"/>
+<area shape="rect" id="Node000003" href="$dd/d68/namespacelpt__periodic__bc.html#a6dee6f5b54002741e0c39a3034a599d9" title="Gather the corner points of a mesh facet." alt="" coords="540,5,685,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="462,23,526,23,526,28,462,28"/>
+</map>

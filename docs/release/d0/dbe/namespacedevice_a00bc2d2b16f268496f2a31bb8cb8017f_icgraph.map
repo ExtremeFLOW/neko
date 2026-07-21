@@ -1,9 +1,28 @@
 <map id="device::device_event_record" name="device::device_event_record">
-<area shape="rect" id="Node000001" title="Record a device event." alt="" coords="245,69,405,109"/>
-<area shape="rect" id="Node000002" href="$d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518" title="Wait for non&#45;blocking operations." alt="" coords="5,5,197,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,68,171,48,173,43,242,63"/>
-<area shape="rect" id="Node000003" href="$de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc" title="Wait for non&#45;blocking operations." alt="" coords="23,69,179,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,92,180,92,180,87,231,87"/>
-<area shape="rect" id="Node000004" href="$d0/d2a/namespacegs__device__shmem.html#a6beab26e24a8a58b8b0237f6260d7c40" title="Wait for non&#45;blocking operations." alt="" coords="12,133,191,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="242,116,173,136,171,131,241,111"/>
+<area shape="rect" id="Node000001" title="Record a device event." alt="" coords="825,261,985,301"/>
+<area shape="rect" id="Node000002" href="$d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518" title="Wait for non&#45;blocking operations." alt="" coords="575,5,767,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="892,249,875,206,851,155,818,103,776,59,757,48,760,43,779,55,822,100,856,152,880,204,897,247"/>
+<area shape="rect" id="Node000003" href="$de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc" title="Wait for non&#45;blocking operations." alt="" coords="593,69,749,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="884,251,840,186,810,152,776,124,748,109,751,104,779,119,814,148,844,182,889,248"/>
+<area shape="rect" id="Node000004" href="$de/dcf/namespacegs__device__nccl.html#ad2efc97538f12f659e7d4b532c2a0a22" title="Fused nc&#45;component send/recv + unpack." alt="" coords="578,133,765,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="870,254,827,220,776,188,748,176,750,171,779,183,830,215,874,250"/>
+<area shape="rect" id="Node000005" href="$d0/d2a/namespacegs__device__shmem.html#a923449b8518caaac424023af2285c23a" title="Post non&#45;blocking send operations." alt="" coords="580,197,763,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="818,260,744,240,746,235,819,255"/>
+<area shape="rect" id="Node000006" href="$d0/d2a/namespacegs__device__shmem.html#a81ffed1b2d8b4d2027af9a8a342e3c5f" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="565,261,777,301"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="812,284,777,284,777,279,812,279"/>
+<area shape="rect" id="Node000007" href="$d0/d2a/namespacegs__device__shmem.html#a6beab26e24a8a58b8b0237f6260d7c40" title="Wait for non&#45;blocking operations." alt="" coords="582,325,761,365"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="819,308,746,328,744,323,818,302"/>
+<area shape="rect" id="Node000008" href="$d0/d2a/namespacegs__device__shmem.html#ab57da66aa50b1dbeb2cbaeecae4a3e52" title="Fused nc&#45;component push + unpack (the pack happens in nbsend_vec)." alt="" coords="567,389,776,429"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="874,313,830,347,779,380,750,392,748,387,776,375,827,343,870,309"/>
+<area shape="rect" id="Node000009" href="$d8/dcd/namespacegs__device.html#a89055bd6c1485bfd35554067912769bf" title="Gather kernel." alt="" coords="592,453,751,493"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="889,315,844,380,814,414,779,444,752,458,750,453,776,439,810,410,840,377,884,312"/>
+<area shape="rect" id="Node000010" href="$d0/d78/namespacegather__scatter.html#a2895d584c6ac94e9da48452a2e56abd4" title="Device path for the fused 3&#45;component gs. The device backend&#39;s shared gather/scatter always operate o..." alt="" coords="602,517,741,557"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="897,316,880,359,856,411,822,463,779,507,742,527,740,522,776,503,818,459,851,408,875,357,892,314"/>
+<area shape="rect" id="Node000011" href="$d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="379,517,517,557"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="588,540,517,540,517,535,588,535"/>
+<area shape="rect" id="Node000012" href="$d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="192,488,331,528"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="364,527,331,522,332,516,365,522"/>
+<area shape="rect" id="Node000013" href="$dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,517,144,557"/>
+<area shape="poly" id="edge13_Node000011_Node000013" title=" " alt="" coords="365,542,331,543,192,543,144,542,144,536,192,537,331,537,365,537"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="178,524,145,529,144,524,178,518"/>
 </map>

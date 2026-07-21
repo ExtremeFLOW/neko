@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -99,7 +99,6 @@ $(document).ready(function(){initNavTree('de/df0/gs__nvshmem__kernels_8h.html','
 
 <div class="header">
   <div class="summary">
-<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">gs_nvshmem_kernels.h File Reference</div></div>
 </div><!--header-->
@@ -118,45 +117,72 @@ Include dependency graph for gs_nvshmem_kernels.h:</div>
 </div>
 <p><a href="../../de/df0/gs__nvshmem__kernels_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a17e1f9e461ef85088381d8bf4372c691" id="r_a17e1f9e461ef85088381d8bf4372c691"><td class="memItemLeft" align="right" valign="top">#<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">define</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#a17e1f9e461ef85088381d8bf4372c691">__GS_NVHSMEM_KERNELS__</a></td></tr>
-<tr class="separator:a17e1f9e461ef85088381d8bf4372c691"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a0a4c458e7283b08f16f75dd2f5e37ef8" id="r_a0a4c458e7283b08f16f75dd2f5e37ef8"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </td></tr>
-<tr class="memitem:a0a4c458e7283b08f16f75dd2f5e37ef8"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#a0a4c458e7283b08f16f75dd2f5e37ef8">pack_pushShmemKernel</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dest</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">src</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> dof, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">destRank</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">srcRank</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> counter, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">notifyDone</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">notifyReady</a>)</td></tr>
-<tr class="separator:a0a4c458e7283b08f16f75dd2f5e37ef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a320a236ec17d02406d08c3fbfdb29ebf" id="r_a320a236ec17d02406d08c3fbfdb29ebf"><td class="memItemLeft" align="right" valign="top">template&lt;&gt; </td></tr>
-<tr class="memitem:a320a236ec17d02406d08c3fbfdb29ebf"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#a320a236ec17d02406d08c3fbfdb29ebf">pack_pushShmemKernel</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dest</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">src</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> dof, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">destRank</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">srcRank</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> counter, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">notifyDone</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">notifyReady</a>)</td></tr>
-<tr class="separator:a320a236ec17d02406d08c3fbfdb29ebf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8afae729cb81e05042c87ceca9a35e8" id="r_ad8afae729cb81e05042c87ceca9a35e8"><td class="memItemLeft" align="right" valign="top">template&lt;&gt; </td></tr>
-<tr class="memitem:ad8afae729cb81e05042c87ceca9a35e8"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#ad8afae729cb81e05042c87ceca9a35e8">pack_pushShmemKernel</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dest</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">src</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a> dof, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">destRank</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">srcRank</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> n, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> counter, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">notifyDone</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">notifyReady</a>)</td></tr>
-<tr class="separator:ad8afae729cb81e05042c87ceca9a35e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afcf6f2f9b5a60e4e16d007a903a5e2c0" id="r_afcf6f2f9b5a60e4e16d007a903a5e2c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#afcf6f2f9b5a60e4e16d007a903a5e2c0">pushShmemKernelWait</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> counter, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">notifyDone</a>)</td></tr>
-<tr class="separator:afcf6f2f9b5a60e4e16d007a903a5e2c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af11844c1868cd750257f83394c0d1070" id="r_af11844c1868cd750257f83394c0d1070"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> &gt; </td></tr>
+<tr class="memitem:af11844c1868cd750257f83394c0d1070"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#af11844c1868cd750257f83394c0d1070">pushShmemKernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dest</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">src</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">size_t</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">destRank</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">doneSig</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">readySlot</a>)</td></tr>
+<tr class="separator:af11844c1868cd750257f83394c0d1070"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d1e108406ecbdea68571dadfd1c5666" id="r_a9d1e108406ecbdea68571dadfd1c5666"><td class="memItemLeft" align="right" valign="top">template&lt;&gt; </td></tr>
+<tr class="memitem:a9d1e108406ecbdea68571dadfd1c5666"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#a9d1e108406ecbdea68571dadfd1c5666">pushShmemKernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">float</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dest</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">float</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">src</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">size_t</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">destRank</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">doneSig</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">readySlot</a>)</td></tr>
+<tr class="separator:a9d1e108406ecbdea68571dadfd1c5666"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac21e34f30e90070f1dc49468e7fd159c" id="r_ac21e34f30e90070f1dc49468e7fd159c"><td class="memItemLeft" align="right" valign="top">template&lt;&gt; </td></tr>
+<tr class="memitem:ac21e34f30e90070f1dc49468e7fd159c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#ac21e34f30e90070f1dc49468e7fd159c">pushShmemKernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">double</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dest</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">double</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">src</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">size_t</a> n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">destRank</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">doneSig</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">readySlot</a>)</td></tr>
+<tr class="separator:ac21e34f30e90070f1dc49468e7fd159c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2aafde5a5282c48f717c51d93492701" id="r_aa2aafde5a5282c48f717c51d93492701"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#aa2aafde5a5282c48f717c51d93492701">pushShmemKernelWait</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">doneSlot</a>)</td></tr>
+<tr class="separator:aa2aafde5a5282c48f717c51d93492701"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3ee1bf8c7a16d17d459e8d46b45d25c" id="r_ad3ee1bf8c7a16d17d459e8d46b45d25c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html#ad3ee1bf8c7a16d17d459e8d46b45d25c">postReadyShmemKernel</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">readySlot</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">srcRank</a>)</td></tr>
+<tr class="separator:ad3ee1bf8c7a16d17d459e8d46b45d25c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a17e1f9e461ef85088381d8bf4372c691" name="a17e1f9e461ef85088381d8bf4372c691"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a17e1f9e461ef85088381d8bf4372c691">&#9670;&#160;</a></span>__GS_NVHSMEM_KERNELS__</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">define</a> __GS_NVHSMEM_KERNELS__</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html#l00036">36</a> of file <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html">gs_nvshmem_kernels.h</a>.</p>
-
-</div>
-</div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ad8afae729cb81e05042c87ceca9a35e8" name="ad8afae729cb81e05042c87ceca9a35e8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8afae729cb81e05042c87ceca9a35e8">&#9670;&#160;</a></span>pack_pushShmemKernel() <span class="overload">[1/3]</span></h2>
+<a id="ad3ee1bf8c7a16d17d459e8d46b45d25c" name="ad3ee1bf8c7a16d17d459e8d46b45d25c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3ee1bf8c7a16d17d459e8d46b45d25c">&#9670;&#160;</a></span>postReadyShmemKernel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> postReadyShmemKernel </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *&#160;</td>
+          <td class="paramname"><em>readySlot</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a>&#160;</td>
+          <td class="paramname"><em>iter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td>
+          <td class="paramname"><em>srcRank</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html#l00139">139</a> of file <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html">gs_nvshmem_kernels.h</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../de/df0/gs__nvshmem__kernels_8h_ad3ee1bf8c7a16d17d459e8d46b45d25c_cgraph.png" border="0" usemap="#ade/df0/gs__nvshmem__kernels_8h_ad3ee1bf8c7a16d17d459e8d46b45d25c_cgraph" alt=""/></div>
+<map name="ade/df0/gs__nvshmem__kernels_8h_ad3ee1bf8c7a16d17d459e8d46b45d25c_cgraph" id="ade/df0/gs__nvshmem__kernels_8h_ad3ee1bf8c7a16d17d459e8d46b45d25c_cgraph">
+<area shape="rect" title=" " alt="" coords="5,37,188,62"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="236,29,388,69"/>
+<area shape="poly" title=" " alt="" coords="188,47,222,47,222,52,188,52"/>
+<area shape="poly" title=" " alt="" coords="272,30,270,20,276,10,290,5,312,3,337,6,351,13,348,18,335,11,312,8,292,10,279,15,275,21,277,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ac21e34f30e90070f1dc49468e7fd159c" name="ac21e34f30e90070f1dc49468e7fd159c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac21e34f30e90070f1dc49468e7fd159c">&#9670;&#160;</a></span>pushShmemKernel() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -164,64 +190,46 @@ Functions</h2></td></tr>
 template&lt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> pack_pushShmemKernel </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> pushShmemKernel </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
-          <td class="paramname"><em>u</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">double</a> *&#160;</td>
           <td class="paramname"><em>dest</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">double</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">double</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a>&#160;</td>
           <td class="paramname"><em>src</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
-          <td class="paramname"><em>dof</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
-          <td class="paramname"><em>destRank</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
-          <td class="paramname"><em>srcRank</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">size_t</a>&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a>&#160;</td>
-          <td class="paramname"><em>counter</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td>
+          <td class="paramname"><em>destRank</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *&#160;</td>
-          <td class="paramname"><em>notifyDone</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a>&#160;</td>
+          <td class="paramname"><em>iter</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *&#160;</td>
-          <td class="paramname"><em>notifyReady</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *&#160;</td>
+          <td class="paramname"><em>doneSig</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *&#160;</td>
+          <td class="paramname"><em>readySlot</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -231,25 +239,25 @@ template&lt;&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html#l00099">99</a> of file <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html">gs_nvshmem_kernels.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html#l00105">105</a> of file <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html">gs_nvshmem_kernels.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../de/df0/gs__nvshmem__kernels_8h_ad8afae729cb81e05042c87ceca9a35e8_cgraph.png" border="0" usemap="#ade/df0/gs__nvshmem__kernels_8h_ad8afae729cb81e05042c87ceca9a35e8_cgraph" alt=""/></div>
-<map name="ade/df0/gs__nvshmem__kernels_8h_ad8afae729cb81e05042c87ceca9a35e8_cgraph" id="ade/df0/gs__nvshmem__kernels_8h_ad8afae729cb81e05042c87ceca9a35e8_cgraph">
-<area shape="rect" title=" " alt="" coords="5,47,188,72"/>
-<area shape="rect" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="261,5,375,31"/>
-<area shape="poly" title=" " alt="" coords="165,44,247,29,248,34,166,49"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="236,79,400,119"/>
-<area shape="poly" title=" " alt="" coords="168,69,223,79,222,85,167,75"/>
-<area shape="poly" title=" " alt="" coords="277,80,274,70,281,60,296,55,318,53,344,56,358,63,356,68,342,61,318,58,297,60,284,65,279,71,282,78"/>
+<div class="center"><img src="../../de/df0/gs__nvshmem__kernels_8h_ac21e34f30e90070f1dc49468e7fd159c_cgraph.png" border="0" usemap="#ade/df0/gs__nvshmem__kernels_8h_ac21e34f30e90070f1dc49468e7fd159c_cgraph" alt=""/></div>
+<map name="ade/df0/gs__nvshmem__kernels_8h_ac21e34f30e90070f1dc49468e7fd159c_cgraph" id="ade/df0/gs__nvshmem__kernels_8h_ac21e34f30e90070f1dc49468e7fd159c_cgraph">
+<area shape="rect" title=" " alt="" coords="5,47,149,72"/>
+<area shape="rect" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="216,5,331,31"/>
+<area shape="poly" title=" " alt="" coords="138,44,202,30,203,36,139,49"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="197,79,349,119"/>
+<area shape="poly" title=" " alt="" coords="141,69,184,78,183,84,140,75"/>
+<area shape="poly" title=" " alt="" coords="237,80,234,70,240,61,253,55,273,53,296,56,309,63,306,67,295,61,273,58,255,60,244,65,240,71,242,78"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a320a236ec17d02406d08c3fbfdb29ebf" name="a320a236ec17d02406d08c3fbfdb29ebf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a320a236ec17d02406d08c3fbfdb29ebf">&#9670;&#160;</a></span>pack_pushShmemKernel() <span class="overload">[2/3]</span></h2>
+<a id="a9d1e108406ecbdea68571dadfd1c5666" name="a9d1e108406ecbdea68571dadfd1c5666"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d1e108406ecbdea68571dadfd1c5666">&#9670;&#160;</a></span>pushShmemKernel() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -257,64 +265,46 @@ Here is the call graph for this function:</div>
 template&lt;&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> pack_pushShmemKernel </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> pushShmemKernel </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
-          <td class="paramname"><em>u</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">float</a> *&#160;</td>
           <td class="paramname"><em>dest</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">float</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">float</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a>&#160;</td>
           <td class="paramname"><em>src</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
-          <td class="paramname"><em>dof</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
-          <td class="paramname"><em>destRank</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
-          <td class="paramname"><em>srcRank</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">size_t</a>&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a>&#160;</td>
-          <td class="paramname"><em>counter</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td>
+          <td class="paramname"><em>destRank</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *&#160;</td>
-          <td class="paramname"><em>notifyDone</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a>&#160;</td>
+          <td class="paramname"><em>iter</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *&#160;</td>
-          <td class="paramname"><em>notifyReady</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *&#160;</td>
+          <td class="paramname"><em>doneSig</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *&#160;</td>
+          <td class="paramname"><em>readySlot</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -324,90 +314,72 @@ template&lt;&gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html#l00054">54</a> of file <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html">gs_nvshmem_kernels.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html#l00083">83</a> of file <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html">gs_nvshmem_kernels.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../de/df0/gs__nvshmem__kernels_8h_a320a236ec17d02406d08c3fbfdb29ebf_cgraph.png" border="0" usemap="#ade/df0/gs__nvshmem__kernels_8h_a320a236ec17d02406d08c3fbfdb29ebf_cgraph" alt=""/></div>
-<map name="ade/df0/gs__nvshmem__kernels_8h_a320a236ec17d02406d08c3fbfdb29ebf_cgraph" id="ade/df0/gs__nvshmem__kernels_8h_a320a236ec17d02406d08c3fbfdb29ebf_cgraph">
-<area shape="rect" title=" " alt="" coords="5,47,188,72"/>
-<area shape="rect" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="261,5,375,31"/>
-<area shape="poly" title=" " alt="" coords="165,44,247,29,248,34,166,49"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="236,79,400,119"/>
-<area shape="poly" title=" " alt="" coords="168,69,223,79,222,85,167,75"/>
-<area shape="poly" title=" " alt="" coords="277,80,274,70,281,60,296,55,318,53,344,56,358,63,356,68,342,61,318,58,297,60,284,65,279,71,282,78"/>
+<div class="center"><img src="../../de/df0/gs__nvshmem__kernels_8h_a9d1e108406ecbdea68571dadfd1c5666_cgraph.png" border="0" usemap="#ade/df0/gs__nvshmem__kernels_8h_a9d1e108406ecbdea68571dadfd1c5666_cgraph" alt=""/></div>
+<map name="ade/df0/gs__nvshmem__kernels_8h_a9d1e108406ecbdea68571dadfd1c5666_cgraph" id="ade/df0/gs__nvshmem__kernels_8h_a9d1e108406ecbdea68571dadfd1c5666_cgraph">
+<area shape="rect" title=" " alt="" coords="5,47,149,72"/>
+<area shape="rect" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="216,5,331,31"/>
+<area shape="poly" title=" " alt="" coords="138,44,202,30,203,36,139,49"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="197,79,349,119"/>
+<area shape="poly" title=" " alt="" coords="141,69,184,78,183,84,140,75"/>
+<area shape="poly" title=" " alt="" coords="237,80,234,70,240,61,253,55,273,53,296,56,309,63,306,67,295,61,273,58,255,60,244,65,240,71,242,78"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a0a4c458e7283b08f16f75dd2f5e37ef8" name="a0a4c458e7283b08f16f75dd2f5e37ef8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a4c458e7283b08f16f75dd2f5e37ef8">&#9670;&#160;</a></span>pack_pushShmemKernel() <span class="overload">[3/3]</span></h2>
+<a id="af11844c1868cd750257f83394c0d1070" name="af11844c1868cd750257f83394c0d1070"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af11844c1868cd750257f83394c0d1070">&#9670;&#160;</a></span>pushShmemKernel() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">typename</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> &gt; </div>
+template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">typename</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> pack_pushShmemKernel </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> pushShmemKernel </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
-          <td class="paramname"><em>u</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *&#160;</td>
           <td class="paramname"><em>dest</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">T</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">T</a> *<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__restrict__</a>&#160;</td>
           <td class="paramname"><em>src</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a> *<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__restrict__</a>&#160;</td>
-          <td class="paramname"><em>dof</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
-          <td class="paramname"><em>destRank</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
-          <td class="paramname"><em>srcRank</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">const</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">int</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">size_t</a>&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a>&#160;</td>
-          <td class="paramname"><em>counter</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">const</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">int</a>&#160;</td>
+          <td class="paramname"><em>destRank</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *&#160;</td>
-          <td class="paramname"><em>notifyDone</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a>&#160;</td>
+          <td class="paramname"><em>iter</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *&#160;</td>
-          <td class="paramname"><em>notifyReady</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *&#160;</td>
+          <td class="paramname"><em>doneSig</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *&#160;</td>
+          <td class="paramname"><em>readySlot</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -419,23 +391,23 @@ template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2
 
 </div>
 </div>
-<a id="afcf6f2f9b5a60e4e16d007a903a5e2c0" name="afcf6f2f9b5a60e4e16d007a903a5e2c0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afcf6f2f9b5a60e4e16d007a903a5e2c0">&#9670;&#160;</a></span>pushShmemKernelWait()</h2>
+<a id="aa2aafde5a5282c48f717c51d93492701" name="aa2aafde5a5282c48f717c51d93492701"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2aafde5a5282c48f717c51d93492701">&#9670;&#160;</a></span>pushShmemKernelWait()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">__global__</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">void</a> pushShmemKernelWait </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">__global__</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">void</a> pushShmemKernelWait </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a>&#160;</td>
-          <td class="paramname"><em>counter</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a>&#160;</td>
+          <td class="paramname"><em>iter</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">uint64_t</a> *&#160;</td>
-          <td class="paramname"><em>notifyDone</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">uint64_t</a> *&#160;</td>
+          <td class="paramname"><em>doneSlot</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -445,16 +417,16 @@ template&lt;<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html#l00143">143</a> of file <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html">gs_nvshmem_kernels.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html#l00128">128</a> of file <a class="el" href="../../de/df0/gs__nvshmem__kernels_8h_source.html">gs_nvshmem_kernels.h</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../de/df0/gs__nvshmem__kernels_8h_afcf6f2f9b5a60e4e16d007a903a5e2c0_cgraph.png" border="0" usemap="#ade/df0/gs__nvshmem__kernels_8h_afcf6f2f9b5a60e4e16d007a903a5e2c0_cgraph" alt=""/></div>
-<map name="ade/df0/gs__nvshmem__kernels_8h_afcf6f2f9b5a60e4e16d007a903a5e2c0_cgraph" id="ade/df0/gs__nvshmem__kernels_8h_afcf6f2f9b5a60e4e16d007a903a5e2c0_cgraph">
+<div class="center"><img src="../../de/df0/gs__nvshmem__kernels_8h_aa2aafde5a5282c48f717c51d93492701_cgraph.png" border="0" usemap="#ade/df0/gs__nvshmem__kernels_8h_aa2aafde5a5282c48f717c51d93492701_cgraph" alt=""/></div>
+<map name="ade/df0/gs__nvshmem__kernels_8h_aa2aafde5a5282c48f717c51d93492701_cgraph" id="ade/df0/gs__nvshmem__kernels_8h_aa2aafde5a5282c48f717c51d93492701_cgraph">
 <area shape="rect" title=" " alt="" coords="5,37,179,62"/>
-<area shape="rect" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="227,29,391,69"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="227,29,379,69"/>
 <area shape="poly" title=" " alt="" coords="179,47,213,47,213,52,179,52"/>
-<area shape="poly" title=" " alt="" coords="268,30,266,20,272,10,287,5,309,3,334,6,348,13,345,18,332,11,309,8,288,10,275,15,271,21,273,28"/>
+<area shape="poly" title=" " alt="" coords="263,30,261,20,267,10,281,5,303,3,327,6,341,13,338,18,326,11,303,8,282,10,270,15,266,21,268,28"/>
 </map>
 </div>
 
@@ -466,7 +438,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_efc6cc943adcbbcf7353b1e68a05f09f.html">gs</a></li><li class="navelem"><a class="el" href="../../dir_77c81aa14b6219eec0132e0447c94fac.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_bbf3ca66c1b560da8bc9e61fd2cef0aa.html">device</a></li><li class="navelem"><a class="el" href="../../dir_49ec912c0ebcd73652f5e3a19f5d0531.html">cuda</a></li><li class="navelem"><a class="el" href="../../de/df0/gs__nvshmem__kernels_8h.html">gs_nvshmem_kernels.h</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

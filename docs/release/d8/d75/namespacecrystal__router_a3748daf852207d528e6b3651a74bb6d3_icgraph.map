@@ -1,0 +1,13 @@
+<map id="crystal_router::crystal_router_transfer" name="crystal_router::crystal_router_transfer">
+<area shape="rect" id="Node000001" title="Route packed records to their destination ranks." alt="" coords="677,37,841,77"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a70b1e5adb11770ec89f7e135bb74c793" title="Schedule shared gather&#45;scatter operations." alt="" coords="477,5,615,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="663,46,615,38,616,33,664,40"/>
+<area shape="rect" id="Node000004" href="$db/dfc/namespacemesh.html#aadcee020052d3a876ded460252b3a42a" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="463,69,629,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="664,74,630,80,629,74,663,69"/>
+<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="229,13,395,38"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="463,28,396,28,396,23,463,23"/>
+<area shape="rect" id="Node000005" href="$db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba" title="Generate element&#45;to&#45;element connectivity." alt="" coords="209,77,415,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="449,92,415,92,415,87,449,87"/>
+<area shape="rect" id="Node000006" href="$db/dfc/namespacemesh.html#ac2946fce1b2dd0901137b5d74e1d641a" title=" " alt="" coords="5,77,161,102"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="195,92,161,92,161,87,195,87"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="lpt_periodic_bc_cpu::lpt_periodic_bc_wrap_translational_cpu" name="lpt_periodic_bc_cpu::lpt_periodic_bc_wrap_translational_cpu">
+<area shape="rect" id="Node000001" title="Wrap particle coordinates through translational periodic directions." alt="" coords="5,5,172,60"/>
+<area shape="rect" id="Node000002" href="$d7/d06/namespacelpt__periodic__bc__cpu.html#a4ac7e866dc8a96c79bb3d23ba494474c" title="Extract one translational periodic slot from scalar storage." alt="" coords="220,5,376,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,30,206,30,206,35,172,35"/>
+</map>

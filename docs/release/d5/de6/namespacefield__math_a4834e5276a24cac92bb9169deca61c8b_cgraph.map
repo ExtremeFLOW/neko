@@ -1,0 +1,8 @@
+<map id="field_math::field_glmin" name="field_math::field_glmin">
+<area shape="rect" id="Node000001" title="Global minimum of all elements in a field ." alt="" coords="5,54,176,79"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#af00b600598c7ff6b471bd19815e11d1c" title="Min of a vector of length n." alt="" coords="224,5,381,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,51,210,41,211,46,157,57"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e" title="Min of a vector of length n." alt="" coords="252,94,353,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="159,77,239,92,238,97,158,82"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="268,96,261,86,265,76,279,70,303,67,332,71,344,80,340,84,330,76,303,73,280,75,268,79,266,85,272,92"/>
+</map>

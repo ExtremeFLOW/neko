@@ -37,6 +37,7 @@ var mesh_8f90 =
     [ "mesh_mark_labeled_facet", "de/d0a/mesh_8f90.html#a5a9eae917e07b024e8b94de82fe83859", null ],
     [ "mesh_mark_periodic_facet", "de/d0a/mesh_8f90.html#a631f6d53e1dfc9170d456dec2b3b6008", null ],
     [ "mesh_reset_periodic_ids", "de/d0a/mesh_8f90.html#a928322e5f872129051a18bb1c0b97081", null ],
+    [ "mesh_subset_by_mask", "de/d0a/mesh_8f90.html#af9743aa9ecd1b5d6a4d6f742bdb02577", null ],
     [ "parallelepiped_signed_volume", "de/d0a/mesh_8f90.html#a5ba533721b041548bfa9c2d163124151", null ],
     [ "neko_msh_max_zlbl_len", "de/d0a/mesh_8f90.html#a6174f191806cc80974be1c3d763e5151", null ],
     [ "neko_msh_max_zlbls", "de/d0a/mesh_8f90.html#a1be52124a36c4199f586988ce76e2b01", null ]

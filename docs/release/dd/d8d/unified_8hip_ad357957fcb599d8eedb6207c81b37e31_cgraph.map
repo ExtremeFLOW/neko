@@ -1,0 +1,15 @@
+<map id="hip_map_memcpy" name="hip_map_memcpy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,56,148,81"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="431,48,583,88"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,53,143,32,195,15,248,6,289,3,331,6,383,15,421,26,456,40,454,45,419,31,382,20,330,11,289,8,248,11,197,20,145,37,101,58"/>
+<area shape="rect" id="Node000003" href="$dd/d8d/unified_8hip.html#a5e16961e2145f85d1abdef75a03b0de5" title=" " alt="" coords="196,30,383,56"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="148,57,182,53,183,58,149,62"/>
+<area shape="rect" id="Node000004" href="$dd/d8d/unified_8hip.html#a0c73b5cf30bd5d572afcbbe47531f30d" title=" " alt="" coords="196,80,383,105"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="149,74,183,78,182,83,148,79"/>
+<area shape="rect" id="Node000005" href="$dd/d8d/unified_8hip.html#aad05e3f5d48c2067250ca82a1f5b4d73" title=" " alt="" coords="235,129,343,154"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="108,79,197,114,225,123,224,128,195,119,106,84"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="466,49,464,39,470,29,485,24,507,22,532,25,546,32,543,37,530,30,507,27,486,29,473,34,469,40,471,47"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="383,51,417,55,417,61,383,57"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="383,79,417,76,417,81,383,85"/>
+<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="340,126,382,114,444,91,446,96,384,119,341,132"/>
+</map>

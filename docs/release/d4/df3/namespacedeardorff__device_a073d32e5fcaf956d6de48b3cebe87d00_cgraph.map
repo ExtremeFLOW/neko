@@ -1,0 +1,12 @@
+<map id="deardorff_device::deardorff_compute_device" name="deardorff_device::deardorff_compute_device">
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the device." alt="" coords="5,30,204,70"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="252,5,443,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,34,238,30,239,35,205,40"/>
+<area shape="rect" id="Node000003" href="$d4/d66/namespacedevice__deardorff__nut.html#a8e7769b7683460e17fe5feb18e33d279" title="Compute Deardorff SGS quantities on the device backend." alt="" coords="264,55,431,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,60,251,67,250,72,204,66"/>
+<area shape="rect" id="Node000004" href="$d5/d24/deardorff__nut_8cu.html#af7d8d9c34b1207466b54bd3438ff2f3e" title=" " alt="" coords="491,62,637,102"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="431,79,477,79,477,85,431,85"/>
+<area shape="rect" id="Node000005" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="685,62,837,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="638,79,671,79,671,85,638,85"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="724,62,722,52,728,43,741,37,761,35,785,38,797,46,795,50,783,43,761,41,742,43,731,47,727,53,729,61"/>
+</map>

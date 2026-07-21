@@ -1,0 +1,8 @@
+<map id="glsc3_kernel" name="glsc3_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,108,72"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="175,5,289,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,45,164,31,165,36,109,50"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="156,79,308,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="109,68,143,76,142,81,108,74"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="199,80,197,70,202,61,214,55,232,53,253,56,264,63,261,67,251,61,232,58,216,60,206,65,202,71,204,78"/>
+</map>

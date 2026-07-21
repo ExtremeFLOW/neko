@@ -1,0 +1,7 @@
+<map id="vreman_cpu::vreman_compute_cpu" name="vreman_cpu::vreman_compute_cpu">
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the CPU." alt="" coords="5,23,165,63"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="217,5,308,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,29,204,24,204,29,166,34"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a155d47fa505e5ff12ff46fd4a8003875" title="Compute multiplication sum ." alt="" coords="213,55,312,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,52,200,56,199,61,165,57"/>
+</map>

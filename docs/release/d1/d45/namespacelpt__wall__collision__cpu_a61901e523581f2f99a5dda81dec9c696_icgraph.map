@@ -1,0 +1,8 @@
+<map id="lpt_wall_collision_cpu::signed_plane_distance" name="lpt_wall_collision_cpu::signed_plane_distance">
+<area shape="rect" id="Node000001" title="Return signed distance from a point to a wall plane." alt="" coords="449,29,657,69"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="593,18,579,11,553,8,531,10,517,15,512,21,515,28,510,30,507,20,514,10,530,5,553,3,581,6,596,13"/>
+<area shape="rect" id="Node000002" href="$d1/d45/namespacelpt__wall__collision__cpu.html#a1332068721fbb058db91af17c77c2c4a" title="Return true if the particle surface reaches a given wall facet." alt="" coords="232,29,401,69"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="436,52,401,52,401,47,436,47"/>
+<area shape="rect" id="Node000003" href="$d1/d45/namespacelpt__wall__collision__cpu.html#af44cf65b2bdf1db0f589222412d531d0" title="Reflect inertial particles that hit configured wall facets on the CPU." alt="" coords="5,22,184,77"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="218,52,184,52,184,47,218,47"/>
+</map>

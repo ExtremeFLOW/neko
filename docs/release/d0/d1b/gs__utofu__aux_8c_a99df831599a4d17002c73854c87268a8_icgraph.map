@@ -1,0 +1,5 @@
+<map id="gs_utofu_ctx_create" name="gs_utofu_ctx_create">
+<area shape="rect" id="Node000001" title=" " alt="" coords="224,5,377,31"/>
+<area shape="rect" id="Node000002" href="$d3/d29/namespacegs__utofu.html#a1e38af56d755c3a1f86cae3333f4f1ce" title="Initialise the uTofu communication method. See gs_comm.f90 for details." alt="" coords="5,5,176,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,21,176,21,176,15,210,15"/>
+</map>

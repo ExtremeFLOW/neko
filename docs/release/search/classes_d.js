@@ -2,7 +2,7 @@ var searchData=
 [
   ['neko_5fapi_5fuser_5fcb_5fget_5ffield_0',['neko_api_user_cb_get_field',['../d0/ddf/interfaceneko__api__user_1_1neko__api__user__cb__get__field.html',1,'neko_api_user']]],
   ['neko_5fcoef_5ft_1',['neko_coef_t',['../d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html',1,'pyneko::intf']]],
-  ['neko_5fcomm_5fwrapper_5finit_2',['neko_comm_wrapper_init',['../d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html',1,'comm']]],
+  ['neko_5fcomm_5fwrapper_5finit_2',['neko_comm_wrapper_init',['../d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html',1,'comm::neko_comm_wrapper_init'],['../d5/dee/interfacepfunit__comm__utils_1_1neko__comm__wrapper__init.html',1,'pfunit_comm_utils::neko_comm_wrapper_init']]],
   ['neko_5fdofmap_5ft_3',['neko_dofmap_t',['../d1/d11/classpyneko_1_1intf_1_1neko__dofmap__t.html',1,'pyneko::intf']]],
   ['neko_5ferror_4',['neko_error',['../d7/d83/interfaceutils_1_1neko__error.html',1,'utils']]],
   ['neko_5ffield_5ft_5',['neko_field_t',['../d3/dc9/classpyneko_1_1intf_1_1neko__field__t.html',1,'pyneko::intf']]],
@@ -15,5 +15,6 @@ var searchData=
   ['nmsh_5ft_12',['nmsh_t',['../dc/d5a/structnmsh_1_1nmsh__t.html',1,'nmsh']]],
   ['nmsh_5fvertex_5ft_13',['nmsh_vertex_t',['../d2/d94/structnmsh_1_1nmsh__vertex__t.html',1,'nmsh']]],
   ['nmsh_5fzone_5ft_14',['nmsh_zone_t',['../d5/d6a/structnmsh_1_1nmsh__zone__t.html',1,'nmsh']]],
-  ['non_5fnormal_5ft_15',['non_normal_t',['../da/d18/structnon__normal_1_1non__normal__t.html',1,'non_normal']]]
+  ['no_5fslip_5ft_15',['no_slip_t',['../dc/d90/structno__slip_1_1no__slip__t.html',1,'no_slip']]],
+  ['non_5fnormal_5ft_16',['non_normal_t',['../da/d18/structnon__normal_1_1non__normal__t.html',1,'non_normal']]]
 ];

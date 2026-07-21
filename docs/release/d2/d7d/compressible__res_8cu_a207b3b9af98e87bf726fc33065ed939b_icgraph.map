@@ -1,0 +1,7 @@
+<map id="inviscid_res_part_my_flux_cuda" name="inviscid_res_part_my_flux_cuda">
+<area shape="rect" id="Node000001" title=" " alt="" coords="507,13,667,53"/>
+<area shape="rect" id="Node000002" href="$df/dcd/namespacecompressible__res__device.html#a071cf7851336d843e409d6a825f70f0c" title=" " alt="" coords="272,13,459,53"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="493,35,459,35,459,30,493,30"/>
+<area shape="rect" id="Node000003" href="$df/dcd/namespacecompressible__res__device.html#a97e7637dcef6c624bbc69911283f8aa0" title=" " alt="" coords="5,5,224,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="258,35,224,35,224,30,258,30"/>
+</map>

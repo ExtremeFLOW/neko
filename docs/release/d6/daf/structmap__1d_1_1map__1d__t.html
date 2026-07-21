@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,170 +106,174 @@ $(document).ready(function(){initNavTree('d6/daf/structmap__1d_1_1map__1d__t.htm
 </div><!--header-->
 <div class="contents">
 
-<p>Type that encapsulates a mapping from each gll point in the mesh to its corresponding (global) GLL point index in one direction.  
+<p>Map every GLL point in the mesh to a level in one physical direction. Can be used to average across the two remaining directions.  
  <a href="../../d6/daf/structmap__1d_1_1map__1d__t.html#details">More...</a></p>
 <div class="dynheader">
 Collaboration diagram for map_1d::map_1d_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d41/structmap__1d_1_1map__1d__t__coll__graph.png" border="0" usemap="#amap__1d_1_1map__1d__t_coll__map" alt="Collaboration graph"/></div>
 <map name="amap__1d_1_1map__1d__t_coll__map" id="amap__1d_1_1map__1d__t_coll__map">
-<area shape="rect" title="Type that encapsulates a mapping from each gll point in the mesh to its corresponding (global) GLL po..." alt="" coords="2483,754,2629,779"/>
-<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1817,775,1960,801"/>
-<area shape="poly" title=" " alt="" coords="1909,810,1942,844,1962,860,1985,872,2062,896,2094,900,2125,901,2190,892,2271,876,2348,856,2421,829,2530,777,2533,782,2423,834,2349,861,2273,881,2191,897,2126,906,2094,906,2061,901,1983,877,1959,865,1938,848,1905,814"/>
-<area shape="rect" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2296,754,2401,779"/>
-<area shape="poly" title=" " alt="" coords="1935,768,1983,753,2063,735,2127,728,2191,731,2272,744,2305,751,2304,757,2272,749,2191,737,2127,733,2064,740,1985,759,1937,773"/>
-<area shape="rect" href="../../dd/db8/structgather__scatter_1_1gs__t.html" title=" " alt="" coords="2063,754,2213,779"/>
-<area shape="poly" title=" " alt="" coords="1973,778,2062,770,2063,776,1974,783"/>
-<area shape="rect" href="../../d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1569,573,1683,598"/>
-<area shape="poly" title=" " alt="" coords="1697,583,1887,583,2350,583,2388,588,2422,603,2453,626,2481,652,2524,708,2550,752,2546,755,2520,711,2477,656,2450,630,2419,608,2386,593,2350,588,1887,588,1697,588"/>
-<area shape="poly" title=" " alt="" coords="1633,611,1640,649,1655,693,1677,736,1693,755,1711,771,1735,784,1762,792,1817,796,1817,801,1761,797,1733,789,1708,776,1689,759,1673,739,1650,695,1635,650,1628,612"/>
-<area shape="poly" title=" " alt="" coords="1697,598,1710,601,2214,709,2244,715,2273,723,2329,751,2326,756,2271,728,2242,720,2213,715,1709,607,1696,604"/>
-<area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1235,477,1343,502"/>
-<area shape="poly" title=" " alt="" coords="1357,490,1447,502,1496,513,1544,528,1581,548,1611,570,1608,574,1578,553,1542,533,1495,518,1446,507,1356,495"/>
-<area shape="rect" href="../../da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="847,459,964,485"/>
-<area shape="poly" title=" " alt="" coords="978,473,1235,484,1234,490,977,478"/>
-<area shape="rect" href="../../d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1201,526,1376,551"/>
-<area shape="poly" title=" " alt="" coords="1390,545,1543,565,1569,570,1568,575,1542,571,1389,551"/>
-<area shape="rect" href="../../db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="452,635,595,661"/>
-<area shape="poly" title=" " alt="" coords="609,644,944,634,1159,624,1376,609,1568,590,1569,595,1376,615,1159,629,945,639,609,649"/>
-<area shape="rect" href="../../d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="847,574,964,599"/>
-<area shape="poly" title=" " alt="" coords="608,632,846,593,847,599,609,637"/>
-<area shape="rect" href="../../d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="249,686,373,711"/>
-<area shape="poly" title=" " alt="" coords="378,680,469,658,470,663,379,685"/>
-<area shape="rect" href="../../d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="1021,683,1177,709"/>
-<area shape="poly" title=" " alt="" coords="387,696,1021,694,1021,699,387,701"/>
-<area shape="rect" href="../../da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="633,739,789,765"/>
-<area shape="poly" title=" " alt="" coords="387,711,412,715,634,742,633,747,412,720,386,716"/>
-<area shape="rect" href="../../df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="1400,773,1543,798"/>
-<area shape="poly" title=" " alt="" coords="339,718,373,744,417,770,468,792,495,798,522,800,1101,800,1261,796,1400,788,1400,793,1262,801,1101,805,522,805,494,803,466,797,415,775,370,748,335,722"/>
-<area shape="rect" href="../../d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,611,136,637"/>
-<area shape="poly" title=" " alt="" coords="111,640,161,660,250,684,248,689,159,665,109,645"/>
-<area shape="poly" title=" " alt="" coords="48,596,55,588,71,585,84,587,93,594,95,603,91,612,86,610,89,602,88,596,82,592,71,590,57,593,52,600"/>
-<area shape="rect" href="../../d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="235,582,388,607"/>
-<area shape="poly" title=" " alt="" coords="150,612,234,601,235,607,150,617"/>
-<area shape="poly" title=" " alt="" coords="1191,701,1269,703,1359,698,1452,683,1498,671,1542,655,1563,643,1583,627,1613,596,1617,600,1587,631,1566,647,1544,660,1499,676,1453,688,1359,703,1269,708,1191,707"/>
-<area shape="poly" title=" " alt="" coords="803,754,981,758,1197,756,1304,749,1401,738,1482,722,1515,711,1541,699,1569,677,1591,649,1617,597,1622,599,1595,652,1573,681,1544,704,1517,716,1484,727,1402,744,1304,755,1197,761,981,764,803,759"/>
-<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="1034,30,1165,55"/>
-<area shape="poly" title=" " alt="" coords="1177,25,1262,17,1310,17,1361,21,1411,30,1459,45,1504,67,1545,98,1557,114,1569,136,1588,192,1602,260,1612,335,1624,479,1627,572,1622,573,1618,479,1607,336,1597,261,1582,193,1564,138,1553,117,1541,102,1502,72,1457,50,1409,35,1360,26,1310,22,1262,23,1177,31"/>
-<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="255,145,367,170"/>
-<area shape="poly" title=" " alt="" coords="333,132,378,95,406,77,436,63,517,40,601,25,685,16,768,13,919,18,1034,30,1034,35,919,23,768,18,686,22,602,30,518,45,438,68,409,81,381,99,336,137"/>
-<area shape="rect" href="../../d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="451,302,595,327"/>
-<area shape="poly" title=" " alt="" coords="342,176,506,299,503,304,339,180"/>
-<area shape="rect" href="../../df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="639,174,783,199"/>
-<area shape="poly" title=" " alt="" coords="381,160,640,179,639,184,381,165"/>
-<area shape="rect" href="../../d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="446,78,601,103"/>
-<area shape="poly" title=" " alt="" coords="361,137,437,112,475,101,476,106,438,117,362,143"/>
-<area shape="rect" href="../../d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1215,575,1363,601"/>
-<area shape="poly" title=" " alt="" coords="1376,585,1568,583,1568,588,1376,590"/>
-<area shape="poly" title=" " alt="" coords="572,330,634,351,680,359,719,360,755,367,773,377,791,393,802,408,805,424,803,454,801,483,805,496,815,509,837,526,859,538,901,550,942,549,984,541,1028,531,1074,524,1124,525,1179,540,1191,550,1203,560,1233,573,1231,578,1200,565,1188,554,1176,545,1123,531,1074,529,1029,536,985,547,942,555,900,555,857,543,834,530,811,513,800,498,795,483,797,454,800,424,797,410,787,396,770,381,753,372,718,365,679,364,633,356,570,335"/>
-<area shape="rect" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="813,346,997,371"/>
-<area shape="poly" title=" " alt="" coords="609,325,634,328,813,348,813,353,633,333,609,330"/>
-<area shape="rect" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1203,295,1375,335"/>
-<area shape="poly" title=" " alt="" coords="609,312,1202,312,1202,317,609,317"/>
-<area shape="poly" title=" " alt="" coords="978,584,1214,585,1214,590,978,590"/>
-<area shape="rect" href="../../d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="474,511,573,537"/>
-<area shape="poly" title=" " alt="" coords="586,528,682,540,790,557,855,571,853,577,789,563,682,546,586,533"/>
-<area shape="rect" href="../../dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="437,563,609,589"/>
-<area shape="poly" title=" " alt="" coords="623,576,846,582,846,588,623,581"/>
-<area shape="poly" title=" " alt="" coords="402,584,437,581,438,586,402,589"/>
-<area shape="poly" title=" " alt="" coords="1011,353,1127,358,1265,376,1337,392,1409,413,1479,440,1544,475,1571,497,1593,524,1621,571,1617,574,1589,527,1567,501,1541,480,1477,445,1408,418,1336,397,1264,381,1127,364,1011,358"/>
-<area shape="poly" title=" " alt="" coords="1010,344,1202,322,1203,327,1011,349"/>
-<area shape="rect" href="../../d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="460,398,587,423"/>
-<area shape="poly" title=" " alt="" coords="600,398,813,368,813,374,601,403"/>
-<area shape="poly" title=" " alt="" coords="601,411,782,411,890,406,997,395,1048,386,1088,376,1177,348,1227,332,1229,337,1178,353,1089,381,1049,391,998,400,890,411,782,417,601,416"/>
-<area shape="rect" href="../../d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="257,283,365,309"/>
-<area shape="poly" title=" " alt="" coords="349,313,500,396,497,400,346,318"/>
-<area shape="rect" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="644,226,779,251"/>
-<area shape="poly" title=" " alt="" coords="379,284,643,246,644,251,379,289"/>
-<area shape="poly" title=" " alt="" coords="1389,330,1429,342,1470,359,1509,380,1545,407,1578,449,1601,495,1616,539,1625,572,1620,573,1611,541,1596,497,1573,451,1541,411,1506,385,1468,364,1427,347,1388,335"/>
-<area shape="poly" title=" " alt="" coords="793,237,970,248,1074,259,1178,276,1235,292,1234,297,1177,281,1074,264,970,253,792,243"/>
-<area shape="poly" title=" " alt="" coords="797,183,879,186,976,196,1079,216,1130,230,1178,247,1222,269,1260,292,1257,297,1220,273,1176,252,1128,235,1078,221,976,202,879,192,797,188"/>
-<area shape="rect" href="../../dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="848,78,963,103"/>
-<area shape="poly" title=" " alt="" coords="977,93,1098,110,1172,126,1251,148,1330,176,1408,213,1481,259,1545,316,1569,347,1588,382,1602,419,1613,456,1624,525,1627,572,1622,572,1619,525,1608,457,1597,421,1583,384,1565,350,1541,319,1477,264,1406,218,1328,181,1249,153,1171,131,1097,115,976,98"/>
-<area shape="rect" href="../../d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="440,127,607,153"/>
-<area shape="poly" title=" " alt="" coords="621,128,789,108,847,99,848,104,790,113,621,133"/>
-<area shape="poly" title=" " alt="" coords="615,88,848,88,848,93,615,93"/>
-<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1567,885,1685,910"/>
-<area shape="poly" title=" " alt="" coords="1698,879,1753,865,1792,850,1804,838,1816,825,1858,798,1861,803,1819,829,1808,842,1795,854,1755,870,1700,884"/>
-<area shape="poly" title=" " alt="" coords="1699,888,1793,876,2077,823,2295,776,2296,781,2078,829,1794,881,1699,893"/>
-<area shape="rect" title=" " alt="" coords="1261,987,1316,1013"/>
-<area shape="poly" title=" " alt="" coords="1297,973,1311,940,1333,902,1362,865,1399,835,1434,821,1481,811,1592,803,1706,801,1793,797,1817,795,1817,800,1794,803,1706,806,1592,808,1481,817,1436,826,1401,840,1366,869,1337,905,1316,943,1302,975"/>
-<area shape="poly" title=" " alt="" coords="1330,1007,1376,1015,1430,1018,1487,1013,1515,1007,1541,996,1568,978,1589,955,1617,909,1621,912,1593,958,1571,982,1544,1001,1517,1012,1488,1018,1430,1023,1375,1020,1329,1012"/>
-<area shape="poly" title=" " alt="" coords="1330,1010,1441,1037,1515,1051,1598,1063,1687,1070,1779,1069,1871,1060,1959,1039,2022,1014,2083,982,2141,945,2194,905,2281,830,2334,778,2337,781,2284,834,2197,909,2144,949,2086,986,2025,1019,1961,1044,1872,1065,1780,1075,1687,1075,1598,1068,1514,1057,1440,1042,1329,1015"/>
-<area shape="poly" title=" " alt="" coords="2415,764,2483,764,2483,769,2415,769"/>
-<area shape="poly" title=" " alt="" coords="2227,764,2295,764,2295,769,2227,769"/>
-<area shape="poly" title=" " alt="" coords="1537,766,1542,764,1553,758,1566,752,1634,739,1703,732,1841,730,1967,738,2066,751,2065,757,1966,744,1841,735,1704,737,1634,745,1567,757,1556,762,1544,769,1539,771"/>
+<area shape="rect" title="Map every GLL point in the mesh to a level in one physical direction. Can be used to average across t..." alt="" coords="2500,291,2647,317"/>
+<area shape="rect" href="../../d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1835,151,1977,177"/>
+<area shape="poly" title=" " alt="" coords="1954,145,2001,133,2065,124,2117,119,2167,122,2231,133,2282,148,2331,166,2425,210,2503,255,2555,289,2552,294,2500,259,2423,215,2329,171,2280,153,2230,139,2167,127,2117,124,2066,129,2002,139,1955,150"/>
+<area shape="rect" href="../../d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2313,291,2419,317"/>
+<area shape="poly" title=" " alt="" coords="1991,153,2059,152,2137,157,2216,174,2254,187,2291,204,2315,223,2336,247,2361,290,2357,293,2331,250,2312,227,2288,209,2252,192,2215,179,2136,163,2059,157,1991,158"/>
+<area shape="rect" href="../../dd/db8/structgather__scatter_1_1gs__t.html" title="Gather&#45;scatter kernel." alt="" coords="2080,291,2231,317"/>
+<area shape="poly" title=" " alt="" coords="1927,186,1960,222,2003,256,2044,276,2086,289,2084,294,2042,281,2000,261,1956,226,1923,190"/>
+<area shape="rect" href="../../d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1569,702,1683,727"/>
+<area shape="poly" title=" " alt="" coords="1697,704,1795,695,1905,691,2367,691,2398,687,2425,678,2449,662,2470,642,2489,618,2505,591,2531,530,2549,465,2560,404,2569,317,2574,317,2565,405,2554,466,2536,531,2510,593,2493,621,2474,646,2452,666,2427,682,2399,692,2367,696,1905,696,1795,700,1697,709"/>
+<area shape="poly" title=" " alt="" coords="1642,689,1718,573,1765,494,1808,412,1839,344,1865,275,1898,176,1903,178,1870,277,1844,346,1813,414,1770,497,1723,575,1646,692"/>
+<area shape="poly" title=" " alt="" coords="1660,693,1708,672,1754,659,1797,650,1878,642,1951,644,2020,647,2086,646,2151,634,2184,622,2218,605,2252,582,2287,553,2311,526,2329,494,2342,461,2352,426,2361,362,2362,317,2368,317,2366,362,2357,427,2347,462,2334,497,2315,529,2291,557,2255,587,2220,610,2186,627,2153,639,2086,651,2020,652,1951,649,1878,648,1798,655,1755,664,1710,677,1663,698"/>
+<area shape="rect" href="../../db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="1235,1059,1343,1085"/>
+<area shape="poly" title=" " alt="" coords="1356,1084,1401,1089,1451,1088,1499,1077,1521,1067,1541,1053,1558,1029,1574,992,1598,895,1613,796,1621,727,1626,728,1619,797,1603,897,1579,994,1563,1032,1545,1057,1524,1071,1501,1082,1451,1093,1401,1094,1355,1090"/>
+<area shape="rect" href="../../da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="847,1059,964,1085"/>
+<area shape="poly" title=" " alt="" coords="977,1069,1234,1069,1234,1075,977,1075"/>
+<area shape="rect" href="../../d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="1201,1109,1376,1134"/>
+<area shape="poly" title=" " alt="" coords="1346,1135,1393,1142,1445,1144,1496,1134,1520,1124,1541,1110,1561,1082,1578,1038,1592,984,1602,924,1616,807,1621,727,1627,728,1621,807,1608,924,1597,985,1583,1040,1566,1085,1545,1114,1522,1129,1498,1140,1445,1149,1392,1148,1345,1140"/>
+<area shape="rect" href="../../db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="452,907,595,933"/>
+<area shape="poly" title=" " alt="" coords="609,919,696,917,789,911,1005,888,1173,863,1252,845,1336,823,1542,754,1602,725,1604,730,1544,758,1338,828,1253,851,1174,868,1006,893,790,916,696,922,609,924"/>
+<area shape="rect" href="../../d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="847,829,964,854"/>
+<area shape="poly" title=" " alt="" coords="608,909,696,897,789,879,872,851,874,857,790,884,697,902,609,915"/>
+<area shape="rect" href="../../d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="249,933,373,958"/>
+<area shape="poly" title=" " alt="" coords="387,934,452,926,452,931,388,939"/>
+<area shape="rect" href="../../d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="1021,953,1177,978"/>
+<area shape="poly" title=" " alt="" coords="387,945,1021,961,1021,966,387,950"/>
+<area shape="rect" href="../../da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="633,1009,789,1034"/>
+<area shape="poly" title=" " alt="" coords="349,962,413,987,469,999,527,1008,633,1017,633,1022,527,1013,468,1005,411,992,347,967"/>
+<area shape="rect" href="../../df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="1400,358,1543,383"/>
+<area shape="poly" title=" " alt="" coords="354,924,372,911,386,895,403,863,414,832,420,803,422,774,417,718,407,664,396,610,393,555,396,526,404,496,416,466,435,435,456,408,476,388,498,373,520,363,570,348,633,332,744,308,860,296,975,295,1087,301,1191,312,1284,327,1422,355,1421,361,1283,332,1190,317,1086,306,975,300,860,302,745,313,634,337,571,353,522,368,500,378,480,392,460,411,440,437,421,468,409,498,401,527,398,555,402,610,412,663,423,718,427,774,425,803,419,834,407,865,390,897,376,915,358,928"/>
+<area shape="rect" href="../../d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="5,895,136,921"/>
+<area shape="poly" title=" " alt="" coords="109,924,161,941,205,947,249,947,249,953,205,952,159,947,107,929"/>
+<area shape="poly" title=" " alt="" coords="48,880,55,872,71,869,84,871,93,878,95,887,91,896,86,894,89,886,88,880,82,876,71,874,57,877,52,884"/>
+<area shape="rect" href="../../d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="235,858,388,883"/>
+<area shape="poly" title=" " alt="" coords="149,893,234,880,235,885,150,898"/>
+<area shape="poly" title=" " alt="" coords="1172,978,1255,987,1352,987,1402,981,1452,969,1498,951,1541,925,1563,904,1581,878,1595,851,1605,822,1617,767,1621,727,1627,728,1622,768,1610,823,1600,853,1585,881,1567,907,1544,929,1501,955,1453,974,1403,986,1353,992,1255,993,1172,983"/>
+<area shape="poly" title=" " alt="" coords="803,1021,996,1023,1228,1021,1337,1017,1431,1010,1502,1000,1526,993,1541,986,1568,958,1589,925,1604,888,1614,850,1623,778,1623,728,1628,728,1628,778,1619,851,1609,889,1594,927,1573,961,1544,990,1528,998,1503,1005,1432,1016,1337,1023,1228,1027,996,1029,803,1026"/>
+<area shape="rect" href="../../d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="1034,775,1165,801"/>
+<area shape="poly" title=" " alt="" coords="1178,777,1376,752,1568,722,1569,727,1376,757,1179,782"/>
+<area shape="rect" href="../../d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="255,590,367,615"/>
+<area shape="poly" title=" " alt="" coords="328,626,346,655,371,688,402,719,439,743,487,760,554,772,634,780,720,786,894,789,1034,787,1034,793,894,794,720,791,633,786,554,777,486,765,436,748,399,723,367,691,342,658,324,629"/>
+<area shape="rect" href="../../d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="451,579,595,605"/>
+<area shape="poly" title=" " alt="" coords="381,597,451,593,451,598,381,602"/>
+<area shape="rect" href="../../df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="639,522,783,547"/>
+<area shape="poly" title=" " alt="" coords="365,583,437,565,542,548,639,538,639,543,543,554,438,571,366,589"/>
+<area shape="rect" href="../../d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="446,645,601,670"/>
+<area shape="poly" title=" " alt="" coords="375,616,474,642,473,647,374,621"/>
+<area shape="rect" href="../../d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1215,702,1363,727"/>
+<area shape="poly" title=" " alt="" coords="1376,712,1568,712,1568,717,1376,717"/>
+<area shape="poly" title=" " alt="" coords="609,603,1215,700,1214,706,608,608"/>
+<area shape="rect" href="../../d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="813,471,997,497"/>
+<area shape="poly" title=" " alt="" coords="609,592,713,587,758,580,788,569,797,557,800,544,802,529,811,514,844,494,847,499,815,518,807,531,805,545,802,559,791,573,759,585,714,593,609,597"/>
+<area shape="rect" href="../../d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1203,508,1375,548"/>
+<area shape="poly" title=" " alt="" coords="609,592,633,592,711,594,789,592,901,582,1013,569,1202,540,1203,545,1014,574,902,587,789,597,711,599,633,597,609,597"/>
+<area shape="poly" title=" " alt="" coords="934,818,974,793,1020,771,1063,758,1098,752,1177,740,1239,725,1240,730,1178,745,1099,757,1064,763,1022,776,976,798,937,823"/>
+<area shape="rect" href="../../d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="474,809,573,834"/>
+<area shape="poly" title=" " alt="" coords="587,819,790,825,847,831,846,836,789,831,586,824"/>
+<area shape="rect" href="../../dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="437,858,609,883"/>
+<area shape="poly" title=" " alt="" coords="623,860,846,843,846,848,623,866"/>
+<area shape="poly" title=" " alt="" coords="402,868,437,868,437,873,402,873"/>
+<area shape="poly" title=" " alt="" coords="969,466,1088,446,1162,440,1241,440,1322,447,1402,464,1477,494,1512,514,1544,538,1563,557,1579,578,1602,624,1617,668,1625,701,1620,702,1612,670,1598,626,1574,581,1559,560,1541,542,1509,518,1474,499,1400,469,1321,452,1241,445,1162,445,1089,451,970,471"/>
+<area shape="poly" title=" " alt="" coords="1011,493,1203,516,1202,521,1010,499"/>
+<area shape="rect" href="../../d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="460,449,587,474"/>
+<area shape="poly" title=" " alt="" coords="600,463,813,476,813,481,600,469"/>
+<area shape="poly" title=" " alt="" coords="600,449,633,447,787,438,908,438,1028,452,1178,485,1239,505,1237,510,1177,491,1027,457,908,443,788,444,634,452,601,455"/>
+<area shape="rect" href="../../d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="257,382,365,407"/>
+<area shape="poly" title=" " alt="" coords="366,409,483,446,481,451,365,414"/>
+<area shape="rect" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="644,347,779,373"/>
+<area shape="poly" title=" " alt="" coords="379,386,644,363,644,368,379,392"/>
+<area shape="poly" title=" " alt="" coords="1379,550,1461,581,1504,602,1544,626,1587,664,1617,700,1613,704,1584,668,1541,630,1502,606,1459,586,1377,555"/>
+<area shape="poly" title=" " alt="" coords="792,352,876,352,975,360,1079,380,1130,396,1179,416,1199,431,1224,455,1272,506,1268,509,1220,458,1196,435,1176,421,1128,401,1078,385,974,366,876,358,792,358"/>
+<area shape="poly" title=" " alt="" coords="797,534,813,535,997,535,1202,529,1202,534,997,540,813,540,797,540"/>
+<area shape="rect" href="../../dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="848,725,963,750"/>
+<area shape="poly" title=" " alt="" coords="958,718,996,703,1020,691,1098,674,1165,663,1225,659,1280,659,1396,671,1543,692,1580,699,1579,705,1542,697,1396,677,1280,665,1225,664,1166,669,1099,679,1022,696,998,708,960,723"/>
+<area shape="rect" href="../../d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="440,707,607,733"/>
+<area shape="poly" title=" " alt="" coords="621,727,633,728,848,734,848,740,633,733,621,732"/>
+<area shape="poly" title=" " alt="" coords="585,671,634,683,848,724,847,729,633,688,584,676"/>
+<area shape="rect" href="../../da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="1567,202,1685,227"/>
+<area shape="poly" title=" " alt="" coords="1694,196,1709,193,1834,172,1835,177,1710,199,1695,202"/>
+<area shape="poly" title=" " alt="" coords="1699,215,1863,224,2056,241,2174,258,2290,281,2320,289,2319,294,2289,287,2173,263,2056,247,1862,229,1699,220"/>
+<area shape="rect" title=" " alt="" coords="1261,230,1316,255"/>
+<area shape="poly" title=" " alt="" coords="1296,216,1310,182,1332,144,1361,106,1399,78,1431,63,1465,53,1536,45,1608,50,1677,64,1743,84,1801,108,1884,149,1881,153,1799,113,1741,89,1676,69,1607,55,1536,50,1467,58,1433,68,1401,82,1365,110,1336,147,1315,185,1301,218"/>
+<area shape="poly" title=" " alt="" coords="1330,244,1427,247,1485,245,1542,239,1593,225,1594,230,1543,244,1485,250,1427,252,1330,249"/>
+<area shape="poly" title=" " alt="" coords="1330,255,1536,337,1812,450,1835,460,1874,466,1912,468,1991,462,2067,445,2140,420,2207,392,2265,362,2344,315,2347,319,2267,367,2209,397,2142,425,2069,450,1991,467,1912,473,1873,471,1834,465,1810,454,1534,342,1328,260"/>
+<area shape="poly" title=" " alt="" coords="1330,245,1400,253,1782,282,2080,298,2079,303,1782,287,1400,259,1329,251"/>
+<area shape="poly" title=" " alt="" coords="2433,301,2500,301,2500,307,2433,307"/>
+<area shape="poly" title=" " alt="" coords="2245,301,2313,301,2313,307,2245,307"/>
+<area shape="poly" title=" " alt="" coords="1556,362,1782,344,2056,316,2079,313,2080,318,2056,321,1782,349,1556,367"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aeeedf19475831edfa8cc55bc070e3d3e" id="r_aeeedf19475831edfa8cc55bc070e3d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#aeeedf19475831edfa8cc55bc070e3d3e">init_int</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a>)</td></tr>
+<tr class="memitem:aeeedf19475831edfa8cc55bc070e3d3e" id="r_aeeedf19475831edfa8cc55bc070e3d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#aeeedf19475831edfa8cc55bc070e3d3e">init_int</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a>)</td></tr>
 <tr class="memdesc:aeeedf19475831edfa8cc55bc070e3d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:aeeedf19475831edfa8cc55bc070e3d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a820b7a7b2dc33167e2459a2d57ab39bd" id="r_a820b7a7b2dc33167e2459a2d57ab39bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a820b7a7b2dc33167e2459a2d57ab39bd">init_char</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a>)</td></tr>
+<tr class="memitem:a820b7a7b2dc33167e2459a2d57ab39bd" id="r_a820b7a7b2dc33167e2459a2d57ab39bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a820b7a7b2dc33167e2459a2d57ab39bd">init_char</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a>)</td></tr>
 <tr class="separator:a820b7a7b2dc33167e2459a2d57ab39bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0882467f8bfed8699c32ac118b6d238" id="r_ad0882467f8bfed8699c32ac118b6d238"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#ad0882467f8bfed8699c32ac118b6d238">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a>)</td></tr>
+<tr class="memitem:ad0882467f8bfed8699c32ac118b6d238" id="r_ad0882467f8bfed8699c32ac118b6d238"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#ad0882467f8bfed8699c32ac118b6d238">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a>)</td></tr>
 <tr class="memdesc:ad0882467f8bfed8699c32ac118b6d238"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:ad0882467f8bfed8699c32ac118b6d238"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0882467f8bfed8699c32ac118b6d238" id="r_ad0882467f8bfed8699c32ac118b6d238"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#ad0882467f8bfed8699c32ac118b6d238">init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a>)</td></tr>
+<tr class="memitem:ad0882467f8bfed8699c32ac118b6d238" id="r_ad0882467f8bfed8699c32ac118b6d238"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#ad0882467f8bfed8699c32ac118b6d238">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a>, <a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a>)</td></tr>
 <tr class="separator:ad0882467f8bfed8699c32ac118b6d238"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abfcde6893ba05dc2a636bc1885c9744a" id="r_abfcde6893ba05dc2a636bc1885c9744a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#abfcde6893ba05dc2a636bc1885c9744a">free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
+<tr class="memitem:abfcde6893ba05dc2a636bc1885c9744a" id="r_abfcde6893ba05dc2a636bc1885c9744a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#abfcde6893ba05dc2a636bc1885c9744a">free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:abfcde6893ba05dc2a636bc1885c9744a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:abfcde6893ba05dc2a636bc1885c9744a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a43dce50f31655f5e3dc3f62018fd75" id="r_a2a43dce50f31655f5e3dc3f62018fd75"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a2a43dce50f31655f5e3dc3f62018fd75">average_planes_fld_lst</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">avg_planes</a>, field_list)</td></tr>
+<tr class="memitem:a2a43dce50f31655f5e3dc3f62018fd75" id="r_a2a43dce50f31655f5e3dc3f62018fd75"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a2a43dce50f31655f5e3dc3f62018fd75">average_planes_fld_lst</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">avg_planes</a>, field_list)</td></tr>
 <tr class="memdesc:a2a43dce50f31655f5e3dc3f62018fd75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Average field list along planes.  <br /></td></tr>
 <tr class="separator:a2a43dce50f31655f5e3dc3f62018fd75"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0149aeabadf79e531b16e6b3572fa4dd" id="r_a0149aeabadf79e531b16e6b3572fa4dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a0149aeabadf79e531b16e6b3572fa4dd">average_planes_vec_ptr</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">avg_planes</a>, vector_ptr)</td></tr>
-<tr class="memdesc:a0149aeabadf79e531b16e6b3572fa4dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes average if vector_pt in two directions and outputs matrix with averaged values avg_planes contains coordinates in first row, avg. of fields in the rest.  <br /></td></tr>
+<tr class="memitem:a0149aeabadf79e531b16e6b3572fa4dd" id="r_a0149aeabadf79e531b16e6b3572fa4dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a0149aeabadf79e531b16e6b3572fa4dd">average_planes_vec_ptr</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">avg_planes</a>, vector_ptr)</td></tr>
+<tr class="memdesc:a0149aeabadf79e531b16e6b3572fa4dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes average of vector_pt in two directions and outputs matrix with averaged values avg_planes contains coordinates in first row, avg. of fields in the rest.  <br /></td></tr>
 <tr class="separator:a0149aeabadf79e531b16e6b3572fa4dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6fd57ecf349441a1d4abe5e6085ea2d7" id="r_a6fd57ecf349441a1d4abe5e6085ea2d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a6fd57ecf349441a1d4abe5e6085ea2d7">average_planes</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">avg_planes</a>, field_list)</td></tr>
+<tr class="memitem:a6fd57ecf349441a1d4abe5e6085ea2d7" id="r_a6fd57ecf349441a1d4abe5e6085ea2d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a6fd57ecf349441a1d4abe5e6085ea2d7">average_planes</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">avg_planes</a>, field_list)</td></tr>
 <tr class="memdesc:a6fd57ecf349441a1d4abe5e6085ea2d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Average field list along planes.  <br /></td></tr>
 <tr class="separator:a6fd57ecf349441a1d4abe5e6085ea2d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69086005ea72733949d7004ac8e5cc40" id="r_a69086005ea72733949d7004ac8e5cc40"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a69086005ea72733949d7004ac8e5cc40">average_planes</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">avg_planes</a>, vector_ptr)</td></tr>
-<tr class="memdesc:a69086005ea72733949d7004ac8e5cc40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes average if vector_pt in two directions and outputs matrix with averaged values avg_planes contains coordinates in first row, avg. of fields in the rest.  <br /></td></tr>
+<tr class="memitem:a69086005ea72733949d7004ac8e5cc40" id="r_a69086005ea72733949d7004ac8e5cc40"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a69086005ea72733949d7004ac8e5cc40">average_planes</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">avg_planes</a>, vector_ptr)</td></tr>
+<tr class="memdesc:a69086005ea72733949d7004ac8e5cc40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes average of vector_pt in two directions and outputs matrix with averaged values avg_planes contains coordinates in first row, avg. of fields in the rest.  <br /></td></tr>
 <tr class="separator:a69086005ea72733949d7004ac8e5cc40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a41bcaf0441c5ea2af8b8724295026c2e" id="r_a41bcaf0441c5ea2af8b8724295026c2e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a41bcaf0441c5ea2af8b8724295026c2e">dir_el</a></td></tr>
-<tr class="memdesc:a41bcaf0441c5ea2af8b8724295026c2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether the specified direction is in the r,s, or t direction for each element.  <br /></td></tr>
+<tr class="memitem:a41bcaf0441c5ea2af8b8724295026c2e" id="r_a41bcaf0441c5ea2af8b8724295026c2e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a41bcaf0441c5ea2af8b8724295026c2e">dir_el</a></td></tr>
+<tr class="memdesc:a41bcaf0441c5ea2af8b8724295026c2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local tensor-product direction aligned with the requested physical direction for each element. Values 1, 2, and 3 correspond to <code>r</code>, <code>s</code>, and <code>t</code>, respectively.  <br /></td></tr>
 <tr class="separator:a41bcaf0441c5ea2af8b8724295026c2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab89d6bbbc409013e19fc09c37ef76ded" id="r_ab89d6bbbc409013e19fc09c37ef76ded"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#ab89d6bbbc409013e19fc09c37ef76ded">el_lvl</a></td></tr>
-<tr class="memdesc:ab89d6bbbc409013e19fc09c37ef76ded"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks which level an element belongs to.  <br /></td></tr>
+<tr class="memitem:ab89d6bbbc409013e19fc09c37ef76ded" id="r_ab89d6bbbc409013e19fc09c37ef76ded"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#ab89d6bbbc409013e19fc09c37ef76ded">el_lvl</a></td></tr>
+<tr class="memdesc:ab89d6bbbc409013e19fc09c37ef76ded"><td class="mdescLeft">&#160;</td><td class="mdescRight">One-dimensional element level assigned by propagating the global minimum coordinate through the mesh connectivity.  <br /></td></tr>
 <tr class="separator:ab89d6bbbc409013e19fc09c37ef76ded"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa41ed1913b54c6ac779da12788517065" id="r_aa41ed1913b54c6ac779da12788517065"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:,:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#aa41ed1913b54c6ac779da12788517065">pt_lvl</a></td></tr>
-<tr class="memdesc:aa41ed1913b54c6ac779da12788517065"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks which level or id in the 1D GLL mapping each point in the dofmap is.  <br /></td></tr>
-<tr class="separator:aa41ed1913b54c6ac779da12788517065"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad88606f54b45843886c2f26d0d752770" id="r_ad88606f54b45843886c2f26d0d752770"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#ad88606f54b45843886c2f26d0d752770">n_el_lvls</a></td></tr>
-<tr class="memdesc:ad88606f54b45843886c2f26d0d752770"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of elements stacked on top of eachother in the specified direction.  <br /></td></tr>
+<tr class="memitem:a8c488116a14b3180994283835285613f" id="r_a8c488116a14b3180994283835285613f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:, :, :, :), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a8c488116a14b3180994283835285613f">pt_lvl</a></td></tr>
+<tr class="memdesc:a8c488116a14b3180994283835285613f"><td class="mdescLeft">&#160;</td><td class="mdescRight">One-dimensional GLL level for each local point in each element. Levels run from 1 to <code>n_gll_lvls</code> and are used as row indices in the averaged output matrix.  <br /></td></tr>
+<tr class="separator:a8c488116a14b3180994283835285613f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad88606f54b45843886c2f26d0d752770" id="r_ad88606f54b45843886c2f26d0d752770"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#ad88606f54b45843886c2f26d0d752770">n_el_lvls</a></td></tr>
+<tr class="memdesc:ad88606f54b45843886c2f26d0d752770"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of element levels in the requested physical direction.  <br /></td></tr>
 <tr class="separator:ad88606f54b45843886c2f26d0d752770"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b9f63b7260553f5c1c3cdcb6710ef30" id="r_a7b9f63b7260553f5c1c3cdcb6710ef30"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a7b9f63b7260553f5c1c3cdcb6710ef30">n_gll_lvls</a></td></tr>
-<tr class="memdesc:a7b9f63b7260553f5c1c3cdcb6710ef30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of total gll levels.  <br /></td></tr>
+<tr class="memitem:a7b9f63b7260553f5c1c3cdcb6710ef30" id="r_a7b9f63b7260553f5c1c3cdcb6710ef30"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a7b9f63b7260553f5c1c3cdcb6710ef30">n_gll_lvls</a></td></tr>
+<tr class="memdesc:a7b9f63b7260553f5c1c3cdcb6710ef30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of total GLL levels in the requested physical direction. For a polynomial space with <code>lx</code> points per element direction, this is <code>n_el_lvls * lx</code>.  <br /></td></tr>
 <tr class="separator:a7b9f63b7260553f5c1c3cdcb6710ef30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acbf9bb19e7246105bb19c1b88f378a73" id="r_acbf9bb19e7246105bb19c1b88f378a73"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#acbf9bb19e7246105bb19c1b88f378a73">dof</a> =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td></tr>
-<tr class="memdesc:acbf9bb19e7246105bb19c1b88f378a73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dofmap Dofmap.  <br /></td></tr>
+<tr class="memitem:acbf9bb19e7246105bb19c1b88f378a73" id="r_acbf9bb19e7246105bb19c1b88f378a73"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#acbf9bb19e7246105bb19c1b88f378a73">dof</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
+<tr class="memdesc:acbf9bb19e7246105bb19c1b88f378a73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dofmap that owns the physical coordinates used to build the map.  <br /></td></tr>
 <tr class="separator:acbf9bb19e7246105bb19c1b88f378a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e9a0def5394e9ae78e4357eb0a4aae7" id="r_a3e9a0def5394e9ae78e4357eb0a4aae7"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a> =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td></tr>
-<tr class="memdesc:a3e9a0def5394e9ae78e4357eb0a4aae7"><td class="mdescLeft">&#160;</td><td class="mdescRight">SEM coefs.  <br /></td></tr>
+<tr class="memitem:a3e9a0def5394e9ae78e4357eb0a4aae7" id="r_a3e9a0def5394e9ae78e4357eb0a4aae7"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3e9a0def5394e9ae78e4357eb0a4aae7">coef</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
+<tr class="memdesc:a3e9a0def5394e9ae78e4357eb0a4aae7"><td class="mdescLeft">&#160;</td><td class="mdescRight">SEM coefficients that provide quadrature weights and connectivity.  <br /></td></tr>
 <tr class="separator:a3e9a0def5394e9ae78e4357eb0a4aae7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61320c02d3d165bc995fc471f3627bc3" id="r_a61320c02d3d165bc995fc471f3627bc3"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a61320c02d3d165bc995fc471f3627bc3">msh</a> =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td></tr>
-<tr class="memdesc:a61320c02d3d165bc995fc471f3627bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mesh.  <br /></td></tr>
+<tr class="memitem:a61320c02d3d165bc995fc471f3627bc3" id="r_a61320c02d3d165bc995fc471f3627bc3"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a61320c02d3d165bc995fc471f3627bc3">msh</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
+<tr class="memdesc:a61320c02d3d165bc995fc471f3627bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mesh associated with <code>dof</code> and <code>coef</code>.  <br /></td></tr>
 <tr class="separator:a61320c02d3d165bc995fc471f3627bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72e07e1c90032a698dd8778e846c7935" id="r_a72e07e1c90032a698dd8778e846c7935"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a></td></tr>
-<tr class="memdesc:a72e07e1c90032a698dd8778e846c7935"><td class="mdescLeft">&#160;</td><td class="mdescRight">The specified direction in which we create the 1D mapping.  <br /></td></tr>
+<tr class="memitem:a72e07e1c90032a698dd8778e846c7935" id="r_a72e07e1c90032a698dd8778e846c7935"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a72e07e1c90032a698dd8778e846c7935">dir</a></td></tr>
+<tr class="memdesc:a72e07e1c90032a698dd8778e846c7935"><td class="mdescLeft">&#160;</td><td class="mdescRight">Requested physical direction of the 1D mapping. Values 1, 2, and 3 correspond to <code>x</code>, <code>y</code>, and <code>z</code>, respectively.  <br /></td></tr>
 <tr class="separator:a72e07e1c90032a698dd8778e846c7935"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c8a34cfa1467714bb2898ad9a0ccf45" id="r_a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a> = 1e-7</td></tr>
-<tr class="memdesc:a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tolerance for the mesh.  <br /></td></tr>
+<tr class="memitem:a3c8a34cfa1467714bb2898ad9a0ccf45" id="r_a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a> = 1e-7</td></tr>
+<tr class="memdesc:a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coordinate comparison tolerance used when identifying propagated levels.  <br /></td></tr>
 <tr class="separator:a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa97b415f401cb03da86d950c49b25866" id="r_aa97b415f401cb03da86d950c49b25866"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#aa97b415f401cb03da86d950c49b25866">volume_per_gll_lvl</a></td></tr>
-<tr class="memdesc:aa97b415f401cb03da86d950c49b25866"><td class="mdescLeft">&#160;</td><td class="mdescRight">Volume per level in the 1d grid.  <br /></td></tr>
+<tr class="memitem:aa97b415f401cb03da86d950c49b25866" id="r_aa97b415f401cb03da86d950c49b25866"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#aa97b415f401cb03da86d950c49b25866">volume_per_gll_lvl</a></td></tr>
+<tr class="memdesc:aa97b415f401cb03da86d950c49b25866"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integrated quadrature weight volume associated with each GLL level. Used as the denominator when computing plane averages.  <br /></td></tr>
 <tr class="separator:aa97b415f401cb03da86d950c49b25866"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><dl class="section remark"><dt>Remarks</dt><dd>Could also be rather easily extended to say polar coordinates as well ( I think). Martin Karp </dd></dl>
+<div class="textblock"><p>This type is used to average fields over planes normal to one physical direction. The constructor first determines which local tensor-product direction (<code>r</code>, <code>s</code>, or <code>t</code>) is most closely aligned with the requested physical direction (<code>x</code>, <code>y</code>, or <code>z</code>) for each element. It then assigns a one-dimensional element level to each element and expands that element level into GLL-point levels along the aligned local direction.</p>
+<p>The element-level assignment is based on propagation of the global minimum coordinate through the gather-scatter connectivity. Elements whose minimum coordinate matches the global minimum are assigned to the first level. On each following pass, the current lower face of every element is masked to the global maximum, a gather-scatter add exchanges boundary values, and the result is converted into an effective boundary minimum. Elements that have newly received the global minimum are assigned to the next level. This repeats until the propagated minimum reaches the global maximum level.</p>
+<p>Once element levels are known, every GLL point receives a global 1D level (<code>pt_lvl</code>) ordered consistently with the local element orientation. The constructor also accumulates <code>volume_per_gll_lvl</code>, the quadrature weight volume associated with each 1D level. Averaging then sums each field into these levels and divides by the corresponding level volume.</p>
+<p>The propagation algorithm assumes that the connectivity and coordinate layout allow a unique stack of element levels in the requested direction. If an element level remains unassigned, the resulting point levels are not valid for the volume accumulation or averaging steps. </p><dl class="section remark"><dt>Remarks</dt><dd>Could also be rather easily extended to say polar coordinates as well (I think). Martin Karp </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00027">27</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a6fd57ecf349441a1d4abe5e6085ea2d7" name="a6fd57ecf349441a1d4abe5e6085ea2d7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6fd57ecf349441a1d4abe5e6085ea2d7">&#9670;&#160;</a></span>average_planes() <span class="overload">[1/2]</span></h2>
@@ -278,21 +282,21 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> map_1d::map_1d_t::average_planes </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a> map_1d::map_1d_t::average_planes </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>avg_planes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>field_list</em>&#160;</td>
         </tr>
         <tr>
@@ -310,7 +314,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -321,21 +325,21 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> map_1d::map_1d_t::average_planes </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a> map_1d::map_1d_t::average_planes </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>avg_planes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d5/d0b/structvector_1_1vector__ptr__t.html">vector_ptr_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d5/d0b/structvector_1_1vector__ptr__t.html">vector_ptr_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>vector_ptr</em>&#160;</td>
         </tr>
         <tr>
@@ -353,7 +357,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -364,21 +368,21 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) map_1d::map_1d_t::average_planes_fld_lst </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) map_1d::map_1d_t::average_planes_fld_lst </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>avg_planes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>field_list</em>&#160;</td>
         </tr>
         <tr>
@@ -396,7 +400,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00128">128</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -407,21 +411,21 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) map_1d::map_1d_t::average_planes_vec_ptr </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) map_1d::map_1d_t::average_planes_vec_ptr </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>avg_planes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d5/d0b/structvector_1_1vector__ptr__t.html">vector_ptr_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d5/d0b/structvector_1_1vector__ptr__t.html">vector_ptr_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>vector_ptr</em>&#160;</td>
         </tr>
         <tr>
@@ -439,7 +443,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00130">130</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -450,16 +454,16 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) map_1d::map_1d_t::free </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) map_1d::map_1d_t::free </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
           <td class="paramname"><em>this</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00126">126</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -470,27 +474,27 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> map_1d::map_1d_t::init </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a> map_1d::map_1d_t::init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
           <td class="paramname"><em>coef</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>dir</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>tol</em>&#160;</td>
         </tr>
         <tr>
@@ -501,7 +505,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -512,27 +516,27 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">generic</a> map_1d::map_1d_t::init </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">generic</a> map_1d::map_1d_t::init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
           <td class="paramname"><em>coef</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>dir</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>tol</em>&#160;</td>
         </tr>
         <tr>
@@ -543,7 +547,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -554,27 +558,27 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) map_1d::map_1d_t::init_char </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) map_1d::map_1d_t::init_char </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
           <td class="paramname"><em>coef</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>dir</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>tol</em>&#160;</td>
         </tr>
         <tr>
@@ -585,7 +589,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -596,27 +600,27 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">procedure</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pass</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>) map_1d::map_1d_t::init_int </td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) map_1d::map_1d_t::init_int </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
           <td class="paramname"><em>coef</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>dir</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>tol</em>&#160;</td>
         </tr>
         <tr>
@@ -627,7 +631,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00054">54</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00122">122</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -639,12 +643,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> map_1d::map_1d_t::coef =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td>
+          <td class="memname">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a> map_1d::map_1d_t::coef =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00043">43</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -655,12 +659,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> map_1d::map_1d_t::dir</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> map_1d::map_1d_t::dir</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00047">47</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -671,12 +675,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> map_1d::map_1d_t::dir_el</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> map_1d::map_1d_t::dir_el</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00030">30</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -687,12 +691,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> map_1d::map_1d_t::dof =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td>
+          <td class="memname">type(<a class="el" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a> map_1d::map_1d_t::dof =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00041">41</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -703,12 +707,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> map_1d::map_1d_t::el_lvl</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> map_1d::map_1d_t::el_lvl</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00032">32</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -719,12 +723,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">pointer</a> map_1d::map_1d_t::msh =&gt; <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">null</a>()</td>
+          <td class="memname">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a> map_1d::map_1d_t::msh =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00045">45</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -735,12 +739,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> map_1d::map_1d_t::n_el_lvls</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> map_1d::map_1d_t::n_el_lvls</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00036">36</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -751,28 +755,28 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> map_1d::map_1d_t::n_gll_lvls</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> map_1d::map_1d_t::n_gll_lvls</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00038">38</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
-<a id="aa41ed1913b54c6ac779da12788517065" name="aa41ed1913b54c6ac779da12788517065"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa41ed1913b54c6ac779da12788517065">&#9670;&#160;</a></span>pt_lvl</h2>
+<a id="a8c488116a14b3180994283835285613f" name="a8c488116a14b3180994283835285613f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c488116a14b3180994283835285613f">&#9670;&#160;</a></span>pt_lvl</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:,:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> map_1d::map_1d_t::pt_lvl</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:, :, :, :), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> map_1d::map_1d_t::pt_lvl</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00034">34</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -783,12 +787,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp) map_1d::map_1d_t::tol = 1e-7</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp) map_1d::map_1d_t::tol = 1e-7</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00049">49</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -799,12 +803,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a> map_1d::map_1d_t::volume_per_gll_lvl</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kind</a>=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> map_1d::map_1d_t::volume_per_gll_lvl</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -817,7 +821,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d8b/namespacemap__1d.html">map_1d</a></li><li class="navelem"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

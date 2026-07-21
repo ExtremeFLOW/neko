@@ -1,0 +1,9 @@
+<map id="cuda_entropy_visc_smooth_divide" name="cuda_entropy_visc_smooth_divide">
+<area shape="rect" id="Node000001" title=" " alt="" coords="499,57,697,97"/>
+<area shape="rect" id="Node000002" href="$d0/d70/namespaceentropy__viscosity__device.html#a2d4bb2fb5eeca11de9e0831e3b72a58b" title="Divide by multiplicity for smoothing on device." alt="" coords="249,49,451,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="485,79,451,79,451,74,485,74"/>
+<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="7,5,200,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="235,59,200,52,200,47,236,54"/>
+<area shape="rect" id="Node000004" href="$dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide.html#a739adbea8d0deced8d606a95ce8d3415" title=" " alt="" coords="5,85,201,154"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="236,99,202,105,201,100,235,94"/>
+</map>

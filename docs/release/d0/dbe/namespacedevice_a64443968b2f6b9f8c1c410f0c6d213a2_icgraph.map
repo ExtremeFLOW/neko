@@ -1,6 +1,6 @@
 <map id="device::device_sync_stream" name="device::device_sync_stream">
 <area shape="rect" id="Node000001" title="Synchronize a device stream." alt="" coords="473,287,627,327"/>
-<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a5cf2bcb4e6c0f748294987f0c55d9b69" title="Copy data between host and device." alt="" coords="245,165,425,205"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85af1f962f38ba29ddfbf1d9f500c153" title="Copy data between host and device." alt="" coords="245,165,425,205"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="501,282,370,208,373,203,503,278"/>
 <area shape="rect" id="Node000008" href="$d0/dbe/namespacedevice.html#af4efdfe9477e7cf1f9d07c5741c519a3" title="Set memory on the device to a value." alt="" coords="247,354,424,379"/>
 <area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="465,333,382,357,381,351,464,328"/>
@@ -18,6 +18,6 @@
 <area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="233,357,191,352,191,347,234,352"/>
 <area shape="rect" id="Node000010" href="$d9/dfa/namespacegs__device__mpi.html#a1ffb2ff8429c63efe7920436e7fd21d6" title=" " alt="" coords="5,376,197,416"/>
 <area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="234,382,198,387,197,381,233,377"/>
-<area shape="rect" id="Node000011" href="$d8/dcd/namespacegs__device.html#a0dc20023a2019b907a4362fd93c2bd24" title="Gather kernel." alt="" coords="22,440,181,480"/>
+<area shape="rect" id="Node000011" href="$d8/dcd/namespacegs__device.html#a89055bd6c1485bfd35554067912769bf" title="Gather kernel." alt="" coords="22,440,181,480"/>
 <area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="297,388,198,430,166,442,164,437,196,426,294,383"/>
 </map>

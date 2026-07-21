@@ -1,0 +1,8 @@
+<map id="device_deardorff_nut::device_deardorff_nut_compute" name="device_deardorff_nut::device_deardorff_nut_compute">
+<area shape="rect" id="Node000001" title="Compute Deardorff SGS quantities on the device backend." alt="" coords="5,22,172,77"/>
+<area shape="rect" id="Node000002" href="$d5/d24/deardorff__nut_8cu.html#af7d8d9c34b1207466b54bd3438ff2f3e" title=" " alt="" coords="220,29,367,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,47,206,47,206,52,172,52"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="415,29,567,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="367,47,401,47,401,52,367,52"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="453,30,451,20,457,11,470,5,491,3,514,6,527,13,524,18,512,11,491,8,472,10,461,15,456,21,459,28"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="scalars::scalars_t" name="scalars::scalars_t">
+<area shape="rect" id="Node000001" title="Type to manage multiple scalar transport equations." alt="" coords="21,108,156,133"/>
+<area shape="rect" id="Node000002" href="$dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html" title="A helper type that is needed to have an array of polymorphic objects." alt="" coords="5,5,172,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,59,91,108,86,108,86,59"/>
+</map>

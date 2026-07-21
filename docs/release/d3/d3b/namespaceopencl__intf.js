@@ -25,6 +25,7 @@ var namespaceopencl__intf =
     [ "clreleaseprogram", "d6/d07/interfaceopencl__intf_1_1clreleaseprogram.html", "d6/d07/interfaceopencl__intf_1_1clreleaseprogram" ],
     [ "clsetusereventstatus", "d3/d9c/interfaceopencl__intf_1_1clsetusereventstatus.html", "d3/d9c/interfaceopencl__intf_1_1clsetusereventstatus" ],
     [ "clwaitforevents", "db/d99/interfaceopencl__intf_1_1clwaitforevents.html", "db/d99/interfaceopencl__intf_1_1clwaitforevents" ],
+    [ "opencl_buffer_free_all", "db/dd0/interfaceopencl__intf_1_1opencl__buffer__free__all.html", "db/dd0/interfaceopencl__intf_1_1opencl__buffer__free__all" ],
     [ "opencl_device_count", "d3/d3b/namespaceopencl__intf.html#a476f3dd0418dfa1401fb91a1a75635d8", null ],
     [ "opencl_device_name", "d3/d3b/namespaceopencl__intf.html#a07ec4ed5818678cf793c11b2b44543ca", null ],
     [ "opencl_finalize", "d3/d3b/namespaceopencl__intf.html#a43488c7c45d719e3bb5d729808f523ce", null ],

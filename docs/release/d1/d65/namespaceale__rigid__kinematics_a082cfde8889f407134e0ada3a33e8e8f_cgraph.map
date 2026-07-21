@@ -1,0 +1,5 @@
+<map id="ale_rigid_kinematics::compute_body_kinematics_built_in" name="ale_rigid_kinematics::compute_body_kinematics_built_in">
+<area shape="rect" id="Node000001" title="Compute built&#45;in kinematics for a body. Uses inputs from JSON. CPU&#45;only." alt="" coords="5,5,211,60"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#abefc115c94206a01926e8f91d989be53" title="Derivative of math_stepf with respect to x: d(stepf)/dx." alt="" coords="259,20,405,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,30,244,30,244,35,211,35"/>
+</map>

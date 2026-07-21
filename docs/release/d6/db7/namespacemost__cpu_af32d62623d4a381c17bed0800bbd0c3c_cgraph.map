@@ -1,0 +1,11 @@
+<map id="most_cpu::select_bc_operators" name="most_cpu::select_bc_operators">
+<area shape="rect" id="Node000001" title="Selects different expressions for the similarity functions in MOST based on the type of bottom bounda..." alt="" coords="5,73,160,113"/>
+<area shape="rect" id="Node000002" href="$d6/db7/namespacemost__cpu.html#a9541fdcadeed98e6567c06dd24413acd" title=" " alt="" coords="212,5,391,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,70,207,39,232,32,234,37,209,45,130,75"/>
+<area shape="rect" id="Node000003" href="$d6/db7/namespacemost__cpu.html#af393e70b5fccb7f3a4c4f30b8e791d1e" title=" " alt="" coords="208,55,395,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,81,194,77,195,82,160,86"/>
+<area shape="rect" id="Node000004" href="$d6/db7/namespacemost__cpu.html#ac9e2f2046c1df4ab97d6eed2167e4982" title=" " alt="" coords="222,104,381,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="160,98,209,104,208,109,160,104"/>
+<area shape="rect" id="Node000005" href="$d6/db7/namespacemost__cpu.html#a239cf1778a6812ff60dca8bd8dc73e6f" title="Simialrity laws (different for neumann and dirichlet bc&#39;s)" alt="" coords="218,153,385,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="133,110,209,138,238,147,236,152,207,143,132,115"/>
+</map>

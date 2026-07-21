@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -119,20 +119,20 @@ $(document).ready(function(){initNavTree('d2/d50/comm__nccl_8h_source.html','../
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;rccl.h&gt;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">extern</span> <a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">ncclComm_t</a> <a class="code hl_function" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">NEKO_COMM_NCCL</a>;</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">extern</span> <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ncclComm_t</a> <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">NEKO_COMM_NCCL</a>;</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="acuda_2dirichlet__kernel_8h_html_ac2cb217184f95ca86456f610f72bd533"><div class="ttname"><a href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dirichlet_apply_scalar_kernel</a></div><div class="ttdeci">__global__ void dirichlet_apply_scalar_kernel(const int *__restrict__ msk, T *__restrict__ x, const T g, const int m)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d11/cuda_2dirichlet__kernel_8h_source.html#l00042">dirichlet_kernel.h:42</a></div></div>
+<div class="ttc" id="acuda_2ale__kinematics__kernel_8h_html_ad4350b4cac096924ce42615d376f4759"><div class="ttname"><a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">ale_add_kinematics_kernel</a></div><div class="ttdeci">__global__ void ale_add_kinematics_kernel(const int n, T *__restrict__ wx, T *__restrict__ wy, T *__restrict__ wz, const T *__restrict__ x_ref, const T *__restrict__ y_ref, const T *__restrict__ z_ref, const T *__restrict__ phi, const T *__restrict__ x, const T *__restrict__ y, const T *__restrict__ z, const kinematics_params_t kin_params)</div><div class="ttdef"><b>Definition</b> <a href="../../d3/d06/cuda_2ale__kinematics__kernel_8h_source.html#l00052">ale_kinematics_kernel.h:52</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_d0537398ec3fe72d8d4f5c6709d28acc.html">comm</a></li><li class="navelem"><a class="el" href="../../d2/d50/comm__nccl_8h.html">comm_nccl.h</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

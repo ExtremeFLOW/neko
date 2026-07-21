@@ -25,6 +25,7 @@ var structspectral__error_1_1spectral__error__t =
     [ "eind_v", "d9/deb/structspectral__error_1_1spectral__error__t.html#a8b4e25d359e1ff343c247348d7e77bea", null ],
     [ "eind_w", "d9/deb/structspectral__error_1_1spectral__error__t.html#ac6156e3e1345e54afba2a6d8a48bd32e", null ],
     [ "mf_speri", "d9/deb/structspectral__error_1_1spectral__error__t.html#a9d52b56f141617860e26aa8e64fe17f5", null ],
+    [ "name", "d9/deb/structspectral__error_1_1spectral__error__t.html#a5bbbafdd10fc5f071a23b4f96383d5e5", null ],
     [ "order", "d9/deb/structspectral__error_1_1spectral__error__t.html#a94c0ad573141501bb354fd8c3f93a830", null ],
     [ "output_controller", "d9/deb/structspectral__error_1_1spectral__error__t.html#acc0e9937091f7dbbb6bc1e1c8b0b2c9f", null ],
     [ "preprocess_controller", "d9/deb/structspectral__error_1_1spectral__error__t.html#ae51a7cdb03cda7e4460ee4bc645aef01", null ],

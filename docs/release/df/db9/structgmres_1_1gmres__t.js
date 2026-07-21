@@ -19,6 +19,7 @@ var structgmres_1_1gmres__t =
     [ "c", "df/db9/structgmres_1_1gmres__t.html#a47465111a9dd47099db6d6a567510ebc", null ],
     [ "gam", "df/db9/structgmres_1_1gmres__t.html#a249ffc813bb9a79a57941302317aaa44", null ],
     [ "h", "df/db9/structgmres_1_1gmres__t.html#af9a042b43167f8dd6ffd089b4525268e", null ],
+    [ "hp", "df/db9/structgmres_1_1gmres__t.html#ac7d3cfcdc1e07a491285247ae45650f3", null ],
     [ "lgmres", "df/db9/structgmres_1_1gmres__t.html#acd9307c1e22a69a6896a7da82291a6de", null ],
     [ "m", "df/db9/structgmres_1_1gmres__t.html#a919f46cedba40962024d26a886ab31f9", null ],
     [ "m_ident", "df/db9/structgmres_1_1gmres__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],

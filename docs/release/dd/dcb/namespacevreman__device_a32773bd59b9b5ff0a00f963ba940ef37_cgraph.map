@@ -1,0 +1,17 @@
+<map id="vreman_device::vreman_compute_device" name="vreman_device::vreman_compute_device">
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the device." alt="" coords="5,55,185,95"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="265,5,455,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,53,233,41,280,31,281,36,234,46,181,58"/>
+<area shape="rect" id="Node000003" href="$db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="253,55,467,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,73,239,73,239,78,185,78"/>
+<area shape="rect" id="Node000006" href="$db/d3c/namespacedevice__vreman__nut.html#acb6233012f81d00a8afa12fd5e6d58f9" title=" " alt="" coords="233,119,487,159"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="179,93,264,114,263,119,178,98"/>
+<area shape="rect" id="Node000004" href="$d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48" title=" " alt="" coords="554,67,757,92"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="467,74,540,75,540,80,467,79"/>
+<area shape="rect" id="Node000005" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="824,89,976,129"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="757,89,810,95,810,101,757,94"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="855,89,852,79,859,70,875,64,900,62,928,65,944,72,941,77,927,70,900,67,877,69,862,74,857,80,860,88"/>
+<area shape="rect" id="Node000007" href="$d7/dff/vreman__nut_8cu.html#ae7c1e3020468ff890690b760e9bbdf62" title=" " alt="" coords="535,120,776,145"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="487,134,521,133,521,138,487,139"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="776,118,810,115,811,120,777,123"/>
+</map>

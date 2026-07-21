@@ -6,6 +6,8 @@ var cuda__intf_8F90 =
     [ "cuda_intf::cudamemcpyasync", "dc/d7c/interfacecuda__intf_1_1cudamemcpyasync.html", "dc/d7c/interfacecuda__intf_1_1cudamemcpyasync" ],
     [ "cuda_intf::cudamemsetasync", "d2/da0/interfacecuda__intf_1_1cudamemsetasync.html", "d2/da0/interfacecuda__intf_1_1cudamemsetasync" ],
     [ "cuda_intf::cudadevicesynchronize", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize.html", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize" ],
+    [ "cuda_intf::cudadevicereset", "d5/d22/interfacecuda__intf_1_1cudadevicereset.html", "d5/d22/interfacecuda__intf_1_1cudadevicereset" ],
+    [ "cuda_intf::cuda_buffer_free_all", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all.html", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all" ],
     [ "cuda_intf::cudagetdeviceproperties", "d1/d89/interfacecuda__intf_1_1cudagetdeviceproperties.html", "d1/d89/interfacecuda__intf_1_1cudagetdeviceproperties" ],
     [ "cuda_intf::cudastreamcreate", "d2/d5d/interfacecuda__intf_1_1cudastreamcreate.html", "d2/d5d/interfacecuda__intf_1_1cudastreamcreate" ],
     [ "cuda_intf::cudastreamcreatewithflags", "d4/d94/interfacecuda__intf_1_1cudastreamcreatewithflags.html", "d4/d94/interfacecuda__intf_1_1cudastreamcreatewithflags" ],

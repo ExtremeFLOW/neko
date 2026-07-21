@@ -42,6 +42,7 @@ var structspalding_1_1spalding__t =
     [ "n_z", "df/df1/structspalding_1_1spalding__t.html#a49904ef2abde7af1e2e19b8395591e61", null ],
     [ "nu", "df/df1/structspalding_1_1spalding__t.html#ab923c1e4c9d107ddf98fd72dd12847b4", null ],
     [ "rho", "df/df1/structspalding_1_1spalding__t.html#aac3d1e1f292b9fa9ad78c17106fa0c3a", null ],
+    [ "rho_w", "df/df1/structspalding_1_1spalding__t.html#ab48b23df2ca076c71e4cb176dc777183", null ],
     [ "scheme_name", "df/df1/structspalding_1_1spalding__t.html#a60fd112647773aa9d0a053f94bd94834", null ],
     [ "tau_field", "df/df1/structspalding_1_1spalding__t.html#a14604e7370a62c6fe8a8eebc22295ad2", null ],
     [ "tau_x", "df/df1/structspalding_1_1spalding__t.html#ad0ae92d3bdab6e03ccc708fd5e9f70e5", null ],

@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -102,44 +102,53 @@ $(document).ready(function(){initNavTree('d3/d84/simcomps.html','../../'); initR
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md143">What are simulation components?</a></li>
-<li class="level1"><a href="#autotoc_md144">Adding simulation components to the case</a></li>
-<li class="level1"><a href="#autotoc_md145">List of simulation components</a></li>
-<li class="level1"><a href="#autotoc_md146">Controling execution and file output</a><ul><li class="level2"><a href="#autotoc_md147">Differential operators</a><ul><li class="level3"><a href="#simcomp_derivative">derivative</a></li>
+<ul><li class="level1"><a href="#autotoc_md187">What are simulation components?</a></li>
+<li class="level1"><a href="#autotoc_md188">Adding simulation components to the case</a></li>
+<li class="level1"><a href="#autotoc_md189">List of simulation components</a></li>
+<li class="level1"><a href="#autotoc_md190">Controlling execution and file output</a><ul><li class="level2"><a href="#autotoc_md191">Differential operators</a><ul><li class="level3"><a href="#simcomp_derivative">derivative</a></li>
 <li class="level3"><a href="#simcomp_curl">curl</a></li>
 <li class="level3"><a href="#simcomp_divergence">divergence</a></li>
 </ul>
 </li>
-<li class="level2"><a href="#simcomp_gradient">gradient</a></li>
+<li class="level2"><a href="#simcomp_gradient">grad</a></li>
 <li class="level2"><a href="#simcomp_weak_gradient">weak_gradient</a></li>
 <li class="level2"><a href="#simcomp_lambda2">lambda2</a></li>
-<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md148">Supported types</a></li>
-<li class="level3"><a href="#autotoc_md149">Example usage</a></li>
+<li class="level2"><a href="#simcomp_boundary_operation">boundary_operation</a></li>
+<li class="level2"><a href="#simcomp_boundary_flux">boundary_flux</a></li>
+<li class="level2"><a href="#simcomp_probes">probes</a><ul><li class="level3"><a href="#autotoc_md192">Supported types</a></li>
+<li class="level3"><a href="#autotoc_md193">Example usage</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#simcomp_field_writer">field_writer</a></li>
-<li class="level2"><a href="#simcomp_force_torque">force_torque</a></li>
+<li class="level2"><a href="#simcomp_lagrangian_particles">lagrangian_particles</a></li>
+<li class="level2"><a href="#simcomp_force_torque">force_torque</a><ul><li class="level3"><a href="#autotoc_md194">Torque calculation for moving bodies</a></li>
+</ul>
+</li>
 <li class="level2"><a href="#simcomp_les_model">les_model</a></li>
 <li class="level2"><a href="#user_stats">User statistics</a></li>
+<li class="level2"><a href="#simcomp_spatial_average">Spatial average</a></li>
 <li class="level2"><a href="#simcomp_speri">Spectral error indicator</a></li>
+<li class="level2"><a href="#simcomp_data_streamer">Data streamer</a></li>
+<li class="level2"><a href="#simcomp_field_subsampler">Field subsampler</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<div class="textblock"><h1><a class="anchor" id="autotoc_md143"></a>
+<div class="textblock"><h1><a class="anchor" id="autotoc_md187"></a>
 What are simulation components?</h1>
 <p>Simulation components, or simcomps for short, encapsulate additional functionalities that may be useful for certain cases but not necessary to run the solver. This can include computation and output of additional fields, in-situ post-processing operations, data sampling, etc.</p>
 <p>By design, simulation components can tap into every aspect of the simulation, so they can be quite powerful. As the code grows, we expect to add more and more simcomps to the code.</p>
-<h1><a class="anchor" id="autotoc_md144"></a>
+<h1><a class="anchor" id="autotoc_md188"></a>
 Adding simulation components to the case</h1>
 <p>Each simcomp is defined as a single JSON object at are added to an array of objects called <code>simulation_components</code>, which resides directly under the <code>case</code> object.</p>
-<h1><a class="anchor" id="autotoc_md145"></a>
+<p>All simcomps support a <code>name</code> keyword in their JSON object. When ommitted, a default <code>name</code>, which as a rule coincided with its <code>type</code>. For completness, these default names are provided for each simcomp in the documentation below. However, each simcomp's name must be unique, so if two or more simcomps of the same type are present in case, a unique <code>name</code> for each must be provided manually.</p>
+<h1><a class="anchor" id="autotoc_md189"></a>
 List of simulation components</h1>
 <p>The following is a list of simulation components that are currently available in Neko. The list will be updated as new simcomps are added.</p>
 <ul>
 <li>Differential operators<ul>
 <li>Computation of the curl of a vector field <a class="el" href="../../d3/d84/simcomps.html#simcomp_curl">curl</a></li>
-<li>Computation of the gradient of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_gradient">gradient</a></li>
+<li>Computation of the gradient of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_gradient">grad</a></li>
 <li>Computation of the weak gradient of a field <a class="el" href="../../d3/d84/simcomps.html#simcomp_weak_gradient">weak_gradient</a></li>
 <li>Computation of the derivative of a scalar field <a class="el" href="../../d3/d84/simcomps.html#simcomp_derivative">derivative</a></li>
 <li>Computation of the divergence of a vector field <a class="el" href="../../d3/d84/simcomps.html#simcomp_divergence">divergence</a></li>
@@ -147,27 +156,35 @@ List of simulation components</h1>
 </li>
 <li>Computation of \( \lambda_2 \) <a class="el" href="../../d3/d84/simcomps.html#simcomp_lambda2">lambda2</a></li>
 <li>Probing of fields at selected points <a class="el" href="../../d3/d84/simcomps.html#simcomp_probes">probes</a></li>
-<li>Output of registered fields to an <code>.fld</code> file <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a></li>
+<li>Output of registered fields to a file <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a></li>
 <li>Computation of forces and torque on a surface <a class="el" href="../../d3/d84/simcomps.html#simcomp_force_torque">force_torque</a></li>
+<li>Boundary operations on labelled zones <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_operation">boundary_operation</a></li>
+<li>Total vector flux through labelled zones <a class="el" href="../../d3/d84/simcomps.html#simcomp_boundary_flux">boundary_flux</a></li>
+<li>Lagrangian particle tracking <a class="el" href="../../d3/d84/simcomps.html#simcomp_lagrangian_particles">lagrangian_particles</a></li>
 <li>Computation of subgrid-scale (SGS) eddy viscosity via a SGS model <a class="el" href="../../d3/d84/simcomps.html#simcomp_les_model">les_model</a></li>
-<li>User defined components <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">user-file_simcomps</a></li>
+<li>User defined components <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">user-file_simcomps</a></li>
 <li>Fluid statistics simcomp, "fluid_stats", for more details see the <a class="el" href="../../df/d8f/statistics-guide.html">statistics guide</a></li>
-<li>Scalar statistics simcomp, "scalar_stats", for more details see the <a class="el" href="../../df/d8f/statistics-guide.html">statistics guide</a></li>
+<li>Fluid SGS statistics simcomp, "fluid_sgs_stats", for more details see the <a class="el" href="../../df/d8f/statistics-guide.html">statistics guide</a></li>
+<li>Scalar statistics simcomp, "scalar_stats", for more details see the <a class="el" href="../../df/d8f/statistics-guide.html">statistics guide</a>. If a <code>field</code> is specified in the case file without <code>name</code> being specified, the field name is appended to the default simcomp name as <code>scalar_stats_{field}</code>.</li>
+<li>Scalar SGS statistics simcomp, "scalar_sgs_stats", for more details see the <a class="el" href="../../df/d8f/statistics-guide.html">statistics guide</a></li>
 <li>User statistics simcomp, "user_stats" <a class="el" href="../../d3/d84/simcomps.html#user_stats">User statistics</a></li>
 <li>Computation of the spectral error indicator <a class="el" href="../../d3/d84/simcomps.html#simcomp_speri">Spectral error indicator</a></li>
+<li>Streaming of data for in-situ field manipulation <a class="el" href="../../d3/d84/simcomps.html#simcomp_data_streamer">Data streamer</a></li>
+<li>Sub-sampling of fields by changing polynomial order and masking by point zones <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_subsampler">Field subsampler</a></li>
 </ul>
-<h1><a class="anchor" id="autotoc_md146"></a>
-Controling execution and file output</h1>
-<p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control</code> and <code>output_value</code> for the output to disk. The parameters for the <code>_control</code> values are the same as for the fluid and checkpointing. Additionally, one can set <code>output_control</code> to <code>global</code> and <code>never</code>. The former will sync the <code>output_</code> parameter to that of the fluid. Choosing <code>never</code> will suppress output all together. If no parameters for the <code>output_</code> parameters are provided, they are set to be the same as for <code>compute_</code>. In order to simplify the configuration, the <code>compute_control</code> can be set to <code><a class="el" href="../../d6/d60/namespacefluid__output.html" title="Defines an output for a fluid.">fluid_output</a></code> to sync the computation to the fluid output.</p>
+<h1><a class="anchor" id="autotoc_md190"></a>
+Controlling execution and file output</h1>
+<p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <code>compute_control</code> and <code>compute_value</code> parameters for the computation and the <code>output_control</code> and <code>output_value</code> for the output to disk. The parameters for the <code>_control</code> values are the same as for the fluid and checkpointing. Additionally, one can set <code>output_control</code> to <code>global</code> and <code>never</code>. The former will sync the <code>output_</code> parameter to that of the fluid. Choosing <code>never</code> will suppress output all together. If no parameters for the <code>output_</code> parameters are provided, they are set to be the same as for <code>compute_</code>. In order to simplify the configuration, the <code>compute_control</code> can be set to <code><a class="el" href="../../d6/d60/namespacefluid__output.html" title="Defines an output for a fluid.">fluid_output</a></code> to sync the computation to the fluid output. All <code>_value</code> keywords can also be strings pointing to an entry under <code>constants.scalars</code>.</p>
 <p>For simcomps that compute 3D fields, the output can be either added to the main <code>.fld</code> file, containing velocity and pressure, or saved to a separate file. For the latter, the <code>output_filename</code> keyword should be provided. One can additionally provide the <code>precision</code> keyword, which can be set to either <code>single</code> or <code>double</code> to control the precision of the written data.</p>
 <p>For example, in the <code>tgv</code> example case the <code>curl</code> component is executed once per 50 time steps. The <code>output_</code> parameters are synced to that, and the vorticity fields will be added to the main <code>.fld</code> file. </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;curl&quot;,</div>
-<div class="line">  &quot;field_names&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
+<div class="line">  &quot;name&quot;: &quot;curl&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
 <div class="line">  &quot;computed_field&quot;: &quot;vorticity&quot;</div>
 <div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot;: 50</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md147"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md191"></a>
 Differential operators</h2>
 <p>There is a set of simcomps that allow one to apply various differential operators on registered fields. They share common configuration traits. The field or fields that the operators is applied to us controlled, respectively, by the <code>field</code> or <code>feilds</code> keyword. The produced fields are also added to the registry, and each operator provides a default name. However, it can be overriden using the <code>computed_field</code> keyword. Operators that output a vector field will register three fields, adding <code>_x</code>, <code>_y</code>, and <code>_z</code> to the base of the name.</p>
 <p>All of these simcomps also support saving the result to <code>.fld</code> files. The <a class="el" href="../../d3/d84/simcomps.html#simcomp_field_writer">field_writer</a> simcomp is used for that under the hood, so the associated JSON keywords can be found in its documentation (<code>output_filename</code>, <code>precision</code>).</p>
@@ -176,6 +193,7 @@ derivative</h3>
 <p>Computes the derivative of field along a chosen direction (x, y, or z). The field to derivate is controlled by the <code>field</code> keyword and the direction by the <code>direction</code> keyword. The simcomp will, by default, register the computed derivative in the registry as <code>d[field]_d[direction]</code>, where the values in the brackets correspond to the choice of the user keywords.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;derivative&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;derivative&quot;,</div>
 <div class="line">  &quot;field&quot;: &quot;u&quot;,</div>
 <div class="line">  &quot;direction&quot;: &quot;y&quot;</div>
 <div class="line">  &quot;computed_field&quot;: &quot;dudy&quot;</div>
@@ -184,7 +202,8 @@ derivative</h3>
 curl</h3>
 <p>Takes a list of three field names from the <code>fields</code> keyword, and computes the curl. By default, registers the result in <code>curl_x</code>, <code>curl_y</code> and <code>curl_z</code>.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;curl&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;curl&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;curl&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
 <div class="line">  &quot;computed_field&quot;: &quot;vorticity&quot;</div>
 <div class="line">}</div>
@@ -192,46 +211,97 @@ curl</h3>
 divergence</h3>
 <p>Takes a list of three field names from the <code>fields</code> keyword, and computes the divergence. By default, registers the result in <code>div</code>.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;divergence&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;divergence&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;divergence&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
 <div class="line">  &quot;computed_field&quot;: &quot;continuity&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_gradient"></a>
-gradient</h2>
+grad</h2>
 <p>Computes the gradient of a field. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>grad_[field]_x</code>, <code>grad_[field]_y</code>, <code>grad_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;gradient&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;gradient&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;gradient&quot;,</div>
 <div class="line">  &quot;field&quot;: &quot;u&quot;,</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_weak_gradient"></a>
 weak_gradient</h2>
 <p>Computes the weak gradient of a field. The weak gradient is value of the gradient multiplied by the local value of the mass matrix. This is how a gradient term appears in the weak formulation of the governing equations. The field to derivate is controlled by the <code>field</code> keyword. The simcomp will, by default, register the computed components of the gradients in the registry as <code>weak_grad_[field]_x</code>, <code>weak_grad_[field]_y</code>, <code>weak_grad_[field]_z</code> where the value in the brackets corresponds to the choice of the user keyword.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;weak_gradient&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;weak_gradient&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;weak_gradient&quot;,</div>
 <div class="line">  &quot;field&quot;: &quot;u&quot;,</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_lambda2"></a>
 lambda2</h2>
 <p>Computes \( \lambda_2 \) for the velocity field and stores it in the normal output files as the first unused field. This means that \( \lambda_2 \) can be found in the temperature field in then fld files if running without a scalar and s1 if neko is run with one scalar. To output in a different <code>fld</code> series, use the <code>"output_filename"</code> parameter.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;lambda2&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;lambda2&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;lambda2&quot;</div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_boundary_operation"></a>
+boundary_operation</h2>
+<p>Computes boundary operations on one or more labelled boundary zones. The supported operations are <code>integral</code>, <code>average</code>, <code>min</code>, and <code>max</code>. Any subset of these can be requested. The <code>integral</code> and <code>average</code> use the facet area weights.</p>
+<p>Mandatory fields for this simcomp are:</p><ul>
+<li><code>zone_indices</code>: the labelled boundary zones to include.</li>
+<li><code>field_name</code>: the name of the registered field to integrate.</li>
+<li><code>operations</code>: array containing any subset of <code>integral</code>, <code>average</code>, <code>min</code>, and <code>max</code>.</li>
+</ul>
+<p>Optional fields for this simcomp are:</p><ul>
+<li><code>log</code>: if <code>true</code> (default), print the requested operations in the log each time the simcomp computes.</li>
+<li><code>output_filename</code>: if set to a <code>.csv</code> file, write <code>tstep</code>, <code>time</code>, and the requested operations to that file. These writes respect <code>output_control</code> and <code>output_value</code>.</li>
+</ul>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;boundary_operation&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;wall_pressure_integral&quot;,</div>
+<div class="line">  &quot;zone_indices&quot;: [1, 2],</div>
+<div class="line">  &quot;field_name&quot;: &quot;p&quot;,</div>
+<div class="line">  &quot;operations&quot;: [&quot;integral&quot;, &quot;average&quot;],</div>
+<div class="line">  &quot;log&quot;: true,</div>
+<div class="line">  &quot;output_filename&quot;: &quot;wall_pressure.csv&quot;</div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_boundary_flux"></a>
+boundary_flux</h2>
+<p>Computes the total flux of a registered vector field through one or more labelled boundary zones. The computed value is the surface integral of the vector field dotted with the <em>inward</em> unit normal.</p>
+<p>Mandatory fields for this simcomp are:</p><ul>
+<li><code>zone_indices</code>: the labelled boundary zones to include.</li>
+<li><code>field_names</code>: the three registered field names containing the vector components, for example <code>["u", "v", "w"]</code>.</li>
+</ul>
+<p>Optional fields for this simcomp are:</p><ul>
+<li><code>log</code>: if <code>true</code> (default), print the flux in the log each time the simcomp computes.</li>
+<li><code>output_filename</code>: should be set to a <code>.csv</code> file. Writes <code>tstep</code>, <code>time</code>, and <code>flux</code> to that file. These writes respect <code>output_control</code> and <code>output_value</code>.</li>
+</ul>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;boundary_flux&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;inlet_flux&quot;,</div>
+<div class="line">  &quot;zone_indices&quot;: [1],</div>
+<div class="line">  &quot;field_names&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;],</div>
+<div class="line">  &quot;log&quot;: true,</div>
+<div class="line">  &quot;output_filename&quot;: &quot;inlet_flux.csv&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_probes"></a>
 probes</h2>
 <p>Probes selected solution fields at a list of points. This list of points can be generated in a variety of ways, but the most common is to use the <code>csv</code> type.</p>
 <p>Mandatory fields for this simcomp are:</p><ul>
 <li><code>fields</code>: a list of fields to probe. Should be a list of field names that exist in the registry. Example: <code>"fields": ["u", "v", "p", "s"]</code>.</li>
-<li><code>output_file</code>: Name of the file in which to output the probed fields. Must be <code>.csv</code>.</li>
+<li><code>output_file</code>: Name of the file in which to output the probed fields. Must be <code>.csv</code> or <code>.hdf5</code>. By default, will be written in the <code>case.output_directory</code> folder.</li>
+</ul>
+<p>Optional arguments:</p><ul>
+<li>Interpolation parameters can be provided as a JSON sub-dictionary, <code>interpolation</code>. If not provided, default values defined in the <code><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html" title="Implements global_interpolation given a dofmap.">global_interpolation</a></code> module will be used. <div class="fragment"><div class="line">&quot;interpolation&quot;: {</div>
+<div class="line">  &quot;tolerance&quot;: 1e-8,</div>
+<div class="line">  &quot;padding&quot;: 1e-3</div>
+<div class="line">}</div>
+</div><!-- fragment --></li>
 </ul>
 <p>It is also possible to set a <code>start_time</code> before which the probes will not be executed (same behavior as the statistics).</p>
-<h3><a class="anchor" id="autotoc_md148"></a>
+<h3><a class="anchor" id="autotoc_md192"></a>
 Supported types</h3>
 <ul>
 <li><code>file</code>: Reads a list of points from a CSV file. The name of the file is provided with the <code>file_name</code> keyword. The CSV file should have the following format: <div class="fragment"><div class="line">x_0, y_0, z_0</div>
 <div class="line">x_1, y_1, z_1</div>
 <div class="line">...</div>
 <div class="line">x_N, y_N, z_N</div>
-</div><!-- fragment --> The points are assumed to be in the same units as the simulation.</li>
+</div><!-- fragment --> The points are assumed to be in the same units as the simulation. It is also possible to read the probes from a <code>hdf5</code> file. The probes need to be in the same format as csv and must be saved in the root directory of the file under the <code>xyz</code> keyword.</li>
 <li><code>points</code>: Reads a list of points from a JSON file. The points are specified based in the <code>coordinates</code> keyword and should be a list of x,y,z values. The file should have the following format: <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;points&quot;,</div>
 <div class="line">  &quot;coordinates&quot;: [</div>
@@ -264,14 +334,16 @@ Supported types</h3>
 <div class="line">0.0, -1.0, 0.0</div>
 </div><!-- fragment --></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md149"></a>
+<h3><a class="anchor" id="autotoc_md193"></a>
 Example usage</h3>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;probes&quot;,</div>
 <div class="line">  &quot;compute_control&quot;: &quot;simulationtime&quot;,</div>
-<div class="line">  &quot;compute_value&quot;    : 1,</div>
-<div class="line">  &quot;fields&quot;: [&quot;w&quot;,&quot;s&quot;],</div>
+<div class="line">  &quot;compute_value&quot;    : 1.0,</div>
+<div class="line">  &quot;fields&quot;: [&quot;w&quot;, &quot;s&quot;],</div>
 <div class="line">  &quot;output_file&quot;:  &quot;output.csv&quot;,</div>
+<div class="line">  &quot;append_output&quot; : false,</div>
 <div class="line">  &quot;points&quot;: [</div>
 <div class="line">     {</div>
 <div class="line">       &quot;type&quot;: &quot;file&quot;,</div>
@@ -294,30 +366,145 @@ Example usage</h3>
 <div class="line">time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1</div>
 <div class="line">...</div>
 <div class="line">time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1</div>
-</div><!-- fragment --><h2><a class="anchor" id="simcomp_field_writer"></a>
+</div><!-- fragment --><p>The <code>append_output</code> keyword only works for <code>hdf5</code> files. It sets the behaviour of the written probes. If <code>true</code> they are written in one group and each sample appends its data.</p>
+<p>As an example, the file structure for a simulation where we sample "u", "v", and "w" is the following when <code>append_output=false</code>: </p><div class="fragment"><div class="line">/                        Group</div>
+<div class="line">/probes                  Group</div>
+<div class="line">/probes/Step_1           Group</div>
+<div class="line">/probes/Step_1/u         Dataset {200/Inf}</div>
+<div class="line">/probes/Step_1/v         Dataset {200/Inf}</div>
+<div class="line">/probes/Step_1/w         Dataset {200/Inf}</div>
+<div class="line">/probes/Step_2           Group</div>
+<div class="line">/probes/Step_2/u         Dataset {200/Inf}</div>
+<div class="line">/probes/Step_2/v         Dataset {200/Inf}</div>
+<div class="line">/probes/Step_2/w         Dataset {200/Inf}</div>
+<div class="line">/probes/coordinates      Dataset {200/Inf, 3}</div>
+</div><!-- fragment --><p>Note that every sampled field is saved under the <code>probes/Step_i</code> group. Where <code>i</code> is the sample number. In this case, the sampled time is saved as an attribute of the <code>Step_i</code> group and accessed by the <code>time</code> keyword.</p>
+<p>The default behaviour is <code>append_output=true</code>. This mode behaves as the <code>.csv</code> output, where each new sample is appended directly under the <code>probes</code> group: </p><div class="fragment"><div class="line">/                        Group</div>
+<div class="line">/probes                  Group</div>
+<div class="line">/probes/coordinates      Dataset {200/Inf, 3}</div>
+<div class="line">/probes/time             Dataset {2/Inf}</div>
+<div class="line">/probes/u                Dataset {400/Inf}</div>
+<div class="line">/probes/v                Dataset {400/Inf}</div>
+<div class="line">/probes/w                Dataset {400/Inf}</div>
+</div><!-- fragment --><p>Note that here the sample time is stored as a dedicated variable. </p>
+<h2><a class="anchor" id="simcomp_field_writer"></a>
 field_writer</h2>
-<p>Outputs registered 3D fields to an <code>.fld</code> file. Requires a list of field names in the <code>fields</code> keyword. Primarily to be used for outputting new fields defined in the user file. The fields are added to then <code>neko_registry</code> object and are expected to be updated in the user file, or, perhaps, by other simcomps. Since this simcomp does not compute anything <code>compute_</code> configuration is irrelevant. </p><div class="fragment"><div class="line">{</div>
+<p>Outputs registered 3D fields to a file. Requires a list of field names in the <code>fields</code> keyword. Primarily to be used for outputting new fields defined in the user file. The fields are added to the <code>neko_registry</code> object and are expected to be updated in the user file, or, perhaps, by other simcomps. Since this simcomp does not compute anything, <code>compute_</code> configuration is irrelevant.</p>
+<p>Unless <code>output_filename</code> is specified, the <code>fields</code> are appended to the fluid output as additional scalars.</p>
+<ul>
+<li>The output format is controlled by the <code>output_format</code> keyword, which can be set to <code>nek5000</code> (default), <code>vtkhdf</code>, or <code>adios2</code>.</li>
+<li>The <code>output_precision</code> keyword controls the precision of the written data and can be set to <code>single</code> (default) or <code>double</code>.</li>
+<li>When using the <code>vtkhdf</code> format, the <code>output_subdivide</code> keyword can be set to <code>true</code> to subdivide spectral elements into linear sub-cells instead of writing high-order Lagrange cells. See the [cell representation](<a class="el" href="../../d7/d7f/io.html#vtkhdf-cell-representation">Cell representation</a>) section for more details.</li>
+</ul>
+<dl class="section note"><dt>Note</dt><dd>If <code>output_filename</code> is specified, files will be written in the <code>case.output_directory</code> folder. If an alternative path is desired, it must be specified relative to the <code>case.output_directory</code>, since the <code>case.output_directory</code> path will always be prepended to <code>output_filename</code>.</dd></dl>
+<div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;field_writer&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;field_writer&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;my_field1&quot;, &quot;my_field2&quot;],</div>
 <div class="line">  &quot;output_filename&quot;: &quot;myfields&quot;,</div>
-<div class="line">  &quot;precision&quot;: &quot;double&quot;,</div>
-<div class="line">  &quot;output_control&quot; : &quot;simulation_time&quot;,</div>
+<div class="line">  &quot;output_precision&quot;: &quot;double&quot;,</div>
+<div class="line">  &quot;output_format&quot;: &quot;nek5000&quot;,</div>
+<div class="line">  &quot;output_subdivide&quot;: false,</div>
+<div class="line">  &quot;output_control&quot; : &quot;simulationtime&quot;,</div>
 <div class="line">  &quot;output_value&quot; : 1.0</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="simcomp_force_torque"></a>
+</div><!-- fragment --><p>The <code><a class="el" href="../../d9/dde/namespacefield__writer.html" title="Implements the field_writer_t type.">field_writer</a></code> may be used in conjunction with a <code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> to sample the corresponding subsection of the domain. At the moment, this capability can only be used with <code>nek5000</code> files. </p><dl class="section attention"><dt>Attention</dt><dd>When using <code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> with the <code>nek5000</code> format, an <code>output_filename</code> must be provided.</dd></dl>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;field_writer&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;field_writer&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;my_field1&quot;, &quot;my_field2&quot;],</div>
+<div class="line">  &quot;output_format&quot;: &quot;nek5000&quot;,</div>
+<div class="line">  &quot;output_control&quot; : &quot;simulationtime&quot;,</div>
+<div class="line">  &quot;output_value&quot; : 1.0,</div>
+<div class="line">  &quot;output_filename&quot;: &quot;my_point_zone_field&quot;,</div>
+<div class="line">  &quot;point_zone&quot;: &quot;my_point_zone&quot;</div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_lagrangian_particles"></a>
+lagrangian_particles</h2>
+<p>Tracks point particles through the flow using the Lagrangian particle tracking component. The particles are advected by the interpolated fluid velocity. With <code>inertia</code> enabled, particle velocity, nonlinear drag, particle diameter, density, and elastic wall rebounds can also be included.</p>
+<p>Mandatory fields for this simcomp are:</p><ul>
+<li><code>inertia</code>: whether to track inertial particles. If <code>false</code>, particles are passive tracers.</li>
+<li>Either <code>coordinates</code> or <code>points_file</code>:<ul>
+<li><code>coordinates</code>: a flat list of particle coordinates, <code>[x1, y1, z1, x2, y2, z2, ...]</code>.</li>
+<li><code>points_file</code>: a CSV file containing the initial particle coordinates.</li>
+</ul>
+</li>
+</ul>
+<p>When <code>inertia</code> is <code>true</code>, the JSON particle input also requires:</p><ul>
+<li><code>velocities</code>: a flat list of initial particle velocities, <code>[u1, v1, w1, u2, v2, w2, ...]</code>.</li>
+<li><code>diameters</code>: one particle diameter per particle.</li>
+<li><code>densities</code>: one particle density per particle.</li>
+</ul>
+<p>Optional fields for this simcomp are:</p><ul>
+<li><code>migration_strategy</code>: controls particle ownership migration. Supported values are <code>owner</code> (default) and <code>none</code>.</li>
+<li><code>nonlinear_coefficient</code>: nonlinear drag coefficient for inertial particles. Defaults to <code>0.15</code>.</li>
+<li><code>nonlinear_exponent</code>: nonlinear drag exponent for inertial particles. Defaults to <code>0.687</code>.</li>
+<li><code>wall_zone_indices</code>: boundary zone indices that should act as elastic rebound walls. This requires <code>inertia</code> to be <code>true</code>.</li>
+<li><code>interpolation</code>: sub-dictionary passed to the global interpolation setup.</li>
+<li><code>output_filename</code>: base name for the trajectory output. Defaults to the simcomp name.</li>
+<li><code>output_format</code>: trajectory output format. Supported values are <code>csv</code>, <code>h5</code>, and <code>hdf5</code>. Defaults to <code>csv</code>.</li>
+<li><code>snapshots_per_file</code>: controls how many written trajectory snapshots are stored in each file. The default value <code>all</code> keeps all snapshots in the current output sequence. A positive integer writes that many output snapshots per file.</li>
+</ul>
+<p>The <code>output_control</code> and <code>output_value</code> keywords control when trajectory snapshots are written. The initial particle state is always written during initialisation.</p>
+<p>The <code>compute_control</code> and <code>compute_value</code> keywords determine when the LPT component advances the particles. The time interval between two LPT compute executions is therefore the time step used by the particle time integration.</p>
+<p>For CSV output, the columns are:</p>
+<div class="fragment"><div class="line">tstep,time,particle_id,x,y,z,u,v,w</div>
+</div><!-- fragment --><p>For inertial particles, the particle diameter and density are appended:</p>
+<div class="fragment"><div class="line">tstep,time,particle_id,x,y,z,u,v,w,d,rho</div>
+</div><!-- fragment --><p>For HDF5 output, the data are written under the <code>lpt</code> group with datasets for <code>tsteps</code>, <code>t</code>, <code>ids</code>, <code>position</code>, and <code>velocity</code>. Inertial-particle output also contains <code>diameter</code> and <code>density</code>.</p>
+<p>If <code>snapshots_per_file</code> is a positive integer, output files are named by adding <code>_0</code>, <code>_1</code>, ... before the format suffix, for example <code>tracers_0.h5</code>, <code>tracers_1.h5</code>, and so on.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;lagrangian_particles&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;tracers&quot;,</div>
+<div class="line">  &quot;inertia&quot;: true,</div>
+<div class="line">  &quot;coordinates&quot;: [</div>
+<div class="line">    0.0, 0.0, 0.0,</div>
+<div class="line">    0.1, 0.0, 0.0</div>
+<div class="line">  ],</div>
+<div class="line">  &quot;velocities&quot;: [</div>
+<div class="line">    1.0, 0.0, 0.0,</div>
+<div class="line">    0.5, 0.0, 0.0</div>
+<div class="line">  ],</div>
+<div class="line">  &quot;diameters&quot;: [1e-3, 1e-3],</div>
+<div class="line">  &quot;densities&quot;: [1e3, 1e3],</div>
+<div class="line">  &quot;output_filename&quot;: &quot;tracers&quot;,</div>
+<div class="line">  &quot;output_format&quot;: &quot;h5&quot;,</div>
+<div class="line">  &quot;snapshots_per_file&quot;: &quot;all&quot;,</div>
+<div class="line">  &quot;output_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">  &quot;output_value&quot;: 10</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>The <code>examples/rebounding_particles</code> case demonstrates CSV input and output, JSON input with HDF5 output, nonlinear drag, and elastic wall rebounds.</p>
+<h2><a class="anchor" id="simcomp_force_torque"></a>
 force_torque</h2>
 <p>Computes the force on a specified zone and the corresponding torque around a center point. The compute control specifies how often they are computed and printed into the log. Scale specifies a scale for the computed force/torque. Conventient if one wants to scale with the area or similar. long_print is default false and can be set to true to print all digits in the calculation. Subroutines used in the simcomp can be found in <a class="el" href="../../d9/df1/drag__torque_8f90.html">src/qoi/drag_torque.f90</a></p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;force_torque&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;force_torque&quot;,</div>
 <div class="line">  &quot;zone_id&quot;: 1,</div>
+<div class="line">  &quot;center_type&quot;: &quot;fixed&quot;,</div>
 <div class="line">  &quot;center&quot;: [0.0, 0.0, 0.0],</div>
 <div class="line">  &quot;zone_name&quot;: &quot;some chosen name, optional&quot;,</div>
-<div class="line">  &quot;scale&quot;: 1.0</div>
-<div class="line">  &quot;long_print&quot; : false</div>
+<div class="line">  &quot;scale&quot;: 1.0,</div>
+<div class="line">  &quot;long_print&quot; : false,</div>
 <div class="line">  &quot;compute_control&quot; : &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot; : 10</div>
 <div class="line">}</div>
-</div><!-- fragment --><h2><a class="anchor" id="simcomp_les_model"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md194"></a>
+Torque calculation for moving bodies</h3>
+<p>When an object undergoes translational or rotational movement, it is often necessary to calculate the torque around its dynamic center of rotation, or around another specific reference point that moves rigidly with the body. The <code>center_type</code> parameter enables accurate torque computation for these scenarios by dictating how the tracking point behaves:</p>
+<ul>
+<li><code>"fixed"</code> <em>(Default):</em> The torque is calculated around the static coordinates provided in the <code>center</code> array, regardless of how the body moves.</li>
+<li><code>"pivot"</code> <em>(ALE only):</em> The torque is calculated directly around the ALE body's dynamic pivot point. If this is selected, the <code>center</code> array in the JSON is ignored, and the pivot coordinate at each time step is used automatically.</li>
+<li><code>"body_attached"</code> <em>(ALE only):</em> The torque is calculated around a custom point that translates and rotates <em>with</em> the rigid movement of the ALE body. The initial position of this point is defined by the <code>center</code> array. <blockquote class="doxtable">
+<p>&zwj;<em>Example use case:</em> If you are simulating a pitching and heaving airfoil, you might want to calculate the torque acting on a trailing-edge flap. By using <code>"body_attached"</code>, you simply define the initial coordinates of the hinge in the <code>center</code> array, and the code will automatically track its dynamic position as the main airfoil moves. </p>
+</blockquote>
+<dl class="section attention"><dt>Attention</dt><dd>For static simulations, the <code>center_type</code> parameter is completely optional. If omitted from the case file, the code will automatically default to <code>"fixed"</code>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If <code>center_type</code> is set to <code>"pivot"</code> or <code>"body_attached"</code> but the specified <code>zone_id</code> is not registered as an ALE body (or ALE is globally inactive), the code will print a warning and automatically revert back to <code>"fixed"</code> using the provided <code>"center"</code> in the case file.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>For ALE simulations, the wall normal vectors are re-calculated at every time step to account for body movement and deformation. If the ALE module is not enabled, this calculation is performed only once during initialization.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd><b>Restarting Simulations:</b> When restarting an ALE simulation, the code automatically calculates the correct current position of the torque center at the restart time. Therefore, if the intended torque calculation point remains the same, the <code>center</code> array in the JSON file should <b>not</b> be modified between restarts. If you wish to calculate torque around a <em>new</em> point upon restart, the <code>center</code> array must specify the coordinates of that new point in the <b>original, undeformed mesh</b> (at \( t=0 \)), not its current spatial location.</dd></dl>
+</li>
+</ul>
+<h2><a class="anchor" id="simcomp_les_model"></a>
 les_model</h2>
 <p>Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp <em>only</em> computes the eddy viscosity field. You have to select the corresponding <code>nut_field</code> in the fluid and/or scalar JSON object to actually enable LES, see corresponding documentation. The simcomp is controlled by the following keywords:</p>
 <ul>
@@ -330,8 +517,19 @@ les_model</h2>
 <li><code>test_filter</code>: The test filter for the dynamic Smagorinsky model</li>
 </ul>
 </li>
-<li><code>vreman</code>: The Vreman model. Configured by the following additional keyword:<ul>
+<li><code>vreman</code>: The Vreman model. Configured by the following additional keywords:<ul>
 <li><code>c</code>: The model constant, defaults to 0.07.</li>
+<li><code>buoyancy_correction</code>: Whether or not to apply a correction to the eddy viscosity field based on the local Richardson number as described by Moeng and Sullivan 2015 (<a href="http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2">http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2</a>). Defaults to <code>false</code>.<ul>
+<li><code>true</code>: Add a buoyancy correction according to the following parameters:<ul>
+<li><code>scalar_field</code>: Name of the scalar field based on which the buoyancy effect is computed.</li>
+<li><code>Ri_c</code>: The critical Richardson number.</li>
+<li><code>reference_temperature</code>: The reference temperature for computation of the Richardson number.</li>
+<li><code>g</code>: The gravity vector.</li>
+</ul>
+</li>
+<li><code>false</code>: Compute the standard Vreman eddy viscosity.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><code>sigma</code>: The Sigma model. Configured by the following additional keyword:<ul>
@@ -340,6 +538,17 @@ les_model</h2>
 </li>
 <li><code>wale</code>: The WALE model. Configured by the following additional keyword:<ul>
 <li><code>c_w</code>: The WALE constant, defaults to 0.55.</li>
+</ul>
+</li>
+<li><code>deardorff</code>: The Deardorff model dedicated for atmospheric boundary-layer applications. Please find the usage in <code>examples/shear_convection_ABL</code>. Configured by the following additional keyword:<ul>
+<li><code>c_k</code>: The model constant, defaults to 0.1.</li>
+<li><code>T0</code>: The reference temperature.</li>
+<li><code>g</code>: The gravity vector.</li>
+<li><code>temperature_field</code>: The field name of the temperature field, defaults to <code>temperature</code>.</li>
+<li><code>TKE_field</code>: The field name of the turbulent kinetic energy (TKE) field, defaults to <code>TKE</code>.</li>
+<li><code>temperature_alphat_field</code>: The field name of the eddy diffusivity field for the temperature equation, defaults to <code>temperature_alphat</code>.</li>
+<li><code>TKE_alphat_field</code>: The field name of the eddy diffusivity field for the TKE equation, defaults to <code>TKE_alphat</code>.</li>
+<li><code>TKE_source_field</code>: The field name of the source terms in the TKE equation including shear production, buoyancy contribution and dissipation, defaults to <code>TKE_source</code>.</li>
 </ul>
 </li>
 </ul>
@@ -356,13 +565,14 @@ les_model</h2>
 <li><code>false</code>: the default option, disable the extrapolation. In this case, the estimation of the eddy viscosity is of first order, while circumvent the risk of unstable extrapolation.</li>
 </ul>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;les_model&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;les_model&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;les_model&quot;,</div>
 <div class="line">  &quot;model&quot;: &quot;smagorinsky&quot;,</div>
 <div class="line">  &quot;delta_type&quot;: &quot;pointwise&quot;,</div>
 <div class="line">  &quot;output_control&quot; : &quot;never&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><p class="startli">Please also note that for the dynamic Smagorinsky model, one needs to specify the test filter in the following way for the Boyd filter as the test filter (one could also use "nonBoyd" as the option): </p><div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;les_model&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;les_model&quot;,</div>
 <div class="line">  &quot;model&quot;: &quot;dynamic_smagorinsky&quot;,</div>
 <div class="line">  &quot;test_filter&quot;: {</div>
 <div class="line">     &quot;filter&quot;: {</div>
@@ -380,16 +590,63 @@ User statistics</h2>
 <p>Keep in mind that simcomps execute before <code>usercompute</code>, so if you update some custom averaged field in that routine, it will not affect the average until the next time step. You can consider using <code>userpreprocess</code> instead, which runs at the beginning of the time step.</p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;user_stats&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;user_stats&quot;,</div>
 <div class="line">  &quot;fields&quot;: [&quot;s&quot;],</div>
 <div class="line">  &quot;avg_direction&quot;: &quot;xz&quot;,</div>
 <div class="line">  &quot;output_file&quot;: &quot;s_average&quot;</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>The statistics fields created by this simcomp are accessible from the neko registry and retrievable under the following naming convention: <code>name_in_registry = name_of_simcomp + "/mean_" + name_of_field</code>. Unless specified, the name of the simcomp will default to <code><a class="el" href="../../df/ded/namespaceuser__stats.html" title="Implements the user_stats_t type.">user_stats</a></code>. For example, if <code>"fields": ["s", "my_field"]</code> and <code>"name": "my_stats"</code> then the fields <code>"my_stats/mean_s"</code> and <code>"my_stats/mean_my_field"</code> will be added to the registry.</p>
+<h2><a class="anchor" id="simcomp_spatial_average"></a>
+Spatial average</h2>
+<p>Writes the instantaneous spatial average of an arbitrary collection of registry fields. The fields are prescribed via the <code>fields</code> keyword. The <code>avg_direction</code> keyword follows the same semantics as the statistics simcomps: <code>x</code>, <code>y</code>, or <code>z</code> produce a 2D <code>.fld</code> file, while <code>xy</code>, <code>xz</code>, or <code>yz</code> produce a 1D <code>.csv</code> file. The <code>avg_direction</code> keyword is required for this simcomp. The base filename is controlled by <code>output_filename</code> and defaults to <code><a class="el" href="../../da/d3f/namespacespatial__average.html" title="Implements the spatial_average_t type.">spatial_average</a></code>.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;spatial_average&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;spatial_average&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;s&quot;],</div>
+<div class="line">  &quot;avg_direction&quot;: &quot;xz&quot;,</div>
+<div class="line">  &quot;output_filename&quot;: &quot;xz_average&quot;</div>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_speri"></a>
 Spectral error indicator</h2>
 <p>Computes the spectral error indicator as developed by Mavriplis (1989) (<a href="https://doi.org/10.1007/978-3-663-13975-1_34">https://doi.org/10.1007/978-3-663-13975-1_34</a>). This is an a posteriori error measure, based on the local properties of the spectral solution. This method formally only gives an indication of the error.</p>
 <p>The spectral error indicator is computed for the 3 velocity fields, resulting in 3 additional fields appended to the field files.</p>
 <div class="fragment"><div class="line">{</div>
-<div class="line">  &quot;type&quot;: &quot;spectral_error&quot;</div>
+<div class="line">  &quot;type&quot;: &quot;spectral_error&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;spectral_error&quot;</div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_data_streamer"></a>
+Data streamer</h2>
+<p>Enables data streaming of a set of given <code>fields</code> with the <code>ADIOS2</code> library. The simcomp is controlled by the following keywords:</p><ul>
+<li><code>"fields"</code>: A list of field names corresponding to the fields to stream (must exist in the registry). The fields will be streamed in the order given in the list.</li>
+<li><code>"stream_mesh"</code>: Whether or not to stream mesh coordinates, in the order <code>x</code>, <code>y</code>, <code>z</code>. The mesh coordinates will always be streamed first, in that exact order, before the fields in <code>"fields"</code>.</li>
+</ul>
+<p>See the <code>cylinder</code> or <code>turb_pipe</code> examples for more details on how this simcomp cam be coupled to Python scripts for in-situ data processing.</p>
+<dl class="section note"><dt>Note</dt><dd>This simcomp requires configuration of Neko with the ADIOS2 library (<code>--with-adios2=DIR</code>).</dd></dl>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;data_streamer&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;spectral_error&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;omega_z&quot;, &quot;fluid_stats/mean_u&quot;],</div>
+<div class="line">  &quot;stream_mesh&quot;: true,</div>
+<div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">  &quot;compute_value&quot;: 10</div>
+<div class="line">}</div>
+</div><!-- fragment --><h2><a class="anchor" id="simcomp_field_subsampler"></a>
+Field subsampler</h2>
+<p>Creates sub-sections of the domain from a <code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> and/or at a lower <code>polynomial_order</code>. The fields are added to the registry under the name <code>name_of_simcomp + "/" + name_of_base_field</code>. For example, <code>field_subsampler_u</code>.</p>
+<p>The simcomp is controlled by the following keywords:</p><ul>
+<li><code>"source_fields"</code>: A list of names corresponding to the fields to subsample (must exist in the registry).</li>
+<li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> (optional): The name of the point zone to use to mask the fields.</li>
+<li><code>polynomial_order</code> (optional): The new polynomial at which to interpolate the fields. Must be different from the order used in the simulation.</li>
+</ul>
+<p>The <code><a class="el" href="../../d8/dae/namespacefield__subsampler.html" title="Implements type field_subsampler_t.">field_subsampler</a></code> contains its own <code><a class="el" href="../../d9/dde/namespacefield__writer.html" title="Implements the field_writer_t type.">field_writer</a></code>. Therefore, all the keywords used by the latter can also be specified, with the exception of <code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code> and <code>fields</code> which will be handled by the <code><a class="el" href="../../d8/dae/namespacefield__subsampler.html" title="Implements type field_subsampler_t.">field_subsampler</a></code>.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;field_subsampler&quot;,</div>
+<div class="line">  &quot;name&quot;: &quot;field_subsampler&quot;,</div>
+<div class="line">  &quot;source_fields&quot;: [&quot;u&quot;, &quot;omega_z&quot;, &quot;fluid_stats/mean_u&quot;],</div>
+<div class="line">  &quot;point_zone&quot;: &quot;my_point_zone&quot;,</div>
+<div class="line">  &quot;polynomial_order&quot;: 3,</div>
+<div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">  &quot;compute_value&quot;: 10</div>
 <div class="line">}</div>
 </div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
@@ -398,7 +655,7 @@ Spectral error indicator</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

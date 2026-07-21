@@ -1,0 +1,8 @@
+<map id="reduce_max_kernel" name="reduce_max_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,155,72"/>
+<area shape="rect" id="Node000002" href="$d0/d7e/cuda_2ax__helm__full__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="221,5,336,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,44,207,30,208,35,142,49"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="203,79,355,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="144,69,190,79,189,84,143,75"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="241,80,239,70,245,61,258,55,279,53,302,56,315,63,312,68,300,61,279,58,260,60,249,65,244,71,247,78"/>
+</map>

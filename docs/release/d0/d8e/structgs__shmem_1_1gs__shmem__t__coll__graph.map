@@ -1,0 +1,14 @@
+<map id="gs_shmem::gs_shmem_t" name="gs_shmem::gs_shmem_t">
+<area shape="rect" id="Node000001" title="Gather&#45;scatter communication using OpenSHMEM one&#45;sided puts with per&#45;rank signaling for completion (O..." alt="" coords="129,300,313,325"/>
+<area shape="rect" id="Node000002" href="$d5/d1c/structgs__comm_1_1gs__comm__t.html" title="Gather&#45;scatter communication method." alt="" coords="5,190,173,215"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,222,209,298,206,302,112,226"/>
+<area shape="rect" id="Node000003" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="24,80,155,105"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,119,92,190,87,190,87,119"/>
+<area shape="rect" id="Node000004" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="33,5,145,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="92,45,92,80,87,80,87,45"/>
+<area shape="rect" id="Node000005" href="$de/d29/structgs__shmem_1_1gs__shmem__buf__t.html" title="Symmetric buffer for one direction of OpenSHMEM communication." alt="" coords="354,183,526,223"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="391,231,246,302,244,297,388,226"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="215,80,270,105"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="243,120,225,300,220,299,238,119"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="277,110,407,180,404,185,274,114"/>
+</map>

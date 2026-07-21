@@ -8,10 +8,18 @@ var namespacegs__comm =
     [ "gs_nbwait", "d3/d94/interfacegs__comm_1_1gs__nbwait.html", "d3/d94/interfacegs__comm_1_1gs__nbwait" ],
     [ "free_dofs", "d6/d7c/namespacegs__comm.html#ae00beb400345e7fc6471a1955ee94274", null ],
     [ "free_order", "d6/d7c/namespacegs__comm.html#af358299661323a0d9c6f95066f16957b", null ],
+    [ "gs_nbrecv_vec", "d6/d7c/namespacegs__comm.html#a231d252586882cad9c4581d2d0b9d4d6", null ],
+    [ "gs_nbsend_vec", "d6/d7c/namespacegs__comm.html#a17b10fb25e3e407ab72e1b13968a1deb", null ],
+    [ "gs_nbwait_vec", "d6/d7c/namespacegs__comm.html#a8471cd85c960e8e4c087823fd0aee730", null ],
     [ "init_dofs", "d6/d7c/namespacegs__comm.html#a21f8761e92a47ba0e2644ae2b48aa27d", null ],
     [ "init_order", "d6/d7c/namespacegs__comm.html#a7b6ee6b6c0a37c740f810315fabd6ed7", null ],
+    [ "gs_comm_caf", "d6/d7c/namespacegs__comm.html#af452e0832739cc2acbdd1b415fc727e2", null ],
     [ "gs_comm_mpi", "d6/d7c/namespacegs__comm.html#a58325561231afe6ed26e5234d5d67f0e", null ],
     [ "gs_comm_mpigpu", "d6/d7c/namespacegs__comm.html#a393ea0390a10bb91e06c660203f08f82", null ],
     [ "gs_comm_nccl", "d6/d7c/namespacegs__comm.html#ae4dccd3f016a80e6d76b6bcc87d3c620", null ],
-    [ "gs_comm_nvshmem", "d6/d7c/namespacegs__comm.html#a8d5f4e7a6bf0a1e4d0d417a0d6e9780b", null ]
+    [ "gs_comm_neighbour", "d6/d7c/namespacegs__comm.html#a51fd5b4a09316cb973cb0395a64c0e35", null ],
+    [ "gs_comm_nvshmem", "d6/d7c/namespacegs__comm.html#a8d5f4e7a6bf0a1e4d0d417a0d6e9780b", null ],
+    [ "gs_comm_openshmem", "d6/d7c/namespacegs__comm.html#a914406c7eda523913597fefb37b3e108", null ],
+    [ "gs_comm_utofu", "d6/d7c/namespacegs__comm.html#aad42af582df988c6870c779669f822bb", null ],
+    [ "gs_vec_nc", "d6/d7c/namespacegs__comm.html#a2b88a0ee2c4f2fe066f86ffc2a757960", null ]
 ];

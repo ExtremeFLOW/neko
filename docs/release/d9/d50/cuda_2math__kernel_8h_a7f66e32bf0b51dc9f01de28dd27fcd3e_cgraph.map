@@ -1,0 +1,6 @@
+<map id="power_kernel" name="power_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,115,62"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="163,29,315,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,47,149,47,149,52,115,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="205,30,203,20,208,11,220,5,239,3,260,6,271,13,268,17,258,11,239,8,222,10,212,15,208,21,210,28"/>
+</map>

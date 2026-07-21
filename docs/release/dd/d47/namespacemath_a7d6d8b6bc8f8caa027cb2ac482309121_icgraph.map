@@ -1,39 +1,39 @@
 <map id="math::cfill" name="math::cfill">
-<area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="705,365,792,390"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="498,85,655,110"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="743,351,736,303,722,242,696,179,678,150,656,125,637,112,640,108,659,121,682,147,700,177,727,240,741,302,748,350"/>
-<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a6ce1c435eb24d66895f5e8abb492d5ae" title="Set all elements to a constant c ." alt="" coords="498,135,655,175"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="739,352,728,316,711,272,687,228,656,189,639,177,643,173,659,185,692,225,716,270,733,314,744,350"/>
-<area shape="rect" id="Node000007" href="$da/d78/namespacescalar__residual__cpu.html#aa9743866d1914bf81a9f7414d140acc1" title="Compute the residual." alt="" coords="497,199,656,254"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="730,354,699,311,656,267,640,256,643,252,659,263,703,308,734,351"/>
-<area shape="rect" id="Node000008" href="$d9/db6/namespacescalar__residual__sx.html#a80e257b7bac5afedf527bf9bfffc6940" title=" " alt="" coords="501,278,652,333"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="704,362,641,335,643,330,706,357"/>
-<area shape="rect" id="Node000009" href="$d2/d13/namespaceflow__ic.html#a6b4c73702cac8cb46dd2a803491ea0ac" title="Uniform initial condition." alt="" coords="503,357,650,397"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="692,380,650,380,650,375,692,375"/>
-<area shape="rect" id="Node000012" href="$d8/ddf/namespacescalar__ic.html#a09ded6a29d28776765c85df12aca2a67" title="Uniform initial condition." alt="" coords="500,421,653,461"/>
-<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="702,397,632,424,630,419,700,392"/>
-<area shape="rect" id="Node000015" href="$d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d" title="Assignment ." alt="" coords="496,485,657,525"/>
-<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="732,403,700,439,659,476,638,488,635,483,656,471,697,436,728,399"/>
-<area shape="rect" id="Node000017" href="$d3/d0d/namespacevector__math.html#a6ce84a8990d28c992750dbd6de338390" title="Set all elements to a constant c ." alt="" coords="500,549,653,589"/>
-<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="742,404,712,470,688,507,659,539,642,551,639,547,656,535,684,504,707,468,737,402"/>
-<area shape="rect" id="Node000018" href="$d7/d34/namespacevector.html#a1a0b534cad1c19730864defe358e93f7" title="Initialise a vector of size n." alt="" coords="507,614,647,639"/>
-<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="747,404,738,447,722,501,697,556,680,581,659,603,639,616,636,612,656,599,675,578,692,553,717,499,733,446,741,403"/>
-<area shape="rect" id="Node000003" href="$d3/d66/namespacefluid__scheme__compressible.html#acb6812095efba4a414478c6ba9e87db7" title="Initialize common data for compressible fluid scheme." alt="" coords="209,5,448,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="522,83,447,60,405,48,406,43,449,55,524,78"/>
-<area shape="rect" id="Node000004" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="221,70,436,125"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="484,100,436,100,436,95,484,95"/>
-<area shape="rect" id="Node000005" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="244,149,413,203"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="523,117,497,125,414,152,413,147,495,120,522,112"/>
-<area shape="rect" id="Node000010" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="10,341,157,381"/>
-<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="495,357,448,348,381,342,329,341,210,348,157,353,157,348,209,343,329,335,381,336,448,343,496,351"/>
-<area shape="rect" id="Node000011" href="$d2/d13/namespaceflow__ic.html#a336762f1b72735e67d1066d53d13697f" title="Set the initial condition of the flow based on a point zone." alt="" coords="255,357,402,397"/>
-<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="489,380,402,380,402,375,489,375"/>
-<area shape="poly" id="edge11_Node000011_Node000010" title=" " alt="" coords="242,374,157,369,157,363,242,369"/>
-<area shape="rect" id="Node000013" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="5,431,161,471"/>
-<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="486,446,162,452,162,447,486,440"/>
-<area shape="rect" id="Node000014" href="$d8/ddf/namespacescalar__ic.html#a1c59efdb48873bad7bf1521a344c1a67" title="Point zone initial condition." alt="" coords="252,472,405,512"/>
-<area shape="poly" id="edge14_Node000012_Node000014" title=" " alt="" coords="487,462,406,479,405,474,486,457"/>
-<area shape="poly" id="edge15_Node000014_Node000013" title=" " alt="" coords="238,480,161,466,162,461,239,474"/>
-<area shape="rect" id="Node000016" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="225,537,433,562"/>
-<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="483,525,401,539,401,534,482,519"/>
+<area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="760,342,847,367"/>
+<area shape="rect" id="Node000002" href="$d3/d1b/namespaceale__routines__cpu.html#a1ed25c9746da32ed29a3a1adc93069bc" title="Implementation of cheap_dist in Nek5000 (CPU)" alt="" coords="515,84,712,124"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="796,329,787,287,771,236,746,183,730,159,710,138,694,126,697,122,714,134,734,156,751,181,776,234,792,286,801,328"/>
+<area shape="rect" id="Node000003" href="$d3/d1b/namespaceale__routines__cpu.html#a8fa1e9c2d30882c5ca4edeab07beb1b7" title="Compute cheap_dist field by passing distance information throughout an entire local element before do..." alt="" coords="515,148,712,188"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="791,330,762,266,739,231,710,202,692,190,695,186,714,198,743,228,766,263,796,328"/>
+<area shape="rect" id="Node000006" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="535,213,692,238"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="785,332,754,291,733,270,711,253,684,241,686,236,713,248,737,266,758,287,789,328"/>
+<area shape="rect" id="Node000012" href="$dc/d12/namespacematrix__math.html#a6ce1c435eb24d66895f5e8abb492d5ae" title="Set all elements to a constant c ." alt="" coords="535,263,692,303"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="762,339,711,317,678,305,680,300,713,312,764,334"/>
+<area shape="rect" id="Node000013" href="$da/d78/namespacescalar__residual__cpu.html#aa9743866d1914bf81a9f7414d140acc1" title="Compute the residual." alt="" coords="534,327,693,382"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="746,357,693,357,693,352,746,352"/>
+<area shape="rect" id="Node000014" href="$d9/db6/namespacescalar__residual__sx.html#a80e257b7bac5afedf527bf9bfffc6940" title=" " alt="" coords="538,406,689,461"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="761,375,713,396,683,408,681,403,711,391,759,370"/>
+<area shape="rect" id="Node000015" href="$d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d" title="Assignment ." alt="" coords="533,485,694,525"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="791,381,760,428,738,453,714,474,690,488,687,483,710,470,734,449,755,425,787,378"/>
+<area shape="rect" id="Node000017" href="$d3/d0d/namespacevector__math.html#a6ce84a8990d28c992750dbd6de338390" title="Set all elements to a constant c ." alt="" coords="537,549,690,589"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="799,381,788,417,771,459,746,502,714,539,692,554,689,549,710,535,742,499,766,457,783,415,794,380"/>
+<area shape="rect" id="Node000019" href="$d7/d34/namespacevector.html#a00a29a87ffacaccda3a3b75effa7a7e9" title="Initialise a vector of size n." alt="" coords="543,614,683,639"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="803,382,796,429,781,489,755,550,736,579,714,603,685,620,682,615,710,599,732,575,750,548,776,487,791,428,798,381"/>
+<area shape="rect" id="Node000004" href="$dd/db4/namespaceale__manager.html#aadb4d8b03fb126dbfd684fe551c739e5" title=" " alt="" coords="273,5,445,45"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="520,143,513,138,496,118,488,97,481,78,465,59,444,47,447,42,468,55,486,75,493,96,500,115,516,134,523,139"/>
+<area shape="rect" id="Node000005" href="$dd/db4/namespaceale__manager.html#aaec889c954567207a1fe41e8961ac448" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,5,204,45"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="259,28,204,28,204,23,259,23"/>
+<area shape="rect" id="Node000007" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title=" " alt="" coords="259,70,460,125"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="526,210,513,202,497,186,488,170,480,154,465,138,448,127,450,123,468,134,484,151,493,167,501,183,516,198,529,205"/>
+<area shape="rect" id="Node000008" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title=" " alt="" coords="259,149,460,203"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="533,213,460,198,461,193,534,207"/>
+<area shape="rect" id="Node000009" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="263,227,456,282"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="521,239,456,246,456,241,521,233"/>
+<area shape="rect" id="Node000010" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="252,306,467,361"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="534,245,516,253,502,263,492,273,483,284,468,296,444,308,441,304,465,291,479,280,488,270,498,259,513,248,531,240"/>
+<area shape="rect" id="Node000011" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="275,385,444,439"/>
+<area shape="poly" id="edge10_Node000006_Node000011" title=" " alt="" coords="525,247,516,253,504,267,497,281,493,311,488,342,481,358,469,374,446,391,443,386,465,370,477,355,483,341,487,310,492,279,500,264,513,249,521,242"/>
+<area shape="rect" id="Node000016" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="255,493,463,518"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="519,508,464,508,464,503,519,503"/>
+<area shape="rect" id="Node000018" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="264,557,455,582"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="523,572,455,572,455,567,523,567"/>
 </map>

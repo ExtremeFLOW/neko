@@ -1,5 +1,7 @@
 var dir_2d794b345ff88da414e32e9b5b95f7ec =
 [
+    [ "deardorff_nut.hip", "de/d1f/deardorff__nut_8hip.html", "de/d1f/deardorff__nut_8hip" ],
+    [ "deardorff_nut_kernel.h", "d1/d35/hip_2deardorff__nut__kernel_8h.html", "d1/d35/hip_2deardorff__nut__kernel_8h" ],
     [ "dynamic_smagorinsky_nut.hip", "d3/d45/dynamic__smagorinsky__nut_8hip.html", "d3/d45/dynamic__smagorinsky__nut_8hip" ],
     [ "dynamic_smagorinsky_nut_kernel.h", "d1/d4e/hip_2dynamic__smagorinsky__nut__kernel_8h.html", "d1/d4e/hip_2dynamic__smagorinsky__nut__kernel_8h" ],
     [ "sigma_nut.hip", "d5/d0f/sigma__nut_8hip.html", "d5/d0f/sigma__nut_8hip" ],

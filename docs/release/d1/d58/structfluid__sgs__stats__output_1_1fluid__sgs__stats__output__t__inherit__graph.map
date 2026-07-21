@@ -1,0 +1,5 @@
+<map id="fluid_sgs_stats_output::fluid_sgs_stats_output_t" name="fluid_sgs_stats_output::fluid_sgs_stats_output_t">
+<area shape="rect" id="Node000001" title="Defines an output for the sgs statistics for fluid computed using the fluid_sgs_stats_t object." alt="" coords="5,79,192,119"/>
+<area shape="rect" id="Node000002" href="$dd/d5f/structoutput_1_1output__t.html" title="Abstract type defining an output type." alt="" coords="35,5,162,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,44,101,79,96,79,96,44"/>
+</map>

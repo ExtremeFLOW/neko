@@ -1,15 +1,27 @@
 <map id="gather_scatter::gs_t::op" name="gather_scatter::gs_t::op">
-<area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,63,144,103"/>
-<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="192,5,331,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,60,182,47,183,52,141,65"/>
-<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="379,63,517,103"/>
-<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="144,80,365,80,365,85,144,85"/>
-<area shape="rect" id="Node000006" href="$d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="192,120,331,160"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="141,100,183,113,182,118,140,105"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="328,43,370,56,368,61,326,48"/>
-<area shape="rect" id="Node000004" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="565,31,688,71"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="517,68,551,61,552,67,518,73"/>
-<area shape="rect" id="Node000005" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="565,95,688,135"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="518,92,552,99,551,104,517,98"/>
-<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="326,117,368,104,370,109,328,122"/>
+<area shape="rect" id="Node000001" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="5,127,144,167"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="379,127,517,167"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,144,365,144,365,149,144,149"/>
+<area shape="rect" id="Node000003" href="$d0/d78/namespacegather__scatter.html#ae256fdf907de8a5e60a425f9d3510806" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="565,171,704,211"/>
+<area shape="poly" id="edge14_Node000001_Node000003" title=" " alt="" coords="96,165,138,202,164,220,193,233,241,246,292,252,343,253,393,249,487,233,565,212,566,217,488,239,394,255,343,258,291,258,240,251,191,239,162,225,134,207,92,169"/>
+<area shape="rect" id="Node000006" href="$d0/d78/namespacegather__scatter.html#ae43657febcc9273f7327ad60e4e381be" title="Gather&#45;scatter operation on a 3&#45;component vector of rank&#45;4 arrays (u1, u2, u3) with op op; see gs_op_..." alt="" coords="192,19,331,59"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="108,124,191,75,211,63,214,68,193,80,111,129"/>
+<area shape="rect" id="Node000007" href="$d0/d78/namespacegather__scatter.html#aac2a59847cf00bf8f06355ebbda60679" title="Gather&#45;scatter operation on a 3&#45;component vector (u1, u2, u3) with op op. When the comm backend suppo..." alt="" coords="379,63,517,103"/>
+<area shape="poly" id="edge15_Node000001_Node000007" title=" " alt="" coords="144,132,365,94,366,99,145,137"/>
+<area shape="rect" id="Node000010" href="$d0/d78/namespacegather__scatter.html#a9add4a7c59c01d0c077e39fcdba63b23" title="Gather&#45;scatter operation on a rank 4 array." alt="" coords="192,184,331,224"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="141,164,183,177,182,182,140,169"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="518,160,552,169,551,174,517,166"/>
+<area shape="rect" id="Node000004" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="771,79,893,119"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="678,168,775,122,777,127,680,173"/>
+<area shape="rect" id="Node000005" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="771,161,893,201"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="704,185,756,182,757,188,704,190"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="332,52,366,61,364,66,331,58"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="497,100,519,112,543,131,567,150,585,161,582,166,564,154,540,135,516,117,494,105"/>
+<area shape="poly" id="edge10_Node000007_Node000004" title=" " alt="" coords="518,83,757,93,757,98,517,88"/>
+<area shape="poly" id="edge11_Node000007_Node000005" title=" " alt="" coords="518,98,758,160,757,165,517,103"/>
+<area shape="rect" id="Node000008" href="$d0/d78/namespacegather__scatter.html#a2895d584c6ac94e9da48452a2e56abd4" title="Device path for the fused 3&#45;component gs. The device backend&#39;s shared gather/scatter always operate o..." alt="" coords="565,5,704,45"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="513,60,555,47,557,52,514,65"/>
+<area shape="rect" id="Node000009" href="$d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="752,5,912,45"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="704,23,738,23,738,28,704,28"/>
+<area shape="poly" id="edge13_Node000010_Node000003" title=" " alt="" coords="331,199,552,191,552,196,331,204"/>
 </map>

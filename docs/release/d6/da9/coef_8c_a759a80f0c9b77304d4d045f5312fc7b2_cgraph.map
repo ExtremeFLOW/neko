@@ -1,0 +1,9 @@
+<map id="opencl_coef_get_normal" name="opencl_coef_get_normal">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,187,62"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="415,29,567,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,47,400,47,400,52,187,52"/>
+<area shape="rect" id="Node000003" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="235,62,367,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="187,58,222,62,221,68,187,63"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="455,30,453,20,458,11,471,5,491,3,513,6,525,13,522,17,511,11,491,8,473,10,462,15,458,21,460,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="367,63,401,59,401,64,367,69"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="lpt_migrate::distribute_particles_evenly" name="lpt_migrate::distribute_particles_evenly">
+<area shape="rect" id="Node000001" title="Distribute particles from rank 0 evenly across all ranks." alt="" coords="5,5,172,45"/>
+<area shape="rect" id="Node000002" href="$dd/d49/namespacelpt__migrate.html#aaec2c34c20a22566c9d8a86366bc6b72" title="Build an even rank distribution from the root&#45;rank particle count." alt="" coords="220,5,419,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,23,206,23,206,28,172,28"/>
+</map>

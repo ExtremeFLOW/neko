@@ -1,0 +1,7 @@
+<map id="scratch_registry::scratch_registry_t::relinquish_host_array" name="scratch_registry::scratch_registry_t::relinquish_host_array">
+<area shape="rect" id="Node000001" title="Free a host array for later reuse." alt="" coords="5,30,185,85"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a6d8488cc6a17d85ca9705403fda34f55" title="Relinquish the use of multiple host_arrays in the registry." alt="" coords="233,5,431,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,43,219,38,220,43,186,48"/>
+<area shape="rect" id="Node000003" href="$d7/dda/namespacescratch__registry.html#a459a4f4c8b1e33646cd5bd66f22a11f3" title="Relinquish the use of a host_array in the registry." alt="" coords="233,69,431,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,67,220,72,219,77,185,72"/>
+</map>

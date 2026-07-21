@@ -33,7 +33,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.0.4</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.1.0</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -168,7 +168,7 @@ $(document).ready(function(){initNavTree('d6/df6/map__file_8f90_source.html','..
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">call </span>this%check_exists()</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">select type</span>(data)</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordflow">select type</span> (data)</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keywordflow">    type is</span> (<a class="code hl_struct" href="../../da/d40/structmap_1_1map__t.html">map_t</a>)</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>       nm =&gt; <span class="keyword">data</span></div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keywordflow">    class default</span></div>
@@ -176,7 +176,7 @@ $(document).ready(function(){initNavTree('d6/df6/map__file_8f90_source.html','..
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="keywordflow">    end select</span></div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    fname = trim(this%get_fname())</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keyword">open</span>(newunit=file_unit, <a class="code hl_namespace" href="../../da/d16/namespacefile.html">file</a>=fname, status=<span class="stringliteral">&#39;old&#39;</span>, iostat=ierr)</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keyword">open</span>(newunit = file_unit, <a class="code hl_namespace" href="../../da/d16/namespacefile.html">file</a> = fname, status = <span class="stringliteral">&#39;old&#39;</span>, iostat = ierr)</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>       <span class="keyword">write</span>(*, <span class="stringliteral">&#39;(A,A)&#39;</span>) <span class="stringliteral">&quot; Reading NEKTON map file &quot;</span>, trim(fname)</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordflow">    end if</span></div>
@@ -185,10 +185,10 @@ $(document).ready(function(){initNavTree('d6/df6/map__file_8f90_source.html','..
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">do</span> j = 1, nm%nel</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>       <span class="keyword">read</span>(file_unit, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>       <span class="keyword">read</span>(file_unit, *) nm%imap(j), (nm%vertex(k, j), k = 1, nm%nlv)</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <span class="keyword">close</span>(unit=file_unit)</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <span class="keyword">close</span>(unit = file_unit)</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
 </div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#afc264685c906324d1805e75ac3373146">map_file_read</a></div>
@@ -203,9 +203,9 @@ $(document).ready(function(){initNavTree('d6/df6/map__file_8f90_source.html','..
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dc/da2/namespacemap__file.html#a138190d047ec14330a32a79dcf7b21b1">map_file_write</a></div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dc/da2/namespacemap__file.html">map_file</a></div>
-<div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
+<div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00045">utils.f90:45</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
-<div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00056">comm.F90:56</a></div></div>
+<div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00059">comm.F90:59</a></div></div>
 <div class="ttc" id="anamespacefile_html"><div class="ttname"><a href="../../da/d16/namespacefile.html">file</a></div><div class="ttdoc">Module for file I/O operations.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d96/file_8f90_source.html#l00034">file.f90:34</a></div></div>
 <div class="ttc" id="anamespacegeneric__file_html"><div class="ttname"><a href="../../dc/d92/namespacegeneric__file.html">generic_file</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d26/generic__file_8f90_source.html#l00033">generic_file.f90:33</a></div></div>
 <div class="ttc" id="anamespacemap__file_html"><div class="ttname"><a href="../../dc/da2/namespacemap__file.html">map_file</a></div><div class="ttdoc">NEKTON map file.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/df6/map__file_8f90_source.html#l00035">map_file.f90:35</a></div></div>
@@ -224,7 +224,7 @@ $(document).ready(function(){initNavTree('d6/df6/map__file_8f90_source.html','..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_c184e51c84f2c3f0345bbc8a0d75d3e1.html">io</a></li><li class="navelem"><a class="el" href="../../d6/df6/map__file_8f90.html">map_file.f90</a></li>
-    <li class="footer">Generated on Sat May 16 2026 04:31:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Jul 21 2026 14:54:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

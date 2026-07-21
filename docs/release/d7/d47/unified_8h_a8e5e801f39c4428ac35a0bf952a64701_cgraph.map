@@ -1,0 +1,9 @@
+<map id="hip_map" name="hip_map">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,84,62"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="288,29,440,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,47,274,47,274,52,84,52"/>
+<area shape="rect" id="Node000003" href="$dd/d8d/unified_8hip.html#aad05e3f5d48c2067250ca82a1f5b4d73" title=" " alt="" coords="132,62,240,87"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="85,54,118,60,118,65,84,59"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="330,30,328,20,334,11,346,5,364,3,385,6,396,13,393,17,383,11,364,8,347,10,337,15,334,21,336,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="240,64,274,59,275,65,241,70"/>
+</map>

@@ -40,7 +40,9 @@ var structnon__normal_1_1non__normal__t =
     [ "msh", "da/d18/structnon__normal_1_1non__normal__t.html#ac9c45a8ed2e761cf3d3460567cbc4336", null ],
     [ "msk", "da/d18/structnon__normal_1_1non__normal__t.html#a638503614447154c642fcbc9bf5df9a6", null ],
     [ "msk_d", "da/d18/structnon__normal_1_1non__normal__t.html#a78a0e4bbf8808775dd18c3a5e041d92e", null ],
+    [ "name", "da/d18/structnon__normal_1_1non__normal__t.html#a68c65ffcae8364e96c10ab4815a2658c", null ],
     [ "strong", "da/d18/structnon__normal_1_1non__normal__t.html#a3942c5f5427cf551d4e3909d6e2e7e4a", null ],
     [ "updated", "da/d18/structnon__normal_1_1non__normal__t.html#acec6ac3a12e639a12be6344c9b4e3208", null ],
-    [ "xh", "da/d18/structnon__normal_1_1non__normal__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ]
+    [ "xh", "da/d18/structnon__normal_1_1non__normal__t.html#aa41e41065c9e29dc8cf48f739eeff18a", null ],
+    [ "zone_indices", "da/d18/structnon__normal_1_1non__normal__t.html#a77af13b6f885bd953fff03b1afe50d0a", null ]
 ];

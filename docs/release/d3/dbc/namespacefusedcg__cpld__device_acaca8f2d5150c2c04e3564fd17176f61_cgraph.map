@@ -2,10 +2,13 @@
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,29,212,69"/>
 <area shape="rect" id="Node000002" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#ac03344c5f27406a8cd2f65656f1c4fa9" title=" " alt="" coords="260,37,435,62"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,47,246,47,246,52,212,52"/>
-<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="483,11,647,37"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,37,469,32,469,38,435,42"/>
-<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="695,29,859,69"/>
-<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="435,47,681,47,681,52,435,52"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="647,31,682,35,681,41,647,36"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="737,30,735,20,741,10,755,5,777,3,801,6,815,13,812,18,800,11,777,8,756,10,744,15,740,21,742,28"/>
+<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="695,29,847,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="403,34,482,21,565,16,647,21,681,26,681,32,646,27,565,21,483,27,404,39"/>
+<area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="483,37,647,62"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="435,47,469,47,469,52,435,52"/>
+<area shape="rect" id="Node000005" href="$d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="493,86,636,111"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="405,59,495,80,494,86,403,65"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="732,30,730,20,736,11,750,5,771,3,795,6,808,13,805,18,793,11,771,8,751,10,739,15,735,21,737,28"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="647,47,681,47,681,52,647,52"/>
+<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="618,83,681,68,682,73,619,89"/>
 </map>

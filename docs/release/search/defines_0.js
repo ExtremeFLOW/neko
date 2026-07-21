@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_5f_5fgs_5fnvhsmem_5fkernels_5f_5f_0',['__GS_NVHSMEM_KERNELS__',['../de/df0/gs__nvshmem__kernels_8h.html#a17e1f9e461ef85088381d8bf4372c691',1,'gs_nvshmem_kernels.h']]]
+  ['area_5fcase_0',['area_case',['../d4/d95/coef_8cu.html#a4fd2101d7f688cb639f86b1c75e29b2f',1,'AREA_CASE:&#160;coef.cu'],['../d9/dc3/coef_8hip.html#a4fd2101d7f688cb639f86b1c75e29b2f',1,'AREA_CASE:&#160;coef.hip'],['../d6/da9/coef_8c.html#a4fd2101d7f688cb639f86b1c75e29b2f',1,'AREA_CASE:&#160;coef.c']]]
 ];

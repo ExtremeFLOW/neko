@@ -5,5 +5,5 @@ var namespacefilter =
     [ "filter_init", "d0/df0/interfacefilter_1_1filter__init.html", "d0/df0/interfacefilter_1_1filter__init" ],
     [ "filter_t", "de/da7/structfilter_1_1filter__t.html", "de/da7/structfilter_1_1filter__t" ],
     [ "filter_free_base", "d1/da4/namespacefilter.html#a4e4fe45d8037a0e94bc2ef1fb2de5467", null ],
-    [ "filter_init_base", "d1/da4/namespacefilter.html#a9f6430fd76c840eef43f3cac0ce07f9e", null ]
+    [ "filter_init_base", "d1/da4/namespacefilter.html#a4e1b12d1924e6671d94a0795ff1c85d1", null ]
 ];

@@ -1,5 +1,8 @@
 var structmean__field__output_1_1mean__field__output__t =
 [
+    [ "free", "d3/d08/structmean__field__output_1_1mean__field__output__t.html#a84e90c47edc37e327563fac1e1a83218", null ],
+    [ "free", "d3/d08/structmean__field__output_1_1mean__field__output__t.html#aaa2b400cbc57484459d3e37d5ad0fe2c", null ],
+    [ "free_base", "d3/d08/structmean__field__output_1_1mean__field__output__t.html#a1525d15484f840f09a5585a8127b1d62", null ],
     [ "init", "d3/d08/structmean__field__output_1_1mean__field__output__t.html#abca34744b6a507d524bd36a6bd69944e", null ],
     [ "init_base", "d3/d08/structmean__field__output_1_1mean__field__output__t.html#aa9853130252151809a431108e99384fa", null ],
     [ "sample", "d3/d08/structmean__field__output_1_1mean__field__output__t.html#a9354474fb4a3493cbce820219dd699d5", null ],

@@ -1,0 +1,12 @@
+<map id="opencl_glsum" name="opencl_glsum">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,117,62"/>
+<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="380,29,532,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,34,165,21,249,15,332,21,367,26,366,32,332,27,249,20,166,27,105,39"/>
+<area shape="rect" id="Node000003" href="$d3/d8b/buffer_8c.html#aba09ed2cd695ac30f3e89bf3065f19f9" title=" " alt="" coords="165,37,332,62"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="118,47,152,47,152,52,118,52"/>
+<area shape="rect" id="Node000004" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="183,86,315,111"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="111,59,187,80,186,85,110,65"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="417,30,415,20,421,11,435,5,456,3,480,6,493,13,491,18,478,11,456,8,436,10,425,15,420,21,422,28"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="332,47,366,47,366,52,332,52"/>
+<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="302,83,366,68,367,73,303,89"/>
+</map>
