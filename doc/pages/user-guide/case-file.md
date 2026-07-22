@@ -27,6 +27,11 @@ files against that schema.
 Since some shipped example files use `//` comments and trailing commas, the
 helper parses the input using a JSON5-compatible frontend before applying the
 schema.
+Neko distinguishes JSON integers such as `10` from JSON reals such as `10.0`,
+even though the JSON Schema specification considers both to be numbers and
+considers `10.0` to satisfy the `integer` type. The schemas mark real-only
+values with the Neko-specific `x-neko-real` annotation, and the validation
+helper enforces both that annotation and strict JSON integer encoding.
 
 ## High-level structure
 The current high-level structure of the case file is shown below.
@@ -67,9 +72,11 @@ The frequency is controlled by two parameters, ending with `_control` and
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
 
-The `_value` parameter is a *real* number, that defines the output frequency,
-but the interpretation of that number depends on the choice of `_control`. The
-three following options are possible.
+The `_value` parameter defines the output frequency, but both its JSON type and
+interpretation depend on the choice of `_control`. Neko requires an integer
+literal for `tsteps` and `nsamples`, and a real literal for `simulationtime`.
+For example, use `10` for ten time steps but `10.0` for ten simulation-time
+units. The following options are possible.
 1. `simulationtime`, then `_value` is the time interval between the outputs.
 2. `tsteps`, then `_value` is the number of time steps between the outputs.
 3. `nsamples`, then `_value` is the total number of outputs that will be
@@ -88,7 +95,6 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `mesh_file`           | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`     | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`    | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
-| `output_format`       | The file format of field data.                                                                        | `nek5000`, `adios2`, or `vtkhdf`                | `nek5000`     |
 | `output_precision`    | Whether to output snapshots in single or double precision                                             | `single` or `double`                            | `single`      |
 | `output_layout`       | Data layout for `adios2` files. (Choose `2` or `3` for ADIOS2 supported compressors BigWhoop or ZFP.) | Positive integer `1`, `2`, `3`                  | `1`           |
 | `load_balancing`      | Whether to apply load balancing.                                                                      | `true` or `false`                               | `false`       |
@@ -209,13 +215,11 @@ smallest of `timestep` and the value calculated from the target CFL number.
 | `max_timestep`             | Maximum time-step size when variable time step is activated                                 | Positive reals                    | `huge`        |
 | `min_timestep`             | Minimum time-step size when variable time step is activated                                 | Non-negative reals                | `0.0`         |
 | `target_cfl`               | The desired CFL number                                                                      | Positive real                     | `0.4`         |
-| `max_update_frequency`     | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
-| `min_update_frequency`     | The maximum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `huge`        |
-| `running_avg_coeff`        | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
+| `max_update_frequency`     | Minimum number of time steps between two time-step updates triggered by CFL deviation       | Non-negative integer              | `0`           |
+| `min_update_frequency`     | Maximum number of time steps before forcing a time-step update                              | Non-negative integer              | `huge`        |
 | `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                            | Positive real greater than `1`    | `1.2`         |
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
-| `cfl_max_update_frequency` | The minimum interval between two time-step-updating steps in terms of time steps            | Non-negative integer              | `0`           |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
 
 ### Restarts and joblimit
@@ -311,15 +315,17 @@ by the user by setting `full_stress_formulation` to true.
 
 Neko supports compressible flow simulations via the compressible solver.
 To enable compressible flow, set `"scheme": "compressible"` in the fluid
-configuration. This solver integrates the compressible Euler equations (full
-Navier-Stokes will be enabled in upcoming updates) using a Runge-Kutta time
-integration scheme with artificial viscosity for stability.
+configuration. This solver integrates the compressible Navier-Stokes equations
+using a Runge-Kutta time integration scheme with artificial viscosity for
+stability.
 
-The compressible solver requires the following parameters:
+The compressible solver accepts the following parameters:
 
-| Name    | Description                           | Admissible values | Default value |
-| ------- | ------------------------------------- | ----------------- | ------------- |
-| `gamma` | Ratio of specific heats for ideal gas | Positive reals    | `1.4`         |
+| Name    | Description                                      | Admissible values | Default value |
+| ------- | ------------------------------------------------ | ----------------- | ------------- |
+| `gamma` | Ratio of specific heats for ideal gas            | Positive reals    | `1.4`         |
+| `mu`    | Constant physical dynamic viscosity              | Non-negative real | `0.0`         |
+| `kappa` | Constant physical thermal conductivity           | Non-negative real | `0.0`         |
 
 Additional numerics parameters specific to compressible flows:
 
@@ -331,6 +337,19 @@ Additional numerics parameters specific to compressible flows:
 The compressible solver uses variable time-stepping controlled by the CFL
 number. Set `variable_timestep` to `true` and specify `target_cfl` in the time
 control object.
+
+Constant physical viscosity and thermal conductivity can be specified as `mu`
+and `kappa` in the fluid section of the case file. Alternatively, they can be
+set via the `material_properties` user interface in the user file, which also
+allows spatially or temporally varying values. When a user material-properties
+routine is provided, it takes precedence over the constant JSON values.
+Stabilization uses the existing Laplacian artificial viscosity, computed as the
+minimum of entropy-based and low-order viscosities. When `fluid_mu` or
+`fluid_kappa` are nonzero, the solver also applies the compressible
+Navier-Stokes viscous stress flux and conductive energy flux. If neither
+property is provided, both default to zero and no physical viscous flux is added.
+See the user file documentation for details on implementing
+`material_properties`.
 
 Example configuration:
 ~~~~~~~~~~~~~~~{.json}
@@ -815,7 +834,7 @@ file documentation.
       - `tanh`, hyperbolic tangent approximation of Savaş (2012). In this case `delta` is the 99\% thickness.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 5. `field`, where the initial condition is retrieved from a field file.
    The following keywords can be used:
@@ -1806,6 +1825,7 @@ concisely directly in the table.
 | `nut_field`                                        | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                                   | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                                     | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_format`                                    | The file format of field data.                                                                     | `nek5000`, `adios2`, or `vtkhdf`                            | `nek5000`     |
 | `output_mesh_in_all_files`                         | Indicates if the mesh should be written in every output fld file.                                 | `true` or `false`                                           | `false`       |
 | `output_filename`                                  | The output filename.                                                                              | String                                                      | `field`       |
 | `output_subdivide`                                 | Whether to subdivide spectral elements into linear sub-cells for VTKHDF output.                   | `true` or `false`                                           | `false`       |
@@ -1942,7 +1962,7 @@ file documentation.
    keyword.
 3. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
-   point zone is specified by the `name` keyword, and should be defined in the
+   point zone is specified by the `zone_name` keyword, and should be defined in the
    `case.point_zones` object. See more about [point zones](@ref point-zones).
 4. `field`, where the initial condition is retrieved from a field file. Works
    in the same way as for the fluid. See the

@@ -35,6 +35,7 @@
 #include "fusedcg_cpld_kernel.h"
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#include <device/cuda/buffer.h>
 
 #ifdef HAVE_NVSHMEM
 #include <nvshmem.h>
@@ -42,11 +43,10 @@
 #endif
 
 /**
- * @todo Make sure that this gets deleted at some point...
+ * Reduction buffer, owned by the device layer and released on device
+ * teardown (cuda_buffer_free_all in cuda_finalize)
  */
-real *fusedcg_cpld_buf = NULL;
-void *fusedcg_cpld_buf_d = NULL;
-int fusedcg_cpld_buf_len = 0;
+cuda_buffer_t fusedcg_cpld_redbuf = CUDA_BUFFER_INIT_SYMM;
 
 extern "C" {
 
@@ -111,25 +111,10 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    if (fusedcg_cpld_buf != NULL && fusedcg_cpld_buf_len < nb) {
-      CUDA_CHECK(cudaFreeHost(fusedcg_cpld_buf));
-#ifdef HAVE_NVSHMEM
-      nvshmem_free(fusedcg_cpld_buf_d);
-#else
-      CUDA_CHECK(cudaFree(fusedcg_cpld_buf_d));
-#endif
-      fusedcg_cpld_buf = NULL;
-    }
-
-    if (fusedcg_cpld_buf == NULL){
-      CUDA_CHECK(cudaMallocHost(&fusedcg_cpld_buf, 2*sizeof(real)));
-#ifdef HAVE_NVSHMEM
-      fusedcg_cpld_buf_d = (real *) nvshmem_malloc(nb*sizeof(real));
-#else
-      CUDA_CHECK(cudaMalloc(&fusedcg_cpld_buf_d, nb*sizeof(real)));
-#endif
-      fusedcg_cpld_buf_len = nb;
-    }
+    /* nb + 1 to fit the two-element host staging area for any nb */
+    cuda_buffer_reserve(&fusedcg_cpld_redbuf, (nb + 1)*sizeof(real));
+    real *fusedcg_cpld_buf = (real *) fusedcg_cpld_redbuf.host;
+    real *fusedcg_cpld_buf_d = (real *) fusedcg_cpld_redbuf.dev;
 
     /* Store alpha(p_cur) in pinned memory */
     fusedcg_cpld_buf[1] = (*alpha);

@@ -75,6 +75,11 @@ module device
   end interface device_memcpy
 
   !> Map a Fortran array to a device (allocate and associate)
+  !! @note On unified memory backends the device pointer may alias the
+  !! host array (zero-copy) and host-device copies of the pair become
+  !! no-ops. The host side must then not be written while device work
+  !! touching the array may be in flight; call device_sync before
+  !! host-side writes to a mapped array.
   interface device_map
      module procedure device_map_r1, device_map_r2, &
           device_map_r3, device_map_r4
@@ -116,7 +121,7 @@ module device
   end interface device_sync
 
   !> Table of host to device address mappings
-  type(htable_cptr_t), private :: device_addrtbl
+  type(htable_cptr_t) :: device_addrtbl
 
   public :: device_memcpy, device_map, device_unmap, device_associate, &
        device_associated, device_deassociate, device_get_ptr, device_sync, &
@@ -126,8 +131,6 @@ module device
        device_event_destroy, device_event_record, device_event_sync, &
        device_finalize, device_stream_wait_event, device_count, &
        device_memset, device_stream_create_with_priority
-
-  private :: device_memcpy_common
 
 contains
 
@@ -239,7 +242,9 @@ contains
   subroutine device_free(x_d)
     type(c_ptr), intent(inout) :: x_d
 #ifdef HAVE_HIP
-    if (hipfree(x_d) .ne. hipSuccess) then
+    ! Free via the mapping layer, which leaves zero-copy pointers
+    ! aliasing host memory untouched (unified memory architectures)
+    if (hipMapFree(x_d) .ne. hipSuccess) then
        call neko_error('Memory deallocation on device failed')
     end if
 #elif HAVE_CUDA
@@ -281,7 +286,9 @@ contains
     end if
 
 #ifdef HAVE_HIP
-    if (hipMemsetAsync(x_d, v, s, stream) .ne. hipSuccess) then
+    ! Memset via the mapping layer, which handles zero-copy pointers
+    ! aliasing host memory (unified memory architectures)
+    if (hipMapMemset(x_d, v, s, stream) .ne. hipSuccess) then
        call neko_error('Device memset async failed')
     end if
 #elif HAVE_CUDA
@@ -505,20 +512,31 @@ contains
     end if
 
 #ifdef HAVE_HIP
+    ! Copies where the device pointer aliases the host pointer
+    ! (zero-copy mappings on unified memory) are skipped; a
+    ! requested sync still synchronizes the stream below. Other
+    ! copies go via the mapping layer, which handles zero-copy
+    ! pointers aliasing pageable host memory
     if (dir .eq. HOST_TO_DEVICE) then
-       if (hipMemcpyAsync(x_d, ptr_h, s, &
-            hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
-          call neko_error('Device memcpy async (host-to-device) failed')
+       if (.not. c_associated(x_d, ptr_h)) then
+          if (hipMapMemcpy(x_d, ptr_h, s, &
+               hipMemcpyHostToDevice, stream) .ne. hipSuccess) then
+             call neko_error('Device memcpy async (host-to-device) failed')
+          end if
        end if
     else if (dir .eq. DEVICE_TO_HOST) then
-       if (hipMemcpyAsync(ptr_h, x_d, s, &
-            hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
-          call neko_error('Device memcpy async (device-to-host) failed')
+       if (.not. c_associated(ptr_h, x_d)) then
+          if (hipMapMemcpy(ptr_h, x_d, s, &
+               hipMemcpyDeviceToHost, stream) .ne. hipSuccess) then
+             call neko_error('Device memcpy async (device-to-host) failed')
+          end if
        end if
     else if (dir .eq. DEVICE_TO_DEVICE) then
-       if (hipMemcpyAsync(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
-            .ne. hipSuccess) then
-          call neko_error('Device memcpy async (device-to-device) failed')
+       if (.not. c_associated(ptr_h, x_d)) then
+          if (hipMapMemcpy(ptr_h, x_d, s, hipMemcpyDeviceToDevice, stream) &
+               .ne. hipSuccess) then
+             call neko_error('Device memcpy async (device-to-device) failed')
+          end if
        end if
     else
        call neko_error('Device memcpy failed (invalid direction')
@@ -858,11 +876,47 @@ contains
 
   end subroutine device_deassociate_r4
 
+  !> Allocate device memory backing a mapped host array
+  !! @note On unified memory architectures (Metal) the device pointer
+  !! aliases the host array whenever possible, such that host and
+  !! device share a single allocation instead of replicating data
+  subroutine device_map_common(ptr_h, x_d, s)
+    type(c_ptr), intent(in) :: ptr_h
+    type(c_ptr), intent(inout) :: x_d
+    integer(c_size_t), intent(in) :: s
+
+#ifdef HAVE_METAL
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = C_NULL_PTR
+       return
+    end if
+
+    if (metalMap(x_d, ptr_h, s) .ne. metalSuccess) then
+       call neko_error('Memory map on device failed')
+    end if
+#elif HAVE_HIP
+    if (s .eq. 0) then
+       call device_sync()
+       x_d = C_NULL_PTR
+       return
+    end if
+
+    if (hipMap(x_d, ptr_h, s) .ne. hipSuccess) then
+       call neko_error('Memory map on device failed')
+    end if
+#else
+    call device_alloc(x_d, s)
+#endif
+
+  end subroutine device_map_common
+
   !> Map a Fortran rank 1 array to a device (allocate and associate)
   subroutine device_map_r1(x, x_d, n)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -872,17 +926,21 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
+    call device_map_common(ptr_h, x_d, s)
     call device_associate(x, x_d, n)
 
   end subroutine device_map_r1
@@ -892,6 +950,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -901,17 +960,21 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
+    call device_map_common(ptr_h, x_d, s)
     call device_associate(x, x_d, n)
 
   end subroutine device_map_r2
@@ -921,6 +984,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -930,17 +994,21 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
+    call device_map_common(ptr_h, x_d, s)
     call device_associate(x, x_d, n)
 
   end subroutine device_map_r3
@@ -950,6 +1018,7 @@ contains
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:,:,:,:)
     type(c_ptr), intent(inout) :: x_d
+    type(c_ptr) :: ptr_h
     integer(c_size_t) :: s
 
     if (c_associated(x_d)) then
@@ -959,17 +1028,21 @@ contains
     select type (x)
     type is (integer)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (integer(i8))
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     type is (real)
        s = n * int(4, c_size_t)
+       ptr_h = c_loc(x)
     type is (double precision)
        s = n * int(8, c_size_t)
+       ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
     end select
 
-    call device_alloc(x_d, s)
+    call device_map_common(ptr_h, x_d, s)
     call device_associate(x, x_d, n)
 
   end subroutine device_map_r4

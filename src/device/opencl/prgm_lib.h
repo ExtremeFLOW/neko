@@ -77,8 +77,8 @@ extern void *pnpn_res_program;
 /** Device pnpn residual kernels (stress formulation) */
 extern void *pnpn_stress_res_program;
 
-/** Device euler residual kernels */
-extern void *euler_res_program;
+/** Device compressible residual kernels */
+extern void *compressible_res_program;
 
 /** Device compressible ops kernels */
 extern void *compressible_ops_compute_max_wave_speed_program;

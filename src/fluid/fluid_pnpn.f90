@@ -557,7 +557,10 @@ contains
     end if
 
     call this%ale%sync_chkp(this%c_Xh, this%Xh, this%adv, chkp, this%gs_Xh)
-
+    if (this%ale%active) then
+       call this%bc_prs_surface%recompute_normals()
+       call this%bc_sym_surface%recompute_normals()
+    end if
 
   end subroutine fluid_pnpn_restart
 
@@ -783,6 +786,9 @@ contains
          ! Update the metrics used by the adv operator for delaiasing (coef_GL)
          ! Maps the updated coef_GLL to coef_GL.
          call this%adv%recompute_metrics(c_Xh, .true.)
+
+         call this%bc_prs_surface%recompute_normals()
+         call this%bc_sym_surface%recompute_normals()
          call profiler_end_region('ALE recompute metrics')
       end if
 
@@ -871,11 +877,8 @@ contains
               dt, dm_Xh%size())
 
          call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
-         call gs_Xh%op(u_res, GS_OP_ADD, event)
-         call device_event_sync(event)
-         call gs_Xh%op(v_res, GS_OP_ADD, event)
-         call device_event_sync(event)
-         call gs_Xh%op(w_res, GS_OP_ADD, event)
+         call gs_Xh%op(u_res%x, v_res%x, w_res%x, dm_Xh%size(), &
+              GS_OP_ADD, event)
          call device_event_sync(event)
          call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 

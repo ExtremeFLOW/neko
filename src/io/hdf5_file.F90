@@ -318,7 +318,6 @@ contains
 
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
-
     call h5close_f(ierr)
 
   end subroutine hdf5_file_write
@@ -343,10 +342,9 @@ contains
 
     fname = trim(this%get_fname())
 
-    call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
-
     call h5open_f(ierr)
 
+    call hdf5_file_determine_data(data, msh, dof, fp, fsp, dtlag, tlag)
     call hdf5_file_determine_real(H5T_NEKO_REAL)
 
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
@@ -472,7 +470,6 @@ contains
 
     call h5pclose_f(plist_id, ierr)
     call h5fclose_f(file_id, ierr)
-
     call h5close_f(ierr)
 
   end subroutine hdf5_file_read
@@ -697,9 +694,10 @@ contains
     counter = this%get_counter() - this%get_start_counter()
 
     ! Set the configuration for MPI IO
+    call h5open_f(ierr)
+
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
-    call h5open_f(ierr)
     call h5pcreate_f(H5P_FILE_ACCESS_F, this%plist_id, ierr)
     call h5pset_fapl_mpio_f(this%plist_id, mpi_comm, mpi_info, ierr)
 

@@ -42,6 +42,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Boundary operations on labelled zones \ref simcomp_boundary_operation
 - Total vector flux through labelled zones \ref simcomp_boundary_flux
+- Lagrangian particle tracking \ref simcomp_lagrangian_particles
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
 - User defined components \ref user-file_simcomps
@@ -483,6 +484,99 @@ can only be used with `nek5000` files.
    "point_zone": "my_point_zone"
  }
  ~~~~~~~~~~~~~~~
+
+### lagrangian_particles {#simcomp_lagrangian_particles}
+Tracks point particles through the flow using the Lagrangian particle tracking
+component. The particles are advected by the interpolated fluid velocity. With
+`inertia` enabled, particle velocity, nonlinear drag, particle diameter, density,
+and elastic wall rebounds can also be included.
+
+Mandatory fields for this simcomp are:
+- `inertia`: whether to track inertial particles. If `false`, particles are
+  passive tracers.
+- Either `coordinates` or `points_file`:
+  - `coordinates`: a flat list of particle coordinates,
+    `[x1, y1, z1, x2, y2, z2, ...]`.
+  - `points_file`: a CSV file containing the initial particle coordinates.
+
+When `inertia` is `true`, the JSON particle input also requires:
+- `velocities`: a flat list of initial particle velocities,
+  `[u1, v1, w1, u2, v2, w2, ...]`.
+- `diameters`: one particle diameter per particle.
+- `densities`: one particle density per particle.
+
+Optional fields for this simcomp are:
+- `migration_strategy`: controls particle ownership migration. Supported values
+  are `owner` (default) and `none`.
+- `nonlinear_coefficient`: nonlinear drag coefficient for inertial particles.
+  Defaults to `0.15`.
+- `nonlinear_exponent`: nonlinear drag exponent for inertial particles.
+  Defaults to `0.687`.
+- `wall_zone_indices`: boundary zone indices that should act as elastic rebound
+  walls. This requires `inertia` to be `true`.
+- `interpolation`: sub-dictionary passed to the global interpolation setup.
+- `output_filename`: base name for the trajectory output. Defaults to the
+  simcomp name.
+- `output_format`: trajectory output format. Supported values are `csv`, `h5`,
+  and `hdf5`. Defaults to `csv`.
+- `snapshots_per_file`: controls how many written trajectory snapshots are
+  stored in each file. The default value `all` keeps all snapshots in the
+  current output sequence. A positive integer writes that many output snapshots
+  per file.
+
+The `output_control` and `output_value` keywords control when trajectory
+snapshots are written. The initial particle state is always written during
+initialisation.
+
+The `compute_control` and `compute_value` keywords determine when the LPT
+component advances the particles. The time interval between two LPT compute
+executions is therefore the time step used by the particle time integration.
+
+For CSV output, the columns are:
+
+~~~~~~~~~~~~~~~{.csv}
+tstep,time,particle_id,x,y,z,u,v,w
+~~~~~~~~~~~~~~~
+
+For inertial particles, the particle diameter and density are appended:
+
+~~~~~~~~~~~~~~~{.csv}
+tstep,time,particle_id,x,y,z,u,v,w,d,rho
+~~~~~~~~~~~~~~~
+
+For HDF5 output, the data are written under the `lpt` group with datasets for
+`tsteps`, `t`, `ids`, `position`, and `velocity`. Inertial-particle output also
+contains `diameter` and `density`.
+
+If `snapshots_per_file` is a positive integer, output files are named by adding
+`_0`, `_1`, ... before the format suffix, for example `tracers_0.h5`,
+`tracers_1.h5`, and so on.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "lagrangian_particles",
+  "name": "tracers",
+  "inertia": true,
+  "coordinates": [
+    0.0, 0.0, 0.0,
+    0.1, 0.0, 0.0
+  ],
+  "velocities": [
+    1.0, 0.0, 0.0,
+    0.5, 0.0, 0.0
+  ],
+  "diameters": [1e-3, 1e-3],
+  "densities": [1e3, 1e3],
+  "output_filename": "tracers",
+  "output_format": "h5",
+  "snapshots_per_file": "all",
+  "output_control": "tsteps",
+  "output_value": 10
+}
+~~~~~~~~~~~~~~~
+
+The `examples/rebounding_particles` case demonstrates CSV input and output,
+JSON input with HDF5 output, nonlinear drag, and elastic wall rebounds.
 
 ### force_torque {#simcomp_force_torque}
 Computes the force on a specified zone and the corresponding torque around a

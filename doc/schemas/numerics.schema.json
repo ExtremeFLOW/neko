@@ -10,20 +10,33 @@
       ],
       "properties": {
         "time_order": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 4
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            {
+              "$ref": "urn:neko:schema:common#/$defs/constRef"
+            }
+          ]
         },
         "polynomial_order": {
-          "type": "integer",
-          "minimum": 3
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 3
+            },
+            {
+              "$ref": "urn:neko:schema:common#/$defs/constRef"
+            }
+          ]
         },
         "dealias": {
           "type": "boolean"
         },
         "dealiased_polynomial_order": {
-          "type": "integer",
-          "minimum": 1
+          "$ref": "urn:neko:schema:common#/$defs/positiveIntegerOrRef"
         },
         "oifs": {
           "type": "boolean"

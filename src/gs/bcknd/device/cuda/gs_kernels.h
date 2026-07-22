@@ -293,7 +293,7 @@ template<typename T>
 __device__ T atomicMinFloat(T* address, T val);
 
 template<>
-__device__ float atomicMinFloat<float>(float* address, float val) {
+__device__ inline float atomicMinFloat<float>(float* address, float val) {
     float old;
     old = !signbit(val) ? __int_as_float(atomicMin((int*)address, __float_as_int(val))) :
         __uint_as_float(atomicMax((unsigned int*)address, __float_as_uint(val)));
@@ -302,7 +302,7 @@ __device__ float atomicMinFloat<float>(float* address, float val) {
 }
 
 template<>
-__device__ double atomicMinFloat<double>(double* address, double val) {
+__device__ inline double atomicMinFloat<double>(double* address, double val) {
     double old;
 #if __CUDA_ARCH__ >= 600
     old = !signbit(val) ? __longlong_as_double(atomicMin((unsigned long long*)address, 
@@ -340,7 +340,7 @@ template<typename T>
 __device__ T atomicMaxFloat(T* address, T val);
 
 template<>
-__device__ float atomicMaxFloat<float>(float* address, float val) {
+__device__ inline float atomicMaxFloat<float>(float* address, float val) {
     float old;
     old = !signbit(val) ? __int_as_float(atomicMax((int*)address, __float_as_int(val))) :
         __uint_as_float(atomicMin((unsigned int*)address, __float_as_uint(val)));
@@ -348,7 +348,7 @@ __device__ float atomicMaxFloat<float>(float* address, float val) {
 }
 
 template<>
-__device__ double atomicMaxFloat<double>(double* address, double val) {
+__device__ inline double atomicMaxFloat<double>(double* address, double val) {
     double old;
 #if __CUDA_ARCH__ >= 600
     old = !signbit(val) ? __longlong_as_double(atomicMax((unsigned long long*)address, 
@@ -379,6 +379,97 @@ __global__ void gs_unpack_max_kernel(T * __restrict__ u,
   } else {
     // Directly compute min for nodal points on edges
     u[idx-1] = max(u[idx-1], val);
+  }
+}
+
+/*
+ * Fused nc-component (vector) pack/unpack kernels. u is the compact shared
+ * buffer, component-outer with per-component stride ns (= nshared):
+ * component c of shared index idx lives at u[c*ns + idx]. buf is interleaved,
+ * nc values per packed position j: buf[nc*j + c].
+ */
+
+template< typename T >
+__global__ void gs_pack_vec_kernel(const T * __restrict__ u,
+                                   T * __restrict__ buf,
+                                   const int32_t * __restrict__ dof,
+                                   const int n, const int nc, const int ns) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int idx = dof[j] - 1;
+  for (int c = 0; c < nc; c++)
+    buf[nc*j + c] = u[c*ns + idx];
+}
+
+template< typename T >
+__global__ void gs_unpack_add_vec_kernel(T * __restrict__ u,
+                                         const T * __restrict__ buf,
+                                         const int32_t * __restrict__ dof,
+                                         const int n, const int nc,
+                                         const int ns) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  if (idx < 0) {
+#if __CUDA_ARCH__ >= 600
+    for (int c = 0; c < nc; c++)
+      atomicAdd(&u[c*ns + (-idx-1)], buf[nc*j + c]);
+#endif
+  } else {
+    for (int c = 0; c < nc; c++)
+      u[c*ns + (idx-1)] += buf[nc*j + c];
+  }
+}
+
+template< typename T >
+__global__ void gs_unpack_min_vec_kernel(T * __restrict__ u,
+                                         const T * __restrict__ buf,
+                                         const int32_t * __restrict__ dof,
+                                         const int n, const int nc,
+                                         const int ns) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  if (idx < 0) {
+    for (int c = 0; c < nc; c++)
+      atomicMinFloat(&u[c*ns + (-idx-1)], buf[nc*j + c]);
+  } else {
+    for (int c = 0; c < nc; c++)
+      u[c*ns + (idx-1)] = min(u[c*ns + (idx-1)], buf[nc*j + c]);
+  }
+}
+
+template< typename T >
+__global__ void gs_unpack_max_vec_kernel(T * __restrict__ u,
+                                         const T * __restrict__ buf,
+                                         const int32_t * __restrict__ dof,
+                                         const int n, const int nc,
+                                         const int ns) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  if (idx < 0) {
+    for (int c = 0; c < nc; c++)
+      atomicMaxFloat(&u[c*ns + (-idx-1)], buf[nc*j + c]);
+  } else {
+    for (int c = 0; c < nc; c++)
+      u[c*ns + (idx-1)] = max(u[c*ns + (idx-1)], buf[nc*j + c]);
   }
 }
 

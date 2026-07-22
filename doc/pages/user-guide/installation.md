@@ -147,6 +147,7 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-roctx=DIR`              | Compile with support for ROCTX                |
 | `--with-nccl=DIR`               | Compiler with support for NCCL                |
 | `--with-rccl=DIR`               | Compiler with support for RCCL                |
+| `--with-utofu=DIR`              | Compile with support for the native Tofu interconnect (uTofu) |
 | `--with-hdf5`                   | Compile with support for HDF5                 |
 | `--with-pfunit=DIR`             | Directory for pFUnit (see \subpage testing)   |
 
@@ -198,6 +199,7 @@ supported backends are listed below.
 | NVSHMEM          | NVIDIA OpenSHMEM, one-sided on device buffers   | CUDA             | `--with-nvshmem`              | `SHMEM`        |
 | OpenSHMEM        | Host OpenSHMEM, one-sided                        | CPU              | `--with-openshmem`           | `SHMEM`        |
 | Co-Array Fortran | Fortran coarrays                                | CPU              | coarray-capable compiler      | `CAF`          |
+| uTofu            | Native Tofu interconnect, one-sided RDMA        | CPU              | `--with-utofu`                | `UTOFU`        |
 
 @note Every device backend (CUDA, HIP, OpenCL, Metal) can use host `MPI`, which
 stages data through host memory before the exchange. The device-resident
@@ -207,6 +209,11 @@ host `MPI`.
 
 @note `NEKO_GS_COMM=SHMEM` selects NVSHMEM on a device (GPU) build and host
 OpenSHMEM otherwise.
+
+@note `UTOFU` targets the native Tofu interconnect (Tofu-D, e.g. Fugaku) and
+requires the `libtofucom` library; it is a host (CPU) backend. The number of
+Tofu network interfaces used for injection is set with `NEKO_GS_UTOFU_NTNI`
+(default `1`).
 
 #### Compiling Neko for CPU or SX-Aurora
 
@@ -228,6 +235,14 @@ $ ./configure  --with-cuda=/usr/local/cuda
 ```shell
 $ ./configure  --with-cuda=/usr/local/cuda CUDA_CFLAGS=-O3  CUDA_ARCH=-arch=sm_80 NVCC=/usr/local/cuda/bin/nvcc
 ```
+* If `--enable-device-mpi` is also given, `CUDA_ARCH` is **required**:
+  `configure` will error out rather than guess an architecture, since
+  targeting the wrong one silently hurts performance instead of failing to
+  build, and Neko is often cross-compiled on a host with no GPU present to
+  detect against. Find the right value for the target GPU with e.g.
+  `nvidia-smi --query-gpu=compute_cap --format=csv,noheader` on the target
+  machine, or the vendor's published compute capability for the target
+  cluster's GPUs when cross-compiling.
 * Build using `make && make install`
 
 #### Compiling Neko for AMD GPUs
@@ -242,6 +257,8 @@ $ ./configure  --with-hip=/opt/rocm/hip
 $ ./configure  --with-hip=/opt/rocm/hip HIP_HIPCC_FLAGS=-O3  HIPCC=/opt/rocm/hip/bin/hipcc
 ```
 
+@note On APUs with unified physical memory (e.g. AMD Instinct MI300A) and XNACK enabled (`HSA_XNACK=1`), Neko can map arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data, but is currently slower per step than replicated buffers on MI300A, so it is **off by default** and is intended as an opt-in capacity mode for running larger cases. Enable it at runtime by setting the environment variable `NEKO_HIP_ZEROCOPY=1`; it then activates only on a supported APU with XNACK (discrete GPUs such as MI250X always use replicated buffers, and requesting it there prints a warning and falls back). Since host and device share one allocation under zero-copy, host code (e.g. user routines) must not write to a mapped array while device work touching it may be in flight; synchronize with `device_sync` first.
+
 #### Compiling Neko for Apple Silicon GPUs
 To compile Neko for Apple Silicon GPUs (macOS only)
 * Make sure you have Xcode with the Metal shader compiler installed (since Xcode 26 the Metal toolchain is a separate download, install via `xcodebuild -downloadComponent MetalToolchain`)
@@ -253,6 +270,8 @@ $ ./configure --with-metal --enable-real=sp
 * Build using `make && make install`
 
 @note Apple GPUs do not support double precision; the Metal backend requires Neko to be configured with single precision (`--enable-real=sp`).
+
+@note On devices with unified memory (Apple Silicon), the Metal backend maps arrays zero-copy: host and device share a single allocation instead of keeping replicated copies, and host-device transfers become no-ops. This roughly halves the memory footprint of mapped data. Zero-copy mapping can be disabled at runtime by setting the environment variable `NEKO_METAL_ZEROCOPY=0`, which restores fully replicated buffers. On GPUs without unified memory (e.g. AMD GPUs in Intel-based Macs), buffers are always replicated.
 
 @note More examples, and instructions for specific machines can be found on Neko's [user discussions](https://github.com/ExtremeFLOW/neko/discussions) pages.
 

@@ -121,6 +121,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, u%dof%size()
@@ -135,6 +136,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, u%dof%size()
@@ -154,6 +156,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, u%dof%size()
@@ -204,6 +207,7 @@ contains
     !! The first term
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n
@@ -341,6 +345,7 @@ contains
     !! Lastly multiplied by delta^2
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do private(i, delta2)
     do i = 1, n
@@ -374,6 +379,7 @@ contains
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n
@@ -395,6 +401,7 @@ contains
     ! running average over time
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
+    !DIR$ IVDEP
     !GCC$ ivdep
     !$omp parallel do
     do i = 1, n

@@ -38,6 +38,7 @@ submodule (simulation_component) simulation_component_fctry
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   use fluid_sgs_stats_simcomp, only : fluid_sgs_stats_simcomp_t
+  use lpt_simcomp, only : lpt_simcomp_t
   use scalar_stats_simcomp, only : scalar_stats_simcomp_t
   use scalar_sgs_stats_simcomp, only : scalar_sgs_stats_simcomp_t
   use spatial_average, only : spatial_average_t
@@ -59,9 +60,10 @@ submodule (simulation_component) simulation_component_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(21) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(22) = [character(len=20) :: &
        "boundary_operation", &
        "boundary_flux", &
+       "lagrangian_particles", &
        "lambda2", &
        "probes", &
        "les_model", &
@@ -129,6 +131,8 @@ contains
        allocate(boundary_operation_t::object)
     case ("boundary_flux")
        allocate(boundary_flux_t::object)
+    case ("lagrangian_particles")
+       allocate(lpt_simcomp_t::object)
     case ("lambda2")
        allocate(lambda2_t::object)
     case ("probes")

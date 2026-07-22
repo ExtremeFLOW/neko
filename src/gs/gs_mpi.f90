@@ -33,7 +33,7 @@
 !> Defines MPI gather-scatter communication
 module gs_mpi
   use num_types, only : rp
-  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
+  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_VEC_NC
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
   use mpi_f08, only : MPI_STATUSES_IGNORE, MPI_Status, &
@@ -62,6 +62,11 @@ module gs_mpi
      integer, allocatable :: recv_indices(:)
      type(MPI_Status), allocatable :: recv_statuses(:)
      integer :: ncompleted
+     !> Fused vector (multi-component) send/recv slabs, sized for up to
+     !! GS_VEC_NC components. Each peer slab holds nc consecutive component
+     !! blocks; the scalar send_len/offset arrays are reused, scaled by nc.
+     real(kind=rp), allocatable :: send_buf_v(:)
+     real(kind=rp), allocatable :: recv_buf_v(:)
    contains
      procedure, pass(this) :: init => gs_mpi_init
      procedure, pass(this) :: free => gs_mpi_free
@@ -69,6 +74,9 @@ module gs_mpi
      procedure, pass(this) :: nbsend => gs_nbsend_mpi
      procedure, pass(this) :: nbrecv => gs_nbrecv_mpi
      procedure, pass(this) :: nbwait => gs_nbwait_mpi
+     procedure, pass(this) :: nbsend_vec => gs_nbsend_vec_mpi
+     procedure, pass(this) :: nbrecv_vec => gs_nbrecv_vec_mpi
+     procedure, pass(this) :: nbwait_vec => gs_nbwait_vec_mpi
   end type gs_mpi_t
 
 contains
@@ -108,6 +116,11 @@ contains
        recv_total = recv_total + this%recv_len(i)
     end do
     allocate(this%recv_buf(max(1, recv_total)))
+
+    ! Fused vector exchange buffers, sized for GS_VEC_NC components.
+    allocate(this%send_buf_v(max(1, GS_VEC_NC*send_total)))
+    allocate(this%recv_buf_v(max(1, GS_VEC_NC*recv_total)))
+    this%vec_supported = .true.
 
   end subroutine gs_mpi_init
 
@@ -153,6 +166,14 @@ contains
 
     if (allocated(this%recv_statuses)) then
        deallocate(this%recv_statuses)
+    end if
+
+    if (allocated(this%send_buf_v)) then
+       deallocate(this%send_buf_v)
+    end if
+
+    if (allocated(this%recv_buf_v)) then
+       deallocate(this%recv_buf_v)
     end if
 
     call this%free_order()
@@ -289,6 +310,7 @@ contains
              case (GS_OP_ADD)
                 !OCL NORECURRENCE, NOVREC, NOALIAS
                 !DIR$ CONCURRENT
+                !DIR$ IVDEP
                 !GCC$ ivdep
                 !NEC$ IVDEP
                 !$omp do
@@ -299,6 +321,7 @@ contains
              case (GS_OP_MUL)
                 !OCL NORECURRENCE, NOVREC, NOALIAS
                 !DIR$ CONCURRENT
+                !DIR$ IVDEP
                 !GCC$ ivdep
                 !NEC$ IVDEP
                 !$omp do
@@ -309,6 +332,7 @@ contains
              case (GS_OP_MIN)
                 !OCL NORECURRENCE, NOVREC, NOALIAS
                 !DIR$ CONCURRENT
+                !DIR$ IVDEP
                 !GCC$ ivdep
                 !NEC$ IVDEP
                 !$omp do
@@ -319,6 +343,7 @@ contains
              case (GS_OP_MAX)
                 !OCL NORECURRENCE, NOVREC, NOALIAS
                 !DIR$ CONCURRENT
+                !DIR$ IVDEP
                 !GCC$ ivdep
                 !NEC$ IVDEP
                 !$omp do
@@ -350,5 +375,179 @@ contains
     !$omp barrier
 
   end subroutine gs_nbwait_mpi
+
+  !> Post non-blocking sends for a fused nc-component exchange.
+  !! @param u compact shared buffer, component-outer: u((c-1)*n + idx).
+  !! Peer i's slab holds nc consecutive blocks of send_len(i) values, so the
+  !! scalar offsets/lengths are reused scaled by nc.
+  subroutine gs_nbsend_vec_mpi(this, u, n, nc, tag, deps, strm)
+    class(gs_mpi_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    integer, intent(in) :: tag
+    type(c_ptr), intent(inout) :: deps
+    type(c_ptr), intent(inout) :: strm
+    integer :: i, j, c, ierr, dst, off, ndst
+
+    if (NEKO_MPI_THREAD_PROVIDED .lt. MPI_THREAD_MULTIPLE) then
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
+          off = this%send_offset(i)
+          ndst = this%send_len(i)
+          select type (sp => this%send_dof(dst)%data)
+          type is (integer)
+             !$omp do
+             do j = 1, ndst
+                do c = 1, nc
+                   this%send_buf_v(nc*off + (c-1)*ndst + j) = &
+                        u((c-1)*n + sp(j))
+                end do
+             end do
+             !$omp end do
+          end select
+          !$omp master
+          call MPI_Isend(this%send_buf_v(nc*off + 1), nc*ndst, &
+               MPI_REAL_PRECISION, dst, tag, &
+               NEKO_COMM, this%send_request(i), ierr)
+          !$omp end master
+       end do
+       !$omp barrier
+    else
+       !$omp do
+       do i = 1, size(this%send_pe)
+          dst = this%send_pe(i)
+          off = this%send_offset(i)
+          ndst = this%send_len(i)
+          select type (sp => this%send_dof(dst)%data)
+          type is (integer)
+             do c = 1, nc
+                !$omp simd
+                do j = 1, ndst
+                   this%send_buf_v(nc*off + (c-1)*ndst + j) = &
+                        u((c-1)*n + sp(j))
+                end do
+             end do
+          end select
+          call MPI_Isend(this%send_buf_v(nc*off + 1), nc*ndst, &
+               MPI_REAL_PRECISION, dst, tag, &
+               NEKO_COMM, this%send_request(i), ierr)
+       end do
+       !$omp end do
+    end if
+
+  end subroutine gs_nbsend_vec_mpi
+
+  !> Post non-blocking receives for a fused nc-component exchange.
+  subroutine gs_nbrecv_vec_mpi(this, tag, nc)
+    class(gs_mpi_t), intent(inout) :: this
+    integer, intent(in) :: tag, nc
+    integer :: i, ierr, off, nsrc
+
+    if (NEKO_MPI_THREAD_PROVIDED .lt. MPI_THREAD_MULTIPLE) then
+       !$omp master
+       do i = 1, size(this%recv_pe)
+          off = this%recv_offset(i)
+          nsrc = this%recv_len(i)
+          call MPI_IRecv(this%recv_buf_v(nc*off + 1), nc*nsrc, &
+               MPI_REAL_PRECISION, this%recv_pe(i), tag, &
+               NEKO_COMM, this%recv_request(i), ierr)
+       end do
+       !$omp end master
+       !$omp barrier
+    else
+       !$omp do
+       do i = 1, size(this%recv_pe)
+          off = this%recv_offset(i)
+          nsrc = this%recv_len(i)
+          call MPI_IRecv(this%recv_buf_v(nc*off + 1), nc*nsrc, &
+               MPI_REAL_PRECISION, this%recv_pe(i), tag, &
+               NEKO_COMM, this%recv_request(i), ierr)
+       end do
+       !$omp end do
+    end if
+  end subroutine gs_nbrecv_vec_mpi
+
+  !> Wait for a fused nc-component exchange and reduce each received slab.
+  subroutine gs_nbwait_vec_mpi(this, u, n, nc, op, strm)
+    class(gs_mpi_t), intent(inout) :: this
+    integer, intent(in) :: n, nc
+    real(kind=rp), dimension(nc*n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: strm
+    integer :: i, j, c, k, src, off, nsrc, ierr
+    integer :: op
+    integer :: nreqs
+    logical :: sends_done
+
+    nreqs = size(this%recv_pe)
+    do while (nreqs .gt. 0)
+       !$omp master
+       call MPI_Testsome(size(this%recv_request), this%recv_request, &
+            this%ncompleted, this%recv_indices, this%recv_statuses, ierr)
+       !$omp end master
+       !$omp barrier
+       do k = 1, this%ncompleted
+          i = this%recv_indices(k)
+          src = this%recv_pe(i)
+          off = this%recv_offset(i)
+          nsrc = this%recv_len(i)
+          select type (sp => this%recv_dof(src)%data)
+          type is (integer)
+             select case (op)
+             case (GS_OP_ADD)
+                !$omp do
+                do j = 1, nsrc
+                   do c = 1, nc
+                      u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) + &
+                           this%recv_buf_v(nc*off + (c-1)*nsrc + j)
+                   end do
+                end do
+                !$omp end do
+             case (GS_OP_MUL)
+                !$omp do
+                do j = 1, nsrc
+                   do c = 1, nc
+                      u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) * &
+                           this%recv_buf_v(nc*off + (c-1)*nsrc + j)
+                   end do
+                end do
+                !$omp end do
+             case (GS_OP_MIN)
+                !$omp do
+                do j = 1, nsrc
+                   do c = 1, nc
+                      u((c-1)*n + sp(j)) = min(u((c-1)*n + sp(j)), &
+                           this%recv_buf_v(nc*off + (c-1)*nsrc + j))
+                   end do
+                end do
+                !$omp end do
+             case (GS_OP_MAX)
+                !$omp do
+                do j = 1, nsrc
+                   do c = 1, nc
+                      u((c-1)*n + sp(j)) = max(u((c-1)*n + sp(j)), &
+                           this%recv_buf_v(nc*off + (c-1)*nsrc + j))
+                   end do
+                end do
+                !$omp end do
+             case default
+                call neko_error("Unknown operation in gs_nbwait_vec_mpi")
+             end select
+          end select
+       end do
+       nreqs = nreqs - this%ncompleted
+       !$omp barrier
+    end do
+    !$omp master
+    if (size(this%send_request) .gt. 0) then
+       sends_done = .false.
+       do while (.not. sends_done)
+          call MPI_Testall(size(this%send_request), this%send_request, &
+               sends_done, MPI_STATUSES_IGNORE, ierr)
+       end do
+    end if
+    !$omp end master
+    !$omp barrier
+
+  end subroutine gs_nbwait_vec_mpi
 
 end module gs_mpi

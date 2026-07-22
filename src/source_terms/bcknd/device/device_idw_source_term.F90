@@ -39,7 +39,49 @@ module device_idw_source_term
   implicit none
   private
 
-#ifdef HAVE_OPENCL
+#ifdef HAVE_HIP
+  interface
+     subroutine hip_idw_gather_one_sided(fu, fv, fw, &
+          fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
+          x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
+          active_el, el_off, el_lag, n_active, lx3, &
+          dt, rmax, pwr, eps, wtol) &
+          bind(c, name = 'hip_idw_gather_one_sided')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: fu, fv, fw
+       type(c_ptr), value :: fu_ib, fv_ib, fw_ib
+       type(c_ptr), value :: fum_ib, fvm_ib, fwm_ib
+       type(c_ptr), value :: x, y, z, ds, pmsk, w, wm
+       type(c_ptr), value :: lpx, lpy, lpz
+       type(c_ptr), value :: active_el, el_off, el_lag
+       integer(c_int) :: n_active, lx3
+       real(c_rp) :: dt, rmax, pwr, eps, wtol
+     end subroutine hip_idw_gather_one_sided
+  end interface
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_idw_gather_one_sided(fu, fv, fw, &
+          fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
+          x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
+          active_el, el_off, el_lag, n_active, lx3, &
+          dt, rmax, pwr, eps, wtol) &
+          bind(c, name = 'cuda_idw_gather_one_sided')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: fu, fv, fw
+       type(c_ptr), value :: fu_ib, fv_ib, fw_ib
+       type(c_ptr), value :: fum_ib, fvm_ib, fwm_ib
+       type(c_ptr), value :: x, y, z, ds, pmsk, w, wm
+       type(c_ptr), value :: lpx, lpy, lpz
+       type(c_ptr), value :: active_el, el_off, el_lag
+       integer(c_int) :: n_active, lx3
+       real(c_rp) :: dt, rmax, pwr, eps, wtol
+     end subroutine cuda_idw_gather_one_sided
+  end interface
+#elif HAVE_OPENCL
   interface
      subroutine opencl_idw_gather_one_sided(fu, fv, fw, &
           fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
@@ -104,9 +146,17 @@ contains
     real(kind=rp), intent(in) :: dt, rmax, pwr, eps, wtol
 
 #ifdef HAVE_HIP
-    call neko_error('IDW source term: HIP kernel not implemented')
+    call hip_idw_gather_one_sided(fu, fv, fw, &
+         fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
+         x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
+         active_el, el_off, el_lag, n_active, lx3, &
+         dt, rmax, pwr, eps, wtol)
 #elif HAVE_CUDA
-    call neko_error('IDW source term: CUDA kernel not implemented')
+    call cuda_idw_gather_one_sided(fu, fv, fw, &
+         fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
+         x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
+         active_el, el_off, el_lag, n_active, lx3, &
+         dt, rmax, pwr, eps, wtol)
 #elif HAVE_OPENCL
     call opencl_idw_gather_one_sided(fu, fv, fw, &
          fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &

@@ -817,14 +817,9 @@ contains
        call this%update_mesh_velocity(coef, t_init)
     end if
 
-    call this%wm_x_lag%init(this%wm_x, time_order)
-    call this%wm_y_lag%init(this%wm_y, time_order)
-    call this%wm_z_lag%init(this%wm_z, time_order)
-    do i = 1, time_order
-       call field_rzero(this%wm_x_lag%lf(i))
-       call field_rzero(this%wm_y_lag%lf(i))
-       call field_rzero(this%wm_z_lag%lf(i))
-    end do
+    call this%wm_x_lag%init(this%wm_x, 2)
+    call this%wm_y_lag%init(this%wm_y, 2)
+    call this%wm_z_lag%init(this%wm_z, 2)
 
     if (allocated(moving_zone_ids)) deallocate(moving_zone_ids)
     if (allocated(bc_type)) deallocate(bc_type)
@@ -847,7 +842,6 @@ contains
   !> for each body.
   !> It finds a smooth blending function for mesh deformation.
   !> For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.
-  !> should be modified for device support (ToDo)
   subroutine solve_base_mesh_displacement(this, coef, json, &
        import_base_shapes, abstol, ksp_solver, ksp_max_iter, precon_type, &
        precon_params, res_monitor)
@@ -2272,7 +2266,7 @@ contains
 
   ! Register ALE fields for checkpointing.
   subroutine register_checkpoint_fields(this, coef, checkpoint)
-    class(ale_manager_t), intent(inout) :: this
+    class(ale_manager_t), intent(inout), target :: this
     type(coef_t), intent(inout) :: coef
     type(chkp_t), intent(inout) :: checkpoint
     integer :: i
