@@ -61,6 +61,27 @@ module device_idw_source_term
        type(c_ptr), value :: cmd_queue
      end subroutine opencl_idw_gather_one_sided
   end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_idw_gather_one_sided(fu, fv, fw, &
+          fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
+          x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
+          active_el, el_off, el_lag, n_active, lx3, &
+          dt, rmax, pwr, eps, wtol) &
+          bind(c, name = 'metal_idw_gather_one_sided')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: fu, fv, fw
+       type(c_ptr), value :: fu_ib, fv_ib, fw_ib
+       type(c_ptr), value :: fum_ib, fvm_ib, fwm_ib
+       type(c_ptr), value :: x, y, z, ds, pmsk, w, wm
+       type(c_ptr), value :: lpx, lpy, lpz
+       type(c_ptr), value :: active_el, el_off, el_lag
+       integer(c_int) :: n_active, lx3
+       real(c_rp) :: dt, rmax, pwr, eps, wtol
+     end subroutine metal_idw_gather_one_sided
+  end interface
 #endif
 
   public :: device_idw_gather
@@ -92,6 +113,12 @@ contains
          x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
          active_el, el_off, el_lag, n_active, lx3, &
          dt, rmax, pwr, eps, wtol, glb_cmd_queue)
+#elif HAVE_METAL
+    call metal_idw_gather_one_sided(fu, fv, fw, &
+         fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
+         x, y, z, ds, pmsk, w, wm, lpx, lpy, lpz, &
+         active_el, el_off, el_lag, n_active, lx3, &
+         dt, rmax, pwr, eps, wtol)
 #else
     call neko_error('No device backend configured')
 #endif
