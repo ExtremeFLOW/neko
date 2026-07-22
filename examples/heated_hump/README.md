@@ -14,7 +14,7 @@ scalar-GJP-stabilized continuation. An MP4 version for talks:
 | file | configuration |
 |---|---|
 | `heated_hump.case` + `heated_hump.f90` | 53K baseline: Re auto from `Re_in`, heated wall x > 11, Dong (energy-stable) outflow, GJP on momentum **and** temperature, reorthogonalized pressure projection |
-| `heated_hump_trip.f90` (+ `../heated_hump_trip/`) | + Schlatter–Örlü trip line (verbatim port from ExtremeFLOW/flettner_rotor, adversarially verified) |
+| `heated_hump_trip.f90` (+ `../heated_hump_trip/`) | + trip line (random volume-force tripping near the inlet, ported from ExtremeFLOW/flettner_rotor) |
 | `../heated_hump_full/` | production package: wake-refined 138K mesh (`hump_mid`), Re 2000, tripped, T_hot = 4, power-law mu(T), buoyancy — build with `makeneko trip.f90 heated_hump_full.f90` |
 | `heated_hump_fine_tamg.case` | 1M-element mesh with tree-AMG coarse solve (pressure-solver scaling experiment) |
 

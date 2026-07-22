@@ -7,7 +7,7 @@ Everything this campaign validated, in one case:
 | mesh | `hump_mid.nmsh`, 138,240 elem (wake-refined) | built 2026-07-22, zones verified |
 | order | 6 (47M GLL pts) | ILES + GJP posture |
 | Re_in | 2000 | tripped -> sustained turbulence expected |
-| trip | Schlatter–Örlü line at x=2 (verbatim port, adversarially verified) | `trip.f90` |
+| trip | random volume-force trip line at x=2 | `trip.f90` |
 | heating | T_hot = 4 (4x density ratio), wall x > 11 | amplitude scaling of validated physics |
 | viscosity | power_law mu(T), mu_ref = 1/2000, exponent 0.7, Pr = 0.71 | channel muT soak (t=200 flawless) |
 | gravity | do_gravity = .true., g_nd = 0.15 reduced buoyancy | channel soaks |
