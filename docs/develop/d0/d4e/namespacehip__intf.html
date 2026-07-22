@@ -137,6 +137,18 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de4/interfacehip__intf_1_1hipmalloc.html">hipmalloc</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d19/interfacehip__intf_1_1hipmap.html">hipmap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map host memory to the device (zero-copy on unified memory architectures, e.g. MI300A, see <a class="el" href="../../dd/d8d/unified_8hip.html">device/hip/unified.hip</a>)  <a href="../../d7/d19/interfacehip__intf_1_1hipmap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df5/interfacehip__intf_1_1hipmapfree.html">hipmapfree</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a device pointer obtained from hipMap (no-op for pointers aliasing host memory)  <a href="../../d2/df5/interfacehip__intf_1_1hipmapfree.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html">hipmapmemcpy</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy between device/host pointers via the mapping layer (kernel-based copy under zero-copy, where either side may alias pageable host memory)  <a href="../../d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dfc/interfacehip__intf_1_1hipmapmemset.html">hipmapmemset</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memset on a device pointer obtained from hipMap (host-side memset for pointers aliasing host memory)  <a href="../../dd/dfc/interfacehip__intf_1_1hipmapmemset.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de9/interfacehip__intf_1_1hipmemcpy.html">hipmemcpy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d39/interfacehip__intf_1_1hipmemcpyasync.html">hipmemcpyasync</a></td></tr>
@@ -293,7 +305,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00313">313</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00357">357</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -338,7 +350,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00296">296</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00340">340</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -380,7 +392,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00267">267</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00311">311</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -434,7 +446,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00244">244</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html#l00288">288</a> of file <a class="el" href="../../d5/dcb/hip__intf_8F90_source.html">hip_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -456,7 +468,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d4e/namespacehip__intf.html">hip_intf</a></li>
-    <li class="footer">Generated on Mon Jul 20 2026 04:45:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jul 22 2026 04:37:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

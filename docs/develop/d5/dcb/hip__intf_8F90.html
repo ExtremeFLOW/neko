@@ -115,6 +115,18 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d5c/interfacehip__intf_1_1hipfree.html">hip_intf::hipfree</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d19/interfacehip__intf_1_1hipmap.html">hip_intf::hipmap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map host memory to the device (zero-copy on unified memory architectures, e.g. MI300A, see <a class="el" href="../../dd/d8d/unified_8hip.html">device/hip/unified.hip</a>)  <a href="../../d7/d19/interfacehip__intf_1_1hipmap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df5/interfacehip__intf_1_1hipmapfree.html">hip_intf::hipmapfree</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a device pointer obtained from hipMap (no-op for pointers aliasing host memory)  <a href="../../d2/df5/interfacehip__intf_1_1hipmapfree.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dfc/interfacehip__intf_1_1hipmapmemset.html">hip_intf::hipmapmemset</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memset on a device pointer obtained from hipMap (host-side memset for pointers aliasing host memory)  <a href="../../dd/dfc/interfacehip__intf_1_1hipmapmemset.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html">hip_intf::hipmapmemcpy</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy between device/host pointers via the mapping layer (kernel-based copy under zero-copy, where either side may alias pageable host memory)  <a href="../../d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/de9/interfacehip__intf_1_1hipmemcpy.html">hip_intf::hipmemcpy</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d39/interfacehip__intf_1_1hipmemcpyasync.html">hip_intf::hipmemcpyasync</a></td></tr>
@@ -227,7 +239,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_16dc92632bab467dc50b01bd02b3341a.html">device</a></li><li class="navelem"><a class="el" href="../../d5/dcb/hip__intf_8F90.html">hip_intf.F90</a></li>
-    <li class="footer">Generated on Mon Jul 20 2026 04:45:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Jul 22 2026 04:37:44 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

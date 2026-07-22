@@ -2,6 +2,10 @@ var hip__intf_8F90 =
 [
     [ "hip_intf::hipmalloc", "dd/de4/interfacehip__intf_1_1hipmalloc.html", "dd/de4/interfacehip__intf_1_1hipmalloc" ],
     [ "hip_intf::hipfree", "d0/d5c/interfacehip__intf_1_1hipfree.html", "d0/d5c/interfacehip__intf_1_1hipfree" ],
+    [ "hip_intf::hipmap", "d7/d19/interfacehip__intf_1_1hipmap.html", "d7/d19/interfacehip__intf_1_1hipmap" ],
+    [ "hip_intf::hipmapfree", "d2/df5/interfacehip__intf_1_1hipmapfree.html", "d2/df5/interfacehip__intf_1_1hipmapfree" ],
+    [ "hip_intf::hipmapmemset", "dd/dfc/interfacehip__intf_1_1hipmapmemset.html", "dd/dfc/interfacehip__intf_1_1hipmapmemset" ],
+    [ "hip_intf::hipmapmemcpy", "d8/ddd/interfacehip__intf_1_1hipmapmemcpy.html", "d8/ddd/interfacehip__intf_1_1hipmapmemcpy" ],
     [ "hip_intf::hipmemcpy", "d0/de9/interfacehip__intf_1_1hipmemcpy.html", "d0/de9/interfacehip__intf_1_1hipmemcpy" ],
     [ "hip_intf::hipmemcpyasync", "d3/d39/interfacehip__intf_1_1hipmemcpyasync.html", "d3/d39/interfacehip__intf_1_1hipmemcpyasync" ],
     [ "hip_intf::hipmemsetasync", "d0/dac/interfacehip__intf_1_1hipmemsetasync.html", "d0/dac/interfacehip__intf_1_1hipmemsetasync" ],
