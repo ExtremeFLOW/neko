@@ -1,0 +1,1113 @@
+module trip
+  use neko
+  use device_inhom_dirichlet
+  implicit none
+
+! max number of lines and Fourier modes
+  integer, parameter :: trip_nline_max=2
+  integer, parameter :: trip_nmode_max=500
+  ! [port] local pi removed: fork's math module exports the identical constant
+! max number of random phase sets stored; 1- time independent, 2, 3 and 4 - time dependent
+! I keep two old random pahase sets to get correct restart after AMR refinement
+  integer, parameter :: trip_nset_max = 4
+  integer, parameter :: ldim = 3 !lets hardcode this for now gosh
+
+
+  type, public :: trip_t 
+
+     type(dofmap_t), pointer :: dof
+     type(mesh_t), pointer :: msh
+     type(space_t), pointer :: Xh
+     integer :: id
+   
+     ! timer id
+     integer :: tmr_id
+   
+   ! initialisation flag
+     logical :: ifinit = .false.
+   
+   ! runtime parameter part
+   ! section id
+     integer :: sec_id    
+   ! parameter section
+     integer :: nline                  !< @var number of tripping lines
+     integer :: nline_id
+     real(kind=rp) :: tiamp                     !< @var time independent amplitude
+     integer :: tiamp_id
+     real(kind=rp) :: tdamp                     !< @var time dependent amplitude
+     integer :: tdamp_id
+     real(kind=rp) :: spos(3,trip_nline_max) !< @var coordinates of starting point of tripping line
+     integer :: spos_id(3,trip_nline_max)
+     real(kind=rp) :: epos(3,trip_nline_max) !< @var coordinates of ending point of tripping line
+     integer :: epos_id(3,trip_nline_max)
+     real(kind=rp) :: smth(3,trip_nline_max) !< @var smoothing radius
+     integer :: smth_id(3,trip_nline_max)
+     logical :: lext(trip_nline_max)    !< @var do we extend a line beyond starting and endig points
+     integer :: lext_id(trip_nline_max)
+     real(kind=rp) :: rota(trip_nline_max)      !< @var elipse rotation angle
+     integer :: rota_id(trip_nline_max)
+     integer :: nmode(trip_nline_max)  !< @var number of Fourier modes
+     integer :: nmode_id(trip_nline_max)
+     real(kind=rp) :: tdt(trip_nline_max)       !< @var time step for tripping
+     integer :: tdt_id(trip_nline_max)
+   
+   ! inverse line length
+     real(kind=rp) :: ilngt(trip_nline_max)
+   
+   ! inverse smoothing radius
+     real(kind=rp) :: ismth(3,trip_nline_max)
+     
+   ! projection of 3D pionts on 1D line
+     real(kind=rp), allocatable :: prj(:,:)
+   
+   ! number of points in 1D projection
+     integer npoint(trip_nline_max)
+     
+   ! mapping of 3D array to 1D projection array
+     integer, allocatable :: map(:,:,:,:,:)
+   
+   ! function for smoothing of the forcing
+     real(kind=rp), allocatable :: fsmth(:,:,:,:,:)
+   
+   ! mask for tripping
+     integer, allocatable :: mask(:)
+     type(c_ptr) :: mask_d = C_NULL_PTR
+     real(kind=rp), allocatable :: fsmth_mask(:)
+     type(c_ptr) :: fsmth_mask_d = C_NULL_PTR
+   ! forces for trippping
+     type(c_ptr) :: ftripx_d = C_NULL_PTR
+     type(c_ptr) :: ftripy_d = C_NULL_PTR
+     type(c_ptr) :: ftripz_d = C_NULL_PTR
+   ! force for interpolation
+     type(c_ptr) :: f_interpolate_d(trip_nset_max)
+   ! seed for random number generator; different for each line
+     integer :: seed(trip_nline_max)
+   
+   ! number of tripping time intervals
+     integer :: ntdt(trip_nline_max), ntdt_old(trip_nline_max)
+     
+   ! set of random phases (static, current and prevoious)
+     real(kind=rp) :: rphs(trip_nmode_max,trip_nset_max,trip_nline_max)
+   
+   ! set of forcing arrays (static, current and prevoious)
+     real(kind=rp), allocatable :: frcs(:,:,:)
+   
+   ! tripping array; interpolated value to set in 3D arrays
+     real(kind=rp), allocatable :: ftrp(:,:)
+    
+     integer :: iff(trip_nline_max), iy(trip_nline_max)
+     integer :: ir(97,trip_nline_max)
+ contains
+      procedure, pass(this) :: apply => trip_forcing
+      procedure, pass(this) :: apply_device => trip_forcing_device
+      procedure, pass(this) :: init => trip_init
+      procedure, pass(this) :: update => trip_update
+      procedure, pass(this) :: reset => trip_reset
+      procedure, pass(this) :: ran2 => trip_ran2
+   end type trip_t
+
+!=======================================================================
+!> @brief Register tripping module
+!! @ingroup trip_line
+!! @note This routine should be called in frame_usr_register
+contains
+!=======================================================================
+!> @brief Initilise tripping module
+!! @ingroup trip_line
+!! @note This routine should be called in frame_usr_init
+  subroutine trip_init(this, dof, nline, nmode, tiamp, tdamp, spos, epos, smth, lext, rota, tdt, time)
+    class(trip_t) :: this
+    integer, intent(in) :: nline, nmode(trip_nline_max)
+    real(kind=rp), intent(inout), dimension(3,trip_nline_max) :: spos, epos, smth
+    real(kind=rp), intent(inout) ::  rota(trip_nline_max), tdt(trip_nline_max)
+    logical, intent(inout) :: lext(trip_nline_max)
+    real(kind=rp), intent(in) :: time, tiamp, tdamp
+    type(dofmap_t), target :: dof
+    integer :: itmp
+    real(kind=rp) :: rtmp
+    logical :: ltmp
+
+    integer :: il, jl
+
+    this%dof => dof
+    this%msh => dof%msh
+    this%Xh => dof%Xh
+
+    ! get runtime parameters
+    this%nline = nline
+    this%nmode = nmode
+    this%tiamp = tiamp
+    this%tdamp = tdamp
+    this%spos = spos
+    this%epos = epos
+    this%smth = smth
+    this%lext = lext
+    this%rota = rota
+    this%tdt = tdt
+    allocate(this%prj(dof%size(),trip_nline_max))
+    allocate(this%map(this%Xh%lz,dof%Xh%ly,dof%Xh%lz,dof%msh%nelv,trip_nline_max))
+    allocate(this%fsmth(this%Xh%lz,this%Xh%ly,this%Xh%lz,dof%msh%nelv,trip_nline_max))
+    allocate(this%frcs(dof%size(),trip_nset_max,trip_nline_max))
+    allocate(this%ftrp(dof%size(),trip_nline_max))
+
+
+
+
+
+
+!this%tdt =     do il=1,trip_nline
+!       do jl=1,LDIM
+!          call rprm_rp_get(itmp,rtmp,ltmp,ctmp,trip_spos_id(jl,il),
+!   $           rpar_real)
+!          call rprm_rp_get(itmp,rtmp,ltmp,ctmp,trip_epos_id(jl,il),
+!   $           rpar_real)
+!          trip_epos(jl,il) = rtmp
+!          call rprm_rp_get(itmp,rtmp,ltmp,ctmp,trip_smth_id(jl,il),
+!   $           rpar_real)
+!          trip_smth(jl,il) = abs(rtmp)
+!       enddo
+!       call rprm_rp_get(itmp,rtmp,ltmp,ctmp,trip_lext_id(il),
+!   $        rpar_log)
+!       trip_lext(il) = ltmp
+!       call rprm_rp_get(itmp,rtmp,ltmp,ctmp,trip_rota_id(il),
+!   $        rpar_real)
+!       trip_rota(il) = rtmp
+!       call rprm_rp_get(itmp,rtmp,ltmp,ctmp,trip_nmode_id(il),
+!   $        rpar_int)
+!       trip_nmode(il) = itmp
+!       call rprm_rp_get(itmp,rtmp,ltmp,ctmp,trip_tdt_id(il),
+!   $        rpar_real)
+!       trip_tdt(il) = rtmp
+!    enddo
+
+    ! get sure z position of stating point is lower than ending point position
+    do il=1,this%nline
+       if (this%spos(ldim,il).gt.this%epos(ldim,il)) then
+          do jl=1,LDIM
+             rtmp = this%spos(jl,il)
+             this%spos(jl,il) = this%epos(jl,il)
+             this%epos(jl,il) = rtmp
+          enddo
+       endif
+    enddo
+
+    ! get inverse line lengths and smoothing radius
+    do il=1,this%nline
+       this%ilngt(il) = 0.0
+       do jl=1,LDIM
+          this%ilngt(il) = this%ilngt(il) + (this%epos(jl,il)-&
+                           this%spos(jl,il))**2
+       enddo
+       if (this%ilngt(il).gt.0.0) then
+          this%ilngt(il) = 1.0/sqrt(this%ilngt(il))
+       else
+          this%ilngt(il) = 1.0
+       endif
+       do jl=1,LDIM
+          if (this%smth(jl,il).gt.0.0) then
+             this%ismth(jl,il) = 1.0/this%smth(jl,il)
+          else
+             this%ismth(jl,il) = 1.0
+          endif
+       enddo
+    enddo
+
+    ! get 1D projection and array mapping
+    call trip_1dprj(this)
+
+    ! initialise random generator seed and number of time intervals
+    do il=1,this%nline
+       this%seed(il) = -32*il
+       this%ntdt(il) = 1 - trip_nset_max
+       this%ntdt_old(il) = this%ntdt(il)
+       this%iff(il) = 0.0
+    enddo
+
+    ! generate random phases (time independent and time dependent)
+    call trip_rphs_get(this, time)
+    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+       call trip_init_device(this)
+    end if
+    ! get forcing
+    call trip_frcs_get(this, time, .true.)
+    
+    ! everything is initialised
+    this%ifinit=.true.
+
+  end subroutine
+!=======================================================================
+!> @brief Update tripping
+!! @ingroup trip_line
+  subroutine trip_update(this, time)
+    class(trip_t), intent(inout) :: this
+    ! local variables
+    real(kind=rp) :: time
+
+!-----------------------------------------------------------------------
+    ! update random phases (time independent and time dependent)
+    call trip_rphs_get(this,time)
+
+    ! update forcing
+    call trip_frcs_get(this,time,.false.)
+
+  end subroutine trip_update 
+!=======================================================================
+!> @brief Compute tripping forcing
+!! @ingroup trip_line
+!! @param[inout] ffx,ffy,ffz     forcing; x,y,z component
+!! @param[in]    ix,iy,iz        GLL point index
+!! @param[in]    iel             local element number
+  subroutine trip_forcing(this, ffx,ffy,ffz,ix,iy,iz,iel)
+    class(trip_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: ffx, ffy, ffz
+    integer, intent(in) :: ix,iy,iz,iel
+    integer :: ipos,il
+    real(kind=rp) :: ffn
+
+    do il= 1, this%nline
+       ffn = this%fsmth(ix,iy,iz,iel,il)
+       if (ffn.gt.0.0) then
+          ipos = this%map(ix,iy,iz,iel,il)
+          ffn = this%ftrp(ipos,il)*ffn
+
+          ffx =ffx - ffn*sin(this%rota(il))
+          ffy =ffy  +ffn*cos(this%rota(il))
+       endif
+    enddo
+  end subroutine trip_forcing
+!> @brief Compute tripping forcing
+!! @ingroup trip_line
+!! @param[inout] ffx,ffy,ffz     forcing; x,y,z component
+!! @param[in]    ix,iy,iz        GLL point index
+!! @param[in]    iel             local element number
+  subroutine trip_forcing_device(this, fx_d,fy_d,fz_d)
+    class(trip_t), intent(inout) :: this
+    type(c_ptr), intent(inout) :: fx_d, fy_d, fz_d
+    call neko_error('trip: device backend not supported in this port')
+  end subroutine trip_forcing_device
+!=======================================================================
+!> @brief Reset tripping
+!! @ingroup trip_line
+  subroutine trip_reset(this, time)
+    ! local variables
+    class(trip_t) :: this
+    real(kind=rp) :: time
+      
+    ! get 1D projection and array mapping
+    call trip_1dprj(this)
+    
+    ! update forcing
+    call trip_frcs_get(this,time,.true.)
+
+  end subroutine trip_reset
+!=======================================================================
+!> @brief Get 1D projection, array mapping and forcing smoothing
+!! @ingroup trip_line
+!! @details This routine is just a simple version supporting only lines
+!!   paralles to z axis. In future it can be generalised.
+!! @remark This routine uses global scratch space \a CTMP0 and \a CTMP1
+  subroutine trip_1dprj(this)
+    class(trip_t) :: this
+    real(kind=rp), allocatable :: lcoord(:)
+    integer, allocatable :: lmap(:)
+    integer :: npxy, npel, nptot, itmp, jtmp, ktmp, eltmp, istart
+    integer :: il, jl, nx1
+    real(kind=rp) :: xl, yl, zl, xr, yr, rota, rtmp, ptmp
+    real(kind=rp), parameter :: epsl = 1.0d-10
+
+    npxy = this%Xh%lxy
+    npel = this%Xh%lxyz
+    nx1 = this%Xh%lx
+    nptot = this%dof%size()
+    allocate(lcoord(nptot), lmap(nptot))
+    
+    ! for each line
+    do il=1,this%nline
+       ! reset mapping array
+       !call ifill(this%map(1,1,1,1,il),-1,nptot)
+       do jl = 1, nptot
+          this%map(jl,1,1,1,il) = -1
+       end do
+  
+       ! Get coordinates and sort them
+       call copy(lcoord,this%dof%z,nptot)
+       call sort(lcoord,lmap,nptot)
+       ! get smoothing profile
+       rota = this%rota(il)
+       ! initialize smoothing factor
+       call rzero(this%fsmth(1,1,1,1,il),nptot)
+       this%npoint(il) = 0
+       if (.not.this%lext(il) .and.&
+          (lcoord(nptot).lt. (this%spos(ldim,il)-3.0*this%smth(ldim,il)) .or. &
+          (lcoord(1).gt.&
+          (this%epos(ldim,il)+3.0*this%smth(ldim,il))))) then
+          exit
+       end if
+  
+       ! if we do not extend a line exclude points below line start (z coordinate matters only)
+       ! this cannot be mixed with Gauss profile
+       istart = 1
+       if (.not.this%lext(il)) then
+          do jl=1,nptot
+             if (lcoord(jl).lt. &
+                 (this%spos(ldim,il)-3.0_rp*this%smth(ldim,il))) then
+                istart = istart+1
+             else
+                exit
+             endif
+          enddo
+       endif
+
+       
+       ! find unique entrances and provide mapping
+       this%npoint(il) = 1
+       this%prj(this%npoint(il),il) = lcoord(istart)
+       itmp = lmap(istart)-1
+       eltmp = itmp/npel + 1
+       itmp = itmp - npel*(eltmp-1)
+       ktmp = itmp/npxy + 1
+       itmp = itmp - npxy*(ktmp-1)
+       jtmp = itmp/nx1 + 1
+       itmp = itmp - nx1*(jtmp-1) + 1
+       this%map(itmp,jtmp,ktmp,eltmp,il) = this%npoint(il)
+       do jl=istart+1,nptot
+          ! if line is not extended finish at proper position
+          if (.not.this%lext(il).and.(lcoord(jl).gt. &
+              (this%epos(ldim,il)+3.0_rp*this%smth(ldim,il)))) exit
+  
+          if((lcoord(jl)-this%prj(this%npoint(il),il)).gt. &
+              max(epsl,abs(epsl*lcoord(jl)))) then
+             this%npoint(il) = this%npoint(il) + 1
+             this%prj(this%npoint(il),il) = lcoord(jl)
+          endif
+  
+          itmp = lmap(jl)-1
+          eltmp = itmp/npel + 1
+          itmp = itmp - npel*(eltmp-1)
+          ktmp = itmp/npxy + 1
+          itmp = itmp - npxy*(ktmp-1)
+          jtmp = itmp/nx1 + 1
+          itmp = itmp - nx1*(jtmp-1) + 1
+          this%map(itmp,jtmp,ktmp,eltmp,il) = this%npoint(il)
+       enddo
+           
+       ! rescale 1D array
+       do jl=1,this%npoint(il)
+          this%prj(jl,il) = (this%prj(jl,il) - this%spos(ldim,il))&
+              *this%ilngt(il)
+       enddo
+       
+       ! get smoothing profile
+       rota = this%rota(il)
+       ! initialize smoothing factor
+       call rzero(this%fsmth(1,1,1,1,il),nptot)
+       
+       do jl=1,nptot
+          itmp = jl-1
+          eltmp = itmp/npel + 1
+          itmp = itmp - npel*(eltmp-1)
+          ktmp = itmp/npxy + 1
+          itmp = itmp - npxy*(ktmp-1)
+          jtmp = itmp/nx1 + 1
+          itmp = itmp - nx1*(jtmp-1) + 1
+  
+          ! take only mapped points
+          istart = this%map(itmp,jtmp,ktmp,eltmp,il)
+          if (istart.gt.0) then
+  
+             ! rotation
+             xl = this%dof%x(itmp,jtmp,ktmp,eltmp)-this%spos(1,il)
+             yl = this%dof%y(itmp,jtmp,ktmp,eltmp)-this%spos(2,il)
+  
+             xr = xl*cos(rota)+yl*sin(rota)
+             yr = -xl*sin(rota)+yl*cos(rota)
+  
+             rtmp = (xr*this%ismth(1,il))**2+(yr*this%ismth(2,il))**2
+             ! do we extend a line beyond its ends
+             if (.not.this%lext(il)) then
+                if (this%prj(istart,il).lt.0.0_rp) then
+                    zl = this%dof%z(itmp,jtmp,ktmp,eltmp)-this%spos(ldim,il)
+                   rtmp = rtmp+(zl*this%ismth(ldim,il))**2
+                elseif(this%prj(istart,il).gt.1.0_rp) then
+                    zl = this%dof%z(itmp,jtmp,ktmp,eltmp)-this%epos(ldim,il)
+                   rtmp = rtmp+(zl*this%ismth(ldim,il))**2
+                endif
+             endif
+             ! Gauss; cannot be used with lines not extended beyond their ending points
+             !trip_fsmth(itmp,jtmp,ktmp,eltmp,il) = exp(-4.0*rtmp)
+             ! limited support
+             if (rtmp.lt.1.0_rp) then
+                this%fsmth(itmp,jtmp,ktmp,eltmp,il) = &
+                    exp(-rtmp)*(1.0_rp-rtmp)**2.0_rp
+             else
+                this%fsmth(itmp,jtmp,ktmp,eltmp,il) = 0.0_rp
+             endif
+          endif
+  
+       enddo
+    enddo
+    deallocate(lcoord, lmap)
+  end subroutine      
+  !=======================================================================
+  !> @brief Generate set of random phases
+  !! @ingroup trip_line
+  subroutine trip_rphs_get(this, time)
+    class(trip_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: time
+    integer :: il, jl, kl
+    integer :: itmp
+  
+!#ifdef DEBUG
+!    character*3 str1, str2
+!    integer iunit, ierr
+!    ! call number
+!    integer icalldl
+!    save icalldl
+!    data icalldl /0/
+!#endif
+    ! time independent part
+    if (this%tiamp.gt.0.0.and..not.this%ifinit) then
+       do il = 1, this%nline
+          do jl=1, this%nmode(il)
+             this%rphs(jl,1,il) = 2.0*pi*this%ran2(il)
+          enddo
+       enddo
+    endif
+  
+    ! time dependent part
+    do il = 1, this%nline
+       itmp = int(time/this%tdt(il))
+       !call bcast(itmp,ISIZE) ! just for safety
+       do kl= this%ntdt(il)+1, itmp
+          do jl= trip_nset_max,3,-1
+             call copy(this%rphs(1,jl,il),this%rphs(1,jl-1,il), &
+                  this%nmode(il))
+          enddo
+          do jl=1, this%nmode(il)
+          this%rphs(jl,2,il) = 2.0_rp*pi*this%ran2(il)
+          enddo
+       enddo
+       ! update time interval
+       this%ntdt_old(il) = this%ntdt(il)
+       this%ntdt(il) = itmp
+    enddo
+
+!#ifdef DEBUG
+!    ! for testing
+!    ! to output refinement
+!    icalldl = icalldl+1
+!    call io_file_freeid(iunit, ierr)
+!    write(str1,'(i3.3)') NID
+!    write(str2,'(i3.3)') icalldl
+!    open(unit=iunit,file='trp_rps.txt'//str1//'i'//str2)
+!  
+!    do il=1,trip_nmode(1)
+!       write(iunit,*) il,trip_rphs(il,1:4,1)
+!    enddo
+!  
+!    close(iunit)
+!#endif
+
+  end subroutine
+!=======================================================================
+!> @brief A simple portable random number generator
+!! @ingroup trip_line
+!! @details  Requires 32-bit integer arithmetic. Taken from Numerical
+!!   Recipes, William Press et al. Gives correlation free random
+!!   numbers but does not have a very large dynamic range, i.e only
+!!   generates 714025 different numbers. Set seed negative for
+!!   initialization
+!! @param[in]   il      line number
+!! @return      ran
+real(kind=rp) function trip_ran2(this,il)
+    class(trip_t) :: this
+    integer, intent(in) :: il
+    ! local variables
+    integer, parameter :: m=714025
+    integer, parameter :: ia=1366
+    integer, parameter :: ic=150889
+    real, parameter :: rm=1./m
+    integer :: j
+    associate( seed => this%seed, iff => this%iff, iy => this%iy, ir => this%ir) 
+    ! initialise
+    if (seed(il).lt.0.or.iff(il).eq.0) then
+       iff(il)=1
+       seed(il)=mod(ic-seed(il),m)
+       do j=1,97
+          seed(il)=mod(ia*seed(il)+ic,m)
+          ir(j,il)=seed(il)
+       end do
+       seed(il)=mod(ia*seed(il)+ic,m)
+       iy(il)=seed(il)
+    end if
+    
+    ! generate random number
+    j=1+(97*iy(il))/m
+    iy(il)=ir(j,il)
+    trip_ran2=iy(il)*rm
+    seed(il)=mod(ia*seed(il)+ic,m)
+    ir(j,il)=seed(il)
+    end associate
+
+  end function
+!=======================================================================
+!> @brief Generate forcing along 1D line
+!! @ingroup trip_line
+!! @param[in] ifreset    reset flag
+  subroutine trip_frcs_get(this, time, ifreset)
+    ! argument list
+    class(trip_t), intent(inout) :: this
+    logical, intent(in) ::  ifreset
+    real(kind=rp), intent(in) :: time
+    integer :: il, jl, kl, ll
+    integer :: istart, m
+    real(kind=rp) :: theta0, theta
+    logical :: ifntdt_dif
+!#ifdef TRIP_PR_RST
+!    ! variables necessary to reset pressure projection for P_n-P_n-2
+!    integer nprv(2)
+!    common /orthbi/ nprv
+!
+!    ! variables necessary to reset velocity projection for P_n-P_n-2
+!    include 'VPROJ'
+!#endif      
+    ! local variables
+
+!#ifdef DEBUG
+!    character*3 str1, str2
+!    integer iunit, ierr
+!    ! call number
+!    integer icalldl
+!    save icalldl
+!    data icalldl /0/
+!#endif
+    ! reset all
+    if (ifreset) then
+       if (this%tiamp.gt.0.0) then
+          istart = 1
+       else
+          istart = 2
+       endif
+       do il= 1, this%nline
+          do jl = istart, trip_nset_max
+             call rzero(this%frcs(1,jl,il),this%npoint(il))
+             do kl= 1, this%npoint(il)
+                theta0 = 2*pi*this%prj(kl,il)
+                do ll= 1, this%nmode(il)
+                   theta = theta0*ll
+                   this%frcs(kl,jl,il) = this%frcs(kl,jl,il) + &
+                       sin(theta+this%rphs(ll,jl,il))
+                enddo
+             enddo
+          enddo
+       enddo
+       ! rescale time independent part
+       if (this%tiamp.gt.0.0) then
+          do il= 1, this%nline
+             call cmult(this%frcs(1,1,il),this%tiamp,this%npoint(il))
+          enddo
+       endif
+       if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+          call trip_update_forces_device(this)
+       end if
+
+    else
+       ! reset only time dependent part if needed
+       ifntdt_dif = .FALSE.
+       do il= 1, this%nline
+          if (this%ntdt(il).ne.this%ntdt_old(il)) then
+             ifntdt_dif = .TRUE.
+             do jl= trip_nset_max,3,-1
+                call copy(this%frcs(1,jl,il),this%frcs(1,jl-1,il), &
+                    this%npoint(il))
+             enddo
+             call rzero(this%frcs(1,2,il),this%npoint(il))
+             do jl= 1, this%npoint(il)
+                theta0 = 2*pi*this%prj(jl,il)
+                do kl= 1, this%nmode(il)
+                   theta = theta0*kl
+                   this%frcs(jl,2,il) = this%frcs(jl,2,il) + &
+                       sin(theta+this%rphs(kl,2,il))
+                enddo
+             enddo
+             if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+             .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+                call trip_update_forces_device(this)
+             end if
+
+          endif
+       enddo
+!         if (ifntdt_dif) then
+!#ifdef TRIP_PR_RST
+!            ! reset projection space
+!            ! pressure
+!            if (int(PARAM(95)).gt.0) then
+!               PARAM(95) = ISTEP
+!               nprv(1) = 0      ! veloctiy field only
+!            endif
+!            ! velocity
+!            if (int(PARAM(94)).gt.0) then
+!               PARAM(94) = ISTEP!+2
+!               ivproj(2,1) = 0
+!               ivproj(2,2) = 0
+!               if (IF3D) ivproj(2,3) = 0
+!            endif
+!#endif
+!         endif
+    endif
+      
+    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+    .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+       ! get tripping for current time stepa
+       m = this%mask(0)
+       if ( m.gt. 0) then
+          if (this%tiamp.gt.0.0) then
+               call device_copy(this%ftripx_d,this%f_interpolate_d(1),m)
+          else
+               call device_rzero(this%ftripx_d,m)
+          endif
+          !> We only support one line for now!
+          il = 1
+          ! interpolation in time
+          theta0= time/this%tdt(il)-real(this%ntdt(il))
+          if (theta0.gt.0.0) then
+             theta0=theta0*theta0*(3.0-2.0*theta0)
+             theta = (1.0-theta0)*this%tdamp
+             call device_add2s2(this%ftripx_d,this%f_interpolate_d(3),theta,m)
+             theta = theta0*this%tdamp
+             call device_add2s2(this%ftripx_d,this%f_interpolate_d(2),theta,m)
+          else
+             theta0=theta0+1.0
+             theta0=theta0*theta0*(3.0-2.0*theta0)
+             theta = (1.0-theta0)*this%tdamp
+             call device_add2s2(this%ftripx_d,this%f_interpolate_d(4),theta,m)
+             theta = theta0*this%tdamp
+             call device_add2s2(this%ftripx_d,this%f_interpolate_d(3),theta,m)
+          endif
+          call device_col2(this%ftripx_d,this%fsmth_mask_d,m)
+          call device_cmult2(this%ftripy_d,this%ftripx_d,cos(this%rota(1)),m)
+          call device_cmult(this%ftripx_d,-sin(this%rota(1)),m)
+          call device_rzero(this%ftripz_d,m)
+       end if
+     else
+       ! get tripping for current time step
+       if (this%tiamp.gt.0.0) then
+          do il= 1, this%nline
+            call copy(this%ftrp(1,il),this%frcs(1,1,il),this%npoint(il))
+          enddo
+       else
+          do il= 1, this%nline
+             call rzero(this%ftrp(1,il),this%npoint(il))
+          enddo
+       endif
+       ! interpolation in time
+       do il = 1, this%nline
+          theta0= time/this%tdt(il)-real(this%ntdt(il))
+          if (theta0.gt.0.0) then
+             theta0=theta0*theta0*(3.0-2.0*theta0)
+             !theta0=theta0*theta0*theta0*(10.0+(6.0*theta0-15.0)*theta0)
+             do jl= 1, this%npoint(il)
+                this%ftrp(jl,il) = this%ftrp(jl,il) + &
+                    this%tdamp*((1.0-theta0)*this%frcs(jl,3,il) + &
+                    theta0*this%frcs(jl,2,il))
+             enddo
+          else
+             theta0=theta0+1.0
+             theta0=theta0*theta0*(3.0-2.0*theta0)
+             !theta0=theta0*theta0*theta0*(10.0+(6.0*theta0-15.0)*theta0)
+             do jl= 1, this%npoint(il)
+                this%ftrp(jl,il) = this%ftrp(jl,il) + &
+                     this%tdamp*((1.0-theta0)*this%frcs(jl,4,il) + &
+                     theta0*this%frcs(jl,3,il))
+             enddo
+          endif
+       enddo
+    end if
+
+!#efdef DEBUG
+!      ! for testing
+!      ! to output refinement
+!      icalldl = icalldl+1
+!      call io_file_freeid(iunit, ierr)
+!      write(str1,'(i3.3)') NID
+!      write(str2,'(i3.3)') icalldl
+!      open(unit=iunit,file='trp_fcr.txt'//str1//'i'//str2)
+!
+!      do il=1,trip_npoint(1)
+!         write(iunit,*) il,trip_prj(il,1),trip_ftrp(il,1),
+!     $        trip_frcs(il,1:4,1)
+!      enddo
+!
+!      close(iunit)
+!#endif
+  end subroutine
+  subroutine trip_init_device(this)
+    class(trip_t), intent(inout) :: this
+    call neko_error('trip: device backend not supported in this port')
+  end subroutine trip_init_device
+
+
+  subroutine trip_update_forces_device(this)
+    class(trip_t), intent(inout) :: this
+    call neko_error('trip: device backend not supported in this port')
+  end subroutine trip_update_forces_device
+
+!      subroutine trip_register()
+!
+!      ! local variables
+!      integer lpmid, il
+!      real(kind=rp) :: ltim
+!      character*2 str
+!
+!      ! functions
+!      real(kind=rp) :: dnekclock
+!!-----------------------------------------------------------------------
+!      ! timing
+!      ltim = dnekclock()
+!
+!      ! check if the current module was already registered
+!      call mntr_mod_is_name_reg(lpmid,trip_name)
+!      if (lpmid.gt.0) then
+!         call mntr_warn(lpmid,
+!     $        'module ['//trim(trip_name)//'] already registered')
+!         return
+!      endif
+!
+!      ! find parent module
+!      call mntr_mod_is_name_reg(lpmid,'FRAME')
+!      if (lpmid.le.0) then
+!         lpmid = 1
+!         call mntr_abort(lpmid,
+!     $        'parent module ['//'FRAME'//'] not registered')
+!      endif
+!
+!      ! register module
+!      call mntr_mod_reg(trip_id,lpmid,trip_name,
+!     $      'Tripping along the line')
+!
+!      ! register timer
+!      call mntr_tmr_is_name_reg(lpmid,'FRM_TOT')
+!      call mntr_tmr_reg(trip_tmr_id,lpmid,trip_id,
+!     $     'TRIP_TOT','Tripping total time',.false.)
+!
+!      ! register and set active section
+!      call rprm_sec_reg(trip_sec_id,trip_id,'_'//adjustl(trip_name),
+!     $     'Runtime paramere section for tripping module')
+!      call rprm_sec_set_act(.true.,trip_sec_id)
+!
+!      ! register parameters
+!      call rprm_rp_reg(trip_nline_id,trip_sec_id,'NLINE',
+!     $     'Number of tripping lines',rpar_int,0,0.0,.false.,' ')
+!
+!      call rprm_rp_reg(trip_tiamp_id,trip_sec_id,'TIAMP',
+!     $     'Time independent amplitude',rpar_real,0,0.0,.false.,' ')
+!
+!      call rprm_rp_reg(trip_tdamp_id,trip_sec_id,'TDAMP',
+!     $     'Time dependent amplitude',rpar_real,0,0.0,.false.,' ')
+!
+!      do il=1, trip_nline_max
+!         write(str,'(I2.2)') il
+!
+!         call rprm_rp_reg(trip_spos_id(1,il),trip_sec_id,'SPOSX'//str,
+!     $     'Starting point X',rpar_real,0,0.0,.false.,' ')
+!         
+!         call rprm_rp_reg(trip_spos_id(2,il),trip_sec_id,'SPOSY'//str,
+!     $     'Starting point Y',rpar_real,0,0.0,.false.,' ')
+!
+!         if (IF3D) then
+!            call rprm_rp_reg(trip_spos_id(ldim,il),trip_sec_id,
+!     $           'SPOSZ'//str,'Starting point Z',
+!     $           rpar_real,0,0.0,.false.,' ')
+!         endif
+!        
+!         call rprm_rp_reg(trip_epos_id(1,il),trip_sec_id,'EPOSX'//str,
+!     $     'Ending point X',rpar_real,0,0.0,.false.,' ')
+!         
+!         call rprm_rp_reg(trip_epos_id(2,il),trip_sec_id,'EPOSY'//str,
+!     $     'Ending point Y',rpar_real,0,0.0,.false.,' ')
+!
+!         if (IF3D) then
+!            call rprm_rp_reg(trip_epos_id(ldim,il),trip_sec_id,
+!     $           'EPOSZ'//str,'Ending point Z',
+!     $           rpar_real,0,0.0,.false.,' ')
+!         endif
+!
+!         call rprm_rp_reg(trip_smth_id(1,il),trip_sec_id,'SMTHX'//str,
+!     $     'Smoothing length X',rpar_real,0,0.0,.false.,' ')
+!         
+!         call rprm_rp_reg(trip_smth_id(2,il),trip_sec_id,'SMTHY'//str,
+!     $     'Smoothing length Y',rpar_real,0,0.0,.false.,' ')
+!
+!         if (IF3D) then
+!            call rprm_rp_reg(trip_smth_id(ldim,il),trip_sec_id,
+!     $           'SMTHZ'//str,'Smoothing length Z',
+!     $           rpar_real,0,0.0,.false.,' ')
+!         endif
+!
+!         call rprm_rp_reg(trip_lext_id(il),trip_sec_id,'LEXT'//str,
+!     $        'Line extension',rpar_log,0,0.0,.false.,' ')
+!      
+!         call rprm_rp_reg(trip_rota_id(il),trip_sec_id,'ROTA'//str,
+!     $        'Rotation angle',rpar_real,0,0.0,.false.,' ')
+!         call rprm_rp_reg(trip_nmode_id(il),trip_sec_id,'NMODE'//str,
+!     $     'Number of Fourier modes',rpar_int,0,0.0,.false.,' ')
+!         call rprm_rp_reg(trip_tdt_id(il),trip_sec_id,'TDT'//str,
+!     $     'Time step for tripping',rpar_real,0,0.0,.false.,' ')
+!      enddo
+!
+!      ! set initialisation flag
+!      trip_ifinit=.false.
+!      
+!      ! timing
+!      ltim = dnekclock() - ltim
+!      call mntr_tmr_add(trip_tmr_id,1,ltim)
+!
+!      return
+!      end subroutine
+
+end module trip
+
+
+! =====================================================================
+!  Flow over a wall-mounted hump, low-Mach, with:
+!   * STEADY inlet: a fixed PARABOLIC (fully-developed laminar) profile, zero at
+!     the walls, bulk = U_in exactly, smooth near-wall layer (no thin-shear
+!     corner). NO recycling. LOW Reynolds number (~500) -> laminar & stable;
+!     raise Re later, once the case runs cleanly.
+!   * HEATED lower wall for x > x_heat (T ramps T_cold -> T_hot=2), cold
+!     elsewhere; ideal-gas rho = P0/(R T) = 1/T.
+!   * GRAVITY / buoyancy (reduced-gravity body force in -y).
+!
+!  Incremental switches (do_heat / do_gravity / do_trip) let us isolate.
+! =====================================================================
+module user
+  use neko
+  use trip, only : trip_t, trip_nline_max
+  implicit none
+
+  ! ---- geometry / flow parameters (nondimensional) ----
+  real(kind=rp), parameter :: U_in   = 1.0_rp
+  real(kind=rp), parameter :: Lx     = 25.0_rp
+  real(kind=rp), parameter :: Ly     = 3.0_rp
+  real(kind=rp), parameter :: Lz     = 4.0_rp
+  real(kind=rp), parameter :: Hhump  = 1.0_rp          ! hump height = length scale
+  real(kind=rp), parameter :: Re_in  = 1000.0_rp     ! LOW Re -> laminar, stable (raise later once running)
+  real(kind=rp), parameter :: Pr     = 0.71_rp
+  real(kind=rp), parameter :: rho_ref = 1.0_rp         ! cold reference density
+  real(kind=rp), parameter :: mu_ref = rho_ref*U_in*Hhump/Re_in
+  real(kind=rp), parameter :: k_ref  = mu_ref/Pr
+
+  ! ---- thermal / gravity ----
+  real(kind=rp), parameter :: T_cold = 1.0_rp
+  real(kind=rp), parameter :: T_hot  = 2.0_rp          ! "heating a bit, ~2"
+  real(kind=rp), parameter :: x_heat = 11.0_rp         ! heated wall starts (hump ends x=8)
+  real(kind=rp), parameter :: dx_ramp = 1.0_rp         ! smoothstep ramp width
+  real(kind=rp), parameter :: g_nd   = 0.15_rp         ! buoyancy magnitude (reduced for stability)
+
+  ! ---- Schlatter & Orlu (JFM 2012) trip line: spanwise line at (x,y)=(2,0),
+  !      wall-normal random volume force, 40 random-phase z-modes, cubic time
+  !      interpolation every TDT (trip module ported verbatim from
+  !      ExtremeFLOW/flettner_rotor rot_cyl.f90). Scales follow the paper's
+  !      delta*-based guidance for the laminar BL at x=2.
+  type(trip_t) :: tripper
+  logical :: trip_ready = .false.
+  real(kind=rp), parameter :: TIAMP   = 0.00_rp   ! time-independent amplitude
+  real(kind=rp), parameter :: TDAMP   = 0.3_rp    ! time-dependent amplitude
+  real(kind=rp), parameter :: SPOSX01 = 2.0_rp, SPOSY01 = 0.0_rp, SPOSZ01 = 0.0_rp
+  real(kind=rp), parameter :: EPOSX01 = 2.0_rp, EPOSY01 = 0.0_rp, EPOSZ01 = 4.0_rp
+  real(kind=rp), parameter :: SMTHX01 = 0.30_rp, SMTHY01 = 0.10_rp, SMTHZ01 = 0.30_rp
+  real(kind=rp), parameter :: ROTA01  = 0.0_rp
+  integer,       parameter :: NMODE01 = 40
+  real(kind=rp), parameter :: TDT01   = 0.30_rp
+  logical,       parameter :: LEXT01  = .false.
+
+  ! ---- incremental switches ----
+  logical, parameter :: do_heat    = .true.
+  logical, parameter :: do_gravity = .false.   ! OFF to isolate: buoyancy (Rayleigh-Benard off the heated wall) is the prime late-blow-up suspect
+  logical, parameter :: do_trip    = .true.   ! OFF: the hump trips the flow; the trip was destabilizing the laminar inlet
+
+contains
+
+  subroutine user_setup(u)
+    type(user_t), intent(inout) :: u
+    u%startup => startup
+    u%material_properties => material_properties
+    u%initial_conditions => ics
+    u%dirichlet_conditions => inflow_and_wall
+    u%source_term => fluid_source
+  end subroutine user_setup
+
+  subroutine startup(params)
+    type(json_file), intent(inout) :: params
+    call params%add("case.fluid.mu", mu_ref)
+    call params%add("case.fluid.rho", rho_ref)
+    call params%add("case.scalar.lambda", k_ref)
+    call params%add("case.scalar.cp", 1.0_rp)
+  end subroutine startup
+
+  !> Steady PARABOLIC inlet profile (fully-developed laminar): 0 at the walls,
+  !! smooth, peak 1.5 at the centre, bulk = U_in EXACTLY (no thin-shear corner,
+  !! no bulk-flux over-supply -- both fix the prior blunt-profile blow-up).
+  pure function uin_profile(y) result(uu)
+    real(kind=rp), intent(in) :: y
+    real(kind=rp) :: uu, yn
+    yn = min(max(y/Ly, 0.0_rp), 1.0_rp)
+    uu = U_in * 1.5_rp * (1.0_rp - (2.0_rp*yn - 1.0_rp)**2)
+  end function uin_profile
+
+  !> Constant transport properties (robust first build): mu, lambda, cp.
+  subroutine material_properties(scheme_name, properties, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: properties
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: mu, lambda, cp
+    integer :: i, n
+    if (scheme_name .eq. 'fluid') then
+       mu => properties%get_by_index(2)
+       n = mu%dof%size()
+       do i = 1, n
+          mu%x(i,1,1,1) = mu_ref
+       end do
+    else if (scheme_name .eq. 'temperature') then
+       cp => properties%get_by_index(1)
+       lambda => properties%get_by_index(2)
+       n = cp%dof%size()
+       do i = 1, n
+          cp%x(i,1,1,1) = 1.0_rp
+          lambda%x(i,1,1,1) = k_ref
+       end do
+    end if
+  end subroutine material_properties
+
+  !> IC: fluid -> the steady inlet mean profile + GENTLE perturbations (seed
+  !! transition without a violent impulsive start); temperature -> uniform cold
+  !! (the wall heating builds the hot layer downstream).
+  subroutine ics(scheme_name, fields)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: fields
+    type(field_t), pointer :: u, v, w, s
+    integer :: i, n
+    real(kind=rp) :: xx, yy, zz, um, gy, r1, r2, r3
+
+    if (scheme_name .eq. 'fluid') then
+       u => fields%items(1)%ptr; v => fields%items(2)%ptr; w => fields%items(3)%ptr
+       n = u%dof%size()
+       do i = 1, n
+          xx = u%dof%x(i,1,1,1); yy = u%dof%y(i,1,1,1); zz = u%dof%z(i,1,1,1)
+          um = uin_profile(yy)
+          ! near-wall localisation of the (gentle) perturbations
+          gy = exp(-((yy - 0.3_rp)/0.3_rp)**2) + exp(-((yy - (Ly-0.3_rp))/0.3_rp)**2)
+          call random_number(r1); call random_number(r2); call random_number(r3)
+          u%x(i,1,1,1) = um &
+               + 0.03_rp*gy*sin(3.0_rp*2.0_rp*pi*xx/Lx)*cos(4.0_rp*2.0_rp*pi*zz/Lz) &
+               + 0.01_rp*(r1 - 0.5_rp)
+          v%x(i,1,1,1) = 0.02_rp*gy*cos(3.0_rp*2.0_rp*pi*xx/Lx)*sin(4.0_rp*2.0_rp*pi*zz/Lz) &
+               + 0.01_rp*(r2 - 0.5_rp)
+          w%x(i,1,1,1) = 0.02_rp*gy*sin(3.0_rp*2.0_rp*pi*xx/Lx)*cos(4.0_rp*2.0_rp*pi*zz/Lz) &
+               + 0.01_rp*(r3 - 0.5_rp)
+       end do
+    else if (scheme_name .eq. 'temperature') then
+       s => fields%items(1)%ptr
+       n = s%dof%size()
+       do i = 1, n
+          s%x(i,1,1,1) = T_cold
+       end do
+    end if
+  end subroutine ics
+
+  !> Smoothstep heated-wall / inlet temperature: T_cold for x < x_heat, ramping
+  !! to T_hot over [x_heat, x_heat+dx_ramp]. Same rule serves the cold inlet
+  !! (x~0 -> T_cold) and the lower wall (heated only downstream of x_heat).
+  pure function Twall(x) result(T)
+    real(kind=rp), intent(in) :: x
+    real(kind=rp) :: T, t01
+    if (.not. do_heat) then
+       T = T_cold; return
+    end if
+    t01 = min(max((x - x_heat)/dx_ramp, 0.0_rp), 1.0_rp)
+    t01 = t01*t01*(3.0_rp - 2.0_rp*t01)
+    T = T_cold + (T_hot - T_cold)*t01
+  end function Twall
+
+  !> Dirichlet hook: STEADY velocity inlet (fixed blunt profile) AND temperature
+  !! (cold inlet + heated lower wall). Branch on field name (velocity list -> 'u').
+  subroutine inflow_and_wall(field_bc_list, bc, time)
+    type(field_list_t), intent(inout) :: field_bc_list
+    type(field_dirichlet_t), intent(in) :: bc
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: s
+    type(dofmap_t), pointer :: dof
+    integer :: i, msk_idx
+
+    dof => field_bc_list%dof(1)
+    if (field_bc_list%items(1)%ptr%name .eq. "u") then
+       ! ---------- STEADY blunt-profile velocity inlet (no recycling) ----------
+       associate(u => field_bc_list%items(1)%ptr, &
+            v => field_bc_list%items(2)%ptr, w => field_bc_list%items(3)%ptr)
+          do i = 1, bc%msk(0)
+             msk_idx = bc%msk(i)
+             u%x(msk_idx,1,1,1) = uin_profile(dof%y(msk_idx,1,1,1))
+             v%x(msk_idx,1,1,1) = 0.0_rp
+             w%x(msk_idx,1,1,1) = 0.0_rp
+          end do
+       end associate
+    else
+       ! ---------- TEMPERATURE: cold inlet + heated lower wall (x-ramp) ----------
+       s => field_bc_list%items(1)%ptr
+       do i = 1, bc%msk(0)
+          msk_idx = bc%msk(i)
+          s%x(msk_idx,1,1,1) = Twall(dof%x(msk_idx,1,1,1))
+       end do
+    end if
+  end subroutine inflow_and_wall
+
+  !> Momentum source: buoyancy (-y reduced gravity) + near-inlet trip.
+  subroutine fluid_source(scheme_name, rhs, time)
+    character(len=*), intent(in) :: scheme_name
+    type(field_list_t), intent(inout) :: rhs
+    type(time_state_t), intent(in) :: time
+    type(field_t), pointer :: ru, rv, rw, rho
+    integer :: i, j, k, e
+    real(kind=rp) :: fb, fu, fv, fw
+    integer :: nmode(trip_nline_max)
+    real(kind=rp), dimension(3,trip_nline_max) :: spos, epos, smth
+    real(kind=rp) :: rota(trip_nline_max), tdt(trip_nline_max)
+    logical :: lext(trip_nline_max)
+
+    if (scheme_name .ne. 'fluid') return
+    ru => rhs%get_by_index(1); rv => rhs%get_by_index(2); rw => rhs%get_by_index(3)
+    rho => neko_registry%get_field('fluid_rho')
+
+    if (do_trip .and. (.not. trip_ready)) then
+       ! mirror of rot_cyl.f90 init_tripper, with the hump's line geometry
+       spos(1,1) = SPOSX01; spos(2,1) = SPOSY01; spos(3,1) = SPOSZ01
+       epos(1,1) = EPOSX01; epos(2,1) = EPOSY01; epos(3,1) = EPOSZ01
+       smth(1,1) = SMTHX01; smth(2,1) = SMTHY01; smth(3,1) = SMTHZ01
+       rota(1) = ROTA01; nmode(1) = NMODE01; tdt(1) = TDT01; lext(1) = LEXT01
+       call tripper%init(ru%dof, 1, nmode, TIAMP, TDAMP, &
+            spos, epos, smth, lext, rota, tdt, time%t)
+       trip_ready = .true.
+    end if
+    if (do_trip) call tripper%update(time%t)
+
+    do e = 1, ru%msh%nelv
+       do k = 1, ru%Xh%lz
+          do j = 1, ru%Xh%ly
+             do i = 1, ru%Xh%lx
+                fu = 0.0_rp; fv = 0.0_rp; fw = 0.0_rp
+                if (do_trip) call tripper%apply(fu, fv, fw, i, j, k, e)
+                fb = 0.0_rp
+                ! buoyancy: hot fluid (rho<rho_ref) feels upward (+y) reduced gravity
+                if (do_gravity) fb = (rho_ref/rho%x(i,j,k,e) - 1.0_rp)*g_nd
+                ru%x(i,j,k,e) = fu
+                rv%x(i,j,k,e) = fv + fb
+                rw%x(i,j,k,e) = fw
+             end do
+          end do
+       end do
+    end do
+  end subroutine fluid_source
+
+end module user

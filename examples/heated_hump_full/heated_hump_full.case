@@ -1,0 +1,160 @@
+{
+  "version": 1.0,
+  "case": {
+    "mesh_file": "hump_mid.nmsh",
+    "output_at_end": true,
+    "output_boundary": false,
+    "output_checkpoints": true,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 10.0,
+    "time": {
+      "end_time": 50.0,
+      "variable_timestep": true,
+      "target_cfl": 0.3,
+      "max_timestep": 0.005
+    },
+    "numerics": {
+      "time_order": 3,
+      "polynomial_order": 6,
+      "dealias": true
+    },
+    "fluid": {
+      "scheme": "lowmach",
+      "full_stress_formulation": true,
+      "source_terms": [
+        {
+          "type": "user"
+        },
+        {
+          "type": "gradient_jump_penalty",
+          "enabled": true,
+          "scaling_factor": 0.8,
+          "scaling_exponent": 4.0
+        }
+      ],
+      "initial_condition": {
+        "type": "user"
+      },
+      "velocity_solver": {
+        "type": "coupled_cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "pressure_solver": {
+        "type": "gmres",
+        "preconditioner": {
+          "type": "hsmg",
+          "coarse_grid": {
+            "solver": "cg",
+            "preconditioner": "jacobi",
+            "iterations": 100
+          }
+        },
+        "projection_space_size": 4,
+        "projection_reorthogonalize_basis": true,
+        "absolute_tolerance": 1e-05,
+        "max_iterations": 800
+      },
+      "output_control": "simulationtime",
+      "output_value": 1.0,
+      "boundary_conditions": [
+        {
+          "type": "user_velocity",
+          "zone_indices": [
+            5
+          ]
+        },
+        {
+          "type": "outflow+dong",
+          "zone_indices": [
+            3
+          ],
+          "delta": 0.01,
+          "velocity_scale": 1.0
+        },
+        {
+          "type": "no_slip",
+          "zone_indices": [
+            2,
+            4
+          ]
+        }
+      ],
+      "low_mach": {
+        "enabled": true,
+        "P0": 1.0,
+        "R_specific": 1.0,
+        "cp": 1.0,
+        "k_conductivity": 1.0,
+        "T_eos_min": 0.8,
+        "T_eos_max": 10.0,
+        "temperature_field": "temperature",
+        "property_model": {
+          "type": "power_law",
+          "mu_ref": 0.0005,
+          "lambda_ref": 0.00070423,
+          "T_ref": 1.0,
+          "exponent": 0.7
+        }
+      }
+    },
+    "scalar": {
+      "name": "temperature",
+      "low_mach": {
+        "enabled": true
+      },
+      "solver": {
+        "type": "cg",
+        "preconditioner": {
+          "type": "jacobi"
+        },
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-06,
+        "max_iterations": 800
+      },
+      "boundary_conditions": [
+        {
+          "type": "user",
+          "zone_indices": [
+            5
+          ]
+        },
+        {
+          "type": "neumann",
+          "flux": 0.0,
+          "zone_indices": [
+            3
+          ]
+        },
+        {
+          "type": "user",
+          "zone_indices": [
+            2
+          ]
+        },
+        {
+          "type": "neumann",
+          "flux": 0.0,
+          "zone_indices": [
+            4
+          ]
+        }
+      ],
+      "initial_condition": {
+        "type": "user"
+      },
+      "source_terms": [
+        {
+          "type": "gradient_jump_penalty",
+          "enabled": true,
+          "scaling_factor": 0.8,
+          "scaling_exponent": 4.0
+        }
+      ]
+    }
+  }
+}

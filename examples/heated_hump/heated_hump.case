@@ -139,7 +139,15 @@
       ],
       "initial_condition": {
         "type": "user"
-      }
+      },
+      "source_terms": [
+        {
+          "type": "gradient_jump_penalty",
+          "enabled": true,
+          "scaling_factor": 0.8,
+          "scaling_exponent": 4.0
+        }
+      ]
     }
   }
 }
