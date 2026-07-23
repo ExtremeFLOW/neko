@@ -687,7 +687,7 @@ contains
 
                    ! Smooth Step
                 elseif (trim(this%config%bodies(i)%rotation_type) &
-                   .eq. 'smooth_step') then
+                     .eq. 'smooth_step') then
                    if (has_user_rigid_kin .or. has_user_mesh_vel) then
                       call neko_log%message('   Rotation     : ' // &
                            'Smooth Step Control + User')
@@ -1667,11 +1667,11 @@ contains
 
        if (c_associated(coef%dof%x_d)) then
           call device_memcpy(coef%dof%x, coef%dof%x_d, &
-              size(coef%dof%x), HOST_TO_DEVICE, sync = .false.)
+               size(coef%dof%x), HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(coef%dof%y, coef%dof%y_d, &
-              size(coef%dof%y), HOST_TO_DEVICE, sync = .false.)
+               size(coef%dof%y), HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(coef%dof%z, coef%dof%z_d, &
-              size(coef%dof%z), HOST_TO_DEVICE, sync = .false.)
+               size(coef%dof%z), HOST_TO_DEVICE, sync = .false.)
        end if
 
        if (c_associated(coef%Blag_d)) then
@@ -1720,11 +1720,11 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (c_associated(coef%Blag_d)) then
              call device_memcpy(coef%Blag, coef%Blag_d, n, &
-                   HOST_TO_DEVICE, sync = .false.)
+                  HOST_TO_DEVICE, sync = .false.)
           end if
           if (c_associated(coef%Blaglag_d)) then
              call device_memcpy(coef%Blaglag, coef%Blaglag_d, n, &
-                   HOST_TO_DEVICE, sync = .false.)
+                  HOST_TO_DEVICE, sync = .false.)
           end if
           call device_sync()
        end if
@@ -1955,11 +1955,11 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(mesh => coef%dof)
          call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
-            DEVICE_TO_HOST, sync = .false.)
+              DEVICE_TO_HOST, sync = .false.)
          call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
-            DEVICE_TO_HOST, sync = .false.)
+              DEVICE_TO_HOST, sync = .false.)
          call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
-            DEVICE_TO_HOST, sync = .false.)
+              DEVICE_TO_HOST, sync = .false.)
        end associate
     end if
 
