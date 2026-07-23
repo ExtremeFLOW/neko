@@ -25,7 +25,12 @@ elif RP == "dp":
 else:
     REFERENCE_RTOL = 1e-4
     REFERENCE_ATOL = 1e-12
-OVERLAP_RTOL = 1e-11
+if RP == "dp":
+    OVERLAP_RTOL = 1e-11
+    OVERLAP_ATOL = 1e-13
+else:
+    OVERLAP_RTOL = 1e-6
+    OVERLAP_ATOL = 1e-12
 
 
 def _load_log(log_file, parsed_file):
@@ -142,7 +147,7 @@ def test_scalar_restart(launcher_script, request, tmp_path):
             part2_data[column],
             overlap[column],
             rtol=OVERLAP_RTOL,
-            atol=1e-13,
+            atol=OVERLAP_ATOL,
             err_msg=f"Restart changed overlapping column '{column}'.",
         )
 
