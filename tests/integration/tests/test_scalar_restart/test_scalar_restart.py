@@ -12,9 +12,13 @@ from testlib import configure_nprocs, get_neko, get_neko_dir, parse_log, run_nek
 
 
 SCALAR_TOLERANCE = 1e-8
-if BACKEND == "cpu":
+if BACKEND == "cpu" and RP == "dp":
     REFERENCE_RTOL = 1e-12
     REFERENCE_ATOL = 0.0
+elif BACKEND == "cpu":
+    REFERENCE_RTOL = 1e-6
+    REFERENCE_ATOL = 0.0
+# Looser for the device because there is no clean reference data
 elif RP == "dp":
     REFERENCE_RTOL = 1e-7
     REFERENCE_ATOL = 1e-12
