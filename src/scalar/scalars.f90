@@ -72,6 +72,8 @@ module scalars
      procedure :: step => scalars_step
      !> Restart from checkpoint data
      procedure :: restart => scalars_restart
+     !> Set initial conditions for all scalar fields
+     procedure :: set_initial_conditions => scalars_set_initial_conditions
      !> Check if the configuration is valid
      procedure :: validate => scalars_validate
      !> Clean up all resources
@@ -239,6 +241,39 @@ contains
        call this%scalar_fields(i)%scalar%restart(chkp)
     end do
   end subroutine scalars_restart
+
+  !> Set initial conditions for all scalar fields.
+  !! @param user Type with user-defined procedures.
+  !! @param is_restart Whether the case is restarting from a checkpoint.
+  subroutine scalars_set_initial_conditions(this, user, is_restart)
+    class(scalars_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+    logical, intent(in) :: is_restart
+    integer :: i, running_scalar_index, scalar_index
+
+    call neko_log%section("Scalar initial condition ")
+
+    if (is_restart) then
+       call neko_log%message("Restart file specified, " // &
+            "initial conditions ignored")
+    else
+       running_scalar_index = 0
+       do i = 1, size(this%scalar_fields)
+          if (trim(this%scalar_fields(i)%scalar%name) .eq. 'temperature') then
+             scalar_index = 0
+          else
+             running_scalar_index = running_scalar_index + 1
+             scalar_index = running_scalar_index
+          end if
+
+          call this%scalar_fields(i)%scalar%set_initial_condition(user, &
+               scalar_index)
+       end do
+    end if
+
+    call neko_log%end_section()
+
+  end subroutine scalars_set_initial_conditions
 
   !> Check if the configuration is valid
   subroutine scalars_validate(this)
