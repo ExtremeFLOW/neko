@@ -40,7 +40,7 @@ module ale_manager
   use space, only : space_t
   use ax_product, only : ax_t, ax_helm_factory
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_factory, precon_destroy
+  use precon, only : pc_t, precon_allocator, precon_destroy
   use bc_list, only : bc_list_t
   use checkpoint, only : chkp_t
   use zero_dirichlet, only : zero_dirichlet_t
@@ -1522,7 +1522,7 @@ contains
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*), intent(in) :: pctype
     type(json_file), intent(inout) :: params
-    call precon_factory(pc, pctype)
+    call precon_allocator(pc, pctype)
     select type (pcp => pc)
     type is (jacobi_t)
        call pcp%init(coef, dof, gs)
