@@ -2232,20 +2232,20 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 
 Users can use the viscous regularization object to enhance the smoothness or 
 the numerical stability of the solution via a diffusion term. For example, 
-artificial viscosity could be set up by this object to perform shock capturing.
+artificial viscosity can be set up by this object to perform shock capturing.
 Note that some regularization techniques do not have a diffusive mathematical 
-form, for example gradient jump penalty and  high-pass filter relaxation term,
+form, for example gradient jump penalty and high-pass filter relaxation terms,
 and they are included in the source terms instead. The viscous regularization
-could be set up by the following options
+can be set up with the following options:
 
-* `type`, viscous regularization type.
-  - `artificial_viscosity`, the standard second order diffusion term,
+* `type`, the viscous regularization type.
+  - `artificial_viscosity`, the standard second-order diffusion term,
     $\frac{\partial}{\partial x}\left(\mu_\mathrm{artificial}\frac{\partial u}{\partial x}\right)$.
 * `reg_coeff_name`, name of the $\mu_\mathrm{artificial}$ field, usually 
-computed by a simulation components.
+computed by a simulation component.
 
-This object can perform regularization on scalar or fluid equation by setting
-the following example in the solver configuration.
+This object can perform regularization on scalar or fluid equations by using
+the following solver configuration:
 ```json
 "viscous_regularization":{
     "type": "artificial_viscosity",
