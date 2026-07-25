@@ -460,7 +460,7 @@ var searchData=
   ['ax_5fhelm_5ffull_5fdevice_2ef90_457',['ax_helm_full_device.F90',['../dd/d4d/ax__helm__full__device_8F90.html',1,'']]],
   ['ax_5fhelm_5ffull_5fdevice_5fcompute_5fvector_458',['ax_helm_full_device_compute_vector',['../d1/d73/namespaceax__helm__full__device.html#a00532fd7f438fb2f18e35a548c1c2f91',1,'ax_helm_full_device']]],
   ['ax_5fhelm_5ffull_5fdevice_5ft_459',['ax_helm_full_device_t',['../db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html',1,'ax_helm_full_device']]],
-  ['ax_5fhelm_5ffull_5fkernel_2eh_460',['ax_helm_full_kernel.h',['../df/d1b/hip_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)'],['../d0/d7e/cuda_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)']]],
+  ['ax_5fhelm_5ffull_5fkernel_2eh_460',['ax_helm_full_kernel.h',['../d0/d7e/cuda_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)'],['../df/d1b/hip_2ax__helm__full__kernel_8h.html',1,'(Global Namespace)']]],
   ['ax_5fhelm_5ffull_5fprogram_461',['ax_helm_full_program',['../d0/dc0/namespaceopencl__prgm__lib.html#a3419a6dedabdc69207a8c54cd65e3fda',1,'opencl_prgm_lib::ax_helm_full_program'],['../d1/df7/prgm__lib_8h.html#aa05bcd3f01900308b0e3e888b1726edd',1,'ax_helm_full_program:&#160;prgm_lib.h']]],
   ['ax_5fhelm_5ffull_5ft_462',['ax_helm_full_t',['../d8/d81/structax__helm__full_1_1ax__helm__full__t.html',1,'ax_helm_full']]],
   ['ax_5fhelm_5fkernel_2eh_463',['ax_helm_kernel.h',['../db/d6f/cuda_2ax__helm__kernel_8h.html',1,'(Global Namespace)'],['../d6/da8/hip_2ax__helm__kernel_8h.html',1,'(Global Namespace)']]],
