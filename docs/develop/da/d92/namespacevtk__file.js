@@ -1,6 +1,7 @@
 var namespacevtk__file =
 [
     [ "vtk_file_t", "d8/d43/structvtk__file_1_1vtk__file__t.html", "d8/d43/structvtk__file_1_1vtk__file__t" ],
+    [ "vtk_file_get_next_output_fname", "da/d92/namespacevtk__file.html#a78a599fb9e2d6a75fd05bb71b9162271", null ],
     [ "vtk_file_read", "da/d92/namespacevtk__file.html#a18d27723a6104ea735f3b06d2da7fd1c", null ],
     [ "vtk_file_write", "da/d92/namespacevtk__file.html#a0b5d8b39ebf4fecb77391d9e468fb0b2", null ],
     [ "vtk_file_write_cell_data", "da/d92/namespacevtk__file.html#a36be5c5648e8169a540e69d3094e6ba9", null ],

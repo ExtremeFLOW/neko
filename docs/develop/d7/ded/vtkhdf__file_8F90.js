@@ -5,6 +5,7 @@ var vtkhdf__file_8F90 =
     [ "subdivide_to_quad_ordering", "d7/ded/vtkhdf__file_8F90.html#affcc6249557f8cdd08b7265616fd7f7b", null ],
     [ "vtkhdf_file_enable_amr", "d7/ded/vtkhdf__file_8F90.html#a2308ab56180108b3dbe768436e2579d7", null ],
     [ "vtkhdf_file_get_fname", "d7/ded/vtkhdf__file_8F90.html#afb2879798169ca1979ce2a08b4dfbe18", null ],
+    [ "vtkhdf_file_get_next_output_fname", "d7/ded/vtkhdf__file_8F90.html#a66bd1d30f1bd8d9dcea6852bfc10ca6e", null ],
     [ "vtkhdf_file_read", "d7/ded/vtkhdf__file_8F90.html#aeabc3ac8b3e4420a206eb4acbbcf6e47", null ],
     [ "vtkhdf_file_set_overwrite", "d7/ded/vtkhdf__file_8F90.html#a22a3acb8171eaaec3126e38a0587d3b6", null ],
     [ "vtkhdf_file_set_precision", "d7/ded/vtkhdf__file_8F90.html#a74b986836ff14a3ab92bec2d084c05d6", null ],

@@ -7,6 +7,7 @@ var namespacegeneric__file =
     [ "generic_file_get_base_fname", "dc/d92/namespacegeneric__file.html#ab7ca8c8f4661c12e674d7f6cff0a77d3", null ],
     [ "generic_file_get_counter", "dc/d92/namespacegeneric__file.html#a58a9524fc678ee459a4427846b892ed1", null ],
     [ "generic_file_get_fname", "dc/d92/namespacegeneric__file.html#a036a69d63d9a6769f447414beb540d06", null ],
+    [ "generic_file_get_next_output_fname", "dc/d92/namespacegeneric__file.html#ae145d50f186f3ab5ae7d9a3950fcfb29", null ],
     [ "generic_file_get_start_counter", "dc/d92/namespacegeneric__file.html#ada6c5c418b7c21823c02836f67f17eae", null ],
     [ "generic_file_increment_counter", "dc/d92/namespacegeneric__file.html#a7824845ffe3e87709b01b94e25c19343", null ],
     [ "generic_file_init", "dc/d92/namespacegeneric__file.html#ab1a94d0cd41f4cba16d87c5215dab3a3", null ],
