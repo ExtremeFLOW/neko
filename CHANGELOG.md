@@ -2,6 +2,14 @@
 
 ## Develop
 
+- Added format-independent checkpoint payloads for registering named fields,
+  field histories, nodal mesh arrays, and distributed or replicated real
+  arrays. HDF5 checkpoints now preserve the payload hierarchy and support
+  multiple scalars and ALE, including restart at a different polynomial order.
+  Mesh arrays derive their distribution and standard GLL interpolation from
+  their mesh and function space, while generic arrays retain a fixed logical
+  extent. The `.chkp` format remains available through a single-scalar
+  compatibility view, and existing flat HDF5 checkpoints remain readable.
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
   alias their host allocation instead of being replicated on the device,
