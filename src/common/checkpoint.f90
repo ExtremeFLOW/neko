@@ -480,18 +480,63 @@ contains
 
 
 
-  !> Add a scalar to checkpointing
-  subroutine chkp_add_scalar(this, s, slag, abs1, abs2)
+  !> Add a scalar to checkpointing.
+  !! @param s Scalar solution field.
+  !! @param slag Scalar solution lag fields.
+  !! @param abs1,abs2 Optional scheme-specific advection lag fields.
+  !! @param index Optional position in multi-scalar checkpoint storage.
+  !! @param n_scalars Optional total number of scalar schemes.
+  subroutine chkp_add_scalar(this, s, slag, abs1, abs2, index, n_scalars)
     class(chkp_t), intent(inout) :: this
     type(field_t), target, intent(in) :: s
     type(field_series_t), target, intent(in) :: slag
     type(field_t), target, intent(in), optional :: abs1, abs2
+    integer, intent(in), optional :: index, n_scalars
 
-    this%s => s
-    this%slag => slag
+    if (present(index) .neqv. present(n_scalars)) then
+       call neko_error("Scalar checkpoint index and count must both be present")
+    end if
 
-    if (present(abs1)) this%abs1 => abs1
-    if (present(abs2)) this%abs2 => abs2
+    if (present(abs1) .neqv. present(abs2)) then
+       call neko_error("Scalar checkpoint advection lags must both be present")
+    end if
+
+    if (present(index)) then
+       if (n_scalars < 1 .or. index < 1 .or. index > n_scalars) then
+          call neko_error("Invalid scalar checkpoint index or count")
+       end if
+
+       if (n_scalars .eq. 1) then
+          this%s => s
+          this%slag => slag
+
+          if (present(abs1)) this%abs1 => abs1
+          if (present(abs2)) this%abs2 => abs2
+       else
+          if (.not. allocated(this%scalar_abx1)) then
+             allocate(this%scalar_abx1(n_scalars))
+             allocate(this%scalar_abx2(n_scalars))
+             call this%scalar_lags%init(n_scalars)
+          else if (size(this%scalar_abx1) .ne. n_scalars) then
+             call neko_error("Inconsistent scalar checkpoint count")
+          end if
+
+          if (this%scalar_lags%size() + 1 .ne. index) then
+             call neko_error("Scalars must register checkpoint data in order")
+          end if
+
+          call this%scalar_lags%append(slag)
+          if (present(abs1)) this%scalar_abx1(index)%ptr => abs1
+          if (present(abs2)) this%scalar_abx2(index)%ptr => abs2
+       end if
+    else
+       ! Legacy single-scalar registration.
+       this%s => s
+       this%slag => slag
+
+       if (present(abs1)) this%abs1 => abs1
+       if (present(abs2)) this%abs2 => abs2
+    end if
 
   end subroutine chkp_add_scalar
 
