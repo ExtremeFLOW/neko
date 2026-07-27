@@ -40,8 +40,12 @@ in Neko. The list will be updated as new simcomps are added.
 - Probing of fields at selected points \ref simcomp_probes
 - Output of registered fields to a file \ref simcomp_field_writer
 - Computation of forces and torque on a surface \ref simcomp_force_torque
+- Computation of the wall shear stress on labelled zones \ref
+  simcomp_wall_shear_stress
 - Boundary operations on labelled zones \ref simcomp_boundary_operation
 - Total vector flux through labelled zones \ref simcomp_boundary_flux
+- Sampling of fields on labelled boundary zones to CSV or HDF5 \ref
+  simcomp_boundary_data_writer
 - Lagrangian particle tracking \ref simcomp_lagrangian_particles
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
@@ -258,6 +262,49 @@ Optional fields for this simcomp are:
   "output_filename": "inlet_flux.csv"
 }
 ~~~~~~~~~~~~~~~
+
+### boundary_data_writer {#simcomp_boundary_data_writer}
+Samples registered fields at the boundary points of one or more labelled zones and writes them to a CSV or HDF5 file. Unlike \ref simcomp_field_writer, which writes whole volume fields, this simcomp writes only the points on the selected zones, together with their coordinates, the surface quadrature weight `area` and, optionally, the unit normals. It works for both static and moving (ALE) simulations.
+
+The simcomp only samples fields that are already in the registry. To write a derived quantity, add the simcomp that produces it first and then list its registered field names here. For example, use \ref simcomp_gradient or \ref simcomp_derivative for spatial derivatives, or \ref simcomp_wall_shear_stress for the wall shear stress.
+
+Mandatory fields for this simcomp are:
+- `zone_indices`: the labelled boundary zones to include.
+- `fields`: the registered field names to sample, one column each.
+- `output_filename`: the output file, ending in `.csv`, `.h5` or `.hdf5`.
+
+Optional fields for this simcomp are:
+- `output_normals`: if `true`, include the unit normal components `n_x`, `n_y` and `n_z`. The normals point out of the wall into the fluid. Default `true`.
+- `start_time`: only write samples after this time. Default `0.0`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "boundary_data_writer",
+  "name": "wall_data",
+  "zone_indices": [7],
+  "fields": ["p", "u", "v", "w", "tau_mag"],
+  "output_filename": "wall_data.csv",
+  "output_normals": true,
+  "output_control": "tsteps",
+  "output_value": 50
+}
+~~~~~~~~~~~~~~~
+
+@note Each boundary quadrature point is written once per facet, so points shared between facets appear more than once. This is intended: `area` is the per-facet quadrature weight.
+
+#### Output files
+
+The geometry (coordinates, optional normals and `area`) is written differently for a static and a moving mesh, so that it is stored only where it is actually needed.
+
+On a **static mesh**, the geometry is constant and is written once to a companion file, while the main file holds only `time` and the sampled fields:
+- CSV: geometry in `<name>_mesh.csv` (columns `x, y, z`, then `n_x, n_y, n_z` if `output_normals`, then `area`); data in `<name>.csv` (columns `time` then the sampled fields).
+- HDF5: geometry in the `coordinates` dataset; the samples are appended under the `boundary_data` group.
+
+On a **moving mesh (ALE)**, the geometry changes every step, so it is written inline as leading columns of every sample; in addition, the initial (undeformed) geometry is written once as a reference:
+- CSV: `<name>.csv` has columns `time, x, y, z, [n_x, n_y, n_z,] area`, then the sampled fields; the initial geometry is in `<name>_initial_mesh.csv`.
+- HDF5: the per-sample geometry is written with each sample under the `boundary_data` group, and the initial geometry is in the `initial_coordinates` dataset.
+
+@attention The `mesh` / `initial_mesh` CSV rows correspond one-to-one, in order, with the points of each time block of the data file.
 
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
@@ -617,6 +664,47 @@ When an object undergoes translational or rotational movement, it is often neces
 @attention For ALE simulations, the wall normal vectors are re-calculated at every time step to account for body movement and deformation. If the ALE module is not enabled, this calculation is performed only once during initialization.
 
 @note **Restarting Simulations:** When restarting an ALE simulation, the code automatically calculates the correct current position of the torque center at the restart time. Therefore, if the intended torque calculation point remains the same, the `center` array in the JSON file should **not** be modified between restarts. If you wish to calculate torque around a *new* point upon restart, the `center` array must specify the coordinates of that new point in the **original, undeformed mesh** (at \f$ t=0 \f$), not its current spatial location.
+
+### wall_shear_stress {#simcomp_wall_shear_stress}
+Computes the wall shear stress on one or more labelled boundary zones and registers the result in the field registry. With \f$ \hat{n} \f$ the unit normal pointing out of the fluid domain and \f$ S \f$ the strain rate tensor, the computed quantity is the tangential part of the traction that the fluid exerts on the wall, \f$ \tau = -2 \mu S \cdot \hat{n} + 2 \mu (\hat{n}^T S \hat{n}) \hat{n} \f$. The pressure contribution is purely wall normal and so drops out of the tangential projection. The results are registered as `<computed_field>_x`, `_y`, `_z` and `_mag`, which are zero away from the marked zones.
+
+This simcomp does not write any output of its own. To get the fields onto disk, add a \ref simcomp_field_writer listing the field names to write them to an fld file, or a \ref simcomp_boundary_data_writer to sample them on the boundary and write CSV or HDF5.
+
+@attention For a moving mesh (ALE) simulation: A \ref simcomp_field_writer with an `output_filename` writes to a separate fld series that (as for now) stores the mesh only in its first file, so later files would show the registered stresses on the initial geometry. For an ALE case, either use a \ref simcomp_field_writer **without** an `output_filename`, so the fields are appended to the main fluid output (which re-writes the deformed mesh every step), or use a \ref simcomp_boundary_data_writer, which writes the current wall geometry alongside every sample. On a static mesh this distinction does not matter and either `field_writer` form is fine.
+
+Mandatory fields for this simcomp are:
+- `zone_indices`: the labelled boundary zones to include.
+
+Optional fields for this simcomp are:
+- `computed_field`: base name of the registered fields. Default `"tau"`.
+- `fluid_name`: used to build the default viscosity field name. Default
+  `"fluid"`.
+- `viscosity_field`: the registered field used as \f$ \mu \f$. Default
+  `<fluid_name>_mu_tot`.
+- `components`: which of the four fields to register, given as a list of `"x"`,
+  `"y"`, `"z"` and `"mag"`, or as `"all"` (default). This only controls what is
+  stored, to save memory; the full traction vector is always computed.
+- `average_at_shared_nodes`: if `true`, make the traction continuous across
+  element boundaries. Default `false`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "wall_shear_stress",
+  "name": "wss",
+  "zone_indices": [7],
+  "computed_field": "tau",
+  "components": ["x", "y", "mag"],
+  "average_at_shared_nodes": false,
+  "compute_control": "tsteps",
+  "compute_value": 10
+}
+~~~~~~~~~~~~~~~
+
+@note `<computed_field>_mag` is always the magnitude of the full traction vector, regardless of which components are registered.
+
+@attention When several zones are given to a single simcomp, they are computed into the same fields. To keep two walls apart, use one simcomp per wall with a different `computed_field` for each. Reusing the same `computed_field` in two simcomps is not supported, as each one zeroes the whole field before writing its own zone.
+
+@note For ALE simulations the wall normals are re-gathered at every time step to account for the moving mesh. If the ALE module is not enabled, they are gathered once during initialization.
 
 ### les_model {#simcomp_les_model}
 Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp
