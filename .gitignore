@@ -45,6 +45,7 @@ doc/html
 examples/*/*.nek5000
 examples/*/*0.f0*
 *.chkp
+examples/*/*.h5
 *.lst
 *.metallib
 neko_metallib.c

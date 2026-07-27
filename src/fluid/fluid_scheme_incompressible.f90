@@ -39,7 +39,7 @@ module fluid_scheme_incompressible
   use num_types, only : rp, i8
   use fluid_source_term, only : fluid_source_term_t
   use field, only : field_t
-  use space, only : GLL
+  use space, only : GLL, operator(.ne.)
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only : coef_t
@@ -450,6 +450,15 @@ contains
          (.not. allocated(this%w%x)) .or. &
          (.not. allocated(this%p%x))) then
        call neko_error('Fields are not allocated')
+    end if
+
+    if (this%u%Xh .ne. this%v%Xh .or. &
+         this%u%Xh .ne. this%w%Xh) then
+       call neko_error('Different function spaces for velocity components')
+    end if
+
+    if (this%u%msh%nelv .ne. this%p%msh%nelv) then
+       call neko_error('Velocity and pressure defined on different meshes')
     end if
 
     if (.not. allocated(this%ksp_vel)) then

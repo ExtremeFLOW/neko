@@ -75,6 +75,7 @@ contains
 
     call object%init(msh, coef, gs, params, numerics_params, user, chkp, &
          ulag, vlag, wlag, time_scheme, rho)
+    call object%register_checkpoint(chkp)
 
   end subroutine scalar_scheme_factory
 

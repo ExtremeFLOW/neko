@@ -38,6 +38,7 @@ module scalar_pnpn
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use checkpoint, only : chkp_t
   use field, only : field_t
   use bc_list, only : bc_list_t
@@ -126,6 +127,9 @@ module scalar_pnpn
      procedure, pass(this) :: init => scalar_pnpn_init
      !> To restart
      procedure, pass(this) :: restart => scalar_pnpn_restart
+     !> Register Pn/Pn-specific fields for checkpointing.
+     procedure, pass(this) :: register_checkpoint => &
+          scalar_pnpn_register_checkpoint
      !> Destructor.
      procedure, pass(this) :: free => scalar_pnpn_free
      !> Solve for the current timestep.
@@ -134,7 +138,6 @@ module scalar_pnpn
      procedure, pass(this) :: apply_strong_bcs => scalar_scheme_apply_strong_bcs
      !> Setup the boundary conditions
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
-     !> Sync lag field data to registry for checkpointing
   end type scalar_pnpn_t
 
   interface
@@ -184,6 +187,7 @@ contains
     class(bc_t), pointer :: bc_i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: advection
+    real(kind=rp), pointer :: tlag(:), dtlag(:)
 
     call this%free()
 
@@ -251,21 +255,38 @@ contains
     ! Initialize advection factory
     call json_get_or_default(params, 'advection', advection, .true.)
 
+    call chkp%get_time_history(tlag, dtlag)
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
-         ulag, vlag, wlag, this%chkp%dtlag, &
-         this%chkp%tlag, time_scheme, .not. advection, &
+         ulag, vlag, wlag, dtlag, &
+         tlag, time_scheme, .not. advection, &
          this%slag)
   end subroutine scalar_pnpn_init
+
+  !> Register this scalar scheme with the checkpoint.
+  subroutine scalar_pnpn_register_checkpoint(this, chkp)
+    class(scalar_pnpn_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
+    type(checkpoint_payload_t), pointer :: payload
+
+    payload => chkp%add_payload("scalars/" // trim(this%name))
+    call payload%add_field(this%s)
+    call payload%add_series(this%slag)
+    call payload%add_field(this%abx1)
+    call payload%add_field(this%abx2)
+
+  end subroutine scalar_pnpn_register_checkpoint
 
   ! Restarts the scalar from a checkpoint
   subroutine scalar_pnpn_restart(this, chkp)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
+    real(kind=rp), pointer :: dtlag_ptr(:), tlag_ptr(:)
     integer :: n
     type(field_t), pointer :: temp_field
-    dtlag = chkp%dtlag
-    tlag = chkp%tlag
+    call chkp%get_time_history(tlag_ptr, dtlag_ptr)
+    dtlag = dtlag_ptr
+    tlag = tlag_ptr
 
     n = this%s%dof%size()
 

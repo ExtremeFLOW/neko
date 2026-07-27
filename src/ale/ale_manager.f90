@@ -43,6 +43,7 @@ module ale_manager
   use precon, only : pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use zero_dirichlet, only : zero_dirichlet_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use dofmap, only : dofmap_t
@@ -223,14 +224,6 @@ contains
        end if
        if (oifs) then
           call neko_error("ALE not currently supported with OIFS.")
-       end if
-       if (json%valid_path('case.checkpoint_format')) then
-          call json_get(json, 'case.checkpoint_format', tmp_str)
-          if (trim(tmp_str) /= 'chkp') then
-             call neko_error("ALE is not supported with the '" // &
-                  trim(tmp_str) // &
-                  "' checkpoint format. Please use 'chkp'.")
-          end if
        end if
        neko_ale => this
     end if
@@ -687,7 +680,7 @@ contains
 
                    ! Smooth Step
                 elseif (trim(this%config%bodies(i)%rotation_type) &
-                   .eq. 'smooth_step') then
+                     .eq. 'smooth_step') then
                    if (has_user_rigid_kin .or. has_user_mesh_vel) then
                       call neko_log%message('   Rotation     : ' // &
                            'Smooth Step Control + User')
@@ -1667,11 +1660,11 @@ contains
 
        if (c_associated(coef%dof%x_d)) then
           call device_memcpy(coef%dof%x, coef%dof%x_d, &
-              size(coef%dof%x), HOST_TO_DEVICE, sync = .false.)
+               size(coef%dof%x), HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(coef%dof%y, coef%dof%y_d, &
-              size(coef%dof%y), HOST_TO_DEVICE, sync = .false.)
+               size(coef%dof%y), HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(coef%dof%z, coef%dof%z_d, &
-              size(coef%dof%z), HOST_TO_DEVICE, sync = .false.)
+               size(coef%dof%z), HOST_TO_DEVICE, sync = .false.)
        end if
 
        if (c_associated(coef%Blag_d)) then
@@ -1720,11 +1713,11 @@ contains
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (c_associated(coef%Blag_d)) then
              call device_memcpy(coef%Blag, coef%Blag_d, n, &
-                   HOST_TO_DEVICE, sync = .false.)
+                  HOST_TO_DEVICE, sync = .false.)
           end if
           if (c_associated(coef%Blaglag_d)) then
              call device_memcpy(coef%Blaglag, coef%Blaglag_d, n, &
-                   HOST_TO_DEVICE, sync = .false.)
+                  HOST_TO_DEVICE, sync = .false.)
           end if
           call device_sync()
        end if
@@ -1955,11 +1948,11 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(mesh => coef%dof)
          call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
-            DEVICE_TO_HOST, sync = .false.)
+              DEVICE_TO_HOST, sync = .false.)
          call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
-            DEVICE_TO_HOST, sync = .false.)
+              DEVICE_TO_HOST, sync = .false.)
          call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
-            DEVICE_TO_HOST, sync = .false.)
+              DEVICE_TO_HOST, sync = .false.)
        end associate
     end if
 
@@ -2265,26 +2258,41 @@ contains
   end subroutine get_ale_solver_params_json
 
   ! Register ALE fields for checkpointing.
+  !! @param coef Coefficients containing the mesh-dependent arrays.
+  !! @param checkpoint Checkpoint in which to register the ALE payload.
   subroutine register_checkpoint_fields(this, coef, checkpoint)
     class(ale_manager_t), intent(inout), target :: this
     type(coef_t), intent(inout) :: coef
     type(chkp_t), intent(inout) :: checkpoint
-    integer :: i
+    type(checkpoint_payload_t), pointer :: payload
 
     if (.not. this%active) return
 
-    ! Add checkpoint data for ALE.
-    call checkpoint%add_ale(coef%dof%x, coef%dof%y, &
-         coef%dof%z, coef%dof%x_d, coef%dof%y_d, &
-         coef%dof%z_d, &
-         coef%Blag, coef%Blaglag, coef%Blag_d, coef%Blaglag_d, &
-         this%wm_x, this%wm_y, this%wm_z, &
-         this%wm_x_lag, this%wm_y_lag, &
-         this%wm_z_lag, &
-         this%global_pivot_pos, &
-         this%global_pivot_vel_lag, &
-         this%global_basis_pos, &
-         this%global_basis_vel_lag)
+    payload => checkpoint%add_payload("ale")
+    call payload%add_field(this%wm_x)
+    call payload%add_field(this%wm_y)
+    call payload%add_field(this%wm_z)
+    call payload%add_series(this%wm_x_lag)
+    call payload%add_series(this%wm_y_lag)
+    call payload%add_series(this%wm_z_lag)
+    call payload%add_mesh_array("mesh_x", coef%dof%x, coef%msh, coef%Xh, &
+         coef%dof%x_d)
+    call payload%add_mesh_array("mesh_y", coef%dof%y, coef%msh, coef%Xh, &
+         coef%dof%y_d)
+    call payload%add_mesh_array("mesh_z", coef%dof%z, coef%msh, coef%Xh, &
+         coef%dof%z_d)
+    call payload%add_mesh_array("B_lag", coef%Blag, coef%msh, coef%Xh, &
+         coef%Blag_d)
+    call payload%add_mesh_array("B_laglag", coef%Blaglag, coef%msh, &
+         coef%Xh, coef%Blaglag_d)
+    call payload%add_array("pivot_position", this%global_pivot_pos, &
+         replicated = .true.)
+    call payload%add_array("pivot_velocity_lag", &
+         this%global_pivot_vel_lag, replicated = .true.)
+    call payload%add_array("basis_position", this%global_basis_pos, &
+         replicated = .true.)
+    call payload%add_array("basis_velocity_lag", &
+         this%global_basis_vel_lag, replicated = .true.)
 
   end subroutine register_checkpoint_fields
 end module ale_manager

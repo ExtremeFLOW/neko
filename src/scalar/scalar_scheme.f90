@@ -35,6 +35,7 @@
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
@@ -68,6 +69,7 @@ module scalar_scheme
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
   use device, only : device_memcpy, DEVICE_TO_HOST
+  use scalar_ic, only : set_scalar_ic
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -108,8 +110,8 @@ module scalar_scheme
      class(pc_t), allocatable :: pc
      !> List of boundary conditions, including the user one.
      type(bc_list_t) :: bcs
-     !> Case paramters.
-     type(json_file), pointer :: params
+     !> Case parameters.
+     type(json_file), pointer :: params => null()
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
@@ -141,6 +143,12 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
+     !> Set the initial condition.
+     procedure, pass(this) :: set_initial_condition => &
+          scalar_scheme_set_initial_condition
+     !> Register the scheme fields for checkpointing.
+     procedure, pass(this) :: register_checkpoint => &
+          scalar_scheme_register_checkpoint
      !> Set lambda and cp
      procedure, pass(this) :: set_material_properties => &
           scalar_scheme_set_material_properties
@@ -390,7 +398,11 @@ contains
 
     this%Xh => this%u%Xh
     this%dm_Xh => this%u%dof
-    this%params => params
+    if (associated(this%params)) then
+       deallocate(this%params)
+    end if
+    allocate(this%params)
+    this%params = params
     this%msh => msh
 
     call neko_registry%add_field(this%dm_Xh, this%name, &
@@ -452,6 +464,45 @@ contains
 
   end subroutine scalar_scheme_init
 
+  !> Set the initial condition.
+  !! @param user Type with user-defined procedures.
+  !! @param scalar_index Index of the scalar in a field file.
+  subroutine scalar_scheme_set_initial_condition(this, user, scalar_index)
+    class(scalar_scheme_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+    integer, intent(in) :: scalar_index
+    character(len=:), allocatable :: ic_type
+    type(json_file) :: ic_params
+
+    call json_get(this%params, 'initial_condition.type', ic_type)
+    call json_get(this%params, 'initial_condition', ic_params)
+
+    if (trim(ic_type) .ne. 'user') then
+       call set_scalar_ic(this%s, this%c_Xh, this%gs_Xh, ic_type, &
+            ic_params, scalar_index)
+    else
+       call set_scalar_ic(this%name, this%s, this%c_Xh, this%gs_Xh, &
+            user%initial_conditions)
+    end if
+
+    call ic_params%destroy()
+    deallocate(ic_type)
+
+  end subroutine scalar_scheme_set_initial_condition
+
+  !> Register this scalar scheme with the checkpoint.
+  !! @param chkp Checkpoint object to register with.
+  subroutine scalar_scheme_register_checkpoint(this, chkp)
+    class(scalar_scheme_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
+    type(checkpoint_payload_t), pointer :: payload
+
+    payload => chkp%add_payload("scalars/" // trim(this%name))
+    call payload%add_field(this%s)
+    call payload%add_series(this%slag)
+
+  end subroutine scalar_scheme_register_checkpoint
+
 
   !> Deallocate a scalar formulation
   subroutine scalar_scheme_free(this)
@@ -465,7 +516,10 @@ contains
     nullify(this%dm_Xh)
     nullify(this%gs_Xh)
     nullify(this%c_Xh)
-    nullify(this%params)
+    if (associated(this%params)) then
+       deallocate(this%params)
+       nullify(this%params)
+    end if
 
     if (allocated(this%ksp)) then
        call this%ksp%free()
