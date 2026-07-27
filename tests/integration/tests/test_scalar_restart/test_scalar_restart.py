@@ -5,6 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 
 from conftest import BACKEND, RP
@@ -61,6 +62,14 @@ def _compare_with_reference(actual, reference):
         )
 
     assert np.all(actual["tracer_final_residual"] <= SCALAR_TOLERANCE)
+
+
+def _hdf5_enabled(neko_dir):
+    """Return whether the configured Neko build includes HDF5 support."""
+    makefile = neko_dir / "Makefile"
+    if not makefile.exists():
+        return False
+    return "-DHAVE_HDF5=1" in makefile.read_text(encoding="utf-8")
 
 
 def test_scalar_restart(launcher_script, request, tmp_path):
@@ -152,3 +161,76 @@ def test_scalar_restart(launcher_script, request, tmp_path):
         )
 
     assert np.any(part1_data["tracer_start_residual"] > 0.0)
+
+
+def test_scalar_hdf5_restart_different_polynomial_order(
+    launcher_script, request, tmp_path
+):
+    """Restart an HDF5 scalar checkpoint at a higher polynomial order."""
+    neko = get_neko()
+    neko_dir = Path(get_neko_dir()).resolve()
+    if not _hdf5_enabled(neko_dir):
+        pytest.skip("Neko was configured without HDF5 support")
+
+    test_dir = (
+        neko_dir / "tests" / "integration" / "tests" / "test_scalar_restart"
+    )
+    nprocs = configure_nprocs(2)
+    checkpoint_dir_context = TemporaryDirectory(
+        prefix="neko-scalar-hdf5-", dir="/tmp"
+    )
+    request.addfinalizer(checkpoint_dir_context.cleanup)
+    checkpoint_dir = Path(checkpoint_dir_context.name)
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+
+    with (test_dir / "scalar_restart.case").open(encoding="utf-8") as stream:
+        case = json.load(stream)
+
+    case["case"]["mesh_file"] = str(
+        neko_dir / "tests" / "integration" / "meshes" / "small_test_cyl.nmsh"
+    )
+    case["case"]["output_directory"] = str(checkpoint_dir)
+    case["case"]["checkpoint_format"] = "hdf5"
+
+    part1_case = tmp_path / "scalar_hdf5_restart_part1.case"
+    with part1_case.open("w", encoding="utf-8") as stream:
+        json.dump(case, stream, indent=2)
+
+    part1_log = log_dir / f"{request.node.name}_part1.log"
+    result = run_neko(
+        launcher_script, nprocs, str(part1_case), neko, str(part1_log)
+    )
+    assert result.returncode == 0, (
+        f"neko process failed with exit code {result.returncode}"
+    )
+
+    checkpoints = sorted(checkpoint_dir.glob("scalar_restart*.h5"))
+    assert len(checkpoints) == 3, (
+        "Expected initial, t=0.05, and t=0.10 checkpoints, "
+        f"found {checkpoints}"
+    )
+
+    case["case"]["restart_file"] = str(checkpoints[1])
+    case["case"]["output_checkpoints"] = False
+    del case["case"]["checkpoint_control"]
+    del case["case"]["checkpoint_value"]
+    case["case"]["numerics"]["polynomial_order"] = 4
+    case["case"]["time"]["end_time"] = 0.06
+
+    part2_case = tmp_path / "scalar_hdf5_restart_part2.case"
+    with part2_case.open("w", encoding="utf-8") as stream:
+        json.dump(case, stream, indent=2)
+
+    part2_log = log_dir / f"{request.node.name}_part2.log"
+    result = run_neko(
+        launcher_script, nprocs, str(part2_case), neko, str(part2_log)
+    )
+    assert result.returncode == 0, (
+        f"neko process failed with exit code {result.returncode}"
+    )
+
+    part2_data = _load_log(part2_log, tmp_path / "hdf5_part2.csv")
+    assert np.all(np.isfinite(part2_data["tracer_start_residual"]))
+    assert np.all(np.isfinite(part2_data["tracer_final_residual"]))
+    assert np.all(part2_data["tracer_final_residual"] <= SCALAR_TOLERANCE)

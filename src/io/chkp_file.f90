@@ -37,7 +37,8 @@ module chkp_file
   use generic_file, only : generic_file_t
   use field_series, only : field_series_t
   use checkpoint, only : chkp_t
-  use checkpoint_payload, only : checkpoint_payload_t, checkpoint_array_t
+  use checkpoint_payload, only : checkpoint_payload_t, checkpoint_array_t, &
+       checkpoint_mesh_array_t
   use num_types, only : rp, dp, i8
   use field, only : field_t
   use dofmap, only : dofmap_t
@@ -117,7 +118,7 @@ contains
 
   !> Write a Neko legacy checkpoint.
   !! @param data Checkpoint data to write.
-  !! @param t Optional simulation time.
+  !! @param[optional] t Simulation time.
   subroutine chkp_file_write(this, data, t)
     class(chkp_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
@@ -171,7 +172,7 @@ contains
     select type (data)
     type is (chkp_t)
 
-       if (data%legacy_scalar_count() .gt. 1) then
+       if (data%scalar_payload_count() .gt. 1) then
           call neko_error("The legacy .chkp format supports at most one " // &
                "scalar; use HDF5 checkpointing for multiple scalars")
        end if
@@ -610,7 +611,7 @@ contains
     select type (data)
     type is (chkp_t)
 
-       if (data%legacy_scalar_count() .gt. 1) then
+       if (data%scalar_payload_count() .gt. 1) then
           call neko_error("The legacy .chkp format supports at most one " // &
                "scalar; use HDF5 checkpointing for multiple scalars")
        end if
@@ -1004,6 +1005,7 @@ contains
     type(legacy_checkpoint_view_t), intent(out) :: view
     type(checkpoint_payload_t), pointer :: payload
     type(checkpoint_array_t), pointer :: array
+    type(checkpoint_mesh_array_t), pointer :: mesh_array
     character(len=:), allocatable :: scalar_name
     integer :: i
 
@@ -1050,16 +1052,16 @@ contains
     view%wm_y_lag => payload%find_series("wm_y")
     view%wm_z_lag => payload%find_series("wm_z")
 
-    array => payload%find_array("mesh_x")
-    if (associated(array)) view%msh_x => array%x
-    array => payload%find_array("mesh_y")
-    if (associated(array)) view%msh_y => array%x
-    array => payload%find_array("mesh_z")
-    if (associated(array)) view%msh_z => array%x
-    array => payload%find_array("B_lag")
-    if (associated(array)) view%Blag => array%x
-    array => payload%find_array("B_laglag")
-    if (associated(array)) view%Blaglag => array%x
+    mesh_array => payload%find_mesh_array("mesh_x")
+    if (associated(mesh_array)) view%msh_x => mesh_array%x
+    mesh_array => payload%find_mesh_array("mesh_y")
+    if (associated(mesh_array)) view%msh_y => mesh_array%x
+    mesh_array => payload%find_mesh_array("mesh_z")
+    if (associated(mesh_array)) view%msh_z => mesh_array%x
+    mesh_array => payload%find_mesh_array("B_lag")
+    if (associated(mesh_array)) view%Blag => mesh_array%x
+    mesh_array => payload%find_mesh_array("B_laglag")
+    if (associated(mesh_array)) view%Blaglag => mesh_array%x
     array => payload%find_array("pivot_position")
     if (associated(array)) view%pivot_pos => array%x
     array => payload%find_array("pivot_velocity_lag")
