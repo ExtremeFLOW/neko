@@ -449,7 +449,7 @@ contains
 
     select type (data)
     type is (chkp_t)
-       call data%previous_Xh%init(GLL, lx, lx)
+       call data%previous_Xh%init(GLL, lx, lx, lx)
     end select
 
     if (associated(tlag) .and. associated(dtlag)) then
