@@ -54,7 +54,7 @@ module boundary_data
   implicit none
   private
 
-  !> Collects data on the boundary points of one or more labelled zones 
+  !> Collects data on the boundary points of one or more labelled zones
   !! and perform some bounary operations.
   type, public :: boundary_data_t
      !> SEM coefficients.

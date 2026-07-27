@@ -626,7 +626,7 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
-    
+
     call neko_scratch_registry%request_field(fx, work_indices(1), .false.)
     call neko_scratch_registry%request_field(fy, work_indices(2), .false.)
     call neko_scratch_registry%request_field(fz, work_indices(3), .false.)

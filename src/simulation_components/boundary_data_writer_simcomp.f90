@@ -59,11 +59,11 @@ module boundary_data_writer_simcomp
   implicit none
   private
 
-  !> A simulation component that writes registry fields sampled on labelled 
+  !> A simulation component that writes registry fields sampled on labelled
   !! boundary zones.
   !! The component builds a mask over the requested labelled zones and, at
   !! every output, samples the requested quantities at the boundary GLL points.
-  !! The result is written either as CSV or as HDF5. 
+  !! The result is written either as CSV or as HDF5.
   type, public, extends(simulation_component_t) :: boundary_data_writer_t
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
