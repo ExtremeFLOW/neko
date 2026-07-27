@@ -34,13 +34,11 @@
 module checkpoint
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, dp
-  use field_series, only : field_series_t
   use checkpoint_payload, only : checkpoint_payload_t, &
        checkpoint_payload_ptr_t, checkpoint_array_t
-  use space, only : space_t, operator(.ne.)
+  use space, only : space_t
   use device, only : device_memcpy, DEVICE_TO_HOST, HOST_TO_DEVICE, &
        device_sync, glb_cmd_queue
-  use field, only : field_t
   use utils, only : neko_error
   use mesh, only : mesh_t
   use global_interpolation, only : GLOB_INTERP_TOL
@@ -69,10 +67,6 @@ module checkpoint
      procedure, pass(this) :: sync_host => chkp_sync_host
      !> Synchronise registered checkpoint data from host to device.
      procedure, pass(this) :: sync_device => chkp_sync_device
-     !> Register the fluid fields.
-     procedure, pass(this) :: add_fluid => chkp_add_fluid
-     !> Register the lagged velocity fields.
-     procedure, pass(this) :: add_lag => chkp_add_lag
      !> Add or return a checkpoint payload.
      procedure, pass(this) :: add_payload => chkp_add_payload
      !> Return a checkpoint payload by name.
@@ -218,57 +212,6 @@ contains
     end if
 
   end subroutine chkp_sync_device
-
-  !> Register the fluid fields.
-  !! @param u X component of the fluid velocity.
-  !! @param v Y component of the fluid velocity.
-  !! @param w Z component of the fluid velocity.
-  !! @param p Fluid pressure.
-  subroutine chkp_add_fluid(this, u, v, w, p)
-    class(chkp_t), intent(inout) :: this
-    type(field_t), target :: u
-    type(field_t), target :: v
-    type(field_t), target :: w
-    type(field_t), target :: p
-    type(checkpoint_payload_t), pointer :: payload
-
-    ! Check that all velocity components are defined on the same
-    ! function space
-    if ( u%Xh .ne. v%Xh .or. &
-         u%Xh .ne. w%Xh ) then
-       call neko_error('Different function spaces for each velocity component')
-    end if
-
-    ! Check that both velocity and pressure is defined on the same mesh
-    if ( u%msh%nelv .ne. p%msh%nelv ) then
-       call neko_error('Velocity and pressure defined on different meshes')
-    end if
-
-    payload => this%add_payload("fluid")
-    call payload%add_field(u)
-    call payload%add_field(v)
-    call payload%add_field(w)
-    call payload%add_field(p)
-
-  end subroutine chkp_add_fluid
-
-  !> Register the lagged velocity fields.
-  !! @param ulag Lagged X velocity fields.
-  !! @param vlag Lagged Y velocity fields.
-  !! @param wlag Lagged Z velocity fields.
-  subroutine chkp_add_lag(this, ulag, vlag, wlag)
-    class(chkp_t), intent(inout) :: this
-    type(field_series_t), target :: ulag
-    type(field_series_t), target :: vlag
-    type(field_series_t), target :: wlag
-    type(checkpoint_payload_t), pointer :: payload
-
-    payload => this%add_payload("fluid")
-    call payload%add_series(ulag)
-    call payload%add_series(vlag)
-    call payload%add_series(wlag)
-
-  end subroutine chkp_add_lag
 
   !> Return the number of registered scalar payloads.
   !! @return Number of registered scalar payloads.

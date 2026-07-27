@@ -434,17 +434,21 @@ contains
          .not. advection)
     ! Should be in init_base maybe?
     this%chkp => chkp
-    ! This is probably scheme specific
-    call this%chkp%add_fluid(this%u, this%v, this%w, this%p)
-
+    ! Register the scheme state for checkpointing.
     payload => this%chkp%add_payload("fluid")
+    call payload%add_field(this%u)
+    call payload%add_field(this%v)
+    call payload%add_field(this%w)
+    call payload%add_field(this%p)
     call payload%add_field(this%abx1)
     call payload%add_field(this%abx2)
     call payload%add_field(this%aby1)
     call payload%add_field(this%aby2)
     call payload%add_field(this%abz1)
     call payload%add_field(this%abz2)
-    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
+    call payload%add_series(this%ulag)
+    call payload%add_series(this%vlag)
+    call payload%add_series(this%wlag)
 
     !> Set the number of schwarz iterations to perform each time step.
     call json_get_or_default(params, 'case.fluid.schwarz_iterations', &
