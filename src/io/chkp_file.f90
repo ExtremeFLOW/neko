@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,14 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Neko checkpoint file format
-!! @details this module defines interface to read/write Neko's checkpoint files
+!> Neko legacy checkpoint file format.
+!! @details This module defines the interface for reading and writing `.chkp`
+!! files.
 module chkp_file
   use generic_file, only : generic_file_t
   use field_series, only : field_series_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t, checkpoint_array_t
   use num_types, only : rp, dp, i8
   use field, only : field_t
   use dofmap, only : dofmap_t
@@ -57,28 +59,65 @@ module chkp_file
   implicit none
   private
 
-  !> Interface for Neko checkpoint files
+  !> Temporary view of the payloads required by the positional .chkp format.
+  type :: legacy_checkpoint_view_t
+     !> Fluid and scalar fields.
+     type(field_t), pointer :: u => null(), v => null(), w => null()
+     type(field_t), pointer :: p => null(), s => null()
+     !> Fluid and scalar extrapolation fields.
+     type(field_t), pointer :: abx1 => null(), abx2 => null()
+     type(field_t), pointer :: aby1 => null(), aby2 => null()
+     type(field_t), pointer :: abz1 => null(), abz2 => null()
+     type(field_t), pointer :: abs1 => null(), abs2 => null()
+     !> Mesh-velocity fields.
+     type(field_t), pointer :: wm_x => null(), wm_y => null(), wm_z => null()
+     !> Fluid, scalar, and mesh-velocity field histories.
+     type(field_series_t), pointer :: ulag => null(), vlag => null()
+     type(field_series_t), pointer :: wlag => null(), slag => null()
+     type(field_series_t), pointer :: wm_x_lag => null()
+     type(field_series_t), pointer :: wm_y_lag => null()
+     type(field_series_t), pointer :: wm_z_lag => null()
+     !> Time history.
+     real(kind=rp), pointer :: tlag(:) => null(), dtlag(:) => null()
+     !> Mesh coordinates and lagged mass matrices.
+     real(kind=rp), pointer :: msh_x(:) => null(), msh_y(:) => null()
+     real(kind=rp), pointer :: msh_z(:) => null(), Blag(:) => null()
+     real(kind=rp), pointer :: Blaglag(:) => null()
+     !> Rigid-body state.
+     real(kind=rp), pointer :: pivot_pos(:) => null()
+     real(kind=rp), pointer :: pivot_vel_lag(:) => null()
+     real(kind=rp), pointer :: basis_pos(:) => null()
+     real(kind=rp), pointer :: basis_vel_lag(:) => null()
+  end type legacy_checkpoint_view_t
+
+  !> Interface for Neko legacy checkpoint files.
   type, public, extends(generic_file_t) :: chkp_file_t
-     !> Function space in the loaded checkpoint file
+     !> Function space in the loaded checkpoint file.
      type(space_t), pointer :: chkp_Xh
-     !> Function space used in the simulation
+     !> Function space used in the simulation.
      type(space_t), pointer :: sim_Xh
-     !> Interpolation when only changing lx
+     !> Interpolation used when only the polynomial order changes.
      type(interpolator_t) :: space_interp
-     !> Interpolation for different meshes
+     !> Interpolation used when the mesh changes.
      type(global_interpolation_t) :: global_interp
-     !> Flag if previous mesh difers from current.
+     !> Whether the checkpoint mesh differs from the simulation mesh.
      logical :: mesh2mesh
    contains
+     !> Load a Neko legacy checkpoint.
      procedure :: read => chkp_file_read
+     !> Read and optionally interpolate one legacy checkpoint field.
      procedure :: read_field => chkp_read_field
+     !> Write a Neko legacy checkpoint.
      procedure :: write => chkp_file_write
+     !> Set whether checkpoint files may be overwritten.
      procedure :: set_overwrite => chkp_file_set_overwrite
   end type chkp_file_t
 
 contains
 
-  !> Write a Neko checkpoint
+  !> Write a Neko legacy checkpoint.
+  !! @param data Checkpoint data to write.
+  !! @param t Optional simulation time.
   subroutine chkp_file_write(this, data, t)
     class(chkp_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
@@ -102,15 +141,15 @@ contains
     type(field_series_t), pointer :: wm_y_lag => null()
     type(field_series_t), pointer :: wm_z_lag => null()
     type(field_series_t), pointer :: slag => null()
-    real(kind=rp), pointer :: msh_x(:,:,:,:) => null()
-    real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
-    real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
-    real(kind=rp), pointer :: Blag(:,:,:,:) => null()
-    real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
+    real(kind=rp), pointer :: msh_x(:) => null()
+    real(kind=rp), pointer :: msh_y(:) => null()
+    real(kind=rp), pointer :: msh_z(:) => null()
+    real(kind=rp), pointer :: Blag(:) => null()
+    real(kind=rp), pointer :: Blaglag(:) => null()
     real(kind=rp), pointer :: pivot_pos(:) => null()
-    real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
+    real(kind=rp), pointer :: pivot_vel_lag(:) => null()
     real(kind=rp), pointer :: basis_pos(:) => null()
-    real(kind=rp), pointer :: basis_vel_lag(:,:) => null()
+    real(kind=rp), pointer :: basis_vel_lag(:) => null()
     real(kind=rp), pointer :: dtlag(:), tlag(:)
     type(mesh_t), pointer :: msh
     type(MPI_Status) :: status
@@ -121,6 +160,7 @@ contains
     logical :: write_ale
     logical :: write_scalarlag, write_abvel
     integer :: i
+    type(legacy_checkpoint_view_t) :: view
 
     if (present(t)) then
        time = real(t, kind = dp)
@@ -131,42 +171,48 @@ contains
     select type (data)
     type is (chkp_t)
 
-       if ( .not. associated(data%u) .or. &
-            .not. associated(data%v) .or. &
-            .not. associated(data%w) .or. &
-            .not. associated(data%p) ) then
+       if (data%legacy_scalar_count() .gt. 1) then
+          call neko_error("The legacy .chkp format supports at most one " // &
+               "scalar; use HDF5 checkpointing for multiple scalars")
+       end if
+
+       call chkp_build_legacy_view(data, view)
+       if ( .not. associated(view%u) .or. &
+            .not. associated(view%v) .or. &
+            .not. associated(view%w) .or. &
+            .not. associated(view%p) ) then
           call neko_error('Checkpoint not initialized')
        end if
 
-       u => data%u
-       v => data%v
-       w => data%w
-       p => data%p
+       u => view%u
+       v => view%v
+       w => view%w
+       p => view%p
        msh => u%msh
 
        optional_fields = 0
 
-       if (associated(data%ulag)) then
-          ulag => data%ulag
-          vlag => data%vlag
-          wlag => data%wlag
+       if (associated(view%ulag)) then
+          ulag => view%ulag
+          vlag => view%vlag
+          wlag => view%wlag
           write_lag = .true.
           optional_fields = optional_fields + 1
        else
           write_lag = .false.
        end if
 
-       if (associated(data%s)) then
-          s => data%s
+       if (associated(view%s)) then
+          s => view%s
           write_scalar = .true.
           optional_fields = optional_fields + 2
        else
           write_scalar = .false.
        end if
 
-       if (associated(data%tlag)) then
-          tlag => data%tlag
-          dtlag => data%dtlag
+       if (associated(view%tlag)) then
+          tlag => view%tlag
+          dtlag => view%dtlag
           write_dtlag = .true.
           optional_fields = optional_fields + 4
        else
@@ -174,43 +220,43 @@ contains
        end if
 
        write_abvel = .false.
-       if (associated(data%abx1)) then
-          abx1 => data%abx1
-          abx2 => data%abx2
-          aby1 => data%aby1
-          aby2 => data%aby2
-          abz1 => data%abz1
-          abz2 => data%abz2
+       if (associated(view%abx1)) then
+          abx1 => view%abx1
+          abx2 => view%abx2
+          aby1 => view%aby1
+          aby2 => view%aby2
+          abz1 => view%abz1
+          abz2 => view%abz2
           optional_fields = optional_fields + 8
           write_abvel = .true.
        end if
 
        write_scalarlag = .false.
-       if (associated(data%abs1)) then
-          slag => data%slag
-          abs1 => data%abs1
-          abs2 => data%abs2
+       if (associated(view%abs1)) then
+          slag => view%slag
+          abs1 => view%abs1
+          abs2 => view%abs2
           optional_fields = optional_fields + 16
           write_scalarlag = .true.
        end if
 
        write_ale = .false.
-       if (associated(data%wm_x)) then
-          msh_x => data%msh_x
-          msh_y => data%msh_y
-          msh_z => data%msh_z
-          wm_x => data%wm_x
-          wm_y => data%wm_y
-          wm_z => data%wm_z
-          wm_x_lag => data%wm_x_lag
-          wm_y_lag => data%wm_y_lag
-          wm_z_lag => data%wm_z_lag
-          Blag => data%Blag
-          Blaglag => data%Blaglag
-          pivot_pos => data%pivot_pos
-          pivot_vel_lag => data%pivot_vel_lag
-          basis_pos => data%basis_pos
-          basis_vel_lag => data%basis_vel_lag
+       if (associated(view%wm_x)) then
+          msh_x => view%msh_x
+          msh_y => view%msh_y
+          msh_z => view%msh_z
+          wm_x => view%wm_x
+          wm_y => view%wm_y
+          wm_z => view%wm_z
+          wm_x_lag => view%wm_x_lag
+          wm_y_lag => view%wm_y_lag
+          wm_z_lag => view%wm_z_lag
+          Blag => view%Blag
+          Blaglag => view%Blaglag
+          pivot_pos => view%pivot_pos
+          pivot_vel_lag => view%pivot_vel_lag
+          basis_pos => view%basis_pos
+          basis_vel_lag => view%basis_vel_lag
           optional_fields = optional_fields + 32
           write_ale = .true.
        end if
@@ -505,7 +551,8 @@ contains
 
   end subroutine chkp_file_write
 
-  !> Load a checkpoint from file
+  !> Load a Neko legacy checkpoint.
+  !! @param data Checkpoint data to populate.
   subroutine chkp_file_read(this, data)
     class(chkp_file_t) :: this
     class(*), target, intent(inout) :: data
@@ -531,15 +578,15 @@ contains
     type(field_t), pointer :: aby1, aby2
     type(field_t), pointer :: abz1, abz2
     type(field_t), pointer :: abs1, abs2
-    real(kind=rp), pointer :: Blag(:,:,:,:) => null()
-    real(kind=rp), pointer :: Blaglag(:,:,:,:) => null()
-    real(kind=rp), pointer :: msh_x(:,:,:,:) => null()
-    real(kind=rp), pointer :: msh_y(:,:,:,:) => null()
-    real(kind=rp), pointer :: msh_z(:,:,:,:) => null()
+    real(kind=rp), pointer :: Blag(:) => null()
+    real(kind=rp), pointer :: Blaglag(:) => null()
+    real(kind=rp), pointer :: msh_x(:) => null()
+    real(kind=rp), pointer :: msh_y(:) => null()
+    real(kind=rp), pointer :: msh_z(:) => null()
     real(kind=rp), pointer :: pivot_pos(:) => null()
-    real(kind=rp), pointer :: pivot_vel_lag(:,:) => null()
+    real(kind=rp), pointer :: pivot_vel_lag(:) => null()
     real(kind=rp), pointer :: basis_pos(:) => null()
-    real(kind=rp), pointer :: basis_vel_lag(:,:) => null()
+    real(kind=rp), pointer :: basis_vel_lag(:) => null()
     real(kind=rp), allocatable :: x_coord(:,:,:,:)
     real(kind=rp), allocatable :: y_coord(:,:,:,:)
     real(kind=rp), allocatable :: z_coord(:,:,:,:)
@@ -556,23 +603,30 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     integer :: i, e
     type(dofmap_t) :: dof
+    type(legacy_checkpoint_view_t) :: view
 
     call this%check_exists()
 
     select type (data)
     type is (chkp_t)
 
-       if ( .not. associated(data%u) .or. &
-            .not. associated(data%v) .or. &
-            .not. associated(data%w) .or. &
-            .not. associated(data%p) ) then
+       if (data%legacy_scalar_count() .gt. 1) then
+          call neko_error("The legacy .chkp format supports at most one " // &
+               "scalar; use HDF5 checkpointing for multiple scalars")
+       end if
+
+       call chkp_build_legacy_view(data, view)
+       if ( .not. associated(view%u) .or. &
+            .not. associated(view%v) .or. &
+            .not. associated(view%w) .or. &
+            .not. associated(view%p) ) then
           call neko_error('Checkpoint not initialized')
        end if
 
-       u => data%u
-       v => data%v
-       w => data%w
-       p => data%p
+       u => view%u
+       v => view%v
+       w => view%w
+       p => view%p
        this%chkp_Xh => data%previous_Xh
        !> If checkpoint used another mesh
        if (allocated(data%previous_mesh%elements)) then
@@ -584,63 +638,63 @@ contains
           this%mesh2mesh = .false.
        end if
 
-       if (associated(data%ulag)) then
-          ulag => data%ulag
-          vlag => data%vlag
-          wlag => data%wlag
+       if (associated(view%ulag)) then
+          ulag => view%ulag
+          vlag => view%vlag
+          wlag => view%wlag
           read_lag = .true.
        else
           read_lag = .false.
        end if
 
-       if (associated(data%s)) then
-          s => data%s
+       if (associated(view%s)) then
+          s => view%s
           read_scalar = .true.
        else
           read_scalar = .false.
        end if
-       if (associated(data%dtlag)) then
-          dtlag => data%dtlag
-          tlag => data%tlag
+       if (associated(view%dtlag)) then
+          dtlag => view%dtlag
+          tlag => view%tlag
           read_dtlag = .true.
        else
           read_dtlag = .false.
        end if
        read_abvel = .false.
-       if (associated(data%abx1)) then
-          abx1 => data%abx1
-          abx2 => data%abx2
-          aby1 => data%aby1
-          aby2 => data%aby2
-          abz1 => data%abz1
-          abz2 => data%abz2
+       if (associated(view%abx1)) then
+          abx1 => view%abx1
+          abx2 => view%abx2
+          aby1 => view%aby1
+          aby2 => view%aby2
+          abz1 => view%abz1
+          abz2 => view%abz2
           read_abvel = .true.
        end if
        read_scalarlag = .false.
-       if (associated(data%abs1)) then
-          slag => data%slag
-          abs1 => data%abs1
-          abs2 => data%abs2
+       if (associated(view%abs1)) then
+          slag => view%slag
+          abs1 => view%abs1
+          abs2 => view%abs2
           read_scalarlag = .true.
        end if
 
        read_ale = .false.
-       if (associated(data%wm_x)) then
-          msh_x => data%msh_x
-          msh_y => data%msh_y
-          msh_z => data%msh_z
-          wm_x => data%wm_x
-          wm_y => data%wm_y
-          wm_z => data%wm_z
-          wm_x_lag => data%wm_x_lag
-          wm_y_lag => data%wm_y_lag
-          wm_z_lag => data%wm_z_lag
-          Blag => data%Blag
-          Blaglag => data%Blaglag
-          pivot_pos => data%pivot_pos
-          pivot_vel_lag => data%pivot_vel_lag
-          basis_pos => data%basis_pos
-          basis_vel_lag => data%basis_vel_lag
+       if (associated(view%wm_x)) then
+          msh_x => view%msh_x
+          msh_y => view%msh_y
+          msh_z => view%msh_z
+          wm_x => view%wm_x
+          wm_y => view%wm_y
+          wm_z => view%wm_z
+          wm_x_lag => view%wm_x_lag
+          wm_y_lag => view%wm_y_lag
+          wm_z_lag => view%wm_z_lag
+          Blag => view%Blag
+          Blaglag => view%Blaglag
+          pivot_pos => view%pivot_pos
+          pivot_vel_lag => view%pivot_vel_lag
+          basis_pos => view%basis_pos
+          basis_vel_lag => view%basis_vel_lag
           read_ale = .true.
        end if
 
@@ -905,6 +959,11 @@ contains
 
   end subroutine chkp_file_read
 
+  !> Read and optionally interpolate one legacy checkpoint field.
+  !! @param fh Open MPI file handle.
+  !! @param byte_offset Byte offset of the rank-local field data.
+  !! @param x Simulation-space field storage to populate.
+  !! @param nel Number of local elements.
   subroutine chkp_read_field(this, fh, byte_offset, x, nel)
     class(chkp_file_t) :: this
     type(MPI_File) :: fh
@@ -937,6 +996,103 @@ contains
     deallocate(read_array)
   end subroutine chkp_read_field
 
+  !> Build the fixed legacy view from format-independent payloads.
+  !! @param chkp Format-independent checkpoint registrations.
+  !! @param view Positional view required by the `.chkp` implementation.
+  subroutine chkp_build_legacy_view(chkp, view)
+    type(chkp_t), intent(in) :: chkp
+    type(legacy_checkpoint_view_t), intent(out) :: view
+    type(checkpoint_payload_t), pointer :: payload
+    type(checkpoint_array_t), pointer :: array
+    character(len=:), allocatable :: scalar_name
+    integer :: i
+
+    payload => chkp_find_payload(chkp, "fluid")
+    if (.not. associated(payload)) then
+       call neko_error("Checkpoint not initialized")
+    end if
+    view%u => payload%find_field("u")
+    view%v => payload%find_field("v")
+    view%w => payload%find_field("w")
+    view%p => payload%find_field("p")
+    view%abx1 => payload%find_field("abx1")
+    view%abx2 => payload%find_field("abx2")
+    view%aby1 => payload%find_field("aby1")
+    view%aby2 => payload%find_field("aby2")
+    view%abz1 => payload%find_field("abz1")
+    view%abz2 => payload%find_field("abz2")
+    view%ulag => payload%find_series("u")
+    view%vlag => payload%find_series("v")
+    view%wlag => payload%find_series("w")
+
+    call chkp%get_time_history(view%tlag, view%dtlag)
+
+    ! Only one scalar assumed, we grab the first one we find.
+    do i = 1, chkp%payload_count()
+       if (index(trim(chkp%payloads(i)%ptr%name), "scalars/") .eq. 1) then
+          payload => chkp%payloads(i)%ptr
+          scalar_name = payload%name(len("scalars/") + 1:)
+          view%s => payload%find_field(scalar_name)
+          view%slag => payload%find_series(scalar_name)
+          view%abs1 => payload%find_field(trim(scalar_name) // "_abx1")
+          view%abs2 => payload%find_field(trim(scalar_name) // "_abx2")
+          exit
+       end if
+    end do
+
+    payload => chkp_find_payload(chkp, "ale")
+    if (.not. associated(payload)) return
+
+    view%wm_x => payload%find_field("wm_x")
+    view%wm_y => payload%find_field("wm_y")
+    view%wm_z => payload%find_field("wm_z")
+    view%wm_x_lag => payload%find_series("wm_x")
+    view%wm_y_lag => payload%find_series("wm_y")
+    view%wm_z_lag => payload%find_series("wm_z")
+
+    array => payload%find_array("mesh_x")
+    if (associated(array)) view%msh_x => array%x
+    array => payload%find_array("mesh_y")
+    if (associated(array)) view%msh_y => array%x
+    array => payload%find_array("mesh_z")
+    if (associated(array)) view%msh_z => array%x
+    array => payload%find_array("B_lag")
+    if (associated(array)) view%Blag => array%x
+    array => payload%find_array("B_laglag")
+    if (associated(array)) view%Blaglag => array%x
+    array => payload%find_array("pivot_position")
+    if (associated(array)) view%pivot_pos => array%x
+    array => payload%find_array("pivot_velocity_lag")
+    if (associated(array)) view%pivot_vel_lag => array%x
+    array => payload%find_array("basis_position")
+    if (associated(array)) view%basis_pos => array%x
+    array => payload%find_array("basis_velocity_lag")
+    if (associated(array)) view%basis_vel_lag => array%x
+
+  end subroutine chkp_build_legacy_view
+
+  !> Find a payload without making its absence an error.
+  !! @param chkp Checkpoint to search.
+  !! @param name Payload path to find.
+  !! @return Pointer to the payload, or a disassociated pointer if absent.
+  function chkp_find_payload(chkp, name) result(payload)
+    type(chkp_t), intent(in) :: chkp
+    character(len=*), intent(in) :: name
+    type(checkpoint_payload_t), pointer :: payload
+    integer :: i
+
+    nullify(payload)
+    do i = 1, chkp%payload_count()
+       if (trim(chkp%payloads(i)%ptr%name) .eq. trim(name)) then
+          payload => chkp%payloads(i)%ptr
+          return
+       end if
+    end do
+
+  end function chkp_find_payload
+
+  !> Set whether checkpoint files may be overwritten.
+  !! @param overwrite Whether existing files may be overwritten.
   subroutine chkp_file_set_overwrite(this, overwrite)
     class(chkp_file_t), intent(inout) :: this
     logical, intent(in) :: overwrite
