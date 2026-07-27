@@ -1,0 +1,203 @@
+module test_checkpoint_payload
+  use pfunit
+  use checkpoint_payload, only : checkpoint_payload_t, checkpoint_array_t, &
+       checkpoint_mesh_array_t
+  use device, only : device_init, device_finalize
+  use dofmap, only : dofmap_t
+  use field, only : field_t
+  use field_series, only : field_series_t
+  use mesh, only : mesh_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp, i8
+  use space, only : space_t, GLL
+  use, intrinsic :: iso_c_binding, only : c_associated, c_loc
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_checkpoint_payload_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_checkpoint_payload_case
+
+contains
+
+  !> Initialize the device backend when required.
+  subroutine setUp(this)
+    class(test_checkpoint_payload_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  !> Finalize the device backend when required.
+  subroutine tearDown(this)
+    class(test_checkpoint_payload_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Verify payload initialization, empty counts, and cleanup.
+  @test
+  subroutine test_init_and_free(this)
+    class(test_checkpoint_payload_case), intent(inout) :: this
+    type(checkpoint_payload_t) :: payload
+    real(kind=rp), target :: values(2)
+
+    call payload%init("scalars/temperature")
+
+    @assertEqual("scalars/temperature", payload%name)
+    @assertEqual(0, payload%field_count())
+    @assertEqual(0, payload%series_count())
+    @assertEqual(0, payload%array_count())
+    @assertEqual(0, payload%mesh_array_count())
+
+    values = [1.0_rp, 2.0_rp]
+    call payload%add_array("values", values, replicated = .true.)
+    call payload%free()
+
+    @assertFalse(allocated(payload%name))
+    @assertEqual(0, payload%field_count())
+    @assertEqual(0, payload%series_count())
+    @assertEqual(0, payload%array_count())
+    @assertEqual(0, payload%mesh_array_count())
+    @assertEqual(1.0_rp, values(1))
+    @assertEqual(2.0_rp, values(2))
+  end subroutine test_init_and_free
+
+  !> Verify that fields and field series retain their native identity.
+  @test
+  subroutine test_field_and_series_registration(this)
+    class(test_checkpoint_payload_case), intent(inout) :: this
+    type(checkpoint_payload_t) :: payload
+    type(dofmap_t), target :: dof
+    type(field_t), target :: fld
+    type(field_series_t), target :: history
+    type(mesh_t), target :: msh
+    type(space_t), target :: Xh
+    type(field_t), pointer :: found_field
+    type(field_series_t), pointer :: found_series
+
+    msh%nelv = 1
+    call Xh%init(GLL, 2, 2, 2)
+    dof%msh => msh
+    dof%Xh => Xh
+    call fld%init(dof, "temperature")
+    call history%init(fld, 2)
+
+    call payload%init("scalar")
+    call payload%add_field(fld)
+    call payload%add_series(history)
+
+    @assertEqual(1, payload%field_count())
+    @assertEqual(1, payload%series_count())
+
+    found_field => payload%find_field("temperature")
+    found_series => payload%find_series("temperature")
+    @assertTrue(associated(found_field, fld))
+    @assertTrue(associated(found_series, history))
+    @assertFalse(associated(payload%find_field("missing")))
+    @assertFalse(associated(payload%find_series("missing")))
+
+    call payload%free()
+    call history%free()
+    call fld%free()
+    nullify(dof%msh)
+    nullify(dof%Xh)
+    call Xh%free()
+  end subroutine test_field_and_series_registration
+
+  !> Verify array metadata and rank-independent flattened host views.
+  @test
+  subroutine test_array_registration(this)
+    class(test_checkpoint_payload_case), intent(inout) :: this
+    type(checkpoint_payload_t) :: payload
+    type(checkpoint_array_t), pointer :: array
+    real(kind=rp), target :: x1(2), x2(2,3)
+    real(kind=rp), target :: x3(2,1,2), x4(1,2,1,2)
+    real(kind=rp), target :: device_storage
+    integer :: i
+
+    x1 = [1.0_rp, 2.0_rp]
+    x2 = reshape([(real(i, rp), i = 1, size(x2))], shape(x2))
+    x3 = reshape([(real(i, rp), i = 1, size(x3))], shape(x3))
+    x4 = reshape([(real(i, rp), i = 1, size(x4))], shape(x4))
+    device_storage = 0.0_rp
+
+    call payload%init("arrays")
+    call payload%add_array("rank1", x1, replicated = .true.)
+    call payload%add_array("rank2", x2, 12_i8, 3_i8)
+    call payload%add_array("rank3", x3, replicated = .true.)
+    call payload%add_array("rank4", x4, device_ptr = &
+         c_loc(device_storage), replicated = .true.)
+
+    @assertEqual(4, payload%array_count())
+    @assertFalse(associated(payload%find_array("missing")))
+
+    array => payload%find_array("rank1")
+    @assertTrue(associated(array))
+    @assertTrue(array%replicated)
+    @assertEqual(2_i8, array%global_count)
+    @assertEqual(0_i8, array%offset)
+    @assertEqual(2.0_rp, array%x(2))
+
+    array => payload%find_array("rank2")
+    @assertFalse(array%replicated)
+    @assertEqual(12_i8, array%global_count)
+    @assertEqual(3_i8, array%offset)
+    @assertEqual(size(x2), size(array%x))
+    @assertEqual(x2(2,2), array%x(4))
+    array%x(5) = 42.0_rp
+    @assertEqual(42.0_rp, x2(1,3))
+
+    array => payload%find_array("rank3")
+    @assertEqual(size(x3), size(array%x))
+    @assertEqual(x3(2,1,2), array%x(4))
+
+    array => payload%find_array("rank4")
+    @assertEqual(size(x4), size(array%x))
+    @assertEqual(x4(1,2,1,2), array%x(4))
+    @assertTrue(c_associated(array%x_d, c_loc(device_storage)))
+
+    call payload%free()
+  end subroutine test_array_registration
+
+  !> Verify registration of four-dimensional nodal mesh arrays.
+  @test
+  subroutine test_mesh_array_registration(this)
+    class(test_checkpoint_payload_case), intent(inout) :: this
+    type(checkpoint_payload_t) :: payload
+    type(checkpoint_mesh_array_t), pointer :: array
+    type(mesh_t), target :: msh
+    type(space_t), target :: Xh
+    real(kind=rp), target :: values(2,2,2,2)
+    integer :: i
+
+    msh%nelv = 2
+    call Xh%init(GLL, 2, 2, 2)
+    values = reshape([(real(i, rp), i = 1, size(values))], shape(values))
+
+    call payload%init("ale")
+    call payload%add_mesh_array("mesh_x", values, msh, Xh)
+
+    @assertEqual(1, payload%mesh_array_count())
+    @assertFalse(associated(payload%find_mesh_array("missing")))
+
+    array => payload%find_mesh_array("mesh_x")
+    @assertTrue(associated(array))
+    @assertEqual("mesh_x", array%name)
+    @assertTrue(associated(array%msh, msh))
+    @assertTrue(associated(array%Xh, Xh))
+    @assertEqual(size(values), size(array%x))
+    @assertEqual(values(2,2,2,2), array%x(size(values)))
+    array%x(1) = 42.0_rp
+    @assertEqual(42.0_rp, values(1,1,1,1))
+
+    call payload%free()
+    call Xh%free()
+  end subroutine test_mesh_array_registration
+
+end module test_checkpoint_payload

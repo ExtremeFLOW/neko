@@ -40,6 +40,7 @@ SUBDIRS = tuple\
 	  point_interpolation\
 	  templates/parallel\
 	  boundary_operation\
+	  checkpoint_payload\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -84,6 +85,7 @@ TESTS = device/device_test\
 	point_interpolation/point_interpolation_test\
 	templates/parallel/parallel_test\
 	boundary_operation/boundary_operation_test\
+	checkpoint_payload/checkpoint_payload_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -169,6 +171,7 @@ EXTRA_DIST = \
 	boundary_operation/test_boundary_operation.pf\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
+	checkpoint_payload/test_checkpoint_payload.pf\
 	templates/serial/test_serial.pf
 
 if ENABLE_HDF5
