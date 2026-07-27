@@ -39,12 +39,11 @@ module boundary_data
   use vector, only : vector_t
   use registry, only : neko_registry
   use mesh, only : NEKO_MSH_MAX_ZLBLS
+  use field_math, only : field_rzero
   use vector_math, only : vector_masked_gather_copy_0, &
        vector_masked_scatter_copy_0, vector_face_masked_gather_copy_0, &
        vector_glsc2, vector_glsc3, vector_glsum, &
        vector_vdot3, vector_subcol3, vector_cmult, vector_copy
-  use math, only : rzero
-  use device_math, only : device_rzero
   use device, only : DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
   use ale_manager, only : neko_ale
@@ -241,14 +240,17 @@ contains
   end subroutine boundary_data_free
 
   !> Re-gather the coordinates, normals and surface weights.
-  subroutine boundary_data_update_geometry(this, force)
+  subroutine boundary_data_update_geometry(this, force, to_host)
     class(boundary_data_t), intent(inout) :: this
     logical, intent(in), optional :: force
-    logical :: forced
+    logical, intent(in), optional :: to_host
+    logical :: forced, copy_down
     integer :: n
 
     forced = .false.
     if (present(force)) forced = force
+    copy_down = .true.
+    if (present(to_host)) copy_down = to_host
 
     if (.not. (forced .or. this%ale_enabled)) return
     if (this%n_local .le. 0) return
@@ -282,7 +284,7 @@ contains
        call vector_cmult(this%n_z, -1.0_rp)
     end if
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. copy_down) then
        call this%x%copy_from(DEVICE_TO_HOST, .false.)
        call this%y%copy_from(DEVICE_TO_HOST, .false.)
        call this%z%copy_from(DEVICE_TO_HOST, .false.)
@@ -430,15 +432,9 @@ contains
 
     n = this%coef%dof%size()
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(f%x_d, n)
-    else
-       call rzero(f%x, n)
-    end if
+    call field_rzero(f)
 
-    if (this%n_local .le. 0) return
-
-    call this%get(trim(name), this%work)
+    call this%get(trim(name), this%work, to_host = .false.)
     call vector_masked_scatter_copy_0(f%x, this%work, this%bc%msk, n, &
          this%n_local)
 
@@ -460,13 +456,7 @@ contains
 
     n = this%coef%dof%size()
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(f%x_d, n)
-    else
-       call rzero(f%x, n)
-    end if
-
-    if (this%n_local .le. 0) return
+    call field_rzero(f)
 
     call vector_masked_scatter_copy_0(f%x, v, this%bc%msk, n, this%n_local)
 
@@ -479,7 +469,7 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp) :: val
 
-    call this%get(trim(name), this%work)
+    call this%get(trim(name), this%work, to_host = .false.)
     val = vector_glsc2(this%work, this%area)
 
   end function boundary_data_integrate_by_name
@@ -491,7 +481,7 @@ contains
     type(field_t), intent(in) :: f
     real(kind=rp) :: val
 
-    call this%get(f, this%work)
+    call this%get(f, this%work, to_host = .false.)
     val = vector_glsc2(this%work, this%area)
 
   end function boundary_data_integrate_by_field
@@ -611,11 +601,11 @@ contains
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: q
 
-    call this%get(u, this%work)
+    call this%get(u, this%work, to_host = .false.)
     q = vector_glsc3(this%work, this%n_x, this%area)
-    call this%get(v, this%work)
+    call this%get(v, this%work, to_host = .false.)
     q = q + vector_glsc3(this%work, this%n_y, this%area)
-    call this%get(w, this%work)
+    call this%get(w, this%work, to_host = .false.)
     q = q + vector_glsc3(this%work, this%n_z, this%area)
 
   end function boundary_data_flux_by_field
@@ -629,11 +619,11 @@ contains
     character(len=*), intent(in) :: u, v, w
     real(kind=rp) :: q
 
-    call this%get(trim(u), this%work)
+    call this%get(trim(u), this%work, to_host = .false.)
     q = vector_glsc3(this%work, this%n_x, this%area)
-    call this%get(trim(v), this%work)
+    call this%get(trim(v), this%work, to_host = .false.)
     q = q + vector_glsc3(this%work, this%n_y, this%area)
-    call this%get(trim(w), this%work)
+    call this%get(trim(w), this%work, to_host = .false.)
     q = q + vector_glsc3(this%work, this%n_z, this%area)
 
   end function boundary_data_flux_by_name
@@ -648,7 +638,6 @@ contains
   subroutine boundary_data_tangential(this, vx, vy, vz)
     class(boundary_data_t), intent(inout) :: this
     type(vector_t), intent(inout) :: vx, vy, vz
-    if (this%n_local .le. 0) return
 
     if (vx%size() .lt. this%n_local .or. vy%size() .lt. this%n_local .or. &
          vz%size() .lt. this%n_local) then
@@ -656,7 +645,6 @@ contains
             "are shorter than the number of boundary points")
     end if
 
-    ! `work` is private, so a caller cannot have passed it in as vx, vy or vz.
     call vector_vdot3(this%work, vx, vy, vz, this%n_x, this%n_y, this%n_z)
     call vector_subcol3(vx, this%work, this%n_x)
     call vector_subcol3(vy, this%work, this%n_y)
@@ -673,7 +661,7 @@ contains
     type(field_t), intent(in) :: f
     real(kind=rp) :: fn(3)
 
-    call this%get(f, this%work)
+    call this%get(f, this%work, to_host = .false.)
     fn(1) = vector_glsc3(this%work, this%n_x, this%area)
     fn(2) = vector_glsc3(this%work, this%n_y, this%area)
     fn(3) = vector_glsc3(this%work, this%n_z, this%area)
@@ -687,7 +675,7 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp) :: fn(3)
 
-    call this%get(trim(name), this%work)
+    call this%get(trim(name), this%work, to_host = .false.)
     fn(1) = vector_glsc3(this%work, this%n_x, this%area)
     fn(2) = vector_glsc3(this%work, this%n_y, this%area)
     fn(3) = vector_glsc3(this%work, this%n_z, this%area)

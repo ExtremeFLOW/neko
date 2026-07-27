@@ -40,6 +40,7 @@ module wall_shear_stress_simcomp
   use time_state, only : time_state_t
   use case, only : case_t
   use field, only : field_t
+  use field_math, only : field_copy
   use registry, only : neko_registry
   use scratch_registry, only : neko_scratch_registry
   use coefs, only : coef_t
@@ -47,10 +48,8 @@ module wall_shear_stress_simcomp
   use boundary_data, only : boundary_data_t
   use operators, only : strain_rate
   use drag_torque, only : calc_force_array, device_calc_force_array
-  use math, only : vdot3, sqrt_inplace, rzero, col2, copy
-  use device_math, only : device_vdot3, device_sqrt_inplace, device_rzero, &
-       device_col2, device_copy
-  use gather_scatter, only : GS_OP_ADD
+  use math, only : vdot3, sqrt_inplace
+  use device_math, only : device_vdot3, device_sqrt_inplace
   use neko_config, only : NEKO_BCKND_DEVICE
   use ale_manager, only : neko_ale
   use logger, only : neko_log, LOG_SIZE
@@ -98,9 +97,6 @@ module wall_shear_stress_simcomp
      type(vector_t) :: t1, t2, t3
      !> Pressure traction.
      type(vector_t) :: pt1, pt2, pt3
-     !> Whether to mass-average the traction into a continuous field at shared
-     !! nodes. Off by default.
-     logical :: average_shared = .false.
      !> Which traction components are registered as fields.
      logical :: want_x = .true.
      logical :: want_y = .true.
@@ -141,7 +137,6 @@ contains
     integer, allocatable :: zone_indices(:)
     character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     character(len=NEKO_VARNAME_LEN), allocatable :: components(:)
-    logical :: average_shared
     logical :: want_x, want_y, want_z, want_mag
     integer :: i
 
@@ -150,8 +145,6 @@ contains
     call json_get_or_default(json, "fluid_name", fluid_name, "fluid")
     call json_get_or_default(json, "viscosity_field", viscosity_field, &
          trim(fluid_name) // "_mu_tot")
-    call json_get_or_default(json, "average_at_shared_nodes", &
-         average_shared, .false.)
     call json_get(json, "zone_indices", zone_indices)
 
     ! Parse the component selection. Default is all four.
@@ -176,7 +169,7 @@ contains
     end do
 
     call this%init_common(name, computed_field, viscosity_field, &
-         zone_indices, average_shared, want_x, want_y, want_z, want_mag, &
+         zone_indices, want_x, want_y, want_z, want_mag, &
          case%fluid%c_Xh)
 
   end subroutine wall_shear_stress_init_from_json
@@ -287,7 +280,7 @@ contains
   subroutine wall_shear_stress_init_from_controllers(this, name, case, order, &
        preprocess_controller, compute_controller, output_controller, &
        computed_field, viscosity_field, zone_indices, coef, &
-       average_shared, want_x, want_y, want_z, want_mag)
+       want_x, want_y, want_z, want_mag)
     class(wall_shear_stress_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -299,15 +292,10 @@ contains
     character(len=*), intent(in) :: viscosity_field
     integer, intent(in) :: zone_indices(:)
     type(coef_t), intent(inout), target :: coef
-    logical, intent(in), optional :: average_shared
     logical, intent(in), optional :: want_x, want_y, want_z, want_mag
     character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
-    logical :: average_shared_
     logical :: wx, wy, wz, wm
     integer :: i
-
-    average_shared_ = .false.
-    if (present(average_shared)) average_shared_ = average_shared
 
     ! Default to all four components when not specified.
     wx = .true.
@@ -334,7 +322,7 @@ contains
     end do
 
     call this%init_common(name, computed_field, viscosity_field, &
-         zone_indices, average_shared_, wx, wy, wz, wm, coef)
+         zone_indices, wx, wy, wz, wm, coef)
 
   end subroutine wall_shear_stress_init_from_controllers
 
@@ -357,7 +345,7 @@ contains
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, computed_field, &
        viscosity_field, zone_indices, coef, &
-       average_shared, want_x, want_y, want_z, want_mag)
+       want_x, want_y, want_z, want_mag)
     class(wall_shear_stress_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -372,15 +360,10 @@ contains
     character(len=*), intent(in) :: viscosity_field
     integer, intent(in) :: zone_indices(:)
     type(coef_t), intent(inout), target :: coef
-    logical, intent(in), optional :: average_shared
     logical, intent(in), optional :: want_x, want_y, want_z, want_mag
     character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
-    logical :: average_shared_
     logical :: wx, wy, wz, wm
     integer :: i
-
-    average_shared_ = .false.
-    if (present(average_shared)) average_shared_ = average_shared
 
     wx = .true.
     wy = .true.
@@ -407,7 +390,7 @@ contains
     end do
 
     call this%init_common(name, computed_field, viscosity_field, &
-         zone_indices, average_shared_, wx, wy, wz, wm, coef)
+         zone_indices, wx, wy, wz, wm, coef)
 
   end subroutine wall_shear_stress_init_from_controllers_properties
 
@@ -418,14 +401,13 @@ contains
   !! @param zone_indices Labelled zones to include.
   !! @param coef The SEM coefficients.
   subroutine wall_shear_stress_init_common(this, name, computed_field, &
-       viscosity_field, zone_indices, average_shared, want_x, want_y, &
+       viscosity_field, zone_indices, want_x, want_y, &
        want_z, want_mag, coef)
     class(wall_shear_stress_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     character(len=*), intent(in) :: computed_field
     character(len=*), intent(in) :: viscosity_field
     integer, intent(in) :: zone_indices(:)
-    logical, intent(in) :: average_shared
     logical, intent(in) :: want_x, want_y, want_z, want_mag
     type(coef_t), intent(inout), target :: coef
     character(len=LOG_SIZE) :: log_buf
@@ -434,7 +416,6 @@ contains
     this%name = name
     this%coef => coef
     this%computed_field = computed_field
-    this%average_shared = average_shared
     this%want_x = want_x
     this%want_y = want_y
     this%want_z = want_z
@@ -515,8 +496,6 @@ contains
     if (this%want_mag) log_buf = trim(log_buf) // " " // &
          trim(computed_field) // "_mag"
     call neko_log%message(log_buf)
-    write(log_buf, '(A,L1)') "Average at shared nodes: ", this%average_shared
-    call neko_log%message(log_buf)
     write(log_buf, '(A,L1)') "Moving mesh (ALE): ", this%ale_enabled
     call neko_log%message(log_buf)
     call neko_log%end_section()
@@ -578,7 +557,7 @@ contains
     n_pts = this%bdata%n_local
 
     ! A no-op on a static mesh, so no ALE test is needed here.
-    call this%bdata%update_geometry()
+    call this%bdata%update_geometry(to_host = .false.)
 
     ! Strain rate over the whole field, then gather it at the mask.
     call neko_scratch_registry%request_field(s11, temp_indices(1), .false.)
@@ -619,8 +598,8 @@ contains
                this%mu_msk%x, n_pts)
        end if
 
-       ! Remove the wall-normal part, leaving the tangential traction. The
-       ! projection is invariant to the sign of the normal.
+       ! Remove the wall-normal part, leaving the tangential traction.
+       ! The projection is invariant to the sign of the normal.
        call this%bdata%tangential(this%t1, this%t2, this%t3)
     end if
 
@@ -631,50 +610,15 @@ contains
     call neko_scratch_registry%request_field(fy, work_indices(2), .false.)
     call neko_scratch_registry%request_field(fz, work_indices(3), .false.)
 
-    ! scatter the vectors in to fields.
+    ! Scatter the vectors into fields. 
     call this%bdata%scatter(this%t1, fx)
     call this%bdata%scatter(this%t2, fy)
     call this%bdata%scatter(this%t3, fz)
 
-    !
-    ! Optionally make the traction continuous across element boundaries, using
-    ! the same way that `curl` uses.
-    if (this%average_shared) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_col2(fx%x_d, this%coef%B_d, n)
-          call device_col2(fy%x_d, this%coef%B_d, n)
-          call device_col2(fz%x_d, this%coef%B_d, n)
-       else
-          call col2(fx%x, this%coef%B, n)
-          call col2(fy%x, this%coef%B, n)
-          call col2(fz%x, this%coef%B, n)
-       end if
-
-       call this%coef%gs_h%op(fx, GS_OP_ADD)
-       call this%coef%gs_h%op(fy, GS_OP_ADD)
-       call this%coef%gs_h%op(fz, GS_OP_ADD)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_col2(fx%x_d, this%coef%Binv_d, n)
-          call device_col2(fy%x_d, this%coef%Binv_d, n)
-          call device_col2(fz%x_d, this%coef%Binv_d, n)
-       else
-          call col2(fx%x, this%coef%Binv, n)
-          call col2(fy%x, this%coef%Binv, n)
-          call col2(fz%x, this%coef%Binv, n)
-       end if
-    end if
-
     ! Copy the work fields into the selected registered fields.
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       if (this%want_x) call device_copy(this%tau_x%x_d, fx%x_d, n)
-       if (this%want_y) call device_copy(this%tau_y%x_d, fy%x_d, n)
-       if (this%want_z) call device_copy(this%tau_z%x_d, fz%x_d, n)
-    else
-       if (this%want_x) call copy(this%tau_x%x, fx%x, n)
-       if (this%want_y) call copy(this%tau_y%x, fy%x, n)
-       if (this%want_z) call copy(this%tau_z%x, fz%x, n)
-    end if
+    if (this%want_x) call field_copy(this%tau_x, fx)
+    if (this%want_y) call field_copy(this%tau_y, fy)
+    if (this%want_z) call field_copy(this%tau_z, fz)
 
     ! The magnitude
     if (this%want_mag) then

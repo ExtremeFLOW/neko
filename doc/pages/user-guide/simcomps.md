@@ -684,8 +684,6 @@ Optional fields for this simcomp are:
 - `components`: which of the four fields to register, given as a list of `"x"`,
   `"y"`, `"z"` and `"mag"`, or as `"all"` (default). This only controls what is
   stored, to save memory; the full traction vector is always computed.
-- `average_at_shared_nodes`: if `true`, make the traction continuous across
-  element boundaries. Default `false`.
 
 ~~~~~~~~~~~~~~~{.json}
 {
@@ -694,7 +692,6 @@ Optional fields for this simcomp are:
   "zone_indices": [7],
   "computed_field": "tau",
   "components": ["x", "y", "mag"],
-  "average_at_shared_nodes": false,
   "compute_control": "tsteps",
   "compute_value": 10
 }
