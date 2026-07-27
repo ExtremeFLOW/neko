@@ -508,6 +508,7 @@ contains
     call this%mat_out%free()
 
     call this%fields%free()
+    call this%fout%free()
 
     if (allocated(this%zone_indices)) deallocate(this%zone_indices)
     if (allocated(this%col_names)) deallocate(this%col_names)
