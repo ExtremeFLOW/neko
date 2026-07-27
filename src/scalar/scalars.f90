@@ -150,8 +150,7 @@ contains
 
        ! Allocate the scalar fields
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
-            numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho, &
-            i, n_scalars)
+            numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
 
@@ -179,7 +178,7 @@ contains
 
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
-         user, chkp, ulag, vlag, wlag, time_scheme, rho, 1, 1)
+         user, chkp, ulag, vlag, wlag, time_scheme, rho)
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields

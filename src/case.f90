@@ -298,8 +298,7 @@ contains
     lx = lx + 1 ! add 1 to get number of gll points
     ! Set time lags in chkp
     call this%chkp%init()
-    this%chkp%tlag => this%time%tlag
-    this%chkp%dtlag => this%time%dtlag
+    call this%chkp%add_time_state(this%time)
     call this%fluid%init(this%msh, lx, this%params, this%user, this%chkp)
 
 

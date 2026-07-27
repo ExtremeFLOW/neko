@@ -35,6 +35,7 @@
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
@@ -264,11 +265,8 @@ module scalar_scheme
      !! @param ulag, vlag, wlag The lagged velocity fields.
      !! @param time_scheme The time scheme controller.
      !! @param rho The density field.
-     !! @param checkpoint_index Position of the scalar in checkpoint storage.
-     !! @param n_scalars Total number of scalar schemes.
      module subroutine scalar_scheme_factory(object, msh, coef, gs, params, &
-          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho, &
-          checkpoint_index, n_scalars)
+          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
        class(scalar_scheme_t), allocatable, intent(inout) :: object
        type(mesh_t), target, intent(in) :: msh
        type(coef_t), target, intent(in) :: coef
@@ -280,8 +278,6 @@ module scalar_scheme
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
        type(field_t), target, intent(in) :: rho
-       integer, intent(in) :: checkpoint_index
-       integer, intent(in) :: n_scalars
      end subroutine scalar_scheme_factory
   end interface
 
@@ -496,16 +492,14 @@ contains
 
   !> Register this scalar scheme with the checkpoint.
   !! @param chkp Checkpoint object to register with.
-  !! @param index Position of the scalar in checkpoint storage.
-  !! @param n_scalars Total number of scalar schemes.
-  subroutine scalar_scheme_register_checkpoint(this, chkp, index, n_scalars)
+  subroutine scalar_scheme_register_checkpoint(this, chkp)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    integer, intent(in) :: index
-    integer, intent(in) :: n_scalars
+    type(checkpoint_payload_t), pointer :: payload
 
-    call chkp%add_scalar(this%s, this%slag, index = index, &
-         n_scalars = n_scalars)
+    payload => chkp%add_payload("scalars/" // trim(this%name))
+    call payload%add_field(this%s)
+    call payload%add_series(this%slag)
 
   end subroutine scalar_scheme_register_checkpoint
 
@@ -818,8 +812,7 @@ contains
 
   !> Constructor. Initializes the object.
   subroutine scalar_scheme_wrapper_init(this, msh, coef, gs, params, &
-       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho, &
-       checkpoint_index, n_scalars)
+       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalar_scheme_wrapper_t), intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
@@ -831,13 +824,10 @@ contains
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     type(field_t), target, intent(in) :: rho
-    integer, intent(in) :: checkpoint_index
-    integer, intent(in) :: n_scalars
 
     call this%free()
     call scalar_scheme_factory(this%scalar, msh, coef, gs, params, &
-         numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho, &
-         checkpoint_index, n_scalars)
+         numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
   end subroutine scalar_scheme_wrapper_init
 
