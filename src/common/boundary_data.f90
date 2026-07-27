@@ -211,7 +211,7 @@ contains
     end if
 
     ! The first gather always runs.
-    call this%update_geometry(force = .true.)
+    call this%update_geometry(force = .true., to_host = .true.)
 
   end subroutine boundary_data_init
 
@@ -240,17 +240,19 @@ contains
   end subroutine boundary_data_free
 
   !> Re-gather the coordinates, normals and surface weights.
+  !! @param force Gather even on a static mesh.
+  !! @param to_host Whether to copy the gathered geometry to the host.
   subroutine boundary_data_update_geometry(this, force, to_host)
     class(boundary_data_t), intent(inout) :: this
     logical, intent(in), optional :: force
     logical, intent(in), optional :: to_host
-    logical :: forced, copy_down
+    logical :: forced, copy_to_host
     integer :: n
 
     forced = .false.
     if (present(force)) forced = force
-    copy_down = .true.
-    if (present(to_host)) copy_down = to_host
+    copy_to_host = .false.
+    if (present(to_host)) copy_to_host = to_host
 
     if (.not. (forced .or. this%ale_enabled)) return
     if (this%n_local .le. 0) return
@@ -284,7 +286,7 @@ contains
        call vector_cmult(this%n_z, -1.0_rp)
     end if
 
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. copy_down) then
+    if ( (NEKO_BCKND_DEVICE .eq. 1) .and. copy_to_host) then
        call this%x%copy_from(DEVICE_TO_HOST, .false.)
        call this%y%copy_from(DEVICE_TO_HOST, .false.)
        call this%z%copy_from(DEVICE_TO_HOST, .false.)
@@ -317,6 +319,7 @@ contains
   !! `n_x`, `n_y`, `n_z`, `area`, or the name of a field in the registry.
   !! @param name The requested quantity.
   !! @param v The vector to fill.
+  !! @param to_host Whether to copy `v` to the host.
   subroutine boundary_data_get_vector_by_name(this, name, v, to_host)
     class(boundary_data_t), intent(inout) :: this
     character(len=*), intent(in) :: name
@@ -366,16 +369,16 @@ contains
 
   !> Copy a vector to the host.
   !! @param v The vector.
-  !! @param to_host Whether to copy down. Absent means yes.
+  !! @param to_host Whether to copy to the host.
   subroutine boundary_data_sync_host(v, to_host)
     type(vector_t), intent(inout) :: v
     logical, intent(in), optional :: to_host
-    logical :: copy_down
+    logical :: copy_to_host
 
-    copy_down = .true.
-    if (present(to_host)) copy_down = to_host
+    copy_to_host = .false.
+    if (present(to_host)) copy_to_host = to_host
 
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. copy_down) then
+    if ( (NEKO_BCKND_DEVICE .eq. 1) .and. copy_to_host) then
        call v%copy_from(DEVICE_TO_HOST, .true.)
     end if
 
@@ -384,12 +387,13 @@ contains
   !> Sample a field at the boundary points into a vector.
   !! @param f The source field, which must live on the same dofmap.
   !! @param v The vector to fill.
+  !! @param to_host Whether to copy `v` to the host.
   subroutine boundary_data_get_vector_by_field(this, f, v, to_host)
     class(boundary_data_t), intent(inout) :: this
     type(field_t), intent(in) :: f
     type(vector_t), intent(inout) :: v
     logical, intent(in), optional :: to_host
-    logical :: copy_down
+    logical :: copy_to_host
 
     if (.not. associated(f%dof, this%coef%dof)) then
        call neko_error("boundary_data: the field '" // trim(f%name) // &
@@ -406,10 +410,10 @@ contains
     call vector_masked_gather_copy_0(v, f%x, this%bc%msk, &
          this%coef%dof%size(), this%n_local)
 
-    copy_down = .true.
-    if (present(to_host)) copy_down = to_host
+    copy_to_host = .false.
+    if (present(to_host)) copy_to_host = to_host
 
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. copy_down) then
+    if ( (NEKO_BCKND_DEVICE .eq. 1) .and. copy_to_host) then
        call v%copy_from(DEVICE_TO_HOST, .true.)
     end if
 

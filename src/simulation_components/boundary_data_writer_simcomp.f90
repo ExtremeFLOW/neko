@@ -537,7 +537,7 @@ contains
 
     if (this%n_local .le. 0) return
 
-    call this%bdata%get(f, this%work)
+    call this%bdata%get(f, this%work, to_host = .true.)
 
     do i = 1, this%n_local
        this%local_buffer(col, i) = this%work%x(i)
@@ -560,7 +560,7 @@ contains
     if (.not. this%output_controller%check(time)) return
 
     ! A no-op on a static mesh.
-    call this%bdata%update_geometry()
+    call this%bdata%update_geometry(to_host = .true.)
 
     ! Fill the local buffer
     col = 0
