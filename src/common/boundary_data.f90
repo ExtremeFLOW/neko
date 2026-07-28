@@ -466,6 +466,30 @@ contains
 
   end subroutine boundary_data_scatter
 
+  !> Remove the wall normal part of a vector at the boundary points (in-place).
+  !! @note The result does not depend on the sign of the normal, since the
+  !! normal enters twice, so it is the same whether the stored normals are the
+  !! outward or not.
+  !! @param vx The x component, overwritten with its tangential part.
+  !! @param vy The y component, overwritten with its tangential part.
+  !! @param vz The z component, overwritten with its tangential part.
+  subroutine boundary_data_tangential(this, vx, vy, vz)
+    class(boundary_data_t), intent(inout) :: this
+    type(vector_t), intent(inout) :: vx, vy, vz
+
+    if (vx%size() .lt. this%n_local .or. vy%size() .lt. this%n_local .or. &
+         vz%size() .lt. this%n_local) then
+       call neko_error("boundary_data: the vectors passed to tangential " // &
+            "are shorter than the number of boundary points")
+    end if
+
+    call vector_vdot3(this%work, vx, vy, vz, this%n_x, this%n_y, this%n_z)
+    call vector_subcol3(vx, this%work, this%n_x)
+    call vector_subcol3(vy, this%work, this%n_y)
+    call vector_subcol3(vz, this%work, this%n_z)
+
+  end subroutine boundary_data_tangential
+
   !> Surface integral of a named quantity over the zones.
   !! @param name The quantity to integrate.
   function boundary_data_integrate_by_name(this, name) result(val)
@@ -631,30 +655,6 @@ contains
     q = q + vector_glsc3(this%work, this%n_z, this%area)
 
   end function boundary_data_flux_by_name
-
-  !> Remove the wall normal part of a vector at the boundary points (in-place).
-  !! @note The result does not depend on the sign of the normal, since the
-  !! normal enters twice, so it is the same whether the stored normals are the
-  !! outward or not.
-  !! @param vx The x component, overwritten with its tangential part.
-  !! @param vy The y component, overwritten with its tangential part.
-  !! @param vz The z component, overwritten with its tangential part.
-  subroutine boundary_data_tangential(this, vx, vy, vz)
-    class(boundary_data_t), intent(inout) :: this
-    type(vector_t), intent(inout) :: vx, vy, vz
-
-    if (vx%size() .lt. this%n_local .or. vy%size() .lt. this%n_local .or. &
-         vz%size() .lt. this%n_local) then
-       call neko_error("boundary_data: the vectors passed to tangential " // &
-            "are shorter than the number of boundary points")
-    end if
-
-    call vector_vdot3(this%work, vx, vy, vz, this%n_x, this%n_y, this%n_z)
-    call vector_subcol3(vx, this%work, this%n_x)
-    call vector_subcol3(vy, this%work, this%n_y)
-    call vector_subcol3(vz, this%work, this%n_z)
-
-  end subroutine boundary_data_tangential
 
   !> Surface integral of a scalar quantity times the normal.
   !! @note The sign follows the stored normals, so it changes with
