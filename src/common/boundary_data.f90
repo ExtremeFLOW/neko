@@ -139,10 +139,18 @@ module boundary_data
           boundary_data_flux_by_name
      procedure, private, pass(this) :: flux_by_field => &
           boundary_data_flux_by_field
-     !> Remove the wall normal part of a vector, in place.
-     procedure, pass(this) :: tangential => boundary_data_tangential
-     !> Remove the wall tangential part of a vector, in place.
-     procedure, pass(this) :: normal => boundary_data_normal
+     !> Wall tangential part of a vector.
+     generic :: tangential => tangential_inplace, tangential_split
+     procedure, private, pass(this) :: tangential_inplace => &
+          boundary_data_tangential_inplace
+     procedure, private, pass(this) :: tangential_split => &
+          boundary_data_tangential_split
+     !> Wall normal part of a vector.
+     generic :: normal => normal_inplace, normal_split
+     procedure, private, pass(this) :: normal_inplace => &
+          boundary_data_normal_inplace
+     procedure, private, pass(this) :: normal_split => &
+          boundary_data_normal_split
   end type boundary_data_t
 
 contains
@@ -468,14 +476,15 @@ contains
 
   end subroutine boundary_data_scatter
 
-  !> Remove the wall normal part of a vector at the boundary points (in-place).
+  !> Keep only the wall tangential part of a vector at the boundary points,
+  !! in place. Each component is overwritten with `v - (v . n) n`.
   !! @note The result does not depend on the sign of the normal, since the
   !! normal enters twice, so it is the same whether the stored normals are the
   !! outward or not.
   !! @param vx The x component, overwritten with its tangential part.
   !! @param vy The y component, overwritten with its tangential part.
   !! @param vz The z component, overwritten with its tangential part.
-  subroutine boundary_data_tangential(this, vx, vy, vz)
+  subroutine boundary_data_tangential_inplace(this, vx, vy, vz)
     class(boundary_data_t), intent(inout) :: this
     type(vector_t), intent(inout) :: vx, vy, vz
 
@@ -490,17 +499,51 @@ contains
     call vector_subcol3(vy, this%work, this%n_y)
     call vector_subcol3(vz, this%work, this%n_z)
 
-  end subroutine boundary_data_tangential
+  end subroutine boundary_data_tangential_inplace
 
-  !> Remove the wall tangential part of a vector at the boundary
-  !! points (in-place).
+  !> Wall tangential part of a vector at the boundary points, out of place.
+  !! The input `(vx, vy, vz)` is left unchanged and `(tx, ty, tz)` receive
+  !! `v - (v . n) n`.
+  !! @note The result does not depend on the sign of the normal, since the
+  !! normal enters twice, so it is the same whether the stored normals are the
+  !! outward or not.
+  !! @param vx The input x component.
+  !! @param vy The input y component.
+  !! @param vz The input z component.
+  !! @param tx The output x component of the tangential part.
+  !! @param ty The output y component of the tangential part.
+  !! @param tz The output z component of the tangential part.
+  subroutine boundary_data_tangential_split(this, vx, vy, vz, tx, ty, tz)
+    class(boundary_data_t), intent(inout) :: this
+    type(vector_t), intent(in) :: vx, vy, vz
+    type(vector_t), intent(inout) :: tx, ty, tz
+
+    if (vx%size() .lt. this%n_local .or. vy%size() .lt. this%n_local .or. &
+         vz%size() .lt. this%n_local .or. tx%size() .lt. this%n_local .or. &
+         ty%size() .lt. this%n_local .or. tz%size() .lt. this%n_local) then
+       call neko_error("boundary_data: the vectors passed to tangential " // &
+            "are shorter than the number of boundary points")
+    end if
+
+    call vector_vdot3(this%work, vx, vy, vz, this%n_x, this%n_y, this%n_z)
+    call vector_copy(tx, vx)
+    call vector_copy(ty, vy)
+    call vector_copy(tz, vz)
+    call vector_subcol3(tx, this%work, this%n_x)
+    call vector_subcol3(ty, this%work, this%n_y)
+    call vector_subcol3(tz, this%work, this%n_z)
+
+  end subroutine boundary_data_tangential_split
+
+  !> Keep only the wall normal part of a vector at the boundary points, in
+  !! place. Each component is overwritten with `(v . n) n`.
   !! @note The result does not depend on the sign of the normal, since the
   !! normal enters twice, so it is the same whether the stored normals are the
   !! outward or not.
   !! @param vx The x component, overwritten with its normal part.
   !! @param vy The y component, overwritten with its normal part.
   !! @param vz The z component, overwritten with its normal part.
-  subroutine boundary_data_normal(this, vx, vy, vz)
+  subroutine boundary_data_normal_inplace(this, vx, vy, vz)
     class(boundary_data_t), intent(inout) :: this
     type(vector_t), intent(inout) :: vx, vy, vz
 
@@ -515,7 +558,38 @@ contains
     call vector_col3(vy, this%work, this%n_y)
     call vector_col3(vz, this%work, this%n_z)
 
-  end subroutine boundary_data_normal
+  end subroutine boundary_data_normal_inplace
+
+  !> Wall normal part of a vector at the boundary points, out of place. The
+  !! input `(vx, vy, vz)` is left unchanged and `(nx, ny, nz)` receive
+  !! `(v . n) n`.
+  !! @note The result does not depend on the sign of the normal, since the
+  !! normal enters twice, so it is the same whether the stored normals are the
+  !! outward or not.
+  !! @param vx The input x component.
+  !! @param vy The input y component.
+  !! @param vz The input z component.
+  !! @param nx The output x component of the normal part.
+  !! @param ny The output y component of the normal part.
+  !! @param nz The output z component of the normal part.
+  subroutine boundary_data_normal_split(this, vx, vy, vz, nx, ny, nz)
+    class(boundary_data_t), intent(inout) :: this
+    type(vector_t), intent(in) :: vx, vy, vz
+    type(vector_t), intent(inout) :: nx, ny, nz
+
+    if (vx%size() .lt. this%n_local .or. vy%size() .lt. this%n_local .or. &
+         vz%size() .lt. this%n_local .or. nx%size() .lt. this%n_local .or. &
+         ny%size() .lt. this%n_local .or. nz%size() .lt. this%n_local) then
+       call neko_error("boundary_data: the vectors passed to normal " // &
+            "are shorter than the number of boundary points")
+    end if
+
+    call vector_vdot3(this%work, vx, vy, vz, this%n_x, this%n_y, this%n_z)
+    call vector_col3(nx, this%work, this%n_x)
+    call vector_col3(ny, this%work, this%n_y)
+    call vector_col3(nz, this%work, this%n_z)
+
+  end subroutine boundary_data_normal_split
 
   !> Surface integral of a named quantity over the zones.
   !! @param name The quantity to integrate.
