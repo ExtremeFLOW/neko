@@ -43,7 +43,7 @@ module boundary_data
   use vector_math, only : vector_masked_gather_copy_0, &
        vector_masked_scatter_copy_0, vector_face_masked_gather_copy_0, &
        vector_glsc2, vector_glsc3, vector_glsum, &
-       vector_vdot3, vector_subcol3, vector_cmult, vector_copy
+       vector_vdot3, vector_subcol3, vector_col3, vector_cmult, vector_copy
   use device, only : DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
   use ale_manager, only : neko_ale
@@ -141,6 +141,8 @@ module boundary_data
           boundary_data_flux_by_field
      !> Remove the wall normal part of a vector, in place.
      procedure, pass(this) :: tangential => boundary_data_tangential
+     !> Remove the wall tangential part of a vector, in place.
+     procedure, pass(this) :: normal => boundary_data_normal
   end type boundary_data_t
 
 contains
@@ -489,6 +491,31 @@ contains
     call vector_subcol3(vz, this%work, this%n_z)
 
   end subroutine boundary_data_tangential
+
+  !> Remove the wall tangential part of a vector at the boundary
+  !! points (in-place).
+  !! @note The result does not depend on the sign of the normal, since the
+  !! normal enters twice, so it is the same whether the stored normals are the
+  !! outward or not.
+  !! @param vx The x component, overwritten with its normal part.
+  !! @param vy The y component, overwritten with its normal part.
+  !! @param vz The z component, overwritten with its normal part.
+  subroutine boundary_data_normal(this, vx, vy, vz)
+    class(boundary_data_t), intent(inout) :: this
+    type(vector_t), intent(inout) :: vx, vy, vz
+
+    if (vx%size() .lt. this%n_local .or. vy%size() .lt. this%n_local .or. &
+         vz%size() .lt. this%n_local) then
+       call neko_error("boundary_data: the vectors passed to normal " // &
+            "are shorter than the number of boundary points")
+    end if
+
+    call vector_vdot3(this%work, vx, vy, vz, this%n_x, this%n_y, this%n_z)
+    call vector_col3(vx, this%work, this%n_x)
+    call vector_col3(vy, this%work, this%n_y)
+    call vector_col3(vz, this%work, this%n_z)
+
+  end subroutine boundary_data_normal
 
   !> Surface integral of a named quantity over the zones.
   !! @param name The quantity to integrate.
