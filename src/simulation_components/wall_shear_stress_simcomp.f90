@@ -610,7 +610,7 @@ contains
     call neko_scratch_registry%request_field(fy, work_indices(2), .false.)
     call neko_scratch_registry%request_field(fz, work_indices(3), .false.)
 
-    ! Scatter the vectors into fields. 
+    ! Scatter the vectors into fields.
     call this%bdata%scatter(this%t1, fx)
     call this%bdata%scatter(this%t2, fy)
     call this%bdata%scatter(this%t3, fz)
