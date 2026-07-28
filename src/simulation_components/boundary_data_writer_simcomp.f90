@@ -142,6 +142,8 @@ contains
     logical :: output_normals
     logical :: user_set_compute
 
+    call this%free()
+
     call json_get_or_default(json, "name", name, "boundary_data_writer")
 
     user_set_compute = json%valid_path("compute_control") .or. &
@@ -204,6 +206,8 @@ contains
     logical, intent(in) :: output_normals
     real(kind=rp), intent(in) :: start_time
 
+    call this%free()
+
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%init_common(name, coef, zone_indices, fields, &
@@ -248,6 +252,8 @@ contains
     character(len=*), intent(in) :: output_filename
     logical, intent(in) :: output_normals
     real(kind=rp), intent(in) :: start_time
+
+    call this%free()
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &

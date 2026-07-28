@@ -140,6 +140,8 @@ contains
     logical :: want_x, want_y, want_z, want_mag
     integer :: i
 
+    call this%free()
+
     call json_get_or_default(json, "name", name, "wall_shear_stress")
     call json_get_or_default(json, "computed_field", computed_field, "tau")
     call json_get_or_default(json, "fluid_name", fluid_name, "fluid")
@@ -297,6 +299,8 @@ contains
     logical :: wx, wy, wz, wm
     integer :: i
 
+    call this%free()
+
     ! Default to all four components when not specified.
     wx = .true.
     wy = .true.
@@ -364,6 +368,8 @@ contains
     character(len=NEKO_VARNAME_LEN), allocatable :: fields(:)
     logical :: wx, wy, wz, wm
     integer :: i
+
+    call this%free()
 
     wx = .true.
     wy = .true.
