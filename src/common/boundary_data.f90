@@ -619,8 +619,7 @@ contains
 
   !> Flux of a vector quantity through the zones.
   !! @note The sign follows the stored normals. With the default outward
-  !! convention a positive value is a flux out of the wall into the fluid, so
-  !! on an outlet zone it is an outflow.
+  !! convention a positive value is a flux out of the wall into the fluid.
   !! @param u The x component.
   !! @param v The y component.
   !! @param w The z component.

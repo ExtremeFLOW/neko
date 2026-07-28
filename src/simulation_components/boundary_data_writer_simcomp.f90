@@ -107,7 +107,7 @@ module boundary_data_writer_simcomp
      !> Whether to output the unit normals.
      logical :: output_normals = .false.
    contains
-     !> Constructors .
+     !> Constructors.
      procedure, pass(this) :: init => boundary_data_writer_init_from_json
      generic :: init_from_components => &
           init_from_controllers, init_from_controllers_properties
@@ -189,9 +189,7 @@ contains
   !! @param start_time Time after which to start writing.
   subroutine boundary_data_writer_init_from_controllers(this, name, case, &
        order, preprocess_controller, compute_controller, output_controller, &
-       coef, zone_indices, fields, &
-       output_filename, &
-       output_normals, start_time)
+       coef, zone_indices, fields, output_filename, output_normals, start_time)
     class(boundary_data_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
@@ -233,8 +231,7 @@ contains
   subroutine boundary_data_writer_init_from_controllers_properties(this, &
        name, case, order, preprocess_control, preprocess_value, &
        compute_control, compute_value, output_control, output_value, coef, &
-       zone_indices, fields, output_filename, &
-       output_normals, start_time)
+       zone_indices, fields, output_filename, output_normals, start_time)
     class(boundary_data_writer_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     class(case_t), intent(inout), target :: case
