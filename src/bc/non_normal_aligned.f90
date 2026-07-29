@@ -33,7 +33,7 @@
 !> Implements `non_normal_aligned_t`.
 module non_normal_aligned
   use json_module, only : json_file
-  use bc, only : bc_t, BC_TYPES
+  use bc, only : bc_t, BC_MIXED_CONSTRAINS_TANGENT
   use dirichlet, only : dirichlet_t
   use device_inhom_dirichlet, only : device_inhom_dirichlet_apply_scalar
   use import_field_utils, only : import_fields
@@ -144,7 +144,7 @@ contains
             this%field_interp_padding, GLOB_INTERP_PAD)
        this%read_values_from_field = .true.
        this%use_constant_value = .false.
-       this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
+       this%bc_type = BC_MIXED_CONSTRAINS_TANGENT
     else
        value_3 = 0.0_rp
        call json_get_or_lookup(json, "value", value)
@@ -173,7 +173,7 @@ contains
     call this%bc_z%init_from_components(coef, 0.0_rp)
     this%constant_value = value
     this%use_constant_value = .true.
-    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
+    this%bc_type = BC_MIXED_CONSTRAINS_TANGENT
   end subroutine non_normal_aligned_init_from_components
 
   !> Set inhomogeneous prescribed global vector components.

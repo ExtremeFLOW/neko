@@ -35,7 +35,7 @@ module dirichlet
   use device_dirichlet, only : device_dirichlet_apply_scalar, &
        device_dirichlet_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t, BC_TYPES
+  use bc, only : bc_t, BC_DIRICHLET
   use coefs, only : coef_t
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup
@@ -92,7 +92,7 @@ contains
 
     call this%init_base(coef)
     this%g = g
-    this%bc_type = BC_TYPES%DIRICHLET
+    this%bc_type = BC_DIRICHLET
   end subroutine dirichlet_init_from_components
 
   !> Boundary condition apply for a generic Dirichlet condition

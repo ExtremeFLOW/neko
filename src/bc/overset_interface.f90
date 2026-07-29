@@ -40,7 +40,7 @@ module overset_interface
   use global_interpolation, only : global_interpolation_t, &
        global_interpolation_settings_t
   use mask, only : mask_t
-  use bc, only : bc_t, BC_TYPES
+  use bc, only : bc_t, BC_DIRICHLET
   use field_list, only : field_list_t
   use math, only : masked_copy_0, copy
   use device_math, only : device_masked_copy_0, device_copy
@@ -204,7 +204,7 @@ contains
     character(len=256) :: log_buf
 
     call this%init_base(coef)
-    this%bc_type = BC_TYPES%DIRICHLET
+    this%bc_type = BC_DIRICHLET
 
     if (present(tol)) then
        if (tol .gt. 0.0_rp) then

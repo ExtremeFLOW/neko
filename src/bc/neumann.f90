@@ -33,7 +33,7 @@
 !> Defines a Neumann boundary condition.
 module neumann
   use num_types, only : rp
-  use bc, only : bc_t, BC_TYPES
+  use bc, only : bc_t, BC_NEUMANN
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
@@ -126,7 +126,7 @@ contains
     end if
 
     allocate(this%flux(size(this%init_flux_)))
-    this%bc_type = BC_TYPES%NEUMANN
+    this%bc_type = BC_NEUMANN
   end subroutine neumann_init
 
   !> Constructor from components, using a flux array for vector components.
@@ -145,7 +145,7 @@ contains
             " vector.")
     end if
     allocate(this%flux(size(this%init_flux_)))
-    this%bc_type = BC_TYPES%NEUMANN
+    this%bc_type = BC_NEUMANN
   end subroutine neumann_init_from_components_array
 
   !> Constructor from components, using an signle flux.
@@ -160,7 +160,7 @@ contains
     allocate(this%init_flux_(1))
     this%init_flux_(1) = flux
     allocate(this%flux(size(this%init_flux_)))
-    this%bc_type = BC_TYPES%NEUMANN
+    this%bc_type = BC_NEUMANN
   end subroutine neumann_init_from_components_single
 
   !> Boundary condition apply for a generic Neumann condition

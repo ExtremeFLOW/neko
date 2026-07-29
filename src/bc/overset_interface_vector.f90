@@ -42,7 +42,7 @@ module overset_interface_vector
        global_interpolation_settings_t
   use mask, only : mask_t
   use dofmap, only : dofmap_t
-  use bc, only : bc_t, BC_TYPES
+  use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
   use utils, only : split_string
   use field, only : field_t
@@ -191,7 +191,7 @@ contains
     !> This initializes coef, dof, msh, and Xh pointers
     call this%init_base(coef)
 
-    this%bc_type = BC_TYPES%DIRICHLET
+    this%bc_type = BC_DIRICHLET
 
     !> Set the interpolation settings
     if (present(tol)) then

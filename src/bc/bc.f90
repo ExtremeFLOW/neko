@@ -60,17 +60,13 @@ module bc
   implicit none
   private
 
-  !> Enumeration of supported boundary condition types.
+  !> Supported boundary condition types.
   !! The values are set in order of precedence for global resolution. Lower
   !! values take precedence.
-  type, public :: bc_type_t
-     integer :: DIRICHLET = 0
-     integer :: MIXED_CONSTRAINS_NORMAL = 2
-     integer :: MIXED_CONSTRAINS_TANGENT = 3
-     integer :: NEUMANN = 5
-  end type bc_type_t
-
-  type(bc_type_t), public :: BC_TYPES
+  integer, parameter, public :: BC_DIRICHLET = 0
+  integer, parameter, public :: BC_MIXED_CONSTRAINS_NORMAL = 2
+  integer, parameter, public :: BC_MIXED_CONSTRAINS_TANGENT = 3
+  integer, parameter, public :: BC_NEUMANN = 5
 
   !> Base type for a boundary condition
   type, public, abstract :: bc_t
@@ -96,7 +92,7 @@ module bc
      type(c_ptr) :: facet_node_msk_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
-     !> Type of the boundary condition, from BC_TYPES.
+     !> Type of the boundary condition, from the `BC_*` constants.
      integer :: bc_type
      !> Indicates wether the bc has been updated, for those BCs that need
      !! additional computations

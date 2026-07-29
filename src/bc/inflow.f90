@@ -34,7 +34,7 @@
 module inflow
   use device_inflow, only : device_inflow_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t, BC_TYPES
+  use bc, only : bc_t, BC_DIRICHLET
   use, intrinsic :: iso_c_binding, only : c_ptr, c_loc
   use coefs, only : coef_t
   use json_module, only : json_file
@@ -91,7 +91,7 @@ contains
     real(kind=rp), intent(in) :: x(3)
 
     call this%init_base(coef)
-    this%bc_type = BC_TYPES%DIRICHLET
+    this%bc_type = BC_DIRICHLET
     this%x = x
   end subroutine inflow_init_from_components
 

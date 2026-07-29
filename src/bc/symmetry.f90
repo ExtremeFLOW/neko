@@ -33,7 +33,7 @@
 !> Implements `symmetry_t`.
 module symmetry
   use num_types, only : rp
-  use bc, only : BC_TYPES
+  use bc, only : BC_MIXED_CONSTRAINS_NORMAL
   use mixed_bc, only : mixed_bc_t
   use device_constrain_mixed_bc, only : device_constrain_mixed_bc_zero
   use coefs, only : coef_t
@@ -90,7 +90,7 @@ contains
     call this%free()
 
     call this%init_base(coef)
-    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
+    this%bc_type = BC_MIXED_CONSTRAINS_NORMAL
   end subroutine symmetry_init_from_components
 
   !> Finalize the boundary condition.

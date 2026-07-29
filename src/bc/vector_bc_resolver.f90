@@ -35,7 +35,7 @@
 !! component-wise resolution, and `coupled_vector_bc_resolver_t` for resolving
 !! mixed boundary conditions.
 module vector_bc_resolver
-  use bc, only : bc_t, BC_TYPES
+  use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
   use mixed_bc, only : mixed_bc_t
   use mask, only : mask_t
@@ -143,9 +143,9 @@ module vector_bc_resolver
      type(coef_t), pointer, private :: coef => null()
      !> Degree-of-freedom map.
      type(dofmap_t), pointer, private :: dof => null()
-     !> Per-boundary-DOF node classification according to `bc_type_t`.
+     !> Per-boundary-DOF node classification using the `BC_*` constants.
      real(kind=rp), allocatable :: node_type(:)
-     !> Per-boundary-face classification according to `bc_type_t`.
+     !> Per-boundary-face classification using the `BC_*` constants.
      real(kind=rp), allocatable :: face_type(:,:)
      !> Linear indices of boundary DOFs.
      integer, allocatable :: boundary_dof(:)
@@ -314,7 +314,7 @@ contains
     class(bc_t), intent(inout), target :: bc
     character(len=1), optional, intent(in) :: component
 
-    if (bc%bc_type .ne. BC_TYPES%DIRICHLET) then
+    if (bc%bc_type .ne. BC_DIRICHLET) then
        call neko_error("Segregated vector BC resolver only accepts " // &
             "Dirichlet boundary conditions.")
     end if
@@ -633,7 +633,7 @@ contains
             bc%msk(0))
     end do
 
-    ! Set priority values (type, see bc_type_t) for constraint assignment.
+    ! Set priority values (see the BC_* constants) for constraint assignment.
     ! Mimics the procedure in Nek5000 directly.
     ! The values are chosen in a way that a min reduction applies the most
     ! restrictive constraint.

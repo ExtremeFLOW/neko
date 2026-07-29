@@ -34,7 +34,7 @@
 module symmetry_aligned
   use device_symmetry_aligned, only : device_symmetry_aligned_apply_vector
   use num_types, only : rp
-  use bc, only : bc_t, BC_TYPES
+  use bc, only : bc_t, BC_MIXED_CONSTRAINS_NORMAL
   use tuple, only : tuple_i4_t
   use coefs, only : coef_t
   use json_module, only : json_file
@@ -100,7 +100,7 @@ contains
     call this%free()
 
     call this%init_base(coef)
-    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_NORMAL
+    this%bc_type = BC_MIXED_CONSTRAINS_NORMAL
     call this%bc_x%init_from_components(this%coef)
     call this%bc_y%init_from_components(this%coef)
     call this%bc_z%init_from_components(this%coef)

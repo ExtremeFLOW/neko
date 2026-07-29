@@ -33,7 +33,7 @@
 !> Implements `non_normal_t`.
 module non_normal
   use json_module, only : json_file
-  use bc, only : BC_TYPES
+  use bc, only : BC_MIXED_CONSTRAINS_TANGENT
   use mixed_bc, only : mixed_bc_t
   use num_types, only : rp
   use device_constrain_mixed_bc, only : device_constrain_mixed_bc_set_const
@@ -107,7 +107,7 @@ contains
 
     call this%free()
     call this%init_base(coef)
-    this%bc_type = BC_TYPES%MIXED_CONSTRAINS_TANGENT
+    this%bc_type = BC_MIXED_CONSTRAINS_TANGENT
     this%value = value
   end subroutine non_normal_init_from_components
 
