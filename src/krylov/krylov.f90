@@ -231,7 +231,52 @@ module krylov
 
   end interface
 
-  public :: krylov_solver_factory
+  interface
+     !> Krylov solver allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the solver type.
+     module subroutine krylov_solver_allocator(object, type_name)
+       class(ksp_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine krylov_solver_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for a Krylov solver allocator.
+  !! Implemented in user modules, should allocate `obj` to the custom user
+  !! type.
+  abstract interface
+     subroutine krylov_allocate(obj)
+       import ksp_t
+       class(ksp_t), allocatable, intent(inout) :: obj
+     end subroutine krylov_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_krylov(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(krylov_allocate), pointer, intent(in) :: allocator
+     end subroutine register_krylov
+  end interface
+
+  !> A name-allocator pair for user-defined Krylov solver types.
+  type krylov_allocator_entry
+     character(len=20) :: type_name
+     procedure(krylov_allocate), pointer, nopass :: allocator
+  end type krylov_allocator_entry
+
+  !> Registry of allocators for user-defined Krylov solver types.
+  type(krylov_allocator_entry), allocatable :: krylov_registry(:)
+
+  !> The size of the `krylov_registry`.
+  integer :: krylov_registry_size = 0
+
+  public :: krylov_solver_factory, krylov_solver_allocator, register_krylov, &
+       krylov_allocate
 contains
 
   !> Constructor for the base type.

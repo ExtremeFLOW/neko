@@ -245,7 +245,7 @@ contains
          this%projection_activ_step)
 
     ! Determine the time-interpolation scheme
-    call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
+    call json_get_or_default(numerics_params, 'oifs', this%oifs, .false.)
     ! Point to case checkpoint
     this%chkp => chkp
     ! Initialize advection factory
