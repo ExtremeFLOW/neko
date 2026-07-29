@@ -131,7 +131,7 @@ brackets correspond to the choice of the user keywords.
 
 #### curl {#simcomp_curl}
 Takes a list of three field names from the `fields` keyword, and computes
-the curl.  By default, registers the result in `omega_x`, `omega_y` and `omega_z`.
+the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
 
  ~~~~~~~~~~~~~~~{.json}
  {
