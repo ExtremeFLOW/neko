@@ -36,6 +36,7 @@ data_types/data_types_test
 device_math/device_math_suite
 device_mathops/device_mathops_test
 dofmap/dofmap_suite
+dofmap/test_dofmap_2d_curve_extrusion.nmsh
 field/field_suite
 global_interpolation/global_interpolation_suite
 hex/hex_test
