@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Fixed extrusion of curved edges when reading a 2D .nmsh file.
 - *BREAKING* Renamed the allocation-only `precon_factory` API to
   `precon_allocator`. Added runtime registration of user-defined
   preconditioner and Krylov solver types.
