@@ -2,9 +2,9 @@
 
 echo "Updating configuration..."
 echo "Running libtoolize"
-if command -v libtoolize >/dev/null 2>&1; then
+if which libtoolize > /dev/null 2>&1; then
     libtoolize --install --force
-elif command -v glibtoolize >/dev/null 2>&1; then
+elif which glibtoolize > /dev/null 2>&1; then
     glibtoolize --install --force
 else
     echo "No libtoolize or glibtoolize found on your system" >&2
