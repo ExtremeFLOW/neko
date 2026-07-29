@@ -2,6 +2,7 @@
 
 ## Develop
 
+- Updated simulation_components documentation to mirror the latest codebase.
 - Added opt-in zero-copy unified memory mapping for the HIP backend on AMD
   MI300A APUs: with `NEKO_HIP_ZEROCOPY=1` (and `HSA_XNACK=1`), mapped arrays
   alias their host allocation instead of being replicated on the device,
