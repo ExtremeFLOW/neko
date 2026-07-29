@@ -14,23 +14,24 @@ AC_DEFUN([AX_ADIOS2_FORTRAN],[
 	      PATH="$ac_adios2_fortran_path/bin:$PATH"
 	   fi
 
-	   AC_CHECK_PROG(ADIOS2_FORTRAN_CONF,adios2-config,yes)
+	   AC_PATH_PROG(ADIOS2_FORTRAN_CONF,adios2-config,no)
 
-	   if test x"${ADIOS2_FORTRAN_CONF}" == x"yes"; then
-	      ADIOS2_FORTRAN_FCFLAGS=`adios2-config --fortran-flags`
+	   if test x"${ADIOS2_FORTRAN_CONF}" = xno; then
+	      have_adios2_fortran=no
+	      AC_MSG_ERROR([ADIOS2 Fortran support requested but adios2-config was not found])
+	   elif ADIOS2_FORTRAN_FCFLAGS=`${ADIOS2_FORTRAN_CONF} --fortran-flags` &&
+	        ADIOS2_FORTRAN_LIBS=`${ADIOS2_FORTRAN_CONF} --fortran-libs`; then
 	      FCFLAGS="$ADIOS2_FORTRAN_FCFLAGS $FCFLAGS"
-
-	      ADIOS2_FORTRAN_LIBS=`adios2-config --fortran-libs`
 	      LIBS="$ADIOS2_FORTRAN_LIBS $LIBS"
               with_adios2_fortran=yes
 	      have_adios2_fortran=yes
 	      AC_SUBST(have_adios2_fortran)
               AC_DEFINE(HAVE_ADIOS2_FORTRAN,1,[Define if you want to use ADIOS2 with Fortran bindings.])
-	    else
-	      with_adios2_fortran=no
-	    fi
+	   else
+	      have_adios2_fortran=no
+	      AC_MSG_ERROR([ADIOS2 Fortran support requested but its Fortran configuration is unavailable])
+	   fi
             PATH="$PATH_SAVED"
 
 	fi
 ])
-

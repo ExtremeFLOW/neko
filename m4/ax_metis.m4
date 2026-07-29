@@ -23,13 +23,18 @@ AC_DEFUN([AX_METIS],[
 	AS_HELP_STRING([--with-metis-libdir=LIBDIR],
 	[Directory for metis library]),
 	[
-	if test -d "$withval"; then
+	if test "x${withval}" = xno; then
+	   ac_metis_libdir=""
+	elif test -d "$withval"; then
 	   ac_metis_libdir="$withval"
+	else
+	   AC_MSG_ERROR([METIS library directory '$withval' was not found])
 	fi
 	],)
 
 	if test -d "$ac_metis_libdir"; then	   
 	    METIS_LDFLAGS="-L$ac_metis_libdir"  	   
+	    with_metis=yes
         fi
 
 	if test -d "$ac_metis_path"; then
@@ -61,9 +66,11 @@ AC_DEFUN([AX_METIS],[
 	      	 LDFLAGS="$LDFLAGS_SAVED"
 	      fi
 	   fi
+	   if test x"${have_metis}" != xyes ||
+	      test x"${have_metis_h}" != xyes; then
+	      AC_MSG_ERROR([METIS requested but metis.h or libmetis was not found])
+	   fi
 	fi
 
 ])
-
-
 

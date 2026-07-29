@@ -26,13 +26,18 @@ AC_DEFUN([AX_PARMETIS],[
 	AS_HELP_STRING([--with-parmetis-libdir=LIBDIR],
 	[Directory for parmetis library]),
 	[
-	if test -d "$withval"; then
+	if test "x${withval}" = xno; then
+	   ac_parmetis_libdir=""
+	elif test -d "$withval"; then
 	   ac_parmetis_libdir="$withval"
+	else
+	   AC_MSG_ERROR([ParMETIS library directory '$withval' was not found])
 	fi
 	],)
 
 	if test -d "$ac_parmetis_libdir"; then	   
 	    PARMETIS_LDFLAGS="-L$ac_parmetis_libdir"  	   
+	    with_parmetis=yes
         fi
 
 	if test -d "$ac_parmetis_path"; then
@@ -89,9 +94,11 @@ AC_DEFUN([AX_PARMETIS],[
 	      	 LDFLAGS="$LDFLAGS_SAVED"
 	      fi
 	   fi
+	   if test x"${have_parmetis}" != xyes ||
+	      test x"${have_parmetis_h}" != xyes; then
+	      AC_MSG_ERROR([ParMETIS requested but parmetis.h or libparmetis was not found])
+	   fi
 	fi
 
 ])
-
-
 

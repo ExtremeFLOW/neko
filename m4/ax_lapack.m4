@@ -104,6 +104,14 @@ if test "x$LAPACK_LIBS" != x; then
         fi
 fi
 
+# An explicitly selected LAPACK library is a requirement, not a hint.
+case $with_lapack in
+        yes | no | "") ;;
+        *) if test $ax_lapack_ok != yes; then
+                AC_MSG_ERROR([Requested LAPACK library '$with_lapack' was not found])
+           fi ;;
+esac
+
 # LAPACK linked to by default?  (is sometimes included in BLAS lib)
 if test $ax_lapack_ok = no; then
         save_LIBS="$LIBS"; LIBS="$LIBS $BLAS_LIBS $FLIBS"

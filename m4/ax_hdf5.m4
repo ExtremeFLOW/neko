@@ -21,6 +21,8 @@ AC_DEFUN([AX_HDF5],[
               NEKO_PKG_FCFLAGS="$HDF5_Fortran_CFLAGS $NEKO_PKG_FCFLAGS"
               AC_DEFINE(HAVE_HDF5,[1],
                      [Define if you have the HDF5 library.])
+           else
+              AC_MSG_ERROR([HDF5 Fortran >= 1.14.0 requested but not found])
            fi
 	fi
 ])

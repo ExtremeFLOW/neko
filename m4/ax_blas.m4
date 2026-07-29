@@ -98,6 +98,14 @@ if test "x$BLAS_LIBS" != x; then
 fi
 fi
 
+# An explicitly selected BLAS library is a requirement, not a hint.
+case $with_blas in
+	yes | no | "") ;;
+	*) if test $ax_blas_ok != yes; then
+		AC_MSG_ERROR([Requested BLAS library '$with_blas' was not found])
+	   fi ;;
+esac
+
 # BLAS linked to by default?  (happens on some supercomputers)
 if test $ax_blas_ok = no; then
 	save_LIBS="$LIBS"; LIBS="$LIBS"

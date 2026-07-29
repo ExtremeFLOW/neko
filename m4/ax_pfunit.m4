@@ -12,21 +12,28 @@ AC_DEFUN([AX_PFUNIT], [
 		      AS_HELP_STRING([--with-pfunit=DIR],
 		      [Directory for pFUnit]),
 		      [
-			if test -d "$withval"; then
+			if test "x${withval}" = xno; then
+			   PFUNIT_DIR=""
+			elif test "x${withval}" = xyes; then
+			   PFUNIT_DIR="/usr"
+			elif test -d "$withval"; then
 			   PFUNIT_DIR="$withval";
 			else
-			   PFUNIT_DIR="/usr";
+			   AC_MSG_ERROR([pFUnit directory '$withval' was not found])
 			fi
-		      ],)
+		      ], [with_pfunit=no])
 		      
  AC_REQUIRE([AC_PROG_FC])
  AC_LANG_PUSH([Fortran])
 
 
  AC_MSG_CHECKING([for pFUnit])
- if ! test -f $PFUNIT_DIR/include/PFUNIT.mk; then
+ if ! test -f "$PFUNIT_DIR/include/PFUNIT.mk"; then
       AC_MSG_RESULT([no])
       have_pfunit=no
+      if test "x${with_pfunit}" != xno; then
+         AC_MSG_ERROR([pFUnit requested but PFUNIT.mk was not found in $PFUNIT_DIR/include])
+      fi
  else
       AC_MSG_RESULT([yes])
       have_pfunit=yes

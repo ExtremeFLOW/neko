@@ -82,8 +82,12 @@ if test "x${enable_openmp}" != xno; then
       AX_OPENMP([have_openmp=yes], [have_openmp=no])
       if test "x${have_openmp}" != xno; then
          CFLAGS="$CFLAGS $OPENMP_CFLAGS"
+      else
+         AC_MSG_ERROR([OpenMP requested but not supported by the C compiler])
       fi
       AC_LANG_POP([C])
+   else
+      AC_MSG_ERROR([OpenMP requested but not supported by the Fortran compiler])
    fi
 fi
 
@@ -335,6 +339,9 @@ if (test "x${have_cuda}" = xyes ||
       AC_SUBST(device_mpi, .false.)
    fi
 else
+   if test "x${enable_device_mpi}" = xyes; then
+      AC_MSG_ERROR([Device-aware MPI requires a CUDA, HIP, or OpenCL backend])
+   fi
    AC_SUBST(device_mpi, .false.)
 fi
 
@@ -368,6 +375,11 @@ if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
    AX_CRAY_SHMEM
 fi
 
+if test -n "${with_openshmem}" &&
+   test "x${with_openshmem}" != xno &&
+   test "x${have_cray_shmem}" != xyes; then
+   AC_MSG_ERROR([OpenSHMEM requested but it is only available through a Cray environment])
+fi
 
 
 # JSON-Fortran

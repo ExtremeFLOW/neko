@@ -243,6 +243,11 @@ AC_DEFUN([AX_CRAY_HDF5_PARALLEL],[
 	else
 	   AC_MSG_RESULT([no])
 	   have_cray_hdf5="no"
+	   have_hdf5="no"
+	   AC_MSG_ERROR([Cray parallel HDF5 requested but not found])
+	fi
+	if test "x${have_cray_hdf5}" = xyes; then
+	   have_hdf5="yes"
 	fi
 	AC_SUBST(have_cray_hdf5)
         fi
@@ -270,6 +275,7 @@ AC_DEFUN([AX_CRAY_SHMEM],[
            else
               AC_MSG_RESULT([no])
               have_cray_shmem="no"
+              AC_MSG_ERROR([OpenSHMEM requested but no Cray OpenSHMEM library was found])
            fi
        fi
        AC_SUBST(have_cray_shmem)

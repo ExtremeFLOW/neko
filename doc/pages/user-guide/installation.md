@@ -150,6 +150,14 @@ Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--
 | `--with-utofu=DIR`              | Compile with support for the native Tofu interconnect (uTofu) |
 | `--with-hdf5`                   | Compile with support for HDF5                 |
 | `--with-pfunit=DIR`             | Directory for pFUnit (see \subpage testing)   |
+| `--with-openshmem`              | Compile with Cray OpenSHMEM support           |
+| `--with-darshan-libdir=LIBDIR`  | Link with the Darshan profiler                |
+
+An explicitly requested package is required: if its headers, libraries, or
+configuration tools cannot be found, `configure` exits with an error. The same
+applies to dependency-backed features such as `--enable-openmp`. Omit the
+option (or use the corresponding `--without-PACKAGE`) when the dependency is
+optional for a particular build.
 
 @note Accelerators backends are not enabled as a feature in Neko, but rather via optional packages.
 

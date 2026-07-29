@@ -23,6 +23,8 @@ AC_DEFUN([AX_LIBXSMM],[
 	      LIBS="$LIBS $libxsmmf_LIBS"
 	      AC_DEFINE(HAVE_LIBXSMM,[1],
 			[Define if you have the LIBXSMM library.])
+           else
+              AC_MSG_ERROR([libxsmmf >= 0.16.1 requested but not found])
 	   fi
 	fi
         AC_SUBST(xsmm_bcknd)
