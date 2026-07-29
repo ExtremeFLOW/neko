@@ -219,7 +219,7 @@ contains
     class(wall_model_bc_t), target, intent(inout) :: this
 
     call this%shear_stress_t%finalize()
-    call this%wall_model%finalize(this%facet_msk, this%facet)
+    call this%wall_model%finalize(this%facet_node_msk, this%facet)
   end subroutine wall_model_bc_finalize
 
 end module wall_model_bc

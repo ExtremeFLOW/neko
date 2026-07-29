@@ -194,10 +194,10 @@ contains
           this%updated = .true.
        end if
 
-       m = this%facet_msk(0)
+       m = this%facet_node_msk(0)
        !$omp do
        do i = 1, m
-          k = this%facet_msk(i)
+          k = this%facet_node_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
@@ -246,10 +246,11 @@ contains
           this%updated = .true.
        end if
 
-       if (this%facet_msk(0) .gt. 0) then
-          call device_neumann_apply_scalar(this%facet_msk_d, this%facet_d, x_d, &
+       if (this%facet_node_msk(0) .gt. 0) then
+          call device_neumann_apply_scalar(this%facet_node_msk_d, &
+               this%facet_d, x_d, &
                this%flux%x_d, this%coef%area_d, this%coef%Xh%lx, &
-               size(this%facet_msk), strm)
+               size(this%facet_node_msk), strm)
        end if
     end if
 

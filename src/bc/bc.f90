@@ -77,8 +77,8 @@ module bc
      !> The linear index of each constrained local degree of freedom
      integer, allocatable :: msk(:)
      !> The linear index of each node on the marked boundary facets
-     integer, allocatable :: facet_msk(:)
-     !> A list of facet ids (1 to 6), one for each entry in facet_msk
+     integer, allocatable :: facet_node_msk(:)
+     !> A list of facet ids (1 to 6), one for each entry in facet_node_msk
      integer, allocatable :: facet(:)
      !> Map of degrees of freedom
      type(dofmap_t), pointer :: dof => null()
@@ -92,8 +92,8 @@ module bc
      type(stack_i4t2_t) :: marked_facet
      !> Device pointer for msk
      type(c_ptr) :: msk_d = C_NULL_PTR
-     !> Device pointer for facet_msk
-     type(c_ptr) :: facet_msk_d = C_NULL_PTR
+     !> Device pointer for facet_node_msk
+     type(c_ptr) :: facet_node_msk_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
      !> Type of the boundary condition, from BC_TYPES.
@@ -300,11 +300,11 @@ contains
        deallocate(this%msk)
     end if
 
-    if (allocated(this%facet_msk)) then
+    if (allocated(this%facet_node_msk)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%facet_msk, this%facet_msk_d)
+          call device_unmap(this%facet_node_msk, this%facet_node_msk_d)
        end if
-       deallocate(this%facet_msk)
+       deallocate(this%facet_node_msk)
     end if
 
     if (allocated(this%facet)) then
@@ -508,11 +508,11 @@ contains
     ! Note we assume that lx = ly = lz
     facet_size = lx**2
     n = facet_size * this%marked_facet%size()
-    allocate(this%facet_msk(0:n))
+    allocate(this%facet_node_msk(0:n))
     allocate(this%facet(0:n))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%facet_msk, this%facet_msk_d, n + 1)
+       call device_map(this%facet_node_msk, this%facet_node_msk_d, n + 1)
        call device_map(this%facet, this%facet_d, n + 1)
     end if
 
@@ -521,8 +521,8 @@ contains
 
     ! Loop through each (facet, element) id tuple
     ! Then loop over all the nodes of the face and compute their linear index
-    ! This index goes into this%facet_msk, whereas the corresponding face id goes into
-    ! this%facet
+    ! This index goes into this%facet_node_msk, whereas the corresponding face
+    ! id goes into this%facet
     do i = 1, this%marked_facet%size()
        bc_facet = bfp(i)
        facet = bc_facet%x(1)
@@ -532,7 +532,8 @@ contains
           do l = 1, lz
              do k = 1, ly
                 msk_c = msk_c + 1
-                this%facet_msk(msk_c) = linear_index(1, k, l, el, lx, ly, lz)
+                this%facet_node_msk(msk_c) = &
+                     linear_index(1, k, l, el, lx, ly, lz)
                 this%facet(msk_c) = 1
              end do
           end do
@@ -540,7 +541,8 @@ contains
           do l = 1, lz
              do k = 1, ly
                 msk_c = msk_c + 1
-                this%facet_msk(msk_c) = linear_index(lx, k, l, el, lx, ly, lz)
+                this%facet_node_msk(msk_c) = &
+                     linear_index(lx, k, l, el, lx, ly, lz)
                 this%facet(msk_c) = 2
              end do
           end do
@@ -548,7 +550,8 @@ contains
           do l = 1, lz
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%facet_msk(msk_c) = linear_index(j, 1, l, el, lx, ly, lz)
+                this%facet_node_msk(msk_c) = &
+                     linear_index(j, 1, l, el, lx, ly, lz)
                 this%facet(msk_c) = 3
              end do
           end do
@@ -556,7 +559,8 @@ contains
           do l = 1, lz
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%facet_msk(msk_c) = linear_index(j, ly, l, el, lx, ly, lz)
+                this%facet_node_msk(msk_c) = &
+                     linear_index(j, ly, l, el, lx, ly, lz)
                 this%facet(msk_c) = 4
              end do
           end do
@@ -564,7 +568,8 @@ contains
           do k = 1, ly
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%facet_msk(msk_c) = linear_index(j, k, 1, el, lx, ly, lz)
+                this%facet_node_msk(msk_c) = &
+                     linear_index(j, k, 1, el, lx, ly, lz)
                 this%facet(msk_c) = 5
              end do
           end do
@@ -572,18 +577,19 @@ contains
           do k = 1, ly
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%facet_msk(msk_c) = linear_index(j, k, lz, el, lx, ly, lz)
+                this%facet_node_msk(msk_c) = &
+                     linear_index(j, k, lz, el, lx, ly, lz)
                 this%facet(msk_c) = 6
              end do
           end do
        end select
     end do
-    this%facet_msk(0) = msk_c
+    this%facet_node_msk(0) = msk_c
     this%facet(0) = msk_c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        n = msk_c + 1
-       call device_memcpy(this%facet_msk, this%facet_msk_d, n, &
+       call device_memcpy(this%facet_node_msk, this%facet_node_msk_d, n, &
             HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%facet, this%facet_d, n, &
             HOST_TO_DEVICE, sync = .true.)
@@ -595,8 +601,8 @@ contains
     n = test_field%size()
     test_field%x = 0.0_rp
     !Apply this bc once
-    do i = 1, this%facet_msk(0)
-       test_field%x(this%facet_msk(i),1,1,1) = 1.0
+    do i = 1, this%facet_node_msk(0)
+       test_field%x(this%facet_node_msk(i),1,1,1) = 1.0
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(test_field%x, test_field%x_d, n, &

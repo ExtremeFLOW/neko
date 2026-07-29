@@ -182,11 +182,11 @@ contains
        strong_ = .true.
     end if
 
-    m = this%facet_msk(0)
+    m = this%facet_node_msk(0)
     if (.not. strong_) then
        !$omp do
        do i = 1, m
-          k = this%facet_msk(i)
+          k = this%facet_node_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
@@ -230,11 +230,11 @@ contains
        strong_ = .true.
     end if
 
-    m = this%facet_msk(0)
+    m = this%facet_node_msk(0)
     if (.not. strong_) then
        !$omp parallel do private(k, facet, idx)
        do i = 1, m
-          k = this%facet_msk(i)
+          k = this%facet_node_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
@@ -291,11 +291,12 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. this%uniform_0 .and. this%facet_msk(0) .gt. 0 .and. &
+    if (.not. this%uniform_0 .and. this%facet_node_msk(0) .gt. 0 .and. &
          .not. strong_) then
-       call device_neumann_apply_scalar(this%facet_msk_d, this%facet_d, x_d, &
+       call device_neumann_apply_scalar(this%facet_node_msk_d, &
+            this%facet_d, x_d, &
             this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
-            size(this%facet_msk), strm)
+            size(this%facet_node_msk), strm)
     end if
   end subroutine neumann_apply_scalar_dev
 
@@ -318,13 +319,13 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. this%uniform_0 .and. this%facet_msk(0) .gt. 0 .and. &
+    if (.not. this%uniform_0 .and. this%facet_node_msk(0) .gt. 0 .and. &
          .not. strong_) then
-       call device_neumann_apply_vector(this%facet_msk_d, this%facet_d, &
+       call device_neumann_apply_vector(this%facet_node_msk_d, this%facet_d, &
             x_d, y_d, z_d, &
             this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &
             this%coef%area_d, this%coef%Xh%lx, &
-            size(this%facet_msk), strm)
+            size(this%facet_node_msk), strm)
     end if
 
   end subroutine neumann_apply_vector_dev
@@ -358,7 +359,7 @@ contains
 
     ! Allocate flux vectors and assign to initial constant values
     do i = 1, size(this%init_flux_)
-       call this%flux(i)%init(this%facet_msk(0))
+       call this%flux(i)%init(this%facet_node_msk(0))
        this%flux(i) = this%init_flux_(i)
     end do
 

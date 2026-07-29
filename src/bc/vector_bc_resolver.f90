@@ -660,10 +660,10 @@ contains
           this%face_type(facet, el) = bc_type
        end do
 
-       ! Note that the face_msk is used, so constraints are only directly
+       ! Note that facet_node_msk is used, so constraints are only directly
        ! applied to elements that touch the boundary at this point.
-       do j = 1, bc%facet_msk(0)
-          m = bc%facet_msk(j)
+       do j = 1, bc%facet_node_msk(0)
+          m = bc%facet_node_msk(j)
           ! The min here ensures that the most restricive constraint is kept
           ! within a single element.
           node_type_field%x(m,1,1,1) = min(bc_type, node_type_field%x(m,1,1,1))
@@ -928,9 +928,9 @@ contains
        ! Since several faces will own edge and corner nodes, the normals there
        ! will be overwritten in arbitrary order, but we don't care because we
        ! will reset those later and treat them specially.
-       do j = 1, bc%facet_msk(0)
+       do j = 1, bc%facet_node_msk(0)
           ! Global linear index of the node on which to set the normal.
-          k = bc%facet_msk(j)
+          k = bc%facet_node_msk(j)
 
           ! Grab face and ijke indices to address face_type and get_normal.
           facet = bc%facet(j)
@@ -1506,8 +1506,8 @@ contains
 
     do i = 1, this%bcs%size()
        bc => this%bcs%get(i)
-       do m = 1, bc%facet_msk(0)
-          k = bc%facet_msk(m)
+       do m = 1, bc%facet_node_msk(0)
+          k = bc%facet_node_msk(m)
           facet = bc%facet(m)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%ly, &
                this%coef%Xh%lz)

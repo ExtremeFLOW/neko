@@ -52,7 +52,7 @@ module mixed_bc
      !! global boundary-condition resolution. Populated by a
      !! `coupled_vector_bc_resolver_t`.
      !! Note that the resolved mask is only used for contraining vector
-     !! components. For the Neumann contributions of the bc, the face_msk is
+     !! components. For the Neumann contributions of the bc, facet_node_msk is
      !! used.
      type(mask_t) :: resolved_msk
      !> Local basis vectors on resolved_msk.
