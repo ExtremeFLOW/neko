@@ -8,8 +8,6 @@ AC_LANG([Fortran])
 AC_PROG_INSTALL
 AC_PROG_SED
 AC_PROG_MAKE_SET
-dnl Expand the C/C++ compiler checks at the top level, before libtool (and
-dnl later AC_REQUIREs) pull them in from within another macro expansion.
 AC_PROG_CC
 AC_PROG_CXX
 AC_LANG_PUSH([C])
