@@ -1,4 +1,4 @@
-! Copyright (c) 2023-2024, The Neko Authors
+! Copyright (c) 2023-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ module idw_source_term
   use PDE_filter, only : PDE_filter_t
   use filter, only : filter_t
   use device_math, only : device_col2
-  use device, only : device_free, device_map, device_memcpy, &
+  use device, only : device_free, device_map, device_memcpy, device_sync, &
        HOST_TO_DEVICE, DEVICE_TO_HOST
   use device_idw_source_term, only : device_idw_gather
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -169,6 +169,7 @@ contains
     real(kind=rp) :: start_time, end_time
     character(len=:), allocatable :: filter_type
     character(len=:), allocatable :: interp_scheme
+    type(json_file) :: filter_subdict
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -225,9 +226,10 @@ contains
     case default
        call neko_error('IDW source term unknown filter type')
     end select
-
-     if (allocated(this%fltr)) then
-        call this%fltr%init(json, coef)
+    
+    if (allocated(this%fltr)) then
+       call json_get(json, 'filter', filter_subdict)
+        call this%fltr%init(filter_subdict, coef)
      end if
 
 
@@ -499,13 +501,8 @@ contains
 
     call this%gs%init(coef%dof)
 
-    this%ds%x = this%ds%x * coef%mult
-
-    call this%gs%op(this%ds, GS_OP_ADD)
-
-
-    this%ds%x = this%ds%x * coef%mult
-    call this%gs%op(this%ds, GS_OP_ADD)
+    call idw_assemble(this%gs, this%ds, coef%mult)
+    call idw_assemble(this%gs, this%ds, coef%mult)
 
     call this%mmsk%init(coef%dof, "ib_mmask")
     call this%pmsk%init(coef%dof, "ib_pmask")
@@ -520,27 +517,15 @@ contains
        this%pmsk = 1.0_rp
     end if
 
-
-    this%pmsk%x = this%pmsk%x * coef%mult
-
-    call this%gs%op(this%pmsk, GS_OP_ADD)
-
-    this%mmsk%x = this%mmsk%x * coef%mult
-
-    call this%gs%op(this%mmsk, GS_OP_ADD)
-
+    call idw_assemble(this%gs, this%pmsk, coef%mult)
+    call idw_assemble(this%gs, this%mmsk, coef%mult)
 
     call idw_compute_weight(this%w, this%wm, this%pmsk, this%lag_pts, this%lag_el, &
          coef%dof%x, coef%dof%y, coef%dof%z, this%ds%x, this%rmax, &
          this%pwr_param, coef%Xh%lx,coef%msh%nelv)
 
-    this%w%x = this%w%x * coef%mult
-
-    call this%gs%op(this%w, GS_OP_ADD)
-
-    this%wm%x = this%wm%x * coef%mult
-
-    call this%gs%op(this%wm, GS_OP_ADD)
+    call idw_assemble(this%gs, this%w, coef%mult)
+    call idw_assemble(this%gs, this%wm, coef%mult)
 
     if (this%idw_interp) then
        ! Per-marker local stencil counts; the counts of markers held by
@@ -652,6 +637,26 @@ contains
     call neko_log%end_section()
 
   end subroutine idw_source_term_init_from_json
+
+  !> Assemble a host-built field to a continuous representation,
+  subroutine idw_assemble(gs, fld, mult)
+    type(gs_t), intent(inout) :: gs
+    type(field_t), intent(inout) :: fld
+    real(kind=rp), dimension(:,:,:,:), intent(in) :: mult
+    integer :: n
+
+    n = fld%size()
+    fld%x = fld%x * mult
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(fld%x, fld%x_d, n, HOST_TO_DEVICE, sync = .true.)
+       call gs%op(fld, GS_OP_ADD)
+       call device_memcpy(fld%x, fld%x_d, n, DEVICE_TO_HOST, sync = .true.)
+    else
+       call gs%op(fld, GS_OP_ADD)
+    end if
+
+  end subroutine idw_assemble
 
   !> Build the device data structures for the IDW source term: the CSR
   !! transpose of `lag_el` (per element -> lag points) used by the gather
@@ -770,9 +775,7 @@ contains
 
   end subroutine idw_build_device_maps
 
-  !> Interpolate a masked field at the Lagrangian points on the host. The
-  !! masked product `field_col3` runs on the device, so the result is synced
-  !! back before the (host) gslib evaluation.
+  !> Interpolate a masked field at the Lagrangian points
   subroutine idw_interp_masked(global_interp, tmp, fld, msk, ib, nt)
     type(global_interpolation_t), intent(inout) :: global_interp
     type(field_t), intent(inout) :: tmp
@@ -781,9 +784,7 @@ contains
     integer, intent(in) :: nt
 
     call field_col3(tmp, fld, msk, nt)
-    if (NEKO_BCKND_DEVICE .eq. 1) &
-         call device_memcpy(tmp%x, tmp%x_d, nt, DEVICE_TO_HOST, sync = .true.)
-    call global_interp%evaluate(ib, tmp%x, .true.)
+    call global_interp%evaluate(ib, tmp%x, NEKO_BCKND_DEVICE .ne. 1)
   end subroutine idw_interp_masked
 
   !> Device path of the source term: interpolate on the host (gslib), upload
@@ -845,16 +846,16 @@ contains
        call this%global_interp%evaluate(this%fw_ib, w%x, .true.)
     end if
 
-    ! Upload the interpolated per-point values (last copy is synchronous so the
-    ! kernel, enqueued on the same queue afterwards, sees the data).
-    if (n_lag > 0) then
+    if (this%one_sided) then
+       if (n_lag > 0) call device_sync()
+    else if (n_lag > 0) then
        call device_memcpy(this%fu_ib, this%fu_ib_d, n_lag, HOST_TO_DEVICE, &
             sync = .false.)
        call device_memcpy(this%fv_ib, this%fv_ib_d, n_lag, HOST_TO_DEVICE, &
             sync = .false.)
        call device_memcpy(this%fw_ib, this%fw_ib_d, n_lag, HOST_TO_DEVICE, &
-            sync = .not. (this%one_sided .or. this%idw_interp))
-       if (this%one_sided .or. this%idw_interp) then
+            sync = .not. this%idw_interp)
+       if (this%idw_interp) then
           call device_memcpy(this%fum_ib, this%fum_ib_d, n_lag, &
                HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%fvm_ib, this%fvm_ib_d, n_lag, &

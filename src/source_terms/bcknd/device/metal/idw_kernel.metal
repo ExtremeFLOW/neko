@@ -48,7 +48,17 @@ inline float inv_dist_weight(const float r, const float rmax,
                              const float p, const float eps) {
   if (r >= rmax)
     return 0.0f;
-  return pow((rmax - r) / (rmax * r + eps), p);
+  /*
+   * eps is NEKO_EPS, which is precision dependent, so as r -> 0 the base
+   * grows to rmax/eps: ~8.4e6 in fp32 against an overflow threshold of
+   * 3.4e38, i.e. base^p is +inf for p >~ 6, and the inf/inf in the w
+   * normalisation then gives NaN.  fast-math lets isinf/isnan checks be
+   * folded away, so bound the base instead: 2^(127/p) is the largest base
+   * with a finite p-th power.  The dp path never reaches its equivalent
+   * bound, so this only saturates where fp32 would have overflowed.
+   */
+  const float base = (rmax - r) / (rmax * r + eps);
+  return pow(fmin(base, exp2(127.0f / p)), p);
 }
 
 /**
